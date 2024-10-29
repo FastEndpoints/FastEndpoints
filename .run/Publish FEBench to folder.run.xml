@@ -1,0 +1,6 @@
+﻿<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Publish FEBench to folder" type="DotNetFolderPublish" factoryName="Publish to folder">
+    <riderPublish configuration="Release" delete_existing_files="true" platform="Any CPU" ready_to_run="true" runtime="win-x64" target_folder="$PROJECT_DIR$/../../DOWNLOADS/FastEndpoints" target_framework="net9.0" uuid_high="-8650354173380378301" uuid_low="-7203152285873819304" />
+    <method v="2" />
+  </configuration>
+</component>

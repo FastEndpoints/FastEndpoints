@@ -1,0 +1,6 @@
+﻿<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Publish MinimalApi to folder" type="DotNetFolderPublish" factoryName="Publish to folder">
+    <riderPublish configuration="Release" delete_existing_files="true" platform="Any CPU" ready_to_run="true" runtime="win-x64" target_folder="$PROJECT_DIR$/../../DOWNLOADS/MinimalApi" target_framework="net9.0" uuid_high="4030568705374898958" uuid_low="-5371894643069796837" />
+    <method v="2" />
+  </configuration>
+</component>

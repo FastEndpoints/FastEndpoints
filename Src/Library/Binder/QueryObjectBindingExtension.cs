@@ -1,17 +1,12 @@
-﻿using Microsoft.Extensions.Primitives;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Reflection;
 using System.Text.Json.Nodes;
+using Microsoft.Extensions.Primitives;
 
 namespace FastEndpoints;
 
 static class QueryObjectBindingExtension
 {
-    static readonly ConcurrentDictionary<Type, PropertyInfo[]?> _propCache = new();
-
-    static PropertyInfo[] AllProperties(this Type type)
-        => _propCache.GetOrAdd(type, type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy))!;
-
     static readonly ConcurrentDictionary<Type, Action<IReadOnlyDictionary<string, StringValues>, JsonObject, string?, string?, bool>> _queryObjects
         = new();
 
@@ -55,7 +50,7 @@ static class QueryObjectBindingExtension
                                  };
                 }
 
-                if (tProp.AllProperties().Length > 0)
+                if (tProp.BindableProps().Count > 0)
                 {
                     return (queryString, parent, route, propName, swaggerStyle) =>
                            {
@@ -70,9 +65,8 @@ static class QueryObjectBindingExtension
                                                  : propName
                                            : null;
 
-                               var props = tProp.AllProperties();
-                               for (var i = 0; i < props.Length; i++)
-                                   props[i].PropertyType.QueryObjectSetter()(queryString, obj, route, props[i].Name, swaggerStyle);
+                               foreach (var prop in tProp.BindableProps())
+                                   prop.PropertyType.QueryObjectSetter()(queryString, obj, route, prop.Name, swaggerStyle);
                            };
                 }
             }
@@ -141,7 +135,7 @@ static class QueryObjectBindingExtension
                                      };
                 }
 
-                if (tProp.AllProperties().Length > 0)
+                if (tProp.BindableProps().Count > 0)
                 {
                     return (queryString, parent, route, swaggerStyle) =>
                            {
@@ -155,7 +149,7 @@ static class QueryObjectBindingExtension
                                {
                                    var obj = new JsonObject();
                                    parent.Add(obj);
-                                   foreach (var p in tProp.AllProperties())
+                                   foreach (var p in tProp.BindableProps())
                                        p.PropertyType.QueryObjectSetter()(queryString, obj, newRoute, p.Name, swaggerStyle);
                                    i++;
                                    newRoute = string.Concat(route, "[", i, "]");

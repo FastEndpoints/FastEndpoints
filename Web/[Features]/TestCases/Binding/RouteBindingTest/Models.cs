@@ -12,9 +12,11 @@ public class Custom //: IParseable<Custom>
         if (input == null)
         {
             output = null;
+
             return false;
         }
         output = new() { Value = int.Parse(input) };
+
         return true;
     }
 }
@@ -26,21 +28,23 @@ public class CustomList : List<int>
         if (string.IsNullOrEmpty(input))
         {
             output = null;
+
             return false;
         }
-        output = new CustomList();
+        output = new();
+
         foreach (var item in input.Split(';'))
         {
             if (int.TryParse(item, out var id))
-            {
                 output.Add(id);
-            }
             else
             {
                 output = null;
+
                 return false;
             }
         }
+
         return true;
     }
 }
@@ -68,6 +72,7 @@ public class Request
     /// this is a string prop xml comment
     /// </summary>
     public string String { get; set; }
+
     public bool Bool { get; set; }
     public int? Int { get; set; }
     public long Long { get; set; }

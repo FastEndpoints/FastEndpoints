@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Net;
+using Microsoft.AspNetCore.Http;
 
 namespace FastEndpoints;
 
@@ -156,6 +157,14 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
     protected Task SendErrorsAsync(int statusCode = 400, CancellationToken cancellation = default)
         => HttpContext.Response.SendErrorsAsync(ValidationFailures, statusCode, Definition.SerializerContext, cancellation);
+
+    /// <summary>
+    /// send error details of the current validation failures and provided statusCode
+    /// </summary>
+    /// <param name="statusCode">the status code for the error response</param>
+    /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
+    protected Task SendErrorsAsync(HttpStatusCode statusCode, CancellationToken cancellation = default)
+        => HttpContext.Response.SendErrorsAsync(ValidationFailures, (int)statusCode, Definition.SerializerContext, cancellation);
 
     /// <summary>
     /// send a 204 no content response

@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Routing;
 using Namotion.Reflection;
@@ -129,13 +130,34 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
                                     cTypes = meta.ContentTypes,
                                     example,
                                     usrHeaders = epDef.EndpointSummary?.ResponseHeaders.Where(h => h.StatusCode == k).ToArray(),
-                                    tDto = meta.Type
+                                    tDto = meta.Type,
+                                    isIResult = Types.IResult.IsAssignableFrom(meta.Type) //todo: remove when .net 9 sdk bug is fixed
                                 };
                             })
                         .ToDictionary(x => x.key);
 
             if (metas.Count > 0)
             {
+            #if NET9_0_OR_GREATER
+
+                //remove this workaround when sdk bug is fixed: https://github.com/dotnet/aspnetcore/issues/57801#issuecomment-2439578287
+                foreach (var meta in metas.Where(m => m.Value.isIResult))
+                {
+                    var res = new OpenApiResponse { Content = { [meta.Value.cTypes.First()] = new() { Schema = new() } } };
+
+                    if (!ctx.SchemaResolver.HasSchema(meta.Value.tDto!, false))
+                    {
+                        var schema = ctx.SchemaGenerator.Generate(meta.Value.tDto!, ctx.SchemaResolver);
+                        ctx.SchemaResolver.AppendSchema(schema, schema.Title);
+                        res.Schema.Reference = schema;
+                    }
+                    else
+                        res.Schema.Reference = ctx.SchemaResolver.GetSchema(meta.Value.tDto!, false);
+
+                    op.Responses.Add(meta.Key, res);
+                }
+            #endif
+
                 foreach (var rsp in op.Responses)
                 {
                     var cTypes = metas[rsp.Key].cTypes;

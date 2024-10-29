@@ -10,6 +10,12 @@ Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H
 
 ## New 🎉
 
+<details><summary>.NET 9.0 SDK Support</summary>
+
+Migration to .NET 9 has been completed. We're currently referencing the GA build of the SDK. Once RTM comes out, the references will be updated in the following FastEndpoints release. The GA build seems to be quite stable and suitable for production use.
+
+</details>
+
 <details><summary>Source generator for avoiding reflection cost</summary>
 
 todo: write docs + write description here
@@ -148,6 +154,12 @@ When json property naming policy is applied to fluentvalidation property chains,
 <details><summary>'[FromBody]' attribute overriding media-type in Swagger</summary>
 
 The usage of `[FromBody]` attribute was incorrectly overriding the user specified media-type value to `application/json`. Info: #800
+
+</details>
+
+<details><summary>Workaround for OpenApi bug in .NET 9.0 SDK</summary>
+
+There's a bug in .NET 9.0 where any response DTOs implementing the `IResult` interface will be filtered out from swagger documentation. A workaround has been put in place since a fix will not be available until .NET 9.1 or later according the ASPNET team. More info: #803
 
 </details>
 

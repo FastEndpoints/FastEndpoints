@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using TestCases.EventHandlingTest;
+﻿using TestCases.EventHandlingTest;
 using Claim = Web.Auth.Claim;
 
 namespace Inventory.Manage.Create;

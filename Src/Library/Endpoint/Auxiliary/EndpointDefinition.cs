@@ -23,6 +23,8 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     //these can only be set from internal code but accessible for user
     public Type EndpointType { get; init; } = endpointType;
     public Type? MapperType { get; internal set; }
+    public IEnumerable<IPreProcessor> PreProcessorsList => PreProcessorList.Cast<IPreProcessor>();
+    public IEnumerable<IPostProcessor> PostProcessorsList => PostProcessorList.Cast<IPostProcessor>();
     public Type ReqDtoType { get; init; } = requestDtoType;
     public Type ResDtoType { get; init; } = responseDtoType;
     public string[] Routes { get; internal set; } = [];
@@ -69,9 +71,9 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     internal HitCounter? HitCounter { get; private set; }
     internal Action<RouteHandlerBuilder> InternalConfigAction = null!;
     internal bool ImplementsConfigure;
-    internal readonly List<object> PreProcessorList = [];
+    internal readonly List<IProcessor> PreProcessorList = [];
     internal int PreProcessorPosition;
-    internal readonly List<object> PostProcessorList = [];
+    internal readonly List<IProcessor> PostProcessorList = [];
     internal object? RequestBinder;
     string? _reqDtoFromBodyPropName;
     internal string ReqDtoFromBodyPropName => _reqDtoFromBodyPropName ??= GetFromBodyPropName();
@@ -519,11 +521,11 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
         return _validator;
     }
 
-    internal static void AddProcessor<TProcessor>(Order order, IList<object> list, ref int pos)
+    internal static void AddProcessor<TProcessor>(Order order, IList<IProcessor> list, ref int pos)
     {
         try
         {
-            var processor = Cfg.ServiceResolver.CreateSingleton(typeof(TProcessor));
+            var processor = (IProcessor)Cfg.ServiceResolver.CreateSingleton(typeof(TProcessor));
             AddProcessor(order, processor, list, ref pos);
         }
         catch (Exception ex)
@@ -532,13 +534,13 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
         }
     }
 
-    internal static void AddProcessors(Order order, IReadOnlyList<object> processors, IList<object> list, ref int pos)
+    internal static void AddProcessors(Order order, IReadOnlyList<IProcessor> processors, IList<IProcessor> list, ref int pos)
     {
         for (var i = 0; i < processors.Count; i++)
             AddProcessor(order, processors[i], list, ref pos);
     }
 
-    static void AddProcessor(Order order, object processor, IList<object> list, ref int pos)
+    static void AddProcessor(Order order, IProcessor processor, IList<IProcessor> list, ref int pos)
     {
         if (list.Contains(processor, TypeEqualityComparer.Instance))
             return;

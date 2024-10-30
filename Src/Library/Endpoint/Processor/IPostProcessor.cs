@@ -3,7 +3,7 @@
 /// <summary>
 /// defines the interface for a post-processor that can perform asynchronous post-processing tasks after a request has been handled.
 /// </summary>
-public interface IPostProcessor
+public interface IPostProcessor : IProcessor
 {
     /// <summary>
     /// asynchronously performs post-processing on the provided context.

@@ -3,7 +3,7 @@
 /// <summary>
 /// defines the interface for a pre-processor that can perform asynchronous pre-processing tasks before a request has been handled.
 /// </summary>
-public interface IPreProcessor
+public interface IPreProcessor : IProcessor
 {
     /// <summary>
     /// asynchronously performs pre-processing on the provided context.

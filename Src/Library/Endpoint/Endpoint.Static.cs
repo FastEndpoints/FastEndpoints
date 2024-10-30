@@ -26,7 +26,11 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
         return req;
     }
 
-    static async Task RunPreprocessors(List<object> preProcessors, TRequest? req, HttpContext ctx, List<ValidationFailure> validationFailures, CancellationToken ct)
+    static async Task RunPreprocessors(List<IProcessor> preProcessors,
+                                       TRequest? req,
+                                       HttpContext ctx,
+                                       List<ValidationFailure> validationFailures,
+                                       CancellationToken ct)
     {
         if (preProcessors.Count == 0)
             return;
@@ -49,7 +53,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
         }
     }
 
-    static async Task RunPostProcessors(List<object> postProcessors,
+    static async Task RunPostProcessors(List<IProcessor> postProcessors,
                                         TRequest? req,
                                         TResponse? resp,
                                         HttpContext ctx,

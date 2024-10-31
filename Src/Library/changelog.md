@@ -101,6 +101,24 @@ app.UseSwaggerGen(uiConfig: u => u.ShowOperationIDs());
 
 </details>
 
+<details><summary>Allow multiple gRPC event subscribers from the same machine</summary>
+
+Previously it was only possible for a single gRPC subscriber to exist on a single machine for any given event type. Now it's possible to run the subscriber with a custom identifier per instance which will allow more than one subscriber to exist on a particular machine for an event type.
+
+```csharp
+app.MapRemote(
+    "http://localhost:6000",
+    c =>
+    {
+        //set some unique value per each instance.
+        //process id here is just an example.
+        //the value just needs to be different across the multiple app/subscriber instances.
+        c.Subscribe<MyEvent, MyEventHandler>(clientIdentifier: Environment.ProcessId.ToString());
+    });
+```
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Route template syntax highlighting for VS and Rider</summary>

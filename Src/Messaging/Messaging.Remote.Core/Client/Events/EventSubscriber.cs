@@ -28,13 +28,10 @@ sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProv
     readonly ILogger<EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProvider>>? _logger;
     readonly string _subscriberID;
 
-    public EventSubscriber(ChannelBase channel, IServiceProvider serviceProvider)
-        : base(
-            channel: channel,
-            methodType: MethodType.ServerStreaming,
-            endpointName: $"{typeof(TEvent).FullName}/sub")
+    public EventSubscriber(ChannelBase channel, string clientIdentifier, IServiceProvider serviceProvider)
+        : base(channel: channel, methodType: MethodType.ServerStreaming, endpointName: $"{typeof(TEvent).FullName}/sub")
     {
-        _subscriberID = (Environment.MachineName + GetType().FullName + channel.Target).ToHash();
+        _subscriberID = (Environment.MachineName + GetType().FullName + channel.Target + clientIdentifier).ToHash();
         _serviceProvider = serviceProvider;
         _storage ??= (TStorageProvider)ActivatorUtilities.GetServiceOrCreateInstance(_serviceProvider, typeof(TStorageProvider));
         _isInMemProvider = _storage is InMemoryEventSubscriberStorage;

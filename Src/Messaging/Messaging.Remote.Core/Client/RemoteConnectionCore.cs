@@ -120,7 +120,8 @@ public class RemoteConnectionCore
         ExecutorMap[tCommand] = new ServerStreamCommandExecutor<TCommand, TResult>(Channel);
     }
 
-    internal IAsyncStreamReader<TResult> ExecuteServerStream<TResult>(IServerStreamCommand<TResult> cmd, Type tCommand, CallOptions opts) where TResult : class
+    internal IAsyncStreamReader<TResult> ExecuteServerStream<TResult>(IServerStreamCommand<TResult> cmd, Type tCommand, CallOptions opts)
+        where TResult : class
         => !ExecutorMap.TryGetValue(tCommand, out var executor)
                ? throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]")
                : ((IServerStreamCommandExecutor<TResult>)executor).ExecuteServerStream(cmd, opts);
@@ -150,7 +151,15 @@ public class RemoteConnectionCore
     /// <typeparam name="TEvent">the type of the events that will be received</typeparam>
     /// <typeparam name="TEventHandler">the handler that will be handling the received events</typeparam>
     /// <param name="callOptions">the call options</param>
-    public void Subscribe<TEvent, TEventHandler>(CallOptions callOptions = default) where TEvent : class, IEvent where TEventHandler : IEventHandler<TEvent>
+    /// <param name="clientIdentifier">
+    /// a unique identifier for this client. this will be used to create a durable subscriber id which will allow the server to
+    /// uniquely identify this subscriber/client across disconnections. if you don't set this value, only one subscriber from a single machine is possible.
+    /// i.e. if you spin up multiple instances of this subscriber they will all connect to the server with the same subscriber id, which will result in
+    /// unpredictable event receiving behavior.
+    /// </param>
+    public void Subscribe<TEvent, TEventHandler>(CallOptions callOptions = default, string clientIdentifier = "default")
+        where TEvent : class, IEvent
+        where TEventHandler : IEventHandler<TEvent>
     {
         var tEventHandler = typeof(TEventHandler);
         RemoteMap[tEventHandler] = this;
@@ -164,7 +173,7 @@ public class RemoteConnectionCore
             StorageRecordType,
             StorageProviderType);
 
-        var eventSubscriber = (ICommandExecutor)ActivatorUtilities.CreateInstance(ServiceProvider, tEventSubscriber, Channel);
+        var eventSubscriber = (ICommandExecutor)ActivatorUtilities.CreateInstance(ServiceProvider, tEventSubscriber, Channel, clientIdentifier);
         ExecutorMap[tEventHandler] = eventSubscriber;
         ((IEventSubscriber)eventSubscriber).Start(callOptions);
     }

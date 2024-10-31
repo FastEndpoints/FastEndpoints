@@ -1494,12 +1494,6 @@
               }
             }
           },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          },
           "400": {
             "description": "Bad Request",
             "content": {
@@ -1509,6 +1503,12 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "security": [
@@ -1580,12 +1580,6 @@
               }
             }
           },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          },
           "400": {
             "description": "Bad Request",
             "content": {
@@ -1595,6 +1589,12 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "security": [
@@ -1654,12 +1654,6 @@
               }
             }
           },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          },
           "400": {
             "description": "Bad Request",
             "content": {
@@ -1669,6 +1663,12 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "security": [
@@ -3434,9 +3434,6 @@
               }
             }
           },
-          "401": {
-            "description": "Unauthorized"
-          },
           "400": {
             "description": "Bad Request",
             "content": {
@@ -3446,6 +3443,9 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized"
           }
         },
         "security": [
@@ -3635,9 +3635,6 @@
               }
             }
           },
-          "401": {
-            "description": "Unauthorized"
-          },
           "400": {
             "description": "Bad Request",
             "content": {
@@ -3647,6 +3644,9 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized"
           }
         },
         "security": [
@@ -4338,9 +4338,6 @@
               }
             }
           },
-          "404": {
-            "description": "Not Found"
-          },
           "400": {
             "description": "Bad Request",
             "content": {
@@ -4350,6 +4347,9 @@
                 }
               }
             }
+          },
+          "404": {
+            "description": "Not Found"
           }
         }
       }
@@ -4627,9 +4627,6 @@
               }
             }
           },
-          "403": {
-            "description": "Forbidden"
-          },
           "400": {
             "description": "Bad Request",
             "content": {
@@ -4639,6 +4636,9 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Forbidden"
           }
         }
       },
@@ -4672,9 +4672,6 @@
               }
             }
           },
-          "403": {
-            "description": "Forbidden"
-          },
           "400": {
             "description": "Bad Request",
             "content": {
@@ -4684,6 +4681,9 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "security": [
@@ -4728,19 +4728,6 @@
               }
             }
           },
-          "403": {
-            "description": "Forbidden"
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FastEndpointsErrorResponse"
-                }
-              }
-            }
-          },
           "204": {
             "description": "No Content",
             "content": {
@@ -4755,6 +4742,19 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
           }
         }
       },
@@ -4792,19 +4792,6 @@
               }
             }
           },
-          "403": {
-            "description": "Forbidden"
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FastEndpointsErrorResponse"
-                }
-              }
-            }
-          },
           "204": {
             "description": "No Content",
             "content": {
@@ -4819,6 +4806,19 @@
                 }
               }
             }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsErrorResponse"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden"
           }
         },
         "security": [
@@ -5070,34 +5070,6 @@
         "type": "object",
         "additionalProperties": false
       },
-      "FastEndpointsErrorResponse": {
-        "type": "object",
-        "description": "the dto used to send an error response to the client",
-        "additionalProperties": false,
-        "properties": {
-          "StatusCode": {
-            "type": "integer",
-            "description": "the http status code sent to the client. default is 400.",
-            "format": "int32",
-            "default": 400
-          },
-          "Message": {
-            "type": "string",
-            "description": "the message for the error response",
-            "default": "One or more errors occurred!"
-          },
-          "Errors": {
-            "type": "object",
-            "description": "the collection of errors for the current context",
-            "additionalProperties": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            }
-          }
-        }
-      },
       "InventoryManageUpdateRequest": {
         "type": "object",
         "additionalProperties": false,
@@ -5136,6 +5108,34 @@
             "type": "string",
             "minLength": 1,
             "nullable": false
+          }
+        }
+      },
+      "FastEndpointsErrorResponse": {
+        "type": "object",
+        "description": "the dto used to send an error response to the client",
+        "additionalProperties": false,
+        "properties": {
+          "StatusCode": {
+            "type": "integer",
+            "description": "the http status code sent to the client. default is 400.",
+            "format": "int32",
+            "default": 400
+          },
+          "Message": {
+            "type": "string",
+            "description": "the message for the error response",
+            "default": "One or more errors occurred!"
+          },
+          "Errors": {
+            "type": "object",
+            "description": "the collection of errors for the current context",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
           }
         }
       },
@@ -5455,7 +5455,10 @@
           },
           "AlternativeImages": {
             "type": "array",
-            "items": {}
+            "items": {
+              "type": "string",
+              "format": "binary"
+            }
           }
         }
       },
@@ -6390,6 +6393,16 @@
           }
         }
       },
+      "TestCasesTypedResultTestRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Id": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "FastEndpointsProblemDetails": {
         "type": "object",
         "description": "RFC7807 compatible problem details/ error response class. this can be used by configuring startup like so:\n\n    app.UseFastEndpoints(x => x.Errors.ResponseBuilder = ProblemDetails.ResponseBuilder);",
@@ -6453,16 +6466,6 @@
             "type": "string",
             "description": "the severity of the error",
             "nullable": true
-          }
-        }
-      },
-      "TestCasesTypedResultTestRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "Id": {
-            "type": "integer",
-            "format": "int32"
           }
         }
       },

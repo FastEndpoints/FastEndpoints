@@ -155,6 +155,11 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
                         res.Schema.Reference = ctx.SchemaResolver.GetSchema(meta.Value.tDto!, false);
 
                     op.Responses.Add(meta.Key, res);
+                    var orderedResponses = op.Responses.OrderBy(kvp => kvp.Key).ToArray();
+                    op.Responses.Clear();
+
+                    foreach (var rsp in orderedResponses)
+                        op.Responses.Add(rsp);
                 }
             #endif
 

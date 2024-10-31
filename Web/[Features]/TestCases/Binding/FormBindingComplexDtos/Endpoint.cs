@@ -28,7 +28,7 @@ sealed class Address
 {
     public string Street { get; set; }
     public IFormFile MainImage { get; set; }
-    public IFormFileCollection AlternativeImages { get; set; }
+    public List<IFormFile> AlternativeImages { get; set; }
 }
 
 sealed class Endpoint : Endpoint<Request>

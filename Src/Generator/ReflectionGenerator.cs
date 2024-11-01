@@ -65,6 +65,8 @@ public class ReflectionGenerator : IIncrementalGenerator
 
     static string RenderClass()
     {
+        _assemblyName ??= "Assembly"; //when no endpoints are present
+
         var sanitizedAssemblyName = _assemblyName?.Sanitize(string.Empty) ?? "Assembly";
 
         b.Clear().w(

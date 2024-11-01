@@ -35,6 +35,12 @@ static class ComplexFormBinder
                 }
                 else if (Types.IEnumerableOfIFormFile.IsAssignableFrom(prop.PropertyType))
                 {
+                    if (!prop.PropertyType.IsAssignableFrom(Types.FormFileCollection))
+                    {
+                        throw new NotSupportedException(
+                            $"'{prop.PropertyType.Name}' type properties are not supported for complex nested form binding! Offender: [{tObject.FullName}.{key}]");
+                    }
+
                     var files = form.Files.GetFiles(key);
 
                     if (files.Count == 0)
@@ -60,7 +66,14 @@ static class ComplexFormBinder
                     if (tElement is null)
                         continue;
 
-                    var list = (IList)Types.ListOf1.MakeGenericType(tElement).ObjectFactory()();
+                    var tList = Types.ListOf1.MakeGenericType(tElement);
+                    var list = (IList)tList.ObjectFactory()();
+
+                    if (!prop.PropertyType.IsAssignableFrom(tList))
+                    {
+                        throw new NotSupportedException(
+                            $"'{prop.PropertyType.Name}' type properties are not supported for complex nested form binding! Offender: [{tObject.FullName}.{key.Replace("[0]", "")}]");
+                    }
 
                     var index = 0;
 

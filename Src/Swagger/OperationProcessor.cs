@@ -56,7 +56,7 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
         var apiDescription = ((AspNetCoreOperationProcessorContext)ctx).ApiDescription;
 
         //fix missing path parameters
-        var opPath = ctx.OperationDescription.Path = $"/{StripRouteConstraints(apiDescription.RelativePath!.TrimStart('~'))}";
+        var opPath = ctx.OperationDescription.Path = $"/{StripRouteConstraints(apiDescription.RelativePath!.TrimStart('~').TrimEnd('/'))}";
 
         var apiVer = epDef.Version.Current;
         var version = $"/{GlobalConfig.VersioningPrefix ?? "v"}{apiVer}";
@@ -139,7 +139,6 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
             if (metas.Count > 0)
             {
             #if NET9_0_OR_GREATER
-
                 //remove this workaround when sdk bug is fixed: https://github.com/dotnet/aspnetcore/issues/57801#issuecomment-2439578287
                 foreach (var meta in metas.Where(m => m.Value.isIResult))
                 {
@@ -448,7 +447,6 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
         }
 
     #if NET7_0_OR_GREATER
-
         //add idempotency header param if applicable
         if (epDef.IdempotencyOptions is not null)
         {

@@ -75,35 +75,50 @@ static class ComplexFormBinder
                             $"'{prop.PropertyType.Name}' type properties are not supported for complex nested form binding! Offender: [{tObject.FullName}.{key.Replace("[0]", "")}]");
                     }
 
-                    var index = 0;
-
-                    while (true)
+                    if (tElement.IsClass && tElement != Types.String)
                     {
-                        var indexedKey = $"{key}[{index}]";
-                        var item = tElement.ObjectFactory()();
+                        var index = 0;
 
-                        BindPropertiesRecursively(item, form, indexedKey);
-
-                        if (HasAnyPropertySet(item))
+                        while (true)
                         {
-                            list.Add(item);
-                            index++;
+                            var indexedKey = $"{key}[{index}]";
+                            var item = tElement.ObjectFactory()();
+
+                            BindPropertiesRecursively(item, form, indexedKey);
+
+                            if (HasAnyPropertySet(item))
+                            {
+                                list.Add(item);
+                                index++;
+                            }
+                            else
+                                break;
+
+                            static bool HasAnyPropertySet(object obj)
+                            {
+                                return obj.GetType().BindableProps().Any(
+                                    p =>
+                                    {
+                                        var val = p.GetValue(obj);
+
+                                        if (val is IEnumerable enm)
+                                            return enm.Cast<object>().Any();
+
+                                        return val is not null && HasAnyPropertySet(val);
+                                    });
+                            }
                         }
-                        else
-                            break;
-
-                        static bool HasAnyPropertySet(object obj)
+                    }
+                    else
+                    {
+                        if (form.TryGetValue(key, out var val))
                         {
-                            return obj.GetType().BindableProps().Any(
-                                p =>
-                                {
-                                    var val = p.GetValue(obj);
-
-                                    if (val is IEnumerable enm)
-                                        return enm.Cast<object>().Any();
-
-                                    return val is not null && HasAnyPropertySet(val);
-                                });
+                            foreach (var v in val)
+                            {
+                                var res = tElement.CachedValueParser()(v);
+                                if (res.IsSuccess)
+                                    list.Add(res.Value);
+                            }
                         }
                     }
 

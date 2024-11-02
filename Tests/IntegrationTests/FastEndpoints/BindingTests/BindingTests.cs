@@ -696,6 +696,8 @@ public class BindingTests(Sut App) : TestBase<Sut>
         content.Add(new StreamContent(File.OpenRead("test.png")), "CoAuthors[0].OtherAddresses[0].MainImage", "test.png");
         content.Add(new StreamContent(File.OpenRead("test.png")), "CoAuthors[0].OtherAddresses[0].AlternativeImages", "test.png");
         content.Add(new StreamContent(File.OpenRead("test.png")), "CoAuthors[0].OtherAddresses[0].AlternativeImages", "test.png");
+        content.Add(new StringContent("12345"), "BarCodes");
+        content.Add(new StringContent("54321"), "BarCodes");
         request.Content = content;
         var response = await App.GuestClient.SendAsync(request);
         response.EnsureSuccessStatusCode();
@@ -746,6 +748,8 @@ public class BindingTests(Sut App) : TestBase<Sut>
         x.CoAuthors[0].OtherAddresses[0].AlternativeImages.Count.Should().Be(2);
         x.CoAuthors[0].OtherAddresses[0].AlternativeImages[0].Name.Should().Be("CoAuthors[0].OtherAddresses[0].AlternativeImages");
         x.CoAuthors[0].OtherAddresses[0].AlternativeImages[1].Name.Should().Be("CoAuthors[0].OtherAddresses[0].AlternativeImages");
+        x.BarCodes.First().Should().Be(12345);
+        x.BarCodes.Last().Should().Be(54321);
     }
 
     [Fact]

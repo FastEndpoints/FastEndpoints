@@ -5196,6 +5196,13 @@
             "items": {
               "$ref": "#/components/schemas/TestCasesFormBindingComplexDtosAuthor"
             }
+          },
+          "BarCodes": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
           }
         }
       },

@@ -13,6 +13,7 @@ sealed class Book
     public IFormFileCollection SourceFiles { get; set; }
     public Author MainAuthor { get; set; }
     public List<Author> CoAuthors { get; set; }
+    public IEnumerable<int> BarCodes { get; set; }
 }
 
 sealed class Author

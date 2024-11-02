@@ -16,6 +16,7 @@
         <!-- <PackageReference Include="FastEndpoints" VersionOverride="5.8.1"/> -->
         <!-- <PackageReference Include="FastEndpoints.Swagger" VersionOverride="5.8.1"/> -->
         <!-- <PackageReference Include="Ardalis.ApiEndpoints" VersionOverride="4.1.0"/> -->
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" VersionOverride="9.0.0-rc.2.24474.3"/>
         <PackageReference Include="MongoDB.Entities" VersionOverride="23.1.0"/>
 
         <ProjectReference Include="..\Contracts\Contracts.csproj"/>

@@ -29,7 +29,7 @@ todo: write docs + write description here
 
 <details><summary>Multipart Form Data binding support for deeply nested complex DTOs</summary>
 
-todo: write docs + write description here
+Binding deeply nested complex DTOs from incoming form-data (including files) is now supported. Please refer to the documentation [here](https://fast-endpoints.com/docs/model-binding#binding-nested-complex-form-data).
 
 </details>
 
@@ -141,9 +141,9 @@ http://localhost:5000/invoice/{123-456}
 
 </details>
 
-<details><summary>Better handling of JsonIgnore attribute condition</summary>
+<details><summary>Better handling of 'JsonIgnore' attribute condition</summary>
 
-The `[JsonIgnore]` attribute on request/response DTO properties will now be taken into consideration only if it's declared in either the following two ways:
+The `[JsonIgnore]` attribute on request/response DTO properties will now be taken into consideration only if it's declared in either of the following two ways:
 
 ```csharp
 [JsonIgnore] //without specifying a condition (defaults to JsonIgnoreCondition.Always)
@@ -181,4 +181,4 @@ There's a bug in .NET 9.0 where any response DTOs implementing the `IResult` int
 
 </details>
 
-## Minor Breaking Changes ⚠️
+[//]: # (## Minor Breaking Changes ⚠️)

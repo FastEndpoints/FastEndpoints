@@ -447,6 +447,7 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
         }
 
     #if NET7_0_OR_GREATER
+
         //add idempotency header param if applicable
         if (epDef.IdempotencyOptions is not null)
         {
@@ -498,7 +499,7 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
         }
 
         //replace body parameter if a dto property is marked with [FromBody]
-        var fromBodyProp = reqDtoProps?.Where(p => p.IsDefined(typeof(FromBodyAttribute), false)).FirstOrDefault();
+        var fromBodyProp = reqDtoProps?.Where(p => p.IsDefined(Types.FromBodyAttribute, false)).FirstOrDefault();
 
         if (fromBodyProp is not null)
         {
@@ -506,6 +507,7 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
 
             if (body is not null && op.RequestBody is not null)
             {
+                var oldBodyName = op.RequestBody.Name;
                 var bodyParam = CreateParam(paramCtx, OpenApiParameterKind.Body, fromBodyProp, fromBodyProp.Name, true);
 
                 //otherwise xml docs from properties won't be considered due to existence of a schema level example generated from
@@ -517,7 +519,32 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
                 op.RequestBody.Description = bodyParam.Description;
                 op.RequestBody.Name = bodyParam.Name;
                 op.RequestBody.Position = null;
-                ctx.Document.Components.Schemas.Remove(body.Name);
+                ctx.Document.Components.Schemas.Remove(oldBodyName);
+            }
+        }
+
+        //replace body parameter if a dto property is marked with [FromForm]
+        var fromFormProp = reqDtoProps?.Where(p => p.IsDefined(Types.FromFormAttribute, false)).FirstOrDefault();
+
+        if (fromFormProp is not null)
+        {
+            var body = op.Parameters.FirstOrDefault(x => x.Kind == OpenApiParameterKind.Body);
+
+            if (body is not null && op.RequestBody is not null)
+            {
+                var oldBodyName = op.RequestBody.Name;
+                var bodyParam = CreateParam(paramCtx, OpenApiParameterKind.Body, fromFormProp, fromFormProp.Name, true);
+
+                //otherwise xml docs from properties won't be considered due to existence of a schema level example generated from
+                //prm.ActualSchema.ToSampleJson()
+                bodyParam.Example = null;
+
+                op.RequestBody.Content.FirstOrDefault().Value.Schema = bodyParam.Schema;
+                op.RequestBody.IsRequired = bodyParam.IsRequired;
+                op.RequestBody.Description = bodyParam.Description;
+                op.RequestBody.Name = bodyParam.Name;
+                op.RequestBody.Position = null;
+                ctx.Document.Components.Schemas.Remove(oldBodyName);
             }
         }
 

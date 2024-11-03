@@ -28,6 +28,7 @@ static class Types
     internal static readonly Type EndpointWithOutRequestOf2 = typeof(EndpointWithoutRequest<,>);
     internal static readonly Type FormFileCollection = typeof(FormFileCollection);
     internal static readonly Type FromBodyAttribute = typeof(FromBodyAttribute);
+    internal static readonly Type FromFormAttribute = typeof(FromFormAttribute);
     internal static readonly Type FromHeaderAttribute = typeof(FromHeaderAttribute);
     internal static readonly Type HideFromDocsAttribute = typeof(HideFromDocsAttribute);
     internal static readonly Type Http = typeof(Http);

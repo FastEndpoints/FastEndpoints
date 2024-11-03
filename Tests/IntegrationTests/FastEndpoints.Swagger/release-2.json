@@ -2261,17 +2261,15 @@
         ],
         "operationId": "TestCasesFormBindingComplexDtosEndpoint",
         "requestBody": {
-          "x-name": "Request",
-          "description": "",
+          "x-name": "Book",
           "content": {
             "multipart/form-data": {
               "schema": {
-                "$ref": "#/components/schemas/TestCasesFormBindingComplexDtosRequest"
+                "$ref": "#/components/schemas/TestCasesFormBindingComplexDtosBook"
               }
             }
           },
-          "required": true,
-          "x-position": 1
+          "required": true
         },
         "responses": {
           "200": {

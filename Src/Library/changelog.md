@@ -18,12 +18,7 @@ Migration to .NET 9 has been completed. We're currently referencing the GA build
 
 <details><summary>Source generator for avoiding reflection cost</summary>
 
-todo: write docs + write description here
-
-#### Automatic fallback for:
-
-- All properties of Records
-- Init only properties of any class
+The newly added [Reflection Source Generator](https://fast-endpoints.com/docs/configuration-settings#source-generated-reflection) can be used in order to avoid the cost of runtime expression compilation & reflection based methods.
 
 </details>
 

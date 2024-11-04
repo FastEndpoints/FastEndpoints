@@ -31,7 +31,7 @@ public class Response
     public string? PhoneNumber { get; set; }
 }
 
-public class Endpoint : Endpoint<Request>
+public class Endpoint : Endpoint<Request, Response>
 {
     public override void Configure()
     {
@@ -47,7 +47,7 @@ public class Endpoint : Endpoint<Request>
         //validator is automatically being run by FastEndpoints
 
         return SendAsync(
-            new Response
+            new()
             {
                 Id = req.Id,
                 Name = req.FirstName + " " + req.LastName,

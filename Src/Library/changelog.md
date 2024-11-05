@@ -10,6 +10,16 @@ Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H
 
 ## New 🎉
 
+<details><summary>Support for enforcing antiforgery token checks for non-form requests</summary>
+
+The antiforgery middleware can now be configured to check antiforgery tokens for any content-type by configuring it like so:
+
+```csharp
+app.UseAntiforgeryFE(additionalContentTypes: ["application/json"])
+```
+
+</details>
+
 ## Improvements 🚀
 
 ## Fixes 🪲

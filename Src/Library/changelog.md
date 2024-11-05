@@ -14,9 +14,15 @@ Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H
 
 ## Fixes 🪲
 
-<details><summary>Fix struct support for request DTOs</summary>
+<details><summary>Struct support for request DTOs</summary>
 
 Adding the new reflection source generator broke support for struct types to be used for request DTOs, which has been corrected in this release.
+
+</details>
+
+<details><summary>Struct support for Reflection Source Generator</summary>
+
+The reflection generator was not generating the correct source for unboxing value types.
 
 </details>
 

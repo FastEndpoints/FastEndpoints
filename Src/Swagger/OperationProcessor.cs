@@ -5,7 +5,6 @@ using System.Globalization;
 using System.Reflection;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Routing;
 using Namotion.Reflection;
@@ -107,6 +106,7 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
 
         //fix response content-types not displaying correctly
         //also set user provided response examples and response headers
+        //and fix polymorphism for responses when using oneOf
         if (op.Responses.Count > 0)
         {
             var metas = metaData
@@ -139,6 +139,7 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
             if (metas.Count > 0)
             {
             #if NET9_0_OR_GREATER
+
                 //remove this workaround when sdk bug is fixed: https://github.com/dotnet/aspnetcore/issues/57801#issuecomment-2439578287
                 foreach (var meta in metas.Where(m => m.Value.isIResult))
                 {
@@ -204,6 +205,21 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
                     rsp.Value.Content.Clear();
                     foreach (var ct in cTypes)
                         rsp.Value.Content.Add(new(ct, mediaType));
+
+                    if (docOpts.UseOneOfForPolymorphism)
+                    {
+                        foreach (var mt in rsp.Value.Content)
+                        {
+                            if (mt.Value.Schema.ActualSchema.DiscriminatorObject?.Mapping.Count > 0 &&
+                                mt.Value.Schema.ActualSchema.OneOf.Count > 0)
+                            {
+                                foreach (var derived in mt.Value.Schema.ActualSchema.OneOf)
+                                    mt.Value.Schema.OneOf.Add(derived);
+
+                                mt.Value.Schema.Reference = null;
+                            }
+                        }
+                    }
                 }
             }
         }

@@ -48,4 +48,10 @@ The reflection generator was not generating the correct source for unboxing valu
 
 </details>
 
+<details><summary>Reflection generation for abstract types</summary>
+
+The reflection generator was trying to generate code for deeply nested abstract types, which has now been fixed.
+
+</details>
+
 ## Minor Breaking Changes ⚠️

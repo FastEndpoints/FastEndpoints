@@ -194,6 +194,9 @@ public class ReflectionGenerator : IIncrementalGenerator
 
         public TypeInfo(ITypeSymbol symbol, bool isEndpoint, bool noRecursion = false)
         {
+            if (symbol.IsAbstract || symbol.TypeKind == TypeKind.Interface)
+                return;
+
             ITypeSymbol? type = null;
 
             if (isEndpoint) //descend in to base types and find the request dto type

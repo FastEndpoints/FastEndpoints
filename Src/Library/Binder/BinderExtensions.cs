@@ -65,6 +65,9 @@ static class BinderExtensions
 
         static Func<object> CompileFactory(Type t)
         {
+            if (t.IsValueType)
+                return Expression.Lambda<Func<object>>(Expression.Convert(Expression.New(t), typeof(object))).Compile();
+
             var ctor = t.GetConstructors(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
                         .MinBy(c => c.GetParameters().Length) ??
                        throw new NotSupportedException($"Unable to instantiate type without a constructor! Offender: [{t.FullName}]");

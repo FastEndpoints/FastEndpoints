@@ -22,7 +22,7 @@ public class JobQueueTests(Sut App) : TestBase<Sut>
             });
 
         while (!cts.IsCancellationRequested && !jobs.TrueForAll(j => j.Counter > 0))
-            await Task.Delay(100, cts.Token);
+            await Task.Delay(250, cts.Token);
 
         var jobTracker = App.Services.GetRequiredService<IJobTracker<JobCancelTestCommand>>();
 

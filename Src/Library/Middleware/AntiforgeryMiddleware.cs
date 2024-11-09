@@ -7,6 +7,7 @@ sealed class AntiforgeryMiddleware(RequestDelegate next, IAntiforgery antiforger
 {
     internal static bool IsRegistered { get; set; }
     internal static Func<HttpContext, bool>? SkipFilter { private get; set; }
+    internal static string[] AdditionalContentTypes { private get; set; } = [];
 
     const string UrlEncodedFormContentType = "application/x-www-form-urlencoded";
     const string MultipartFormContentType = "multipart/form-data";
@@ -34,7 +35,8 @@ sealed class AntiforgeryMiddleware(RequestDelegate next, IAntiforgery antiforger
         }
 
         if (contentType.Equals(UrlEncodedFormContentType, StringComparison.OrdinalIgnoreCase) ||
-            contentType.StartsWith(MultipartFormContentType, StringComparison.OrdinalIgnoreCase))
+            contentType.StartsWith(MultipartFormContentType, StringComparison.OrdinalIgnoreCase) ||
+            AdditionalContentTypes.Contains(contentType, StringComparer.OrdinalIgnoreCase))
         {
             var endpointDefinition = ctx.GetEndpoint()?.Metadata.GetMetadata<EndpointDefinition>();
 

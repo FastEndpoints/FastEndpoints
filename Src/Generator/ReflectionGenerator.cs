@@ -74,6 +74,7 @@ public class ReflectionGenerator : IIncrementalGenerator
               #nullable enable
 
               using FastEndpoints;
+              using System.Runtime.CompilerServices;
 
               namespace {{_assemblyName}};
 
@@ -126,7 +127,7 @@ public class ReflectionGenerator : IIncrementalGenerator
                 b.w(
                     prop.IsInitOnly
                         ? " new()"
-                        : $" new() {{ Setter = (dto, val) => (({tInfo.Value.UnderlyingTypeName})dto).{prop.PropName} = ({prop.PropertyType})val! }}");
+                        : $" new() {{ Setter = (dto, val) => {BuildPropCast(tInfo.Value)}.{prop.PropName} = ({prop.PropertyType})val! }}");
                 b.w("),");
             }
 
@@ -171,6 +172,11 @@ public class ReflectionGenerator : IIncrementalGenerator
 
             return _initArgsBuilder.ToString();
         }
+
+        static string BuildPropCast(TypeInfo t)
+            => t.IsValueType
+                   ? $"Unsafe.Unbox<{t.UnderlyingTypeName}>(dto)"
+                   : $"(({t.UnderlyingTypeName})dto)";
     }
 
     readonly struct TypeInfo
@@ -180,6 +186,7 @@ public class ReflectionGenerator : IIncrementalGenerator
         public int HashCode { get; }
         public string TypeName { get; }
         public string UnderlyingTypeName { get; }
+        public bool IsValueType { get; }
         public List<Prop> Properties { get; } = [];
         public bool SkipObjectFactory { get; }
         public int CtorArgumentCount { get; }
@@ -187,6 +194,9 @@ public class ReflectionGenerator : IIncrementalGenerator
 
         public TypeInfo(ITypeSymbol symbol, bool isEndpoint, bool noRecursion = false)
         {
+            if (symbol.IsAbstract || symbol.TypeKind == TypeKind.Interface)
+                return;
+
             ITypeSymbol? type = null;
 
             if (isEndpoint) //descend in to base types and find the request dto type
@@ -209,6 +219,7 @@ public class ReflectionGenerator : IIncrementalGenerator
 
             TypeName = type.ToDisplayString(); //must be set before checking AllTypes below
             UnderlyingTypeName = type.ToDisplayString(NullableFlowState.None);
+            IsValueType = type.IsValueType;
 
             if (AllTypes.Contains(this)) //need to have TypeName set before this
                 return;

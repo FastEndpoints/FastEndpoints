@@ -115,7 +115,7 @@ app.UseRequestLocalization(
    .UseJwtRevocation<JwtBlacklistChecker>()
    .UseAuthentication()
    .UseAuthorization()
-   .UseAntiforgeryFE()
+   .UseAntiforgeryFE(additionalContentTypes: ["application/json"])
    .UseOutputCache()
    .UseFastEndpoints(
        c =>

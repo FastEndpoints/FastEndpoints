@@ -20,6 +20,21 @@ app.UseAntiforgeryFE(additionalContentTypes: ["application/json"])
 
 </details>
 
+<details><summary>User configurable Endpoint Name (Operation Id) generation</summary>
+
+The endpoint name generation logic can now be overriden at a global level like so:
+
+```csharp
+app.UseFastEndpoints(
+       c => c.Endpoints.NameGenerator =
+                ctx =>
+                {
+                    return ctx.EndpointType.Name.TrimEnd("Endpoint");
+                })
+```
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Swagger OneOf support for polymorphic responses</summary>

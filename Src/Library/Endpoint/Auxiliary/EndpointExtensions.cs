@@ -132,13 +132,4 @@ static class EndpointExtensions
                    ? throw new ArgumentException($"Failed to build route: [{sb}] due to incorrect number of replacements!")
                    : sb.ToString();
     }
-
-    internal static string EndpointName(this Type epType, string? verb = null, int? routeNum = null, string? tagPrefix = null)
-    {
-        tagPrefix = EpOpts.PrefixNameWithFirstTag && tagPrefix is not null ? $"{tagPrefix}_" : null;
-        verb = verb != null ? verb[0] + verb[1..].ToLowerInvariant() : null;
-        var ep = EpOpts.ShortNames ? epType.Name : epType.FullName!.Replace(".", string.Empty);
-
-        return $"{tagPrefix}{verb}{ep}{routeNum}";
-    }
 }

@@ -1,6 +1,6 @@
 ﻿namespace FastEndpoints;
 
 /// <summary>
-/// base marker interface for pre & post processor interfaces
+/// base marker interface for pre &amp; post processor interfaces
 /// </summary>
 public interface IProcessor;

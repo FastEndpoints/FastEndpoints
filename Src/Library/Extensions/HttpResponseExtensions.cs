@@ -1,10 +1,10 @@
-﻿using FluentValidation.Results;
+﻿using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
-using System.Text.Json;
-using System.Text.Json.Nodes;
-using System.Text.Json.Serialization;
 using static FastEndpoints.Config;
 
 namespace FastEndpoints;
@@ -79,7 +79,7 @@ public static class HttpResponseExtensions
                                                      CancellationToken cancellation = default) where TEndpoint : IEndpoint
         => SendCreatedAtAsync(
             rsp,
-            typeof(TEndpoint).EndpointName(verb?.ToString("F"), routeNumber),
+            EpOpts.NameGenerator(new(typeof(TEndpoint), verb?.ToString("F"), routeNumber, null)),
             routeValues,
             responseBody,
             jsonSerializerContext,

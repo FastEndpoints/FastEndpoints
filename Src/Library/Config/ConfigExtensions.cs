@@ -19,8 +19,12 @@ static class ConfigExtensions
                 for (var i = 0; i < ti.Properties.Count; i++)
                 {
                     var pi = ti.Properties[i];
+
                     if (pi.AttributeProvider?.IsDefined(Types.ToHeaderAttribute, true) is true)
-                        pi.ShouldSerialize = (_, _) => false;
+                    {
+                        // ReSharper disable once RedundantLambdaParameterType
+                        pi.ShouldSerialize = (object _, object? __) => false;
+                    }
                 }
             });
     }

@@ -10,6 +10,12 @@ Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H
 
 ## New 🎉
 
+<details><summary>.NET 9.0 Support</summary>
+
+Migration to .NET 9.0 SDK is now complete. You can now target `net9.0` sdk without any issues.
+
+</details>
+
 <details><summary>Support for enforcing antiforgery token checks for non-form requests</summary>
 
 The antiforgery middleware can now be configured to check antiforgery tokens for any content-type by configuring it like so:

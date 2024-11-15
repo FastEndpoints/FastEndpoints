@@ -25,7 +25,10 @@ public static class HttpClientExtensions
     /// <param name="requestUri">the route url to post to</param>
     /// <param name="request">the request dto</param>
     /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
-    public static Task<TestResult<TResponse>> POSTAsync<TRequest, TResponse>(this HttpClient client, string requestUri, TRequest request, bool? sendAsFormData = null)
+    public static Task<TestResult<TResponse>> POSTAsync<TRequest, TResponse>(this HttpClient client,
+                                                                             string requestUri,
+                                                                             TRequest request,
+                                                                             bool? sendAsFormData = null)
         => client.SENDAsync<TRequest, TResponse>(HttpMethod.Post, requestUri, request, sendAsFormData);
 
     /// <summary>
@@ -37,7 +40,9 @@ public static class HttpClientExtensions
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
     /// <param name="request">the request dto</param>
     /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
-    public static Task<TestResult<TResponse>> POSTAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request, bool? sendAsFormData = null)
+    public static Task<TestResult<TResponse>> POSTAsync<TEndpoint, TRequest, TResponse>(this HttpClient client,
+                                                                                        TRequest request,
+                                                                                        bool? sendAsFormData = null)
         where TEndpoint : IEndpoint where TRequest : notnull
         => POSTAsync<TRequest, TResponse>(client, GetTestUrlFor<TEndpoint, TRequest>(request), request, sendAsFormData);
 
@@ -74,7 +79,10 @@ public static class HttpClientExtensions
     /// <param name="requestUri">the route url to PATCH to</param>
     /// <param name="request">the request dto</param>
     /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
-    public static Task<TestResult<TResponse>> PATCHAsync<TRequest, TResponse>(this HttpClient client, string requestUri, TRequest request, bool? sendAsFormData = null)
+    public static Task<TestResult<TResponse>> PATCHAsync<TRequest, TResponse>(this HttpClient client,
+                                                                              string requestUri,
+                                                                              TRequest request,
+                                                                              bool? sendAsFormData = null)
         => client.SENDAsync<TRequest, TResponse>(HttpMethod.Patch, requestUri, request, sendAsFormData);
 
     /// <summary>
@@ -86,7 +94,9 @@ public static class HttpClientExtensions
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
     /// <param name="request">the request dto</param>
     /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
-    public static Task<TestResult<TResponse>> PATCHAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request, bool? sendAsFormData = null)
+    public static Task<TestResult<TResponse>> PATCHAsync<TEndpoint, TRequest, TResponse>(this HttpClient client,
+                                                                                         TRequest request,
+                                                                                         bool? sendAsFormData = null)
         where TEndpoint : IEndpoint where TRequest : notnull
         => PATCHAsync<TRequest, TResponse>(client, GetTestUrlFor<TEndpoint, TRequest>(request), request, sendAsFormData);
 
@@ -123,7 +133,10 @@ public static class HttpClientExtensions
     /// <param name="requestUri">the route url to post to</param>
     /// <param name="request">the request dto</param>
     /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
-    public static Task<TestResult<TResponse>> PUTAsync<TRequest, TResponse>(this HttpClient client, string requestUri, TRequest request, bool? sendAsFormData = null)
+    public static Task<TestResult<TResponse>> PUTAsync<TRequest, TResponse>(this HttpClient client,
+                                                                            string requestUri,
+                                                                            TRequest request,
+                                                                            bool? sendAsFormData = null)
         => client.SENDAsync<TRequest, TResponse>(HttpMethod.Put, requestUri, request, sendAsFormData);
 
     /// <summary>
@@ -135,7 +148,9 @@ public static class HttpClientExtensions
     /// <typeparam name="TResponse">the type of the response dto</typeparam>
     /// <param name="request">the request dto</param>
     /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
-    public static Task<TestResult<TResponse>> PUTAsync<TEndpoint, TRequest, TResponse>(this HttpClient client, TRequest request, bool? sendAsFormData = null)
+    public static Task<TestResult<TResponse>> PUTAsync<TEndpoint, TRequest, TResponse>(this HttpClient client,
+                                                                                       TRequest request,
+                                                                                       bool? sendAsFormData = null)
         where TEndpoint : IEndpoint where TRequest : notnull
         => PUTAsync<TRequest, TResponse>(client, GetTestUrlFor<TEndpoint, TRequest>(request), request, sendAsFormData);
 
@@ -330,11 +345,11 @@ public static class HttpClientExtensions
                                    p.GetCustomAttribute<FromHeaderAttribute>()?.IsRequired is not true &&
                                    p.GetCustomAttribute<HasPermissionAttribute>()?.IsRequired is not true);
 
-        var propValues = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
+        var reqPropValues = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
 
         foreach (var prop in reqProps)
         {
-            propValues.Add(
+            reqPropValues.Add(
                 prop.GetCustomAttribute<BindFromAttribute>()?.Name ?? prop.Name,
                 prop.GetValue(req)?.ToString());
         }
@@ -342,9 +357,9 @@ public static class HttpClientExtensions
         //split url into route segments, iterate and replace param names with values from matching dto props
         //while rebuilding the url back up again into a string builder
         StringBuilder sb = new();
-        var routeSegment = IEndpoint.TestURLFor<TEndpoint>().Split('/');
+        var routeSegments = IEndpoint.TestURLFor<TEndpoint>().Split('/');
 
-        foreach (var segment in routeSegment)
+        foreach (var segment in routeSegments)
         {
             if (!segment.StartsWith('{') && !segment.EndsWith('}'))
             {
@@ -353,18 +368,29 @@ public static class HttpClientExtensions
                 continue;
             }
 
-            //examples: {id}, {id:int}, {ssn:regex(^\\d{{3}}-\\d{{2}}-\\d{{4}}$)}
+            //examples: {id}, {id?}, {id:int}, {ssn:regex(^\\d{{3}}-\\d{{2}}-\\d{{4}}$)}
 
             var segmentParts = segment.Split(':', StringSplitOptions.RemoveEmptyEntries);
+            var isLastSegment = routeSegments.Last() == segment;
+            var isOptional = segment.Contains('?');
             var propName = segmentParts.Length == 1
                                ? segmentParts[0][1..^1]
                                : segmentParts[0][1..];
 
-            if (!propValues.TryGetValue(propName, out var propValue) || propValue is null)
-            {
-                sb.Append(segment).Append('/');
+            if (!reqPropValues.TryGetValue(propName, out var propValue))
+                propValue = segment;
 
-                continue;
+            if (propValue is null)
+            {
+                switch (isOptional)
+                {
+                    case true when isLastSegment:
+                        continue;
+                    case true when !isLastSegment:
+                        throw new InvalidOperationException($"Optional route parameter [{segment}] must be the last route segment.");
+                    case false:
+                        throw new InvalidOperationException($"Route param value missing for required param [{segment}].");
+                }
             }
 
             sb.Append(propValue);

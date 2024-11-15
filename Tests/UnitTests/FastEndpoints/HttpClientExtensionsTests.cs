@@ -14,12 +14,14 @@ public class HttpClientExtensionsTests
     {
         // Arrange
         MockHttpMessageHandler mockHttp = new();
-        mockHttp.Expect(HttpMethod.Get, "http://localhost/api/test/1/00000000-0000-0000-0000-000000000000/stringValue/{NullableString}/{fromClaim}/{fromHeader}/{hasPermission}")
+        mockHttp.Expect(
+                    HttpMethod.Get,
+                    "http://localhost/api/test/1/00000000-0000-0000-0000-000000000000/stringValue/{fromClaim}/{fromHeader}/{hasPermission}/{NullableString?}")
                 .Respond("application/json", "{}");
         var http = mockHttp.ToHttpClient();
         http.BaseAddress = new("http://localhost");
 
-        const string route = "/api/test/{id}/{guid:guid}/{stringBindFrom}/{NullableString}/{fromClaim}/{fromHeader}/{hasPermission}";
+        const string route = "/api/test/{id}/{guid:guid}/{stringBindFrom}/{fromClaim}/{fromHeader}/{hasPermission}/{NullableString?}";
         IEndpoint.SetTestUrl(typeof(Endpoint), route);
 
         // Act

@@ -33,7 +33,7 @@ public class ReflectionGenerator : IIncrementalGenerator
                                 .WithComparer(FullTypeComparer.Instance)
                                 .Collect();
 
-        ctx.RegisterSourceOutput(syntaxProvider, Generate!);
+        ctx.RegisterSourceOutput(syntaxProvider, Generate);
 
         //executed per each keystroke
         static bool Qualify(SyntaxNode node, CancellationToken _)
@@ -67,7 +67,7 @@ public class ReflectionGenerator : IIncrementalGenerator
     {
         _assemblyName ??= "Assembly"; //when no endpoints are present
 
-        var sanitizedAssemblyName = _assemblyName?.Sanitize(string.Empty) ?? "Assembly";
+        var sanitizedAssemblyName = _assemblyName.Sanitize(string.Empty);
 
         b.Clear().w(
             $$"""
@@ -117,7 +117,7 @@ public class ReflectionGenerator : IIncrementalGenerator
                                 [
                 """);
 
-            foreach (var prop in tInfo.Value.Properties!)
+            foreach (var prop in tInfo.Value.Properties)
             {
                 b.w(
                     $"""
@@ -184,8 +184,8 @@ public class ReflectionGenerator : IIncrementalGenerator
         internal static HashSet<TypeInfo?> AllTypes { get; } = new(TypeNameComparer.Instance);
 
         public int HashCode { get; }
-        public string TypeName { get; }
-        public string UnderlyingTypeName { get; }
+        public string? TypeName { get; }
+        public string? UnderlyingTypeName { get; }
         public bool IsValueType { get; }
         public List<Prop> Properties { get; } = [];
         public bool SkipObjectFactory { get; }
@@ -342,13 +342,13 @@ public class ReflectionGenerator : IIncrementalGenerator
             if (x is null || y is null)
                 return false;
 
-            return x.Value.TypeName.Equals(y.Value.TypeName);
+            return x.Value.TypeName?.Equals(y.Value.TypeName) is true;
         }
 
         public int GetHashCode(TypeInfo? obj)
             => obj is null
                    ? 0
-                   : obj.Value.TypeName.GetHashCode();
+                   : obj.Value.TypeName?.GetHashCode() ?? 0;
     }
 
     class FullTypeComparer : IEqualityComparer<TypeInfo?>

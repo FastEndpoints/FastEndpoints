@@ -143,10 +143,12 @@ public static class MainExtensions
                         (HttpContext ctx, [FromServices] IEndpointFactory factory) => RequestHandler.Invoke(ctx, factory));
 
                     hb.WithName(
-                        def.EndpointType.EndpointName(
-                            def.Verbs.Length > 1 ? verb : null,
-                            def.Routes.Length > 1 ? routeNum : null,
-                            def.EndpointTags?.Count > 0 ? def.EndpointTags[0] : null)); //user can override this via Options(x=>x.WithName(...))
+                        Cfg.EpOpts.NameGenerator(
+                            new(
+                                def.EndpointType,
+                                def.Verbs.Length > 1 ? verb : null,
+                                def.Routes.Length > 1 ? routeNum : null,
+                                def.EndpointTags?.Count > 0 ? def.EndpointTags[0] : null))); //user can override this via Options(x=>x.WithName(...))
 
                     hb.WithMetadata(def);
 

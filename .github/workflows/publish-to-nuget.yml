@@ -15,7 +15,7 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.x
-          dotnet-quality: 'preview'
+          #dotnet-quality: 'preview'
 
       - name: Modify xUnit Runner Config
         run: |

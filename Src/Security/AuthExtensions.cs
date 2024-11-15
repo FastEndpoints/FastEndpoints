@@ -128,7 +128,9 @@ public static class AuthExtensions
     /// </summary>
     /// <param name="validFor">specify how long the created cookie is valid for with a <see cref="TimeSpan" /></param>
     /// <param name="options">optional action for configuring cookie authentication options</param>
-    public static IServiceCollection AddAuthenticationCookie(this IServiceCollection services, TimeSpan validFor, Action<CookieAuthenticationOptions>? options = null)
+    public static IServiceCollection AddAuthenticationCookie(this IServiceCollection services,
+                                                             TimeSpan validFor,
+                                                             Action<CookieAuthenticationOptions>? options = null)
     {
         services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(
@@ -141,7 +143,9 @@ public static class AuthExtensions
                         o.ExpireTimeSpan = validFor;
                         o.Cookie.HttpOnly = true;
                         o.Cookie.SameSite = SameSiteMode.Lax;
-                        o.Events = new()
+
+                        // ReSharper disable once ArrangeObjectCreationWhenTypeNotEvident
+                        o.Events = new CookieAuthenticationEvents
                         {
                             OnRedirectToLogin =
                                 ctx =>
@@ -175,7 +179,9 @@ public static class AuthExtensions
     }
 
     [Obsolete("Use AddAuthenticationCookie() method.")]
-    public static IServiceCollection AddCookieAuth(this IServiceCollection services, TimeSpan validFor, Action<CookieAuthenticationOptions>? options = null)
+    public static IServiceCollection AddCookieAuth(this IServiceCollection services,
+                                                   TimeSpan validFor,
+                                                   Action<CookieAuthenticationOptions>? options = null)
         => AddAuthenticationCookie(services, validFor, options);
 
     /// <summary>

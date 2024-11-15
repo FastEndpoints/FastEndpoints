@@ -601,6 +601,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
 public sealed class EpVersion
 {
     public int Current { get; internal set; }
+    public int ReleaseVersion { get; internal set; }
     public int DeprecatedAt { get; internal set; }
 
     internal void Init()

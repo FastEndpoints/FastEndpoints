@@ -57,6 +57,11 @@ public class DocumentOptions
     public int MinEndpointVersion { get; set; }
 
     /// <summary>
+    /// endpoints with a release version greater than this version will not be included in the swagger doc.
+    /// </summary>
+    public int MaxReleaseVersion { get; set; }
+
+    /// <summary>
     /// by default deprecated endpoints/operations will not show up in the swagger doc.
     /// set this to true if you instead want them to show up but displayed as "obsolete".
     /// </summary>

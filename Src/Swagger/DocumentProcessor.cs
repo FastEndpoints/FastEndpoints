@@ -8,12 +8,14 @@ sealed class DocumentProcessor : IDocumentProcessor
     const string StringSegmentKey = "MicrosoftExtensionsPrimitivesStringSegment";
     readonly int _maxEpVer;
     readonly int _minEpVer;
+    readonly int _maxReVer;
     readonly bool _showDeprecated;
 
-    public DocumentProcessor(int minEndpointVersion, int maxEndpointVersion, bool showDeprecatedOps)
+    public DocumentProcessor(int minEndpointVersion, int maxEndpointVersion, int maxReleaseVersion, bool showDeprecatedOps)
     {
         _minEpVer = minEndpointVersion;
         _maxEpVer = maxEndpointVersion;
+        _maxReVer = maxReleaseVersion;
         _showDeprecated = showDeprecatedOps;
 
         if (_maxEpVer < _minEpVer)
@@ -33,7 +35,8 @@ sealed class DocumentProcessor : IDocumentProcessor
                                    {
                                        route = tagSegments?[1],
                                        ver = Convert.ToInt32(tagSegments?[2]),
-                                       depVer = Convert.ToInt32(tagSegments?[3]),
+                                       reVer = Convert.ToInt32(tagSegments?[3]),
+                                       depVer = Convert.ToInt32(tagSegments?[4]),
                                        pathItm = o.Parent
                                    };
                                })
@@ -41,7 +44,7 @@ sealed class DocumentProcessor : IDocumentProcessor
                            .Select(
                                g => new
                                {
-                                   pathItm = g.Where(x => x.ver >= _minEpVer && x.ver <= _maxEpVer)
+                                   pathItm = g.Where(x => x.ver >= _minEpVer && x.ver <= _maxEpVer && x.reVer <= _maxReVer)
                                               .OrderByDescending(x => x.ver)
                                               .Take(_showDeprecated ? g.Count() : 1)
                                               .Where(x => x.depVer == 0 || _showDeprecated || x.depVer > _maxEpVer)

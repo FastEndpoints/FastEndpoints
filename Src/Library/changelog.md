@@ -75,4 +75,10 @@ The reflection generator was trying to generate code for deeply nested abstract 
 
 </details>
 
+<details><summary>Incorrect constructor detection in Reflection Generator</summary>
+
+The reflection generator was wrongly detecting constructors from base types instead of just stopping at the top most level.
+
+</details>
+
 ## Minor Breaking Changes ⚠️

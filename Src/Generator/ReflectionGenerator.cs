@@ -240,6 +240,7 @@ public class ReflectionGenerator : IIncrementalGenerator
             }
 
             var currentSymbol = type;
+            var ctorSearchComplete = false;
 
             while (currentSymbol is not null)
             {
@@ -248,9 +249,13 @@ public class ReflectionGenerator : IIncrementalGenerator
                     switch (member)
                     {
                         case IMethodSymbol { MethodKind : MethodKind.Constructor, DeclaredAccessibility : Accessibility.Public, IsStatic : false } method:
-                            var argCount = method.Parameters.Count(p => !p.HasExplicitDefaultValue);
-                            if (CtorArgumentCount == 0 || (argCount > 0 && CtorArgumentCount > argCount))
-                                CtorArgumentCount = argCount;
+
+                            if (!ctorSearchComplete)
+                            {
+                                var argCount = method.Parameters.Count(p => !p.HasExplicitDefaultValue);
+                                if (CtorArgumentCount == 0 || (argCount > 0 && CtorArgumentCount > argCount))
+                                    CtorArgumentCount = argCount;
+                            }
 
                             break;
 
@@ -270,6 +275,7 @@ public class ReflectionGenerator : IIncrementalGenerator
                             break;
                     }
                 }
+                ctorSearchComplete = true;
                 currentSymbol = currentSymbol.BaseType;
             }
 

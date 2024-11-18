@@ -4,7 +4,7 @@
         <Version>5.31.0.9-beta</Version>
 
         <TargetFrameworks>net6.0;net7.0;net8.0;net9.0</TargetFrameworks>
-        <LangVersion>preview</LangVersion>
+        <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <Authors>FastEndpoints</Authors>

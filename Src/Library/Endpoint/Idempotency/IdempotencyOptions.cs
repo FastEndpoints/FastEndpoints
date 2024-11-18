@@ -70,13 +70,7 @@ public sealed class IdempotencyOptions
     /// </summary>
     public Type? SwaggerHeaderType { get; set; }
 
-    readonly
-    #if NET9_0_OR_GREATER
-        Lock
-    #else
-        object
-    #endif
-        _lock = new();
+    readonly Lock _lock = new();
 
     bool? _isMultipartFormRequest;
 

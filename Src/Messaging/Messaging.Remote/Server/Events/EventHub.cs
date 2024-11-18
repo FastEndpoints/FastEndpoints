@@ -45,13 +45,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
     static bool _isRoundRobinMode;
     static TStorageProvider? _storage;
 
-    static readonly
-    #if NET9_0_OR_GREATER
-        Lock
-    #else
-        object
-    #endif
-        _lock = new();
+    static readonly Lock _lock = new();
 
     string? _lastReceivedBy;
     readonly bool _isInMemoryProvider;

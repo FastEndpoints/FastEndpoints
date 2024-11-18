@@ -8,6 +8,7 @@
         <PackageVersion Include="Asp.Versioning.Http" Condition="'$(TargetFramework)' == 'net8.0' Or '$(TargetFramework)' == 'net9.0'" Version="8.1.0"/>
         <PackageVersion Include="Asp.Versioning.Mvc.ApiExplorer" Condition="'$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'net7.0'" Version="7.1.0"/>
         <PackageVersion Include="Asp.Versioning.Mvc.ApiExplorer" Condition="'$(TargetFramework)' == 'net8.0' Or '$(TargetFramework)' == 'net9.0'" Version="8.1.0"/>
+        <PackageVersion Include="Backport.System.Threading.Lock" Version="3.0.1"/>
         <PackageVersion Include="BenchmarkDotNet" Version="0.14.0"/>
         <PackageVersion Include="Bogus" Version="35.6.1"/>
         <PackageVersion Include="FakeItEasy" Version="8.3.0"/>

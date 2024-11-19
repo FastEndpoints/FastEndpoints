@@ -129,7 +129,7 @@ app.UseRequestLocalization(
            c.Endpoints.RoutePrefix = "api";
            c.Endpoints.ShortNames = false;
            c.Endpoints.PrefixNameWithFirstTag = true;
-           c.Endpoints.Filter = (EndpointDefinition ep) => ep.EndpointTags?.Contains("exclude") is not true;
+           c.Endpoints.Filter = ep => ep.EndpointTags?.Contains("exclude") is not true;
            c.Endpoints.Configurator =
                ep =>
                {

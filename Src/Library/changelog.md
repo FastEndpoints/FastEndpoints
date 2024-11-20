@@ -81,4 +81,10 @@ The reflection generator was wrongly detecting constructors from base types inst
 
 </details>
 
+<details><summary>Included validators causing an exception</summary>
+
+There was a regression in the validation schema processor which resulted in included fluent validators causing an exception at the time of generating the swagger spec.
+
+</details>
+
 ## Minor Breaking Changes ⚠️

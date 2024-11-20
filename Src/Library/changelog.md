@@ -87,4 +87,10 @@ There was a regression in the validation schema processor which resulted in incl
 
 </details>
 
+<details><summary>Unescaped back slashes breaking model binding</summary>
+
+Incorrectly unescaped parameter values from the client was causing model binding failures which has been now corrected. 
+
+</details>
+
 ## Minor Breaking Changes ⚠️

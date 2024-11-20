@@ -96,7 +96,10 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
         ApplyRulesFromIncludedValidators(schema, validator, services);
     }
 
-    void ApplyRulesToSchema(JsonSchema? schema, ReadOnlyDictionary<string, List<IValidationRule>> rulesDict, string propertyPrefix, IServiceProvider services)
+    void ApplyRulesToSchema(JsonSchema? schema,
+                            ReadOnlyDictionary<string, List<IValidationRule>> rulesDict,
+                            string propertyPrefix,
+                            IServiceProvider services)
     {
         if (schema is null)
             return;
@@ -132,7 +135,8 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
                 continue;
 
             // Create validation context of generic type
-            var validationContext = _serviceResolver.CreateInstance(adapterMethod.GetParameters().First().ParameterType, services);
+            // NOTE: do not use service resolver here to create the validation context: https://github.com/FastEndpoints/FastEndpoints/issues/827
+            var validationContext = Activator.CreateInstance(adapterMethod.GetParameters().First().ParameterType, [null!]);
 
             if (adapterMethod.Invoke(adapter, [validationContext, null!]) is not IValidator includeValidator)
                 break;
@@ -194,7 +198,10 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
 
                 // Retrieve or create an instance of the validator
                 if (!_childAdaptorValidators.TryGetValue(validatorType.FullName!, out var childValidator))
-                    childValidator = _childAdaptorValidators[validatorType.FullName!] = (IValidator)_serviceResolver.CreateInstance(validatorType, services);
+                {
+                    childValidator = _childAdaptorValidators[validatorType.FullName!] =
+                                         (IValidator)_serviceResolver.CreateInstance(validatorType, services);
+                }
 
                 // Apply the validator to the schema. Again, recursively
                 var childSchema = schema.ActualProperties[propertyName].ActualSchema;

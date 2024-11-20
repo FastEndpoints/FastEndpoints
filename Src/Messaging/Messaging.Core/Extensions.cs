@@ -1,9 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using System.Text;
-
-[assembly: InternalsVisibleTo("FastEndpoints")]
-[assembly: InternalsVisibleTo("FastEndpoints.Messaging.Remote")]
-[assembly: InternalsVisibleTo("FastEndpoints.Messaging.Remote.Core")]
+﻿using System.Text;
 
 namespace FastEndpoints;
 

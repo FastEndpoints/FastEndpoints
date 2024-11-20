@@ -2990,6 +2990,50 @@
         }
       }
     },
+    "/api/test-cases/included-validator": {
+      "post": {
+        "tags": [
+          "TestCases"
+        ],
+        "operationId": "TestCasesIncludedValidatorTestEndpoint",
+        "requestBody": {
+          "x-name": "Request",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesIncludedValidatorTestRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "text/plain": {
+                "schema": {}
+              },
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/test-cases/json-array-binding-for-ienumerable-props": {
       "get": {
         "tags": [
@@ -5628,6 +5672,45 @@
       "TestCasesIdempotencyRequest": {
         "type": "object",
         "additionalProperties": false
+      },
+      "TestCasesIncludedValidatorTestRequest": {
+        "required": [
+          "Name"
+        ],
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/TestCasesIncludedValidatorTestBaseRequest"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "Name": {
+                "type": "string",
+                "minLength": 5,
+                "nullable": false
+              }
+            }
+          }
+        ]
+      },
+      "TestCasesIncludedValidatorTestBaseRequest": {
+        "type": "object",
+        "x-abstract": true,
+        "additionalProperties": false,
+        "required": [
+          "Id"
+        ],
+        "properties": {
+          "Id": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 5.0,
+            "minLength": 1,
+            "nullable": false,
+            "exclusiveMinimum": true
+          }
+        }
       },
       "TestCasesJsonArrayBindingForIEnumerablePropsResponse": {
         "allOf": [

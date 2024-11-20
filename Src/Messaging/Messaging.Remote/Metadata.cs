@@ -1,4 +1,10 @@
-using System.Runtime.CompilerServices;
+#if NET9_0_OR_GREATER
+    global using Lock = System.Threading.Lock;
+#else
+    global using Lock = object;
+#endif
 
-[assembly: InternalsVisibleTo("Unit.FastEndpoints")]
-[assembly: InternalsVisibleTo("Int.FastEndpoints")]
+    using System.Runtime.CompilerServices;
+
+    [assembly: InternalsVisibleTo("Unit.FastEndpoints")]
+    [assembly: InternalsVisibleTo("Int.FastEndpoints")]

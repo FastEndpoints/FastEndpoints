@@ -81,4 +81,16 @@ The reflection generator was wrongly detecting constructors from base types inst
 
 </details>
 
+<details><summary>Included validators causing an exception</summary>
+
+There was a regression in the validation schema processor which resulted in included fluent validators causing an exception at the time of generating the swagger spec.
+
+</details>
+
+<details><summary>Unescaped back slashes breaking model binding</summary>
+
+Incorrectly unescaped parameter values from the client was causing model binding failures which has been now corrected. 
+
+</details>
+
 ## Minor Breaking Changes ⚠️

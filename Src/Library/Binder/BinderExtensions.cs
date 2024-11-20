@@ -260,10 +260,7 @@ static class BinderExtensions
                     else
                     {
                         sb.Append('"')
-                          .Append(
-                              vals[i]!.Contains('"') //json strings with quotations must be escaped
-                                  ? vals[i]!.Replace("\"", "\\\"")
-                                  : vals[i])
+                          .AppendEscaped(vals[i]!)
                           .Append('"');
                     }
 
@@ -275,6 +272,56 @@ static class BinderExtensions
                 return JsonSerializer.Deserialize(sb.ToString(), tProp, Cfg.SerOpts.Options);
             }
         }
+    }
+
+    static StringBuilder AppendEscaped(this StringBuilder sb, string val)
+    {
+        foreach (var c in val)
+        {
+            switch (c)
+            {
+                case '\"':
+                    sb.Append("\\\"");
+
+                    break;
+                case '\\':
+                    sb.Append("\\\\");
+
+                    break;
+                case '\b':
+                    sb.Append("\\b");
+
+                    break;
+                case '\f':
+                    sb.Append("\\f");
+
+                    break;
+                case '\n':
+                    sb.Append("\\n");
+
+                    break;
+                case '\r':
+                    sb.Append("\\r");
+
+                    break;
+                case '\t':
+                    sb.Append("\\t");
+
+                    break;
+                default:
+                    if (char.IsControl(c) || c > 127)
+                    {
+                        sb.Append("\\u");
+                        sb.Append(((int)c).ToString("x4"));
+                    }
+                    else
+                        sb.Append(c);
+
+                    break;
+            }
+        }
+
+        return sb;
     }
 
 #if NET8_0_OR_GREATER

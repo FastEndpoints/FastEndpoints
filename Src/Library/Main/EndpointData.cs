@@ -19,10 +19,19 @@ sealed class EndpointData
             throw new InvalidOperationException("FastEndpoints was unable to find any endpoint declarations!");
     }
 
-    static EndpointDefinition[] BuildEndpointDefinitions(EndpointDiscoveryOptions options, CommandHandlerRegistry cmdHandlerRegistry)
+    static EndpointDefinition[] BuildEndpointDefinitions(EndpointDiscoveryOptions opts, CommandHandlerRegistry cmdHandlerRegistry)
     {
-        if (options.DisableAutoDiscovery && options.Assemblies?.Any() is false)
-            throw new InvalidOperationException("If 'DisableAutoDiscovery' is true, a collection of `Assemblies` must be provided!");
+        if (opts.DisableAutoDiscovery && opts.Assemblies?.Any() is false)
+        {
+            throw new InvalidOperationException(
+                $"If '{nameof(opts.DisableAutoDiscovery)}' is true, a collection of `{nameof(opts.Assemblies)}` must be provided!");
+        }
+
+        if (opts.SourceGeneratorDiscoveredTypes.Count > 0 && opts.Assemblies?.Any() is true)
+        {
+            throw new InvalidOperationException(
+                $"{nameof(opts.SourceGeneratorDiscoveredTypes)}' and `{nameof(opts.Assemblies)}` cannot be used together! Choose only one of these strategies.");
+        }
 
         IEnumerable<string> exclusions =
         [
@@ -47,23 +56,23 @@ sealed class EndpointData
             "WindowsBase"
         ];
 
-        var discoveredTypes = options.SourceGeneratorDiscoveredTypes.AsEnumerable();
+        var discoveredTypes = opts.SourceGeneratorDiscoveredTypes.AsEnumerable();
 
         if (!discoveredTypes.Any())
         {
             var assemblies = Enumerable.Empty<Assembly>();
 
-            if (options.Assemblies?.Any() is true)
-                assemblies = options.Assemblies;
+            if (opts.Assemblies?.Any() is true)
+                assemblies = opts.Assemblies;
 
-            if (!options.DisableAutoDiscovery)
+            if (!opts.DisableAutoDiscovery)
                 assemblies = assemblies.Union(AppDomain.CurrentDomain.GetAssemblies());
 
-            if (options.AssemblyFilter is not null)
-                assemblies = assemblies.Where(options.AssemblyFilter);
+            if (opts.AssemblyFilter is not null)
+                assemblies = assemblies.Where(opts.AssemblyFilter);
 
             discoveredTypes = assemblies
-                              .Where(a => !a.IsDynamic && (options.Assemblies?.Contains(a) is true || !exclusions.Any(x => a.FullName!.StartsWith(x))))
+                              .Where(a => !a.IsDynamic && (opts.Assemblies?.Contains(a) is true || !exclusions.Any(x => a.FullName!.StartsWith(x))))
                               .SelectMany(a => a.GetTypes())
                               .Where(
                                   t =>
@@ -75,9 +84,9 @@ sealed class EndpointData
                                           Types.IEventHandler,
                                           Types.ICommandHandler,
                                           Types.ISummary,
-                                          options.IncludeAbstractValidators ? Types.IValidator : Types.IEndpointValidator
+                                          opts.IncludeAbstractValidators ? Types.IValidator : Types.IEndpointValidator
                                       ]).Any() &&
-                                      (options.Filter is null || options.Filter(t)));
+                                      (opts.Filter is null || opts.Filter(t)));
         }
 
         //Endpoint<TRequest>

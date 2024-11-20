@@ -134,8 +134,6 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
             if (adapterMethod == null)
                 continue;
 
-            var xxx = adapterMethod.GetParameters();
-
             // Create validation context of generic type
             // NOTE: do not use service resolver here to create the validation context: https://github.com/FastEndpoints/FastEndpoints/issues/827
             var validationContext = Activator.CreateInstance(adapterMethod.GetParameters().First().ParameterType, [null!]);

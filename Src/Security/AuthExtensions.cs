@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace FastEndpoints.Security;
@@ -30,7 +31,7 @@ public static class AuthExtensions
                 .AddJwtBearer(
                     o =>
                     {
-                        var sOpts = new JwtSigningOptions();
+                        var sOpts = Cfg.ServiceResolver.TryResolve<IOptions<JwtSigningOptions>>()?.Value ?? new JwtSigningOptions();
                         signingOptions(sOpts);
 
                         SecurityKey? key = null;

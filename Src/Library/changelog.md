@@ -41,6 +41,35 @@ app.UseFastEndpoints(
 
 </details>
 
+<details><summary>Global configuration of 'JwtCreationOptions'</summary>
+
+You can now configure `JwtCreationOptions` once globally like so:
+
+```csharp
+bld.Services.Configure<JwtCreationOptions>(
+       o =>
+       {
+           o.SigningKey = "...";
+           o.Audience = "...";
+           o.Issuer = "...";
+       })
+```
+
+and only specify just the relevant settings that are needed to be set during token creation like so.
+
+```csharp
+var token = JwtBearer.CreateToken(
+    o =>
+    {
+        o.ExpireAt = DateTime.UtcNow.AddHours(1);
+        o.User.Claims.Add(("UserId", "001"));
+    });
+```
+
+If you need to override any of the globally specified settings, that can be done during token creation as well as what's supplied to the `CreateToken(o=> ...)` method is a deeply cloned instance independant of the global instance.
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Swagger OneOf support for polymorphic responses</summary>

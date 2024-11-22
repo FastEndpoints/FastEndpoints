@@ -4129,6 +4129,66 @@
         }
       }
     },
+    "/api/test-cases/routing/user/{UserId}": {
+      "post": {
+        "tags": [
+          "TestCases"
+        ],
+        "operationId": "TestCasesRoutingNonOptionalRouteParamTest",
+        "parameters": [
+          {
+            "name": "UserId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/test-cases/routing/offer/{OfferId}": {
+      "post": {
+        "tags": [
+          "TestCases"
+        ],
+        "operationId": "TestCasesRoutingOptionalRouteParamTest",
+        "parameters": [
+          {
+            "name": "OfferId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/test-cases/service-reg-gen-test": {
       "get": {
         "tags": [
@@ -6337,6 +6397,14 @@
             "description": "overriden from body comment"
           }
         }
+      },
+      "TestCasesRoutingNonOptionalRouteParamTest_Request": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "TestCasesRoutingOptionalRouteParamTest_Request": {
+        "type": "object",
+        "additionalProperties": false
       },
       "TestCasesSTJInfiniteRecursionTestResponse": {
         "type": "object",

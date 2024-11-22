@@ -130,7 +130,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
     #endif
-        [RouteTemplate] params string[] routePatterns)
+        [RouteTemplate]
+        params string[] routePatterns)
     {
         Verbs(Http.DELETE);
         Routes(routePatterns);
@@ -153,7 +154,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
     #endif
-        [RouteTemplate] string routePattern,
+        [RouteTemplate]
+        string routePattern,
         Expression<Func<TRequest, object>> members)
     {
         Verbs(Http.DELETE);
@@ -212,7 +214,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
     #endif
-        [RouteTemplate] params string[] routePatterns)
+        [RouteTemplate]
+        params string[] routePatterns)
     {
         Verbs(Http.GET);
         Routes(routePatterns);
@@ -235,7 +238,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
     #endif
-        [RouteTemplate] string routePattern,
+        [RouteTemplate]
+        string routePattern,
         Expression<Func<TRequest, object>> members)
     {
         Verbs(Http.GET);
@@ -261,7 +265,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
     #endif
-        [RouteTemplate] params string[] routePatterns)
+        [RouteTemplate]
+        params string[] routePatterns)
     {
         Verbs(Http.HEAD);
         Routes(routePatterns);
@@ -284,7 +289,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
     #endif
-        [RouteTemplate] string routePattern,
+        [RouteTemplate]
+        string routePattern,
         Expression<Func<TRequest, object>> members)
     {
         Verbs(Http.HEAD);
@@ -314,7 +320,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
     #endif
-        [RouteTemplate] params string[] routePatterns)
+        [RouteTemplate]
+        params string[] routePatterns)
     {
         Verbs(Http.PATCH);
         Routes(routePatterns);
@@ -337,7 +344,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
     #endif
-        [RouteTemplate] string routePattern,
+        [RouteTemplate]
+        string routePattern,
         Expression<Func<TRequest, object>> members)
     {
         Verbs(Http.PATCH);
@@ -380,7 +388,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
     #endif
-        [RouteTemplate] params string[] routePatterns)
+        [RouteTemplate]
+        params string[] routePatterns)
     {
         Verbs(Http.POST);
         Routes(routePatterns);
@@ -403,7 +412,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
     #endif
-        [RouteTemplate] string routePattern,
+        [RouteTemplate]
+        string routePattern,
         Expression<Func<TRequest, object>> members)
     {
         Verbs(Http.POST);
@@ -453,7 +463,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
     #endif
-        [RouteTemplate] params string[] routePatterns)
+        [RouteTemplate]
+        params string[] routePatterns)
     {
         Verbs(Http.PUT);
         Routes(routePatterns);
@@ -476,7 +487,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
     #endif
-        [RouteTemplate] string routePattern,
+        [RouteTemplate]
+        string routePattern,
         Expression<Func<TRequest, object>> members)
     {
         Verbs(Http.PUT);
@@ -538,7 +550,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
     #endif
-        [RouteTemplate] params string[] patterns)
+        [RouteTemplate]
+        params string[] patterns)
         => Definition.Routes = patterns;
 
     /// <summary>
@@ -651,6 +664,12 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
                 if (Definition.ExecuteAsyncReturnsIResult)
                 {
                 #if NET7_0_OR_GREATER
+                    b.Add(
+                        eb =>
+                        {
+                            foreach (var m in eb.Metadata.OfType<IProducesResponseTypeMetadata>().ToArray())
+                                eb.Metadata.Remove(m);
+                        }); //clearing all produces metadata before proceeding - https://github.com/FastEndpoints/FastEndpoints/issues/833
                     b.Add(eb => ProducesMetaForResultOfResponse.AddMetadata(eb, _tResponse));
                 #endif
                 }

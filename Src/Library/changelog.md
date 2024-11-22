@@ -122,4 +122,10 @@ Incorrectly unescaped parameter values from the client was causing model binding
 
 </details>
 
+<details><summary>Rogue 200 response in Swagger spec</summary>
+
+Due to a known bug in the .NET 9.0 SDK, a rogue 200 response metadata was being added to endpoints if the endpoints response DTO type is an `IResult` type and it's not s 200 status code. A workaround has been put in place to prevent that from happening.
+
+</details>
+
 ## Minor Breaking Changes ⚠️

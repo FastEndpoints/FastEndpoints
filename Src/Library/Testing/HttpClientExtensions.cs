@@ -373,12 +373,11 @@ public static class HttpClientExtensions
             var segmentParts = segment.Split(':', StringSplitOptions.RemoveEmptyEntries);
             var isLastSegment = routeSegments.Last() == segment;
             var isOptional = segment.Contains('?');
-            var propName = segmentParts.Length == 1
-                               ? segmentParts[0][1..^1]
-                               : segmentParts[0][1..];
+            var propName = (segmentParts.Length == 1
+                                ? segmentParts[0][1..^1]
+                                : segmentParts[0][1..]).TrimEnd('?');
 
-            if (!reqPropValues.TryGetValue(propName, out var propValue))
-                propValue = segment;
+            var propValue = reqPropValues.GetValueOrDefault(propName, segment);
 
             if (propValue is null)
             {

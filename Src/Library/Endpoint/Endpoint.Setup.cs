@@ -35,7 +35,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <param name="behavior">
     /// specify whether to add the generated permission code as a permission requirement for this endpoint.
     /// this does the same thing as calling "Permissions(...)" method.
-    /// i.e. if this optional argument is set to <see cref="Apply.ToThisEndpoint" />, then a user principal must posses this permission code
+    /// i.e. if this optional argument is set to <see cref="Apply.ToThisEndpoint" />, then a user principal must possess this permission code
     /// in order to be allowed access to this endpoint. you don't need to explicitly specify it via a <c>Permissions(...)</c> call, when setting the
     /// <paramref name="behavior" />.
     /// </param>
@@ -117,7 +117,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
         => Definition.Claims(claimTypes);
 
     /// <summary>
-    /// allows access if the claims principal has ALL of the given claim types
+    /// allows access if the claims principal has ALL the given claim types
     /// </summary>
     /// <param name="claimTypes">the claim types</param>
     protected void ClaimsAll(params string[] claimTypes)
@@ -130,7 +130,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
     #endif
-        [RouteTemplate] params string[] routePatterns)
+        [RouteTemplate]
+        params string[] routePatterns)
     {
         Verbs(Http.DELETE);
         Routes(routePatterns);
@@ -153,7 +154,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
     #endif
-        [RouteTemplate] string routePattern,
+        [RouteTemplate]
+        string routePattern,
         Expression<Func<TRequest, object>> members)
     {
         Verbs(Http.DELETE);
@@ -161,7 +163,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     }
 
     /// <summary>
-    /// describe openapi metadata for this endpoint. optionaly specify whether or not you want to clear the default Accepts/Produces metadata.
+    /// describe openapi metadata for this endpoint. optionally specify whether you want to clear the default Accepts/Produces metadata.
     /// <para>
     /// EXAMPLE: <c>b => b.Accepts&lt;Request&gt;("text/plain")</c>
     /// </para>
@@ -187,7 +189,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <summary>
     /// use this only if you have your own exception catching middleware.
     /// if this method is called in config, an automatic error response will not be sent to the client by the library.
-    /// all exceptions will be thrown and it would be the responsibility of your exeception catching middleware to handle them.
+    /// all exceptions will be thrown, and it would be the responsibility of your exception catching middleware to handle them.
     /// </summary>
     protected void DontCatchExceptions()
         => Definition.DontCatchExceptions();
@@ -212,7 +214,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
     #endif
-        [RouteTemplate] params string[] routePatterns)
+        [RouteTemplate]
+        params string[] routePatterns)
     {
         Verbs(Http.GET);
         Routes(routePatterns);
@@ -235,7 +238,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
     #endif
-        [RouteTemplate] string routePattern,
+        [RouteTemplate]
+        string routePattern,
         Expression<Func<TRequest, object>> members)
     {
         Verbs(Http.GET);
@@ -261,7 +265,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
     #endif
-        [RouteTemplate] params string[] routePatterns)
+        [RouteTemplate]
+        params string[] routePatterns)
     {
         Verbs(Http.HEAD);
         Routes(routePatterns);
@@ -284,7 +289,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
     #endif
-        [RouteTemplate] string routePattern,
+        [RouteTemplate]
+        string routePattern,
         Expression<Func<TRequest, object>> members)
     {
         Verbs(Http.HEAD);
@@ -314,7 +320,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
     #endif
-        [RouteTemplate] params string[] routePatterns)
+        [RouteTemplate]
+        params string[] routePatterns)
     {
         Verbs(Http.PATCH);
         Routes(routePatterns);
@@ -337,7 +344,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
     #endif
-        [RouteTemplate] string routePattern,
+        [RouteTemplate]
+        string routePattern,
         Expression<Func<TRequest, object>> members)
     {
         Verbs(Http.PATCH);
@@ -352,7 +360,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
         => Definition.Permissions(permissions);
 
     /// <summary>
-    /// allows access if the claims principal has ALL of the given permissions
+    /// allows access if the claims principal has ALL the given permissions
     /// </summary>
     /// <param name="permissions">the permissions</param>
     protected void PermissionsAll(params string[] permissions)
@@ -380,7 +388,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
     #endif
-        [RouteTemplate] params string[] routePatterns)
+        [RouteTemplate]
+        params string[] routePatterns)
     {
         Verbs(Http.POST);
         Routes(routePatterns);
@@ -403,7 +412,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
     #endif
-        [RouteTemplate] string routePattern,
+        [RouteTemplate]
+        string routePattern,
         Expression<Func<TRequest, object>> members)
     {
         Verbs(Http.POST);
@@ -442,7 +452,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// configure a collection of pre-processors to be executed before the main handler function is called. processors are executed in the order they are defined
     /// here.
     /// </summary>
-    /// <param name="preProcessors">the pre processors to be executed</param>
+    /// <param name="preProcessors">the pre-processors to be executed</param>
     protected void PreProcessors(params IPreProcessor<TRequest>[] preProcessors)
         => EndpointDefinition.AddProcessors(Order.After, preProcessors, Definition.PreProcessorList, ref _unused);
 
@@ -453,7 +463,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
     #endif
-        [RouteTemplate] params string[] routePatterns)
+        [RouteTemplate]
+        params string[] routePatterns)
     {
         Verbs(Http.PUT);
         Routes(routePatterns);
@@ -476,7 +487,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
     #endif
-        [RouteTemplate] string routePattern,
+        [RouteTemplate]
+        string routePattern,
         Expression<Func<TRequest, object>> members)
     {
         Verbs(Http.PUT);
@@ -538,7 +550,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
     #endif
-        [RouteTemplate] params string[] patterns)
+        [RouteTemplate]
+        params string[] patterns)
         => Definition.Routes = patterns;
 
     /// <summary>
@@ -629,6 +642,15 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
         Definition.InternalConfigAction =
             b =>
             {
+                //clearing all produces metadata before proceeding - https://github.com/FastEndpoints/FastEndpoints/issues/833
+                //this is possibly related to .net 9+ only, but we'll be covering all bases this way.
+                b.Add(
+                    eb =>
+                    {
+                        foreach (var m in eb.Metadata.OfType<IProducesResponseTypeMetadata>().ToArray())
+                            eb.Metadata.Remove(m);
+                    });
+
                 var tRequest = typeof(TRequest);
                 var isPlainTextRequest = Types.IPlainTextRequest.IsAssignableFrom(tRequest);
 
@@ -657,7 +679,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
                 else
                 {
                     if (_tResponse == Types.Object || _tResponse == Types.EmptyResponse)
-                        b.Produces<TResponse>(200, "text/plain", "application/json");
+                        b.Produces(204);
                     else
                         b.Produces<TResponse>(200, "application/json");
                 }

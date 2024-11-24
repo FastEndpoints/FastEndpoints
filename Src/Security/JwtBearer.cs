@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 #if NET8_0_OR_GREATER
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -28,7 +29,7 @@ public static class JwtBearer
     {
         //TODO: remove all other overloads in favor of this at v6.0
 
-        var opts = options ?? new JwtCreationOptions();
+        var opts = options ?? new JwtCreationOptions(Cfg.ServiceResolver.TryResolve<IOptions<JwtCreationOptions>>()?.Value);
         optsAction?.Invoke(opts);
 
         if (string.IsNullOrEmpty(opts.SigningKey))

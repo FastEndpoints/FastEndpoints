@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using TestCases.EmptyRequestTest;
+using TestCases.Routing;
 
 namespace EndpointTests;
 
@@ -76,15 +77,21 @@ public class EndpointTests(Sut App) : TestBase<Sut>
         };
 
         // Act
-        var getResp = await App.AdminClient.GETAsync<TestCases.HydratedTestUrlGeneratorTest.Endpoint, TestCases.HydratedTestUrlGeneratorTest.Request, string>(req);
+        var getResp = await App.AdminClient
+                               .GETAsync<TestCases.HydratedTestUrlGeneratorTest.Endpoint, TestCases.HydratedTestUrlGeneratorTest.Request, string>(req);
 
-        var postResp = await App.AdminClient.POSTAsync<TestCases.HydratedTestUrlGeneratorTest.Endpoint, TestCases.HydratedTestUrlGeneratorTest.Request, string>(req);
+        var postResp = await App.AdminClient
+                                .POSTAsync<TestCases.HydratedTestUrlGeneratorTest.Endpoint, TestCases.HydratedTestUrlGeneratorTest.Request, string>(req);
 
-        var putResp = await App.AdminClient.PUTAsync<TestCases.HydratedTestUrlGeneratorTest.Endpoint, TestCases.HydratedTestUrlGeneratorTest.Request, string>(req);
+        var putResp = await App.AdminClient
+                               .PUTAsync<TestCases.HydratedTestUrlGeneratorTest.Endpoint, TestCases.HydratedTestUrlGeneratorTest.Request, string>(req);
 
-        var patchResp = await App.AdminClient.PATCHAsync<TestCases.HydratedTestUrlGeneratorTest.Endpoint, TestCases.HydratedTestUrlGeneratorTest.Request, string>(req);
+        var patchResp = await App.AdminClient
+                                 .PATCHAsync<TestCases.HydratedTestUrlGeneratorTest.Endpoint, TestCases.HydratedTestUrlGeneratorTest.Request, string>(req);
 
-        var deleteResp = await App.AdminClient.DELETEAsync<TestCases.HydratedTestUrlGeneratorTest.Endpoint, TestCases.HydratedTestUrlGeneratorTest.Request, string>(req);
+        var deleteResp = await App.AdminClient
+                                  .DELETEAsync<TestCases.HydratedTestUrlGeneratorTest.Endpoint, TestCases.HydratedTestUrlGeneratorTest.Request, string>(
+                                      req);
 
         // Assert
         var expectedPath = "/api/test/hydrated-test-url-generator-test/123/00000000-0000-0000-0000-000000000000/string/null/{fromClaim}/{fromHeader}/True";
@@ -93,5 +100,41 @@ public class EndpointTests(Sut App) : TestBase<Sut>
         putResp.Result.Should().BeEquivalentTo(expectedPath);
         patchResp.Result.Should().BeEquivalentTo(expectedPath);
         deleteResp.Result.Should().BeEquivalentTo(expectedPath);
+    }
+
+    [Fact]
+    public async Task NonOptionalRouteParamThrowsExceptionIfParamIsNull()
+    {
+        var request = new NonOptionalRouteParamTest.Request(null!);
+
+        var act = async () => await App.Client.POSTAsync<NonOptionalRouteParamTest, NonOptionalRouteParamTest.Request>(request);
+
+        await act.Should()
+                 .ThrowAsync<InvalidOperationException>()
+                 .WithMessage("Route param value missing for required param [{UserId}].");
+    }
+
+    [Fact]
+    public async Task OptionalRouteParamWithNullValueReturnsDefaultValue()
+    {
+        var request = new OptionalRouteParamTest.Request(null);
+
+        var (rsp, res) = await App.Client.POSTAsync<OptionalRouteParamTest, OptionalRouteParamTest.Request, string>(request);
+
+        rsp.IsSuccessStatusCode.Should().BeTrue();
+
+        res.Should().Be("default offer");
+    }
+
+    [Fact]
+    public async Task OptionalRouteParamWithValueReturnsSentValue()
+    {
+        var request = new OptionalRouteParamTest.Request("blah blah!");
+
+        var (rsp, res) = await App.Client.POSTAsync<OptionalRouteParamTest, OptionalRouteParamTest.Request, string>(request);
+
+        rsp.IsSuccessStatusCode.Should().BeTrue();
+
+        res.Should().Be("blah blah!");
     }
 }

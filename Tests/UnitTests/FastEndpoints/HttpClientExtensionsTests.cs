@@ -16,7 +16,7 @@ public class HttpClientExtensionsTests
         MockHttpMessageHandler mockHttp = new();
         mockHttp.Expect(
                     HttpMethod.Get,
-                    "http://localhost/api/test/1/00000000-0000-0000-0000-000000000000/stringValue/{fromClaim}/{fromHeader}/{hasPermission}/{NullableString?}")
+                    "http://localhost/api/test/1/00000000-0000-0000-0000-000000000000/stringValue/{fromClaim}/{fromHeader}/{hasPermission}")
                 .Respond("application/json", "{}");
         var http = mockHttp.ToHttpClient();
         http.BaseAddress = new("http://localhost");

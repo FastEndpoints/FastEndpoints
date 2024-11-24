@@ -38,7 +38,6 @@ public interface IPreProcessorContext<out TRequest> : IPreProcessorContext
     /// <summary>
     /// gets the request object of the generic type <typeparamref name="TRequest" />.
     /// may be null if request binding has failed.
-    /// This hides the non-generic version from <see cref="IPreProcessorContext" />.
     /// </summary>
     new TRequest? Request { get; }
 

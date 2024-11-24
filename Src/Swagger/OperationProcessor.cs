@@ -154,7 +154,7 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
                     else
                         res.Schema.Reference = ctx.SchemaResolver.GetSchema(meta.Value.tDto!, false);
 
-                    op.Responses.Add(meta.Key, res);
+                    op.Responses[meta.Key] = res;
                     var orderedResponses = op.Responses.OrderBy(kvp => kvp.Key).ToArray();
                     op.Responses.Clear();
 
@@ -188,7 +188,7 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
                             };
                         }
 
-                        if (x.usrHeaders?.Any() is true)
+                        if (x.usrHeaders?.Length > 0)
                         {
                             foreach (var hdr in x.usrHeaders)
                             {

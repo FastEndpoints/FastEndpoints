@@ -53,11 +53,13 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
     }
 
     /// <summary>
-    /// a hook for modifying jwt creation options per request when a login request comes in. this method is called right before the actual jwt token is created allowing you to
-    /// override token creation parameters per request if needed.
+    /// a hook for modifying jwt creation options per request when a login request comes in. this method is called right before the actual jwt token is created
+    /// allowing you to override token creation parameters per request if needed.
     /// </summary>
     /// <param name="jwtOptions">jwt token creation options which you can modify per request</param>
-    /// <param name="request">the request dto. maybe null unless you supply it to the <see cref="Endpoint{TRequest,TResponse}.CreateTokenWith{TService}" /> method.</param>
+    /// <param name="request">
+    /// the request dto. maybe null unless you supply it to the <see cref="Endpoint{TRequest,TResponse}.CreateTokenWith{TService}" /> method.
+    /// </param>
     [SuppressMessage("ReSharper", "UnusedParameter.Global")]
     public virtual Task OnBeforeInitialTokenCreationAsync(JwtCreationOptions jwtOptions, object? request)
         => Task.CompletedTask;
@@ -65,18 +67,22 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
     /// <summary>
     /// a hook for modifying the created token response when a login request comes in.
     /// </summary>
-    /// <param name="request">the request dto. maybe null unless you supply it to the <see cref="Endpoint{TRequest,TResponse}.CreateTokenWith{TService}" /> method.</param>
+    /// <param name="request">
+    /// the request dto. maybe null unless you supply it to the <see cref="Endpoint{TRequest,TResponse}.CreateTokenWith{TService}" /> method.
+    /// </param>
     /// <param name="response">the token response dto that is created</param>
     [SuppressMessage("ReSharper", "UnusedParameter.Global")]
     public virtual Task OnAfterInitialTokenCreationAsync(object? request, TResponse response)
         => Task.CompletedTask;
 
     /// <summary>
-    /// a hook for modifying jwt creation options per request when a renewal request comes in. this method is called right before the actual jwt token is created allowing you to
-    /// override token creation parameters per request if needed.
+    /// a hook for modifying jwt creation options per request when a renewal request comes in. this method is called right before the actual jwt token is created
+    /// allowing you to override token creation parameters per request if needed.
     /// </summary>
     /// <param name="jwtOptions">jwt token creation options which you can modify per request</param>
-    /// <param name="request">the request dto. maybe null unless you supply it to the <see cref="Endpoint{TRequest,TResponse}.CreateTokenWith{TService}" /> method.</param>
+    /// <param name="request">
+    /// the request dto. maybe null unless you supply it to the <see cref="Endpoint{TRequest,TResponse}.CreateTokenWith{TService}" /> method.
+    /// </param>
     [SuppressMessage("ReSharper", "UnusedParameter.Global")]
     public virtual Task OnBeforeRenewalTokenCreationAsync(JwtCreationOptions jwtOptions, TRequest? request)
         => Task.CompletedTask;
@@ -84,7 +90,9 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
     /// <summary>
     /// a hook for modifying the created token response when a renewal request comes in.
     /// </summary>
-    /// <param name="request">the request dto. maybe null unless you supply it to the <see cref="Endpoint{TRequest,TResponse}.CreateTokenWith{TService}" /> method.</param>
+    /// <param name="request">
+    /// the request dto. maybe null unless you supply it to the <see cref="Endpoint{TRequest,TResponse}.CreateTokenWith{TService}" /> method.
+    /// </param>
     /// <param name="response">the token response dto that is created</param>
     [SuppressMessage("ReSharper", "UnusedParameter.Global")]
     public virtual Task OnAfterRenewalTokenCreationAsync(TRequest? request, TResponse response)
@@ -100,8 +108,8 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
     /// <summary>
     /// validate the incoming refresh request by checking the token and expiry against the previously stored data.
     /// if the token is not valid and a new token pair should not be created, simply add validation errors using the <c>AddError()</c> method.
-    /// the failures you add will be sent to the requesting client.
-    /// if no failures are added, validation passes and a new token pair will be created and sent to the client.
+    /// the failures you add will be sent to the requesting client. if no failures are added, validation passes and a new token pair will be created and sent to
+    /// the client.
     /// </summary>
     /// <param name="req">the incoming refresh request dto</param>
     public abstract Task RefreshRequestValidationAsync(TRequest req);
@@ -123,7 +131,11 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
     /// <param name="map">a func that maps properties from <typeparamref name="TResponse" /> to <typeparamref name="T" /></param>
     /// <param name="isRenewal">specify if this is an initial login request or a renewal/refresh request</param>
     /// <param name="request">the request dto</param>
-    public async Task<T> CreateCustomToken<T>(string userId, Action<UserPrivileges> privileges, Func<TResponse, T> map, bool isRenewal = false, object? request = null)
+    public async Task<T> CreateCustomToken<T>(string userId,
+                                              Action<UserPrivileges> privileges,
+                                              Func<TResponse, T> map,
+                                              bool isRenewal = false,
+                                              object? request = null)
     {
         var res = await ((IRefreshTokenService<TResponse>)this).CreateToken(userId, privileges, isRenewal, request);
 

@@ -56,10 +56,13 @@ public class SwaggerDocTests(Fixture App) : TestBase<Fixture>
         currentDoc.Should().BeEquivalentTo(snapshotDoc);
     }
 
-    static Task UpdateSnapshot(string jsonFileName, string jsonContent)
+    // ReSharper disable once UnusedMember.Local
+    static async Task UpdateSnapshot(string jsonFileName, string jsonContent)
     {
         var destination = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", jsonFileName));
 
-        return File.WriteAllTextAsync(destination, jsonContent);
+        await File.WriteAllTextAsync(destination, jsonContent);
+
+        throw new OperationCanceledException($"Snapshots updated! Go ahead and comment out the {nameof(UpdateSnapshot)}() methods and re-run the tests!");
     }
 }

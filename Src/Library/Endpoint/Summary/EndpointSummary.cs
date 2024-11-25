@@ -16,10 +16,9 @@ public class EndpointSummary
         = b => b.Add(
               epBuilder =>
               {
-                  foreach (var m in epBuilder.Metadata.Where(o => o.GetType().Name == Constants.ProducesMetadata)
-                                             .ToArray())
+                  foreach (var m in epBuilder.Metadata.OfType<IProducesResponseTypeMetadata>().ToArray())
                   {
-                      if (((IProducesResponseTypeMetadata)m).StatusCode == 200)
+                      if (m.StatusCode == 200)
                           epBuilder.Metadata.Remove(m);
                   }
               });
@@ -120,7 +119,7 @@ public class EndpointSummary
         ProducesMetas.Add(
             new ProducesResponseTypeMetadata
             {
-                ContentTypes = new[] { contentType },
+                ContentTypes = [contentType],
                 StatusCode = statusCode,
                 Type = typeof(TResponse),
                 Example = example
@@ -143,7 +142,7 @@ public class EndpointSummary
         ProducesMetas.Add(
             new ProducesResponseTypeMetadata
             {
-                ContentTypes = contentType is null ? Enumerable.Empty<string>() : new[] { contentType },
+                ContentTypes = contentType is null ? [] : [contentType],
                 StatusCode = statusCode,
                 Type = typeof(void)
             });

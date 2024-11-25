@@ -34,6 +34,7 @@ bld.Services
    .SwaggerDocument(
        o =>
        {
+           o.EndpointFilter = ep => ep.EndpointTags?.Contains("release_versioning") is not true;
            o.DocumentSettings =
                s =>
                {
@@ -49,6 +50,7 @@ bld.Services
    .SwaggerDocument(
        o =>
        {
+           o.EndpointFilter = ep => ep.EndpointTags?.Contains("release_versioning") is not true;
            o.DocumentSettings =
                s =>
                {
@@ -71,6 +73,7 @@ bld.Services
    .SwaggerDocument(
        o =>
        {
+           o.EndpointFilter = ep => ep.EndpointTags?.Contains("release_versioning") is not true;
            o.DocumentSettings =
                s =>
                {
@@ -86,6 +89,7 @@ bld.Services
    .SwaggerDocument(
        o => //only ver3 & only FastEndpoints
        {
+           o.EndpointFilter = ep => ep.EndpointTags?.Contains("release_versioning") is not true;
            o.DocumentSettings =
                s =>
                {
@@ -96,6 +100,44 @@ bld.Services
            o.MinEndpointVersion = 3;
            o.MaxEndpointVersion = 3;
            o.ExcludeNonFastEndpoints = true;
+       })
+
+   //used for release versioning tests
+   .SwaggerDocument(
+       o =>
+       {
+           o.ExcludeNonFastEndpoints = true;
+           o.EndpointFilter = ep => ep.EndpointTags?.Contains("release_versioning") is true;
+           o.DocumentSettings = d => d.DocumentName = "ReleaseVersioning - v0";
+           o.ReleaseVersion = 0;
+           o.ShowDeprecatedOps = true;
+       })
+   .SwaggerDocument(
+       o =>
+       {
+           o.ExcludeNonFastEndpoints = true;
+           o.EndpointFilter = ep => ep.EndpointTags?.Contains("release_versioning") is true;
+           o.DocumentSettings = d => d.DocumentName = "ReleaseVersioning - v1";
+           o.ReleaseVersion = 1;
+           o.ShowDeprecatedOps = true;
+       })
+   .SwaggerDocument(
+       o =>
+       {
+           o.ExcludeNonFastEndpoints = true;
+           o.EndpointFilter = ep => ep.EndpointTags?.Contains("release_versioning") is true;
+           o.DocumentSettings = d => d.DocumentName = "ReleaseVersioning - v2";
+           o.ReleaseVersion = 2;
+           o.ShowDeprecatedOps = true;
+       })
+   .SwaggerDocument(
+       o =>
+       {
+           o.ExcludeNonFastEndpoints = true;
+           o.EndpointFilter = ep => ep.EndpointTags?.Contains("release_versioning") is true;
+           o.DocumentSettings = d => d.DocumentName = "ReleaseVersioning - v3";
+           o.ReleaseVersion = 3;
+           o.ShowDeprecatedOps = true;
        });
 
 var supportedCultures = new[] { new CultureInfo("en-US") };
@@ -129,7 +171,7 @@ app.UseRequestLocalization(
            c.Endpoints.RoutePrefix = "api";
            c.Endpoints.ShortNames = false;
            c.Endpoints.PrefixNameWithFirstTag = true;
-           c.Endpoints.Filter = (EndpointDefinition ep) => ep.EndpointTags?.Contains("exclude") is not true;
+           c.Endpoints.Filter = ep => ep.EndpointTags?.Contains("exclude") is not true;
            c.Endpoints.Configurator =
                ep =>
                {

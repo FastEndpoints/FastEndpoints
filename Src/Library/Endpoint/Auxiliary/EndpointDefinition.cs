@@ -235,14 +235,17 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
         => AntiforgeryEnabled = true;
 
     /// <summary>
-    /// specify the version of the endpoint if versioning is enabled
+    /// specify the version of this endpoint.
     /// </summary>
     /// <param name="version">the version of this endpoint</param>
-    /// <param name="deprecateAt">the version group number starting at which this endpoint should not be included in swagger document</param>
-    public void EndpointVersion(int version, int? deprecateAt = null)
+    /// <param name="deprecateAt">the version number starting at which this endpoint should not be included in swagger document</param>
+    public EpVersion EndpointVersion(int version, int deprecateAt = 0)
     {
         Version.Current = version;
-        Version.DeprecatedAt = deprecateAt ?? 0;
+        Version.StartingReleaseVersion = version;
+        Version.DeprecatedAt = deprecateAt;
+
+        return Version;
     }
 
     /// <summary>
@@ -601,7 +604,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
 public sealed class EpVersion
 {
     public int Current { get; internal set; }
-    public int ReleaseVersion { get; internal set; }
+    public int StartingReleaseVersion { get; internal set; }
     public int DeprecatedAt { get; internal set; }
 
     internal void Init()
@@ -609,6 +612,26 @@ public sealed class EpVersion
         if (Current == 0)
             Current = VerOpts.DefaultVersion;
     }
+
+    /// <summary>
+    /// specify the "release" number of the swagger document where this endpoint should start showing up in.
+    /// for example, if a swagger doc such as the following is defined:
+    /// <code>
+    /// bld.Services.SwaggerDocument(
+    ///        o =>
+    ///        {
+    ///            o.DocumentSettings = d => d.DocumentName = "Release 2";
+    ///            o.ReleaseVersion = 2;
+    ///        })
+    ///  </code>
+    /// this endpoint will only show up for the above doc and later if you do the following:
+    /// <code>
+    /// Version(n).StartingRelease(2);
+    /// </code>
+    /// </summary>
+    /// <param name="version">the starting release version number of the swagger doc</param>
+    public void StartingRelease(int version)
+        => StartingReleaseVersion = version;
 }
 
 sealed class ServiceBoundEpProp

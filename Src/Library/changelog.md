@@ -70,6 +70,12 @@ If you need to override any of the globally specified settings, that can be done
 
 </details>
 
+<details><summary>New endpoint versioning strategy based on 'Release Versions'</summary>
+
+todo: write docs + write brief explanation here or link to docs
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Swagger OneOf support for polymorphic responses</summary>

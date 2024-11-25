@@ -2,10 +2,8 @@
 
 namespace Swagger;
 
-public class Fixture : AppFixture<Web.Program>
+public class Fixture(IMessageSink s) : AppFixture<Web.Program>(s)
 {
-    public Fixture(IMessageSink s) : base(s) { }
-
     public IOpenApiDocumentGenerator DocGenerator { get; set; } = default!;
 
     protected override Task SetupAsync()

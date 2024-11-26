@@ -67,6 +67,8 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
     {
         b.Clear().w(
             $$"""
+              #pragma warning disable CS0618
+
               namespace {{_assemblyName}};
 
               using System;

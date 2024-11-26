@@ -1,6 +1,7 @@
 <Project>
     <PropertyGroup>
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+        <NuGetAuditMode>direct</NuGetAuditMode>
     </PropertyGroup>
     <ItemGroup>
         <PackageVersion Include="Asp.Versioning.Http" Condition="'$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'net7.0'" Version="7.1.0"/>

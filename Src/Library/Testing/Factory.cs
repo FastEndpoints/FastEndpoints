@@ -35,7 +35,7 @@ public static class Factory
             tEndpoint.GetGenericArgumentsOfType(Types.EndpointOf2)?[0] ?? Types.EmptyRequest,
             tEndpoint.GetGenericArgumentsOfType(Types.EndpointOf2)?[1] ?? Types.EmptyRequest)
         {
-            MapperType = tEndpoint.GetGenericArgumentsOfType(Types.EndpointOf3)?[2]
+            MapperType = GetMapperType(tEndpoint)
         };
 
         if (ctorDependencies.Length > 0)
@@ -50,6 +50,27 @@ public static class Factory
         epDef.Initialize(ep, httpContext);
 
         return (ep as TEndpoint)!;
+
+        static Type? GetMapperType(Type tEndpoint)
+        {
+            var t = tEndpoint;
+
+            while (t is not null)
+            {
+                if (t.IsGenericType)
+                {
+                    foreach (var arg in t.GetGenericArguments())
+                    {
+                        if (Types.IMapper.IsAssignableFrom(arg))
+                            return arg;
+                    }
+                }
+
+                t = t.BaseType;
+            }
+
+            return null;
+        }
     }
 
     /// <summary>
@@ -86,7 +107,7 @@ public static class Factory
            .AddSingleton(typeof(EventBus<>));
 
     /// <summary>
-    /// register fake/mock/test services for the http context. typically only used with unit tests with the <c>Factory.Create()</c>" method/>
+    /// register fake/mock/test services for the http context. typically only used with unit tests with the <c>Factory.Create()</c> method/>
     /// </summary>
     /// <param name="s">an action for adding services to the <see cref="IServiceCollection" /></param>
     /// <exception cref="InvalidOperationException">thrown if the <see cref="HttpContext.RequestServices" /> is not empty</exception>

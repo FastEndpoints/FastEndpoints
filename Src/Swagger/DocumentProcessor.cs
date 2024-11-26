@@ -47,6 +47,7 @@ sealed class DocumentProcessor : IDocumentProcessor
 
                                    return new
                                    {
+                                       isFastEp = tagSegments?.Length > 0,
                                        route = tagSegments?[1],
                                        epVer = Convert.ToInt32(tagSegments?[2]),
                                        startingRelVer = Convert.ToInt32(tagSegments?[3]),
@@ -71,8 +72,8 @@ sealed class DocumentProcessor : IDocumentProcessor
                                                  .Select(
                                                      x =>
                                                      {
-                                                         (x.pathItm.ExtensionData ??= new Dictionary<string, object>())
-                                                             [_isLatest] = x.epVer == latestVersion;
+                                                         if (x.isFastEp && x.epVer == latestVersion)
+                                                             (x.pathItm.ExtensionData ??= new Dictionary<string, object>())[_isLatest] = "true";
 
                                                          return x;
                                                      })
@@ -89,12 +90,7 @@ sealed class DocumentProcessor : IDocumentProcessor
             var isFastEp = p.Value.SelectMany(o => o.Value.Tags).Any(t => t.StartsWith("|"));
 
             if (!isFastEp)
-            {
-                foreach (var op in p.Value)
-                    op.Value.Parent.ExtensionData?.Remove(_isLatest);
-
                 continue; //this isn't a fastendpoint. so don't remove it from the paths
-            }
 
             if (!pathItems.Contains(p.Value))
                 ctx.Document.Paths.Remove(p.Key);
@@ -109,7 +105,7 @@ sealed class DocumentProcessor : IDocumentProcessor
                 //op.Value.Summary = $"epVer: {epVer} | startRelVer: {startingRelVer} | depVer: {depVer}";
 
                 var isDeprecated = _docRelVer > 0
-                                       ? (depVer > 0 && _docRelVer >= depVer) || op.Value.Parent.ExtensionData?[_isLatest] is false
+                                       ? (depVer > 0 && _docRelVer >= depVer) || op.Value.Parent.ExtensionData?.ContainsKey(_isLatest) is not true
                                        : _maxEpVer >= depVer && depVer != 0;
 
                 op.Value.Parent.ExtensionData?.Remove(_isLatest);

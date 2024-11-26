@@ -57,6 +57,7 @@ public sealed class JwtCreationOptions
     /// </summary>
     public bool KeyIsPemEncoded { get; set; }
 
+#pragma warning disable CS1574
     /// <summary>
     /// if specified, this function will be used to generate a <c>kid</c> for asymmetric key generation.
     /// the <c>string</c> value returned from this function will be set on the <see cref="RsaSecurityKey" />.<see cref="RsaSecurityKey.KeyId" /> property.

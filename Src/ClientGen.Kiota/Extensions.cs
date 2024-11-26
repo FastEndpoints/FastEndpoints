@@ -12,6 +12,8 @@ using NSwag.Generation;
 
 namespace FastEndpoints.ClientGen.Kiota;
 
+#pragma warning disable VSTHRD200
+
 public static class Extensions
 {
     const string TempFolder = "KiotaClientGen";
@@ -55,8 +57,8 @@ public static class Extensions
     }
 
     /// <summary>
-    /// generates api clients based on supplied configurations and saves them to disk if the application is run with the commandline argument '<c>--generateclients true</c>'
-    /// and exits the program with a zero exit code.
+    /// generates api clients based on supplied configurations and saves them to disk if the application is run with the commandline argument
+    /// '<c>--generateclients true</c>' and exits the program with a zero exit code.
     /// <para>HINT: make sure to place the call straight after <c>app.UseFastEndpoints()</c></para>
     /// </summary>
     /// <param name="configs">client generation configurations</param>
@@ -64,8 +66,8 @@ public static class Extensions
         => GenerateApiClientsAndExitAsync(app, default, configs);
 
     /// <summary>
-    /// generates api clients based on supplied configurations and saves them to disk if the application is run with the commandline argument '<c>--generateclients true</c>'
-    /// and exits the program with a zero exit code.
+    /// generates api clients based on supplied configurations and saves them to disk if the application is run with the commandline argument
+    /// '<c>--generateclients true</c>' and exits the program with a zero exit code.
     /// <para>HINT: make sure to place the call straight after <c>app.UseFastEndpoints()</c></para>
     /// </summary>
     /// <param name="ct">cancellation token</param>
@@ -89,7 +91,8 @@ public static class Extensions
     }
 
     /// <summary>
-    /// exports a swagger.json file to disk for a given swagger document if the application is run with the commandline argument '<c>--exportswaggerjson true</c>' and exits the
+    /// exports a swagger.json file to disk for a given swagger document if the application is run with the commandline argument '<c>--exportswaggerjson true</c>'
+    /// and exits the
     /// program with a zero exit code.
     /// <para>HINT: make sure to place the call straight after '<c>app.UseFastEndpoints()</c>'</para>
     /// </summary>
@@ -112,7 +115,8 @@ public static class Extensions
     }
 
     /// <summary>
-    /// exports multiple swagger.json files to disk if the application is run with the commandline argument '<c>--exportswaggerjson true</c>' and exits the program with a zero
+    /// exports multiple swagger.json files to disk if the application is run with the commandline argument '<c>--exportswaggerjson true</c>' and exits the
+    /// program with a zero
     /// exit code.
     /// <para>HINT: make sure to place the call straight after '<c>app.UseFastEndpoints()</c>'</para>
     /// </summary>

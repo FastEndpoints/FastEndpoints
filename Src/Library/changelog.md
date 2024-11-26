@@ -115,6 +115,12 @@ Even though it's not incorrect, it can cause issues in some cases such as for TS
 
 </details>
 
+<details><summary>Detection of mapper type in unit tests</summary>
+
+The logic for automatically detecting the endpoint mapper type during unit tests has been improved to prevent any "Endpoint mapper not set!" exceptions in some cases.
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>Struct support for request DTOs</summary>

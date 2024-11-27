@@ -100,9 +100,9 @@ sealed class DocumentProcessor : IDocumentProcessor
                 var tagSegments = op.Value.Tags.SingleOrDefault(t => t.StartsWith("|"))?.Split("|");
                 var depVer = Convert.ToInt32(tagSegments?[4]);
 
-                //var epVer = Convert.ToInt32(tagSegments?[2]);
-                //var startingRelVer = Convert.ToInt32(tagSegments?[3]);
-                //op.Value.Summary = $"epVer: {epVer} | startRelVer: {startingRelVer} | depVer: {depVer}";
+                var epVer = Convert.ToInt32(tagSegments?[2]);
+                var startingRelVer = Convert.ToInt32(tagSegments?[3]);
+                op.Value.Summary = $"epVer: {epVer} | startRelVer: {startingRelVer} | depVer: {depVer}";
 
                 var isDeprecated = _docRelVer > 0
                                        ? (depVer > 0 && _docRelVer >= depVer) || op.Value.Parent.ExtensionData?.ContainsKey(_isLatest) is not true

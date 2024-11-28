@@ -20,7 +20,7 @@ sealed class EndpointA_V1 : EndpointWithoutRequest
     {
         Get("/release-versioning/endpoint-a");
         Tags("release_versioning");
-        Version(1, deprecateAt: 2);
+        Version(1).DeprecateAt(2);
     }
 
     public override Task HandleAsync(CancellationToken c)
@@ -33,7 +33,9 @@ sealed class EndpointA_V2 : EndpointWithoutRequest
     {
         Get("/release-versioning/endpoint-a");
         Tags("release_versioning");
-        Version(2).StartingRelease(3);
+        Version(2)
+            .StartingRelease(3)
+            .DeprecateAt(4);
     }
 
     public override Task HandleAsync(CancellationToken c)

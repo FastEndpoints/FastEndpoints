@@ -630,8 +630,27 @@ public sealed class EpVersion
     /// </code>
     /// </summary>
     /// <param name="version">the starting release version number of the swagger doc</param>
-    public void StartingRelease(int version)
-        => StartingReleaseVersion = version;
+    public EpVersion StartingRelease(int version)
+    {
+        StartingReleaseVersion = version;
+
+        return this;
+    }
+
+    /// <summary>
+    /// specify starting at which version this endpoint should be considered deprecated.
+    /// <para>
+    /// NOTE: it would be the endpoint version to deprecate at for "release group" strategy, and the "release version" of the swagger doc when using the
+    /// "release version" strategy.
+    /// </para>
+    /// </summary>
+    /// <param name="version"></param>
+    public EpVersion DeprecateAt(int version)
+    {
+        DeprecatedAt = version;
+
+        return this;
+    }
 }
 
 sealed class ServiceBoundEpProp

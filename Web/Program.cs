@@ -108,7 +108,11 @@ bld.Services
        {
            o.ExcludeNonFastEndpoints = true;
            o.EndpointFilter = ep => ep.EndpointTags?.Contains("release_versioning") is true;
-           o.DocumentSettings = d => d.DocumentName = "ReleaseVersioning - v0";
+           o.DocumentSettings = d =>
+                                {
+                                    d.Title = "Web API";
+                                    d.DocumentName = "ReleaseVersioning - v0";
+                                };
            o.ReleaseVersion = 0;
            o.ShowDeprecatedOps = true;
        })
@@ -117,7 +121,11 @@ bld.Services
        {
            o.ExcludeNonFastEndpoints = true;
            o.EndpointFilter = ep => ep.EndpointTags?.Contains("release_versioning") is true;
-           o.DocumentSettings = d => d.DocumentName = "ReleaseVersioning - v1";
+           o.DocumentSettings = d =>
+                                {
+                                    d.Title = "Web API";
+                                    d.DocumentName = "ReleaseVersioning - v1";
+                                };
            o.ReleaseVersion = 1;
            o.ShowDeprecatedOps = true;
        })
@@ -126,7 +134,11 @@ bld.Services
        {
            o.ExcludeNonFastEndpoints = true;
            o.EndpointFilter = ep => ep.EndpointTags?.Contains("release_versioning") is true;
-           o.DocumentSettings = d => d.DocumentName = "ReleaseVersioning - v2";
+           o.DocumentSettings = d =>
+                                {
+                                    d.Title = "Web API";
+                                    d.DocumentName = "ReleaseVersioning - v2";
+                                };
            o.ReleaseVersion = 2;
            o.ShowDeprecatedOps = true;
        })
@@ -135,7 +147,11 @@ bld.Services
        {
            o.ExcludeNonFastEndpoints = true;
            o.EndpointFilter = ep => ep.EndpointTags?.Contains("release_versioning") is true;
-           o.DocumentSettings = d => d.DocumentName = "ReleaseVersioning - v3";
+           o.DocumentSettings = d =>
+                                {
+                                    d.Title = "Web API";
+                                    d.DocumentName = "ReleaseVersioning - v3";
+                                };
            o.ReleaseVersion = 3;
            o.ShowDeprecatedOps = true;
        });

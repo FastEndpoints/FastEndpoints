@@ -57,8 +57,9 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
         //fix missing path parameters
         var opPath = ctx.OperationDescription.Path = $"/{StripRouteConstraints(apiDescription.RelativePath!.TrimStart('~').TrimEnd('/'))}";
 
-        var apiVer = epDef.Version.Current;
-        var version = $"/{GlobalConfig.VersioningPrefix ?? "v"}{apiVer}";
+        var epVer = epDef.Version.Current;
+        var startingRelVer = epDef.Version.StartingReleaseVersion;
+        var version = $"/{GlobalConfig.VersioningPrefix ?? "v"}{epVer}";
         var routePrefix = "/" + (GlobalConfig.EndpointRoutePrefix ?? "_");
         var bareRoute = opPath.Remove(routePrefix).Remove(version);
         var nameMetaData = metaData.OfType<EndpointNameMetadata>().LastOrDefault();
@@ -90,7 +91,7 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
         }
 
         //this will be later removed from document processor. this info is needed by the document processor.
-        op.Tags.Add($"|{ctx.OperationDescription.Method}:{bareRoute}|{apiVer}|{epDef.Version.DeprecatedAt}");
+        op.Tags.Add($"|{ctx.OperationDescription.Method}:{bareRoute}|{epVer}|{startingRelVer}|{epDef.Version.DeprecatedAt}");
 
         //fix request content-types not displaying correctly
         if (reqContent?.Count > 0)
@@ -139,7 +140,6 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
             if (metas.Count > 0)
             {
             #if NET9_0_OR_GREATER
-
                 //remove this workaround when sdk bug is fixed: https://github.com/dotnet/aspnetcore/issues/57801#issuecomment-2439578287
                 foreach (var meta in metas.Where(m => m.Value.isIResult))
                 {

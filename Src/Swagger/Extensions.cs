@@ -397,6 +397,7 @@ public static class Extensions
         settings.SchemaSettings.SchemaProcessors.Add(validationProcessor);
         settings.SchemaSettings.SchemaProcessors.Add(new PolymorphismSchemaProcessor(opts));
         settings.OperationProcessors.Add(new OperationProcessor(opts));
-        settings.DocumentProcessors.Add(new DocumentProcessor(opts.MinEndpointVersion, opts.MaxEndpointVersion, opts.ShowDeprecatedOps));
+        settings.DocumentProcessors.Add(
+            new DocumentProcessor(opts.MinEndpointVersion, opts.MaxEndpointVersion, opts.ReleaseVersion, opts.ShowDeprecatedOps));
     }
 }

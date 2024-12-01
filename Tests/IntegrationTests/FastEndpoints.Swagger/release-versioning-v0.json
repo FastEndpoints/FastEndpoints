@@ -1,0 +1,62 @@
+{
+  "x-generator": "NSwag v14.2.0.0 (NJsonSchema v11.1.0.0 (Newtonsoft.Json v13.0.0.0))",
+  "openapi": "3.0.0",
+  "info": {
+    "title": "ReSharperTestRunner",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/release-versioning/endpoint-a": {
+      "get": {
+        "tags": [
+          "Release-Versioning"
+        ],
+        "operationId": "release_versioning_TestCasesSwaggerReleaseVersioningEndpointA",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/api/release-versioning/endpoint-b": {
+      "get": {
+        "tags": [
+          "Release-Versioning"
+        ],
+        "operationId": "release_versioning_TestCasesSwaggerReleaseVersioningEndpointB",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "JWTBearerAuth": {
+        "type": "http",
+        "description": "Enter a JWT token to authorize the requests...",
+        "scheme": "Bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

@@ -6,33 +6,35 @@ public class SwaggerDocTests(Fixture App) : TestBase<Fixture>
 {
     //NOTE: the Verify snapshot testing doesn't seem to work in gh workflow for some reason
     //      so we're doing manual json file comparison. matching against verified json files in the project root vs latest generated json.
-    //      to update the golden master (verified json files), just uncomment the UpdateSnapshot() calls and run the tests.
-    //      don't forget to comment them out afterward. because if you don't you're always comparing against newly generated output.
+    //      to update the golden master (verified json files), just set '_updateSnapshots = true' and run the tests.
+    //      don't forget to 'false' afterward. because if you don't you're always comparing against newly generated output.
+
+    static readonly bool _updateSnapshots = false;
 
     [Fact]
-    public async Task initial_release_doc_produces_correct_output()
+    public async Task release_0_doc()
     {
         var doc = await App.DocGenerator.GenerateAsync("Initial Release");
         var json = doc.ToJson();
         var currentDoc = JToken.Parse(json);
 
-        //await UpdateSnapshot("initial-release.json", json);
+        await UpdateSnapshotIfEnabled("release-0.json", json);
 
-        var snapshot = await File.ReadAllTextAsync("initial-release.json");
+        var snapshot = await File.ReadAllTextAsync("release-0.json");
         var snapshotDoc = JToken.Parse(snapshot);
 
         currentDoc.Should().BeEquivalentTo(snapshotDoc);
     }
 
     [Fact]
-    public async Task release_1_doc_produces_correct_output()
+    public async Task release_1_doc()
     {
         var doc = await App.DocGenerator.GenerateAsync("Release 1.0");
         var json = doc.ToJson();
 
         var currentDoc = JToken.Parse(json);
 
-        //await UpdateSnapshot("release-1.json", json);
+        await UpdateSnapshotIfEnabled("release-1.json", json);
 
         var snapshot = await File.ReadAllTextAsync("release-1.json");
         var snapshotDoc = JToken.Parse(snapshot);
@@ -41,14 +43,14 @@ public class SwaggerDocTests(Fixture App) : TestBase<Fixture>
     }
 
     [Fact]
-    public async Task release_2_doc_produces_correct_output()
+    public async Task release_2_doc()
     {
         var doc = await App.DocGenerator.GenerateAsync("Release 2.0");
         var json = doc.ToJson();
 
         var currentDoc = JToken.Parse(json);
 
-        //await UpdateSnapshot("release-2.json", json);
+        await UpdateSnapshotIfEnabled("release-2.json", json);
 
         var snapshot = await File.ReadAllTextAsync("release-2.json");
         var snapshotDoc = JToken.Parse(snapshot);
@@ -57,12 +59,76 @@ public class SwaggerDocTests(Fixture App) : TestBase<Fixture>
     }
 
     // ReSharper disable once UnusedMember.Local
-    static async Task UpdateSnapshot(string jsonFileName, string jsonContent)
+    static async Task UpdateSnapshotIfEnabled(string jsonFileName, string jsonContent)
     {
+        if (_updateSnapshots is false)
+            return;
+
         var destination = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", jsonFileName));
 
         await File.WriteAllTextAsync(destination, jsonContent);
 
-        throw new OperationCanceledException($"Snapshots updated! Go ahead and comment out the {nameof(UpdateSnapshot)}() methods and re-run the tests!");
+        throw new OperationCanceledException(
+            $"Snapshots updated! Go ahead and comment out the {nameof(UpdateSnapshotIfEnabled)}() methods and re-run the tests!");
+    }
+
+    [Fact]
+    public async Task release_versioning_v0()
+    {
+        var doc = await App.DocGenerator.GenerateAsync("ReleaseVersioning - v0");
+        var json = doc.ToJson();
+        var currentDoc = JToken.Parse(json);
+
+        await UpdateSnapshotIfEnabled("release-versioning-v0.json", json);
+
+        var snapshot = await File.ReadAllTextAsync("release-versioning-v0.json");
+        var snapshotDoc = JToken.Parse(snapshot);
+
+        currentDoc.Should().BeEquivalentTo(snapshotDoc);
+    }
+
+    [Fact]
+    public async Task release_versioning_v1()
+    {
+        var doc = await App.DocGenerator.GenerateAsync("ReleaseVersioning - v1");
+        var json = doc.ToJson();
+        var currentDoc = JToken.Parse(json);
+
+        await UpdateSnapshotIfEnabled("release-versioning-v1.json", json);
+
+        var snapshot = await File.ReadAllTextAsync("release-versioning-v1.json");
+        var snapshotDoc = JToken.Parse(snapshot);
+
+        currentDoc.Should().BeEquivalentTo(snapshotDoc);
+    }
+
+    [Fact]
+    public async Task release_versioning_v2()
+    {
+        var doc = await App.DocGenerator.GenerateAsync("ReleaseVersioning - v2");
+        var json = doc.ToJson();
+        var currentDoc = JToken.Parse(json);
+
+        await UpdateSnapshotIfEnabled("release-versioning-v2.json", json);
+
+        var snapshot = await File.ReadAllTextAsync("release-versioning-v2.json");
+        var snapshotDoc = JToken.Parse(snapshot);
+
+        currentDoc.Should().BeEquivalentTo(snapshotDoc);
+    }
+
+    [Fact]
+    public async Task release_versioning_v3()
+    {
+        var doc = await App.DocGenerator.GenerateAsync("ReleaseVersioning - v3");
+        var json = doc.ToJson();
+        var currentDoc = JToken.Parse(json);
+
+        await UpdateSnapshotIfEnabled("release-versioning-v3.json", json);
+
+        var snapshot = await File.ReadAllTextAsync("release-versioning-v3.json");
+        var snapshotDoc = JToken.Parse(snapshot);
+
+        currentDoc.Should().BeEquivalentTo(snapshotDoc);
     }
 }

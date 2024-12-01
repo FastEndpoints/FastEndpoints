@@ -701,11 +701,11 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     }
 
     /// <summary>
-    /// specify the version of the endpoint if versioning is enabled
+    /// specify the version of this endpoint.
     /// </summary>
     /// <param name="version">the version of this endpoint</param>
-    /// <param name="deprecateAt">the version group number starting at which this endpoint should not be included in swagger document</param>
-    protected void Version(int version, int? deprecateAt = null)
+    /// <param name="deprecateAt">the version number starting at which this endpoint should not be included in swagger document</param>
+    protected EpVersion Version(int version, int deprecateAt = 0)
         => Definition.EndpointVersion(version, deprecateAt);
 }
 

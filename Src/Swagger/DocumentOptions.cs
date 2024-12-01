@@ -25,7 +25,7 @@ public class DocumentOptions
     public bool EnableGetRequestsWithBody { get; set; }
 
     /// <summary>
-    /// set to false to disable auto addition of jwt bearer auth support
+    /// set to <c>false</c> to disable auto addition of jwt bearer auth support
     /// </summary>
     public bool EnableJWTBearerAuth { get; set; } = true;
 
@@ -47,7 +47,7 @@ public class DocumentOptions
     public bool FlattenSchema { get; set; }
 
     /// <summary>
-    /// endpoints greater than this version will not be included in the swagger doc.
+    /// endpoints greater than this version will not be included in this swagger doc.
     /// </summary>
     public int MaxEndpointVersion { get; set; }
 
@@ -55,6 +55,17 @@ public class DocumentOptions
     /// endpoints lower than this version will not be included in the swagger doc.
     /// </summary>
     public int MinEndpointVersion { get; set; }
+
+    /// <summary>
+    /// specify a "release version" for this swagger document. you can exclude endpoints from showing up under this swagger doc by specifying a higher
+    /// number than this on the endpoint like so:
+    /// <code>
+    /// Version(x).StartingRelease(2)
+    /// </code>
+    /// i.e. if the starting release of the endpoint is higher than the release version of this swagger doc, that endpoint will not show up for this
+    /// swagger doc.
+    /// </summary>
+    public int ReleaseVersion { get; set; }
 
     /// <summary>
     /// by default deprecated endpoints/operations will not show up in the swagger doc.
@@ -106,7 +117,8 @@ public class DocumentOptions
     public bool UsePropertyNamingPolicy { get; set; } = true;
 
     /// <summary>
-    /// by setting this to <c>true</c>, you can have base class types as request/response dtos and get swagger to generate possible derived types within a `oneOf` field.
+    /// by setting this to <c>true</c>, you can have base class types as request/response dtos and get swagger to generate possible derived types within a `oneOf`
+    /// field.
     /// for this to take effect, you must correctly annotate the base type as follows:
     /// <code>
     /// [JsonPolymorphic(TypeDiscriminatorPropertyName = "_t")]

@@ -66,13 +66,13 @@ var token = JwtBearer.CreateToken(
     });
 ```
 
-If you need to override any of the globally specified settings, that can be done during token creation as well as what's supplied to the `CreateToken(o=> ...)` method is a deeply cloned instance independant of the global instance.
+If you need to override any of the globally specified settings, that can be done during token creation as well, as what's supplied to the `CreateToken(o=> ...)` method is a deeply cloned instance independant of the global instance.
 
 </details>
 
 <details><summary>New endpoint versioning strategy based on 'Release Versions'</summary>
 
-todo: write docs + write brief explanation here or link to docs
+A new route based versioning strategy called [Release Versioning](https://fast-endpoints.com/docs/api-versioning#release-version-strategy) has been introduced in addition to the existing two built-in versioning strategies.
 
 </details>
 
@@ -109,7 +109,7 @@ Previously, if the endpoint doesn't define a particular response DTO type, a def
   }
 ```
 
-Even though it's not incorrect, it can cause issues in some cases such as for TS client generation. From now on if the endpoint doesn't specify a response DTO type, a 204 - No Content produces metadata would be added by default which results in more correct swagger spec such as the following:
+Even though it's not incorrect, it can cause issues in some cases such as TS client generation. From now on if the endpoint doesn't specify a response DTO type, a 204 - No Content produces metadata would be added by default which results in more correct swagger spec such as the following:
 
 ```json
 "responses": { 
@@ -161,13 +161,13 @@ There was a regression in the validation schema processor which resulted in incl
 
 <details><summary>Unescaped back slashes breaking model binding</summary>
 
-Incorrectly unescaped parameter values from the client was causing model binding failures which has been now corrected. 
+Incorrectly unescaped parameter values from the client was causing model binding failures which has been now corrected.
 
 </details>
 
 <details><summary>Rogue 200 response in Swagger spec</summary>
 
-Due to a known bug in the .NET 9.0 SDK, a rogue 200 response metadata was being added to endpoints if the endpoints response DTO type is an `IResult` type and it's not s 200 status code. A workaround has been put in place to prevent that from happening.
+Due to a known bug in the .NET 9.0 SDK, a rogue 200 response metadata was being added to endpoints if the endpoints response DTO type is an `IResult` type and it's not a 200 status code. A workaround has been put in place to prevent that from happening.
 
 </details>
 

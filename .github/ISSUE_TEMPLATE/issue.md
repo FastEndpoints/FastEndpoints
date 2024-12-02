@@ -8,8 +8,8 @@ assignees: ""
 
 <!--
 
-Guidelines for Reporting Issues
-===============================
+Support Request Guidelines
+==================
 
 1. Use Code Samples: Use code snippets whenever possible. This helps us quickly reproduce and understand the issue.
 

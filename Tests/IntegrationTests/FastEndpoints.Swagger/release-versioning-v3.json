@@ -112,6 +112,25 @@
             "JWTBearerAuth": []
           }
         ]
+      },
+      "delete": {
+        "tags": [
+          "Release-Versioning"
+        ],
+        "operationId": "release_versioning_TestCasesSwaggerReleaseVersioningEndpointB_V1_Delete",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
       }
     }
   },

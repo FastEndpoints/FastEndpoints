@@ -52,7 +52,8 @@ sealed class DocumentProcessor : IDocumentProcessor
                                        epVer = Convert.ToInt32(tagSegments?[2]),
                                        startingRelVer = Convert.ToInt32(tagSegments?[3]),
                                        depVer = Convert.ToInt32(tagSegments?[4]),
-                                       pathItm = o.Parent
+                                       pathItm = o.Parent,
+                                       op = o
                                    };
                                })
                            .GroupBy(x => x.route)
@@ -73,7 +74,7 @@ sealed class DocumentProcessor : IDocumentProcessor
                                                      x =>
                                                      {
                                                          if (x.isFastEp && x.epVer == latestVersion)
-                                                             (x.pathItm.ExtensionData ??= new Dictionary<string, object>())[_isLatest] = "true";
+                                                             (x.op.ExtensionData ??= new Dictionary<string, object?>())[_isLatest] = "true";
 
                                                          return x;
                                                      })
@@ -105,10 +106,10 @@ sealed class DocumentProcessor : IDocumentProcessor
                 // op.Value.Summary = $"epVer: {epVer} | startRelVer: {startingRelVer} | depVer: {depVer}";
 
                 var isDeprecated = _docRelVer > 0
-                                       ? (depVer > 0 && _docRelVer >= depVer) || op.Value.Parent.ExtensionData?.ContainsKey(_isLatest) is not true
+                                       ? (depVer > 0 && _docRelVer >= depVer) || op.Value.ExtensionData?.ContainsKey(_isLatest) is not true
                                        : _maxEpVer >= depVer && depVer != 0;
 
-                op.Value.Parent.ExtensionData?.Remove(_isLatest);
+                op.Value.ExtensionData?.Remove(_isLatest);
 
                 if (isDeprecated && _showDeprecated)
                     op.Value.IsDeprecated = isDeprecated;

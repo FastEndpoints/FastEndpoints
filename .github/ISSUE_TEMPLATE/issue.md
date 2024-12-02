@@ -14,4 +14,4 @@ Don't just copy/paste classes from your actual project. Try to reduce the noise 
 
 Requests not adhering to the above may take longer to get a response or will be automatically closed if seen as a low effort report.
 
->>> PLEASE DELETE THE ABOVE BEFORE SUBMISSION <<<
+!!! PLEASE DELETE THE ABOVE BEFORE SUBMISSION !!!

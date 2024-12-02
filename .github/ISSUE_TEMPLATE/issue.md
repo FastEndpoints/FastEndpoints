@@ -6,12 +6,17 @@ labels: ""
 assignees: ""
 ---
 
-Please use code samples as much as possible when describing the issue. That helps us easily reproduce the problem on our end just by copy-pasting the code you've provided. 
+<!--
 
-If the problem is complex, please attach a minimalistic, debuggable, self contained repro project with just the bare minimum number of endpoints and dependencies showcasing the issue. 
+Guidelines for Reporting Issues
+===============================
 
-Don't just copy/paste classes from your actual project. Try to reduce the noise by simplifying the code so that a person not familiar with your problem domain can understand the issue without much effort. 
+1. Use Code Samples: Use code snippets whenever possible. This helps us quickly reproduce and understand the issue.
 
-Requests not adhering to the above may take longer to get a response or will be automatically closed if seen as a low effort report.
+2. Provide A Repro: If the problem is complex, attach a small, self-contained, and debuggable project that highlights the issue with the minimum number of endpoints and dependencies.
 
-!!! PLEASE DELETE THE ABOVE BEFORE SUBMISSION !!!
+3. Simplify Your Code: Avoid copying-pasting code from your actual project. Instead, provide simplified, focused examples that are easy for others to understand.
+
+Note: Requests that don't follow these guidelines may face delays or be closed if deemed low effort.
+
+-->

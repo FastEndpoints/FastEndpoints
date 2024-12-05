@@ -896,4 +896,20 @@ public class BindingTests(Sut App) : TestBase<Sut>
         var res = await rsp.Content.ReadFromJsonAsync<string>();
         res.Should().Be("_filename_.jpg");
     }
+
+    [Fact]
+    public async Task DontBindAttribute()
+    {
+        var req = new TestCases.DontBindAttributeTest.Request
+        {
+            Id = 123,
+            Name = "test"
+        };
+
+        var rsp = await App.GuestClient.PostAsJsonAsync("api/test-cases/dont-bind-attribute-test/IGNORE_ME", req);
+        rsp.IsSuccessStatusCode.Should().BeTrue();
+
+        var res = await rsp.Content.ReadAsStringAsync();
+        res.Should().Be("123 - test");
+    }
 }

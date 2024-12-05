@@ -10,6 +10,23 @@ Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H
 
 ## New 🎉
 
+<details><summary>Control binding sources per DTO property</summary>
+
+You can annotate a request DTO property with the newly added `[DontBind(...)]` attribute and specify which binding sources should not be used for that particular property when model binding.
+
+```cs
+sealed class GetUserRequest
+{
+    [DontBind(Source.QueryParam | Source.RouteParam)]
+    public string UserId { get; set; }
+}
+```
+
+Doing this is not necessary in 99% of cases and, should be reserved for specific requirements where you need to explicitly ban a certain binding source for a property. 
+The point of the default behavior is to reduce the attribute noise on DTO models. Doing this for all properties sort of defeats that purpose. Use with care!
+
+</details>
+
 ## Improvements 🚀
 
 ## Fixes 🪲

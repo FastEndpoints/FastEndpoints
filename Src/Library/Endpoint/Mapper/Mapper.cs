@@ -113,6 +113,14 @@ public abstract class RequestMapper<TRequest, TEntity> : IRequestMapper, IServic
     public virtual Task<TEntity> ToEntityAsync(TRequest r, CancellationToken ct = default)
         => throw new NotImplementedException($"Please override the {nameof(ToEntityAsync)} method!");
 
+    /// <summary>
+    /// override this method and place the logic for mapping the updated request dto to the desired domain entity
+    /// </summary>
+    /// <param name="r">the request dto to update from</param>
+    /// <param name="e">the domain entity to update</param>
+    public virtual TEntity UpdateEntity(TRequest r, TEntity e)
+        => throw new NotImplementedException($"Please override the {nameof(UpdateEntity)} method!");
+        
     /// <inheritdoc />
     public TService? TryResolve<TService>() where TService : class
         => Cfg.ServiceResolver.TryResolve<TService>();

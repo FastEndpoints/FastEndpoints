@@ -400,4 +400,30 @@ public static class Extensions
         settings.DocumentProcessors.Add(
             new DocumentProcessor(opts.MinEndpointVersion, opts.MaxEndpointVersion, opts.ReleaseVersion, opts.ShowDeprecatedOps));
     }
+
+    internal static IEnumerable<KeyValuePair<string, JsonSchemaProperty>> GetAllRequestProperties(
+        this KeyValuePair<string, OpenApiMediaType> mediaType)
+    {
+        var allProperties = mediaType.Value.Schema.ActualSchema.ActualProperties.ToList();
+
+        foreach (var inheritedSchema in mediaType.Value.Schema.ActualSchema.AllInheritedSchemas)
+        {
+            allProperties.AddRange(inheritedSchema.ActualProperties);
+        }
+
+        foreach (var property in allProperties.ToList())
+        {
+            if (property.Value.ActualSchema.ActualProperties.Any())
+            {
+                var nestedProperties = property.Value.ActualSchema.ActualProperties
+                                               .Select(
+                                                   p => new KeyValuePair<string, JsonSchemaProperty>(
+                                                       $"{property.Key}.{p.Key}",
+                                                       p.Value));
+                allProperties.AddRange(nestedProperties);
+            }
+        }
+
+        return allProperties;
+    }
 }

@@ -9,7 +9,7 @@ public sealed class DontBindAttribute : Attribute
     /// <summary>
     /// gets the disabled binding sources.
     /// </summary>
-    public Source BindingSources { get; }
+    public Source BindingSources { get; set; }
 
     /// <summary>
     /// specify a bitwise combination of binding sources to disable for the property.

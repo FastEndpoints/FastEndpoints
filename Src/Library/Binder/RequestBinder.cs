@@ -76,11 +76,6 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             {
                 switch (attribs[i])
                 {
-                    case DontBindAttribute dsbAtt:
-                        disabledSources = dsbAtt.BindingSources;
-
-                        break;
-
                     case FromFormAttribute:
                         if (_fromFormProp is not null)
                             throw new InvalidOperationException($"Only one [FromForm] attribute is allowed on [{_tRequest.FullName}].");
@@ -122,6 +117,11 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
                     case BindFromAttribute bfAtt:
                         fieldName = bfAtt.Name;
+
+                        break;
+
+                    case DontBindAttribute dsbAtt:
+                        disabledSources = dsbAtt.BindingSources;
 
                         break;
                 }

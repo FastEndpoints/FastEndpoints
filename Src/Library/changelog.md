@@ -12,18 +12,25 @@ Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H
 
 <details><summary>Control binding sources per DTO property</summary>
 
-You can annotate a request DTO property with the newly added `[DontBind(...)]` attribute and specify which binding sources should not be used for that particular property when model binding.
+The default binding order is designed to minimize attribute clutter on DTO models. In most cases, disabling binding sources is unnecessary. However, for rare scenarios where a binding source must be explicitly blocked, you can do the following:
 
 ```cs
-sealed class GetUserRequest
-{
-    [DontBind(Source.QueryParam | Source.RouteParam)]
-    public string UserId { get; set; }
-}
+[DontBind(Source.QueryParam | Source.RouteParam)] 
+public string UserID { get; set; } 
 ```
 
-Doing this is not necessary in 99% of cases and, should be reserved for specific requirements where you need to explicitly ban a certain binding source for a property. 
-The point of the default behavior is to reduce the attribute noise on DTO models. Doing this for all properties sort of defeats that purpose. Use with care!
+The opposite approach can be taken as well, by just specifying a single binding source for a property like so:
+
+```cs
+[FormField]
+public string UserID { get; set; }
+
+[QueryParam]
+public string UserName { get; set; }
+
+[RouteParam]
+public string InvoiceID { get; set; }
+```
 
 </details>
 

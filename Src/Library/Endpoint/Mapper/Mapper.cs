@@ -51,6 +51,15 @@ public abstract class Mapper<TRequest, TResponse, TEntity> : IMapper, IServiceRe
     public virtual TEntity UpdateEntity(TRequest r, TEntity e)
         => throw new NotImplementedException($"Please override the {nameof(UpdateEntity)} method!");
 
+    /// <summary>
+    /// override this method and place the logic for mapping the updated request dto to the desired domain entity
+    /// </summary>
+    /// <param name="r">the request dto to update from</param>
+    /// <param name="e">the domain entity to update</param>
+    /// <param name="ct">a cancellation token</param>
+    public virtual Task<TEntity> UpdateEntityAsync(TRequest r, TEntity e, CancellationToken ct = default)
+        => throw new NotImplementedException($"Please override the {nameof(UpdateEntityAsync)} method!");    
+
     /// <inheritdoc />
     public TService? TryResolve<TService>() where TService : class
         => Cfg.ServiceResolver.TryResolve<TService>();
@@ -113,6 +122,23 @@ public abstract class RequestMapper<TRequest, TEntity> : IRequestMapper, IServic
     public virtual Task<TEntity> ToEntityAsync(TRequest r, CancellationToken ct = default)
         => throw new NotImplementedException($"Please override the {nameof(ToEntityAsync)} method!");
 
+    /// <summary>
+    /// override this method and place the logic for mapping the updated request dto to the desired domain entity
+    /// </summary>
+    /// <param name="r">the request dto to update from</param>
+    /// <param name="e">the domain entity to update</param>
+    public virtual TEntity UpdateEntity(TRequest r, TEntity e)
+        => throw new NotImplementedException($"Please override the {nameof(UpdateEntity)} method!");
+
+    /// <summary>
+    /// override this method and place the logic for mapping the updated request dto to the desired domain entity
+    /// </summary>
+    /// <param name="r">the request dto to update from</param>
+    /// <param name="e">the domain entity to update</param>
+    /// <param name="ct">a cancellation token</param>
+    public virtual Task<TEntity> UpdateEntityAsync(TRequest r, TEntity e, CancellationToken ct = default)
+        => throw new NotImplementedException($"Please override the {nameof(UpdateEntityAsync)} method!");  
+        
     /// <inheritdoc />
     public TService? TryResolve<TService>() where TService : class
         => Cfg.ServiceResolver.TryResolve<TService>();

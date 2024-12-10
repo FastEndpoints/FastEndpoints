@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Reflection;
 using System.Text.Json;
 using FluentValidation;
@@ -320,8 +321,6 @@ public static class Extensions
                            .SelectMany(s => s.Select(s => s)));
     }
 
-    static readonly NullabilityInfoContext _nullCtx = new();
-
     internal static object? GetParentCtorDefaultValue(this PropertyInfo p)
     {
         var tParent = p.DeclaringType;
@@ -337,8 +336,13 @@ public static class Extensions
                                 pi.Name?.Equals(p.Name, StringComparison.OrdinalIgnoreCase) is true)?.DefaultValue;
     }
 
-    internal static bool IsNullable(this PropertyInfo p)
-        => _nullCtx.Create(p).WriteState == NullabilityState.Nullable;
+    static readonly ConcurrentDictionary<PropertyInfo, NullabilityInfo> _nullInfoCache = new();
+
+    internal static bool IsNullable(this PropertyInfo prop)
+    {
+        return _nullInfoCache.GetOrAdd(prop, pi => new NullabilityInfoContext().Create(pi))
+                             .WriteState is NullabilityState.Nullable;
+    }
 
     internal static string? GetXmlExample(this PropertyInfo p)
     {

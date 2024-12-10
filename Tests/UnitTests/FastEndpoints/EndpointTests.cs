@@ -1,4 +1,4 @@
-﻿using FastEndpoints;
+using FastEndpoints;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Xunit;
@@ -123,6 +123,31 @@ public class SendShouldNotCallResponseInterceptorIfExpectedTypedResponseObjectIs
     }
 }
 
+public class NestedRequestParamTest : Endpoint<Request, Response>
+{
+    public override void Configure()
+    {
+        Verbs(Http.POST);
+        Routes("/nested-request-param");
+    }
+
+    [Fact]
+    public async Task execute_test()
+    {
+        Definition = new EndpointDefinition(typeof(NestedRequestParamTest), typeof(Request), typeof(Response));
+
+        Configure();
+
+        var summary = new EndpointSummary<NestedRequest>();
+
+        summary.RequestParam(r => r.Request.FirstName, "First name in request");
+
+        summary.Params.Should().ContainKey("Request.FirstName");
+        summary.Params["Request.FirstName"].Should().Be("First name in request");
+    }
+}
+
+
 public class Response
 {
     public int Id { get; set; }
@@ -138,6 +163,12 @@ public class Request
     public string? LastName { get; set; }
     public int Age { get; set; }
     public IEnumerable<string>? PhoneNumbers { get; set; }
+}
+
+public class NestedRequest
+{
+    public string IdentificationCard { get; set; }
+    public Request Request { get; set; }
 }
 
 public class ResponseInterceptor : IResponseInterceptor

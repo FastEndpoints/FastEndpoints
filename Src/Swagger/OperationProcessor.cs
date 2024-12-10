@@ -329,7 +329,7 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
         {
             foreach (var c in reqContent)
             {
-                foreach (var prop in c.GetAllProperties())
+                foreach (var prop in c.GetAllRequestProperties())
                 {
                     if (reqParamDescriptions.TryGetValue(prop.Key, out var description))
                         prop.Value.Description = description;

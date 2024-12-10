@@ -162,8 +162,11 @@ public class EndpointSummary<TRequest> : EndpointSummary where TRequest : notnul
     /// <param name="property">a member expression for specifying which property the description is for</param>
     /// <param name="description">the description text</param>
     public void RequestParam(Expression<Func<TRequest, object?>> property, string description)
-        => Params[property.PropertyName()] = description;
-
+    {
+        var propertyPath = property.Body.GetPropertyChain();
+        Params[propertyPath] = description;
+    }
+    
     public new TRequest? ExampleRequest
     {
         get => (TRequest?)base.ExampleRequest;

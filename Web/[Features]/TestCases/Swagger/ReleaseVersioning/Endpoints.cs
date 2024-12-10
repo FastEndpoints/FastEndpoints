@@ -66,3 +66,16 @@ sealed class EndpointB_V1 : EndpointWithoutRequest
     public override Task HandleAsync(CancellationToken c)
         => Task.CompletedTask;
 }
+
+sealed class EndpointB_V1_Delete : EndpointWithoutRequest
+{
+    public override void Configure()
+    {
+        Delete("/release-versioning/endpoint-b");
+        Tags("release_versioning");
+        Version(1).StartingRelease(2);
+    }
+
+    public override Task HandleAsync(CancellationToken c)
+        => Task.CompletedTask;
+}

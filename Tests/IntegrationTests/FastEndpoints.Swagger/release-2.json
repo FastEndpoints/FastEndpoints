@@ -1871,6 +1871,49 @@
         "deprecated": true
       }
     },
+    "/api/test-cases/dont-bind-attribute-test/{Name}": {
+      "post": {
+        "tags": [
+          "TestCases"
+        ],
+        "operationId": "TestCasesDontBindAttributeTestEndpoint",
+        "parameters": [
+          {
+            "name": "Name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "Request",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesDontBindAttributeTestRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/test-cases/{number}": {
       "get": {
         "tags": [
@@ -5144,6 +5187,16 @@
             "type": "string",
             "maxLength": 10,
             "minLength": 2
+          }
+        }
+      },
+      "TestCasesDontBindAttributeTestRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "Id": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },

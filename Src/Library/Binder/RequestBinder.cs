@@ -70,6 +70,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             var addPrimary = true;
             var propSetter = _tRequest.SetterForProp(prop);
             var attribs = Attribute.GetCustomAttributes(prop, true);
+            Source? disabledSources = null;
 
             for (var i = 0; i < attribs.Length; i++)
             {
@@ -118,6 +119,11 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                         fieldName = bfAtt.Name;
 
                         break;
+
+                    case DontBindAttribute dsbAtt:
+                        disabledSources = dsbAtt.BindingSources;
+
+                        break;
                 }
             }
 
@@ -130,7 +136,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
             {
                 if (addPrimary)
-                    AddPrimaryPropCacheEntry(fieldName, prop, propSetter);
+                    AddPrimaryPropCacheEntry(fieldName, prop, propSetter, disabledSources);
             }
         }
     }
@@ -269,7 +275,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         void BindFormFields()
         {
             foreach (var kvp in httpRequest.Form)
-                Bind(req, kvp, failures);
+                Bind(req, kvp, failures, Source.FormField);
         }
 
         void BindFiles()
@@ -320,7 +326,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             return;
 
         foreach (var kvp in routeValues)
-            Bind(req, new(kvp.Key, kvp.Value?.ToString()), failures);
+            Bind(req, new(kvp.Key, kvp.Value?.ToString()), failures, Source.RouteParam);
     }
 
     static void BindQueryParams(TRequest req, IQueryCollection query, List<ValidationFailure> failures, JsonSerializerContext? serializerCtx)
@@ -329,7 +335,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             return;
 
         foreach (var kvp in query)
-            Bind(req, kvp, failures);
+            Bind(req, kvp, failures, Source.QueryParam);
 
         if (_fromQueryParamsProp is not null)
         {
@@ -437,9 +443,9 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         }
     }
 
-    static void Bind(TRequest req, KeyValuePair<string, StringValues> kvp, List<ValidationFailure> failures)
+    static void Bind(TRequest req, KeyValuePair<string, StringValues> kvp, List<ValidationFailure> failures, Source source)
     {
-        if (_primaryProps.TryGetValue(kvp.Key, out var prop))
+        if (_primaryProps.TryGetValue(kvp.Key, out var prop) && (prop.DisabledSources & source) != source)
         {
             ParseResult res;
 
@@ -509,7 +515,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         return false; // don't allow binding from any other sources
     }
 
-    static void AddPrimaryPropCacheEntry(string? fieldName, PropertyInfo propInfo, Action<object, object?> compiledSetter)
+    static void AddPrimaryPropCacheEntry(string? fieldName, PropertyInfo propInfo, Action<object, object?> compiledSetter, Source? disabledSources)
     {
         _primaryProps.Add(
             fieldName ?? propInfo.Name,
@@ -517,7 +523,8 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             {
                 PropType = propInfo.PropertyType,
                 ValueParser = propInfo.PropertyType.CachedValueParser(),
-                PropSetter = compiledSetter
+                PropSetter = compiledSetter,
+                DisabledSources = disabledSources
             });
     }
 

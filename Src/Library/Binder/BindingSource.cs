@@ -1,6 +1,7 @@
-﻿#pragma warning disable RCS1135
+﻿namespace FastEndpoints;
 
-namespace FastEndpoints;
+#pragma warning disable CS1591
+#pragma warning disable RCS1135
 
 /// <summary>
 /// enum for choosing which binding sources the default request binder should use

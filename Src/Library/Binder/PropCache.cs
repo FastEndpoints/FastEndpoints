@@ -11,6 +11,7 @@ class PropCache
 class PrimaryPropCacheEntry : PropCache
 {
     public Func<object?, ParseResult> ValueParser { get; init; }
+    public Source? DisabledSources { get; init; }
 }
 
 sealed class SecondaryPropCacheEntry : PrimaryPropCacheEntry

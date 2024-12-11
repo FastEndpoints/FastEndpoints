@@ -12,7 +12,7 @@
         <PackageVersion Include="Bogus" Version="35.6.1"/>
         <PackageVersion Include="FakeItEasy" Version="8.3.0"/>
         <PackageVersion Include="FakeItEasy.Analyzer.CSharp" Version="6.1.1"/>
-        <PackageVersion Include="FluentAssertions" Version="6.12.2"/>
+        <PackageVersion Include="FluentAssertions" Version="7.0.0"/>
         <PackageVersion Include="FluentAssertions.Json" Version="6.1.0"/>
         <PackageVersion Include="FluentAssertions.Web" Version="1.7.0"/>
         <PackageVersion Include="FluentValidation" Version="11.11.0"/>
@@ -20,7 +20,7 @@
         <PackageVersion Include="Grpc.Net.Client" Version="2.67.0"/>
         <PackageVersion Include="Grpc.Net.Client.Web" Version="2.67.0"/>
         <PackageVersion Include="MartinCostello.Logging.XUnit" Version="0.4.0"/>
-        <PackageVersion Include="MessagePack" Version="2.5.192"/>
+        <PackageVersion Include="MessagePack" Version="3.0.308"/>
         <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Condition="'$(TargetFramework)' == 'net6.0'" Version="6.0.36"/>
         <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Condition="'$(TargetFramework)' == 'net7.0'" Version="7.0.20"/>
         <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Condition="'$(TargetFramework)' == 'net8.0'" Version="8.0.11"/>
@@ -35,11 +35,11 @@
         <PackageVersion Include="Microsoft.AspNetCore.TestHost" Condition="'$(TargetFramework)' == 'net9.0'" Version="9.0.0"/>
         <PackageVersion Include="Microsoft.Bcl.TimeProvider" Version="8.0.1"/>
         <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0"/>
-        <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0"/>
+        <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.12.0"/>
         <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.2"/>
         <PackageVersion Include="Microsoft.Extensions.Hosting" Version="8.0.1"/>
         <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.12.0"/>
-        <PackageVersion Include="Microsoft.OpenApi.Kiota.Builder" Version="1.20.0"/>
+        <PackageVersion Include="Microsoft.OpenApi.Kiota.Builder" Version="1.21.0"/>
         <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0"/>
         <PackageVersion Include="NSwag.AspNetCore" Version="14.2.0"/>
         <PackageVersion Include="NSwag.CodeGeneration.CSharp" Version="14.2.0"/>

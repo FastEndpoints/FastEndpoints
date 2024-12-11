@@ -44,4 +44,11 @@ The new release versioning strategy was not correctly detecting the latest versi
 
 </details>
 
+<details><summary>Issue with nullability context not being thread safe in Swagger processor</summary>
+
+In rare occasions where swagger documents were being generated concurrently, an exception was being thrown due to `NullabilityInfoContext` not being thread safe. 
+This has been fixed by implementing a caching mechanism per property type.
+
+</details>
+
 ## Minor Breaking Changes ⚠️

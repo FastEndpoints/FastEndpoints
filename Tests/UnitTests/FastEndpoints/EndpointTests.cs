@@ -1,4 +1,4 @@
-﻿using FastEndpoints;
+using FastEndpoints;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Xunit;
@@ -11,14 +11,15 @@ public class SendShouldSetCorrectResponse : Endpoint<Request, Response>
     public async Task execute_test()
     {
         HttpContext = new DefaultHttpContext();
-        Definition = new EndpointDefinition(typeof(SendShouldSetCorrectResponse), typeof(Request), typeof(Response));
+        Definition = new(typeof(SendShouldSetCorrectResponse), typeof(Request), typeof(Response));
 
-        await SendAsync(new Response
-        {
-            Id = 1,
-            Age = 15,
-            Name = "Test"
-        }, StatusCodes.Status200OK, default);
+        await SendAsync(
+            new()
+            {
+                Id = 1,
+                Age = 15,
+                Name = "Test"
+            });
 
         Response.Should().NotBeNull();
         Response.Id.Should().Be(1);
@@ -32,14 +33,16 @@ public class SendOkShouldSetCorrectResponse : Endpoint<Request, Response>
     public async Task execute_test()
     {
         HttpContext = new DefaultHttpContext();
-        Definition = new EndpointDefinition(typeof(SendOkShouldSetCorrectResponse), typeof(Request), typeof(Response));
+        Definition = new(typeof(SendOkShouldSetCorrectResponse), typeof(Request), typeof(Response));
 
-        await SendOkAsync(new Response
-        {
-            Id = 1,
-            Age = 15,
-            Name = "Test"
-        }, CancellationToken.None);
+        await SendOkAsync(
+            new()
+            {
+                Id = 1,
+                Age = 15,
+                Name = "Test"
+            },
+            CancellationToken.None);
 
         Response.Should().NotBeNull();
         Response.Id.Should().Be(1);
@@ -53,7 +56,7 @@ public class SendForbiddenShouldSetCorrectResponse : Endpoint<Request, Response>
     public async Task execute_test()
     {
         HttpContext = new DefaultHttpContext();
-        Definition = new EndpointDefinition(typeof(SendForbiddenShouldSetCorrectResponse), typeof(Request), typeof(Response));
+        Definition = new(typeof(SendForbiddenShouldSetCorrectResponse), typeof(Request), typeof(Response));
 
         await SendForbiddenAsync(CancellationToken.None);
         Response.Should().NotBeNull();
@@ -69,18 +72,20 @@ public class SendShouldCallResponseInterceptorIfUntypedResponseObjectIsSupplied 
     public async Task execute_test()
     {
         HttpContext = new DefaultHttpContext();
-        Definition = new EndpointDefinition(typeof(SendShouldCallResponseInterceptorIfUntypedResponseObjectIsSupplied), typeof(Request), typeof(Response));
+        Definition = new(typeof(SendShouldCallResponseInterceptorIfUntypedResponseObjectIsSupplied), typeof(Request), typeof(Response));
         Definition.ResponseInterceptor(new ResponseInterceptor());
 
-        await Assert.ThrowsAsync<ResponseInterceptor.InterceptedResponseException>(() =>
-        {
-            return SendInterceptedAsync(new {
-                Id = 0,
-                Age = 1,
-                Name = "Test"
-            }, StatusCodes.Status200OK, default);
-        });
-
+        await Assert.ThrowsAsync<ResponseInterceptor.InterceptedResponseException>(
+            () =>
+            {
+                return SendInterceptedAsync(
+                    new
+                    {
+                        Id = 0,
+                        Age = 1,
+                        Name = "Test"
+                    });
+            });
     }
 }
 
@@ -90,15 +95,17 @@ public class SendInterceptedShouldThrowInvalidOperationExceptionIfCalledWithNoIn
     public async Task execute_test()
     {
         HttpContext = new DefaultHttpContext();
-        Definition = new EndpointDefinition(typeof(SendInterceptedShouldThrowInvalidOperationExceptionIfCalledWithNoInterceptor), typeof(Request), typeof(Response));
+        Definition = new(typeof(SendInterceptedShouldThrowInvalidOperationExceptionIfCalledWithNoInterceptor), typeof(Request), typeof(Response));
 
-        await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            SendInterceptedAsync(new {
-                Id = 0,
-                Age = 1,
-                Name = "Test"
-            }, StatusCodes.Status200OK, default));
-
+        await Assert.ThrowsAsync<InvalidOperationException>(
+            () =>
+                SendInterceptedAsync(
+                    new
+                    {
+                        Id = 0,
+                        Age = 1,
+                        Name = "Test"
+                    }));
     }
 }
 
@@ -108,18 +115,51 @@ public class SendShouldNotCallResponseInterceptorIfExpectedTypedResponseObjectIs
     public async Task execute_test()
     {
         HttpContext = new DefaultHttpContext();
-        Definition = new EndpointDefinition(typeof(SendShouldNotCallResponseInterceptorIfExpectedTypedResponseObjectIsSupplied), typeof(Request), typeof(Response));
+        Definition = new(typeof(SendShouldNotCallResponseInterceptorIfExpectedTypedResponseObjectIsSupplied), typeof(Request), typeof(Response));
         Definition.ResponseInterceptor(new ResponseInterceptor());
 
-        await SendAsync(new Response
-        {
-            Id = 1,
-            Age = 15,
-            Name = "Test"
-        }, StatusCodes.Status200OK, default);
+        await SendAsync(
+            new()
+            {
+                Id = 1,
+                Age = 15,
+                Name = "Test"
+            });
 
         Response.Should().NotBeNull();
         Response.Id.Should().Be(1);
+    }
+}
+
+public class NestedRequestParamTest : Endpoint<Request, Response>
+{
+    public override void Configure()
+    {
+        Verbs(Http.POST);
+        Routes("/nested-request-param");
+    }
+
+    [Fact]
+    public async Task execute_test()
+    {
+        Definition = new(typeof(NestedRequestParamTest), typeof(Request), typeof(Response));
+
+        Configure();
+
+        var summary = new EndpointSummary<NestedRequest>();
+
+        summary.RequestParam(r => r.Request.FirstName, "request > firstname");
+        summary.RequestParam(r => r.Request.PhoneNumbers, "request > phonenumbers");
+        summary.RequestParam(r => r.Request.Items[0].Description, "request > items > description");
+
+        summary.Params.Should().ContainKey("Request.FirstName");
+        summary.Params["Request.FirstName"].Should().Be("request > firstname");
+
+        summary.Params.Should().ContainKey("Request.PhoneNumbers");
+        summary.Params["Request.PhoneNumbers"].Should().Be("request > phonenumbers");
+
+        summary.Params.Should().ContainKey("Request.Items[0].Description");
+        summary.Params["Request.Items[0].Description"].Should().Be("request > items > description");
     }
 }
 
@@ -138,6 +178,18 @@ public class Request
     public string? LastName { get; set; }
     public int Age { get; set; }
     public IEnumerable<string>? PhoneNumbers { get; set; }
+    public List<Item> Items { get; set; }
+
+    public class Item
+    {
+        public string Description { get; set; }
+    }
+}
+
+public class NestedRequest
+{
+    public string IdentificationCard { get; set; }
+    public Request Request { get; set; }
 }
 
 public class ResponseInterceptor : IResponseInterceptor

@@ -404,4 +404,54 @@ public static class Extensions
         settings.DocumentProcessors.Add(
             new DocumentProcessor(opts.MinEndpointVersion, opts.MaxEndpointVersion, opts.ReleaseVersion, opts.ShowDeprecatedOps));
     }
+
+    internal static IEnumerable<KeyValuePair<string, JsonSchemaProperty>> GetAllRequestProperties(this KeyValuePair<string, OpenApiMediaType> mediaType)
+    {
+        var allProperties = mediaType.Value.Schema.ActualSchema.ActualProperties.ToList();
+
+        foreach (var inheritedSchema in mediaType.Value.Schema.ActualSchema.AllInheritedSchemas)
+            allProperties.AddRange(inheritedSchema.ActualProperties);
+
+        var res = new List<KeyValuePair<string, JsonSchemaProperty>>();
+
+        TraverseProperties(string.Empty, allProperties.ToDictionary(p => p.Key, p => p.Value), res);
+
+        return res;
+
+        static void TraverseProperties(string parentPath,
+                                       IReadOnlyDictionary<string, JsonSchemaProperty> props,
+                                       List<KeyValuePair<string, JsonSchemaProperty>> result)
+        {
+            foreach (var prop in props)
+            {
+                var currentPath = string.IsNullOrEmpty(parentPath)
+                                      ? prop.Key
+                                      : $"{parentPath}.{prop.Key}";
+
+                result.Add(new(currentPath, prop.Value));
+
+                if (prop.Value.ActualSchema.ActualProperties.Any())
+                    TraverseProperties(currentPath, prop.Value.ActualSchema.ActualProperties, result);
+
+                if (!IsCollectionType(prop.Value))
+                    continue;
+
+                var itemSchema = prop.Value.ActualSchema.Item?.ActualSchema;
+
+                if (itemSchema == null || !itemSchema.ActualProperties.Any())
+                    continue;
+
+                var collectionPath = $"{currentPath}[0]";
+                TraverseProperties(collectionPath, itemSchema.ActualProperties, result);
+            }
+
+            static bool IsCollectionType(JsonSchemaProperty property)
+            {
+                return property.ActualSchema.Type == JsonObjectType.Array ||
+                       (property.ActualSchema.Type == JsonObjectType.Object &&
+                        property.ActualSchema.IsNullable(SchemaType.OpenApi3) &&
+                        property.ActualSchema.AllOf.Any(schema => schema.Type == JsonObjectType.Array));
+            }
+        }
+    }
 }

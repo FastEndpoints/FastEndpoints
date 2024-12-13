@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using TestCases.CustomRequestBinder;
+using TestCases.FormBindingComplexDtos;
 using TestCases.QueryObjectWithObjectsArrayBindingTest;
 using ByteEnum = TestCases.QueryObjectBindingTest.ByteEnum;
 using Endpoint = TestCases.JsonArrayBindingToListOfModels.Endpoint;
@@ -656,6 +657,22 @@ public class BindingTests(Sut App) : TestBase<Sut>
         res.File2Name.Should().Be("test2.png");
         res.CarNames.Should().Equal("car1.png", "car2.png");
         res.JetNames.Should().Equal("jet1.png", "jet2.png");
+    }
+
+    [Fact]
+    public async Task ComplexFormDataBindingViaSendAsFormData()
+    {
+        var book = new Book
+        {
+            BarCodes = [1, 2, 3],
+            CoAuthors = [new Author { Name = "a1" }, new Author { Name = "a2" }],
+            MainAuthor = new() { Name = "main" }
+        };
+
+        var (rsp, res) = await App.GuestClient.PUTAsync<ToFormEndpoint, Book, Book>(book, sendAsFormData: true);
+
+        rsp.IsSuccessStatusCode.Should().BeTrue();
+        res.Should().BeEquivalentTo(book);
     }
 
     [Fact]

@@ -1933,6 +1933,37 @@
             "description": "No Content"
           }
         }
+      },
+      "put": {
+        "tags": [
+          "TestCases"
+        ],
+        "operationId": "TestCasesFormBindingComplexDtosToFormEndpoint",
+        "requestBody": {
+          "x-name": "Book",
+          "description": "",
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesFormBindingComplexDtosBook"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesFormBindingComplexDtosBook"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/test-cases/form-file-collection-binding": {

@@ -70,4 +70,28 @@ This has been fixed by implementing a caching mechanism per property type.
 
 </details>
 
+<details><summary>Complex DTO handling in routeless testing extensions</summary>
+
+If the request DTO is a complex structure, testing with routeless test extensions like the following did not work correctly:
+
+```cs
+[Fact]
+public async Task FormDataTest()
+{
+    var book = new Book
+    {
+        BarCodes = [1, 2, 3],
+        CoAuthors = [new Author { Name = "a1" }, new Author { Name = "a2" }],
+        MainAuthor = new() { Name = "main" }
+    };
+
+    var (rsp, res) = await App.GuestClient.PUTAsync<MyEndpoint, Book, Book>(book, sendAsFormData: true);
+
+    rsp.IsSuccessStatusCode.Should().BeTrue();
+    res.Should().BeEquivalentTo(book);    
+}
+```
+
+</details>
+
 ## Minor Breaking Changes ⚠️

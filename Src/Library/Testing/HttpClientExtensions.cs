@@ -424,8 +424,8 @@ public static class HttpClientExtensions
             else
             {
                 var value = p.GetValue(req);
-                var stringValue = value is not null ? JsonSerializer.Serialize(value) : null;
-                form.Add(new StringContent(stringValue ?? ""), p.Name);
+                if (value is not null)
+                    form.Add(new StringContent(JsonSerializer.Serialize(value, SerOpts.Options)), p.Name);
             }
         }
 

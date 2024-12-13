@@ -50,3 +50,18 @@ sealed class Endpoint : Endpoint<Request>
         return Task.CompletedTask;
     }
 }
+
+sealed class ToFormEndpoint : Endpoint<Book, Book>
+{
+    public override void Configure()
+    {
+        Put("test-cases/form-binding-complex-dtos");
+        AllowAnonymous();
+        AllowFileUploads();
+    }
+
+    public override async Task HandleAsync(Book r, CancellationToken ct)
+    {
+        await SendAsync(r);
+    }
+}

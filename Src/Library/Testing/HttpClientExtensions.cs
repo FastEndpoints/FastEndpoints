@@ -422,7 +422,11 @@ public static class HttpClientExtensions
                     AddFileToForm(file, p);
             }
             else
-                form.Add(new StringContent(p.GetValue(req)?.ToString() ?? ""), p.Name);
+            {
+                var value = p.GetValue(req);
+                if (value is not null)
+                    form.Add(new StringContent(JsonSerializer.Serialize(value, SerOpts.Options)), p.Name);
+            }
         }
 
         return !form.Any()

@@ -20,7 +20,7 @@
         <PackageVersion Include="Grpc.Net.Client" Version="2.67.0"/>
         <PackageVersion Include="Grpc.Net.Client.Web" Version="2.67.0"/>
         <PackageVersion Include="MartinCostello.Logging.XUnit" Version="0.4.0"/>
-        <PackageVersion Include="MessagePack" Version="3.0.308"/>
+        <PackageVersion Include="MessagePack" Version="3.1.0"/>
         <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Condition="'$(TargetFramework)' == 'net6.0'" Version="6.0.36"/>
         <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Condition="'$(TargetFramework)' == 'net7.0'" Version="7.0.20"/>
         <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Condition="'$(TargetFramework)' == 'net8.0'" Version="8.0.11"/>

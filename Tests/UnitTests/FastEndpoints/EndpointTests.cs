@@ -178,18 +178,18 @@ public class Request
     public string? LastName { get; set; }
     public int Age { get; set; }
     public IEnumerable<string>? PhoneNumbers { get; set; }
-    public List<Item> Items { get; set; }
+    public List<Item> Items { get; set; } = [];
 
     public class Item
     {
-        public string Description { get; set; }
+        public string Description { get; set; } = null!;
     }
 }
 
 public class NestedRequest
 {
-    public string IdentificationCard { get; set; }
-    public Request Request { get; set; }
+    public string IdentificationCard { get; set; } = null!;
+    public Request Request { get; set; } = null!;
 }
 
 public class ResponseInterceptor : IResponseInterceptor

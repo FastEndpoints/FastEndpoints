@@ -135,7 +135,7 @@ public static class CommandExtensions
         if (!registry.TryGetValue(tGenCmd, out var genDef))
             throw new InvalidOperationException($"No generic handler registered for generic command type: [{tGenCmd.FullName}]");
 
-        var tHnd = genDef.HandlerType.MakeGenericType(tCommand.GetGenericArguments()[0]);
+        var tHnd = genDef.HandlerType.MakeGenericType(tCommand.GetGenericArguments());
         var tRes = typeof(TResult);
         var tTargetIfc = tRes == Types.VoidResult
                              ? Types.ICommandHandlerOf1.MakeGenericType(tCommand)

@@ -48,6 +48,6 @@
         <PackageVersion Include="NSwag.Generation.AspNetCore" Version="14.2.0"/>
         <PackageVersion Include="RichardSzalay.MockHttp" Version="7.0.0"/>
         <PackageVersion Include="xunit" Version="2.9.2"/>
-        <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.2"/>
+        <PackageVersion Include="xunit.runner.visualstudio" Version="3.0.0" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive"/>
     </ItemGroup>
 </Project>

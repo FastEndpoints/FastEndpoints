@@ -94,4 +94,11 @@ public async Task FormDataTest()
 
 </details>
 
+<details><summary>Incorrect detection of generic arguments of generic commands</summary>
+
+There was a minor oversight in correctly detecting the number of generic arguments of generic commands if there was more than one. 
+This has been fixed to correctly detect all generic arguments of generic commands.
+
+</details>
+
 ## Minor Breaking Changes ⚠️

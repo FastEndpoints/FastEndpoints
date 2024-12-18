@@ -40,7 +40,7 @@ public class CommandBusTests(Sut App) : TestBase<Sut>
             LastName = "lawrence"
         };
 
-        var act = async () => cmd.ExecuteAsync();
+        var act = async () => cmd.ExecuteAsync(Cancellation);
 
         await act.Should().NotThrowAsync();
     }

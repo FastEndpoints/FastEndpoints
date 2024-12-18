@@ -25,7 +25,7 @@ public class EndpointTests(Sut App) : TestBase<Sut>
             RequestUri = requestUri
         };
 
-        var response = await App.AdminClient.SendAsync(message);
+        var response = await App.AdminClient.SendAsync(message, Cancellation);
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
     }
@@ -53,9 +53,9 @@ public class EndpointTests(Sut App) : TestBase<Sut>
         using var stringContent = new StringContent("this is the body content");
         stringContent.Headers.ContentType = MediaTypeHeaderValue.Parse("text/plain");
 
-        var rsp = await App.AdminClient.PostAsync("/mobile/api/test-cases/global-prefix-override/12345", stringContent);
+        var rsp = await App.AdminClient.PostAsync("/mobile/api/test-cases/global-prefix-override/12345", stringContent, Cancellation);
 
-        var res = await rsp.Content.ReadFromJsonAsync<TestCases.PlainTextRequestTest.Response>();
+        var res = await rsp.Content.ReadFromJsonAsync<TestCases.PlainTextRequestTest.Response>(Cancellation);
 
         res!.BodyContent.Should().Be("this is the body content");
         res.Id.Should().Be(12345);

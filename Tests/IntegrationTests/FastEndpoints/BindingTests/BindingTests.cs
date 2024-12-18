@@ -548,7 +548,7 @@ public class BindingTests(Sut App) : TestBase<Sut>
     [Fact]
     public async Task RangeHandling()
     {
-        var res = await App.RangeClient.GetStringAsync("api/test-cases/range");
+        var res = await App.RangeClient.GetStringAsync("api/test-cases/range", Cancellation);
         res.Should().Be("fghij");
     }
 
@@ -557,7 +557,7 @@ public class BindingTests(Sut App) : TestBase<Sut>
     {
         using var imageContent = new ByteArrayContent(
             await new StreamContent(File.OpenRead("test.png"))
-                .ReadAsByteArrayAsync());
+                .ReadAsByteArrayAsync(Cancellation));
         imageContent.Headers.ContentType = MediaTypeHeaderValue.Parse("image/png");
 
         using var form = new MultipartFormDataContent
@@ -567,10 +567,10 @@ public class BindingTests(Sut App) : TestBase<Sut>
             { new StringContent("500"), "Height" }
         };
 
-        var res = await App.AdminClient.PostAsync("api/uploads/image/save", form);
+        var res = await App.AdminClient.PostAsync("api/uploads/image/save", form, Cancellation);
 
         using var md5Instance = MD5.Create();
-        await using var stream = await res.Content.ReadAsStreamAsync();
+        await using var stream = await res.Content.ReadAsStreamAsync(Cancellation);
         var resMD5 = BitConverter.ToString(md5Instance.ComputeHash(stream)).Replace("-", "");
 
         resMD5.Should().Be("8A1F6A8E27D2E440280050DA549CBE3E");
@@ -603,7 +603,7 @@ public class BindingTests(Sut App) : TestBase<Sut>
                           Uploads.Image.SaveTyped.Request>(req, sendAsFormData: true);
 
             using var md5Instance = MD5.Create();
-            await using var stream = await res.Content.ReadAsStreamAsync();
+            await using var stream = await res.Content.ReadAsStreamAsync(Cancellation);
             var resMd5 = BitConverter.ToString(md5Instance.ComputeHash(stream)).Replace("-", "");
 
             resMd5.Should().Be("8A1F6A8E27D2E440280050DA549CBE3E");
@@ -716,7 +716,7 @@ public class BindingTests(Sut App) : TestBase<Sut>
         content.Add(new StringContent("12345"), "BarCodes");
         content.Add(new StringContent("54321"), "BarCodes");
         request.Content = content;
-        var response = await App.GuestClient.SendAsync(request);
+        var response = await App.GuestClient.SendAsync(request, Cancellation);
         response.EnsureSuccessStatusCode();
 
         var x = TestCases.FormBindingComplexDtos.Endpoint.Result;
@@ -775,9 +775,9 @@ public class BindingTests(Sut App) : TestBase<Sut>
         using var stringContent = new StringContent("this is the body content");
         stringContent.Headers.ContentType = MediaTypeHeaderValue.Parse("text/plain");
 
-        var rsp = await App.AdminClient.PostAsync("test-cases/plaintext/12345", stringContent);
+        var rsp = await App.AdminClient.PostAsync("test-cases/plaintext/12345", stringContent, Cancellation);
 
-        var res = await rsp.Content.ReadFromJsonAsync<TestCases.PlainTextRequestTest.Response>();
+        var res = await rsp.Content.ReadFromJsonAsync<TestCases.PlainTextRequestTest.Response>(Cancellation);
 
         res!.BodyContent.Should().Be("this is the body content");
         res.Id.Should().Be(12345);
@@ -907,10 +907,10 @@ public class BindingTests(Sut App) : TestBase<Sut>
         using var stringContent = new StringContent("this is the body content");
         stringContent.Headers.ContentDisposition = ContentDispositionHeaderValue.Parse("attachment; filename=\"_filename_.jpg\"");
 
-        var rsp = await App.GuestClient.PostAsync("api/test-cases/typed-header-binding-test", stringContent);
+        var rsp = await App.GuestClient.PostAsync("api/test-cases/typed-header-binding-test", stringContent, Cancellation);
         rsp.IsSuccessStatusCode.Should().BeTrue();
 
-        var res = await rsp.Content.ReadFromJsonAsync<string>();
+        var res = await rsp.Content.ReadFromJsonAsync<string>(Cancellation);
         res.Should().Be("_filename_.jpg");
     }
 
@@ -923,10 +923,10 @@ public class BindingTests(Sut App) : TestBase<Sut>
             Name = "test"
         };
 
-        var rsp = await App.GuestClient.PostAsJsonAsync("api/test-cases/dont-bind-attribute-test/IGNORE_ME", req);
+        var rsp = await App.GuestClient.PostAsJsonAsync("api/test-cases/dont-bind-attribute-test/IGNORE_ME", req, Cancellation);
         rsp.IsSuccessStatusCode.Should().BeTrue();
 
-        var res = await rsp.Content.ReadAsStringAsync();
+        var res = await rsp.Content.ReadAsStringAsync(Cancellation);
         res.Should().Be("123 - test");
     }
 }

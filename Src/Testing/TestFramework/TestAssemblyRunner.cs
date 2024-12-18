@@ -1,9 +1,8 @@
 ﻿using System.Globalization;
 using System.Reflection;
-using Xunit;
 using Xunit.Internal;
-using Xunit.v3;
 using Xunit.Sdk;
+using Xunit.v3;
 
 namespace FastEndpoints.Testing;
 
@@ -92,43 +91,27 @@ sealed class TestAssemblyRunner : XunitTestAssemblyRunner
         ArgumentNullException.ThrowIfNull(collection);
         ArgumentNullException.ThrowIfNull(cases);
 
-        return ctx.RunTestCollection(collection, cases, _testCaseOrderer);
+        return ctx.RunTestCollection(collection, OrderAccordingToClassLevelPriority(cases), _testCaseOrderer);
+
+        static IReadOnlyCollection<IXunitTestCase> OrderAccordingToClassLevelPriority(IReadOnlyCollection<IXunitTestCase> cases)
+        {
+            var orderedTests = new List<(int priority, IXunitTestCase testCase)>();
+            var unorderedTests = new List<IXunitTestCase>();
+
+            foreach (var t in cases)
+            {
+                var priority = t.TestMethod.TestClass.Class.GetCustomAttribute<PriorityAttribute>()?.Priority;
+
+                if (priority is not null)
+                    orderedTests.Add((priority.Value, t));
+                else
+                    unorderedTests.Add(t);
+            }
+
+            return orderedTests.OrderBy(t => t.priority)
+                               .Select(t => t.testCase)
+                               .Union(unorderedTests)
+                               .ToArray();
+        }
     }
-
-    // protected override async Task<RunSummary> RunTestCollectionAsync(IMessageBus messageBus,
-    //                                                                  ITestCollection testCollection,
-    //                                                                  IEnumerable<IXunitTestCase> testCases,
-    //                                                                  CancellationTokenSource cancellationTokenSource)
-    //     => await new TestCollectionRunner(
-    //                _assemblyFixtureMappings,
-    //                testCollection,
-    //                OrderTestsInCollection(testCases),
-    //                DiagnosticMessageSink,
-    //                messageBus,
-    //                _testCaseOrderer,
-    //                new(Aggregator),
-    //                cancellationTokenSource)
-    //            .RunAsync();
-
-    // static IEnumerable<IXunitTestCase> OrderTestsInCollection(IEnumerable<IXunitTestCase> tests)
-    // {
-    //     var orderedTests = new List<(int priority, IXunitTestCase testCase)>();
-    //     var unorderedTests = new List<IXunitTestCase>();
-    //
-    //     foreach (var t in tests)
-    //     {
-    //         var priority = t.TestMethod.TestClass.Class.GetCustomAttribute<PriorityAttribute>()?.Priority;
-    //
-    //         if (priority is not null)
-    //             orderedTests.Add((priority.Value, t));
-    //         else
-    //             unorderedTests.Add(t);
-    //     }
-    //
-    //     foreach (var t in orderedTests.OrderBy(t => t.priority))
-    //         yield return t.testCase;
-    //
-    //     foreach (var t in unorderedTests)
-    //         yield return t;
-    // }
 }

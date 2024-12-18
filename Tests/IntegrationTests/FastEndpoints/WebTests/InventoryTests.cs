@@ -140,7 +140,7 @@ public class InventoryTests(Sut App) : TestBase<Sut>
 
         rsp1.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        await Task.Delay(100);
+        await Task.Delay(100, Cancellation);
 
         var (rsp2, res2) = await App.GuestClient.GETAsync<GetProduct.Endpoint, GetProduct.Response>();
 

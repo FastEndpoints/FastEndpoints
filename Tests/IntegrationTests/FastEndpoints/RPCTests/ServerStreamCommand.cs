@@ -13,7 +13,7 @@ public class ServerStreamCommand(Sut f) : RpcTestBase(f)
             Id = 101
         };
 
-        var iterator = Remote.ExecuteServerStream(command, command.GetType(), default).ReadAllAsync();
+        var iterator = Remote.ExecuteServerStream(command, command.GetType(), default).ReadAllAsync(Cancellation);
 
         var i = 1;
 

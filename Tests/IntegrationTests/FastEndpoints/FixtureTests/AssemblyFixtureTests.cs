@@ -6,18 +6,18 @@ public class AssemblyFixtureTests
     {
         public static Lazy<Counter> Count { get; } = new(() => new(0));
 
-        protected override Task SetupAsync()
+        protected override ValueTask SetupAsync()
         {
             Count.Value.Number += 1;
 
-            return Task.CompletedTask;
+            return ValueTask.CompletedTask;
         }
 
-        protected override Task TearDownAsync()
+        protected override ValueTask TearDownAsync()
         {
             Count.Value.Number += 1;
 
-            return Task.CompletedTask;
+            return ValueTask.CompletedTask;
         }
 
         public class Counter(int val)

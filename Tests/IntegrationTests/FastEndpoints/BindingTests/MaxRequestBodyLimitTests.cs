@@ -18,14 +18,14 @@ public class MaxRequestBodyLimitTests : IAsyncLifetime
                 o.Limits.MaxRequestBodySize = 100; //this doesn't work with WAF/TestServer :-(
                 o.ListenLocalhost(100);
             });
-        bld.Services.AddFastEndpoints(o => o.Filter = (Type t) => t == typeof(Endpoint));
+        bld.Services.AddFastEndpoints(o => o.Filter = t => t == typeof(Endpoint));
         var app = bld.Build();
-        app.UseFastEndpoints(c => c.Binding.FormExceptionTransformer = (Exception ex) => new("formErrors", ex.Message));
+        app.UseFastEndpoints(c => c.Binding.FormExceptionTransformer = ex => new("formErrors", ex.Message));
         _app = app;
     }
 
-    public Task InitializeAsync()
-        => _app.StartAsync();
+    public async ValueTask InitializeAsync()
+        => await _app.StartAsync();
 
     [Fact, Trait("ExcludeInCiCd", "Yes")]
     public async Task Error_Response_When_Max_Req_Size_Exceeded()
@@ -70,6 +70,6 @@ public class MaxRequestBodyLimitTests : IAsyncLifetime
         }
     }
 
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
         => await _app.DisposeAsync();
 }

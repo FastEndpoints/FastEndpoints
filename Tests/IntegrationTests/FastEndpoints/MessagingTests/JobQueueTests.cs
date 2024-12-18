@@ -52,7 +52,7 @@ public class JobQueueTests(Sut App) : TestBase<Sut>
         }
 
         while (!cts.IsCancellationRequested && JobTestCommand.CompletedIDs.Count < 9)
-            await Task.Delay(100);
+            await Task.Delay(100, Cancellation);
 
         JobTestCommand.CompletedIDs.Count.Should().Be(9);
         var expected = new[] { 0, 2, 3, 4, 5, 6, 7, 8, 9 };

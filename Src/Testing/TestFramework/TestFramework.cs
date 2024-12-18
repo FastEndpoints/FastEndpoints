@@ -1,14 +1,10 @@
 ﻿using System.Reflection;
-using Xunit.Abstractions;
-using Xunit.Sdk;
+using Xunit.v3;
 
 namespace FastEndpoints.Testing;
 
-sealed class TestFramework(IMessageSink messageSink) : XunitTestFramework(messageSink)
+sealed class TestFramework : XunitTestFramework
 {
-    internal const string AssemblyName = "FastEndpoints.Testing";
-    internal const string TypeName = $"{AssemblyName}.{nameof(TestFramework)}";
-
-    protected override ITestFrameworkExecutor CreateExecutor(AssemblyName assemblyName)
-        => new TestFrameworkExecutor(assemblyName, SourceInformationProvider, DiagnosticMessageSink);
+    protected override ITestFrameworkExecutor CreateExecutor(Assembly assembly)
+        => new TestFrameworkExecutor(new XunitTestAssembly(assembly));
 }

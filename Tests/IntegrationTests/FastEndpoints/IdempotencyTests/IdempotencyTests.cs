@@ -12,7 +12,7 @@ public class IdempotencyTests(Sut App) : TestBase<Sut>
     {
         var url = $"{Endpoint.BaseRoute}/123";
         var req = new HttpRequestMessage(HttpMethod.Get, url);
-        var res = await App.Client.SendAsync(req);
+        var res = await App.Client.SendAsync(req, Cancellation);
         res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
@@ -22,7 +22,7 @@ public class IdempotencyTests(Sut App) : TestBase<Sut>
         var url = $"{Endpoint.BaseRoute}/123";
         var req = new HttpRequestMessage(HttpMethod.Get, url);
         req.Headers.Add("Idempotency-Key", ["1", "2"]);
-        var res = await App.Client.SendAsync(req);
+        var res = await App.Client.SendAsync(req, Cancellation);
         res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
@@ -34,7 +34,7 @@ public class IdempotencyTests(Sut App) : TestBase<Sut>
 
         using var fileContent = new ByteArrayContent(
             await new StreamContent(File.OpenRead("test.png"))
-                .ReadAsByteArrayAsync());
+                .ReadAsByteArrayAsync(Cancellation));
 
         fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse("image/png");
 
@@ -47,11 +47,11 @@ public class IdempotencyTests(Sut App) : TestBase<Sut>
         req1.Headers.Add("Idempotency-Key", idmpKey);
 
         //initial request - uncached response
-        var res1 = await App.Client.SendAsync(req1);
+        var res1 = await App.Client.SendAsync(req1, Cancellation);
         res1.IsSuccessStatusCode.Should().BeTrue();
         res1.Headers.Any(h => h.Key == "Idempotency-Key" && h.Value.First() == idmpKey).Should().BeTrue();
 
-        var rsp1 = await res1.Content.ReadFromJsonAsync<Response>();
+        var rsp1 = await res1.Content.ReadFromJsonAsync<Response>(Cancellation);
         rsp1.Should().NotBeNull();
         rsp1!.Id.Should().Be("321");
 
@@ -63,9 +63,9 @@ public class IdempotencyTests(Sut App) : TestBase<Sut>
         req2.Content = form;
         req2.Headers.Add("Idempotency-Key", idmpKey);
 
-        var res2 = await App.Client.SendAsync(req2);
+        var res2 = await App.Client.SendAsync(req2, Cancellation);
         res2.IsSuccessStatusCode.Should().BeTrue();
-        var rsp2 = await res2.Content.ReadFromJsonAsync<Response>();
+        var rsp2 = await res2.Content.ReadFromJsonAsync<Response>(Cancellation);
         rsp2.Should().NotBeNull();
         rsp2!.Id.Should().Be("321");
         rsp2.Ticks.Should().Be(ticks);
@@ -76,10 +76,10 @@ public class IdempotencyTests(Sut App) : TestBase<Sut>
         req3.Content = form;
         req3.Headers.Add("Idempotency-Key", idmpKey);
 
-        var res3 = await App.Client.SendAsync(req3);
+        var res3 = await App.Client.SendAsync(req3, Cancellation);
         res3.IsSuccessStatusCode.Should().BeTrue();
 
-        var rsp3 = await res3.Content.ReadFromJsonAsync<Response>();
+        var rsp3 = await res3.Content.ReadFromJsonAsync<Response>(Cancellation);
         rsp3.Should().NotBeNull();
         rsp3!.Id.Should().Be("321");
         rsp3.Ticks.Should().NotBe(ticks);

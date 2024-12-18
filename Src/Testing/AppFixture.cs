@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Xunit;
-using Xunit.Abstractions;
+using Xunit.Sdk;
 #if NET7_0_OR_GREATER
 using Microsoft.AspNetCore.Http;
 #endif
@@ -83,28 +83,30 @@ public abstract class AppFixture<TProgram> : BaseFixture, IAsyncLifetime where T
     // ReSharper disable VirtualMemberNeverOverridden.Global
 
     /// <summary>
-    /// this will be called before the WAF is initialized. override this method if you'd like to do something before the WAF is initialized that is going to contribute to
+    /// this will be called before the WAF is initialized. override this method if you'd like to do something before the WAF is initialized that is going to
+    /// contribute to
     /// the creation of the WAF, such as initialization of a 'TestContainer'.
     /// </summary>
-    protected virtual Task PreSetupAsync()
-        => Task.CompletedTask;
+    protected virtual ValueTask PreSetupAsync()
+        => ValueTask.CompletedTask;
 
     /// <summary>
     /// override this method if you'd like to do some one-time setup for the fixture.
     /// it is run before any of the test-methods of the class is executed, but after the WAF is initialized.
     /// </summary>
-    protected virtual Task SetupAsync()
-        => Task.CompletedTask;
+    protected virtual ValueTask SetupAsync()
+        => ValueTask.CompletedTask;
 
     /// <summary>
     /// override this method if you'd like to do some one-time teardown for the fixture.
     /// it is run after all test-methods have executed.
     /// </summary>
-    protected virtual Task TearDownAsync()
-        => Task.CompletedTask;
+    protected virtual ValueTask TearDownAsync()
+        => ValueTask.CompletedTask;
 
     /// <summary>
-    /// override this method if you'd like to provide any configuration for the generic app host of the underlying <see cref="WebApplicationFactory{TEntryPoint}" />
+    /// override this method if you'd like to provide any configuration for the generic app host of the underlying
+    /// <see cref="WebApplicationFactory{TEntryPoint}" />
     /// </summary>
     protected virtual IHost ConfigureAppHost(IHostBuilder a)
     {
@@ -157,7 +159,7 @@ public abstract class AppFixture<TProgram> : BaseFixture, IAsyncLifetime where T
         => _app.Server.CreateHandler();
 #endif
 
-    async Task IAsyncLifetime.InitializeAsync()
+    async ValueTask IAsyncLifetime.InitializeAsync()
     {
         var tDerivedFixture = GetType();
 
@@ -182,10 +184,11 @@ public abstract class AppFixture<TProgram> : BaseFixture, IAsyncLifetime where T
                         l =>
                         {
                             l.ClearProviders();
-                            if (_messageSink is not null)
-                                l.AddXUnit(_messageSink);
-                            if (_outputHelper is not null)
-                                l.AddXUnit(_outputHelper);
+
+                            // if (_messageSink is not null)
+                            //     l.AddXUnit(_messageSink);
+                            // if (_outputHelper is not null)
+                            //     l.AddXUnit(_outputHelper);
                         });
                     b.ConfigureTestServices(ConfigureServices);
                     ConfigureApp(b);
@@ -193,7 +196,7 @@ public abstract class AppFixture<TProgram> : BaseFixture, IAsyncLifetime where T
         }
     }
 
-    async Task IAsyncLifetime.DisposeAsync()
+    async ValueTask IAsyncDisposable.DisposeAsync()
     {
         await TearDownAsync();
 

@@ -1,50 +1,41 @@
-﻿using System.Reflection;
-using Xunit.Abstractions;
-using Xunit.Sdk;
+﻿using Xunit.Sdk;
+using Xunit.v3;
 
 namespace FastEndpoints.Testing;
 
-class TestCollectionRunner(Dictionary<Type, object> assemblyFixtureMappings,
-                           ITestCollection testCollection,
-                           IEnumerable<IXunitTestCase> testCases,
-                           IMessageSink diagnosticMessageSink,
-                           IMessageBus messageBus,
-                           ITestCaseOrderer testCaseOrderer,
-                           ExceptionAggregator aggregator,
-                           CancellationTokenSource cancellationTokenSource)
-    : XunitTestCollectionRunner(testCollection, testCases, diagnosticMessageSink, messageBus, testCaseOrderer, aggregator, cancellationTokenSource)
+class TestCollectionRunner : XunitTestCollectionRunner
 {
-    readonly IMessageSink _diagnosticMessageSink = diagnosticMessageSink;
+    readonly IMessageSink _diagnosticMessageSink = default!; //diagnosticMessageSink;
 
-    protected override Task<RunSummary> RunTestClassAsync(ITestClass testClass, IReflectionTypeInfo @class, IEnumerable<IXunitTestCase> testCases)
-    {
-        foreach (var fixtureType in @class.Type.GetTypeInfo().ImplementedInterfaces
-                                          .Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IAssemblyFixture<>))
-                                          .Select(i => i.GetTypeInfo().GenericTypeArguments.Single())
-                                          .Where(i => !assemblyFixtureMappings.ContainsKey(i)))
-        {
-            lock (assemblyFixtureMappings)
-            {
-                if (!assemblyFixtureMappings.ContainsKey(fixtureType))
-                    Aggregator.Run(() => assemblyFixtureMappings.Add(fixtureType, CreateAssemblyFixtureInstance(fixtureType)));
-            }
-        }
-
-        var combinedFixtures = new Dictionary<Type, object>(assemblyFixtureMappings);
-        foreach (var kvp in CollectionFixtureMappings)
-            combinedFixtures[kvp.Key] = kvp.Value;
-
-        return new XunitTestClassRunner(
-            testClass,
-            @class,
-            testCases,
-            _diagnosticMessageSink,
-            MessageBus,
-            TestCaseOrderer,
-            new(Aggregator),
-            CancellationTokenSource,
-            combinedFixtures).RunAsync();
-    }
+    // protected override Task<RunSummary> RunTestClassAsync(ITestClass testClass, IReflectionTypeInfo @class, IEnumerable<IXunitTestCase> testCases)
+    // {
+    //     foreach (var fixtureType in @class.Type.GetTypeInfo().ImplementedInterfaces
+    //                                       .Where(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IAssemblyFixture<>))
+    //                                       .Select(i => i.GetTypeInfo().GenericTypeArguments.Single())
+    //                                       .Where(i => !assemblyFixtureMappings.ContainsKey(i)))
+    //     {
+    //         lock (assemblyFixtureMappings)
+    //         {
+    //             if (!assemblyFixtureMappings.ContainsKey(fixtureType))
+    //                 Aggregator.Run(() => assemblyFixtureMappings.Add(fixtureType, CreateAssemblyFixtureInstance(fixtureType)));
+    //         }
+    //     }
+    //
+    //     var combinedFixtures = new Dictionary<Type, object>(assemblyFixtureMappings);
+    //     foreach (var kvp in CollectionFixtureMappings)
+    //         combinedFixtures[kvp.Key] = kvp.Value;
+    //
+    //     return new XunitTestClassRunner(
+    //         testClass,
+    //         @class,
+    //         testCases,
+    //         _diagnosticMessageSink,
+    //         MessageBus,
+    //         TestCaseOrderer,
+    //         new(Aggregator),
+    //         CancellationTokenSource,
+    //         combinedFixtures).RunAsync();
+    // }
 
     object CreateAssemblyFixtureInstance(Type fixtureType)
     {

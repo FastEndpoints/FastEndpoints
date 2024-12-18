@@ -1,24 +1,19 @@
-﻿using Xunit.Abstractions;
+﻿using System.Reflection;
 using Xunit.Sdk;
+using Xunit.v3;
 
 namespace FastEndpoints.Testing;
 
 sealed class TestCaseOrderer : ITestCaseOrderer
 {
-    internal const string Assembly = "FastEndpoints.Testing";
-    internal const string Name = $"{Assembly}.{nameof(TestCaseOrderer)}";
-
-    public IEnumerable<TTestCase> OrderTestCases<TTestCase>(IEnumerable<TTestCase> tests) where TTestCase : ITestCase
+    public IReadOnlyCollection<TTestCase> OrderTestCases<TTestCase>(IReadOnlyCollection<TTestCase> tests) where TTestCase : ITestCase
     {
         var orderedTests = new List<(int priority, TTestCase test)>();
         var unorderedTests = new List<TTestCase>();
 
         foreach (var t in tests)
         {
-            var priority = t.TestMethod.Method
-                            .GetCustomAttributes(typeof(PriorityAttribute))
-                            .SingleOrDefault()?
-                            .GetNamedArgument<int>(nameof(PriorityAttribute.Priority));
+            var priority = ((IXunitTestCase)t).TestMethod.Method.GetCustomAttribute<PriorityAttribute>()?.Priority;
 
             if (priority is not null)
                 orderedTests.Add((priority.Value, t));
@@ -26,10 +21,9 @@ sealed class TestCaseOrderer : ITestCaseOrderer
                 unorderedTests.Add(t);
         }
 
-        foreach (var t in orderedTests.OrderBy(t => t.priority))
-            yield return t.test;
-
-        foreach (var t in unorderedTests)
-            yield return t;
+        return orderedTests.OrderBy(t => t.priority)
+                           .Select(t => t.test)
+                           .Union(unorderedTests)
+                           .ToArray();
     }
 }

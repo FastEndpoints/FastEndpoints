@@ -6,10 +6,10 @@ public class Fixture(IMessageSink s) : AppFixture<Web.Program>(s)
 {
     public IOpenApiDocumentGenerator DocGenerator { get; set; } = default!;
 
-    protected override Task SetupAsync()
+    protected override ValueTask SetupAsync()
     {
         DocGenerator = Services.GetRequiredService<IOpenApiDocumentGenerator>();
 
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 }

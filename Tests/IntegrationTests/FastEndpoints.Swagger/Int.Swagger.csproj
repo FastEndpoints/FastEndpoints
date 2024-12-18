@@ -8,7 +8,7 @@
         <!--<PackageReference Include="Verify.Xunit" Version="22.5.0"/>-->
         <PackageReference Include="FluentAssertions.Json"/>
         <PackageReference Include="Microsoft.NET.Test.Sdk"/>
-        <PackageReference Include="xunit"/>
+        <PackageReference Include="xunit.v3"/>
         <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive"/>
     </ItemGroup>
 

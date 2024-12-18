@@ -21,20 +21,20 @@ public abstract class TestBaseWithAssemblyFixture<TAppFixture> : IAsyncLifetime,
     /// override this method if you'd like to do some one-time setup for the test-class.
     /// it is run before any of the test-methods of the class is executed.
     /// </summary>
-    protected virtual Task SetupAsync()
-        => Task.CompletedTask;
+    protected virtual ValueTask SetupAsync()
+        => ValueTask.CompletedTask;
 
     /// <summary>
     /// override this method if you'd like to do some one-time teardown for the test-class.
     /// it is run after all test-methods have executed.
     /// </summary>
-    protected virtual Task TearDownAsync()
-        => Task.CompletedTask;
+    protected virtual ValueTask TearDownAsync()
+        => ValueTask.CompletedTask;
 
-    Task IAsyncLifetime.InitializeAsync()
+    ValueTask IAsyncLifetime.InitializeAsync()
         => SetupAsync();
 
-    Task IAsyncLifetime.DisposeAsync()
+    ValueTask IAsyncDisposable.DisposeAsync()
         => TearDownAsync();
 }
 

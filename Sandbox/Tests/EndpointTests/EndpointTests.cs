@@ -8,64 +8,63 @@
 
 using Tests.Fixtures;
 
+// ReSharper disable ArrangeAttributes
 // ReSharper disable InconsistentNaming
 
-[CollectionDefinition(A), Priority(1)] //ordering collections
-public class Collection_A : TestCollection<Sut>
+[Priority(1)]                                    //ordering at collection level
+public class Collection_A : TestCollection<Sut>; //define collection A
+
+[Priority(2)]                                    //ordering at collection level
+public class Collection_B : TestCollection<Sut>; //define collection B
+
+[Collection<Collection_A>] //associate class with collection A
+[Priority(1)]              //ordering at class level
+public class A_First_Class(Sut App) : TestBase
 {
-    const string A = nameof(Collection_A);
+    [Fact, Priority(1)] //ordering at case level
+    public Task First() //this case is executed first
+        => Task.CompletedTask;
 
-    [Collection(A), Priority(2)] //ordering classes within a collection
-    public class Second_Class(Sut App) : TestBase
-    {
-        [Fact, Priority(2)] //ordering tests within the class
-        public Task Fourth()
-            => Task.CompletedTask;
-
-        [Fact, Priority(1)]
-        public Task Third()
-            => Task.CompletedTask;
-    }
-
-    [Collection(A), Priority(1)]
-    public class First_Class(Sut App) : TestBase
-    {
-        [Fact, Priority(1)]
-        public Task First() //this test method is executed first
-            => Task.CompletedTask;
-
-        [Fact, Priority(2)]
-        public Task Second()
-            => Task.CompletedTask;
-    }
+    [Fact, Priority(2)] //ordering at case level
+    public Task Second()
+        => Task.CompletedTask;
 }
 
-[CollectionDefinition(B), Priority(2)]
-public class Collection_B : TestCollection<Sut>
+[Collection<Collection_A>] //associate class with collection A
+[Priority(2)]              //ordering at class level
+public class A_Second_Class(Sut App) : TestBase
 {
-    const string B = nameof(Collection_B);
+    [Fact, Priority(2)]
+    public Task Fourth()
+        => Task.CompletedTask;
 
-    [Collection(B), Priority(2)]
-    public class Second_Class(Sut App) : TestBase
-    {
-        [Fact, Priority(2)]
-        public Task Eighth() //this test method is executed last
-            => Task.CompletedTask;
+    [Fact, Priority(1)]
+    public Task Third()
+        => Task.CompletedTask;
+}
 
-        [Fact, Priority(1)]
-        public Task Seventh()
-            => Task.CompletedTask;
-    }
+[Collection<Collection_B>] //associate class with collection B
+[Priority(2)]              //ordering at class level
+public class B_Second_Class(Sut App) : TestBase
+{
+    [Fact, Priority(2)]
+    public Task Eighth() //this case is executed last
+        => Task.CompletedTask;
 
-    [Collection(B), Priority(1)]
-    public class First_Class(Sut App) : TestBase
-    {
-        [Fact, Priority(1)]
-        public Task Fifth()
-            => Task.CompletedTask;
+    [Fact, Priority(1)]
+    public Task Seventh()
+        => Task.CompletedTask;
+}
 
-        [Fact, Priority(2)]
-        public Task Sixth()
-            => Task.CompletedTask;
-    }
+[Collection<Collection_B>] //associate class with collection B
+[Priority(1)]              //ordering at class level
+public class B_First_Class(Sut App) : TestBase
+{
+    [Fact, Priority(1)]
+    public Task Fifth()
+        => Task.CompletedTask;
+
+    [Fact, Priority(2)]
+    public Task Sixth()
+        => Task.CompletedTask;
 }

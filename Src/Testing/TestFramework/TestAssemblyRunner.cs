@@ -41,10 +41,9 @@ sealed class TestAssemblyRunner : XunitTestAssemblyRunner
     {
         ArgumentNullException.ThrowIfNull(ctx);
 
-        var testCasesByCollection =
-            ctx.TestCases
-               .GroupBy(tc => tc.TestCollection, TestCollectionComparer<IXunitTestCollection>.Instance)
-               .ToDictionary(g => g.Key, g => g.ToList());
+        var testCasesByCollection = ctx.TestCases
+                                       .GroupBy(tc => tc.TestCollection, TestCollectionComparer<IXunitTestCollection>.Instance)
+                                       .ToDictionary(g => g.Key, g => g.ToList());
 
         IReadOnlyCollection<IXunitTestCollection> orderedTestCollections;
 

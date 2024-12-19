@@ -18,12 +18,8 @@ public class EventBusTests
          .Returns(Task.CompletedTask)
          .Once();
 
-        var evnt = Factory.CreateEvent(
-            new[]
-            {
-                fakeHandler
-            });
-        await evnt.PublishAsync();
+        var evnt = Factory.CreateEvent([fakeHandler]);
+        await evnt.PublishAsync(cancellation: TestContext.Current.CancellationToken);
     }
 
     [Fact]
@@ -40,10 +36,10 @@ public class EventBusTests
             new UpdateInventoryLevel()
         };
 
-        await new EventBus<NewItemAddedToStock>(handlers).PublishAsync(event1, Mode.WaitForNone);
-        await new EventBus<NewItemAddedToStock>(handlers).PublishAsync(event2, Mode.WaitForAny);
+        await new EventBus<NewItemAddedToStock>(handlers).PublishAsync(event1, Mode.WaitForNone, TestContext.Current.CancellationToken);
+        await new EventBus<NewItemAddedToStock>(handlers).PublishAsync(event2, Mode.WaitForAny, TestContext.Current.CancellationToken);
 
-        await Task.Delay(100);
+        await Task.Delay(100, TestContext.Current.CancellationToken);
 
         event2.ID.Should().Be(0);
         event2.Name.Should().Be("pass");
@@ -58,11 +54,9 @@ public class EventBusTests
         var logger = A.Fake<ILogger<NotifyCustomers>>();
 
         await Assert.ThrowsAsync<ArgumentOutOfRangeException>(
-            () => new EventBus<NewItemAddedToStock>(
-                new[]
-                {
-                    new NotifyCustomers(logger)
-                }).PublishAsync(new()));
+            () => new EventBus<NewItemAddedToStock>([new NotifyCustomers(logger)]).PublishAsync(
+                new(),
+                cancellation: TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -76,7 +70,7 @@ public class EventBusTests
                 s.AddSingleton<IEventHandler<NewItemAddedToStock>>(fakeHandler);
             });
 
-        await new NewItemAddedToStock { Name = "xyz" }.PublishAsync();
+        await new NewItemAddedToStock { Name = "xyz" }.PublishAsync(cancellation: TestContext.Current.CancellationToken);
 
         fakeHandler.Name.Should().Be("xyz");
     }
@@ -84,7 +78,7 @@ public class EventBusTests
 
 file class FakeEventHandler : IEventHandler<NewItemAddedToStock>
 {
-    public string? Name { get; set; }
+    public string? Name { get; private set; }
 
     public Task HandleAsync(NewItemAddedToStock eventModel, CancellationToken ct)
     {

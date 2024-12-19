@@ -1,3 +1,3 @@
-﻿namespace Tests.Fixtures;
-
-public class Sut : AppFixture<Program>;
+﻿// namespace Tests.Fixtures;
+//
+// public class Sut : AppFixture<Program>;

@@ -10,6 +10,23 @@ Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H
 
 ## New 🎉
 
+<details><summary>Migrate to xUnit v3</summary>
+
+If you're using the `FastEndpoints.Testing` package in your test projects, take the following steps to migrate your projects:
+
+1. Update all "FastEndpoints" package references in all of your projects to "5.33.0".
+2. In your test project's `.csproj` file:
+   1. Remove the package reference to the "xunit" v2 package.
+   2. Add a package reference to the new "xunit.v3" library with version "1.0.0"
+   3. Change the version of "xunit.runner.visualstudio" to "3.0.0"
+3. Build the solution.
+4. There might be compilation errors related to the return type of your derived `AppFixture<TProgram>` classes overridden methods such as `SetupAsync` and `TearDownAsync` methods. Simply change them from `Task` to `ValueTask` and the project should compile successfully.
+5. If there are any compilation errors related to `XUnit.Abstractions` namespace not being found, simply delete those "using statements" as that namespace has been removed in xUnit v3.
+
+After doing the above, it should pretty much be smooth sailing, unless your project is affected by the removal of previously deprecated classes as mentioned in the "Breaking Changes" section below.
+
+</details>
+
 <details><summary>Control binding sources per DTO property</summary>
 
 The default binding order is designed to minimize attribute clutter on DTO models. In most cases, disabling binding sources is unnecessary. However, for rare scenarios where a binding source must be explicitly blocked, you can now do the following:
@@ -34,8 +51,6 @@ public string InvoiceID { get; set; }
 
 </details>
 
-## Improvements 🚀
-
 <details><summary>Swagger descriptions for deeply nested DTO properties</summary>
 
 Until now, if you wanted to provide text descriptions for deeply nested request DTO properties, the only option was to provide them via XML document summary tags.
@@ -54,6 +69,8 @@ Descriptions for lists and arrays can be provided by using an index `0` to get a
 Note: only lists and arrays can be used for this.
 
 </details>
+
+<!-- ## Improvements 🚀 -->
 
 ## Fixes 🪲
 
@@ -102,3 +119,18 @@ This has been fixed to correctly detect all generic arguments of generic command
 </details>
 
 ## Minor Breaking Changes ⚠️
+
+<details><summary>Removal of deprecated classes (Testing related)</summary>
+
+After following the xUnit v3 upgrade instructions above, you may be affected by the removal of the following previously deprecated classes:
+
+- `TestFixture<TProgram>`: Use the `AppFixture<TProgram>` class instead.
+- `TestClass<TFixture>`: Use the `TestBase<TFixture>` class instead.
+
+</details>
+
+<details><summary>Removal of constructor overloads from 'AppFixture&lt;TProgram&gt;'</summary>
+
+Due to the migration to xUnit v3, the `AppFixture<TProgram>` base class no longer accepts `IMessageSink` and `ITestOutputHelper` arguments and only has a parameterless constructor.
+
+</details>

@@ -1,15 +1,15 @@
-﻿using System.Reflection;
-using Xunit.Abstractions;
-using Xunit.Sdk;
+﻿using Xunit.Sdk;
+using Xunit.v3;
 
 namespace FastEndpoints.Testing;
 
-sealed class TestFrameworkExecutor(AssemblyName assemblyName, ISourceInformationProvider sourceInformationProvider, IMessageSink diagnosticMessageSink)
-    : XunitTestFrameworkExecutor(assemblyName, sourceInformationProvider, diagnosticMessageSink)
+sealed class TestFrameworkExecutor(IXunitTestAssembly testAssembly) : XunitTestFrameworkExecutor(testAssembly)
 {
-    protected override async void RunTestCases(IEnumerable<IXunitTestCase> testCases, IMessageSink executionMessageSink, ITestFrameworkExecutionOptions executionOptions)
+    public override async ValueTask RunTestCases(IReadOnlyCollection<IXunitTestCase> testCases,
+                                                 IMessageSink executionMessageSink,
+                                                 ITestFrameworkExecutionOptions executionOptions)
     {
-        using var assemblyRunner = new TestAssemblyRunner(TestAssembly, testCases, DiagnosticMessageSink, executionMessageSink, executionOptions);
-        await assemblyRunner.RunAsync();
+        executionOptions.SetDisableParallelization(true);
+        await TestAssemblyRunner.Instance.Run(TestAssembly, testCases, executionMessageSink, executionOptions);
     }
 }

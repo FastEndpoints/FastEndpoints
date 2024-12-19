@@ -6,14 +6,14 @@ using Web.Services;
 
 namespace Int.FastEndpoints;
 
-public class Sut(IMessageSink s) : AppFixture<Web.Program>(s)
+public class Sut : AppFixture<Web.Program>
 {
     public HttpClient GuestClient { get; private set; } = default!;
     public HttpClient AdminClient { get; private set; } = default!;
     public HttpClient CustomerClient { get; private set; } = default!;
     public HttpClient RangeClient { get; private set; } = default!;
 
-    protected override async Task SetupAsync()
+    protected override async ValueTask SetupAsync()
     {
         GuestClient = CreateClient();
 
@@ -49,13 +49,13 @@ public class Sut(IMessageSink s) : AppFixture<Web.Program>(s)
         s.AddScoped<IEmailService, MockEmailService>();
     }
 
-    protected override Task TearDownAsync()
+    protected override ValueTask TearDownAsync()
     {
         GuestClient.Dispose();
         AdminClient.Dispose();
         CustomerClient.Dispose();
         RangeClient.Dispose();
 
-        return Task.CompletedTask;
+        return ValueTask.CompletedTask;
     }
 }

@@ -1,6 +1,5 @@
 ﻿using Bogus;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace FastEndpoints.Testing;
 
@@ -8,12 +7,19 @@ namespace FastEndpoints.Testing;
 /// abstract class for implementing a test-class, which is a collection of integration tests that may be related to each other.
 /// test methods can be run in a given order by decorating the methods with <see cref="PriorityAttribute" />
 /// </summary>
-[TestCaseOrderer(TestCaseOrderer.Name, TestCaseOrderer.Assembly)]
+[TestCaseOrderer(typeof(TestCaseOrderer))]
 public abstract class TestBase : IAsyncLifetime, IFaker
 {
     static readonly Faker _faker = new();
 
     public Faker Fake => _faker;
+
+#pragma warning disable CA1822
+    public ITestContext Context => TestContext.Current;
+    public CancellationToken Cancellation => TestContext.Current.CancellationToken;
+    public ITestOutputHelper Output
+        => TestContext.Current.TestOutputHelper ?? throw new InvalidOperationException("Test output helper is not available in the current context!");
+#pragma warning restore CA1822
 
     // ReSharper disable VirtualMemberNeverOverridden.Global
 
@@ -21,20 +27,20 @@ public abstract class TestBase : IAsyncLifetime, IFaker
     /// override this method if you'd like to do some one-time setup for the test-class.
     /// it is run before any of the test-methods of the class is executed.
     /// </summary>
-    protected virtual Task SetupAsync()
-        => Task.CompletedTask;
+    protected virtual ValueTask SetupAsync()
+        => ValueTask.CompletedTask;
 
     /// <summary>
     /// override this method if you'd like to do some one-time teardown for the test-class.
     /// it is run after all test-methods have executed.
     /// </summary>
-    protected virtual Task TearDownAsync()
-        => Task.CompletedTask;
+    protected virtual ValueTask TearDownAsync()
+        => ValueTask.CompletedTask;
 
-    Task IAsyncLifetime.InitializeAsync()
+    ValueTask IAsyncLifetime.InitializeAsync()
         => SetupAsync();
 
-    Task IAsyncLifetime.DisposeAsync()
+    ValueTask IAsyncDisposable.DisposeAsync()
         => TearDownAsync();
 }
 
@@ -80,35 +86,3 @@ public abstract class TestBase<TAppFixture> : TestBase, IClassFixture<TAppFixtur
 /// <typeparam name="TState">the type of the shared state fixture. implement a "state fixture" by inheriting <see cref="StateFixture" /> abstract class.</typeparam>
 public abstract class TestBase<TAppFixture, TState> : TestBase<TAppFixture>, IClassFixture<TState>
     where TAppFixture : BaseFixture where TState : StateFixture;
-
-[Obsolete("Use the TestBase<TAppFixture> class going forward. This class will be removed at the next major version jump.")]
-public abstract class TestClass<TAppFixture>(TAppFixture a, ITestOutputHelper o) : TestBase<TAppFixture> where TAppFixture : BaseFixture
-{
-    /// <summary>
-    /// app fixture that is shared among all tests of this class
-    /// </summary>
-    protected TAppFixture App { get; } = a;
-
-    /// <summary>
-    /// app fixture that is shared among all tests of this class
-    /// </summary>
-    /// <remarks>
-    /// NOTE: this property will be deprecated in the future. use the <see cref="App" /> property instead.
-    /// </remarks>
-    protected TAppFixture Fixture => App;
-
-    /// <summary>
-    /// app fixture that is shared among all tests of this class
-    /// </summary>
-    /// <remarks>
-    /// NOTE: this property will be deprecated in the future. use the <see cref="App" /> property instead.
-    /// </remarks>
-    protected TAppFixture Fx => App;
-
-    /// <summary>
-    /// xUnit test output helper
-    /// </summary>
-    protected ITestOutputHelper Output { get; } = o;
-
-    //TODO: remove this class at v6.0. only here for backwards compatibility.
-}

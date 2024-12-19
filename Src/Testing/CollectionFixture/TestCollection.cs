@@ -6,8 +6,9 @@ namespace FastEndpoints.Testing;
 /// abstract class for creating a collection definition
 /// </summary>
 /// <typeparam name="TAppFixture">the type of the app fixture that will last for the full lifetime of the test-collection</typeparam>
+[CollectionDefinition]
 public abstract class TestCollection<TAppFixture> : ICollectionFixture<TAppFixture>
-    where TAppFixture : BaseFixture { }
+    where TAppFixture : BaseFixture;
 
 /// <summary>
 /// abstract class for creating a collection definition

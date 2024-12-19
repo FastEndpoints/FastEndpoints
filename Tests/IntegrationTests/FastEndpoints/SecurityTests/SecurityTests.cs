@@ -19,7 +19,7 @@ public class SecurityTests(Sut App) : TestBase<Sut>
         using var form = new MultipartFormDataContent();
         form.Add(imageContent, "File", "test.png");
 
-        var res = await App.GuestClient.PutAsync("/api/uploads/image/save", form);
+        var res = await App.GuestClient.PutAsync("/api/uploads/image/save", form, Cancellation);
 
         res.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
     }
@@ -112,7 +112,7 @@ public class SecurityTests(Sut App) : TestBase<Sut>
         var client = App.CreateClient(c => c.DefaultRequestHeaders.Authorization = new("Bearer", "revoked token"));
         var (rsp, _) = await client.GETAsync<Customers.List.Recent.Endpoint, Customers.List.Recent.Response>();
         rsp.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
-        var res = await rsp.Content.ReadAsStringAsync();
+        var res = await rsp.Content.ReadAsStringAsync(Cancellation);
         res.Should().Be("Bearer token has been revoked!");
     }
 

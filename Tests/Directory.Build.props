@@ -4,6 +4,7 @@
         <LangVersion>latest</LangVersion>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <ProjectType>Exe</ProjectType>
         <NoWarn>CS1587,CS1591,CS1998,NU5105,RCS1102,IDE1006</NoWarn>
     </PropertyGroup>
 </Project>

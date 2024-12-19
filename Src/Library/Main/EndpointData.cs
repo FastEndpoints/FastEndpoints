@@ -35,6 +35,7 @@ sealed class EndpointData
 
         IEnumerable<string> exclusions =
         [
+            "JetBrains",
             "Microsoft",
             "System",
             "FastEndpoints",

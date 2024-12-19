@@ -20,7 +20,7 @@ public class SwaggerDocTests(Fixture App) : TestBase<Fixture>
 
         await UpdateSnapshotIfEnabled("release-0.json", json);
 
-        var snapshot = await File.ReadAllTextAsync("release-0.json");
+        var snapshot = await File.ReadAllTextAsync("release-0.json", Cancellation);
         var snapshotDoc = JToken.Parse(snapshot);
 
         currentDoc.Should().BeEquivalentTo(snapshotDoc);
@@ -36,7 +36,7 @@ public class SwaggerDocTests(Fixture App) : TestBase<Fixture>
 
         await UpdateSnapshotIfEnabled("release-1.json", json);
 
-        var snapshot = await File.ReadAllTextAsync("release-1.json");
+        var snapshot = await File.ReadAllTextAsync("release-1.json", Cancellation);
         var snapshotDoc = JToken.Parse(snapshot);
 
         currentDoc.Should().BeEquivalentTo(snapshotDoc);
@@ -52,7 +52,7 @@ public class SwaggerDocTests(Fixture App) : TestBase<Fixture>
 
         await UpdateSnapshotIfEnabled("release-2.json", json);
 
-        var snapshot = await File.ReadAllTextAsync("release-2.json");
+        var snapshot = await File.ReadAllTextAsync("release-2.json", Cancellation);
         var snapshotDoc = JToken.Parse(snapshot);
 
         currentDoc.Should().BeEquivalentTo(snapshotDoc);
@@ -81,7 +81,7 @@ public class SwaggerDocTests(Fixture App) : TestBase<Fixture>
 
         await UpdateSnapshotIfEnabled("release-versioning-v0.json", json);
 
-        var snapshot = await File.ReadAllTextAsync("release-versioning-v0.json");
+        var snapshot = await File.ReadAllTextAsync("release-versioning-v0.json", Cancellation);
         var snapshotDoc = JToken.Parse(snapshot);
 
         currentDoc.Should().BeEquivalentTo(snapshotDoc);
@@ -96,7 +96,7 @@ public class SwaggerDocTests(Fixture App) : TestBase<Fixture>
 
         await UpdateSnapshotIfEnabled("release-versioning-v1.json", json);
 
-        var snapshot = await File.ReadAllTextAsync("release-versioning-v1.json");
+        var snapshot = await File.ReadAllTextAsync("release-versioning-v1.json", Cancellation);
         var snapshotDoc = JToken.Parse(snapshot);
 
         currentDoc.Should().BeEquivalentTo(snapshotDoc);
@@ -111,7 +111,7 @@ public class SwaggerDocTests(Fixture App) : TestBase<Fixture>
 
         await UpdateSnapshotIfEnabled("release-versioning-v2.json", json);
 
-        var snapshot = await File.ReadAllTextAsync("release-versioning-v2.json");
+        var snapshot = await File.ReadAllTextAsync("release-versioning-v2.json", Cancellation);
         var snapshotDoc = JToken.Parse(snapshot);
 
         currentDoc.Should().BeEquivalentTo(snapshotDoc);
@@ -126,7 +126,7 @@ public class SwaggerDocTests(Fixture App) : TestBase<Fixture>
 
         await UpdateSnapshotIfEnabled("release-versioning-v3.json", json);
 
-        var snapshot = await File.ReadAllTextAsync("release-versioning-v3.json");
+        var snapshot = await File.ReadAllTextAsync("release-versioning-v3.json", Cancellation);
         var snapshotDoc = JToken.Parse(snapshot);
 
         currentDoc.Should().BeEquivalentTo(snapshotDoc);

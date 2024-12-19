@@ -9,10 +9,8 @@ public class TestServerTests
     [Fact]
     public async Task Only_One_TestServer_Is_Created_Per_Fixture_Type()
     {
-        var sink = A.Fake<IMessageSink>();
-
-        var f1 = new FixtureA(sink);
-        var f2 = new FixtureA(sink);
+        var f1 = new FixtureA();
+        var f2 = new FixtureA();
 
         await ((IAsyncLifetime)f1).InitializeAsync();
         await ((IAsyncLifetime)f2).InitializeAsync();
@@ -22,8 +20,8 @@ public class TestServerTests
 
         id1.Should().Be(id2);
 
-        var t1 = new FixtureB(sink);
-        var t2 = new FixtureB(sink);
+        var t1 = new FixtureB();
+        var t2 = new FixtureB();
 
         await ((IAsyncLifetime)t1).InitializeAsync();
         await ((IAsyncLifetime)t2).InitializeAsync();

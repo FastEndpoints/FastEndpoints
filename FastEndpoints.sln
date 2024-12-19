@@ -21,6 +21,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastEndpoints.Swagger", "Src\Swagger\FastEndpoints.Swagger.csproj", "{7FCF797D-C5B6-4AD3-9E55-5C68BDFA1FE6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{41C316BB-BE68-421E-867E-26C06E42E6A3}"
+	ProjectSection(SolutionItems) = preProject
+		Tests\Directory.Build.props = Tests\Directory.Build.props
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IntegrationTests", "IntegrationTests", "{6D2721E8-A0C6-4F83-8145-E2EB90224218}"
 EndProject

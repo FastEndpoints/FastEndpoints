@@ -4,13 +4,13 @@ public sealed class MyStateFixture : StateFixture
 {
     public int Id { get; set; }
 
-    protected override async Task SetupAsync()
+    protected override async ValueTask SetupAsync()
     {
         Id = 123;
         await Task.CompletedTask;
     }
 
-    protected override async Task TearDownAsync()
+    protected override async ValueTask TearDownAsync()
     {
         Id = 0;
         await Task.CompletedTask;

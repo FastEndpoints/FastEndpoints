@@ -21,10 +21,10 @@ public class MiscTestCases(Sut App) : TestBase<Sut>
                 new(
                     "api/test-cases/global-throttle-error-response?customerId=09809&otherId=12",
                     UriKind.Relative);
-            response = await App.GuestClient.SendAsync(request);
+            response = await App.GuestClient.SendAsync(request, Cancellation);
         }
 
-        var responseContent = await response!.Content.ReadAsStringAsync();
+        var responseContent = await response!.Content.ReadAsStringAsync(Cancellation);
         responseContent.Should().Be("Custom Error Response");
         response.StatusCode.Should().Be(HttpStatusCode.TooManyRequests);
     }
@@ -45,7 +45,7 @@ public class MiscTestCases(Sut App) : TestBase<Sut>
                 new(
                     "api/test-cases/global-throttle-error-response?customerId=09809&otherId=12",
                     UriKind.Relative);
-            response = await App.GuestClient.SendAsync(request);
+            response = await App.GuestClient.SendAsync(request, Cancellation);
         }
 
         response.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -72,11 +72,11 @@ public class MiscTestCases(Sut App) : TestBase<Sut>
     {
         try
         {
-            await App.GuestClient.GetStringAsync("/api/test-cases/one");
+            await App.GuestClient.GetStringAsync("/api/test-cases/one", Cancellation);
         }
         catch { }
 
-        var res = await App.GuestClient.GetStringAsync("/api/test-cases/1");
+        var res = await App.GuestClient.GetStringAsync("/api/test-cases/1", Cancellation);
 
         res.Should().Be("1");
     }
@@ -86,6 +86,6 @@ public class MiscTestCases(Sut App) : TestBase<Sut>
     {
         var (rsp, _) = await App.GuestClient.GETAsync<TestCases.STJInfiniteRecursionTest.Endpoint, TestCases.STJInfiniteRecursionTest.Response>();
         rsp.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
-        (await rsp.Content.ReadAsStringAsync()).Should().Contain("A possible object cycle was detected.");
+        (await rsp.Content.ReadAsStringAsync(Cancellation)).Should().Contain("A possible object cycle was detected.");
     }
 }

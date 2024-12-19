@@ -10,14 +10,14 @@ public class CollectionFixtureTests
         public string Id { get; private set; } = null!;
         public int Count { get; private set; }
 
-        protected override async Task SetupAsync()
+        protected override async ValueTask SetupAsync()
         {
             //proves setup was run
             Id = Default.Reverse().ToString()!;
             Count++;
         }
 
-        protected override async Task TearDownAsync()
+        protected override async ValueTask TearDownAsync()
         {
             //proves teardown won't run before collection is complete
             Id = Guid.NewGuid().ToString("N");

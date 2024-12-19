@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
-using Xunit;
-using Xunit.Abstractions;
+using Xunit.Sdk;
+using Xunit.v3;
 
 namespace FastEndpoints.Testing;
 
@@ -9,14 +9,15 @@ namespace FastEndpoints.Testing;
 /// </summary>
 sealed class TestCollectionOrderer : ITestCollectionOrderer
 {
-    public IEnumerable<ITestCollection> OrderTestCollections(IEnumerable<ITestCollection> collections)
+    public IReadOnlyCollection<TTestCollection> OrderTestCollections<TTestCollection>(IReadOnlyCollection<TTestCollection> collections)
+        where TTestCollection : ITestCollection
     {
-        var orderedCollections = new List<(int priority, ITestCollection collection)>();
-        var unorderedCollections = new List<ITestCollection>();
+        var orderedCollections = new List<(int priority, TTestCollection collection)>();
+        var unorderedCollections = new List<TTestCollection>();
 
         foreach (var c in collections)
         {
-            var priority = ((c.CollectionDefinition as IReflectionTypeInfo)?.Type.GetCustomAttribute(typeof(PriorityAttribute)) as PriorityAttribute)?.Priority;
+            var priority = ((IXunitTestCollection)c).CollectionDefinition?.GetCustomAttribute<PriorityAttribute>()?.Priority;
 
             if (priority is not null)
                 orderedCollections.Add((priority.Value, c));
@@ -24,10 +25,9 @@ sealed class TestCollectionOrderer : ITestCollectionOrderer
                 unorderedCollections.Add(c);
         }
 
-        foreach (var c in orderedCollections.OrderBy(t => t.priority))
-            yield return c.collection;
-
-        foreach (var c in unorderedCollections)
-            yield return c;
+        return orderedCollections.OrderBy(t => t.priority)
+                                 .Select(t => t.collection)
+                                 .Union(unorderedCollections)
+                                 .ToArray();
     }
 }

@@ -6,9 +6,9 @@ using TestCases.DataAnnotationCompliant;
 namespace Int.FastEndpoints.WebTests;
 
 [DisableWafCache]
-public class DaFixture(IMessageSink s) : AppFixture<Web.Program>(s);
+public class DaFixture : AppFixture<Web.Program>;
 
-public class DataAnnotationsTest(DaFixture f, ITestOutputHelper o) : TestClass<DaFixture>(f, o)
+public class DataAnnotationsTest(DaFixture App) : TestBase<DaFixture>
 {
     [Fact]
     public async Task WithBadInput()

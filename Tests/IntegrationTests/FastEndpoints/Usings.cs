@@ -4,6 +4,6 @@ global using FluentAssertions;
 global using Int.FastEndpoints;
 global using Microsoft.Extensions.DependencyInjection;
 global using Xunit;
-global using Xunit.Abstractions;
+global using Xunit.Sdk;
 
 //[assembly: EnableAdvancedTesting]

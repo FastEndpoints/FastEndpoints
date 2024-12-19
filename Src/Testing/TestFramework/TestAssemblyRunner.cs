@@ -1,110 +1,116 @@
-﻿using Xunit;
-using Xunit.Abstractions;
+﻿using System.Globalization;
+using System.Reflection;
+using Xunit.Internal;
 using Xunit.Sdk;
+using Xunit.v3;
 
 namespace FastEndpoints.Testing;
 
-sealed class TestAssemblyRunner(ITestAssembly testAssembly,
-                                IEnumerable<IXunitTestCase> testCases,
-                                IMessageSink diagnosticMessageSink,
-                                IMessageSink executionMessageSink,
-                                ITestFrameworkExecutionOptions executionOptions)
-    : XunitTestAssemblyRunner(testAssembly, testCases, diagnosticMessageSink, executionMessageSink, executionOptions)
+sealed class TestAssemblyRunner : XunitTestAssemblyRunner
 {
+    public new static TestAssemblyRunner Instance { get; } = new();
+
     static readonly TestCaseOrderer _testCaseOrderer = new();
     static readonly TestCollectionOrderer _testCollectionOrderer = new();
-    readonly Dictionary<Type, object> _assemblyFixtureMappings = new();
 
-    protected override async Task AfterTestAssemblyStartingAsync()
+    protected override async ValueTask<bool> OnTestAssemblyStarting(XunitTestAssemblyRunnerContext ctx)
     {
-        // Let everything initialize
-        await base.AfterTestAssemblyStartingAsync();
-        TestCollectionOrderer = _testCollectionOrderer;
+        ArgumentNullException.ThrowIfNull(ctx);
 
-        // Go find all the AssemblyFixtureAttributes adorned on the test assembly
-        await Aggregator.RunAsync(
+        var result = await base.OnTestAssemblyStarting(ctx);
+
+        await ctx.Aggregator.RunAsync(
             async () =>
             {
-                var assemblyFixtures = new HashSet<Type>(
-                    ((IReflectionAssemblyInfo)TestAssembly.Assembly)
-                    .Assembly
-                    .GetTypes()
-                    .Select(type => type.GetInterfaces())
-                    .SelectMany(x => x)
-                    .Where(@interface => @interface.IsAssignableToGenericType(typeof(IAssemblyFixture<>)))
-                    .ToArray());
+                var assemblyFixtureTypes = ctx.TestAssembly
+                                              .Assembly
+                                              .GetTypes()
+                                              .Select(type => type.GetInterfaces())
+                                              .SelectMany(tIfc => tIfc)
+                                              .Where(tIfc => tIfc.IsAssignableToGenericType(typeof(IAssemblyFixture<>)))
+                                              .Select(tIfc => tIfc.GetGenericArguments()[0])
+                                              .ToArray();
 
-                // Instantiate all the fixtures
-                foreach (var fixtureAttribute in assemblyFixtures)
-                {
-                    var fixtureType = fixtureAttribute.GetGenericArguments()[0];
-                    var hasConstructorWithMessageSink = fixtureType.GetConstructor([typeof(IMessageSink)]) != null;
-                    _assemblyFixtureMappings[fixtureType] = hasConstructorWithMessageSink
-                                                                ? Activator.CreateInstance(fixtureType, ExecutionMessageSink)!
-                                                                : Activator.CreateInstance(fixtureType)!;
-                }
-
-                // Initialize IAsyncLifetime fixtures
-                foreach (var asyncLifetime in _assemblyFixtureMappings.Values.OfType<IAsyncLifetime>())
-                    await Aggregator.RunAsync(async () => await asyncLifetime.InitializeAsync());
+                await ctx.AssemblyFixtureMappings.InitializeAsync(assemblyFixtureTypes);
             });
+
+        return result;
     }
 
-    protected override async Task BeforeTestAssemblyFinishedAsync()
+    protected override List<(IXunitTestCollection Collection, List<IXunitTestCase> TestCases)> OrderTestCollections(XunitTestAssemblyRunnerContext ctx)
     {
-        // Make sure we clean up everybody who is disposable, and use Aggregator.Run to isolate Dispose failures
-        Parallel.ForEach(
-            _assemblyFixtureMappings.Values.OfType<IDisposable>(),
-            disposable => Aggregator.Run(disposable.Dispose));
+        ArgumentNullException.ThrowIfNull(ctx);
 
-        await Parallel.ForEachAsync(
-            _assemblyFixtureMappings.Values.OfType<IAsyncDisposable>(),
-            async (disposable, _) => await Aggregator.RunAsync(async () => await disposable.DisposeAsync()));
+        var testCasesByCollection = ctx.TestCases
+                                       .GroupBy(tc => tc.TestCollection, TestCollectionComparer<IXunitTestCollection>.Instance)
+                                       .ToDictionary(g => g.Key, g => g.ToList());
 
-        await Parallel.ForEachAsync(
-            _assemblyFixtureMappings.Values.OfType<IAsyncLifetime>(),
-            async (disposable, _) => await Aggregator.RunAsync(async () => await disposable.DisposeAsync()));
+        IReadOnlyCollection<IXunitTestCollection> orderedTestCollections;
 
-        await base.BeforeTestAssemblyFinishedAsync();
-    }
-
-    protected override async Task<RunSummary> RunTestCollectionAsync(IMessageBus messageBus,
-                                                                     ITestCollection testCollection,
-                                                                     IEnumerable<IXunitTestCase> testCases,
-                                                                     CancellationTokenSource cancellationTokenSource)
-        => await new TestCollectionRunner(
-                   _assemblyFixtureMappings,
-                   testCollection,
-                   OrderTestsInCollection(testCases),
-                   DiagnosticMessageSink,
-                   messageBus,
-                   _testCaseOrderer,
-                   new(Aggregator),
-                   cancellationTokenSource)
-               .RunAsync();
-
-    static IEnumerable<IXunitTestCase> OrderTestsInCollection(IEnumerable<IXunitTestCase> tests)
-    {
-        var orderedTests = new List<(int priority, IXunitTestCase testCase)>();
-        var unorderedTests = new List<IXunitTestCase>();
-
-        foreach (var t in tests)
+        try
         {
-            var priority = t.TestMethod.TestClass.Class
-                            .GetCustomAttributes(typeof(PriorityAttribute))?
-                            .SingleOrDefault()?
-                            .GetNamedArgument<int>(nameof(PriorityAttribute.Priority));
+            orderedTestCollections = _testCollectionOrderer.OrderTestCollections(testCasesByCollection.Keys);
+        }
+        catch (Exception ex)
+        {
+            var innerEx = ex.Unwrap();
 
-            if (priority is not null)
-                orderedTests.Add((priority.Value, t));
-            else
-                unorderedTests.Add(t);
+            ctx.MessageBus.QueueMessage(
+                new ErrorMessage
+                {
+                    ExceptionParentIndices = [-1],
+                    ExceptionTypes = [typeof(TestPipelineException).SafeName()],
+                    Messages =
+                    [
+                        string.Format(
+                            CultureInfo.CurrentCulture,
+                            "Assembly-level test collection orderer '{0}' threw '{1}' during ordering: {2}",
+                            _testCollectionOrderer.GetType().SafeName(),
+                            innerEx.GetType().SafeName(),
+                            innerEx.Message)
+                    ],
+                    StackTraces = [innerEx.StackTrace]
+                });
+
+            return [];
         }
 
-        foreach (var t in orderedTests.OrderBy(t => t.priority))
-            yield return t.testCase;
+        return
+            orderedTestCollections
+                .Select(collection => (collection, testCasesByCollection[collection]))
+                .ToList();
+    }
 
-        foreach (var t in unorderedTests)
-            yield return t;
+    protected override ValueTask<RunSummary> RunTestCollection(XunitTestAssemblyRunnerContext ctx,
+                                                               IXunitTestCollection collection,
+                                                               IReadOnlyCollection<IXunitTestCase> cases)
+
+    {
+        ArgumentNullException.ThrowIfNull(ctx);
+        ArgumentNullException.ThrowIfNull(collection);
+        ArgumentNullException.ThrowIfNull(cases);
+
+        return ctx.RunTestCollection(collection, OrderAccordingToClassLevelPriority(cases), _testCaseOrderer);
+
+        static IReadOnlyCollection<IXunitTestCase> OrderAccordingToClassLevelPriority(IReadOnlyCollection<IXunitTestCase> cases)
+        {
+            var orderedTests = new List<(int priority, IXunitTestCase testCase)>();
+            var unorderedTests = new List<IXunitTestCase>();
+
+            foreach (var t in cases)
+            {
+                var priority = t.TestMethod.TestClass.Class.GetCustomAttribute<PriorityAttribute>()?.Priority;
+
+                if (priority is not null)
+                    orderedTests.Add((priority.Value, t));
+                else
+                    unorderedTests.Add(t);
+            }
+
+            return orderedTests.OrderBy(t => t.priority)
+                               .Select(t => t.testCase)
+                               .Union(unorderedTests)
+                               .ToArray();
+        }
     }
 }

@@ -7,8 +7,12 @@ public abstract class StateFixture : IAsyncLifetime, IFaker
 {
     static readonly Faker _faker = new();
 
-    /// <inheritdoc />
     public Faker Fake => _faker;
+
+#pragma warning disable CA1822
+    public ITestContext Context => TestContext.Current;
+    public CancellationToken Cancellation => TestContext.Current.CancellationToken;
+#pragma warning restore CA1822
 
     /// <summary>
     /// override this method if you'd like to do some one-time setup for the fixture.

@@ -6,7 +6,7 @@ using Web.Services;
 
 namespace FixtureTests;
 
-public class FixtureA(IMessageSink s) : AppFixture<Web.Program>(s)
+public class FixtureA : AppFixture<Web.Program>
 {
     static readonly string _id = Guid.NewGuid().ToString("N");
 
@@ -18,7 +18,7 @@ public class FixtureA(IMessageSink s) : AppFixture<Web.Program>(s)
     }
 }
 
-public class FixtureB(IMessageSink s) : AppFixture<Web.Program>(s)
+public class FixtureB : AppFixture<Web.Program>
 {
     static readonly string _id = Guid.NewGuid().ToString("N");
 
@@ -29,7 +29,7 @@ public class FixtureB(IMessageSink s) : AppFixture<Web.Program>(s)
     }
 }
 
-public class FixtureWithConfigureAppHost(IMessageSink s) : AppFixture<Web.Program>(s)
+public class FixtureWithConfigureAppHost : AppFixture<Web.Program>
 {
     internal static readonly string Id = Guid.NewGuid().ToString("N");
     internal IHost Host = null!;

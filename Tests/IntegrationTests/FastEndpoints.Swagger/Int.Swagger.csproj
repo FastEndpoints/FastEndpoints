@@ -5,7 +5,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <!--<PackageReference Include="Verify.Xunit" Version="22.5.0"/>-->
         <PackageReference Include="FluentAssertions.Json"/>
         <PackageReference Include="Microsoft.NET.Test.Sdk"/>
         <PackageReference Include="xunit.v3"/>

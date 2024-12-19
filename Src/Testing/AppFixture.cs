@@ -6,9 +6,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Xunit;
-using Xunit.Sdk;
 #if NET7_0_OR_GREATER
 using Microsoft.AspNetCore.Http;
 #endif
@@ -22,8 +20,12 @@ public abstract class BaseFixture : IFaker
 {
     static readonly Faker _faker = new();
 
-    /// <inheritdoc />
     public Faker Fake => _faker;
+
+#pragma warning disable CA1822
+    public ITestContext Context => TestContext.Current;
+    public CancellationToken Cancellation => TestContext.Current.CancellationToken;
+#pragma warning restore CA1822
 
     //we're using an async friendly lazy wrapper to ensure that no more than 1 waf instance is ever created per derived AppFixture type in a high concurrency situation.
     protected static readonly ConcurrentDictionary<Type, AsyncLazy<object>> WafCache = new();
@@ -58,27 +60,6 @@ public abstract class AppFixture<TProgram> : BaseFixture, IAsyncLifetime where T
     public HttpClient Client { get; set; } = null!;
 
     WebApplicationFactory<TProgram> _app = null!;
-    readonly IMessageSink? _messageSink;
-    readonly ITestOutputHelper? _outputHelper;
-
-    //reason for ctor overloads: https://github.com/FastEndpoints/FastEndpoints/pull/548
-    protected AppFixture(IMessageSink s)
-    {
-        _messageSink = s;
-    }
-
-    protected AppFixture(ITestOutputHelper h)
-    {
-        _outputHelper = h;
-    }
-
-    protected AppFixture(IMessageSink s, ITestOutputHelper h)
-    {
-        _messageSink = s;
-        _outputHelper = h;
-    }
-
-    protected AppFixture() { }
 
     // ReSharper disable VirtualMemberNeverOverridden.Global
 
@@ -180,16 +161,6 @@ public abstract class AppFixture<TProgram> : BaseFixture, IAsyncLifetime where T
                 b =>
                 {
                     b.UseEnvironment("Testing");
-                    b.ConfigureLogging(
-                        l =>
-                        {
-                            l.ClearProviders();
-
-                            // if (_messageSink is not null)
-                            //     l.AddXUnit(_messageSink);
-                            // if (_outputHelper is not null)
-                            //     l.AddXUnit(_outputHelper);
-                        });
                     b.ConfigureTestServices(ConfigureServices);
                     ConfigureApp(b);
                 });
@@ -209,17 +180,4 @@ public abstract class AppFixture<TProgram> : BaseFixture, IAsyncLifetime where T
         protected override IHost CreateHost(IHostBuilder builder)
             => configureAppHost(builder);
     }
-}
-
-//TODO: remove this class at v6.0
-[Obsolete("Use 'AppFixture<TProgram>' abstract class instead of this class going forward.", false)]
-public abstract class TestFixture<TProgram> : AppFixture<TProgram> where TProgram : class
-{
-    protected TestFixture(IMessageSink s) : base(s) { }
-
-    protected TestFixture(ITestOutputHelper h) : base(h) { }
-
-    protected TestFixture(IMessageSink s, ITestOutputHelper h) : base(s, h) { }
-
-    protected TestFixture() { }
 }

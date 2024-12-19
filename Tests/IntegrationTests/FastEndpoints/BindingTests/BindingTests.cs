@@ -595,7 +595,8 @@ public class BindingTests(Sut App) : TestBase<Sut>
                 File2 = new FormFile(stream2, 0, stream2.Length, "File2", "test.png"),
                 File3 = new FormFile(stream3, 0, stream2.Length, "File3", "test.png"),
                 Width = 500,
-                Height = 500
+                Height = 500,
+                GuidId = Guid.NewGuid()
             };
 
             var res = await App.AdminClient.POSTAsync<

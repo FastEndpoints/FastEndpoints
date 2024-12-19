@@ -7,6 +7,7 @@ public class Request
     public string ID { get; set; }
     public int Width { get; set; }
     public int Height { get; set; }
+    public Guid GuidId { get; set; }
 
     public IFormFile File1 { get; set; }
     public IFormFile File2 { get; set; }

@@ -6316,6 +6316,10 @@
             "exclusiveMaximum": true,
             "exclusiveMinimum": true
           },
+          "GuidId": {
+            "type": "string",
+            "format": "guid"
+          },
           "File1": {
             "type": "string",
             "format": "binary"

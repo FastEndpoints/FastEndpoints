@@ -423,9 +423,9 @@ public static class HttpClientExtensions
             }
             else
             {
-                var value = p.GetValue(req);
+                var value = p.GetValueAsString(req);
                 if (value is not null)
-                    form.Add(new StringContent(JsonSerializer.Serialize(value, SerOpts.Options)), p.Name);
+                    form.Add(new StringContent(value), p.Name);
             }
         }
 
@@ -446,5 +446,20 @@ public static class HttpClientExtensions
 
             form.Add(content, prop.Name, file.FileName);
         }
+    }
+
+    static string? GetValueAsString(this PropertyInfo p, object req)
+    {
+        var value = p.GetValue(req);
+
+        if (value is null)
+            return null;
+
+        var tValue = value.GetType();
+        var stringVal = value.ToString();
+
+        return stringVal == tValue.ToString()
+                   ? JsonSerializer.Serialize(value, SerOpts.Options)
+                   : stringVal;
     }
 }

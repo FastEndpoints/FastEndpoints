@@ -39,4 +39,7 @@ static class ReflectionExtensions
 
     internal static Type GetUnderlyingType(this Type type)
         => Nullable.GetUnderlyingType(type) ?? type;
+
+    internal static bool IsComplexType(this Type tObj)
+        => tObj.IsClass && tObj != Types.String;
 }

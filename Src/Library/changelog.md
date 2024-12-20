@@ -10,7 +10,7 @@ Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H
 
 ## New 🎉
 
-<details><summary>Migrate to xUnit v3</summary>
+<details><summary>Migrate to xUnit v3 ⚠️</summary>
 
 If you're using the `FastEndpoints.Testing` package in your test projects, take the following steps to migrate your projects:
 
@@ -115,6 +115,13 @@ public async Task FormDataTest()
 
 There was a minor oversight in correctly detecting the number of generic arguments of generic commands if there was more than one. 
 This has been fixed to correctly detect all generic arguments of generic commands.
+
+</details>
+
+<details><summary>Complex form data binding issue</summary>
+
+When binding deeply nested form data with the `[FromForm]` attribute, if a certain deeply nested objects didn't have at least one primitive type property,
+it would not get bound correctly. This has been fixed as well as the binding logic being improved.
 
 </details>
 

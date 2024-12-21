@@ -9,4 +9,4 @@
 /// </para>
 /// </summary>
 [AttributeUsage(AttributeTargets.Property)]
-public sealed class FromQueryAttribute : Attribute;
+public sealed class FromQueryAttribute : QueryParamAttribute;

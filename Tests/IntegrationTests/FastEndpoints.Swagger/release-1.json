@@ -3822,6 +3822,34 @@
               "type": "number",
               "format": "decimal"
             }
+          },
+          {
+            "name": "Person",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/TestCasesRouteBindingTestPerson"
+                }
+              ]
+            },
+            "example": {
+              "Id": "Id",
+              "Name": "Name",
+              "Age": 0,
+              "Child": {
+                "Id": "Id",
+                "Name": "Name",
+                "Age": 0,
+                "Strings": [
+                  ""
+                ]
+              },
+              "Numbers": [
+                0
+              ]
+            }
           }
         ],
         "requestBody": {
@@ -6039,9 +6067,6 @@
             "type": "integer",
             "format": "int32",
             "nullable": true
-          },
-          "Person": {
-            "$ref": "#/components/schemas/TestCasesRouteBindingTestPerson"
           },
           "FromBody": {
             "type": "string",

@@ -51,6 +51,12 @@ public string InvoiceID { get; set; }
 
 </details>
 
+<details><summary>Deeply nested complex model binding from query parameters</summary>
+
+Binding deeply nested complex DTOs from incoming query parameters is now supported. Please refer to the documentation [here](https://fast-endpoints.com/docs/model-binding#complex-query-binding).
+
+</details>
+
 <details><summary>Swagger descriptions for deeply nested DTO properties</summary>
 
 Until now, if you wanted to provide text descriptions for deeply nested request DTO properties, the only option was to provide them via XML document summary tags.
@@ -139,5 +145,15 @@ After following the xUnit v3 upgrade instructions above, you may be affected by 
 <details><summary>Removal of constructor overloads from 'AppFixture&lt;TProgram&gt;'</summary>
 
 Due to the migration to xUnit v3, the `AppFixture<TProgram>` base class no longer accepts `IMessageSink` and `ITestOutputHelper` arguments and only has a parameterless constructor.
+
+</details>
+
+<details><summary>Removal of undocumented [FromQueryParams] attribute</summary>
+
+`[FromQueryParams]` was an undocumented feature that was put in place to help people migrating from old MVC projects to make the transition easier.
+It was not documented due to its extremely poor performance and we wanted to discourage people from using query parameters as a means to submit complex data structures. 
+
+The newly introduced `[FromQuery]` attribute can be used now if you really must send complex query parameters. However, it is not a one-to-one replacement 
+as the query naming convention is quite strict and simplified.
 
 </details>

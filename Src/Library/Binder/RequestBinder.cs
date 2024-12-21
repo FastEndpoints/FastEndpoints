@@ -22,7 +22,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     static readonly bool _skipModelBinding = _tRequest == Types.EmptyRequest && !_isPlainTextRequest;
     static PropCache? _fromFormProp;
     static PropCache? _fromBodyProp;
-    static PropCache? _fromQueryParamsProp;
+    static PropCache? _fromQueryProp;
     static readonly Dictionary<string, PrimaryPropCacheEntry> _primaryProps = new(StringComparer.OrdinalIgnoreCase); //key: property name
     static readonly Dictionary<string, PropCache> _formFileCollectionProps = new(StringComparer.OrdinalIgnoreCase);
     static readonly List<SecondaryPropCacheEntry> _fromClaimProps = [];
@@ -92,11 +92,11 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
                         break;
 
-                    case FromQueryParamsAttribute:
-                        if (_fromQueryParamsProp is not null)
-                            throw new InvalidOperationException($"Only one [FromQueryParams] attribute is allowed on [{_tRequest.FullName}].");
+                    case FromQueryAttribute:
+                        if (_fromQueryProp is not null)
+                            throw new InvalidOperationException($"Only one [FromQuery] attribute is allowed on [{_tRequest.FullName}].");
 
-                        addPrimary = SetFromQueryParamsPropCache(prop, propSetter);
+                        addPrimary = SetFromQueryPropCache(prop, propSetter);
 
                         break;
 
@@ -269,7 +269,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                 BindFiles();
             }
             else
-                ComplexFormBinder.Bind(_fromFormProp, req, httpRequest.Form);
+                ComplexFormBinder.Bind(_fromFormProp, req, httpRequest.Form, failures);
         }
 
         void BindFormFields()
@@ -329,30 +329,16 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             Bind(req, new(kvp.Key, kvp.Value?.ToString()), failures, Source.RouteParam);
     }
 
-    static void BindQueryParams(TRequest req, IQueryCollection query, List<ValidationFailure> failures, JsonSerializerContext? serializerCtx)
+    static void BindQueryParams(TRequest req, IQueryCollection queryParams, List<ValidationFailure> failures, JsonSerializerContext? serializerCtx)
     {
-        if (query.Count == 0)
+        if (queryParams.Count == 0)
             return;
 
-        foreach (var kvp in query)
+        foreach (var kvp in queryParams)
             Bind(req, kvp, failures, Source.QueryParam);
 
-        if (_fromQueryParamsProp is not null)
-        {
-            var obj = new JsonObject(new() { PropertyNameCaseInsensitive = true });
-            var sortedDic = new SortedDictionary<string, StringValues>(
-                query.ToDictionary(x => x.Key, x => x.Value),
-                StringComparer.OrdinalIgnoreCase);
-            var swaggerStyle = !sortedDic.Any(x => x.Key.Contains('.') || x.Key.Contains("[0"));
-
-            _fromQueryParamsProp.PropType.QueryObjectSetter()(sortedDic, obj, null, null, swaggerStyle);
-
-            _fromQueryParamsProp.PropSetter(
-                req,
-                obj[Constants.QueryJsonNodeName].Deserialize(
-                    _fromQueryParamsProp.PropType,
-                    serializerCtx?.Options ?? Cfg.SerOpts.Options));
-        }
+        if (_fromQueryProp is not null)
+            ComplexQueryBinder.Bind(_fromQueryProp, req, queryParams, failures);
     }
 
     static void BindUserClaims(TRequest req, IEnumerable<Claim> claims, List<ValidationFailure> failures)
@@ -568,9 +554,16 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         return false;
     }
 
-    static bool SetFromQueryParamsPropCache(PropertyInfo propInfo, Action<object, object?> compiledSetter)
+    static bool SetFromQueryPropCache(PropertyInfo propInfo, Action<object, object?> compiledSetter)
     {
-        _fromQueryParamsProp = new()
+        if (Types.IEnumerable.IsAssignableFrom(propInfo.PropertyType) || !propInfo.PropertyType.IsClass)
+        {
+            throw new InvalidOperationException(
+                $"The property [{_tRequest.FullName}.{propInfo.Name}] has to be a complex type in order to " +
+                "work with the [FromQuery] attribute.");
+        }
+
+        _fromQueryProp = new()
         {
             PropType = propInfo.PropertyType,
             PropSetter = compiledSetter

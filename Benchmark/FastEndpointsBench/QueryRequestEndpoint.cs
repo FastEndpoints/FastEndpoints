@@ -4,7 +4,7 @@ namespace FEBench;
 
 public class QueryRequest
 {
-    [FromQueryParams]
+    [FromQuery]
     public QueryObject? Query { get; set; }
 }
 

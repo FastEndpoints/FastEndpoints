@@ -1,20 +1,21 @@
 ﻿using System.Collections;
 using System.Reflection;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 
 namespace FastEndpoints;
 
 static class ComplexFormBinder
 {
-    internal static void Bind(PropCache fromFormProp, object requestDto, IFormCollection forms)
+    internal static void Bind(PropCache fromFormProp, object requestDto, IFormCollection forms, List<ValidationFailure> failures)
     {
-        var propInstance = fromFormProp.PropType.ObjectFactory()();
+        var propValue = fromFormProp.PropType.ObjectFactory()();
 
-        BindPropertiesRecursively(propInstance, forms, string.Empty);
+        BindPropertiesRecursively(propValue, forms, string.Empty, failures);
 
-        fromFormProp.PropSetter(requestDto, propInstance);
+        fromFormProp.PropSetter(requestDto, propValue);
 
-        static bool BindPropertiesRecursively(object obj, IFormCollection form, string prefix)
+        static bool BindPropertiesRecursively(object obj, IFormCollection form, string prefix, List<ValidationFailure> failures)
         {
             var tObject = obj.GetType();
             var properties = tObject.BindableProps();
@@ -22,12 +23,13 @@ static class ComplexFormBinder
 
             foreach (var prop in properties)
             {
+                var tProp = prop.PropertyType.GetUnderlyingType();
                 var propName = prop.GetCustomAttribute<BindFromAttribute>()?.Name ?? prop.Name;
                 var key = string.IsNullOrEmpty(prefix)
                               ? propName
                               : $"{prefix}.{propName}";
 
-                if (Types.IFormFile.IsAssignableFrom(prop.PropertyType))
+                if (tProp.IsFormFileProp())
                 {
                     if (form.Files.GetFile(key) is not { } file)
                         continue;
@@ -35,12 +37,13 @@ static class ComplexFormBinder
                     tObject.SetterForProp(prop)(obj, file);
                     bound = true;
                 }
-                else if (Types.IEnumerableOfIFormFile.IsAssignableFrom(prop.PropertyType))
+                else if (tProp.IsFormFileCollectionProp())
                 {
-                    if (!prop.PropertyType.IsAssignableFrom(Types.FormFileCollection))
+                    if (!tProp.IsAssignableFrom(Types.FormFileCollection))
                     {
                         throw new NotSupportedException(
-                            $"'{prop.PropertyType.Name}' type properties are not supported for complex nested form binding! Offender: [{tObject.FullName}.{key}]");
+                            $"'{tProp.Name}' type properties are not supported for complex nested form binding! " +
+                            $"Offender: [{tObject.FullName}.{key}]");
                     }
 
                     var files = form.Files.GetFiles(key);
@@ -53,17 +56,17 @@ static class ComplexFormBinder
                     tObject.SetterForProp(prop)(obj, collection);
                     bound = true;
                 }
-                else if (prop.PropertyType.IsComplexType() && !Types.IEnumerable.IsAssignableFrom(prop.PropertyType))
+                else if (tProp.IsComplexType() && !tProp.IsCollection())
                 {
-                    var nestedObject = prop.PropertyType.ObjectFactory()();
-                    bound = BindPropertiesRecursively(nestedObject, form, key);
-                    tObject.SetterForProp(prop)(obj, nestedObject);
+                    var propVal = tProp.ObjectFactory()();
+                    bound = BindPropertiesRecursively(propVal, form, key, failures);
+                    tObject.SetterForProp(prop)(obj, propVal);
                 }
-                else if (Types.IEnumerable.IsAssignableFrom(prop.PropertyType) && prop.PropertyType != Types.String)
+                else if (tProp.IsCollection())
                 {
-                    var tElement = prop.PropertyType.IsGenericType
-                                       ? prop.PropertyType.GetGenericArguments()[0]
-                                       : prop.PropertyType.GetElementType();
+                    var tElement = tProp.IsGenericType
+                                       ? tProp.GetGenericArguments()[0]
+                                       : tProp.GetElementType();
 
                     if (tElement is null)
                         continue;
@@ -71,10 +74,11 @@ static class ComplexFormBinder
                     var tList = Types.ListOf1.MakeGenericType(tElement);
                     var list = (IList)tList.ObjectFactory()();
 
-                    if (!prop.PropertyType.IsAssignableFrom(tList))
+                    if (!tProp.IsAssignableFrom(tList))
                     {
                         throw new NotSupportedException(
-                            $"'{prop.PropertyType.Name}' type properties are not supported for complex nested form binding! Offender: [{tObject.FullName}.{key.Replace("[0]", "")}]");
+                            $"'{tProp.Name}' type properties are not supported for complex nested form binding! Offender: " +
+                            $"[{tObject.FullName}.{key.Replace("[0]", "")}]");
                     }
 
                     if (tElement.IsComplexType())
@@ -86,7 +90,7 @@ static class ComplexFormBinder
                             var indexedKey = $"{key}[{index}]";
                             var item = tElement.ObjectFactory()();
 
-                            if (BindPropertiesRecursively(item, form, indexedKey))
+                            if (BindPropertiesRecursively(item, form, indexedKey, failures))
                             {
                                 list.Add(item);
                                 index++;
@@ -105,7 +109,11 @@ static class ComplexFormBinder
                                 var res = tElement.CachedValueParser()(v);
 
                                 if (!res.IsSuccess)
+                                {
+                                    failures.Add(new(key, Cfg.BndOpts.FailureMessage(tElement, key, v)));
+
                                     continue;
+                                }
 
                                 list.Add(res.Value);
                                 bound = true;
@@ -120,10 +128,14 @@ static class ComplexFormBinder
                     if (!form.TryGetValue(key, out var val))
                         continue;
 
-                    var res = prop.PropertyType.CachedValueParser()(val);
+                    var res = tProp.CachedValueParser()(val);
 
                     if (!res.IsSuccess)
+                    {
+                        failures.Add(new(key, Cfg.BndOpts.FailureMessage(tProp, key, val)));
+
                         continue;
+                    }
 
                     tObject.SetterForProp(prop)(obj, res.Value);
                     bound = true;

@@ -40,6 +40,25 @@ static class ReflectionExtensions
     internal static Type GetUnderlyingType(this Type type)
         => Nullable.GetUnderlyingType(type) ?? type;
 
-    internal static bool IsComplexType(this Type tObj)
-        => tObj.IsClass && tObj != Types.String;
+    internal static bool IsComplexType(this Type type)
+    {
+        var isComplex = type.IsClass || (type.IsValueType && type is { IsPrimitive: false, IsEnum: false } && type != typeof(decimal));
+        var isSimpleType = type == typeof(string) ||
+                           type == typeof(DateTime) ||
+                           type == typeof(TimeSpan) ||
+                           type == typeof(Guid) ||
+                           type == typeof(Uri) ||
+                           type == typeof(Version);
+
+        return isComplex && !isSimpleType;
+    }
+
+    internal static bool IsCollection(this Type type)
+        => Types.IEnumerable.IsAssignableFrom(type) && type != Types.String;
+
+    internal static bool IsFormFileProp(this Type tProp)
+        => Types.IFormFile.IsAssignableFrom(tProp);
+
+    internal static bool IsFormFileCollectionProp(this Type tProp)
+        => Types.IEnumerableOfIFormFile.IsAssignableFrom(tProp);
 }

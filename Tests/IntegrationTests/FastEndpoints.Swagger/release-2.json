@@ -1650,57 +1650,6 @@
         }
       }
     },
-    "/api/test-cases/byte-array-query-param-binding-test": {
-      "get": {
-        "tags": [
-          "TestCases"
-        ],
-        "summary": "summary",
-        "description": "descr",
-        "operationId": "ByteArrayQueryParamBindingTest",
-        "parameters": [
-          {
-            "name": "Timestamp",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "byte"
-            }
-          },
-          {
-            "name": "ObjectWithByteArrays",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "oneOf": [
-                {
-                  "$ref": "#/components/schemas/TestCasesByteArrayQueryParamBindingTestObjectWithByteArrays"
-                }
-              ]
-            },
-            "example": {
-              "Timestamp": "Timestamp",
-              "Timestamps": [
-                ""
-              ]
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/TestCasesByteArrayQueryParamBindingTestResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/tests/commands": {
       "get": {
         "tags": [
@@ -3761,18 +3710,6 @@
                   "Double": 0.0,
                   "Enum": 0
                 }
-              ],
-              "ArraysOfObjects": [
-                [
-                  {
-                    "String": "String",
-                    "Bool": false,
-                    "Int": 0,
-                    "Long": 0,
-                    "Double": 0.0,
-                    "Enum": 0
-                  }
-                ]
               ]
             }
           }
@@ -4007,34 +3944,6 @@
             "schema": {
               "type": "number",
               "format": "decimal"
-            }
-          },
-          {
-            "name": "Person",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "oneOf": [
-                {
-                  "$ref": "#/components/schemas/TestCasesRouteBindingTestPerson"
-                }
-              ]
-            },
-            "example": {
-              "Id": "Id",
-              "Name": "Name",
-              "Age": 0,
-              "Child": {
-                "Id": "Id",
-                "Name": "Name",
-                "Age": 0,
-                "Strings": [
-                  ""
-                ]
-              },
-              "Numbers": [
-                0
-              ]
             }
           }
         ],
@@ -5118,40 +5027,6 @@
           }
         }
       },
-      "TestCasesByteArrayQueryParamBindingTestResponse": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "Timestamp": {
-            "type": "string",
-            "format": "byte"
-          },
-          "ObjectWithByteArrays": {
-            "$ref": "#/components/schemas/TestCasesByteArrayQueryParamBindingTestObjectWithByteArrays"
-          }
-        }
-      },
-      "TestCasesByteArrayQueryParamBindingTestObjectWithByteArrays": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "Timestamp": {
-            "type": "string",
-            "format": "byte"
-          },
-          "Timestamps": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "format": "byte"
-            }
-          }
-        }
-      },
-      "TestCasesByteArrayQueryParamBindingTestRequest": {
-        "type": "object",
-        "additionalProperties": false
-      },
       "TestCasesCustomRequestBinderResponse": {
         "allOf": [
           {
@@ -5978,15 +5853,6 @@
             "items": {
               "$ref": "#/components/schemas/TestCasesQueryObjectWithObjectsArrayBindingTestObjectInArray"
             }
-          },
-          "ArraysOfObjects": {
-            "type": "array",
-            "items": {
-              "type": "array",
-              "items": {
-                "$ref": "#/components/schemas/TestCasesQueryObjectWithObjectsArrayBindingTestObjectInArray"
-              }
-            }
           }
         }
       },
@@ -6275,6 +6141,9 @@
             "type": "integer",
             "format": "int32",
             "nullable": true
+          },
+          "Person": {
+            "$ref": "#/components/schemas/TestCasesRouteBindingTestPerson"
           },
           "FromBody": {
             "type": "string",

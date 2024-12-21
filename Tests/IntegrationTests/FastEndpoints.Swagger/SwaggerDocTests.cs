@@ -68,8 +68,7 @@ public class SwaggerDocTests(Fixture App) : TestBase<Fixture>
 
         await File.WriteAllTextAsync(destination, jsonContent);
 
-        throw new OperationCanceledException(
-            $"Snapshots updated! Go ahead and comment out the {nameof(UpdateSnapshotIfEnabled)}() methods and re-run the tests!");
+        throw new OperationCanceledException($"Snapshots updated! Go ahead and comment out the {nameof(UpdateSnapshotIfEnabled)}() methods and re-run the tests!");
     }
 
     [Fact]

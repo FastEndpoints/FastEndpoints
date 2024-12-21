@@ -4,7 +4,6 @@ public class Person
 {
     public NestedPerson Child { get; set; }
     public List<ObjectInArray> Objects { get; set; }
-    public List<ObjectInArray[]> ArraysOfObjects { get; set; }
 }
 
 public class NestedPerson
@@ -14,8 +13,7 @@ public class NestedPerson
 
 public class Request
 {
-
-    [FromQueryParams]
+    [FromQuery]
     public Person Person { get; set; }
 }
 

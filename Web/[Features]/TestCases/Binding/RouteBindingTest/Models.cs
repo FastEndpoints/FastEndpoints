@@ -87,7 +87,7 @@ public class Request
     [BindFrom("XBlank")]
     public int? Blank { get; set; }
 
-    [FromQueryParams]
+    [FromQuery]
     public Person Person { get; set; }
 
     /// <summary>

@@ -28,13 +28,14 @@ public class Request
     /// this is a string prop xml comment
     /// </summary>
     public string String { get; set; }
+
     public bool Bool { get; set; }
     public int? Int { get; set; }
     public long Long { get; set; }
     public double Double { get; set; }
     public DayOfWeek Enum { get; set; }
 
-    [FromQueryParams]
+    [FromQuery]
     public Person Person { get; set; }
 }
 

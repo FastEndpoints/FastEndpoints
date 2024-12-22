@@ -10,112 +10,130 @@ static class ComplexQueryBinder
     internal static void Bind(PropCache fromQueryProp, object requestDto, IQueryCollection queryParams, List<ValidationFailure> failures)
     {
         var propValue = fromQueryProp.PropType.ObjectFactory()();
-
-        BindPropertiesRecursively(propValue, queryParams, string.Empty, failures);
-
+        BindPropertiesRecursively(propValue, string.Empty, queryParams, failures);
         fromQueryProp.PropSetter(requestDto, propValue);
+    }
 
-        static bool BindPropertiesRecursively(object obj, IQueryCollection queryParams, string prefix, List<ValidationFailure> failures)
+    static bool BindPropertiesRecursively(object parent, string prefix, IQueryCollection queryParams, List<ValidationFailure> failures)
+    {
+        var tObject = parent.GetType();
+        var properties = tObject.BindableProps();
+        var bound = false;
+
+        foreach (var prop in properties)
         {
-            var tObject = obj.GetType();
-            var properties = tObject.BindableProps();
-            var bound = false;
+            var propName = prop.GetCustomAttribute<BindFromAttribute>()?.Name ?? prop.Name;
+            var tProp = prop.PropertyType.GetUnderlyingType();
+            var key = string.IsNullOrEmpty(prefix) ? propName : $"{prefix}.{propName}";
 
-            foreach (var prop in properties)
+            if (tProp.IsComplexType() && !tProp.IsCollection())
+                bound = BindComplexType(parent, prop, tProp, key, queryParams, failures) || bound;
+            else if (tProp.IsCollection())
+                bound = BindCollectionType(parent, prop, tProp, key, queryParams, failures) || bound;
+            else
+                bound = BindSimpleType(parent, prop, tProp, key, queryParams, failures) || bound;
+        }
+
+        return bound;
+
+        static bool BindComplexType(object parent, PropertyInfo prop, Type tProp, string key, IQueryCollection queryParams, List<ValidationFailure> failures)
+        {
+            var propVal = tProp.ObjectFactory()();
+            var bound = BindPropertiesRecursively(propVal, key, queryParams, failures);
+            parent.GetType().SetterForProp(prop)(parent, propVal);
+
+            return bound;
+        }
+
+        static bool BindCollectionType(object parent, PropertyInfo prop, Type tProp, string key, IQueryCollection queryParams, List<ValidationFailure> failures)
+        {
+            var tElement = tProp.IsGenericType
+                               ? tProp.GetGenericArguments()[0]
+                               : tProp.GetElementType();
+
+            if (tElement is null)
+                return false;
+
+            var tList = Types.ListOf1.MakeGenericType(tElement);
+            var list = (IList)tList.ObjectFactory()();
+
+            if (!tProp.IsAssignableFrom(tList))
             {
-                var tProp = prop.PropertyType.GetUnderlyingType();
-                var propName = prop.GetCustomAttribute<BindFromAttribute>()?.Name ?? prop.Name;
-                var key = string.IsNullOrEmpty(prefix)
-                              ? propName
-                              : $"{prefix}.{propName}";
+                throw new NotSupportedException(
+                    $"'{tProp.Name}' type properties are not supported for complex query param binding! Offender: [{parent.GetType().FullName}.{key.Replace("[0]", "")}]");
+            }
 
-                if (tProp.IsComplexType() && !tProp.IsCollection())
+            var bound = tElement.IsComplexType()
+                            ? BindComplexCollection(list, tElement, key, queryParams, failures)
+                            : BindSimpleCollection(list, tElement, key, queryParams, failures);
+
+            parent.GetType().SetterForProp(prop)(parent, list);
+
+            return bound;
+
+            static bool BindComplexCollection(IList list, Type tElement, string key, IQueryCollection queryParams, List<ValidationFailure> failures)
+            {
+                var index = 0;
+                var bound = false;
+
+                while (true)
                 {
-                    var propVal = tProp.ObjectFactory()();
-                    bound = BindPropertiesRecursively(propVal, queryParams, key, failures);
-                    tObject.SetterForProp(prop)(obj, propVal);
-                }
-                else if (tProp.IsCollection())
-                {
-                    var tElement = tProp.IsGenericType
-                                       ? tProp.GetGenericArguments()[0]
-                                       : tProp.GetElementType();
+                    var indexedKey = $"{key}[{index}]";
+                    var item = tElement.ObjectFactory()();
 
-                    if (tElement is null)
-                        continue;
-
-                    var tList = Types.ListOf1.MakeGenericType(tElement);
-                    var list = (IList)tList.ObjectFactory()();
-
-                    if (!tProp.IsAssignableFrom(tList))
+                    if (BindPropertiesRecursively(item, indexedKey, queryParams, failures))
                     {
-                        throw new NotSupportedException(
-                            $"'{tProp.Name}' type properties are not supported for complex query param binding! Offender: " +
-                            $"[{tObject.FullName}.{key.Replace("[0]", "")}]");
-                    }
-
-                    if (tElement.IsComplexType())
-                    {
-                        var index = 0;
-
-                        while (true)
-                        {
-                            var indexedKey = $"{key}[{index}]";
-                            var item = tElement.ObjectFactory()();
-
-                            if (BindPropertiesRecursively(item, queryParams, indexedKey, failures))
-                            {
-                                list.Add(item);
-                                index++;
-                                bound = true;
-                            }
-                            else
-                                break;
-                        }
+                        list.Add(item);
+                        index++;
+                        bound = true;
                     }
                     else
-                    {
-                        if (queryParams.TryGetValue(key, out var val))
-                        {
-                            foreach (var v in val)
-                            {
-                                var res = tElement.CachedValueParser()(v);
-
-                                if (!res.IsSuccess)
-                                {
-                                    failures.Add(new(key, Cfg.BndOpts.FailureMessage(tElement, key, v)));
-
-                                    continue;
-                                }
-
-                                list.Add(res.Value);
-                                bound = true;
-                            }
-                        }
-                    }
-
-                    tObject.SetterForProp(prop)(obj, list);
+                        break;
                 }
-                else
-                {
-                    if (!queryParams.TryGetValue(key, out var val))
-                        continue;
 
-                    var res = tProp.CachedValueParser()(val);
+                return bound;
+            }
+
+            static bool BindSimpleCollection(IList list, Type tElement, string key, IQueryCollection queryParams, List<ValidationFailure> failures)
+            {
+                if (!queryParams.TryGetValue(key, out var val))
+                    return false;
+
+                foreach (var v in val)
+                {
+                    var res = tElement.CachedValueParser()(v);
 
                     if (!res.IsSuccess)
                     {
-                        failures.Add(new(key, Cfg.BndOpts.FailureMessage(tProp, key, val)));
+                        failures.Add(new(key, Cfg.BndOpts.FailureMessage(tElement, key, v)));
 
                         continue;
                     }
 
-                    tObject.SetterForProp(prop)(obj, res.Value);
-                    bound = true;
+                    list.Add(res.Value);
                 }
+
+                return true;
+            }
+        }
+
+        static bool BindSimpleType(object parent, PropertyInfo prop, Type tProp, string key, IQueryCollection queryParams, List<ValidationFailure> failures)
+        {
+            if (!queryParams.TryGetValue(key, out var val))
+                return false;
+
+            var res = tProp.CachedValueParser()(val);
+
+            if (!res.IsSuccess)
+            {
+                failures.Add(new(key, Cfg.BndOpts.FailureMessage(tProp, key, val)));
+
+                return false;
             }
 
-            return bound;
+            parent.GetType().SetterForProp(prop)(parent, res.Value);
+
+            return true;
         }
     }
 }

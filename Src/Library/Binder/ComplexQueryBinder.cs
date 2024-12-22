@@ -101,6 +101,8 @@ static class ComplexQueryBinder
                 if (!queryParams.TryGetValue(key, out var val))
                     return false;
 
+                var bound = false;
+
                 foreach (var v in val)
                 {
                     var res = tElement.CachedValueParser()(v);
@@ -113,9 +115,10 @@ static class ComplexQueryBinder
                     }
 
                     list.Add(res.Value);
+                    bound = true;
                 }
 
-                return true;
+                return bound;
             }
         }
 

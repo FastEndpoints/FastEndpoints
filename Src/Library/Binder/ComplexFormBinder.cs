@@ -139,6 +139,8 @@ static class ComplexFormBinder
                 if (!form.TryGetValue(key, out var val))
                     return false;
 
+                var bound = false;
+
                 foreach (var v in val)
                 {
                     var res = tElement.CachedValueParser()(v);
@@ -151,9 +153,10 @@ static class ComplexFormBinder
                     }
 
                     list.Add(res.Value);
+                    bound = true;
                 }
 
-                return true;
+                return bound;
             }
         }
 

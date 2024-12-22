@@ -16,15 +16,17 @@ static class ComplexQueryBinder
 
     static bool BindPropertiesRecursively(object parent, string prefix, IQueryCollection queryParams, List<ValidationFailure> failures)
     {
-        var tObject = parent.GetType();
-        var properties = tObject.BindableProps();
+        var tParent = parent.GetType();
+        var properties = tParent.BindableProps();
         var bound = false;
 
         foreach (var prop in properties)
         {
             var propName = prop.GetCustomAttribute<BindFromAttribute>()?.Name ?? prop.Name;
             var tProp = prop.PropertyType.GetUnderlyingType();
-            var key = string.IsNullOrEmpty(prefix) ? propName : $"{prefix}.{propName}";
+            var key = string.IsNullOrEmpty(prefix)
+                          ? propName
+                          : $"{prefix}.{propName}";
 
             if (tProp.IsComplexType() && !tProp.IsCollection())
                 bound = BindComplexType(parent, prop, tProp, key, queryParams, failures) || bound;

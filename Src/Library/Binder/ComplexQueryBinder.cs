@@ -98,24 +98,34 @@ static class ComplexQueryBinder
 
             static bool BindSimpleCollection(IList list, Type tElement, string key, IQueryCollection queryParams, List<ValidationFailure> failures)
             {
-                if (!queryParams.TryGetValue(key, out var val))
-                    return false;
-
                 var bound = false;
+                var index = -1;
 
-                foreach (var v in val)
+                while (true)
                 {
-                    var res = tElement.CachedValueParser()(v);
+                    var indexedKey = index == -1
+                                         ? key
+                                         : $"{key}[{index}]";
 
-                    if (!res.IsSuccess)
+                    if (!queryParams.TryGetValue(indexedKey, out var val) && index > -1)
+                        break;
+
+                    foreach (var v in val)
                     {
-                        failures.Add(new(key, Cfg.BndOpts.FailureMessage(tElement, key, v)));
+                        var res = tElement.CachedValueParser()(v);
 
-                        continue;
+                        if (!res.IsSuccess)
+                        {
+                            failures.Add(new(indexedKey, Cfg.BndOpts.FailureMessage(tElement, indexedKey, v)));
+
+                            continue;
+                        }
+
+                        list.Add(res.Value);
+                        bound = true;
                     }
 
-                    list.Add(res.Value);
-                    bound = true;
+                    index++;
                 }
 
                 return bound;

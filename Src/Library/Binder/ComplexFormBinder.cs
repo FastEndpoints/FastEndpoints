@@ -59,13 +59,27 @@ static class ComplexFormBinder
                     $"Offender: [{tParent.FullName}.{key}]");
             }
 
-            var files = form.Files.GetFiles(key);
+            var collection = new FormFileCollection();
+            var index = -1;
 
-            if (files.Count == 0)
+            while (true)
+            {
+                var indexedKey = index == -1
+                                     ? key
+                                     : $"{key}[{index}]";
+
+                var files = form.Files.GetFiles(indexedKey);
+
+                if (files.Count == 0 && index > -1)
+                    break;
+
+                collection.AddRange(files);
+                index++;
+            }
+
+            if (collection.Count == 0)
                 return false;
 
-            var collection = new FormFileCollection();
-            collection.AddRange(files);
             tParent.SetterForProp(prop)(parent, collection);
 
             return true;
@@ -136,24 +150,34 @@ static class ComplexFormBinder
 
             static bool BindSimpleCollection(IList list, Type tElement, string key, IFormCollection form, List<ValidationFailure> failures)
             {
-                if (!form.TryGetValue(key, out var val))
-                    return false;
-
                 var bound = false;
+                var index = -1;
 
-                foreach (var v in val)
+                while (true)
                 {
-                    var res = tElement.CachedValueParser()(v);
+                    var indexedKey = index == -1
+                                         ? key
+                                         : $"{key}[{index}]";
 
-                    if (!res.IsSuccess)
+                    if (!form.TryGetValue(indexedKey, out var val) && index > -1)
+                        break;
+
+                    foreach (var v in val)
                     {
-                        failures.Add(new(key, Cfg.BndOpts.FailureMessage(tElement, key, v)));
+                        var res = tElement.CachedValueParser()(v);
 
-                        continue;
+                        if (!res.IsSuccess)
+                        {
+                            failures.Add(new(indexedKey, Cfg.BndOpts.FailureMessage(tElement, indexedKey, v)));
+
+                            continue;
+                        }
+
+                        list.Add(res.Value);
+                        bound = true;
                     }
 
-                    list.Add(res.Value);
-                    bound = true;
+                    index++;
                 }
 
                 return bound;

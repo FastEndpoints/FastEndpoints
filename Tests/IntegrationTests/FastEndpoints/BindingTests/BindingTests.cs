@@ -228,7 +228,7 @@ public class BindingTests(Sut App) : TestBase<Sut>
                                       "&numbers=0&numbers=1&numbers=-222&numbers=1000&numbers=22" +
                                       "&child.id=8bedccb3-ff93-47a2-9fc4-b558cae41a06" +
                                       "&child.name=child name&child.age=-22" +
-                                      "&child.strings=string1&child.strings=string2&child.strings=&child.strings=strangeString",
+                                      "&child.strings[0]=string1&child.strings[1]=string2&child.strings[2]=&child.strings[3]=strangeString",
                                       new()
                                       {
                                           Bool = false,
@@ -525,8 +525,8 @@ public class BindingTests(Sut App) : TestBase<Sut>
 
         content.Add(new StringContent("book title"), "Title");
         content.Add(new StreamContent(File.OpenRead("test.png")), "CoverImage", "test.png");
-        content.Add(new StreamContent(File.OpenRead("test.png")), "SourceFiles", "test.png");
-        content.Add(new StreamContent(File.OpenRead("test.png")), "SourceFiles", "test.png");
+        content.Add(new StreamContent(File.OpenRead("test.png")), "SourceFiles[1]", "test.png");
+        content.Add(new StreamContent(File.OpenRead("test.png")), "SourceFiles[0]", "test.png");
         content.Add(new StringContent("main author name"), "MainAuthor.Name");
         content.Add(new StreamContent(File.OpenRead("test.png")), "MainAuthor.ProfileImage", "test.png");
         content.Add(new StreamContent(File.OpenRead("test.png")), "MainAuthor.DocumentFiles", "test.png");
@@ -553,8 +553,8 @@ public class BindingTests(Sut App) : TestBase<Sut>
         content.Add(new StreamContent(File.OpenRead("test.png")), "CoAuthors[0].MainAddress.AlternativeImages", "test.png");
         content.Add(new StringContent("co author 0 other address 0 street"), "CoAuthors[0].OtherAddresses[0].Street");
         content.Add(new StreamContent(File.OpenRead("test.png")), "CoAuthors[0].OtherAddresses[0].MainImage", "test.png");
-        content.Add(new StreamContent(File.OpenRead("test.png")), "CoAuthors[0].OtherAddresses[0].AlternativeImages", "test.png");
-        content.Add(new StreamContent(File.OpenRead("test.png")), "CoAuthors[0].OtherAddresses[0].AlternativeImages", "test.png");
+        content.Add(new StreamContent(File.OpenRead("test.png")), "CoAuthors[0].OtherAddresses[0].AlternativeImages[1]", "test.png");
+        content.Add(new StreamContent(File.OpenRead("test.png")), "CoAuthors[0].OtherAddresses[0].AlternativeImages[0]", "test.png");
         content.Add(new StringContent("12345"), "BarCodes");
         content.Add(new StringContent("54321"), "BarCodes");
         request.Content = content;
@@ -567,8 +567,8 @@ public class BindingTests(Sut App) : TestBase<Sut>
         x!.Title.Should().Be("book title");
         x.CoverImage.Name.Should().Be("CoverImage");
         x.SourceFiles.Count.Should().Be(2);
-        x.SourceFiles[0].Name.Should().Be("SourceFiles");
-        x.SourceFiles[1].Name.Should().Be("SourceFiles");
+        x.SourceFiles[0].Name.Should().Be("SourceFiles[0]");
+        x.SourceFiles[1].Name.Should().Be("SourceFiles[1]");
         x.MainAuthor.Should().NotBeNull();
         x.MainAuthor.Name.Should().Be("main author name");
         x.MainAuthor.ProfileImage.Name.Should().Be("MainAuthor.ProfileImage");
@@ -605,8 +605,8 @@ public class BindingTests(Sut App) : TestBase<Sut>
         x.CoAuthors[0].OtherAddresses[0].Street.Should().Be("co author 0 other address 0 street");
         x.CoAuthors[0].OtherAddresses[0].MainImage.Name.Should().Be("CoAuthors[0].OtherAddresses[0].MainImage");
         x.CoAuthors[0].OtherAddresses[0].AlternativeImages.Count.Should().Be(2);
-        x.CoAuthors[0].OtherAddresses[0].AlternativeImages[0].Name.Should().Be("CoAuthors[0].OtherAddresses[0].AlternativeImages");
-        x.CoAuthors[0].OtherAddresses[0].AlternativeImages[1].Name.Should().Be("CoAuthors[0].OtherAddresses[0].AlternativeImages");
+        x.CoAuthors[0].OtherAddresses[0].AlternativeImages[0].Name.Should().Be("CoAuthors[0].OtherAddresses[0].AlternativeImages[0]");
+        x.CoAuthors[0].OtherAddresses[0].AlternativeImages[1].Name.Should().Be("CoAuthors[0].OtherAddresses[0].AlternativeImages[1]");
         x.BarCodes.First().Should().Be(12345);
         x.BarCodes.Last().Should().Be(54321);
     }

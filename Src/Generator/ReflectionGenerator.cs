@@ -13,8 +13,10 @@ public class ReflectionGenerator : IIncrementalGenerator
 
     static readonly StringBuilder b = new();
     static readonly StringBuilder _initArgsBuilder = new();
+
     const string IEndpoint = "FastEndpoints.IEndpoint";
-    const string INoRequest = "FastEndpoints.INoRequest";
+
+    //const string INoRequest = "FastEndpoints.INoRequest";
     const string IEnumerable = "System.Collections.IEnumerable";
     const string DontRegisterAttribute = "DontRegisterAttribute";
     const string DontInjectAttribute = "DontInjectAttribute";
@@ -49,8 +51,7 @@ public class ReflectionGenerator : IIncrementalGenerator
                    type.IsAbstract ||
                    type.GetAttributes().Any(a => a.AttributeClass!.Name == DontRegisterAttribute || type.AllInterfaces.Length == 0)
                        ? null
-                       : type.AllInterfaces.Any(i => i.ToDisplayString() == IEndpoint) && //must be an endpoint
-                         !type.AllInterfaces.Any(i => i.ToDisplayString() == INoRequest)  //must have a request dto
+                       : type.AllInterfaces.Any(i => i.ToDisplayString() == IEndpoint) //must be an endpoint
                            ? new TypeInfo(type, true)
                            : null;
         }
@@ -279,24 +280,24 @@ public class ReflectionGenerator : IIncrementalGenerator
                 currentSymbol = currentSymbol.BaseType;
             }
 
-            if (Properties.Count == 0)
-                return;
-
-            if (type.DeclaringSyntaxReferences.Length > 0)
-                HashCode = type.DeclaringSyntaxReferences[0].Span.Length;
-
-            if (isEndpoint is false && noRecursion) //treating an endpoint as a regular class to generate its props for property injection support
-                SkipObjectFactory = true;
-
-            AllTypes.Add(this);
-
-            if (!noRecursion)
+            if (Properties.Count > 0)
             {
-                foreach (var p in Properties)
-                    _ = new TypeInfo(p.Symbol, false);
+                if (type.DeclaringSyntaxReferences.Length > 0)
+                    HashCode = type.DeclaringSyntaxReferences[0].Span.Length;
+
+                if (isEndpoint is false && noRecursion) //treating an endpoint as a regular class to generate its props for property injection support
+                    SkipObjectFactory = true;
+
+                AllTypes.Add(this);
+
+                if (!noRecursion)
+                {
+                    foreach (var p in Properties)
+                        _ = new TypeInfo(p.Symbol, false);
+                }
             }
 
-            if (isEndpoint) //create entry for endpoint class props as well to support property injection
+            if (isEndpoint)                                                             //create entry for endpoint class props as well to support property injection
                 _ = new TypeInfo(symbol: symbol, isEndpoint: false, noRecursion: true); //process the endpoint as a regular class without recursion
         }
 

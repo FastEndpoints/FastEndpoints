@@ -15,8 +15,7 @@ public class ReflectionGenerator : IIncrementalGenerator
     static readonly StringBuilder _initArgsBuilder = new();
 
     const string IEndpoint = "FastEndpoints.IEndpoint";
-
-    //const string INoRequest = "FastEndpoints.INoRequest";
+    const string FluentGenericEp = "FastEndpoints.Ep.";
     const string IEnumerable = "System.Collections.IEnumerable";
     const string DontRegisterAttribute = "DontRegisterAttribute";
     const string DontInjectAttribute = "DontInjectAttribute";
@@ -203,6 +202,9 @@ public class ReflectionGenerator : IIncrementalGenerator
             if (isEndpoint) //descend in to base types and find the request dto type
             {
                 var tBase = symbol.BaseType;
+
+                if (tBase?.ToDisplayString().StartsWith(FluentGenericEp) is true)
+                    tBase = tBase.BaseType;
 
                 while (type is null)
                 {

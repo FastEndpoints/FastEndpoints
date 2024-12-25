@@ -1,7 +1,3 @@
-GET http://localhost:5000/.well-known/jwks
-
-###
-
 ###
 POST http://localhost:5000/user
 Content-Type: application/json
@@ -18,5 +14,3 @@ Content-Type: application/ld+json
 {
     "fullName": "full name"
 }
-
-###

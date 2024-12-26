@@ -140,6 +140,7 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
             if (metas.Count > 0)
             {
             #if NET9_0_OR_GREATER
+
                 //remove this workaround when sdk bug is fixed: https://github.com/dotnet/aspnetcore/issues/57801#issuecomment-2439578287
                 foreach (var meta in metas.Where(m => m.Value.isIResult))
                 {
@@ -170,7 +171,7 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
 
                     if (metas.TryGetValue(rsp.Key, out var x))
                     {
-                        if (x.example is not null)
+                        if (mediaType is not null && x.example is not null)
                             mediaType.Example = x.example;
 
                         foreach (var p in x.tDto!
@@ -202,9 +203,12 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
                         }
                     }
 
-                    rsp.Value.Content.Clear();
-                    foreach (var ct in cTypes)
-                        rsp.Value.Content.Add(new(ct, mediaType));
+                    if (mediaType is not null)
+                    {
+                        rsp.Value.Content.Clear();
+                        foreach (var ct in cTypes)
+                            rsp.Value.Content.Add(new(ct, mediaType));
+                    }
 
                     if (docOpts.UseOneOfForPolymorphism)
                     {

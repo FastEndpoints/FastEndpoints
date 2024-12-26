@@ -53,7 +53,7 @@ public class ProcessorTests(Sut App) : TestBase<Sut>
                 });
         rsp.IsSuccessStatusCode.Should().BeTrue();
         res.Count.Should().Be(5);
-        res.Should().Equal(["zero", "one", "two", "three", "four"]);
+        res.Should().Equal("zero", "one", "two", "three", "four");
     }
 
     [Fact]
@@ -67,7 +67,7 @@ public class ProcessorTests(Sut App) : TestBase<Sut>
         rsp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         res.Errors.Should().NotBeNull();
         res.Errors.Count.Should().Be(1);
-        res.Errors.Should().ContainKey("MissingHeaders");
+        res.Errors.Should().ContainKey("missingHeaders");
     }
 
     [Fact]

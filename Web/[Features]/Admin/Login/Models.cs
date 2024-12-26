@@ -4,9 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace Admin.Login;
 
-[JsonSerializable(typeof(Request))]
-[JsonSerializable(typeof(Response))]
-[JsonSerializable(typeof(ErrorResponse))]
+[JsonSerializable(typeof(Request)), JsonSerializable(typeof(Response)), JsonSerializable(typeof(ErrorResponse))]
 public partial class AdminLogin : JsonSerializerContext { }
 
 /// <summary>
@@ -64,6 +62,7 @@ public class Response
     /// </summary>
     /// <example>blahblahblah</example>
     public string JWTToken { get; set; }
+
     public DateTime ExpiryDate { get; set; }
     public IEnumerable<string> Permissions { get; set; }
 }

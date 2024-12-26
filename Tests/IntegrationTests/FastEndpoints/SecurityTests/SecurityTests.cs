@@ -83,8 +83,8 @@ public class SecurityTests(Sut App) : TestBase<Sut>
                              });
 
         rsp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        res.Errors["UserId"][0].Should().Be("invalid user id");
-        res.Errors["RefreshToken"][0].Should().Be("invalid refresh token");
+        res.Errors["userId"][0].Should().Be("invalid user id");
+        res.Errors["refreshToken"][0].Should().Be("invalid refresh token");
     }
 
     [Fact]

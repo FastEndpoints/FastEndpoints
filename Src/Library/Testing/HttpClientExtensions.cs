@@ -350,7 +350,7 @@ public static class HttpClientExtensions
         foreach (var prop in reqProps)
         {
             reqPropValues.Add(
-                prop.GetCustomAttribute<BindFromAttribute>()?.Name ?? prop.Name,
+                prop.FieldName(),
                 prop.GetValue(req)?.ToString());
         }
 
@@ -433,7 +433,7 @@ public static class HttpClientExtensions
                    ? throw new InvalidOperationException("Converting the request DTO to MultipartFormDataContent was unsuccessful!")
                    : form;
 
-        void AddFileToForm(IFormFile? file, MemberInfo prop)
+        void AddFileToForm(IFormFile? file, PropertyInfo prop)
         {
             if (file is null)
                 return;
@@ -444,7 +444,7 @@ public static class HttpClientExtensions
             if (file.Headers?.ContainsKey(HeaderNames.ContentType) is true)
                 content.Headers.ContentType = new(file.ContentType);
 
-            form.Add(content, prop.Name, file.FileName);
+            form.Add(content, prop.FieldName(), file.FileName);
         }
     }
 

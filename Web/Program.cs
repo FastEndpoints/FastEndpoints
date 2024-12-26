@@ -179,8 +179,8 @@ app.UseRequestLocalization(
        c =>
        {
            c.Validation.EnableDataAnnotationsSupport = true;
-           c.Serializer.Options.PropertyNamingPolicy = null;
 
+           c.Binding.UsePropertyNamingPolicy = true;
            c.Binding.ReflectionCache.AddFromWeb();
            c.Binding.ValueParserFor<Guid>(x => new(Guid.TryParse(x?.ToString(), out var res), res));
 

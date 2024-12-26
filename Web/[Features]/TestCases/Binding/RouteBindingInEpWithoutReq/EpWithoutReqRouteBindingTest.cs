@@ -6,18 +6,18 @@ public class EpWithoutReqRouteBindingTest : EndpointWithoutRequest<Response>
     {
         Get("test-cases/ep-witout-req-route-binding-test/{CustomerID:int}/{OtherID}");
         AllowAnonymous();
-        Summary(s =>
-            s.Params["OtherID"] = "the description for other id");
+        Summary(
+            s =>
+                s.Params["OtherID"] = "the description for other id");
     }
 
     public override Task HandleAsync(CancellationToken ct)
-    {
-        return SendAsync(new()
-        {
-            CustomerID = Route<int>("CustomerID"),
-            OtherID = Route<int>("OtherID")
-        });
-    }
+        => SendAsync(
+            new()
+            {
+                CustomerID = Route<int>("customerId"),
+                OtherID = Route<int>("otherId")
+            });
 }
 
 public class Response

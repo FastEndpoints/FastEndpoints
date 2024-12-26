@@ -33,7 +33,7 @@ public class AntiforgeryTest(Sut App) : TestBase<Sut>
         rsp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         var errResponse = await rsp.Content.ReadFromJsonAsync<ErrorResponse>(Cancellation);
         errResponse!.Errors.Count.Should().Be(1);
-        errResponse.Errors["GeneralErrors"][0].Should().Be("Anti-forgery token is invalid!");
+        errResponse.Errors["generalErrors"][0].Should().Be("Anti-forgery token is invalid!");
     }
 
     [Fact]

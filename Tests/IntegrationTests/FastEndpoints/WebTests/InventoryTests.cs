@@ -19,8 +19,8 @@ public class InventoryTests(Sut App) : TestBase<Sut>
 
         res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         result.Errors.Count.Should().Be(2);
-        result.Errors.Should().ContainKey("Name");
-        result.Errors.Should().ContainKey("ModifiedBy");
+        result.Errors.Should().ContainKey("name");
+        result.Errors.Should().ContainKey("modifiedBy");
     }
 
     [Fact]
@@ -37,8 +37,8 @@ public class InventoryTests(Sut App) : TestBase<Sut>
         res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         result.Errors.Should().NotBeNull();
         result.Errors.Count.Should().Be(2);
-        result.Errors.Should().ContainKey("Description");
-        result.Errors.Should().ContainKey("Price");
+        result.Errors.Should().ContainKey("description");
+        result.Errors.Should().ContainKey("price");
     }
 
     [Fact]
@@ -56,7 +56,7 @@ public class InventoryTests(Sut App) : TestBase<Sut>
         res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         result.Errors.Should().NotBeNull();
         result.Errors.Count.Should().Be(1);
-        result.Errors.Should().ContainKey("GeneralErrors");
+        result.Errors.Should().ContainKey("generalErrors");
     }
 
     [Fact]

@@ -13,6 +13,12 @@ namespace FastEndpoints;
 public sealed class BindingOptions
 {
     /// <summary>
+    /// specify whether to use the json property naming policy when matching incoming field names to dto property names for non-json model binding.
+    /// only applies to query params/form fields/route params when the [BindFrom(...)] attribute is not used. defaults to <c>true</c>
+    /// </summary>
+    public bool UsePropertyNamingPolicy { get; set; } = true;
+
+    /// <summary>
     /// the central cache of request dto related reflection data.
     /// populating this cache with source generated data will eliminate expression compilations during runtime as well as usage of
     /// reflection based property setters, etc. see the source generator documentation on how to populate this cache with generated data.
@@ -103,7 +109,7 @@ public sealed class BindingOptions
     /// {
     ///     c.Binding.ValueParserFor&lt;Guid&gt;(MyParsers.GuidParser);
     /// });
-    /// 
+    ///
     /// public static class MyParsers
     /// {
     ///     public static ParseResult GuidParser(object? input)
@@ -135,7 +141,7 @@ public sealed class BindingOptions
     /// {
     ///     c.Binding.ValueParserFor(typeof(Guid), MyParsers.GuidParser);
     /// });
-    /// 
+    ///
     /// public static class MyParsers
     /// {
     ///     public static ParseResult GuidParser(object? input)

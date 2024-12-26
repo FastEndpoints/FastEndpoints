@@ -142,7 +142,7 @@
         "operationId": "PostCustomersCreateEndpoint1",
         "parameters": [
           {
-            "name": "RefererID",
+            "name": "refererID",
             "in": "path",
             "required": true,
             "schema": {
@@ -195,7 +195,7 @@
         "operationId": "GetCustomersCreateEndpoint1",
         "parameters": [
           {
-            "name": "RefererID",
+            "name": "refererID",
             "in": "path",
             "required": true,
             "schema": {
@@ -211,7 +211,7 @@
             }
           },
           {
-            "name": "CustomerName",
+            "name": "customerName",
             "in": "query",
             "description": "the name of the cutomer goes here",
             "schema": {
@@ -220,7 +220,7 @@
             }
           },
           {
-            "name": "PhoneNumbers",
+            "name": "phoneNumbers",
             "in": "query",
             "style": "form",
             "explode": true,
@@ -273,7 +273,7 @@
             }
           },
           {
-            "name": "SourceID",
+            "name": "sourceID",
             "in": "path",
             "required": true,
             "schema": {
@@ -316,7 +316,7 @@
             }
           },
           {
-            "name": "SourceID",
+            "name": "sourceID",
             "in": "path",
             "required": true,
             "schema": {
@@ -324,7 +324,7 @@
             }
           },
           {
-            "name": "CustomerName",
+            "name": "customerName",
             "in": "query",
             "schema": {
               "type": "string",
@@ -332,7 +332,7 @@
             }
           },
           {
-            "name": "PhoneNumbers",
+            "name": "phoneNumbers",
             "in": "query",
             "style": "form",
             "explode": true,
@@ -410,7 +410,7 @@
             }
           },
           {
-            "name": "CustomerName",
+            "name": "customerName",
             "in": "query",
             "schema": {
               "type": "string",
@@ -418,7 +418,7 @@
             }
           },
           {
-            "name": "PhoneNumbers",
+            "name": "phoneNumbers",
             "in": "query",
             "style": "form",
             "explode": true,
@@ -461,7 +461,7 @@
         "operationId": "CustomersUpdateEndpoint2",
         "parameters": [
           {
-            "name": "CustomerID",
+            "name": "customerID",
             "in": "query",
             "required": true,
             "schema": {
@@ -470,7 +470,7 @@
             }
           },
           {
-            "name": "Name",
+            "name": "name",
             "in": "query",
             "required": true,
             "schema": {
@@ -521,7 +521,7 @@
         "operationId": "PostCustomersCreateWithPropertiesDIEndpoint1",
         "parameters": [
           {
-            "name": "RefererID",
+            "name": "refererID",
             "in": "path",
             "required": true,
             "schema": {
@@ -574,7 +574,7 @@
         "operationId": "GetCustomersCreateWithPropertiesDIEndpoint1",
         "parameters": [
           {
-            "name": "RefererID",
+            "name": "refererID",
             "in": "path",
             "required": true,
             "schema": {
@@ -590,7 +590,7 @@
             }
           },
           {
-            "name": "CustomerName",
+            "name": "customerName",
             "in": "query",
             "description": "the name of the cutomer goes here",
             "schema": {
@@ -599,7 +599,7 @@
             }
           },
           {
-            "name": "PhoneNumbers",
+            "name": "phoneNumbers",
             "in": "query",
             "style": "form",
             "explode": true,
@@ -652,7 +652,7 @@
             }
           },
           {
-            "name": "SourceID",
+            "name": "sourceID",
             "in": "path",
             "required": true,
             "schema": {
@@ -695,7 +695,7 @@
             }
           },
           {
-            "name": "SourceID",
+            "name": "sourceID",
             "in": "path",
             "required": true,
             "schema": {
@@ -703,7 +703,7 @@
             }
           },
           {
-            "name": "CustomerName",
+            "name": "customerName",
             "in": "query",
             "schema": {
               "type": "string",
@@ -711,7 +711,7 @@
             }
           },
           {
-            "name": "PhoneNumbers",
+            "name": "phoneNumbers",
             "in": "query",
             "style": "form",
             "explode": true,
@@ -789,7 +789,7 @@
             }
           },
           {
-            "name": "CustomerName",
+            "name": "customerName",
             "in": "query",
             "schema": {
               "type": "string",
@@ -797,7 +797,7 @@
             }
           },
           {
-            "name": "PhoneNumbers",
+            "name": "phoneNumbers",
             "in": "query",
             "style": "form",
             "explode": true,
@@ -892,7 +892,7 @@
         "operationId": "CustomersUpdateEndpoint1",
         "parameters": [
           {
-            "name": "CustomerID",
+            "name": "customerID",
             "in": "query",
             "required": true,
             "schema": {
@@ -901,7 +901,7 @@
             }
           },
           {
-            "name": "Name",
+            "name": "name",
             "in": "query",
             "required": true,
             "schema": {
@@ -952,7 +952,7 @@
         "operationId": "CustomersUpdateWithHeaderEndpoint",
         "parameters": [
           {
-            "name": "CustomerID",
+            "name": "customerID",
             "in": "header",
             "required": true,
             "schema": {
@@ -1011,7 +1011,7 @@
         "operationId": "InventoryGetProductEndpoint",
         "parameters": [
           {
-            "name": "ProductID",
+            "name": "productID",
             "in": "path",
             "required": true,
             "schema": {
@@ -1044,7 +1044,7 @@
         "operationId": "InventoryListRecentEndpoint",
         "parameters": [
           {
-            "name": "CategoryID",
+            "name": "categoryID",
             "in": "path",
             "required": true,
             "schema": {
@@ -1090,24 +1090,24 @@
               "examples": {
                 "Example 1": {
                   "value": {
-                    "Id": 1,
-                    "Name": "first name",
-                    "Description": "first description",
-                    "Price": 10.0,
-                    "QtyOnHand": 10,
-                    "ModifiedBy": null,
-                    "GenerateFullUrl": false
+                    "id": 1,
+                    "name": "first name",
+                    "description": "first description",
+                    "price": 10.0,
+                    "qtyOnHand": 10,
+                    "modifiedBy": null,
+                    "generateFullUrl": false
                   }
                 },
                 "Example 2": {
                   "value": {
-                    "Id": 200,
-                    "Name": "second  name",
-                    "Description": "description two",
-                    "Price": 209.0,
-                    "QtyOnHand": 290,
-                    "ModifiedBy": null,
-                    "GenerateFullUrl": false
+                    "id": 200,
+                    "name": "second  name",
+                    "description": "description two",
+                    "price": 209.0,
+                    "qtyOnHand": 290,
+                    "modifiedBy": null,
+                    "generateFullUrl": false
                   }
                 }
               }
@@ -1255,7 +1255,7 @@
                 },
                 "example": 0
               },
-              "Header2": {
+              "header2": {
                 "description": "",
                 "schema": {
                   "title": "SystemDateOnly",
@@ -1332,7 +1332,7 @@
                 },
                 "example": 0
               },
-              "Header2": {
+              "header2": {
                 "description": "",
                 "schema": {
                   "title": "SystemDateOnly",
@@ -1377,7 +1377,7 @@
         ]
       }
     },
-    "/api/sales/orders/retrieve/{OrderID}": {
+    "/api/sales/orders/retrieve/{orderID}": {
       "get": {
         "tags": [
           "Sales"
@@ -1385,7 +1385,7 @@
         "operationId": "Orders_SalesOrdersRetrieveEndpoint",
         "parameters": [
           {
-            "name": "OrderID",
+            "name": "orderID",
             "in": "path",
             "required": true,
             "schema": {
@@ -1665,7 +1665,7 @@
         "deprecated": true
       }
     },
-    "/api/test-cases/dont-bind-attribute-test/{Name}": {
+    "/api/test-cases/dont-bind-attribute-test/{name}": {
       "post": {
         "tags": [
           "TestCases"
@@ -1673,7 +1673,7 @@
         "operationId": "TestCasesDontBindAttributeTestEndpoint",
         "parameters": [
           {
-            "name": "Name",
+            "name": "name",
             "in": "path",
             "required": true,
             "schema": {
@@ -1740,7 +1740,7 @@
         "operationId": "TestCasesDupeParamBindingForIEnumerablePropsEndpoint",
         "parameters": [
           {
-            "name": "Strings",
+            "name": "strings",
             "in": "query",
             "style": "form",
             "explode": true,
@@ -1756,7 +1756,7 @@
             ]
           },
           {
-            "name": "MoreStrings",
+            "name": "moreStrings",
             "in": "query",
             "style": "form",
             "explode": true,
@@ -1772,7 +1772,7 @@
             ]
           },
           {
-            "name": "Doubles",
+            "name": "doubles",
             "in": "query",
             "style": "form",
             "explode": true,
@@ -1789,7 +1789,7 @@
             ]
           },
           {
-            "name": "Ints",
+            "name": "ints",
             "in": "query",
             "style": "form",
             "explode": true,
@@ -1806,7 +1806,7 @@
             ]
           },
           {
-            "name": "Guids",
+            "name": "guids",
             "in": "query",
             "style": "form",
             "explode": true,
@@ -1823,7 +1823,7 @@
             ]
           },
           {
-            "name": "Dates",
+            "name": "dates",
             "in": "query",
             "style": "form",
             "explode": true,
@@ -1840,7 +1840,7 @@
             ]
           },
           {
-            "name": "Persons",
+            "name": "persons",
             "in": "query",
             "style": "form",
             "explode": true,
@@ -1853,8 +1853,8 @@
             },
             "example": [
               {
-                "Name": "Name",
-                "Age": 0
+                "name": "name",
+                "age": 0
               }
             ]
           }
@@ -1932,7 +1932,7 @@
         ],
         "operationId": "TestCasesFormBindingComplexDtosEndpoint",
         "requestBody": {
-          "x-name": "Book",
+          "x-name": "book",
           "content": {
             "multipart/form-data": {
               "schema": {
@@ -2041,7 +2041,7 @@
             }
           },
           {
-            "name": "CustomerID",
+            "name": "customerID",
             "in": "header",
             "required": true,
             "schema": {
@@ -2051,7 +2051,7 @@
           }
         ],
         "requestBody": {
-          "x-name": "Product",
+          "x-name": "product",
           "content": {
             "application/json": {
               "schema": {
@@ -2085,7 +2085,7 @@
         }
       }
     },
-    "/mobile/api/test-cases/global-prefix-override/{Id}": {
+    "/mobile/api/test-cases/global-prefix-override/{id}": {
       "post": {
         "tags": [
           "Mobile"
@@ -2094,7 +2094,7 @@
         "operationId": "TestCasesGlobalRoutePrefixOverrideTestEndpoint",
         "parameters": [
           {
-            "name": "Id",
+            "name": "id",
             "in": "path",
             "required": true,
             "description": "overriden id text",
@@ -2207,7 +2207,7 @@
             }
           },
           {
-            "name": "HasPermission",
+            "name": "hasPermission",
             "in": "query",
             "schema": {
               "type": "boolean",
@@ -2301,7 +2301,7 @@
             }
           },
           {
-            "name": "HasPermission",
+            "name": "hasPermission",
             "in": "query",
             "schema": {
               "type": "boolean",
@@ -2395,7 +2395,7 @@
             }
           },
           {
-            "name": "HasPermission",
+            "name": "hasPermission",
             "in": "query",
             "schema": {
               "type": "boolean",
@@ -2489,7 +2489,7 @@
             }
           },
           {
-            "name": "HasPermission",
+            "name": "hasPermission",
             "in": "query",
             "schema": {
               "type": "boolean",
@@ -2583,7 +2583,7 @@
             }
           },
           {
-            "name": "HasPermission",
+            "name": "hasPermission",
             "in": "query",
             "schema": {
               "type": "boolean",
@@ -2660,7 +2660,7 @@
             }
           },
           {
-            "name": "Content",
+            "name": "content",
             "in": "query",
             "required": true,
             "schema": {
@@ -2668,7 +2668,7 @@
             }
           },
           {
-            "name": "Idempotency-Key",
+            "name": "idempotency-Key",
             "in": "header",
             "required": true,
             "schema": {
@@ -2734,7 +2734,7 @@
         "operationId": "TestCasesJsonArrayBindingForIEnumerablePropsEndpoint",
         "parameters": [
           {
-            "name": "Doubles",
+            "name": "doubles",
             "in": "query",
             "style": "form",
             "explode": true,
@@ -2751,7 +2751,7 @@
             ]
           },
           {
-            "name": "Ints",
+            "name": "ints",
             "in": "query",
             "style": "form",
             "explode": true,
@@ -2768,7 +2768,7 @@
             ]
           },
           {
-            "name": "Guids",
+            "name": "guids",
             "in": "query",
             "style": "form",
             "explode": true,
@@ -2785,7 +2785,7 @@
             ]
           },
           {
-            "name": "Dates",
+            "name": "dates",
             "in": "query",
             "style": "form",
             "explode": true,
@@ -2802,7 +2802,7 @@
             ]
           },
           {
-            "name": "Steven",
+            "name": "steven",
             "in": "query",
             "required": true,
             "schema": {
@@ -2813,12 +2813,12 @@
               ]
             },
             "example": {
-              "Age": 0,
-              "Name": "Name"
+              "age": 0,
+              "name": "name"
             }
           },
           {
-            "name": "Dict",
+            "name": "dict",
             "in": "query",
             "required": true,
             "schema": {
@@ -2990,7 +2990,7 @@
         "operationId": "TestCasesMissingClaimTestDontThrowIfMissingEndpoint",
         "parameters": [
           {
-            "name": "TestProp",
+            "name": "testProp",
             "in": "query",
             "schema": {
               "type": "string",
@@ -3048,7 +3048,7 @@
         "operationId": "TestCasesMissingHeaderTestDontThrowIfMissingEndpoint",
         "parameters": [
           {
-            "name": "TenantID",
+            "name": "tenantID",
             "in": "header",
             "schema": {
               "type": "string",
@@ -3095,7 +3095,7 @@
         "operationId": "TestCasesMissingHeaderTestThrowIfMissingEndpoint",
         "parameters": [
           {
-            "name": "TenantID",
+            "name": "tenantID",
             "in": "header",
             "required": true,
             "schema": {
@@ -3175,7 +3175,7 @@
         ]
       }
     },
-    "/test-cases/plaintext/{Id}": {
+    "/test-cases/plaintext/{id}": {
       "post": {
         "tags": [
           "TestCases"
@@ -3184,7 +3184,7 @@
         "operationId": "TestCasesPlainTextRequestTestEndpoint",
         "parameters": [
           {
-            "name": "Id",
+            "name": "id",
             "in": "path",
             "required": true,
             "description": "overriden id text",
@@ -3239,7 +3239,7 @@
         "operationId": "TestCasesPostProcessorTestEndpoint",
         "parameters": [
           {
-            "name": "Id",
+            "name": "id",
             "in": "query",
             "required": true,
             "schema": {
@@ -3283,7 +3283,7 @@
         "operationId": "TestCasesPrecessorShortWhileValidatorFailsEndpoint",
         "parameters": [
           {
-            "name": "Id",
+            "name": "id",
             "in": "query",
             "required": true,
             "schema": {
@@ -3407,7 +3407,7 @@
         "operationId": "TestCasesProcessorStateTestEndpoint",
         "parameters": [
           {
-            "name": "Id",
+            "name": "id",
             "in": "query",
             "required": true,
             "schema": {
@@ -3440,7 +3440,7 @@
         "operationId": "QueryObjectBindingTest",
         "parameters": [
           {
-            "name": "String",
+            "name": "string",
             "in": "query",
             "required": true,
             "description": "this is a string prop xml comment",
@@ -3449,7 +3449,7 @@
             }
           },
           {
-            "name": "Bool",
+            "name": "bool",
             "in": "query",
             "required": true,
             "schema": {
@@ -3457,7 +3457,7 @@
             }
           },
           {
-            "name": "Int",
+            "name": "int",
             "in": "query",
             "schema": {
               "type": "integer",
@@ -3466,7 +3466,7 @@
             }
           },
           {
-            "name": "Long",
+            "name": "long",
             "in": "query",
             "required": true,
             "schema": {
@@ -3475,7 +3475,7 @@
             }
           },
           {
-            "name": "Double",
+            "name": "double",
             "in": "query",
             "required": true,
             "schema": {
@@ -3484,7 +3484,7 @@
             }
           },
           {
-            "name": "Enum",
+            "name": "enum",
             "in": "query",
             "required": true,
             "schema": {
@@ -3496,7 +3496,7 @@
             }
           },
           {
-            "name": "Person",
+            "name": "person",
             "in": "query",
             "required": true,
             "schema": {
@@ -3507,27 +3507,27 @@
               ]
             },
             "example": {
-              "Id": "Id",
-              "Name": "Name",
-              "Age": 0,
-              "Child": {
-                "Id": "Id",
-                "Name": "Name",
-                "Age": 0,
-                "Strings": [
+              "id": "id",
+              "name": "name",
+              "age": 0,
+              "child": {
+                "id": "id",
+                "name": "name",
+                "age": 0,
+                "strings": [
                   ""
                 ],
-                "FavoriteDays": [
+                "favoriteDays": [
                   0
                 ],
-                "IsHidden": false
+                "isHidden": false
               },
-              "Numbers": [
+              "numbers": [
                 0
               ],
-              "FavoriteDay": 0,
-              "ByteEnum": 0,
-              "IsHidden": false
+              "favoriteDay": 0,
+              "byteEnum": 0,
+              "isHidden": false
             }
           }
         ],
@@ -3555,7 +3555,7 @@
         "operationId": "QueryArraysOfObjectsBindingTest",
         "parameters": [
           {
-            "name": "Person",
+            "name": "person",
             "in": "query",
             "required": true,
             "schema": {
@@ -3566,26 +3566,26 @@
               ]
             },
             "example": {
-              "Child": {
-                "Objects": [
+              "child": {
+                "objects": [
                   {
-                    "String": "String",
-                    "Bool": false,
-                    "Int": 0,
-                    "Long": 0,
-                    "Double": 0.0,
-                    "Enum": 0
+                    "string": "string",
+                    "bool": false,
+                    "int": 0,
+                    "long": 0,
+                    "double": 0.0,
+                    "enum": 0
                   }
                 ]
               },
-              "Objects": [
+              "objects": [
                 {
-                  "String": "String",
-                  "Bool": false,
-                  "Int": 0,
-                  "Long": 0,
-                  "Double": 0.0,
-                  "Enum": 0
+                  "string": "string",
+                  "bool": false,
+                  "int": 0,
+                  "long": 0,
+                  "double": 0.0,
+                  "enum": 0
                 }
               ]
             }
@@ -3729,16 +3729,15 @@
         "operationId": "TestCasesRouteBindingInEpWithoutReqEpWithoutReqRouteBindingTest",
         "parameters": [
           {
-            "name": "CustomerID",
+            "name": "customerID",
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "string"
             }
           },
           {
-            "name": "OtherID",
+            "name": "otherID",
             "in": "path",
             "required": true,
             "description": "the description for other id",
@@ -3824,7 +3823,7 @@
             }
           },
           {
-            "name": "Person",
+            "name": "person",
             "in": "query",
             "required": true,
             "schema": {
@@ -3835,18 +3834,18 @@
               ]
             },
             "example": {
-              "Id": "Id",
-              "Name": "Name",
-              "Age": 0,
-              "Child": {
-                "Id": "Id",
-                "Name": "Name",
-                "Age": 0,
-                "Strings": [
+              "id": "id",
+              "name": "name",
+              "age": 0,
+              "child": {
+                "id": "id",
+                "name": "name",
+                "age": 0,
+                "strings": [
                   ""
                 ]
               },
-              "Numbers": [
+              "numbers": [
                 0
               ]
             }
@@ -3899,7 +3898,7 @@
         }
       }
     },
-    "/api/test-cases/routing/user/{UserId}": {
+    "/api/test-cases/routing/user/{userId}": {
       "post": {
         "tags": [
           "TestCases"
@@ -3907,7 +3906,7 @@
         "operationId": "TestCasesRoutingNonOptionalRouteParamTest",
         "parameters": [
           {
-            "name": "UserId",
+            "name": "userId",
             "in": "path",
             "required": true,
             "schema": {
@@ -3929,7 +3928,7 @@
         }
       }
     },
-    "/api/test-cases/routing/offer/{OfferId}": {
+    "/api/test-cases/routing/offer/{offerId}": {
       "post": {
         "tags": [
           "TestCases"
@@ -3937,7 +3936,7 @@
         "operationId": "TestCasesRoutingOptionalRouteParamTest",
         "parameters": [
           {
-            "name": "OfferId",
+            "name": "offerId",
             "in": "path",
             "required": true,
             "schema": {
@@ -4010,7 +4009,7 @@
         "operationId": "TestCasesTypedHeaderBindingTestMyEndpoint",
         "parameters": [
           {
-            "name": "Content-Disposition",
+            "name": "content-Disposition",
             "in": "header",
             "required": true,
             "schema": {
@@ -4109,7 +4108,7 @@
         "operationId": "TestCasesUnitTestConcurrencyTestEndpoint",
         "parameters": [
           {
-            "name": "Id",
+            "name": "id",
             "in": "query",
             "required": true,
             "schema": {
@@ -4600,16 +4599,16 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "JWTToken": {
+          "jwtToken": {
             "type": "string",
             "description": "the jwt token",
             "example": "blahblahblah"
           },
-          "ExpiryDate": {
+          "expiryDate": {
             "type": "string",
             "format": "date-time"
           },
-          "Permissions": {
+          "permissions": {
             "type": "array",
             "items": {
               "type": "string"
@@ -4621,16 +4620,16 @@
         "type": "object",
         "description": "the admin login request",
         "example": {
-          "UserName": "custom example user name from summary",
-          "Password": "custom example password from summary"
+          "userName": "custom example user name from summary",
+          "password": "custom example password from summary"
         },
         "additionalProperties": false,
         "required": [
-          "UserName",
-          "Password"
+          "userName",
+          "password"
         ],
         "properties": {
-          "UserName": {
+          "userName": {
             "type": "string",
             "description": "overriden username text",
             "default": "admin",
@@ -4639,7 +4638,7 @@
             "nullable": false,
             "example": "example username"
           },
-          "Password": {
+          "password": {
             "type": "string",
             "description": "the admin password",
             "minLength": 3,
@@ -4660,7 +4659,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Customers": {
+          "customers": {
             "type": "array",
             "nullable": true,
             "items": {
@@ -4673,11 +4672,11 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Key": {
+          "key": {
             "type": "string",
             "nullable": true
           },
-          "Value": {
+          "value": {
             "type": "integer",
             "format": "int32"
           }
@@ -4687,11 +4686,11 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Age": {
+          "age": {
             "type": "integer",
             "format": "int32"
           },
-          "Address": {
+          "address": {
             "type": "string"
           }
         }
@@ -4700,14 +4699,14 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Name": {
+          "name": {
             "type": "string"
           },
-          "Age": {
+          "age": {
             "type": "integer",
             "format": "int32"
           },
-          "Address": {
+          "address": {
             "type": "string"
           }
         }
@@ -4716,7 +4715,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "ProductID": {
+          "productID": {
             "type": "string",
             "nullable": true
           },
@@ -4731,7 +4730,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Category": {
+          "category": {
             "type": "string",
             "nullable": true
           }
@@ -4741,39 +4740,39 @@
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "Name",
-          "ModifiedBy"
+          "name",
+          "modifiedBy"
         ],
         "properties": {
-          "Id": {
+          "id": {
             "type": "integer",
             "format": "int32"
           },
-          "Name": {
+          "name": {
             "type": "string",
             "minLength": 1,
             "nullable": false
           },
-          "Description": {
+          "description": {
             "type": "string",
             "nullable": true
           },
-          "Price": {
+          "price": {
             "type": "number",
             "format": "decimal",
             "minimum": 0.0,
             "exclusiveMinimum": true
           },
-          "QtyOnHand": {
+          "qtyOnHand": {
             "type": "integer",
             "format": "int32"
           },
-          "ModifiedBy": {
+          "modifiedBy": {
             "type": "string",
             "minLength": 1,
             "nullable": false
           },
-          "GenerateFullUrl": {
+          "generateFullUrl": {
             "type": "boolean"
           }
         }
@@ -4786,37 +4785,37 @@
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "Id",
-          "Name",
-          "ModifiedBy"
+          "id",
+          "name",
+          "modifiedBy"
         ],
         "properties": {
-          "Id": {
+          "id": {
             "type": "integer",
             "format": "int32",
             "minLength": 1,
             "nullable": false
           },
-          "Name": {
+          "name": {
             "type": "string",
             "minLength": 1,
             "nullable": false
           },
-          "Description": {
+          "description": {
             "type": "string",
             "nullable": true
           },
-          "Price": {
+          "price": {
             "type": "number",
             "format": "decimal",
             "minimum": 0.0,
             "exclusiveMinimum": true
           },
-          "QtyOnHand": {
+          "qtyOnHand": {
             "type": "integer",
             "format": "int32"
           },
-          "ModifiedBy": {
+          "modifiedBy": {
             "type": "string",
             "minLength": 1,
             "nullable": false
@@ -4828,18 +4827,18 @@
         "description": "the dto used to send an error response to the client",
         "additionalProperties": false,
         "properties": {
-          "StatusCode": {
+          "statusCode": {
             "type": "integer",
             "description": "the http status code sent to the client. default is 400.",
             "format": "int32",
             "default": 400
           },
-          "Message": {
+          "message": {
             "type": "string",
             "description": "the message for the error response",
             "default": "One or more errors occurred!"
           },
-          "Errors": {
+          "errors": {
             "type": "object",
             "description": "the collection of errors for the current context",
             "additionalProperties": {
@@ -4855,23 +4854,23 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "OrderID": {
+          "orderID": {
             "type": "integer",
             "format": "int32"
           },
-          "Message": {
+          "message": {
             "type": "string",
             "nullable": true
           },
-          "AnotherMsg": {
+          "anotherMsg": {
             "type": "string",
             "nullable": true
           },
-          "GuidTest": {
+          "guidTest": {
             "type": "string",
             "format": "guid"
           },
-          "Event": {
+          "event": {
             "$ref": "#/components/schemas/TestCasesEventHandlingTestSomeEvent"
           }
         }
@@ -4880,11 +4879,11 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "One": {
+          "one": {
             "type": "integer",
             "format": "int32"
           },
-          "Two": {
+          "two": {
             "type": "integer",
             "format": "int32"
           }
@@ -4894,15 +4893,15 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "CustomerID": {
+          "customerID": {
             "type": "integer",
             "format": "int32"
           },
-          "ProductID": {
+          "productID": {
             "type": "integer",
             "format": "int32"
           },
-          "Quantity": {
+          "quantity": {
             "type": "integer",
             "format": "int32"
           }
@@ -4912,7 +4911,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Message": {
+          "message": {
             "type": "string"
           }
         }
@@ -4921,7 +4920,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "TenantID": {
+          "tenantID": {
             "type": "string",
             "description": "this is the tenant id"
           }
@@ -4931,10 +4930,10 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "TokenName": {
+          "tokenName": {
             "type": "string"
           },
-          "Value": {
+          "value": {
             "type": "string",
             "nullable": true
           }
@@ -4944,11 +4943,11 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "File": {
+          "file": {
             "type": "string",
             "format": "binary"
           },
-          "TokenResponse": {
+          "tokenResponse": {
             "$ref": "#/components/schemas/TestCasesAntiforgeryTestTokenResponse"
           }
         }
@@ -4968,10 +4967,10 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Id": {
+          "id": {
             "type": "string"
           },
-          "Product": {
+          "product": {
             "nullable": true,
             "oneOf": [
               {
@@ -4979,7 +4978,7 @@
               }
             ]
           },
-          "CustomerID": {
+          "customerID": {
             "type": "string"
           }
         }
@@ -4988,14 +4987,14 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Id": {
+          "id": {
             "type": "integer",
             "format": "int32"
           },
-          "Name": {
+          "name": {
             "type": "string"
           },
-          "Price": {
+          "price": {
             "type": "number",
             "format": "decimal"
           }
@@ -5005,17 +5004,17 @@
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "Name"
+          "name"
         ],
         "properties": {
-          "Id": {
+          "id": {
             "type": "integer",
             "description": "CurrentId",
             "format": "int32",
             "maximum": 99.0,
             "minimum": 10.0
           },
-          "Name": {
+          "name": {
             "type": "string",
             "maxLength": 10,
             "minLength": 2
@@ -5026,7 +5025,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Id": {
+          "id": {
             "type": "integer",
             "format": "int32"
           }
@@ -5055,10 +5054,10 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Name": {
+          "name": {
             "type": "string"
           },
-          "Age": {
+          "age": {
             "type": "integer",
             "format": "int32"
           }
@@ -5068,7 +5067,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Book": {
+          "book": {
             "$ref": "#/components/schemas/TestCasesFormBindingComplexDtosBook"
           }
         }
@@ -5077,27 +5076,27 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Title": {
+          "title": {
             "type": "string"
           },
-          "CoverImage": {
+          "coverImage": {
             "type": "string",
             "format": "binary"
           },
-          "SourceFiles": {
+          "sourceFiles": {
             "type": "array",
             "items": {}
           },
-          "MainAuthor": {
+          "mainAuthor": {
             "$ref": "#/components/schemas/TestCasesFormBindingComplexDtosAuthor"
           },
-          "CoAuthors": {
+          "coAuthors": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/TestCasesFormBindingComplexDtosAuthor"
             }
           },
-          "BarCodes": {
+          "barCodes": {
             "type": "array",
             "items": {
               "type": "integer",
@@ -5110,21 +5109,21 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Name": {
+          "name": {
             "type": "string"
           },
-          "ProfileImage": {
+          "profileImage": {
             "type": "string",
             "format": "binary"
           },
-          "DocumentFiles": {
+          "documentFiles": {
             "type": "array",
             "items": {}
           },
-          "MainAddress": {
+          "mainAddress": {
             "$ref": "#/components/schemas/TestCasesFormBindingComplexDtosAddress"
           },
-          "OtherAddresses": {
+          "otherAddresses": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/TestCasesFormBindingComplexDtosAddress"
@@ -5136,14 +5135,14 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Street": {
+          "street": {
             "type": "string"
           },
-          "MainImage": {
+          "mainImage": {
             "type": "string",
             "format": "binary"
           },
-          "AlternativeImages": {
+          "alternativeImages": {
             "type": "array",
             "items": {
               "type": "string",
@@ -5156,19 +5155,19 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "File1Name": {
+          "file1Name": {
             "type": "string"
           },
-          "File2Name": {
+          "file2Name": {
             "type": "string"
           },
-          "CarNames": {
+          "carNames": {
             "type": "array",
             "items": {
               "type": "string"
             }
           },
-          "JetNames": {
+          "jetNames": {
             "type": "array",
             "items": {
               "type": "string"
@@ -5180,33 +5179,33 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "ID": {
+          "id": {
             "type": "string"
           },
-          "Width": {
+          "width": {
             "type": "integer",
             "format": "int32"
           },
-          "Height": {
+          "height": {
             "type": "integer",
             "format": "int32"
           },
-          "File1": {
+          "file1": {
             "type": "string",
             "format": "binary"
           },
-          "File2": {
+          "file2": {
             "type": "string",
             "format": "binary"
           },
-          "Cars": {
+          "cars": {
             "type": "array",
             "items": {
               "type": "string",
               "format": "binary"
             }
           },
-          "Jets": {
+          "jets": {
             "type": "array",
             "items": {}
           }
@@ -5227,7 +5226,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Product": {
+          "product": {
             "$ref": "#/components/schemas/TestCasesFromBodyJsonBindingProduct"
           }
         }
@@ -5235,21 +5234,21 @@
       "TestCasesFromBodyJsonBindingProduct": {
         "type": "object",
         "example": {
-          "Name": "test product name",
-          "Price": 200.22
+          "name": "test product name",
+          "price": 200.22
         },
         "additionalProperties": false,
         "properties": {
-          "Id": {
+          "id": {
             "type": "integer",
             "description": "product id goes here",
             "format": "int32"
           },
-          "Name": {
+          "name": {
             "type": "string",
             "description": "this is the name of the product"
           },
-          "Price": {
+          "price": {
             "type": "number",
             "description": "product price goes here",
             "format": "decimal",
@@ -5262,11 +5261,11 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Id": {
+          "id": {
             "type": "integer",
             "format": "int32"
           },
-          "BodyContent": {
+          "bodyContent": {
             "type": "string"
           }
         }
@@ -5287,7 +5286,7 @@
         "description": "use this dto if you need to model bind the raw content body of an incoming http request or you may implement the IPlainTextRequest interface on your own request dto.",
         "additionalProperties": false,
         "properties": {
-          "Content": {
+          "content": {
             "type": "string",
             "description": "overriden content text"
           }
@@ -5301,10 +5300,10 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Id": {
+          "id": {
             "type": "string"
           },
-          "Ticks": {
+          "ticks": {
             "type": "integer",
             "format": "int64"
           }
@@ -5316,7 +5315,7 @@
       },
       "TestCasesIncludedValidatorTestRequest": {
         "required": [
-          "Name"
+          "name"
         ],
         "allOf": [
           {
@@ -5326,7 +5325,7 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-              "Name": {
+              "name": {
                 "type": "string",
                 "minLength": 5,
                 "nullable": false
@@ -5340,10 +5339,10 @@
         "x-abstract": true,
         "additionalProperties": false,
         "required": [
-          "Id"
+          "id"
         ],
         "properties": {
-          "Id": {
+          "id": {
             "type": "integer",
             "format": "int32",
             "minimum": 5.0,
@@ -5372,11 +5371,11 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Age": {
+          "age": {
             "type": "integer",
             "format": "int32"
           },
-          "Name": {
+          "name": {
             "type": "string"
           }
         }
@@ -5396,11 +5395,11 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Id": {
+          "id": {
             "type": "integer",
             "format": "int32"
           },
-          "Name": {
+          "name": {
             "type": "string"
           }
         }
@@ -5420,7 +5419,7 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-              "Id": {
+              "id": {
                 "type": "integer",
                 "format": "int32"
               }
@@ -5432,7 +5431,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Name": {
+          "name": {
             "type": "string"
           }
         }
@@ -5441,10 +5440,10 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Name": {
+          "name": {
             "type": "string"
           },
-          "Age": {
+          "age": {
             "type": "integer",
             "format": "int32"
           }
@@ -5454,13 +5453,13 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "FirstName": {
+          "firstName": {
             "type": "string"
           },
-          "LastName": {
+          "lastName": {
             "type": "string"
           },
-          "Age": {
+          "age": {
             "type": "integer",
             "format": "int32"
           }
@@ -5478,7 +5477,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "TenantID": {
+          "tenantID": {
             "type": "string",
             "nullable": true
           }
@@ -5492,7 +5491,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Host": {
+          "host": {
             "type": "string",
             "nullable": true
           }
@@ -5502,10 +5501,10 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Verb": {
+          "verb": {
             "$ref": "#/components/schemas/FastEndpointsHttp"
           },
-          "Host": {
+          "host": {
             "type": "string",
             "nullable": true
           }
@@ -5537,11 +5536,11 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Id": {
+          "id": {
             "type": "integer",
             "format": "int32"
           },
-          "BodyContent": {
+          "bodyContent": {
             "type": "string"
           }
         }
@@ -5561,7 +5560,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Type": {
+          "type": {
             "type": "string"
           }
         }
@@ -5578,7 +5577,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Message": {
+          "message": {
             "type": "string"
           }
         }
@@ -5587,15 +5586,15 @@
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "FirstName"
+          "firstName"
         ],
         "properties": {
-          "FirstName": {
+          "firstName": {
             "type": "string",
             "minLength": 5,
             "nullable": false
           },
-          "FailureCount": {
+          "failureCount": {
             "type": "integer",
             "format": "int32"
           }
@@ -5605,7 +5604,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Values": {
+          "values": {
             "type": "array",
             "items": {
               "type": "string"
@@ -5621,31 +5620,31 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "String": {
+          "string": {
             "type": "string",
             "description": "Some string property"
           },
-          "Bool": {
+          "bool": {
             "type": "boolean",
             "description": "Some bool property"
           },
-          "Int": {
+          "int": {
             "type": "integer",
             "format": "int32",
             "nullable": true
           },
-          "Long": {
+          "long": {
             "type": "integer",
             "format": "int64"
           },
-          "Double": {
+          "double": {
             "type": "number",
             "format": "double"
           },
-          "Enum": {
+          "enum": {
             "$ref": "#/components/schemas/SystemDayOfWeek"
           },
-          "Person": {
+          "person": {
             "$ref": "#/components/schemas/TestCasesQueryObjectBindingTestPerson"
           }
         }
@@ -5676,34 +5675,34 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Id": {
+          "id": {
             "type": "string",
             "format": "guid"
           },
-          "Name": {
+          "name": {
             "type": "string"
           },
-          "Age": {
+          "age": {
             "type": "integer",
             "format": "int32"
           },
-          "Child": {
+          "child": {
             "$ref": "#/components/schemas/TestCasesQueryObjectBindingTestNestedPerson"
           },
-          "Numbers": {
+          "numbers": {
             "type": "array",
             "items": {
               "type": "integer",
               "format": "int32"
             }
           },
-          "FavoriteDay": {
+          "favoriteDay": {
             "$ref": "#/components/schemas/SystemDayOfWeek"
           },
-          "ByteEnum": {
+          "byteEnum": {
             "$ref": "#/components/schemas/TestCasesQueryObjectBindingTestByteEnum"
           },
-          "IsHidden": {
+          "isHidden": {
             "type": "boolean"
           }
         }
@@ -5712,30 +5711,30 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Id": {
+          "id": {
             "type": "string",
             "format": "guid"
           },
-          "Name": {
+          "name": {
             "type": "string"
           },
-          "Age": {
+          "age": {
             "type": "integer",
             "format": "int32"
           },
-          "Strings": {
+          "strings": {
             "type": "array",
             "items": {
               "type": "string"
             }
           },
-          "FavoriteDays": {
+          "favoriteDays": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/SystemDayOfWeek"
             }
           },
-          "IsHidden": {
+          "isHidden": {
             "type": "boolean"
           }
         }
@@ -5762,7 +5761,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Person": {
+          "person": {
             "$ref": "#/components/schemas/TestCasesQueryObjectWithObjectsArrayBindingTestPerson"
           }
         }
@@ -5771,10 +5770,10 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Child": {
+          "child": {
             "$ref": "#/components/schemas/TestCasesQueryObjectWithObjectsArrayBindingTestNestedPerson"
           },
-          "Objects": {
+          "objects": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/TestCasesQueryObjectWithObjectsArrayBindingTestObjectInArray"
@@ -5786,7 +5785,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Objects": {
+          "objects": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/TestCasesQueryObjectWithObjectsArrayBindingTestObjectInArray"
@@ -5798,26 +5797,26 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "String": {
+          "string": {
             "type": "string"
           },
-          "Bool": {
+          "bool": {
             "type": "boolean"
           },
-          "Int": {
+          "int": {
             "type": "integer",
             "format": "int32",
             "nullable": true
           },
-          "Long": {
+          "long": {
             "type": "integer",
             "format": "int64"
           },
-          "Double": {
+          "double": {
             "type": "number",
             "format": "double"
           },
-          "Enum": {
+          "enum": {
             "$ref": "#/components/schemas/SystemDayOfWeek"
           }
         }
@@ -5830,38 +5829,38 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "CustomerID": {
+          "customerID": {
             "type": "integer",
             "format": "int32"
           },
-          "OtherID": {
+          "otherID": {
             "type": "integer",
             "description": "optional other id",
             "format": "int32",
             "nullable": true
           },
-          "Doubles": {
+          "doubles": {
             "type": "array",
             "items": {
               "type": "number",
               "format": "double"
             }
           },
-          "Ints": {
+          "ints": {
             "type": "array",
             "items": {
               "type": "integer",
               "format": "int32"
             }
           },
-          "Guids": {
+          "guids": {
             "type": "array",
             "items": {
               "type": "string",
               "format": "guid"
             }
           },
-          "Floaty": {
+          "floaty": {
             "type": "number",
             "format": "float"
           }
@@ -5871,11 +5870,11 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "CustomerID": {
+          "customerID": {
             "type": "integer",
             "format": "int32"
           },
-          "OtherID": {
+          "otherID": {
             "type": "integer",
             "description": "optional other id",
             "format": "int32",
@@ -5893,7 +5892,7 @@
             "description": "base dto for access/refresh token responses",
             "additionalProperties": false,
             "properties": {
-              "AccessToken": {
+              "accessToken": {
                 "type": "string",
                 "description": "the jwt access token which will be valid for the duration specified by AccessExpiry"
               }
@@ -5906,11 +5905,11 @@
         "description": "base dto for access/refresh token renewal requests",
         "additionalProperties": false,
         "properties": {
-          "UserId": {
+          "userId": {
             "type": "string",
             "description": "unique identifier of a user"
           },
-          "RefreshToken": {
+          "refreshToken": {
             "type": "string",
             "description": "a single-use refresh token which will be valid for the duration specified by RefreshExpiry"
           }
@@ -5920,11 +5919,11 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "CustomerID": {
+          "customerID": {
             "type": "integer",
             "format": "int32"
           },
-          "OtherID": {
+          "otherID": {
             "type": "integer",
             "description": "optional other id",
             "format": "int32",
@@ -5936,47 +5935,47 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "String": {
+          "string": {
             "type": "string"
           },
-          "Bool": {
+          "bool": {
             "type": "boolean"
           },
-          "Int": {
+          "int": {
             "type": "integer",
             "format": "int32"
           },
-          "Long": {
+          "long": {
             "type": "integer",
             "format": "int64"
           },
-          "Double": {
+          "double": {
             "type": "number",
             "format": "double"
           },
-          "Decimal": {
+          "decimal": {
             "type": "number",
             "format": "decimal"
           },
-          "Blank": {
+          "blank": {
             "type": "integer",
             "format": "int32",
             "nullable": true
           },
-          "FromBody": {
+          "fromBody": {
             "type": "string"
           },
-          "Url": {
+          "url": {
             "type": "string",
             "nullable": true
           },
-          "Custom": {
+          "custom": {
             "$ref": "#/components/schemas/TestCasesRouteBindingTestCustom"
           },
-          "CustomList": {
+          "customList": {
             "$ref": "#/components/schemas/TestCasesRouteBindingTestCustomList"
           },
-          "Person": {
+          "person": {
             "$ref": "#/components/schemas/TestCasesRouteBindingTestPerson"
           }
         }
@@ -5985,7 +5984,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Value": {
+          "value": {
             "type": "integer",
             "format": "int32"
           }
@@ -6002,21 +6001,21 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Id": {
+          "id": {
             "type": "string",
             "format": "guid"
           },
-          "Name": {
+          "name": {
             "type": "string"
           },
-          "Age": {
+          "age": {
             "type": "integer",
             "format": "int32"
           },
-          "Child": {
+          "child": {
             "$ref": "#/components/schemas/TestCasesRouteBindingTestNestedPerson"
           },
-          "Numbers": {
+          "numbers": {
             "type": "array",
             "items": {
               "type": "integer",
@@ -6029,18 +6028,18 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Id": {
+          "id": {
             "type": "string",
             "format": "guid"
           },
-          "Name": {
+          "name": {
             "type": "string"
           },
-          "Age": {
+          "age": {
             "type": "integer",
             "format": "int32"
           },
-          "Strings": {
+          "strings": {
             "type": "array",
             "items": {
               "type": "string"
@@ -6052,23 +6051,23 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Url": {
+          "url": {
             "type": "string",
             "format": "uri",
             "nullable": true
           },
-          "Custom": {
+          "custom": {
             "$ref": "#/components/schemas/TestCasesRouteBindingTestCustom"
           },
-          "CustomList": {
+          "customList": {
             "$ref": "#/components/schemas/TestCasesRouteBindingTestCustomList"
           },
-          "Blank": {
+          "blank": {
             "type": "integer",
             "format": "int32",
             "nullable": true
           },
-          "FromBody": {
+          "fromBody": {
             "type": "string",
             "description": "overriden from body comment"
           }
@@ -6086,11 +6085,11 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Id": {
+          "id": {
             "type": "integer",
             "format": "int32"
           },
-          "Res": {
+          "res": {
             "nullable": true,
             "oneOf": [
               {
@@ -6115,7 +6114,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "RequestId": {
+          "requestId": {
             "type": "integer",
             "format": "int32"
           }
@@ -6125,7 +6124,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Id": {
+          "id": {
             "type": "integer",
             "format": "int32"
           }
@@ -6136,33 +6135,33 @@
         "description": "RFC7807 compatible problem details/ error response class. this can be used by configuring startup like so:\n\n    app.UseFastEndpoints(x => x.Errors.ResponseBuilder = ProblemDetails.ResponseBuilder);",
         "additionalProperties": false,
         "properties": {
-          "Type": {
+          "type": {
             "type": "string",
             "default": "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1"
           },
-          "Title": {
+          "title": {
             "type": "string",
             "default": "One or more validation errors occurred."
           },
-          "Status": {
+          "status": {
             "type": "integer",
             "format": "int32",
             "default": 400
           },
-          "Instance": {
+          "instance": {
             "type": "string",
             "default": "/api/route"
           },
-          "TraceId": {
+          "traceId": {
             "type": "string",
             "default": "0HMPNHL0JHL76:00000001"
           },
-          "Detail": {
+          "detail": {
             "type": "string",
             "description": "the details of the error",
             "nullable": true
           },
-          "Errors": {
+          "errors": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/FastEndpointsProblemDetails_Error"
@@ -6175,22 +6174,22 @@
         "description": "the error details object",
         "additionalProperties": false,
         "properties": {
-          "Name": {
+          "name": {
             "type": "string",
             "description": "the name of the error or property of the dto that caused the error",
             "default": "Error or field name"
           },
-          "Reason": {
+          "reason": {
             "type": "string",
             "description": "the reason for the error",
             "default": "Error reason"
           },
-          "Code": {
+          "code": {
             "type": "string",
             "description": "the code of the error",
             "nullable": true
           },
-          "Severity": {
+          "severity": {
             "type": "string",
             "description": "the severity of the error",
             "nullable": true
@@ -6205,7 +6204,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "StringArray": {
+          "stringArray": {
             "type": "array",
             "items": {
               "type": "string"
@@ -6217,7 +6216,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "StringDictionary": {
+          "stringDictionary": {
             "type": "object",
             "additionalProperties": {
               "type": "string"
@@ -6229,7 +6228,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "NumbersList": {
+          "numbersList": {
             "type": "array",
             "items": {
               "type": "array",
@@ -6245,7 +6244,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "NumbersList": {
+          "numbersList": {
             "type": "array",
             "items": {
               "type": "integer",
@@ -6258,7 +6257,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "ObjectArray": {
+          "objectArray": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/TestCasesValidationErrorTestTObject"
@@ -6270,7 +6269,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "Test": {
+          "test": {
             "type": "string"
           }
         }
@@ -6279,10 +6278,10 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "ID": {
+          "id": {
             "type": "string"
           },
-          "Width": {
+          "width": {
             "type": "integer",
             "format": "int32",
             "maximum": 2000.0,
@@ -6290,7 +6289,7 @@
             "exclusiveMaximum": true,
             "exclusiveMinimum": true
           },
-          "Height": {
+          "height": {
             "type": "integer",
             "format": "int32",
             "maximum": 2000.0,
@@ -6304,10 +6303,10 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "ID": {
+          "id": {
             "type": "string"
           },
-          "Width": {
+          "width": {
             "type": "integer",
             "format": "int32",
             "maximum": 2000.0,
@@ -6315,7 +6314,7 @@
             "exclusiveMaximum": true,
             "exclusiveMinimum": true
           },
-          "Height": {
+          "height": {
             "type": "integer",
             "format": "int32",
             "maximum": 2000.0,
@@ -6323,36 +6322,36 @@
             "exclusiveMaximum": true,
             "exclusiveMinimum": true
           },
-          "GuidId": {
+          "guidId": {
             "type": "string",
             "format": "guid"
           },
-          "File1": {
+          "file1": {
             "type": "string",
             "format": "binary"
           },
-          "File2": {
+          "file2": {
             "type": "string",
             "format": "binary"
           },
-          "File3": {
+          "file3": {
             "type": "string",
             "format": "binary",
             "nullable": true
           },
-          "File4": {
+          "file4": {
             "type": "string",
             "format": "binary",
             "nullable": true
           },
-          "Cars": {
+          "cars": {
             "type": "array",
             "items": {
               "type": "string",
               "format": "binary"
             }
           },
-          "Jets": {
+          "jets": {
             "type": "array",
             "items": {}
           }

@@ -50,7 +50,7 @@ public class AdminTests(Sut App) : TestBase<Sut>
         // read(deserialize) the 400 response to see what's actually wrong
         // or change the response DTO type above to ErrorResponse
         var errRsp = await rsp.Content.ReadFromJsonAsync<ErrorResponse>(Cancellation);
-        errRsp!.Errors["GeneralErrors"][0].Should().Be("Authentication Failed!");
+        errRsp!.Errors["generalErrors"][0].Should().Be("Authentication Failed!");
     }
 
     [Fact]

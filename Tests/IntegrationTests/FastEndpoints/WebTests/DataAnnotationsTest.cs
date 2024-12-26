@@ -23,7 +23,7 @@ public class DataAnnotationsTest(DaFixture App) : TestBase<DaFixture>
 
         rsp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         res.Errors.Count.Should().Be(2);
-        res.Errors.Should().ContainKey("Name");
+        res.Errors.Should().ContainKey("name");
     }
 
     [Fact]

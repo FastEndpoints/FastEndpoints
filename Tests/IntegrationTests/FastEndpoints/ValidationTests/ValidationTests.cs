@@ -20,7 +20,7 @@ public class ValidationTests(Sut App) : TestBase<Sut>
         result.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
         result.Errors.Should().NotBeNull();
         result.Errors.Count.Should().Be(1);
-        result.Errors.Should().ContainKey("TenantID");
+        result.Errors.Should().ContainKey("tenantID");
     }
 
     [Fact]

@@ -23,8 +23,8 @@ static class ComplexFormBinder
         foreach (var prop in properties)
         {
             var tProp = prop.PropertyType.GetUnderlyingType();
-            var propName = prop.GetCustomAttribute<BindFromAttribute>()?.Name ?? prop.Name;
-            var key = string.IsNullOrEmpty(prefix) ? propName : $"{prefix}.{propName}";
+            var fieldName = prop.FieldName();
+            var key = string.IsNullOrEmpty(prefix) ? fieldName : $"{prefix}.{fieldName}";
 
             if (tProp.IsFormFileProp())
                 bound = BindFormFileProp(parent, tObject, prop, key, form) || bound;

@@ -28,7 +28,7 @@ public class CommandBusTests(Sut App) : TestBase<Sut>
         res.Response.IsSuccessStatusCode.Should().BeFalse();
         res.Result.StatusCode.Should().Be(400);
         res.Result.Errors.Count.Should().Be(2);
-        res.Result.Errors["GeneralErrors"].Count.Should().Be(2);
+        res.Result.Errors["generalErrors"].Count.Should().Be(2);
     }
 
     [Fact]

@@ -38,7 +38,7 @@ public class BindingTests(Sut App) : TestBase<Sut>
 
         rsp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         res.Errors.Should().NotBeNull();
-        res.Errors.Should().ContainKey("OtherID");
+        res.Errors.Should().ContainKey("otherId");
     }
 
     [Fact]
@@ -464,17 +464,17 @@ public class BindingTests(Sut App) : TestBase<Sut>
 
         var req = new TestCases.FormFileBindingTest.Request
         {
-            File1 = new FormFile(stream1, 0, stream1.Length, "File1", "test1.png")
+            File1 = new FormFile(stream1, 0, stream1.Length, "file1", "test1.png")
             {
                 Headers = new HeaderDictionary(),
                 ContentType = "image/png"
             },
-            File2 = new FormFile(stream2, 0, stream2.Length, "File2", "test2.png"),
+            File2 = new FormFile(stream2, 0, stream2.Length, "file2", "test2.png"),
 
             Cars = new FormFileCollection
             {
-                new FormFile(stream3, 0, stream3.Length, "Car1", "car1.png"),
-                new FormFile(stream4, 0, stream4.Length, "Car2", "car2.png")
+                new FormFile(stream3, 0, stream3.Length, "car1", "car1.png"),
+                new FormFile(stream4, 0, stream4.Length, "car2", "car2.png")
             },
 
             Jets = new FormFileCollection
@@ -671,7 +671,7 @@ public class BindingTests(Sut App) : TestBase<Sut>
                              ErrorResponse>("/api/test-cases/ep-witout-req-query-param-binding-test?customerId=09809&otherId=lkjhlkjh", new());
 
         rsp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        res.Errors.Should().ContainKey("OtherID");
+        res.Errors.Should().ContainKey("otherId");
     }
 
     [Fact]
@@ -718,7 +718,7 @@ public class BindingTests(Sut App) : TestBase<Sut>
 
         rsp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         res.Errors.Count.Should().Be(1);
-        res.Errors.ContainsKey("Price").Should().BeTrue();
+        res.Errors.ContainsKey("product.Price").Should().BeTrue();
     }
 
     [Fact]

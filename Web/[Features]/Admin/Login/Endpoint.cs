@@ -44,7 +44,7 @@ public class Endpoint : Endpoint<Request, Response>
                 s[201] = "new resource created";
                 s.ResponseHeaders.Add(new(200, "x-some-custom-header"));
             });
-        SerializerContext(AdminLogin.Default);
+        SerializerContext<AdminLogin>();
         Version(0, 1);
     }
 

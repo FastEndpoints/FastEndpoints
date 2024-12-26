@@ -19,14 +19,12 @@ public class Request
 public class Binder : RequestBinder<Request>
 {
     public override async ValueTask<Request> BindAsync(BinderContext ctx, CancellationToken ct)
-    {
-        return new Request
+        => new()
         {
             Id = ctx.HttpContext.Request.RouteValues["id"]?.ToString()!,
             CustomerID = ctx.HttpContext.Request.Headers["CustomerID"].ToString()!,
-            Product = await JsonSerializer.DeserializeAsync<Product>(ctx.HttpContext.Request.Body, new JsonSerializerOptions(), ct)
+            Product = await JsonSerializer.DeserializeAsync<Product>(ctx.HttpContext.Request.Body, ctx.SerializerOptions, ct)
         };
-    }
 }
 
 public class Response : Request { }

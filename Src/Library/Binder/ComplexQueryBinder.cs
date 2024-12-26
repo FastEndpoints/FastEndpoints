@@ -22,11 +22,11 @@ static class ComplexQueryBinder
 
         foreach (var prop in properties)
         {
-            var propName = prop.GetCustomAttribute<BindFromAttribute>()?.Name ?? prop.Name;
+            var fieldName = prop.FieldName();
             var tProp = prop.PropertyType.GetUnderlyingType();
             var key = string.IsNullOrEmpty(prefix)
-                          ? propName
-                          : $"{prefix}.{propName}";
+                          ? fieldName
+                          : $"{prefix}.{fieldName}";
 
             if (tProp.IsComplexType() && !tProp.IsCollection())
                 bound = BindComplexType(parent, prop, tProp, key, queryParams, failures) || bound;

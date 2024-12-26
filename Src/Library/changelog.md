@@ -16,9 +16,9 @@ If you're using the `FastEndpoints.Testing` package in your test projects, take 
 
 1. Update all "FastEndpoints" package references in all of your projects to "5.33.0".
 2. In your test project's `.csproj` file:
-   1. Remove the package reference to the "xunit" v2 package.
-   2. Add a package reference to the new "xunit.v3" library with version "1.0.0"
-   3. Change the version of "xunit.runner.visualstudio" to "3.0.0"
+    1. Remove the package reference to the "xunit" v2 package.
+    2. Add a package reference to the new "xunit.v3" library with version "1.0.0"
+    3. Change the version of "xunit.runner.visualstudio" to "3.0.0"
 3. Build the solution.
 4. There might be compilation errors related to the return type of your derived `AppFixture<TProgram>` classes overridden methods such as `SetupAsync` and `TearDownAsync` methods. Simply change them from `Task` to `ValueTask` and the project should compile successfully.
 5. If there are any compilation errors related to `XUnit.Abstractions` namespace not being found, simply delete those "using statements" as that namespace has been removed in xUnit v3.
@@ -26,6 +26,20 @@ If you're using the `FastEndpoints.Testing` package in your test projects, take 
 After doing the above, it should pretty much be smooth sailing, unless your project is affected by the removal of previously deprecated classes as mentioned in the "Breaking Changes" section below.
 
 </details>
+
+<details><summary>Eliminate the need for [BindFrom(...)] attribute ⚠️</summary>
+
+Until now, when binding from sources other than JSON body, you had to annotate request DTO properties with the `[BindFrom("my_field")]` attribute when the incoming field name is different to the DTO property name.
+A new setting has now been introduced which allows you to use the same Json naming policy from the serializer for matching incoming request parameters without having to use the attribute.
+
+```cs
+app.UseFastEndpoints(c => c.Binding.UsePropertyNamingPolicy = true)
+```
+
+The setting is now enabled by default. Set it to `false` to go back to the previous behavior. If you'd like to be more explicit, you can still use the [BindFrom(...)] attribute which will take precedence even when the setting is enabled.
+
+</details>
+
 
 <details><summary>Control binding sources per DTO property</summary>
 
@@ -119,7 +133,7 @@ public async Task FormDataTest()
 
 <details><summary>Incorrect detection of generic arguments of generic commands</summary>
 
-There was a minor oversight in correctly detecting the number of generic arguments of generic commands if there was more than one. 
+There was a minor oversight in correctly detecting the number of generic arguments of generic commands if there was more than one.
 This has been fixed to correctly detect all generic arguments of generic commands.
 
 </details>
@@ -131,7 +145,32 @@ it would not get bound correctly. This has been fixed as well as the binding log
 
 </details>
 
-## Minor Breaking Changes ⚠️
+## Breaking Changes ⚠️
+
+<details><summary>Incoming field names to DTO property matching behavior</summary>
+
+Starting with this update, the `Binding.UsePropertyNamingPolicy` setting is **enabled by default**.
+This means that the same JSON naming policy from the serializer will now be used to match incoming request parameters to DTO properties,
+eliminating the need for the `[BindFrom(...)]` attribute in most cases.
+
+- **Previous Behavior:** When the incoming field name differed from the DTO property name, you had to explicitly use the `[BindFrom("my_field")]` attribute.
+- **New Behavior:** The default binding now uses the JSON naming policy, matching field names without requiring the `[BindFrom(...)]` attribute.
+
+#### Restore Previous Behavior
+
+To revert to the previous behavior where property names are matched exactly without using the naming policy, set the following configuration:
+
+```csharp
+app.UseFastEndpoints(c => c.Binding.UsePropertyNamingPolicy = false)
+```
+
+#### Additional Notes
+
+- If you prefer explicit binding, the `[BindFrom(...)]` attribute is still supported and takes precedence over the naming policy.
+- Applications relying on the old behavior without configuring this setting may experience unexpected binding results and need adjustments.
+
+</details>
+
 
 <details><summary>Removal of deprecated classes (Testing related)</summary>
 
@@ -151,9 +190,9 @@ Due to the migration to xUnit v3, the `AppFixture<TProgram>` base class no longe
 <details><summary>Removal of undocumented [FromQueryParams] attribute</summary>
 
 `[FromQueryParams]` was an undocumented feature that was put in place to help people migrating from old MVC projects to make the transition easier.
-It was not documented due to its extremely poor performance and we wanted to discourage people from using query parameters as a means to submit complex data structures. 
+It was not documented due to its extremely poor performance and we wanted to discourage people from using query parameters as a means to submit complex data structures.
 
-The newly introduced `[FromQuery]` attribute can be used now if you really must send complex query parameters. However, it is not a one-to-one replacement 
+The newly introduced `[FromQuery]` attribute can be used now if you really must send complex query parameters. However, it is not a one-to-one replacement
 as the query naming convention is quite strict and simplified.
 
 </details>

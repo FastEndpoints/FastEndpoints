@@ -1,9 +1,16 @@
 ﻿using System.Linq.Expressions;
+using System.Reflection;
 
 namespace FastEndpoints;
 
 static class ReflectionExtensions
 {
+    internal static string FieldName(this PropertyInfo p)
+        => p.GetCustomAttribute<BindFromAttribute>()?.Name ??
+           (Cfg.BndOpts.UsePropertyNamingPolicy && Cfg.SerOpts.Options.PropertyNamingPolicy is not null
+                ? Cfg.SerOpts.Options.PropertyNamingPolicy.ConvertName(p.Name)
+                : p.Name);
+
     internal static IEnumerable<string> PropNames<T>(this Expression<Func<T, object>> expression)
     {
         return expression.Body is not NewExpression newExp

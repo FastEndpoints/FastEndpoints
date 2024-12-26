@@ -6,22 +6,22 @@ public class EpWithoutReqQueryParamBindingTest : EndpointWithoutRequest<Response
     {
         Get("test-cases/ep-witout-req-query-param-binding-test");
         AllowAnonymous();
-        Summary(s =>
-            s.Params["OtherID"] = "the description for other id");
+        Summary(
+            s =>
+                s.Params["otherID"] = "the description for other id");
     }
 
     public override Task HandleAsync(CancellationToken ct)
-    {
-        return SendAsync(new()
-        {
-            CustomerID = Query<int>("CustomerID"),
-            OtherID = Query<int>("OtherID"),
-            Doubles = Query<double[]>("Doubles")!,
-            Guids = Query<List<Guid>>("Guids")!,
-            Ints = Query<IEnumerable<int>>("Ints")!,
-            Floaty = Query<float>("Floaty")
-        });
-    }
+        => SendAsync(
+            new()
+            {
+                CustomerID = Query<int>("customerId"),
+                OtherID = Query<int>("otherId"),
+                Doubles = Query<double[]>("doubles")!,
+                Guids = Query<List<Guid>>("guids")!,
+                Ints = Query<IEnumerable<int>>("ints")!,
+                Floaty = Query<float>("floaty")
+            });
 }
 
 public class Response

@@ -14,9 +14,9 @@ public sealed class BindingOptions
 {
     /// <summary>
     /// specify whether to use the json property naming policy when matching incoming field names to dto property names for non-json model binding.
-    /// only applies to query params/form fields/route params when the [BindFrom(...)] attribute is not used. defaults to <c>true</c>
+    /// only applies when field names are not specified on properties with attributes such as [BindFrom(...)], [FromClaim(...)], [FromHeader(...)] etc.
     /// </summary>
-    public bool UsePropertyNamingPolicy { get; set; } = true;
+    public bool UsePropertyNamingPolicy { get; set; } = false;
 
     /// <summary>
     /// the central cache of request dto related reflection data.
@@ -109,7 +109,7 @@ public sealed class BindingOptions
     /// {
     ///     c.Binding.ValueParserFor&lt;Guid&gt;(MyParsers.GuidParser);
     /// });
-    ///
+    /// 
     /// public static class MyParsers
     /// {
     ///     public static ParseResult GuidParser(object? input)
@@ -141,7 +141,7 @@ public sealed class BindingOptions
     /// {
     ///     c.Binding.ValueParserFor(typeof(Guid), MyParsers.GuidParser);
     /// });
-    ///
+    /// 
     /// public static class MyParsers
     /// {
     ///     public static ParseResult GuidParser(object? input)

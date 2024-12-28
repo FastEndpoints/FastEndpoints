@@ -458,7 +458,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         _fromClaimProps.Add(
             new()
             {
-                Identifier = att.ClaimType ?? propInfo.Name,
+                Identifier = att.ClaimType ?? propInfo.FieldName(),
                 ForbidIfMissing = att.IsRequired,
                 PropType = propInfo.PropertyType,
                 IsCollection = propInfo.PropertyType != Types.String && propInfo.PropertyType.GetInterfaces().Contains(Types.IEnumerable),
@@ -474,7 +474,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         _fromHeaderProps.Add(
             new()
             {
-                Identifier = att.HeaderName ?? propInfo.Name,
+                Identifier = att.HeaderName ?? propInfo.FieldName(),
                 ForbidIfMissing = att.IsRequired,
                 PropType = propInfo.PropertyType,
                 ValueParser = propInfo.PropertyType.CachedValueParser(),
@@ -503,7 +503,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     static void AddPrimaryPropCacheEntry(string? fieldName, PropertyInfo propInfo, Action<object, object?> compiledSetter, Source? disabledSources)
     {
         _primaryProps.Add(
-            fieldName ?? propInfo.Name,
+            fieldName ?? propInfo.FieldName(),
             new()
             {
                 PropType = propInfo.PropertyType,
@@ -516,7 +516,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     static void AddFormFileCollectionPropCacheEntry(string? fieldName, PropertyInfo propInfo, Action<object, object?> compiledSetter)
     {
         _formFileCollectionProps.Add(
-            fieldName ?? propInfo.Name,
+            fieldName ?? propInfo.FieldName(),
             new()
             {
                 PropType = propInfo.PropertyType,

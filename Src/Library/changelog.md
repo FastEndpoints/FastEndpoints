@@ -27,16 +27,17 @@ After doing the above, it should pretty much be smooth sailing, unless your proj
 
 </details>
 
-<details><summary>Eliminate the need for [BindFrom(...)] attribute ⚠️</summary>
+<details><summary>Eliminate the need for [BindFrom(...)] attribute</summary>
 
 Until now, when binding from sources other than JSON body, you had to annotate request DTO properties with the `[BindFrom("my_field")]` attribute when the incoming field name is different to the DTO property name.
-A new setting has now been introduced which allows you to use the same Json naming policy from the serializer for matching incoming request parameters without having to use the attribute.
+A new setting has now been introduced which allows you to use the same Json naming policy from the serializer for matching incoming request parameters without having to use any attributes.
 
 ```cs
 app.UseFastEndpoints(c => c.Binding.UsePropertyNamingPolicy = true)
 ```
 
-The setting is now enabled by default. Set it to `false` to go back to the previous behavior. If you'd like to be more explicit, you can still use the [BindFrom(...)] attribute which will take precedence even when the setting is enabled.
+Enabling this setting will cause incoming field names to be matched to DTO properties using the same Json property naming policy which you have set on the serializer. This will only apply to properties where you
+haven't specified the field names using an attribute such as `[BindFrom(...)]`, `[FromClaim(...)]`. `[FromHeader(...)]` etc.
 
 </details>
 
@@ -146,31 +147,6 @@ it would not get bound correctly. This has been fixed as well as the binding log
 </details>
 
 ## Breaking Changes ⚠️
-
-<details><summary>Incoming field names to DTO property matching behavior</summary>
-
-Starting with this update, the `Binding.UsePropertyNamingPolicy` setting is **enabled by default**.
-This means that the same JSON naming policy from the serializer will now be used to match incoming request parameters to DTO properties,
-eliminating the need for the `[BindFrom(...)]` attribute in most cases.
-
-- **Previous Behavior:** When the incoming field name differed from the DTO property name, you had to explicitly use the `[BindFrom("my_field")]` attribute.
-- **New Behavior:** The default binding now uses the JSON naming policy, matching field names without requiring the `[BindFrom(...)]` attribute.
-
-#### Restore Previous Behavior
-
-To revert to the previous behavior where property names are matched exactly without using the naming policy, set the following configuration:
-
-```csharp
-app.UseFastEndpoints(c => c.Binding.UsePropertyNamingPolicy = false)
-```
-
-#### Additional Notes
-
-- If you prefer explicit binding, the `[BindFrom(...)]` attribute is still supported and takes precedence over the naming policy.
-- Applications relying on the old behavior without configuring this setting may experience unexpected binding results and need adjustments.
-
-</details>
-
 
 <details><summary>Removal of deprecated classes (Testing related)</summary>
 

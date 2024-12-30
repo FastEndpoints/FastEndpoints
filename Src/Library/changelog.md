@@ -14,13 +14,13 @@ Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H
 
 If you're using the `FastEndpoints.Testing` package in your test projects, take the following steps to migrate your projects:
 
-1. Update all "FastEndpoints" package references in all of your projects to "5.33.0".
+1. Update all "FastEndpoints" package references in your projects to "5.33.0".
 2. In your test project's `.csproj` file:
-    1. Remove the package reference to the "xunit" v2 package.
-    2. Add a package reference to the new "xunit.v3" library with version "1.0.0"
-    3. Change the version of "xunit.runner.visualstudio" to "3.0.0"
+    1. Remove the package reference to the `xunit` v2 package.
+    2. Add a package reference to the new `xunit.v3` library with version `1.0.0`
+    3. Change the version of `xunit.runner.visualstudio` to `3.0.0`
 3. Build the solution.
-4. There might be compilation errors related to the return type of your derived `AppFixture<TProgram>` classes overridden methods such as `SetupAsync` and `TearDownAsync` methods. Simply change them from `Task` to `ValueTask` and the project should compile successfully.
+4. If there are compilation errors related to the return type of overridden methods in your derived `AppFixture<TProgram>` classes, such as `SetupAsync` and `TearDownAsync`. Change their return type from `Task` to `ValueTask` to resolve these errors.
 5. If there are any compilation errors related to `XUnit.Abstractions` namespace not being found, simply delete those "using statements" as that namespace has been removed in xUnit v3.
 
 After doing the above, it should pretty much be smooth sailing, unless your project is affected by the removal of previously deprecated classes as mentioned in the "Breaking Changes" section below.
@@ -30,14 +30,13 @@ After doing the above, it should pretty much be smooth sailing, unless your proj
 <details><summary>Eliminate the need for [BindFrom(...)] attribute</summary>
 
 Until now, when binding from sources other than JSON body, you had to annotate request DTO properties with the `[BindFrom("my_field")]` attribute when the incoming field name is different to the DTO property name.
-A new setting has now been introduced which allows you to use the same Json naming policy from the serializer for matching incoming request parameters without having to use any attributes.
+A new setting has now been introduced which allows you to use the same property naming policy as the serializer for matching incoming request parameters without having to use any attributes.
 
 ```cs
 app.UseFastEndpoints(c => c.Binding.UsePropertyNamingPolicy = true)
 ```
 
-Enabling this setting will cause incoming field names to be matched to DTO properties using the same Json property naming policy which you have set on the serializer. This will only apply to properties where you
-haven't specified the field names using an attribute such as `[BindFrom(...)]`, `[FromClaim(...)]`. `[FromHeader(...)]` etc.
+This only applies to properties where you haven't specified the field names manually using an attribute such as `[BindFrom(...)]`, `[FromClaim(...)]`. `[FromHeader(...)]` etc.
 
 </details>
 

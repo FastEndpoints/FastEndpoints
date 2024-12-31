@@ -1,6 +1,7 @@
 ﻿// ReSharper disable MemberCanBeProtected.Global
 
 using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.Options;
 
 namespace FastEndpoints.Security;
 
@@ -48,7 +49,7 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
     /// <param name="options">action to be performed on the refresh service options object</param>
     public void Setup(Action<RefreshServiceOptions> options)
     {
-        _opts = new();
+        _opts = new(Cfg.ServiceResolver.TryResolve<IOptions<JwtCreationOptions>>()?.Value);
         options(_opts);
     }
 
@@ -146,7 +147,7 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
     async Task<TResponse> IRefreshTokenService<TResponse>.CreateToken(string userId, Action<UserPrivileges>? privileges, bool isRenewal, object? request)
     {
         if (_opts?.TokenSigningKey is null)
-            throw new ArgumentNullException($"{nameof(_opts.TokenSigningKey)} must be specified for [{Definition.EndpointType.FullName}]");
+            throw new ArgumentNullException($"[{nameof(_opts.TokenSigningKey)}] must be configured for [{GetType().FullName}]");
 
         var privs = new UserPrivileges();
 
@@ -158,7 +159,7 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
         var time = Cfg.ServiceResolver.TryResolve<TimeProvider>() ?? TimeProvider.System;
         var accessExpiry = time.GetUtcNow().Add(_opts.AccessTokenValidity).UtcDateTime;
         var refreshExpiry = time.GetUtcNow().Add(_opts.RefreshTokenValidity).UtcDateTime;
-        var jOpts = new JwtCreationOptions
+        var jwtOpts = new JwtCreationOptions
         {
             SigningKey = _opts.TokenSigningKey,
             SigningStyle = _opts.TokenSigningStyle,
@@ -169,42 +170,28 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
             Audience = _opts.Audience,
             CompressionAlgorithm = _opts.TokenCompressionAlgorithm
         };
-        jOpts.User.Permissions.AddRange(privs.Permissions);
-        jOpts.User.Roles.AddRange(privs.Roles);
-        jOpts.User.Claims.AddRange(privs.Claims);
+        jwtOpts.User.Permissions.AddRange(privs.Permissions);
+        jwtOpts.User.Roles.AddRange(privs.Roles);
+        jwtOpts.User.Claims.AddRange(privs.Claims);
 
-        switch (isRenewal)
-        {
-            case false:
-                await OnBeforeInitialTokenCreationAsync(jOpts, request);
-
-                break;
-            case true:
-                await OnBeforeRenewalTokenCreationAsync(jOpts, request as TRequest);
-
-                break;
-        }
+        if (!isRenewal)
+            await OnBeforeInitialTokenCreationAsync(jwtOpts, request);
+        else
+            await OnBeforeRenewalTokenCreationAsync(jwtOpts, request as TRequest);
 
         var tokenResponse = new TResponse
         {
             UserId = userId,
-            AccessToken = JwtBearer.CreateToken(jOpts),
+            AccessToken = JwtBearer.CreateToken(jwtOpts),
             AccessExpiry = accessExpiry,
             RefreshToken = Guid.NewGuid().ToString("N"),
             RefreshExpiry = refreshExpiry
         };
 
-        switch (isRenewal)
-        {
-            case false:
-                await OnAfterInitialTokenCreationAsync(request, tokenResponse);
-
-                break;
-            case true:
-                await OnAfterRenewalTokenCreationAsync(request as TRequest, tokenResponse);
-
-                break;
-        }
+        if (!isRenewal)
+            await OnAfterInitialTokenCreationAsync(request, tokenResponse);
+        else
+            await OnAfterRenewalTokenCreationAsync(request as TRequest, tokenResponse);
 
         await PersistTokenAsync(tokenResponse);
 

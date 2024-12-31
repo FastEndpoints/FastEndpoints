@@ -7,7 +7,13 @@ namespace FastEndpoints.Security;
 public class RefreshServiceOptions
 {
     /// <summary>
-    /// specifies the secret key used to sign the jwt. an exception will be thrown if a value is not specified.
+    /// specifies the secret key used to sign the jwt.
+    /// an exception will be thrown if a value is not specified when global <see cref="JwtCreationOptions" /> is not configured.
+    /// i.e. if global <see cref="JwtCreationOptions" /> is configured, you don't need to set the following properties because the values will come from the globally
+    /// configured settings:
+    /// <para>
+    /// <see cref="TokenSigningKey" /> / <see cref="TokenSigningStyle" /> / <see cref="TokenSigningAlgorithm" /> / <see cref="Issuer" /> / <see cref="Audience" />
+    /// </para>
     /// </summary>
     [DontInject]
     public string? TokenSigningKey { internal get; set; }
@@ -63,6 +69,20 @@ public class RefreshServiceOptions
 
     internal string RefreshRoute = "/api/refresh-token";
     internal Action<EndpointDefinition>? EpSettings;
+
+    internal RefreshServiceOptions(JwtCreationOptions? globalJwtOptions = null)
+    {
+        if (globalJwtOptions is null)
+            return;
+
+        TokenSigningKey = globalJwtOptions.SigningKey;
+        TokenSigningStyle = globalJwtOptions.SigningStyle;
+        TokenSigningAlgorithm = globalJwtOptions.SigningAlgorithm;
+        SigningKeyIsPemEncoded = globalJwtOptions.KeyIsPemEncoded;
+        Issuer = globalJwtOptions.Issuer;
+        Audience = globalJwtOptions.Audience;
+        TokenCompressionAlgorithm = globalJwtOptions.CompressionAlgorithm;
+    }
 
     /// <summary>
     /// endpoint configuration action

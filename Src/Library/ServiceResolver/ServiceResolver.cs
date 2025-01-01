@@ -27,7 +27,7 @@ sealed class ServiceResolver(IServiceProvider provider,
     }
 
     public object CreateSingleton(Type type)
-        => _singletonCache.GetOrAdd(type, ActivatorUtilities.GetServiceOrCreateInstance(provider, type));
+        => _singletonCache.GetOrAdd(type, ActivatorUtilities.GetServiceOrCreateInstance(ctxAccessor.HttpContext?.RequestServices ?? provider, type));
 
     public IServiceScope CreateScope()
         => isUnitTestMode

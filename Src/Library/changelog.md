@@ -42,4 +42,10 @@ sealed class MyTokenService : RefreshTokenService<TokenRequest, TokenResponse>
 
 ## Fixes 🪲
 
+<details><summary>Issue with unit testing endpoints with pre-processors with injected dependencies</summary>
+
+Unit tests were failing to instantiate pre-processors that had injected dependencies due to a small oversight in the `ServiceResolver` code with regards to how singletons were instantiated, which has been fixed.
+
+</details>
+
 ## Breaking Changes ⚠️

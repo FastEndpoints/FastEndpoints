@@ -26,19 +26,21 @@ static class BinderExtensions
     internal static ICollection<PropertyInfo> BindableProps(this Type type)
     {
         var c = Cfg.BndOpts.ReflectionCache.GetOrAdd(type, CreateClassDef);
-        c.Properties ??= new(GetProperties(type, c));
+        c.Properties ??= new(GetProperties(type));
 
         return c.Properties.Keys;
 
         static ClassDefinition CreateClassDef(Type t)
         {
-            var c = new ClassDefinition();
-            c.Properties = new(GetProperties(t, c));
+            var c = new ClassDefinition
+            {
+                Properties = new(GetProperties(t))
+            };
 
             return c;
         }
 
-        static IEnumerable<KeyValuePair<PropertyInfo, PropertyDefinition>> GetProperties(Type t, ClassDefinition c)
+        static IEnumerable<KeyValuePair<PropertyInfo, PropertyDefinition>> GetProperties(Type t)
         {
             return t.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
                     .Where(

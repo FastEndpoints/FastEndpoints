@@ -147,7 +147,10 @@ static class BinderExtensions
             if (tProp == Types.Uri)
                 return input => new(Uri.TryCreate(input?.ToString(), UriKind.Absolute, out var res), res);
 
-            var tryParseMethod = tProp.GetMethod("TryParse", BindingFlags.Public | BindingFlags.Static, [Types.String, tProp.MakeByRefType()]);
+            var tryParseMethod = tProp.GetMethod(
+                "TryParse",
+                BindingFlags.Public | BindingFlags.Static,
+                [Types.String, tProp.MakeByRefType()]);
 
             var isIParseable = false;
 
@@ -207,7 +210,7 @@ static class BinderExtensions
             static object? DeserializeJsonObjectString(object? input, Type tProp)
                 => input is not StringValues { Count: 1 } vals
                        ? null
-                       : vals[0]!.StartsWith('{') && vals[0]!.EndsWith('}') // check if it's a json object
+                       : vals[0].IsJsonObjectString()
                            ? JsonSerializer.Deserialize(vals[0]!, tProp, Cfg.SerOpts.Options)
                            : null;
 
@@ -221,7 +224,7 @@ static class BinderExtensions
                 if (input is not StringValues vals || vals.Count == 0)
                     return null;
 
-                if (vals.Count == 1 && vals[0]!.StartsWith('[') && vals[0]!.EndsWith(']'))
+                if (vals.Count == 1 && vals[0].IsJsonArrayString())
                 {
                     // querystring: ?ids=[1,2,3]
                     // possible inputs:
@@ -257,7 +260,7 @@ static class BinderExtensions
 
                 for (var i = 0; i < vals.Count; i++)
                 {
-                    if (isEnumCollection || (vals[i]!.StartsWith('{') && vals[i]!.EndsWith('}')))
+                    if (isEnumCollection || vals[i].IsJsonObjectString())
                         sb.Append(vals[i]);
                     else
                     {
@@ -275,6 +278,12 @@ static class BinderExtensions
             }
         }
     }
+
+    static bool IsJsonArrayString(this string? val)
+        => val?.Length > 1 && val[0] == '[' && val[^1] == ']';
+
+    static bool IsJsonObjectString(this string? val)
+        => val?.Length > 1 && val[0] == '{' && val[^1] == '}';
 
     static StringBuilder AppendEscaped(this StringBuilder sb, string val)
     {

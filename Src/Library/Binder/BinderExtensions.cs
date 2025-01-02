@@ -133,7 +133,7 @@ static class BinderExtensions
 
         static Func<object?, ParseResult> GetValueParser(Type tProp)
         {
-            tProp = Nullable.GetUnderlyingType(tProp) ?? tProp;
+            tProp = tProp.GetUnderlyingType();
 
             //note: the actual type of the `input` to the parser func can be
             //      either [object] or [StringValues]

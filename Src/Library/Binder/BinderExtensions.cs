@@ -25,20 +25,8 @@ static class BinderExtensions
 
     internal static ICollection<PropertyInfo> BindableProps(this Type type)
     {
-        var c = Cfg.BndOpts.ReflectionCache.GetOrAdd(type, CreateClassDef);
-        c.Properties ??= new(GetProperties(type));
-
-        return c.Properties.Keys;
-
-        static ClassDefinition CreateClassDef(Type t)
-        {
-            var c = new ClassDefinition
-            {
-                Properties = new(GetProperties(t))
-            };
-
-            return c;
-        }
+        return (Cfg.BndOpts.ReflectionCache.GetOrAdd(type, new ClassDefinition())
+                   .Properties ??= new(GetProperties(type))).Keys;
 
         static IEnumerable<KeyValuePair<PropertyInfo, PropertyDefinition>> GetProperties(Type t)
         {
@@ -59,11 +47,8 @@ static class BinderExtensions
         if (type == Types.EmptyRequest)
             return _emptyRequestInitializer;
 
-        return Cfg.BndOpts.ReflectionCache.GetOrAdd(type, CreateClassDef).ObjectFactory
-                   ??= CompileFactory(type);
-
-        static ClassDefinition CreateClassDef(Type t)
-            => new() { ObjectFactory = CompileFactory(t) };
+        return Cfg.BndOpts.ReflectionCache.GetOrAdd(type, new ClassDefinition())
+                  .ObjectFactory ??= CompileFactory(type);
 
         static Func<object> CompileFactory(Type t)
         {
@@ -92,18 +77,14 @@ static class BinderExtensions
 
     internal static Action<object, object?> SetterForProp(this Type tOwner, PropertyInfo prop)
     {
-        if (!Cfg.BndOpts.ReflectionCache.TryGetValue(tOwner, out var c))
+        if (!Cfg.BndOpts.ReflectionCache.TryGetValue(tOwner, out var classDef))
             throw new InvalidOperationException($"Reflection data not found for: [{tOwner.FullName}]");
 
-        if (c.Properties is null)
+        if (classDef.Properties is null)
             throw new InvalidOperationException($"Reflection data not found for properties of: [{tOwner.FullName}]");
 
-        // ReSharper disable once HeapView.CanAvoidClosure
-        return c.Properties.GetOrAdd(prop, p => CreatePropertyDef(p, tOwner)).Setter
-                   ??= CompileSetter(tOwner, prop);
-
-        static PropertyDefinition CreatePropertyDef(PropertyInfo p, Type tParent)
-            => new() { Setter = CompileSetter(tParent, p) };
+        return classDef.Properties.GetOrAdd(prop, new PropertyDefinition())
+                       .Setter ??= CompileSetter(tOwner, prop);
 
         static Action<object, object?> CompileSetter(Type tParent, PropertyInfo p)
         {
@@ -117,62 +98,59 @@ static class BinderExtensions
         }
     }
 
-    //TODO: add support for value parsers to the reflection source generator
-
-    internal static readonly ConcurrentDictionary<Type, Func<object?, ParseResult>> ParserFuncCache = [];
     static readonly MethodInfo _toStringMethod = Types.Object.GetMethod("ToString")!;
     static readonly ConstructorInfo _parseResultCtor = Types.ParseResult.GetConstructor([Types.Bool, Types.Object])!;
 
-    internal static Func<object?, ParseResult> CachedValueParser(this Type type)
+    internal static Func<object?, ParseResult> ValueParser(this Type type)
     {
-        //we're only ever compiling a value parser for a given type once.
-        //if a parser is requested for a type a second time, it will be returned from the dictionary instead of paying the compiling cost again.
-        //the parser we return from here is then cached in RequestBinder PropCache entries avoiding the need to do repeated dictionary lookups here.
-        //it is also possible that the user has already registered a parser func for a given type via config at startup.
-        return ParserFuncCache.GetOrAdd(type, GetValueParser);
+        //user may have already registered a parser func for a given type via config at startup.
+        //or reflection source generator may have already populated the cache.
+        //if it's not there, compile the func at runtime.
+        return Cfg.BndOpts.ReflectionCache.GetOrAdd(type, new ClassDefinition()).ValueParser
+                   ??= CompileParser(type);
 
-        static Func<object?, ParseResult> GetValueParser(Type tProp)
+        static Func<object?, ParseResult> CompileParser(Type type)
         {
-            tProp = tProp.GetUnderlyingType();
+            type = type.GetUnderlyingType();
 
             //note: the actual type of the `input` to the parser func can be
             //      either [object] or [StringValues]
 
-            if (tProp == Types.String)
+            if (type == Types.String)
                 return input => new(true, input?.ToString());
 
-            if (tProp.IsEnum)
-                return input => new(Enum.TryParse(tProp, input?.ToString(), true, out var res), res);
+            if (type.IsEnum)
+                return input => new(Enum.TryParse(type, input?.ToString(), true, out var res), res);
 
-            if (tProp == Types.Uri)
+            if (type == Types.Uri)
                 return input => new(Uri.TryCreate(input?.ToString(), UriKind.Absolute, out var res), res);
 
-            var tryParseMethod = tProp.GetMethod(
+            var tryParseMethod = type.GetMethod(
                 "TryParse",
                 BindingFlags.Public | BindingFlags.Static,
-                [Types.String, tProp.MakeByRefType()]);
+                [Types.String, type.MakeByRefType()]);
 
             var isIParseable = false;
 
             if (tryParseMethod is null)
             {
-                tryParseMethod = tProp.GetMethod(
+                tryParseMethod = type.GetMethod(
                     "TryParse",
                     BindingFlags.Public | BindingFlags.Static,
-                    [Types.String, Types.IFormatProvider, tProp.MakeByRefType()]);
+                    [Types.String, Types.IFormatProvider, type.MakeByRefType()]);
                 isIParseable = tryParseMethod is not null;
             }
 
             if (tryParseMethod == null || tryParseMethod.ReturnType != Types.Bool)
             {
-                var interfaces = tProp.GetInterfaces();
+                var interfaces = type.GetInterfaces();
 
                 return interfaces.Contains(Types.IEnumerable) &&
                        !interfaces.Contains(Types.IDictionary) //dictionaries should be deserialized as json objects
-                           ? (tProp.GetElementType() ?? tProp.GetGenericArguments().FirstOrDefault()) == Types.Byte
+                           ? (type.GetElementType() ?? type.GetGenericArguments().FirstOrDefault()) == Types.Byte
                                  ? input => new(true, DeserializeByteArray(input))
-                                 : input => new(true, DeserializeJsonArrayString(input, tProp))
-                           : input => new(true, DeserializeJsonObjectString(input, tProp));
+                                 : input => new(true, DeserializeJsonArrayString(input, type))
+                           : input => new(true, DeserializeJsonObjectString(input, type));
             }
 
             // The 'object' parameter passed into our delegate
@@ -185,7 +163,7 @@ static class BinderExtensions
                 Expression.Call(inputParameter, _toStringMethod));
 
             // 'res' variable used as the out parameter to the TryParse call
-            var resultVar = Expression.Variable(tProp, "res");
+            var resultVar = Expression.Variable(type, "res");
 
             // 'isSuccess' variable to hold the result of calling TryParse
             var isSuccessVar = Expression.Variable(Types.Bool, "isSuccess");
@@ -206,77 +184,80 @@ static class BinderExtensions
                 Expression.New(_parseResultCtor, isSuccessVar, Expression.Convert(resultVar, Types.Object)));
 
             return Expression.Lambda<Func<object?, ParseResult>>(block, inputParameter).Compile();
-
-            static object? DeserializeJsonObjectString(object? input, Type tProp)
-                => input is not StringValues { Count: 1 } vals
-                       ? null
-                       : vals[0].IsJsonObjectString()
-                           ? JsonSerializer.Deserialize(vals[0]!, tProp, Cfg.SerOpts.Options)
-                           : null;
-
-            static object? DeserializeByteArray(object? input)
-                => input is not StringValues { Count: 1 } vals
-                       ? null
-                       : Convert.FromBase64String(vals[0]!);
-
-            static object? DeserializeJsonArrayString(object? input, Type tProp)
-            {
-                if (input is not StringValues vals || vals.Count == 0)
-                    return null;
-
-                if (vals.Count == 1 && vals[0].IsJsonArrayString())
-                {
-                    // querystring: ?ids=[1,2,3]
-                    // possible inputs:
-                    // - [1,2,3] (as StringValues[0])
-                    // - ["one","two","three"] (as StringValues[0])
-                    // - [{"name":"x"},{"name":"y"}] (as StringValues[0])
-
-                    return JsonSerializer.Deserialize(vals[0]!, tProp, Cfg.SerOpts.Options);
-                }
-
-                // querystring: ?ids=one&ids=two
-                // possible inputs:
-                // - 1 (as StringValues)
-                // - 1,2,3 (as StringValues)
-                // - one (as StringValues)
-                // - one,two,three (as StringValues)
-                // - [1,2], 2, 3 (as StringValues)
-                // - ["one","two"], three, four (as StringValues)
-                // - {"name":"x"}, {"name":"y"} (as StringValues) - from swagger ui
-
-                var isEnumCollection = false;
-
-                if (Types.IEnumerable.IsAssignableFrom(tProp) &&
-                    int.TryParse(vals[0], out _)) //skip if these are not digits due to JsonStringEnumConverter
-                {
-                    if (tProp.IsArray)
-                        isEnumCollection = tProp.GetElementType()!.IsEnum;
-                    else if (tProp.IsGenericType)
-                        isEnumCollection = tProp.GetGenericArguments()[0].IsEnum;
-                }
-
-                var sb = new StringBuilder("[");
-
-                for (var i = 0; i < vals.Count; i++)
-                {
-                    if (isEnumCollection || vals[i].IsJsonObjectString())
-                        sb.Append(vals[i]);
-                    else
-                    {
-                        sb.Append('"')
-                          .AppendEscaped(vals[i]!)
-                          .Append('"');
-                    }
-
-                    if (i < vals.Count - 1)
-                        sb.Append(',');
-                }
-                sb.Append(']');
-
-                return JsonSerializer.Deserialize(sb.ToString(), tProp, Cfg.SerOpts.Options);
-            }
         }
+    }
+
+    //public to make accessible to source generated code
+    public static object? DeserializeJsonObjectString(object? input, Type tProp)
+        => input is not StringValues { Count: 1 } vals
+               ? null
+               : vals[0].IsJsonObjectString()
+                   ? JsonSerializer.Deserialize(vals[0]!, tProp, Cfg.SerOpts.Options)
+                   : null;
+
+    //public to make accessible to source generated code
+    public static object? DeserializeByteArray(object? input)
+        => input is not StringValues { Count: 1 } vals
+               ? null
+               : Convert.FromBase64String(vals[0]!);
+
+    //public to make accessible to source generated code
+    public static object? DeserializeJsonArrayString(object? input, Type tProp)
+    {
+        if (input is not StringValues vals || vals.Count == 0)
+            return null;
+
+        if (vals.Count == 1 && vals[0].IsJsonArrayString())
+        {
+            // querystring: ?ids=[1,2,3]
+            // possible inputs:
+            // - [1,2,3] (as StringValues[0])
+            // - ["one","two","three"] (as StringValues[0])
+            // - [{"name":"x"},{"name":"y"}] (as StringValues[0])
+
+            return JsonSerializer.Deserialize(vals[0]!, tProp, Cfg.SerOpts.Options);
+        }
+
+        // querystring: ?ids=one&ids=two
+        // possible inputs:
+        // - 1 (as StringValues)
+        // - 1,2,3 (as StringValues)
+        // - one (as StringValues)
+        // - one,two,three (as StringValues)
+        // - [1,2], 2, 3 (as StringValues)
+        // - ["one","two"], three, four (as StringValues)
+        // - {"name":"x"}, {"name":"y"} (as StringValues) - from swagger ui
+
+        var isEnumCollection = false;
+
+        if (Types.IEnumerable.IsAssignableFrom(tProp) &&
+            int.TryParse(vals[0], out _)) //skip if these are not digits due to JsonStringEnumConverter
+        {
+            if (tProp.IsArray)
+                isEnumCollection = tProp.GetElementType()!.IsEnum;
+            else if (tProp.IsGenericType)
+                isEnumCollection = tProp.GetGenericArguments()[0].IsEnum;
+        }
+
+        var sb = new StringBuilder("[");
+
+        for (var i = 0; i < vals.Count; i++)
+        {
+            if (isEnumCollection || vals[i].IsJsonObjectString())
+                sb.Append(vals[i]);
+            else
+            {
+                sb.Append('"')
+                  .AppendEscaped(vals[i]!)
+                  .Append('"');
+            }
+
+            if (i < vals.Count - 1)
+                sb.Append(',');
+        }
+        sb.Append(']');
+
+        return JsonSerializer.Deserialize(sb.ToString(), tProp, Cfg.SerOpts.Options);
     }
 
     static bool IsJsonArrayString(this string? val)

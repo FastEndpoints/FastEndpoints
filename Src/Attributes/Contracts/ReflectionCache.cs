@@ -24,6 +24,11 @@ public sealed class ClassDefinition
     /// the reflection data for all the properties of a type
     /// </summary>
     public ConcurrentDictionary<PropertyInfo, PropertyDefinition>? Properties { get; set; }
+
+    /// <summary>
+    /// a func used for converting string values to the respective type by calling it's <c>TryParse()</c> method.
+    /// </summary>
+    public Func<object?, ParseResult>? ValueParser { get; set; }
 }
 
 /// <summary>

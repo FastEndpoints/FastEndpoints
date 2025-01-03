@@ -58,9 +58,8 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                 if (!matcher(prop))
                     continue;
 
-                BinderExtensions.ParserFuncCache.TryAdd(
-                    prop.PropertyType,
-                    input => parser(input, prop.PropertyType));
+                Cfg.BndOpts.ReflectionCache.GetOrAdd(prop.PropertyType, new ClassDefinition()).ValueParser =
+                    input => parser(input, prop.PropertyType);
 
                 break;
             }
@@ -462,7 +461,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                 ForbidIfMissing = att.IsRequired,
                 PropType = propInfo.PropertyType,
                 IsCollection = propInfo.PropertyType != Types.String && propInfo.PropertyType.GetInterfaces().Contains(Types.IEnumerable),
-                ValueParser = propInfo.PropertyType.CachedValueParser(),
+                ValueParser = propInfo.PropertyType.ValueParser(),
                 PropSetter = compiledSetter
             });
 
@@ -477,7 +476,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                 Identifier = att.HeaderName ?? propInfo.FieldName(),
                 ForbidIfMissing = att.IsRequired,
                 PropType = propInfo.PropertyType,
-                ValueParser = propInfo.PropertyType.CachedValueParser(),
+                ValueParser = propInfo.PropertyType.ValueParser(),
                 PropSetter = compiledSetter
             });
 
@@ -493,7 +492,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                 ForbidIfMissing = att.IsRequired,
                 PropType = propInfo.PropertyType,
                 PropName = propInfo.Name,
-                ValueParser = propInfo.PropertyType.CachedValueParser(),
+                ValueParser = propInfo.PropertyType.ValueParser(),
                 PropSetter = compiledSetter
             });
 
@@ -507,7 +506,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             new()
             {
                 PropType = propInfo.PropertyType,
-                ValueParser = propInfo.PropertyType.CachedValueParser(),
+                ValueParser = propInfo.PropertyType.ValueParser(),
                 PropSetter = compiledSetter,
                 DisabledSources = disabledSources
             });

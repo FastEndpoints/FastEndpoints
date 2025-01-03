@@ -112,7 +112,7 @@ static class ComplexQueryBinder
 
                     foreach (var v in val)
                     {
-                        var res = tElement.CachedValueParser()(v);
+                        var res = tElement.ValueParser()(v);
 
                         if (!res.IsSuccess)
                         {
@@ -137,7 +137,7 @@ static class ComplexQueryBinder
             if (!queryParams.TryGetValue(key, out var val))
                 return false;
 
-            var res = tProp.CachedValueParser()(val);
+            var res = tProp.ValueParser()(val);
 
             if (!res.IsSuccess)
             {

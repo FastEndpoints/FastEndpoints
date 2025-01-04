@@ -198,7 +198,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         if (_bindRouteValues)
             BindRouteValues(req, ctx.HttpContext.Request.RouteValues, ctx.ValidationFailures);
         if (_bindQueryParams)
-            BindQueryParams(req, ctx.HttpContext.Request.Query, ctx.ValidationFailures, ctx.JsonSerializerContext);
+            BindQueryParams(req, ctx.HttpContext.Request.Query, ctx.ValidationFailures);
         if (_bindUserClaims)
             BindUserClaims(req, ctx.HttpContext.User.Claims, ctx.ValidationFailures);
         if (_bindHeaders)
@@ -327,7 +327,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             Bind(req, new(kvp.Key, kvp.Value?.ToString()), failures, Source.RouteParam);
     }
 
-    static void BindQueryParams(TRequest req, IQueryCollection queryParams, List<ValidationFailure> failures, JsonSerializerContext? serializerCtx)
+    static void BindQueryParams(TRequest req, IQueryCollection queryParams, List<ValidationFailure> failures)
     {
         if (queryParams.Count == 0)
             return;

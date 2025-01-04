@@ -121,7 +121,7 @@ public sealed class BindingOptions
     /// }
     ///  </code>
     /// </param>
-    public void ValueParserFor<T>(Func<object?, ParseResult> parser)
+    public void ValueParserFor<T>(Func<StringValues, ParseResult> parser)
         => Cfg.BndOpts.ReflectionCache.GetOrAdd(typeof(T), new ClassDefinition()).ValueParser = parser;
 
     /// <summary>
@@ -153,7 +153,7 @@ public sealed class BindingOptions
     /// }
     ///  </code>
     /// </param>
-    public void ValueParserFor(Type type, Func<object?, ParseResult> parser)
+    public void ValueParserFor(Type type, Func<StringValues, ParseResult> parser)
         => Cfg.BndOpts.ReflectionCache.GetOrAdd(type, new ClassDefinition()).ValueParser = parser;
 
     /// <summary>

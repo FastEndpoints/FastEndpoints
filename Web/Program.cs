@@ -182,7 +182,7 @@ app.UseRequestLocalization(
 
            c.Binding.UsePropertyNamingPolicy = true;
            c.Binding.ReflectionCache.AddFromWeb();
-           c.Binding.ValueParserFor<Guid>(x => new(Guid.TryParse(x?.ToString(), out var res), res));
+           c.Binding.ValueParserFor<Guid>(x => new(Guid.TryParse(x, out var res), res));
 
            c.Endpoints.RoutePrefix = "api";
            c.Endpoints.ShortNames = false;

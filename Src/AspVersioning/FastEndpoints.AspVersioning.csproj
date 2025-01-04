@@ -14,9 +14,7 @@
         <ProjectReference Include="..\Library\FastEndpoints.csproj"/>
 
         <PackageReference Include="Asp.Versioning.Http"/>
-
         <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer"/>
-
         <PackageReference Include="NSwag.Generation.AspNetCore"/>
         <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
     </ItemGroup>

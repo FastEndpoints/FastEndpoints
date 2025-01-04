@@ -344,7 +344,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         for (var i = 0; i < _fromClaimProps.Count; i++)
         {
             var prop = _fromClaimProps[i];
-            StringValues? claimVal = null;
+            StringValues claimVal = default;
 
             foreach (var g in claims.GroupBy(c => c.Type, c => c.Value))
             {
@@ -357,16 +357,22 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                 }
             }
 
-            if (claimVal is null && prop.ForbidIfMissing)
-                failures.Add(new(prop.Identifier, "User doesn't have this claim type!"));
-
-            if (claimVal is not null)
+            switch (claimVal.Count)
             {
-                var res = prop.ValueParser(claimVal);
-                prop.PropSetter(req, res.Value);
+                case 0 when prop.ForbidIfMissing:
+                    failures.Add(new(prop.Identifier, "User doesn't have this claim type!"));
 
-                if (!res.IsSuccess)
-                    failures.Add(new(prop.Identifier, $"Unable to bind claim value [{claimVal}] to a [{prop.PropType.Name}] property!"));
+                    break;
+                case > 0:
+                {
+                    var res = prop.ValueParser(claimVal);
+                    prop.PropSetter(req, res.Value);
+
+                    if (!res.IsSuccess)
+                        failures.Add(new(prop.Identifier, $"Unable to bind claim value [{claimVal}] to a [{prop.PropType.Name}] property!"));
+
+                    break;
+                }
             }
         }
     }
@@ -415,7 +421,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                     break;
                 case true:
                 {
-                    var res = prop.ValueParser(hasPerm);
+                    var res = prop.ValueParser(hasPerm.ToString());
                     prop.PropSetter(req, res.Value);
 
                     if (!res.IsSuccess)

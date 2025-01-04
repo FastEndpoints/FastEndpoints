@@ -11,6 +11,7 @@
 
     <ItemGroup>
         <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+
         <PackageReference Include="NSwag.CodeGeneration.CSharp"/>
         <PackageReference Include="NSwag.CodeGeneration.TypeScript"/>
         <PackageReference Include="NSwag.Generation"/>

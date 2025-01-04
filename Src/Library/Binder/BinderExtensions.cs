@@ -98,10 +98,9 @@ static class BinderExtensions
         }
     }
 
-    static readonly MethodInfo _toStringMethod = Types.Object.GetMethod("ToString")!;
     static readonly ConstructorInfo _parseResultCtor = Types.ParseResult.GetConstructor([Types.Bool, Types.Object])!;
 
-    internal static Func<object?, ParseResult> ValueParser(this Type type)
+    internal static Func<StringValues, ParseResult> ValueParser(this Type type)
     {
         //user may have already registered a parser func for a given type via config at startup.
         //or reflection source generator may have already populated the cache.
@@ -109,21 +108,18 @@ static class BinderExtensions
         return Cfg.BndOpts.ReflectionCache.GetOrAdd(type, new ClassDefinition()).ValueParser
                    ??= CompileParser(type);
 
-        static Func<object?, ParseResult> CompileParser(Type type)
+        static Func<StringValues, ParseResult> CompileParser(Type type)
         {
             type = type.GetUnderlyingType();
 
-            //note: the actual type of the `input` to the parser func can be
-            //      either [object] or [StringValues]
-
             if (type == Types.String)
-                return input => new(true, input?.ToString());
+                return input => new(true, input.ToString());
 
             if (type.IsEnum)
-                return input => new(Enum.TryParse(type, input?.ToString(), true, out var res), res);
+                return input => new(Enum.TryParse(type, input, true, out var res), res);
 
             if (type == Types.Uri)
-                return input => new(Uri.TryCreate(input?.ToString(), UriKind.Absolute, out var res), res);
+                return input => new(Uri.TryCreate(input, UriKind.Absolute, out var res), res);
 
             var tryParseMethod = type.GetMethod(
                 "TryParse",
@@ -153,14 +149,11 @@ static class BinderExtensions
                            : input => new(true, DeserializeJsonObjectString(input, type));
             }
 
-            // The 'object' parameter passed into our delegate
-            var inputParameter = Expression.Parameter(Types.Object, "input");
+            // The 'StringValues' parameter passed into our delegate
+            var inputParameter = Expression.Parameter(Types.StringValues, "input");
 
-            // 'input == null ? (string)null : input.ToString()'
-            var toStringConversion = Expression.Condition(
-                Expression.ReferenceEqual(inputParameter, Expression.Constant(null, Types.Object)),
-                Expression.Constant(null, Types.String),
-                Expression.Call(inputParameter, _toStringMethod));
+            // (string)input
+            var castToString = Expression.Convert(inputParameter, Types.String);
 
             // 'res' variable used as the out parameter to the TryParse call
             var resultVar = Expression.Variable(type, "res");
@@ -169,45 +162,47 @@ static class BinderExtensions
             var isSuccessVar = Expression.Variable(Types.Bool, "isSuccess");
 
             // To finish off, we need to following sequence of statements:
-            //  - isSuccess = TryParse(input.ToString(), res)
+            //  - isSuccess = TryParse((string)input, res)
             //  - new ParseResult(isSuccess, (object)res)
-            // A sequence of statements is done using a block, and the result of the final
-            // statement is the result of the block
-            var tryParseCall =
-                isIParseable
-                    ? Expression.Call(tryParseMethod, toStringConversion, Expression.Constant(null, CultureInfo.InvariantCulture.GetType()), resultVar)
-                    : Expression.Call(tryParseMethod, toStringConversion, resultVar);
+            // A sequence of statements is done using a block, and the result of the final statement is the result of the block
+            var tryParseCall = isIParseable
+                                   ? Expression.Call(
+                                       tryParseMethod,
+                                       castToString,
+                                       Expression.Constant(null, CultureInfo.InvariantCulture.GetType()),
+                                       resultVar)
+                                   : Expression.Call(tryParseMethod, castToString, resultVar);
 
             var block = Expression.Block(
                 [resultVar, isSuccessVar],
                 Expression.Assign(isSuccessVar, tryParseCall),
                 Expression.New(_parseResultCtor, isSuccessVar, Expression.Convert(resultVar, Types.Object)));
 
-            return Expression.Lambda<Func<object?, ParseResult>>(block, inputParameter).Compile();
+            return Expression.Lambda<Func<StringValues, ParseResult>>(block, inputParameter).Compile();
         }
     }
 
     //public to make accessible to source generated code
-    public static object? DeserializeJsonObjectString(object? input, Type tProp)
-        => input is not StringValues { Count: 1 } vals
+    public static object? DeserializeJsonObjectString(StringValues input, Type tProp)
+        => input.Count == 0
                ? null
-               : vals[0].IsJsonObjectString()
-                   ? JsonSerializer.Deserialize(vals[0]!, tProp, Cfg.SerOpts.Options)
+               : input[0].IsJsonObjectString()
+                   ? JsonSerializer.Deserialize(input[0]!, tProp, Cfg.SerOpts.Options)
                    : null;
 
     //public to make accessible to source generated code
-    public static object? DeserializeByteArray(object? input)
-        => input is not StringValues { Count: 1 } vals
+    public static object? DeserializeByteArray(StringValues input)
+        => input.Count == 0
                ? null
-               : Convert.FromBase64String(vals[0]!);
+               : Convert.FromBase64String(input[0]!);
 
     //public to make accessible to source generated code
-    public static object? DeserializeJsonArrayString(object? input, Type tProp)
+    public static object? DeserializeJsonArrayString(StringValues input, Type tProp)
     {
-        if (input is not StringValues vals || vals.Count == 0)
+        if (input.Count == 0)
             return null;
 
-        if (vals.Count == 1 && vals[0].IsJsonArrayString())
+        if (input.Count == 1 && input[0].IsJsonArrayString())
         {
             // querystring: ?ids=[1,2,3]
             // possible inputs:
@@ -215,7 +210,7 @@ static class BinderExtensions
             // - ["one","two","three"] (as StringValues[0])
             // - [{"name":"x"},{"name":"y"}] (as StringValues[0])
 
-            return JsonSerializer.Deserialize(vals[0]!, tProp, Cfg.SerOpts.Options);
+            return JsonSerializer.Deserialize(input[0]!, tProp, Cfg.SerOpts.Options);
         }
 
         // querystring: ?ids=one&ids=two
@@ -231,7 +226,7 @@ static class BinderExtensions
         var isEnumCollection = false;
 
         if (Types.IEnumerable.IsAssignableFrom(tProp) &&
-            int.TryParse(vals[0], out _)) //skip if these are not digits due to JsonStringEnumConverter
+            int.TryParse(input[0], out _)) //skip if these are not digits due to JsonStringEnumConverter
         {
             if (tProp.IsArray)
                 isEnumCollection = tProp.GetElementType()!.IsEnum;
@@ -241,18 +236,18 @@ static class BinderExtensions
 
         var sb = new StringBuilder("[");
 
-        for (var i = 0; i < vals.Count; i++)
+        for (var i = 0; i < input.Count; i++)
         {
-            if (isEnumCollection || vals[i].IsJsonObjectString())
-                sb.Append(vals[i]);
+            if (isEnumCollection || input[i].IsJsonObjectString())
+                sb.Append(input[i]);
             else
             {
                 sb.Append('"')
-                  .AppendEscaped(vals[i]!)
+                  .AppendEscaped(input[i]!)
                   .Append('"');
             }
 
-            if (i < vals.Count - 1)
+            if (i < input.Count - 1)
                 sb.Append(',');
         }
         sb.Append(']');
@@ -320,18 +315,18 @@ static class BinderExtensions
     internal static void AddTypedHeaderValueParsers(this BindingOptions o, JsonSerializerOptions jso)
     {
         //header parsers
-        o.ValueParserFor<CacheControlHeaderValue>(input => new(CacheControlHeaderValue.TryParse(new((StringValues)input!), out var res), res));
-        o.ValueParserFor<ContentDispositionHeaderValue>(input => new(ContentDispositionHeaderValue.TryParse(new((StringValues)input!), out var res), res));
-        o.ValueParserFor<ContentRangeHeaderValue>(input => new(ContentRangeHeaderValue.TryParse(new((StringValues)input!), out var res), res));
-        o.ValueParserFor<MediaTypeHeaderValue>(input => new(MediaTypeHeaderValue.TryParse(new((StringValues)input!), out var res), res));
-        o.ValueParserFor<RangeConditionHeaderValue>(input => new(RangeConditionHeaderValue.TryParse(new((StringValues)input!), out var res), res));
-        o.ValueParserFor<RangeHeaderValue>(input => new(RangeHeaderValue.TryParse(new((StringValues)input!), out var res), res));
-        o.ValueParserFor<EntityTagHeaderValue>(input => new(EntityTagHeaderValue.TryParse(new((StringValues)input!), out var res), res));
+        o.ValueParserFor<CacheControlHeaderValue>(input => new(CacheControlHeaderValue.TryParse(new(input!), out var res), res));
+        o.ValueParserFor<ContentDispositionHeaderValue>(input => new(ContentDispositionHeaderValue.TryParse(new(input!), out var res), res));
+        o.ValueParserFor<ContentRangeHeaderValue>(input => new(ContentRangeHeaderValue.TryParse(new(input!), out var res), res));
+        o.ValueParserFor<MediaTypeHeaderValue>(input => new(MediaTypeHeaderValue.TryParse(new(input!), out var res), res));
+        o.ValueParserFor<RangeConditionHeaderValue>(input => new(RangeConditionHeaderValue.TryParse(new(input!), out var res), res));
+        o.ValueParserFor<RangeHeaderValue>(input => new(RangeHeaderValue.TryParse(new(input!), out var res), res));
+        o.ValueParserFor<EntityTagHeaderValue>(input => new(EntityTagHeaderValue.TryParse(new(input!), out var res), res));
 
         //list header parsers
-        o.ValueParserFor<IList<MediaTypeHeaderValue>>(input => new(MediaTypeHeaderValue.TryParseList((StringValues)input!, out var res), res));
-        o.ValueParserFor<IList<EntityTagHeaderValue>>(input => new(EntityTagHeaderValue.TryParseList((StringValues)input!, out var res), res));
-        o.ValueParserFor<IList<SetCookieHeaderValue>>(input => new(SetCookieHeaderValue.TryParseList((StringValues)input!, out var res), res));
+        o.ValueParserFor<IList<MediaTypeHeaderValue>>(input => new(MediaTypeHeaderValue.TryParseList(input!, out var res), res));
+        o.ValueParserFor<IList<EntityTagHeaderValue>>(input => new(EntityTagHeaderValue.TryParseList(input!, out var res), res));
+        o.ValueParserFor<IList<SetCookieHeaderValue>>(input => new(SetCookieHeaderValue.TryParseList(input!, out var res), res));
 
         //need to prevent STJ from trying to deserialize these types
         jso.TypeInfoResolver = jso.TypeInfoResolver?.WithAddedModifier(

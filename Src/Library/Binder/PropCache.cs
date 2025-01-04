@@ -1,4 +1,6 @@
-﻿namespace FastEndpoints;
+﻿using Microsoft.Extensions.Primitives;
+
+namespace FastEndpoints;
 
 #pragma warning disable CS8618
 
@@ -10,7 +12,7 @@ class PropCache
 
 class PrimaryPropCacheEntry : PropCache
 {
-    public Func<object?, ParseResult> ValueParser { get; init; }
+    public Func<StringValues, ParseResult> ValueParser { get; init; }
     public Source? DisabledSources { get; init; }
 }
 

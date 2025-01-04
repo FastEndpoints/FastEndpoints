@@ -40,6 +40,12 @@ sealed class MyTokenService : RefreshTokenService<TokenRequest, TokenResponse>
 
 </details>
 
+<details><summary>Optimize value parser internals</summary>
+
+String value parsing logic used in most non-stj model binding paths has been simplified and optimized to reduce allocations and unnecessary boxing.
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>Issue with unit testing endpoints with pre-processors with injected dependencies</summary>

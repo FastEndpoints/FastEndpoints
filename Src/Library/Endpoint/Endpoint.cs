@@ -222,7 +222,7 @@
         {
             if (HttpContext.Request.RouteValues.TryGetValue(paramName, out var val))
             {
-                var res = typeof(T).ValueParser()(val);
+                var res = typeof(T).ValueParser()(val?.ToString());
 
                 if (res.IsSuccess)
                     return (T?)res.Value;

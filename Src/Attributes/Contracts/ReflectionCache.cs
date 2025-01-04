@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Reflection;
+using Microsoft.Extensions.Primitives;
 
 namespace FastEndpoints;
 
@@ -28,7 +29,7 @@ public sealed class ClassDefinition
     /// <summary>
     /// a func used for converting string values to the respective type by calling it's <c>TryParse()</c> method.
     /// </summary>
-    public Func<object?, ParseResult>? ValueParser { get; set; }
+    public Func<StringValues, ParseResult>? ValueParser { get; set; }
 }
 
 /// <summary>

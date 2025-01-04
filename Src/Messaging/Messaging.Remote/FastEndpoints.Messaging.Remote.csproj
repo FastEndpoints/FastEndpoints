@@ -15,8 +15,6 @@
 
         <PackageReference Include="Grpc.Net.Client"/>
         <PackageReference Include="Grpc.AspNetCore.Server"/>
-
-        <PackageReference Include="Microsoft.Extensions.Hosting"/>
         <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
     </ItemGroup>
 

@@ -12,6 +12,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Attributes\FastEndpoints.Attributes.csproj"/>
+
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all"/>
         <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" PrivateAssets="all"/>
     </ItemGroup>

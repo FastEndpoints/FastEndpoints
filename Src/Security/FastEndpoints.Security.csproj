@@ -13,9 +13,7 @@
         <ProjectReference Include="..\Library\FastEndpoints.csproj"/>
 
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer"/>
-
         <PackageReference Condition="'$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'net7.0'" Include="Microsoft.Bcl.TimeProvider"/>
-
         <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
     </ItemGroup>
 

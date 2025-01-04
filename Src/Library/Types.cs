@@ -63,6 +63,7 @@ static class Types
     internal static readonly Type QueryParamAttribute = typeof(QueryParamAttribute);
     internal static readonly Type String = typeof(string);
     internal static readonly Type StringSegment = typeof(StringSegment);
+    internal static readonly Type StringValues = typeof(StringValues);
     internal static readonly Type SummaryOf1 = typeof(Summary<>);
     internal static readonly Type SummaryOf2 = typeof(Summary<,>);
     internal static readonly Type ToHeaderAttribute = typeof(ToHeaderAttribute);

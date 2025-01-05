@@ -180,8 +180,7 @@ static class BinderExtensions
         }
     }
 
-    //public to make accessible to source generated code
-    public static bool TryParseObject(StringValues input, Type tProp, out object? result)
+    static bool TryParseObject(StringValues input, Type tProp, out object? result)
     {
         if (input.Count == 0 || !input[0].IsJsonObjectString())
         {
@@ -195,8 +194,7 @@ static class BinderExtensions
         return result is not null;
     }
 
-    //public to make accessible to source generated code
-    public static bool TryParseByteArray(StringValues input, out object? result)
+    static bool TryParseByteArray(StringValues input, out object? result)
     {
         if (input.Count == 0)
         {
@@ -219,8 +217,7 @@ static class BinderExtensions
         }
     }
 
-    //public to make accessible to source generated code
-    public static bool TryParseCollection(StringValues input, Type tProp, out object? result)
+    static bool TryParseCollection(StringValues input, Type tProp, out object? result)
     {
         switch (input.Count)
         {

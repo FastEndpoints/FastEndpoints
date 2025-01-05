@@ -40,6 +40,12 @@ sealed class MyTokenService : RefreshTokenService<TokenRequest, TokenResponse>
 
 </details>
 
+<details><summary>Value parser support for Reflection Source Generator</summary>
+
+Value parser functions (used by non-stj model binding) will now be source generated instead of being compiled at runtime when you opt-in to use the reflection source generator.
+
+</details>
+
 <details><summary>Optimize value parser internals</summary>
 
 String value parsing logic used in most non-stj model binding paths has been simplified and optimized to reduce allocations and unnecessary boxing.

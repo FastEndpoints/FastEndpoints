@@ -14,13 +14,14 @@ public class ReflectionGenerator : IIncrementalGenerator
     static readonly StringBuilder b = new();
     static readonly StringBuilder _initArgsBuilder = new();
 
-    const string IEndpoint = "FastEndpoints.IEndpoint";
-    const string FluentGenericEp = "FastEndpoints.Ep.";
-    const string IEnumerable = "System.Collections.IEnumerable";
-    const string DontRegisterAttribute = "DontRegisterAttribute";
-    const string DontInjectAttribute = "DontInjectAttribute";
-    const string JsonIgnoreAttribute = "System.Text.Json.Serialization.JsonIgnoreAttribute";
     const string ConditionArgument = "Condition";
+    const string DontInjectAttribute = "DontInjectAttribute";
+    const string DontRegisterAttribute = "DontRegisterAttribute";
+    const string FluentGenericEp = "FastEndpoints.Ep.";
+    const string IEndpoint = "FastEndpoints.IEndpoint";
+    const string IEnumerable = "System.Collections.IEnumerable";
+    const string IParsable = "System.IParsable<";
+    const string JsonIgnoreAttribute = "System.Text.Json.Serialization.JsonIgnoreAttribute";
 
     // ReSharper restore InconsistentNaming
 
@@ -74,6 +75,7 @@ public class ReflectionGenerator : IIncrementalGenerator
               #nullable enable
 
               using FastEndpoints;
+              using System.Globalization;
               using System.Runtime.CompilerServices;
 
               namespace {{_assemblyName}};
@@ -107,6 +109,15 @@ public class ReflectionGenerator : IIncrementalGenerator
                     $"""
                      
                                      ObjectFactory = () => new {tInfo.Value.UnderlyingTypeName}({BuildCtorArgs(tInfo.Value.CtorArgumentCount)}){BuildInitializerArgs(tInfo.Value.RequiredProps)},
+                     """);
+            }
+
+            if (tInfo.Value.IsParsable is not null && !tInfo.Value.SkipObjectFactory)
+            {
+                b.w(
+                    $"""
+                     
+                                     ValueParser = input => new({tInfo.Value.UnderlyingTypeName}.TryParse({BuildTryParseArgs(tInfo.Value.IsParsable)}), result),
                      """);
             }
 
@@ -177,6 +188,11 @@ public class ReflectionGenerator : IIncrementalGenerator
             => t.IsValueType
                    ? $"Unsafe.Unbox<{t.UnderlyingTypeName}>(dto)"
                    : $"(({t.UnderlyingTypeName})dto)";
+
+        static string BuildTryParseArgs(bool? isIParsable)
+            => isIParsable is true
+                   ? "input, CultureInfo.InvariantCulture, out var result"
+                   : "input, out var result";
     }
 
     readonly struct TypeInfo
@@ -189,6 +205,7 @@ public class ReflectionGenerator : IIncrementalGenerator
         public bool IsValueType { get; }
         public List<Prop> Properties { get; } = [];
         public bool SkipObjectFactory { get; }
+        public bool? IsParsable { get; }
         public int CtorArgumentCount { get; }
         public IEnumerable<string> RequiredProps => Properties.Where(p => p.IsRequired).Select(p => p.PropName);
 
@@ -227,19 +244,27 @@ public class ReflectionGenerator : IIncrementalGenerator
             if (AllTypes.Contains(this)) //need to have TypeName set before this
                 return;
 
-            if (type.AllInterfaces.Any(i => i.ToDisplayString() == IEnumerable))
+            foreach (var ifc in type.AllInterfaces)
             {
-                var tElement = type switch
+                var ifcName = ifc.ToDisplayString();
+
+                if (ifcName == IEnumerable)
                 {
-                    IArrayTypeSymbol arrayType => arrayType.ElementType,
-                    INamedTypeSymbol { TypeArguments.Length: > 0 } namedType => namedType.TypeArguments[0],
-                    _ => null
-                };
+                    var tElement = type switch
+                    {
+                        IArrayTypeSymbol arrayType => arrayType.ElementType,
+                        INamedTypeSymbol { TypeArguments.Length: > 0 } namedType => namedType.TypeArguments[0],
+                        _ => null
+                    };
 
-                if (tElement is not null)
-                    _ = new TypeInfo(tElement, false);
+                    if (tElement is not null)
+                        _ = new TypeInfo(tElement, false);
 
-                return;
+                    return;
+                }
+
+                if (ifcName.StartsWith(IParsable))
+                    IsParsable = true;
             }
 
             var currentSymbol = type;
@@ -251,6 +276,18 @@ public class ReflectionGenerator : IIncrementalGenerator
                 {
                     switch (member)
                     {
+                        case IMethodSymbol method when method.Name == "TryParse" &&
+                                                       method.DeclaredAccessibility == Accessibility.Public &&
+                                                       method.IsStatic &&
+                                                       method.ReturnType is { SpecialType: SpecialType.System_Boolean } &&
+                                                       method.Parameters is { Length: 2 } args &&
+                                                       args[0] is { Type.SpecialType: SpecialType.System_String } &&
+                                                       args[1] is { RefKind: RefKind.Out, Type.Name: var outTypeName } &&
+                                                       outTypeName == currentSymbol.Name:
+                            IsParsable = false;
+
+                            break;
+
                         case IMethodSymbol { MethodKind : MethodKind.Constructor, DeclaredAccessibility : Accessibility.Public, IsStatic : false } method:
 
                             if (!ctorSearchComplete)

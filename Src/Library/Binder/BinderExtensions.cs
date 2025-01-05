@@ -140,12 +140,11 @@ static class BinderExtensions
             {
                 var interfaces = type.GetInterfaces();
 
-                return interfaces.Contains(Types.IEnumerable) &&
-                       !interfaces.Contains(Types.IDictionary) //dictionaries should be deserialized as json objects
+                return interfaces.Contains(Types.IEnumerable) && !interfaces.Contains(Types.IDictionary) //dictionaries should be deserialized as json objects
                            ? (type.GetElementType() ?? type.GetGenericArguments().FirstOrDefault()) == Types.Byte
-                                 ? input => new(true, DeserializeByteArray(input))
-                                 : input => new(true, DeserializeJsonArrayString(input, type))
-                           : input => new(true, DeserializeJsonObjectString(input, type));
+                                 ? input => new(TryParseByteArray(input, out var res), res)
+                                 : input => new(TryParseCollection(input, type, out var res), res)
+                           : input => new(TryParseObject(input, type, out var res), res);
             }
 
             // The 'StringValues' parameter passed into our delegate
@@ -182,34 +181,66 @@ static class BinderExtensions
     }
 
     //public to make accessible to source generated code
-    public static object? DeserializeJsonObjectString(StringValues input, Type tProp)
-        => input.Count == 0
-               ? null
-               : input[0].IsJsonObjectString()
-                   ? JsonSerializer.Deserialize(input[0]!, tProp, Cfg.SerOpts.Options)
-                   : null;
+    public static bool TryParseObject(StringValues input, Type tProp, out object? result)
+    {
+        if (input.Count == 0 || !input[0].IsJsonObjectString())
+        {
+            result = null;
+
+            return false;
+        }
+
+        result = JsonSerializer.Deserialize(input[0]!, tProp, Cfg.SerOpts.Options);
+
+        return result is not null;
+    }
 
     //public to make accessible to source generated code
-    public static object? DeserializeByteArray(StringValues input)
-        => input.Count == 0
-               ? null
-               : Convert.FromBase64String(input[0]!);
-
-    //public to make accessible to source generated code
-    public static object? DeserializeJsonArrayString(StringValues input, Type tProp)
+    public static bool TryParseByteArray(StringValues input, out object? result)
     {
         if (input.Count == 0)
-            return null;
-
-        if (input.Count == 1 && input[0].IsJsonArrayString())
         {
-            // querystring: ?ids=[1,2,3]
-            // possible inputs:
-            // - [1,2,3] (as StringValues[0])
-            // - ["one","two","three"] (as StringValues[0])
-            // - [{"name":"x"},{"name":"y"}] (as StringValues[0])
+            result = null;
 
-            return JsonSerializer.Deserialize(input[0]!, tProp, Cfg.SerOpts.Options);
+            return false;
+        }
+
+        try
+        {
+            result = Convert.FromBase64String(input[0]!);
+
+            return true;
+        }
+        catch (FormatException)
+        {
+            result = null;
+
+            return false;
+        }
+    }
+
+    //public to make accessible to source generated code
+    public static bool TryParseCollection(StringValues input, Type tProp, out object? result)
+    {
+        switch (input.Count)
+        {
+            case 0:
+
+                result = null;
+
+                return false;
+
+            case 1 when input[0].IsJsonArrayString():
+
+                // querystring: ?ids=[1,2,3]
+                // possible inputs:
+                // - [1,2,3] (as StringValues[0])
+                // - ["one","two","three"] (as StringValues[0])
+                // - [{"name":"x"},{"name":"y"}] (as StringValues[0])
+
+                result = JsonSerializer.Deserialize(input[0]!, tProp, Cfg.SerOpts.Options);
+
+                return result is not null;
         }
 
         // querystring: ?ids=one&ids=two
@@ -251,7 +282,9 @@ static class BinderExtensions
         }
         sb.Append(']');
 
-        return JsonSerializer.Deserialize(sb.ToString(), tProp, Cfg.SerOpts.Options);
+        result = JsonSerializer.Deserialize(sb.ToString(), tProp, Cfg.SerOpts.Options);
+
+        return result is not null;
     }
 
     static bool IsJsonArrayString(this string? val)
@@ -315,7 +348,7 @@ static class BinderExtensions
     {
         //header parsers
         o.ValueParserFor<CacheControlHeaderValue>(input => new(CacheControlHeaderValue.TryParse(new(input), out var res), res));
-        o.ValueParserFor<ContentDispositionHeaderValue>(input => new(ContentDispositionHeaderValue.TryParse(new(input!), out var res), res));
+        o.ValueParserFor<ContentDispositionHeaderValue>(input => new(ContentDispositionHeaderValue.TryParse(new(input), out var res), res));
         o.ValueParserFor<ContentRangeHeaderValue>(input => new(ContentRangeHeaderValue.TryParse(new(input), out var res), res));
         o.ValueParserFor<MediaTypeHeaderValue>(input => new(MediaTypeHeaderValue.TryParse(new(input), out var res), res));
         o.ValueParserFor<RangeConditionHeaderValue>(input => new(RangeConditionHeaderValue.TryParse(new(input), out var res), res));

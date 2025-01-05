@@ -122,7 +122,7 @@ public sealed class BindingOptions
     ///  </code>
     /// </param>
     public void ValueParserFor<T>(Func<StringValues, ParseResult> parser)
-        => Cfg.BndOpts.ReflectionCache.GetOrAdd(typeof(T), new ClassDefinition()).ValueParser = parser;
+        => Cfg.BndOpts.ReflectionCache.GetOrAdd(typeof(T), new TypeDefinition()).ValueParser = parser;
 
     /// <summary>
     /// add a custom value parser function for any given type which the default model binder will use to parse values when model binding request dto
@@ -154,7 +154,7 @@ public sealed class BindingOptions
     ///  </code>
     /// </param>
     public void ValueParserFor(Type type, Func<StringValues, ParseResult> parser)
-        => Cfg.BndOpts.ReflectionCache.GetOrAdd(type, new ClassDefinition()).ValueParser = parser;
+        => Cfg.BndOpts.ReflectionCache.GetOrAdd(type, new TypeDefinition()).ValueParser = parser;
 
     /// <summary>
     /// override value parsers for request dto properties that match a predicate.

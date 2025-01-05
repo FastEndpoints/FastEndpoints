@@ -9,12 +9,12 @@ namespace FastEndpoints;
 /// <summary>
 /// the central repository of reflection related data for request dtos and their children
 /// </summary>
-public sealed class ReflectionCache : ConcurrentDictionary<Type, ClassDefinition>;
+public sealed class ReflectionCache : ConcurrentDictionary<Type, TypeDefinition>;
 
 /// <summary>
-/// represents reflection data for a given class
+/// represents reflection data for a given type
 /// </summary>
-public sealed class ClassDefinition
+public sealed class TypeDefinition
 {
     /// <summary>
     /// a func for creating a new blank instance of a type
@@ -33,7 +33,7 @@ public sealed class ClassDefinition
 }
 
 /// <summary>
-/// represents reflection data for a property of a class
+/// represents reflection data for a property of a type
 /// </summary>
 public sealed class PropertyDefinition
 {

@@ -70,13 +70,29 @@ public class ReflectionGenerator : IIncrementalGenerator
 
         var sanitizedAssemblyName = _assemblyName.Sanitize(string.Empty);
 
-        b.Clear().w(
-            $$"""
-              #nullable enable
+        b.Clear();
+        b.w(
+            """
+            #nullable enable
 
-              using FastEndpoints;
-              using System.Globalization;
-              using System.Runtime.CompilerServices;
+            using FastEndpoints;
+            using System.Globalization;
+            using System.Runtime.CompilerServices;
+
+
+            """);
+
+        foreach (var tInfo in TypeInfo.AllTypes)
+        {
+            b.w(
+                $"""
+                 using {tInfo!.Value.TypeAlias} = {tInfo.Value.UnderlyingTypeName};
+
+                 """);
+        }
+
+        b.w(
+            $$"""
 
               namespace {{_assemblyName}};
 
@@ -97,8 +113,10 @@ public class ReflectionGenerator : IIncrementalGenerator
         {
             b.w(
                 $$"""
+                          // {{tInfo!.Value.UnderlyingTypeName}}
+                          var _{{tInfo.Value.TypeAlias}} = typeof({{tInfo.Value.TypeAlias}});
                           cache.TryAdd(
-                              typeof({{tInfo!.Value.UnderlyingTypeName}}),
+                              _{{tInfo.Value.TypeAlias}},
                               new()
                               {
                   """);
@@ -108,44 +126,52 @@ public class ReflectionGenerator : IIncrementalGenerator
                 b.w(
                     $"""
                      
-                                     ObjectFactory = () => new {tInfo.Value.UnderlyingTypeName}({BuildCtorArgs(tInfo.Value.CtorArgumentCount)}){BuildInitializerArgs(tInfo.Value.RequiredProps)},
+                                     ObjectFactory = () => new {tInfo.Value.TypeAlias}({BuildCtorArgs(tInfo.Value.CtorArgumentCount)}){BuildInitializerArgs(tInfo.Value.RequiredProps)},
                      """);
             }
 
-            if (tInfo.Value.IsParsable is not null && !tInfo.Value.SkipObjectFactory)
+            if (tInfo.Value.IsParsable is not null)
             {
                 b.w(
                     $"""
                      
-                                     ValueParser = input => new({tInfo.Value.UnderlyingTypeName}.TryParse({BuildTryParseArgs(tInfo.Value.IsParsable)}), result),
+                                     ValueParser = input => new({tInfo.Value.TypeAlias}.TryParse({BuildTryParseArgs(tInfo.Value.IsParsable)}), result),
                      """);
+            }
+
+            if (tInfo.Value.Properties.Count > 0)
+            {
+                b.w(
+                    """
+                    
+                                    Properties = new(
+                                    [
+                    """);
+
+                foreach (var prop in tInfo.Value.Properties)
+                {
+                    b.w(
+                        $"""
+                         
+                                              new(_{tInfo.Value.TypeAlias}.GetProperty("{prop.PropName}")!,
+                         """);
+                    b.w(
+                        prop.IsInitOnly
+                            ? " new()"
+                            : $" new() {{ Setter = (dto, val) => {BuildPropCast(tInfo.Value)}.{prop.PropName} = ({prop.PropertyType})val! }}");
+                    b.w("),");
+                }
+
+                b.w(
+                    """
+                    
+                                    ])
+                    """);
             }
 
             b.w(
                 """
                 
-                                Properties = new(
-                                [
-                """);
-
-            foreach (var prop in tInfo.Value.Properties)
-            {
-                b.w(
-                    $"""
-                     
-                                          new(typeof({tInfo.Value.UnderlyingTypeName}).GetProperty("{prop.PropName}")!,
-                     """);
-                b.w(
-                    prop.IsInitOnly
-                        ? " new()"
-                        : $" new() {{ Setter = (dto, val) => {BuildPropCast(tInfo.Value)}.{prop.PropName} = ({prop.PropertyType})val! }}");
-                b.w("),");
-            }
-
-            b.w(
-                """
-                
-                                ])
                             });
 
                 """);
@@ -186,8 +212,8 @@ public class ReflectionGenerator : IIncrementalGenerator
 
         static string BuildPropCast(TypeInfo t)
             => t.IsValueType
-                   ? $"Unsafe.Unbox<{t.UnderlyingTypeName}>(dto)"
-                   : $"(({t.UnderlyingTypeName})dto)";
+                   ? $"Unsafe.Unbox<{t.TypeAlias}>(dto)"
+                   : $"(({t.TypeAlias})dto)";
 
         static string BuildTryParseArgs(bool? isIParsable)
             => isIParsable is true
@@ -200,6 +226,7 @@ public class ReflectionGenerator : IIncrementalGenerator
         internal static HashSet<TypeInfo?> AllTypes { get; } = new(TypeNameComparer.Instance);
 
         public int HashCode { get; }
+        public string? TypeAlias { get; }
         public string? TypeName { get; }
         public string? UnderlyingTypeName { get; }
         public bool IsValueType { get; }
@@ -211,7 +238,7 @@ public class ReflectionGenerator : IIncrementalGenerator
 
         public TypeInfo(ITypeSymbol symbol, bool isEndpoint, bool noRecursion = false)
         {
-            if (symbol.IsAbstract || symbol.TypeKind == TypeKind.Interface)
+            if (symbol.IsAbstract || symbol.NullableAnnotation == NullableAnnotation.Annotated || symbol.TypeKind == TypeKind.Interface)
                 return;
 
             ITypeSymbol? type = null;
@@ -319,14 +346,18 @@ public class ReflectionGenerator : IIncrementalGenerator
                 currentSymbol = currentSymbol.BaseType;
             }
 
+            if (type.DeclaringSyntaxReferences.Length > 0)
+                HashCode = type.DeclaringSyntaxReferences[0].Span.Length;
+
+            if (isEndpoint is false && noRecursion) //treating an endpoint as a regular class to generate its props for property injection support
+                SkipObjectFactory = true;
+
+            if (SkipObjectFactory is false && Properties.Count == 0)
+                SkipObjectFactory = true;
+
             if (Properties.Count > 0)
             {
-                if (type.DeclaringSyntaxReferences.Length > 0)
-                    HashCode = type.DeclaringSyntaxReferences[0].Span.Length;
-
-                if (isEndpoint is false && noRecursion) //treating an endpoint as a regular class to generate its props for property injection support
-                    SkipObjectFactory = true;
-
+                TypeAlias = $"t{AllTypes.Count.ToString()}";
                 AllTypes.Add(this);
 
                 if (!noRecursion)
@@ -336,8 +367,16 @@ public class ReflectionGenerator : IIncrementalGenerator
                 }
             }
 
-            if (isEndpoint)                                                             //create entry for endpoint class props as well to support property injection
+            if (isEndpoint && Properties.Count > 0)                                     //create entry for endpoint class to support property injection
                 _ = new TypeInfo(symbol: symbol, isEndpoint: false, noRecursion: true); //process the endpoint as a regular class without recursion
+            else
+            {
+                if (noRecursion) // noRecursion is only true for endpoint classes when treated as regular classes by if condition above
+                    return;
+
+                TypeAlias = $"t{AllTypes.Count.ToString()}";
+                AllTypes.Add(this);
+            }
         }
 
         static bool HasDontInjectAttribute(IPropertySymbol prop)

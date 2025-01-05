@@ -58,7 +58,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                 if (!matcher(prop))
                     continue;
 
-                Cfg.BndOpts.ReflectionCache.GetOrAdd(prop.PropertyType, new ClassDefinition()).ValueParser =
+                Cfg.BndOpts.ReflectionCache.GetOrAdd(prop.PropertyType, new TypeDefinition()).ValueParser =
                     input => parser(input, prop.PropertyType);
 
                 break;

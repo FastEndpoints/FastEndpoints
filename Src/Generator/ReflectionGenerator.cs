@@ -17,6 +17,7 @@ public class ReflectionGenerator : IIncrementalGenerator
     const string ConditionArgument = "Condition";
     const string DontInjectAttribute = "DontInjectAttribute";
     const string DontRegisterAttribute = "DontRegisterAttribute";
+    const string EmptyRequest = "FastEndpoints.EmptyRequest";
     const string FluentGenericEp = "FastEndpoints.Ep.";
     const string IEndpoint = "FastEndpoints.IEndpoint";
     const string IEnumerable = "System.Collections.IEnumerable";
@@ -86,7 +87,7 @@ public class ReflectionGenerator : IIncrementalGenerator
         {
             b.w(
                 $"""
-                 using {tInfo!.Value.TypeAlias} = {tInfo.Value.UnderlyingTypeName};
+                 using {tInfo!.TypeAlias} = {tInfo.UnderlyingTypeName};
 
                  """);
         }
@@ -113,33 +114,33 @@ public class ReflectionGenerator : IIncrementalGenerator
         {
             b.w(
                 $$"""
-                          // {{tInfo!.Value.UnderlyingTypeName}}
-                          var _{{tInfo.Value.TypeAlias}} = typeof({{tInfo.Value.TypeAlias}});
+                          // {{tInfo!.UnderlyingTypeName}}
+                          var _{{tInfo.TypeAlias}} = typeof({{tInfo.TypeAlias}});
                           cache.TryAdd(
-                              _{{tInfo.Value.TypeAlias}},
+                              _{{tInfo.TypeAlias}},
                               new()
                               {
                   """);
 
-            if (!tInfo.Value.SkipObjectFactory)
+            if (!tInfo.SkipObjectFactory)
             {
                 b.w(
                     $"""
                      
-                                     ObjectFactory = () => new {tInfo.Value.TypeAlias}({BuildCtorArgs(tInfo.Value.CtorArgumentCount)}){BuildInitializerArgs(tInfo.Value.RequiredProps)},
+                                     ObjectFactory = () => new {tInfo.TypeAlias}({BuildCtorArgs(tInfo.CtorArgumentCount)}){BuildInitializerArgs(tInfo.RequiredProps)},
                      """);
             }
 
-            if (tInfo.Value.IsParsable is not null)
+            if (tInfo.IsParsable is not null)
             {
                 b.w(
                     $"""
                      
-                                     ValueParser = input => new({tInfo.Value.TypeAlias}.TryParse({BuildTryParseArgs(tInfo.Value.IsParsable)}), result),
+                                     ValueParser = input => new({tInfo.TypeAlias}.TryParse({BuildTryParseArgs(tInfo.IsParsable)}), result),
                      """);
             }
 
-            if (tInfo.Value.Properties.Count > 0)
+            if (tInfo.Properties.Count > 0)
             {
                 b.w(
                     """
@@ -148,17 +149,17 @@ public class ReflectionGenerator : IIncrementalGenerator
                                     [
                     """);
 
-                foreach (var prop in tInfo.Value.Properties)
+                foreach (var prop in tInfo.Properties)
                 {
                     b.w(
                         $"""
                          
-                                              new(_{tInfo.Value.TypeAlias}.GetProperty("{prop.PropName}")!,
+                                              new(_{tInfo.TypeAlias}.GetProperty("{prop.PropName}")!,
                          """);
                     b.w(
                         prop.IsInitOnly
                             ? " new()"
-                            : $" new() {{ Setter = (dto, val) => {BuildPropCast(tInfo.Value)}.{prop.PropName} = ({prop.PropertyType})val! }}");
+                            : $" new() {{ Setter = (dto, val) => {BuildPropCast(tInfo)}.{prop.PropName} = ({prop.PropertyType})val! }}");
                     b.w("),");
                 }
 
@@ -184,7 +185,7 @@ public class ReflectionGenerator : IIncrementalGenerator
             }
             """);
 
-        TypeInfo.AllTypes.Clear();
+        TypeInfo.Reset();
 
         return b.ToString();
 
@@ -221,9 +222,10 @@ public class ReflectionGenerator : IIncrementalGenerator
                    : "input, out var result";
     }
 
-    readonly struct TypeInfo
+    sealed class TypeInfo
     {
         internal static HashSet<TypeInfo?> AllTypes { get; } = new(TypeNameComparer.Instance);
+        static int Counter { get; set; }
 
         public int HashCode { get; }
         public string? TypeAlias { get; }
@@ -238,8 +240,10 @@ public class ReflectionGenerator : IIncrementalGenerator
 
         public TypeInfo(ITypeSymbol symbol, bool isEndpoint, bool noRecursion = false)
         {
-            if (symbol.IsAbstract || symbol.NullableAnnotation == NullableAnnotation.Annotated || symbol.TypeKind == TypeKind.Interface)
+            if (symbol.IsAbstract || symbol.TypeKind == TypeKind.Interface)
                 return;
+
+            symbol = symbol.GetUnderlyingType();
 
             ITypeSymbol? type = null;
 
@@ -268,13 +272,14 @@ public class ReflectionGenerator : IIncrementalGenerator
             UnderlyingTypeName = type.ToDisplayString(NullableFlowState.None);
             IsValueType = type.IsValueType;
 
+            if (UnderlyingTypeName == EmptyRequest)
+                return;
+
             if (AllTypes.Contains(this)) //need to have TypeName set before this
                 return;
 
-            foreach (var ifc in type.AllInterfaces)
+            foreach (var ifcName in type.AllInterfaces.Select(ifc => ifc.ToDisplayString()))
             {
-                var ifcName = ifc.ToDisplayString();
-
                 if (ifcName == IEnumerable)
                 {
                     var tElement = type switch
@@ -357,7 +362,7 @@ public class ReflectionGenerator : IIncrementalGenerator
 
             if (Properties.Count > 0)
             {
-                TypeAlias = $"t{AllTypes.Count.ToString()}";
+                TypeAlias = $"t{(Counter++).ToString()}";
                 AllTypes.Add(this);
 
                 if (!noRecursion)
@@ -374,9 +379,15 @@ public class ReflectionGenerator : IIncrementalGenerator
                 if (noRecursion) // noRecursion is only true for endpoint classes when treated as regular classes by if condition above
                     return;
 
-                TypeAlias = $"t{AllTypes.Count.ToString()}";
+                TypeAlias = $"t{(Counter++).ToString()}";
                 AllTypes.Add(this);
             }
+        }
+
+        internal static void Reset()
+        {
+            AllTypes.Clear();
+            Counter = 0;
         }
 
         static bool HasDontInjectAttribute(IPropertySymbol prop)
@@ -427,13 +438,13 @@ public class ReflectionGenerator : IIncrementalGenerator
             if (x is null || y is null)
                 return false;
 
-            return x.Value.TypeName?.Equals(y.Value.TypeName) is true;
+            return x.TypeName?.Equals(y.TypeName) is true;
         }
 
         public int GetHashCode(TypeInfo? obj)
             => obj is null
                    ? 0
-                   : obj.Value.TypeName?.GetHashCode() ?? 0;
+                   : obj.TypeName?.GetHashCode() ?? 0;
     }
 
     class FullTypeComparer : IEqualityComparer<TypeInfo?>
@@ -447,12 +458,12 @@ public class ReflectionGenerator : IIncrementalGenerator
             if (x is null || y is null)
                 return false;
 
-            return x.Value.HashCode.Equals(y.Value.HashCode);
+            return x.HashCode.Equals(y.HashCode);
         }
 
         public int GetHashCode(TypeInfo? obj)
             => obj is null
                    ? 0
-                   : obj.Value.HashCode;
+                   : obj.HashCode;
     }
 }

@@ -105,13 +105,13 @@ static class BinderExtensions
         //or reflection source generator may have already populated the cache.
         //if it's not there, compile the func at runtime.
         return Cfg.BndOpts.ReflectionCache.GetOrAdd(type, new TypeDefinition()).ValueParser
-                   ??= CompileParser(type);
+                   ??= GetOrCompileParser(type);
 
-        static Func<StringValues, ParseResult> CompileParser(Type type)
+        static Func<StringValues, ParseResult> GetOrCompileParser(Type type)
         {
             type = type.GetUnderlyingType();
 
-            if (type == Types.String)
+            if (type == Types.String || type == Types.StringSegment)
                 return input => new(true, input.ToString());
 
             if (type.IsEnum)

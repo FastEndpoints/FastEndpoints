@@ -13,11 +13,10 @@ public class ReflectionGenerator : IIncrementalGenerator
 
     static readonly StringBuilder b = new();
     static readonly StringBuilder _initArgsBuilder = new();
-
+    static readonly string[] TypeBlacklist = { "Microsoft.Extensions.Primitives.StringSegment", "FastEndpoints.EmptyRequest", "System.Uri" };
     const string ConditionArgument = "Condition";
     const string DontInjectAttribute = "DontInjectAttribute";
     const string DontRegisterAttribute = "DontRegisterAttribute";
-    const string EmptyRequest = "FastEndpoints.EmptyRequest";
     const string FluentGenericEp = "FastEndpoints.Ep.";
     const string IEndpoint = "FastEndpoints.IEndpoint";
     const string IEnumerable = "System.Collections.IEnumerable";
@@ -154,7 +153,7 @@ public class ReflectionGenerator : IIncrementalGenerator
                     b.w(
                         $"""
                          
-                                              new(_{tInfo.TypeAlias}.GetProperty("{prop.PropName}")!,
+                                              new(_{tInfo.TypeAlias}.GetProperty(nameof({tInfo.TypeAlias}.{prop.PropName}))!,
                          """);
                     b.w(
                         prop.IsInitOnly
@@ -240,7 +239,7 @@ public class ReflectionGenerator : IIncrementalGenerator
 
         public TypeInfo(ITypeSymbol symbol, bool isEndpoint, bool noRecursion = false)
         {
-            if (symbol.IsAbstract || symbol.TypeKind == TypeKind.Interface)
+            if (symbol.IsAbstract || symbol.TypeKind == TypeKind.Enum || symbol.TypeKind == TypeKind.Interface)
                 return;
 
             symbol = symbol.GetUnderlyingType();
@@ -272,7 +271,7 @@ public class ReflectionGenerator : IIncrementalGenerator
             UnderlyingTypeName = type.ToDisplayString(NullableFlowState.None);
             IsValueType = type.IsValueType;
 
-            if (UnderlyingTypeName == EmptyRequest)
+            if (TypeBlacklist.Contains(UnderlyingTypeName))
                 return;
 
             if (AllTypes.Contains(this)) //need to have TypeName set before this

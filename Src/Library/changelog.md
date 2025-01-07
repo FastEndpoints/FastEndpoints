@@ -60,4 +60,10 @@ Unit tests were failing to instantiate pre-processors that had injected dependen
 
 </details>
 
+<details><summary>Potential infinite recursion in Swagger Processor due to circular references</summary>
+
+In certain edge cases where the schema has circular references, there was a potential inifinite recursion issue which could lead to memory leaks when generating the swagger docs.
+
+</details>
+
 ## Breaking Changes ⚠️

@@ -31,6 +31,8 @@ public class CommandBusTests
     [Fact]
     public async Task CommandExecutionWorks()
     {
+        Factory.RegisterTestServices(_ => { });
+
         var command = new SomeCommand { FirstName = "a", LastName = "b" };
         var handler = new SomeCommandHandler(A.Fake<ILogger<SomeCommandHandler>>(), A.Fake<IEmailService>());
 
@@ -42,12 +44,14 @@ public class CommandBusTests
     [Fact]
     public async Task CommandHandlerAddsErrors()
     {
+        Factory.RegisterTestServices(_ => { });
+
         var command = new GetFullName { FirstName = "yoda", LastName = "minch" };
         var handler = new MakeFullName(A.Fake<ILogger<MakeFullName>>());
 
         try
         {
-            await handler.ExecuteAsync(command, default);
+            await handler.ExecuteAsync(command);
         }
         catch (ValidationFailureException x)
         {
@@ -62,10 +66,12 @@ public class CommandBusTests
     [Fact]
     public async Task CommandHandlerExecsWithoutErrors()
     {
+        Factory.RegisterTestServices(_ => { });
+
         var command = new GetFullName { FirstName = "bobbaa", LastName = "fett" };
         var handler = new MakeFullName(A.Fake<ILogger<MakeFullName>>());
 
-        await handler.ExecuteAsync(command, default);
+        await handler.ExecuteAsync(command);
 
         handler.ValidationFailures.Should().HaveCount(0);
     }

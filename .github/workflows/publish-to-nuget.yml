@@ -29,7 +29,7 @@ jobs:
       #   run: dotnet test FastEndpoints.sln --configuration Release --verbosity minimal --filter ExcludeInCiCd!=Yes
 
       - name: Make Nuget Packages
-        run: dotnet pack -c Release --verbosity diagnostic
+        run: dotnet pack -c Release --verbosity detailed
 
       - name: Publish To Nuget
         run: dotnet nuget push "Src/**/*.nupkg" -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json

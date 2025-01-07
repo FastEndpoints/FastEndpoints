@@ -11,10 +11,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4.2.2
 
-      - name: Setup .Net SDK
+      - name: Setup .Net SDK for All Versions
         uses: actions/setup-dotnet@v4.2.0
         with:
-          dotnet-version: 9.x
+          dotnet-version: |
+            6.x
+            7.x
+            8.x
+            9.x
           #dotnet-quality: 'preview'
 
       - name: Modify xUnit Runner Config

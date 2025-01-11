@@ -76,7 +76,7 @@ sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProv
                     };
                     record.SetEvent(call.ResponseStream.Current);
 
-                    while (!opts.CancellationToken.IsCancellationRequested)
+                    while (true)
                     {
                         try
                         {
@@ -91,6 +91,10 @@ sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProv
                             createErrorCount++;
                             _ = errors?.OnStoreEventRecordError<TEvent>(record, createErrorCount, ex, opts.CancellationToken);
                             logger?.StoreEventError(subscriberID, typeof(TEvent).FullName!, ex.Message);
+
+                            if (opts.CancellationToken.IsCancellationRequested)
+                                break;
+
                             await Task.Delay(5000);
                         }
                     }
@@ -180,7 +184,7 @@ sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProv
                         break; //don't process the rest of the batch
                     }
 
-                    while (!_isInMemProvider && !opts.CancellationToken.IsCancellationRequested)
+                    while (!_isInMemProvider)
                     {
                         try
                         {
@@ -195,6 +199,10 @@ sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProv
                             updateErrorCount++;
                             _ = errors?.OnMarkEventAsCompleteError<TEvent>(record, updateErrorCount, ex, opts.CancellationToken);
                             logger?.StorageMarkAsCompleteError(subscriberID, typeof(TEvent).FullName!, ex.Message);
+
+                            if (opts.CancellationToken.IsCancellationRequested)
+                                break;
+
                             await Task.Delay(5000);
                         }
                     }

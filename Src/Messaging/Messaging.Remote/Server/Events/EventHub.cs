@@ -148,7 +148,9 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                 retrievalErrorCount++;
                 _errors?.OnGetNextEventRecordError<TEvent>(subscriberID, retrievalErrorCount, ex, cts.Token);
                 _logger.StorageGetNextBatchError(subscriberID, _tEvent.FullName!, ex.Message);
-                await Task.Delay(5000);
+
+                if (!cts.Token.IsCancellationRequested)
+                    await Task.Delay(5000);
 
                 continue;
             }
@@ -182,7 +184,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                         return; //stream is most likely broken/cancelled. exit the method here and let the subscriber re-connect and re-enter the method.
                     }
 
-                    while (!_isInMemoryProvider && !cts.Token.IsCancellationRequested)
+                    while (!_isInMemoryProvider)
                     {
                         try
                         {
@@ -197,6 +199,10 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                             updateErrorCount++;
                             _errors?.OnMarkEventAsCompleteError<TEvent>(record, updateErrorCount, ex, cts.Token);
                             _logger.StorageMarkAsCompleteError(subscriberID, _tEvent.FullName!, ex.Message);
+
+                            if (cts.Token.IsCancellationRequested)
+                                break;
+
                             await Task.Delay(5000);
                         }
                     }
@@ -249,8 +255,6 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
         {
             _logger.NoSubscribersWarning(_tEvent.FullName!);
         #pragma warning disable CA2016
-
-            // ReSharper disable once MethodSupportsCancellation
             await Task.Delay(5000);
         #pragma warning restore CA2016
             if (ct.IsCancellationRequested || (DateTime.Now - startTime).TotalSeconds >= 60)
@@ -269,7 +273,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
             };
             record.SetEvent((TEvent)evnt);
 
-            while (!ct.IsCancellationRequested)
+            while (true)
             {
                 try
                 {
@@ -293,9 +297,11 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                     createErrorCount++;
                     _errors?.OnStoreEventRecordError<TEvent>(record, createErrorCount, ex, ct);
                     _logger.StoreEventError(subId, _tEvent.FullName!, ex.Message);
-                #pragma warning disable CA2016
 
-                    // ReSharper disable once MethodSupportsCancellation
+                    if (ct.IsCancellationRequested)
+                        break;
+
+                #pragma warning disable CA2016
                     await Task.Delay(5000);
                 #pragma warning restore CA2016
                 }

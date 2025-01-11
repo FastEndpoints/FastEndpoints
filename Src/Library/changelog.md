@@ -52,6 +52,12 @@ String value parsing logic used in most non-stj model binding paths has been sim
 
 </details>
 
+<details><summary>Graceful shutdown of Job Queue processing</summary>
+
+If app shutdown is requested during a retry loop (due to transient failures) in job queue processing, the operation will now be tried at least once before exiting the retry loops and allowing the app to shut down.
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>Issue with unit testing endpoints with pre-processors with injected dependencies</summary>

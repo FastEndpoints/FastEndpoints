@@ -266,7 +266,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 _cancellations.Remove(record.TrackingID); //remove entry on execution error to allow obtaining a new cts on retry/reentry
                 _log.CommandExecutionCritical(_tCommandName, x.Message);
 
-                while (!_appCancellation.IsCancellationRequested)
+                while (true)
                 {
                     try
                     {
@@ -277,6 +277,10 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                     catch (Exception xx)
                     {
                         _log.StorageOnExecutionFailureError(QueueID, _tCommandName, xx.Message);
+
+                        if (_appCancellation.IsCancellationRequested)
+                            break;
+
                         await Task.Delay(5000);
                     }
                 }
@@ -284,7 +288,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 return; //abort execution here
             }
 
-            while (!_appCancellation.IsCancellationRequested)
+            while (true)
             {
                 try
                 {
@@ -296,11 +300,15 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 catch (Exception x)
                 {
                     _log.StorageMarkAsCompleteError(QueueID, _tCommandName, x.Message);
+
+                    if (_appCancellation.IsCancellationRequested)
+                        break;
+
                     await Task.Delay(5000);
                 }
             }
 
-            while (_resultStorage is not null && !_appCancellation.IsCancellationRequested)
+            while (_resultStorage is not null)
             {
                 try
                 {
@@ -314,6 +322,10 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 catch (Exception x)
                 {
                     _log.StorageStoreJobResultError(QueueID, _tCommandName, x.Message);
+
+                    if (_appCancellation.IsCancellationRequested)
+                        break;
+
                     await Task.Delay(5000);
                 }
             }

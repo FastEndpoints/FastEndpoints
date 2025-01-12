@@ -21,6 +21,8 @@ abstract class JobQueueBase
 
     protected abstract Task<TResult?> GetJobResultAsync<TResult>(Guid trackingId, CancellationToken ct);
 
+    protected abstract Task StoreJobResultAsync<TResult>(Guid trackingId, TResult result, CancellationToken ct);
+
     internal abstract void SetLimits(int concurrencyLimit, TimeSpan executionTimeLimit, TimeSpan semWaitLimit);
 
     internal static Task<Guid> AddToQueueAsync(ICommandBase command, DateTime? executeAfter, DateTime? expireOn, CancellationToken ct)
@@ -59,6 +61,22 @@ abstract class JobQueueBase
             !JobQueues.TryGetValue(tCommand, out var queue)
                 ? throw new InvalidOperationException($"A job queue has not been registered for [{tCommand.FullName}]")
                 : queue.GetJobResultAsync<TResult>(trackingId, ct);
+    }
+
+    internal static Task StoreJobResultAsync<TCommand, TResult>(Guid trackingId, TResult result, CancellationToken ct)
+        where TCommand : ICommandBase
+        where TResult : IJobResult
+    {
+        var tCommand = typeof(TCommand);
+        var tResult = tCommand.GetInterface(typeof(ICommand<>).Name)?.GetGenericArguments()[0];
+
+        if (tResult == Types.VoidResult)
+            throw new InvalidOperationException($"Job results are not supported with commands that don't return a result! Offending command: [{tCommand.FullName}]");
+
+        return
+            !JobQueues.TryGetValue(tCommand, out var queue)
+                ? throw new InvalidOperationException($"A job queue has not been registered for [{tCommand.FullName}]")
+                : queue.StoreJobResultAsync(trackingId, result, ct);
     }
 }
 
@@ -122,6 +140,10 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
             ExecuteAfter = executeAfter ?? DateTime.UtcNow,
             ExpireOn = expireOn ?? DateTime.UtcNow.AddHours(4)
         };
+
+        if (command is IHasTrackingID c)
+            c.TrackingID = job.TrackingID;
+
         job.SetCommand((TCommand)command);
         await _storage.StoreJobAsync(job, ct);
         _sem.Release();
@@ -179,6 +201,24 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
         }
 
         return s.GetJobResultAsync<TRes>(trackingId, ct);
+    }
+
+    protected override Task StoreJobResultAsync<TRes>(Guid trackingId, TRes result, CancellationToken ct) where TRes : default
+    {
+        if (_storage is not IJobResultProvider s)
+            throw new NotSupportedException($"Please implement the  interface '{nameof(IJobResultProvider)}' on the job storage provider!");
+
+        var tRes = typeof(TRes);
+        var tResult = typeof(TResult);
+        var cmdName = typeof(TCommand).FullName;
+
+        if (tRes != tResult)
+        {
+            throw new InvalidOperationException(
+                $"The correct result type for the command [{cmdName}] should be: [{tResult.FullName}]! You specified: [{tRes.FullName}]!");
+        }
+
+        return s.StoreJobResultAsync(trackingId, result, ct);
     }
 
     async Task CommandExecutorTask()

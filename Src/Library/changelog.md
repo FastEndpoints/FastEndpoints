@@ -10,6 +10,12 @@ Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H
 
 ## New 🎉
 
+<details><summary>Queued job progress tracking</summary>
+
+todo: write docs and link here
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Global 'JwtCreationOptions' support for refresh token service</summary>

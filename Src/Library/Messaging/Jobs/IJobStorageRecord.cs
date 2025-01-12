@@ -1,4 +1,6 @@
-﻿namespace FastEndpoints;
+﻿// ReSharper disable PropertyCanBeMadeInitOnly.Global
+
+namespace FastEndpoints;
 
 /// <summary>
 /// the contract for a job storage record entity
@@ -34,7 +36,8 @@ public interface IJobStorageRecord
     DateTime ExecuteAfter { get; set; }
 
     /// <summary>
-    /// the expiration date/time of job. if the job remains in an incomplete state past this time, the record is considered stale, and will be marked for removal from storage.
+    /// the expiration date/time of job. if the job remains in an incomplete state past this time, the record is considered stale, and will be marked for removal from
+    /// storage.
     /// </summary>
     DateTime ExpireOn { get; set; }
 

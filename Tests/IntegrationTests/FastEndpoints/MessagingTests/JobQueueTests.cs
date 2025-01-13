@@ -85,4 +85,34 @@ public class JobQueueTests(Sut App) : TestBase<Sut>
             break;
         }
     }
+
+    [Fact, Priority(4)]
+    public async Task Job_Progress_Tracking()
+    {
+        var name = Guid.NewGuid().ToString();
+        var job = new JobProgressTestCommand { Name = name };
+        var trackingId = await job.QueueJobAsync(ct: Cancellation);
+        var step = 0;
+        JobResult<string>? res;
+
+        while (true)
+        {
+            res = await JobTracker<JobProgressTestCommand>.GetJobResultAsync<JobResult<string>>(trackingId, Cancellation);
+            step = res?.CurrentStep ?? 0;
+
+            if (step > 0)
+                JobProgressTestCommand.CurrentStep = step;
+
+            if (step == 3)
+            {
+                await Task.Delay(200);
+
+                break;
+            }
+
+            await Task.Delay(100);
+        }
+
+        res!.Result.Should().Be(name);
+    }
 }

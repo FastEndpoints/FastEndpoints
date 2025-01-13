@@ -160,9 +160,9 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
         {
             var cts = cancellations.GetOrCreate<CancellationTokenSource?>(
                 trackingId,
-                e =>
+                cacheEntry =>
                 {
-                    e.SlidingExpiration = cancelExpiry;
+                    cacheEntry.SlidingExpiration = cancelExpiry;
 
                     return null;
                 });

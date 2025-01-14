@@ -6,8 +6,13 @@ namespace FastEndpoints.Swagger;
 /// <summary>
 /// options for the swagger document
 /// </summary>
-public class DocumentOptions
+public class DocumentOptions(IServiceProvider serviceProvider)
 {
+    /// <summary>
+    /// service provider instance for resolving any services from the di container
+    /// </summary>
+    public IServiceProvider Services { get; } = serviceProvider;
+
     /// <summary>
     /// the index of the route path segment to use for tagging/grouping endpoints. set 0 to disable auto tagging.
     /// </summary>

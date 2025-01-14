@@ -37,12 +37,13 @@ public static class Extensions
     /// <param name="options">swagger document configuration options</param>
     public static IServiceCollection SwaggerDocument(this IServiceCollection services, Action<DocumentOptions>? options = null)
     {
-        var doc = new DocumentOptions();
-        options?.Invoke(doc);
         services.AddEndpointsApiExplorer();
         services.AddOpenApiDocument(
             (genSettings, serviceProvider) =>
             {
+                var doc = new DocumentOptions(serviceProvider);
+                options?.Invoke(doc);
+
                 var stjOpts = new JsonSerializerOptions(Cfg.SerOpts.Options);
                 SelectedJsonNamingPolicy = stjOpts.PropertyNamingPolicy;
                 doc.SerializerSettings?.Invoke(stjOpts);
@@ -54,7 +55,7 @@ public static class Extensions
                     SchemaType = SchemaType.OpenApi3
                 };
 
-                EnableFastEndpoints(genSettings, doc, serviceProvider);
+                EnableFastEndpoints(genSettings, doc);
 
                 if (doc.EndpointFilter is not null)
                     genSettings.OperationProcessors.Insert(0, new EndpointFilter(doc.EndpointFilter));
@@ -118,9 +119,9 @@ public static class Extensions
                                            Action<DocumentOptions> documentOptions,
                                            IServiceProvider serviceProvider)
     {
-        var doc = new DocumentOptions();
+        var doc = new DocumentOptions(serviceProvider);
         documentOptions(doc);
-        EnableFastEndpoints(settings, doc, serviceProvider);
+        EnableFastEndpoints(settings, doc);
     }
 
     /// <summary>
@@ -390,11 +391,9 @@ public static class Extensions
     internal static bool IsSwagger2(this OperationProcessorContext ctx)
         => ctx.Settings.SchemaSettings.SchemaType == SchemaType.Swagger2;
 
-    static void EnableFastEndpoints(AspNetCoreOpenApiDocumentGeneratorSettings settings, DocumentOptions opts, IServiceProvider serviceProvider)
+    static void EnableFastEndpoints(AspNetCoreOpenApiDocumentGeneratorSettings settings, DocumentOptions opts)
     {
-        var validationProcessor = (ValidationSchemaProcessor)serviceProvider
-                                                             .GetRequiredService<IServiceResolver>()
-                                                             .CreateSingleton(typeof(ValidationSchemaProcessor));
+        var validationProcessor = (ValidationSchemaProcessor)opts.Services.GetRequiredService<IServiceResolver>().CreateSingleton(typeof(ValidationSchemaProcessor));
 
         settings.Title = AppDomain.CurrentDomain.FriendlyName;
         settings.SchemaSettings.SchemaNameGenerator = new SchemaNameGenerator(opts.ShortSchemaNames);

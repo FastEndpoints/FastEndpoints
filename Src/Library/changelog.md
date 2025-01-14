@@ -12,11 +12,33 @@ Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H
 
 <details><summary>Queued job progress tracking</summary>
 
-todo: write docs and link here
+It is now possible to queue a job and track its progress and/or retrieve intermediate results while the command handler executes via the job tracker as [documented here](https://fast-endpoints.com/docs/job-queues#tracking-job-execution-progress).
 
 </details>
 
-## Improvements 🚀
+<details><summary>Access 'IServiceProvider' when configuring Swagger Documents</summary>
+
+You can now access the built service provider instance via the `DocumentOptions.Services` property when configuring swagger documents like so:
+
+```cs
+var bld = WebApplication.CreateBuilder(args);
+bld.Services.Configure<MySettings>(bld.Configuration.GetSection(nameof(MySettings)));
+bld.Services
+   .SwaggerDocument(
+       o =>
+       {
+           // IServiceProvider is available via DocumentOptions.Services property
+           var conf = o.Services.GetRequiredService<IOptions<MySettings>>();
+           o.DocumentSettings = doc =>
+                                {
+                                    doc.DocumentName = conf.Value.DocName;
+                                };
+       })
+   .AddFastEndpoints();
+```
+
+</details>
+
 
 <details><summary>Global 'JwtCreationOptions' support for refresh token service</summary>
 
@@ -45,6 +67,8 @@ sealed class MyTokenService : RefreshTokenService<TokenRequest, TokenResponse>
 ```
 
 </details>
+
+## Improvements 🚀
 
 <details><summary>Value parser support for Reflection Source Generator</summary>
 

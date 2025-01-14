@@ -72,6 +72,12 @@ public static class JobQueueExtensions
         return app;
     }
 
+    public static TStorageRecord CreateJob<TStorageRecord>(this ICommandBase cmd, DateTime? executeAfter = null, DateTime? expireOn = null) where TStorageRecord : class, IJobStorageRecord, new()
+        => JobQueueBase.CreateJob<TStorageRecord>(cmd, executeAfter, expireOn);
+
+    public static void TriggerJobExecution(this ICommandBase cmd)
+        => JobQueueBase.TriggerJobExecution(cmd);
+
     /// <summary>
     /// queues up a given command in the respective job queue for that command type.
     /// </summary>

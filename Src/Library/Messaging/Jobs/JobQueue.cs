@@ -15,6 +15,10 @@ abstract class JobQueueBase
     //see ctor in JobQueue<TCommand, TStorageRecord, TStorageProvider>
     protected static readonly ConcurrentDictionary<Type, JobQueueBase> JobQueues = new();
 
+    protected abstract IJobStorageRecord CreateJobStorageRecord(ICommandBase command, DateTime? executeAfter, DateTime? expireOn);
+
+    protected abstract void TriggerJobExecution();
+
     protected abstract Task<Guid> StoreJobAsync(ICommandBase command, DateTime? executeAfter, DateTime? expireOn, CancellationToken ct);
 
     protected abstract Task CancelJobAsync(Guid trackingId, CancellationToken ct);
@@ -24,6 +28,29 @@ abstract class JobQueueBase
     protected abstract Task StoreJobResultAsync<TResult>(Guid trackingId, TResult result, CancellationToken ct);
 
     internal abstract void SetLimits(int concurrencyLimit, TimeSpan executionTimeLimit, TimeSpan semWaitLimit);
+
+    internal static TStorageRecord CreateJob<TStorageRecord>(ICommandBase command, DateTime? executeAfter, DateTime? expireOn) where TStorageRecord : class, IJobStorageRecord, new()
+    {
+        if (executeAfter?.Kind is not null and not DateTimeKind.Utc ||
+            expireOn?.Kind is not null and not DateTimeKind.Utc)
+            throw new ArgumentException($"Only UTC dates are accepted for '{nameof(executeAfter)}' & '{nameof(expireOn)}' parameters!");
+
+        var tCommand = command.GetType();
+
+        return
+            !JobQueues.TryGetValue(tCommand, out var queue)
+                ? throw new InvalidOperationException($"A job queue has not been registered for [{tCommand.FullName}]")
+                : (TStorageRecord)queue.CreateJobStorageRecord(command, executeAfter, expireOn);
+    }
+
+    internal static void TriggerJobExecution(ICommandBase command)
+    {
+        var tCommand = command.GetType();
+        
+        if (!JobQueues.TryGetValue(tCommand, out var queue))
+            throw new InvalidOperationException($"A job queue has not been registered for [{tCommand.FullName}]");
+        queue.TriggerJobExecution();
+    }
 
     internal static Task<Guid> AddToQueueAsync(ICommandBase command, DateTime? executeAfter, DateTime? expireOn, CancellationToken ct)
     {
@@ -130,9 +157,8 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
         _ = CommandExecutorTask();
     }
 
-    protected override async Task<Guid> StoreJobAsync(ICommandBase command, DateTime? executeAfter, DateTime? expireOn, CancellationToken ct)
+    protected override TStorageRecord CreateJobStorageRecord(ICommandBase command, DateTime? executeAfter, DateTime? expireOn)
     {
-        _isInUse = true;
         var job = new TStorageRecord
         {
             TrackingID = Guid.NewGuid(),
@@ -145,6 +171,19 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
             c.TrackingID = job.TrackingID;
 
         job.SetCommand((TCommand)command);
+        return job;
+    }
+
+    protected override void TriggerJobExecution()
+    {
+        _isInUse = true;
+        _sem.Release();
+    }
+
+    protected override async Task<Guid> StoreJobAsync(ICommandBase command, DateTime? executeAfter, DateTime? expireOn, CancellationToken ct)
+    {
+        _isInUse = true;
+        var job = CreateJobStorageRecord(command, executeAfter, expireOn);
         await _storage.StoreJobAsync(job, ct);
         _sem.Release();
 

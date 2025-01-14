@@ -19,10 +19,6 @@
         <!-- <PackageReference Include="Microsoft.AspNetCore.OpenApi" VersionOverride="9.0.0-rc.2.24474.3"/> -->
         <PackageReference Include="MongoDB.Entities" VersionOverride="24.0.0"/>
 
-        <PackageReference Include="Microsoft.EntityFrameworkCore" VersionOverride="9.0.0"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" VersionOverride="9.0.0"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" VersionOverride="9.0.0"/>
-
         <ProjectReference Include="..\Contracts\Contracts.csproj"/>
         <ProjectReference Include="..\..\Src\Library\FastEndpoints.csproj"/>
         <ProjectReference Include="..\..\Src\AspVersioning\FastEndpoints.AspVersioning.csproj"/>

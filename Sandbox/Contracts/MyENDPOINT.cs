@@ -1,9 +1,9 @@
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
 using FastEndpoints;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json;
 
 namespace Contracts;
 
@@ -52,13 +52,9 @@ public class OrderDbContext : DbContext
     public DbSet<Order> Orders { get; set; }
     public DbSet<JobRecord> JobRecords { get; set; }
 
-    public OrderDbContext()
-    {
-    }
+    public OrderDbContext() { }
 
-    public OrderDbContext(DbContextOptions<OrderDbContext> options) : base(options)
-    {
-    }
+    public OrderDbContext(DbContextOptions<OrderDbContext> options) : base(options) { }
 }
 
 public class JobStorageProvider : IJobStorageProvider<JobRecord>
@@ -68,6 +64,8 @@ public class JobStorageProvider : IJobStorageProvider<JobRecord>
     public JobStorageProvider(IDbContextFactory<OrderDbContext> dbContextFactory)
     {
         _dbContextFactory = dbContextFactory;
+        using var db = _dbContextFactory.CreateDbContext();
+        db.Database.EnsureCreated();
     }
 
     public async Task StoreJobAsync(JobRecord job, CancellationToken ct)
@@ -83,6 +81,7 @@ public class JobStorageProvider : IJobStorageProvider<JobRecord>
 
         return await db.JobRecords
                        .Where(p.Match)
+                       .OrderBy(j => j.Id)
                        .Take(p.Limit)
                        .ToListAsync(p.CancellationToken);
     }
@@ -126,6 +125,7 @@ class PublishOrderCreatedEventCommandHandler : ICommandHandler<PublishOrderCreat
     public Task ExecuteAsync(PublishOrderCreatedEventCommand command, CancellationToken ct)
     {
         _logger.LogError("Queueing OrderCreated event {OrderNumber} to RabbitMQ, Azure ServiceBus, Redis Streams, Azure EventGrid...", command.OrderNumber);
+
         return Task.CompletedTask;
     }
 }
@@ -147,7 +147,7 @@ sealed class OrderEndpoint : Endpoint<CreateOrderRequest>
 
     public override async Task HandleAsync(CreateOrderRequest req, CancellationToken ct)
     {
-        var order = new Order()
+        var order = new Order
         {
             OrderNumber = "1234",
             Total = req.Total
@@ -158,23 +158,24 @@ sealed class OrderEndpoint : Endpoint<CreateOrderRequest>
             dbContext.Database.OpenConnection();
             await dbContext.Database.EnsureCreatedAsync(ct);
             using var transaction = dbContext.Database.BeginTransaction();
+
             try
             {
                 dbContext.Orders.Add(order);
                 await dbContext.SaveChangesAsync(ct);
 
-                var @eventCommand = new PublishOrderCreatedEventCommand()
+                var eventCommand = new PublishOrderCreatedEventCommand
                 {
                     Id = order.Id,
                     OrderNumber = order.OrderNumber,
                     Total = order.Total
                 };
-                var job = @eventCommand.CreateJob<JobRecord>();
+                var job = eventCommand.CreateJob<JobRecord>();
                 dbContext.JobRecords.Add(job);
                 await dbContext.SaveChangesAsync(ct);
 
                 transaction.Commit();
-                @eventCommand.TriggerJobExecution();
+                eventCommand.TriggerJobExecution();
             }
             catch (Exception)
             {

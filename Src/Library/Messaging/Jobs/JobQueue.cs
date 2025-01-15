@@ -177,10 +177,9 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
 
     protected override async Task<Guid> StoreJobAsync(ICommandBase command, DateTime? executeAfter, DateTime? expireOn, CancellationToken ct)
     {
-        _isInUse = true;
         var job = CreateJob(command, executeAfter, expireOn);
         await _storage.StoreJobAsync(job, ct);
-        _sem.Release();
+        TriggerJob();
 
         return job.TrackingID;
     }

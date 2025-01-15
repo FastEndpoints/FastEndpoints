@@ -72,10 +72,23 @@ public static class JobQueueExtensions
         return app;
     }
 
+    /// <summary>
+    /// creates a new job object for the provided command.
+    /// </summary>
+    /// <typeparam name="TStorageRecord">the type of your <see cref="IJobStorageRecord" /> concrete class</typeparam>
+    /// <param name="cmd">the command to be set in the job</param>
+    /// <param name="executeAfter">if set, the job won't be executed before this date/time. if unspecified, execution is attempted as soon as possible.</param>
+    /// <param name="expireOn">if set, job will be considered stale/expired after this date/time. if unspecified, jobs expire after 4 hours of creation.</param>
+    /// <returns>the new job object</returns>
+    /// <exception cref="ArgumentException">thrown if the <paramref name="executeAfter" /> and <paramref name="expireOn" /> arguments are not UTC values</exception>
     public static TStorageRecord CreateJob<TStorageRecord>(this ICommandBase cmd, DateTime? executeAfter = null, DateTime? expireOn = null)
         where TStorageRecord : class, IJobStorageRecord, new()
         => JobQueueBase.CreateJob<TStorageRecord>(cmd, executeAfter, expireOn);
 
+    /// <summary>
+    /// triggers the execution of jobs in the respective queue for that command type.
+    /// </summary>
+    /// <param name="cmd">the command used to determine which queue to trigger</param>
     public static void TriggerJobExecution(this ICommandBase cmd)
         => JobQueueBase.TriggerJobExecution(cmd);
 

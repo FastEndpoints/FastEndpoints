@@ -25,14 +25,14 @@ public abstract class TestBase : IAsyncLifetime, IFaker
 
     /// <summary>
     /// override this method if you'd like to do some one-time setup for the test-class.
-    /// it is run before any of the test-methods of the class is executed.
+    /// it is run before each of the test-methods of the class is executed.
     /// </summary>
     protected virtual ValueTask SetupAsync()
         => ValueTask.CompletedTask;
 
     /// <summary>
     /// override this method if you'd like to do some one-time teardown for the test-class.
-    /// it is run after all test-methods have executed.
+    /// it is run after each of the test-methods of the class is executed.
     /// </summary>
     protected virtual ValueTask TearDownAsync()
         => ValueTask.CompletedTask;

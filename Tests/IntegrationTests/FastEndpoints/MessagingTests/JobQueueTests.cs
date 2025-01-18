@@ -4,7 +4,46 @@ namespace Messaging;
 
 public class JobQueueTests(Sut App) : TestBase<Sut>
 {
-    [Fact, Priority(1), Trait("ExcludeInCiCd", "Yes")]
+    public static readonly TheoryData<DateTime?, DateTime?> JobCreateCases = new()
+    {
+        { null, null },
+        { null, DateTime.UtcNow },
+        { DateTime.UtcNow, null },
+        { DateTime.UtcNow, DateTime.UtcNow }
+    };
+
+    [Theory, MemberData(nameof(JobCreateCases)), Priority(1)]
+    public async Task Jobs_Create(DateTime? executeAfter, DateTime? expireOn)
+    {
+        var cmd = new JobTestCommand();
+        var job = cmd.CreateJob<Job>(executeAfter, expireOn);
+
+        if (executeAfter.HasValue)
+            job.ExecuteAfter.Should().Be(executeAfter);
+        else
+            Assert.Equal(DateTime.UtcNow, job.ExecuteAfter, TimeSpan.FromMilliseconds(100));
+
+        if (expireOn.HasValue)
+            job.ExpireOn.Should().Be(expireOn);
+        else
+            Assert.Equal(DateTime.UtcNow.AddHours(4), job.ExpireOn, TimeSpan.FromMilliseconds(100));
+    }
+
+    public static readonly TheoryData<DateTime?, DateTime?> JobCreateExceptionCases = new()
+    {
+        { DateTime.Now, DateTime.Now },
+        { DateTime.Now, null },
+        { null, DateTime.Now }
+    };
+
+    [Theory, MemberData(nameof(JobCreateExceptionCases)), Priority(2)]
+    public async Task Jobs_Create_Exception(DateTime? executeAfter, DateTime? expireOn)
+    {
+        var cmd = new JobTestCommand();
+        Assert.Throws<ArgumentException>(() => cmd.CreateJob<Job>(executeAfter, expireOn));
+    }
+
+    [Fact, Priority(3), Trait("ExcludeInCiCd", "Yes")]
     public async Task Job_Cancellation()
     {
         var cts = new CancellationTokenSource(5000);
@@ -36,7 +75,7 @@ public class JobQueueTests(Sut App) : TestBase<Sut>
         JobStorage.Jobs.Clear();
     }
 
-    [Fact, Priority(2)]
+    [Fact, Priority(4)]
     public async Task Jobs_Execution()
     {
         var cts = new CancellationTokenSource(5000);
@@ -60,7 +99,33 @@ public class JobQueueTests(Sut App) : TestBase<Sut>
         JobStorage.Jobs.Clear();
     }
 
-    [Fact, Priority(3)]
+    [Fact, Priority(5)]
+    public async Task Job_Deferred_Execution()
+    {
+        var cts = new CancellationTokenSource(5000);
+
+        for (var i = 0; i < 10; i++)
+        {
+            var cmd = new JobTestCommand
+            {
+                Id = i,
+                ShouldThrow = i == 0
+            };
+            var job = cmd.CreateJob<Job>(executeAfter: i == 1 ? DateTime.UtcNow.AddDays(1) : DateTime.UtcNow);
+            JobStorage.Jobs.Add(job);
+            cmd.TriggerJobExecution();
+        }
+
+        while (!cts.IsCancellationRequested && JobTestCommand.CompletedIDs.Count < 9)
+            await Task.Delay(100, Cancellation);
+
+        JobTestCommand.CompletedIDs.Count.Should().Be(9);
+        var expected = new[] { 0, 2, 3, 4, 5, 6, 7, 8, 9 };
+        JobTestCommand.CompletedIDs.Except(expected).Any().Should().BeFalse();
+        JobStorage.Jobs.Clear();
+    }
+
+    [Fact, Priority(6)]
     public async Task Job_With_Result_Execution()
     {
         var cts = new CancellationTokenSource(5000);
@@ -86,7 +151,7 @@ public class JobQueueTests(Sut App) : TestBase<Sut>
         }
     }
 
-    [Fact, Priority(4)]
+    [Fact, Priority(7)]
     public async Task Job_Progress_Tracking()
     {
         var name = Guid.NewGuid().ToString();

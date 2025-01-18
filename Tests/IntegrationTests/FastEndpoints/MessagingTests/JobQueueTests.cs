@@ -1,4 +1,4 @@
-using TestCases.JobQueueTest;
+﻿using TestCases.JobQueueTest;
 
 namespace Messaging;
 
@@ -17,7 +17,7 @@ public class JobQueueTests(Sut App) : TestBase<Sut>
     {
         var cmd = new JobTestCommand();
         var job = cmd.CreateJob<Job>(executeAfter, expireOn);
-        
+
         if (executeAfter.HasValue)
             job.ExecuteAfter.Should().Be(executeAfter);
         else

@@ -27,7 +27,7 @@ public class ParamCreationContextTests
         var operationPath = $"/route/{{{ParamName}:{paramType}}}/";
         var sut = new OperationProcessor.ParamCreationContext(null!, null!, null!, null, operationPath);
 
-        sut.TypeForRouteParam(ParamName).Should().Be(expectedType);
+        sut.TypeForRouteParam(ParamName).ShouldBe(expectedType);
     }
 
     [Fact]
@@ -36,7 +36,7 @@ public class ParamCreationContextTests
         const string operationPath = $"/route/{{{ParamName}}}/";
         var sut = new OperationProcessor.ParamCreationContext(null!, null!, null!, null, operationPath);
 
-        sut.TypeForRouteParam(ParamName).Should().Be(typeof(string));
+        sut.TypeForRouteParam(ParamName).ShouldBe(typeof(string));
     }
 
     [Fact]
@@ -45,7 +45,7 @@ public class ParamCreationContextTests
         const string operationPath = $"/route/{{{ParamName}:unknownType}}/";
         var sut = new OperationProcessor.ParamCreationContext(null!, null!, null!, null, operationPath);
 
-        sut.TypeForRouteParam(ParamName).Should().Be(typeof(string));
+        sut.TypeForRouteParam(ParamName).ShouldBe(typeof(string));
     }
 
     [Theory]
@@ -65,8 +65,8 @@ public class ParamCreationContextTests
         var operationPath = $"/route/{{{ParamName}:{paramType}}}/{{{OtherParam}:unknownType}}/";
         var sut = new OperationProcessor.ParamCreationContext(null!, null!, null!, null, operationPath);
 
-        sut.TypeForRouteParam(ParamName).Should().Be(expectedType);
-        sut.TypeForRouteParam(OtherParam).Should().Be(typeof(string));
+        sut.TypeForRouteParam(ParamName).ShouldBe(expectedType);
+        sut.TypeForRouteParam(OtherParam).ShouldBe(typeof(string));
     }
 
     [Theory]
@@ -87,7 +87,7 @@ public class ParamCreationContextTests
         var operationPath = $"/route/{{{ParamName}:{paramType}:min(10)}}:deactivate";
         var sut = new OperationProcessor.ParamCreationContext(null!, null!, null!, null, operationPath);
 
-        sut.TypeForRouteParam(ParamName).Should().Be(expectedType);
+        sut.TypeForRouteParam(ParamName).ShouldBe(expectedType);
     }
 
     [Fact]
@@ -96,7 +96,7 @@ public class ParamCreationContextTests
         const string operationPath = $"/route/{{{ParamName}}}:deactivate";
         var sut = new OperationProcessor.ParamCreationContext(null!, null!, null!, null, operationPath);
 
-        sut.TypeForRouteParam(ParamName).Should().Be(typeof(string));
+        sut.TypeForRouteParam(ParamName).ShouldBe(typeof(string));
     }
 
     [Fact]
@@ -105,7 +105,7 @@ public class ParamCreationContextTests
         const string operationPath = $"/route/{{{ParamName}:min(5):max(10)}}:deactivate";
         var sut = new OperationProcessor.ParamCreationContext(null!, null!, null!, null, operationPath);
 
-        sut.TypeForRouteParam(ParamName).Should().Be(typeof(long));
+        sut.TypeForRouteParam(ParamName).ShouldBe(typeof(long));
     }
 
     [Fact]
@@ -114,7 +114,7 @@ public class ParamCreationContextTests
         const string operationPath = $"api/a:{{{ParamName}}}:{{id2}}/{{{OtherParam}:long}}/";
         var sut = new OperationProcessor.ParamCreationContext(null!, null!, null!, null, operationPath);
 
-        sut.TypeForRouteParam(ParamName).Should().Be(typeof(string));
-        sut.TypeForRouteParam(OtherParam).Should().Be(typeof(long));
+        sut.TypeForRouteParam(ParamName).ShouldBe(typeof(string));
+        sut.TypeForRouteParam(OtherParam).ShouldBe(typeof(long));
     }
 }

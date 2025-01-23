@@ -19,7 +19,7 @@ public class ServerStreamCommand(Sut f) : RpcTestBase(f)
 
         await foreach (var status in iterator)
         {
-            status.Message.Should().Be($"Id: {101} - {i}");
+            status.Message.ShouldBe($"Id: {101} - {i}");
             i++;
 
             if (i == 10)

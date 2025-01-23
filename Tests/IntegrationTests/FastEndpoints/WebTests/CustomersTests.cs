@@ -15,9 +15,9 @@ public class CustomersTests(Sut App) : TestBase<Sut>
     {
         var (_, res) = await App.AdminClient.GETAsync<List.Recent.Endpoint, List.Recent.Response>();
 
-        res.Customers!.Count().Should().Be(3);
-        res.Customers!.First().Key.Should().Be("ryan gunner");
-        res.Customers!.Last().Key.Should().Be("ryan reynolds");
+        res.Customers!.Count().ShouldBe(3);
+        res.Customers!.First().Key.ShouldBe("ryan gunner");
+        res.Customers!.Last().Key.ShouldBe("ryan reynolds");
     }
 
     [Fact]
@@ -25,7 +25,7 @@ public class CustomersTests(Sut App) : TestBase<Sut>
     {
         var (rsp, _) = await App.AdminClient.GETAsync<List.Recent.Endpoint_V1, List.Recent.Response>();
 
-        rsp.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
+        rsp.StatusCode.ShouldBe(HttpStatusCode.InternalServerError);
     }
 
     [Fact]
@@ -39,8 +39,8 @@ public class CustomersTests(Sut App) : TestBase<Sut>
                                  PhoneNumbers = new[] { "123", "456" }
                              });
 
-        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
-        res.Should().Be("Email was not sent during testing! admin");
+        rsp.StatusCode.ShouldBe(HttpStatusCode.OK);
+        res.ShouldBe("Email was not sent during testing! admin");
     }
 
     [Fact]
@@ -55,7 +55,7 @@ public class CustomersTests(Sut App) : TestBase<Sut>
                                Name = "test customer"
                            });
 
-        res.Should().Be("CST001");
+        res.ShouldBe("CST001");
     }
 
     [Fact]
@@ -70,7 +70,7 @@ public class CustomersTests(Sut App) : TestBase<Sut>
                                Name = "test customer"
                            });
 
-        res.Should().Be("customer id set by admin user");
+        res.ShouldBe("customer id set by admin user");
     }
 
     [Fact]
@@ -84,16 +84,16 @@ public class CustomersTests(Sut App) : TestBase<Sut>
                                  Quantity = 23
                              });
 
-        rsp.IsSuccessStatusCode.Should().BeTrue();
-        res.OrderID.Should().Be(54321);
-        res.AnotherMsg.Should().Be("Email was not sent during testing!");
-        res.Event.One.Should().Be(100);
-        res.Event.Two.Should().Be(200);
+        rsp.IsSuccessStatusCode.ShouldBeTrue();
+        res.OrderID.ShouldBe(54321);
+        res.AnotherMsg.ShouldBe("Email was not sent during testing!");
+        res.Event.One.ShouldBe(100);
+        res.Event.Two.ShouldBe(200);
 
-        res.Header1.Should().Be(0);
-        res.Header2.Should().Be(default);
-        rsp.Headers.GetValues("x-header-one").Single().Should().Be("12345");
-        DateOnly.Parse(rsp.Headers.GetValues("Header2").Single(), CultureInfo.InvariantCulture).Should().Be(new(2020, 11, 12));
+        res.Header1.ShouldBe(0);
+        res.Header2.ShouldBe(default);
+        rsp.Headers.GetValues("x-header-one").Single().ShouldBe("12345");
+        DateOnly.Parse(rsp.Headers.GetValues("Header2").Single(), CultureInfo.InvariantCulture).ShouldBe(new(2020, 11, 12));
     }
 
     [Fact]
@@ -111,9 +111,9 @@ public class CustomersTests(Sut App) : TestBase<Sut>
                                  GuidTest = Guid.NewGuid()
                              });
 
-        rsp.IsSuccessStatusCode.Should().BeTrue();
-        res.OrderID.Should().Be(54321);
-        res.GuidTest.Should().Be(guid);
+        rsp.IsSuccessStatusCode.ShouldBeTrue();
+        res.OrderID.ShouldBe(54321);
+        res.GuidTest.ShouldBe(guid);
     }
 
     [Fact]
@@ -128,7 +128,7 @@ public class CustomersTests(Sut App) : TestBase<Sut>
                                Address: "address"));
 
         var results = res!.Split('|');
-        results[0].Should().Be("qwerty");
-        results[1].Should().Be("123");
+        results[0].ShouldBe("qwerty");
+        results[1].ShouldBe("123");
     }
 }

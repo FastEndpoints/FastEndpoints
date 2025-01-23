@@ -7,9 +7,9 @@ public class DiTests(Sut App) : TestBase<Sut>
     {
         var (rsp, res) = await App.GuestClient.GETAsync<TestCases.ServiceRegistrationGeneratorTest.Endpoint, string[]>();
 
-        rsp.IsSuccessStatusCode.Should().BeTrue();
+        rsp.IsSuccessStatusCode.ShouldBeTrue();
 
-        res.Should().Equal("Scoped", "Transient", "Singleton");
+        res.ShouldBe(["Scoped", "Transient", "Singleton"]);
     }
 
     [Fact]
@@ -17,8 +17,8 @@ public class DiTests(Sut App) : TestBase<Sut>
     {
         var (rsp, res) = await App.GuestClient.GETAsync<TestCases.KeyedServicesTests.Endpoint, string>();
 
-        rsp.IsSuccessStatusCode.Should().BeTrue();
+        rsp.IsSuccessStatusCode.ShouldBeTrue();
 
-        res.Should().Be("AAA");
+        res.ShouldBe("AAA");
     }
 }

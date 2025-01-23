@@ -33,8 +33,8 @@ public class AssemblyFixtureTests
         //[Fact]
         public void Fixture_SetupAsync_Called_Once()
         {
-            App.Should().NotBeNull();
-            GlobalApp.Count.Value.Number.Should().Be(1);
+            App.ShouldNotBeNull();
+            GlobalApp.Count.Value.Number.ShouldBe(1);
         }
     }
 
@@ -43,8 +43,8 @@ public class AssemblyFixtureTests
         //[Fact]
         public void Fixture_SetupAsync_Called_Once()
         {
-            App.Should().NotBeNull();
-            GlobalApp.Count.Value.Number.Should().Be(1);
+            App.ShouldNotBeNull();
+            GlobalApp.Count.Value.Number.ShouldBe(1);
         }
     }
 }

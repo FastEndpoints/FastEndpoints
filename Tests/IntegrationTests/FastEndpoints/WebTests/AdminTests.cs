@@ -16,8 +16,8 @@ public class AdminTests(Sut App) : TestBase<Sut>
                                      Password = "y"
                                  });
 
-        resp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        result.Errors.Count.Should().Be(2);
+        resp.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        result.Errors.Count.ShouldBe(2);
     }
 
     [Fact]
@@ -30,9 +30,9 @@ public class AdminTests(Sut App) : TestBase<Sut>
                                      Password = "pass"
                                  });
 
-        resp.StatusCode.Should().Be(HttpStatusCode.OK);
-        result.Permissions.Count().Should().Be(8);
-        result.JWTToken.Should().NotBeNull();
+        resp.StatusCode.ShouldBe(HttpStatusCode.OK);
+        result.Permissions.Count().ShouldBe(8);
+        result.JWTToken.ShouldNotBeNull();
     }
 
     [Fact]
@@ -44,13 +44,13 @@ public class AdminTests(Sut App) : TestBase<Sut>
                                UserName = "admin",
                                Password = "xxxxx"
                            });
-        rsp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        rsp.Content.Headers.ContentType?.MediaType.Should().Be("application/problem+json");
+        rsp.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        rsp.Content.Headers.ContentType?.MediaType.ShouldBe("application/problem+json");
 
         // read(deserialize) the 400 response to see what's actually wrong
         // or change the response DTO type above to ErrorResponse
         var errRsp = await rsp.Content.ReadFromJsonAsync<ErrorResponse>(Cancellation);
-        errRsp!.Errors["generalErrors"][0].Should().Be("Authentication Failed!");
+        errRsp!.Errors["generalErrors"][0].ShouldBe("Authentication Failed!");
     }
 
     [Fact]
@@ -72,25 +72,25 @@ public class AdminTests(Sut App) : TestBase<Sut>
 
             if (i <= 5)
             {
-                rsp.StatusCode.Should().Be(HttpStatusCode.OK);
-                res.JWTToken.Should().NotBeNullOrEmpty();
+                rsp.StatusCode.ShouldBe(HttpStatusCode.OK);
+                res.JWTToken.ShouldNotBeNullOrEmpty();
                 successCount++;
             }
             else
             {
-                i.Should().Be(6);
-                rsp.StatusCode.Should().Be(HttpStatusCode.TooManyRequests);
+                i.ShouldBe(6);
+                rsp.StatusCode.ShouldBe(HttpStatusCode.TooManyRequests);
             }
         }
 
-        successCount.Should().Be(5);
+        successCount.ShouldBe(5);
     }
 
     [Fact]
     public async Task AdminLoginV2()
     {
         var (resp, result) = await App.GuestClient.GETAsync<Login.Endpoint_V2, EmptyRequest, int>(new());
-        resp.StatusCode.Should().Be(HttpStatusCode.OK);
-        result.Should().Be(2);
+        resp.StatusCode.ShouldBe(HttpStatusCode.OK);
+        result.ShouldBe(2);
     }
 }

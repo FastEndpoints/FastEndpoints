@@ -16,8 +16,8 @@ public class ProcessorTests(Sut App) : TestBase<Sut>
                         Id = 0
                     });
 
-        x.Response.StatusCode.Should().Be(HttpStatusCode.OK);
-        x.Result.ToString().Should().Be("hello from pre-processor!");
+        x.Response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        x.Result.ToString().ShouldBe("hello from pre-processor!");
     }
 
     [Fact]
@@ -33,10 +33,10 @@ public class ProcessorTests(Sut App) : TestBase<Sut>
                                  FirstName = ""
                              });
 
-        rsp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        res.Errors.Should().NotBeNull();
-        res.Errors.Count.Should().Be(2);
-        res.Errors["x"].First().Should().Be("blah");
+        rsp.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        res.Errors.ShouldNotBeNull();
+        res.Errors.Count.ShouldBe(2);
+        res.Errors["x"].First().ShouldBe("blah");
     }
 
     [Fact]
@@ -51,9 +51,9 @@ public class ProcessorTests(Sut App) : TestBase<Sut>
                 {
                     Values = ["zero"]
                 });
-        rsp.IsSuccessStatusCode.Should().BeTrue();
-        res.Count.Should().Be(5);
-        res.Should().Equal("zero", "one", "two", "three", "four");
+        rsp.IsSuccessStatusCode.ShouldBeTrue();
+        res.Count.ShouldBe(5);
+        res.ShouldBe(["zero", "one", "two", "three", "four"]);
     }
 
     [Fact]
@@ -64,10 +64,10 @@ public class ProcessorTests(Sut App) : TestBase<Sut>
                              Sales.Orders.Retrieve.Request,
                              ErrorResponse>(new() { OrderID = "order1" });
 
-        rsp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        res.Errors.Should().NotBeNull();
-        res.Errors.Count.Should().Be(1);
-        res.Errors.Should().ContainKey("missingHeaders");
+        rsp.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        res.Errors.ShouldNotBeNull();
+        res.Errors.Count.ShouldBe(1);
+        res.Errors.ShouldContainKey("missingHeaders");
     }
 
     [Fact]
@@ -82,7 +82,7 @@ public class ProcessorTests(Sut App) : TestBase<Sut>
                                OrderID = "order1"
                            });
 
-        rsp.StatusCode.Should().Be(HttpStatusCode.MethodNotAllowed);
+        rsp.StatusCode.ShouldBe(HttpStatusCode.MethodNotAllowed);
     }
 
     [Fact]
@@ -93,8 +93,8 @@ public class ProcessorTests(Sut App) : TestBase<Sut>
                              Sales.Orders.Retrieve.Request,
                              ErrorResponse>(new() { OrderID = "order1" });
 
-        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
-        res.Message.Should().Be("ok!");
+        rsp.StatusCode.ShouldBe(HttpStatusCode.OK);
+        res.Message.ShouldBe("ok!");
     }
 
     [Fact]
@@ -105,8 +105,8 @@ public class ProcessorTests(Sut App) : TestBase<Sut>
                     TestCases.ProcessorStateTest.Request,
                     string>(new() { Id = 10101 });
 
-        x.Response.StatusCode.Should().Be(HttpStatusCode.OK);
-        x.Result.Should().Be("10101 jane doe True");
+        x.Response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        x.Result.ShouldBe("10101 jane doe True");
     }
 
     [Fact]
@@ -117,16 +117,16 @@ public class ProcessorTests(Sut App) : TestBase<Sut>
                     TestCases.PostProcessorTest.Request,
                     TestCases.PostProcessorTest.ExceptionDetailsResponse>(new() { Id = 10101 });
 
-        x.Response.StatusCode.Should().Be(HttpStatusCode.PreconditionFailed);
-        x.Result.Type.Should().Be(nameof(NotImplementedException));
+        x.Response.StatusCode.ShouldBe(HttpStatusCode.PreconditionFailed);
+        x.Result.Type.ShouldBe(nameof(NotImplementedException));
     }
 
     [Fact]
     public async Task ExceptionIsThrownWhenAPostProcDoesntHandleExceptions()
     {
         var (rsp, res) = await App.Client.GETAsync<TestCases.PostProcessorTest.EpNoPostProcessor, InternalErrorResponse>();
-        rsp.IsSuccessStatusCode.Should().BeFalse();
-        res.Code.Should().Be(500);
-        res.Reason.Should().Be("The method or operation is not implemented.");
+        rsp.IsSuccessStatusCode.ShouldBeFalse();
+        res.Code.ShouldBe(500);
+        res.Reason.ShouldBe("The method or operation is not implemented.");
     }
 }

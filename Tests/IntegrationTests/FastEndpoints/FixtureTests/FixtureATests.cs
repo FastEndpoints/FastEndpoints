@@ -8,6 +8,6 @@ public class FixtureATests(FixtureA sut) : TestBase<FixtureA>
     public async Task Mock_Email_Service_Is_Resolved()
     {
         var svc = sut.Services.GetRequiredService<IEmailService>();
-        svc.SendEmail().Should().Be("Email was not sent during testing!");
+        svc.SendEmail().ShouldBe("Email was not sent during testing!");
     }
 }

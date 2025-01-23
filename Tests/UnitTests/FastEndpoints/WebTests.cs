@@ -33,9 +33,9 @@ public class WebTests
         await ep.HandleAsync(req, default);
 
         //assert
-        ep.Response.Should().NotBeNull();
-        ep.Response.Name.Should().Be("john doe");
-        ep.Response.Age.Should().Be(22);
+        ep.Response.ShouldNotBeNull();
+        ep.Response.Name.ShouldBe("john doe");
+        ep.Response.Age.ShouldBe(22);
     }
 
     [Fact]
@@ -55,9 +55,9 @@ public class WebTests
         await ep.HandleAsync(req, default);
 
         //assert
-        ep.Response.Should().NotBeNull();
-        ep.Response.Name.Should().Be("john doe");
-        ep.Response.Age.Should().Be(22);
+        ep.Response.ShouldNotBeNull();
+        ep.Response.Name.ShouldBe("john doe");
+        ep.Response.Age.ShouldBe(22);
     }
 
     [Fact]
@@ -75,10 +75,9 @@ public class WebTests
             LastName = "doe",
             Age = 22
         };
-        await ep.Invoking(e => e.HandleAsync(req, default))
-                .Should()
-                .ThrowAsync<InvalidOperationException>()
-                .WithMessage("Endpoint mapper is not set!");
+
+        var ex = await Should.ThrowAsync<InvalidOperationException>(() => ep.HandleAsync(req, CancellationToken.None));
+        ex.Message.ShouldBe("Endpoint mapper is not set!");
     }
 
     [Fact]
@@ -96,7 +95,7 @@ public class WebTests
 
         await ep.HandleAsync(req, default);
 
-        ep.Response.Should().Be("test email by harry potter");
+        ep.Response.ShouldBe("test email by harry potter");
     }
 
     [Fact]
@@ -118,7 +117,7 @@ public class WebTests
 
         await ep.HandleAsync(req, default);
 
-        ep.Response.Should().Be("test email by harry potter");
+        ep.Response.ShouldBe("test email by harry potter");
     }
 
     [Fact]
@@ -144,9 +143,9 @@ public class WebTests
         var rsp = ep.Response;
 
         //assert
-        ep.ValidationFailed.Should().BeFalse();
-        rsp.Should().NotBeNull();
-        rsp.Permissions.Should().Contain("Inventory_Delete_Item");
+        ep.ValidationFailed.ShouldBeFalse();
+        rsp.ShouldNotBeNull();
+        rsp.Permissions.ShouldContain("Inventory_Delete_Item");
     }
 
     [Fact]
@@ -168,8 +167,8 @@ public class WebTests
         await ep.HandleAsync(req, default);
 
         //assert
-        ep.ValidationFailed.Should().BeTrue();
-        ep.ValidationFailures.Any(f => f.ErrorMessage == "Authentication Failed!").Should().BeTrue();
+        ep.ValidationFailed.ShouldBeTrue();
+        ep.ValidationFailures.Any(f => f.ErrorMessage == "Authentication Failed!").ShouldBeTrue();
     }
 
     [Fact]
@@ -178,9 +177,9 @@ public class WebTests
         var endpoint = Factory.Create<Customers.List.Recent.Endpoint>();
         var res = await endpoint.ExecuteAsync(default) as Customers.List.Recent.Response;
 
-        res?.Customers?.Count().Should().Be(3);
-        res?.Customers?.First().Key.Should().Be("ryan gunner");
-        res?.Customers?.Last().Key.Should().Be(res?.Customers?.Last().Key);
+        res?.Customers?.Count().ShouldBe(3);
+        res?.Customers?.First().Key.ShouldBe("ryan gunner");
+        res?.Customers?.Last().Key.ShouldBe(res?.Customers?.Last().Key);
     }
 
     [Fact]
@@ -189,17 +188,17 @@ public class WebTests
         var ep = Factory.Create<MultiResultEndpoint>();
 
         var res0 = await ep.ExecuteAsync(new() { Id = 0 }, CancellationToken.None);
-        res0.Result.Should().BeOfType<NotFound>();
+        res0.Result.ShouldBeOfType<NotFound>();
 
         var res1 = await ep.ExecuteAsync(new() { Id = 1 }, CancellationToken.None);
-        var errors = res1.Result.As<ProblemDetails>()!.Errors;
-        errors.Count().Should().Be(1);
-        errors.Single(e => e.Name == nameof(Request.Id)).Reason.Should().Be("value has to be greater than 1");
+        var errors = (res1.Result as ProblemDetails)!.Errors;
+        errors.Count().ShouldBe(1);
+        errors.Single(e => e.Name == nameof(Request.Id)).Reason.ShouldBe("value has to be greater than 1");
 
         var res2 = await ep.ExecuteAsync(new() { Id = 2 }, CancellationToken.None);
-        var response = res2.Result.As<Ok<Response>>();
-        response.StatusCode.Should().Be(200);
-        response.Value!.RequestId.Should().Be(2);
+        var response = res2.Result as Ok<Response>;
+        response!.StatusCode.ShouldBe(200);
+        response.Value!.RequestId.ShouldBe(2);
     }
 
     [Fact]
@@ -225,7 +224,7 @@ public class WebTests
             default);
 
         ep.HttpContext.Response.Headers.ContainsKey("Location");
-        ep.HttpContext.Response.StatusCode.Should().Be(201);
+        ep.HttpContext.Response.StatusCode.ShouldBe(201);
     }
 
     [Fact]
@@ -243,8 +242,8 @@ public class WebTests
 
         //assert
         // False represents the lack of global state addition from endpoint without global preprocessor
-        ep.Response.Should().Be("101 blah False");
-        state.Duration.Should().BeGreaterThan(95);
+        ep.Response.ShouldBe("101 blah False");
+        state.Duration.ShouldBeGreaterThan(95);
     }
 
     [Fact]
@@ -260,7 +259,7 @@ public class WebTests
                         ctx.AddTestServices(s => s.AddSingleton(new TestCases.UnitTestConcurrencyTest.SingltonSVC(id)));
                     });
 
-                (await ep.ExecuteAsync(new() { Id = id }, default)).Should().Be(id);
+                (await ep.ExecuteAsync(new() { Id = id }, default)).ShouldBe(id);
             });
     }
 
@@ -278,11 +277,11 @@ public class WebTests
             },
             default);
 
-        ep.ValidationFailed.Should().BeTrue();
-        ep.ValidationFailures.Count.Should().Be(3);
-        ep.ValidationFailures[0].PropertyName.Should().Be("NumbersList[0]");
-        ep.ValidationFailures[1].PropertyName.Should().Be("NumbersList[1]");
-        ep.ValidationFailures[2].PropertyName.Should().Be("NumbersList[2]");
+        ep.ValidationFailed.ShouldBeTrue();
+        ep.ValidationFailures.Count.ShouldBe(3);
+        ep.ValidationFailures[0].PropertyName.ShouldBe("NumbersList[0]");
+        ep.ValidationFailures[1].PropertyName.ShouldBe("NumbersList[1]");
+        ep.ValidationFailures[2].PropertyName.ShouldBe("NumbersList[2]");
     }
 
     [Fact]
@@ -300,10 +299,10 @@ public class WebTests
             },
             default);
 
-        ep.ValidationFailed.Should().BeTrue();
-        ep.ValidationFailures.Count.Should().Be(2);
-        ep.ValidationFailures[0].PropertyName.Should().Be("StringDictionary[\"a\"]");
-        ep.ValidationFailures[1].PropertyName.Should().Be("StringDictionary[\"b\"]");
+        ep.ValidationFailed.ShouldBeTrue();
+        ep.ValidationFailures.Count.ShouldBe(2);
+        ep.ValidationFailures[0].PropertyName.ShouldBe("StringDictionary[\"a\"]");
+        ep.ValidationFailures[1].PropertyName.ShouldBe("StringDictionary[\"b\"]");
     }
 
     [Fact]
@@ -321,10 +320,10 @@ public class WebTests
             },
             default);
 
-        ep.ValidationFailed.Should().BeTrue();
-        ep.ValidationFailures.Count.Should().Be(2);
-        ep.ValidationFailures[0].PropertyName.Should().Be("StringArray[0]");
-        ep.ValidationFailures[1].PropertyName.Should().Be("StringArray[1]");
+        ep.ValidationFailed.ShouldBeTrue();
+        ep.ValidationFailures.Count.ShouldBe(2);
+        ep.ValidationFailures[0].PropertyName.ShouldBe("StringArray[0]");
+        ep.ValidationFailures[1].PropertyName.ShouldBe("StringArray[1]");
     }
 
     [Fact]
@@ -342,10 +341,10 @@ public class WebTests
             },
             default);
 
-        ep.ValidationFailed.Should().BeTrue();
-        ep.ValidationFailures.Count.Should().Be(2);
-        ep.ValidationFailures[0].PropertyName.Should().Be("ObjectArray[0].Test");
-        ep.ValidationFailures[1].PropertyName.Should().Be("ObjectArray[1].Test");
+        ep.ValidationFailed.ShouldBeTrue();
+        ep.ValidationFailures.Count.ShouldBe(2);
+        ep.ValidationFailures[0].PropertyName.ShouldBe("ObjectArray[0].Test");
+        ep.ValidationFailures[1].PropertyName.ShouldBe("ObjectArray[1].Test");
     }
 
     [Fact]
@@ -363,12 +362,12 @@ public class WebTests
             },
             default);
 
-        ep.ValidationFailed.Should().BeTrue();
-        ep.ValidationFailures.Count.Should().Be(4);
-        ep.ValidationFailures[0].PropertyName.Should().Be("NumbersList[0][0]");
-        ep.ValidationFailures[1].PropertyName.Should().Be("NumbersList[0][1]");
-        ep.ValidationFailures[2].PropertyName.Should().Be("NumbersList[1][0]");
-        ep.ValidationFailures[3].PropertyName.Should().Be("NumbersList[1][1]");
+        ep.ValidationFailed.ShouldBeTrue();
+        ep.ValidationFailures.Count.ShouldBe(4);
+        ep.ValidationFailures[0].PropertyName.ShouldBe("NumbersList[0][0]");
+        ep.ValidationFailures[1].PropertyName.ShouldBe("NumbersList[0][1]");
+        ep.ValidationFailures[2].PropertyName.ShouldBe("NumbersList[1][0]");
+        ep.ValidationFailures[3].PropertyName.ShouldBe("NumbersList[1][1]");
     }
 
     [Fact]
@@ -385,9 +384,8 @@ public class WebTests
             400);
 
         var json = JsonSerializer.Serialize(problemDetails);
-
         var res = JsonSerializer.Deserialize<ProblemDetails>(json)!;
-
-        res.Should().BeEquivalentTo(problemDetails);
+        res.Errors = new HashSet<ProblemDetails.Error>(res.Errors);
+        res.ShouldBeEquivalentTo(problemDetails);
     }
 }

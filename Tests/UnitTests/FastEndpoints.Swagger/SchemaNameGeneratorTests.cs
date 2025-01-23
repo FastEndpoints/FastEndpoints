@@ -5,66 +5,68 @@ namespace SchemaNameGen;
 
 public class SchemaNameGeneratorTests
 {
-    static readonly SchemaNameGenerator shortNameGenerator = new(shortSchemaNames: true);
-    static readonly SchemaNameGenerator longNameGenerator = new(shortSchemaNames: false);
+    static readonly SchemaNameGenerator _shortNameGenerator = new(shortSchemaNames: true);
+    static readonly SchemaNameGenerator _longNameGenerator = new(shortSchemaNames: false);
 
     [Fact]
     public void ShortNameNonGeneric()
     {
-        var res = shortNameGenerator.Generate(typeof(Model));
-        res.Should().Be("Model");
+        var res = _shortNameGenerator.Generate(typeof(Model));
+        res.ShouldBe("Model");
     }
 
     [Fact]
     public void ShortNameGeneric()
     {
-        var res = shortNameGenerator.Generate(typeof(GenericModel<string>));
-        res.Should().Be("GenericModelOfString");
+        var res = _shortNameGenerator.Generate(typeof(GenericModel<string>));
+        res.ShouldBe("GenericModelOfString");
     }
 
     [Fact]
     public void ShortNameGenericDeep()
     {
-        var res = shortNameGenerator.Generate(typeof(GenericModel<GenericModel<List<Model>>>));
-        res.Should().Be("GenericModelOfGenericModelOfListOfModel");
+        var res = _shortNameGenerator.Generate(typeof(GenericModel<GenericModel<List<Model>>>));
+        res.ShouldBe("GenericModelOfGenericModelOfListOfModel");
     }
 
     [Fact]
     public void ShortNameGenericMulti()
     {
-        var res = shortNameGenerator.Generate(typeof(GenericMultiModel<List<Model>, GenericModel<int>>));
-        res.Should().Be("GenericMultiModelOfListOfModelAndGenericModelOfInt32");
+        var res = _shortNameGenerator.Generate(typeof(GenericMultiModel<List<Model>, GenericModel<int>>));
+        res.ShouldBe("GenericMultiModelOfListOfModelAndGenericModelOfInt32");
     }
 
     [Fact]
     public void LongNameNonGeneric()
     {
-        var res = longNameGenerator.Generate(typeof(Model));
-        res.Should().Be("SchemaNameGenModel");
+        var res = _longNameGenerator.Generate(typeof(Model));
+        res.ShouldBe("SchemaNameGenModel");
     }
 
     [Fact]
     public void LongNameGeneric()
     {
-        var res = longNameGenerator.Generate(typeof(GenericModel<string>));
-        res.Should().Be("SchemaNameGenGenericModelOfString");
+        var res = _longNameGenerator.Generate(typeof(GenericModel<string>));
+        res.ShouldBe("SchemaNameGenGenericModelOfString");
     }
 
     [Fact]
     public void LongNameGenericDeep()
     {
-        var res = longNameGenerator.Generate(typeof(GenericModel<List<GenericModel<string>>>));
-        res.Should().Be("SchemaNameGenGenericModelOfListOfGenericModelOfString");
+        var res = _longNameGenerator.Generate(typeof(GenericModel<List<GenericModel<string>>>));
+        res.ShouldBe("SchemaNameGenGenericModelOfListOfGenericModelOfString");
     }
 
     [Fact]
     public void LongNameGenericDeepMulti()
     {
-        var res = longNameGenerator.Generate(typeof(GenericMultiModel<List<GenericModel<string>>, GenericMultiModel<int, string>>));
-        res.Should().Be("SchemaNameGenGenericMultiModelOfListOfGenericModelOfStringAndGenericMultiModelOfInt32AndString");
+        var res = _longNameGenerator.Generate(typeof(GenericMultiModel<List<GenericModel<string>>, GenericMultiModel<int, string>>));
+        res.ShouldBe("SchemaNameGenGenericMultiModelOfListOfGenericModelOfStringAndGenericMultiModelOfInt32AndString");
     }
 }
 
 public class Model { }
+
 public class GenericModel<T> { }
+
 public class GenericMultiModel<T1, T2> { }

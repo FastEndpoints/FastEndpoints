@@ -21,9 +21,9 @@ public class DataAnnotationsTest(DaFixture App) : TestBase<DaFixture>
                     Name = "x"
                 });
 
-        rsp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        res.Errors.Count.Should().Be(2);
-        res.Errors.Should().ContainKey("name");
+        rsp.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        res.Errors.Count.ShouldBe(2);
+        res.Errors.ShouldContainKey("name");
     }
 
     [Fact]
@@ -37,6 +37,6 @@ public class DataAnnotationsTest(DaFixture App) : TestBase<DaFixture>
                     Name = "vipwan"
                 });
 
-        resp.StatusCode.Should().Be(HttpStatusCode.OK);
+        resp.StatusCode.ShouldBe(HttpStatusCode.OK);
     }
 }

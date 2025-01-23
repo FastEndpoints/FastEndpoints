@@ -21,7 +21,7 @@ public class SecurityTests(Sut App) : TestBase<Sut>
 
         var res = await App.GuestClient.PutAsync("/api/uploads/image/save", form, Cancellation);
 
-        res.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        res.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
     }
 
     [Fact]
@@ -36,10 +36,10 @@ public class SecurityTests(Sut App) : TestBase<Sut>
                                   TestProp = "xyz"
                               });
 
-        result.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-        result.Errors.Should().NotBeNull();
-        result.Errors.Count.Should().Be(1);
-        result.Errors.Should().ContainKey("null-claim");
+        result.StatusCode.ShouldBe(StatusCodes.Status400BadRequest);
+        result.Errors.ShouldNotBeNull();
+        result.Errors.Count.ShouldBe(1);
+        result.Errors.ShouldContainKey("null-claim");
     }
 
     [Fact]
@@ -54,8 +54,8 @@ public class SecurityTests(Sut App) : TestBase<Sut>
                                     TestProp = "xyz"
                                 });
 
-        res.StatusCode.Should().Be(HttpStatusCode.OK);
-        result.Should().Be("you sent xyz");
+        res.StatusCode.ShouldBe(HttpStatusCode.OK);
+        result.ShouldBe("you sent xyz");
     }
 
     //refresh tokens
@@ -63,13 +63,13 @@ public class SecurityTests(Sut App) : TestBase<Sut>
     public async Task LoginEndpointGeneratesCorrectToken()
     {
         var (rsp, res) = await App.GuestClient.GETAsync<RefreshTest.LoginEndpoint, TokenResponse>();
-        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
-        res.UserId.Should().Be("usr001");
+        rsp.StatusCode.ShouldBe(HttpStatusCode.OK);
+        res.UserId.ShouldBe("usr001");
 
         var token = new JwtSecurityTokenHandler().ReadJwtToken(res.AccessToken);
-        token.Claims.Single(c => c.Type == "claim1").Value.Should().Be("val1");
-        token.Claims.Single(c => c.Type == "role").Value.Should().Be("role1");
-        token.Claims.Single(c => c.Type == "permissions").Value.Should().Be("perm1");
+        token.Claims.Single(c => c.Type == "claim1").Value.ShouldBe("val1");
+        token.Claims.Single(c => c.Type == "role").Value.ShouldBe("role1");
+        token.Claims.Single(c => c.Type == "permissions").Value.ShouldBe("perm1");
     }
 
     [Fact]
@@ -82,9 +82,9 @@ public class SecurityTests(Sut App) : TestBase<Sut>
                                  RefreshToken = "bad-token"
                              });
 
-        rsp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        res.Errors["userId"][0].Should().Be("invalid user id");
-        res.Errors["refreshToken"][0].Should().Be("invalid refresh token");
+        rsp.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        res.Errors["userId"][0].ShouldBe("invalid user id");
+        res.Errors["refreshToken"][0].ShouldBe("invalid refresh token");
     }
 
     [Fact]
@@ -97,13 +97,13 @@ public class SecurityTests(Sut App) : TestBase<Sut>
                                  RefreshToken = "xyz"
                              });
 
-        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
-        res.UserId.Should().Be("usr001");
-        Guid.TryParse(res.RefreshToken, out _).Should().BeTrue();
+        rsp.StatusCode.ShouldBe(HttpStatusCode.OK);
+        res.UserId.ShouldBe("usr001");
+        Guid.TryParse(res.RefreshToken, out _).ShouldBeTrue();
 
         var token = new JwtSecurityTokenHandler().ReadJwtToken(res.AccessToken);
-        token.Claims.Count().Should().Be(4);
-        token.Claims.Single(c => c.Type == "new-claim").Value.Should().Be("new-value");
+        token.Claims.Count().ShouldBe(4);
+        token.Claims.Single(c => c.Type == "new-claim").Value.ShouldBe("new-value");
     }
 
     [Fact]
@@ -111,9 +111,9 @@ public class SecurityTests(Sut App) : TestBase<Sut>
     {
         var client = App.CreateClient(c => c.DefaultRequestHeaders.Authorization = new("Bearer", "revoked token"));
         var (rsp, _) = await client.GETAsync<Customers.List.Recent.Endpoint, Customers.List.Recent.Response>();
-        rsp.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        rsp.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
         var res = await rsp.Content.ReadAsStringAsync(Cancellation);
-        res.Should().Be("Bearer token has been revoked!");
+        res.ShouldBe("Bearer token has been revoked!");
     }
 
     [Fact]
@@ -121,8 +121,8 @@ public class SecurityTests(Sut App) : TestBase<Sut>
     {
         var (rsp, res) = await App.AdminClient.GETAsync<TestCases.IAuthorizationServiceInjectionTest.Endpoint, bool>();
 
-        rsp.IsSuccessStatusCode.Should().BeTrue();
-        res.Should().BeTrue();
+        rsp.IsSuccessStatusCode.ShouldBeTrue();
+        res.ShouldBeTrue();
     }
 
     [Fact]
@@ -130,7 +130,7 @@ public class SecurityTests(Sut App) : TestBase<Sut>
     {
         var (rsp, res) = await App.CustomerClient.GETAsync<TestCases.IAuthorizationServiceInjectionTest.Endpoint, bool>();
 
-        rsp.IsSuccessStatusCode.Should().BeTrue();
-        res.Should().BeFalse();
+        rsp.IsSuccessStatusCode.ShouldBeTrue();
+        res.ShouldBeFalse();
     }
 }

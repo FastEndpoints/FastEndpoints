@@ -1,5 +1,3 @@
-using FluentAssertions.Json; //this is highly important. the BeEquivalentTo() extension method from FluentAssertions main namespace doesn't work
-
 namespace Swagger;
 
 public class SwaggerDocTests(Fixture App) : TestBase<Fixture>
@@ -23,7 +21,7 @@ public class SwaggerDocTests(Fixture App) : TestBase<Fixture>
         var snapshot = await File.ReadAllTextAsync("release-0.json", Cancellation);
         var snapshotDoc = JToken.Parse(snapshot);
 
-        currentDoc.Should().BeEquivalentTo(snapshotDoc);
+        currentDoc.ShouldBeEquivalentTo(snapshotDoc);
     }
 
     [Fact]
@@ -39,7 +37,7 @@ public class SwaggerDocTests(Fixture App) : TestBase<Fixture>
         var snapshot = await File.ReadAllTextAsync("release-1.json", Cancellation);
         var snapshotDoc = JToken.Parse(snapshot);
 
-        currentDoc.Should().BeEquivalentTo(snapshotDoc);
+        currentDoc.ShouldBeEquivalentTo(snapshotDoc);
     }
 
     [Fact]
@@ -55,7 +53,7 @@ public class SwaggerDocTests(Fixture App) : TestBase<Fixture>
         var snapshot = await File.ReadAllTextAsync("release-2.json", Cancellation);
         var snapshotDoc = JToken.Parse(snapshot);
 
-        currentDoc.Should().BeEquivalentTo(snapshotDoc);
+        currentDoc.ShouldBeEquivalentTo(snapshotDoc);
     }
 
     // ReSharper disable once UnusedMember.Local
@@ -83,7 +81,7 @@ public class SwaggerDocTests(Fixture App) : TestBase<Fixture>
         var snapshot = await File.ReadAllTextAsync("release-versioning-v0.json", Cancellation);
         var snapshotDoc = JToken.Parse(snapshot);
 
-        currentDoc.Should().BeEquivalentTo(snapshotDoc);
+        currentDoc.ShouldBeEquivalentTo(snapshotDoc);
     }
 
     [Fact]
@@ -98,7 +96,7 @@ public class SwaggerDocTests(Fixture App) : TestBase<Fixture>
         var snapshot = await File.ReadAllTextAsync("release-versioning-v1.json", Cancellation);
         var snapshotDoc = JToken.Parse(snapshot);
 
-        currentDoc.Should().BeEquivalentTo(snapshotDoc);
+        currentDoc.ShouldBeEquivalentTo(snapshotDoc);
     }
 
     [Fact]
@@ -113,7 +111,7 @@ public class SwaggerDocTests(Fixture App) : TestBase<Fixture>
         var snapshot = await File.ReadAllTextAsync("release-versioning-v2.json", Cancellation);
         var snapshotDoc = JToken.Parse(snapshot);
 
-        currentDoc.Should().BeEquivalentTo(snapshotDoc);
+        currentDoc.ShouldBeEquivalentTo(snapshotDoc);
     }
 
     [Fact]
@@ -128,6 +126,6 @@ public class SwaggerDocTests(Fixture App) : TestBase<Fixture>
         var snapshot = await File.ReadAllTextAsync("release-versioning-v3.json", Cancellation);
         var snapshotDoc = JToken.Parse(snapshot);
 
-        currentDoc.Should().BeEquivalentTo(snapshotDoc);
+        currentDoc.ShouldBeEquivalentTo(snapshotDoc);
     }
 }

@@ -11,7 +11,7 @@ public class ClientStreamCommand(Sut f) : RpcTestBase(f)
 
         var report = await Remote.ExecuteClientStream<CurrentPosition, ProgressReport>(input, typeof(IAsyncEnumerable<CurrentPosition>), default);
 
-        report.LastNumber.Should().Be(5);
+        report.LastNumber.ShouldBe(5);
 
         static async IAsyncEnumerable<CurrentPosition> GetDataStream()
         {

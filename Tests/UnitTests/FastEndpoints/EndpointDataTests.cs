@@ -12,13 +12,13 @@ public class EndpointDataTests
     public void ConfigureIsExecuted()
     {
         var ep = Factory.Create<ConfigureEndpoint>();
-        ep.Definition.Routes.Should().ContainSingle("configure/test");
+        ep.Definition.Routes.ShouldHaveSingleItem("configure/test");
     }
 
     [Fact]
     public void ItCanFilterTypes()
     {
-        const string typename = "foo";
+        const string typename = "Foo";
         var options = new EndpointDiscoveryOptions
         {
             Filter = t => t.Name.Contains(typename, StringComparison.OrdinalIgnoreCase),
@@ -32,9 +32,9 @@ public class EndpointDataTests
         };
         sut.Found[0].Initialize(ep, null);
 
-        sut.Found.Should().HaveCount(1);
-        sut.Found[0].Routes.Should().HaveCount(1);
-        sut?.Found[0]?.Routes?[0].Should().BeEquivalentTo(typename);
+        sut.Found.Length.ShouldBe(1);
+        sut.Found[0].Routes.Count().ShouldBe(1);
+        sut?.Found[0]?.Routes?[0].ShouldBeEquivalentTo(typename);
     }
 
     static EndpointDefinition WireUpProcessorEndpoint()
@@ -67,19 +67,19 @@ public class EndpointDataTests
         epDef.PostProcessors(Order.Before, new PostProcOne(), new PostProcTwo());
         epDef.PostProcessors(Order.After, new PostProcThree(), new PostProcFour());
 
-        epDef.PreProcessorList.Should().HaveCount(5);
-        epDef.PreProcessorList[0].Should().BeOfType<ProcOne>();
-        epDef.PreProcessorList[1].Should().BeOfType<ProcTwo>();
-        epDef.PreProcessorList[2].Should().BeOfType<ProcRequest>();
-        epDef.PreProcessorList[3].Should().BeOfType<ProcThree>();
-        epDef.PreProcessorList[4].Should().BeOfType<ProcFour>();
+        epDef.PreProcessorList.Count.ShouldBe(5);
+        epDef.PreProcessorList[0].ShouldBeOfType<ProcOne>();
+        epDef.PreProcessorList[1].ShouldBeOfType<ProcTwo>();
+        epDef.PreProcessorList[2].ShouldBeOfType<ProcRequest>();
+        epDef.PreProcessorList[3].ShouldBeOfType<ProcThree>();
+        epDef.PreProcessorList[4].ShouldBeOfType<ProcFour>();
 
-        epDef.PostProcessorList.Should().HaveCount(5);
-        epDef.PostProcessorList[0].Should().BeOfType<PostProcOne>();
-        epDef.PostProcessorList[1].Should().BeOfType<PostProcTwo>();
-        epDef.PostProcessorList[2].Should().BeOfType<PostProcRequest>();
-        epDef.PostProcessorList[3].Should().BeOfType<PostProcThree>();
-        epDef.PostProcessorList[4].Should().BeOfType<PostProcFour>();
+        epDef.PostProcessorList.Count.ShouldBe(5);
+        epDef.PostProcessorList[0].ShouldBeOfType<PostProcOne>();
+        epDef.PostProcessorList[1].ShouldBeOfType<PostProcTwo>();
+        epDef.PostProcessorList[2].ShouldBeOfType<PostProcRequest>();
+        epDef.PostProcessorList[3].ShouldBeOfType<PostProcThree>();
+        epDef.PostProcessorList[4].ShouldBeOfType<PostProcFour>();
     }
 
     [Fact]
@@ -97,18 +97,18 @@ public class EndpointDataTests
         epDef.PostProcessors(Order.After, new PostProcThree());
         epDef.PostProcessors(Order.After, new PostProcFour());
 
-        epDef.PreProcessorList.Should().HaveCount(5);
-        epDef.PreProcessorList[0].Should().BeOfType<ProcOne>();
-        epDef.PreProcessorList[1].Should().BeOfType<ProcTwo>();
-        epDef.PreProcessorList[2].Should().BeOfType<ProcRequest>();
-        epDef.PreProcessorList[3].Should().BeOfType<ProcThree>();
-        epDef.PreProcessorList[4].Should().BeOfType<ProcFour>();
-        epDef.PostProcessorList.Should().HaveCount(5);
-        epDef.PostProcessorList[0].Should().BeOfType<PostProcOne>();
-        epDef.PostProcessorList[1].Should().BeOfType<PostProcTwo>();
-        epDef.PostProcessorList[2].Should().BeOfType<PostProcRequest>();
-        epDef.PostProcessorList[3].Should().BeOfType<PostProcThree>();
-        epDef.PostProcessorList[4].Should().BeOfType<PostProcFour>();
+        epDef.PreProcessorList.Count.ShouldBe(5);
+        epDef.PreProcessorList[0].ShouldBeOfType<ProcOne>();
+        epDef.PreProcessorList[1].ShouldBeOfType<ProcTwo>();
+        epDef.PreProcessorList[2].ShouldBeOfType<ProcRequest>();
+        epDef.PreProcessorList[3].ShouldBeOfType<ProcThree>();
+        epDef.PreProcessorList[4].ShouldBeOfType<ProcFour>();
+        epDef.PostProcessorList.Count.ShouldBe(5);
+        epDef.PostProcessorList[0].ShouldBeOfType<PostProcOne>();
+        epDef.PostProcessorList[1].ShouldBeOfType<PostProcTwo>();
+        epDef.PostProcessorList[2].ShouldBeOfType<PostProcRequest>();
+        epDef.PostProcessorList[3].ShouldBeOfType<PostProcThree>();
+        epDef.PostProcessorList[4].ShouldBeOfType<PostProcFour>();
     }
 
     [Fact]
@@ -126,18 +126,18 @@ public class EndpointDataTests
         epDef.PostProcessor<PostProcThree>(Order.After);
         epDef.PostProcessor<PostProcFour>(Order.After);
 
-        epDef.PreProcessorList.Should().HaveCount(5);
-        epDef.PreProcessorList[0].Should().BeOfType<ProcOne>();
-        epDef.PreProcessorList[1].Should().BeOfType<ProcTwo>();
-        epDef.PreProcessorList[2].Should().BeOfType<ProcRequest>();
-        epDef.PreProcessorList[3].Should().BeOfType<ProcThree>();
-        epDef.PreProcessorList[4].Should().BeOfType<ProcFour>();
-        epDef.PostProcessorList.Should().HaveCount(5);
-        epDef.PostProcessorList[0].Should().BeOfType<PostProcOne>();
-        epDef.PostProcessorList[1].Should().BeOfType<PostProcTwo>();
-        epDef.PostProcessorList[2].Should().BeOfType<PostProcRequest>();
-        epDef.PostProcessorList[3].Should().BeOfType<PostProcThree>();
-        epDef.PostProcessorList[4].Should().BeOfType<PostProcFour>();
+        epDef.PreProcessorList.Count.ShouldBe(5);
+        epDef.PreProcessorList[0].ShouldBeOfType<ProcOne>();
+        epDef.PreProcessorList[1].ShouldBeOfType<ProcTwo>();
+        epDef.PreProcessorList[2].ShouldBeOfType<ProcRequest>();
+        epDef.PreProcessorList[3].ShouldBeOfType<ProcThree>();
+        epDef.PreProcessorList[4].ShouldBeOfType<ProcFour>();
+        epDef.PostProcessorList.Count.ShouldBe(5);
+        epDef.PostProcessorList[0].ShouldBeOfType<PostProcOne>();
+        epDef.PostProcessorList[1].ShouldBeOfType<PostProcTwo>();
+        epDef.PostProcessorList[2].ShouldBeOfType<PostProcRequest>();
+        epDef.PostProcessorList[3].ShouldBeOfType<PostProcThree>();
+        epDef.PostProcessorList[4].ShouldBeOfType<PostProcFour>();
     }
 }
 

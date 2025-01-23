@@ -17,7 +17,7 @@ public class EventQueue(Sut f) : RpcTestBase(f)
         while (TestEventQueueHandler.Received.Count < 1)
             await Task.Delay(500, Cancellation);
 
-        TestEventQueueHandler.Received.Count.Should().Be(100);
-        TestEventQueueHandler.Received.Select(r => r.Id).Except(Enumerable.Range(0, 100)).Any().Should().BeFalse();
+        TestEventQueueHandler.Received.Count.ShouldBe(100);
+        TestEventQueueHandler.Received.Select(r => r.Id).Except(Enumerable.Range(0, 100)).Any().ShouldBeFalse();
     }
 }

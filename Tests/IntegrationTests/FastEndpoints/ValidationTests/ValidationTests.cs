@@ -17,10 +17,10 @@ public class ValidationTests(Sut App) : TestBase<Sut>
                                   TenantID = "abc"
                               });
 
-        result.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
-        result.Errors.Should().NotBeNull();
-        result.Errors.Count.Should().Be(1);
-        result.Errors.Should().ContainKey("tenantID");
+        result.StatusCode.ShouldBe(StatusCodes.Status400BadRequest);
+        result.Errors.ShouldNotBeNull();
+        result.Errors.Count.ShouldBe(1);
+        result.Errors.ShouldContainKey("tenantID");
     }
 
     [Fact]
@@ -35,7 +35,7 @@ public class ValidationTests(Sut App) : TestBase<Sut>
                                     TenantID = "abc"
                                 });
 
-        res.StatusCode.Should().Be(HttpStatusCode.OK);
-        result.Should().Be("you sent abc");
+        res.StatusCode.ShouldBe(HttpStatusCode.OK);
+        result.ShouldBe("you sent abc");
     }
 }

@@ -10,9 +10,9 @@ public class EventBusTests(Sut App) : TestBase<Sut>
     {
         var (rsp, _) = await App.Client.GETAsync<Endpoint, int>();
 
-        rsp.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
-        FakeEventHandler.Result.Should().Be(101);
-        AnotherFakeEventHandler.Result.Should().Be(102);
+        rsp.StatusCode.ShouldBe(System.Net.HttpStatusCode.OK);
+        FakeEventHandler.Result.ShouldBe(101);
+        AnotherFakeEventHandler.Result.ShouldBe(102);
     }
 
     [Fact]
@@ -26,14 +26,14 @@ public class EventBusTests(Sut App) : TestBase<Sut>
         await new EventBus<NewItemAddedToStock>().PublishAsync(event2, Mode.WaitForAny, Cancellation);
         await new EventBus<NewItemAddedToStock>().PublishAsync(event3, cancellation: Cancellation);
 
-        event3.ID.Should().Be(0);
-        event3.Name.Should().Be("pass");
+        event3.ID.ShouldBe(0);
+        event3.Name.ShouldBe("pass");
 
-        event2.ID.Should().Be(0);
-        event2.Name.Should().Be("pass");
+        event2.ID.ShouldBe(0);
+        event2.Name.ShouldBe("pass");
 
-        event1.ID.Should().Be(0);
-        event1.Name.Should().Be("pass");
+        event1.ID.ShouldBe(0);
+        event1.Name.ShouldBe("pass");
     }
 }
 

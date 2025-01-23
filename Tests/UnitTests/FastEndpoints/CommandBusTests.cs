@@ -38,7 +38,7 @@ public class CommandBusTests
 
         var res = await handler.ExecuteAsync(command, default);
 
-        res.Should().Be("a b");
+        res.ShouldBe("a b");
     }
 
     [Fact]
@@ -55,12 +55,12 @@ public class CommandBusTests
         }
         catch (ValidationFailureException x)
         {
-            x.Failures.Should().HaveCount(2);
-            x.Failures!.First().PropertyName.Should().Be("FirstName");
-            x.Failures!.Last().PropertyName.Should().Be("GeneralErrors");
+            x.Failures!.Count().ShouldBe(2);
+            x.Failures!.First().PropertyName.ShouldBe("FirstName");
+            x.Failures!.Last().PropertyName.ShouldBe("GeneralErrors");
         }
 
-        handler.ValidationFailures.Should().HaveCount(2);
+        handler.ValidationFailures.Count.ShouldBe(2);
     }
 
     [Fact]
@@ -73,6 +73,6 @@ public class CommandBusTests
 
         await handler.ExecuteAsync(command);
 
-        handler.ValidationFailures.Should().HaveCount(0);
+        handler.ValidationFailures.Count.ShouldBe(0);
     }
 }

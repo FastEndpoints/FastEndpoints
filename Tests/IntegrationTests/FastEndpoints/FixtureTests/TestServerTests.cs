@@ -18,7 +18,7 @@ public class TestServerTests
         var id1 = f1.Services.GetRequiredService<FixtureId>();
         var id2 = f2.Services.GetRequiredService<FixtureId>();
 
-        id1.Should().Be(id2);
+        id1.ShouldBe(id2);
 
         var t1 = new FixtureB();
         var t2 = new FixtureB();
@@ -29,6 +29,6 @@ public class TestServerTests
         var tid1 = t1.Services.GetRequiredService<FixtureId>();
         var tid2 = t2.Services.GetRequiredService<FixtureId>();
 
-        tid1.Should().Be(tid2);
+        tid1.ShouldBe(tid2);
     }
 }

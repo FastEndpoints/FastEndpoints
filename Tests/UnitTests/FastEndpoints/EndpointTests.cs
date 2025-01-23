@@ -21,9 +21,9 @@ public class SendShouldSetCorrectResponse : Endpoint<Request, Response>
                 Name = "Test"
             });
 
-        Response.Should().NotBeNull();
-        Response.Id.Should().Be(1);
-        ValidationFailed.Should().BeFalse();
+        Response.ShouldNotBeNull();
+        Response.Id.ShouldBe(1);
+        ValidationFailed.ShouldBeFalse();
     }
 }
 
@@ -44,9 +44,9 @@ public class SendOkShouldSetCorrectResponse : Endpoint<Request, Response>
             },
             CancellationToken.None);
 
-        Response.Should().NotBeNull();
-        Response.Id.Should().Be(1);
-        ValidationFailed.Should().BeFalse();
+        Response.ShouldNotBeNull();
+        Response.Id.ShouldBe(1);
+        ValidationFailed.ShouldBeFalse();
     }
 }
 
@@ -59,10 +59,10 @@ public class SendForbiddenShouldSetCorrectResponse : Endpoint<Request, Response>
         Definition = new(typeof(SendForbiddenShouldSetCorrectResponse), typeof(Request), typeof(Response));
 
         await SendForbiddenAsync(CancellationToken.None);
-        Response.Should().NotBeNull();
-        ValidationFailed.Should().BeFalse();
-        HttpContext.Items[0].Should().BeNull();
-        HttpContext.Response.StatusCode.Should().Be(StatusCodes.Status403Forbidden);
+        Response.ShouldNotBeNull();
+        ValidationFailed.ShouldBeFalse();
+        HttpContext.Items[0].ShouldBeNull();
+        HttpContext.Response.StatusCode.ShouldBe(StatusCodes.Status403Forbidden);
     }
 }
 
@@ -126,8 +126,8 @@ public class SendShouldNotCallResponseInterceptorIfExpectedTypedResponseObjectIs
                 Name = "Test"
             });
 
-        Response.Should().NotBeNull();
-        Response.Id.Should().Be(1);
+        Response.ShouldNotBeNull();
+        Response.Id.ShouldBe(1);
     }
 }
 
@@ -152,14 +152,14 @@ public class NestedRequestParamTest : Endpoint<Request, Response>
         summary.RequestParam(r => r.Request.PhoneNumbers, "request > phonenumbers");
         summary.RequestParam(r => r.Request.Items[0].Description, "request > items > description");
 
-        summary.Params.Should().ContainKey("Request.FirstName");
-        summary.Params["Request.FirstName"].Should().Be("request > firstname");
+        summary.Params.ShouldContainKey("Request.FirstName");
+        summary.Params["Request.FirstName"].ShouldBe("request > firstname");
 
-        summary.Params.Should().ContainKey("Request.PhoneNumbers");
-        summary.Params["Request.PhoneNumbers"].Should().Be("request > phonenumbers");
+        summary.Params.ShouldContainKey("Request.PhoneNumbers");
+        summary.Params["Request.PhoneNumbers"].ShouldBe("request > phonenumbers");
 
-        summary.Params.Should().ContainKey("Request.Items[0].Description");
-        summary.Params["Request.Items[0].Description"].Should().Be("request > items > description");
+        summary.Params.ShouldContainKey("Request.Items[0].Description");
+        summary.Params["Request.Items[0].Description"].ShouldBe("request > items > description");
     }
 }
 

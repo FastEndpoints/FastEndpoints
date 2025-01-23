@@ -13,7 +13,7 @@ public class IdempotencyTests(Sut App) : TestBase<Sut>
         var url = $"{Endpoint.BaseRoute}/123";
         var req = new HttpRequestMessage(HttpMethod.Get, url);
         var res = await App.Client.SendAsync(req, Cancellation);
-        res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        res.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
     }
 
     [Fact]
@@ -23,7 +23,7 @@ public class IdempotencyTests(Sut App) : TestBase<Sut>
         var req = new HttpRequestMessage(HttpMethod.Get, url);
         req.Headers.Add("Idempotency-Key", ["1", "2"]);
         var res = await App.Client.SendAsync(req, Cancellation);
-        res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        res.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
     }
 
     [Fact]
@@ -48,15 +48,15 @@ public class IdempotencyTests(Sut App) : TestBase<Sut>
 
         //initial request - uncached response
         var res1 = await App.Client.SendAsync(req1, Cancellation);
-        res1.IsSuccessStatusCode.Should().BeTrue();
-        res1.Headers.Any(h => h.Key == "Idempotency-Key" && h.Value.First() == idmpKey).Should().BeTrue();
+        res1.IsSuccessStatusCode.ShouldBeTrue();
+        res1.Headers.Any(h => h.Key == "Idempotency-Key" && h.Value.First() == idmpKey).ShouldBeTrue();
 
         var rsp1 = await res1.Content.ReadFromJsonAsync<Response>(Cancellation);
-        rsp1.Should().NotBeNull();
-        rsp1!.Id.Should().Be("321");
+        rsp1.ShouldNotBeNull();
+        rsp1!.Id.ShouldBe("321");
 
         var ticks = rsp1.Ticks;
-        ticks.Should().BeGreaterThan(0);
+        ticks.ShouldBeGreaterThan(0);
 
         //duplicate request - cached response
         var req2 = new HttpRequestMessage(HttpMethod.Get, url);
@@ -64,11 +64,11 @@ public class IdempotencyTests(Sut App) : TestBase<Sut>
         req2.Headers.Add("Idempotency-Key", idmpKey);
 
         var res2 = await App.Client.SendAsync(req2, Cancellation);
-        res2.IsSuccessStatusCode.Should().BeTrue();
+        res2.IsSuccessStatusCode.ShouldBeTrue();
         var rsp2 = await res2.Content.ReadFromJsonAsync<Response>(Cancellation);
-        rsp2.Should().NotBeNull();
-        rsp2!.Id.Should().Be("321");
-        rsp2.Ticks.Should().Be(ticks);
+        rsp2.ShouldNotBeNull();
+        rsp2!.Id.ShouldBe("321");
+        rsp2.Ticks.ShouldBe(ticks);
 
         //changed request - uncached response
         var req3 = new HttpRequestMessage(HttpMethod.Get, url);
@@ -77,12 +77,12 @@ public class IdempotencyTests(Sut App) : TestBase<Sut>
         req3.Headers.Add("Idempotency-Key", idmpKey);
 
         var res3 = await App.Client.SendAsync(req3, Cancellation);
-        res3.IsSuccessStatusCode.Should().BeTrue();
+        res3.IsSuccessStatusCode.ShouldBeTrue();
 
         var rsp3 = await res3.Content.ReadFromJsonAsync<Response>(Cancellation);
-        rsp3.Should().NotBeNull();
-        rsp3!.Id.Should().Be("321");
-        rsp3.Ticks.Should().NotBe(ticks);
+        rsp3.ShouldNotBeNull();
+        rsp3!.Id.ShouldBe("321");
+        rsp3.Ticks.ShouldNotBe(ticks);
     }
 
     [Fact]
@@ -94,22 +94,22 @@ public class IdempotencyTests(Sut App) : TestBase<Sut>
 
         //initial request - uncached response
         var (res1, rsp1) = await client.GETAsync<Endpoint, Request, Response>(req);
-        res1.IsSuccessStatusCode.Should().BeTrue();
+        res1.IsSuccessStatusCode.ShouldBeTrue();
 
         var ticks = rsp1.Ticks;
-        ticks.Should().BeGreaterThan(0);
+        ticks.ShouldBeGreaterThan(0);
 
         //duplicate request - cached response
         var (res2, rsp2) = await client.GETAsync<Endpoint, Request, Response>(req);
-        res2.IsSuccessStatusCode.Should().BeTrue();
+        res2.IsSuccessStatusCode.ShouldBeTrue();
 
-        rsp2.Ticks.Should().Be(ticks);
+        rsp2.Ticks.ShouldBe(ticks);
 
         //changed request - uncached response
         req.Content = "bye"; //the change
         var (res3, rsp3) = await client.GETAsync<Endpoint, Request, Response>(req);
-        res3.IsSuccessStatusCode.Should().BeTrue();
+        res3.IsSuccessStatusCode.ShouldBeTrue();
 
-        rsp3.Ticks.Should().NotBe(ticks);
+        rsp3.Ticks.ShouldNotBe(ticks);
     }
 }

@@ -27,7 +27,7 @@ public class EndpointTests(Sut App) : TestBase<Sut>
 
         var response = await App.AdminClient.SendAsync(message, Cancellation);
 
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
     }
 
     [Fact]
@@ -43,8 +43,8 @@ public class EndpointTests(Sut App) : TestBase<Sut>
                                  Verb = Http.DELETE
                              });
 
-        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
-        res.Host.Should().Be("localhost");
+        rsp.StatusCode.ShouldBe(HttpStatusCode.OK);
+        res.Host.ShouldBe("localhost");
     }
 
     [Fact]
@@ -57,8 +57,8 @@ public class EndpointTests(Sut App) : TestBase<Sut>
 
         var res = await rsp.Content.ReadFromJsonAsync<TestCases.PlainTextRequestTest.Response>(Cancellation);
 
-        res!.BodyContent.Should().Be("this is the body content");
-        res.Id.Should().Be(12345);
+        res!.BodyContent.ShouldBe("this is the body content");
+        res.Id.ShouldBe(12345);
     }
 
     [Fact]
@@ -90,16 +90,15 @@ public class EndpointTests(Sut App) : TestBase<Sut>
                                  .PATCHAsync<TestCases.HydratedTestUrlGeneratorTest.Endpoint, TestCases.HydratedTestUrlGeneratorTest.Request, string>(req);
 
         var deleteResp = await App.AdminClient
-                                  .DELETEAsync<TestCases.HydratedTestUrlGeneratorTest.Endpoint, TestCases.HydratedTestUrlGeneratorTest.Request, string>(
-                                      req);
+                                  .DELETEAsync<TestCases.HydratedTestUrlGeneratorTest.Endpoint, TestCases.HydratedTestUrlGeneratorTest.Request, string>(req);
 
         // Assert
         var expectedPath = "/api/test/hydrated-test-url-generator-test/123/00000000-0000-0000-0000-000000000000/string/null/{fromClaim}/{fromHeader}/True";
-        getResp.Result.Should().BeEquivalentTo(expectedPath);
-        postResp.Result.Should().BeEquivalentTo(expectedPath);
-        putResp.Result.Should().BeEquivalentTo(expectedPath);
-        patchResp.Result.Should().BeEquivalentTo(expectedPath);
-        deleteResp.Result.Should().BeEquivalentTo(expectedPath);
+        getResp.Result.ShouldBeEquivalentTo(expectedPath);
+        postResp.Result.ShouldBeEquivalentTo(expectedPath);
+        putResp.Result.ShouldBeEquivalentTo(expectedPath);
+        patchResp.Result.ShouldBeEquivalentTo(expectedPath);
+        deleteResp.Result.ShouldBeEquivalentTo(expectedPath);
     }
 
     [Fact]
@@ -109,9 +108,8 @@ public class EndpointTests(Sut App) : TestBase<Sut>
 
         var act = async () => await App.Client.POSTAsync<NonOptionalRouteParamTest, NonOptionalRouteParamTest.Request>(request);
 
-        await act.Should()
-                 .ThrowAsync<InvalidOperationException>()
-                 .WithMessage("Route param value missing for required param [{UserId}].");
+        var ex = await Should.ThrowAsync<InvalidOperationException>(act);
+        ex.Message.ShouldBe("Route param value missing for required param [{UserId}].");
     }
 
     [Fact]
@@ -121,9 +119,9 @@ public class EndpointTests(Sut App) : TestBase<Sut>
 
         var (rsp, res) = await App.Client.POSTAsync<OptionalRouteParamTest, OptionalRouteParamTest.Request, string>(request);
 
-        rsp.IsSuccessStatusCode.Should().BeTrue();
+        rsp.IsSuccessStatusCode.ShouldBeTrue();
 
-        res.Should().Be("default offer");
+        res.ShouldBe("default offer");
     }
 
     [Fact]
@@ -133,8 +131,8 @@ public class EndpointTests(Sut App) : TestBase<Sut>
 
         var (rsp, res) = await App.Client.POSTAsync<OptionalRouteParamTest, OptionalRouteParamTest.Request, string>(request);
 
-        rsp.IsSuccessStatusCode.Should().BeTrue();
+        rsp.IsSuccessStatusCode.ShouldBeTrue();
 
-        res.Should().Be("blah blah!");
+        res.ShouldBe("blah blah!");
     }
 }

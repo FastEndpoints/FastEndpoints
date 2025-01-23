@@ -12,8 +12,6 @@
         <PackageVersion Include="Bogus" Version="35.6.1"/>
         <PackageVersion Include="FakeItEasy" Version="8.3.0"/>
         <PackageVersion Include="FakeItEasy.Analyzer.CSharp" Version="6.1.1"/>
-        <PackageVersion Include="FluentAssertions" Version="[7.0.0]"/>
-        <PackageVersion Include="FluentAssertions.Json" Version="[6.1.0]"/>
         <PackageVersion Include="FluentValidation" Version="11.11.0"/>
         <PackageVersion Include="Grpc.AspNetCore.Server" Version="2.67.0"/>
         <PackageVersion Include="Grpc.Net.Client" Version="2.67.0"/>
@@ -49,6 +47,7 @@
         <PackageVersion Include="NSwag.Generation" Version="14.2.0"/>
         <PackageVersion Include="NSwag.Generation.AspNetCore" Version="14.2.0"/>
         <PackageVersion Include="RichardSzalay.MockHttp" Version="7.0.0"/>
+        <PackageVersion Include="Shouldly" Version="4.2.1"/>
         <PackageVersion Include="xunit.v3" Version="1.0.1"/>
         <PackageVersion Include="xunit.runner.visualstudio" Version="3.0.1" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive"/>
     </ItemGroup>

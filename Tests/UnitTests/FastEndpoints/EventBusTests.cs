@@ -41,11 +41,11 @@ public class EventBusTests
 
         await Task.Delay(100, TestContext.Current.CancellationToken);
 
-        event2.ID.Should().Be(0);
-        event2.Name.Should().Be("pass");
+        event2.ID.ShouldBe(0);
+        event2.Name.ShouldBe("pass");
 
-        event1.ID.Should().Be(0);
-        event1.Name.Should().Be("pass");
+        event1.ID.ShouldBe(0);
+        event1.Name.ShouldBe("pass");
     }
 
     [Fact]
@@ -72,7 +72,7 @@ public class EventBusTests
 
         await new NewItemAddedToStock { Name = "xyz" }.PublishAsync(cancellation: TestContext.Current.CancellationToken);
 
-        fakeHandler.Name.Should().Be("xyz");
+        fakeHandler.Name.ShouldBe("xyz");
     }
 }
 

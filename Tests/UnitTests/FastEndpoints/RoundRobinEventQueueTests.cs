@@ -44,19 +44,19 @@ public class RoundRobinEventQueueTests
 
         if (writerA.Responses.Count == 2)
         {
-            writerB.Responses.Count.Should().Be(1);
-            writerB.Responses[0].EventID.Should().Be(222);
+            writerB.Responses.Count.ShouldBe(1);
+            writerB.Responses[0].EventID.ShouldBe(222);
 
-            writerA.Responses[0].EventID.Should().Be(111);
-            writerA.Responses[1].EventID.Should().Be(333);
+            writerA.Responses[0].EventID.ShouldBe(111);
+            writerA.Responses[1].EventID.ShouldBe(333);
         }
         else if (writerB.Responses.Count == 2)
         {
-            writerA.Responses.Count.Should().Be(1);
-            writerA.Responses[0].EventID.Should().Be(222);
+            writerA.Responses.Count.ShouldBe(1);
+            writerA.Responses[0].EventID.ShouldBe(222);
 
-            writerB.Responses[0].EventID.Should().Be(111);
-            writerB.Responses[1].EventID.Should().Be(333);
+            writerB.Responses[0].EventID.ShouldBe(111);
+            writerB.Responses[1].EventID.ShouldBe(333);
         }
         else
             throw new();
@@ -98,15 +98,15 @@ public class RoundRobinEventQueueTests
 
         if (writerA.Responses.Count == 2)
         {
-            writerA.Responses[0].EventID.Should().Be(111);
-            writerA.Responses[1].EventID.Should().Be(222);
-            writerB.Responses.Count.Should().Be(0);
+            writerA.Responses[0].EventID.ShouldBe(111);
+            writerA.Responses[1].EventID.ShouldBe(222);
+            writerB.Responses.Count.ShouldBe(0);
         }
         else if (writerB.Responses.Count == 2)
         {
-            writerB.Responses[0].EventID.Should().Be(111);
-            writerB.Responses[1].EventID.Should().Be(222);
-            writerA.Responses.Count.Should().Be(0);
+            writerB.Responses[0].EventID.ShouldBe(111);
+            writerB.Responses[1].EventID.ShouldBe(222);
+            writerA.Responses.Count.ShouldBe(0);
         }
         else
             throw new();
@@ -142,10 +142,10 @@ public class RoundRobinEventQueueTests
         while (writer.Responses.Count < 1)
             await Task.Delay(100);
 
-        writer.Responses.Count.Should().Be(3);
-        writer.Responses[0].EventID.Should().Be(111);
-        writer.Responses[1].EventID.Should().Be(222);
-        writer.Responses[2].EventID.Should().Be(333);
+        writer.Responses.Count.ShouldBe(3);
+        writer.Responses[0].EventID.ShouldBe(111);
+        writer.Responses[1].EventID.ShouldBe(222);
+        writer.Responses[2].EventID.ShouldBe(333);
     }
 
     class RRTestEventOnlyOne : IEvent

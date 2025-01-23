@@ -24,9 +24,9 @@ public class BindingTests(Sut App) : TestBase<Sut>
                              EmptyRequest,
                              Response>("/api/test-cases/ep-witout-req-route-binding-test/09809/12", new());
 
-        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
-        res.CustomerID.Should().Be(09809);
-        res.OtherID.Should().Be(12);
+        rsp.StatusCode.ShouldBe(HttpStatusCode.OK);
+        res.CustomerID.ShouldBe(09809);
+        res.OtherID.ShouldBe(12);
     }
 
     [Fact]
@@ -36,9 +36,9 @@ public class BindingTests(Sut App) : TestBase<Sut>
                              EmptyRequest,
                              ErrorResponse>("/api/test-cases/ep-witout-req-route-binding-test/09809/lkjhlkjh", new());
 
-        rsp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        res.Errors.Should().NotBeNull();
-        res.Errors.Should().ContainKey("otherId");
+        rsp.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        res.Errors.ShouldNotBeNull();
+        res.Errors.ShouldContainKey("otherId");
     }
 
     [Fact]
@@ -60,17 +60,17 @@ public class BindingTests(Sut App) : TestBase<Sut>
                                           CustomList = [0]
                                       });
 
-        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
-        res.String.Should().Be("something");
-        res.Bool.Should().Be(true);
-        res.Int.Should().Be(99);
-        res.Long.Should().Be(483752874564876);
-        res.Double.Should().Be(2232.12);
-        res.FromBody.Should().Be("from body value");
-        res.Decimal.Should().Be(123.45m);
-        res.Url.Should().Be("https://test.com/");
-        res.Custom.Value.Should().Be(12);
-        res.CustomList.Should().ContainInOrder(1, 2);
+        rsp.StatusCode.ShouldBe(HttpStatusCode.OK);
+        res.String.ShouldBe("something");
+        res.Bool.ShouldBe(true);
+        res.Int.ShouldBe(99);
+        res.Long.ShouldBe(483752874564876);
+        res.Double.ShouldBe(2232.12);
+        res.FromBody.ShouldBe("from body value");
+        res.Decimal.ShouldBe(123.45m);
+        res.Url.ShouldBe("https://test.com/");
+        res.Custom.Value.ShouldBe(12);
+        res.CustomList.ShouldBe([1, 2]);
     }
 
     [Fact]
@@ -91,15 +91,15 @@ public class BindingTests(Sut App) : TestBase<Sut>
                                           String = "nothing"
                                       });
 
-        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
-        res.String.Should().Be("everything");
-        res.Bool.Should().BeFalse();
-        res.Int.Should().Be(99);
-        res.Long.Should().Be(483752874564876);
-        res.Double.Should().Be(2232.12);
-        res.FromBody.Should().Be("from body value");
-        res.Decimal.Should().Be(123.45m);
-        res.Blank.Should().BeNull();
+        rsp.StatusCode.ShouldBe(HttpStatusCode.OK);
+        res.String.ShouldBe("everything");
+        res.Bool.ShouldBeFalse();
+        res.Int.ShouldBe(99);
+        res.Long.ShouldBe(483752874564876);
+        res.Double.ShouldBe(2232.12);
+        res.FromBody.ShouldBe("from body value");
+        res.Decimal.ShouldBe(123.45m);
+        res.Blank.ShouldBeNull();
     }
 
     [Fact]
@@ -117,24 +117,24 @@ public class BindingTests(Sut App) : TestBase<Sut>
                                       "dict={\"key1\":\"val1\",\"key2\":\"val2\"}",
                                       new());
 
-        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
-        res.Doubles.Length.Should().Be(2);
-        res.Doubles[0].Should().Be(123.45);
-        res.Dates.Count.Should().Be(2);
-        res.Dates.First().Should().Be(DateTime.Parse("2022-01-01"));
-        res.Guids.Count.Should().Be(2);
-        res.Guids[0].Should().Be(Guid.Parse("b01ec302-0adc-4a2b-973d-bbfe639ed9a5"));
-        res.Ints.Count().Should().Be(3);
-        res.Ints.First().Should().Be(1);
-        res.Steven.Should().BeEquivalentTo(
+        rsp.StatusCode.ShouldBe(HttpStatusCode.OK);
+        res.Doubles.Length.ShouldBe(2);
+        res.Doubles[0].ShouldBe(123.45);
+        res.Dates.Count.ShouldBe(2);
+        res.Dates.First().ShouldBe(DateTime.Parse("2022-01-01"));
+        res.Guids.Count.ShouldBe(2);
+        res.Guids[0].ShouldBe(Guid.Parse("b01ec302-0adc-4a2b-973d-bbfe639ed9a5"));
+        res.Ints.Count().ShouldBe(3);
+        res.Ints.First().ShouldBe(1);
+        res.Steven.ShouldBeEquivalentTo(
             new TestCases.JsonArrayBindingForIEnumerableProps.Request.Person
             {
                 Age = 12,
                 Name = "steven"
             });
-        res.Dict.Count.Should().Be(2);
-        res.Dict["key1"].Should().Be("val1");
-        res.Dict["key2"].Should().Be("val2");
+        res.Dict.Count.ShouldBe(2);
+        res.Dict["key1"].ShouldBe("val1");
+        res.Dict["key2"].ShouldBe("val2");
     }
 
     [Fact]
@@ -149,9 +149,9 @@ public class BindingTests(Sut App) : TestBase<Sut>
                              new() { Name = "test2" }
                          ]);
 
-        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
-        res.Count.Should().Be(2);
-        res[0].Name.Should().Be("test1");
+        rsp.StatusCode.ShouldBe(HttpStatusCode.OK);
+        res.Count.ShouldBe(2);
+        res[0].Name.ShouldBe("test1");
     }
 
     [Fact]
@@ -168,9 +168,9 @@ public class BindingTests(Sut App) : TestBase<Sut>
                              TestCases.JsonArrayBindingToIEnumerableDto.Request,
                              List<TestCases.JsonArrayBindingToIEnumerableDto.Response>>(req);
 
-        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
-        res.Count.Should().Be(2);
-        res.Should().BeEquivalentTo(req);
+        rsp.StatusCode.ShouldBe(HttpStatusCode.OK);
+        res.Count.ShouldBe(2);
+        res.ShouldBeEquivalentTo(req.Select(x => new TestCases.JsonArrayBindingToIEnumerableDto.Response { Id = x.Id, Name = x.Name }).ToList());
     }
 
     [Fact]
@@ -197,24 +197,24 @@ public class BindingTests(Sut App) : TestBase<Sut>
                                       "persons={\"name\":\"doe\",\"age\":55}",
                                       new());
 
-        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
-        res.Doubles.Length.Should().Be(2);
-        res.Doubles[0].Should().Be(123.45);
-        res.Dates.Count.Should().Be(2);
-        res.Dates.First().Should().Be(DateTime.Parse("2022-01-01"));
-        res.Guids.Count.Should().Be(2);
-        res.Guids[0].Should().Be(Guid.Parse("b01ec302-0adc-4a2b-973d-bbfe639ed9a5"));
-        res.Ints.Count().Should().Be(3);
-        res.Ints.First().Should().Be(1);
-        res.Strings.Length.Should().Be(2);
-        res.Strings[0].Should().Be("[1,2]");
-        res.MoreStrings.Length.Should().Be(2);
-        res.MoreStrings[0].Should().Be("[\"one\",\"two\"]");
-        res.Persons.Count().Should().Be(2);
-        res.Persons.First().Name.Should().Be("john");
-        res.Persons.First().Age.Should().Be(45);
-        res.Persons.Last().Name.Should().Be("doe");
-        res.Persons.Last().Age.Should().Be(55);
+        rsp.StatusCode.ShouldBe(HttpStatusCode.OK);
+        res.Doubles.Length.ShouldBe(2);
+        res.Doubles[0].ShouldBe(123.45);
+        res.Dates.Count.ShouldBe(2);
+        res.Dates.First().ShouldBe(DateTime.Parse("2022-01-01"));
+        res.Guids.Count.ShouldBe(2);
+        res.Guids[0].ShouldBe(Guid.Parse("b01ec302-0adc-4a2b-973d-bbfe639ed9a5"));
+        res.Ints.Count().ShouldBe(3);
+        res.Ints.First().ShouldBe(1);
+        res.Strings.Length.ShouldBe(2);
+        res.Strings[0].ShouldBe("[1,2]");
+        res.MoreStrings.Length.ShouldBe(2);
+        res.MoreStrings[0].ShouldBe("[\"one\",\"two\"]");
+        res.Persons.Count().ShouldBe(2);
+        res.Persons.First().Name.ShouldBe("john");
+        res.Persons.First().Age.ShouldBe(45);
+        res.Persons.Last().Name.ShouldBe("doe");
+        res.Persons.Last().Age.ShouldBe(55);
     }
 
     [Fact]
@@ -246,17 +246,17 @@ public class BindingTests(Sut App) : TestBase<Sut>
                                           }
                                       });
 
-        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
-        res.String.Should().Be("everything");
-        res.Bool.Should().BeFalse();
-        res.Int.Should().Be(99);
-        res.Long.Should().Be(483752874564876);
-        res.Double.Should().Be(2232.12);
-        res.FromBody.Should().Be("from body value");
-        res.Decimal.Should().Be(123.45m);
-        res.Blank.Should().Be(256);
-        res.Person.Should().NotBeNull();
-        res.Person.Should().BeEquivalentTo(
+        rsp.StatusCode.ShouldBe(HttpStatusCode.OK);
+        res.String.ShouldBe("everything");
+        res.Bool.ShouldBeFalse();
+        res.Int.ShouldBe(99);
+        res.Long.ShouldBe(483752874564876);
+        res.Double.ShouldBe(2232.12);
+        res.FromBody.ShouldBe("from body value");
+        res.Decimal.ShouldBe(123.45m);
+        res.Blank.ShouldBe(256);
+        res.Person.ShouldNotBeNull();
+        res.Person.ShouldBeEquivalentTo(
             new Person
             {
                 Age = 45,
@@ -289,9 +289,9 @@ public class BindingTests(Sut App) : TestBase<Sut>
                                       "&child.strings=string1&child.strings=string2&child.strings=&child.strings=strangeString",
                                       new());
 
-        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
-        res.Should().BeEquivalentTo(
-            new TestCases.QueryObjectBindingTest.Request
+        rsp.StatusCode.ShouldBe(HttpStatusCode.OK);
+        res.ShouldBeEquivalentTo(
+            new TestCases.QueryObjectBindingTest.Response
             {
                 Double = 2232.12,
                 Bool = true,
@@ -336,10 +336,10 @@ public class BindingTests(Sut App) : TestBase<Sut>
                                       "&Objects[1].String=test2&Objects[1].Enum=Wednesday",
                                       new());
 
-        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
+        rsp.StatusCode.ShouldBe(HttpStatusCode.OK);
 
-        res.Should().BeEquivalentTo(
-            new TestCases.QueryObjectWithObjectsArrayBindingTest.Request
+        res.ShouldBeEquivalentTo(
+            new TestCases.QueryObjectWithObjectsArrayBindingTest.Response
             {
                 Person = new()
                 {
@@ -390,7 +390,7 @@ public class BindingTests(Sut App) : TestBase<Sut>
     public async Task RangeHandling()
     {
         var res = await App.RangeClient.GetStringAsync("api/test-cases/range", Cancellation);
-        res.Should().Be("fghij");
+        res.ShouldBe("fghij");
     }
 
     [Fact]
@@ -414,7 +414,7 @@ public class BindingTests(Sut App) : TestBase<Sut>
         await using var stream = await res.Content.ReadAsStreamAsync(Cancellation);
         var resMD5 = BitConverter.ToString(md5Instance.ComputeHash(stream)).Replace("-", "");
 
-        resMD5.Should().Be("8A1F6A8E27D2E440280050DA549CBE3E");
+        resMD5.ShouldBe("8A1F6A8E27D2E440280050DA549CBE3E");
     }
 
     [Fact]
@@ -448,7 +448,7 @@ public class BindingTests(Sut App) : TestBase<Sut>
             await using var stream = await res.Content.ReadAsStreamAsync(Cancellation);
             var resMd5 = BitConverter.ToString(md5Instance.ComputeHash(stream)).Replace("-", "");
 
-            resMd5.Should().Be("8A1F6A8E27D2E440280050DA549CBE3E");
+            resMd5.ShouldBe("8A1F6A8E27D2E440280050DA549CBE3E");
         }
     }
 
@@ -494,11 +494,11 @@ public class BindingTests(Sut App) : TestBase<Sut>
                                    TestCases.FormFileBindingTest.Request,
                                    TestCases.FormFileBindingTest.Response>(req, sendAsFormData: true);
 
-        rsp.IsSuccessStatusCode.Should().BeTrue();
-        res.File1Name.Should().Be("test1.png");
-        res.File2Name.Should().Be("test2.png");
-        res.CarNames.Should().Equal("car1.png", "car2.png");
-        res.JetNames.Should().Equal("jet1.png", "jet2.png");
+        rsp.IsSuccessStatusCode.ShouldBeTrue();
+        res.File1Name.ShouldBe("test1.png");
+        res.File2Name.ShouldBe("test2.png");
+        res.CarNames.ShouldBe(["car1.png", "car2.png"]);
+        res.JetNames.ShouldBe(["jet1.png", "jet2.png"]);
     }
 
     [Fact]
@@ -506,15 +506,15 @@ public class BindingTests(Sut App) : TestBase<Sut>
     {
         var book = new Book
         {
-            BarCodes = [1, 2, 3],
+            BarCodes = new List<int>([1, 2, 3]),
             CoAuthors = [new Author { Name = "a1" }, new Author { Name = "a2" }],
             MainAuthor = new() { Name = "main" }
         };
 
         var (rsp, res) = await App.GuestClient.PUTAsync<ToFormEndpoint, Book, Book>(book, sendAsFormData: true);
 
-        rsp.IsSuccessStatusCode.Should().BeTrue();
-        res.Should().BeEquivalentTo(book);
+        rsp.IsSuccessStatusCode.ShouldBeTrue();
+        res.ShouldBeEquivalentTo(book);
     }
 
     [Fact]
@@ -562,53 +562,53 @@ public class BindingTests(Sut App) : TestBase<Sut>
         response.EnsureSuccessStatusCode();
 
         var x = TestCases.FormBindingComplexDtos.Endpoint.Result;
-        x.Should().NotBeNull();
+        x.ShouldNotBeNull();
 
-        x!.Title.Should().Be("book title");
-        x.CoverImage.Name.Should().Be("CoverImage");
-        x.SourceFiles.Count.Should().Be(2);
-        x.SourceFiles[0].Name.Should().Be("SourceFiles[0]");
-        x.SourceFiles[1].Name.Should().Be("SourceFiles[1]");
-        x.MainAuthor.Should().NotBeNull();
-        x.MainAuthor.Name.Should().Be("main author name");
-        x.MainAuthor.ProfileImage.Name.Should().Be("MainAuthor.ProfileImage");
-        x.MainAuthor.DocumentFiles.Count.Should().Be(2);
-        x.MainAuthor.DocumentFiles[0].Name.Should().Be("MainAuthor.DocumentFiles");
-        x.MainAuthor.DocumentFiles[1].Name.Should().Be("MainAuthor.DocumentFiles");
-        x.MainAuthor.MainAddress.Should().NotBeNull();
-        x.MainAuthor.MainAddress.Street.Should().Be("main author address street");
-        x.MainAuthor.MainAddress.MainImage.Name.Should().Be("MainAuthor.MainAddress.MainImage");
-        x.MainAuthor.MainAddress.AlternativeImages.Count.Should().Be(2);
-        x.MainAuthor.MainAddress.AlternativeImages[0].Name.Should().Be("MainAuthor.MainAddress.AlternativeImages");
-        x.MainAuthor.MainAddress.AlternativeImages[1].Name.Should().Be("MainAuthor.MainAddress.AlternativeImages");
-        x.MainAuthor.OtherAddresses.Count.Should().Be(2);
-        x.MainAuthor.OtherAddresses[0].MainImage.Name.Should().Be("MainAuthor.OtherAddresses[0].MainImage");
-        x.MainAuthor.OtherAddresses[0].AlternativeImages.Count.Should().Be(2);
-        x.MainAuthor.OtherAddresses[0].AlternativeImages[0].Name.Should().Be("MainAuthor.OtherAddresses[0].AlternativeImages");
-        x.MainAuthor.OtherAddresses[0].AlternativeImages[1].Name.Should().Be("MainAuthor.OtherAddresses[0].AlternativeImages");
-        x.MainAuthor.OtherAddresses[1].MainImage.Name.Should().Be("MainAuthor.OtherAddresses[1].MainImage");
-        x.MainAuthor.OtherAddresses[1].AlternativeImages.Count.Should().Be(2);
-        x.MainAuthor.OtherAddresses[1].AlternativeImages[0].Name.Should().Be("MainAuthor.OtherAddresses[1].AlternativeImages");
-        x.MainAuthor.OtherAddresses[1].AlternativeImages[1].Name.Should().Be("MainAuthor.OtherAddresses[1].AlternativeImages");
-        x.CoAuthors.Count.Should().Be(1);
-        x.CoAuthors[0].Name.Should().Be("co author 0 name");
-        x.CoAuthors[0].ProfileImage.Name.Should().Be("CoAuthors[0].ProfileImage");
-        x.CoAuthors[0].DocumentFiles.Count.Should().Be(2);
-        x.CoAuthors[0].DocumentFiles[0].Name.Should().Be("CoAuthors[0].DocumentFiles");
-        x.CoAuthors[0].DocumentFiles[1].Name.Should().Be("CoAuthors[0].DocumentFiles");
-        x.CoAuthors[0].MainAddress.Street.Should().Be("co author 0 address street");
-        x.CoAuthors[0].MainAddress.MainImage.Name.Should().Be("CoAuthors[0].MainAddress.MainImage");
-        x.CoAuthors[0].MainAddress.AlternativeImages.Count.Should().Be(2);
-        x.CoAuthors[0].MainAddress.AlternativeImages[0].Name.Should().Be("CoAuthors[0].MainAddress.AlternativeImages");
-        x.CoAuthors[0].MainAddress.AlternativeImages[1].Name.Should().Be("CoAuthors[0].MainAddress.AlternativeImages");
-        x.CoAuthors[0].OtherAddresses.Count.Should().Be(1);
-        x.CoAuthors[0].OtherAddresses[0].Street.Should().Be("co author 0 other address 0 street");
-        x.CoAuthors[0].OtherAddresses[0].MainImage.Name.Should().Be("CoAuthors[0].OtherAddresses[0].MainImage");
-        x.CoAuthors[0].OtherAddresses[0].AlternativeImages.Count.Should().Be(2);
-        x.CoAuthors[0].OtherAddresses[0].AlternativeImages[0].Name.Should().Be("CoAuthors[0].OtherAddresses[0].AlternativeImages[0]");
-        x.CoAuthors[0].OtherAddresses[0].AlternativeImages[1].Name.Should().Be("CoAuthors[0].OtherAddresses[0].AlternativeImages[1]");
-        x.BarCodes.First().Should().Be(12345);
-        x.BarCodes.Last().Should().Be(54321);
+        x!.Title.ShouldBe("book title");
+        x.CoverImage.Name.ShouldBe("CoverImage");
+        x.SourceFiles.Count.ShouldBe(2);
+        x.SourceFiles[0].Name.ShouldBe("SourceFiles[0]");
+        x.SourceFiles[1].Name.ShouldBe("SourceFiles[1]");
+        x.MainAuthor.ShouldNotBeNull();
+        x.MainAuthor.Name.ShouldBe("main author name");
+        x.MainAuthor.ProfileImage.Name.ShouldBe("MainAuthor.ProfileImage");
+        x.MainAuthor.DocumentFiles.Count.ShouldBe(2);
+        x.MainAuthor.DocumentFiles[0].Name.ShouldBe("MainAuthor.DocumentFiles");
+        x.MainAuthor.DocumentFiles[1].Name.ShouldBe("MainAuthor.DocumentFiles");
+        x.MainAuthor.MainAddress.ShouldNotBeNull();
+        x.MainAuthor.MainAddress.Street.ShouldBe("main author address street");
+        x.MainAuthor.MainAddress.MainImage.Name.ShouldBe("MainAuthor.MainAddress.MainImage");
+        x.MainAuthor.MainAddress.AlternativeImages.Count.ShouldBe(2);
+        x.MainAuthor.MainAddress.AlternativeImages[0].Name.ShouldBe("MainAuthor.MainAddress.AlternativeImages");
+        x.MainAuthor.MainAddress.AlternativeImages[1].Name.ShouldBe("MainAuthor.MainAddress.AlternativeImages");
+        x.MainAuthor.OtherAddresses.Count.ShouldBe(2);
+        x.MainAuthor.OtherAddresses[0].MainImage.Name.ShouldBe("MainAuthor.OtherAddresses[0].MainImage");
+        x.MainAuthor.OtherAddresses[0].AlternativeImages.Count.ShouldBe(2);
+        x.MainAuthor.OtherAddresses[0].AlternativeImages[0].Name.ShouldBe("MainAuthor.OtherAddresses[0].AlternativeImages");
+        x.MainAuthor.OtherAddresses[0].AlternativeImages[1].Name.ShouldBe("MainAuthor.OtherAddresses[0].AlternativeImages");
+        x.MainAuthor.OtherAddresses[1].MainImage.Name.ShouldBe("MainAuthor.OtherAddresses[1].MainImage");
+        x.MainAuthor.OtherAddresses[1].AlternativeImages.Count.ShouldBe(2);
+        x.MainAuthor.OtherAddresses[1].AlternativeImages[0].Name.ShouldBe("MainAuthor.OtherAddresses[1].AlternativeImages");
+        x.MainAuthor.OtherAddresses[1].AlternativeImages[1].Name.ShouldBe("MainAuthor.OtherAddresses[1].AlternativeImages");
+        x.CoAuthors.Count.ShouldBe(1);
+        x.CoAuthors[0].Name.ShouldBe("co author 0 name");
+        x.CoAuthors[0].ProfileImage.Name.ShouldBe("CoAuthors[0].ProfileImage");
+        x.CoAuthors[0].DocumentFiles.Count.ShouldBe(2);
+        x.CoAuthors[0].DocumentFiles[0].Name.ShouldBe("CoAuthors[0].DocumentFiles");
+        x.CoAuthors[0].DocumentFiles[1].Name.ShouldBe("CoAuthors[0].DocumentFiles");
+        x.CoAuthors[0].MainAddress.Street.ShouldBe("co author 0 address street");
+        x.CoAuthors[0].MainAddress.MainImage.Name.ShouldBe("CoAuthors[0].MainAddress.MainImage");
+        x.CoAuthors[0].MainAddress.AlternativeImages.Count.ShouldBe(2);
+        x.CoAuthors[0].MainAddress.AlternativeImages[0].Name.ShouldBe("CoAuthors[0].MainAddress.AlternativeImages");
+        x.CoAuthors[0].MainAddress.AlternativeImages[1].Name.ShouldBe("CoAuthors[0].MainAddress.AlternativeImages");
+        x.CoAuthors[0].OtherAddresses.Count.ShouldBe(1);
+        x.CoAuthors[0].OtherAddresses[0].Street.ShouldBe("co author 0 other address 0 street");
+        x.CoAuthors[0].OtherAddresses[0].MainImage.Name.ShouldBe("CoAuthors[0].OtherAddresses[0].MainImage");
+        x.CoAuthors[0].OtherAddresses[0].AlternativeImages.Count.ShouldBe(2);
+        x.CoAuthors[0].OtherAddresses[0].AlternativeImages[0].Name.ShouldBe("CoAuthors[0].OtherAddresses[0].AlternativeImages[0]");
+        x.CoAuthors[0].OtherAddresses[0].AlternativeImages[1].Name.ShouldBe("CoAuthors[0].OtherAddresses[0].AlternativeImages[1]");
+        x.BarCodes.First().ShouldBe(12345);
+        x.BarCodes.Last().ShouldBe(54321);
     }
 
     [Fact]
@@ -621,8 +621,8 @@ public class BindingTests(Sut App) : TestBase<Sut>
 
         var res = await rsp.Content.ReadFromJsonAsync<TestCases.PlainTextRequestTest.Response>(Cancellation);
 
-        res!.BodyContent.Should().Be("this is the body content");
-        res.Id.Should().Be(12345);
+        res!.BodyContent.ShouldBe("this is the body content");
+        res.Id.ShouldBe(12345);
     }
 
     [Fact]
@@ -632,8 +632,8 @@ public class BindingTests(Sut App) : TestBase<Sut>
                              "/api/sales/orders/retrieve/54321",
                              new());
 
-        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
-        res.Message.Should().Be("ok!");
+        rsp.StatusCode.ShouldBe(HttpStatusCode.OK);
+        res.Message.ShouldBe("ok!");
     }
 
     [Fact]
@@ -651,16 +651,16 @@ public class BindingTests(Sut App) : TestBase<Sut>
                              "&floaty=3.2",
                              new());
 
-        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
-        res.CustomerID.Should().Be(09809);
-        res.OtherID.Should().Be(12);
-        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
-        res.Doubles.Length.Should().Be(2);
-        res.Doubles[0].Should().Be(123.45);
-        res.Guids.Count.Should().Be(2);
-        res.Guids[0].Should().Be(Guid.Parse("b01ec302-0adc-4a2b-973d-bbfe639ed9a5"));
-        res.Ints.Count().Should().Be(3);
-        res.Ints.First().Should().Be(1);
+        rsp.StatusCode.ShouldBe(HttpStatusCode.OK);
+        res.CustomerID.ShouldBe(09809);
+        res.OtherID.ShouldBe(12);
+        rsp.StatusCode.ShouldBe(HttpStatusCode.OK);
+        res.Doubles.Length.ShouldBe(2);
+        res.Doubles[0].ShouldBe(123.45);
+        res.Guids.Count.ShouldBe(2);
+        res.Guids[0].ShouldBe(Guid.Parse("b01ec302-0adc-4a2b-973d-bbfe639ed9a5"));
+        res.Ints.Count().ShouldBe(3);
+        res.Ints.First().ShouldBe(1);
     }
 
     [Fact]
@@ -670,8 +670,8 @@ public class BindingTests(Sut App) : TestBase<Sut>
                              EmptyRequest,
                              ErrorResponse>("/api/test-cases/ep-witout-req-query-param-binding-test?customerId=09809&otherId=lkjhlkjh", new());
 
-        rsp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        res.Errors.Should().ContainKey("otherId");
+        rsp.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        res.Errors.ShouldContainKey("otherId");
     }
 
     [Fact]
@@ -691,12 +691,12 @@ public class BindingTests(Sut App) : TestBase<Sut>
                                  }
                              });
 
-        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
-        res.Product.Name.Should().Be("test product");
-        res.Product.Price.Should().Be(200.10m);
-        res.Product.Id.Should().Be(202);
-        res.CustomerID.Should().Be(123);
-        res.Id.Should().Be(0);
+        rsp.StatusCode.ShouldBe(HttpStatusCode.OK);
+        res.Product.Name.ShouldBe("test product");
+        res.Product.Price.ShouldBe(200.10m);
+        res.Product.Id.ShouldBe(202);
+        res.CustomerID.ShouldBe(123);
+        res.Id.ShouldBe(0);
     }
 
     [Fact]
@@ -716,9 +716,9 @@ public class BindingTests(Sut App) : TestBase<Sut>
                                  }
                              });
 
-        rsp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        res.Errors.Count.Should().Be(1);
-        res.Errors.ContainsKey("product.Price").Should().BeTrue();
+        rsp.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        res.Errors.Count.ShouldBe(1);
+        res.Errors.ContainsKey("product.Price").ShouldBeTrue();
     }
 
     [Fact]
@@ -735,12 +735,12 @@ public class BindingTests(Sut App) : TestBase<Sut>
                                  Price = 10.10m
                              });
 
-        rsp.StatusCode.Should().Be(HttpStatusCode.OK);
-        res.Product!.Name.Should().Be("test product");
-        res.Product.Price.Should().Be(10.10m);
-        res.Product.Id.Should().Be(202);
-        res.CustomerID.Should().Be("123");
-        res.Id.Should().Be(null);
+        rsp.StatusCode.ShouldBe(HttpStatusCode.OK);
+        res.Product!.Name.ShouldBe("test product");
+        res.Product.Price.ShouldBe(10.10m);
+        res.Product.Id.ShouldBe(202);
+        res.CustomerID.ShouldBe("123");
+        res.Id.ShouldBe(null);
     }
 
     [Fact]
@@ -750,10 +750,10 @@ public class BindingTests(Sut App) : TestBase<Sut>
         stringContent.Headers.ContentDisposition = ContentDispositionHeaderValue.Parse("attachment; filename=\"_filename_.jpg\"");
 
         var rsp = await App.GuestClient.PostAsync("api/test-cases/typed-header-binding-test", stringContent, Cancellation);
-        rsp.IsSuccessStatusCode.Should().BeTrue();
+        rsp.IsSuccessStatusCode.ShouldBeTrue();
 
         var res = await rsp.Content.ReadFromJsonAsync<string>(Cancellation);
-        res.Should().Be("_filename_.jpg");
+        res.ShouldBe("_filename_.jpg");
     }
 
     [Fact]
@@ -766,9 +766,9 @@ public class BindingTests(Sut App) : TestBase<Sut>
         };
 
         var rsp = await App.GuestClient.PostAsJsonAsync("api/test-cases/dont-bind-attribute-test/IGNORE_ME", req, Cancellation);
-        rsp.IsSuccessStatusCode.Should().BeTrue();
+        rsp.IsSuccessStatusCode.ShouldBeTrue();
 
         var res = await rsp.Content.ReadAsStringAsync(Cancellation);
-        res.Should().Be("123 - test");
+        res.ShouldBe("123 - test");
     }
 }

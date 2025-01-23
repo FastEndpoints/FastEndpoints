@@ -17,10 +17,10 @@ public class InventoryTests(Sut App) : TestBase<Sut>
                                     Price = 1100
                                 });
 
-        res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        result.Errors.Count.Should().Be(2);
-        result.Errors.Should().ContainKey("name");
-        result.Errors.Should().ContainKey("modifiedBy");
+        res.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        result.Errors.Count.ShouldBe(2);
+        result.Errors.ShouldContainKey("name");
+        result.Errors.ShouldContainKey("modifiedBy");
     }
 
     [Fact]
@@ -34,11 +34,11 @@ public class InventoryTests(Sut App) : TestBase<Sut>
                                     Price = 1100
                                 });
 
-        res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        result.Errors.Should().NotBeNull();
-        result.Errors.Count.Should().Be(2);
-        result.Errors.Should().ContainKey("description");
-        result.Errors.Should().ContainKey("price");
+        res.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        result.Errors.ShouldNotBeNull();
+        result.Errors.Count.ShouldBe(2);
+        result.Errors.ShouldContainKey("description");
+        result.Errors.ShouldContainKey("price");
     }
 
     [Fact]
@@ -53,10 +53,10 @@ public class InventoryTests(Sut App) : TestBase<Sut>
                                     Price = 100
                                 });
 
-        res.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        result.Errors.Should().NotBeNull();
-        result.Errors.Count.Should().Be(1);
-        result.Errors.Should().ContainKey("generalErrors");
+        res.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        result.Errors.ShouldNotBeNull();
+        result.Errors.Count.ShouldBe(1);
+        result.Errors.ShouldContainKey("generalErrors");
     }
 
     [Fact]
@@ -71,7 +71,7 @@ public class InventoryTests(Sut App) : TestBase<Sut>
                                Price = 100
                            });
 
-        rsp.StatusCode.Should().Be(HttpStatusCode.Forbidden);
+        rsp.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
     }
 
     [Fact]
@@ -86,9 +86,9 @@ public class InventoryTests(Sut App) : TestBase<Sut>
                                     Price = 100
                                 });
 
-        res.StatusCode.Should().Be(HttpStatusCode.Created);
-        result.ProductId.Should().BeGreaterThan(1);
-        result.ProductName.Should().Be("Grape Juice");
+        res.StatusCode.ShouldBe(HttpStatusCode.Created);
+        result.ProductId.ShouldBeGreaterThan(1);
+        result.ProductName.ShouldBe("Grape Juice");
     }
 
     [Fact]
@@ -106,10 +106,10 @@ public class InventoryTests(Sut App) : TestBase<Sut>
 
         var createdAtLocation = res.Headers.Location?.ToString();
 
-        res.StatusCode.Should().Be(HttpStatusCode.Created);
-        createdAtLocation.Should().Be($"/api/inventory/get-product/{result.ProductId}");
-        result.ProductId.Should().BeGreaterThan(1);
-        result.ProductName.Should().Be("Grape Juice");
+        res.StatusCode.ShouldBe(HttpStatusCode.Created);
+        createdAtLocation.ShouldBe($"/api/inventory/get-product/{result.ProductId}");
+        result.ProductId.ShouldBeGreaterThan(1);
+        result.ProductName.ShouldBe("Grape Juice");
     }
 
     [Fact]
@@ -127,10 +127,10 @@ public class InventoryTests(Sut App) : TestBase<Sut>
 
         var createdAtLocation = res.Headers.Location?.ToString();
 
-        res.StatusCode.Should().Be(HttpStatusCode.Created);
-        createdAtLocation.Should().Be($"http://localhost/api/inventory/get-product/{result.ProductId}");
-        result.ProductId.Should().BeGreaterThan(1);
-        result.ProductName.Should().Be("Grape Juice");
+        res.StatusCode.ShouldBe(HttpStatusCode.Created);
+        createdAtLocation.ShouldBe($"http://localhost/api/inventory/get-product/{result.ProductId}");
+        result.ProductId.ShouldBeGreaterThan(1);
+        result.ProductName.ShouldBe("Grape Juice");
     }
 
     [Fact]
@@ -138,14 +138,14 @@ public class InventoryTests(Sut App) : TestBase<Sut>
     {
         var (rsp1, res1) = await App.GuestClient.GETAsync<GetProduct.Endpoint, GetProduct.Response>();
 
-        rsp1.StatusCode.Should().Be(HttpStatusCode.OK);
+        rsp1.StatusCode.ShouldBe(HttpStatusCode.OK);
 
         await Task.Delay(100, Cancellation);
 
         var (rsp2, res2) = await App.GuestClient.GETAsync<GetProduct.Endpoint, GetProduct.Response>();
 
-        rsp2.StatusCode.Should().Be(HttpStatusCode.OK);
-        res2.LastModified.Should().Be(res1?.LastModified);
+        rsp2.StatusCode.ShouldBe(HttpStatusCode.OK);
+        res2.LastModified.ShouldBe(res1.LastModified);
     }
 
     [Fact]
@@ -157,6 +157,6 @@ public class InventoryTests(Sut App) : TestBase<Sut>
                           ItemID = Guid.NewGuid().ToString()
                       });
 
-        res.StatusCode.Should().Be(HttpStatusCode.OK);
+        res.StatusCode.ShouldBe(HttpStatusCode.OK);
     }
 }

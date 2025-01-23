@@ -46,8 +46,8 @@ public class MaxRequestBodyLimitTests : IAsyncLifetime
         };
 
         var (rsp, res) = await client.POSTAsync<Endpoint, Request, ErrorResponse>(req, sendAsFormData: true);
-        rsp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        res.Errors["formErrors"][0].Should().Be("Request body too large. The max request body size is 100 bytes.");
+        rsp.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        res.Errors["formErrors"][0].ShouldBe("Request body too large. The max request body size is 100 bytes.");
     }
 
     sealed class Request

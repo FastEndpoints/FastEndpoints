@@ -10,7 +10,7 @@ public class AntiforgeryTest(Sut App) : TestBase<Sut>
     public async Task Html_Form_Renders_With_Af_Token()
     {
         var content = await App.GuestClient.GetStringAsync($"{App.GuestClient.BaseAddress}api/{TestClass.Routes.GetFormHtml}", Cancellation);
-        content.Should().Contain("__RequestVerificationToken");
+        content.ShouldContain("__RequestVerificationToken");
     }
 
     [Fact]
@@ -30,10 +30,10 @@ public class AntiforgeryTest(Sut App) : TestBase<Sut>
                       },
                       Cancellation);
 
-        rsp.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        rsp.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
         var errResponse = await rsp.Content.ReadFromJsonAsync<ErrorResponse>(Cancellation);
-        errResponse!.Errors.Count.Should().Be(1);
-        errResponse.Errors["generalErrors"][0].Should().Be("Anti-forgery token is invalid!");
+        errResponse!.Errors.Count.ShouldBe(1);
+        errResponse.Errors["generalErrors"][0].ShouldBe("Anti-forgery token is invalid!");
     }
 
     [Fact]
@@ -55,8 +55,8 @@ public class AntiforgeryTest(Sut App) : TestBase<Sut>
                       },
                       Cancellation);
 
-        rsp.IsSuccessStatusCode.Should().BeTrue();
+        rsp.IsSuccessStatusCode.ShouldBeTrue();
         var content = await rsp.Content.ReadAsStringAsync(Cancellation);
-        content.Should().Contain("antiforgery success");
+        content.ShouldContain("antiforgery success");
     }
 }

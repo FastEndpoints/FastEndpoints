@@ -8,27 +8,27 @@ public class CommandBusTests(Sut App) : TestBase<Sut>
     public async Task Generic_Command_With_Result()
     {
         var (rsp, res) = await App.GuestClient.GETAsync<TestCases.CommandHandlerTest.GenericCmdEndpoint, IEnumerable<Guid>>();
-        rsp.IsSuccessStatusCode.Should().BeTrue();
-        res.Count().Should().Be(3);
-        res.First().Should().Be(Guid.Empty);
+        rsp.IsSuccessStatusCode.ShouldBeTrue();
+        res.Count().ShouldBe(3);
+        res.First().ShouldBe(Guid.Empty);
     }
 
     [Fact]
     public async Task Generic_Command_Without_Result()
     {
         var (rsp, res) = await App.GuestClient.GETAsync<TestCases.CommandHandlerTest.GenericCmdWithoutResultEndpoint, Guid>();
-        rsp.IsSuccessStatusCode.Should().BeTrue();
-        res.Should().Be(Guid.Empty);
+        rsp.IsSuccessStatusCode.ShouldBeTrue();
+        res.ShouldBe(Guid.Empty);
     }
 
     [Fact]
     public async Task Command_Handler_Sends_Error_Response()
     {
         var res = await App.Client.GETAsync<TestCases.CommandHandlerTest.ConcreteCmdEndpoint, ErrorResponse>();
-        res.Response.IsSuccessStatusCode.Should().BeFalse();
-        res.Result.StatusCode.Should().Be(400);
-        res.Result.Errors.Count.Should().Be(2);
-        res.Result.Errors["generalErrors"].Count.Should().Be(2);
+        res.Response.IsSuccessStatusCode.ShouldBeFalse();
+        res.Result.StatusCode.ShouldBe(400);
+        res.Result.Errors.Count.ShouldBe(2);
+        res.Result.Errors["generalErrors"].Count.ShouldBe(2);
     }
 
     [Fact]
@@ -42,15 +42,15 @@ public class CommandBusTests(Sut App) : TestBase<Sut>
 
         var act = async () => cmd.ExecuteAsync(Cancellation);
 
-        await act.Should().NotThrowAsync();
+        await act.ShouldNotThrowAsync();
     }
 
     [Fact, Trait("ExcludeInCiCd", "Yes")]
     public async Task Command_That_Returns_A_Result_With_TestHandler()
     {
         var (rsp, _) = await App.Client.GETAsync<Endpoint, string>();
-        rsp.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
-        TestCommandHandler.FullName.Should().Be("x y zseeeee!");
+        rsp.StatusCode.ShouldBe(System.Net.HttpStatusCode.OK);
+        TestCommandHandler.FullName.ShouldBe("x y zseeeee!");
     }
 
     [Fact]
@@ -58,8 +58,8 @@ public class CommandBusTests(Sut App) : TestBase<Sut>
     {
         var (rsp, _) = await App.Client.GETAsync<Endpoint, string>();
 
-        rsp.StatusCode.Should().Be(System.Net.HttpStatusCode.OK);
-        TestVoidCommandHandler.FullName.Should().Be("x y z");
+        rsp.StatusCode.ShouldBe(System.Net.HttpStatusCode.OK);
+        TestVoidCommandHandler.FullName.ShouldBe("x y z");
     }
 }
 

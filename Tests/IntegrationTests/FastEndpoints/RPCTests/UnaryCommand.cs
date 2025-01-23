@@ -15,7 +15,7 @@ public class UnaryCommand(Sut f) : RpcTestBase(f)
 
         var res = await Remote.ExecuteUnary(command, command.GetType(), default);
 
-        res.Should().Be("johnny lawrence");
+        res.ShouldBe("johnny lawrence");
     }
 
     [Fact]
@@ -29,6 +29,6 @@ public class UnaryCommand(Sut f) : RpcTestBase(f)
 
         var res = await Remote.ExecuteUnary(command, command.GetType(), default);
 
-        res.Should().BeEquivalentTo(command);
+        res.ShouldBeEquivalentTo(command);
     }
 }

@@ -43,22 +43,22 @@ public class EventQueueTests
         await sut.StoreEventAsync(record2, default);
 
         var r1x = await sut.GetNextBatchAsync(new() { SubscriberID = record1.SubscriberID });
-        r1x!.Single().Event.Should().Be(record1.Event);
+        r1x!.Single().Event.ShouldBe(record1.Event);
 
         var r2x = await sut.GetNextBatchAsync(new() { SubscriberID = record1.SubscriberID });
-        r2x!.Single().Event.Should().Be(record2.Event);
+        r2x!.Single().Event.ShouldBe(record2.Event);
 
         await sut.StoreEventAsync(record3, default);
         await Task.Delay(100);
 
         var r3 = await sut.GetNextBatchAsync(new() { SubscriberID = record3.SubscriberID });
-        r3!.Single().Event.Should().Be(record3.Event);
+        r3!.Single().Event.ShouldBe(record3.Event);
 
         var r3x = await sut.GetNextBatchAsync(new() { SubscriberID = record2.SubscriberID });
-        r3x.Any().Should().BeFalse();
+        r3x.Any().ShouldBeFalse();
 
         var r4x = await sut.GetNextBatchAsync(new() { SubscriberID = record3.SubscriberID });
-        r4x.Any().Should().BeFalse();
+        r4x.Any().ShouldBeFalse();
     }
 
     [Fact]
@@ -83,7 +83,7 @@ public class EventQueueTests
             else
             {
                 var func = async () => await sut.StoreEventAsync(r, default);
-                await func.Should().ThrowAsync<OverflowException>();
+                await func.ShouldThrowAsync<OverflowException>();
             }
         }
     }
@@ -113,7 +113,7 @@ public class EventQueueTests
         while (writer.Responses.Count < 1)
             await Task.Delay(100);
 
-        writer.Responses[0].EventID.Should().Be(123);
+        writer.Responses[0].EventID.ShouldBe(123);
     }
 
     [Fact]
@@ -140,7 +140,7 @@ public class EventQueueTests
         while (writer.Responses.Count < 1)
             await Task.Delay(100);
 
-        writer.Responses[0].EventID.Should().Be(321);
+        writer.Responses[0].EventID.ShouldBe(321);
     }
 
     class TestEvent : IEvent

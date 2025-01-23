@@ -19,10 +19,10 @@ public class RequestBinderTests
 
         var res = await binder.BindAsync(ctx, default);
 
-        res.Int.Should().Be(intgr);
-        res.Guid.Should().Be(guid);
-        res.DefaultValueProp.Should().Be(345);
-        res.OptionalProp.Should().Be(678);
+        res.Int.ShouldBe(intgr);
+        res.Guid.ShouldBe(guid);
+        res.DefaultValueProp.ShouldBe(345);
+        res.OptionalProp.ShouldBe(678);
     }
 
     sealed class RequestClass

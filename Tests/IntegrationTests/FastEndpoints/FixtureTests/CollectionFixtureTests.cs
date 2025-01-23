@@ -39,8 +39,8 @@ public class CollectionFixtureTests
         [Fact]
         public void Test_Method_1()
         {
-            App.Id.Should().Be(CollectionAppFixture.Default.Reverse().ToString());
-            App.Count.Should().Be(1);
+            App.Id.ShouldBe(CollectionAppFixture.Default.Reverse().ToString());
+            App.Count.ShouldBe(1);
         }
     }
 
@@ -50,8 +50,8 @@ public class CollectionFixtureTests
         [Fact]
         public void Test_Method_2()
         {
-            App.Id.Should().Be(CollectionAppFixture.Default.Reverse().ToString());
-            App.Count.Should().Be(1);
+            App.Id.ShouldBe(CollectionAppFixture.Default.Reverse().ToString());
+            App.Count.ShouldBe(1);
         }
     }
 
@@ -69,8 +69,8 @@ public class CollectionFixtureTests
         [Fact]
         public void Test_Method_1()
         {
-            App.Id.Should().Be(CollectionAppFixture.Default.Reverse().ToString());
-            App.Count.Should().Be(1);
+            App.Id.ShouldBe(CollectionAppFixture.Default.Reverse().ToString());
+            App.Count.ShouldBe(1);
         }
     }
 
@@ -80,8 +80,8 @@ public class CollectionFixtureTests
         [Fact]
         public void Test_Method_2()
         {
-            App.Id.Should().Be(CollectionAppFixture.Default.Reverse().ToString());
-            App.Count.Should().Be(1);
+            App.Id.ShouldBe(CollectionAppFixture.Default.Reverse().ToString());
+            App.Count.ShouldBe(1);
         }
     }
 }

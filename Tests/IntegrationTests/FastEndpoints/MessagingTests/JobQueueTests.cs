@@ -19,12 +19,12 @@ public class JobQueueTests(Sut App) : TestBase<Sut>
         var job = cmd.CreateJob<Job>(executeAfter, expireOn);
 
         if (executeAfter.HasValue)
-            job.ExecuteAfter.Should().Be(executeAfter);
+            Assert.Equal(job.ExecuteAfter, executeAfter);
         else
             Assert.Equal(DateTime.UtcNow, job.ExecuteAfter, TimeSpan.FromMilliseconds(100));
 
         if (expireOn.HasValue)
-            job.ExpireOn.Should().Be(expireOn);
+            Assert.Equal(job.ExpireOn, expireOn);
         else
             Assert.Equal(DateTime.UtcNow.AddHours(4), job.ExpireOn, TimeSpan.FromMilliseconds(100));
     }
@@ -71,7 +71,7 @@ public class JobQueueTests(Sut App) : TestBase<Sut>
         while (!cts.IsCancellationRequested && !jobs.TrueForAll(j => j.IsCancelled))
             await Task.Delay(100, cts.Token);
 
-        jobs.Should().OnlyContain(j => j.IsCancelled && j.Counter > 0);
+        jobs.ShouldContain(j => j.IsCancelled && j.Counter > 0);
         JobStorage.Jobs.Clear();
     }
 
@@ -93,9 +93,9 @@ public class JobQueueTests(Sut App) : TestBase<Sut>
         while (!cts.IsCancellationRequested && JobTestCommand.CompletedIDs.Count < 9)
             await Task.Delay(100, Cancellation);
 
-        JobTestCommand.CompletedIDs.Count.Should().Be(9);
+        JobTestCommand.CompletedIDs.Count.ShouldBe(9);
         var expected = new[] { 0, 2, 3, 4, 5, 6, 7, 8, 9 };
-        JobTestCommand.CompletedIDs.Except(expected).Any().Should().BeFalse();
+        JobTestCommand.CompletedIDs.Except(expected).Any().ShouldBeFalse();
         JobStorage.Jobs.Clear();
     }
 
@@ -119,9 +119,9 @@ public class JobQueueTests(Sut App) : TestBase<Sut>
         while (!cts.IsCancellationRequested && JobTestCommand.CompletedIDs.Count < 9)
             await Task.Delay(100, Cancellation);
 
-        JobTestCommand.CompletedIDs.Count.Should().Be(9);
+        JobTestCommand.CompletedIDs.Count.ShouldBe(9);
         var expected = new[] { 0, 2, 3, 4, 5, 6, 7, 8, 9 };
-        JobTestCommand.CompletedIDs.Except(expected).Any().Should().BeFalse();
+        JobTestCommand.CompletedIDs.Except(expected).Any().ShouldBeFalse();
         JobStorage.Jobs.Clear();
     }
 
@@ -145,7 +145,7 @@ public class JobQueueTests(Sut App) : TestBase<Sut>
                 continue;
             }
 
-            result.Should().Be(guid);
+            result.ShouldBe(guid);
 
             break;
         }
@@ -178,6 +178,6 @@ public class JobQueueTests(Sut App) : TestBase<Sut>
             await Task.Delay(100);
         }
 
-        res!.Result.Should().Be(name);
+        res!.Result.ShouldBe(name);
     }
 }

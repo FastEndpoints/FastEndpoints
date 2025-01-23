@@ -1,1 +1,1 @@
-﻿global using FluentAssertions;
+﻿global using Shouldly;

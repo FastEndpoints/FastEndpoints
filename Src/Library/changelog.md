@@ -88,6 +88,13 @@ If app shutdown is requested during a retry loop (due to transient failures) in 
 
 </details>
 
+<details><summary>Miscellaneous improvements</summary>
+
+- Remove all traces of `FluentAssertions` from FE test projects & documentation examples
+- Prioritize the typed `Summary(x => {})` overload over the untyped overload in .NET 9
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>Issue with unit testing endpoints with pre-processors with injected dependencies</summary>
@@ -102,4 +109,4 @@ In certain edge cases where the schema has circular references, there was a pote
 
 </details>
 
-## Breaking Changes ⚠️
+<!-- ## Breaking Changes ⚠️ -->

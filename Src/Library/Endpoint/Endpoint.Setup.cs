@@ -580,6 +580,9 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// provide a summary/description for this endpoint to be used in swagger/ openapi
     /// </summary>
     /// <param name="endpointSummary">an action that sets values of an endpoint summary object</param>
+#if NET9_0_OR_GREATER
+    [System.Runtime.CompilerServices.OverloadResolutionPriority(1)]
+#endif
     protected void Summary(Action<EndpointSummary<TRequest>> endpointSummary)
         => Definition.Summary(endpointSummary);
 

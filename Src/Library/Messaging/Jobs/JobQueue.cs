@@ -200,11 +200,9 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                     return null;
                 });
 
-            var startTime = DateTime.Now;
-
             //this is probably unnecessary. but could come in handy in case there's some delays (or race condition) in
             //marking the job as complete via the storage provider and the job gets picked up for execution in the meantime.
-            while (DateTime.Now.Subtract(startTime).TotalMilliseconds <= 10000)
+            for (var i = 0; i < 10; i++)
             {
                 if (cts is not null) //job execution has started and cts is available
                 {
@@ -305,7 +303,8 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 e =>
                 {
                     e.AbsoluteExpirationRelativeToNow = _cancellationExpiry;
-                    var s = new CancellationTokenSource(_executionTimeLimit);
+                    var s = CancellationTokenSource.CreateLinkedTokenSource(_appCancellation);
+                    s.CancelAfter(_executionTimeLimit);
 
                     return s;
                 });

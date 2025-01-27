@@ -16,7 +16,7 @@ public static class EventExtensions
     /// a Task that matches the wait mode specified.
     /// <see cref="Mode.WaitForNone" /> returns an already completed Task (fire and forget).
     /// <see cref="Mode.WaitForAny" /> returns a Task that will complete when any of the subscribers complete their work.
-    /// <see cref="Mode.WaitForAll" /> return a Task that will complete only when all of the subscribers complete their work.
+    /// <see cref="Mode.WaitForAll" /> return a Task that will complete only when all the subscribers complete their work.
     /// </returns>
     public static Task PublishAsync<TEvent>(this TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = default) where TEvent : IEvent
         => Cfg.ServiceResolver.Resolve<EventBus<TEvent>>().PublishAsync(eventModel, waitMode, cancellation);
@@ -60,7 +60,7 @@ public static class EventExtensions
                 Expression.Call(typeof(EventExtensions), nameof(CreateEventInstance), [tEventModel]));
             var publishCall = Expression.Call(instanceParam, publishMethod, eventModelCast, waitModeParam, cancellationParam);
             var lambda = Expression.Lambda<Func<IEvent, Mode, CancellationToken, Task>>(
-                Expression.Block(new[] { instanceParam }, instanceInit, publishCall),
+                Expression.Block([instanceParam], instanceInit, publishCall),
                 eventParam,
                 waitModeParam,
                 cancellationParam);
@@ -68,4 +68,27 @@ public static class EventExtensions
             return lambda.Compile();
         }
     }
+
+    /// <summary>
+    /// publish the event to a subset of the subscribers registered to handle this type of event.
+    /// </summary>
+    /// <typeparam name="TEvent">the type of the event model</typeparam>
+    /// <param name="eventModel">the notification event model/dto to publish</param>
+    /// <param name="handlerFilter">
+    /// a predicate for selecting which of the registered should be executed. if the predicate return <c>false</c> for a particular event
+    /// handler, that handler will not be executed during the invocation.
+    /// </param>
+    /// <param name="waitMode">specify whether to wait for none, any or all of the subscribers to complete their work</param>
+    /// <param name="cancellation">an optional cancellation token</param>
+    /// <returns>
+    /// a Task that matches the wait mode specified.
+    /// <see cref="Mode.WaitForNone" /> returns an already completed Task (fire and forget).
+    /// <see cref="Mode.WaitForAny" /> returns a Task that will complete when any of the subscribers complete their work.
+    /// <see cref="Mode.WaitForAll" /> return a Task that will complete only when all the subscribers complete their work.
+    /// </returns>
+    public static Task PublishFilteredAsync<TEvent>(this TEvent eventModel,
+                                                    Func<Type, bool> handlerFilter,
+                                                    Mode waitMode = Mode.WaitForAll,
+                                                    CancellationToken cancellation = default) where TEvent : IEvent
+        => Cfg.ServiceResolver.Resolve<EventBus<TEvent>>().PublishFilteredAsync(eventModel, handlerFilter, waitMode, cancellation);
 }

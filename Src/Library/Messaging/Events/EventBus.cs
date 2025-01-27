@@ -52,7 +52,7 @@ public sealed class EventBus<TEvent> : EventBase where TEvent : notnull
     /// </summary>
     /// <param name="eventModel">the notification event model/dto to publish</param>
     /// <param name="handlerFilter">
-    /// a predicate for selecting which of the registered should be executed. if the predicate return <c>false</c> for a particular event
+    /// a predicate for selecting which of the registered event handlers should be executed. if the predicate returns <c>false</c> for a particular event
     /// handler, that handler will not be executed during the invocation.
     /// </param>
     /// <param name="waitMode">specify whether to wait for none, any or all of the subscribers to complete their work</param>

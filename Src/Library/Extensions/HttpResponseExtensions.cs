@@ -28,6 +28,8 @@ public static class HttpResponseExtensions
         rsp.HttpContext.PopulateResponseHeadersFrom(response);
         rsp.StatusCode = statusCode;
 
+        EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, response);
+
         return SerOpts.ResponseSerializer(rsp, response, "application/json", jsonSerializerContext, cancellation.IfDefault(rsp));
     }
 
@@ -46,6 +48,7 @@ public static class HttpResponseExtensions
     public static Task SendResultAsync(this HttpResponse rsp, IResult result)
     {
         rsp.HttpContext.MarkResponseStart();
+        EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, result);
 
         return result.ExecuteAsync(rsp.HttpContext);
     }
@@ -108,8 +111,7 @@ public static class HttpResponseExtensions
                                           CancellationToken cancellation = default)
     {
         var linkGen = Cfg.ServiceResolver.TryResolve<LinkGenerator>() ??              //unit tests (won't have the LinkGenerator registered)
-                      rsp.HttpContext.RequestServices?.GetService<LinkGenerator>() ?? //so get it from httpcontext (only applies to unit tests).
-                      //                                                                do not change to Resolve<T>() here
+                      rsp.HttpContext.RequestServices?.GetService<LinkGenerator>() ?? //so get it from httpcontext. do not change to Resolve<T>() here
                       throw new InvalidOperationException("LinkGenerator is not registered! Have you done the unit test setup correctly?");
 
         rsp.HttpContext.MarkResponseStart();
@@ -118,6 +120,8 @@ public static class HttpResponseExtensions
         rsp.Headers.Location = generateAbsoluteUrl
                                    ? linkGen.GetUriByName(rsp.HttpContext, endpointName, routeValues)
                                    : linkGen.GetPathByName(endpointName, routeValues);
+
+        EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, responseBody);
 
         return responseBody is null
                    ? rsp.StartAsync(cancellation.IfDefault(rsp))
@@ -141,6 +145,8 @@ public static class HttpResponseExtensions
         rsp.StatusCode = statusCode;
         rsp.ContentType = contentType;
 
+        EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, content);
+
         return rsp.WriteAsync(content, cancellation.IfDefault(rsp));
     }
 
@@ -152,6 +158,8 @@ public static class HttpResponseExtensions
     {
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 200;
+
+        EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
 
         return rsp.StartAsync(cancellation.IfDefault(rsp));
     }
@@ -170,6 +178,8 @@ public static class HttpResponseExtensions
         rsp.HttpContext.MarkResponseStart();
         rsp.HttpContext.PopulateResponseHeadersFrom(response);
         rsp.StatusCode = 200;
+
+        EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, response);
 
         return SerOpts.ResponseSerializer(rsp, response, "application/json", jsonSerializerContext, cancellation.IfDefault(rsp));
     }
@@ -190,9 +200,13 @@ public static class HttpResponseExtensions
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = statusCode;
 
+        var content = ErrOpts.ResponseBuilder(failures, rsp.HttpContext, statusCode);
+
+        EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, content);
+
         return SerOpts.ResponseSerializer(
             rsp,
-            ErrOpts.ResponseBuilder(failures, rsp.HttpContext, statusCode),
+            content,
             ErrOpts.ContentType,
             jsonSerializerContext,
             cancellation.IfDefault(rsp));
@@ -207,6 +221,8 @@ public static class HttpResponseExtensions
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 204;
 
+        EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
+
         return rsp.StartAsync(cancellation.IfDefault(rsp));
     }
 
@@ -218,6 +234,8 @@ public static class HttpResponseExtensions
     {
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 404;
+
+        EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
 
         return rsp.StartAsync(cancellation.IfDefault(rsp));
     }
@@ -231,6 +249,8 @@ public static class HttpResponseExtensions
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 401;
 
+        EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
+
         return rsp.StartAsync(cancellation.IfDefault(rsp));
     }
 
@@ -242,6 +262,8 @@ public static class HttpResponseExtensions
     {
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 403;
+
+        EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
 
         return rsp.StartAsync(cancellation.IfDefault(rsp));
     }
@@ -270,6 +292,8 @@ public static class HttpResponseExtensions
         headers(rsp.Headers);
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = statusCode;
+
+        EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
 
         return rsp.StartAsync(cancellation.IfDefault(rsp));
     }
@@ -366,6 +390,8 @@ public static class HttpResponseExtensions
                 enableRangeProcessing,
                 lastModified);
 
+            EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, stream);
+
             if (!shouldSendBody)
                 return;
 
@@ -399,6 +425,8 @@ public static class HttpResponseExtensions
         rsp.Headers.CacheControl = "no-cache";
         rsp.Headers.Connection = "keep-alive";
 
+        EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
+
         await rsp.Body.FlushAsync(ct);
 
         await foreach (var item in eventStream.WithCancellation(ct))
@@ -421,6 +449,8 @@ public static class HttpResponseExtensions
     {
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 200;
+
+        EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
 
         return SerOpts.ResponseSerializer(
             rsp,

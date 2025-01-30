@@ -1,4 +1,6 @@
-﻿namespace FastEndpoints;
+﻿using Microsoft.AspNetCore.Http;
+
+namespace FastEndpoints;
 
 /// <summary>
 /// endpoint registration options
@@ -44,7 +46,7 @@ public sealed class EndpointOptions
     /// you can inspect the EndpointSettings to check what the current endpoint is, if needed.
     /// return 'false' from the function if you want to exclude an endpoint from registration.
     /// return 'true' to include.
-    /// this function will executed for each endpoint that has been discovered during startup.
+    /// this function will execute for each endpoint that has been discovered during startup.
     /// </summary>
     public Func<EndpointDefinition, bool>? Filter { internal get; set; }
 
@@ -68,6 +70,17 @@ public sealed class EndpointOptions
     /// allows the use of empty request dtos
     /// </summary>
     public bool AllowEmptyRequestDtos { internal get; set; }
+
+    /// <summary>
+    /// a global response modifier which will be executed right before any response is written to the response stream, giving you a chance to modify the
+    /// response before being sent.
+    /// the arguments for the func are:
+    /// <code>
+    /// HttpContext : the http context of the current request/response
+    /// object? : response content which may be null
+    /// </code>
+    /// </summary>
+    public Action<HttpContext, object?>? GlobalResponseModifier { internal get; set; }
 }
 
 public struct EndpointNameGenerationContext(Type endpointType, string? httpVerb, int? routeNumber, string? tagPrefix)

@@ -118,7 +118,7 @@ public static class HttpContextExtensions
     internal static void PopulateResponseHeadersFrom(this HttpContext ctx, object? response)
     {
     #if NET8_0_OR_GREATER
-        var toHeaderProps = ctx.Items[CtxKey.ToHeaderProps] as ToHeaderProp[] ?? Array.Empty<ToHeaderProp>();
+        var toHeaderProps = ctx.Items[CtxKey.ToHeaderProps] as ToHeaderProp[] ?? [];
 
         for (var i = 0; i < toHeaderProps.Length; i++)
         {

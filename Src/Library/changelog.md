@@ -16,30 +16,6 @@ It is now possible to queue a job and track its progress and/or retrieve interme
 
 </details>
 
-<details><summary>Access 'IServiceProvider' when configuring Swagger Documents</summary>
-
-You can now access the built service provider instance via the `DocumentOptions.Services` property when configuring swagger documents like so:
-
-```cs
-var bld = WebApplication.CreateBuilder(args);
-bld.Services.Configure<MySettings>(bld.Configuration.GetSection(nameof(MySettings)));
-bld.Services
-   .SwaggerDocument(
-       o =>
-       {
-           // IServiceProvider is available via DocumentOptions.Services property
-           var conf = o.Services.GetRequiredService<IOptions<MySettings>>();
-           o.DocumentSettings = doc =>
-                                {
-                                    doc.DocumentName = conf.Value.DocName;
-                                };
-       })
-   .AddFastEndpoints();
-```
-
-</details>
-
-
 <details><summary>Global 'JwtCreationOptions' support for refresh token service</summary>
 
 If you configure jwt creation options at a global level like so:
@@ -64,6 +40,44 @@ sealed class MyTokenService : RefreshTokenService<TokenRequest, TokenResponse>
         });
     }
 }
+```
+
+</details>
+
+<details><summary>Global response modifier setting</summary>
+
+A new global action has been added which gets triggered right before a response is written to the response stream allowing you to carry out some common logic that should be applied to all endpoints.
+
+```cs
+app.UseFastEndpoints(
+       c => c.Endpoints.GlobalResponseModifier
+                = (ctx, content) =>
+                  {
+                      ctx.Response.Headers.Append("x-common-header", "some value");
+                  })
+```
+
+</details>
+
+<details><summary>Access 'IServiceProvider' when configuring Swagger Documents</summary>
+
+You can now access the built service provider instance via the `DocumentOptions.Services` property when configuring swagger documents like so:
+
+```cs
+var bld = WebApplication.CreateBuilder(args);
+bld.Services.Configure<MySettings>(bld.Configuration.GetSection(nameof(MySettings)));
+bld.Services
+   .SwaggerDocument(
+       o =>
+       {
+           // IServiceProvider is available via DocumentOptions.Services property
+           var conf = o.Services.GetRequiredService<IOptions<MySettings>>();
+           o.DocumentSettings = doc =>
+                                {
+                                    doc.DocumentName = conf.Value.DocName;
+                                };
+       })
+   .AddFastEndpoints();
 ```
 
 </details>

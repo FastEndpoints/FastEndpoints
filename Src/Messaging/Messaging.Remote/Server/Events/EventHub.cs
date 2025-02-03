@@ -74,7 +74,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                 Projection = e => e.SubscriberID
             });
 
-        while (!t.IsCompleted) //loop will exit if the task faults
+        while (!t.IsCompleted) //loop will exit when the task completes, even if it was unsuccessful
             Thread.Sleep(100);
 
         if (!t.IsCompletedSuccessfully)

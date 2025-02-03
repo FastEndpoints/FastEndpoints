@@ -74,8 +74,11 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                 Projection = e => e.SubscriberID
             });
 
-        while (!t.IsCompleted)
+        while (!t.IsCompleted) //loop will exit if the task faults
             Thread.Sleep(100);
+
+        if (!t.IsCompletedSuccessfully)
+            throw new ApplicationException("Failed to restore Subscriber IDs from storage!", t.AsTask().Exception?.InnerException);
 
         foreach (var subID in t.Result)
             _subscribers[subID] = new();

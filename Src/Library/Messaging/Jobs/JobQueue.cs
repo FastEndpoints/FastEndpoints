@@ -351,6 +351,9 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 {
                     try
                     {
+                        if (_resultStorage is not null)
+                            (record as IJobResultStorage)?.SetResult(await GetJobResultAsync<TResult>(record.TrackingID, _appCancellation));
+
                         await _storage.OnHandlerExecutionFailureAsync(record, x, _appCancellation);
 
                         break;

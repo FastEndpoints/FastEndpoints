@@ -21,4 +21,10 @@ Simply implement the new interface on your job storage record and the system wil
 
 ## Fixes 🪲
 
+<details><summary>Job result is null when job execution failure occurs</summary>
+
+The result property of job records that was passed into the `OnHandlerExecutionFailureAsync()` method of the storage provider was `null` due to an oversight, which has been corrected.
+
+</details>
+
 ## Breaking Changes ⚠️

@@ -1,4 +1,4 @@
-﻿// ReSharper disable UnusedParameter.Global
+// ReSharper disable UnusedParameter.Global
 
 namespace FastEndpoints;
 
@@ -7,6 +7,18 @@ namespace FastEndpoints;
 /// </summary>
 public abstract class EventHubExceptionReceiver
 {
+    /// <summary>
+    /// this method is triggered when the storage provider has trouble restoring event subscribers.
+    /// </summary>
+    /// <param name="eventType">the type of the event</param>
+    /// <param name="attemptCount">the number of times the subscriber were attempted to be retrieved</param>
+    /// <param name="exception">the actual exception that was thrown by the operation</param>
+    /// <param name="ct">cancellation token</param>
+    public virtual Task OnRestoreSubscriberIDsError(Type eventType, int attemptCount,
+                                                          Exception exception,
+                                                          CancellationToken ct)
+        => Task.CompletedTask;
+
     /// <summary>
     /// this method is triggered when the storage provider has trouble retrieving the next event record.
     /// </summary>

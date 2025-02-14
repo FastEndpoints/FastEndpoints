@@ -12,36 +12,10 @@ using Microsoft.Extensions.Logging;
 
 namespace FastEndpoints;
 
-sealed class EventHubInitializer(ILogger<EventHubInitializer> logger) : IHostedService
+sealed class EventHubInitializer() : IHostedService
 {
-    public async Task StartAsync(CancellationToken ct)
-    {
-        var timeoutToken = new CancellationTokenSource(TimeSpan.FromSeconds(30)).Token;
-
-        while (true)
-        {
-            try
-            {
-                await EventHubBase.InitializeHubs(ct);
-
-                return;
-            }
-            catch (Exception e)
-            {
-                if (ct.IsCancellationRequested) //app shutdown requested
-                    return;
-
-                if (timeoutToken.IsCancellationRequested) //max time reached
-                    throw new ApplicationException("Unable to restore event subscribers via storage provider in a timely manner!");
-
-                logger.LogWarning(e, "Event hub storage provider failed to restore Subscriber IDs. Retrying in 5 seconds...");
-
-            #pragma warning disable CA2016
-                await Task.Delay(5000);
-            #pragma warning restore CA2016
-            }
-        }
-    }
+    public async Task StartAsync(CancellationToken ct) 
+        => await EventHubBase.InitializeHubs(ct);
 
     public Task StopAsync(CancellationToken _)
         => Task.CompletedTask;
@@ -54,12 +28,14 @@ abstract class EventHubBase
     //values get created when the DI container resolves each event hub type and the ctor is run.
     protected static readonly ConcurrentDictionary<Type, EventHubBase> AllHubs = new();
 
+    protected bool IsInMemoryProvider { get; init; }
+
     protected abstract Task Initialize(CancellationToken ct);
 
     protected abstract Task BroadcastEvent(IEvent evnt, CancellationToken ct);
 
     internal static Task InitializeHubs(CancellationToken ct)
-        => Parallel.ForEachAsync(AllHubs.Values, ct, async (hub, c) => await hub.Initialize(c));
+        => Task.WhenAll(AllHubs.Values.Where(hub => !hub.IsInMemoryProvider).Select(hub => hub.Initialize(ct)));
 
     internal static Task AddToSubscriberQueues(IEvent evnt, CancellationToken ct)
     {
@@ -87,8 +63,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
 
     static readonly Lock _lock = new();
 
-    string? _lastReceivedBy;
-    readonly bool _isInMemoryProvider;
+    string? _lastReceivedBy;    
     readonly EventHubExceptionReceiver? _errors;
     readonly ILogger _logger;
     readonly CancellationToken _appCancellation;
@@ -98,9 +73,9 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
         AllHubs[_tEvent] = this;
         _isRoundRobinMode = Mode.HasFlag(HubMode.RoundRobin);
         _storage ??= (TStorageProvider)ActivatorUtilities.CreateInstance(svcProvider, typeof(TStorageProvider));
-        _isInMemoryProvider = _storage is InMemoryEventHubStorage;
+        IsInMemoryProvider = _storage is InMemoryEventHubStorage;
         EventHubStorage<TStorageRecord, TStorageProvider>.Provider = _storage; //for stale record purging task setup
-        EventHubStorage<TStorageRecord, TStorageProvider>.IsInMemProvider = _isInMemoryProvider;
+        EventHubStorage<TStorageRecord, TStorageProvider>.IsInMemProvider = IsInMemoryProvider;
         _errors = svcProvider.GetService<EventHubExceptionReceiver>();
         _logger = svcProvider.GetRequiredService<ILogger<EventHub<TEvent, TStorageRecord, TStorageProvider>>>();
         _appCancellation = svcProvider.GetRequiredService<IHostApplicationLifetime>().ApplicationStopping;
@@ -110,17 +85,46 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
     {
         ArgumentNullException.ThrowIfNull(_storage);
 
-        var subIds = await _storage.RestoreSubscriberIDsForEventTypeAsync(
+        var timeoutToken = new CancellationTokenSource(TimeSpan.FromSeconds(30)).Token;
+        var cts = CancellationTokenSource.CreateLinkedTokenSource(timeoutToken, _appCancellation);
+        var retrievalErrorCount = 0;
+
+        while (!ct.IsCancellationRequested)
+        {
+            try
+            {
+                var subIds = await _storage.RestoreSubscriberIDsForEventTypeAsync(
                          new()
                          {
-                             CancellationToken = _appCancellation,
+                             CancellationToken = cts.Token,
                              EventType = _tEvent.FullName!,
                              Match = e => e.EventType == _tEvent.FullName! && !e.IsComplete && DateTime.UtcNow <= e.ExpireOn,
                              Projection = e => e.SubscriberID
                          });
 
-        foreach (var subId in subIds)
-            _subscribers[subId] = new();
+                foreach (var subId in subIds)
+                    _subscribers[subId] = new();
+
+                return;
+            }
+            catch (Exception e)
+            {
+                if (_appCancellation.IsCancellationRequested)
+                    return;
+
+                if (timeoutToken.IsCancellationRequested) //max time reached
+                    throw new ApplicationException($"Unable to restore {_tEvent.FullName!} event subscribers via storage provider in a timely manner!");
+
+                retrievalErrorCount++;
+
+                _errors?.OnRestoreSubscriberIDsError(_tEvent, retrievalErrorCount, e, ct);
+                _logger.RestoreSubscriberIDsError(_tEvent.FullName!);
+
+#pragma warning disable CA2016
+                await Task.Delay(5000);
+#pragma warning restore CA2016
+            }
+        }
     }
 
     static readonly string[] _httPost = { "POST" };
@@ -207,7 +211,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                     }
                     catch
                     {
-                        if (_isInMemoryProvider)
+                        if (IsInMemoryProvider)
                         {
                             try
                             {
@@ -226,7 +230,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                         return; //stream is most likely broken/cancelled. exit the method here and let the subscriber re-connect and re-enter the method.
                     }
 
-                    while (!_isInMemoryProvider)
+                    while (!IsInMemoryProvider)
                     {
                         try
                         {

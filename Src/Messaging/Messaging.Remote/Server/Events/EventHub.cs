@@ -1,16 +1,51 @@
 // ReSharper disable MethodSupportsCancellation
 
+using System.Collections.Concurrent;
 using FastEndpoints.Messaging.Remote;
+using FastEndpoints.Messaging.Remote.Core;
 using Grpc.AspNetCore.Server.Model;
 using Grpc.Core;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using System.Collections.Concurrent;
-using FastEndpoints.Messaging.Remote.Core;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace FastEndpoints;
+
+sealed class EventHubInitializer(ILogger<EventHubInitializer> logger) : IHostedService
+{
+    public async Task StartAsync(CancellationToken ct)
+    {
+        var timeoutToken = new CancellationTokenSource(TimeSpan.FromSeconds(30)).Token;
+
+        while (true)
+        {
+            try
+            {
+                await EventHubBase.InitializeHubs(ct);
+
+                return;
+            }
+            catch (Exception e)
+            {
+                if (ct.IsCancellationRequested) //app shutdown requested
+                    return;
+
+                if (timeoutToken.IsCancellationRequested) //max time reached
+                    throw new ApplicationException("Unable to restore event subscribers via storage provider in a timely manner!");
+
+                logger.LogWarning(e, "Event hub storage provider failed to restore Subscriber IDs. Retrying in 5 seconds...");
+
+            #pragma warning disable CA2016
+                await Task.Delay(5000);
+            #pragma warning restore CA2016
+            }
+        }
+    }
+
+    public Task StopAsync(CancellationToken _)
+        => Task.CompletedTask;
+}
 
 abstract class EventHubBase
 {
@@ -19,7 +54,12 @@ abstract class EventHubBase
     //values get created when the DI container resolves each event hub type and the ctor is run.
     protected static readonly ConcurrentDictionary<Type, EventHubBase> AllHubs = new();
 
+    protected abstract Task Initialize(CancellationToken ct);
+
     protected abstract Task BroadcastEvent(IEvent evnt, CancellationToken ct);
+
+    internal static Task InitializeHubs(CancellationToken ct)
+        => Parallel.ForEachAsync(AllHubs.Values, ct, async (hub, c) => await hub.Initialize(c));
 
     internal static Task AddToSubscriberQueues(IEvent evnt, CancellationToken ct)
     {
@@ -64,24 +104,23 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
         _errors = svcProvider.GetService<EventHubExceptionReceiver>();
         _logger = svcProvider.GetRequiredService<ILogger<EventHub<TEvent, TStorageRecord, TStorageProvider>>>();
         _appCancellation = svcProvider.GetRequiredService<IHostApplicationLifetime>().ApplicationStopping;
+    }
 
-        var t = _storage.RestoreSubscriberIDsForEventTypeAsync(
-            new()
-            {
-                CancellationToken = _appCancellation,
-                EventType = _tEvent.FullName!,
-                Match = e => e.EventType == _tEvent.FullName! && !e.IsComplete && DateTime.UtcNow <= e.ExpireOn,
-                Projection = e => e.SubscriberID
-            });
+    protected override async Task Initialize(CancellationToken ct)
+    {
+        ArgumentNullException.ThrowIfNull(_storage);
 
-        while (!t.IsCompleted) //loop will exit when the task completes, even if it was unsuccessful
-            Thread.Sleep(100);
+        var subIds = await _storage.RestoreSubscriberIDsForEventTypeAsync(
+                         new()
+                         {
+                             CancellationToken = _appCancellation,
+                             EventType = _tEvent.FullName!,
+                             Match = e => e.EventType == _tEvent.FullName! && !e.IsComplete && DateTime.UtcNow <= e.ExpireOn,
+                             Projection = e => e.SubscriberID
+                         });
 
-        if (!t.IsCompletedSuccessfully)
-            throw new ApplicationException("Failed to restore Subscriber IDs from storage!", t.AsTask().Exception?.InnerException);
-
-        foreach (var subID in t.Result)
-            _subscribers[subID] = new();
+        foreach (var subId in subIds)
+            _subscribers[subId] = new();
     }
 
     static readonly string[] _httPost = { "POST" };

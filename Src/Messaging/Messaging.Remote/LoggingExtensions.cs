@@ -4,6 +4,9 @@ namespace FastEndpoints.Messaging.Remote;
 
 static partial class LoggingExtensions
 {
+    [LoggerMessage(1, LogLevel.Error, "Storage provider failed to restore Subscriber IDs for [{tEvent}]. Retrying in 5 seconds...")]
+    public static partial void RestoreSubscriberIDsError(this ILogger l, string tEvent);
+
     [LoggerMessage(2, LogLevel.Information, "Event subscriber connected! [id:{subscriberId}]({tEvent})")]
     public static partial void SubscriberConnected(this ILogger l, string subscriberId, string tEvent);
 

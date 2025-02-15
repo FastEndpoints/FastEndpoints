@@ -1,4 +1,4 @@
-﻿// ReSharper disable UnusedParameter.Global
+// ReSharper disable UnusedParameter.Global
 
 namespace FastEndpoints;
 
@@ -8,6 +8,16 @@ namespace FastEndpoints;
 public abstract class EventHubExceptionReceiver
 {
     /// <summary>
+    /// this method is triggered when the storage provider has trouble restoring event subscribers.
+    /// </summary>
+    /// <param name="eventType">the type of the event</param>
+    /// <param name="attemptCount">the number of times the subscriber were attempted to be retrieved</param>
+    /// <param name="exception">the actual exception that was thrown by the operation</param>
+    /// <param name="ct">cancellation token</param>
+    public virtual Task OnRestoreSubscriberIDsError(Type eventType, int attemptCount, Exception exception, CancellationToken ct)
+        => Task.CompletedTask;
+
+    /// <summary>
     /// this method is triggered when the storage provider has trouble retrieving the next event record.
     /// </summary>
     /// <typeparam name="TEvent">the type of the event</typeparam>
@@ -15,10 +25,8 @@ public abstract class EventHubExceptionReceiver
     /// <param name="attemptCount">the number of times the record was attempted to be retrieved</param>
     /// <param name="exception">the actual exception that was thrown by the operation</param>
     /// <param name="ct">cancellation token</param>
-    public virtual Task OnGetNextEventRecordError<TEvent>(string subscriberID,
-                                                          int attemptCount,
-                                                          Exception exception,
-                                                          CancellationToken ct) where TEvent : class, IEvent
+    public virtual Task OnGetNextEventRecordError<TEvent>(string subscriberID, int attemptCount, Exception exception, CancellationToken ct)
+        where TEvent : class, IEvent
         => Task.CompletedTask;
 
     /// <summary>
@@ -29,10 +37,8 @@ public abstract class EventHubExceptionReceiver
     /// <param name="attemptCount">the number of times the record was attempted to be marked complete</param>
     /// <param name="exception">the actual exception that was thrown by the operation</param>
     /// <param name="ct">cancellation token</param>
-    public virtual Task OnMarkEventAsCompleteError<TEvent>(IEventStorageRecord record,
-                                                           int attemptCount,
-                                                           Exception exception,
-                                                           CancellationToken ct) where TEvent : class, IEvent
+    public virtual Task OnMarkEventAsCompleteError<TEvent>(IEventStorageRecord record, int attemptCount, Exception exception, CancellationToken ct)
+        where TEvent : class, IEvent
         => Task.CompletedTask;
 
     /// <summary>
@@ -43,10 +49,8 @@ public abstract class EventHubExceptionReceiver
     /// <param name="attemptCount">the number of times the record was attempted to be persisted</param>
     /// <param name="exception">the actual exception that was thrown by the operation</param>
     /// <param name="ct">cancellation token</param>
-    public virtual Task OnStoreEventRecordError<TEvent>(IEventStorageRecord record,
-                                                        int attemptCount,
-                                                        Exception exception,
-                                                        CancellationToken ct) where TEvent : class, IEvent
+    public virtual Task OnStoreEventRecordError<TEvent>(IEventStorageRecord record, int attemptCount, Exception exception, CancellationToken ct)
+        where TEvent : class, IEvent
         => Task.CompletedTask;
 
     /// <summary>
@@ -55,7 +59,6 @@ public abstract class EventHubExceptionReceiver
     /// <typeparam name="TEvent">the type of the event</typeparam>
     /// <param name="record">the event storage record that was supposed to be added to the queue</param>
     /// <param name="ct">cancellation token</param>
-    public virtual Task OnInMemoryQueueOverflow<TEvent>(IEventStorageRecord record,
-                                                        CancellationToken ct) where TEvent : class, IEvent
+    public virtual Task OnInMemoryQueueOverflow<TEvent>(IEventStorageRecord record, CancellationToken ct) where TEvent : class, IEvent
         => Task.CompletedTask;
 }

@@ -180,15 +180,15 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     /// override this method to customize the request binding logic
     /// </summary>
     /// <param name="ctx">the request binder context which holds all the data required for binding the incoming request</param>
-    /// <param name="cancellation">cancellation token</param>
+    /// <param name="ct">cancellation token</param>
     /// <exception cref="ValidationFailureException">thrown if any failures occur during the binding process</exception>
-    public virtual async ValueTask<TRequest> BindAsync(BinderContext ctx, CancellationToken cancellation)
+    public virtual async ValueTask<TRequest> BindAsync(BinderContext ctx, CancellationToken ct)
     {
         if (_skipModelBinding)
             return (TRequest)_dtoInitializer();
 
         var req = !_isPlainTextRequest && _bindJsonBody && ctx.HttpContext.Request.HasJsonContentType()
-                      ? await BindJsonBody(ctx.HttpContext.Request, ctx.JsonSerializerContext, cancellation)
+                      ? await BindJsonBody(ctx.HttpContext.Request, ctx.JsonSerializerContext, ct)
                       : _isPlainTextRequest
                           ? await BindPlainTextBody(ctx.HttpContext.Request)
                           : (TRequest)_dtoInitializer();
@@ -211,16 +211,16 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                    : throw new ValidationFailureException(ctx.ValidationFailures, "Model binding failed!");
     }
 
-    static async ValueTask<TRequest> BindJsonBody(HttpRequest httpRequest, JsonSerializerContext? serializerCtx, CancellationToken cancellation)
+    static async ValueTask<TRequest> BindJsonBody(HttpRequest httpRequest, JsonSerializerContext? serializerCtx, CancellationToken ct)
     {
         if (_fromBodyProp is null || httpRequest.Headers.ContainsKey(Constants.RoutelessTest))
-            return (TRequest)(await Cfg.SerOpts.RequestDeserializer(httpRequest, _tRequest, serializerCtx, cancellation) ?? _dtoInitializer());
+            return (TRequest)(await Cfg.SerOpts.RequestDeserializer(httpRequest, _tRequest, serializerCtx, ct) ?? _dtoInitializer());
 
         var req = (TRequest)_dtoInitializer();
 
         _fromBodyProp.PropSetter(
             req,
-            await Cfg.SerOpts.RequestDeserializer(httpRequest, _fromBodyProp.PropType, serializerCtx, cancellation));
+            await Cfg.SerOpts.RequestDeserializer(httpRequest, _fromBodyProp.PropType, serializerCtx, ct));
 
         return req;
     }
@@ -228,7 +228,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     static async ValueTask<TRequest> BindPlainTextBody(HttpRequest request)
     {
         var req = (IPlainTextRequest)_dtoInitializer();
-        var reader = new StreamReader(request.Body);
+        var reader = new StreamReader(request.Body); //don't do `using var` here. see note below.
         req.Content = await reader.ReadToEndAsync();
         request.HttpContext.Response.RegisterForDispose(reader); //disposing the reader immediately causes the request body to also get disposed.
         if (request.Body.CanSeek)                                //EnableBuffering() is used, so rewind. form binding fails if not rewound.

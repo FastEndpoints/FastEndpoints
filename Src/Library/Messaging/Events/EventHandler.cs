@@ -7,11 +7,10 @@ namespace FastEndpoints;
 /// <para>WARNING: event handlers are singletons. DO NOT maintain state in them. Use the <c>Resolve*()</c> methods to obtain dependencies.</para>
 /// </summary>
 /// <typeparam name="TEvent">the type of the event to handle</typeparam>
-[HideFromDocs]
+[HideFromDocs, Obsolete("Implement IEventHandler<T> interface instead.")]
 public abstract class FastEventHandler<TEvent> : IEventHandler<TEvent>, IEventBus, IServiceResolverBase where TEvent : notnull
 {
-    //todo: this class can be deprecated in the future as no longer mentioned in the docs
-    //      currently only here to not break existing consumers
+    //todo: remove this class in next major version jump
 
     /// <summary>
     /// this method will be called when an event of the specified type is published.

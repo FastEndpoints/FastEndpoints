@@ -1,4 +1,5 @@
 ﻿namespace TestCases.EventHandlingTest;
+
 public class NewItemAddedToStock : IEvent
 {
     public int ID { get; set; }
@@ -19,15 +20,17 @@ public class NotifyCustomers : IEventHandler<NewItemAddedToStock>
             throw new ArgumentOutOfRangeException(nameof(eventModel.Quantity), "quantity can't be zero");
 
         eventModel.ID = 0;
+
         return Task.CompletedTask;
     }
 }
 
-public class UpdateInventoryLevel : FastEventHandler<NewItemAddedToStock>
+public class UpdateInventoryLevel : IEventHandler<NewItemAddedToStock>
 {
-    public override Task HandleAsync(NewItemAddedToStock eventModel, CancellationToken ct)
+    public Task HandleAsync(NewItemAddedToStock eventModel, CancellationToken ct)
     {
         eventModel.Name = "pass";
+
         return Task.CompletedTask;
     }
 }

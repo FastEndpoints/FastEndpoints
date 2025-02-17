@@ -21,8 +21,8 @@ Simply implement the new interface on your job storage record and the system wil
 
 <details><summary>RPC Event Hub startup sequence</summary>
 
-The rpc event hub was using a thread sleep pattern during startup to restore subscriber IDs via the storage provider.
-It has been refactored to use an `IHostedService` together with retry logic for proper async operation.
+The rpc event hub was using a thread sleep pattern during startup to restore subscriber IDs via the storage provider, resulting in a sequential initialization.
+It has been refactored to use an IHostedService together with retry logic for a proper async and parallel initialization, resulting in decreased startup time.
 
 </details>
 

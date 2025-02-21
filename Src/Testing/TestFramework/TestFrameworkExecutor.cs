@@ -1,4 +1,5 @@
-﻿using Xunit.Sdk;
+﻿using Xunit.Internal;
+using Xunit.Sdk;
 using Xunit.v3;
 
 namespace FastEndpoints.Testing;
@@ -9,7 +10,14 @@ sealed class TestFrameworkExecutor(IXunitTestAssembly testAssembly) : XunitTestF
                                                  IMessageSink executionMessageSink,
                                                  ITestFrameworkExecutionOptions executionOptions)
     {
-        executionOptions.SetDisableParallelization(true);
+        SetDisableParallelization(executionOptions, true);
+
         await TestAssemblyRunner.Instance.Run(TestAssembly, testCases, executionMessageSink, executionOptions);
+
+        static void SetDisableParallelization(ITestFrameworkExecutionOptions executionOptions, bool? value)
+        {
+            Guard.ArgumentNotNull(executionOptions);
+            executionOptions.SetValue(TestOptionsNames.Execution.DisableParallelization, value);
+        }
     }
 }

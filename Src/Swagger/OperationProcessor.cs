@@ -105,9 +105,6 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
                 reqContent.Add(c);
         }
 
-        //fix response content-types not displaying correctly
-        //also set user provided response examples and response headers
-        //and fix polymorphism for responses when using oneOf
         if (op.Responses.Count > 0)
         {
             var metas = metaData
@@ -140,6 +137,7 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
             if (metas.Count > 0)
             {
             #if NET9_0_OR_GREATER
+
                 //remove this workaround when sdk bug is fixed: https://github.com/dotnet/aspnetcore/issues/57801#issuecomment-2439578287
                 foreach (var meta in metas.Where(m => m.Value.isIResult))
                 {
@@ -170,9 +168,11 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
 
                     if (metas.TryGetValue(rsp.Key, out var x))
                     {
+                        //set user provided response examples
                         if (mediaType is not null && x.example is not null)
                             mediaType.Example = x.example;
 
+                        //set user provided response headers
                         foreach (var p in x.tDto!
                                            .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
                                            .Where(p => p.IsDefined(Types.ToHeaderAttribute)))
@@ -202,6 +202,7 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
                         }
                     }
 
+                    //fix response content-types not displaying correctly
                     if (mediaType is not null)
                     {
                         rsp.Value.Content.Clear();
@@ -209,6 +210,7 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
                             rsp.Value.Content.Add(new(ct, mediaType));
                     }
 
+                    //fix polymorphism for responses when using oneOf
                     if (docOpts.UseOneOfForPolymorphism)
                     {
                         foreach (var mt in rsp.Value.Content)
@@ -222,6 +224,13 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
                                 mt.Value.Schema.Reference = null;
                             }
                         }
+                    }
+
+                    //fix nswag byte[] quirk
+                    foreach (var content in rsp.Value.Content.Values)
+                    {
+                        if (content.Schema != null && content.Schema.Type == JsonObjectType.String && content.Schema.Format == "byte")
+                            content.Schema.Format = "binary";
                     }
                 }
             }
@@ -466,6 +475,7 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
         }
 
     #if NET7_0_OR_GREATER
+
         //add idempotency header param if applicable
         if (epDef.IdempotencyOptions is not null)
         {

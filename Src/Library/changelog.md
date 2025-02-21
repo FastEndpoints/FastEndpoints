@@ -26,6 +26,24 @@ It has been refactored to use an IHostedService together with retry logic for a 
 
 </details>
 
+<details><summary>Workaround for NSwag quirk with byte array responses</summary>
+
+NSwag has a quirk that it will render an incorrect schema if the user does something like the following:
+
+```cs
+b => b.Produces<byte[]>(200, "image/png");
+```
+
+In order to get the correct schema generated, we've had to do the following:
+
+```cs
+b => b.Produces<IFormFile>(200, "image/png");
+```
+
+You now have the ability to do either of the above and it will now generate the correct schema.
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>Job result is null when job execution failure occurs</summary>

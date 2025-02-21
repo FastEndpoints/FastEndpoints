@@ -4426,12 +4426,14 @@
             "content": {
               "image/png": {
                 "schema": {
-                  "type": "string"
+                  "type": "string",
+                  "format": "binary"
                 }
               },
               "test/image": {
                 "schema": {
-                  "type": "string"
+                  "type": "string",
+                  "format": "binary"
                 }
               }
             }
@@ -4490,12 +4492,14 @@
             "content": {
               "image/png": {
                 "schema": {
-                  "type": "string"
+                  "type": "string",
+                  "format": "binary"
                 }
               },
               "test/image": {
                 "schema": {
-                  "type": "string"
+                  "type": "string",
+                  "format": "binary"
                 }
               }
             }

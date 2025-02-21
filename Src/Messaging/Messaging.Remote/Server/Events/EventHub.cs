@@ -126,7 +126,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
         }
     }
 
-    static readonly string[] _httPost = { "POST" };
+    static readonly string[] _httPost = ["POST"];
 
     public void Bind(ServiceMethodProviderContext<EventHub<TEvent, TStorageRecord, TStorageProvider>> ctx)
     {

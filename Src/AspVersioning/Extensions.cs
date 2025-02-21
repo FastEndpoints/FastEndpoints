@@ -18,10 +18,11 @@ public static class Extensions
                                                    Action<ApiExplorerOptions>? apiExplorerOptions = null)
     {
         var builder = versioningOptions is null
-                      ? services.AddApiVersioning(VersioningDefaults)
-                      : services.AddApiVersioning(versioningOptions);
+                          ? services.AddApiVersioning(VersioningDefaults)
+                          : services.AddApiVersioning(versioningOptions);
 
         var tmp = new ApiExplorerOptions();
+
         if (apiExplorerOptions is null)
         {
             builder.AddApiExplorer(ExplorerDefaults);
@@ -44,20 +45,26 @@ public static class Extensions
             o.AssumeDefaultVersionWhenUnspecified = true;
             o.ApiVersionReader = new HeaderApiVersionReader("X-Api-Version");
         }
-        static void ExplorerDefaults(ApiExplorerOptions o) => o.GroupNameFormat = "'v'VVV";
+
+        static void ExplorerDefaults(ApiExplorerOptions o)
+            => o.GroupNameFormat = "'v'VVV";
     }
 
     /// <summary>
     /// map the current endpoint to an api version set by specifying the api name
     /// </summary>
     /// <param name="apiName">the name of the api (swagger tag) this endpoint belongs to</param>
-    /// <exception cref="InvalidOperationException">thrown when the specified api set is not found in the <see cref="VersionSets"/> container</exception>
+    /// <exception cref="InvalidOperationException">thrown when the specified api set is not found in the <see cref="VersionSets" /> container</exception>
     public static IEndpointConventionBuilder WithVersionSet(this IEndpointConventionBuilder b, string apiName)
     {
         if (VersionSets.Container.TryGetValue(apiName, out var versionSet))
             b.WithApiVersionSet(versionSet);
         else
-            throw new InvalidOperationException($"A version set with name [{apiName}] has not been registered using {nameof(VersionSets)}.{nameof(VersionSets.CreateApi)}(...) at startup!");
+        {
+            throw new InvalidOperationException(
+                $"A version set with name [{apiName}] has not been registered using " +
+                $"{nameof(VersionSets)}.{nameof(VersionSets.CreateApi)}(...) at startup!");
+        }
 
         return b;
     }
@@ -69,7 +76,7 @@ public static class Extensions
     public static void ApiVersion(this AspNetCoreOpenApiDocumentGeneratorSettings s, ApiVersion apiVersion)
     {
         var strVersion = apiVersion.ToString(VersionSets.VersionFormat);
-        s.ApiGroupNames = new[] { strVersion };
+        s.ApiGroupNames = [strVersion];
         s.Version = strVersion;
     }
 }

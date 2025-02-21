@@ -35,7 +35,7 @@ abstract class BaseHandlerExecutor<TCommand, THandler, TResult, TSelf> : IMethod
                                                         ServerCallContext serverCallContext)
         => throw new NotImplementedException();
 
-    static readonly string[] _httpPost = { "POST" };
+    static readonly string[] _httpPost = ["POST"];
 
     public void Bind(ServiceMethodProviderContext<TSelf> ctx)
     {

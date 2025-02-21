@@ -64,7 +64,7 @@ static class ValidationExtensions
                 if (rulesDict.TryGetValue(propertyNameWithSchemaCasing, out var propertyRules))
                     propertyRules.Add(rule.ValidationRule);
                 else
-                    rulesDict.Add(propertyNameWithSchemaCasing, new() { rule.ValidationRule });
+                    rulesDict.Add(propertyNameWithSchemaCasing, [rule.ValidationRule]);
             }
         }
 

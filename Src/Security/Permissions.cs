@@ -20,8 +20,7 @@ public abstract class Permissions : IEnumerable<(string PermissionName, string P
 {
     static bool _isInitialized;
 
-    static IEnumerable<(string PermissionName, string PermissionCode)> _permissions
-        = Enumerable.Empty<(string PermissionName, string PermissionCode)>();
+    static IEnumerable<(string PermissionName, string PermissionCode)> _permissions = [];
 
     protected Permissions()
     {
@@ -30,9 +29,9 @@ public abstract class Permissions : IEnumerable<(string PermissionName, string P
             _isInitialized = true;
 
             _permissions = GetType()
-                          .GetFields(BindingFlags.Public | BindingFlags.Static)
-                          .Select(f => (f.Name, (string)f.GetValue(this)!))
-                          .ToArray();
+                           .GetFields(BindingFlags.Public | BindingFlags.Static)
+                           .Select(f => (f.Name, (string)f.GetValue(this)!))
+                           .ToArray();
         }
     }
 
@@ -43,8 +42,8 @@ public abstract class Permissions : IEnumerable<(string PermissionName, string P
     public IEnumerable<string> NamesFor(IEnumerable<string> codes)
     {
         return _permissions
-              .Where(f => codes.Contains(f.PermissionCode))
-              .Select(f => f.PermissionName);
+               .Where(f => codes.Contains(f.PermissionCode))
+               .Select(f => f.PermissionName);
     }
 
     /// <summary>
@@ -54,8 +53,8 @@ public abstract class Permissions : IEnumerable<(string PermissionName, string P
     public IEnumerable<string> CodesFor(IEnumerable<string> names)
     {
         return _permissions
-              .Where(f => names.Contains(f.PermissionName))
-              .Select(f => f.PermissionCode);
+               .Where(f => names.Contains(f.PermissionName))
+               .Select(f => f.PermissionCode);
     }
 
     /// <summary>

@@ -36,7 +36,7 @@ public class CustomersTests(Sut App) : TestBase<Sut>
                              {
                                  CreatedBy = "this should be replaced by claim",
                                  CustomerName = "test customer",
-                                 PhoneNumbers = new[] { "123", "456" }
+                                 PhoneNumbers = ["123", "456"]
                              });
 
         rsp.StatusCode.ShouldBe(HttpStatusCode.OK);

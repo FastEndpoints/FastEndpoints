@@ -14,21 +14,21 @@ public class Endpoint : EndpointWithoutRequest
             Allow.Customers_Retrieve,
             Allow.Customers_Create);
         AccessControl("Customers_Retrieve", "Admin");
-        Options(o => o.Produces<Response>(200));
+        Options(o => o.Produces<Response>());
         Version(0, deprecateAt: 1);
     }
 
     public override Task<object?> ExecuteAsync(CancellationToken ct)
-    {
-        return Task.FromResult((object?)new Response
-        {
-            Customers = new[] {
-                    new KeyValuePair<string,int>("ryan gunner", 123),
-                    new KeyValuePair<string,int>("debby ryan", 124),
-                    new KeyValuePair<string,int>("ryan reynolds",321)
-                }
-        });
-    }
+        => Task.FromResult(
+            (object?)new Response
+            {
+                Customers =
+                [
+                    new("ryan gunner", 123),
+                    new("debby ryan", 124),
+                    new("ryan reynolds", 321)
+                ]
+            });
 }
 
 public class Response

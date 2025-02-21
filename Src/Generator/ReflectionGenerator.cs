@@ -13,7 +13,7 @@ public class ReflectionGenerator : IIncrementalGenerator
 
     static readonly StringBuilder b = new();
     static readonly StringBuilder _initArgsBuilder = new();
-    static readonly string[] TypeBlacklist = { "Microsoft.Extensions.Primitives.StringSegment", "FastEndpoints.EmptyRequest", "System.Uri" };
+    static readonly string[] TypeBlacklist = ["Microsoft.Extensions.Primitives.StringSegment", "FastEndpoints.EmptyRequest", "System.Uri"];
     const string ConditionArgument = "Condition";
     const string DontInjectAttribute = "DontInjectAttribute";
     const string DontRegisterAttribute = "DontRegisterAttribute";

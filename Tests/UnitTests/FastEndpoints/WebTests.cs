@@ -270,10 +270,7 @@ public class WebTests
         await ep.HandleAsync(
             new()
             {
-                NumbersList = new()
-                {
-                    1, 2, 3
-                }
+                NumbersList = [1, 2, 3]
             },
             default);
 
@@ -312,11 +309,11 @@ public class WebTests
         await ep.HandleAsync(
             new()
             {
-                StringArray = new[]
-                {
+                StringArray =
+                [
                     "a",
                     "b"
-                }
+                ]
             },
             default);
 
@@ -333,11 +330,11 @@ public class WebTests
         await ep.HandleAsync(
             new()
             {
-                ObjectArray = new[]
-                {
-                    new TestCases.ValidationErrorTest.TObject { Test = "a" },
-                    new TestCases.ValidationErrorTest.TObject { Test = "b" }
-                }
+                ObjectArray =
+                [
+                    new() { Test = "a" },
+                    new() { Test = "b" }
+                ]
             },
             default);
 
@@ -354,11 +351,11 @@ public class WebTests
         await ep.HandleAsync(
             new()
             {
-                NumbersList = new()
-                {
+                NumbersList =
+                [
                     new() { 1, 2 },
                     new() { 3, 4 }
-                }
+                ]
             },
             default);
 

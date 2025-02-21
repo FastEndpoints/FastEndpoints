@@ -52,4 +52,11 @@ The result property of job records that was passed into the `OnHandlerExecutionF
 
 </details>
 
+<details><summary>Parallel 'VersionSet' creation issue</summary>
+
+If `VersionSet`s are created by multiple SUTs at the same time when doing integration testing, a non-concurrent dictionary modification exception was being thrown.
+The internal dictionary used to keep track of the version sets has been changed to a concurrent dictionary which solves the issue.
+
+</details>
+
 ## Breaking Changes ⚠️

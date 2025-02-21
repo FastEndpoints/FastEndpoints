@@ -22,7 +22,7 @@ public class EndpointDataTests
         var options = new EndpointDiscoveryOptions
         {
             Filter = t => t.Name.Contains(typename, StringComparison.OrdinalIgnoreCase),
-            Assemblies = new[] { GetType().Assembly }
+            Assemblies = [GetType().Assembly]
         };
 
         var sut = new EndpointData(options, new());

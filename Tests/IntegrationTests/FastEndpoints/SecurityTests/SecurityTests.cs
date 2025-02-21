@@ -13,7 +13,7 @@ public class SecurityTests(Sut App) : TestBase<Sut>
     [Fact]
     public async Task MultiVerbEndpointAnonymousUserPutFail()
     {
-        using var imageContent = new ByteArrayContent(Array.Empty<byte>());
+        using var imageContent = new ByteArrayContent([]);
         imageContent.Headers.ContentType = MediaTypeHeaderValue.Parse("multipart/form-data");
 
         using var form = new MultipartFormDataContent();

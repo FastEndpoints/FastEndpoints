@@ -1,13 +1,14 @@
-﻿using Asp.Versioning.Builder;
+﻿using System.Collections.Concurrent;
+using Asp.Versioning.Builder;
 
 namespace FastEndpoints.AspVersioning;
 
 /// <summary>
-/// a container for globally holding the <see cref="ApiVersionSet"/> instances for the application
+/// a container for globally holding the <see cref="ApiVersionSet" /> instances for the application
 /// </summary>
 public static class VersionSets
 {
-    internal static readonly Dictionary<string, ApiVersionSet> Container = new();
+    internal static readonly ConcurrentDictionary<string, ApiVersionSet> Container = new();
     internal static string VersionFormat = null!;
 
     /// <summary>

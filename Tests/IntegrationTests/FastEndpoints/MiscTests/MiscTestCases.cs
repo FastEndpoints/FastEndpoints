@@ -68,6 +68,27 @@ public class MiscTestCases(Sut App) : TestBase<Sut>
     }
 
     [Fact]
+    public async Task Cache_Bypass_Works()
+    {
+        var antiCacheClient = App.CreateClient(new() { BypassCaching = true });
+
+        for (var i = 0; i < 2; i++)
+        {
+            var id = Guid.NewGuid();
+            var (rsp, res) = await antiCacheClient.GETAsync<
+                                 TestCases.Endpoints.CacheBypassTest.Endpoint,
+                                 TestCases.Endpoints.CacheBypassTest.Request,
+                                 Guid>(
+                                 new()
+                                 {
+                                     Id = id
+                                 });
+            rsp.IsSuccessStatusCode.ShouldBeTrue();
+            res.ShouldBe(id);
+        }
+    }
+
+    [Fact]
     public async Task DontCatchExceptions()
     {
         try

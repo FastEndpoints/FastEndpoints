@@ -10,6 +10,16 @@ Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H
 
 ## New 🎉
 
+<details><summary>Ability to bypass endpoint caching for integration tests</summary>
+
+You can now easily test endpoints that have caching enabled, by using a client configured to automatically bypass caching like so:
+
+```cs
+var antiCacheClient = App.CreateClient(new() { BypassCaching = true });
+```
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Ability to optionally save command type on job storage record</summary>

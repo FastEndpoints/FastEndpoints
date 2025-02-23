@@ -4,10 +4,11 @@
         <NuGetAuditMode>direct</NuGetAuditMode>
     </PropertyGroup>
     <ItemGroup>
-        <PackageVersion Include="Asp.Versioning.Http" Condition="'$(TargetFramework)' == 'net6.0' Or '$(TargetFramework)' == 'net7.0'" Version="7.1.0"/>
+        <PackageVersion Include="Asp.Versioning.Http" Condition="'$(TargetFramework)' == 'net6.0'" Version="6.4.0"/>
+		<PackageVersion Include="Asp.Versioning.Http" Condition="'$(TargetFramework)' == 'net7.0'" Version="7.1.0"/>
         <PackageVersion Include="Asp.Versioning.Http" Condition="'$(TargetFramework)' == 'net8.0' Or '$(TargetFramework)' == 'net9.0'" Version="8.1.0"/>
-
-        <PackageVersion Include="Asp.Versioning.Mvc.ApiExplorer" Condition="'$(TargetFramework)' == 'net6.0' or '$(TargetFramework)' == 'net7.0'" Version="7.1.0"/>
+		<PackageVersion Include="Asp.Versioning.Mvc.ApiExplorer" Condition="'$(TargetFramework)' == 'net6.0'" Version="6.4.0"/>
+        <PackageVersion Include="Asp.Versioning.Mvc.ApiExplorer" Condition="'$(TargetFramework)' == 'net7.0'" Version="7.1.0"/>
         <PackageVersion Include="Asp.Versioning.Mvc.ApiExplorer" Condition="'$(TargetFramework)' == 'net8.0' or '$(TargetFramework)' == 'net9.0'" Version="8.1.0"/>
 
         <PackageVersion Include="BenchmarkDotNet" Version="0.14.0"/>
@@ -39,14 +40,24 @@
         <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0"/>
         <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.12.0"/>
 
-        <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Condition="'$(TargetFramework)' == 'net6.0' or '$(TargetFramework)' == 'net7.0'" Version="8.0.2"/>
-        <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Condition="'$(TargetFramework)' == 'net8.0' or '$(TargetFramework)' == 'net9.0'" Version="9.0.2"/>
+        <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Condition="'$(TargetFramework)' == 'net6.0'" Version="6.0.0"/>
+		<PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Condition="'$(TargetFramework)' == 'net7.0'" Version="7.0.0"/>
+		<PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Condition="'$(TargetFramework)' == 'net8.0'" Version="8.0.2"/>
+        <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Condition="'$(TargetFramework)' == 'net9.0'" Version="9.0.2"/>
 
-        <PackageVersion Include="Microsoft.Extensions.Hosting" Condition="'$(TargetFramework)' == 'netstandard2.1' or '$(TargetFramework)' == 'net6.0' or '$(TargetFramework)' == 'net7.0'" Version="8.0.1"/>
-        <PackageVersion Include="Microsoft.Extensions.Hosting" Condition="'$(TargetFramework)' == 'net8.0' or '$(TargetFramework)' == 'net9.0'" Version="9.0.2"/>
+		<PackageVersion Include="Microsoft.Extensions.Logging" Condition="'$(TargetFramework)' == 'netstandard2.1' or '$(TargetFramework)' == 'net6.0' or '$(TargetFramework)' == 'net7.0'" Version="7.0.0"/>
+		<PackageVersion Include="Microsoft.Extensions.Logging" Condition="'$(TargetFramework)' == 'net8.0'" Version="8.0.1"/>
+		<PackageVersion Include="Microsoft.Extensions.Logging" Condition="'$(TargetFramework)' == 'net9.0'" Version="9.0.2"/>
 
-        <PackageVersion Include="Microsoft.Extensions.Primitives" Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'net6.0' or '$(TargetFramework)' == 'net7.0'" Version="8.0.0"/>
-        <PackageVersion Include="Microsoft.Extensions.Primitives" Condition="'$(TargetFramework)' == 'net8.0' or '$(TargetFramework)' == 'net9.0'" Version="9.0.2"/>
+        <PackageVersion Include="Microsoft.Extensions.Hosting" Condition="'$(TargetFramework)' == 'netstandard2.1' or '$(TargetFramework)' == 'net6.0'" Version="6.0.1"/>
+		<PackageVersion Include="Microsoft.Extensions.Hosting" Condition="'$(TargetFramework)' == 'net7.0'" Version="7.0.1"/>
+		<PackageVersion Include="Microsoft.Extensions.Hosting" Condition="'$(TargetFramework)' == 'net8.0'" Version="8.0.1"/>
+        <PackageVersion Include="Microsoft.Extensions.Hosting" Condition="'$(TargetFramework)' == 'net9.0'" Version="9.0.2"/>
+
+        <PackageVersion Include="Microsoft.Extensions.Primitives" Condition="'$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'net6.0'" Version="6.0.1"/>
+		<PackageVersion Include="Microsoft.Extensions.Primitives" Condition="'$(TargetFramework)' == 'net7.0'" Version="7.0.0"/>
+		<PackageVersion Include="Microsoft.Extensions.Primitives" Condition="'$(TargetFramework)' == 'net8.0'" Version="8.0.0"/>
+        <PackageVersion Include="Microsoft.Extensions.Primitives" Condition="'$(TargetFramework)' == 'net9.0'" Version="9.0.2"/>
 
         <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.13.0"/>
         <PackageVersion Include="Microsoft.OpenApi.Kiota.Builder" Version="1.23.0"/>

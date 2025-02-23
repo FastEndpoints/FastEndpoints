@@ -10,7 +10,31 @@ Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H
 
 ## New 🎉
 
-<details><summary>Ability to bypass endpoint caching for integration tests</summary>
+<details><summary>Inter-Process-Communication via Unix-Domain-Sockets</summary>
+
+The [FastEndpoints.Messaging.Remote](https://fast-endpoints.com/docs/remote-procedure-calls) library can now do inter-process-communication via unix sockets when everything is running on the same machine easily by doing the following:
+
+```cs
+//server setup
+bld.WebHost.ConfigureKestrel(k => k.ListenInterProcess("ORDERS_MICRO_SERVICE"));
+
+//client setup
+app.MapRemote("ORDERS_MICRO_SERVICE", c => c.Register<CreateOrderCommand>());
+```
+
+When a service is lifted out to a remote machine, all that needs to be done is to update the connection settings like so:
+
+```cs
+//server
+bld.WebHost.ConfigureKestrel(k => k.ListenAnyIP(80, o => o.Protocols = HttpProtocols.Http2);
+
+//client
+app.MapRemote("http://orders.my-app.com", c => c.Register<CreateOrderCommand>());
+```
+
+</details>
+
+<details><summary>Bypass endpoint caching for integration tests</summary>
 
 You can now easily test endpoints that have caching enabled, by using a client configured to automatically bypass caching like so:
 
@@ -20,14 +44,14 @@ var antiCacheClient = App.CreateClient(new() { BypassCaching = true });
 
 </details>
 
-## Improvements 🚀
-
-<details><summary>Ability to optionally save command type on job storage record</summary>
+<details><summary>Optionally save command type on job storage record</summary>
 
 A new optional/addon interface `IHasCommandType` has been introduce if you need to persist the full type name of the command that is associated with the a job storage record.
 Simply implement the new interface on your job storage record and the system will automatically populate the property value before being persisted.
 
 </details>
+
+## Improvements 🚀
 
 <details><summary>RPC Event Hub startup sequence</summary>
 

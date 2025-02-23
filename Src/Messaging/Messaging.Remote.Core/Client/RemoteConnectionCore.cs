@@ -63,12 +63,22 @@ public class RemoteConnectionCore
     /// <summary />
     protected readonly IServiceProvider ServiceProvider;
 
+    /// <summary />
+    protected readonly string? UnixSocketPath;
+
     internal RemoteConnectionCore(string address, IServiceProvider serviceProvider)
     {
-        RemoteAddress = address;
+        if (address.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+            RemoteAddress = address;
+        else
+        {
+            RemoteAddress = $"http://{address.ToLowerInvariant()}";
+            UnixSocketPath = Path.Combine(Path.GetTempPath(), $"{RemoteAddress[7..]}.sock");
+        }
+
         ServiceProvider = serviceProvider;
 
-        var httpMsgHnd = (HttpMessageHandler)serviceProvider.GetService(typeof(HttpMessageHandler));
+        var httpMsgHnd = serviceProvider.GetService<HttpMessageHandler>();
         ChannelOptions.HttpHandler = httpMsgHnd ?? new GrpcWebHandler(new HttpClientHandler()) { GrpcWebMode = GrpcWebMode.GrpcWebText };
     }
 

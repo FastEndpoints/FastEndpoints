@@ -12,6 +12,11 @@ public class DontBindAttribute : Attribute
     public Source BindingSources { get; set; }
 
     /// <summary>
+    /// set to true if a validation error should be thrown when the request doesn't have a value for this property.
+    /// </summary>
+    public bool IsRequired { get; set; }
+
+    /// <summary>
     /// specify a bitwise combination of binding sources to disable for the property.
     /// </summary>
     public DontBindAttribute(Source sources)

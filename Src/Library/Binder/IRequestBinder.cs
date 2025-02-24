@@ -18,4 +18,7 @@ public interface IRequestBinder<TRequest> where TRequest : notnull
     /// </param>
     /// <param name="ct">cancellation token</param>
     public ValueTask<TRequest> BindAsync(BinderContext ctx, CancellationToken ct);
+
+    internal static readonly List<string> BindRequiredProps = [];
+    internal IEnumerable<string> RequiredProps => BindRequiredProps;
 }

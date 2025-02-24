@@ -10,6 +10,26 @@ Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H
 
 ## New 🎉
 
+<details><summary>Mark properties as "bind required"</summary>
+
+You can now make the request binder automatically add a validation failure when binding from route params, query params, and form fields by decorating the dto properties if the binding source doesn't provide a value:
+
+```cs
+sealed class MyRequest
+{
+    [QueryParam(IsRequired = true)]
+    public bool Correct { get; set; }
+
+    [RouteParam(IsRequired = true)]
+    public int Count { get; set; }
+
+    [FormField(IsRequired = true)]
+    public Guid Id { get; set; }
+}
+```
+
+</details>
+
 <details><summary>Inter-Process-Communication via Unix-Domain-Sockets</summary>
 
 The [FastEndpoints.Messaging.Remote](https://fast-endpoints.com/docs/remote-procedure-calls) library can now do inter-process-communication via unix sockets when everything is running on the same machine easily by doing the following:

@@ -1,14 +1,13 @@
 ﻿using System.Reflection;
-using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Primitives;
 
 namespace FastEndpoints;
 
+//WARNING: request binders are singletons. do not maintain instance state!
 /// <summary>
 /// the default request binder for a given request dto type
 /// </summary>
@@ -118,8 +117,11 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
                         break;
 
-                    case DontBindAttribute dsbAtt:
+                    case DontBindAttribute dsbAtt: //this is the base type for [QueryParam], [RouteParam], [FormField]
                         disabledSources = dsbAtt.BindingSources;
+
+                        if (dsbAtt.IsRequired)
+                            IRequestBinder<TRequest>.BindRequiredProps.Add(fieldName ?? prop.FieldName());
 
                         break;
                 }
@@ -194,17 +196,25 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                           : (TRequest)_dtoInitializer();
 
         if (_bindFormFields)
-            BindFormValues(req, ctx.HttpContext.Request, ctx.ValidationFailures, ctx.DontAutoBindForms);
+            BindFormValues(req, ctx);
+
         if (_bindRouteValues)
-            BindRouteValues(req, ctx.HttpContext.Request.RouteValues, ctx.ValidationFailures);
+            BindRouteValues(req, ctx);
+
         if (_bindQueryParams)
-            BindQueryParams(req, ctx.HttpContext.Request.Query, ctx.ValidationFailures);
+            BindQueryParams(req, ctx);
+
         if (_bindUserClaims)
-            BindUserClaims(req, ctx.HttpContext.User.Claims, ctx.ValidationFailures);
+            BindUserClaims(req, ctx);
+
         if (_bindHeaders)
-            BindHeaders(req, ctx.HttpContext.Request.Headers, ctx.ValidationFailures);
+            BindHeaders(req, ctx);
+
         if (_bindPermissions)
-            BindHasPermissionProps(req, ctx.HttpContext.User.Claims, ctx.ValidationFailures);
+            BindHasPermissionProps(req, ctx);
+
+        foreach (var reqProp in ctx.UnboundRequiredProperties)
+            ctx.ValidationFailures.Add(new(reqProp, "A value is required!"));
 
         return ctx.ValidationFailures.Count == 0
                    ? req
@@ -237,9 +247,9 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         return (TRequest)req;
     }
 
-    static void BindFormValues(TRequest req, HttpRequest httpRequest, List<ValidationFailure> failures, bool dontAutoBindForm)
+    static void BindFormValues(TRequest req, BinderContext ctx)
     {
-        if (!httpRequest.HasFormContentType || dontAutoBindForm)
+        if (!ctx.HttpContext.Request.HasFormContentType || ctx.DontAutoBindForms)
             return;
 
         if (Cfg.BndOpts.FormExceptionTransformer is null)
@@ -252,10 +262,10 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             }
             catch (Exception e)
             {
-                failures.Add(Cfg.BndOpts.FormExceptionTransformer(e));
+                ctx.ValidationFailures.Add(Cfg.BndOpts.FormExceptionTransformer(e));
 
                 if (e is BadHttpRequestException { StatusCode: 413 }) //only short-circuit if it's a 413 payload size exceeded
-                    throw new ValidationFailureException(failures, "Form binding failed!");
+                    throw new ValidationFailureException(ctx.ValidationFailures, "Form binding failed!");
             }
         }
 
@@ -267,13 +277,16 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                 BindFiles();
             }
             else
-                ComplexFormBinder.Bind(_fromFormProp, req, httpRequest.Form, failures);
+                ComplexFormBinder.Bind(_fromFormProp, req, ctx.HttpContext.Request.Form, ctx.ValidationFailures);
         }
 
         void BindFormFields()
         {
-            foreach (var kvp in httpRequest.Form)
-                Bind(req, kvp, failures, Source.FormField);
+            foreach (var kvp in ctx.HttpContext.Request.Form)
+            {
+                Bind(req, kvp, ctx.ValidationFailures, Source.FormField);
+                ctx.BoundProperties.Add(kvp.Key);
+            }
         }
 
         void BindFiles()
@@ -283,9 +296,9 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                     ? new()
                     : null;
 
-            for (var y = 0; y < httpRequest.Form.Files.Count; y++)
+            for (var y = 0; y < ctx.HttpContext.Request.Form.Files.Count; y++)
             {
-                var formFile = httpRequest.Form.Files[y];
+                var formFile = ctx.HttpContext.Request.Form.Files[y];
                 var fieldName = formFile.BareFieldName();
 
                 if (formFileCollections is not null && _formFileCollectionProps.ContainsKey(fieldName))
@@ -304,7 +317,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                 if (prop.PropType == Types.IFormFile)
                     prop.PropSetter(req, formFile);
                 else
-                    failures.Add(new(formFile.Name, "Files can only be bound to properties of type IFormFile!"));
+                    ctx.ValidationFailures.Add(new(formFile.Name, "Files can only be bound to properties of type IFormFile!"));
             }
 
             if (formFileCollections is not null)
@@ -318,119 +331,31 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         }
     }
 
-    static void BindRouteValues(TRequest req, RouteValueDictionary routeValues, List<ValidationFailure> failures)
+    static void BindRouteValues(TRequest req, BinderContext ctx)
     {
-        if (routeValues.Count == 0)
+        if (ctx.HttpContext.Request.RouteValues.Count == 0)
             return;
 
-        foreach (var kvp in routeValues)
-            Bind(req, new(kvp.Key, kvp.Value?.ToString()), failures, Source.RouteParam);
+        foreach (var kvp in ctx.HttpContext.Request.RouteValues)
+        {
+            Bind(req, new(kvp.Key, kvp.Value?.ToString()), ctx.ValidationFailures, Source.RouteParam);
+            ctx.BoundProperties.Add(kvp.Key);
+        }
     }
 
-    static void BindQueryParams(TRequest req, IQueryCollection queryParams, List<ValidationFailure> failures)
+    static void BindQueryParams(TRequest req, BinderContext ctx)
     {
-        if (queryParams.Count == 0)
+        if (ctx.HttpContext.Request.Query.Count == 0)
             return;
 
-        foreach (var kvp in queryParams)
-            Bind(req, kvp, failures, Source.QueryParam);
+        foreach (var kvp in ctx.HttpContext.Request.Query)
+        {
+            Bind(req, kvp, ctx.ValidationFailures, Source.QueryParam);
+            ctx.BoundProperties.Add(kvp.Key);
+        }
 
         if (_fromQueryProp is not null)
-            ComplexQueryBinder.Bind(_fromQueryProp, req, queryParams, failures);
-    }
-
-    static void BindUserClaims(TRequest req, IEnumerable<Claim> claims, List<ValidationFailure> failures)
-    {
-        for (var i = 0; i < _fromClaimProps.Count; i++)
-        {
-            var prop = _fromClaimProps[i];
-            StringValues claimVal = default;
-
-            foreach (var g in claims.GroupBy(c => c.Type, c => c.Value))
-            {
-                if (g.Key.Equals(prop.Identifier, StringComparison.OrdinalIgnoreCase))
-                {
-                    claimVal =
-                        prop.IsCollection || g.Count() > 1
-                            ? g.Select(v => v).ToArray()
-                            : g.FirstOrDefault();
-                }
-            }
-
-            switch (claimVal.Count)
-            {
-                case 0 when prop.ForbidIfMissing:
-                    failures.Add(new(prop.Identifier, "User doesn't have this claim type!"));
-
-                    break;
-                case > 0:
-                {
-                    var res = prop.ValueParser(claimVal);
-                    prop.PropSetter(req, res.Value);
-
-                    if (!res.IsSuccess)
-                        failures.Add(new(prop.Identifier, $"Unable to bind claim value [{claimVal}] to a [{prop.PropType.Name}] property!"));
-
-                    break;
-                }
-            }
-        }
-    }
-
-    static void BindHeaders(TRequest req, IHeaderDictionary headers, List<ValidationFailure> failures)
-    {
-        for (var i = 0; i < _fromHeaderProps.Count; i++)
-        {
-            var prop = _fromHeaderProps[i];
-            var hdrVal = headers[prop.Identifier];
-
-            switch (hdrVal.Count)
-            {
-                case 0 when prop.ForbidIfMissing:
-                    failures.Add(new(prop.Identifier, "This header is missing from the request!"));
-
-                    break;
-                case > 0:
-                {
-                    var res = prop.ValueParser(hdrVal);
-                    prop.PropSetter(req, res.Value);
-
-                    if (!res.IsSuccess)
-                        failures.Add(new(prop.Identifier, $"Unable to bind header value [{hdrVal}] to a [{prop.PropType.Name}] property!"));
-
-                    break;
-                }
-            }
-        }
-    }
-
-    static void BindHasPermissionProps(TRequest req, IEnumerable<Claim> claims, List<ValidationFailure> failures)
-    {
-        for (var i = 0; i < _hasPermissionProps.Count; i++)
-        {
-            var prop = _hasPermissionProps[i];
-            var hasPerm = claims.Any(
-                c => string.Equals(c.Type, Cfg.SecOpts.PermissionsClaimType, StringComparison.OrdinalIgnoreCase) &&
-                     string.Equals(c.Value, prop.Identifier, StringComparison.OrdinalIgnoreCase));
-
-            switch (hasPerm)
-            {
-                case false when prop.ForbidIfMissing:
-                    failures.Add(new(prop.Identifier, "User doesn't have this permission!"));
-
-                    break;
-                case true:
-                {
-                    var res = prop.ValueParser(hasPerm.ToString());
-                    prop.PropSetter(req, res.Value);
-
-                    if (!res.IsSuccess)
-                        failures.Add(new(prop.PropName, $"Attribute [HasPermission] does not work with [{prop.PropType.Name}] properties!"));
-
-                    break;
-                }
-            }
-        }
+            ComplexQueryBinder.Bind(_fromQueryProp, req, ctx.HttpContext.Request.Query, ctx.ValidationFailures);
     }
 
     static void Bind(TRequest req, KeyValuePair<string, StringValues> kvp, List<ValidationFailure> failures, Source source)
@@ -456,6 +381,100 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
         static bool IsNullablePropAndInputIsEmptyString(KeyValuePair<string, StringValues> kvp, PrimaryPropCacheEntry prop)
             => kvp.Value[0]?.Length == 0 && Nullable.GetUnderlyingType(prop.PropType) is not null;
+    }
+
+    static void BindUserClaims(TRequest req, BinderContext ctx)
+    {
+        for (var i = 0; i < _fromClaimProps.Count; i++)
+        {
+            var prop = _fromClaimProps[i];
+            StringValues claimVal = default;
+
+            foreach (var g in ctx.HttpContext.User.Claims.GroupBy(c => c.Type, c => c.Value))
+            {
+                if (g.Key.Equals(prop.Identifier, StringComparison.OrdinalIgnoreCase))
+                {
+                    claimVal =
+                        prop.IsCollection || g.Count() > 1
+                            ? g.Select(v => v).ToArray()
+                            : g.FirstOrDefault();
+                }
+            }
+
+            switch (claimVal.Count)
+            {
+                case 0 when prop.ForbidIfMissing:
+                    ctx.ValidationFailures.Add(new(prop.Identifier, "User doesn't have this claim type!"));
+
+                    break;
+                case > 0:
+                {
+                    var res = prop.ValueParser(claimVal);
+                    prop.PropSetter(req, res.Value);
+
+                    if (!res.IsSuccess)
+                        ctx.ValidationFailures.Add(new(prop.Identifier, $"Unable to bind claim value [{claimVal}] to a [{prop.PropType.Name}] property!"));
+
+                    break;
+                }
+            }
+        }
+    }
+
+    static void BindHeaders(TRequest req, BinderContext ctx)
+    {
+        for (var i = 0; i < _fromHeaderProps.Count; i++)
+        {
+            var prop = _fromHeaderProps[i];
+            var hdrVal = ctx.HttpContext.Request.Headers[prop.Identifier];
+
+            switch (hdrVal.Count)
+            {
+                case 0 when prop.ForbidIfMissing:
+                    ctx.ValidationFailures.Add(new(prop.Identifier, "This header is missing from the request!"));
+
+                    break;
+                case > 0:
+                {
+                    var res = prop.ValueParser(hdrVal);
+                    prop.PropSetter(req, res.Value);
+
+                    if (!res.IsSuccess)
+                        ctx.ValidationFailures.Add(new(prop.Identifier, $"Unable to bind header value [{hdrVal}] to a [{prop.PropType.Name}] property!"));
+
+                    break;
+                }
+            }
+        }
+    }
+
+    static void BindHasPermissionProps(TRequest req, BinderContext ctx)
+    {
+        for (var i = 0; i < _hasPermissionProps.Count; i++)
+        {
+            var prop = _hasPermissionProps[i];
+            var hasPerm = ctx.HttpContext.User.Claims.Any(
+                c => string.Equals(c.Type, Cfg.SecOpts.PermissionsClaimType, StringComparison.OrdinalIgnoreCase) &&
+                     string.Equals(c.Value, prop.Identifier, StringComparison.OrdinalIgnoreCase));
+
+            switch (hasPerm)
+            {
+                case false when prop.ForbidIfMissing:
+                    ctx.ValidationFailures.Add(new(prop.Identifier, "User doesn't have this permission!"));
+
+                    break;
+                case true:
+                {
+                    var res = prop.ValueParser(hasPerm.ToString());
+                    prop.PropSetter(req, res.Value);
+
+                    if (!res.IsSuccess)
+                        ctx.ValidationFailures.Add(new(prop.PropName, $"Attribute [HasPermission] does not work with [{prop.PropType.Name}] properties!"));
+
+                    break;
+                }
+            }
+        }
     }
 
     static bool AddFromClaimPropCacheEntry(FromClaimAttribute att, PropertyInfo propInfo, Action<object, object?> compiledSetter)

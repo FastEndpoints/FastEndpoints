@@ -15,11 +15,9 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
         var binder = (IRequestBinder<TRequest>)
             (def.RequestBinder ??= Cfg.ServiceResolver.Resolve(typeof(IRequestBinder<TRequest>)));
 
-        var binderCtx = new BinderContext(ctx, failures, def.SerializerContext, def.DontBindFormData);
+        var binderCtx = new BinderContext(ctx, failures, def.SerializerContext, def.DontBindFormData, binder.RequiredProps);
 
-        var req = await binder.BindAsync(
-                      binderCtx,
-                      ct);
+        var req = await binder.BindAsync(binderCtx, ct);
 
         Cfg.BndOpts.Modifier?.Invoke(req, _tRequest, binderCtx, ct);
 

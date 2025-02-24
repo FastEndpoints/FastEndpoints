@@ -39,6 +39,14 @@
         /// </summary>
         public bool DontAutoBindForms { get; init; }
 
+        readonly IEnumerable<string> _requiredProperties;
+        internal List<string> BoundProperties { get; } = [];
+
+        /// <summary>
+        /// indicates which required properties were not bound due to missing input from the request.
+        /// </summary>
+        public IEnumerable<string> UnboundRequiredProperties => _requiredProperties.Except(BoundProperties, StringComparer.OrdinalIgnoreCase);
+
         /// <summary>
         /// constructor of the binder context
         /// </summary>
@@ -46,12 +54,18 @@
         /// <param name="validationFailures">the validation failure collection of the endpoint</param>
         /// <param name="jsonSerializerContext">json serializer context of the endpoint if applicable</param>
         /// <param name="dontAutoBindForms">whether to enable auto binding of form data</param>
-        public BinderContext(HttpContext httpContext, List<ValidationFailure> validationFailures, JsonSerializerContext? jsonSerializerContext, bool dontAutoBindForms)
+        /// <param name="bindRequiredProps">collection of required property names</param>
+        public BinderContext(HttpContext httpContext,
+                             List<ValidationFailure> validationFailures,
+                             JsonSerializerContext? jsonSerializerContext,
+                             bool dontAutoBindForms,
+                             IEnumerable<string> bindRequiredProps)
         {
             HttpContext = httpContext;
             ValidationFailures = validationFailures;
             JsonSerializerContext = jsonSerializerContext;
             DontAutoBindForms = dontAutoBindForms;
+            _requiredProperties = bindRequiredProps;
         }
 
         /// <inheritdoc />

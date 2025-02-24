@@ -38,13 +38,14 @@ abstract class EventHubBase
     internal static Task InitializeHubs()
         => Task.WhenAll(AllHubs.Values.Where(hub => !hub.IsInMemoryProvider).Select(hub => hub.Initialize()));
 
-    internal static Task AddToSubscriberQueues(IEvent evnt, CancellationToken ct)
+    internal static void AddToSubscriberQueues(IEvent evnt, CancellationToken ct)
     {
         var tEvent = evnt.GetType();
 
-        return AllHubs.TryGetValue(tEvent, out var hub)
-                   ? hub.BroadcastEvent(evnt, ct)
-                   : throw new InvalidOperationException($"An event hub has not been registered for [{tEvent.FullName}]");
+        if (AllHubs.TryGetValue(tEvent, out var hub))
+            _ = hub.BroadcastEvent(evnt, ct); //executed in background. will never throw exceptions.
+        else
+            throw new InvalidOperationException($"An event hub has not been registered for [{tEvent.FullName}]");
     }
 }
 
@@ -264,30 +265,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
             subscriber.IsConnected = false;
     }
 
-    IEnumerable<string> GetReceiveCandidates()
-    {
-        if (!_isRoundRobinMode)
-            return _subscribers.Keys;
-
-        var connectedSubIds = _subscribers
-                              .Where(kv => kv.Value.IsConnected)
-                              .Select(kv => kv.Key)
-                              .ToArray(); //take a snapshot of currently connected subscriber ids
-
-        if (connectedSubIds.Length <= 1)
-            return connectedSubIds;
-
-        IEnumerable<string> qualified;
-
-        lock (_lock)
-        {
-            qualified = connectedSubIds.SkipWhile(s => s == _lastReceivedBy).Take(1);
-            _lastReceivedBy = qualified.Single();
-        }
-
-        return qualified;
-    }
-
+    //WARNING: this method is never awaited. so it should not throw any exceptions.
     protected override async Task BroadcastEvent(IEvent evnt, CancellationToken ct)
     {
         var subscribers = GetReceiveCandidates();
@@ -313,7 +291,17 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                 EventType = _tEvent.FullName!,
                 ExpireOn = DateTime.UtcNow.AddHours(4)
             };
-            record.SetEvent((TEvent)evnt);
+
+            try
+            {
+                record.SetEvent((TEvent)evnt);
+            }
+            catch (Exception ex)
+            {
+                _logger.SetEventCritical(_tEvent.FullName!, ex.Message);
+
+                return; //no point in continuing for other subscribers.
+            }
 
             while (true)
             {
@@ -346,12 +334,36 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                 }
             }
         }
+
+        IEnumerable<string> GetReceiveCandidates()
+        {
+            if (!_isRoundRobinMode)
+                return _subscribers.Keys;
+
+            var connectedSubIds = _subscribers
+                                  .Where(kv => kv.Value.IsConnected)
+                                  .Select(kv => kv.Key)
+                                  .ToArray(); //take a snapshot of currently connected subscriber ids
+
+            if (connectedSubIds.Length <= 1)
+                return connectedSubIds;
+
+            IEnumerable<string> qualified;
+
+            lock (_lock)
+            {
+                qualified = connectedSubIds.SkipWhile(s => s == _lastReceivedBy).Take(1);
+                _lastReceivedBy = qualified.Single();
+            }
+
+            return qualified;
+        }
     }
 
     //internal to allow unit testing
     internal Task<EmptyObject> OnEventReceived(EventHub<TEvent, TStorageRecord, TStorageProvider> __, TEvent evnt, ServerCallContext ctx)
     {
-        _ = AddToSubscriberQueues(evnt, ctx.CancellationToken);
+        AddToSubscriberQueues(evnt, ctx.CancellationToken);
 
         return Task.FromResult(EmptyObject.Instance);
     }

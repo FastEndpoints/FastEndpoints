@@ -60,6 +60,13 @@ It has been refactored to use an IHostedService together with retry logic for a 
 
 </details>
 
+<details><summary>RPC Event Hub event distribution</summary>
+
+Previously if a hub was not registered before events were broadcasted, or if event serialization fails due to user error, those exceptions would have been swallowed in some cases.
+The internals of the hub has been refactored to surface those exceptions when appropriate.
+
+</details>
+
 <details><summary>Workaround for NSwag quirk with byte array responses</summary>
 
 NSwag has a quirk that it will render an incorrect schema if the user does something like the following:

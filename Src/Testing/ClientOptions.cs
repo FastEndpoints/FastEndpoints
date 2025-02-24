@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Testing.Handlers;
+﻿using System.Net.Http.Headers;
+using Microsoft.AspNetCore.Mvc.Testing.Handlers;
 
 namespace FastEndpoints.Testing;
 
@@ -14,11 +15,17 @@ public sealed class ClientOptions
     public Uri BaseAddress { get; set; } = new("http://localhost");
 
     /// <summary>
-    /// setting this value would cause the outgoing request to contain a header with the specified name and a unique value per request, which would allow test code to bypass the
-    /// throttling limits enforced by the endpoints. make sure the header name matches with what is configured at the global or endpoint level. if it's not customized, use the
-    /// default name <c>X-Forwarded-For</c>
+    /// setting this value would cause the outgoing request to contain a header with the specified name and a unique value per request, which would allow test
+    /// code to bypass the throttling limits enforced by the endpoints. make sure the header name matches with what is configured at the global or endpoint level.
+    /// if it's not customized, use the default name <c>X-Forwarded-For</c>
     /// </summary>
     public string? ThrottleBypassHeaderName { get; set; }
+
+    /// <summary>
+    /// setting this to <c>true</c> would cause the outgoing request to contain a 'no-cache' header, which would allow  test code to bypass caching
+    /// enforced by the endpoints.
+    /// </summary>
+    public bool BypassCaching { get; set; }
 
     /// <summary>
     /// gets or sets whether <see cref="HttpClient" /> instances should automatically follow redirect responses.
@@ -58,6 +65,9 @@ public sealed class ClientOptions
         if (ThrottleBypassHeaderName is not null)
             _handlers.Add(new ThrottleBypassHandler(ThrottleBypassHeaderName));
 
+        if (BypassCaching is true)
+            _handlers.Add(new CacheBypassHandler());
+
         return _handlers.ToArray();
     }
 }
@@ -67,6 +77,16 @@ sealed class ThrottleBypassHandler(string headerName) : DelegatingHandler
     protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         request.Headers.Add(headerName, Guid.NewGuid().ToString("N"));
+
+        return base.SendAsync(request, cancellationToken);
+    }
+}
+
+sealed class CacheBypassHandler : DelegatingHandler
+{
+    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    {
+        (request.Headers.CacheControl ??= new()).NoCache = true;
 
         return base.SendAsync(request, cancellationToken);
     }

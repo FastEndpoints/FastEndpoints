@@ -8,5 +8,5 @@ public static class EventExtensions
     /// </summary>
     /// <typeparam name="TEvent">the type of the event being broadcast</typeparam>
     public static void Broadcast<TEvent>(this TEvent @event, CancellationToken ct = default) where TEvent : class, IEvent
-        => _ = EventHubBase.AddToSubscriberQueues(@event, ct);
+        => EventHubBase.AddToSubscriberQueues(@event, ct);
 }

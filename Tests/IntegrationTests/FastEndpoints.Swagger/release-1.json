@@ -1904,6 +1904,38 @@
         ]
       }
     },
+    "/api/test-cases/cache-bypass-test": {
+      "get": {
+        "tags": [
+          "TestCases"
+        ],
+        "operationId": "TestCasesEndpointsCacheBypassTestEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "guid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/test-cases/event-bus-test": {
       "get": {
         "tags": [
@@ -5066,6 +5098,10 @@
             "format": "int32"
           }
         }
+      },
+      "TestCasesEndpointsCacheBypassTestRequest": {
+        "type": "object",
+        "additionalProperties": false
       },
       "TestCasesFormBindingComplexDtosRequest": {
         "type": "object",

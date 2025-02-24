@@ -1,4 +1,5 @@
-﻿using Grpc.Core;
+﻿using System.Net.Sockets;
+using Grpc.Core;
 using Grpc.Net.Client;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -17,13 +18,37 @@ public sealed class RemoteConnection : RemoteConnectionCore
             ChannelOptions.HttpHandler = httpMsgHnd;
         else
         {
-            ChannelOptions.HttpHandler = new SocketsHttpHandler
+            var socketsHandler = new SocketsHttpHandler
             {
                 PooledConnectionIdleTimeout = Timeout.InfiniteTimeSpan,
                 KeepAlivePingDelay = TimeSpan.FromSeconds(60),
                 KeepAlivePingTimeout = TimeSpan.FromSeconds(5),
                 EnableMultipleHttp2Connections = true
             };
+
+            if (UnixSocketPath is not null)
+            {
+                socketsHandler.ConnectCallback
+                    = async (_, ct) =>
+                      {
+                          var socket = new Socket(AddressFamily.Unix, SocketType.Stream, ProtocolType.Unspecified);
+
+                          try
+                          {
+                              await socket.ConnectAsync(new UnixDomainSocketEndPoint(UnixSocketPath), ct);
+
+                              return new NetworkStream(socket, true);
+                          }
+                          catch
+                          {
+                              socket.Dispose();
+
+                              throw;
+                          }
+                      };
+            }
+
+            ChannelOptions.HttpHandler = socketsHandler;
         }
     }
 

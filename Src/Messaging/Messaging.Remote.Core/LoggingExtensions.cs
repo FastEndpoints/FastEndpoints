@@ -10,6 +10,9 @@ static partial class LoggingExtensions
     [LoggerMessage(1, LogLevel.Information, "Event subscriber registered! [id: {subscriberId}] ({tHandler}<{tEvent}>)")]
     public static partial void SubscriberRegistered(this ILogger l, string subscriberId, string tHandler, string tEvent);
 
+    [LoggerMessage(2, LogLevel.Critical, "Event [{tEvent}] 'set-event' (serialization) error: {msg}")]
+    public static partial void SetEventCritical(this ILogger l, string tEvent, string msg);
+
     [LoggerMessage(8, LogLevel.Error, "Event storage 'store-event' error for [subscriber-id:{subscriberId}]({tEvent}): {msg}. Retrying in 5 seconds...")]
     public static partial void StoreEventError(this ILogger l, string subscriberId, string tEvent, string msg);
 

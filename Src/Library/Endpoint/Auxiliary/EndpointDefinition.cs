@@ -163,7 +163,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     }
 
     /// <summary>
-    /// allows access if the claims principal has ALL of the given claim types
+    /// allows access if the claims principal has ALL the given claim types
     /// <para>HINT: these claims will be applied in addition to endpoint level claims if there's any</para>
     /// </summary>
     /// <param name="claimTypes">the claim types</param>
@@ -186,7 +186,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
           };
 
     /// <summary>
-    /// describe openapi metadata for this endpoint. optionally specify whether or not you want to clear the default Accepts/Produces metadata.
+    /// describe openapi metadata for this endpoint. optionally specify whether you want to clear the default Accepts/Produces metadata.
     /// <para>
     /// EXAMPLE: <c>b => b.Accepts&lt;Request&gt;("text/plain")</c>
     /// </para>
@@ -216,7 +216,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// <summary>
     /// use this only if you have your own exception catching middleware.
     /// if this method is called in config, an automatic error response will not be sent to the client by the library.
-    /// all exceptions will be thrown and it would be your exception catching middleware to handle them.
+    /// all exceptions will be thrown, and it would be your exception catching middleware to handle them.
     /// </summary>
     public void DontCatchExceptions()
         => DoNotCatchExceptions = true;
@@ -296,7 +296,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     }
 
     /// <summary>
-    /// allows access if the claims principal has ALL of the given permissions
+    /// allows access if the claims principal has ALL the given permissions
     /// <para>HINT: these permissions will be applied in addition to endpoint level permissions if there's any</para>
     /// </summary>
     /// <param name="permissions">the permissions</param>
@@ -559,12 +559,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
 
     ServiceBoundEpProp[] GetServiceBoundEpProps()
         => EndpointType.BindableProps()
-                       .Select(
-                           p => new ServiceBoundEpProp
-                           {
-                               PropertyInfo = p,
-                               ServiceKey = p.GetCustomAttribute<KeyedServiceAttribute>()?.Key
-                           })
+                       .Select(p => new ServiceBoundEpProp(p, p.GetCustomAttribute<KeyedServiceAttribute>()?.Key))
                        .ToArray();
 
     ToHeaderProp[] GetToHeaderProps()
@@ -653,12 +648,10 @@ public sealed class EpVersion
     }
 }
 
-sealed class ServiceBoundEpProp
+sealed class ServiceBoundEpProp(PropertyInfo propertyInfo, string? serviceKey)
 {
-    //public string PropName { get; init; } = null!;
-    //public Type PropType { get; init; } = null!;
-    public PropertyInfo PropertyInfo { get; set; }
-    public string? ServiceKey { get; init; }
+    public PropertyInfo PropertyInfo { get; init; } = propertyInfo;
+    public string? ServiceKey { get; init; } = serviceKey;
     public Action<object, object>? PropSetter { get; set; }
 }
 

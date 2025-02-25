@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using JetBrains.Annotations;
 
 namespace FastEndpoints;
 
@@ -17,11 +18,11 @@ public abstract class BaseEndpoint : IEndpoint
 
     /// <inheritdoc />
     [DontInject]
-    public EndpointDefinition Definition { get; internal set; } = default!;
+    public EndpointDefinition Definition { get; internal set; } = null!;
 
     /// <inheritdoc />
     [DontInject]
-    public HttpContext HttpContext { get; internal set; } = default!;
+    public HttpContext HttpContext { get; internal set; } = null!;
 
     /// <inheritdoc />
     public List<ValidationFailure> ValidationFailures => _failures ??= [];
@@ -35,6 +36,10 @@ public abstract class BaseEndpoint : IEndpoint
         => throw new NotImplementedException();
 
     public virtual void Verbs(params string[] methods)
+        => throw new NotImplementedException();
+
+    [UsedImplicitly]
+    public virtual void Routes(params string[] patterns)
         => throw new NotImplementedException();
 
     //this is here just so the derived endpoint class can seal it.

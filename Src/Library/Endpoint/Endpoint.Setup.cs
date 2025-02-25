@@ -546,7 +546,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <summary>
     /// specify one or more route patterns this endpoint should be listening for
     /// </summary>
-    protected void Routes(
+    public override void Routes(
     #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
     #endif

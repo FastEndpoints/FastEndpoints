@@ -93,7 +93,7 @@ public interface IJobResultStorage
 /// implement this interface on your job storage record if you'd like to persist the full type name of the command class which is associated with the storage record.
 /// you don't need to set the value yourself as it will be automatically set by the system.
 /// </summary>
-interface IHasCommandType
+public interface IHasCommandType
 {
     string CommandType { get; set; }
 }

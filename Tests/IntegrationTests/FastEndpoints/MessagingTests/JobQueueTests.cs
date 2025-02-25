@@ -18,6 +18,8 @@ public class JobQueueTests(Sut App) : TestBase<Sut>
         var cmd = new JobTestCommand();
         var job = cmd.CreateJob<Job>(executeAfter, expireOn);
 
+        job.CommandType.ShouldBe(typeof(JobTestCommand).FullName);
+
         if (executeAfter.HasValue)
             Assert.Equal(job.ExecuteAfter, executeAfter);
         else

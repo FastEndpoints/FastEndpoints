@@ -1,11 +1,12 @@
 namespace TestCases.JobQueueTest;
 
-public class Job : IJobStorageRecord, IJobResultStorage
+public class Job : IJobStorageRecord, IHasCommandType, IJobResultStorage
 {
     public Guid ID { get; set; } = Guid.NewGuid();
     public string QueueID { get; set; }
     public Guid TrackingID { get; set; }
     public object Command { get; set; }
+    public string CommandType { get; set; }
     public DateTime ExecuteAfter { get; set; }
     public DateTime ExpireOn { get; set; }
     public bool IsComplete { get; set; }

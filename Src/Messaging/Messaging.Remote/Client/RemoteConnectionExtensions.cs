@@ -14,8 +14,8 @@ public static class RemoteConnectionExtensions
     /// <summary>
     /// creates a grpc channel/connection to a remote server that hosts a known collection of command handlers and event hubs.
     /// <para>
-    /// IMPORTANT: call the <see cref="RemoteConnectionCore.Register{TCommand,TResult}" /> method (using action <paramref name="r" />) to specify which commands are handled by
-    /// this remote server. event subscriptions can be specified using <c>app.Subscribe&lt;TEvent, TEventHandler&gt;()</c> method.
+    /// IMPORTANT: call the <see cref="RemoteConnectionCore.Register{TCommand,TResult}" /> method (using action <paramref name="r" />) to specify which commands are
+    /// handled by this remote server. event subscriptions can be specified using <c>app.Subscribe&lt;TEvent, TEventHandler&gt;()</c> method.
     /// </para>
     /// </summary>
     /// <param name="host"></param>
@@ -46,7 +46,7 @@ public static class RemoteConnectionExtensions
     }
 
     /// <summary>
-    /// publish the event to the relevant remote server that's running in <see cref="HubMode.EventBroker" />
+    /// publish the event to the relevant remote server that's running in <see cref="HubMode.EventBroker" /> mode.
     /// </summary>
     /// <param name="event"></param>
     /// <param name="options">call options</param>

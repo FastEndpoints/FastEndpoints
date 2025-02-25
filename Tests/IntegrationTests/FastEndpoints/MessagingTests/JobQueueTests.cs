@@ -1,4 +1,5 @@
-﻿using TestCases.JobQueueTest;
+using TestCases.EventHandlingTest;
+using TestCases.JobQueueTest;
 
 namespace Messaging;
 
@@ -181,5 +182,25 @@ public class JobQueueTests(Sut App) : TestBase<Sut>
         }
 
         res!.Result.ShouldBe(name);
+    }
+
+    [Fact, Priority(8)]
+    public async Task Job_Generic_Command()
+    {
+        var cts = new CancellationTokenSource(5000);
+        
+        var cmd = new JobTestGenericCommand<SomeEvent>
+        {
+            Id = 1,
+            Event = new SomeEvent()
+        };
+        await cmd.QueueJobAsync(ct: cts.Token);
+        
+        while (!cts.IsCancellationRequested && JobTestGenericCommand<SomeEvent>.CompletedIDs.Count == 0)
+            await Task.Delay(100, Cancellation);
+
+        JobTestGenericCommand<SomeEvent>.CompletedIDs.Count.ShouldBe(1);
+        JobTestGenericCommand<SomeEvent>.CompletedIDs.Contains(1);
+        JobStorage.Jobs.Clear();
     }
 }

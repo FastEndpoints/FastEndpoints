@@ -51,7 +51,7 @@ public static class JobQueueExtensions
 
         foreach (var tCommand in registry.Keys.Where(t => t.IsAssignableTo(Types.ICommandBase)))
         {
-            if (!tCommand.IsGenericTypeDefinition)
+            if (tCommand.ContainsGenericParameters)
                 continue; //NOTE: no open generic command support for jobs.
 
             var tResult = tCommand.GetInterface(typeof(ICommand<>).Name)!.GetGenericArguments()[0];

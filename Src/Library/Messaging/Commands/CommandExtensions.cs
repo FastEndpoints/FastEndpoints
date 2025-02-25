@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FastEndpoints;
@@ -106,6 +106,19 @@ public static class CommandExtensions
         {
             HandlerExecutor = new FakeCommandHandlerExecutor<TCommand, TResult>(handler)
         };
+    }
+
+    /// <summary>
+    /// register a generic command handler for a generic command
+    /// </summary>
+    /// <typeparam name="TCommand">the type of the command</typeparam>
+    /// <typeparam name="THandler">the type of the command handler</typeparam>
+    /// <returns></returns>
+    public static IServiceProvider RegisterGenericCommand<TCommand, THandler>(this IServiceProvider sp)
+        where TCommand : ICommand
+        where THandler : ICommandHandler
+    {
+        return RegisterGenericCommand(sp, typeof(TCommand), typeof(THandler));
     }
 
     /// <summary>

@@ -12,7 +12,13 @@ Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H
 
 <details><summary>Generic command support for job queues</summary>
 
-Generic commands can now be queued as jobs like so:
+Closed generic commands can now be registered like so:
+
+```cs
+app.Services.RegisterGenericCommand<QueueCommand<OrderCreatedEvent>, QueueCommandHandler<OrderCreatedEvent>>();
+```
+
+and then be queued as jobs like so:
 
 ```cs
 await new QueueEventCommand<OrderCreatedEvent>()
@@ -21,7 +27,7 @@ await new QueueEventCommand<OrderCreatedEvent>()
 }.QueueJobAsync();
 ```
 
-Note: Open generic commands are not supported for job quequeuing.
+Note: Open generic commands are not supported for job queueing.
 
 </details>
 

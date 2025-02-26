@@ -10,6 +10,21 @@ Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H
 
 ## New 🎉
 
+<details><summary>Generic command support for job queues</summary>
+
+Generic commands can now be queued as jobs like so:
+
+```cs
+await new QueueEventCommand<OrderCreatedEvent>()
+{ 
+  ...
+}.QueueJobAsync();
+```
+
+Note: Open generic commands are not supported for job quequeuing.
+
+</details>
+
 <details><summary>Mark properties as "bind required"</summary>
 
 You can now make the request binder automatically add a validation failure when binding from route params, query params, and form fields by decorating the dto properties if the binding source doesn't provide a value:
@@ -100,7 +115,7 @@ In order to get the correct schema generated, we've had to do the following:
 b => b.Produces<IFormFile>(200, "image/png");
 ```
 
-You now have the ability to do either of the above and it will now generate the correct schema.
+You now have the ability to do either of the above, and it will generate the correct schema.
 
 </details>
 

@@ -53,7 +53,7 @@ public sealed class RemoteConnection : RemoteConnectionCore
     }
 
     /// <summary>
-    /// register an "event" that the remote server will be accepting (in <see cref="HubMode.EventBroker" />) for distribution to subscribers.
+    /// register an "event" that the remote server will be accepting (in <see cref="HubMode.EventBroker" />) mode for distribution to subscribers.
     /// </summary>
     /// <typeparam name="TEvent">the type of the event</typeparam>
     public void RegisterEvent<TEvent>() where TEvent : class, IEvent

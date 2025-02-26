@@ -8,8 +8,7 @@ interface IUnaryCommandExecutor<TResult> : ICommandExecutor where TResult : clas
 }
 
 sealed class UnaryCommandExecutor<TCommand, TResult>(ChannelBase channel)
-    : BaseCommandExecutor<TCommand, TResult>(channel: channel, methodType: MethodType.Unary),
-      IUnaryCommandExecutor<TResult>
+    : BaseCommandExecutor<TCommand, TResult>(channel: channel, methodType: MethodType.Unary), IUnaryCommandExecutor<TResult>
     where TCommand : class, ICommand<TResult>
     where TResult : class
 {

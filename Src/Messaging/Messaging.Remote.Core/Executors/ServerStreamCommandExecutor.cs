@@ -9,8 +9,7 @@ interface IServerStreamCommandExecutor<TResult> : ICommandExecutor where TResult
 }
 
 sealed class ServerStreamCommandExecutor<TCommand, TResult>(GrpcChannel channel)
-    : BaseCommandExecutor<TCommand, TResult>(channel: channel, methodType: MethodType.ServerStreaming),
-      IServerStreamCommandExecutor<TResult>
+    : BaseCommandExecutor<TCommand, TResult>(channel: channel, methodType: MethodType.ServerStreaming), IServerStreamCommandExecutor<TResult>
     where TCommand : class, IServerStreamCommand<TResult>
     where TResult : class
 {

@@ -8,8 +8,7 @@ interface IVoidCommandExecutor : ICommandExecutor
 }
 
 sealed class VoidCommandExecutor<TCommand>(ChannelBase channel)
-    : BaseCommandExecutor<TCommand, EmptyObject>(channel: channel, methodType: MethodType.Unary),
-      IVoidCommandExecutor
+    : BaseCommandExecutor<TCommand, EmptyObject>(channel: channel, methodType: MethodType.Unary), IVoidCommandExecutor
     where TCommand : class, ICommand
 {
     public Task ExecuteVoid(ICommand cmd, CallOptions opts)

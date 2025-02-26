@@ -11,8 +11,7 @@ interface IEventSubscriber
     void Start(CallOptions opts);
 }
 
-sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProvider>
-    : BaseCommandExecutor<string, TEvent>, ICommandExecutor, IEventSubscriber
+sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProvider> : BaseCommandExecutor<string, TEvent>, ICommandExecutor, IEventSubscriber
     where TEvent : class, IEvent
     where TEventHandler : class, IEventHandler<TEvent>
     where TStorageRecord : class, IEventStorageRecord, new()

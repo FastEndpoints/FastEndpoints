@@ -8,8 +8,7 @@ interface IClientStreamCommandExecutor<in TCommand, TResult> : ICommandExecutor 
 }
 
 sealed class ClientStreamCommandExecutor<TCommand, TResult>(ChannelBase channel)
-    : BaseCommandExecutor<TCommand, TResult>(channel: channel, methodType: MethodType.ClientStreaming),
-      IClientStreamCommandExecutor<TCommand, TResult>
+    : BaseCommandExecutor<TCommand, TResult>(channel: channel, methodType: MethodType.ClientStreaming), IClientStreamCommandExecutor<TCommand, TResult>
     where TCommand : class
     where TResult : class
 {

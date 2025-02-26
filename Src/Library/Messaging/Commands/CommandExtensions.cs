@@ -114,12 +114,8 @@ public static class CommandExtensions
     /// <typeparam name="TCommand">the type of the command</typeparam>
     /// <typeparam name="THandler">the type of the command handler</typeparam>
     /// <returns></returns>
-    public static IServiceProvider RegisterGenericCommand<TCommand, THandler>(this IServiceProvider sp)
-        where TCommand : ICommand
-        where THandler : ICommandHandler
-    {
-        return RegisterGenericCommand(sp, typeof(TCommand), typeof(THandler));
-    }
+    public static IServiceProvider RegisterGenericCommand<TCommand, THandler>(this IServiceProvider sp) where TCommand : ICommand where THandler : ICommandHandler
+        => RegisterGenericCommand(sp, typeof(TCommand), typeof(THandler));
 
     /// <summary>
     /// register a generic command handler for a generic command

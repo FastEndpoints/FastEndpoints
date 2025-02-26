@@ -5,6 +5,7 @@ using NSwag;
 using TestCases.ClientStreamingTest;
 using TestCases.CommandBusTest;
 using TestCases.CommandHandlerTest;
+using TestCases.EventHandlingTest;
 using TestCases.EventQueueTest;
 using TestCases.JobQueueTest;
 using TestCases.KeyedServicesTests;
@@ -214,6 +215,7 @@ if (!app.Environment.IsProduction())
 
 app.Services.RegisterGenericCommand(typeof(GenericCommand<>), typeof(GenericCommandHandler<>));
 app.Services.RegisterGenericCommand(typeof(GenericNoResultCommand<>), typeof(GenericNoResultCommandHandler<>));
+app.Services.RegisterGenericCommand<JobTestGenericCommand<SomeEvent>, JobTestGenericCommandHandler<SomeEvent>>();
 
 app.MapHandlers(
     h =>

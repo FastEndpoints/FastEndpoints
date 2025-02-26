@@ -44,15 +44,15 @@ public static class JobQueueExtensions
         var registry = app.ApplicationServices.GetRequiredService<CommandHandlerRegistry>();
 
         if (registry.IsEmpty)
-            throw new InvalidOperationException("No Commands/Handlers found in the system! Have you called AddFastEndpoints() yet?");
+            throw new InvalidOperationException("No Commands/Handlers found in the system! Have you called yet AddFastEndpoints() on the IServiceCollection, or RegisterGenericCommand previously on the WebApplication?");
 
         var opts = new JobQueueOptions();
         options?.Invoke(opts);
 
         foreach (var tCommand in registry.Keys.Where(t => t.IsAssignableTo(Types.ICommandBase)))
         {
-            if (tCommand.IsGenericType)
-                continue; //NOTE: no generic command support for jobs.
+            if (tCommand.ContainsGenericParameters)
+                continue; //NOTE: no open generic command support for jobs.
 
             var tResult = tCommand.GetInterface(typeof(ICommand<>).Name)!.GetGenericArguments()[0];
 

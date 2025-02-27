@@ -36,13 +36,15 @@ public static class RemoteConnectionExtensions
     /// </summary>
     /// <typeparam name="TStorageRecord">the type of the storage record</typeparam>
     /// <typeparam name="TStorageProvider"></typeparam>
-    public static void AddEventSubscriberStorageProvider<TStorageRecord, TStorageProvider>(this IServiceCollection services)
+    public static IServiceCollection AddEventSubscriberStorageProvider<TStorageRecord, TStorageProvider>(this IServiceCollection services)
         where TStorageRecord : IEventStorageRecord, new()
         where TStorageProvider : class, IEventSubscriberStorageProvider<TStorageRecord>
     {
         RemoteConnectionCore.StorageProviderType = typeof(TStorageProvider);
         RemoteConnectionCore.StorageRecordType = typeof(TStorageRecord);
         services.AddSingleton<TStorageProvider>();
+
+        return services;
     }
 
     /// <summary>

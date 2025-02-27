@@ -1,4 +1,4 @@
-﻿using FastEndpoints.Messaging.Remote.Core;
+using FastEndpoints.Messaging.Remote.Core;
 using Grpc.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -46,6 +46,15 @@ public static class RemoteConnectionExtensions
 
         return services;
     }
+
+    /// <summary>
+    /// publish the event to the relevant remote server that's running in <see cref="HubMode.EventBroker" /> mode.
+    /// </summary>
+    /// <param name="event"></param>
+    /// <param name="ct">cancellation token</param>
+    /// <exception cref="InvalidOperationException">thrown if the relevant remote handler has not been registered</exception>
+    public static Task RemotePublishAsync(this IEvent @event, CancellationToken ct)
+        => RemotePublishAsync(@event, new CallOptions(cancellationToken: ct));
 
     /// <summary>
     /// publish the event to the relevant remote server that's running in <see cref="HubMode.EventBroker" /> mode.

@@ -160,6 +160,24 @@ public class RemoteConnectionCore
     /// </summary>
     /// <typeparam name="TEvent">the type of the events that will be received</typeparam>
     /// <typeparam name="TEventHandler">the handler that will be handling the received events</typeparam>
+    /// <param name="ct">cancellation token</param>
+    /// <param name="clientIdentifier">
+    /// a unique identifier for this client. this will be used to create a durable subscriber id which will allow the server to
+    /// uniquely identify this subscriber/client across disconnections. if you don't set this value, only one subscriber from a single machine is possible.
+    /// i.e. if you spin up multiple instances of this subscriber they will all connect to the server with the same subscriber id, which will result in
+    /// unpredictable event receiving behavior.
+    /// </param>
+    public void Subscribe<TEvent, TEventHandler>(CancellationToken ct, string clientIdentifier = "default")
+        where TEvent : class, IEvent
+        where TEventHandler : IEventHandler<TEvent>
+        => Subscribe<TEvent, TEventHandler>(new CallOptions(cancellationToken: ct), clientIdentifier);
+
+    /// <summary>
+    /// subscribe to a broadcast channel for a given event type (<typeparamref name="TEvent" />) on the remote host.
+    /// the received events will be handled by the specified handler (<typeparamref name="TEventHandler" />) on this machine.
+    /// </summary>
+    /// <typeparam name="TEvent">the type of the events that will be received</typeparam>
+    /// <typeparam name="TEventHandler">the handler that will be handling the received events</typeparam>
     /// <param name="callOptions">the call options</param>
     /// <param name="clientIdentifier">
     /// a unique identifier for this client. this will be used to create a durable subscriber id which will allow the server to

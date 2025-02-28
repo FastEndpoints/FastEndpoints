@@ -60,14 +60,13 @@ public class RemoteConnectionCore
     /// </summary>
     public string RemoteAddress { get; }
 
-    /// <summary />
-    protected readonly IServiceProvider ServiceProvider;
-
-    /// <summary />
+    readonly IServiceProvider _serviceProvider;
     protected readonly string? UnixSocketPath;
 
     internal RemoteConnectionCore(string address, IServiceProvider serviceProvider)
     {
+        _serviceProvider = serviceProvider;
+
         if (address.StartsWith("http", StringComparison.OrdinalIgnoreCase))
             RemoteAddress = address;
         else
@@ -75,8 +74,6 @@ public class RemoteConnectionCore
             RemoteAddress = $"http://{address.ToLowerInvariant()}";
             UnixSocketPath = Path.Combine(Path.GetTempPath(), $"{RemoteAddress[7..]}.sock");
         }
-
-        ServiceProvider = serviceProvider;
 
         var httpMsgHnd = serviceProvider.GetService<HttpMessageHandler>();
         ChannelOptions.HttpHandler = httpMsgHnd ?? new GrpcWebHandler(new HttpClientHandler()) { GrpcWebMode = GrpcWebMode.GrpcWebText };
@@ -194,9 +191,9 @@ public class RemoteConnectionCore
 
         Channel ??= GrpcChannel.ForAddress(RemoteAddress, ChannelOptions);
 
-        var tHandler = ServiceProvider.GetService<IEventHandler<TEvent>>()?.GetType() ?? typeof(TEventHandler);
+        var tHandler = _serviceProvider.GetService<IEventHandler<TEvent>>()?.GetType() ?? typeof(TEventHandler);
         var tEventSubscriber = typeof(EventSubscriber<,,,>).MakeGenericType(typeof(TEvent), tHandler, StorageRecordType, StorageProviderType);
-        var eventSubscriber = (ICommandExecutor)ActivatorUtilities.CreateInstance(ServiceProvider, tEventSubscriber, Channel, clientIdentifier);
+        var eventSubscriber = (ICommandExecutor)ActivatorUtilities.CreateInstance(_serviceProvider, tEventSubscriber, Channel, clientIdentifier);
 
         ExecutorMap[tEventHandler] = eventSubscriber;
 

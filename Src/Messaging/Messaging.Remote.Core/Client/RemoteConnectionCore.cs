@@ -4,6 +4,7 @@ using Grpc.Net.Client;
 using Grpc.Net.Client.Configuration;
 using Grpc.Net.Client.Web;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace FastEndpoints;
 
@@ -61,11 +62,13 @@ public class RemoteConnectionCore
     public string RemoteAddress { get; }
 
     readonly IServiceProvider _serviceProvider;
+    readonly CancellationToken _appCancellation;
     protected readonly string? UnixSocketPath;
 
     internal RemoteConnectionCore(string address, IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
+        _appCancellation = serviceProvider.GetService<IHostApplicationLifetime>()?.ApplicationStopping ?? CancellationToken.None; //could be null on browser
 
         if (address.StartsWith("http", StringComparison.OrdinalIgnoreCase))
             RemoteAddress = address;
@@ -197,6 +200,10 @@ public class RemoteConnectionCore
 
         ExecutorMap[tEventHandler] = eventSubscriber;
 
-        ((IEventSubscriber)eventSubscriber).Start(callOptions);
+        ((IEventSubscriber)eventSubscriber).Start(
+            callOptions.WithCancellationToken(
+                CancellationTokenSource.CreateLinkedTokenSource( //combine with app shutdown token
+                    _appCancellation,
+                    callOptions.CancellationToken).Token));
     }
 }

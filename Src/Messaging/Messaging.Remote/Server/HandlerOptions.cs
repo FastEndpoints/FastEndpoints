@@ -14,8 +14,7 @@ public class HandlerOptions<TStorageRecord, TStorageProvider>
 {
     readonly IEndpointRouteBuilder _routeBuilder;
 
-    static readonly MethodInfo _mapGrpcMethodInfo
-        = typeof(GrpcEndpointRouteBuilderExtensions).GetMethod(nameof(GrpcEndpointRouteBuilderExtensions.MapGrpcService))!;
+    static readonly MethodInfo _mapGrpcMethodInfo = typeof(GrpcEndpointRouteBuilderExtensions).GetMethod(nameof(GrpcEndpointRouteBuilderExtensions.MapGrpcService))!;
 
     internal HandlerOptions(IEndpointRouteBuilder builder)
     {

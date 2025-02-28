@@ -4,6 +4,7 @@ using Grpc.Net.Client;
 using Grpc.Net.Client.Configuration;
 using Grpc.Net.Client.Web;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace FastEndpoints;
 
@@ -60,14 +61,15 @@ public class RemoteConnectionCore
     /// </summary>
     public string RemoteAddress { get; }
 
-    /// <summary />
-    protected readonly IServiceProvider ServiceProvider;
-
-    /// <summary />
+    readonly IServiceProvider _serviceProvider;
+    readonly CancellationToken _appCancellation;
     protected readonly string? UnixSocketPath;
 
     internal RemoteConnectionCore(string address, IServiceProvider serviceProvider)
     {
+        _serviceProvider = serviceProvider;
+        _appCancellation = serviceProvider.GetService<IHostApplicationLifetime>()?.ApplicationStopping ?? CancellationToken.None; //could be null on browser
+
         if (address.StartsWith("http", StringComparison.OrdinalIgnoreCase))
             RemoteAddress = address;
         else
@@ -75,8 +77,6 @@ public class RemoteConnectionCore
             RemoteAddress = $"http://{address.ToLowerInvariant()}";
             UnixSocketPath = Path.Combine(Path.GetTempPath(), $"{RemoteAddress[7..]}.sock");
         }
-
-        ServiceProvider = serviceProvider;
 
         var httpMsgHnd = serviceProvider.GetService<HttpMessageHandler>();
         ChannelOptions.HttpHandler = httpMsgHnd ?? new GrpcWebHandler(new HttpClientHandler()) { GrpcWebMode = GrpcWebMode.GrpcWebText };
@@ -160,6 +160,24 @@ public class RemoteConnectionCore
     /// </summary>
     /// <typeparam name="TEvent">the type of the events that will be received</typeparam>
     /// <typeparam name="TEventHandler">the handler that will be handling the received events</typeparam>
+    /// <param name="ct">cancellation token</param>
+    /// <param name="clientIdentifier">
+    /// a unique identifier for this client. this will be used to create a durable subscriber id which will allow the server to
+    /// uniquely identify this subscriber/client across disconnections. if you don't set this value, only one subscriber from a single machine is possible.
+    /// i.e. if you spin up multiple instances of this subscriber they will all connect to the server with the same subscriber id, which will result in
+    /// unpredictable event receiving behavior.
+    /// </param>
+    public void Subscribe<TEvent, TEventHandler>(CancellationToken ct, string clientIdentifier = "default")
+        where TEvent : class, IEvent
+        where TEventHandler : IEventHandler<TEvent>
+        => Subscribe<TEvent, TEventHandler>(new CallOptions(cancellationToken: ct), clientIdentifier);
+
+    /// <summary>
+    /// subscribe to a broadcast channel for a given event type (<typeparamref name="TEvent" />) on the remote host.
+    /// the received events will be handled by the specified handler (<typeparamref name="TEventHandler" />) on this machine.
+    /// </summary>
+    /// <typeparam name="TEvent">the type of the events that will be received</typeparam>
+    /// <typeparam name="TEventHandler">the handler that will be handling the received events</typeparam>
     /// <param name="callOptions">the call options</param>
     /// <param name="clientIdentifier">
     /// a unique identifier for this client. this will be used to create a durable subscriber id which will allow the server to
@@ -173,18 +191,19 @@ public class RemoteConnectionCore
     {
         var tEventHandler = typeof(TEventHandler);
         RemoteMap[tEventHandler] = this;
+
         Channel ??= GrpcChannel.ForAddress(RemoteAddress, ChannelOptions);
 
-        var tHandler = ServiceProvider.GetService<IEventHandler<TEvent>>()?.GetType() ?? typeof(TEventHandler);
+        var tHandler = _serviceProvider.GetService<IEventHandler<TEvent>>()?.GetType() ?? typeof(TEventHandler);
+        var tEventSubscriber = typeof(EventSubscriber<,,,>).MakeGenericType(typeof(TEvent), tHandler, StorageRecordType, StorageProviderType);
+        var eventSubscriber = (ICommandExecutor)ActivatorUtilities.CreateInstance(_serviceProvider, tEventSubscriber, Channel, clientIdentifier);
 
-        var tEventSubscriber = typeof(EventSubscriber<,,,>).MakeGenericType(
-            typeof(TEvent),
-            tHandler,
-            StorageRecordType,
-            StorageProviderType);
-
-        var eventSubscriber = (ICommandExecutor)ActivatorUtilities.CreateInstance(ServiceProvider, tEventSubscriber, Channel, clientIdentifier);
         ExecutorMap[tEventHandler] = eventSubscriber;
-        ((IEventSubscriber)eventSubscriber).Start(callOptions);
+
+        ((IEventSubscriber)eventSubscriber).Start(
+            callOptions.WithCancellationToken(
+                CancellationTokenSource.CreateLinkedTokenSource( //combine with app shutdown token
+                    _appCancellation,
+                    callOptions.CancellationToken).Token));
     }
 }

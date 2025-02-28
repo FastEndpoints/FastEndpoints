@@ -33,17 +33,17 @@ abstract class EventHubBase
 
     protected abstract Task Initialize();
 
-    protected abstract Task BroadcastEvent(IEvent evnt, CancellationToken ct);
+    protected abstract Task BroadcastEventTask(IEvent evnt);
 
     internal static Task InitializeHubs()
         => Task.WhenAll(AllHubs.Values.Where(hub => !hub.IsInMemoryProvider).Select(hub => hub.Initialize()));
 
-    internal static void AddToSubscriberQueues(IEvent evnt, CancellationToken ct)
+    internal static void AddToSubscriberQueues(IEvent evnt)
     {
         var tEvent = evnt.GetType();
 
         if (AllHubs.TryGetValue(tEvent, out var hub))
-            _ = hub.BroadcastEvent(evnt, ct); //executed in background. will never throw exceptions.
+            _ = hub.BroadcastEventTask(evnt); //executed in background. will never throw exceptions.
         else
             throw new InvalidOperationException($"An event hub has not been registered for [{tEvent.FullName}]");
     }
@@ -266,7 +266,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
     }
 
     //WARNING: this method is never awaited. so it should not throw any exceptions.
-    protected override async Task BroadcastEvent(IEvent evnt, CancellationToken ct)
+    protected override async Task BroadcastEventTask(IEvent evnt)
     {
         var subscribers = GetReceiveCandidates();
 
@@ -277,7 +277,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
             _logger.NoSubscribersWarning(_tEvent.FullName!);
             await Task.Delay(5000, CancellationToken.None);
 
-            if (ct.IsCancellationRequested || (DateTime.Now - startTime).TotalSeconds >= 60)
+            if (_appCancellation.IsCancellationRequested || (DateTime.Now - startTime).TotalSeconds >= 60)
                 break;
         }
 
@@ -307,7 +307,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
             {
                 try
                 {
-                    await _storage!.StoreEventAsync(record, ct);
+                    await _storage!.StoreEventAsync(record, _appCancellation);
                     _subscribers[subId].Sem.Release();
                     createErrorCount = 0;
 
@@ -317,17 +317,17 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                 {
                     _subscribers.Remove(subId, out var sub);
                     sub?.Sem.Dispose();
-                    _errors?.OnInMemoryQueueOverflow<TEvent>(record, ct);
+                    _errors?.OnInMemoryQueueOverflow<TEvent>(record, _appCancellation);
                     _logger.QueueOverflowWarning(subId, _tEvent.FullName!);
 
                     break;
                 }
                 catch (Exception ex)
                 {
-                    _errors?.OnStoreEventRecordError<TEvent>(record, createErrorCount++, ex, ct);
+                    _errors?.OnStoreEventRecordError<TEvent>(record, createErrorCount++, ex, _appCancellation);
                     _logger.StoreEventError(subId, _tEvent.FullName!, ex.Message);
 
-                    if (ct.IsCancellationRequested)
+                    if (_appCancellation.IsCancellationRequested)
                         break;
 
                     await Task.Delay(5000, CancellationToken.None);
@@ -361,9 +361,9 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
     }
 
     //internal to allow unit testing
-    internal Task<EmptyObject> OnEventReceived(EventHub<TEvent, TStorageRecord, TStorageProvider> __, TEvent evnt, ServerCallContext ctx)
+    internal Task<EmptyObject> OnEventReceived(EventHub<TEvent, TStorageRecord, TStorageProvider> _, TEvent evnt, ServerCallContext __)
     {
-        AddToSubscriberQueues(evnt, ctx.CancellationToken);
+        AddToSubscriberQueues(evnt);
 
         return Task.FromResult(EmptyObject.Instance);
     }

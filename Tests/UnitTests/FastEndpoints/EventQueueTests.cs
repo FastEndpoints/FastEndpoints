@@ -108,7 +108,7 @@ public class EventQueueTests
         _ = hub.OnSubscriberConnected(hub, Guid.NewGuid().ToString(), writer, ctx);
 
         var e1 = new TestEvent { EventID = 123 };
-        EventHubBase.AddToSubscriberQueues(e1, default);
+        EventHubBase.AddToSubscriberQueues(e1);
 
         while (writer.Responses.Count < 1)
             await Task.Delay(100);

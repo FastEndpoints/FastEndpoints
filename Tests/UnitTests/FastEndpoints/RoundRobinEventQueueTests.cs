@@ -31,13 +31,13 @@ public class RoundRobinEventQueueTests
         _ = hub.OnSubscriberConnected(hub, Guid.NewGuid().ToString(), writerB, ctx);
 
         var e1 = new RRTestEventMulti { EventID = 111 };
-        EventHubBase.AddToSubscriberQueues(e1, default);
+        EventHubBase.AddToSubscriberQueues(e1);
 
         var e2 = new RRTestEventMulti { EventID = 222 };
-        EventHubBase.AddToSubscriberQueues(e2, default);
+        EventHubBase.AddToSubscriberQueues(e2);
 
         var e3 = new RRTestEventMulti { EventID = 333 };
-        EventHubBase.AddToSubscriberQueues(e3, default);
+        EventHubBase.AddToSubscriberQueues(e3);
 
         while (writerA.Responses.Count + writerB.Responses.Count < 3)
             await Task.Delay(100);
@@ -88,10 +88,10 @@ public class RoundRobinEventQueueTests
         await Task.Delay(200); //subscriber B is cancelled by now
 
         var e1 = new RRTestEventOneConnected { EventID = 111 };
-        EventHubBase.AddToSubscriberQueues(e1, default);
+        EventHubBase.AddToSubscriberQueues(e1);
 
         var e2 = new RRTestEventOneConnected { EventID = 222 };
-        EventHubBase.AddToSubscriberQueues(e2, default);
+        EventHubBase.AddToSubscriberQueues(e2);
 
         while (writerA.Responses.Count + writerB.Responses.Count < 2)
             await Task.Delay(100);
@@ -131,13 +131,13 @@ public class RoundRobinEventQueueTests
         _ = hub.OnSubscriberConnected(hub, Guid.NewGuid().ToString(), writer, ctx);
 
         var e1 = new RRTestEventOnlyOne { EventID = 111 };
-        EventHubBase.AddToSubscriberQueues(e1, default);
+        EventHubBase.AddToSubscriberQueues(e1);
 
         var e2 = new RRTestEventOnlyOne { EventID = 222 };
-        EventHubBase.AddToSubscriberQueues(e2, default);
+        EventHubBase.AddToSubscriberQueues(e2);
 
         var e3 = new RRTestEventOnlyOne { EventID = 333 };
-        EventHubBase.AddToSubscriberQueues(e3, default);
+        EventHubBase.AddToSubscriberQueues(e3);
 
         while (writer.Responses.Count < 1)
             await Task.Delay(100);

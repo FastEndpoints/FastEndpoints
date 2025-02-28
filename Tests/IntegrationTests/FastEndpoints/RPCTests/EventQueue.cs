@@ -10,7 +10,7 @@ public class EventQueue(Sut f) : RpcTestBase(f)
         for (var i = 0; i < 100; i++)
         {
             var evnt = new TestEventQueue { Id = i };
-            evnt.Broadcast(Cancellation);
+            evnt.Broadcast();
             await Task.Delay(10, Cancellation);
         }
 

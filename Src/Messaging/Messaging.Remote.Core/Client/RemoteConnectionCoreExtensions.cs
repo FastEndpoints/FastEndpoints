@@ -13,8 +13,8 @@ public static class RemoteConnectionCoreExtensions
     /// <summary>
     /// creates a grpc channel/connection to a remote server that hosts a known collection of command handlers and event hubs.
     /// <para>
-    /// IMPORTANT: call the <see cref="RemoteConnectionCore.Register{TCommand, TResult}" /> method (using action <paramref name="r" />) to specify which commands are handled by
-    /// this remote server. event subscriptions can be specified using <c>app.Subscribe&lt;TEvent, TEventHandler&gt;()</c> method.
+    /// IMPORTANT: call the <see cref="RemoteConnectionCore.Register{TCommand, TResult}" /> method (using action <paramref name="r" />) to specify which commands are
+    /// handled by this remote server. event subscriptions can be specified using <c>.Subscribe&lt;TEvent, TEventHandler&gt;()</c> method.
     /// </para>
     /// </summary>
     /// <param name="services"></param>
@@ -36,7 +36,7 @@ public static class RemoteConnectionCoreExtensions
     /// <param name="command"></param>
     /// <param name="ct">cancellation token</param>
     /// <exception cref="InvalidOperationException">thrown if the relevant remote handler has not been registered</exception>
-    public static Task RemoteExecuteAsync(this ICommand command, CancellationToken ct) 
+    public static Task RemoteExecuteAsync(this ICommand command, CancellationToken ct)
         => RemoteExecuteAsync(command, new CallOptions(cancellationToken: ct));
 
     /// <summary>
@@ -62,8 +62,8 @@ public static class RemoteConnectionCoreExtensions
     /// <param name="command"></param>
     /// <param name="ct">cancellation token</param>
     /// <exception cref="InvalidOperationException">thrown if the relevant remote handler has not been registered</exception>
-    public static Task<TResult> RemoteExecuteAsync<TResult>(this ICommand<TResult> command, CancellationToken ct) where TResult : class 
-        => RemoteExecuteAsync<TResult>(command, new CallOptions(cancellationToken: ct));
+    public static Task<TResult> RemoteExecuteAsync<TResult>(this ICommand<TResult> command, CancellationToken ct) where TResult : class
+        => RemoteExecuteAsync(command, new CallOptions(cancellationToken: ct));
 
     /// <summary>
     /// execute the command on the relevant remote server and get back a <typeparamref name="TResult" /> result
@@ -90,7 +90,7 @@ public static class RemoteConnectionCoreExtensions
     /// <param name="ct">cancellation token</param>
     /// <exception cref="InvalidOperationException">thrown if the relevant remote handler has not been registered</exception>
     public static IAsyncEnumerable<TResult> RemoteExecuteAsync<TResult>(this IServerStreamCommand<TResult> command, CancellationToken ct) where TResult : class
-        => RemoteExecuteAsync<TResult>(command, new CallOptions(cancellationToken: ct));
+        => RemoteExecuteAsync(command, new CallOptions(cancellationToken: ct));
 
     /// <summary>
     /// execute the command on the relevant remote server and get back a stream of <typeparamref name="TResult" />
@@ -99,7 +99,8 @@ public static class RemoteConnectionCoreExtensions
     /// <param name="command"></param>
     /// <param name="options">call options</param>
     /// <exception cref="InvalidOperationException">thrown if the relevant remote handler has not been registered</exception>
-    public static IAsyncEnumerable<TResult> RemoteExecuteAsync<TResult>(this IServerStreamCommand<TResult> command, CallOptions options = default) where TResult : class
+    public static IAsyncEnumerable<TResult> RemoteExecuteAsync<TResult>(this IServerStreamCommand<TResult> command, CallOptions options = default)
+        where TResult : class
     {
         var tCommand = command.GetType();
 

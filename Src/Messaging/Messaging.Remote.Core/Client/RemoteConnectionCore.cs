@@ -173,18 +173,15 @@ public class RemoteConnectionCore
     {
         var tEventHandler = typeof(TEventHandler);
         RemoteMap[tEventHandler] = this;
+
         Channel ??= GrpcChannel.ForAddress(RemoteAddress, ChannelOptions);
 
         var tHandler = ServiceProvider.GetService<IEventHandler<TEvent>>()?.GetType() ?? typeof(TEventHandler);
-
-        var tEventSubscriber = typeof(EventSubscriber<,,,>).MakeGenericType(
-            typeof(TEvent),
-            tHandler,
-            StorageRecordType,
-            StorageProviderType);
-
+        var tEventSubscriber = typeof(EventSubscriber<,,,>).MakeGenericType(typeof(TEvent), tHandler, StorageRecordType, StorageProviderType);
         var eventSubscriber = (ICommandExecutor)ActivatorUtilities.CreateInstance(ServiceProvider, tEventSubscriber, Channel, clientIdentifier);
+
         ExecutorMap[tEventHandler] = eventSubscriber;
+
         ((IEventSubscriber)eventSubscriber).Start(callOptions);
     }
 }

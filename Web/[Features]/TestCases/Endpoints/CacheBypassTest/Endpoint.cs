@@ -5,17 +5,33 @@ sealed class Request
     public Guid Id { get; set; }
 }
 
-sealed class Endpoint : Endpoint<Request, Guid>
+sealed class CachedResponseEndpoint : Endpoint<Request, Guid>
 {
     public override void Configure()
     {
-        Get("test-cases/cache-bypass-test");
+        Get("test-cases/response-cache-bypass-test");
         AllowAnonymous();
         ResponseCache(60);
     }
 
     public override async Task HandleAsync(Request r, CancellationToken c)
     {
+        await SendAsync(r.Id);
+    }
+}
+
+sealed class CachedOutputEndpoint : Endpoint<Request, Guid>
+{
+    public override void Configure()
+    {
+        Get("test-cases/output-cache-bypass-test");
+        AllowAnonymous();
+        Options(b => b.CacheOutput());
+    }
+
+    public override async Task HandleAsync(Request r, CancellationToken c)
+    {
+        var q = HttpContext.Request.Query;
         await SendAsync(r.Id);
     }
 }

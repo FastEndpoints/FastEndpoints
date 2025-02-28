@@ -1839,12 +1839,44 @@
         ]
       }
     },
-    "/api/test-cases/cache-bypass-test": {
+    "/api/test-cases/output-cache-bypass-test": {
       "get": {
         "tags": [
           "TestCases"
         ],
-        "operationId": "TestCasesEndpointsCacheBypassTestEndpoint",
+        "operationId": "TestCasesEndpointsCacheBypassTestCachedOutputEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "guid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/test-cases/response-cache-bypass-test": {
+      "get": {
+        "tags": [
+          "TestCases"
+        ],
+        "operationId": "TestCasesEndpointsCacheBypassTestCachedResponseEndpoint",
         "parameters": [
           {
             "name": "id",

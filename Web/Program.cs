@@ -20,6 +20,7 @@ var bld = WebApplication.CreateBuilder(args);
 bld.AddHandlerServer();
 bld.Services
    .AddCors()
+   .AddOutputCache()
    .AddIdempotency()
    .AddResponseCaching()
    .AddFastEndpoints(o => o.SourceGeneratorDiscoveredTypes = DiscoveredTypes.All)

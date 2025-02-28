@@ -269,7 +269,6 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
     protected override async Task BroadcastEventTask(IEvent evnt)
     {
         var subscribers = GetReceiveCandidates();
-
         var startTime = DateTime.Now;
 
         while (!subscribers.Any())
@@ -335,6 +334,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
             }
         }
 
+        //WARNING: do not ever change return type here
         IEnumerable<string> GetReceiveCandidates()
         {
             if (!_isRoundRobinMode)

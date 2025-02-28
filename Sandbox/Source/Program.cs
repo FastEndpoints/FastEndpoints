@@ -7,5 +7,3 @@ var app = bld.Build();
 app.UseFastEndpoints()
    .UseSwaggerGen();
 app.Run();
-
-//public partial class Program;

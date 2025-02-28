@@ -5,3 +5,5 @@ global using FastEndpoints.Security;
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("Tests")]
+
+public partial class Program;

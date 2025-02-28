@@ -22,8 +22,8 @@ public sealed class ClientOptions
     public string? ThrottleBypassHeaderName { get; set; }
 
     /// <summary>
-    /// setting this to <c>true</c> would cause the outgoing request to contain a 'no-cache' header, which would allow  test code to bypass caching
-    /// enforced by the endpoints.
+    /// setting this to <c>true</c> would cause the outgoing request to contain a 'no-cache' header as well as a randomly generated query parameter,
+    /// which would allow  test code to bypass both output caching and response caching  enforced by the endpoints.
     /// </summary>
     public bool BypassCaching { get; set; }
 
@@ -65,7 +65,7 @@ public sealed class ClientOptions
         if (ThrottleBypassHeaderName is not null)
             _handlers.Add(new ThrottleBypassHandler(ThrottleBypassHeaderName));
 
-        if (BypassCaching is true)
+        if (BypassCaching)
             _handlers.Add(new CacheBypassHandler());
 
         return _handlers.ToArray();
@@ -87,6 +87,13 @@ sealed class CacheBypassHandler : DelegatingHandler
     protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         (request.Headers.CacheControl ??= new()).NoCache = true;
+
+        var builder = new UriBuilder(request.RequestUri!);
+        var cacheBypassParam = $"fe_anti_cache_token={Guid.NewGuid():N}";
+        builder.Query = string.IsNullOrWhiteSpace(builder.Query)
+                            ? cacheBypassParam
+                            : $"{builder.Query.TrimStart('?')}&{cacheBypassParam}";
+        request.RequestUri = builder.Uri;
 
         return base.SendAsync(request, cancellationToken);
     }

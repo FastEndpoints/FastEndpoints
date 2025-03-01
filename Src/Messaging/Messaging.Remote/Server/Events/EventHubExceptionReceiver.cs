@@ -18,14 +18,14 @@ public abstract class EventHubExceptionReceiver
         => Task.CompletedTask;
 
     /// <summary>
-    /// this method is triggered when the storage provider has trouble retrieving the next event record.
+    /// this method is triggered when the storage provider has trouble retrieving the next batch of event records.
     /// </summary>
     /// <typeparam name="TEvent">the type of the event</typeparam>
     /// <param name="subscriberID">the unique ID of the subscriber</param>
-    /// <param name="attemptCount">the number of times the record was attempted to be retrieved</param>
+    /// <param name="attemptCount">the number of times the operation was attempted </param>
     /// <param name="exception">the actual exception that was thrown by the operation</param>
     /// <param name="ct">cancellation token</param>
-    public virtual Task OnGetNextEventRecordError<TEvent>(string subscriberID, int attemptCount, Exception exception, CancellationToken ct)
+    public virtual Task OnGetNextBatchError<TEvent>(string subscriberID, int attemptCount, Exception exception, CancellationToken ct)
         where TEvent : class, IEvent
         => Task.CompletedTask;
 

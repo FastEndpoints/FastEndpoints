@@ -64,9 +64,7 @@ public abstract class SubscriberExceptionReceiver
     public virtual Task OnHandlerExecutionError<TEvent, THandler>(IEventStorageRecord record,
                                                                   int attemptCount,
                                                                   Exception exception,
-                                                                  CancellationToken ct)
-        where TEvent : class, IEvent
-        where THandler : IEventHandler<TEvent>
+                                                                  CancellationToken ct) where TEvent : class, IEvent where THandler : IEventHandler<TEvent>
         => Task.CompletedTask;
 
     /// <summary>

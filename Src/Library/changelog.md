@@ -93,6 +93,13 @@ A new optional/addon interface `IHasCommandType` has been introduced if you need
 
 ## Improvements 🚀
 
+<details><summary>RPC Event Subscriber parallel execution</summary>
+
+Event subscribers used to execute the event handlers in sequence when a batch of event storage records were fetched from the storage provider.
+The handlers will now be executed in parallel just like how parallel execution happens in job queues.
+
+</details>
+
 <details><summary>RPC Event Hub startup sequence</summary>
 
 The rpc event hub was using a thread sleep pattern during startup to restore subscriber IDs via the storage provider, resulting in a sequential initialization.

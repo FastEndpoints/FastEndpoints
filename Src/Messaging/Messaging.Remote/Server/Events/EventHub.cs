@@ -191,7 +191,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
             }
             catch (Exception ex)
             {
-                _errors?.OnGetNextEventRecordError<TEvent>(subscriberID, retrievalErrorCount++, ex, cts.Token);
+                _errors?.OnGetNextBatchError<TEvent>(subscriberID, retrievalErrorCount++, ex, cts.Token);
                 _logger.StorageGetNextBatchError(subscriberID, _tEvent.FullName!, ex.Message);
 
                 if (!cts.Token.IsCancellationRequested)

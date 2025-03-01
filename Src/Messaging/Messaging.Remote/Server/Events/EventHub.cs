@@ -323,7 +323,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
 
                 break;
             }
-            catch (OverflowException)
+            catch (OverflowException) when (IsInMemoryProvider)
             {
                 foreach (var rec in records.Cast<InMemoryEventStorageRecord>().Where(r => r.QueueOverflowed))
                 {

@@ -214,7 +214,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                         {
                             try
                             {
-                                await _storage.StoreEventAsync(record, cts.Token);
+                                await _storage.StoreEventsAsync([record], cts.Token);
                             }
                             catch
                             {
@@ -265,22 +265,24 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
             subscriber.IsConnected = false;
     }
 
-    //WARNING: this method is never awaited. so it should not throw any exceptions.
+    //WARNING: this method is never awaited. so it should not surface any exceptions.
     protected override async Task BroadcastEventTask(IEvent evnt)
     {
         var subscribers = GetReceiveCandidates();
         var startTime = DateTime.Now;
 
-        while (!subscribers.Any())
+        while (subscribers.Length == 0)
         {
+            if (_appCancellation.IsCancellationRequested || (DateTime.Now - startTime).TotalSeconds >= 60)
+                return;
+
             _logger.NoSubscribersWarning(_tEvent.FullName!);
             await Task.Delay(5000, CancellationToken.None);
 
-            if (_appCancellation.IsCancellationRequested || (DateTime.Now - startTime).TotalSeconds >= 60)
-                break;
+            subscribers = GetReceiveCandidates();
         }
 
-        var createErrorCount = 0;
+        var records = new List<TStorageRecord>(subscribers.Length);
 
         foreach (var subId in subscribers)
         {
@@ -297,48 +299,58 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
             }
             catch (Exception ex)
             {
+                _errors?.OnSerializeEventError(evnt, ex, _appCancellation);
                 _logger.SetEventCritical(_tEvent.FullName!, ex.Message);
 
                 return; //no point in continuing for other subscribers.
             }
 
-            while (true)
+            records.Add(record);
+        }
+
+        var createErrorCount = 0;
+
+        while (true)
+        {
+            try
             {
-                try
-                {
-                    await _storage!.StoreEventAsync(record, _appCancellation);
-                    _subscribers[subId].Sem.Release();
-                    createErrorCount = 0;
+                await _storage!.StoreEventsAsync(records, _appCancellation);
 
-                    break;
-                }
-                catch (OverflowException)
+                foreach (var sid in subscribers)
+                    _subscribers[sid].Sem.Release();
+
+                createErrorCount = 0;
+
+                break;
+            }
+            catch (OverflowException)
+            {
+                foreach (var rec in records.Cast<InMemoryEventStorageRecord>().Where(r => r.QueueOverflowed))
                 {
-                    _subscribers.Remove(subId, out var sub);
+                    _subscribers.Remove(rec.SubscriberID, out var sub);
                     sub?.Sem.Dispose();
-                    _errors?.OnInMemoryQueueOverflow<TEvent>(record, _appCancellation);
-                    _logger.QueueOverflowWarning(subId, _tEvent.FullName!);
+                    _errors?.OnInMemoryQueueOverflow<TEvent>(rec, _appCancellation);
+                    _logger.QueueOverflowWarning(rec.SubscriberID, _tEvent.FullName!);
+                }
 
+                break;
+            }
+            catch (Exception ex)
+            {
+                _errors?.OnStoreEventRecordsError<TEvent>(records, createErrorCount++, ex, _appCancellation);
+                _logger.StoreEventsError(_tEvent.FullName!, ex.Message);
+
+                if (_appCancellation.IsCancellationRequested)
                     break;
-                }
-                catch (Exception ex)
-                {
-                    _errors?.OnStoreEventRecordError<TEvent>(record, createErrorCount++, ex, _appCancellation);
-                    _logger.StoreEventError(subId, _tEvent.FullName!, ex.Message);
 
-                    if (_appCancellation.IsCancellationRequested)
-                        break;
-
-                    await Task.Delay(5000, CancellationToken.None);
-                }
+                await Task.Delay(5000, CancellationToken.None);
             }
         }
 
-        //WARNING: do not ever change return type here
-        IEnumerable<string> GetReceiveCandidates()
+        string[] GetReceiveCandidates()
         {
             if (!_isRoundRobinMode)
-                return _subscribers.Keys;
+                return _subscribers.Keys.ToArray();
 
             var connectedSubIds = _subscribers
                                   .Where(kv => kv.Value.IsConnected)
@@ -348,11 +360,11 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
             if (connectedSubIds.Length <= 1)
                 return connectedSubIds;
 
-            IEnumerable<string> qualified;
+            string[] qualified;
 
             lock (_lock)
             {
-                qualified = connectedSubIds.SkipWhile(s => s == _lastReceivedBy).Take(1);
+                qualified = connectedSubIds.SkipWhile(s => s == _lastReceivedBy).Take(1).ToArray();
                 _lastReceivedBy = qualified.Single();
             }
 

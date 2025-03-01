@@ -140,4 +140,24 @@ The internal dictionary used to keep track of the version sets has been changed 
 
 </details>
 
-## Breaking Changes ⚠️
+## Breaking Changes (Minor) ⚠️
+
+<details><summary>'IEventHubStorageProvider' contract change</summary>
+
+In order to improve database write performance, the `IEventHubStorageProvider.StoreEventAsync(TStorageRecord r, CancellationToken ct)` method signature has been changed to the following:
+
+```cs
+ValueTask StoreEventsAsync(IEnumerable<TStorageRecord> r, CancellationToken ct);
+```
+
+Previously, records were persisted one at a time. Now, the records are supplied in batches allowing you to take advantage of batched inserts and/or transactions improving database write performance.
+
+NOTE: You should make sure either none or all of the supplied records are persisted to disk in order to avoid duplicate events being published due to the built-in retry mechanism.
+
+</details>
+
+<details><summary>'IEvent.Broadcast()' extension method is no longer cancellable</summary>
+
+The `BroadCast()` method is now a fire-n-forget method and no longer accepts a `CancellationToken`, which simplifies event publication. 
+
+</details>

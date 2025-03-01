@@ -42,14 +42,14 @@ public abstract class EventHubExceptionReceiver
         => Task.CompletedTask;
 
     /// <summary>
-    /// this method is triggered when the storage provider has trouble persisting an event record.
+    /// this method is triggered when the storage provider has trouble persisting event storage records.
     /// </summary>
-    /// <typeparam name="TEvent">the type of the event</typeparam>
-    /// <param name="record">the event storage record that was supposed to be persisted</param>
-    /// <param name="attemptCount">the number of times the record was attempted to be persisted</param>
+    /// <typeparam name="TEvent">the type of the events</typeparam>
+    /// <param name="records">the event storage records that were supposed to be persisted</param>
+    /// <param name="attemptCount">the number of times the operation was attempted</param>
     /// <param name="exception">the actual exception that was thrown by the operation</param>
     /// <param name="ct">cancellation token</param>
-    public virtual Task OnStoreEventRecordError<TEvent>(IEventStorageRecord record, int attemptCount, Exception exception, CancellationToken ct)
+    public virtual Task OnStoreEventRecordsError<TEvent>(IEnumerable<IEventStorageRecord> records, int attemptCount, Exception exception, CancellationToken ct)
         where TEvent : class, IEvent
         => Task.CompletedTask;
 
@@ -60,5 +60,17 @@ public abstract class EventHubExceptionReceiver
     /// <param name="record">the event storage record that was supposed to be added to the queue</param>
     /// <param name="ct">cancellation token</param>
     public virtual Task OnInMemoryQueueOverflow<TEvent>(IEventStorageRecord record, CancellationToken ct) where TEvent : class, IEvent
+        => Task.CompletedTask;
+
+    /// <summary>
+    /// this method is triggered when the storage provider has trouble serializing an event object calling the
+    /// <see cref="IEventStorageRecord" />.<see cref="IEventStorageRecord.SetEvent{TEvent}" /> method.
+    /// </summary>
+    /// <typeparam name="TEvent">the type of the event</typeparam>
+    /// <param name="event">the event object that failed to serialize</param>
+    /// <param name="exception">the actual exception that was thrown by the operation</param>
+    /// <param name="ct">cancellation token</param>
+    public virtual Task OnSerializeEventError<TEvent>(TEvent @event, Exception exception, CancellationToken ct)
+        where TEvent : class, IEvent
         => Task.CompletedTask;
 }

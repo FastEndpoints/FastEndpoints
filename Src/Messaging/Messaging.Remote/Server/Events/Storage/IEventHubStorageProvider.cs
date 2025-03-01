@@ -16,11 +16,15 @@ public interface IEventHubStorageProvider<TStorageRecord> where TStorageRecord :
     ValueTask<IEnumerable<string>> RestoreSubscriberIDsForEventTypeAsync(SubscriberIDRestorationParams<TStorageRecord> parameters);
 
     /// <summary>
-    /// store the event storage record however you please. ideally on a nosql database.
+    /// store the event storage records however you please. ideally on a nosql database.
+    /// <para>
+    /// WARNING: make sure to use a transaction or batch insert to ensure all the records are committed in one go.
+    /// if only some of the records succeed in being stored, it could lead to duplicate events being published due to the built-in retry mechanism.
+    /// </para>
     /// </summary>
-    /// <param name="r">the event storage record which contains the actual event object as well as some metadata</param>
+    /// <param name="r">the event storage records which contains the actual event objects as well as some metadata</param>
     /// <param name="ct">cancellation token</param>
-    ValueTask StoreEventAsync(TStorageRecord r, CancellationToken ct);
+    ValueTask StoreEventsAsync(IEnumerable<TStorageRecord> r, CancellationToken ct);
 
     /// <summary>
     /// fetch the next batch of pending event storage records that need to be processed.

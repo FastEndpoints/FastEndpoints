@@ -13,6 +13,9 @@ static partial class LoggingExtensions
     [LoggerMessage(3, LogLevel.Warning, "No event subscribers to connect for: [{tEvent}]")]
     public static partial void NoSubscribersWarning(this ILogger l, string tEvent);
 
-    [LoggerMessage(6, LogLevel.Warning, "Event queue for [subscriber-id:{subscriberId}]({tEvent}) is full! The subscriber has been removed from the broadcast list.")]
+    [LoggerMessage(
+        4,
+        LogLevel.Warning,
+        "Event queue for [subscriber-id:{subscriberId}]({tEvent}) is full! The subscriber has been removed from the broadcast list.")]
     public static partial void QueueOverflowWarning(this ILogger l, string subscriberId, string tEvent);
 }

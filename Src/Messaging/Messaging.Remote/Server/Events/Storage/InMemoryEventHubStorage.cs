@@ -12,13 +12,21 @@ public sealed class InMemoryEventHubStorage : IEventHubStorageProvider<InMemoryE
     public ValueTask<IEnumerable<string>> RestoreSubscriberIDsForEventTypeAsync(SubscriberIDRestorationParams<InMemoryEventStorageRecord> p)
         => ValueTask.FromResult(Enumerable.Empty<string>());
 
-    public ValueTask StoreEventAsync(InMemoryEventStorageRecord e, CancellationToken _)
+    public ValueTask StoreEventsAsync(IEnumerable<InMemoryEventStorageRecord> records, CancellationToken _)
     {
-        var q = _subscribers.GetOrAdd(e.SubscriberID, new InMemEventQueue());
+        var shouldThrowOverflow = false;
 
-        if (!q.IsStale)
-            q.Records.Enqueue(e);
-        else
+        foreach (var r in records)
+        {
+            var q = _subscribers.GetOrAdd(r.SubscriberID, new InMemEventQueue());
+
+            if (!q.IsStale)
+                q.Records.Enqueue(r);
+            else
+                shouldThrowOverflow = r.QueueOverflowed = true;
+        }
+
+        if (shouldThrowOverflow)
             throw new OverflowException();
 
         return ValueTask.CompletedTask;
@@ -31,14 +39,10 @@ public sealed class InMemoryEventHubStorage : IEventHubStorageProvider<InMemoryE
         q.Records.TryDequeue(out var e);
         q.LastDequeAt = DateTime.UtcNow;
 
-        if (e is not null)
-        {
-            var res = new[] { e };
-
-            return ValueTask.FromResult(res.AsEnumerable());
-        }
-
-        return ValueTask.FromResult(Array.Empty<InMemoryEventStorageRecord>().AsEnumerable());
+        return ValueTask.FromResult(
+            e is null
+                ? Array.Empty<InMemoryEventStorageRecord>().AsEnumerable()
+                : [e]);
     }
 
     public ValueTask MarkEventAsCompleteAsync(InMemoryEventStorageRecord e, CancellationToken ct)

@@ -7,4 +7,5 @@ public sealed class InMemoryEventStorageRecord : IEventStorageRecord
     public string EventType { get; set; } = default!;
     public DateTime ExpireOn { get; set; } = DateTime.UtcNow.AddHours(4);
     public bool IsComplete { get; set; }
+    public bool QueueOverflowed { get; set; }
 }

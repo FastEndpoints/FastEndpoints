@@ -26,14 +26,7 @@ sealed class InMemoryEventSubscriberStorage : IEventSubscriberStorageProvider<In
         var q = _subscribers.GetOrAdd(p.SubscriberID, QueueInitializer());
         q.TryDequeue(out var e);
 
-        if (e is not null)
-        {
-            var res = new[] { e };
-
-            return new(res.AsEnumerable());
-        }
-
-        return new(Array.Empty<InMemoryEventStorageRecord>().AsEnumerable());
+        return new(e is null ? [] : [e]);
     }
 
     public ValueTask MarkEventAsCompleteAsync(InMemoryEventStorageRecord e, CancellationToken ct)

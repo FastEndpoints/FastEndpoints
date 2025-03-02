@@ -221,7 +221,7 @@ sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProv
             else
             {
                 //wait until either the semaphore is released or a minute has elapsed
-                await Task.WhenAny(sem.WaitAsync(opts.CancellationToken), Task.Delay(60000));
+                await Task.WhenAny(sem.WaitAsync(opts.CancellationToken), Task.Delay(10000));
             }
         }
     }

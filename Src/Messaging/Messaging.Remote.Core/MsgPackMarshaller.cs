@@ -7,10 +7,9 @@ namespace FastEndpoints;
 sealed class MessagePackMarshaller<T>() : Marshaller<T>(Serialize, Deserialize) where T : class
 {
     static readonly MessagePackSerializerOptions _options
-        = MessagePackSerializerOptions
-         .Standard
-         .WithResolver(ContractlessStandardResolver.Instance)
-         .WithCompression(MessagePackCompression.Lz4BlockArray);
+        = MessagePackSerializerOptions.Standard
+                                      .WithResolver(ContractlessStandardResolver.Instance)
+                                      .WithCompression(MessagePackCompression.Lz4BlockArray);
 
     static readonly Type _t = typeof(T);
 

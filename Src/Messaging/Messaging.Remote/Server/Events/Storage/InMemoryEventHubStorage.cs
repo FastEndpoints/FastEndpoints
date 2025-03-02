@@ -52,11 +52,11 @@ public sealed class InMemoryEventHubStorage : IEventHubStorageProvider<InMemoryE
     {
         foreach (var q in _subscribers)
         {
-            if (q.Value.IsStale)
-            {
-                _subscribers.Remove(q.Key, out var eq);
-                eq?.Records.Clear();
-            }
+            if (!q.Value.IsStale)
+                continue;
+
+            _subscribers.Remove(q.Key, out var eq);
+            eq?.Records.Clear();
         }
 
         return ValueTask.CompletedTask;

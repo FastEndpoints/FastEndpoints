@@ -115,7 +115,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                 {
                     //timeout reached. app shouldn't be allowed to start! (due to risk of losing events)
                     //https://discord.com/channels/933662816458645504/1335898618468634624/1336002378973057054
-                    throw new ApplicationException($"Unable to restore subscribers for event [{_tEvent.FullName!}] via storage provider in a timely manner!");
+                    throw new ApplicationException($"Unable to restore subscribers for event type [{_tEvent.FullName!}] via storage provider in a timely manner!");
                 }
 
                 _errors?.OnRestoreSubscriberIDsError(_tEvent, retrievalErrorCount++, e, ct);
@@ -255,7 +255,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
             else
             {
                 //wait until either the semaphore is released or a minute has elapsed
-                await Task.WhenAny(subscriber.Sem.WaitAsync(cts.Token), Task.Delay(60000));
+                await Task.WhenAny(subscriber.Sem.WaitAsync(cts.Token), Task.Delay(10000));
             }
         }
 

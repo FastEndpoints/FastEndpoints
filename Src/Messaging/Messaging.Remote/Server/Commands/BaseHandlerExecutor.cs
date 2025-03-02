@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 
 // ReSharper disable UnusedMemberInSuper.Global
+// ReSharper disable UseSymbolAlias
 
 namespace FastEndpoints;
 
@@ -17,22 +18,15 @@ abstract class BaseHandlerExecutor<TCommand, THandler, TResult, TSelf> : IMethod
 
     protected abstract MethodType MethodType();
 
-    protected abstract void AddMethodToCtx(ServiceMethodProviderContext<TSelf> ctx,
-                                           Method<TCommand, TResult> method,
-                                           List<object> metadata);
+    protected abstract void AddMethodToCtx(ServiceMethodProviderContext<TSelf> ctx, Method<TCommand, TResult> method, List<object> metadata);
 
     protected virtual Task<TResult> ExecuteUnary(TSelf _, TCommand cmd, ServerCallContext ctx)
         => throw new NotImplementedException();
 
-    protected virtual Task ExecuteServerStream(TSelf _,
-                                               TCommand cmd,
-                                               IServerStreamWriter<TResult> responseStream,
-                                               ServerCallContext ctx)
+    protected virtual Task ExecuteServerStream(TSelf _, TCommand cmd, IServerStreamWriter<TResult> responseStream, ServerCallContext ctx)
         => throw new NotImplementedException();
 
-    protected virtual Task<TResult> ExecuteClientStream(TSelf _,
-                                                        IAsyncStreamReader<TCommand> requestStream,
-                                                        ServerCallContext serverCallContext)
+    protected virtual Task<TResult> ExecuteClientStream(TSelf _, IAsyncStreamReader<TCommand> requestStream, ServerCallContext serverCallContext)
         => throw new NotImplementedException();
 
     static readonly string[] _httpPost = ["POST"];

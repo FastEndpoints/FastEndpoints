@@ -37,7 +37,7 @@
 
         <PackageVersion Include="Microsoft.Bcl.TimeProvider" Version="8.0.1"/>
         <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0"/>
-        <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.12.0"/>
+        <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="4.13.0"/>
 
         <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Condition="'$(TargetFramework)' == 'net6.0' or '$(TargetFramework)' == 'net7.0'" Version="8.0.2"/>
         <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Condition="'$(TargetFramework)' == 'net8.0' or '$(TargetFramework)' == 'net9.0'" Version="9.0.2"/>

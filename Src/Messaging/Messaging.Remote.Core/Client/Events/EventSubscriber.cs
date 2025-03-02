@@ -47,7 +47,7 @@ sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProv
         var parallelOptions = new ParallelOptions
         {
             MaxDegreeOfParallelism = Environment.ProcessorCount,
-            CancellationToken = opts.CancellationToken
+            CancellationToken = opts.CancellationToken //this is a composite token (user ct + app shutdown ct)
         };
         _ = EventReceiverTask(_storage!, _sem, opts, Invoker, Method, _subscriberID, _logger, _errorReceiver);
         _ = EventExecutorTask(_storage!, _sem, opts, parallelOptions, _subscriberID, _logger, _handlerFactory, _serviceProvider, _errorReceiver);
@@ -193,7 +193,7 @@ sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProv
                         return;
                     }
 
-                    var updateErrorCount = 0;
+                    var markCompletionErrorCount = 0;
 
                     while (!_isInMemProvider)
                     {
@@ -201,13 +201,13 @@ sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProv
                         {
                             record.IsComplete = true;
                             await storage.MarkEventAsCompleteAsync(record, opts.CancellationToken);
-                            updateErrorCount = 0;
+                            markCompletionErrorCount = 0;
 
                             break;
                         }
                         catch (Exception ex)
                         {
-                            errorReceiver?.OnMarkEventAsCompleteError<TEvent>(record, updateErrorCount++, ex, opts.CancellationToken);
+                            errorReceiver?.OnMarkEventAsCompleteError<TEvent>(record, markCompletionErrorCount++, ex, opts.CancellationToken);
                             logger.StorageMarkAsCompleteError(subscriberID, typeof(TEvent).FullName!, ex.Message);
 
                             if (opts.CancellationToken.IsCancellationRequested)

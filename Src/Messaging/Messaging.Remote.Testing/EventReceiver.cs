@@ -1,6 +1,6 @@
 ﻿namespace FastEndpoints.Messaging.Remote.Testing;
 
-class EventReceiver<TEvent> : IEventReceiver<TEvent> where TEvent : class, IEvent
+class EventReceiver<TEvent> : IEventReceiver<TEvent> where TEvent : IEvent
 {
     readonly List<TEvent> _received = [];
 

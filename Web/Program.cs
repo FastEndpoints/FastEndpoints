@@ -227,6 +227,7 @@ app.MapHandlers(
         h.RegisterServerStream<StatusStreamCommand, StatusUpdateHandler, StatusUpdate>();
         h.RegisterClientStream<CurrentPosition, PositionProgressHandler, ProgressReport>();
         h.RegisterEventHub<TestEventQueue>();
+        h.RegisterEventHub<MyEvent>();
     });
 
 app.UseJobQueues(
@@ -244,8 +245,3 @@ if (isTestHost && app.Environment.EnvironmentName != "Testing")
     throw new InvalidOperationException("TestFixture hasn't set the test environment correctly!");
 
 app.Run();
-
-namespace Web
-{
-    public class Program { }
-}

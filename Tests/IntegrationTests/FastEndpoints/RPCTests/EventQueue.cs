@@ -1,9 +1,12 @@
-﻿using TestCases.EventQueueTest;
+﻿using FastEndpoints.Messaging.Remote.Testing;
+using TestCases.EventQueueTest;
 
 namespace RemoteProcedureCalls;
 
-public class EventQueue(Sut f) : RpcTestBase(f)
+public class EventQueue(Sut App) : RpcTestBase(App)
 {
+    readonly Sut _app = App;
+
     [Fact]
     public async Task Event_Queue()
     {
@@ -19,5 +22,16 @@ public class EventQueue(Sut f) : RpcTestBase(f)
 
         TestEventQueueHandler.Received.Count.ShouldBe(100);
         TestEventQueueHandler.Received.Select(r => r.Id).Except(Enumerable.Range(0, 100)).Any().ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task Event_Queue_TestEventReceiver()
+    {
+        var evnt = new MyEvent { Name = "blah blah" };
+        evnt.Broadcast();
+
+        var receiver = _app.Services.GetTestEventReceiver<MyEvent>();
+        var received = await receiver.WaitForMatchAsync(e => e.Name == "blah blah", ct: Cancellation);
+        received.Any().ShouldBeTrue();
     }
 }

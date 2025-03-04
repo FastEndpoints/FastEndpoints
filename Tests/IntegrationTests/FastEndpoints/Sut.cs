@@ -1,8 +1,11 @@
-﻿using Messaging;
+﻿using Admin.Login;
+using FastEndpoints.Messaging.Remote.Testing;
+using Messaging;
 using TestCases.CommandBusTest;
 using TestCases.EventBusTest;
 using Web;
 using Web.Services;
+using Endpoint = Admin.Login.Endpoint;
 
 namespace Int.FastEndpoints;
 
@@ -19,9 +22,9 @@ public class Sut : AppFixture<Web.Program>
 
         AdminClient = CreateClient();
         var (_, result) = await AdminClient.POSTAsync<
-                              Admin.Login.Endpoint,
-                              Admin.Login.Request,
-                              Admin.Login.Response>(
+                              Endpoint,
+                              Request,
+                              Response>(
                               new()
                               {
                                   UserName = "admin",
@@ -43,10 +46,11 @@ public class Sut : AppFixture<Web.Program>
     protected override void ConfigureServices(IServiceCollection s)
     {
         s.RegisterTestCommandHandler<SomeCommand, TestCommandHandler, string>();
-        s.RegisterTestCommandHandler<VoidCommand, TestVoidCommandHandler>();
-        s.RegisterTestEventHandler<TestEventBus, FakeEventHandler>();
-        s.RegisterTestEventHandler<TestEventBus, AnotherFakeEventHandler>();
+        TestingExtensions.RegisterTestCommandHandler<VoidCommand, TestVoidCommandHandler>(s);
+        TestingExtensions.RegisterTestEventHandler<TestEventBus, FakeEventHandler>(s);
+        TestingExtensions.RegisterTestEventHandler<TestEventBus, AnotherFakeEventHandler>(s);
         s.AddScoped<IEmailService, MockEmailService>();
+        s.RegisterTestEventReceivers();
     }
 
     protected override ValueTask TearDownAsync()

@@ -13,7 +13,7 @@ public interface IEventReceiver<TEvent> where TEvent : IEvent
     /// waits until at least one matching event is received not exceeding the timeout period.
     /// </summary>
     /// <param name="match">a predicate for matching events that should be returned by the method</param>
-    /// <param name="timeoutSeconds">how long the method will wait until a matching event is received</param>
+    /// <param name="timeoutSeconds">how long the method will wait until a matching event is received. default value is 2 seconds</param>
     /// <param name="ct">optional cancellation token</param>
-    Task<IEnumerable<TEvent>> WaitForMatchAsync(Func<TEvent, bool> match, int timeoutSeconds = 1, CancellationToken ct = default);
+    Task<IEnumerable<TEvent>> WaitForMatchAsync(Func<TEvent, bool> match, int timeoutSeconds = 2, CancellationToken ct = default);
 }

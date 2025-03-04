@@ -7,6 +7,13 @@ public class TestEventQueueHandler : IEventHandler<TestEventQueue>
     public Task HandleAsync(TestEventQueue eventModel, CancellationToken ct)
     {
         Received.Add(eventModel);
+
         return Task.CompletedTask;
     }
+}
+
+sealed class MyEventHandler : IEventHandler<MyEvent>
+{
+    public Task HandleAsync(MyEvent eventModel, CancellationToken ct)
+        => Task.CompletedTask;
 }

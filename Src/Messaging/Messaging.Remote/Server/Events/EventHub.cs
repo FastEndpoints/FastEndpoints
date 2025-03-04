@@ -69,6 +69,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
     readonly EventHubExceptionReceiver? _errors;
     readonly ILogger _logger;
     readonly CancellationToken _appCancellation;
+    readonly IEventReceiver<TEvent>? _testEventReceiver;
 
     public EventHub(IServiceProvider svcProvider)
     {
@@ -81,6 +82,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
         _errors = svcProvider.GetService<EventHubExceptionReceiver>();
         _logger = svcProvider.GetRequiredService<ILogger<EventHub<TEvent, TStorageRecord, TStorageProvider>>>();
         _appCancellation = svcProvider.GetRequiredService<IHostApplicationLifetime>().ApplicationStopping;
+        _testEventReceiver = svcProvider.GetService<IEventReceiver<TEvent>>();
     }
 
     protected override async Task Initialize()
@@ -268,6 +270,8 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
     //WARNING: this method is never awaited. so it should not surface any exceptions.
     protected override async Task BroadcastEventTask(IEvent evnt)
     {
+        _testEventReceiver?.AddEvent((TEvent)evnt);
+
         var subscribers = GetReceiveCandidates();
         var startTime = DateTime.Now;
 

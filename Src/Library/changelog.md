@@ -10,24 +10,13 @@ Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H
 
 ## New 🎉
 
-<details><summary>Generic command support for job queues</summary>
+<details><summary>Bypass endpoint caching for integration tests</summary>
 
-Closed generic commands can now be registered like so:
-
-```cs
-app.Services.RegisterGenericCommand<QueueCommand<OrderCreatedEvent>, QueueCommandHandler<OrderCreatedEvent>>();
-```
-
-and then be queued as jobs like so:
+You can now easily test endpoints that have caching enabled, by using a client configured to automatically bypass caching like so:
 
 ```cs
-await new QueueEventCommand<OrderCreatedEvent>()
-{ 
-  ...
-}.QueueJobAsync();
+var antiCacheClient = App.CreateClient(new() { BypassCaching = true });
 ```
-
-Note: Open generic commands are not supported for job queueing.
 
 </details>
 
@@ -51,9 +40,30 @@ sealed class MyRequest
 
 </details>
 
+<details><summary>Generic command support for job queues</summary>
+
+Closed generic commands can now be registered like so:
+
+```cs
+app.Services.RegisterGenericCommand<QueueCommand<OrderCreatedEvent>, QueueCommandHandler<OrderCreatedEvent>>();
+```
+
+and then be queued as jobs like so:
+
+```cs
+await new QueueEventCommand<OrderCreatedEvent>()
+{ 
+  ...
+}.QueueJobAsync();
+```
+
+Note: Open generic commands are not supported for job queueing.
+
+</details>
+
 <details><summary>Inter-Process-Communication via Unix-Domain-Sockets</summary>
 
-The [FastEndpoints.Messaging.Remote](https://fast-endpoints.com/docs/remote-procedure-calls) library can now do inter-process-communication via unix sockets when everything is running on the same machine easily by doing the following:
+The [FastEndpoints.Messaging.Remote](https://fast-endpoints.com/docs/remote-procedure-calls) library can now do inter-process-communication via unix sockets when everything is running on the same machine by doing the following:
 
 ```cs
 //server setup
@@ -71,16 +81,6 @@ bld.WebHost.ConfigureKestrel(k => k.ListenAnyIP(80, o => o.Protocols = HttpProto
 
 //client
 app.MapRemote("http://orders.my-app.com", c => c.Register<CreateOrderCommand>());
-```
-
-</details>
-
-<details><summary>Bypass endpoint caching for integration tests</summary>
-
-You can now easily test endpoints that have caching enabled, by using a client configured to automatically bypass caching like so:
-
-```cs
-var antiCacheClient = App.CreateClient(new() { BypassCaching = true });
 ```
 
 </details>

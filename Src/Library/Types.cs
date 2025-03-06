@@ -60,6 +60,8 @@ static class Types
     internal static readonly Type NotImplementedAttribute = typeof(NotImplementedAttribute);
     internal static readonly Type Object = typeof(object);
     internal static readonly Type ParseResult = typeof(ParseResult);
+    internal static readonly Type PreProcessorOf1 = typeof(IPreProcessor<>);
+    internal static readonly Type PostProcessorOf2 = typeof(IPostProcessor<,>);
     internal static readonly Type QueryParamAttribute = typeof(QueryParamAttribute);
     internal static readonly Type String = typeof(string);
     internal static readonly Type StringSegment = typeof(StringSegment);

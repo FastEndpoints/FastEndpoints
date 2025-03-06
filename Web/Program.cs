@@ -7,6 +7,7 @@ using TestCases.CommandBusTest;
 using TestCases.CommandHandlerTest;
 using TestCases.EventHandlingTest;
 using TestCases.EventQueueTest;
+using TestCases.GlobalGenericProcessorTest;
 using TestCases.JobQueueTest;
 using TestCases.KeyedServicesTests;
 using TestCases.ProcessorStateTest;
@@ -193,6 +194,8 @@ app.UseRequestLocalization(
            c.Endpoints.Configurator =
                ep =>
                {
+                   ep.PreProcessors(Order.Before, typeof(GlobalGenericPreProcessor<>));
+                   ep.PostProcessors(Order.After, typeof(GlobalGenericPostProcessor<,>));
                    ep.PreProcessor<GlobalStatePreProcessor>(Order.Before);
                    ep.PreProcessors(Order.Before, new AdminHeaderChecker());
                    if (ep.EndpointTags?.Contains("Orders") is true)

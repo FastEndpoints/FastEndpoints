@@ -2149,6 +2149,39 @@
         }
       }
     },
+    "/api/testcases/global-generic-processors": {
+      "post": {
+        "tags": [
+          "Testcases"
+        ],
+        "operationId": "TestCasesGlobalGenericProcessorTestEndpoint",
+        "requestBody": {
+          "x-name": "Request",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesGlobalGenericProcessorTestRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesGlobalGenericProcessorTestRequest"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/mobile/api/test-cases/global-prefix-override/{id}": {
       "post": {
         "tags": [
@@ -5326,6 +5359,18 @@
             "format": "decimal",
             "minimum": 200.0,
             "exclusiveMinimum": true
+          }
+        }
+      },
+      "TestCasesGlobalGenericProcessorTestRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "preProcRan": {
+            "type": "boolean"
+          },
+          "postProcRan": {
+            "type": "boolean"
           }
         }
       },

@@ -352,6 +352,38 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
         => AddProcessor<TPostProcessor>(order, PostProcessorList, ref _postProcessorPosition);
 
     /// <summary>
+    /// adds open-generic post-processors to the endpoint definition which are to be executed in addition to the ones configured at the endpoint level.
+    /// </summary>
+    /// <param name="order">
+    /// set to <see cref="Order.Before" /> if the global pre-processors should be executed before endpoint pre-processors.
+    /// <see cref="Order.After" /> will execute global processors after endpoint level processors
+    /// </param>
+    /// <param name="processorTypes">open generic post-processor types</param>
+    /// <exception cref="InvalidOperationException">thrown if the supplied post-processor types are not open generic.</exception>
+    public void PostProcessors(Order order, params Type[] processorTypes)
+    {
+        foreach (var tProc in processorTypes)
+        {
+            if (!tProc.IsGenericType ||
+                tProc.GetGenericArguments().Length != 2 ||
+                !tProc.GetInterfaces().Any(t => t.IsGenericType && t.GetGenericTypeDefinition() == Types.PostProcessorOf2))
+                throw new InvalidOperationException($"[{tProc.FullName}] is not a valid open-generic post-processor for registering globally!");
+
+            var tFinal = tProc.MakeGenericType(ReqDtoType, ResDtoType);
+
+            try
+            {
+                var processor = (IProcessor)Cfg.ServiceResolver.CreateSingleton(tFinal);
+                AddProcessor(order, processor, PreProcessorList, ref PreProcessorPosition);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Could not find/construct processor type {tFinal.FullName}", ex);
+            }
+        }
+    }
+
+    /// <summary>
     /// adds global pre-processors to an endpoint definition which are to be executed in addition to the ones configured at the endpoint level.
     /// </summary>
     /// <param name="order">
@@ -372,6 +404,38 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// <typeparam name="TPreProcessor">the pre-processor to add</typeparam>
     public void PreProcessor<TPreProcessor>(Order order) where TPreProcessor : class, IGlobalPreProcessor
         => AddProcessor<TPreProcessor>(order, PreProcessorList, ref PreProcessorPosition);
+
+    /// <summary>
+    /// adds open-generic pre-processors to the endpoint definition which are to be executed in addition to the ones configured at the endpoint level.
+    /// </summary>
+    /// <param name="order">
+    /// set to <see cref="Order.Before" /> if the global pre-processors should be executed before endpoint pre-processors.
+    /// <see cref="Order.After" /> will execute global processors after endpoint level processors
+    /// </param>
+    /// <param name="processorTypes">open generic pre-processor types</param>
+    /// <exception cref="InvalidOperationException">thrown if the supplied pre-processor types are not open generic.</exception>
+    public void PreProcessors(Order order, params Type[] processorTypes)
+    {
+        foreach (var tProc in processorTypes)
+        {
+            if (!tProc.IsGenericType ||
+                tProc.GetGenericArguments().Length != 1 ||
+                !tProc.GetInterfaces().Any(t => t.IsGenericType && t.GetGenericTypeDefinition() == Types.PreProcessorOf1))
+                throw new InvalidOperationException($"[{tProc.FullName}] is not a valid open generic pre-processor for registering globally!");
+
+            var tFinal = tProc.MakeGenericType(ReqDtoType);
+
+            try
+            {
+                var processor = (IProcessor)Cfg.ServiceResolver.CreateSingleton(tFinal);
+                AddProcessor(order, processor, PreProcessorList, ref PreProcessorPosition);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException($"Could not find/construct processor type {tFinal.FullName}", ex);
+            }
+        }
+    }
 
     /// <summary>
     /// specify response caching settings for this endpoint

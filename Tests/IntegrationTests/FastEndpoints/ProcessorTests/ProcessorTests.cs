@@ -57,6 +57,24 @@ public class ProcessorTests(Sut App) : TestBase<Sut>
     }
 
     [Fact]
+    public async Task GenericGlobalProcessors()
+    {
+        var req = new TestCases.GlobalGenericProcessorTest.Request
+        {
+            PreProcRan = false,
+            PostProcRan = false
+        };
+
+        var (rsp, res) = await App.Client.POSTAsync<
+                             TestCases.GlobalGenericProcessorTest.Endpoint,
+                             TestCases.GlobalGenericProcessorTest.Request,
+                             TestCases.GlobalGenericProcessorTest.Request>(req);
+        rsp.IsSuccessStatusCode.ShouldBeTrue();
+        res.PreProcRan.ShouldBeTrue();
+        res.PreProcRan.ShouldBeTrue();
+    }
+
+    [Fact]
     public async Task PreProcessorShortCircuitMissingHeader()
     {
         var (rsp, res) = await App.Client.GETAsync<

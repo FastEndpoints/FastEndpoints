@@ -34,4 +34,11 @@ sealed class MyPreProcessor<TRequest> : IPreProcessor<TRequest>
 
 ## Fixes 🪲
 
+<details><summary>Roslyn compiler versioning issue</summary>
+
+The last version of the compiler shipped with .NET SDK v6/7/8 is `4.12.0`. We started using `4.13.0` which is only shipped in .NET 9. This was causing problems for people still on older SDK versions. 
+This has been solved by doing conditional package referencing.
+
+</details>
+
 ## Breaking Changes ⚠️

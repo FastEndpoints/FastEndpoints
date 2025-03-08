@@ -41,4 +41,10 @@ This has been solved by doing conditional package referencing.
 
 </details>
 
+<details><summary>Contention issue in reflection source generator</summary>
+
+The reflection source generator was using some static state which was causing issues in certain usage scenarios, which has now been fixed.
+
+</details>
+
 ## Breaking Changes ⚠️

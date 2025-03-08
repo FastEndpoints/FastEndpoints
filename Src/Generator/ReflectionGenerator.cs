@@ -10,9 +10,6 @@ namespace FastEndpoints.Generator;
 public class ReflectionGenerator : IIncrementalGenerator
 {
     // ReSharper disable InconsistentNaming
-
-    static readonly StringBuilder b = new();
-    static readonly StringBuilder _initArgsBuilder = new();
     static readonly string[] TypeBlacklist = ["Microsoft.Extensions.Primitives.StringSegment", "FastEndpoints.EmptyRequest", "System.Uri"];
     const string ConditionArgument = "Condition";
     const string DontInjectAttribute = "DontInjectAttribute";
@@ -23,26 +20,29 @@ public class ReflectionGenerator : IIncrementalGenerator
     const string IParsable = "System.IParsable<";
     const string JsonIgnoreAttribute = "System.Text.Json.Serialization.JsonIgnoreAttribute";
 
+    readonly StringBuilder b = new();
+    readonly StringBuilder _initArgsBuilder = new();
+    string? _assemblyName;
+    TypeCollector _collector = new();
+
     // ReSharper restore InconsistentNaming
 
-    static string? _assemblyName;
-
-    public void Initialize(IncrementalGeneratorInitializationContext ctx)
+    public void Initialize(IncrementalGeneratorInitializationContext initCtx)
     {
-        var syntaxProvider = ctx.SyntaxProvider
-                                .CreateSyntaxProvider(Qualify, Transform)
-                                .Where(static t => t is not null)
-                                .WithComparer(FullTypeComparer.Instance)
-                                .Collect();
+        var syntaxProvider = initCtx.SyntaxProvider
+                                    .CreateSyntaxProvider(Qualify, Transform)
+                                    .Where(static t => t is not null)
+                                    .WithComparer(FullTypeComparer.Instance)
+                                    .Collect();
 
-        ctx.RegisterSourceOutput(syntaxProvider, Generate);
+        initCtx.RegisterSourceOutput(syntaxProvider, Generate);
 
         //executed per each keystroke
         static bool Qualify(SyntaxNode node, CancellationToken _)
             => node is ClassDeclarationSyntax { TypeParameterList: null };
 
         //executed per each keystroke but only for syntax nodes filtered by the Qualify method
-        static TypeInfo? Transform(GeneratorSyntaxContext ctx, CancellationToken _)
+        TypeInfo? Transform(GeneratorSyntaxContext ctx, CancellationToken _)
         {
             //should be re-assigned on every call. do not cache!
             _assemblyName = ctx.SemanticModel.Compilation.AssemblyName;
@@ -52,19 +52,16 @@ public class ReflectionGenerator : IIncrementalGenerator
                    type.GetAttributes().Any(a => a.AttributeClass!.Name == DontRegisterAttribute || type.AllInterfaces.Length == 0)
                        ? null
                        : type.AllInterfaces.Any(i => i.ToDisplayString() == IEndpoint) //must be an endpoint
-                           ? new TypeInfo(type, true)
+                           ? new TypeInfo(ref _collector, type, true)
                            : null;
         }
     }
 
     //only executed if the equality comparer says the data is not what has been cached by roslyn
-    static void Generate(SourceProductionContext spc, ImmutableArray<TypeInfo?> _)
-    {
-        var fileContent = RenderClass();
-        spc.AddSource("ReflectionData.g.cs", SourceText.From(fileContent, Encoding.UTF8));
-    }
+    void Generate(SourceProductionContext spc, ImmutableArray<TypeInfo?> _)
+        => spc.AddSource("ReflectionData.g.cs", SourceText.From(RenderClass(), Encoding.UTF8));
 
-    static string RenderClass()
+    string RenderClass()
     {
         _assemblyName ??= "Assembly"; //when no endpoints are present
 
@@ -82,7 +79,7 @@ public class ReflectionGenerator : IIncrementalGenerator
 
             """);
 
-        foreach (var tInfo in TypeInfo.AllTypes)
+        foreach (var tInfo in _collector.CollectedTypes)
         {
             b.w(
                 $"""
@@ -109,7 +106,7 @@ public class ReflectionGenerator : IIncrementalGenerator
 
               """);
 
-        foreach (var tInfo in TypeInfo.AllTypes)
+        foreach (var tInfo in _collector.CollectedTypes)
         {
             b.w(
                 $$"""
@@ -184,7 +181,7 @@ public class ReflectionGenerator : IIncrementalGenerator
             }
             """);
 
-        TypeInfo.Reset();
+        _collector.Reset();
 
         return b.ToString();
 
@@ -193,7 +190,7 @@ public class ReflectionGenerator : IIncrementalGenerator
                    ? string.Empty
                    : string.Join(", ", Enumerable.Repeat("default!", argCount));
 
-        static string BuildInitializerArgs(IEnumerable<string> props)
+        string BuildInitializerArgs(IEnumerable<string> props)
         {
             if (!props.Any())
                 return string.Empty;
@@ -223,9 +220,6 @@ public class ReflectionGenerator : IIncrementalGenerator
 
     sealed class TypeInfo
     {
-        internal static HashSet<TypeInfo?> AllTypes { get; } = new(TypeNameComparer.Instance);
-        static int Counter { get; set; }
-
         public int HashCode { get; }
         public string? TypeAlias { get; }
         public string? TypeName { get; }
@@ -237,7 +231,7 @@ public class ReflectionGenerator : IIncrementalGenerator
         public int CtorArgumentCount { get; }
         public IEnumerable<string> RequiredProps => Properties.Where(p => p.IsRequired).Select(p => p.PropName);
 
-        public TypeInfo(ITypeSymbol symbol, bool isEndpoint, bool noRecursion = false)
+        public TypeInfo(ref TypeCollector collector, ITypeSymbol symbol, bool isEndpoint, bool noRecursion = false)
         {
             if (symbol.IsAbstract || symbol.TypeKind == TypeKind.Enum || symbol.TypeKind == TypeKind.Interface)
                 return;
@@ -274,7 +268,7 @@ public class ReflectionGenerator : IIncrementalGenerator
             if (TypeBlacklist.Contains(UnderlyingTypeName))
                 return;
 
-            if (AllTypes.Contains(this)) //need to have TypeName set before this
+            if (collector.CollectedTypes.Contains(this)) //need to have TypeName set before this
                 return;
 
             foreach (var ifcName in type.AllInterfaces.Select(ifc => ifc.ToDisplayString()))
@@ -289,7 +283,7 @@ public class ReflectionGenerator : IIncrementalGenerator
                     };
 
                     if (tElement is not null)
-                        _ = new TypeInfo(tElement, false);
+                        _ = new TypeInfo(ref collector, tElement, false);
 
                     return;
                 }
@@ -361,32 +355,26 @@ public class ReflectionGenerator : IIncrementalGenerator
 
             if (Properties.Count > 0)
             {
-                TypeAlias = $"t{(Counter++).ToString()}";
-                AllTypes.Add(this);
+                TypeAlias = $"t{collector.Counter++.ToString()}";
+                collector.CollectedTypes.Add(this);
 
                 if (!noRecursion)
                 {
                     foreach (var p in Properties)
-                        _ = new TypeInfo(p.Symbol, false);
+                        _ = new TypeInfo(ref collector, p.Symbol, false);
                 }
             }
 
-            if (isEndpoint && Properties.Count > 0)                                     //create entry for endpoint class to support property injection
-                _ = new TypeInfo(symbol: symbol, isEndpoint: false, noRecursion: true); //process the endpoint as a regular class without recursion
+            if (isEndpoint && Properties.Count > 0) //create entry for endpoint class to support property injection
+                _ = new TypeInfo(ref collector, symbol: symbol, isEndpoint: false, noRecursion: true); //process the endpoint as a regular class without recursion
             else
             {
                 if (noRecursion) // noRecursion is only true for endpoint classes when treated as regular classes by if condition above
                     return;
 
-                TypeAlias = $"t{(Counter++).ToString()}";
-                AllTypes.Add(this);
+                TypeAlias = $"t{(collector.Counter++).ToString()}";
+                collector.CollectedTypes.Add(this);
             }
-        }
-
-        internal static void Reset()
-        {
-            AllTypes.Clear();
-            Counter = 0;
         }
 
         static bool HasDontInjectAttribute(IPropertySymbol prop)
@@ -426,7 +414,19 @@ public class ReflectionGenerator : IIncrementalGenerator
         }
     }
 
-    class TypeNameComparer : IEqualityComparer<TypeInfo?>
+    sealed class TypeCollector
+    {
+        internal readonly HashSet<TypeInfo?> CollectedTypes = new(TypeNameComparer.Instance);
+        internal int Counter;
+
+        internal void Reset()
+        {
+            Counter = 0;
+            CollectedTypes.Clear();
+        }
+    }
+
+    sealed class TypeNameComparer : IEqualityComparer<TypeInfo?>
     {
         internal static TypeNameComparer Instance { get; } = new();
 
@@ -446,7 +446,7 @@ public class ReflectionGenerator : IIncrementalGenerator
                    : obj.TypeName?.GetHashCode() ?? 0;
     }
 
-    class FullTypeComparer : IEqualityComparer<TypeInfo?>
+    sealed class FullTypeComparer : IEqualityComparer<TypeInfo?>
     {
         internal static FullTypeComparer Instance { get; } = new();
 

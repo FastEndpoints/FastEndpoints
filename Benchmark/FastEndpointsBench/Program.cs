@@ -12,5 +12,5 @@ app.Run();
 
 namespace FEBench
 {
-    public partial class Program { }
+    public class Program { }
 }

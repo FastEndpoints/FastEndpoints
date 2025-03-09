@@ -11,7 +11,6 @@ using Namotion.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NJsonSchema;
-using NJsonSchema.NewtonsoftJson.Generation;
 using NSwag;
 using NSwag.Generation.AspNetCore;
 using NSwag.Generation.Processors;
@@ -65,8 +64,12 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
         var nameMetaData = metaData.OfType<EndpointNameMetadata>().LastOrDefault();
         var op = ctx.OperationDescription.Operation;
         var reqContent = op.RequestBody?.Content;
-        var serializerSettings = ((NewtonsoftJsonSchemaGeneratorSettings)ctx.SchemaGenerator.Settings).SerializerSettings;
+    #if NET8_0_OR_GREATER
+        var serializerSettings = ((NJsonSchema.NewtonsoftJson.Generation.NewtonsoftJsonSchemaGeneratorSettings)ctx.SchemaGenerator.Settings).SerializerSettings;
         var serializer = JsonSerializer.Create(serializerSettings);
+    #else
+        var serializer = JsonSerializer.Create(ctx.SchemaGenerator.Settings.ActualSerializerSettings);
+    #endif
 
         //set operation id if user has specified
         if (nameMetaData is not null)
@@ -137,7 +140,6 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
             if (metas.Count > 0)
             {
             #if NET9_0_OR_GREATER
-
                 //remove this workaround when sdk bug is fixed: https://github.com/dotnet/aspnetcore/issues/57801#issuecomment-2439578287
                 foreach (var meta in metas.Where(m => m.Value.isIResult))
                 {
@@ -803,7 +805,11 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
         else
             prm.Schema.Default = Prop?.GetCustomAttribute<DefaultValueAttribute>()?.Value ?? defaultValFromCtorArg;
 
+    #if NET8_0_OR_GREATER
         if (ctx.OpCtx.Settings.SchemaSettings.GenerateExamples)
+    #else
+        if (ctx.OpCtx.Settings.GenerateExamples)
+    #endif
         {
             prm.Example = Prop?.GetExampleJToken(ctx.Serializer);
 

@@ -10,7 +10,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NJsonSchema;
 using NJsonSchema.Generation;
-using NJsonSchema.NewtonsoftJson.Generation;
 using NSwag;
 using NSwag.AspNetCore;
 using NSwag.Generation;
@@ -47,13 +46,18 @@ public static class Extensions
                 var stjOpts = new JsonSerializerOptions(Cfg.SerOpts.Options);
                 SelectedJsonNamingPolicy = stjOpts.PropertyNamingPolicy;
                 doc.SerializerSettings?.Invoke(stjOpts);
+            #if NET8_0_OR_GREATER
                 var newtonsoftOpts = SystemTextJsonUtilities.ConvertJsonOptionsToNewtonsoftSettings(stjOpts);
                 doc.NewtonsoftSettings?.Invoke(newtonsoftOpts);
-                genSettings.SchemaSettings = new NewtonsoftJsonSchemaGeneratorSettings
+                genSettings.SchemaSettings = new NJsonSchema.NewtonsoftJson.Generation.NewtonsoftJsonSchemaGeneratorSettings
                 {
                     SerializerSettings = newtonsoftOpts,
                     SchemaType = SchemaType.OpenApi3
                 };
+            #else
+                genSettings.SerializerSettings = SystemTextJsonUtilities.ConvertJsonOptionsToNewtonsoftSettings(stjOpts);
+                doc.NewtonsoftSettings?.Invoke(genSettings.SerializerSettings);
+            #endif
 
                 EnableFastEndpoints(genSettings, doc);
 
@@ -88,7 +92,11 @@ public static class Extensions
                 doc.DocumentSettings?.Invoke(genSettings);
 
                 if (doc.RemoveEmptyRequestSchema || doc.FlattenSchema)
+            #if NET8_0_OR_GREATER
                     genSettings.SchemaSettings.FlattenInheritanceHierarchy = true;
+            #else
+                    genSettings.FlattenInheritanceHierarchy = true;
+            #endif
             });
 
         return services;
@@ -100,6 +108,7 @@ public static class Extensions
     /// </summary>
     /// <param name="config">optional config action for the open-api middleware</param>
     /// <param name="uiConfig">optional config action for the swagger-ui</param>
+#if NET8_0_OR_GREATER
     public static IApplicationBuilder UseSwaggerGen(this IApplicationBuilder app,
                                                     Action<OpenApiDocumentMiddlewareSettings>? config = null,
                                                     Action<SwaggerUiSettings>? uiConfig = null)
@@ -109,6 +118,17 @@ public static class Extensions
 
         return app;
     }
+#else
+    public static IApplicationBuilder UseSwaggerGen(this IApplicationBuilder app,
+                                                    Action<OpenApiDocumentMiddlewareSettings>? config = null,
+                                                    Action<SwaggerUi3Settings>? uiConfig = null)
+    {
+        app.UseOpenApi(config);
+        app.UseSwaggerUi3((c => c.ConfigureDefaults()) + uiConfig);
+
+        return app;
+    }
+#endif
 
     /// <summary>
     /// enable support for FastEndpoints in swagger
@@ -144,7 +164,15 @@ public static class Extensions
     /// configure swagger ui with some sensible defaults for FastEndpoints which can be overridden if needed.
     /// </summary>
     /// <param name="settings">provide an action that overrides any of the defaults</param>
-    public static void ConfigureDefaults(this SwaggerUiSettings s, Action<SwaggerUiSettings>? settings = null)
+    public static void ConfigureDefaults(
+    #if NET8_0_OR_GREATER
+        this SwaggerUiSettings s,
+        Action<SwaggerUiSettings>? settings = null
+    #else
+        this SwaggerUi3Settings s,
+        Action<SwaggerUi3Settings>? settings = null
+    #endif
+    )
     {
         s.AdditionalSettings["filter"] = true;
         s.AdditionalSettings["persistAuthorization"] = true;
@@ -211,17 +239,32 @@ public static class Extensions
         settings?.Invoke(s);
     }
 
+#if NET8_0_OR_GREATER
     /// <summary>
     /// the "Try It Out" button is activated by default. call this method to de-activate it by default.
     /// set <see cref="SwaggerUiSettings.EnableTryItOut" /> to <c>false</c> to remove the button from ui.
     /// </summary>
     public static void DeActivateTryItOut(this SwaggerUiSettings s)
         => s.AdditionalSettings.Remove("tryItOutEnabled");
+#else
+    /// <summary>
+    /// the "Try It Out" button is activated by default. call this method to de-activate it by default.
+    /// set <see cref="SwaggerUi3Settings.EnableTryItOut" /> to <c>false</c> to remove the button from ui.
+    /// </summary>
+    public static void DeActivateTryItOut(this SwaggerUi3Settings s)
+        => s.AdditionalSettings.Remove("tryItOutEnabled");
+#endif
 
     /// <summary>
     /// displays the swagger operation id in the swagger ui
     /// </summary>
-    public static void ShowOperationIDs(this SwaggerUiSettings s)
+    public static void ShowOperationIDs(
+    #if NET8_0_OR_GREATER
+        this SwaggerUiSettings s
+    #else
+        this SwaggerUi3Settings s
+    #endif
+    )
         => s.AdditionalSettings["displayOperationId"] = true;
 
     /// <summary>
@@ -251,7 +294,11 @@ public static class Extensions
     /// this may only be needed for TS client generation with OAS3 swagger definitions.
     /// </summary>
     public static void MarkNonNullablePropsAsRequired(this AspNetCoreOpenApiDocumentGeneratorSettings x)
+#if NET8_0_OR_GREATER
         => x.SchemaSettings.SchemaProcessors.Add(new MarkNonNullablePropsAsRequired());
+#else
+        => x.SchemaProcessors.Add(new MarkNonNullablePropsAsRequired());
+#endif
 
     /// <summary>
     /// gets the <see cref="EndpointDefinition" /> from the nwag operation processor context if this is a FastEndpoint operation. otherwise returns null.
@@ -389,16 +436,26 @@ public static class Extensions
                : paramName;
 
     internal static bool IsSwagger2(this OperationProcessorContext ctx)
+#if NET8_0_OR_GREATER
         => ctx.Settings.SchemaSettings.SchemaType == SchemaType.Swagger2;
+#else
+        => ctx.Settings.SchemaType == SchemaType.Swagger2;
+#endif
 
     static void EnableFastEndpoints(AspNetCoreOpenApiDocumentGeneratorSettings settings, DocumentOptions opts)
     {
         var validationProcessor = (ValidationSchemaProcessor)opts.Services.GetRequiredService<IServiceResolver>().CreateSingleton(typeof(ValidationSchemaProcessor));
 
         settings.Title = AppDomain.CurrentDomain.FriendlyName;
+    #if NET8_0_OR_GREATER
         settings.SchemaSettings.SchemaNameGenerator = new SchemaNameGenerator(opts.ShortSchemaNames);
         settings.SchemaSettings.SchemaProcessors.Add(validationProcessor);
         settings.SchemaSettings.SchemaProcessors.Add(new PolymorphismSchemaProcessor(opts));
+    #else
+        settings.SchemaNameGenerator = new SchemaNameGenerator(opts.ShortSchemaNames);
+        settings.SchemaProcessors.Add(validationProcessor);
+        settings.SchemaProcessors.Add(new PolymorphismSchemaProcessor(opts));
+    #endif
         settings.OperationProcessors.Add(new OperationProcessor(opts));
         settings.DocumentProcessors.Add(new DocumentProcessor(opts.MinEndpointVersion, opts.MaxEndpointVersion, opts.ReleaseVersion, opts.ShowDeprecatedOps));
     }

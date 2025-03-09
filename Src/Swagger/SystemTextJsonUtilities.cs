@@ -42,12 +42,8 @@ public static class SystemTextJsonUtilities
             return settings;
 
         var camelCasePolicy = IsCamelCaseEnumNamingPolicy(jsonStringEnumConverter);
-
-#if NET8_0_OR_GREATER        
         settings.Converters.Add(new StringEnumConverter(camelCasePolicy ? new CamelCaseNamingStrategy() : null!));
-#else
-        settings.Converters.Add(new StringEnumConverter(camelCasePolicy));
-#endif
+
         return settings;
     }
 

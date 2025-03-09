@@ -76,7 +76,8 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
               public static class DiscoveredTypes
               {
                   public static readonly List<Type> All =
-                  [
+                  new()
+                  {
               """);
 
         foreach (var t in discoveredTypes.Distinct().OrderBy(t => t))
@@ -90,7 +91,7 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
         b.w(
             """
             
-                ];
+                };
             }
             """);
 

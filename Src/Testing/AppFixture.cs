@@ -7,9 +7,7 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Xunit;
-#if NET7_0_OR_GREATER
 using Microsoft.AspNetCore.Http;
-#endif
 
 namespace FastEndpoints.Testing;
 
@@ -132,13 +130,8 @@ public abstract class AppFixture<TProgram> : BaseFixture, IAsyncLifetime where T
     /// <summary>
     /// create a http message handler for the underlying web host/test server
     /// </summary>
-#if NET7_0_OR_GREATER
     public HttpMessageHandler CreateHandler(Action<HttpContext>? c = null)
         => c is null ? _app.Server.CreateHandler() : _app.Server.CreateHandler(c);
-#else
-    public HttpMessageHandler CreateHandler()
-        => _app.Server.CreateHandler();
-#endif
 
     async ValueTask IAsyncLifetime.InitializeAsync()
     {

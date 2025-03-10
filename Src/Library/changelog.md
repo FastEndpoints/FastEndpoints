@@ -8,6 +8,10 @@ Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H
 
 <!-- <details><summary>title text</summary></details> -->
 
+## Breaking Changes ⚠️
+
+> Support for .NET 6 & 7 has been dropped as those SDKs are no longer supported by Microsoft. In order to use this release of FastEndpoints, you need to be on at least .NET 8.
+
 ## New 🎉
 
 <details><summary>Generic Pre/Post Processor global registration</summary>
@@ -34,17 +38,8 @@ sealed class MyPreProcessor<TRequest> : IPreProcessor<TRequest>
 
 ## Fixes 🪲
 
-<details><summary>Roslyn compiler versioning issue</summary>
-
-The last version of the compiler shipped with .NET SDK v6/7/8 is `4.12.0`. We started using `4.13.0` which is only shipped in .NET 9. This was causing problems for people still on older SDK versions. 
-This has been solved by doing conditional package referencing.
-
-</details>
-
 <details><summary>Contention issue in reflection source generator</summary>
 
 The reflection source generator was using some static state which was causing issues in certain usage scenarios, which has now been fixed.
 
 </details>
-
-## Breaking Changes ⚠️

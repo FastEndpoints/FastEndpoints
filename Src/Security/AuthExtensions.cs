@@ -25,8 +25,6 @@ public static class AuthExtensions
                                                                 Action<JwtSigningOptions> signingOptions,
                                                                 Action<JwtBearerOptions>? bearerOptions = null)
     {
-        //TODO: remove all other overloads in favor of this method at v6.0
-
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(
                     o =>
@@ -85,45 +83,6 @@ public static class AuthExtensions
         return services;
     }
 
-    [Obsolete("Use AddAuthenticationJwtBearer() method.")]
-    public static IServiceCollection AddJWTBearerAuth(this IServiceCollection services,
-                                                      string tokenSigningKey,
-                                                      TokenSigningStyle tokenSigningStyle = TokenSigningStyle.Symmetric,
-                                                      Action<TokenValidationParameters>? tokenValidation = null,
-                                                      Action<JwtBearerEvents>? bearerEvents = null)
-    {
-        return services.AddJWTBearerAuth(
-            tokenSigningKey,
-            tokenSigningStyle,
-            o =>
-            {
-                tokenValidation?.Invoke(o.TokenValidationParameters);
-
-                // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
-                bearerEvents?.Invoke(o.Events ??= new());
-            });
-    }
-
-    [Obsolete("Use AddAuthenticationJwtBearer() method.")]
-    public static IServiceCollection AddJWTBearerAuth(this IServiceCollection services, string tokenSigningKey, Action<JwtBearerOptions> jwtOptions)
-        => AddJWTBearerAuth(services, tokenSigningKey, TokenSigningStyle.Asymmetric, jwtOptions);
-
-    [Obsolete("Use AddAuthenticationJwtBearer() method.")]
-    public static IServiceCollection AddJWTBearerAuth(this IServiceCollection services,
-                                                      string tokenSigningKey,
-                                                      TokenSigningStyle tokenSigningStyle,
-                                                      Action<JwtBearerOptions>? jwtOptions = null)
-    {
-        return AddAuthenticationJwtBearer(
-            services,
-            s =>
-            {
-                s.SigningKey = tokenSigningKey;
-                s.SigningStyle = tokenSigningStyle;
-            },
-            jwtOptions);
-    }
-
     /// <summary>
     /// configure and enable cookie based authentication
     /// </summary>
@@ -178,12 +137,6 @@ public static class AuthExtensions
 
         return services;
     }
-
-    [Obsolete("Use AddAuthenticationCookie() method.")]
-    public static IServiceCollection AddCookieAuth(this IServiceCollection services,
-                                                   TimeSpan validFor,
-                                                   Action<CookieAuthenticationOptions>? options = null)
-        => AddAuthenticationCookie(services, validFor, options);
 
     /// <summary>
     /// returns true of the current user principal has a given permission code.

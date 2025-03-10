@@ -74,11 +74,19 @@ public class ReflectionGenerator : IIncrementalGenerator
 
             using FastEndpoints;
             using System.Globalization;
-            using System.Reflection;
             using System.Runtime.CompilerServices;
 
 
             """);
+
+        foreach (var tInfo in _collector.CollectedTypes)
+        {
+            b.w(
+                $"""
+                 using {tInfo!.TypeAlias} = {tInfo.UnderlyingTypeName};
+
+                 """);
+        }
 
         b.w(
             $$"""
@@ -103,7 +111,7 @@ public class ReflectionGenerator : IIncrementalGenerator
             b.w(
                 $$"""
                           // {{tInfo!.UnderlyingTypeName}}
-                          var _{{tInfo.TypeAlias}} = typeof({{tInfo.UnderlyingTypeName}});
+                          var _{{tInfo.TypeAlias}} = typeof({{tInfo.TypeAlias}});
                           cache.TryAdd(
                               _{{tInfo.TypeAlias}},
                               new()
@@ -115,7 +123,7 @@ public class ReflectionGenerator : IIncrementalGenerator
                 b.w(
                     $"""
                      
-                                     ObjectFactory = () => new {tInfo.UnderlyingTypeName}({BuildCtorArgs(tInfo.CtorArgumentCount)}){BuildInitializerArgs(tInfo.RequiredProps)},
+                                     ObjectFactory = () => new {tInfo.TypeAlias}({BuildCtorArgs(tInfo.CtorArgumentCount)}){BuildInitializerArgs(tInfo.RequiredProps)},
                      """);
             }
 
@@ -124,7 +132,7 @@ public class ReflectionGenerator : IIncrementalGenerator
                 b.w(
                     $"""
                      
-                                     ValueParser = input => new({tInfo.UnderlyingTypeName}.TryParse({BuildTryParseArgs(tInfo.IsParsable)}), result),
+                                     ValueParser = input => new({tInfo.TypeAlias}.TryParse({BuildTryParseArgs(tInfo.IsParsable)}), result),
                      """);
             }
 
@@ -134,8 +142,7 @@ public class ReflectionGenerator : IIncrementalGenerator
                     """
                     
                                     Properties = new(
-                                    new KeyValuePair<PropertyInfo, PropertyDefinition>[]
-                                    {
+                                    [
                     """);
 
                 foreach (var prop in tInfo.Properties)
@@ -143,7 +150,7 @@ public class ReflectionGenerator : IIncrementalGenerator
                     b.w(
                         $"""
                          
-                                              new(_{tInfo.TypeAlias}.GetProperty(nameof({tInfo.UnderlyingTypeName}.{prop.PropName}))!,
+                                              new(_{tInfo.TypeAlias}.GetProperty(nameof({tInfo.TypeAlias}.{prop.PropName}))!,
                          """);
                     b.w(
                         prop.IsInitOnly
@@ -155,7 +162,7 @@ public class ReflectionGenerator : IIncrementalGenerator
                 b.w(
                     """
                     
-                                    })
+                                    ])
                     """);
             }
 
@@ -202,8 +209,8 @@ public class ReflectionGenerator : IIncrementalGenerator
 
         static string BuildPropCast(TypeInfo t)
             => t.IsValueType
-                   ? $"Unsafe.Unbox<{t.UnderlyingTypeName}>(dto)"
-                   : $"(({t.UnderlyingTypeName})dto)";
+                   ? $"Unsafe.Unbox<{t.TypeAlias}>(dto)"
+                   : $"(({t.TypeAlias})dto)";
 
         static string BuildTryParseArgs(bool? isIParsable)
             => isIParsable is true

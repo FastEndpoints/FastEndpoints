@@ -51,7 +51,6 @@ sealed class ServiceResolver(IServiceProvider provider,
         => ctxAccessor.HttpContext?.RequestServices.GetService(typeOfService) ??
            provider.GetService(typeOfService);
 
-#if NET8_0_OR_GREATER
     public TService? TryResolve<TService>(string keyName) where TService : class
         => ctxAccessor.HttpContext?.RequestServices.GetKeyedService<TService>(keyName) ??
            provider.GetKeyedService<TService>(keyName);
@@ -71,5 +70,4 @@ sealed class ServiceResolver(IServiceProvider provider,
     public object Resolve(Type typeOfService, string keyName)
         => ctxAccessor.HttpContext?.RequestServices.GetRequiredKeyedService(typeOfService, keyName) ??
            provider.GetRequiredKeyedService(typeOfService, keyName);
-#endif
 }

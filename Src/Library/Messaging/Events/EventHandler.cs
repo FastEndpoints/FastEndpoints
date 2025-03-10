@@ -44,7 +44,6 @@ public abstract class FastEventHandler<TEvent> : IEventHandler<TEvent>, IEventBu
     public IServiceScope CreateScope()
         => Cfg.ServiceResolver.CreateScope();
 
-#if NET8_0_OR_GREATER
     /// <inheritdoc />
     public TService? TryResolve<TService>(string keyName) where TService : class
         => Cfg.ServiceResolver.TryResolve<TService>(keyName);
@@ -60,5 +59,4 @@ public abstract class FastEventHandler<TEvent> : IEventHandler<TEvent>, IEventBu
     /// <inheritdoc />
     public object Resolve(Type typeOfService, string keyName)
         => Cfg.ServiceResolver.Resolve(typeOfService, keyName);
-#endif
 }

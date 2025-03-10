@@ -1,5 +1,7 @@
 ﻿using System.Reflection;
+using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -7,11 +9,6 @@ using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc;
 using static FastEndpoints.Config;
 using static FastEndpoints.Constants;
-
-#if NET8_0_OR_GREATER
-using System.Text.Json;
-using System.Text.Json.Serialization.Metadata;
-#endif
 
 namespace FastEndpoints;
 
@@ -624,7 +621,6 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
 
     ToHeaderProp[] GetToHeaderProps()
     {
-    #if NET8_0_OR_GREATER
         return GetProps(
             SerializerContext ?? SerOpts.Options.TypeInfoResolver,
             ResDtoType,
@@ -647,9 +643,6 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
                                 p.Name,
                     getter: p.Get);
         }
-    #else
-        return [];
-    #endif
     }
 }
 

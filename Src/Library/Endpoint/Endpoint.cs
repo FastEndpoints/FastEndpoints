@@ -185,7 +185,6 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
     public IServiceScope CreateScope()
         => Cfg.ServiceResolver.CreateScope();
 
-#if NET8_0_OR_GREATER
     /// <inheritdoc />
     public TService? TryResolve<TService>(string keyName) where TService : class
         => Cfg.ServiceResolver.TryResolve<TService>(keyName);
@@ -201,7 +200,6 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
     /// <inheritdoc />
     public object Resolve(Type typeOfService, string keyName)
         => Cfg.ServiceResolver.Resolve(typeOfService, keyName);
-#endif
 
     /// <summary>
     /// get the value of a given route parameter by specifying the resulting type and param name.

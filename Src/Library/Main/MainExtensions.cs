@@ -88,14 +88,12 @@ public static class MainExtensions
                 };
         }
 
-    #if NET8_0_OR_GREATER
         Cfg.SerOpts.Options.IgnoreToHeaderAttributes();
         Cfg.BndOpts.AddTypedHeaderValueParsers(Cfg.SerOpts.Options);
 
         //https://github.com/FastEndpoints/FastEndpoints/issues/669
         if (Cfg.SerOpts.EnableJsonIgnoreAttributeOnRequiredProperties)
             Cfg.SerOpts.Options.EnableJsonIgnoreAttributesOnRequiredProps();
-    #endif
 
         var endpoints = app.ServiceProvider.GetRequiredService<EndpointData>();
         var epFactory = app.ServiceProvider.GetRequiredService<IEndpointFactory>();

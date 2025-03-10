@@ -33,9 +33,7 @@ public sealed class EndpointFactory : IEndpointFactory
     static object ResolveService(HttpContext ctx, ServiceBoundEpProp p)
         => p.ServiceKey switch
         {
-        #if NET8_0_OR_GREATER
             not null => ctx.RequestServices.GetRequiredKeyedService(p.PropertyInfo.PropertyType, p.ServiceKey),
-        #endif
             _ => ctx.RequestServices.GetRequiredService(p.PropertyInfo.PropertyType)
         };
 

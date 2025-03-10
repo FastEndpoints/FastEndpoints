@@ -3,12 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-#if NET8_0_OR_GREATER
 using Microsoft.IdentityModel.JsonWebTokens;
-
-#else
-using System.IdentityModel.Tokens.Jwt;
-#endif
 
 namespace FastEndpoints.Security;
 
@@ -62,15 +57,9 @@ public static class JwtBearer
             SigningCredentials = GetSigningCredentials(opts)
         };
 
-    #if NET8_0_OR_GREATER
         var handler = new JsonWebTokenHandler();
 
         return handler.CreateToken(descriptor);
-    #else
-        var handler = new JwtSecurityTokenHandler();
-
-        return handler.WriteToken(handler.CreateToken(descriptor));
-    #endif
 
         static SigningCredentials GetSigningCredentials(JwtCreationOptions opts)
         {

@@ -1,13 +1,10 @@
 ﻿using System.Text.Json;
-#if NET8_0_OR_GREATER
 using System.Text.Json.Serialization.Metadata;
-#endif
 
 namespace FastEndpoints;
 
 static class ConfigExtensions
 {
-#if NET8_0_OR_GREATER
     internal static void IgnoreToHeaderAttributes(this JsonSerializerOptions opts)
     {
         opts.TypeInfoResolver = opts.TypeInfoResolver?.WithAddedModifier(
@@ -45,5 +42,4 @@ static class ConfigExtensions
                 }
             });
     }
-#endif
 }

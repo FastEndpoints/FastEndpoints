@@ -7,11 +7,7 @@ using static FastEndpoints.Config;
 
 namespace FastEndpoints;
 
-#if NET7_0_OR_GREATER
 static partial class EndpointExtensions
-#else
-static class EndpointExtensions
-#endif
 {
     /// <summary>
     /// determines if a given endpoint requires authorization.
@@ -103,14 +99,10 @@ static class EndpointExtensions
         def.Version.Init();
     }
 
-#if NET7_0_OR_GREATER
     [GeneratedRegex("(@[\\w]*)", RegexOptions.Compiled)]
     private static partial Regex RouteBuilderRegex();
 
     static readonly Regex _rgx = RouteBuilderRegex();
-#else
-    static readonly Regex _rgx = new("(@[\\w]*)", RegexOptions.Compiled);
-#endif
 
     internal static string BuildRoute<TRequest>(this Expression<Func<TRequest, object>> expr, string pattern) where TRequest : notnull
     {

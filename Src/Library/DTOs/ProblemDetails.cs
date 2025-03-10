@@ -1,13 +1,10 @@
-using FluentValidation.Results;
-using Microsoft.AspNetCore.Http;
-using System.Text.Json.Serialization;
 using System.ComponentModel;
-
-#if NET7_0_OR_GREATER
-using Microsoft.AspNetCore.Http.Metadata;
-using Microsoft.AspNetCore.Builder;
 using System.Reflection;
-#endif
+using System.Text.Json.Serialization;
+using FluentValidation.Results;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Metadata;
 
 namespace FastEndpoints;
 
@@ -18,11 +15,7 @@ namespace FastEndpoints;
 /// </para>
 /// </summary>
 
-#if NET7_0_OR_GREATER
 public sealed class ProblemDetails : IResult, IEndpointMetadataProvider
-#else
-public sealed class ProblemDetails : IResult
-#endif
 {
     [DefaultValue("https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1")]
     public string Type => Cfg.ErrOpts.ProblemDetailsConf.TypeTransformer(this);
@@ -87,7 +80,6 @@ public sealed class ProblemDetails : IResult
         return httpContext.Response.SendAsync(this, Status);
     }
 
-#if NET7_0_OR_GREATER
     static readonly string[] _contentTypes = [Cfg.ErrOpts.ContentType];
 
     /// <inheritdoc />
@@ -103,7 +95,6 @@ public sealed class ProblemDetails : IResult
                 Type = typeof(ProblemDetails)
             });
     }
-#endif
 
     /// <summary>
     /// the error details object

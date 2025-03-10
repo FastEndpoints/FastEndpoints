@@ -1,7 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net8.0;net9.0</TargetFrameworks>
         <NoWarn>1701;1702;CS1591;CS1573</NoWarn>
         <Description>API Client Generator for FastEndpoints using Kiota.</Description>
         <PackageIcon>icon.png</PackageIcon>

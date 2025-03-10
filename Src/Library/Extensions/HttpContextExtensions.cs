@@ -4,7 +4,6 @@ namespace FastEndpoints;
 
 public static class HttpContextExtensions
 {
-#if NET8_0_OR_GREATER
     /// <summary>
     /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
     /// </summary>
@@ -38,7 +37,6 @@ public static class HttpContextExtensions
     /// <exception cref="InvalidOperationException">Thrown if requested service cannot be resolved</exception>
     public static object Resolve(this HttpContext _, Type typeOfService, string keyName)
         => Cfg.ServiceResolver.Resolve(typeOfService, keyName);
-#endif
 
     /// <summary>
     /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
@@ -117,7 +115,6 @@ public static class HttpContextExtensions
 
     internal static void PopulateResponseHeadersFrom(this HttpContext ctx, object? response)
     {
-    #if NET8_0_OR_GREATER
         var toHeaderProps = ctx.Items[CtxKey.ToHeaderProps] as ToHeaderProp[] ?? [];
 
         for (var i = 0; i < toHeaderProps.Length; i++)
@@ -125,7 +122,6 @@ public static class HttpContextExtensions
             var p = toHeaderProps[i];
             ctx.Response.Headers[p.HeaderName] = p.PropGetter?.Invoke(response!)?.ToString();
         }
-    #endif
     }
 }
 

@@ -4,12 +4,10 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
-#if NET8_0_OR_GREATER
-using System.Text.Json.Serialization.Metadata;
 using Microsoft.Net.Http.Headers;
-#endif
 
 namespace FastEndpoints;
 
@@ -340,7 +338,6 @@ static class BinderExtensions
         return sb;
     }
 
-#if NET8_0_OR_GREATER
     internal static void AddTypedHeaderValueParsers(this BindingOptions o, JsonSerializerOptions jso)
     {
         //header parsers
@@ -373,5 +370,4 @@ static class BinderExtensions
                 }
             });
     }
-#endif
 }

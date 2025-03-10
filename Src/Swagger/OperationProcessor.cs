@@ -474,8 +474,6 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
             }
         }
 
-    #if NET7_0_OR_GREATER
-
         //add idempotency header param if applicable
         if (epDef.IdempotencyOptions is not null)
         {
@@ -486,8 +484,6 @@ sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
                 prm.Schema = JsonSchema.FromType(epDef.IdempotencyOptions.SwaggerHeaderType);
             reqParams.Add(prm);
         }
-
-    #endif
 
         foreach (var p in reqParams)
         {

@@ -34,7 +34,6 @@ public static class ServiceScopeExtensions
     public static object Resolve(this IServiceScope scope, Type typeOfService)
         => scope.ServiceProvider.GetRequiredService(typeOfService);
 
-#if NET8_0_OR_GREATER
     /// <summary>
     /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
     /// </summary>
@@ -69,5 +68,4 @@ public static class ServiceScopeExtensions
     /// <exception cref="InvalidOperationException">Thrown if requested service cannot be resolved</exception>
     public static object Resolve(this IServiceScope scope, Type typeOfService, string keyName)
         => scope.ServiceProvider.GetRequiredKeyedService(typeOfService, keyName);
-#endif
 }

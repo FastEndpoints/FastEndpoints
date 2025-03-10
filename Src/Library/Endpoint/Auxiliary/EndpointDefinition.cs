@@ -1,5 +1,7 @@
 ﻿using System.Reflection;
+using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -7,11 +9,6 @@ using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc;
 using static FastEndpoints.Config;
 using static FastEndpoints.Constants;
-
-#if NET8_0_OR_GREATER
-using System.Text.Json;
-using System.Text.Json.Serialization.Metadata;
-#endif
 
 namespace FastEndpoints;
 
@@ -50,9 +47,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     public EndpointSummary? EndpointSummary { get; private set; }
     public List<string>? EndpointTags { get; private set; }
     public string? FormDataContentType { get; private set; }
-#if NET7_0_OR_GREATER
     public IdempotencyOptions? IdempotencyOptions { get; private set; }
-#endif
     public string? OverriddenRoutePrefix { get; private set; }
     public List<string>? PreBuiltUserPolicies { get; private set; }
     public Action<AuthorizationPolicyBuilder>? PolicyBuilder { get; private set; }
@@ -264,7 +259,6 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
         new TEndpointGroup().Action(this);
     }
 
-#if NET7_0_OR_GREATER
     /// <summary>
     /// specify idempotency requirements for this endpoint
     /// </summary>
@@ -274,7 +268,6 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
         IdempotencyOptions ??= new();
         options?.Invoke(IdempotencyOptions);
     }
-#endif
 
     /// <summary>
     /// set endpoint configurations options using an endpoint builder action
@@ -628,7 +621,6 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
 
     ToHeaderProp[] GetToHeaderProps()
     {
-    #if NET8_0_OR_GREATER
         return GetProps(
             SerializerContext ?? SerOpts.Options.TypeInfoResolver,
             ResDtoType,
@@ -651,9 +643,6 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
                                 p.Name,
                     getter: p.Get);
         }
-    #else
-        return [];
-    #endif
     }
 }
 

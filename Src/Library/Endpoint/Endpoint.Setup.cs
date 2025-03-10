@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -9,9 +10,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc;
-#if NET7_0_OR_GREATER
-using System.Diagnostics.CodeAnalysis;
-#endif
 
 // ReSharper disable ArrangeAttributes
 
@@ -127,9 +125,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// specify to listen for DELETE requests on one or more routes.
     /// </summary>
     protected void Delete(
-    #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
-    #endif
         [RouteTemplate]
         params string[] routePatterns)
     {
@@ -151,9 +147,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     ///     <c>r => new { r.InvoiceID }</c>
     /// </param>
     protected void Delete(
-    #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
-    #endif
         [RouteTemplate]
         string routePattern,
         Expression<Func<TRequest, object>> members)
@@ -211,9 +205,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// specify to listen for GET requests on one or more routes.
     /// </summary>
     protected void Get(
-    #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
-    #endif
         [RouteTemplate]
         params string[] routePatterns)
     {
@@ -235,9 +227,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     ///     <c>r => new { r.InvoiceID, r.PageNumber }</c>
     /// </param>
     protected void Get(
-    #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
-    #endif
         [RouteTemplate]
         string routePattern,
         Expression<Func<TRequest, object>> members)
@@ -262,9 +252,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// specify to listen for HEAD requests on one or more routes.
     /// </summary>
     protected void Head(
-    #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
-    #endif
         [RouteTemplate]
         params string[] routePatterns)
     {
@@ -286,9 +274,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     ///     <c>r => new { r.InvoiceID, r.PageNumber }</c>
     /// </param>
     protected void Head(
-    #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
-    #endif
         [RouteTemplate]
         string routePattern,
         Expression<Func<TRequest, object>> members)
@@ -297,14 +283,12 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
         Routes(members.BuildRoute(routePattern));
     }
 
-#if NET7_0_OR_GREATER
     /// <summary>
     /// specify idempotency requirements for this endpoint
     /// </summary>
     /// <param name="options">the idempotency options</param>
     protected void Idempotency(Action<IdempotencyOptions>? options = null)
         => Definition.Idempotency(options);
-#endif
 
     /// <summary>
     /// set endpoint configurations options using an endpoint builder action ///
@@ -317,9 +301,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// specify to listen for PATCH requests on one or more routes.
     /// </summary>
     protected void Patch(
-    #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
-    #endif
         [RouteTemplate]
         params string[] routePatterns)
     {
@@ -341,9 +323,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     ///     <c>r => new { r.InvoiceID }</c>
     /// </param>
     protected void Patch(
-    #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
-    #endif
         [RouteTemplate]
         string routePattern,
         Expression<Func<TRequest, object>> members)
@@ -385,9 +365,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// specify to listen for POST requests on one or more routes.
     /// </summary>
     protected void Post(
-    #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
-    #endif
         [RouteTemplate]
         params string[] routePatterns)
     {
@@ -409,9 +387,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     ///     <c>r => new { r.InvoiceID, r.PageNumber }</c>
     /// </param>
     protected void Post(
-    #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
-    #endif
         [RouteTemplate]
         string routePattern,
         Expression<Func<TRequest, object>> members)
@@ -460,9 +436,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// specify to listen for PUT requests on one or more routes.
     /// </summary>
     protected void Put(
-    #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
-    #endif
         [RouteTemplate]
         params string[] routePatterns)
     {
@@ -484,9 +458,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     ///     <c>r => new { r.InvoiceID, r.PageNumber }</c>
     /// </param>
     protected void Put(
-    #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
-    #endif
         [RouteTemplate]
         string routePattern,
         Expression<Func<TRequest, object>> members)
@@ -547,9 +519,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// specify one or more route patterns this endpoint should be listening for
     /// </summary>
     public override void Routes(
-    #if NET7_0_OR_GREATER
         [StringSyntax("Route")]
-    #endif
         [RouteTemplate]
         params string[] patterns)
         => Definition.Routes = patterns;
@@ -675,9 +645,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
 
                 if (Definition.ExecuteAsyncReturnsIResult)
                 {
-                #if NET7_0_OR_GREATER
                     b.Add(eb => ProducesMetaForResultOfResponse.AddMetadata(eb, _tResponse));
-                #endif
                 }
                 else
                 {
@@ -712,7 +680,6 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
         => Definition.EndpointVersion(version, deprecateAt);
 }
 
-#if NET7_0_OR_GREATER
 static class ProducesMetaForResultOfResponse
 {
     static readonly MethodInfo _populateMethod =
@@ -733,4 +700,3 @@ static class ProducesMetaForResultOfResponse
         T.PopulateMetadata(_populateMethod, b);
     }
 }
-#endif

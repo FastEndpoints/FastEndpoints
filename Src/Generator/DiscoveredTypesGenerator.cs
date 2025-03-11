@@ -9,9 +9,6 @@ namespace FastEndpoints.Generator;
 [Generator(LanguageNames.CSharp)]
 public class DiscoveredTypesGenerator : IIncrementalGenerator
 {
-    // ReSharper disable once InconsistentNaming
-    static readonly StringBuilder b = new();
-    static string? _assemblyName;
     const string DontRegisterAttribute = "DontRegisterAttribute";
 
     static readonly string[] _whiteList =
@@ -23,21 +20,25 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
         "FluentValidation.IValidator"
     ];
 
-    public void Initialize(IncrementalGeneratorInitializationContext ctx)
-    {
-        var syntaxProvider = ctx.SyntaxProvider
-                                .CreateSyntaxProvider(Qualify, Transform)
-                                .Where(static t => t is not null)
-                                .Collect();
+    // ReSharper disable once InconsistentNaming
+    readonly StringBuilder b = new();
+    string? _assemblyName;
 
-        ctx.RegisterSourceOutput(syntaxProvider, Generate!);
+    public void Initialize(IncrementalGeneratorInitializationContext initCtx)
+    {
+        var syntaxProvider = initCtx.SyntaxProvider
+                                    .CreateSyntaxProvider(Qualify, Transform)
+                                    .Where(static t => t is not null)
+                                    .Collect();
+
+        initCtx.RegisterSourceOutput(syntaxProvider, Generate!);
 
         //executed per each keystroke
         static bool Qualify(SyntaxNode node, CancellationToken _)
             => node is ClassDeclarationSyntax { TypeParameterList: null };
 
         //executed per each keystroke but only for syntax nodes filtered by the Qualify method
-        static string? Transform(GeneratorSyntaxContext ctx, CancellationToken _)
+        string? Transform(GeneratorSyntaxContext ctx, CancellationToken _)
         {
             //should be re-assigned on every call. do not cache!
             _assemblyName = ctx.SemanticModel.Compilation.AssemblyName;
@@ -54,16 +55,15 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
     }
 
     //only executed if the equality comparer says the data is not what has been cached by roslyn
-    static void Generate(SourceProductionContext spc, ImmutableArray<string> typeNames)
+    void Generate(SourceProductionContext spc, ImmutableArray<string> typeNames)
     {
         if (typeNames.Length == 0)
             return;
 
-        var fileContent = RenderClass(typeNames);
-        spc.AddSource("DiscoveredTypes.g.cs", SourceText.From(fileContent, Encoding.UTF8));
+        spc.AddSource("DiscoveredTypes.g.cs", SourceText.From(RenderClass(typeNames), Encoding.UTF8));
     }
 
-    static string RenderClass(ImmutableArray<string> discoveredTypes)
+    string RenderClass(ImmutableArray<string> discoveredTypes)
     {
         b.Clear().w(
             $$"""

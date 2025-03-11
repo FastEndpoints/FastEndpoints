@@ -9,21 +9,22 @@ namespace FastEndpoints.Generator;
 [Generator(LanguageNames.CSharp)]
 public class ServiceRegistrationGenerator : IIncrementalGenerator
 {
-    // ReSharper disable once InconsistentNaming
-    static readonly StringBuilder b = new();
-    static string? _assemblyName;
     const string AttribShortName = "RegisterService";
     const string AttribMetadataName = "RegisterServiceAttribute`1";
 
-    public void Initialize(IncrementalGeneratorInitializationContext ctx)
-    {
-        var provider = ctx.SyntaxProvider
-                          .CreateSyntaxProvider(Qualify, Transform)
-                          .Where(static m => m.IsInvalid is false)
-                          .WithComparer(MatchComparer.Instance)
-                          .Collect();
+    // ReSharper disable once InconsistentNaming
+    readonly StringBuilder b = new();
+    string? _assemblyName;
 
-        ctx.RegisterSourceOutput(provider, Generate);
+    public void Initialize(IncrementalGeneratorInitializationContext initCtx)
+    {
+        var provider = initCtx.SyntaxProvider
+                              .CreateSyntaxProvider(Qualify, Transform)
+                              .Where(static m => m.IsInvalid is false)
+                              .WithComparer(MatchComparer.Instance)
+                              .Collect();
+
+        initCtx.RegisterSourceOutput(provider, Generate);
 
         //executed per each keystroke
         static bool Qualify(SyntaxNode node, CancellationToken _)
@@ -31,7 +32,7 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
                cds.AttributeLists.Any(al => al.Attributes.Any(a => a.Name is GenericNameSyntax { Identifier.ValueText: AttribShortName }));
 
         //executed per each keystroke but only for syntax nodes filtered by the Qualify method
-        static Match Transform(GeneratorSyntaxContext ctx, CancellationToken _)
+        Match Transform(GeneratorSyntaxContext ctx, CancellationToken _)
         {
             //should be re-assigned on every call. do not cache!
             _assemblyName = ctx.SemanticModel.Compilation.AssemblyName;
@@ -41,7 +42,7 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
     }
 
     //only executed if the equality comparer says the data is not what has been cached by roslyn
-    static void Generate(SourceProductionContext ctx, ImmutableArray<Match> matches)
+    void Generate(SourceProductionContext ctx, ImmutableArray<Match> matches)
     {
         if (matches.Length == 0)
             return;

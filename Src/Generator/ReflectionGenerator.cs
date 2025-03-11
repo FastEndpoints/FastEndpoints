@@ -67,8 +67,7 @@ public class ReflectionGenerator : IIncrementalGenerator
 
         var sanitizedAssemblyName = _assemblyName.Sanitize(string.Empty);
 
-        b.Clear();
-        b.w(
+        b.Clear().w(
             """
             #nullable enable
 

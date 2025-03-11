@@ -12,35 +12,32 @@ namespace FastEndpoints.Generator;
 public class AccessControlGenerator : IIncrementalGenerator
 {
     const string AccessControl = "AccessControl";
-    static string? _assemblyName;
+    string? _assemblyName;
 
     // ReSharper disable once InconsistentNaming
-    static readonly StringBuilder b = new();
+    readonly StringBuilder b = new();
 
-    public void Initialize(IncrementalGeneratorInitializationContext ctx)
+    public void Initialize(IncrementalGeneratorInitializationContext initCtx)
     {
-        var assemblyName = ctx.CompilationProvider.Select(static (c, _) => c.AssemblyName);
-        ctx.RegisterSourceOutput(
+        var assemblyName = initCtx.CompilationProvider.Select(static (c, _) => c.AssemblyName);
+        initCtx.RegisterSourceOutput(
             assemblyName,
             static (spc, assembly) => spc.AddSource("Allow.b.g.cs", SourceText.From(RenderBase(assembly), Encoding.UTF8)));
 
-        var matches = ctx.SyntaxProvider
-                         .CreateSyntaxProvider(Qualify, Transform)
-                         .Where(static m => m.Endpoint is not null)
-                         .WithComparer(MatchComparer.Instance)
-                         .Collect();
+        var matches = initCtx.SyntaxProvider
+                             .CreateSyntaxProvider(Qualify, Transform)
+                             .Where(static m => m.Endpoint is not null)
+                             .WithComparer(MatchComparer.Instance)
+                             .Collect();
 
-        ctx.RegisterSourceOutput(matches, Generate);
+        initCtx.RegisterSourceOutput(matches, Generate);
 
         //executed per each keystroke
         static bool Qualify(SyntaxNode node, CancellationToken _)
-            => node is InvocationExpressionSyntax
-            {
-                ArgumentList.Arguments.Count: not 0, Expression: IdentifierNameSyntax { Identifier.ValueText: AccessControl }
-            };
+            => node is InvocationExpressionSyntax { ArgumentList.Arguments.Count: not 0, Expression: IdentifierNameSyntax { Identifier.ValueText: AccessControl } };
 
         //executed per each keystroke but only for syntax nodes filtered by the Qualify method
-        static Match Transform(GeneratorSyntaxContext ctx, CancellationToken _)
+        Match Transform(GeneratorSyntaxContext ctx, CancellationToken _)
         {
             //should be re-assigned on every call. do not cache!
             _assemblyName = ctx.SemanticModel.Compilation.AssemblyName;
@@ -50,7 +47,7 @@ public class AccessControlGenerator : IIncrementalGenerator
     }
 
     //only executed if the equality comparer says the data is not what has been cached by roslyn
-    static void Generate(SourceProductionContext spc, ImmutableArray<Match> matches)
+    void Generate(SourceProductionContext spc, ImmutableArray<Match> matches)
     {
         if (matches.Length == 0)
             return;
@@ -59,11 +56,10 @@ public class AccessControlGenerator : IIncrementalGenerator
                            .OrderBy(p => p.Name)
                            .ToArray();
 
-        var fileContent = RenderClass(perms);
-        spc.AddSource("Allow.g.cs", SourceText.From(fileContent, Encoding.UTF8));
+        spc.AddSource("Allow.g.cs", SourceText.From(RenderClass(perms), Encoding.UTF8));
     }
 
-    static string RenderClass(Permission[] perms)
+    string RenderClass(Permission[] perms)
     {
         b.Clear().w(
             $$"""

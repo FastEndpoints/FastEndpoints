@@ -71,7 +71,6 @@ public sealed class SerializerOptions
                      ? Task.CompletedTask
                      : rsp.WriteAsJsonAsync(
                          value: dto,
-                         type: dto.GetType(),
                          options: jCtx?.Options ?? SerOpts.Options,
                          contentType: SerOpts.CharacterEncoding is null ? contentType : $"{contentType}; charset={SerOpts.CharacterEncoding}",
                          cancellationToken: cancellation);

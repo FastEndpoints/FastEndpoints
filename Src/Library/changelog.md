@@ -43,3 +43,9 @@ sealed class MyPreProcessor<TRequest> : IPreProcessor<TRequest>
 The reflection source generator was using some static state which was causing issues in certain usage scenarios, which has now been fixed.
 
 </details>
+
+<details><summary>Type discriminator missing from polymorphic responses</summary>
+
+The type discriminator was not being serialized by STJ when the response type was a base type, due to an oversight in the default response serialized func.
+
+</details>

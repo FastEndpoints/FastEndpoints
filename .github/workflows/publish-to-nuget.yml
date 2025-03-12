@@ -18,7 +18,7 @@ jobs:
             8.x
             9.x
             10.x
-          dotnet-quality: 'preview'
+          #dotnet-quality: 'preview'
 
       - name: Modify xUnit Runner Config
         run: |

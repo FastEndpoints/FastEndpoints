@@ -1,0 +1,12 @@
+<Project>
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <NoWarn>1701;1702;RCS1090;RCS1163;RCS1102;CA2016;CS1587,CS1591,CS1998,NU5105,IDE1006;IDE0060</NoWarn>
+        <ProjectType>Exe</ProjectType>
+        <OutputType>Exe</OutputType>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+</Project>

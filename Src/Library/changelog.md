@@ -14,6 +14,12 @@ Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H
 
 ## New 🎉
 
+<details><summary>Support for .NET 10 preview</summary>
+
+You can start targeting `net10.0` SDK in your FE projects now. Currently preview versions of the dependencies are used.
+
+</details>
+
 <details><summary>Generic Pre/Post Processor global registration</summary>
 
 Open generic pre/post processors can now be registered globally using the endpoint configurator func like so:

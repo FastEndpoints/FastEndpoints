@@ -7,6 +7,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web", "Web\Web.csproj", "{8662EC7C-ECF1-4274-BAFD-38D6D1BD9DAB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Benchmark", "Benchmark", "{7FFD7B4A-1FF7-4F7F-9D99-75035E33E96D}"
+	ProjectSection(SolutionItems) = preProject
+		Benchmark\Directory.Build.props = Benchmark\Directory.Build.props
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Runner", "Benchmark\Runner\Runner.csproj", "{3014AF58-165B-4CD7-BB4C-BC54B0872BD2}"
 EndProject

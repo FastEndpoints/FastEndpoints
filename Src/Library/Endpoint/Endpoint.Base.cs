@@ -1,4 +1,4 @@
-﻿using FluentValidation.Results;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using System.Security.Cryptography;
 using System.Text;
@@ -10,7 +10,7 @@ namespace FastEndpoints;
 /// <summary>
 /// the base class all fast endpoints inherit from
 /// </summary>
-public abstract class BaseEndpoint : IEndpoint
+public abstract partial class BaseEndpoint : IEndpoint
 {
     List<ValidationFailure>? _failures;
 
@@ -46,7 +46,10 @@ public abstract class BaseEndpoint : IEndpoint
     protected virtual void Group<TEndpointGroup>() where TEndpointGroup : Group, new()
         => throw new NotImplementedException();
 
-    static readonly Regex _regex = new("[^a-zA-Z0-9]+", RegexOptions.Compiled);
+    static readonly Regex _regex = LetterOrDigitRegex();
+
+    [GeneratedRegex("[^a-zA-Z0-9]+", RegexOptions.Compiled)]
+    private static partial Regex LetterOrDigitRegex();
 
     protected static string GetAclHash(string input)
     {

@@ -1,6 +1,5 @@
 using System.Collections;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Reflection;
 using System.Text.Json.Serialization;
@@ -20,13 +19,18 @@ using JsonIgnoreAttribute = System.Text.Json.Serialization.JsonIgnoreAttribute;
 
 namespace FastEndpoints.Swagger;
 
-[SuppressMessage("Performance", "SYSLIB1045:Convert to \'GeneratedRegexAttribute\'.")]
-sealed class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
+sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
 {
     static readonly TextInfo _textInfo = CultureInfo.InvariantCulture.TextInfo;
-    static readonly Regex _routeParamsRegex = new("(?<={)(?:.*?)*(?=})", RegexOptions.Compiled);
-    static readonly Regex _routeConstraintsRegex = new("(?<={)([^?:}]+)[^}]*(?=})", RegexOptions.Compiled);
+    static readonly Regex _routeParamsRegex = RouteParamsRegex();
+    static readonly Regex _routeConstraintsRegex = RouteConstraintsRegex();
     static readonly string[] _illegalHeaderNames = ["Accept", "Content-Type", "Authorization"];
+
+    [GeneratedRegex("(?<={)(?:.*?)*(?=})", RegexOptions.Compiled)]
+    private static partial Regex RouteParamsRegex();
+
+    [GeneratedRegex("(?<={)([^?:}]+)[^}]*(?=})", RegexOptions.Compiled)]
+    private static partial Regex RouteConstraintsRegex();
 
     static readonly Dictionary<string, string> _defaultDescriptions = new()
     {

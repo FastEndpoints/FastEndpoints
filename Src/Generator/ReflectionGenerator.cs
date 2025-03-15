@@ -65,7 +65,7 @@ public class ReflectionGenerator : IIncrementalGenerator
     {
         _assemblyName ??= "Assembly"; //when no endpoints are present
 
-        var sanitizedAssemblyName = _assemblyName.Sanitize(string.Empty);
+        var sanitizedAssemblyName = _assemblyName.Sanitize();
 
         b.Clear().w(
             """

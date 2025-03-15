@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -57,7 +57,7 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
 
               public static class ServiceRegistrationExtensions
               {
-                  public static IServiceCollection RegisterServicesFrom{{_assemblyName?.Sanitize(string.Empty) ?? "Assembly"}}(this IServiceCollection sc)
+                  public static IServiceCollection RegisterServicesFrom{{_assemblyName?.Sanitize() ?? "Assembly"}}(this IServiceCollection sc)
                   {
 
               """);

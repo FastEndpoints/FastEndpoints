@@ -1,9 +1,8 @@
 using FluentValidation.Results;
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.RegularExpressions;
-using JetBrains.Annotations;
 
 namespace FastEndpoints;
 
@@ -46,11 +45,6 @@ public abstract partial class BaseEndpoint : IEndpoint
     protected virtual void Group<TEndpointGroup>() where TEndpointGroup : Group, new()
         => throw new NotImplementedException();
 
-    static readonly Regex _regex = LetterOrDigitRegex();
-
-    [GeneratedRegex("[^a-zA-Z0-9]+", RegexOptions.Compiled)]
-    private static partial Regex LetterOrDigitRegex();
-
     protected static string GetAclHash(string input)
     {
         //NOTE: if modifying this algo, update FastEndpoints.Generator.AccessControlGenerator.Permission.GetAclHash() method also!
@@ -59,6 +53,25 @@ public abstract partial class BaseEndpoint : IEndpoint
         return new(base64Hash.Where(char.IsLetterOrDigit).Take(3).Select(char.ToUpper).ToArray());
 
         static string Sanitize(string input)
-            => _regex.Replace(input, "_");
+        {
+            var result = new StringBuilder();
+            char? previousChar = null;
+            var replacement = '_';
+            foreach (var c in input)
+            {
+                if (char.IsLetterOrDigit(c))
+                {
+                    result.Append(c);
+                    previousChar = c;
+                }
+                else if (previousChar != replacement)
+                {
+                    result.Append(replacement);
+                    previousChar = replacement;
+                }
+            }
+
+            return result.ToString();
+        }
     }
 }

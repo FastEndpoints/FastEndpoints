@@ -69,6 +69,7 @@ public class ReflectionGenerator : IIncrementalGenerator
 
         b.Clear().w(
             """
+            #pragma warning disable CS0618
             #nullable enable
 
             using FastEndpoints;
@@ -300,6 +301,7 @@ public class ReflectionGenerator : IIncrementalGenerator
                 {
                     switch (member)
                     {
+                        // ReSharper disable MergeIntoPattern
                         case IMethodSymbol method when method.Name == "TryParse" &&
                                                        method.DeclaredAccessibility == Accessibility.Public &&
                                                        method.IsStatic &&
@@ -307,7 +309,7 @@ public class ReflectionGenerator : IIncrementalGenerator
                                                        method.Parameters is { Length: 2 } args &&
                                                        args[0] is { Type.SpecialType: SpecialType.System_String } &&
                                                        args[1] is { RefKind: RefKind.Out, Type.Name: var outTypeName } &&
-                                                       outTypeName == currentSymbol.Name:
+                                                       outTypeName == currentSymbol.Name: // ReSharper enable MergeIntoPattern
                             IsParsable = false;
 
                             break;

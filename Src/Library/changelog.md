@@ -61,3 +61,9 @@ The reflection source generator was using some static state which was causing is
 The type discriminator was not being serialized by STJ when the response type was a base type, due to an oversight in the default response serialized func.
 
 </details>
+
+<details><summary>Source generated reflection for obsolete members</summary>
+
+When source generation happens for obsolete members of classes, the generated file triggered a compiler warning, which has now been correctly handled.
+
+</details>

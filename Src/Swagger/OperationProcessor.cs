@@ -22,14 +22,12 @@ namespace FastEndpoints.Swagger;
 sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
 {
     static readonly TextInfo _textInfo = CultureInfo.InvariantCulture.TextInfo;
-    static readonly Regex _routeParamsRegex = RouteParamsRegex();
-    static readonly Regex _routeConstraintsRegex = RouteConstraintsRegex();
     static readonly string[] _illegalHeaderNames = ["Accept", "Content-Type", "Authorization"];
 
-    [GeneratedRegex("(?<={)(?:.*?)*(?=})", RegexOptions.Compiled)]
+    [GeneratedRegex("(?<={)(?:.*?)*(?=})")]
     private static partial Regex RouteParamsRegex();
 
-    [GeneratedRegex("(?<={)([^?:}]+)[^}]*(?=})", RegexOptions.Compiled)]
+    [GeneratedRegex("(?<={)([^?:}]+)[^}]*(?=})")]
     private static partial Regex RouteConstraintsRegex();
 
     static readonly Dictionary<string, string> _defaultDescriptions = new()
@@ -141,7 +139,6 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
             if (metas.Count > 0)
             {
             #if NET9_0_OR_GREATER
-
                 //remove this workaround when sdk bug is fixed: https://github.com/dotnet/aspnetcore/issues/57801#issuecomment-2439578287
                 foreach (var meta in metas.Where(m => m.Value.isIResult))
                 {
@@ -372,7 +369,7 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
         var paramCtx = new ParamCreationContext(ctx, docOpts, serializer, reqParamDescriptions, apiDescription.RelativePath!);
 
         //add a path param for each route param such as /{xxx}/{yyy}/{zzz}
-        var reqParams = _routeParamsRegex
+        var reqParams = RouteParamsRegex()
                         .Matches(opPath)
                         .Select(
                             m =>
@@ -711,7 +708,7 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
         var parts = relativePath.Split('/');
 
         for (var i = 0; i < parts.Length; i++)
-            parts[i] = _routeConstraintsRegex.Replace(parts[i], "$1");
+            parts[i] = RouteConstraintsRegex().Replace(parts[i], "$1");
 
         return string.Join("/", parts);
     }

@@ -46,9 +46,7 @@ public abstract partial class BaseEndpoint : IEndpoint
     protected virtual void Group<TEndpointGroup>() where TEndpointGroup : Group, new()
         => throw new NotImplementedException();
 
-    static readonly Regex _letterOrDigitRegex = LetterOrDigitRegex();
-
-    [GeneratedRegex("[^a-zA-Z0-9]+", RegexOptions.Compiled)]
+    [GeneratedRegex("[^a-zA-Z0-9]+")]
     private static partial Regex LetterOrDigitRegex();
 
     protected static string GetAclHash(string input)
@@ -59,6 +57,6 @@ public abstract partial class BaseEndpoint : IEndpoint
         return new(base64Hash.Where(char.IsLetterOrDigit).Take(3).Select(char.ToUpper).ToArray());
 
         static string Sanitize(string input)
-            => _letterOrDigitRegex.Replace(input, "_");
+            => LetterOrDigitRegex().Replace(input, "_");
     }
 }

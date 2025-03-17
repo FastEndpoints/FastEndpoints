@@ -42,6 +42,12 @@ sealed class MyPreProcessor<TRequest> : IPreProcessor<TRequest>
 
 ## Improvements 🚀
 
+<details><summary>Use source generated regex</summary>
+
+Source generated regex is now used whereever possible. Source generated regex was not used before due to having to support older SDK versions.
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>Contention issue in reflection source generator</summary>

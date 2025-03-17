@@ -1,5 +1,5 @@
-#pragma warning disable IDE1006
 using System.Text;
+using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 
 namespace FastEndpoints.Generator;
@@ -14,19 +14,10 @@ static class Extensions
         return sb;
     }
 
-    internal static string Sanitize(this string input)
-    {
-        var result = new StringBuilder();
-        foreach (var c in input)
-        {
-            if (char.IsLetterOrDigit(c) || c == '_')
-            {
-                result.Append(c);
-            }
-        }
+    static readonly Regex _regex = new("[^a-zA-Z0-9]+", RegexOptions.Compiled);
 
-        return result.ToString();
-    }
+    internal static string Sanitize(this string input, string replacement = "_")
+        => _regex.Replace(input, replacement);
 
     internal static ITypeSymbol GetUnderlyingType(this ITypeSymbol symbol)
     {

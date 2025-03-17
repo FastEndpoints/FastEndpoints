@@ -1,16 +1,16 @@
-﻿using FluentValidation.Results;
+using FluentValidation.Results;
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
-using JetBrains.Annotations;
 
 namespace FastEndpoints;
 
 /// <summary>
 /// the base class all fast endpoints inherit from
 /// </summary>
-public abstract class BaseEndpoint : IEndpoint
+public abstract partial class BaseEndpoint : IEndpoint
 {
     List<ValidationFailure>? _failures;
 
@@ -46,7 +46,8 @@ public abstract class BaseEndpoint : IEndpoint
     protected virtual void Group<TEndpointGroup>() where TEndpointGroup : Group, new()
         => throw new NotImplementedException();
 
-    static readonly Regex _regex = new("[^a-zA-Z0-9]+", RegexOptions.Compiled);
+    [GeneratedRegex("[^a-zA-Z0-9]+")]
+    private static partial Regex LetterOrDigitRegex();
 
     protected static string GetAclHash(string input)
     {
@@ -56,6 +57,6 @@ public abstract class BaseEndpoint : IEndpoint
         return new(base64Hash.Where(char.IsLetterOrDigit).Take(3).Select(char.ToUpper).ToArray());
 
         static string Sanitize(string input)
-            => _regex.Replace(input, "_");
+            => LetterOrDigitRegex().Replace(input, "_");
     }
 }

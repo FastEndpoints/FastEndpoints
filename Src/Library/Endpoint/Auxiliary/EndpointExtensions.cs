@@ -99,15 +99,13 @@ static partial class EndpointExtensions
         def.Version.Init();
     }
 
-    [GeneratedRegex("(@[\\w]*)", RegexOptions.Compiled)]
+    [GeneratedRegex("(@[\\w]*)")]
     private static partial Regex RouteBuilderRegex();
-
-    static readonly Regex _rgx = RouteBuilderRegex();
 
     internal static string BuildRoute<TRequest>(this Expression<Func<TRequest, object>> expr, string pattern) where TRequest : notnull
     {
         var sb = new StringBuilder(pattern);
-        var matches = _rgx.Matches(pattern);
+        var matches = RouteBuilderRegex().Matches(pattern);
         var i = 0;
 
         foreach (var prop in expr.PropNames())

@@ -729,41 +729,41 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
     }
 
     static OpenApiParameter CreateParam(ParamCreationContext ctx,
-                                        OpenApiParameterKind Kind,
-                                        PropertyInfo? Prop = null,
-                                        string? ParamName = null,
-                                        bool? IsRequired = null)
+                                        OpenApiParameterKind kind,
+                                        PropertyInfo? prop = null,
+                                        string? paramName = null,
+                                        bool? isRequired = null)
     {
-        ParamName = ParamName?.ApplyPropNamingPolicy(ctx.DocOpts) ??
-                    Prop?.GetCustomAttribute<BindFromAttribute>()?.Name ?? //don't apply naming policy to attribute value
-                    Prop?.Name.ApplyPropNamingPolicy(ctx.DocOpts) ?? throw new InvalidOperationException("param name is required!");
+        paramName = paramName?.ApplyPropNamingPolicy(ctx.DocOpts) ??
+                    prop?.GetCustomAttribute<BindFromAttribute>()?.Name ?? //don't apply naming policy to attribute value
+                    prop?.Name.ApplyPropNamingPolicy(ctx.DocOpts) ?? throw new InvalidOperationException("param name is required!");
 
         Type propType;
 
-        if (Prop?.PropertyType is not null) //dto has matching property
+        if (prop?.PropertyType is not null) //dto has matching property
         {
-            propType = Prop.PropertyType;
+            propType = prop.PropertyType;
             if (propType.Name.EndsWith("HeaderValue"))
                 propType = Types.String;
         }
         else //dto doesn't have matching prop, get it from route constraint map
-            propType = ctx.TypeForRouteParam(ParamName);
+            propType = ctx.TypeForRouteParam(paramName);
 
         var prm = ctx.OpCtx.DocumentGenerator.CreatePrimitiveParameter(
-            ParamName,
-            ctx.Descriptions?.GetValueOrDefault(Prop?.Name ?? ParamName),
+            paramName,
+            ctx.Descriptions?.GetValueOrDefault(prop?.Name ?? paramName),
             propType.ToContextualType());
 
-        prm.Kind = Kind;
+        prm.Kind = kind;
 
-        var defaultValFromCtorArg = Prop?.GetParentCtorDefaultValue();
+        var defaultValFromCtorArg = prop?.GetParentCtorDefaultValue();
         bool? hasDefaultValFromCtorArg = null;
         if (defaultValFromCtorArg is not null)
             hasDefaultValFromCtorArg = true;
 
-        var isNullable = Prop?.IsNullable();
+        var isNullable = prop?.IsNullable();
 
-        prm.IsRequired = IsRequired ??
+        prm.IsRequired = isRequired ??
                          !hasDefaultValFromCtorArg ??
                          !(isNullable ?? true);
 
@@ -787,7 +787,7 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
 
         prm.Schema.IsNullableRaw = prm.IsRequired ? null : isNullable;
 
-        if (Kind == OpenApiParameterKind.Body &&
+        if (kind == OpenApiParameterKind.Body &&
             prm.Schema.OneOf.SingleOrDefault()?.Reference?.IsObject is true &&
             prm.Schema.OneOf.Single().Reference?.Discriminator is null)
         {
@@ -796,13 +796,13 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
         }
 
         if (ctx.OpCtx.IsSwagger2())
-            prm.Default = Prop?.GetCustomAttribute<DefaultValueAttribute>()?.Value ?? defaultValFromCtorArg;
+            prm.Default = prop?.GetCustomAttribute<DefaultValueAttribute>()?.Value ?? defaultValFromCtorArg;
         else
-            prm.Schema.Default = Prop?.GetCustomAttribute<DefaultValueAttribute>()?.Value ?? defaultValFromCtorArg;
+            prm.Schema.Default = prop?.GetCustomAttribute<DefaultValueAttribute>()?.Value ?? defaultValFromCtorArg;
 
         if (ctx.OpCtx.Settings.SchemaSettings.GenerateExamples)
         {
-            prm.Example = Prop?.GetExampleJToken(ctx.Serializer);
+            prm.Example = prop?.GetExampleJToken(ctx.Serializer);
 
             if (prm.Example is null && prm.Default is null && prm.Schema?.Default is null && prm.IsRequired)
             {
@@ -816,7 +816,7 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
         return prm;
     }
 
-    internal readonly struct ParamCreationContext
+    internal readonly partial struct ParamCreationContext
     {
         public OperationProcessorContext OpCtx { get; }
         public DocumentOptions DocOpts { get; }
@@ -824,9 +824,6 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
         public Dictionary<string, string>? Descriptions { get; }
 
         readonly Dictionary<string, Type> _paramMap;
-
-        //search min 1 `:` character between any `{` and `}` characters
-        const string ParamMapPattern = @"\{[^{}]*:[^{}]*\}";
 
         public ParamCreationContext(OperationProcessorContext opCtx,
                                     DocumentOptions docOpts,
@@ -840,7 +837,7 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
             Descriptions = descriptions;
             _paramMap = new(
                 operationPath.Split('/')
-                             .Where(s => Regex.IsMatch(s, ParamMapPattern)) //include: api/{id:int:min(5)}:deactivate
+                             .Where(s => MyRegex().IsMatch(s)) //include: api/{id:int:min(5)}:deactivate
                              .Select(
                                  s =>
                                  {
@@ -859,5 +856,9 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
             => _paramMap.TryGetValue(paramName, out var tParam)
                    ? tParam
                    : Types.String;
+
+        //search min 1 `:` character between any `{` and `}` characters
+        [GeneratedRegex(@"\{[^{}]*:[^{}]*\}")]
+        private static partial Regex MyRegex();
     }
 }

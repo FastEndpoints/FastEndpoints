@@ -9,7 +9,7 @@ namespace FastEndpoints;
 /// </summary>
 public class EndpointSummary
 {
-    internal List<IProducesResponseTypeMetadata> ProducesMetas { get; } = new();
+    internal List<IProducesResponseTypeMetadata> ProducesMetas { get; } = [];
     internal Dictionary<int, Dictionary<string, string>> ResponseParams { get; } = new(); //key: status-code //val: [propname]=description
 
     internal static readonly Action<RouteHandlerBuilder> ClearDefaultProduces200Metadata
@@ -131,7 +131,7 @@ public class EndpointSummary
 
     /// <summary>
     /// add a response description that doesn't have a response dto to the swagger document
-    /// NOTE: if you use the this method, the default 200 response is automatically removed, and you'd have to specify the 200 response yourself if it
+    /// NOTE: if you use  this method, the default 200 response is automatically removed, and you'd have to specify the 200 response yourself if it
     /// applies to your endpoint.
     /// </summary>
     /// <param name="statusCode">http status code</param>
@@ -166,7 +166,7 @@ public class EndpointSummary<TRequest> : EndpointSummary where TRequest : notnul
         var propertyPath = property.Body.GetPropertyChain();
         Params[propertyPath] = description;
     }
-    
+
     public new TRequest? ExampleRequest
     {
         get => (TRequest?)base.ExampleRequest;

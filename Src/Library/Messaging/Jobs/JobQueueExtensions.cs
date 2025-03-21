@@ -90,7 +90,14 @@ public static class JobQueueExtensions
     /// </summary>
     /// <param name="cmd">the command used to determine which queue to trigger</param>
     public static void TriggerJobExecution(this ICommandBase cmd)
-        => JobQueueBase.TriggerJobExecution(cmd);
+        => JobQueueBase.TriggerJobExecution(cmd.GetType());
+
+    /// <summary>
+    /// triggers the execution of jobs in the respective queue for that command type.
+    /// </summary>
+    /// <typeparam name="TCommand">the command type used to determine which queue to trigger</typeparam>
+    public static void TriggerJobExecution<TCommand>() where TCommand : ICommandBase
+        => JobQueueBase.TriggerJobExecution(typeof(TCommand));
 
     /// <summary>
     /// queues up a given command in the respective job queue for that command type.

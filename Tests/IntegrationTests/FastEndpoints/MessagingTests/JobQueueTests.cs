@@ -116,8 +116,9 @@ public class JobQueueTests(Sut App) : TestBase<Sut>
             };
             var job = cmd.CreateJob<Job>(executeAfter: i == 1 ? DateTime.UtcNow.AddDays(1) : DateTime.UtcNow);
             JobStorage.Jobs.Add(job);
-            cmd.TriggerJobExecution();
         }
+
+        JobQueueExtensions.TriggerJobExecution<JobTestCommand>();
 
         while (!cts.IsCancellationRequested && JobTestCommand.CompletedIDs.Count < 9)
             await Task.Delay(100, Cancellation);

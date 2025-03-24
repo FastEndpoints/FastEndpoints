@@ -39,12 +39,10 @@ abstract class JobQueueBase
                    : (TStorageRecord)queue.CreateJob(command, executeAfter, expireOn);
     }
 
-    internal static void TriggerJobExecution(ICommandBase command)
+    internal static void TriggerJobExecution(Type commandType)
     {
-        var tCommand = command.GetType();
-
-        if (!JobQueues.TryGetValue(tCommand, out var queue))
-            throw new InvalidOperationException($"A job queue has not been registered for [{tCommand.FullName}]");
+        if (!JobQueues.TryGetValue(commandType, out var queue))
+            throw new InvalidOperationException($"A job queue has not been registered for [{commandType.FullName}]");
 
         queue.TriggerJob();
     }

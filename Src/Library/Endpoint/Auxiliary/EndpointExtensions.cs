@@ -1,4 +1,4 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Authorization;
@@ -46,7 +46,7 @@ static partial class EndpointExtensions
                 switch (att)
                 {
                     case HttpAttribute httpAttr:
-                        instance.Verbs(httpAttr.Verb.ToString("F"));
+                        instance.Verbs(httpAttr.Verb);
                         def.Routes = httpAttr.Routes;
 
                         break;

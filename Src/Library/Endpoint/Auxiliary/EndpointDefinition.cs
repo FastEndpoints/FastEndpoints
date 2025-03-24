@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
@@ -27,7 +27,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     public string[] Routes { get; internal set; } = [];
     public string SecurityPolicyName => $"epPolicy:{EndpointType.FullName}";
     public Type? ValidatorType { get; internal set; }
-    public string[] Verbs { get; internal set; } = [];
+    public Http[] Verbs { get; internal set; } = [];
     public EpVersion Version { get; } = new();
 
     //these props can be changed in global config using methods below
@@ -36,7 +36,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     public bool AllowAnyClaim { get; private set; }
     public List<string>? AllowedClaimTypes { get; private set; }
     public List<string>? AllowedRoles { get; private set; }
-    public string[]? AnonymousVerbs { get; private set; }
+    public Http[]? AnonymousVerbs { get; private set; }
     public bool AntiforgeryEnabled { get; private set; }
     public List<string>? AuthSchemeNames { get; private set; }
     public bool DontAutoSend { get; private set; }
@@ -90,16 +90,8 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     {
         AnonymousVerbs =
             verbs.Length > 0
-                ? verbs.Select(v => v.ToString("F")).ToArray()
-                : Enum.GetNames(Types.Http);
-    }
-
-    /// <summary>
-    /// allow unauthenticated requests to this endpoint for a specified set of http verbs.
-    /// </summary>
-    public void AllowAnonymous(string[] verbs)
-    {
-        AnonymousVerbs = verbs;
+                ? verbs
+                : Enum.GetValues<Http>();
     }
 
     /// <summary>
@@ -137,12 +129,6 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// specify extra http verbs in addition to the endpoint level verbs.
     /// </summary>
     public void AdditionalVerbs(params Http[] verbs)
-        => Verbs = [..Verbs, ..verbs.Select(m => m.ToString())];
-
-    /// <summary>
-    /// specify extra http verbs in addition to the endpoint level verbs.
-    /// </summary>
-    public void AdditionalVerbs(params string[] verbs)
         => Verbs = [..Verbs, ..verbs];
 
     /// <summary>

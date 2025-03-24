@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 
 namespace FastEndpoints;
 
@@ -16,10 +16,15 @@ public sealed class EndpointOptions
     static string EndpointNameGenerator(EndpointNameGenerationContext ctx)
     {
         ctx.TagPrefix = ctx is { PrefixNameWithFirstTag: true, TagPrefix: not null } ? $"{ctx.TagPrefix}_" : null;
-        ctx.HttpVerb = ctx.HttpVerb != null ? ctx.HttpVerb[0] + ctx.HttpVerb[1..].ToLowerInvariant() : null;
+        string? httpVerb = null;
+        if (ctx.HttpVerb.HasValue)
+        {
+            var httpVerbValue = ctx.HttpVerb.Value.ToString();
+            httpVerb = $"{httpVerbValue[0]}{httpVerbValue[1..].ToLowerInvariant()}";
+        }
         var ep = ctx.ShortEndpointNames ? ctx.EndpointType.Name : ctx.EndpointType.FullName!.Replace(".", string.Empty);
 
-        return $"{ctx.TagPrefix}{ctx.HttpVerb}{ep}{ctx.RouteNumber}";
+        return $"{ctx.TagPrefix}{httpVerb}{ep}{ctx.RouteNumber}";
     }
 
     /// <summary>
@@ -83,10 +88,10 @@ public sealed class EndpointOptions
     public Action<HttpContext, object?>? GlobalResponseModifier { internal get; set; }
 }
 
-public struct EndpointNameGenerationContext(Type endpointType, string? httpVerb, int? routeNumber, string? tagPrefix)
+public struct EndpointNameGenerationContext(Type endpointType, Http? httpVerb, int? routeNumber, string? tagPrefix)
 {
     public Type EndpointType { get; internal init; } = endpointType;
-    public string? HttpVerb { get; internal set; } = httpVerb;
+    public Http? HttpVerb { get; internal set; } = httpVerb;
     public int? RouteNumber { get; internal init; } = routeNumber;
     public string? TagPrefix { get; internal set; } = tagPrefix;
     public bool PrefixNameWithFirstTag => Cfg.EpOpts.PrefixNameWithFirstTag;

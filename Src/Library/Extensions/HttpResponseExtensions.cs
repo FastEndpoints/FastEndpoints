@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using FluentValidation.Results;
@@ -82,7 +82,7 @@ public static class HttpResponseExtensions
                                                      CancellationToken cancellation = default) where TEndpoint : IEndpoint
         => SendCreatedAtAsync(
             rsp,
-            EpOpts.NameGenerator(new(typeof(TEndpoint), verb?.ToString("F"), routeNumber, null)),
+            EpOpts.NameGenerator(new(typeof(TEndpoint), verb, routeNumber, null)),
             routeValues,
             responseBody,
             jsonSerializerContext,

@@ -35,7 +35,7 @@ public abstract partial class BaseEndpoint : IEndpoint
     public virtual void Configure()
         => throw new NotImplementedException();
 
-    public virtual void Verbs(params string[] methods)
+    public virtual void Verbs(params Http[] methods)
         => throw new NotImplementedException();
 
     [UsedImplicitly]

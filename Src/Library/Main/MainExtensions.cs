@@ -137,7 +137,7 @@ public static class MainExtensions
                 {
                     var hb = app.MapMethods(
                         finalRoute,
-                        [verb],
+                        [verb.ToString()],
                         (HttpContext ctx, [FromServices] IEndpointFactory factory) => RequestHandler.Invoke(ctx, factory));
 
                     hb.WithName(

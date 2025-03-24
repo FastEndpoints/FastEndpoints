@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.Json;
@@ -73,14 +73,6 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// authentication.
     /// </summary>
     protected void AllowAnonymous(params Http[] verbs)
-        => Definition.AllowAnonymous(verbs);
-
-    /// <summary>
-    /// allow unauthenticated requests to this endpoint for a specified set of http verbs.
-    /// i.e. if the endpoint is listening to POST, PUT &amp; PATCH and you specify AllowAnonymous(Http.POST), then only PUT &amp; PATCH will require
-    /// authentication.
-    /// </summary>
-    protected void AllowAnonymous(string[] verbs)
         => Definition.AllowAnonymous(verbs);
 
     /// <summary>
@@ -598,13 +590,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <summary>
     /// specify one or more http method verbs this endpoint should be accepting requests for
     /// </summary>
-    protected void Verbs(params Http[] methods)
-        => Verbs(methods.Select(m => m.ToString()).ToArray());
-
-    /// <summary>
-    /// specify one or more http method verbs this endpoint should be accepting requests for
-    /// </summary>
-    public sealed override void Verbs(params string[] methods)
+    public sealed override void Verbs(params Http[] methods)
     {
         //note: this method is sealed to not allow user to override it because we need to perform
         //      the following setup activities, which require access to TRequest/TResponse
@@ -637,7 +623,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
 
                 if (tRequest != Types.EmptyRequest)
                 {
-                    if (methods.Any(m => m is "GET" or "HEAD" or "DELETE"))
+                    if (methods.Any(m => m is Http.GET or Http.HEAD or Http.DELETE))
                         b.Accepts<TRequest>("*/*", "application/json");
                     else
                         b.Accepts<TRequest>("application/json");

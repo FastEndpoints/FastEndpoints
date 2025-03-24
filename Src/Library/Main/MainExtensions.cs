@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Text;
 using FluentValidation;
 using FluentValidation.Internal;
@@ -184,8 +184,7 @@ public static class MainExtensions
             }
         }
 
-        app.ServiceProvider.GetRequiredService<ILogger<StartupTimer>>().LogInformation(
-            "Registered {@total} endpoints in {@time} milliseconds.",
+        app.ServiceProvider.GetRequiredService<ILogger<StartupTimer>>().EndpointsRegistered(
             totalEndpointCount,
             endpoints.Stopwatch.ElapsedMilliseconds.ToString("N0"));
 
@@ -202,7 +201,7 @@ public static class MainExtensions
                     continue;
 
                 duplicatesDetected = true;
-                logger.LogError($"The route \"{kvp.Key}\" has {kvp.Value} endpoints registered to handle requests!");
+                logger.MultipleEndpointsRegisteredForRoute(kvp.Key, kvp.Value);
             }
 
             if (duplicatesDetected)

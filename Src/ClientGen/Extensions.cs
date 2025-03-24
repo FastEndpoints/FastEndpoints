@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
@@ -132,7 +132,7 @@ public static class Extensions
             var docs = app.Services.GetRequiredService<IOpenApiDocumentGenerator>();
 
             var logger = app.Services.GetRequiredService<ILogger<Runner>>();
-            logger.LogInformation("Api client generation starting...");
+            logger.ApiClientGenerationStarting();
 
             var doc = await docs.GenerateAsync(documentName);
 
@@ -146,7 +146,7 @@ public static class Extensions
                 csSettings(csGenSettings);
                 var source = new CSharpClientGenerator(doc, csGenSettings).GenerateFile();
                 await File.WriteAllTextAsync(Path.Combine(destinationPath, csGenSettings.ClassName + ".cs"), source);
-                logger.LogInformation("C# api client generation successful!");
+                logger.ApiClientGenerationSuccessful("C#");
             }
 
             if (tsSettings is not null)
@@ -159,7 +159,7 @@ public static class Extensions
                 tsSettings(tsGenSettings);
                 var source = new TypeScriptClientGenerator(doc, tsGenSettings).GenerateFile();
                 await File.WriteAllTextAsync(Path.Combine(destinationPath, tsGenSettings.ClassName + ".ts"), source);
-                logger.LogInformation("TypeScript api client generation successful!");
+                logger.ApiClientGenerationSuccessful("TypeScript");
             }
 
             await app.StopAsync();
@@ -181,13 +181,13 @@ public static class Extensions
             await app.StartAsync();
 
             var logger = app.Services.GetRequiredService<ILogger<Runner>>();
-            logger.LogInformation("Exporting json file for doc: [{doc}]", documentName);
+            logger.ExportingSwaggerJson(documentName);
 
             var generator = app.Services.GetRequiredService<IOpenApiDocumentGenerator>();
             var doc = await generator.GenerateAsync(documentName);
             var json = doc.ToJson();
             await File.WriteAllTextAsync(Path.Combine(destinationPath, documentName.ToLowerInvariant().Replace(" ", "-") + ".json"), json);
-            logger.LogInformation("Swagger json export successful!");
+            logger.SwaggerJsonExportSuccessful();
 
             await app.StopAsync();
             Environment.Exit(0);

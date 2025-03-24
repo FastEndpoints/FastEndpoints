@@ -1,11 +1,11 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace FastEndpoints.Messaging.Remote.Core;
 
 static partial class LoggingExtensions
 {
-    [LoggerMessage(1, LogLevel.Information, " Remote connection configured!\r\n Remote Server: {address}\r\n Total Commands: {count}")]
-    public static partial void RemoteConfigured(this ILogger l, string address, int count);
+    [LoggerMessage(1, LogLevel.Information, "Remote connection configured!\r\n Remote Server: {address}\r\n Total Commands: {count}")]
+    public static partial void RemoteConnectionConfigured(this ILogger l, string address, int count);
 
     [LoggerMessage(2, LogLevel.Information, "Event subscriber registered! [id: {subscriberId}] ({tHandler}<{tEvent}>)")]
     public static partial void SubscriberRegistered(this ILogger l, string subscriberId, string tHandler, string tEvent);

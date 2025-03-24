@@ -1,4 +1,4 @@
-﻿using System.IO.Compression;
+using System.IO.Compression;
 using System.Text;
 using Kiota.Builder;
 using Microsoft.AspNetCore.Builder;
@@ -184,7 +184,7 @@ public static class Extensions
     static async Task<string> ExportSwaggerJson(IHost app, string documentName, string destinationPath, string? destinationFileName, CancellationToken ct)
     {
         var logger = app.Services.GetRequiredService<ILogger<ClientGenerator>>();
-        logger.LogInformation("Exporting Swagger Spec for doc: [{doc}]", documentName);
+        logger.ExportingSwaggerSpec(documentName);
 
         var generator = app.Services.GetRequiredService<IOpenApiDocumentGenerator>();
         var doc = await generator.GenerateAsync(documentName);
@@ -193,7 +193,7 @@ public static class Extensions
         Directory.CreateDirectory(destinationPath);
         await File.WriteAllTextAsync(output, doc.ToJson(), ct);
 
-        logger.LogInformation("Swagger Spec export successful!");
+        logger.SwaggerSpecExportSuccessful();
 
         return output;
     }
@@ -204,7 +204,7 @@ public static class Extensions
             throw new InvalidOperationException("A Swagger document name is required for Api Client generation!");
 
         var logger = app.Services.GetRequiredService<ILogger<ClientGenerator>>();
-        logger.LogInformation("Starting [{lang}] Api Client generation for [{doc}]", c.Language.ToString(), c.SwaggerDocumentName);
+        logger.StartingApiClientGeneration(c.Language.ToString(), c.SwaggerDocumentName);
 
         var swaggerJsonPath = c.CleanOutput
                                   ? Path.Combine(Path.GetTempPath(), TempFolder)
@@ -218,11 +218,11 @@ public static class Extensions
                 client: new())
             .GenerateClientAsync(ct);
 
-        logger.LogInformation("Api Client generation successful!");
+        logger.ApiClientGenerationSuccessful();
 
         if (c.CreateZipArchive)
         {
-            logger.LogInformation("Zipping up the generated client files...");
+            logger.ZippingGeneratedClientFile();
 
             c.ZipOutputFile ??= Path.Combine(c.OutputPath, $"..{Path.DirectorySeparatorChar}", $"{c.ClientClassName}.zip");
 
@@ -231,7 +231,7 @@ public static class Extensions
 
             ZipFile.CreateFromDirectory(c.OutputPath, c.ZipOutputFile, CompressionLevel.SmallestSize, false, Encoding.UTF8);
 
-            logger.LogInformation("Client archive creation successful!");
+            logger.ClientArchiveCreationSuccessful();
         }
     }
 }

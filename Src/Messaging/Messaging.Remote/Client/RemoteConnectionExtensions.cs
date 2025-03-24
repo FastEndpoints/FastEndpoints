@@ -26,7 +26,7 @@ public static class RemoteConnectionExtensions
         r(new(remoteAddress, host.Services));
 
         var logger = host.Services.GetRequiredService<ILogger<RemoteConnection>>();
-        logger.RemoteConfigured(remoteAddress, RemoteConnectionCore.RemoteMap.Count);
+        logger.RemoteConnectionConfigured(remoteAddress, RemoteConnectionCore.RemoteMap.Count);
 
         return host;
     }

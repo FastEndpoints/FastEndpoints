@@ -45,19 +45,11 @@ public static class ExceptionHandlerExtensions
                             var reason = exHandlerFeature.Error.Message;
 
                             if (logStructuredException)
-                                logger.LogError(exHandlerFeature.Error, "[{@exceptionType}] at [{@route}] due to [{@reason}]", exceptionType, route, reason);
+                                logger.LogStructuredException(exHandlerFeature.Error, exceptionType, route, reason);
                             else
                             {
                                 //this branch is only meant for unstructured textual logging
-                                logger.LogError(
-                                    $"""
-                                     =================================
-                                     {route}
-                                     TYPE: {exceptionType}
-                                     REASON: {reason}
-                                     ---------------------------------
-                                     {exHandlerFeature.Error.StackTrace}
-                                     """);
+                                logger.LogUnStructuredException(exceptionType, route, reason, exHandlerFeature.Error.StackTrace);
                             }
 
                             ctx.Response.StatusCode = (int)HttpStatusCode.InternalServerError;

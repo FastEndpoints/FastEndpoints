@@ -1,4 +1,4 @@
-﻿// Original: https://github.com/zymlabs/nswag-fluentvalidation
+// Original: https://github.com/zymlabs/nswag-fluentvalidation
 // MIT License
 // Copyright (c) 2019 Zym Labs LLC
 //
@@ -54,7 +54,7 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
                                             .ToArray();
 
         if (_validatorTypes?.Length is null or 0)
-            _logger.LogInformation("No validators found in the system!");
+            _logger.NoValidatorsFound();
     }
 
     public void Process(SchemaProcessorContext context)
@@ -71,11 +71,8 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
             {
                 if (tValidator.BaseType?.GenericTypeArguments.FirstOrDefault() == tRequest)
                 {
-                    var validator = _serviceResolver.CreateInstance(tValidator, scope.ServiceProvider);
-
-                    if (validator is null)
-                        throw new InvalidOperationException("Unable to instantiate validator!");
-
+                    var validator = _serviceResolver.CreateInstance(tValidator, scope.ServiceProvider) 
+                        ?? throw new InvalidOperationException($"Unable to instantiate validator {tValidator.Name}!");
                     ApplyValidator(context.Schema, (IValidator)validator, "", scope.ServiceProvider);
 
                     break;
@@ -83,7 +80,7 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
             }
             catch (Exception ex)
             {
-                _logger?.LogError(ex, "Exception while processing {@tValidator}", tValidator);
+                _logger.ExceptionProcessingValidator(ex, tValidator.Name);
             }
         }
     }
@@ -184,7 +181,7 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
                 {
                     //todo: figure out how to obtain the concrete instances of child validators from PolymorphicValidator<>
 
-                    _logger?.LogWarning("Swagger+Fluentvalidation integration for polymorphic validators is not supported.");
+                    _logger?.SwaggerWithFluentValidationIntegrationForPolymorphicValidatorsIsNotSupported(propertyValidator.GetType().Name);
 
                     continue;
                 }

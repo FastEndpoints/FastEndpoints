@@ -124,10 +124,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <summary>
     /// specify to listen for DELETE requests on one or more routes.
     /// </summary>
-    protected void Delete(
-        [StringSyntax("Route")]
-        [RouteTemplate]
-        params string[] routePatterns)
+    protected void Delete([StringSyntax("Route")] [RouteTemplate] params string[] routePatterns)
     {
         Verbs(Http.DELETE);
         Routes(routePatterns);
@@ -146,11 +143,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <param name="members">
     ///     <c>r => new { r.InvoiceID }</c>
     /// </param>
-    protected void Delete(
-        [StringSyntax("Route")]
-        [RouteTemplate]
-        string routePattern,
-        Expression<Func<TRequest, object>> members)
+    protected void Delete([StringSyntax("Route")] [RouteTemplate] string routePattern,
+                          Expression<Func<TRequest, object>> members)
     {
         Verbs(Http.DELETE);
         Routes(members.BuildRoute(routePattern));
@@ -204,10 +198,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <summary>
     /// specify to listen for GET requests on one or more routes.
     /// </summary>
-    protected void Get(
-        [StringSyntax("Route")]
-        [RouteTemplate]
-        params string[] routePatterns)
+    protected void Get([StringSyntax("Route")] [RouteTemplate] params string[] routePatterns)
     {
         Verbs(Http.GET);
         Routes(routePatterns);
@@ -226,11 +217,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <param name="members">
     ///     <c>r => new { r.InvoiceID, r.PageNumber }</c>
     /// </param>
-    protected void Get(
-        [StringSyntax("Route")]
-        [RouteTemplate]
-        string routePattern,
-        Expression<Func<TRequest, object>> members)
+    protected void Get([StringSyntax("Route")] [RouteTemplate] string routePattern,
+                       Expression<Func<TRequest, object>> members)
     {
         Verbs(Http.GET);
         Routes(members.BuildRoute(routePattern));
@@ -251,10 +239,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <summary>
     /// specify to listen for HEAD requests on one or more routes.
     /// </summary>
-    protected void Head(
-        [StringSyntax("Route")]
-        [RouteTemplate]
-        params string[] routePatterns)
+    protected void Head([StringSyntax("Route")] [RouteTemplate] params string[] routePatterns)
     {
         Verbs(Http.HEAD);
         Routes(routePatterns);
@@ -273,11 +258,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <param name="members">
     ///     <c>r => new { r.InvoiceID, r.PageNumber }</c>
     /// </param>
-    protected void Head(
-        [StringSyntax("Route")]
-        [RouteTemplate]
-        string routePattern,
-        Expression<Func<TRequest, object>> members)
+    protected void Head([StringSyntax("Route")] [RouteTemplate] string routePattern,
+                        Expression<Func<TRequest, object>> members)
     {
         Verbs(Http.HEAD);
         Routes(members.BuildRoute(routePattern));
@@ -300,10 +282,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <summary>
     /// specify to listen for PATCH requests on one or more routes.
     /// </summary>
-    protected void Patch(
-        [StringSyntax("Route")]
-        [RouteTemplate]
-        params string[] routePatterns)
+    protected void Patch([StringSyntax("Route")] [RouteTemplate] params string[] routePatterns)
     {
         Verbs(Http.PATCH);
         Routes(routePatterns);
@@ -322,11 +301,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <param name="members">
     ///     <c>r => new { r.InvoiceID }</c>
     /// </param>
-    protected void Patch(
-        [StringSyntax("Route")]
-        [RouteTemplate]
-        string routePattern,
-        Expression<Func<TRequest, object>> members)
+    protected void Patch([StringSyntax("Route")] [RouteTemplate] string routePattern,
+                         Expression<Func<TRequest, object>> members)
     {
         Verbs(Http.PATCH);
         Routes(members.BuildRoute(routePattern));
@@ -364,10 +340,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <summary>
     /// specify to listen for POST requests on one or more routes.
     /// </summary>
-    protected void Post(
-        [StringSyntax("Route")]
-        [RouteTemplate]
-        params string[] routePatterns)
+    protected void Post([StringSyntax("Route")] [RouteTemplate] params string[] routePatterns)
     {
         Verbs(Http.POST);
         Routes(routePatterns);
@@ -386,11 +359,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <param name="members">
     ///     <c>r => new { r.InvoiceID, r.PageNumber }</c>
     /// </param>
-    protected void Post(
-        [StringSyntax("Route")]
-        [RouteTemplate]
-        string routePattern,
-        Expression<Func<TRequest, object>> members)
+    protected void Post([StringSyntax("Route")] [RouteTemplate] string routePattern,
+                        Expression<Func<TRequest, object>> members)
     {
         Verbs(Http.POST);
         Routes(members.BuildRoute(routePattern));
@@ -435,10 +405,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <summary>
     /// specify to listen for PUT requests on one or more routes.
     /// </summary>
-    protected void Put(
-        [StringSyntax("Route")]
-        [RouteTemplate]
-        params string[] routePatterns)
+    protected void Put([StringSyntax("Route")] [RouteTemplate] params string[] routePatterns)
     {
         Verbs(Http.PUT);
         Routes(routePatterns);
@@ -457,11 +424,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <param name="members">
     ///     <c>r => new { r.InvoiceID, r.PageNumber }</c>
     /// </param>
-    protected void Put(
-        [StringSyntax("Route")]
-        [RouteTemplate]
-        string routePattern,
-        Expression<Func<TRequest, object>> members)
+    protected void Put([StringSyntax("Route")] [RouteTemplate] string routePattern,
+                       Expression<Func<TRequest, object>> members)
     {
         Verbs(Http.PUT);
         Routes(members.BuildRoute(routePattern));
@@ -518,10 +482,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <summary>
     /// specify one or more route patterns this endpoint should be listening for
     /// </summary>
-    public override void Routes(
-        [StringSyntax("Route")]
-        [RouteTemplate]
-        params string[] patterns)
+    public override void Routes([StringSyntax("Route")] [RouteTemplate] params string[] patterns)
         => Definition.Routes = patterns;
 
     /// <summary>
@@ -598,7 +559,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <summary>
     /// specify one or more http method verbs this endpoint should be accepting requests for
     /// </summary>
-    protected void Verbs(params Http[] methods)
+    public void Verbs(params Http[] methods)
         => Verbs(methods.Select(m => m.ToString()).ToArray());
 
     /// <summary>
@@ -644,9 +605,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
                 }
 
                 if (Definition.ExecuteAsyncReturnsIResult)
-                {
                     b.Add(eb => ProducesMetaForResultOfResponse.AddMetadata(eb, _tResponse));
-                }
                 else
                 {
                     if (_tResponse == Types.Object || _tResponse == Types.EmptyResponse)

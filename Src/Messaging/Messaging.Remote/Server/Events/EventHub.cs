@@ -329,15 +329,12 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
             }
             catch (OverflowException) when (IsInMemoryProvider)
             {
-                foreach (var rec in records)
+                foreach (var rec in records.Cast<InMemoryEventStorageRecord>().Where(r => r.QueueOverflowed))
                 {
-                    if (rec is InMemoryEventStorageRecord storageRecord && storageRecord.QueueOverflowed)
-                    {
-                        _subscribers.Remove(rec.SubscriberID, out var sub);
-                        sub?.Sem.Dispose();
-                        _errors?.OnInMemoryQueueOverflow<TEvent>(rec, _appCancellation);
-                        _logger.QueueOverflowWarning(rec.SubscriberID, _tEvent.FullName!);
-                    }
+                    _subscribers.Remove(rec.SubscriberID, out var sub);
+                    sub?.Sem.Dispose();
+                    _errors?.OnInMemoryQueueOverflow<TEvent>(rec, _appCancellation);
+                    _logger.QueueOverflowWarning(rec.SubscriberID, _tEvent.FullName!);
                 }
 
                 break;

@@ -296,9 +296,11 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
         if (GlobalConfig.IsUsingAspVersioning)
         {
             //because asp-versioning adds the version route segment as a path parameter
-            foreach (var prm in apiDescription.ParameterDescriptions.ToArray()
-                                              .Where(p => p.Source != Microsoft.AspNetCore.Mvc.ModelBinding.BindingSource.Body))
-                apiDescription.ParameterDescriptions.Remove(prm);
+            for (var i = apiDescription.ParameterDescriptions.Count - 1; i >= 0; i--)
+            {
+                if (apiDescription.ParameterDescriptions[i].Source != Microsoft.AspNetCore.Mvc.ModelBinding.BindingSource.Body)
+                    apiDescription.ParameterDescriptions.RemoveAt(i);
+            }
         }
 
         var reqDtoType = apiDescription.ParameterDescriptions.FirstOrDefault()?.Type;
@@ -491,8 +493,12 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
             if (GlobalConfig.IsUsingAspVersioning)
             {
                 //remove any duplicate params - ref: https://github.com/FastEndpoints/FastEndpoints/issues/560
-                foreach (var prm in op.Parameters.Where(prm => prm.Name == p.Name && prm.Kind == p.Kind).ToArray())
-                    op.Parameters.Remove(prm);
+                for (var i = op.Parameters.Count - 1; i >= 0; i--)
+                {
+                    var prm = op.Parameters[i];
+                    if (prm.Name == p.Name && prm.Kind == p.Kind)
+                        op.Parameters.RemoveAt(i);
+                }
             }
 
             op.Parameters.Add(p);
@@ -507,8 +513,11 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
             if (reqDtoIsList is false)
             {
                 op.RequestBody = null;
-                foreach (var body in op.Parameters.Where(x => x.Kind == OpenApiParameterKind.Body).ToArray())
-                    op.Parameters.Remove(body);
+                for (var i = op.Parameters.Count - 1; i >= 0; i--)
+                {
+                    if (op.Parameters[i].Kind == OpenApiParameterKind.Body)
+                        op.Parameters.RemoveAt(i);
+                }
             }
         }
 

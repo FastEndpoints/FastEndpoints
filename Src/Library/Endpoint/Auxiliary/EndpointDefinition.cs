@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
@@ -175,8 +175,11 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
               b.Add(
                   epBuilder =>
                   {
-                      foreach (var m in epBuilder.Metadata.Where(o => o.GetType().Name is ProducesMetadata or AcceptsMetaData).ToArray())
-                          epBuilder.Metadata.Remove(m);
+                      for (var i = epBuilder.Metadata.Count - 1; i >= 0; i--)
+                      {
+                          if (epBuilder.Metadata[i].GetType().Name is ProducesMetadata or AcceptsMetaData)
+                              epBuilder.Metadata.RemoveAt(i);
+                      }
                   });
           };
 

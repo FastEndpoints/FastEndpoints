@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http.Metadata;
 using System.Linq.Expressions;
 
@@ -16,10 +16,10 @@ public class EndpointSummary
         = b => b.Add(
               epBuilder =>
               {
-                  foreach (var m in epBuilder.Metadata.OfType<IProducesResponseTypeMetadata>().ToArray())
+                  for (var i = epBuilder.Metadata.Count - 1; i >= 0; i--)
                   {
-                      if (m.StatusCode == 200)
-                          epBuilder.Metadata.Remove(m);
+                      if (epBuilder.Metadata[i] is IProducesResponseTypeMetadata m && m.StatusCode == 200)
+                          epBuilder.Metadata.RemoveAt(i);
                   }
               });
 

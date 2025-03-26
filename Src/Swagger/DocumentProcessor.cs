@@ -1,4 +1,4 @@
-﻿using NSwag.Generation.Processors;
+using NSwag.Generation.Processors;
 using NSwag.Generation.Processors.Contexts;
 
 namespace FastEndpoints.Swagger;
@@ -88,7 +88,7 @@ sealed class DocumentProcessor : IDocumentProcessor
 
         foreach (var p in ctx.Document.Paths)
         {
-            var isFastEp = p.Value.SelectMany(o => o.Value.Tags).Any(t => t.StartsWith("|"));
+            var isFastEp = p.Value.SelectMany(o => o.Value.Tags).Any(t => t.StartsWith('|'));
 
             if (!isFastEp)
                 continue; //this isn't a fastendpoint. so don't remove it from the paths
@@ -98,7 +98,7 @@ sealed class DocumentProcessor : IDocumentProcessor
 
             foreach (var op in p.Value)
             {
-                var tagSegments = op.Value.Tags.SingleOrDefault(t => t.StartsWith("|"))?.Split("|");
+                var tagSegments = op.Value.Tags.SingleOrDefault(t => t.StartsWith('|'))?.Split('|');
                 var depVer = Convert.ToInt32(tagSegments?[4]);
 
                 // var epVer = Convert.ToInt32(tagSegments?[2]);
@@ -117,7 +117,7 @@ sealed class DocumentProcessor : IDocumentProcessor
                 if (isDeprecated && !_showDeprecated)
                     p.Value.Remove(op.Key);
 
-                op.Value.Tags.Remove(op.Value.Tags.SingleOrDefault(t => t.StartsWith("|")));
+                op.Value.Tags.Remove(op.Value.Tags.SingleOrDefault(t => t.StartsWith('|')));
             }
         }
 

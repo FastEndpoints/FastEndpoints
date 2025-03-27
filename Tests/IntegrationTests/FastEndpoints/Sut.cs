@@ -1,5 +1,4 @@
 ﻿using Admin.Login;
-using FastEndpoints.Messaging.Remote.Testing;
 using Messaging;
 using TestCases.CommandBusTest;
 using TestCases.EventBusTest;
@@ -46,9 +45,9 @@ public class Sut : AppFixture<Web.Program>
     protected override void ConfigureServices(IServiceCollection s)
     {
         s.RegisterTestCommandHandler<SomeCommand, TestCommandHandler, string>();
-        TestingExtensions.RegisterTestCommandHandler<VoidCommand, TestVoidCommandHandler>(s);
-        TestingExtensions.RegisterTestEventHandler<TestEventBus, FakeEventHandler>(s);
-        TestingExtensions.RegisterTestEventHandler<TestEventBus, AnotherFakeEventHandler>(s);
+        s.RegisterTestCommandHandler<VoidCommand, TestVoidCommandHandler>();
+        s.RegisterTestEventHandler<TestEventBus, FakeEventHandler>();
+        s.RegisterTestEventHandler<TestEventBus, AnotherFakeEventHandler>();
         s.AddScoped<IEmailService, MockEmailService>();
         s.RegisterTestEventReceivers();
     }

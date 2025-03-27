@@ -19,17 +19,21 @@ public abstract class EventBase
 public sealed class EventBus<TEvent> : EventBase where TEvent : notnull
 {
     readonly IEnumerable<IEventHandler<TEvent>> _handlers = [];
+    readonly IEventReceiver<TEvent>? _testEventReceiver;
 
     /// <summary>
     /// instantiates an event bus for the given event dto type.
     /// </summary>
     /// <param name="eventHandlers">a collection of concrete event handler implementations that should receive notifications from this event bus</param>
-    public EventBus(IEnumerable<IEventHandler<TEvent>>? eventHandlers = null)
+    /// <param name="testEventReceiver">a test event receiver that can be used to assert receipt of events</param>
+    public EventBus(IEnumerable<IEventHandler<TEvent>>? eventHandlers = null, IEventReceiver<TEvent>? testEventReceiver = null)
     {
         if (eventHandlers?.Any() is true)
             _handlers = eventHandlers;
         else if (HandlerDict.TryGetValue(typeof(TEvent), out var hndlrs) && hndlrs.Count > 0)
             _handlers = hndlrs.Select(Cfg.ServiceResolver.CreateSingleton).Cast<IEventHandler<TEvent>>().ToArray(); //ToArray() is essential here!!!
+
+        _testEventReceiver = testEventReceiver;
     }
 
     /// <summary>
@@ -45,7 +49,7 @@ public sealed class EventBus<TEvent> : EventBase where TEvent : notnull
     /// <see cref="Mode.WaitForAll" /> return a Task that will complete only when all the subscribers complete their work.
     /// </returns>
     public Task PublishAsync(TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = default)
-        => Execute(_handlers, eventModel, waitMode, null, cancellation);
+        => Execute(_handlers, eventModel, waitMode, null, _testEventReceiver, cancellation);
 
     /// <summary>
     /// publish the given model/dto to a subset of the subscribers of the event notification
@@ -61,17 +65,20 @@ public sealed class EventBus<TEvent> : EventBase where TEvent : notnull
     /// a Task that matches the wait mode specified.
     /// <see cref="Mode.WaitForNone" /> returns an already completed Task (fire and forget).
     /// <see cref="Mode.WaitForAny" /> returns a Task that will complete when any of the subscribers complete their work.
-    /// <see cref="Mode.WaitForAll" /> return a Task that will complete only when all of the subscribers complete their work.
+    /// <see cref="Mode.WaitForAll" /> return a Task that will complete only when all the subscribers complete their work.
     /// </returns>
     public Task PublishFilteredAsync(TEvent eventModel, Func<Type, bool> handlerFilter, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = default)
-        => Execute(_handlers, eventModel, waitMode, handlerFilter, cancellation);
+        => Execute(_handlers, eventModel, waitMode, handlerFilter, _testEventReceiver, cancellation);
 
     static Task Execute(IEnumerable<IEventHandler<TEvent>> handlers,
                         TEvent eventModel,
                         Mode waitMode,
                         Func<Type, bool>? handlerFilter,
-                        CancellationToken cancellation)
+                        IEventReceiver<TEvent>? testEventReceiver,
+                        CancellationToken ct)
     {
+        testEventReceiver?.AddEvent(eventModel);
+
         if (handlerFilter is not null)
             handlers = handlers.Where(h => handlerFilter(h.GetType())).ToArray();
 
@@ -81,15 +88,15 @@ public sealed class EventBus<TEvent> : EventBase where TEvent : notnull
         switch (waitMode)
         {
             case Mode.WaitForNone:
-                _ = Parallel.ForEachAsync(handlers, cancellation, async (h, c) => await h.HandleAsync(eventModel, c));
+                _ = Parallel.ForEachAsync(handlers, ct, async (h, c) => await h.HandleAsync(eventModel, c));
 
                 return Task.CompletedTask;
 
             case Mode.WaitForAny:
-                return Task.WhenAny(handlers.Select(h => Task.Run(() => h.HandleAsync(eventModel, cancellation), cancellation)));
+                return Task.WhenAny(handlers.Select(h => Task.Run(() => h.HandleAsync(eventModel, ct), ct)));
 
             case Mode.WaitForAll:
-                return Parallel.ForEachAsync(handlers, cancellation, async (h, c) => await h.HandleAsync(eventModel, c));
+                return Parallel.ForEachAsync(handlers, ct, async (h, c) => await h.HandleAsync(eventModel, c));
 
             default:
                 return Task.CompletedTask;

@@ -16,6 +16,17 @@ public class EventBusTests(Sut App) : TestBase<Sut>
     }
 
     [Fact]
+    public async Task Test_Event_Receiver_Receives_Event()
+    {
+        var (rsp, _) = await App.Client.GETAsync<Endpoint, int>();
+        rsp.IsSuccessStatusCode.ShouldBeTrue();
+
+        var receiver = App.Services.GetTestEventReceiver<TestEventBus>();
+        var res = await receiver.WaitForMatchAsync(e => e.Id == 100, ct: Cancellation);
+        res.Any().ShouldBeTrue();
+    }
+
+    [Fact]
     public async Task EventHandling()
     {
         var event1 = new NewItemAddedToStock { ID = 1, Name = "one", Quantity = 10 };

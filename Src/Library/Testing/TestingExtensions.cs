@@ -19,6 +19,21 @@ public static class TestingExtensions
         => s.AddSingleton<IEventHandler<TEvent>, THandler>(); //event handlers are always singleton
 
     /// <summary>
+    /// registers test event receivers for the purpose of testing receipt of events.
+    /// </summary>
+    public static IServiceCollection RegisterTestEventReceivers(this IServiceCollection s)
+        => s.AddSingleton(typeof(IEventReceiver<>), typeof(EventReceiver<>));
+
+    /// <summary>
+    /// gets a test event receiver for a given event type.
+    /// </summary>
+    /// <typeparam name="TEvent">the type of the event</typeparam>
+    /// <exception cref="InvalidOperationException">thrown when test event receivers are not registered</exception>
+    public static IEventReceiver<TEvent> GetTestEventReceiver<TEvent>(this IServiceProvider provider) where TEvent : IEvent
+        => provider.GetService(typeof(IEventReceiver<TEvent>)) as IEventReceiver<TEvent> ??
+           throw new InvalidOperationException("Test event receivers are not registered!");
+
+    /// <summary>
     /// register test/fake/mock command handlers for integration testing commands that don't return a result
     /// </summary>
     /// <typeparam name="TCommand">the type of the command model to register a test handler for</typeparam>

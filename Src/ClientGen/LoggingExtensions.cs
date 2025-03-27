@@ -13,6 +13,6 @@ static partial class LoggingExtensions
     [LoggerMessage(3, LogLevel.Information, "Exporting swagger json for doc: [{documentName}]")]
     public static partial void ExportingSwaggerJson(this ILogger l, string documentName);
 
-    [LoggerMessage(3, LogLevel.Information, "Swagger json export successful!")]
+    [LoggerMessage(4, LogLevel.Information, "Swagger json export successful!")]
     public static partial void SwaggerJsonExportSuccessful(this ILogger l);
 }

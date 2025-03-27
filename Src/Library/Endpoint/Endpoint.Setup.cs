@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.Json;
@@ -581,8 +581,11 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
                 b.Add(
                     eb =>
                     {
-                        foreach (var m in eb.Metadata.OfType<IProducesResponseTypeMetadata>().ToArray())
-                            eb.Metadata.Remove(m);
+                        for (var i = eb.Metadata.Count - 1; i >= 0; i--)
+                        {
+                            if (eb.Metadata[i] is IProducesResponseTypeMetadata)
+                                eb.Metadata.RemoveAt(i);
+                        }
                     });
 
                 var tRequest = typeof(TRequest);

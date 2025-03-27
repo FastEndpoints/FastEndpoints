@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Metadata;
 
@@ -45,12 +45,10 @@ public static class RouteHandlerBuilderExtensions
         hb.Add(
             epBuilder =>
             {
-                var metaData = epBuilder.Metadata.ToArray(); //need to make a copy since we're modifying the list
-
-                for (var i = 0; i < metaData.Length; i++)
+                for (var i = epBuilder.Metadata.Count - 1; i >= 0; i--)
                 {
-                    if (metaData[i] is IAcceptsMetadata)
-                        epBuilder.Metadata.Remove(metaData[i]);
+                    if (epBuilder.Metadata[i] is IAcceptsMetadata)
+                        epBuilder.Metadata.RemoveAt(i);
                 }
             });
 
@@ -67,12 +65,10 @@ public static class RouteHandlerBuilderExtensions
         hb.Add(
             epBuilder =>
             {
-                var metaData = epBuilder.Metadata.ToArray(); //need to make a copy since we're modifying the list
-
-                for (var i = 0; i < metaData.Length; i++)
+                for (var i = epBuilder.Metadata.Count - 1; i >= 0; i--)
                 {
-                    if (metaData[i] is IProducesResponseTypeMetadata meta && (statusCodes.Length == 0 || statusCodes.Contains(meta.StatusCode)))
-                        epBuilder.Metadata.Remove(metaData[i]);
+                    if (epBuilder.Metadata[i] is IProducesResponseTypeMetadata meta && (statusCodes.Length == 0 || statusCodes.Contains(meta.StatusCode)))
+                        epBuilder.Metadata.RemoveAt(i);
                 }
             });
 

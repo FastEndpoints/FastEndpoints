@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
@@ -361,12 +361,12 @@ static class BinderExtensions
                 if (ti.Kind != JsonTypeInfoKind.Object)
                     return;
 
-                for (var i = 0; i < ti.Properties.Count; i++)
+                for (var i = ti.Properties.Count - 1; i >= 0; i--)
                 {
                     var pi = ti.Properties[i];
 
                     if (pi.AttributeProvider?.IsDefined(Types.FromHeaderAttribute, true) is true && pi.PropertyType.Name.EndsWith("HeaderValue"))
-                        ti.Properties.Remove(pi);
+                        ti.Properties.RemoveAt(i);
                 }
             });
     }

@@ -5524,7 +5524,9 @@
           "PATCH",
           "DELETE",
           "HEAD",
-          "OPTIONS"
+          "OPTIONS",
+          "CONNECT",
+          "TRACE"
         ],
         "enum": [
           1,
@@ -5533,7 +5535,9 @@
           4,
           5,
           6,
-          7
+          7,
+          8,
+          9
         ]
       },
       "TestCasesPlainTextRequestTestResponse": {

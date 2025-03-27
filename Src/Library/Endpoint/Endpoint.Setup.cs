@@ -122,6 +122,34 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
         => Definition.ClaimsAll(claimTypes);
 
     /// <summary>
+    /// specify to listen for CONNECT requests on one or more routes.
+    /// </summary>
+    protected void Connect([StringSyntax("Route")] [RouteTemplate] params string[] routePatterns)
+    {
+        Verbs(Http.CONNECT);
+        Routes(routePatterns);
+    }
+
+    /// <summary>
+    /// specify a CONNECT route pattern using a replacement expression.
+    /// </summary>
+    /// <param name="routePattern">
+    /// the words prefixed with @ will be replaced by property names of the `new` expression in the order they are specified.
+    /// the replacement words do not have to match the request dto property names.
+    /// <para>
+    ///     <c>/invoice/{@id}</c>
+    /// </para>
+    /// </param>
+    /// <param name="members">
+    ///     <c>r => new { r.InvoiceID }</c>
+    /// </param>
+    protected void Connect([StringSyntax("Route")] [RouteTemplate] string routePattern, Expression<Func<TRequest, object>> members)
+    {
+        Verbs(Http.CONNECT);
+        Routes(members.BuildRoute(routePattern));
+    }
+
+    /// <summary>
     /// specify to listen for DELETE requests on one or more routes.
     /// </summary>
     protected void Delete([StringSyntax("Route")] [RouteTemplate] params string[] routePatterns)
@@ -278,6 +306,34 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <param name="builder">the builder for this endpoint</param>
     protected void Options(Action<RouteHandlerBuilder> builder)
         => Definition.Options(builder);
+
+    /// <summary>
+    /// specify to listen for OPTIONS requests on one or more routes.
+    /// </summary>
+    protected void Options([StringSyntax("Route")] [RouteTemplate] params string[] routePatterns)
+    {
+        Verbs(Http.OPTIONS);
+        Routes(routePatterns);
+    }
+
+    /// <summary>
+    /// specify a OPTIONS route pattern using a replacement expression.
+    /// </summary>
+    /// <param name="routePattern">
+    /// the words prefixed with @ will be replaced by property names of the `new` expression in the order they are specified.
+    /// the replacement words do not have to match the request dto property names.
+    /// <para>
+    ///     <c>/invoice/{@id}</c>
+    /// </para>
+    /// </param>
+    /// <param name="members">
+    ///     <c>r => new { r.InvoiceID }</c>
+    /// </param>
+    protected void Options([StringSyntax("Route")] [RouteTemplate] string routePattern, Expression<Func<TRequest, object>> members)
+    {
+        Verbs(Http.OPTIONS);
+        Routes(members.BuildRoute(routePattern));
+    }
 
     /// <summary>
     /// specify to listen for PATCH requests on one or more routes.
@@ -544,6 +600,34 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// </param>
     protected void Throttle(int hitLimit, double durationSeconds, string? headerName = null)
         => Definition.Throttle(hitLimit, durationSeconds, headerName);
+
+    /// <summary>
+    /// specify to listen for TRACE requests on one or more routes.
+    /// </summary>
+    protected void Trace([StringSyntax("Route")] [RouteTemplate] params string[] routePatterns)
+    {
+        Verbs(Http.TRACE);
+        Routes(routePatterns);
+    }
+
+    /// <summary>
+    /// specify a TRACE route pattern using a replacement expression.
+    /// </summary>
+    /// <param name="routePattern">
+    /// the words prefixed with @ will be replaced by property names of the `new` expression in the order they are specified.
+    /// the replacement words do not have to match the request dto property names.
+    /// <para>
+    ///     <c>/invoice/{@id}</c>
+    /// </para>
+    /// </param>
+    /// <param name="members">
+    ///     <c>r => new { r.InvoiceID }</c>
+    /// </param>
+    protected void Trace([StringSyntax("Route")] [RouteTemplate] string routePattern, Expression<Func<TRequest, object>> members)
+    {
+        Verbs(Http.TRACE);
+        Routes(members.BuildRoute(routePattern));
+    }
 
     /// <summary>
     /// specify the validator that should be used for this endpoint.

@@ -40,6 +40,12 @@ sealed class MyPreProcessor<TRequest> : IPreProcessor<TRequest>
 
 </details>
 
+<details><summary>Support 'CONNECT' and 'TRACE' verbs</summary>
+
+The `FastEndpoints.Http` enum and the endpoint base classes now have support for the HTTP `CONNECT` & `TRACE` verbs.
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Use source generated regex</summary>

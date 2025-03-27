@@ -40,5 +40,15 @@ public enum Http
     /// <summary>
     /// retrieve communication options
     /// </summary>
-    OPTIONS = 7
+    OPTIONS = 7,
+
+    /// <summary>
+    /// establish a communication tunnel
+    /// </summary>
+    CONNECT = 8,
+
+    /// <summary>
+    /// perform a message loop-back test for debugging purposes
+    /// </summary>
+    TRACE = 9
 }

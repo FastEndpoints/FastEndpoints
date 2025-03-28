@@ -693,6 +693,10 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
 
                 if (Definition.ExecuteAsyncReturnsIResult)
                     b.Add(eb => ProducesMetaForResultOfResponse.AddMetadata(eb, _tResponse));
+                else if ((Definition.EndpointSummary?.ProducesMetas?.Any(x => x.StatusCode == StatusCodes.Status201Created) ?? false))
+                {
+                    b.Produces(201);
+                }
                 else
                 {
                     if (_tResponse == Types.Object || _tResponse == Types.EmptyResponse)

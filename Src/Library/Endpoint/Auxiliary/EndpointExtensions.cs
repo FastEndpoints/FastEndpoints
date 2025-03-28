@@ -1,8 +1,9 @@
-﻿using System.Linq.Expressions;
+using System.Linq.Expressions;
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using static FastEndpoints.Config;
 
 namespace FastEndpoints;
@@ -75,6 +76,21 @@ static partial class EndpointExtensions
 
                     case ThrottleAttribute thrtAttr:
                         def.Throttle(thrtAttr.HitLimit, thrtAttr.DurationSeconds, thrtAttr.HeaderName);
+
+                        break;
+
+                    // Add support for ProducesResponseTypeAttribute
+                    case ProducesResponseTypeAttribute prodAttr:
+                        if (def.EndpointSummary is null)
+                        {
+                            //def.Summary(s => s.Response(prodAttr.StatusCode));
+                            def.Summary(s => s.ProducesMetas.Add(new ProducesResponseTypeMetadata
+                            {
+                                StatusCode = prodAttr.StatusCode,
+                                Type = prodAttr.Type ?? typeof(void),
+                                ContentTypes = ["application/json"]
+                            }));
+                        }
 
                         break;
 

@@ -55,13 +55,6 @@ public sealed class ErrorResponse : IResult, IEndpointMetadataProvider
     public static void PopulateMetadata(MethodInfo _, EndpointBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(builder);
-
-        builder.Metadata.Add(
-            new ProducesResponseTypeMetadata
-            {
-                ContentTypes = _contentTypes,
-                StatusCode = Cfg.ErrOpts.StatusCode,
-                Type = typeof(ProblemDetails)
-            });
+        builder.Metadata.Add(new ProducesResponseTypeMetadata(typeof(ErrorResponse), Cfg.ErrOpts.StatusCode, _contentTypes));
     }
 }

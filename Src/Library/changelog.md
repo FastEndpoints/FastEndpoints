@@ -61,6 +61,13 @@ Source generated regex is now used whereever possible. Source generated regex wa
 
 </details>
 
+<details><summary>Allow overriding the 'Verbs()' method of `Endpoint<>` class</summary>
+
+The `Verbs()` method was sealed until now because it was doing some essential setup which was required for adding the default request/response swagger descriptions.
+This logic has been moved out of the `Verbs()` method making it overrideable if needed.
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>Contention issue in reflection source generator</summary>

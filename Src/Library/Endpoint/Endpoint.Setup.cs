@@ -649,73 +649,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <summary>
     /// specify one or more http method verbs this endpoint should be accepting requests for
     /// </summary>
-    public sealed override void Verbs(params string[] methods)
-    {
-        //note: this method is sealed to not allow user to override it because we need to perform
-        //      the following setup activities, which require access to TRequest/TResponse
-
-        Definition.Verbs = methods;
-
-        //set default openapi descriptions
-        Definition.InternalConfigAction =
-            b =>
-            {
-                //clearing all produces metadata before proceeding - https://github.com/FastEndpoints/FastEndpoints/issues/833
-                //this is possibly related to .net 9+ only, but we'll be covering all bases this way.
-                b.Add(
-                    eb =>
-                    {
-                        for (var i = eb.Metadata.Count - 1; i >= 0; i--)
-                        {
-                            if (eb.Metadata[i] is IProducesResponseTypeMetadata)
-                                eb.Metadata.RemoveAt(i);
-                        }
-                    });
-
-                var tRequest = typeof(TRequest);
-                var isPlainTextRequest = Types.IPlainTextRequest.IsAssignableFrom(tRequest);
-
-                if (isPlainTextRequest)
-                {
-                    b.Accepts<TRequest>("text/plain", "application/json");
-                    b.Produces<TResponse>(200, "text/plain", "application/json");
-
-                    return;
-                }
-
-                if (tRequest != Types.EmptyRequest)
-                {
-                    if (methods.Any(m => m is "GET" or "HEAD" or "DELETE"))
-                        b.Accepts<TRequest>("*/*", "application/json");
-                    else
-                        b.Accepts<TRequest>("application/json");
-                }
-
-                if (Definition.ExecuteAsyncReturnsIResult)
-                    b.Add(eb => ProducesMetaForResultOfResponse.AddMetadata(eb, _tResponse));
-                else
-                {
-                    if (_tResponse == Types.Object || _tResponse == Types.EmptyResponse)
-                        b.Produces(204);
-                    else
-                        b.Produces<TResponse>(200, "application/json");
-                }
-
-                if (Definition.AnonymousVerbs?.Length is null or 0)
-                    b.Produces(401);
-
-                if (Definition.RequiresAuthorization())
-                    b.Produces(403);
-
-                if (Cfg.ErrOpts.ProducesMetadataType is not null && Definition.ValidatorType is not null)
-                {
-                    b.Produces(
-                        Cfg.ErrOpts.StatusCode,
-                        Cfg.ErrOpts.ProducesMetadataType,
-                        Cfg.ErrOpts.ContentType);
-                }
-            };
-    }
+    public override void Verbs(params string[] methods)
+        => Definition.Verbs = methods;
 
     /// <summary>
     /// specify the version of this endpoint.

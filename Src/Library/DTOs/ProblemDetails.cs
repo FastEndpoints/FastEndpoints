@@ -14,7 +14,6 @@ namespace FastEndpoints;
 ///     <c>app.UseFastEndpoints(x => x.Errors.ResponseBuilder = ProblemDetails.ResponseBuilder);</c>
 /// </para>
 /// </summary>
-
 public sealed class ProblemDetails : IResult, IEndpointMetadataProvider
 {
     [DefaultValue("https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1")]
@@ -86,14 +85,7 @@ public sealed class ProblemDetails : IResult, IEndpointMetadataProvider
     public static void PopulateMetadata(MethodInfo _, EndpointBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(builder);
-
-        builder.Metadata.Add(
-            new ProducesResponseTypeMetadata
-            {
-                ContentTypes = _contentTypes,
-                StatusCode = Cfg.ErrOpts.StatusCode,
-                Type = typeof(ProblemDetails)
-            });
+        builder.Metadata.Add(new ProducesResponseTypeMetadata(typeof(ProblemDetails), Cfg.ErrOpts.StatusCode, _contentTypes));
     }
 
     /// <summary>

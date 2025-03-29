@@ -64,7 +64,6 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     internal bool ExecuteAsyncReturnsIResult => _execReturnsIResults ??= ResDtoType.IsAssignableTo(Types.IResult);
     internal bool FoundDuplicateValidators;
     internal HitCounter? HitCounter { get; private set; }
-    internal Action<RouteHandlerBuilder> InternalConfigAction = null!;
     internal bool ImplementsConfigure;
     internal readonly List<IProcessor> PreProcessorList = [];
     internal int PreProcessorPosition;

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
@@ -153,7 +154,7 @@ public static class MainExtensions
                     if (def.AttribsToForward is not null)
                         hb.WithMetadata(def.AttribsToForward.ToArray());
 
-                    def.InternalConfigAction(hb); //always do this first here
+                    hb.AddSwaggerDefaults(def); //always do this first here
 
                     if (def.AnonymousVerbs?.Contains(verb) is true)
                         hb.AllowAnonymous();
@@ -334,10 +335,7 @@ public static class MainExtensions
                     if (ep.AllowAnyClaim)
                         b.RequireAssertion(x => x.User.Claims.Any(c => ep.AllowedClaimTypes.Contains(c.Type, StringComparer.OrdinalIgnoreCase)));
                     else
-                    {
-                        b.RequireAssertion(
-                            x => ep.AllowedClaimTypes.All(t => x.User.Claims.Any(c => string.Equals(c.Type, t, StringComparison.OrdinalIgnoreCase))));
-                    }
+                        b.RequireAssertion(x => ep.AllowedClaimTypes.All(t => x.User.Claims.Any(c => string.Equals(c.Type, t, StringComparison.OrdinalIgnoreCase))));
                 }
 
                 ep.PolicyBuilder?.Invoke(b);
@@ -345,6 +343,58 @@ public static class MainExtensions
                 //note: only claim/permission/policy builder requirements are added here in the security policy
                 //      roles and auth schemes are specified in the AuthorizeAttribute in BuildAuthorizeAttributes()
             });
+    }
+
+    static void AddSwaggerDefaults(this RouteHandlerBuilder b, EndpointDefinition ep)
+    {
+        //clearing all produces metadata before proceeding - https://github.com/FastEndpoints/FastEndpoints/issues/833
+        //this is possibly related to .net 9+ only, but we'll be covering all bases this way.
+        b.Add(
+            eb =>
+            {
+                for (var i = eb.Metadata.Count - 1; i >= 0; i--)
+                {
+                    if (eb.Metadata[i] is IProducesResponseTypeMetadata)
+                        eb.Metadata.RemoveAt(i);
+                }
+            });
+
+        var isPlainTextRequest = Types.IPlainTextRequest.IsAssignableFrom(ep.ReqDtoType);
+
+        if (isPlainTextRequest)
+        {
+            b.Accepts(ep.ReqDtoType, "text/plain", "application/json");
+            b.Produces(200, ep.ResDtoType, "text/plain", "application/json");
+
+            return;
+        }
+
+        if (ep.ReqDtoType != Types.EmptyRequest)
+        {
+            if (ep.Verbs.Any(m => m is "GET" or "HEAD" or "DELETE"))
+                b.Accepts(ep.ReqDtoType, "*/*", "application/json");
+            else
+                b.Accepts(ep.ReqDtoType, "application/json");
+        }
+
+        if (ep.ExecuteAsyncReturnsIResult)
+            b.Add(eb => ProducesMetaForResultOfResponse.AddMetadata(eb, ep.ResDtoType));
+        else
+        {
+            if (ep.ResDtoType == Types.Object || ep.ResDtoType == Types.EmptyResponse)
+                b.Produces(204);
+            else
+                b.Produces(200, ep.ResDtoType, "application/json");
+        }
+
+        if (ep.AnonymousVerbs?.Length is null or 0)
+            b.Produces(401);
+
+        if (ep.RequiresAuthorization())
+            b.Produces(403);
+
+        if (Cfg.ErrOpts.ProducesMetadataType is not null && ep.ValidatorType is not null)
+            b.Produces(Cfg.ErrOpts.StatusCode, Cfg.ErrOpts.ProducesMetadataType, Cfg.ErrOpts.ContentType);
     }
 }
 

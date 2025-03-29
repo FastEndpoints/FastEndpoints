@@ -111,19 +111,9 @@ public class EndpointSummary
     /// <param name="description">the description of the response</param>
     /// <param name="contentType">the media/content type of the response</param>
     /// <param name="example">and example response dto instance</param>
-    public void Response<TResponse>(int statusCode = 200,
-                                    string? description = null,
-                                    string contentType = "application/json",
-                                    TResponse? example = default)
+    public void Response<TResponse>(int statusCode = 200, string? description = null, string contentType = "application/json", TResponse? example = default)
     {
-        ProducesMetas.Add(
-            new ProducesResponseTypeMetadata
-            {
-                ContentTypes = [contentType],
-                StatusCode = statusCode,
-                Type = typeof(TResponse),
-                Example = example
-            });
+        ProducesMetas.Add(new ProducesResponseTypeMetadata(typeof(TResponse), statusCode, [contentType]) { Example = example });
 
         if (description is not null)
             Responses[statusCode] = description;
@@ -139,13 +129,7 @@ public class EndpointSummary
     /// <param name="contentType">the media/content type of the response</param>
     public void Response(int statusCode = 200, string? description = null, string? contentType = null)
     {
-        ProducesMetas.Add(
-            new ProducesResponseTypeMetadata
-            {
-                ContentTypes = contentType is null ? [] : [contentType],
-                StatusCode = statusCode,
-                Type = typeof(void)
-            });
+        ProducesMetas.Add(new ProducesResponseTypeMetadata(Types.Void, statusCode, contentType is null ? [] : [contentType]));
 
         if (description is not null)
             Responses[statusCode] = description;

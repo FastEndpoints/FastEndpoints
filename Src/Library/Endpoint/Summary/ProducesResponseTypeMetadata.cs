@@ -4,15 +4,15 @@
 
 namespace FastEndpoints;
 
-sealed class ProducesResponseTypeMetadata : IProducesResponseTypeMetadata
+sealed class ProducesResponseTypeMetadata(Type type, int statusCode, IEnumerable<string> contentTypes) : IProducesResponseTypeMetadata
 {
-    public Type? Type { get; set; }
+    public Type? Type { get; } = type;
 
-    public int StatusCode { get; set; }
+    public int StatusCode { get; } = statusCode;
+
+    public IEnumerable<string> ContentTypes { get; } = contentTypes;
 
     public string? Description { get; set; }
-
-    public IEnumerable<string> ContentTypes { get; set; }
 
     public object? Example { get; set; }
 }

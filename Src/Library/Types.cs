@@ -70,6 +70,7 @@ static class Types
     internal static readonly Type SummaryOf2 = typeof(Summary<,>);
     internal static readonly Type ToHeaderAttribute = typeof(ToHeaderAttribute);
     internal static readonly Type ValidatorOf1 = typeof(AbstractValidator<>);
+    internal static readonly Type Void = typeof(void);
     internal static readonly Type VoidResult = typeof(VoidResult);
     internal static readonly Type Uri = typeof(Uri);
 }

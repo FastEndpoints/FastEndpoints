@@ -139,6 +139,7 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
             if (metas.Count > 0)
             {
             #if NET9_0_OR_GREATER
+
                 //remove this workaround when sdk bug is fixed: https://github.com/dotnet/aspnetcore/issues/57801#issuecomment-2439578287
                 foreach (var meta in metas.Where(m => m.Value.isIResult))
                 {
@@ -513,6 +514,7 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
             if (reqDtoIsList is false)
             {
                 op.RequestBody = null;
+
                 for (var i = op.Parameters.Count - 1; i >= 0; i--)
                 {
                     if (op.Parameters[i].Kind == OpenApiParameterKind.Body)

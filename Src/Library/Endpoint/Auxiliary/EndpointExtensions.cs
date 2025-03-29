@@ -3,6 +3,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using static FastEndpoints.Config;
 
 namespace FastEndpoints;
@@ -85,6 +86,11 @@ static partial class EndpointExtensions
 
                     case IGroupAttribute grpAttr:
                         grpAttr.InitGroup(def);
+
+                        break;
+
+                    case ProducesResponseTypeAttribute prodAttr:
+                        def.Options(b => b.Produces(prodAttr.StatusCode, prodAttr.Type));
 
                         break;
 

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -364,7 +365,7 @@ public static class MainExtensions
         if (isPlainTextRequest)
         {
             b.Accepts(ep.ReqDtoType, "text/plain", "application/json");
-            b.Produces(200, ep.ResDtoType, "text/plain", "application/json");
+            b.ProducesDeDuped(200, ep.ResDtoType, ["text/plain", "application/json"]);
 
             return;
         }
@@ -382,19 +383,48 @@ public static class MainExtensions
         else
         {
             if (ep.ResDtoType == Types.Object || ep.ResDtoType == Types.EmptyResponse)
-                b.Produces(204);
+                b.ProducesDeDuped(204, Types.Void, []);
             else
-                b.Produces(200, ep.ResDtoType, "application/json");
+                b.ProducesDeDuped(200, ep.ResDtoType, ["application/json"]);
         }
 
         if (ep.AnonymousVerbs?.Length is null or 0)
-            b.Produces(401);
+            b.ProducesDeDuped(401, Types.Void, []);
 
         if (ep.RequiresAuthorization())
-            b.Produces(403);
+            b.ProducesDeDuped(403, Types.Void, []);
 
         if (Cfg.ErrOpts.ProducesMetadataType is not null && ep.ValidatorType is not null)
-            b.Produces(Cfg.ErrOpts.StatusCode, Cfg.ErrOpts.ProducesMetadataType, Cfg.ErrOpts.ContentType);
+            b.ProducesDeDuped(Cfg.ErrOpts.StatusCode, Cfg.ErrOpts.ProducesMetadataType, [Cfg.ErrOpts.ContentType]);
+    }
+
+    static void ProducesDeDuped(this RouteHandlerBuilder hb, int statusCode, Type type, string[] contentTypes)
+    {
+        hb.Finally(
+            b =>
+            {
+                for (var i = 0; i < b.Metadata.Count; i++)
+                {
+                    int? code = b.Metadata[i] switch
+                    {
+                        IProducesResponseTypeMetadata p => p.StatusCode,
+                        IApiResponseMetadataProvider a => a.StatusCode,
+                        _ => null
+                    };
+
+                    if (code is null)
+                        continue;
+
+                    switch (statusCode)
+                    {
+                        case >= 200 and < 300 when code is >= 200 and < 300:
+                        case >= 400 and < 500 when code == statusCode:
+                            return;
+                    }
+                }
+
+                b.Metadata.Add(new ProducesResponseTypeMetadata(type, statusCode, contentTypes));
+            });
     }
 }
 

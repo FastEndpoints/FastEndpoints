@@ -55,6 +55,27 @@ These received events can be used as verification that your code did actually pu
 
 ## Improvements 🚀
 
+<details><summary>Automatic addition of 'ProducesResponseTypeMetadata'</summary>
+
+The library [automatically adds response type metadata](https://fast-endpoints.com/docs/swagger-support#describe-endpoints) for certain response types. 
+Sometimes, the automatically added responses need to be cleared by the user when it's not appropriate. 
+From now on, the automatic additions will only happen if the user hasn't already added it. 
+
+**Before:**
+
+```cs
+Description(x => x.ClearDefaultProduces(200) //had to clear the auto added 200
+                  .Produces(201))
+```
+
+**Now:**
+
+```cs
+Description(x => x.Produces(201)) //nothing to clear as nothing was added due to 201 being present
+```
+
+</details>
+
 <details><summary>Use source generated regex</summary>
 
 Source generated regex is now used whereever possible. Source generated regex was not used before due to having to support older SDK versions.

@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc;
 using static FastEndpoints.Config;
-using static FastEndpoints.Constants;
 
 namespace FastEndpoints;
 
@@ -176,7 +175,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
                   {
                       for (var i = epBuilder.Metadata.Count - 1; i >= 0; i--)
                       {
-                          if (epBuilder.Metadata[i].GetType().Name is ProducesMetadata or AcceptsMetaData)
+                          if (epBuilder.Metadata[i] is IAcceptsMetadata or IProducesResponseTypeMetadata)
                               epBuilder.Metadata.RemoveAt(i);
                       }
                   });

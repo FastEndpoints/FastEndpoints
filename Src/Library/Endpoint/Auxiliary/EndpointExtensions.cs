@@ -3,8 +3,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using static FastEndpoints.Config;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 
 namespace FastEndpoints;
 
@@ -62,7 +61,7 @@ static partial class EndpointExtensions
 
                         break;
 
-                    case AuthorizeAttribute authAttr:
+                    case IAuthorizeData authAttr:
                         if (authAttr.Roles is not null)
                             def.Roles(authAttr.Roles.Split(','));
 
@@ -89,7 +88,7 @@ static partial class EndpointExtensions
 
                         break;
 
-                    case ProducesResponseTypeAttribute prodAttr:
+                    case IApiResponseMetadataProvider prodAttr:
                         def.Options(b => b.Produces(prodAttr.StatusCode, prodAttr.Type));
 
                         break;

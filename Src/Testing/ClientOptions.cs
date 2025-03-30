@@ -1,5 +1,4 @@
-﻿using System.Net.Http.Headers;
-using Microsoft.AspNetCore.Mvc.Testing.Handlers;
+﻿using Microsoft.AspNetCore.Mvc.Testing.Handlers;
 
 namespace FastEndpoints.Testing;
 

@@ -183,6 +183,7 @@ public static class MainExtensions
                     totalEndpointCount++;
                 }
                 def.AttribsToForward = null;
+                def.IsLocked = true;
             }
         }
 

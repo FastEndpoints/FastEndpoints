@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
@@ -64,6 +65,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     internal bool FoundDuplicateValidators;
     internal HitCounter? HitCounter { get; private set; }
     internal bool ImplementsConfigure;
+    internal bool IsLocked;
     internal readonly List<IProcessor> PreProcessorList = [];
     internal int PreProcessorPosition;
     internal readonly List<IProcessor> PostProcessorList = [];
@@ -86,6 +88,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// </summary>
     public void AllowAnonymous(params Http[] verbs)
     {
+        ThrowIfLocked();
         AnonymousVerbs =
             verbs.Length > 0
                 ? verbs.Select(v => v.ToString("F")).ToArray()
@@ -97,6 +100,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// </summary>
     public void AllowAnonymous(string[] verbs)
     {
+        ThrowIfLocked();
         AnonymousVerbs = verbs;
     }
 
@@ -109,6 +113,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// </param>
     public void AllowFileUploads(bool dontAutoBindFormData = false)
     {
+        ThrowIfLocked();
         FormDataContentType = "multipart/form-data";
         DontBindFormData = dontAutoBindFormData;
     }
@@ -118,7 +123,10 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// </summary>
     /// <param name="urlEncoded">set to true to accept `application/x-www-form-urlencoded` content instead of `multipart/form-data` content.</param>
     public void AllowFormData(bool urlEncoded = false)
-        => FormDataContentType = urlEncoded ? "application/x-www-form-urlencoded" : "multipart/form-data";
+    {
+        ThrowIfLocked();
+        FormDataContentType = urlEncoded ? "application/x-www-form-urlencoded" : "multipart/form-data";
+    }
 
     /// <summary>
     /// specify which authentication schemes to use for authenticating requests to this endpoint
@@ -127,6 +135,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// <param name="authSchemeNames">the authentication scheme names</param>
     public void AuthSchemes(params string[] authSchemeNames)
     {
+        ThrowIfLocked();
         AuthSchemeNames?.AddRange(authSchemeNames);
         AuthSchemeNames ??= [..authSchemeNames];
     }
@@ -135,13 +144,19 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// specify extra http verbs in addition to the endpoint level verbs.
     /// </summary>
     public void AdditionalVerbs(params Http[] verbs)
-        => Verbs = [..Verbs, ..verbs.Select(m => m.ToString())];
+    {
+        ThrowIfLocked();
+        Verbs = [..Verbs, ..verbs.Select(m => m.ToString())];
+    }
 
     /// <summary>
     /// specify extra http verbs in addition to the endpoint level verbs.
     /// </summary>
     public void AdditionalVerbs(params string[] verbs)
-        => Verbs = [..Verbs, ..verbs];
+    {
+        ThrowIfLocked();
+        Verbs = [..Verbs, ..verbs];
+    }
 
     /// <summary>
     /// allows access if the claims principal has ANY of the given claim types
@@ -150,6 +165,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// <param name="claimTypes">the claim types</param>
     public void Claims(params string[] claimTypes)
     {
+        ThrowIfLocked();
         AllowAnyClaim = true;
         AllowedClaimTypes?.AddRange(claimTypes);
         AllowedClaimTypes ??= [..claimTypes];
@@ -162,6 +178,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// <param name="claimTypes">the claim types</param>
     public void ClaimsAll(params string[] claimTypes)
     {
+        ThrowIfLocked();
         AllowAnyClaim = false;
         AllowedClaimTypes?.AddRange(claimTypes);
         AllowedClaimTypes ??= [..claimTypes];
@@ -191,6 +208,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// <param name="clearDefaults">set to true if the defaults should be cleared</param>
     public void Description(Action<RouteHandlerBuilder> builder, bool clearDefaults = false)
     {
+        ThrowIfLocked();
         UserConfigAction = clearDefaults
                                ? _clearDefaultAcceptsProducesMetadata + builder + UserConfigAction
                                : builder + UserConfigAction;
@@ -201,13 +219,19 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// handle sending of the response.
     /// </summary>
     public void DontAutoSendResponse()
-        => DontAutoSend = true;
+    {
+        ThrowIfLocked();
+        DontAutoSend = true;
+    }
 
     /// <summary>
     /// if swagger auto tagging based on path segment is enabled, calling this method will prevent a tag from being added to this endpoint.
     /// </summary>
     public void DontAutoTag()
-        => DontAutoTagEndpoints = true;
+    {
+        ThrowIfLocked();
+        DontAutoTagEndpoints = true;
+    }
 
     /// <summary>
     /// use this only if you have your own exception catching middleware.
@@ -215,20 +239,29 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// all exceptions will be thrown, and it would be your exception catching middleware to handle them.
     /// </summary>
     public void DontCatchExceptions()
-        => DoNotCatchExceptions = true;
+    {
+        ThrowIfLocked();
+        DoNotCatchExceptions = true;
+    }
 
     /// <summary>
     /// disable auto validation failure responses (400 bad request with error details) for this endpoint.
     /// <para>HINT: this only applies to request dto validation.</para>
     /// </summary>
     public void DontThrowIfValidationFails()
-        => ThrowIfValidationFails = false;
+    {
+        ThrowIfLocked();
+        ThrowIfValidationFails = false;
+    }
 
     /// <summary>
     /// enable antiforgery token verification for an endpoint
     /// </summary>
     public void EnableAntiforgery()
-        => AntiforgeryEnabled = true;
+    {
+        ThrowIfLocked();
+        AntiforgeryEnabled = true;
+    }
 
     /// <summary>
     /// specify the version of this endpoint.
@@ -237,6 +270,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// <param name="deprecateAt">the version number starting at which this endpoint should not be included in swagger document</param>
     public EpVersion EndpointVersion(int version, int deprecateAt = 0)
     {
+        ThrowIfLocked();
         Version.Current = version;
         Version.StartingReleaseVersion = version;
         Version.DeprecatedAt = deprecateAt;
@@ -252,6 +286,8 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// <exception cref="InvalidOperationException">thrown if endpoint route hasn't yet been specified</exception>
     public void Group<TEndpointGroup>() where TEndpointGroup : Group, new()
     {
+        ThrowIfLocked();
+
         if (Routes.Length == 0)
         {
             throw new InvalidOperationException(
@@ -266,6 +302,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// <param name="options">the idempotency options</param>
     public void Idempotency(Action<IdempotencyOptions>? options = null)
     {
+        ThrowIfLocked();
         IdempotencyOptions ??= new();
         options?.Invoke(IdempotencyOptions);
     }
@@ -275,7 +312,10 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// </summary>
     /// <param name="builder">the builder for this endpoint</param>
     public void Options(Action<RouteHandlerBuilder> builder)
-        => UserConfigAction = builder + UserConfigAction;
+    {
+        ThrowIfLocked();
+        UserConfigAction = builder + UserConfigAction;
+    }
 
     /// <summary>
     /// allows access if the claims principal has ANY of the given permissions
@@ -284,6 +324,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// <param name="permissions">the permissions</param>
     public void Permissions(params string[] permissions)
     {
+        ThrowIfLocked();
         AllowAnyPermission = true;
         AllowedPermissions?.AddRange(permissions);
         AllowedPermissions ??= [..permissions];
@@ -296,6 +337,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// <param name="permissions">the permissions</param>
     public void PermissionsAll(params string[] permissions)
     {
+        ThrowIfLocked();
         AllowAnyPermission = false;
         AllowedPermissions?.AddRange(permissions);
         AllowedPermissions ??= [..permissions];
@@ -307,7 +349,10 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// </summary>
     /// <param name="policy">th policy builder action</param>
     public void Policy(Action<AuthorizationPolicyBuilder> policy)
-        => PolicyBuilder = policy + PolicyBuilder;
+    {
+        ThrowIfLocked();
+        PolicyBuilder = policy + PolicyBuilder;
+    }
 
     /// <summary>
     /// specify one or more authorization policy names you have added to the middleware pipeline during app startup/ service configuration that should be
@@ -317,6 +362,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// <param name="policyNames">one or more policy names (must have been added to the pipeline on startup)</param>
     public void Policies(params string[] policyNames)
     {
+        ThrowIfLocked();
         PreBuiltUserPolicies?.AddRange(policyNames);
         PreBuiltUserPolicies ??= [..policyNames];
     }
@@ -332,7 +378,10 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// </param>
     /// <param name="postProcessors">the post-processors to add</param>
     public void PostProcessors(Order order, params IGlobalPostProcessor[] postProcessors)
-        => AddProcessors(order, postProcessors, PostProcessorList, ref _postProcessorPosition);
+    {
+        ThrowIfLocked();
+        AddProcessors(order, postProcessors, PostProcessorList, ref _postProcessorPosition);
+    }
 
     /// <summary>
     /// adds global post-processor to an endpoint definition which are to be executed in addition to the ones configured at the endpoint level.
@@ -343,7 +392,10 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// </param>
     /// <typeparam name="TPostProcessor">the post-processor to add</typeparam>
     public void PostProcessor<TPostProcessor>(Order order) where TPostProcessor : class, IGlobalPostProcessor
-        => AddProcessor<TPostProcessor>(order, PostProcessorList, ref _postProcessorPosition);
+    {
+        ThrowIfLocked();
+        AddProcessor<TPostProcessor>(order, PostProcessorList, ref _postProcessorPosition);
+    }
 
     /// <summary>
     /// adds open-generic post-processors to the endpoint definition which are to be executed in addition to the ones configured at the endpoint level.
@@ -356,6 +408,8 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// <exception cref="InvalidOperationException">thrown if the supplied post-processor types are not open generic.</exception>
     public void PostProcessors(Order order, params Type[] processorTypes)
     {
+        ThrowIfLocked();
+
         foreach (var tProc in processorTypes)
         {
             if (!tProc.IsGenericType ||
@@ -386,7 +440,10 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// </param>
     /// <param name="preProcessors">the pre-processors to add</param>
     public void PreProcessors(Order order, params IGlobalPreProcessor[] preProcessors)
-        => AddProcessors(order, preProcessors, PreProcessorList, ref PreProcessorPosition);
+    {
+        ThrowIfLocked();
+        AddProcessors(order, preProcessors, PreProcessorList, ref PreProcessorPosition);
+    }
 
     /// <summary>
     /// adds global pre-processor to an endpoint definition which are to be executed in addition to the ones configured at the endpoint level.
@@ -397,7 +454,10 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// </param>
     /// <typeparam name="TPreProcessor">the pre-processor to add</typeparam>
     public void PreProcessor<TPreProcessor>(Order order) where TPreProcessor : class, IGlobalPreProcessor
-        => AddProcessor<TPreProcessor>(order, PreProcessorList, ref PreProcessorPosition);
+    {
+        ThrowIfLocked();
+        AddProcessor<TPreProcessor>(order, PreProcessorList, ref PreProcessorPosition);
+    }
 
     /// <summary>
     /// adds open-generic pre-processors to the endpoint definition which are to be executed in addition to the ones configured at the endpoint level.
@@ -410,6 +470,8 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// <exception cref="InvalidOperationException">thrown if the supplied pre-processor types are not open generic.</exception>
     public void PreProcessors(Order order, params Type[] processorTypes)
     {
+        ThrowIfLocked();
+
         foreach (var tProc in processorTypes)
         {
             if (!tProc.IsGenericType ||
@@ -445,6 +507,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
                               string? varyByHeader = null,
                               string[]? varyByQueryKeys = null)
     {
+        ThrowIfLocked();
         ResponseCacheSettings = new()
         {
             Duration = durationSeconds,
@@ -461,7 +524,10 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// </summary>
     /// <param name="responseInterceptor">the response interceptor to be configured for the endpoint</param>
     public void ResponseInterceptor(IResponseInterceptor responseInterceptor)
-        => ResponseIntrcptr = responseInterceptor;
+    {
+        ThrowIfLocked();
+        ResponseIntrcptr = responseInterceptor;
+    }
 
     /// <summary>
     /// allows access if the claims principal has ANY of the given roles
@@ -470,6 +536,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// <param name="rolesNames">one or more roles that has access</param>
     public void Roles(params string[] rolesNames)
     {
+        ThrowIfLocked();
         AllowedRoles?.AddRange(rolesNames);
         AllowedRoles ??= [..rolesNames];
     }
@@ -485,14 +552,20 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// </summary>
     /// <param name="routePrefix">route prefix value</param>
     public void RoutePrefixOverride(string routePrefix)
-        => OverriddenRoutePrefix = routePrefix;
+    {
+        ThrowIfLocked();
+        OverriddenRoutePrefix = routePrefix;
+    }
 
     /// <summary>
     /// provide a summary/description for this endpoint to be used in swagger/ openapi
     /// </summary>
     /// <param name="endpointSummary">an action that sets values of an endpoint summary object</param>
     public void Summary(Action<EndpointSummary> endpointSummary)
-        => endpointSummary(EndpointSummary ??= new());
+    {
+        ThrowIfLocked();
+        endpointSummary(EndpointSummary ??= new());
+    }
 
     /// <summary>
     /// provide a summary/description for this endpoint to be used in swagger/ openapi
@@ -500,6 +573,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// <param name="endpointSummary">an action that sets values of an endpoint summary object</param>
     public void Summary<TRequest>(Action<EndpointSummary<TRequest>> endpointSummary) where TRequest : notnull
     {
+        ThrowIfLocked();
         var summary = EndpointSummary as EndpointSummary<TRequest> ?? new EndpointSummary<TRequest>();
         endpointSummary(summary);
         EndpointSummary = summary;
@@ -510,7 +584,10 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// </summary>
     /// <param name="endpointSummary">an endpoint summary instance</param>
     public void Summary(EndpointSummary endpointSummary)
-        => EndpointSummary = endpointSummary;
+    {
+        ThrowIfLocked();
+        EndpointSummary = endpointSummary;
+    }
 
     /// <summary>
     /// specify one or more string tags for this endpoint so they can be used in the exclusion filter during registration.
@@ -520,6 +597,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// <param name="endpointTags">the tag values to associate with this endpoint</param>
     public void Tags(params string[] endpointTags)
     {
+        ThrowIfLocked();
         EndpointTags?.AddRange(endpointTags);
         EndpointTags ??= [..endpointTags];
     }
@@ -535,14 +613,26 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// not specifying a header name will first look for 'X-Forwarded-For' header and if not present, will use `HttpContext.Connection.RemoteIpAddress`.
     /// </param>
     public void Throttle(int hitLimit, double durationSeconds, string? headerName = null)
-        => HitCounter = new(headerName, durationSeconds, hitLimit);
+    {
+        ThrowIfLocked();
+        HitCounter = new(headerName, durationSeconds, hitLimit);
+    }
 
     /// <summary>
     /// validator that should be used for this endpoint
     /// </summary>
     /// <typeparam name="TValidator">the type of the validator</typeparam>
     public void Validator<TValidator>() where TValidator : IValidator
-        => ValidatorType = typeof(TValidator);
+    {
+        ThrowIfLocked();
+        ValidatorType = typeof(TValidator);
+    }
+
+    internal void ThrowIfLocked([CallerMemberName] string callerName = "Unknown")
+    {
+        if (IsLocked)
+            throw new InvalidOperationException($"Not allowed to configure endpoints after startup! Culprit: [{callerName}()]");
+    }
 
     internal void InitAcceptsMetaData(RouteHandlerBuilder hb)
     {
@@ -656,10 +746,14 @@ public sealed class EpVersion
     public int StartingReleaseVersion { get; internal set; }
     public int DeprecatedAt { get; internal set; }
 
+    bool _isLocked;
+
     internal void Init()
     {
         if (Current == 0)
             Current = VerOpts.DefaultVersion;
+
+        _isLocked = true;
     }
 
     /// <summary>
@@ -681,6 +775,7 @@ public sealed class EpVersion
     /// <param name="version">the starting release version number of the swagger doc</param>
     public EpVersion StartingRelease(int version)
     {
+        ThrowIfLocked();
         StartingReleaseVersion = version;
 
         return this;
@@ -696,9 +791,16 @@ public sealed class EpVersion
     /// <param name="version"></param>
     public EpVersion DeprecateAt(int version)
     {
+        ThrowIfLocked();
         DeprecatedAt = version;
 
         return this;
+    }
+
+    internal void ThrowIfLocked([CallerMemberName] string callerName = "Unknown")
+    {
+        if (_isLocked)
+            throw new InvalidOperationException($"Not allowed to configure endpoints after startup! Culprit: [{callerName}()]");
     }
 }
 

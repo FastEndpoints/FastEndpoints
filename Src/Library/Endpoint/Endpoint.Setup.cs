@@ -431,7 +431,10 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// </summary>
     /// <typeparam name="TPostProcessor">the post-processor to add</typeparam>
     protected void PostProcessor<TPostProcessor>() where TPostProcessor : class, IPostProcessor<TRequest, TResponse>
-        => EndpointDefinition.AddProcessor<TPostProcessor>(Order.After, Definition.PostProcessorList, ref _unused);
+    {
+        Definition.ThrowIfLocked();
+        EndpointDefinition.AddProcessor<TPostProcessor>(Order.After, Definition.PostProcessorList, ref _unused);
+    }
 
     /// <summary>
     /// configure a collection of post-processors to be executed after the main handler function is done. processors are executed in the order they are  defined
@@ -439,7 +442,10 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// </summary>
     /// <param name="postProcessors">the post processors to be executed</param>
     protected void PostProcessors(params IPostProcessor<TRequest, TResponse>[] postProcessors)
-        => EndpointDefinition.AddProcessors(Order.After, postProcessors, Definition.PostProcessorList, ref _unused);
+    {
+        Definition.ThrowIfLocked();
+        EndpointDefinition.AddProcessors(Order.After, postProcessors, Definition.PostProcessorList, ref _unused);
+    }
 
     /// <summary>
     /// configure a  pre-processor to be executed before the main handler function is called. call this method multiple times to add multiple pre-processors.
@@ -447,7 +453,10 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// </summary>
     /// <typeparam name="TPreProcessor">the pre-processor to add</typeparam>
     protected void PreProcessor<TPreProcessor>() where TPreProcessor : class, IPreProcessor<TRequest>
-        => EndpointDefinition.AddProcessor<TPreProcessor>(Order.After, Definition.PreProcessorList, ref _unused);
+    {
+        Definition.ThrowIfLocked();
+        EndpointDefinition.AddProcessor<TPreProcessor>(Order.After, Definition.PreProcessorList, ref _unused);
+    }
 
     /// <summary>
     /// configure a collection of pre-processors to be executed before the main handler function is called. processors are executed in the order they are defined
@@ -455,7 +464,10 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// </summary>
     /// <param name="preProcessors">the pre-processors to be executed</param>
     protected void PreProcessors(params IPreProcessor<TRequest>[] preProcessors)
-        => EndpointDefinition.AddProcessors(Order.After, preProcessors, Definition.PreProcessorList, ref _unused);
+    {
+        Definition.ThrowIfLocked();
+        EndpointDefinition.AddProcessors(Order.After, preProcessors, Definition.PreProcessorList, ref _unused);
+    }
 
     /// <summary>
     /// specify to listen for PUT requests on one or more routes.
@@ -492,7 +504,10 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// </summary>
     /// <param name="binder">custom model binder implementation to use for this endpoint</param>
     protected void RequestBinder(IRequestBinder<TRequest> binder)
-        => Definition.RequestBinder = binder;
+    {
+        Definition.ThrowIfLocked();
+        Definition.RequestBinder = binder;
+    }
 
     /// <summary>
     /// specify response caching settings for this endpoint
@@ -538,14 +553,20 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// specify one or more route patterns this endpoint should be listening for
     /// </summary>
     public override void Routes([StringSyntax("Route")] [RouteTemplate] params string[] patterns)
-        => Definition.Routes = patterns;
+    {
+        Definition.ThrowIfLocked();
+        Definition.Routes = patterns;
+    }
 
     /// <summary>
     /// specify the json serializer context if code generation for request/response dtos is being used by supplying your own instance.
     /// </summary>
     /// <typeparam name="TContext">the type of the json serializer context for this endpoint</typeparam>
     protected void SerializerContext<TContext>(TContext serializerContext) where TContext : JsonSerializerContext
-        => Definition.SerializerContext = serializerContext;
+    {
+        Definition.ThrowIfLocked();
+        Definition.SerializerContext = serializerContext;
+    }
 
     /// <summary>
     /// specify the type of the json serializer context if code generation for request/response dtos is being used.
@@ -553,7 +574,10 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// </summary>
     /// <typeparam name="TContext">the type of the json serializer context for this endpoint</typeparam>
     protected void SerializerContext<TContext>() where TContext : JsonSerializerContext
-        => Definition.SerializerContext = (TContext?)Activator.CreateInstance(typeof(TContext), new JsonSerializerOptions(Cfg.SerOpts.Options));
+    {
+        Definition.ThrowIfLocked();
+        Definition.SerializerContext = (TContext?)Activator.CreateInstance(typeof(TContext), new JsonSerializerOptions(Cfg.SerOpts.Options));
+    }
 
     /// <summary>
     /// provide a summary/description for this endpoint to be used in swagger/ openapi
@@ -649,7 +673,10 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// specify one or more http method verbs this endpoint should be accepting requests for
     /// </summary>
     public override void Verbs(params string[] methods)
-        => Definition.Verbs = methods;
+    {
+        Definition.ThrowIfLocked();
+        Definition.Verbs = methods;
+    }
 
     /// <summary>
     /// specify the version of this endpoint.

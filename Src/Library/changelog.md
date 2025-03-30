@@ -89,6 +89,12 @@ This logic has been moved out of the `Verbs()` method making it overrideable if 
 
 </details>
 
+<details><summary>Prevent configuration methods being called after startup</summary>
+
+A meaningful exception will now be thrown if the user tries to call endpoint configuration methods such as `Verbs()/Routes()/etc.` outside of the endpoint `Configure()` method.
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>Contention issue in reflection source generator</summary>

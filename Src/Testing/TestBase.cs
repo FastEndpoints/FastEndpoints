@@ -24,15 +24,17 @@ public abstract class TestBase : IAsyncLifetime, IFaker
     // ReSharper disable VirtualMemberNeverOverridden.Global
 
     /// <summary>
-    /// override this method if you'd like to do some one-time setup for the test-class.
-    /// it is run before any of the test-methods of the class is executed.
+    /// override this method if you'd like to do some setup before each test-case gets executed.
+    /// it is run per test and is analogous to an async constructor for the test-class.
+    /// TIP: xunit creates a fresh instance of the test-class per test.
     /// </summary>
     protected virtual ValueTask SetupAsync()
         => ValueTask.CompletedTask;
 
     /// <summary>
-    /// override this method if you'd like to do some one-time teardown for the test-class.
-    /// it is run after all test-methods have executed.
+    /// override this method if you'd like to do some teardown/cleanup after each test-case has completed.
+    /// it is run per test and is analogous to an async destructor for the test-class.
+    /// TIP: xunit creates a fresh instance of the test-class per test.
     /// </summary>
     protected virtual ValueTask TearDownAsync()
         => ValueTask.CompletedTask;

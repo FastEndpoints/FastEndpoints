@@ -1,12 +1,9 @@
 ﻿using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 
 namespace FastEndpoints.Security;
 
@@ -31,36 +28,11 @@ public static class AuthExtensions
                     {
                         var sOpts = Cfg.ServiceResolver.TryResolve<IOptions<JwtSigningOptions>>()?.Value ?? new JwtSigningOptions();
                         signingOptions(sOpts);
-
-                        SecurityKey? key = null;
-
-                        if (sOpts.SigningKey is not null)
-                        {
-                            switch (sOpts.SigningStyle)
-                            {
-                                case TokenSigningStyle.Symmetric:
-                                    key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(sOpts.SigningKey));
-
-                                    break;
-                                case TokenSigningStyle.Asymmetric:
-                                {
-                                    var rsa = RSA.Create(); //do not dispose
-                                    if (sOpts.KeyIsPemEncoded)
-                                        rsa.ImportFromPem(sOpts.SigningKey);
-                                    else
-                                        rsa.ImportRSAPublicKey(Convert.FromBase64String(sOpts.SigningKey), out _);
-                                    key = new RsaSecurityKey(rsa);
-
-                                    break;
-                                }
-                                default:
-                                    throw new InvalidOperationException("Jwt signing style not specified!");
-                            }
-                        }
+                        sOpts.UpdateSigningKey(sOpts.SigningKey);
 
                         //set defaults
-                        o.TokenValidationParameters.IssuerSigningKey = key;
-                        o.TokenValidationParameters.ValidateIssuerSigningKey = key is not null;
+                        o.TokenValidationParameters.IssuerSigningKeyResolver = JwtSigningOptions.KeyResolver;
+                        o.TokenValidationParameters.ValidateIssuerSigningKey = true;
                         o.TokenValidationParameters.ValidateLifetime = true;
                         o.TokenValidationParameters.ClockSkew = TimeSpan.FromSeconds(60);
                         o.TokenValidationParameters.ValidAudience = null;

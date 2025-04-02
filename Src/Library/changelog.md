@@ -53,6 +53,13 @@ These received events can be used as verification that your code did actually pu
 
 </details>
 
+<details><summary>Dynamic updating of JWT signing keys at runtime</summary>
+
+Updating the signing keys used by JWT middleware at runtime is now made simple without having to restart the application.
+[See here](https://gist.github.com/dj-nitehawk/65b78b08075fae3070e9d30e2a59f4c1) for a full example of how it is done.
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Automatic addition of 'ProducesResponseTypeMetadata'</summary>

@@ -5,7 +5,7 @@ namespace FastEndpoints;
 /// <summary>
 /// marker interface for all command handlers
 /// </summary>
-public interface ICommandHandler { }
+public interface ICommandHandler;
 
 /// <summary>
 /// interface to be implemented by a command handler for a given command type that does not return a result
@@ -18,7 +18,7 @@ public interface ICommandHandler<in TCommand> : ICommandHandler where TCommand :
     /// </summary>
     /// <param name="command">the input command object</param>
     /// <param name="ct">optional cancellation token</param>
-    Task ExecuteAsync(TCommand command, CancellationToken ct);// = default);
+    Task ExecuteAsync(TCommand command, CancellationToken ct);
 }
 
 /// <summary>
@@ -33,11 +33,11 @@ public interface ICommandHandler<in TCommand, TResult> : ICommandHandler where T
     /// </summary>
     /// <param name="command">the input command object</param>
     /// <param name="ct">optional cancellation token</param>
-    Task<TResult> ExecuteAsync(TCommand command, CancellationToken ct);// = default);
+    Task<TResult> ExecuteAsync(TCommand command, CancellationToken ct);
 }
 
 /// <summary>
-/// interface to be implemented by a command handler for a given command type that returns <typeparamref name="TResult"/> stream
+/// interface to be implemented by a command handler for a given command type that returns <typeparamref name="TResult" /> stream
 /// </summary>
 /// <typeparam name="TCommand">the type of the input command</typeparam>
 /// <typeparam name="TResult">the type of the result stream returned</typeparam>
@@ -47,7 +47,7 @@ public interface IServerStreamCommandHandler<in TCommand, TResult>
 {
 #pragma warning disable CS8424
     /// <summary>
-    /// receives a command and returns a stream of <typeparamref name="TResult"/>.
+    /// receives a command and returns a stream of <typeparamref name="TResult" />.
     /// </summary>
     /// <param name="command">the input command object</param>
     /// <param name="ct">optional cancellation token</param>
@@ -56,16 +56,16 @@ public interface IServerStreamCommandHandler<in TCommand, TResult>
 }
 
 /// <summary>
-/// interface to be implemented by a command handler for a stream of <typeparamref name="T"/> that returns a single <typeparamref name="TResult"/>.
+/// interface to be implemented by a command handler for a stream of <typeparamref name="T" /> that returns a single <typeparamref name="TResult" />.
 /// </summary>
 /// <typeparam name="T">the type of item in the stream</typeparam>
 /// <typeparam name="TResult">the type of the result returned when the stream ends</typeparam>
 public interface IClientStreamCommandHandler<T, TResult>
-    where T : class where
-    TResult : class
+    where T : class
+    where TResult : class
 {
     /// <summary>
-    /// accepts a stream of <typeparamref name="T"/> and returns a <typeparamref name="TResult"/> when the stream ends.
+    /// accepts a stream of <typeparamref name="T" /> and returns a <typeparamref name="TResult" /> when the stream ends.
     /// </summary>
     /// <param name="stream">the stream of incoming items</param>
     /// <param name="ct">optional cancellation token</param>

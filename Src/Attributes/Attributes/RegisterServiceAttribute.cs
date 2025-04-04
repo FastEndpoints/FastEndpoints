@@ -12,15 +12,13 @@
 [AttributeUsage(AttributeTargets.Class, Inherited = false)]
 public sealed class RegisterServiceAttribute<TService> : Attribute where TService : class
 {
-    readonly LifeTime _lifetime;
-
     /// <summary>
     /// mark a class for registration in DI using the 'FastEndpoints.Generator' package by specifying the service lifetime.
     /// </summary>
     /// <param name="serviceLifetime">the service lifetime to use when registering in DI</param>
     public RegisterServiceAttribute(LifeTime serviceLifetime)
     {
-        _lifetime = serviceLifetime;
+        _ = serviceLifetime;
     }
 }
 

@@ -2,7 +2,10 @@
 
 /// <summary>
 /// </summary>
-public sealed class VoidResult;
+public sealed class VoidResult
+{
+    internal static VoidResult Instance = new();
+}
 
 /// <summary>
 /// </summary>

@@ -41,9 +41,7 @@ public interface ICommandHandler<in TCommand, TResult> : ICommandHandler where T
 /// </summary>
 /// <typeparam name="TCommand">the type of the input command</typeparam>
 /// <typeparam name="TResult">the type of the result stream returned</typeparam>
-public interface IServerStreamCommandHandler<in TCommand, TResult>
-    where TCommand : class, IServerStreamCommand<TResult>
-    where TResult : class
+public interface IServerStreamCommandHandler<in TCommand, TResult> where TCommand : class, IServerStreamCommand<TResult> where TResult : class
 {
 #pragma warning disable CS8424
     /// <summary>
@@ -60,9 +58,7 @@ public interface IServerStreamCommandHandler<in TCommand, TResult>
 /// </summary>
 /// <typeparam name="T">the type of item in the stream</typeparam>
 /// <typeparam name="TResult">the type of the result returned when the stream ends</typeparam>
-public interface IClientStreamCommandHandler<T, TResult>
-    where T : class
-    where TResult : class
+public interface IClientStreamCommandHandler<T, TResult> where T : class where TResult : class
 {
     /// <summary>
     /// accepts a stream of <typeparamref name="T" /> and returns a <typeparamref name="TResult" /> when the stream ends.

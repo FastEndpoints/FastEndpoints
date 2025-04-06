@@ -2,9 +2,9 @@
 
 /// <summary>
 /// </summary>
-public sealed class VoidResult
+public sealed class Void
 {
-    internal static VoidResult Instance = new();
+    internal static readonly Void Instance = new();
 }
 
 /// <summary>
@@ -19,7 +19,7 @@ public interface ICommandBase;
 /// <summary>
 /// interface for a command that does not return anything
 /// </summary>
-public interface ICommand : ICommand<VoidResult>;
+public interface ICommand : ICommand<Void>;
 
 /// <summary>
 /// interface for a command that returns a <typeparamref name="TResult" />

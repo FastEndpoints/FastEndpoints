@@ -16,7 +16,6 @@ static class Types
 
     internal static readonly Type Bool = typeof(bool);
     internal static readonly Type Byte = typeof(byte);
-    internal static readonly Type CommandHandlerExecutorOf1 = typeof(CommandHandlerExecutor<>);
     internal static readonly Type CommandHandlerExecutorOf2 = typeof(CommandHandlerExecutor<,>);
     internal static readonly Type DontInjectAttribute = typeof(DontInjectAttribute);
     internal static readonly Type DontRegisterAttribute = typeof(DontRegisterAttribute);
@@ -71,6 +70,6 @@ static class Types
     internal static readonly Type ToHeaderAttribute = typeof(ToHeaderAttribute);
     internal static readonly Type ValidatorOf1 = typeof(AbstractValidator<>);
     internal static readonly Type Void = typeof(void);
-    internal static readonly Type VoidResult = typeof(VoidResult);
+    internal static readonly Type VoidResult = typeof(Void);
     internal static readonly Type Uri = typeof(Uri);
 }

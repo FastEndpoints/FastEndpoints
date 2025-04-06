@@ -17,28 +17,8 @@ public static class CommandExtensions
     /// <param name="command">the command to execute</param>
     /// <param name="ct">optional cancellation token</param>
     /// <exception cref="InvalidOperationException">thrown when a handler for the command cannot be instantiated</exception>
-    public static Task ExecuteAsync<TCommand>(this TCommand command, CancellationToken ct = default) where TCommand : ICommand
-    {
-        var tCommand = command.GetType();
-        var registry = Cfg.ServiceResolver.Resolve<CommandHandlerRegistry>();
-
-        registry.TryGetValue(tCommand, out var def);
-
-        InitGenericHandler<VoidResult>(ref def, tCommand, registry);
-
-        if (def is null)
-            throw new InvalidOperationException($"Unable to create an instance of the handler for command [{tCommand.FullName}]");
-
-        def.HandlerExecutor ??= CreateHandlerExecutor(tCommand);
-
-        if (TestHandlersPresent)
-            def.HandlerType = Cfg.ServiceResolver.TryResolve<ICommandHandler<TCommand>>()?.GetType() ?? def.HandlerType;
-
-        return ((ICommandHandlerExecutor)def.HandlerExecutor).Execute(command, def.HandlerType, ct);
-
-        static ICommandHandlerExecutor CreateHandlerExecutor(Type tCommand)
-            => (ICommandHandlerExecutor)Cfg.ServiceResolver.CreateSingleton(Types.CommandHandlerExecutorOf1.MakeGenericType(tCommand));
-    }
+    public static Task ExecuteAsync<TCommand>(this TCommand command, CancellationToken ct = default) where TCommand : class, ICommand
+        => ExecuteAsync<Void>(command, ct);
 
     /// <summary>
     /// executes the command and returns a result
@@ -59,7 +39,7 @@ public static class CommandExtensions
         if (def is null)
             throw new InvalidOperationException($"Unable to create an instance of the handler for command [{tCommand.FullName}]");
 
-        def.HandlerExecutor ??= CreateHandlerExecutor(tCommand);
+        def.HandlerExecutor ??= Cfg.ServiceResolver.CreateSingleton(Types.CommandHandlerExecutorOf2.MakeGenericType(tCommand, typeof(TResult)));
 
         // ReSharper disable once InvertIf
         if (TestHandlersPresent)
@@ -69,10 +49,6 @@ public static class CommandExtensions
         }
 
         return ((ICommandHandlerExecutor<TResult>)def.HandlerExecutor).Execute(command, def.HandlerType, ct);
-
-        static ICommandHandlerExecutor<TResult> CreateHandlerExecutor(Type tCommand)
-            => (ICommandHandlerExecutor<TResult>)
-                Cfg.ServiceResolver.CreateSingleton(Types.CommandHandlerExecutorOf2.MakeGenericType(tCommand, typeof(TResult)));
     }
 
     /// <summary>
@@ -80,15 +56,15 @@ public static class CommandExtensions
     /// </summary>
     /// <typeparam name="TCommand">type of the command</typeparam>
     /// <param name="handler">a fake handler instance</param>
-    public static void RegisterForTesting<TCommand>(this ICommandHandler<TCommand> handler) where TCommand : ICommand
+    public static void RegisterForTesting<TCommand>(this ICommandHandler<TCommand, Void> handler) where TCommand : ICommand
     {
         var tCommand = typeof(TCommand);
         var registry = Cfg.ServiceResolver.Resolve<CommandHandlerRegistry>();
 
         registry[tCommand] = new(handler.GetType())
         {
-            HandlerExecutor = new CommandHandlerExecutor<TCommand>(
-                Cfg.ServiceResolver.Resolve<IEnumerable<ICommandMiddleware<TCommand, VoidResult>>>(),
+            HandlerExecutor = new CommandHandlerExecutor<TCommand, Void>(
+                Cfg.ServiceResolver.Resolve<IEnumerable<ICommandMiddleware<TCommand, Void>>>(),
                 handler)
         };
     }

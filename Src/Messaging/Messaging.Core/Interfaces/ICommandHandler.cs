@@ -11,14 +11,21 @@ public interface ICommandHandler;
 /// interface to be implemented by a command handler for a given command type that does not return a result
 /// </summary>
 /// <typeparam name="TCommand">the type of the command</typeparam>
-public interface ICommandHandler<in TCommand> : ICommandHandler where TCommand : ICommand
+public interface ICommandHandler<in TCommand> : ICommandHandler<TCommand, Void> where TCommand : ICommand
 {
     /// <summary>
     /// accepts a command and does not return a result.
     /// </summary>
     /// <param name="command">the input command object</param>
     /// <param name="ct">optional cancellation token</param>
-    Task ExecuteAsync(TCommand command, CancellationToken ct);
+    new Task ExecuteAsync(TCommand command, CancellationToken ct);
+
+    async Task<Void> ICommandHandler<TCommand, Void>.ExecuteAsync(TCommand command, CancellationToken ct)
+    {
+        await ExecuteAsync(command, ct);
+
+        return Void.Instance;
+    }
 }
 
 /// <summary>

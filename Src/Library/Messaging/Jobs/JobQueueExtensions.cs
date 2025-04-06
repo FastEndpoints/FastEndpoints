@@ -44,7 +44,10 @@ public static class JobQueueExtensions
         var registry = app.ApplicationServices.GetRequiredService<CommandHandlerRegistry>();
 
         if (registry.IsEmpty)
-            throw new InvalidOperationException("No Commands/Handlers found in the system! Have you called yet AddFastEndpoints() on the IServiceCollection, or RegisterGenericCommand previously on the WebApplication?");
+        {
+            throw new InvalidOperationException(
+                "No Commands/Handlers found in the system! Have you called yet AddFastEndpoints() on the IServiceCollection, or RegisterGenericCommand previously on the WebApplication?");
+        }
 
         var opts = new JobQueueOptions();
         options?.Invoke(opts);

@@ -40,6 +40,56 @@ sealed class MyPreProcessor<TRequest> : IPreProcessor<TRequest>
 
 </details>
 
+<details><summary>Middleware pipeline for Command Bus</summary>
+
+By popular demand from people moving away from MediatR, a middleware pipeline similar to MediatRs [pipeline behaviors](https://github.com/jbogard/MediatR/wiki/Behaviors) has been added to FE's built-in command bus. You just need to write your pipeline/middleware 
+pieces by implementing the interface `ICommandMiddleware<TCommand,TResult>` and register those pieces to form a middleware pipeline like so:
+
+```cs
+sealed class CommandLogger<TCommand, TResult>(ILogger<MyCommand> logger)
+    : ICommandMiddleware<TCommand, TResult> where TCommand : ICommand<TResult> where TResult : notnull
+{
+    public async Task<TResult> ExecuteAsync(TCommand command, CommandDelegate<TResult> next, CancellationToken ct)
+    {
+        logger.LogInformation("running command: {name}", command.GetType().Name);
+
+        var result = await next();
+
+        logger.LogInformation("got result: {value}", result);
+
+        return result;
+    }
+}
+
+sealed class CommandValidator<TCommand, TResult>(ILogger<MyCommand> logger)
+    : ICommandMiddleware<TCommand, TResult> where TCommand : ICommand<TResult>
+{
+    public Task<TResult> ExecuteAsync(TCommand command, CommandDelegate<TResult> next, CancellationToken ct)
+    {
+        logger.LogInformation("validating command {name}", command.GetType().Name);
+
+        return next();
+    }
+}
+```
+
+and register at startup like so:
+
+```cs
+var bld = WebApplication.CreateBuilder(args);
+bld.Services
+   .AddFastEndpoints()
+   .AddCommandMiddleware( //register the middleware in the order you want
+       typeof(CommandLogger<,>),
+       typeof(CommandValidator<,>));
+
+var app = bld.Build();
+app.UseFastEndpoints();
+app.Run();
+```
+
+</details>
+
 <details><summary>Support 'CONNECT' and 'TRACE' verbs</summary>
 
 The `FastEndpoints.Http` enum and the endpoint base classes now have support for the HTTP `CONNECT` & `TRACE` verbs.

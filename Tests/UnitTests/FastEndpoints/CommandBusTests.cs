@@ -77,7 +77,7 @@ public class CommandBusTests
     }
 
     [Fact]
-    public async Task CommandMiddlewareExecutesInForwardOrder()
+    public async Task CommandMiddlewareExecutesInCorrectOrder()
     {
         Factory.RegisterTestServices(
             s => s.AddCommandMiddleware(

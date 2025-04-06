@@ -87,7 +87,9 @@ public static class CommandExtensions
 
         registry[tCommand] = new(handler.GetType())
         {
-            HandlerExecutor = new FakeCommandHandlerExecutor<TCommand>(handler)
+            HandlerExecutor = new CommandHandlerExecutor<TCommand>(
+                Cfg.ServiceResolver.Resolve<IEnumerable<ICommandMiddleware<TCommand, VoidResult>>>(),
+                handler)
         };
     }
 
@@ -104,7 +106,9 @@ public static class CommandExtensions
 
         registry[tCommand] = new(handler.GetType())
         {
-            HandlerExecutor = new FakeCommandHandlerExecutor<TCommand, TResult>(handler)
+            HandlerExecutor = new CommandHandlerExecutor<TCommand, TResult>(
+                Cfg.ServiceResolver.Resolve<IEnumerable<ICommandMiddleware<TCommand, TResult>>>(),
+                handler)
         };
     }
 

@@ -36,7 +36,7 @@ public class CommandBusTests
         var command = new SomeCommand { FirstName = "a", LastName = "b" };
         var handler = new SomeCommandHandler(A.Fake<ILogger<SomeCommandHandler>>(), A.Fake<IEmailService>());
 
-        var res = await handler.ExecuteAsync(command, default);
+        var res = await handler.ExecuteAsync(command, CancellationToken.None);
 
         res.ShouldBe("a b");
     }
@@ -75,4 +75,65 @@ public class CommandBusTests
 
         handler.ValidationFailures.Count.ShouldBe(0);
     }
+
+    [Fact]
+    public async Task CommandMiddlewareExecutesInForwardOrder()
+    {
+        Factory.RegisterTestServices(
+            s => s.AddCommandMiddleware(
+                      typeof(FirstMiddleware<,>),
+                      typeof(SecondMiddleware<,>))
+                  .RegisterTestCommandHandler<TestCmd, TestCmdHandler, TestResult>());
+
+        var handler = new TestCmdHandler();
+        handler.RegisterForTesting();
+
+        var result = await new TestCmd().ExecuteAsync(TestContext.Current.CancellationToken);
+
+        result.Output.ShouldBe("| first-in >> second-in >> [handler] << second-out << first-out |");
+    }
+}
+
+sealed class FirstMiddleware<TCommand, TResult> : ICommandMiddleware<TCommand, TResult>
+    where TCommand : TestCmd, ICommand<TResult>
+    where TResult : TestResult
+{
+    public async Task<TResult> ExecuteAsync(TCommand command, CommandDelegate<TResult> next, CancellationToken ct)
+    {
+        command.Input += "| first-in >> ";
+        var result = await next();
+        result.Output += "first-out |";
+
+        return result;
+    }
+}
+
+sealed class SecondMiddleware<TCommand, TResult> : ICommandMiddleware<TCommand, TResult>
+    where TCommand : TestCmd, ICommand<TResult>
+    where TResult : TestResult
+{
+    public async Task<TResult> ExecuteAsync(TCommand command, CommandDelegate<TResult> next, CancellationToken ct)
+    {
+        command.Input += "second-in >> ";
+        var result = await next();
+        result.Output += "second-out << ";
+
+        return result;
+    }
+}
+
+class TestCmd : ICommand<TestResult>
+{
+    public string Input { get; set; }
+}
+
+class TestResult
+{
+    public string Output { get; set; }
+}
+
+sealed class TestCmdHandler : ICommandHandler<TestCmd, TestResult>
+{
+    public Task<TestResult> ExecuteAsync(TestCmd cmd, CancellationToken c)
+        => Task.FromResult(new TestResult { Output = $"{cmd.Input}[handler] << " });
 }

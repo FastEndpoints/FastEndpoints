@@ -8,14 +8,15 @@ interface ICommandHandlerExecutor
     Task Execute(ICommand command, Type handlerType, CancellationToken ct);
 }
 
-sealed class CommandHandlerExecutor<TCommand>(IEnumerable<ICommandMiddleware<TCommand, VoidResult>> m)
+sealed class CommandHandlerExecutor<TCommand>(IEnumerable<ICommandMiddleware<TCommand, VoidResult>> middleware, ICommandHandler<TCommand>? handler = null)
     : ICommandHandlerExecutor where TCommand : ICommand
 {
-    readonly ICommandMiddleware<TCommand, VoidResult>[] _middlewares = m.ToArray();
+    readonly ICommandMiddleware<TCommand, VoidResult>[] _middlewares = middleware.ToArray();
 
     public async Task Execute(ICommand command, Type tCommandHandler, CancellationToken ct)
     {
-        var cmdHandler = (ICommandHandler<TCommand>)Cfg.ServiceResolver.CreateInstance(tCommandHandler);
+        //handler is not null for unit tests
+        var cmdHandler = handler ?? (ICommandHandler<TCommand>)Cfg.ServiceResolver.CreateInstance(tCommandHandler);
         await InvokeMiddleware(0);
 
         async Task<VoidResult> InvokeMiddleware(int index)
@@ -30,25 +31,21 @@ sealed class CommandHandlerExecutor<TCommand>(IEnumerable<ICommandMiddleware<TCo
     }
 }
 
-sealed class FakeCommandHandlerExecutor<TCommand>(ICommandHandler<TCommand> handler) : ICommandHandlerExecutor where TCommand : ICommand
-{
-    public Task Execute(ICommand command, Type tCommandHandler, CancellationToken ct)
-        => handler.ExecuteAsync((TCommand)command, ct);
-}
-
 interface ICommandHandlerExecutor<TResult>
 {
     Task<TResult> Execute(ICommand<TResult> command, Type handlerType, CancellationToken ct);
 }
 
-sealed class CommandHandlerExecutor<TCommand, TResult>(IEnumerable<ICommandMiddleware<TCommand, TResult>> m)
+sealed class CommandHandlerExecutor<TCommand, TResult>(IEnumerable<ICommandMiddleware<TCommand, TResult>> middleware,
+                                                       ICommandHandler<TCommand, TResult>? handler = null)
     : ICommandHandlerExecutor<TResult> where TCommand : ICommand<TResult>
 {
-    readonly ICommandMiddleware<TCommand, TResult>[] _middlewares = m.ToArray();
+    readonly ICommandMiddleware<TCommand, TResult>[] _middlewares = middleware.ToArray();
 
     public Task<TResult> Execute(ICommand<TResult> command, Type tCommandHandler, CancellationToken ct)
     {
-        var cmdHandler = (ICommandHandler<TCommand, TResult>)Cfg.ServiceResolver.CreateInstance(tCommandHandler);
+        //handler is not null for unit tests
+        var cmdHandler = handler ?? (ICommandHandler<TCommand, TResult>)Cfg.ServiceResolver.CreateInstance(tCommandHandler);
 
         return InvokeMiddleware(0);
 
@@ -59,11 +56,4 @@ sealed class CommandHandlerExecutor<TCommand, TResult>(IEnumerable<ICommandMiddl
                        : _middlewares[index].ExecuteAsync((TCommand)command, () => InvokeMiddleware(index + 1), ct);
         }
     }
-}
-
-sealed class FakeCommandHandlerExecutor<TCommand, TResult>(ICommandHandler<TCommand, TResult> handler) : ICommandHandlerExecutor<TResult>
-    where TCommand : ICommand<TResult>
-{
-    public Task<TResult> Execute(ICommand<TResult> command, Type tCommandHandler, CancellationToken ct)
-        => handler.ExecuteAsync((TCommand)command, ct);
 }

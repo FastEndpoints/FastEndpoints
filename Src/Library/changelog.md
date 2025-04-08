@@ -42,51 +42,8 @@ sealed class MyPreProcessor<TRequest> : IPreProcessor<TRequest>
 
 <details><summary>Middleware pipeline for Command Bus</summary>
 
-By popular demand from people moving away from MediatR, a middleware pipeline similar to MediatRs [pipeline behaviors](https://github.com/jbogard/MediatR/wiki/Behaviors) has been added to FE's built-in command bus. You just need to write your pipeline/middleware 
-pieces by implementing the interface `ICommandMiddleware<TCommand,TResult>` and register those pieces to form a middleware pipeline like so:
-
-```cs
-sealed class CommandLogger<TCommand, TResult>(ILogger<MyCommand> logger)
-    : ICommandMiddleware<TCommand, TResult> where TCommand : ICommand<TResult> where TResult : notnull
-{
-    public async Task<TResult> ExecuteAsync(TCommand command, CommandDelegate<TResult> next, CancellationToken ct)
-    {
-        logger.LogInformation("running command: {name}", command.GetType().Name);
-
-        var result = await next();
-
-        logger.LogInformation("got result: {value}", result);
-
-        return result;
-    }
-}
-
-sealed class CommandValidator<TCommand, TResult>(ILogger<MyCommand> logger)
-    : ICommandMiddleware<TCommand, TResult> where TCommand : ICommand<TResult>
-{
-    public Task<TResult> ExecuteAsync(TCommand command, CommandDelegate<TResult> next, CancellationToken ct)
-    {
-        logger.LogInformation("validating command {name}", command.GetType().Name);
-
-        return next();
-    }
-}
-```
-
-and register at startup like so:
-
-```cs
-var bld = WebApplication.CreateBuilder(args);
-bld.Services
-   .AddFastEndpoints()
-   .AddCommandMiddleware( //register the middleware in the order you want
-       typeof(CommandLogger<,>),
-       typeof(CommandValidator<,>));
-
-var app = bld.Build();
-app.UseFastEndpoints();
-app.Run();
-```
+By popular demand from people moving away from MediatR, a middleware pipeline similar to MediatRs [pipeline behaviors](https://github.com/jbogard/MediatR/wiki/Behaviors) has been added to FE's built-in command bus. You just need to write your pipeline/middleware
+pieces by implementing the interface `ICommandMiddleware<TCommand,TResult>` and register those pieces to form a middleware pipeline as described in the [documentation]().
 
 </details>
 
@@ -114,9 +71,9 @@ Updating the signing keys used by JWT middleware at runtime is now made simple w
 
 <details><summary>Automatic addition of 'ProducesResponseTypeMetadata'</summary>
 
-The library [automatically adds response type metadata](https://fast-endpoints.com/docs/swagger-support#describe-endpoints) for certain response types. 
-Sometimes, the automatically added responses need to be cleared by the user when it's not appropriate. 
-From now on, the automatic additions will only happen if the user hasn't already added it. 
+The library [automatically adds response type metadata](https://fast-endpoints.com/docs/swagger-support#describe-endpoints) for certain response types.
+Sometimes, the automatically added responses need to be cleared by the user when it's not appropriate.
+From now on, the automatic additions will only happen if the user hasn't already added it.
 
 **Before:**
 

@@ -81,8 +81,11 @@ public class CommandBusTests
     {
         Factory.RegisterTestServices(
             s => s.AddCommandMiddleware(
-                      typeof(FirstMiddleware<,>),
-                      typeof(SecondMiddleware<,>))
+                      c =>
+                      {
+                          c.Register<TestCmd, TestResult, FirstMiddleware>();
+                          c.Register(typeof(SecondMiddleware<,>), typeof(ThirdMiddleware<,>));
+                      })
                   .RegisterTestCommandHandler<TestCmd, TestCmdHandler, TestResult>());
 
         var handler = new TestCmdHandler();
@@ -90,19 +93,17 @@ public class CommandBusTests
 
         var result = await new TestCmd().ExecuteAsync(TestContext.Current.CancellationToken);
 
-        result.Output.ShouldBe("| first-in >> second-in >> [handler] << second-out << first-out |");
+        result.Output.ShouldBe("[ first-in >> second-in >> third-in >> [handler] << third-out << second-out << first-out ]");
     }
 }
 
-sealed class FirstMiddleware<TCommand, TResult> : ICommandMiddleware<TCommand, TResult>
-    where TCommand : TestCmd, ICommand<TResult>
-    where TResult : TestResult
+sealed class FirstMiddleware : ICommandMiddleware<TestCmd, TestResult>
 {
-    public async Task<TResult> ExecuteAsync(TCommand command, CommandDelegate<TResult> next, CancellationToken ct)
+    public async Task<TestResult> ExecuteAsync(TestCmd command, CommandDelegate<TestResult> next, CancellationToken ct)
     {
-        command.Input += "| first-in >> ";
+        command.Input = "[ first-in >> ";
         var result = await next();
-        result.Output += "first-out |";
+        result.Output += "<< first-out ]";
 
         return result;
     }
@@ -116,7 +117,21 @@ sealed class SecondMiddleware<TCommand, TResult> : ICommandMiddleware<TCommand, 
     {
         command.Input += "second-in >> ";
         var result = await next();
-        result.Output += "second-out << ";
+        result.Output += "second-out ";
+
+        return result;
+    }
+}
+
+sealed class ThirdMiddleware<TCommand, TResult> : ICommandMiddleware<TCommand, TResult>
+    where TCommand : TestCmd, ICommand<TResult>
+    where TResult : TestResult
+{
+    public async Task<TResult> ExecuteAsync(TCommand command, CommandDelegate<TResult> next, CancellationToken ct)
+    {
+        command.Input += "third-in >> ";
+        var result = await next();
+        result.Output += "third-out << ";
 
         return result;
     }

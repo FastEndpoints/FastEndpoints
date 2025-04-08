@@ -115,32 +115,22 @@ public static class CommandExtensions
     }
 
     /// <summary>
-    /// register a common middleware pipeline for command handlers. the middleware should be created as open generic classes that implement the
-    /// <see cref="ICommandMiddleware{TCommand,TResult}" /> interface.
-    /// <code>.AddCommandMiddleware(typeof(CommandLogger&lt;,&gt;, typeof(CommandValidator&lt;,&gt;)</code>
+    /// register a common middleware pipeline for command handlers. the middleware can be created as open generic classes that implement the
+    /// <see cref="ICommandMiddleware{TCommand,TResult}" /> interface as well as closed generic classes implementing the same interface.
     /// </summary>
-    /// <param name="middlewareTypes">
-    /// the middleware pieces to build a pipeline with. the middleware will be executed in the order they are specified here.
-    /// </param>
-    /// <exception cref="ArgumentException">thrown if any of the supplied middleware types are not open generic</exception>
-    public static IServiceCollection AddCommandMiddleware(this IServiceCollection services, params Type[] middlewareTypes)
+    /// <param name="config">configuration action for adding middleware components to the pipeline</param>
+    public static IServiceCollection AddCommandMiddleware(this IServiceCollection services, Action<CommandMiddlewareConfig> config)
     {
-        for (var i = 0; i < middlewareTypes.Length; i++)
-        {
-            var tMiddleware = middlewareTypes[i];
+        var c = new CommandMiddlewareConfig();
+        config(c);
 
-            if (!IsValid(tMiddleware))
-                throw new ArgumentException($"{tMiddleware.Name} must be an open generic type implementing ICommandMiddleware<TRequest, TResult>");
+        if (c.Middleware.Count == 0)
+            throw new ArgumentNullException(nameof(c), "Please add some command middleware to the pipeline!");
 
-            services.AddSingleton(typeof(ICommandMiddleware<,>), tMiddleware);
-        }
+        foreach (var mw in c.Middleware)
+            services.AddSingleton(mw.tInterface, mw.tImplementation);
 
         return services;
-
-        static bool IsValid(Type type)
-            => type.IsGenericTypeDefinition &&
-               type.GetGenericArguments().Length == 2 &&
-               type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICommandMiddleware<,>));
     }
 
     static void InitGenericHandler<TResult>(ref CommandHandlerDefinition? def, Type tCommand, CommandHandlerRegistry registry)

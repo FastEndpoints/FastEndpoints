@@ -125,10 +125,10 @@ public static class CommandExtensions
         config(c);
 
         if (c.Middleware.Count == 0)
-            throw new ArgumentNullException(nameof(c), "Please add some command middleware to the pipeline!");
+            throw new ArgumentNullException(nameof(config), "Please add some command middleware to the pipeline!");
 
         foreach (var mw in c.Middleware)
-            services.AddSingleton(mw.tInterface, mw.tImplementation);
+            services.AddTransient(mw.tInterface, mw.tImplementation);
 
         return services;
     }

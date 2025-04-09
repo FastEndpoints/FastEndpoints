@@ -8,11 +8,10 @@ interface ICommandHandlerExecutor<TResult>
     Task<TResult> Execute(ICommand<TResult> command, Type handlerType, CancellationToken ct);
 }
 
-sealed class CommandHandlerExecutor<TCommand, TResult>(IEnumerable<ICommandMiddleware<TCommand, TResult>> m,
-                                                       ICommandHandler<TCommand, TResult>? handler = null)
+sealed class CommandHandlerExecutor<TCommand, TResult>(IEnumerable<ICommandMiddleware<TCommand, TResult>> m, ICommandHandler<TCommand, TResult>? handler = null)
     : ICommandHandlerExecutor<TResult> where TCommand : ICommand<TResult>
 {
-    readonly ICommandMiddleware<TCommand, TResult>[] _middlewares = m.ToArray();
+    readonly Type[] _tMiddlewares = m.Select(x => x.GetType()).ToArray();
 
     public Task<TResult> Execute(ICommand<TResult> command, Type tCommandHandler, CancellationToken ct)
     {
@@ -23,9 +22,12 @@ sealed class CommandHandlerExecutor<TCommand, TResult>(IEnumerable<ICommandMiddl
 
         Task<TResult> InvokeMiddleware(int index)
         {
-            return index == _middlewares.Length
+            return index == _tMiddlewares.Length
                        ? cmdHandler.ExecuteAsync((TCommand)command, ct)
-                       : _middlewares[index].ExecuteAsync((TCommand)command, () => InvokeMiddleware(index + 1), ct);
+                       : ((ICommandMiddleware<TCommand, TResult>)Cfg.ServiceResolver.CreateInstance(_tMiddlewares[index])).ExecuteAsync(
+                           (TCommand)command,
+                           () => InvokeMiddleware(index + 1),
+                           ct);
         }
     }
 }

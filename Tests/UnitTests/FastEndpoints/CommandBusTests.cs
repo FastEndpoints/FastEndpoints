@@ -139,12 +139,12 @@ sealed class ThirdMiddleware<TCommand, TResult> : ICommandMiddleware<TCommand, T
 
 class TestCmd : ICommand<TestResult>
 {
-    public string Input { get; set; }
+    public string Input { get; set; } = null!;
 }
 
 class TestResult
 {
-    public string Output { get; set; }
+    public string Output { get; set; } = null!;
 }
 
 sealed class TestCmdHandler : ICommandHandler<TestCmd, TestResult>

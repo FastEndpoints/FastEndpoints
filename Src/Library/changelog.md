@@ -42,8 +42,7 @@ sealed class MyPreProcessor<TRequest> : IPreProcessor<TRequest>
 
 <details><summary>Middleware pipeline for Command Bus</summary>
 
-By popular demand from people moving away from MediatR, a middleware pipeline similar to MediatRs [pipeline behaviors](https://github.com/jbogard/MediatR/wiki/Behaviors) has been added to FE's built-in command bus. You just need to write your pipeline/middleware
-pieces by implementing the interface `ICommandMiddleware<TCommand,TResult>` and register those pieces to form a middleware pipeline as described in the [documentation]().
+By popular demand from people moving away from MediatR, a middleware pipeline similar to MediatRs [pipeline behaviors](https://github.com/jbogard/MediatR/wiki/Behaviors) has been added to FE's built-in command bus. You just need to write your pipeline/middleware pieces by implementing the interface `ICommandMiddleware<TCommand,TResult>` and register those pieces to form a middleware pipeline as described in the [documentation](https://fast-endpoints.com/docs/command-bus#command-middleware-pipeline).
 
 </details>
 
@@ -55,8 +54,7 @@ The `FastEndpoints.Http` enum and the endpoint base classes now have support for
 
 <details><summary>Verify event publishes when integration testing</summary>
 
-When integration testing using the `AppFixture`, it is now possible to setup a `Test Event Receiver` as a collector of all the events that gets published from your code.
-These received events can be used as verification that your code did actually publish the desired event. A full example of this new capability can be seen [here](https://gist.github.com/dj-nitehawk/ae85c63fefb1e8163fdd37ca6dcb7bfd).
+When integration testing using the `AppFixture`, it is now possible to setup a `Test Event Receiver` as a collector of all the events that gets published from your code. These received events can be used as verification that your code did actually publish the desired event. A full example of this new capability can be seen [here](https://gist.github.com/dj-nitehawk/ae85c63fefb1e8163fdd37ca6dcb7bfd).
 
 </details>
 

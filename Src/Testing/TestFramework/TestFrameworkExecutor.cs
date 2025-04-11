@@ -8,11 +8,12 @@ sealed class TestFrameworkExecutor(IXunitTestAssembly testAssembly) : XunitTestF
 {
     public override async ValueTask RunTestCases(IReadOnlyCollection<IXunitTestCase> testCases,
                                                  IMessageSink executionMessageSink,
-                                                 ITestFrameworkExecutionOptions executionOptions)
+                                                 ITestFrameworkExecutionOptions executionOptions,
+                                                 CancellationToken cancellationToken)
     {
         SetDisableParallelization(executionOptions, true);
 
-        await TestAssemblyRunner.Instance.Run(TestAssembly, testCases, executionMessageSink, executionOptions);
+        await TestAssemblyRunner.Instance.Run(TestAssembly, testCases, executionMessageSink, executionOptions, cancellationToken);
 
         static void SetDisableParallelization(ITestFrameworkExecutionOptions executionOptions, bool? value)
         {

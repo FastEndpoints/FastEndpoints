@@ -27,8 +27,8 @@
         <PackageVersion Include="NSwag.Generation.AspNetCore" Version="14.3.0"/>
         <PackageVersion Include="RichardSzalay.MockHttp" Version="7.0.0"/>
         <PackageVersion Include="Shouldly" Version="4.3.0"/>
-        <PackageVersion Include="xunit.v3" Version="[1.1.0]"/> <!-- not upgradable to 2.0.0 as rider doesn't support it yet -->
-        <PackageVersion Include="xunit.v3.extensibility.core" Version="[1.1.0]"/>
+        <PackageVersion Include="xunit.v3" Version="2.0.1"/>
+        <PackageVersion Include="xunit.v3.extensibility.core" Version="2.0.1"/>
         <PackageVersion Include="xunit.runner.visualstudio" Version="3.0.2" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive"/>
     </ItemGroup>
     <ItemGroup Condition="'$(TargetFramework)' == 'net8.0' or '$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'netstandard2.1'">

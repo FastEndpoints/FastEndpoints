@@ -7,7 +7,7 @@
         <PackageVersion Include="Asp.Versioning.Http" Version="8.1.0"/>
         <PackageVersion Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.0"/>
         <PackageVersion Include="BenchmarkDotNet" Version="0.14.0"/>
-        <PackageVersion Include="Bogus" Version="35.6.2"/>
+        <PackageVersion Include="Bogus" Version="35.6.3"/>
         <PackageVersion Include="FakeItEasy" Version="8.3.0"/>
         <PackageVersion Include="FakeItEasy.Analyzer.CSharp" Version="6.1.1"/>
         <PackageVersion Include="FluentValidation" Version="11.11.0"/>
@@ -46,7 +46,7 @@
         <PackageVersion Include="Microsoft.Extensions.Primitives" Version="9.0.4"/>
     </ItemGroup>
     <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
-        <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.0-preview.3.25172.1"/>
+        <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.0-preview.1.25120.3"/>
         <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.0-preview.3.25172.1"/>
         <PackageVersion Include="Microsoft.AspNetCore.TestHost" Version="10.0.0-preview.3.25172.1"/>
         <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.0-preview.3.25171.5"/>

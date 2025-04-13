@@ -10,9 +10,7 @@ namespace FastEndpoints;
 
 /// <summary>
 /// RFC7807 compatible problem details/ error response class. this can be used by configuring startup like so:
-/// <para>
-///     <c>app.UseFastEndpoints(x => x.Errors.ResponseBuilder = ProblemDetails.ResponseBuilder);</c>
-/// </para>
+/// <code>app.UseFastEndpoints(c => c.Errors.UseProblemDetails())</code>
 /// </summary>
 public sealed class ProblemDetails : IResult, IEndpointMetadataProvider
 {

@@ -57,7 +57,7 @@ public interface IServiceResolverBase
     /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
     /// </summary>
     /// <param name="typeOfService">the type of the service to resolve</param>
-    //// <param name="keyName">the key name for resolving keyed service</param>
+    /// <param name="keyName">the key name for resolving keyed service</param>
     object? TryResolve(Type typeOfService, string keyName);
 
     /// <summary>
@@ -93,7 +93,8 @@ public interface IServiceResolver : IServiceResolverBase
 
     /// <summary>
     /// create an instance of a given type (which may not be registered in the DI container) which will be used as a singleton. a utility such as
-    /// <see cref="ActivatorUtilities.CreateInstance(IServiceProvider, Type, object[])" /> may be used. repeated calls with the same input type should return the same singleton
+    /// <see cref="ActivatorUtilities.CreateInstance(IServiceProvider, Type, object[])" /> may be used. repeated calls with the same input type should return the same
+    /// singleton
     /// instance by utilizing an internal concurrent/thread-safe cache.
     /// </summary>
     /// <param name="type">the type to create an instance of</param>

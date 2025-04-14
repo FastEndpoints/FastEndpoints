@@ -25,10 +25,9 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
         if (_opts is null)
             throw new InvalidOperationException("Refresh token service is not configured!");
 
-        _opts.EpSettings?.Invoke(Definition);
-
         Post(_opts.RefreshRoute);
         AllowAnonymous();
+        _opts.EpSettings?.Invoke(Definition);
     }
 
     /// <summary>

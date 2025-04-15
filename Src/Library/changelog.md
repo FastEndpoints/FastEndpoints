@@ -10,6 +10,16 @@ Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H
 
 ## New 🎉
 
+<details><summary>Convenience method for retrieving the endpoint name</summary>
+
+You can now obtain the auto generated endpoint name like below for the purpose of custom link generation using the `LinkGenerator` class.
+
+```cs
+var endpointName = IEndpoint.GetName<SomeEndpoint>();
+```
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>'Configuration Groups' support for refresh token service</summary>

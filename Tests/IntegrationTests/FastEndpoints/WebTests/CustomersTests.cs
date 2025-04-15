@@ -125,7 +125,8 @@ public class CustomersTests(Sut App) : TestBase<Sut>
                                TenantID: "this will be set to qwerty from header",
                                Name: "test customer",
                                Age: 123,
-                               Address: "address"));
+                               Address: "address"),
+                           populateHeaders: false);
 
         var results = res!.Split('|');
         results[0].ShouldBe("qwerty");

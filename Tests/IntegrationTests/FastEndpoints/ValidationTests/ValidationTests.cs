@@ -15,7 +15,8 @@ public class ValidationTests(Sut App) : TestBase<Sut>
                               new()
                               {
                                   TenantID = "abc"
-                              });
+                              },
+                              populateHeaders: false);
 
         result.StatusCode.ShouldBe(StatusCodes.Status400BadRequest);
         result.Errors.ShouldNotBeNull();

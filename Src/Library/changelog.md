@@ -20,6 +20,41 @@ var endpointName = IEndpoint.GetName<SomeEndpoint>();
 
 </details>
 
+<details><summary>Auto population of headers in routeless tests</summary>
+
+Given a request dto such as the following where a property is decorated with the `[FromHeader]` attribute:
+
+```cs
+sealed class Request
+{
+    [FromHeader]
+    public string Title { get; set; }
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+}
+```
+
+Previously, you had to manually add the header to the request in order for the endpoint to succeed without sending back an error response.
+Now you can simply supply the value for the header when making the request as follows, and the header will be automatically added to the request with the value from the property.
+
+```cs
+var (rsp, res) = await App.Client.POSTAsync<MyEndpoint, Request, string>(
+                     new()
+                     {
+                         Title = "Mrs.",
+                         FirstName = "Doubt",
+                         LastName = "Fire"
+                     });
+```
+
+This automatic behavior can be disabled as follows if you'd like to keep the previous behavior:
+
+```cs
+POSTAsync<...>(..., populateHeaders: false);
+```
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>'Configuration Groups' support for refresh token service</summary>

@@ -687,7 +687,8 @@ public class BindingTests(Sut App) : TestBase<Sut>
                                      Name = "test product",
                                      Price = 200.10m
                                  }
-                             });
+                             },
+                             populateHeaders: false);
 
         rsp.StatusCode.ShouldBe(HttpStatusCode.OK);
         res.Product.Name.ShouldBe("test product");

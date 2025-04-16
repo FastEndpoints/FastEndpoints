@@ -236,6 +236,11 @@ static class BinderExtensions
                 result = JsonSerializer.Deserialize(input[0]!, tProp, Cfg.SerOpts.Options);
 
                 return result is not null;
+
+            case 1 when input[0].IsCsvString():
+                input = input[0]!.Split(','); //csv input support is undocumented
+
+                break;
         }
 
         // querystring: ?ids=one&ids=two
@@ -280,6 +285,32 @@ static class BinderExtensions
         result = JsonSerializer.Deserialize(sb.ToString(), tProp, Cfg.SerOpts.Options);
 
         return result is not null;
+    }
+
+    static bool IsCsvString(this string? input)
+    {
+        if (string.IsNullOrEmpty(input))
+            return false;
+
+        var len = input.Length;
+
+        if (input[0] == ',' || input[len - 1] == ',')
+            return false;
+
+        var sawComma = false;
+
+        for (var i = 1; i < len; i++)
+        {
+            if (input[i] != ',')
+                continue;
+
+            if (input[i - 1] == ',')
+                return false;
+
+            sawComma = true;
+        }
+
+        return sawComma;
     }
 
     static bool IsJsonArrayString(this string? val)

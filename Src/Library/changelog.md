@@ -55,6 +55,28 @@ POSTAsync<...>(..., populateHeaders: false);
 
 </details>
 
+<details><summary>Comma separated value binding support for collection properties</summary>
+
+It was only possible to model bind collection properties if the values were submitted either as json arrays or duplicate keys.
+You can now submit csv data for automatically binding to collection properties such as the following:
+
+```cs
+public class FindRequest
+{
+    [QueryParam]
+    public string[] Status { get; set; }
+}
+```
+
+A url with query parameters such as this would work out of the box now:
+
+```ini
+/find?status=queued,completed
+```
+
+</details>
+
+
 ## Improvements 🚀
 
 <details><summary>'Configuration Groups' support for refresh token service</summary>

@@ -33,7 +33,6 @@ public static class HttpResponseExtensions
         return SerOpts.ResponseSerializer(rsp, response, "application/json", jsonSerializerContext, cancellation.IfDefault(rsp));
     }
 
-#pragma warning disable CS1574, CS1584, CS1581, CS1580
     /// <summary>
     /// execute and send any <see cref="IResult" /> produced by the <see cref="Results" /> or <see cref="TypedResults" /> classes in minimal apis.
     /// </summary>
@@ -44,7 +43,6 @@ public static class HttpResponseExtensions
     ///   - TypedResults.NotFound();
     /// </code>
     /// </param>
-#pragma warning restore CS1574, CS1584, CS1581, CS1580
     public static Task SendResultAsync(this HttpResponse rsp, IResult result)
     {
         rsp.HttpContext.MarkResponseStart();
@@ -70,11 +68,11 @@ public static class HttpResponseExtensions
     /// <param name="verb">only useful when pointing to a multi verb endpoint</param>
     /// <param name="routeNumber">only useful when pointing to a multi route endpoint</param>
     /// <param name="jsonSerializerContext">json serializer context if code generation is used</param>
-    /// <param name="generateAbsoluteUrl">set to true for generating a absolute url instead of relative url for the location header</param>
+    /// <param name="generateAbsoluteUrl">set to true for generating an absolute url instead of relative url for the location header</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
     public static Task SendCreatedAtAsync<TEndpoint>(this HttpResponse rsp,
-                                                     object? routeValues,
-                                                     object? responseBody,
+                                                     object? routeValues = null,
+                                                     object? responseBody = null,
                                                      Http? verb = null,
                                                      int? routeNumber = null,
                                                      JsonSerializerContext? jsonSerializerContext = null,
@@ -87,7 +85,7 @@ public static class HttpResponseExtensions
             responseBody,
             jsonSerializerContext,
             generateAbsoluteUrl,
-            cancellation.IfDefault(rsp));
+            cancellation);
 
     /// <summary>
     /// send a 201 created response with a location header containing where the resource can be retrieved from.
@@ -100,23 +98,150 @@ public static class HttpResponseExtensions
     /// <param name="routeValues">a route values object with key/value pairs of route information</param>
     /// <param name="responseBody">the content to be serialized in the response body</param>
     /// <param name="jsonSerializerContext">json serializer context if code generation is used</param>
-    /// <param name="generateAbsoluteUrl">set to true for generating a absolute url instead of relative url for the location header</param>
+    /// <param name="generateAbsoluteUrl">set to true for generating an absolute url instead of relative url for the location header</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
     public static Task SendCreatedAtAsync(this HttpResponse rsp,
                                           string endpointName,
-                                          object? routeValues,
-                                          object? responseBody,
+                                          object? routeValues = null,
+                                          object? responseBody = null,
                                           JsonSerializerContext? jsonSerializerContext = null,
                                           bool generateAbsoluteUrl = false,
                                           CancellationToken cancellation = default)
+        => SendAtAsync(rsp, 201, endpointName, routeValues, generateAbsoluteUrl, "application/json", responseBody, jsonSerializerContext, cancellation);
+
+    /// <summary>
+    /// send a 202 accepted response with a location header containing where the resource can be retrieved from.
+    /// <para>
+    /// HINT: if pointing to an endpoint with multiple verbs, make sure to specify the 'verb' argument and if pointing to a multi route endpoint,
+    /// specify the 'routeNumber' argument.
+    /// </para>
+    /// <para>
+    /// WARNING: this overload will not add a location header if you've set a custom endpoint name using .WithName() method. use the other overload
+    /// that accepts a string endpoint name instead.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TEndpoint">the type of the endpoint where the resource can be retrieved from</typeparam>
+    /// <param name="routeValues">a route values object with key/value pairs of route information</param>
+    /// <param name="responseBody">the content to be serialized in the response body</param>
+    /// <param name="verb">only useful when pointing to a multi verb endpoint</param>
+    /// <param name="routeNumber">only useful when pointing to a multi route endpoint</param>
+    /// <param name="jsonSerializerContext">json serializer context if code generation is used</param>
+    /// <param name="generateAbsoluteUrl">set to true for generating an absolute url instead of relative url for the location header</param>
+    /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
+    public static Task SendAcceptedAtAsync<TEndpoint>(this HttpResponse rsp,
+                                                      object? routeValues = null,
+                                                      object? responseBody = null,
+                                                      Http? verb = null,
+                                                      int? routeNumber = null,
+                                                      JsonSerializerContext? jsonSerializerContext = null,
+                                                      bool generateAbsoluteUrl = false,
+                                                      CancellationToken cancellation = default) where TEndpoint : IEndpoint
+        => SendAcceptedAtAsync(
+            rsp,
+            EpOpts.NameGenerator(new(typeof(TEndpoint), verb?.ToString("F"), routeNumber, null)),
+            routeValues,
+            responseBody,
+            jsonSerializerContext,
+            generateAbsoluteUrl,
+            cancellation);
+
+    /// <summary>
+    /// send a 202 accepted response with a location header containing where the resource can be retrieved from.
+    /// <para>
+    /// WARNING: this method is only supported on single verb/route endpoints. it will not produce a `Location` header if used in a multi verb or multi
+    /// route endpoint.
+    /// </para>
+    /// </summary>
+    /// <param name="endpointName">the name of the endpoint to use for link generation (openapi route id)</param>
+    /// <param name="routeValues">a route values object with key/value pairs of route information</param>
+    /// <param name="responseBody">the content to be serialized in the response body</param>
+    /// <param name="jsonSerializerContext">json serializer context if code generation is used</param>
+    /// <param name="generateAbsoluteUrl">set to true for generating an absolute url instead of relative url for the location header</param>
+    /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
+    public static Task SendAcceptedAtAsync(this HttpResponse rsp,
+                                           string endpointName,
+                                           object? routeValues = null,
+                                           object? responseBody = null,
+                                           JsonSerializerContext? jsonSerializerContext = null,
+                                           bool generateAbsoluteUrl = false,
+                                           CancellationToken cancellation = default)
+        => SendAtAsync(rsp, 202, endpointName, routeValues, generateAbsoluteUrl, "application/json", responseBody, jsonSerializerContext, cancellation);
+
+    /// <summary>
+    /// send a custom 20X (accepted/created) response with a location header containing where the resource can be retrieved from.
+    /// <para>
+    /// HINT: if pointing to an endpoint with multiple verbs, make sure to specify the 'verb' argument and if pointing to a multi route endpoint,
+    /// specify the 'routeNumber' argument.
+    /// </para>
+    /// <para>
+    /// WARNING: this overload will not add a location header if you've set a custom endpoint name using .WithName() method. use the other overload
+    /// that accepts a string endpoint name instead.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TEndpoint">the type of the endpoint where the resource can be retrieved from</typeparam>
+    /// <param name="statusCode">the http status code to send</param>
+    /// <param name="routeValues">a route values object with key/value pairs of route information</param>
+    /// <param name="generateAbsoluteUrl">set to true for generating an absolute url instead of relative url for the location header</param>
+    /// <param name="responseBody">the content to be serialized in the response body</param>
+    /// <param name="contentType">the content type for the response</param>
+    /// <param name="verb">only useful when pointing to a multi verb endpoint</param>
+    /// <param name="routeNumber">only useful when pointing to a multi route endpoint</param>
+    /// <param name="jsonSerializerContext">json serializer context if code generation is used</param>
+    /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
+    public static Task SendAtAsync<TEndpoint>(this HttpResponse rsp,
+                                              int statusCode,
+                                              object? routeValues = null,
+                                              bool generateAbsoluteUrl = false,
+                                              string contentType = "application/json",
+                                              object? responseBody = null,
+                                              Http? verb = null,
+                                              int? routeNumber = null,
+                                              JsonSerializerContext? jsonSerializerContext = null,
+                                              CancellationToken cancellation = default) where TEndpoint : IEndpoint
+        => SendAtAsync(
+            rsp,
+            statusCode,
+            EpOpts.NameGenerator(new(typeof(TEndpoint), verb?.ToString("F"), routeNumber, null)),
+            routeValues,
+            generateAbsoluteUrl,
+            contentType,
+            responseBody,
+            jsonSerializerContext,
+            cancellation);
+
+    /// <summary>
+    /// send a custom 20X (accepted/created) response with a location header containing where the resource can be retrieved from.
+    /// <para>
+    /// WARNING: this method is only supported on single verb/route endpoints. it will not produce a `Location` header if used in a multi verb or multi
+    /// route endpoint.
+    /// </para>
+    /// </summary>
+    /// <param name="statusCode">the http status code to send</param>
+    /// <param name="endpointName">the name of the endpoint to use for link generation (openapi route id)</param>
+    /// <param name="routeValues">a route values object with key/value pairs of route information</param>
+    /// <param name="generateAbsoluteUrl">set to true for generating an absolute url instead of relative url for the location header</param>
+    /// <param name="contentType">the content type for the response</param>
+    /// <param name="responseBody">the content to be serialized in the response body</param>
+    /// <param name="jsonSerializerContext">json serializer context if code generation is used</param>
+    /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
+    public static Task SendAtAsync(this HttpResponse rsp,
+                                   int statusCode,
+                                   string endpointName,
+                                   object? routeValues = null,
+                                   bool generateAbsoluteUrl = false,
+                                   string contentType = "application/json",
+                                   object? responseBody = null,
+                                   JsonSerializerContext? jsonSerializerContext = null,
+                                   CancellationToken cancellation = default)
     {
+        // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
         var linkGen = Cfg.ServiceResolver.TryResolve<LinkGenerator>() ??              //unit tests (won't have the LinkGenerator registered)
                       rsp.HttpContext.RequestServices?.GetService<LinkGenerator>() ?? //so get it from httpcontext. do not change to Resolve<T>() here
                       throw new InvalidOperationException("LinkGenerator is not registered! Have you done the unit test setup correctly?");
 
         rsp.HttpContext.MarkResponseStart();
         rsp.HttpContext.PopulateResponseHeadersFrom(responseBody);
-        rsp.StatusCode = 201;
+        rsp.StatusCode = statusCode;
         rsp.Headers.Location = generateAbsoluteUrl
                                    ? linkGen.GetUriByName(rsp.HttpContext, endpointName, routeValues)
                                    : linkGen.GetPathByName(endpointName, routeValues);
@@ -125,7 +250,7 @@ public static class HttpResponseExtensions
 
         return responseBody is null
                    ? rsp.StartAsync(cancellation.IfDefault(rsp))
-                   : SerOpts.ResponseSerializer(rsp, responseBody, "application/json", jsonSerializerContext, cancellation.IfDefault(rsp));
+                   : SerOpts.ResponseSerializer(rsp, responseBody, contentType, jsonSerializerContext, cancellation.IfDefault(rsp));
     }
 
     /// <summary>
@@ -151,7 +276,7 @@ public static class HttpResponseExtensions
     }
 
     /// <summary>
-    /// send an http 200 ok response without any body
+    /// send an http 200 ok response without a body.
     /// </summary>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
     public static Task SendOkAsync(this HttpResponse rsp, CancellationToken cancellation = default)
@@ -323,7 +448,7 @@ public static class HttpResponseExtensions
             contentType,
             lastModified,
             enableRangeProcessing,
-            cancellation.IfDefault(rsp));
+            cancellation);
     }
 
     /// <summary>
@@ -348,7 +473,7 @@ public static class HttpResponseExtensions
             contentType,
             lastModified,
             enableRangeProcessing,
-            cancellation.IfDefault(rsp));
+            cancellation);
 
     /// <summary>
     /// send the contents of a stream to the client
@@ -443,9 +568,7 @@ public static class HttpResponseExtensions
     /// </summary>
     /// <param name="jsonSerializerContext">json serializer context if code generation is used</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    public static Task SendEmptyJsonObject(this HttpResponse rsp,
-                                           JsonSerializerContext? jsonSerializerContext = null,
-                                           CancellationToken cancellation = default)
+    public static Task SendEmptyJsonObject(this HttpResponse rsp, JsonSerializerContext? jsonSerializerContext = null, CancellationToken cancellation = default)
     {
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 200;
@@ -460,13 +583,8 @@ public static class HttpResponseExtensions
             cancellation.IfDefault(rsp));
     }
 
-#pragma warning disable CS0649
-
-    //this avoids allocation of a new struct instance on every call
-    static readonly CancellationToken _defaultToken;
     static CancellationToken IfDefault(this CancellationToken token, HttpResponse httpResponse)
-        => token.Equals(_defaultToken)
+        => token == CancellationToken.None
                ? httpResponse.HttpContext.RequestAborted
                : token;
-#pragma warning restore CS0649
 }

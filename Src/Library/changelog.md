@@ -77,6 +77,19 @@ A url with query parameters such as this would work out of the box now:
 </details>
 
 
+<details><summary>'SendAcceptedAtAsync()' method for endpoints</summary>
+
+The following method is now available for sending a `202 - Accepted` similarly to the `201 - Created` response.
+
+```cs
+await SendCreatedAtAsync<ProgressEndpoint>(new { Id = "123" });
+```
+
+</details>
+
+
+
+
 ## Improvements 🚀
 
 <details><summary>'Configuration Groups' support for refresh token service</summary>

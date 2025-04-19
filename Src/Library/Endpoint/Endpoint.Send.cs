@@ -65,10 +65,10 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <param name="responseBody">the content to be serialized in the response body</param>
     /// <param name="verb">only useful when pointing to a multi verb endpoint</param>
     /// <param name="routeNumber">only useful when pointing to a multi route endpoint</param>
-    /// <param name="generateAbsoluteUrl">set to true for generating a absolute url instead of relative url for the location header</param>
+    /// <param name="generateAbsoluteUrl">set to true for generating an absolute url instead of relative url for the location header</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
-    protected Task SendCreatedAtAsync<TEndpoint>(object? routeValues,
-                                                 TResponse responseBody,
+    protected Task SendCreatedAtAsync<TEndpoint>(object? routeValues = null,
+                                                 TResponse? responseBody = default,
                                                  Http? verb = null,
                                                  int? routeNumber = null,
                                                  bool generateAbsoluteUrl = false,
@@ -97,11 +97,11 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <param name="endpointName">the name of the endpoint to use for link generation (openapi route id)</param>
     /// <param name="routeValues">a route values object with key/value pairs of route information</param>
     /// <param name="responseBody">the content to be serialized in the response body</param>
-    /// <param name="generateAbsoluteUrl">set to true for generating a absolute url instead of relative url for the location header</param>
+    /// <param name="generateAbsoluteUrl">set to true for generating an absolute url instead of relative url for the location header</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
     protected Task SendCreatedAtAsync(string endpointName,
-                                      object? routeValues,
-                                      TResponse responseBody,
+                                      object? routeValues = null,
+                                      TResponse? responseBody = default,
                                       bool generateAbsoluteUrl = false,
                                       CancellationToken cancellation = default)
     {
@@ -118,16 +118,81 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     }
 
     /// <summary>
+    /// send a 202 accepted response with a location header containing where the resource can be retrieved from.
+    /// <para>
+    /// HINT: if pointing to an endpoint with multiple verbs, make sure to specify the 'verb' argument and if pointing to a multi route endpoint,
+    /// specify the 'routeNumber' argument.
+    /// </para>
+    /// <para>
+    /// WARNING: this overload will not add a location header if you've set a custom endpoint name using .WithName() method. use the other overload
+    /// that accepts a string endpoint name instead.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TEndpoint">the type of the endpoint where the resource can be retrieved from</typeparam>
+    /// <param name="routeValues">a route values object with key/value pairs of route information</param>
+    /// <param name="responseBody">the content to be serialized in the response body</param>
+    /// <param name="verb">only useful when pointing to a multi verb endpoint</param>
+    /// <param name="routeNumber">only useful when pointing to a multi route endpoint</param>
+    /// <param name="generateAbsoluteUrl">set to true for generating an absolute url instead of relative url for the location header</param>
+    /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
+    protected Task SendAcceptedAtAsync<TEndpoint>(object? routeValues = null,
+                                                  TResponse? responseBody = default,
+                                                  Http? verb = null,
+                                                  int? routeNumber = null,
+                                                  bool generateAbsoluteUrl = false,
+                                                  CancellationToken cancellation = default) where TEndpoint : IEndpoint
+    {
+        if (responseBody is not null)
+            _response = responseBody;
+
+        return HttpContext.Response.SendAcceptedAtAsync<TEndpoint>(
+            routeValues,
+            responseBody,
+            verb,
+            routeNumber,
+            Definition.SerializerContext,
+            generateAbsoluteUrl,
+            cancellation);
+    }
+
+    /// <summary>
+    /// send a 202 accepted response with a location header containing where the resource can be retrieved from.
+    /// <para>
+    /// WARNING: this method is only supported on single verb/route endpoints. it will not produce a `Location` header if used in a multi verb or multi
+    /// route endpoint.
+    /// </para>
+    /// </summary>
+    /// <param name="endpointName">the name of the endpoint to use for link generation (openapi route id)</param>
+    /// <param name="routeValues">a route values object with key/value pairs of route information</param>
+    /// <param name="responseBody">the content to be serialized in the response body</param>
+    /// <param name="generateAbsoluteUrl">set to true for generating an absolute url instead of relative url for the location header</param>
+    /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
+    protected Task SendAcceptedAtAsync(string endpointName,
+                                       object? routeValues = null,
+                                       TResponse? responseBody = default,
+                                       bool generateAbsoluteUrl = false,
+                                       CancellationToken cancellation = default)
+    {
+        if (responseBody is not null)
+            _response = responseBody;
+
+        return HttpContext.Response.SendAcceptedAtAsync(
+            endpointName,
+            routeValues,
+            responseBody,
+            Definition.SerializerContext,
+            generateAbsoluteUrl,
+            cancellation);
+    }
+
+    /// <summary>
     /// send the supplied string content to the client.
     /// </summary>
     /// <param name="content">the string to write to the response body</param>
     /// <param name="statusCode">optional custom http status code</param>
     /// <param name="contentType">optional content type header value</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
-    protected Task SendStringAsync(string content,
-                                   int statusCode = 200,
-                                   string contentType = "text/plain; charset=utf-8",
-                                   CancellationToken cancellation = default)
+    protected Task SendStringAsync(string content, int statusCode = 200, string contentType = "text/plain; charset=utf-8", CancellationToken cancellation = default)
         => HttpContext.Response.SendStringAsync(content, statusCode, contentType, cancellation);
 
     /// <summary>
@@ -143,7 +208,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     }
 
     /// <summary>
-    /// send an http 200 ok response without any body
+    /// send an http 200 ok response without a body.
     /// </summary>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
     protected Task SendOkAsync(CancellationToken cancellation = default)

@@ -118,7 +118,8 @@ sealed class EndpointData
 
                     if (tInterfaces.Contains(Types.IHasMapper))
                     {
-                        var tMapper = t.GetGenericArgumentsOfType(Types.EndpointOf3)?[2] ??
+                        var tMapper = t.GetGenericArgumentsOfType(Types.IHasMapperOf1)?[0] ??
+                                      t.GetGenericArgumentsOfType(Types.EndpointOf3)?[2] ??
                                       t.GetGenericArgumentsOfType(Types.EndpointWithMapperOf2)?[1] ??
                                       t.GetGenericArgumentsOfType(Types.EndpointWithOutRequestOf2)?[1];
 

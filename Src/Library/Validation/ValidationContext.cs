@@ -15,7 +15,7 @@ public class ValidationContext
     public static ValidationContext Instance => new();
 
     public List<ValidationFailure> ValidationFailures { get; } =
-        (List<ValidationFailure>?)Cfg.ServiceResolver?.TryResolve<IHttpContextAccessor>()?.HttpContext?.Items[CtxKey.ValidationFailures] ?? new();
+        (List<ValidationFailure>?)Cfg.ServiceResolver.TryResolve<IHttpContextAccessor>()?.HttpContext?.Items[CtxKey.ValidationFailures] ?? [];
 
     public bool ValidationFailed => ValidationFailures.ValidationFailed();
 
@@ -31,7 +31,11 @@ public class ValidationContext
 
     [DoesNotReturn]
     public void ThrowError(string message, int? statusCode = null)
-        => ValidationFailures.ThrowError(message, statusCode);
+        => ValidationFailures.ThrowError(statusCode, message);
+
+    [DoesNotReturn]
+    public void ThrowError(string message, string errorCode, Severity severity = Severity.Error, int? statusCode = null)
+        => ValidationFailures.ThrowError(statusCode, message, errorCode, severity);
 
     public void ThrowIfAnyErrors(int? statusCode = null)
         => ValidationFailures.ThrowIfAnyErrors(statusCode);
@@ -41,12 +45,18 @@ public class ValidationContext<T> : ValidationContext, IValidationErrors<T>
 {
     public new static ValidationContext<T> Instance => new();
 
-    /// <inheritdoc />
     public void AddError(Expression<Func<T, object?>> property, string errorMessage, string? errorCode = null, Severity severity = Severity.Error)
         => ValidationFailures.AddError(property, errorMessage, errorCode, severity);
 
-    /// <inheritdoc />
     [DoesNotReturn]
     public void ThrowError(Expression<Func<T, object?>> property, string errorMessage, int? statusCode = null)
-        => ValidationFailures.ThrowError(property, errorMessage, statusCode);
+        => ValidationFailures.ThrowError(property, statusCode, errorMessage);
+
+    [DoesNotReturn]
+    public void ThrowError(Expression<Func<T, object?>> property,
+                           string errorMessage,
+                           string errorCode,
+                           Severity severity = Severity.Error,
+                           int? statusCode = null)
+        => ValidationFailures.ThrowError(property, statusCode, errorMessage, errorCode, severity);
 }

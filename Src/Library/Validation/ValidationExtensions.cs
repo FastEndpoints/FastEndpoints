@@ -22,10 +22,7 @@ static class ValidationExtensions
         failures.Add(failure);
     }
 
-    internal static void AddError(this List<ValidationFailure> failures,
-                                  string message,
-                                  string? errorCode = null,
-                                  Severity severity = Severity.Error)
+    internal static void AddError(this List<ValidationFailure> failures, string message, string? errorCode = null, Severity severity = Severity.Error)
     {
         failures.AddError(
             new(Cfg.ErrOpts.GeneralErrorsField, message)
@@ -69,9 +66,13 @@ static class ValidationExtensions
     }
 
     [DoesNotReturn]
-    internal static void ThrowError(this List<ValidationFailure> failures, string message, int? statusCode)
+    internal static void ThrowError(this List<ValidationFailure> failures,
+                                    int? statusCode,
+                                    string errorMessage,
+                                    string? errorCode = null,
+                                    Severity severity = Severity.Error)
     {
-        failures.AddError(message);
+        failures.AddError(errorMessage, errorCode, severity);
 
         throw new ValidationFailureException(failures, $"{nameof(ThrowError)}() called!") { StatusCode = statusCode };
     }
@@ -79,11 +80,13 @@ static class ValidationExtensions
     [DoesNotReturn]
     internal static void ThrowError<T>(this List<ValidationFailure> failures,
                                        Expression<Func<T, object?>> property,
-                                       string errorMessage,
                                        int? statusCode,
+                                       string errorMessage,
+                                       string? errorCode = null,
+                                       Severity severity = Severity.Error,
                                        string? reqDtoFromBodyPropName = null)
     {
-        failures.AddError(property, errorMessage, reqDtoFromBodyPropName);
+        failures.AddError(property, errorMessage, errorCode, severity, reqDtoFromBodyPropName);
 
         throw new ValidationFailureException(failures, $"{nameof(ThrowError)}() called") { StatusCode = statusCode };
     }

@@ -53,20 +53,12 @@ public static class Factory
 
         static Type? GetMapperType(Type tEndpoint)
         {
-            var t = tEndpoint;
+            var tInterfaces = tEndpoint.GetInterfaces();
 
-            while (t is not null)
+            foreach (var ifc in tInterfaces)
             {
-                if (t.IsGenericType)
-                {
-                    foreach (var arg in t.GetGenericArguments())
-                    {
-                        if (Types.IMapper.IsAssignableFrom(arg))
-                            return arg;
-                    }
-                }
-
-                t = t.BaseType;
+                if (ifc.IsGenericType && ifc.GetGenericTypeDefinition() == Types.IHasMapperOf1)
+                    return ifc.GetGenericArguments()[0];
             }
 
             return null;

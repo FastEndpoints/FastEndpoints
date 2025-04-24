@@ -45,7 +45,6 @@ static class Types
     internal static readonly Type IEventHandlerOf1 = typeof(IEventHandler<>);
     internal static readonly Type IFormatProvider = typeof(IFormatProvider);
     internal static readonly Type IFormFile = typeof(IFormFile);
-    internal static readonly Type IHasMapper = typeof(IHasMapper);
     internal static readonly Type IHasMapperOf1 = typeof(IHasMapper<>);
     internal static readonly Type IJobResultStorage = typeof(IJobResultStorage);
     internal static readonly Type IJobResultProvider = typeof(IJobResultProvider);

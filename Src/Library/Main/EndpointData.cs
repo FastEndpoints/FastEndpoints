@@ -22,10 +22,7 @@ sealed class EndpointData
     static EndpointDefinition[] BuildEndpointDefinitions(EndpointDiscoveryOptions opts, CommandHandlerRegistry cmdHandlerRegistry)
     {
         if (opts.DisableAutoDiscovery && opts.Assemblies?.Any() is false)
-        {
-            throw new InvalidOperationException(
-                $"If '{nameof(opts.DisableAutoDiscovery)}' is true, a collection of `{nameof(opts.Assemblies)}` must be provided!");
-        }
+            throw new InvalidOperationException($"If '{nameof(opts.DisableAutoDiscovery)}' is true, a collection of `{nameof(opts.Assemblies)}` must be provided!");
 
         if (opts.SourceGeneratorDiscoveredTypes.Count > 0 && opts.Assemblies?.Any() is true)
         {
@@ -116,17 +113,6 @@ sealed class EndpointData
                     var tResponse = t.GetGenericArgumentsOfType(Types.EndpointOf2)?[1] ?? Types.EmptyResponse;
                     epList.Add((t, tRequest, tResponse));
 
-                    if (tInterfaces.Contains(Types.IHasMapper))
-                    {
-                        var tMapper = t.GetGenericArgumentsOfType(Types.IHasMapperOf1)?[0] ??
-                                      t.GetGenericArgumentsOfType(Types.EndpointOf3)?[2] ??
-                                      t.GetGenericArgumentsOfType(Types.EndpointWithMapperOf2)?[1] ??
-                                      t.GetGenericArgumentsOfType(Types.EndpointWithOutRequestOf2)?[1];
-
-                        if (Types.IMapper.IsAssignableFrom(tMapper))
-                            mapperDict[t] = tMapper;
-                    }
-
                     continue;
                 }
 
@@ -152,9 +138,21 @@ sealed class EndpointData
                     continue;
                 }
 
-                var tGeneric = tInterface.IsGenericType ? tInterface.GetGenericTypeDefinition() : null;
+                var tGeneric = tInterface.IsGenericType
+                                   ? tInterface.GetGenericTypeDefinition()
+                                   : null;
 
-                if (tGeneric == Types.IEventHandlerOf1) // IsAssignableTo() is no good here if the user inherits the interface.
+                if (tGeneric is null)
+                    continue;
+
+                if (tGeneric == Types.IHasMapperOf1) // IsAssignableTo() is no good here if the user inherits the interface.
+                {
+                    mapperDict[t] = tInterface.GetGenericArguments()[0];
+
+                    continue;
+                }
+
+                if (tGeneric == Types.IEventHandlerOf1) // IsAssignableTo() is no good here also
                 {
                     var tEvent = tInterface.GetGenericArguments()[0];
 
@@ -228,11 +226,9 @@ sealed class EndpointData
                 switch (implementsHandleAsync)
                 {
                     case false when !implementsExecuteAsync:
-                        throw new InvalidOperationException(
-                            $"The endpoint [{x.tEndpoint.FullName}] must implement either [HandleAsync] or [ExecuteAsync] methods!");
+                        throw new InvalidOperationException($"The endpoint [{x.tEndpoint.FullName}] must implement either [HandleAsync] or [ExecuteAsync] methods!");
                     case true when implementsExecuteAsync:
-                        throw new InvalidOperationException(
-                            $"The endpoint [{x.tEndpoint.FullName}] has both [HandleAsync] and [ExecuteAsync] methods implemented!");
+                        throw new InvalidOperationException($"The endpoint [{x.tEndpoint.FullName}] has both [HandleAsync] and [ExecuteAsync] methods implemented!");
                 }
 
                 if (valDict.TryGetValue(def.ReqDtoType, out var val))

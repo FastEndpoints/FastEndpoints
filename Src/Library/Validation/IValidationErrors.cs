@@ -50,7 +50,7 @@ interface IValidationErrors<T>
 
     /// <summary>
     /// adds a <see cref="ValidationFailure" /> to the validation failure collection of the endpoint and send back a 400 bad request with error details
-    /// immediately interrupting handler execution flow. if there are any vallidation failures, no execution will continue past this call.
+    /// immediately interrupting handler execution flow. i.e. execution will not continue past this call.
     /// </summary>
     /// <param name="failure">the validation failure to add</param>
     /// <param name="statusCode">an optional status code to be used when building the error response</param>
@@ -58,13 +58,24 @@ interface IValidationErrors<T>
     void ThrowError(ValidationFailure failure, int? statusCode = null);
 
     /// <summary>
-    /// add a "GeneralError" to the validation failure list and send back a 400 bad request with error details immediately interrupting handler execution
-    /// flow. if there are any vallidation failures, no execution will continue past this call.
+    /// adds a "GeneralError" to the validation failure list and sends back a 400 bad request with error details immediately interrupting handler execution
+    /// flow. i.e. execution will not continue past this call.
     /// </summary>
     /// <param name="message">the error message</param>
     /// <param name="statusCode">an optional status code to be used when building the error response</param>
     [DoesNotReturn]
     void ThrowError(string message, int? statusCode = null);
+
+    /// <summary>
+    /// adds a "GeneralError" to the validation failure list and sends back a 400 bad request with error details immediately interrupting handler execution
+    /// flow. i.e. execution will not continue past this call.
+    /// </summary>
+    /// <param name="message">the error message</param>
+    /// <param name="errorCode">the error code associated with the error</param>
+    /// <param name="severity">the severity of the error</param>
+    /// <param name="statusCode">an optional status code to be used when building the error response</param>
+    [DoesNotReturn]
+    void ThrowError(string message, string errorCode, Severity severity = Severity.Error, int? statusCode = null);
 
     /// <summary>
     /// adds an error message for the specified property of the request dto and sends back a 400 bad request with error details immediately interrupting
@@ -75,4 +86,20 @@ interface IValidationErrors<T>
     /// <param name="statusCode">an optional status code to be used when building the error response</param>
     [DoesNotReturn]
     void ThrowError(Expression<Func<T, object?>> property, string errorMessage, int? statusCode = null);
+
+    /// <summary>
+    /// adds an error message for the specified property of the request dto and sends back a 400 bad request with error details immediately interrupting
+    /// handler execution flow. no execution will continue past this call.
+    /// </summary>
+    /// <param name="property">the property to add the error message for</param>
+    /// <param name="errorMessage">the error message</param>
+    /// <param name="errorCode">the error code associated with the error</param>
+    /// <param name="severity">the severity of the error</param>
+    /// <param name="statusCode">an optional status code to be used when building the error response</param>
+    [DoesNotReturn]
+    void ThrowError(Expression<Func<T, object?>> property,
+                    string errorMessage,
+                    string errorCode,
+                    Severity severity = Severity.Error,
+                    int? statusCode = null);
 }

@@ -87,8 +87,15 @@ await SendCreatedAtAsync<ProgressEndpoint>(new { Id = "123" });
 
 </details>
 
+<details><summary>Error Code & Error Severity support for the 'ThrowError()' method</summary>
 
+A new overload has been added for the `ThroError()` method where you can supply an error code and an optional severity value as follows:
 
+```cs
+ThrowError("Account is locked out!", errorCode: "AccountLocked", severity: Severity.Error, statusCode: 423);
+```
+
+</details>
 
 ## Improvements 🚀
 

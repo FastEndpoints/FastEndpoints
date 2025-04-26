@@ -97,6 +97,14 @@ ThrowError("Account is locked out!", errorCode: "AccountLocked", severity: Sever
 
 </details>
 
+
+<details><summary>new setting for default value binding behavior</summary>
+
+https://github.com/FastEndpoints/FastEndpoints/issues/939
+
+</details>
+
+
 ## Improvements 🚀
 
 <details><summary>'Configuration Groups' support for refresh token service</summary>

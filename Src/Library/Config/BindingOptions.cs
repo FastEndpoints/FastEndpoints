@@ -4,6 +4,8 @@ using System.Text.Json;
 using FluentValidation.Results;
 using Microsoft.Extensions.Primitives;
 
+// ReSharper disable MemberCanBeMadeStatic.Global
+
 namespace FastEndpoints;
 
 /// <summary>
@@ -17,6 +19,13 @@ public sealed class BindingOptions
     /// only applies when field names are not specified on properties with attributes such as [BindFrom(...)], [FromClaim(...)], [FromHeader(...)] etc.
     /// </summary>
     public bool UsePropertyNamingPolicy { get; set; } = false;
+
+    /// <summary>
+    /// by default, if a dto property is nullable and an incoming parameter value is omitted while only the parameter name exists, the default value for the property
+    /// will be populated. setting <c>false</c> will prevent that from happening. only applies to non-STJ binding paths such as when binding from
+    /// route/query/claims/headers/form fields etc.
+    /// </summary>
+    public bool UseDefaultValuesForNullableProps { get; set; } = true;
 
     /// <summary>
     /// the central cache of request dto related reflection data.
@@ -109,7 +118,7 @@ public sealed class BindingOptions
     /// {
     ///     c.Binding.ValueParserFor&lt;Guid&gt;(MyParsers.GuidParser);
     /// });
-    /// 
+    ///
     /// public static class MyParsers
     /// {
     ///     public static ParseResult GuidParser(object? input)
@@ -141,7 +150,7 @@ public sealed class BindingOptions
     /// {
     ///     c.Binding.ValueParserFor(typeof(Guid), MyParsers.GuidParser);
     /// });
-    /// 
+    ///
     /// public static class MyParsers
     /// {
     ///     public static ParseResult GuidParser(object? input)

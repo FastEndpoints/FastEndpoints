@@ -373,13 +373,18 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                 throw new JsonBindException(kvp.Key, Cfg.BndOpts.FailureMessage(prop.PropType, kvp.Key, kvp.Value), ex);
             }
 
-            if (res.IsSuccess || IsNullablePropAndInputIsEmptyString(kvp, prop))
+            if (res.IsSuccess)
                 prop.PropSetter(req, res.Value);
             else
-                failures.Add(new(kvp.Key, Cfg.BndOpts.FailureMessage(prop.PropType, kvp.Key, kvp.Value)));
+            {
+                if (IsNullablePropAndInputIsAnEmptyString(kvp, prop))
+                    prop.PropSetter(req, Cfg.BndOpts.UseDefaultValuesForNullableProps ? res.Value : null);
+                else
+                    failures.Add(new(kvp.Key, Cfg.BndOpts.FailureMessage(prop.PropType, kvp.Key, kvp.Value)));
+            }
         }
 
-        static bool IsNullablePropAndInputIsEmptyString(KeyValuePair<string, StringValues> kvp, PrimaryPropCacheEntry prop)
+        static bool IsNullablePropAndInputIsAnEmptyString(KeyValuePair<string, StringValues> kvp, PrimaryPropCacheEntry prop)
             => kvp.Value[0]?.Length == 0 && Nullable.GetUnderlyingType(prop.PropType) is not null;
     }
 

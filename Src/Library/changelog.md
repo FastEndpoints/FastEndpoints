@@ -10,9 +10,9 @@ Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H
 
 ## New 🎉
 
-<details><summary>Convenience method for retrieving the endpoint name</summary>
+<details><summary>Convenience method for retrieving the auto generated endpoint name</summary>
 
-You can now obtain the auto generated endpoint name like below for the purpose of custom link generation using the `LinkGenerator` class.
+You can now obtain the generated endpoint name like below for the purpose of custom link generation using the `LinkGenerator` class.
 
 ```cs
 var endpointName = IEndpoint.GetName<SomeEndpoint>();
@@ -68,7 +68,7 @@ public class FindRequest
 }
 ```
 
-A url with query parameters such as this would work out of the box now:
+A url with query parameters such as this would work out-of-the-box now:
 
 ```ini
 /find?status=queued,completed
@@ -89,7 +89,7 @@ await SendCreatedAtAsync<ProgressEndpoint>(new { Id = "123" });
 
 <details><summary>Error Code & Error Severity support for the 'ThrowError()' method</summary>
 
-A new overload has been added for the `ThroError()` method where you can supply an error code and an optional severity value as follows:
+A new overload has been added for the `ThrowError()` method where you can supply an error code and an optional severity value as follows:
 
 ```cs
 ThrowError("Account is locked out!", errorCode: "AccountLocked", severity: Severity.Error, statusCode: 423);
@@ -98,12 +98,35 @@ ThrowError("Account is locked out!", errorCode: "AccountLocked", severity: Sever
 </details>
 
 
-<details><summary>new setting for default value binding behavior</summary>
+<details><summary>Setting for changing 'default value' binding behavior</summary>
 
-https://github.com/FastEndpoints/FastEndpoints/issues/939
+Given a request dto such as the following, which has a nullable value type property:
+
+```cs
+public class MyRequest
+{
+    [QueryParam]
+    public int? Age { get; set; }
+}
+```
+
+and a request is made with an empty parameter value such as:
+
+```yaml
+/person?age=
+```
+
+the default behavior is to populate the property with the `default value` for that `value type` when model binding, and if the parameter name is also omitted, the property would end up being `null`.
+
+You can now change this behavior so that in case an empty parameter is submitted, the property would end up being `null`, instead of the default value:
+
+```cs
+app.UseFastEndpoints(c => c.Binding.UseDefaultValuesForNullableProps = false)
+```
+
+Note: the setting applies to all non-STJ binding paths such as route/query/claims/headers/form fields etc.
 
 </details>
-
 
 ## Improvements 🚀
 

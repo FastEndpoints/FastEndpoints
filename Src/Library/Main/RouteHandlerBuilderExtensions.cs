@@ -62,13 +62,13 @@ public static class RouteHandlerBuilderExtensions
     /// <param name="statusCodes">one or more status codes of the defaults to remove</param>
     public static RouteHandlerBuilder ClearDefaultProduces(this RouteHandlerBuilder hb, params int[] statusCodes)
     {
-        hb.Add(
-            epBuilder =>
+        hb.Finally(
+            eb =>
             {
-                for (var i = epBuilder.Metadata.Count - 1; i >= 0; i--)
+                for (var i = eb.Metadata.Count - 1; i >= 0; i--)
                 {
-                    if (epBuilder.Metadata[i] is IProducesResponseTypeMetadata meta && (statusCodes.Length == 0 || statusCodes.Contains(meta.StatusCode)))
-                        epBuilder.Metadata.RemoveAt(i);
+                    if (eb.Metadata[i] is DefaultProducesResponseMetadata meta && (statusCodes.Length == 0 || statusCodes.Contains(meta.StatusCode)))
+                        eb.Metadata.RemoveAt(i);
                 }
             });
 

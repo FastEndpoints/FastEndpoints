@@ -182,4 +182,10 @@ The reflection source generator failed to generate the correct object initializa
 
 </details>
 
+<details><summary>'ClearDefaultProduces()' stopped working from global configurator</summary>
+
+If `ClearDefaultProduces()` was called from the global endpoint configurator function, it had no effect due to a regression introduced in `v6.0`, which has now been corrected.
+
+</details>
+
 ## Breaking Changes ⚠️

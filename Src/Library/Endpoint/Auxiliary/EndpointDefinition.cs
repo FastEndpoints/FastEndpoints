@@ -184,16 +184,28 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
         AllowedClaimTypes ??= [..claimTypes];
     }
 
-    static readonly Action<RouteHandlerBuilder> _clearDefaultAcceptsProducesMetadata
-        = b =>
+    static readonly Action<RouteHandlerBuilder> _clearDefaultAcceptsAndProducesMetadata
+        = hb =>
           {
-              b.Add(
-                  epBuilder =>
+              //NOTE: accepts metadata needs to use .Add()
+              hb.Add(
+                  eb =>
                   {
-                      for (var i = epBuilder.Metadata.Count - 1; i >= 0; i--)
+                      for (var i = eb.Metadata.Count - 1; i >= 0; i--)
                       {
-                          if (epBuilder.Metadata[i] is IAcceptsMetadata or IProducesResponseTypeMetadata)
-                              epBuilder.Metadata.RemoveAt(i);
+                          if (eb.Metadata[i] is IAcceptsMetadata)
+                              eb.Metadata.RemoveAt(i);
+                      }
+                  });
+
+              //NOTE: produces metadata needs to use .Finally()
+              hb.Finally(
+                  eb =>
+                  {
+                      for (var i = eb.Metadata.Count - 1; i >= 0; i--)
+                      {
+                          if (eb.Metadata[i] is DefaultProducesResponseMetadata)
+                              eb.Metadata.RemoveAt(i);
                       }
                   });
           };
@@ -210,7 +222,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     {
         ThrowIfLocked();
         UserConfigAction = clearDefaults
-                               ? _clearDefaultAcceptsProducesMetadata + builder + UserConfigAction
+                               ? _clearDefaultAcceptsAndProducesMetadata + builder + UserConfigAction
                                : builder + UserConfigAction;
     }
 

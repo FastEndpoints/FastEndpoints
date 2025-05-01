@@ -83,7 +83,7 @@ public sealed class ProblemDetails : IResult, IEndpointMetadataProvider
     public static void PopulateMetadata(MethodInfo _, EndpointBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(builder);
-        builder.Metadata.Add(new ProducesResponseTypeMetadata(typeof(ProblemDetails), Cfg.ErrOpts.StatusCode, _contentTypes));
+        builder.Metadata.Add(new DefaultProducesResponseMetadata(typeof(ProblemDetails), Cfg.ErrOpts.StatusCode, _contentTypes));
     }
 
     /// <summary>

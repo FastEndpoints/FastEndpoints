@@ -424,7 +424,7 @@ public static class MainExtensions
                     }
                 }
 
-                b.Metadata.Add(new ProducesResponseTypeMetadata(type, statusCode, contentTypes));
+                b.Metadata.Add(new DefaultProducesResponseMetadata(type, statusCode, contentTypes));
             });
     }
 }

@@ -265,10 +265,10 @@ public static class Extensions
            .SingleOrDefault();
 
     /// <summary>
-    /// gets the example object if any, from a given <see cref="ProducesResponseTypeMetadata" /> internal class
+    /// gets the example object if any, from a given <see cref="DefaultProducesResponseMetadata" /> internal class
     /// </summary>
     public static object? GetExampleFromMetaData(this IProducesResponseTypeMetadata metadata)
-        => (metadata as ProducesResponseTypeMetadata)?.Example;
+        => (metadata as DefaultProducesResponseMetadata)?.Example;
 
     /// <summary>
     /// when path based auto-tagging is enabled, you can use this method to specify an override tag name if necessary.

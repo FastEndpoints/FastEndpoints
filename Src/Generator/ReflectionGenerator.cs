@@ -122,7 +122,7 @@ public class ReflectionGenerator : IIncrementalGenerator
             {
                 b.w(
                     $"""
-                     
+
                                      ObjectFactory = () => new {tInfo.TypeAlias}({BuildCtorArgs(tInfo.CtorArgumentCount)}){BuildInitializerArgs(tInfo.RequiredProps)},
                      """);
             }
@@ -131,7 +131,7 @@ public class ReflectionGenerator : IIncrementalGenerator
             {
                 b.w(
                     $"""
-                     
+
                                      ValueParser = input => new({tInfo.TypeAlias}.TryParse({BuildTryParseArgs(tInfo.IsParsable)}), result),
                      """);
             }
@@ -140,7 +140,7 @@ public class ReflectionGenerator : IIncrementalGenerator
             {
                 b.w(
                     """
-                    
+
                                     Properties = new(
                                     [
                     """);
@@ -149,7 +149,7 @@ public class ReflectionGenerator : IIncrementalGenerator
                 {
                     b.w(
                         $"""
-                         
+
                                               new(_{tInfo.TypeAlias}.GetProperty(nameof({tInfo.TypeAlias}.{prop.PropName}))!,
                          """);
                     b.w(
@@ -161,14 +161,14 @@ public class ReflectionGenerator : IIncrementalGenerator
 
                 b.w(
                     """
-                    
+
                                     ])
                     """);
             }
 
             b.w(
                 """
-                
+
                             });
 
                 """);
@@ -332,8 +332,8 @@ public class ReflectionGenerator : IIncrementalGenerator
                             GetMethod.DeclaredAccessibility : Accessibility.Public,
                             SetMethod.DeclaredAccessibility: Accessibility.Public
                         } prop:
-                            if (HasDontInjectAttribute(prop) ||            //ignore props with [DontInject] or
-                                HasUnconditionalJsonIgnoreAttribute(prop)) //[JsonIgnore] or [JsonIgnore(Condition=Always)]
+                            //ignore props with [DontInject] or [JsonIgnore] or [JsonIgnore(Condition=Always)] but not if it has `required` keyword
+                            if ((HasDontInjectAttribute(prop) || HasUnconditionalJsonIgnoreAttribute(prop)) && prop.IsRequired is false)
                                 break;
 
                             Properties.Add(new(prop));

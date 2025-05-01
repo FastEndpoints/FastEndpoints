@@ -164,4 +164,22 @@ public class UserTokenService : RefreshTokenService<TokenRequest, TokenResponse>
 
 ## Fixes 🪲
 
+<details><summary>Reflection source generator issue with 'required' properties</summary>
+
+If a DTO class had `required` properties with `[JsonIgnore]` attributes such as this:
+
+```cs
+sealed class UpdateRequest 
+{ 
+    [JsonIgnore] 
+    public required int Id { get; set; } 
+ 
+    public required string Name { get; set; } 
+} 
+```
+
+The reflection source generator failed to generate the correct object initialization factory causing a compile error, which has now been corrected.
+
+</details>
+
 ## Breaking Changes ⚠️

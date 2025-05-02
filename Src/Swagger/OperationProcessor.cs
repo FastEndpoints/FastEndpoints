@@ -813,6 +813,10 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
 
         if (ctx.OpCtx.Settings.SchemaSettings.GenerateExamples)
         {
+            //TODO: obtain example value for this parameter from EndpointSummary.ExampleRequest object
+            //      will have to iterate the properties of the object to find a matching param name and get value with reflection
+            //      if value is found, set value on prm.Example and return early here.
+
             prm.Example = prop?.GetExampleJToken(ctx.Serializer);
 
             if (prm.Example is null && prm.Default is null && prm.Schema?.Default is null && prm.IsRequired)

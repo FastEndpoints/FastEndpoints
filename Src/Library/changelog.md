@@ -188,4 +188,10 @@ If `ClearDefaultProduces()` was called from the global endpoint configurator fun
 
 </details>
 
+<details><summary>Incorrect OAS3 spec generation when 'NotNull()' or 'NotEmpty()' validators were used on nested objects</summary>
+
+If a request DTO has complex nested properties and those properties are being validated with either `NotNull()` or `NotEmpty()`, an incorrect swagger3 spec was being generated due to a bug in the "validation schema processor".
+
+</details>
+
 ## Breaking Changes ⚠️

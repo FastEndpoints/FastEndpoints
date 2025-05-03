@@ -71,8 +71,8 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
             {
                 if (tValidator.BaseType?.GenericTypeArguments.FirstOrDefault() == tRequest)
                 {
-                    var validator = _serviceResolver.CreateInstance(tValidator, scope.ServiceProvider) 
-                        ?? throw new InvalidOperationException($"Unable to instantiate validator {tValidator.Name}!");
+                    var validator = _serviceResolver.CreateInstance(tValidator, scope.ServiceProvider) ??
+                                    throw new InvalidOperationException($"Unable to instantiate validator {tValidator.Name}!");
                     ApplyValidator(context.Schema, (IValidator)validator, "", scope.ServiceProvider);
 
                     break;
@@ -252,18 +252,19 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
                             var schema = context.Schema;
                             var properties = schema.ActualProperties;
                             properties[context.PropertyKey].IsNullableRaw = false;
+
                             if (properties[context.PropertyKey].Type.HasFlag(JsonObjectType.Null))
                                 properties[context.PropertyKey].Type &= ~JsonObjectType.Null; // Remove nullable
-                            var oneOfsWithReference = properties[context.PropertyKey].OneOf
-                                                                                     .Where(x => x.Reference != null)
-                                                                                     .ToList();
 
-                            if (oneOfsWithReference.Count == 1)
-                            {
-                                // Set the Reference directly instead and clear the OneOf collection
-                                properties[context.PropertyKey].Reference = oneOfsWithReference.Single();
-                                properties[context.PropertyKey].OneOf.Clear();
-                            }
+                            //WARNING: the following seems to be producing an illegal oas3 spec which leads to issues like this:
+                            //         https://github.com/FastEndpoints/FastEndpoints/issues/945
+                            // var oneOfsWithReference = properties[context.PropertyKey].OneOf.Where(x => x.Reference != null).ToList();
+                            // if (oneOfsWithReference.Count == 1)
+                            // {
+                            //     // Set the Reference directly instead and clear the OneOf collection
+                            //     properties[context.PropertyKey].Reference = oneOfsWithReference.Single();
+                            //     properties[context.PropertyKey].OneOf.Clear();
+                            // }
                         }
             },
             new("NotEmpty")
@@ -276,20 +277,22 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
 
                             var schema = context.Schema;
                             var properties = schema.ActualProperties;
+
                             properties[context.PropertyKey].IsNullableRaw = false;
+                            properties[context.PropertyKey].MinLength = 1;
+
                             if (properties[context.PropertyKey].Type.HasFlag(JsonObjectType.Null))
                                 properties[context.PropertyKey].Type &= ~JsonObjectType.Null; // Remove nullable
-                            var oneOfsWithReference = properties[context.PropertyKey].OneOf
-                                                                                     .Where(x => x.Reference != null)
-                                                                                     .ToList();
 
-                            if (oneOfsWithReference.Count == 1)
-                            {
-                                // Set the Reference directly instead and clear the OneOf collection
-                                properties[context.PropertyKey].Reference = oneOfsWithReference.Single();
-                                properties[context.PropertyKey].OneOf.Clear();
-                            }
-                            properties[context.PropertyKey].MinLength = 1;
+                            //WARNING: the following seems to be producing an illegal oas3 spec which leads to issues like this:
+                            //         https://github.com/FastEndpoints/FastEndpoints/issues/945
+                            // var oneOfsWithReference = properties[context.PropertyKey].OneOf.Where(x => x.Reference != null).ToList();
+                            // if (oneOfsWithReference.Count == 1)
+                            // {
+                            //     // Set the Reference directly instead and clear the OneOf collection
+                            //     properties[context.PropertyKey].Reference = oneOfsWithReference.Single();
+                            //     properties[context.PropertyKey].OneOf.Clear();
+                            // }
                         }
             },
             new("Length")

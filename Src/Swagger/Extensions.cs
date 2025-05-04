@@ -359,6 +359,9 @@ public static class Extensions
         if (exampleStr is null)
             return null;
 
+        if (!exampleStr.IsJsonObjectString() && !exampleStr.IsJsonArrayString())
+            return exampleStr;
+
         try
         {
             return JToken.FromObject(JsonConvert.DeserializeObject(exampleStr)!, serializer);
@@ -368,6 +371,12 @@ public static class Extensions
             return null;
         }
     }
+
+    static bool IsJsonArrayString(this string? val)
+        => val?.Length > 1 && val[0] == '[' && val[^1] == ']';
+
+    static bool IsJsonObjectString(this string? val)
+        => val?.Length > 1 && val[0] == '{' && val[^1] == '}';
 
     internal static string? GetSummary(this Type p)
     {
@@ -463,5 +472,17 @@ public static class Extensions
                     property.ActualSchema.IsNullable(SchemaType.OpenApi3) &&
                     property.ActualSchema.AllOf.Any(schema => schema.Type == JsonObjectType.Array));
         }
+    }
+
+    internal static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key, TValue value)
+    {
+        ArgumentNullException.ThrowIfNull(dict);
+
+        if (dict.TryGetValue(key, out var existing))
+            return existing;
+
+        dict[key] = value;
+
+        return value;
     }
 }

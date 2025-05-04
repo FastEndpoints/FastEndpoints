@@ -319,36 +319,50 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
                 $"Offending DTO type: [{reqDtoType!.FullName}]");
         }
 
-        //store unique request param description (from each consumes/content type) for later use.
-        //these are the xml comments from dto classes
+        //store unique request param description + example (from each consumes/content type) for later use.
         //todo: this is not ideal in case two consumes dtos has a prop with the same name.
-        var reqParamDescriptions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        var reqParamDescriptions = new Dictionary<string, ParamDescription>(StringComparer.OrdinalIgnoreCase);
 
         if (reqContent is not null)
         {
             foreach (var c in reqContent)
             {
                 foreach (var prop in c.GetAllProperties())
-                    reqParamDescriptions[prop.Key] = prop.Value.Description!;
+                    reqParamDescriptions[prop.Key] = new(prop.Value.Description);
             }
         }
 
-        //also add descriptions from user supplied summary request params overriding the above
+        //collect descriptions from user supplied summary request params overriding the above
         if (epDef.EndpointSummary is not null)
         {
             foreach (var param in epDef.EndpointSummary.Params)
-                reqParamDescriptions[param.Key] = param.Value;
+                reqParamDescriptions.GetOrAdd(param.Key, new()).Description = param.Value;
         }
 
-        //override req param descriptions for each consumes/content type from user supplied summary request param descriptions
+        //collect examples from endpoint summary request example properties
+        if (epDef.EndpointSummary?.RequestExamples.Count is > 0)
+        {
+            var jToken = JToken.FromObject(epDef.EndpointSummary.RequestExamples.First().Value, serializer);
+
+            foreach (var prop in jToken)
+            {
+                var p = (JProperty)prop;
+                reqParamDescriptions.GetOrAdd(p.Name, new()).Example = p.Value;
+            }
+        }
+
+        //override req param descriptions + examples for each consumes/content type from collected data
         if (reqContent is not null)
         {
             foreach (var c in reqContent)
             {
                 foreach (var prop in c.GetAllRequestProperties())
                 {
-                    if (reqParamDescriptions.TryGetValue(prop.Key, out var description))
-                        prop.Value.Description = description;
+                    if (!reqParamDescriptions.TryGetValue(prop.Key, out var x))
+                        continue;
+
+                    prop.Value.Description = x.Description;
+                    prop.Value.Example = x.Example;
                 }
             }
         }
@@ -762,7 +776,7 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
 
         var prm = ctx.OpCtx.DocumentGenerator.CreatePrimitiveParameter(
             paramName,
-            ctx.Descriptions?.GetValueOrDefault(prop?.Name ?? paramName),
+            ctx.Descriptions.GetValueOrDefault(prop?.Name ?? paramName)?.Description,
             propType.ToContextualType());
 
         prm.Kind = kind;
@@ -813,11 +827,10 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
 
         if (ctx.OpCtx.Settings.SchemaSettings.GenerateExamples)
         {
-            //TODO: obtain example value for this parameter from EndpointSummary.ExampleRequest object
-            //      will have to iterate the properties of the object to find a matching param name and get value with reflection
-            //      if value is found, set value on prm.Example and return early here.
-
-            prm.Example = prop?.GetExampleJToken(ctx.Serializer);
+            if (ctx.Descriptions.TryGetValue(prm.Name, out var desc) && desc.Example is not null)
+                prm.Example = desc.Example;
+            else
+                prm.Example = prop?.GetExampleJToken(ctx.Serializer);
 
             if (prm.Example is null && prm.Default is null && prm.Schema?.Default is null && prm.IsRequired)
             {
@@ -836,14 +849,14 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
         public OperationProcessorContext OpCtx { get; }
         public DocumentOptions DocOpts { get; }
         public JsonSerializer Serializer { get; }
-        public Dictionary<string, string>? Descriptions { get; }
+        public Dictionary<string, ParamDescription> Descriptions { get; }
 
         readonly Dictionary<string, Type> _paramMap;
 
         public ParamCreationContext(OperationProcessorContext opCtx,
                                     DocumentOptions docOpts,
                                     JsonSerializer serializer,
-                                    Dictionary<string, string>? descriptions,
+                                    Dictionary<string, ParamDescription> descriptions,
                                     string operationPath)
         {
             OpCtx = opCtx;
@@ -876,4 +889,10 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
         [GeneratedRegex(@"\{[^{}]*:[^{}]*\}")]
         private static partial Regex MyRegex();
     }
+}
+
+sealed class ParamDescription(string? description = null, JToken? example = null)
+{
+    public string? Description { get; set; } = description;
+    public JToken? Example { get; set; } = example;
 }

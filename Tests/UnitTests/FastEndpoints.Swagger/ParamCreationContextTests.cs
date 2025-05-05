@@ -25,7 +25,7 @@ public class ParamCreationContextTests
     public void ShouldBuildParamMapCorrectly_WhenKnownTypeIsSpecified(string paramType, Type expectedType)
     {
         var operationPath = $"/route/{{{ParamName}:{paramType}}}/";
-        var sut = new OperationProcessor.ParamCreationContext(null!, null!, null!, null, operationPath);
+        var sut = new OperationProcessor.ParamCreationContext(null!, null!, null!, null!, operationPath);
 
         sut.TypeForRouteParam(ParamName).ShouldBe(expectedType);
     }
@@ -34,7 +34,7 @@ public class ParamCreationContextTests
     public void ShouldBuildParamMapCorrectly_WhenNoTypeSpecified()
     {
         const string operationPath = $"/route/{{{ParamName}}}/";
-        var sut = new OperationProcessor.ParamCreationContext(null!, null!, null!, null, operationPath);
+        var sut = new OperationProcessor.ParamCreationContext(null!, null!, null!, null!, operationPath);
 
         sut.TypeForRouteParam(ParamName).ShouldBe(typeof(string));
     }
@@ -43,7 +43,7 @@ public class ParamCreationContextTests
     public void ShouldBuildParamMapCorrectly_WhenUnknownTypeIsSpecified()
     {
         const string operationPath = $"/route/{{{ParamName}:unknownType}}/";
-        var sut = new OperationProcessor.ParamCreationContext(null!, null!, null!, null, operationPath);
+        var sut = new OperationProcessor.ParamCreationContext(null!, null!, null!, null!, operationPath);
 
         sut.TypeForRouteParam(ParamName).ShouldBe(typeof(string));
     }
@@ -63,7 +63,7 @@ public class ParamCreationContextTests
     public void ShouldBuildParamMapCorrectly_WhenMixedParamTypesSpecified(string paramType, Type expectedType)
     {
         var operationPath = $"/route/{{{ParamName}:{paramType}}}/{{{OtherParam}:unknownType}}/";
-        var sut = new OperationProcessor.ParamCreationContext(null!, null!, null!, null, operationPath);
+        var sut = new OperationProcessor.ParamCreationContext(null!, null!, null!, null!, operationPath);
 
         sut.TypeForRouteParam(ParamName).ShouldBe(expectedType);
         sut.TypeForRouteParam(OtherParam).ShouldBe(typeof(string));
@@ -85,7 +85,7 @@ public class ParamCreationContextTests
     public void ShouldBuildParamMapCorrectly_WhenTypeIsSpecified_AndGoogleRestApiGuidelineRouteStyle(string paramType, Type expectedType)
     {
         var operationPath = $"/route/{{{ParamName}:{paramType}:min(10)}}:deactivate";
-        var sut = new OperationProcessor.ParamCreationContext(null!, null!, null!, null, operationPath);
+        var sut = new OperationProcessor.ParamCreationContext(null!, null!, null!, null!, operationPath);
 
         sut.TypeForRouteParam(ParamName).ShouldBe(expectedType);
     }
@@ -94,7 +94,7 @@ public class ParamCreationContextTests
     public void ShouldBuildParamMapCorrectly_WhenTypeNotSpecified_AndGoogleRestApiGuidelineRouteStyle()
     {
         const string operationPath = $"/route/{{{ParamName}}}:deactivate";
-        var sut = new OperationProcessor.ParamCreationContext(null!, null!, null!, null, operationPath);
+        var sut = new OperationProcessor.ParamCreationContext(null!, null!, null!, null!, operationPath);
 
         sut.TypeForRouteParam(ParamName).ShouldBe(typeof(string));
     }
@@ -103,7 +103,7 @@ public class ParamCreationContextTests
     public void ShouldBuildParamMapCorrectly_WhenTypeSpecified_AndHasMultipleConstraints_AndGoogleRestApiGuidelineRouteStyle()
     {
         const string operationPath = $"/route/{{{ParamName}:min(5):max(10)}}:deactivate";
-        var sut = new OperationProcessor.ParamCreationContext(null!, null!, null!, null, operationPath);
+        var sut = new OperationProcessor.ParamCreationContext(null!, null!, null!, null!, operationPath);
 
         sut.TypeForRouteParam(ParamName).ShouldBe(typeof(long));
     }
@@ -112,7 +112,7 @@ public class ParamCreationContextTests
     public async Task Multi_Semi_Colon_Route_Segments()
     {
         const string operationPath = $"api/a:{{{ParamName}}}:{{id2}}/{{{OtherParam}:long}}/";
-        var sut = new OperationProcessor.ParamCreationContext(null!, null!, null!, null, operationPath);
+        var sut = new OperationProcessor.ParamCreationContext(null!, null!, null!, null!, operationPath);
 
         sut.TypeForRouteParam(ParamName).ShouldBe(typeof(string));
         sut.TypeForRouteParam(OtherParam).ShouldBe(typeof(long));

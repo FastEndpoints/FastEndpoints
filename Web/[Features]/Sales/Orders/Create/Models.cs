@@ -25,7 +25,7 @@ public class Response
     [ToHeader("x-header-one")]
     public int Header1 { get; set; }
 
-    ///<example>"2020-10-10"</example>
+    ///<example>2020-10-10</example>
     [ToHeader]
     public DateOnly Header2 { get; set; }
 }

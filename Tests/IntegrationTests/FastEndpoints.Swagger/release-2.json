@@ -2240,7 +2240,8 @@
             "schema": {
               "type": "integer",
               "format": "int32"
-            }
+            },
+            "example": 201
           },
           {
             "name": "customerID",
@@ -4827,14 +4828,14 @@
             "maxLength": 50,
             "minLength": 3,
             "nullable": false,
-            "example": "example username"
+            "example": "custom example user name from summary"
           },
           "password": {
             "type": "string",
             "description": "the admin password",
             "minLength": 3,
             "nullable": false,
-            "example": "example password"
+            "example": "custom example password from summary"
           }
         }
       },
@@ -4937,34 +4938,41 @@
         "properties": {
           "id": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "example": 1
           },
           "name": {
             "type": "string",
             "minLength": 1,
-            "nullable": false
+            "nullable": false,
+            "example": "first name"
           },
           "description": {
             "type": "string",
-            "nullable": true
+            "nullable": true,
+            "example": "first description"
           },
           "price": {
             "type": "number",
             "format": "decimal",
             "minimum": 0.0,
+            "example": 10.0,
             "exclusiveMinimum": true
           },
           "qtyOnHand": {
             "type": "integer",
-            "format": "int32"
+            "format": "int32",
+            "example": 10
           },
           "modifiedBy": {
             "type": "string",
             "minLength": 1,
-            "nullable": false
+            "nullable": false,
+            "example": null
           },
           "generateFullUrl": {
-            "type": "boolean"
+            "type": "boolean",
+            "example": false
           }
         }
       },

@@ -162,6 +162,32 @@ public class UserTokenService : RefreshTokenService<TokenRequest, TokenResponse>
 
 </details>
 
+<details><summary>Pick up Swagger request param example values from summary example</summary>
+
+In the past, the only way to provide an example value for a swagger request parameter was with an xml document comment like so:
+
+```cs
+sealed class MyRequest
+{
+    /// <example>john doe</example>
+    public string Name { get; set; }
+}
+```
+
+The example values will now be picked up from the summary example request properties which you can supply like so:
+
+```cs
+Summary(
+    s => s.ExampleRequest = new()
+    {
+        Name = "jane doe"
+    });
+```
+
+If you provide both, the values from the summary example will take precedence. 
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>Reflection source generator issue with 'required' properties</summary>

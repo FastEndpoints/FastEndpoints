@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.OData.Query;
 namespace FastEndpoints.OData;
 
 /// <summary>
-/// implement this abstract class and override the <see cref="ODataEndpoint{TEntity}.ExecuteAsync" /> method to create OData endpoints.
+/// implement this abstract class and override the <c>ExecuteAsync()</c> method to create OData endpoints.
 /// </summary>
 /// <typeparam name="TEntity">the type of the ef core entity of the OData endpoint</typeparam>
 public abstract class ODataEndpoint<TEntity> : Endpoint<ODataQueryOptions<TEntity>, IQueryable>

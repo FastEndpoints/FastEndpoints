@@ -1,5 +1,7 @@
 ﻿using System.Reflection;
 
+#pragma warning disable CS8618
+
 // ReSharper disable UnassignedGetOnlyAutoProperty
 
 namespace FastEndpoints.OData;

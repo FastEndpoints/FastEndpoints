@@ -11,9 +11,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.EntityFrameworkCore" VersionOverride="9.0.4"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" VersionOverride="9.0.4"/>
-        <ProjectReference Include="..\..\Src\OData\FastEndpoints.OData.csproj"/>
+        <!-- <PackageReference Include="Microsoft.EntityFrameworkCore" VersionOverride="9.0.4"/> -->
+        <!-- <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" VersionOverride="9.0.4"/> -->
+        <!-- <ProjectReference Include="..\..\Src\OData\FastEndpoints.OData.csproj"/> -->
         <!-- <PackageReference Include="ErrorOr" VersionOverride="2.0.1"/> -->
         <!-- <PackageReference Include="FastEndpoints.AspVersioning" VersionOverride="5.29.0"/> -->
         <!-- <PackageReference Include="FastEndpoints" VersionOverride="5.8.1"/> -->

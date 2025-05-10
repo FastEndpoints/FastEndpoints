@@ -29,6 +29,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastEndpoints.AspVersioning
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contracts", "Contracts\Contracts.csproj", "{5A06B38E-0337-4D3A-8B22-FFB23393B784}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastEndpoints.OData", "..\Src\OData\FastEndpoints.OData.csproj", "{02C1ED98-2144-4A79-956A-5A21E4DFD391}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -83,6 +85,10 @@ Global
 		{5A06B38E-0337-4D3A-8B22-FFB23393B784}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5A06B38E-0337-4D3A-8B22-FFB23393B784}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5A06B38E-0337-4D3A-8B22-FFB23393B784}.Release|Any CPU.Build.0 = Release|Any CPU
+		{02C1ED98-2144-4A79-956A-5A21E4DFD391}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02C1ED98-2144-4A79-956A-5A21E4DFD391}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02C1ED98-2144-4A79-956A-5A21E4DFD391}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02C1ED98-2144-4A79-956A-5A21E4DFD391}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -97,6 +103,7 @@ Global
 		{8084A960-7729-4FDD-AA4F-709C4459831D} = {49797733-A0B3-4540-9B20-31F8E5DEFEE7}
 		{5461201F-22BE-425D-BCB4-6027707DC8D0} = {49797733-A0B3-4540-9B20-31F8E5DEFEE7}
 		{A399F331-8C94-44B4-B28B-EE3ECC2E6E80} = {49797733-A0B3-4540-9B20-31F8E5DEFEE7}
+		{02C1ED98-2144-4A79-956A-5A21E4DFD391} = {49797733-A0B3-4540-9B20-31F8E5DEFEE7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {CFD734D0-8B11-4787-ACD0-4942B53BDD70}

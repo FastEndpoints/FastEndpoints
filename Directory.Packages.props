@@ -15,6 +15,7 @@
         <PackageVersion Include="Grpc.Net.Client" Version="2.70.0"/>
         <PackageVersion Include="Grpc.Net.Client.Web" Version="2.70.0"/>
         <PackageVersion Include="MessagePack" Version="3.1.3"/>
+        <PackageVersion Include="Microsoft.AspNetCore.OData" Version="9.3.0-Nightly202504230514"/>
         <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0"/>
         <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="[4.11.0]"/> <!-- not upgradeable for net8 compatibility -->
         <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.13.0"/>

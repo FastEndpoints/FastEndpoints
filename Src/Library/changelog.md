@@ -82,7 +82,7 @@ A url with query parameters such as this would work out-of-the-box now:
 The following method is now available for sending a `202 - Accepted` similarly to the `201 - Created` response.
 
 ```cs
-await SendCreatedAtAsync<ProgressEndpoint>(new { Id = "123" });
+await SendAcceptedAtAsync<ProgressEndpoint>(new { Id = "123" });
 ```
 
 </details>
@@ -191,7 +191,7 @@ Summary(
     });
 ```
 
-If you provide both, the values from the summary example will take precedence. 
+If you provide both, the values from the summary example will take precedence.
 
 </details>
 
@@ -227,4 +227,4 @@ If a request DTO has complex nested properties and those properties are being va
 
 </details>
 
-## Breaking Changes ⚠️
+[//]: # (## Breaking Changes ⚠️)

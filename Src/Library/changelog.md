@@ -128,6 +128,13 @@ Note: the setting applies to all non-STJ binding paths such as route/query/claim
 
 </details>
 
+
+<details><summary>Preliminery support for OData</summary>
+
+A new pre-release package `FastEndpoints.OData` has been created to provide support for OData. Since the OData library's Minimal APIs support is still in flux, FE's OData package is referncing a nightly build from `MyGet` and the public API may change drastically. [See here](https://github.com/FastEndpoints/FastEndpoints/issues/344#issuecomment-2868729911) if you'd like to give it a try.
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>'Configuration Groups' support for refresh token service</summary>

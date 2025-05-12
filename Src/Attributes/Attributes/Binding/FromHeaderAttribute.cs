@@ -4,7 +4,7 @@
 /// properties decorated with this attribute will have their values auto bound from the relevant http header of the current request.
 /// </summary>
 [AttributeUsage(AttributeTargets.Property)]
-public sealed class FromHeaderAttribute : Attribute
+public sealed class FromHeaderAttribute : NonJsonBindingAttribute
 {
     /// <summary>
     /// the header name to auto bind from

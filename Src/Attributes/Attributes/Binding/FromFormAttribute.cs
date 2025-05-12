@@ -10,4 +10,4 @@
 /// </para>
 /// </summary>
 [AttributeUsage(AttributeTargets.Property)]
-public sealed class FromFormAttribute : Attribute;
+public sealed class FromFormAttribute : NonJsonBindingAttribute;

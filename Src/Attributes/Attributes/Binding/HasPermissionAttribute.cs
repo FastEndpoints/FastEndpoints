@@ -4,7 +4,7 @@
 /// boolean properties decorated with this attribute will have their values set to true if the current principal has the specified permission.
 /// </summary>
 [AttributeUsage(AttributeTargets.Property)]
-public sealed class HasPermissionAttribute : Attribute
+public sealed class HasPermissionAttribute : NonJsonBindingAttribute
 {
     /// <summary>
     /// the permission to check for

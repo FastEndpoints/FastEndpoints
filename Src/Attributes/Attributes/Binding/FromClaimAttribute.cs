@@ -4,7 +4,7 @@
 /// properties decorated with this attribute will have their values auto bound from the relevant claim of the current user principal
 /// </summary>
 [AttributeUsage(AttributeTargets.Property)]
-public class FromClaimAttribute : Attribute
+public class FromClaimAttribute : NonJsonBindingAttribute
 {
     /// <summary>
     /// the claim type to auto bind

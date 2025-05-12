@@ -4,7 +4,7 @@
 /// you can prevent one or more binding sources from supplying values for a dto property decorated with this attribute.
 /// </summary>
 [AttributeUsage(AttributeTargets.Property)]
-public class DontBindAttribute : Attribute
+public class DontBindAttribute : NonJsonBindingAttribute
 {
     /// <summary>
     /// gets the disabled binding sources.

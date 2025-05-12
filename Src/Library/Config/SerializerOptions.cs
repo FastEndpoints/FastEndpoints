@@ -74,10 +74,4 @@ public sealed class SerializerOptions
                          options: jCtx?.Options ?? SerOpts.Options,
                          contentType: SerOpts.CharacterEncoding is null ? contentType : $"{contentType}; charset={SerOpts.CharacterEncoding}",
                          cancellationToken: cancellation);
-
-    /// <summary>
-    /// <see cref="JsonIgnoreAttribute" /> and the <c>required</c> keyword cannot be typically used together with dto properties.
-    /// this setting allows you to use the two together.
-    /// </summary>
-    public bool EnableJsonIgnoreAttributeOnRequiredProperties { get; set; } = true;
 }

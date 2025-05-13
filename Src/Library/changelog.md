@@ -10,12 +10,15 @@ Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H
 
 ## New 🎉
 
-
 ## Improvements 🚀
-
 
 ## Fixes 🪲
 
+<details><summary>Swagger generation bug caused by lists of request DTOs</summary>
+
+A new feature introduced in `v6.1` caused swagger generation to fail if the request DTO type of the endpoint is a `List<T>`, which has been corrected.
+
+</details>
 
 ## Minor Breaking Changes ⚠️
 

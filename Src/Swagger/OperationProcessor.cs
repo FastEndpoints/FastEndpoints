@@ -342,12 +342,17 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
         //collect examples from endpoint summary request example properties
         if (epDef.EndpointSummary?.RequestExamples.Count is > 0)
         {
-            var jToken = JToken.FromObject(epDef.EndpointSummary.RequestExamples.First().Value, serializer);
+            var example = epDef.EndpointSummary.RequestExamples.First().Value;
 
-            foreach (var prop in jToken)
+            if (example is not IEnumerable)
             {
-                var p = (JProperty)prop;
-                reqParamDescriptions.GetOrAdd(p.Name, new()).Example = p.Value;
+                var jToken = JToken.FromObject(example, serializer);
+
+                foreach (var prop in jToken)
+                {
+                    var p = (JProperty)prop;
+                    reqParamDescriptions.GetOrAdd(p.Name, new()).Example = p.Value;
+                }
             }
         }
 

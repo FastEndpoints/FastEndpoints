@@ -10,6 +10,7 @@ using Namotion.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NJsonSchema;
+using NJsonSchema.Annotations;
 using NJsonSchema.NewtonsoftJson.Generation;
 using NSwag;
 using NSwag.Generation.AspNetCore;
@@ -769,8 +770,10 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
                     prop?.Name.ApplyPropNamingPolicy(ctx.DocOpts) ?? throw new InvalidOperationException("param name is required!");
 
         Type propType;
-
-        if (prop?.PropertyType is not null) //dto has matching property
+        JsonSchemaTypeAttribute? typeOverrideAttr;
+        if ((typeOverrideAttr = prop?.GetCustomAttribute<JsonSchemaTypeAttribute>()) is not null)
+            propType = typeOverrideAttr.Type;
+        else if (prop?.PropertyType is not null) //dto has matching property
         {
             propType = prop.PropertyType;
             if (propType.Name.EndsWith("HeaderValue"))
@@ -791,7 +794,7 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
         if (defaultValFromCtorArg is not null)
             hasDefaultValFromCtorArg = true;
 
-        var isNullable = prop?.IsNullable();
+        var isNullable = typeOverrideAttr?.IsNullable ?? prop?.IsNullable();
 
         prm.IsRequired = isRequired ??
                          !hasDefaultValFromCtorArg ??

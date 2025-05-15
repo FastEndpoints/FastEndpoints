@@ -1,5 +1,6 @@
 using FluentValidation;
 using System.Text.Json.Serialization;
+using NJsonSchema.Annotations;
 
 namespace TestCases.RouteBindingTest;
 
@@ -89,6 +90,12 @@ public class Request
 
     [FromQuery]
     public Person Person { get; set; }
+    
+    [JsonSchemaType(typeof(string))]
+    public long StringOverride { get; set; }
+    
+    [JsonSchemaType(typeof(string), IsNullable = true)]
+    public long StringOverrideNullable { get; set; }
 
     /// <summary>
     /// frm body xml comment

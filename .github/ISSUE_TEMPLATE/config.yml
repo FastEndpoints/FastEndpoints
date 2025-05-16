@@ -2,7 +2,7 @@ blank_issues_enabled: false
 contact_links:
   - name: VACATION NOTICE
     url: https://discord.gg/ARGPxTukpr
-    about: Please note that new issue creation on github and discord has been disabled until the 31st of May 2025 as I will be on vacation and totally off the grid. If you need immediate help, please hop on to our discord server and ask our community members. If you can hold off until the 31st, please come back and create the issue then. Thank you!
+    about: Please note that new issue creation on github and discord has been disabled until the 31st of May 2025 as I will be on vacation and totally off the grid. If you need immediate help, please hop on to our discord server and ask our community members in the "Off-Topic" channel. If you can hold off until the 31st, please come back and create the issue then. Thank you!
   - name: AI Documentation Search
     url: https://gurubase.io/g/fastendpoints
     about: Use AI powered documentation search to get your questions answered.

@@ -10,6 +10,7 @@ using Namotion.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NJsonSchema;
+using NJsonSchema.Annotations;
 using NJsonSchema.NewtonsoftJson.Generation;
 using NSwag;
 using NSwag.Generation.AspNetCore;
@@ -139,7 +140,6 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
             if (metas.Count > 0)
             {
             #if NET9_0_OR_GREATER
-
                 //remove this workaround when sdk bug is fixed: https://github.com/dotnet/aspnetcore/issues/57801#issuecomment-2439578287
                 foreach (var meta in metas.Where(m => m.Value.isIResult))
                 {
@@ -768,16 +768,14 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
                     prop?.GetCustomAttribute<BindFromAttribute>()?.Name ?? //don't apply naming policy to attribute value
                     prop?.Name.ApplyPropNamingPolicy(ctx.DocOpts) ?? throw new InvalidOperationException("param name is required!");
 
-        Type propType;
+        var typeOverrideAttr = prop?.GetCustomAttribute<JsonSchemaTypeAttribute>();
 
-        if (prop?.PropertyType is not null) //dto has matching property
-        {
-            propType = prop.PropertyType;
-            if (propType.Name.EndsWith("HeaderValue"))
-                propType = Types.String;
-        }
-        else //dto doesn't have matching prop, get it from route constraint map
-            propType = ctx.TypeForRouteParam(paramName);
+        var propType = typeOverrideAttr?.Type ??         //attribute gets first priority
+                       prop?.PropertyType ??             //property type gets second priority
+                       ctx.TypeForRouteParam(paramName); //use route constraint map as last resort
+
+        if (propType.Name.EndsWith("HeaderValue"))
+            propType = Types.String;
 
         var prm = ctx.OpCtx.DocumentGenerator.CreatePrimitiveParameter(
             paramName,
@@ -791,7 +789,7 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
         if (defaultValFromCtorArg is not null)
             hasDefaultValFromCtorArg = true;
 
-        var isNullable = prop?.IsNullable();
+        var isNullable = typeOverrideAttr?.IsNullable ?? prop?.IsNullable();
 
         prm.IsRequired = isRequired ??
                          !hasDefaultValFromCtorArg ??

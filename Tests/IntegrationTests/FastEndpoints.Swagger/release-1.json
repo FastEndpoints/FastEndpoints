@@ -6190,6 +6190,13 @@
             "format": "int32",
             "nullable": true
           },
+          "stringOverride": {
+            "type": "string"
+          },
+          "stringOverrideNullable": {
+            "type": "string",
+            "nullable": true
+          },
           "fromBody": {
             "type": "string",
             "description": "overriden from body comment"

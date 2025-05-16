@@ -140,7 +140,6 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
             if (metas.Count > 0)
             {
             #if NET9_0_OR_GREATER
-
                 //remove this workaround when sdk bug is fixed: https://github.com/dotnet/aspnetcore/issues/57801#issuecomment-2439578287
                 foreach (var meta in metas.Where(m => m.Value.isIResult))
                 {
@@ -769,18 +768,14 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
                     prop?.GetCustomAttribute<BindFromAttribute>()?.Name ?? //don't apply naming policy to attribute value
                     prop?.Name.ApplyPropNamingPolicy(ctx.DocOpts) ?? throw new InvalidOperationException("param name is required!");
 
-        Type propType;
-        JsonSchemaTypeAttribute? typeOverrideAttr;
-        if ((typeOverrideAttr = prop?.GetCustomAttribute<JsonSchemaTypeAttribute>()) is not null)
-            propType = typeOverrideAttr.Type;
-        else if (prop?.PropertyType is not null) //dto has matching property
-        {
-            propType = prop.PropertyType;
-            if (propType.Name.EndsWith("HeaderValue"))
-                propType = Types.String;
-        }
-        else //dto doesn't have matching prop, get it from route constraint map
-            propType = ctx.TypeForRouteParam(paramName);
+        var typeOverrideAttr = prop?.GetCustomAttribute<JsonSchemaTypeAttribute>();
+
+        var propType = typeOverrideAttr?.Type ??         //attribute gets first priority
+                       prop?.PropertyType ??             //property type gets second priority
+                       ctx.TypeForRouteParam(paramName); //use route constraint map as last resort
+
+        if (propType.Name.EndsWith("HeaderValue"))
+            propType = Types.String;
 
         var prm = ctx.OpCtx.DocumentGenerator.CreatePrimitiveParameter(
             paramName,

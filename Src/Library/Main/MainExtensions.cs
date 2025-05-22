@@ -369,7 +369,14 @@ public static class MainExtensions
 
         if (ep.ReqDtoType != Types.EmptyRequest)
         {
-            if (ep.Verbs.Any(m => m is "GET" or "HEAD" or "DELETE"))
+            // Accept empty request body for all endpoints which request model has no properties from the body
+            if (ep.ReqDtoType
+                   .GetProperties()
+                   .All(p =>
+                       p.CustomAttributes.Any(ca
+                           => ca.AttributeType == typeof(RouteParamAttribute)
+                              || ca.AttributeType == typeof(QueryParamAttribute)
+                              || ca.AttributeType == typeof(FromHeaderAttribute))))
                 b.Accepts(ep.ReqDtoType, "*/*", "application/json");
             else
                 b.Accepts(ep.ReqDtoType, "application/json");

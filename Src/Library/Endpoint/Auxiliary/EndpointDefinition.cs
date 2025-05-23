@@ -413,7 +413,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// adds open-generic post-processors to the endpoint definition which are to be executed in addition to the ones configured at the endpoint level.
     /// </summary>
     /// <param name="order">
-    /// set to <see cref="Order.Before" /> if the global pre-processors should be executed before endpoint pre-processors.
+    /// set to <see cref="Order.Before" /> if the global post-processors should be executed before endpoint post-processors.
     /// <see cref="Order.After" /> will execute global processors after endpoint level processors
     /// </param>
     /// <param name="processorTypes">open generic post-processor types</param>
@@ -434,7 +434,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
             try
             {
                 var processor = (IProcessor)Cfg.ServiceResolver.CreateSingleton(tFinal);
-                AddProcessor(order, processor, PreProcessorList, ref PreProcessorPosition);
+                AddProcessor(order, processor, PostProcessorList, ref _postProcessorPosition);
             }
             catch (Exception ex)
             {

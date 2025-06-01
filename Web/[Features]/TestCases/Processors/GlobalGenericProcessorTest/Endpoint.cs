@@ -19,12 +19,13 @@ sealed class GlobalGenericPreProcessor<TReq> : IPreProcessor<TReq>
 
 public class GlobalGenericPostProcessor<TReq, TRes> : IPostProcessor<TReq, TRes>
 {
-    public Task PostProcessAsync(IPostProcessorContext<TReq, TRes> ctx, CancellationToken ct)
+    public async Task PostProcessAsync(IPostProcessorContext<TReq, TRes> ctx, CancellationToken ct)
     {
-        if (ctx.Request is Request r)
+        if (ctx.Request is Request r && !ctx.HttpContext.ResponseStarted())
+        {
             r.PostProcRan = true;
-
-        return Task.CompletedTask;
+            await ctx.HttpContext.Response.SendAsync(r, cancellation: ct);
+        }
     }
 }
 
@@ -34,10 +35,9 @@ public class Endpoint : Endpoint<Request, Request>
     {
         Post("testcases/global-generic-processors");
         AllowAnonymous();
+        DontAutoSendResponse();
     }
 
-    public override async Task HandleAsync(Request req, CancellationToken ct)
-    {
-        await SendAsync(req);
-    }
+    public override Task HandleAsync(Request req, CancellationToken ct)
+        => Task.CompletedTask;
 }

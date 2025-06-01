@@ -67,8 +67,9 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     internal bool ImplementsConfigure;
     internal bool IsLocked;
     internal readonly List<IProcessor> PreProcessorList = [];
-    internal int PreProcessorPosition;
+    int _preProcessorPosition;
     internal readonly List<IProcessor> PostProcessorList = [];
+    int _postProcessorPosition;
     internal object? RequestBinder;
     string? _reqDtoFromBodyPropName;
     internal string ReqDtoFromBodyPropName => _reqDtoFromBodyPropName ??= GetFromBodyPropName();
@@ -379,8 +380,6 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
         PreBuiltUserPolicies ??= [..policyNames];
     }
 
-    int _postProcessorPosition;
-
     /// <summary>
     /// adds global post-processors to an endpoint definition which are to be executed in addition to the ones configured at the endpoint level.
     /// </summary>
@@ -454,7 +453,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     public void PreProcessors(Order order, params IGlobalPreProcessor[] preProcessors)
     {
         ThrowIfLocked();
-        AddProcessors(order, preProcessors, PreProcessorList, ref PreProcessorPosition);
+        AddProcessors(order, preProcessors, PreProcessorList, ref _preProcessorPosition);
     }
 
     /// <summary>
@@ -468,7 +467,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     public void PreProcessor<TPreProcessor>(Order order) where TPreProcessor : class, IGlobalPreProcessor
     {
         ThrowIfLocked();
-        AddProcessor<TPreProcessor>(order, PreProcessorList, ref PreProcessorPosition);
+        AddProcessor<TPreProcessor>(order, PreProcessorList, ref _preProcessorPosition);
     }
 
     /// <summary>
@@ -496,7 +495,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
             try
             {
                 var processor = (IProcessor)Cfg.ServiceResolver.CreateSingleton(tFinal);
-                AddProcessor(order, processor, PreProcessorList, ref PreProcessorPosition);
+                AddProcessor(order, processor, PreProcessorList, ref _preProcessorPosition);
             }
             catch (Exception ex)
             {

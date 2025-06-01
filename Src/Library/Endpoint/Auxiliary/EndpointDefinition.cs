@@ -67,8 +67,9 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     internal bool ImplementsConfigure;
     internal bool IsLocked;
     internal readonly List<IProcessor> PreProcessorList = [];
-    internal int PreProcessorPosition;
+    int _preProcessorPosition;
     internal readonly List<IProcessor> PostProcessorList = [];
+    int _postProcessorPosition;
     internal object? RequestBinder;
     string? _reqDtoFromBodyPropName;
     internal string ReqDtoFromBodyPropName => _reqDtoFromBodyPropName ??= GetFromBodyPropName();
@@ -379,8 +380,6 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
         PreBuiltUserPolicies ??= [..policyNames];
     }
 
-    int _postProcessorPosition;
-
     /// <summary>
     /// adds global post-processors to an endpoint definition which are to be executed in addition to the ones configured at the endpoint level.
     /// </summary>
@@ -413,7 +412,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// adds open-generic post-processors to the endpoint definition which are to be executed in addition to the ones configured at the endpoint level.
     /// </summary>
     /// <param name="order">
-    /// set to <see cref="Order.Before" /> if the global pre-processors should be executed before endpoint pre-processors.
+    /// set to <see cref="Order.Before" /> if the global post-processors should be executed before endpoint post-processors.
     /// <see cref="Order.After" /> will execute global processors after endpoint level processors
     /// </param>
     /// <param name="processorTypes">open generic post-processor types</param>
@@ -434,7 +433,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
             try
             {
                 var processor = (IProcessor)Cfg.ServiceResolver.CreateSingleton(tFinal);
-                AddProcessor(order, processor, PreProcessorList, ref PreProcessorPosition);
+                AddProcessor(order, processor, PostProcessorList, ref _postProcessorPosition);
             }
             catch (Exception ex)
             {
@@ -454,7 +453,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     public void PreProcessors(Order order, params IGlobalPreProcessor[] preProcessors)
     {
         ThrowIfLocked();
-        AddProcessors(order, preProcessors, PreProcessorList, ref PreProcessorPosition);
+        AddProcessors(order, preProcessors, PreProcessorList, ref _preProcessorPosition);
     }
 
     /// <summary>
@@ -468,7 +467,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     public void PreProcessor<TPreProcessor>(Order order) where TPreProcessor : class, IGlobalPreProcessor
     {
         ThrowIfLocked();
-        AddProcessor<TPreProcessor>(order, PreProcessorList, ref PreProcessorPosition);
+        AddProcessor<TPreProcessor>(order, PreProcessorList, ref _preProcessorPosition);
     }
 
     /// <summary>
@@ -496,7 +495,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
             try
             {
                 var processor = (IProcessor)Cfg.ServiceResolver.CreateSingleton(tFinal);
-                AddProcessor(order, processor, PreProcessorList, ref PreProcessorPosition);
+                AddProcessor(order, processor, PreProcessorList, ref _preProcessorPosition);
             }
             catch (Exception ex)
             {

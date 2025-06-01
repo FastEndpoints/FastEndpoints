@@ -20,6 +20,12 @@ A new feature introduced in `v6.1` caused swagger generation to fail if the requ
 
 </details>
 
+<details><summary>Issue with generic post-processor registration</summary>
+
+Generic post-processors were not being correctly registered due to an oversight, which has been corrected with this release.
+
+</details>
+
 ## Minor Breaking Changes ⚠️
 
 <details><summary>Behavior change with multiple binding sources and the 'required' keyword</summary>

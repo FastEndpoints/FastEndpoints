@@ -369,14 +369,9 @@ public static class MainExtensions
 
         if (ep.ReqDtoType != Types.EmptyRequest)
         {
-            // Accept empty request body for all endpoints which request model has no properties from the body
-            if (ep.ReqDtoType
-                   .GetProperties()
-                   .All(p =>
-                       p.CustomAttributes.Any(ca
-                           => ca.AttributeType == typeof(RouteParamAttribute)
-                              || ca.AttributeType == typeof(QueryParamAttribute)
-                              || ca.AttributeType == typeof(FromHeaderAttribute))))
+            if (ep.ReqDtoType.AllPropsAreNonJsonSourced())
+                b.Accepts(ep.ReqDtoType, "*/*");
+            else if (ep.Verbs.Any(m => m is "GET" or "HEAD" or "DELETE"))
                 b.Accepts(ep.ReqDtoType, "*/*", "application/json");
             else
                 b.Accepts(ep.ReqDtoType, "application/json");
@@ -430,6 +425,9 @@ public static class MainExtensions
                 b.Metadata.Add(new DefaultProducesResponseMetadata(type, statusCode, contentTypes));
             });
     }
+
+    static bool AllPropsAreNonJsonSourced(this Type tRequest)
+        => tRequest.BindableProps().All(p => p.CustomAttributes.Any(a => Types.NonJsonBindingAttribute.IsAssignableFrom(a.AttributeType)));
 }
 
 sealed class StartupTimer;

@@ -71,7 +71,7 @@ public class ProcessorTests(Sut App) : TestBase<Sut>
                              TestCases.GlobalGenericProcessorTest.Request>(req);
         rsp.IsSuccessStatusCode.ShouldBeTrue();
         res.PreProcRan.ShouldBeTrue();
-        res.PreProcRan.ShouldBeTrue();
+        res.PostProcRan.ShouldBeTrue();
     }
 
     [Fact]

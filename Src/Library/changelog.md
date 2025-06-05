@@ -12,6 +12,30 @@ Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H
 
 ## Improvements 🚀
 
+<details><summary>Automatic 'Accepts Metadata' for Non-Json requests</summary>
+
+In the past, if an endpoint defines a request DTO type, an accepts-metadata of `application/json` would be automatically added to the endpoint, which would require the user to [clear that default metadata](https://fast-endpoints.com/docs/swagger-support#clearing-only-accepts-metadata) if all of the properties of the DTO is bound from non-json binding sources such as route/query/header etc.
+
+Now, if the user annotates all the properties of a DTO with the respective non-json binding sources such as the following:
+
+```cs
+sealed class GetAccountStatementRequest
+{
+    [RouteParam]
+    public int UserId { get; set; }
+    
+    [QueryParam]
+    public DateTime DateFrom { get; set; }
+
+    [QueryParam]
+    public DateTime DateTo { get; set; }
+}
+```
+
+It is no longer necessary for the user to manually clear the default accepts-metadata as the presence of non-json binding source attributes on each of the DTO properties allows us to correctly detect that there's not going to be any JSON body present in the incoming request.
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>Swagger generation bug caused by lists of request DTOs</summary>

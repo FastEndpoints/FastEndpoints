@@ -369,7 +369,9 @@ public static class MainExtensions
 
         if (ep.ReqDtoType != Types.EmptyRequest)
         {
-            if (ep.Verbs.Any(m => m is "GET" or "HEAD" or "DELETE"))
+            if (ep.ReqDtoType.AllPropsAreNonJsonSourced())
+                b.Accepts(ep.ReqDtoType, "*/*");
+            else if (ep.Verbs.Any(m => m is "GET" or "HEAD" or "DELETE"))
                 b.Accepts(ep.ReqDtoType, "*/*", "application/json");
             else
                 b.Accepts(ep.ReqDtoType, "application/json");
@@ -423,6 +425,9 @@ public static class MainExtensions
                 b.Metadata.Add(new DefaultProducesResponseMetadata(type, statusCode, contentTypes));
             });
     }
+
+    static bool AllPropsAreNonJsonSourced(this Type tRequest)
+        => tRequest.BindableProps().All(p => p.CustomAttributes.Any(a => Types.NonJsonBindingAttribute.IsAssignableFrom(a.AttributeType)));
 }
 
 sealed class StartupTimer;

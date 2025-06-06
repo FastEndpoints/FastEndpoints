@@ -44,6 +44,12 @@ A new feature introduced in `v6.1` caused swagger generation to fail if the requ
 
 </details>
 
+<details><summary>Inifinite recursion issue with swagger generation due to self referencing validators</summary>
+
+If a request uses a self referencing validator for nested properties, a stack overflow was happenning due to infinite recursion.
+
+</details>
+
 <details><summary>Issue with generic post-processor registration</summary>
 
 Generic post-processors were not being correctly registered due to an oversight, which has been corrected with this release.

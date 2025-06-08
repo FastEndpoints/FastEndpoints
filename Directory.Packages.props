@@ -6,7 +6,7 @@
     <ItemGroup>
         <PackageVersion Include="Asp.Versioning.Http" Version="8.1.0"/>
         <PackageVersion Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.0"/>
-        <PackageVersion Include="BenchmarkDotNet" Version="0.14.0"/>
+        <PackageVersion Include="BenchmarkDotNet" Version="0.15.0"/>
         <PackageVersion Include="Bogus" Version="35.6.3"/>
         <PackageVersion Include="FakeItEasy" Version="8.3.0"/>
         <PackageVersion Include="FakeItEasy.Analyzer.CSharp" Version="6.1.1"/>
@@ -15,11 +15,11 @@
         <PackageVersion Include="Grpc.Net.Client" Version="2.71.0"/>
         <PackageVersion Include="Grpc.Net.Client.Web" Version="2.71.0"/>
         <PackageVersion Include="MessagePack" Version="3.1.3"/>
-        <PackageVersion Include="Microsoft.AspNetCore.OData" Version="9.3.0-Nightly202504241704"/>
-        <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0"/>
-        <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="[4.11.0]"/> <!-- not upgradeable for net8 compatibility -->
-        <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.13.0"/>
-        <PackageVersion Include="Microsoft.OpenApi.Kiota.Builder" Version="1.26.0"/>
+        <PackageVersion Include="Microsoft.AspNetCore.OData" Version="[9.3.0-Nightly202504241704]"/>    <!-- wait for final version -->
+        <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="4.14.0"/>
+        <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="[4.11.0]"/>    <!-- not upgradeable for net8 compatibility -->
+        <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1"/>
+        <PackageVersion Include="Microsoft.OpenApi.Kiota.Builder" Version="1.26.1"/>
         <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0"/>
         <PackageVersion Include="NSwag.AspNetCore" Version="14.4.0"/>
         <PackageVersion Include="NSwag.CodeGeneration.CSharp" Version="14.4.0"/>
@@ -28,29 +28,29 @@
         <PackageVersion Include="NSwag.Generation.AspNetCore" Version="14.4.0"/>
         <PackageVersion Include="RichardSzalay.MockHttp" Version="7.0.0"/>
         <PackageVersion Include="Shouldly" Version="4.3.0"/>
-        <PackageVersion Include="xunit.v3" Version="2.0.2"/>
-        <PackageVersion Include="xunit.v3.extensibility.core" Version="2.0.2"/>
-        <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.0" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive"/>
+        <PackageVersion Include="xunit.v3" Version="2.0.3"/>
+        <PackageVersion Include="xunit.v3.extensibility.core" Version="2.0.3"/>
+        <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.1" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive"/>
     </ItemGroup>
     <ItemGroup Condition="'$(TargetFramework)' == 'net8.0' or '$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'netstandard2.1'">
-        <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.15"/>
-        <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.15"/>
-        <PackageVersion Include="Microsoft.AspNetCore.TestHost" Version="8.0.15"/>
+        <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.16"/>
+        <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.16"/>
+        <PackageVersion Include="Microsoft.AspNetCore.TestHost" Version="8.0.16"/>
         <PackageVersion Include="Microsoft.Extensions.Hosting" Version="8.0.1"/>
         <PackageVersion Include="Microsoft.Extensions.Primitives" Version="8.0.0"/>
     </ItemGroup>
     <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
-        <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.4"/>
-        <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.4"/>
-        <PackageVersion Include="Microsoft.AspNetCore.TestHost" Version="9.0.4"/>
-        <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.4"/>
-        <PackageVersion Include="Microsoft.Extensions.Primitives" Version="9.0.4"/>
+        <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.5"/>
+        <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.5"/>
+        <PackageVersion Include="Microsoft.AspNetCore.TestHost" Version="9.0.5"/>
+        <PackageVersion Include="Microsoft.Extensions.Hosting" Version="9.0.5"/>
+        <PackageVersion Include="Microsoft.Extensions.Primitives" Version="9.0.5"/>
     </ItemGroup>
     <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
-        <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.0-preview.3.25172.1"/>
-        <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.0-preview.3.25172.1"/>
-        <PackageVersion Include="Microsoft.AspNetCore.TestHost" Version="10.0.0-preview.3.25172.1"/>
-        <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.0-preview.3.25171.5"/>
-        <PackageVersion Include="Microsoft.Extensions.Primitives" Version="10.0.0-preview.3.25171.5"/>
+        <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.0-preview.5.25277.114"/>
+        <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.0-preview.5.25277.114"/>
+        <PackageVersion Include="Microsoft.AspNetCore.TestHost" Version="10.0.0-preview.5.25277.114"/>
+        <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.0-preview.5.25277.114"/>
+        <PackageVersion Include="Microsoft.Extensions.Primitives" Version="10.0.0-preview.5.25277.114"/>
     </ItemGroup>
 </Project>

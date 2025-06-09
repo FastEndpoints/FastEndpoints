@@ -17,13 +17,13 @@ public class DataAnnotationsTest(DaFixture App) : TestBase<DaFixture>
             await App.Client.POSTAsync<Endpoint, Request, ErrorResponse>(
                 new()
                 {
-                    Id = 199,
+                    Id = 10,
                     Name = "x"
                 });
 
         rsp.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
         res.Errors.Count.ShouldBe(2);
-        res.Errors.ShouldContainKey("name");
+        res.Errors.Keys.ShouldBe(["id", "name"]);
     }
 
     [Fact]
@@ -33,8 +33,8 @@ public class DataAnnotationsTest(DaFixture App) : TestBase<DaFixture>
             await App.Client.POSTAsync<Endpoint, Request, ErrorResponse>(
                 new()
                 {
-                    Id = 10,
-                    Name = "vipwan"
+                    Id = 100,
+                    Name = "pass"
                 });
 
         resp.StatusCode.ShouldBe(HttpStatusCode.OK);

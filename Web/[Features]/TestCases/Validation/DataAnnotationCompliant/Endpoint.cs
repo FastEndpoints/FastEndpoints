@@ -9,24 +9,11 @@ public class Request
     /// <summary>
     /// id of the plain text request
     /// </summary>
-    [Description("CurrentId")]
+    [Description("CurrentId"), DeniedValues(10)]
     public int Id { get; init; }
 
     [Required, StringLength(10, MinimumLength = 2)]
     public string Name { get; set; }
-
-    public class RequestValidator : Validator<Request>
-    {
-        public RequestValidator()
-        {
-            RuleFor(x => x.Id).InclusiveBetween(10, 99);
-
-            RuleFor(x => x.Name)
-                .Must((_, x) => x.Contains('v', StringComparison.OrdinalIgnoreCase))
-                .WithMessage("the Name required a char:v")
-                ;
-        }
-    }
 }
 
 [Obsolete("Obsolete", false)]

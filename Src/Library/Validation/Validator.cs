@@ -52,24 +52,4 @@ public abstract class Validator<TRequest> : AbstractValidator<TRequest>, IServic
     /// <inheritdoc />
     public object Resolve(Type typeOfService, string keyName)
         => Cfg.ServiceResolver.Resolve(typeOfService, keyName);
-
-    protected override bool PreValidate(FluentValidation.ValidationContext<TRequest> context, ValidationResult result)
-    {
-        if (!Cfg.ValOpts.EnableDataAnnotationsSupport)
-            return true;
-
-        var req = context.InstanceToValidate;
-        var validationResults = new List<System.ComponentModel.DataAnnotations.ValidationResult>();
-
-        if (Validator.TryValidateObject(req, new(req), validationResults, true))
-            return true;
-
-        for (var i = 0; i < validationResults.Count; i++)
-        {
-            var res = validationResults[i];
-            result.Errors.Add(new(res.MemberNames.FirstOrDefault(), res.ErrorMessage));
-        }
-
-        return true;
-    }
 }

@@ -1587,16 +1587,6 @@
                 }
               }
             }
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FastEndpointsErrorResponse"
-                }
-              }
-            }
           }
         },
         "deprecated": true
@@ -3075,7 +3065,7 @@
           "x-name": "DontThrowIfMissingRequest",
           "description": "",
           "content": {
-            "application/json": {
+            "*/*": {
               "schema": {
                 "$ref": "#/components/schemas/TestCasesMissingHeaderTestDontThrowIfMissingRequest"
               }
@@ -5000,9 +4990,7 @@
           "id": {
             "type": "integer",
             "description": "CurrentId",
-            "format": "int32",
-            "maximum": 99.0,
-            "minimum": 10.0
+            "format": "int32"
           },
           "name": {
             "type": "string",

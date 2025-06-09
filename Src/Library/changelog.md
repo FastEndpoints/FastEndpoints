@@ -10,8 +10,6 @@ Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H
 
 ## New 🎉
 
-## Improvements 🚀
-
 <details><summary>Automatic 'Accepts Metadata' for Non-Json requests</summary>
 
 In the past, if an endpoint defines a request DTO type, an accepts-metadata of `application/json` would be automatically added to the endpoint, which would require the user to [clear that default metadata](https://fast-endpoints.com/docs/swagger-support#clearing-only-accepts-metadata) if all of the properties of the DTO is bound from non-json binding sources such as route/query/header etc.
@@ -36,6 +34,18 @@ It is no longer necessary for the user to manually clear the default accepts-met
 
 </details>
 
+<details><summary>Support for 'DataAnnotations' Validation Attributes</summary>
+
+You can now annotate request DTO properties with `DataAnnotations` attributes such as `[Required], [StringLength(...)]` etc., instead of writing a `FluentValidations` validator for quick-n-dirty input validation. Do note however, only one of the strategies can be used for a single endpoint. I.e. if a request DTO has annotations as well as a fluent validator, only the fluent validator will be run and the annotations will be ignored. Mixing strategies is not allowed in order to prevent confusion for the reader. To enable `DataAnnotations` support, please enable the setting like so:
+
+```cs
+app.UseFastEndpoints(c => c.Validation.EnableDataAnnotationsSupport = true)
+```
+
+</details>
+
+## Improvements 🚀
+
 ## Fixes 🪲
 
 <details><summary>Swagger generation bug caused by lists of request DTOs</summary>
@@ -44,9 +54,9 @@ A new feature introduced in `v6.1` caused swagger generation to fail if the requ
 
 </details>
 
-<details><summary>Inifinite recursion issue with swagger generation due to self referencing validators</summary>
+<details><summary>Infinite recursion issue with swagger generation due to self referencing validators</summary>
 
-If a request uses a self referencing validator for nested properties, a stack overflow was happenning due to infinite recursion.
+If a request uses a self referencing validator for nested properties, a stack overflow was happening due to infinite recursion.
 
 </details>
 

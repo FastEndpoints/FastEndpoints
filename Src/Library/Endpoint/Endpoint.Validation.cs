@@ -9,15 +9,31 @@ public abstract partial class Endpoint<TRequest, TResponse> : IValidationErrors<
 {
     static async Task ValidateRequest(TRequest req, EndpointDefinition def, List<ValidationFailure> validationFailures, CancellationToken cancellation)
     {
-        if (def.ValidatorType is null)
+        if (def.ValidatorType is null && Cfg.ValOpts.EnableDataAnnotationsSupport is false)
             return;
 
-        var valResult = await ((IValidator<TRequest>)def.GetValidator()!).ValidateAsync(req, cancellation);
-
-        if (!valResult.IsValid)
+        if (def.ValidatorType is not null) //use fluent validations
         {
-            for (var i = 0; i < valResult.Errors.Count; i++)
-                validationFailures.AddError(valResult.Errors[i], def.ReqDtoFromBodyPropName);
+            var valResult = await ((IValidator<TRequest>)def.GetValidator()!).ValidateAsync(req, cancellation);
+
+            if (!valResult.IsValid)
+            {
+                for (var i = 0; i < valResult.Errors.Count; i++)
+                    validationFailures.AddError(valResult.Errors[i], def.ReqDtoFromBodyPropName);
+            }
+        }
+        else if (_tRequest != Types.EmptyRequest) //try data annotations because DA support is enabled by user
+        {
+            var validationResults = new List<System.ComponentModel.DataAnnotations.ValidationResult>();
+
+            if (!System.ComponentModel.DataAnnotations.Validator.TryValidateObject(req, new(req), validationResults, true))
+            {
+                for (var i = 0; i < validationResults.Count; i++)
+                {
+                    var res = validationResults[i];
+                    validationFailures.AddError(new(res.MemberNames.FirstOrDefault(), res.ErrorMessage), def.ReqDtoFromBodyPropName);
+                }
+            }
         }
 
         if (validationFailures.Count > 0 && def.ThrowIfValidationFails)

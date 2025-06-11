@@ -19,6 +19,10 @@ public abstract class ODataEndpoint<TEntity> : Endpoint<ODataQueryOptions<TEntit
     {
         RequestBinder(new ODataBinder());
         DontAutoSendResponse();
+        Description(
+            x => x.ClearDefaultAccepts()
+                  .ClearDefaultProduces()
+                  .Produces<ODataResult<TEntity>>(200, "application/json")); //not sure if this is the correct thing to do with swagger
         Options(
             x =>
             {

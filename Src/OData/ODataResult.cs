@@ -5,8 +5,8 @@ namespace FastEndpoints.OData;
 public sealed class ODataResult<TEntity>
 {
     [JsonPropertyName("@odata.context")]
-    public string Context { get; set; }
+    public string Context { get; set; } = null!;
 
     [JsonPropertyName("value")]
-    public TEntity[] Value { get; set; }
+    public TEntity[] Value { get; set; } = null!;
 }

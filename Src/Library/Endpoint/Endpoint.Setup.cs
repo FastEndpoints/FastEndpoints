@@ -378,6 +378,20 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
         => Definition.PermissionsAll(permissions);
 
     /// <summary>
+    /// allows access if the 'scope' claim has ANY of the given scopes
+    /// </summary>
+    /// <param name="scopes">the scopes</param>
+    protected void Scopes(params string[] scopes)
+        => Definition.Scopes(scopes);
+
+    /// <summary>
+    /// allows access if the 'scope' claim has ALL the given scopes
+    /// </summary>
+    /// <param name="scopes">the scopes</param>
+    protected void ScopesAll(params string[] scopes)
+        => Definition.ScopesAll(scopes);
+
+    /// <summary>
     /// specify an action for building an authorization requirement which applies only to this endpoint.
     /// </summary>
     /// <param name="policy">the policy builder action</param>

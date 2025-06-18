@@ -20,6 +20,7 @@ public class Endpoint : EndpointWithoutRequest
                 ]);
                 o.User.Roles.Add(Role.Customer);
                 o.User[Claim.CustomerID] = "CST001";
+                o.User["scope"] = "one two three";
             });
 
         return SendAsync(token);

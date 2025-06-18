@@ -5,11 +5,44 @@ using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Http;
 using RefreshTest = TestCases.RefreshTokensTest;
 using TestCases.MissingClaimTest;
+using TestCases.ScopesTest;
 
 namespace Security;
 
 public class SecurityTests(Sut App) : TestBase<Sut>
 {
+    [Fact]
+    public async Task AnyScopePass()
+    {
+        var (rsp, res) = await App.CustomerClient.GETAsync<ScopeTestAnyPassEndpoint, string>();
+        rsp.IsSuccessStatusCode.ShouldBeTrue();
+        res.ShouldBe("ok!");
+    }
+
+    [Fact]
+    public async Task AnyScopeFail()
+    {
+        var (rsp, _) = await App.CustomerClient.GETAsync<ScopeTestAnyFailEndpoint, ErrorResponse>();
+        rsp.IsSuccessStatusCode.ShouldBeFalse();
+        rsp.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
+    public async Task AllScopePass()
+    {
+        var (rsp, res) = await App.CustomerClient.GETAsync<ScopeTestAllPassEndpoint, string>();
+        rsp.IsSuccessStatusCode.ShouldBeTrue();
+        res.ShouldBe("ok!");
+    }
+
+    [Fact]
+    public async Task AllScopeFail()
+    {
+        var (rsp, _) = await App.CustomerClient.GETAsync<ScopeTestAllFailEndpoint, EmptyResponse>();
+        rsp.IsSuccessStatusCode.ShouldBeFalse();
+        rsp.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+    }
+
     [Fact]
     public async Task MultiVerbEndpointAnonymousUserPutFail()
     {

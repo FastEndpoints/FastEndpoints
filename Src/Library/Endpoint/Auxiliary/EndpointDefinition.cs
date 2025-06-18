@@ -33,6 +33,8 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     //these props can be changed in global config using methods below
     public bool AllowAnyPermission { get; private set; }
     public List<string>? AllowedPermissions { get; private set; }
+    public bool AllowAnyScope { get; private set; }
+    public List<string>? AllowedScopes { get; private set; }
     public bool AllowAnyClaim { get; private set; }
     public List<string>? AllowedClaimTypes { get; private set; }
     public List<string>? AllowedRoles { get; private set; }
@@ -354,6 +356,32 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
         AllowAnyPermission = false;
         AllowedPermissions?.AddRange(permissions);
         AllowedPermissions ??= [..permissions];
+    }
+
+    /// <summary>
+    /// allows access if the 'scope' claim has ANY of the given scopes.
+    /// <para>HINT: these scopes will be applied in addition to endpoint level scopes if there's any</para>
+    /// </summary>
+    /// <param name="scopes">the permissions</param>
+    public void Scopes(params string[] scopes)
+    {
+        ThrowIfLocked();
+        AllowAnyScope = true;
+        AllowedScopes?.AddRange(scopes);
+        AllowedScopes ??= [..scopes];
+    }
+
+    /// <summary>
+    /// allows access if the 'scope' claim has ALL the given scopes.
+    /// <para>HINT: these scopes will be applied in addition to endpoint level scopes if there's any</para>
+    /// </summary>
+    /// <param name="scopes">the permissions</param>
+    public void ScopesAll(params string[] scopes)
+    {
+        ThrowIfLocked();
+        AllowAnyScope = false;
+        AllowedScopes?.AddRange(scopes);
+        AllowedScopes ??= [..scopes];
     }
 
     /// <summary>

@@ -328,6 +328,29 @@ public static class MainExtensions
                     }
                 }
 
+                if (ep.AllowedScopes?.Count > 0)
+                {
+                    if (ep.AllowAnyScope)
+                    {
+                        b.RequireAssertion(
+                            x => x.User.Claims.Any(
+                                c => string.Equals(c.Type, Cfg.SecOpts.ScopeClaimType, StringComparison.OrdinalIgnoreCase) &&
+                                     Cfg.SecOpts.ScopeParser(c.Value).Any(s => ep.AllowedScopes.Contains(s, StringComparer.OrdinalIgnoreCase))));
+                    }
+                    else
+                    {
+                        b.RequireAssertion(
+                            x => x.User.Claims.Any(
+                                c =>
+                                {
+                                    var incomingScopes = Cfg.SecOpts.ScopeParser(c.Value); //run parser func only once!
+
+                                    return string.Equals(c.Type, Cfg.SecOpts.ScopeClaimType, StringComparison.OrdinalIgnoreCase) &&
+                                           ep.AllowedScopes.All(s => incomingScopes.Contains(s, StringComparer.OrdinalIgnoreCase));
+                                }));
+                    }
+                }
+
                 if (ep.AllowedClaimTypes?.Count > 0)
                 {
                     if (ep.AllowAnyClaim)
@@ -338,7 +361,7 @@ public static class MainExtensions
 
                 ep.PolicyBuilder?.Invoke(b);
 
-                //note: only claim/permission/policy builder requirements are added here in the security policy
+                //note: only claim/permission/scope/policy-builder requirements are added here in the security policy
                 //      roles and auth schemes are specified in the AuthorizeAttribute in BuildAuthorizeAttributes()
             });
     }

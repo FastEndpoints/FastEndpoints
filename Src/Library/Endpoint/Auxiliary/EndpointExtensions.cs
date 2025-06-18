@@ -14,6 +14,7 @@ static partial class EndpointExtensions
     /// </summary>
     public static bool RequiresAuthorization(this EndpointDefinition ep)
         => ep.AllowedPermissions?.Count > 0 ||
+           ep.AllowedScopes?.Count > 0 ||
            ep.AllowedClaimTypes?.Count > 0 ||
            ep.AllowedRoles?.Count > 0 ||
            ep.AuthSchemeNames?.Count > 0 ||

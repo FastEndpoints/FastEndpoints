@@ -10,9 +10,40 @@ Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H
 
 ## New 🎉
 
+<details><summary>Support 'Scope' based access restriction</summary>
+
+Your can now restrict access based on [Scopes](https://oauth.net/2/scope) in tokens (e.g., from OAuth2/OpenID Connect IDPs). Simply specify required scopes using the newly added **Scopes()** method:
+
+```cs
+public override void Configure()
+{
+    Get("/item");
+    Scopes("item:read", "item:write");
+}
+```
+
+This allows access if the user's **"scope"** claim includes ANY of the listed values. To require ALL scopes, use **ScopesAll()** instead.
+
+By default, scopes are read from the **"scope"** claim, which can be changed like so:
+
+```cs
+app.UseFastEndpoints(c => c.Security.ScopeClaimType = "scp")
+```
+
+If scope values aren't space-separated, customize parsing like so:
+
+```cs
+app.UseFastEndpoints(c => c.Security.ScopeParser = input =>
+{
+    //extract scope values and return a collection of strings
+})
+```
+
+</details>
+
 <details><summary>Automatic 'Accepts Metadata' for Non-Json requests</summary>
 
-In the past, if an endpoint defines a request DTO type, an accepts-metadata of `application/json` would be automatically added to the endpoint, which would require the user to [clear that default metadata](https://fast-endpoints.com/docs/swagger-support#clearing-only-accepts-metadata) if all of the properties of the DTO is bound from non-json binding sources such as route/query/header etc.
+In the past, if an endpoint defines a request DTO type, an accepts-metadata of `application/json` would be automatically added to the endpoint, which would require the user to [clear that default metadata](https://fast-endpoints.com/docs/swagger-support#clearing-only-accepts-metadata) if all the properties of the DTO is bound from non-json binding sources such as route/query/header etc.
 
 Now, if the user annotates all the properties of a DTO with the respective non-json binding sources such as the following:
 
@@ -44,7 +75,7 @@ app.UseFastEndpoints(c => c.Validation.EnableDataAnnotationsSupport = true)
 
 </details>
 
-## Improvements 🚀
+<!-- ## Improvements 🚀 -->
 
 ## Fixes 🪲
 

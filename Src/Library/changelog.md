@@ -67,7 +67,7 @@ It is no longer necessary for the user to manually clear the default accepts-met
 
 <details><summary>Support for 'DataAnnotations' Validation Attributes</summary>
 
-You can now annotate request DTO properties with `DataAnnotations` attributes such as `[Required], [StringLength(...)]` etc., instead of writing a `FluentValidations` validator for quick-n-dirty input validation. Do note however, only one of the strategies can be used for a single endpoint. I.e. if a request DTO has annotations as well as a fluent validator, only the fluent validator will be run and the annotations will be ignored. Mixing strategies is not allowed in order to prevent confusion for the reader. To enable `DataAnnotations` support, please enable the setting like so:
+You can now annotate request DTO properties with `DataAnnotations` attributes such as `[Required], [StringLength(...)]` etc., instead of writing a `FluentValidations` validator for quick-n-dirty input validation. Do note however, only one of the strategies can be used for a single endpoint. I.e. if a request DTO has annotations as well as a fluent validator, only the fluent validator will be run and the annotations will be ignored. Mixing strategies is not allowed in order to prevent confusion for the reader. To enable `DataAnnotations` support, do the following:
 
 ```cs
 app.UseFastEndpoints(c => c.Validation.EnableDataAnnotationsSupport = true)

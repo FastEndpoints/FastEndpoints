@@ -40,6 +40,26 @@ public class BindingTests(Sut App) : TestBase<Sut>
     }
 
     [Fact]
+    public async Task StronglyTypedRouteBinding()
+    {
+        var (rsp, res) = await App.Client.POSTAsync<TestCases.StronglyTypedRouteParamTest.Request, TestCases.StronglyTypedRouteParamTest.Request>(
+                             "api/test-cases/strong-route-params/123/blah/jacky",
+                             new()
+                             {
+                                 Name = "x",
+                                 Uid = "y"
+                             });
+
+        rsp.IsSuccessStatusCode.ShouldBeTrue();
+        res.ShouldBeEquivalentTo(
+            new TestCases.StronglyTypedRouteParamTest.Request
+            {
+                Name = "jacky",
+                Uid = "123"
+            });
+    }
+
+    [Fact]
     public async Task RouteValueBinding()
     {
         var (rsp, res) = await App.Client

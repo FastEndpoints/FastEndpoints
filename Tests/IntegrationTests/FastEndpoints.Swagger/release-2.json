@@ -4324,6 +4324,37 @@
         }
       }
     },
+    "/api/test-cases/strong-route-params/{platformKitUid}/blah/{name}": {
+      "post": {
+        "tags": [
+          "TestCases"
+        ],
+        "operationId": "TestCasesStronglyTypedRouteParamTestMyEndpoint",
+        "parameters": [
+          {
+            "name": "platformKitUid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
     "/api/test-cases/typed-header-binding-test": {
       "post": {
         "tags": [
@@ -6436,6 +6467,10 @@
             ]
           }
         }
+      },
+      "TestCasesStronglyTypedRouteParamTestRequest": {
+        "type": "object",
+        "additionalProperties": false
       },
       "TestCasesTypedHeaderBindingTestMyRequest": {
         "allOf": [

@@ -15,7 +15,16 @@ static class ReflectionExtensions
     {
         return expression.Body is not NewExpression newExp
                    ? throw new NotSupportedException($"[{expression}] is not a valid `new` expression!")
-                   : newExp.Arguments.Select(a => a.ToString().Split('.')[1]);
+                   : newExp.Arguments.Select(
+                       a =>
+                       {
+                           if (a is not MemberExpression m)
+                               throw new InvalidOperationException("not a member expression!");
+
+                           return m.Member.IsDefined(typeof(BindFromAttribute))
+                                      ? m.Member.GetCustomAttribute<BindFromAttribute>()!.Name
+                                      : a.ToString().Split('.')[1];
+                       });
     }
 
     internal static string PropertyName<T>(this Expression<T> expression)

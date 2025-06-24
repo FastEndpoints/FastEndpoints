@@ -38,7 +38,7 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
 {
     readonly IServiceResolver _serviceResolver;
     readonly ILogger<ValidationSchemaProcessor> _logger;
-    readonly Type[] _validatorTypes;
+    static Type[]? _validatorTypes;
     readonly FluentValidationRule[] _rules;
     readonly Dictionary<string, IValidator> _childAdaptorValidators = new();
 
@@ -47,19 +47,19 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
         _serviceResolver = serviceResolver;
         _logger = logger;
         _rules = CreateDefaultRules();
-        _validatorTypes = _serviceResolver.Resolve<EndpointData>().Found
-                                          .Where(e => e.ValidatorType != null)
-                                          .Select(e => e.ValidatorType!)
-                                          .Distinct()
-                                          .ToArray();
+        _validatorTypes ??= _serviceResolver.Resolve<EndpointData>().Found
+                                            .Where(e => e.ValidatorType != null)
+                                            .Select(e => e.ValidatorType!)
+                                            .Distinct()
+                                            .ToArray();
 
-        if (_validatorTypes.Length == 0)
+        if (_validatorTypes?.Length is null or 0)
             _logger.NoValidatorsFound();
     }
 
     public void Process(SchemaProcessorContext context)
     {
-        if (_validatorTypes.Length == 0)
+        if (_validatorTypes?.Length is null or 0)
             return;
 
         var tRequest = context.ContextualType;

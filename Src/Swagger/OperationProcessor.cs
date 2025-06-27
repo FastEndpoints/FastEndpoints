@@ -140,6 +140,7 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
             if (metas.Count > 0)
             {
             #if NET9_0_OR_GREATER
+
                 //remove this workaround when sdk bug is fixed: https://github.com/dotnet/aspnetcore/issues/57801#issuecomment-2439578287
                 foreach (var meta in metas.Where(m => m.Value.isIResult))
                 {
@@ -321,7 +322,7 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
 
         //store unique request param description + example (from each consumes/content type) for later use.
         //todo: this is not ideal in case two consumes dtos has a prop with the same name.
-        var reqParamDescriptions = new Dictionary<string, ParamDescription>(StringComparer.OrdinalIgnoreCase);
+        var reqParamDescriptions = new Dictionary<string, ParamDescription>(StringComparer.OrdinalIgnoreCase); //key: property name
 
         if (reqContent is not null)
         {
@@ -830,7 +831,7 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
 
         if (ctx.OpCtx.Settings.SchemaSettings.GenerateExamples)
         {
-            if (ctx.Descriptions.TryGetValue(prm.Name, out var desc) && desc.Example is not null)
+            if (ctx.Descriptions.TryGetValue(prop?.Name ?? prm.Name, out var desc) && desc.Example is not null)
                 prm.Example = desc.Example;
             else
                 prm.Example = prop?.GetExampleJToken(ctx.Serializer);
@@ -852,7 +853,7 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
         public OperationProcessorContext OpCtx { get; }
         public DocumentOptions DocOpts { get; }
         public JsonSerializer Serializer { get; }
-        public Dictionary<string, ParamDescription> Descriptions { get; }
+        public Dictionary<string, ParamDescription> Descriptions { get; } //key: property name
 
         readonly Dictionary<string, Type> _paramMap;
 

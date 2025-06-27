@@ -20,4 +20,29 @@ It is now possible to customize the route param names when using the [strongly t
 
 ## Fixes 🪲
 
+<details><summary>Header example value not picked up from swagger example request</summary>
+
+If a request DTO specifies a custom header name that is different from the property name such as the following:
+
+```cs
+sealed class GetItemRequest
+{
+    [FromHeader("x-correlation-id")]
+    public Guid CorrelationId { get; init; }
+}
+```
+
+and a summary example request is provided such as the following:
+
+```cs
+Summary(s => s.ExampleRequest = new GetItemRequest()
+{
+    CorrelationId = "54321"
+});
+```
+
+the example value from the summary example property was not being picked up due to an oversight.
+
+</details>
+
 ## Breaking Changes ⚠️

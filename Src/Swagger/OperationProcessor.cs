@@ -650,13 +650,30 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
                 if (requestExample is null)
                     return null;
 
+                var input = requestExample.Value;
+                var tInput = input.GetType();
+
+                if (fromBodyProp is not null)
+                {
+                    var pFromBody = tInput.GetProperty(fromBodyProp.Name);
+                    input = pFromBody?.GetValue(input) ?? input;
+                    tInput = input.GetType();
+                }
+
+                if (fromFormProp is not null)
+                {
+                    var pFromForm = tInput.GetProperty(fromFormProp.Name);
+                    input = pFromForm?.GetValue(input) ?? input;
+                    tInput = input.GetType();
+                }
+
                 object example;
 
-                if (requestExample.Value.GetType().IsAssignableTo(typeof(IEnumerable)))
-                    example = JToken.FromObject(requestExample.Value, serializer);
+                if (tInput.IsAssignableTo(typeof(IEnumerable)))
+                    example = JToken.FromObject(input, serializer);
                 else
                 {
-                    example = JObject.FromObject(requestExample.Value, serializer);
+                    example = JObject.FromObject(input, serializer);
 
                     foreach (var p in ((JObject)example).Properties().ToArray())
                     {

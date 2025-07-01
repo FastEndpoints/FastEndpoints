@@ -45,4 +45,38 @@ the example value from the summary example property was not being picked up due 
 
 </details>
 
+<details><summary>Xml comments not picked up by swagger for request schema</summary>
+
+There was a regression in the code path that was picking up `Summary` xml comments from DTO properties in certain scenarios, which has now been fixed.
+
+</details>
+
+<details><summary>Incorrect swagger example generation when '[FromBody] or [FromForm]' was used</summary>
+
+If a request DTO was defined like this:
+
+```cs
+sealed class MyRequest
+{
+    [FromBody]
+    public Something Body { get; set; }
+}
+```
+
+and an example request is provided via the Summary like this:
+
+```cs
+Summary(x=>x.ExampleRequest = new MyRequest()
+{
+    Body = new Something()
+    {
+        ...
+    }
+});
+```
+
+swagger generated the incorrect request example value which included the property name, which it shouldn't have.
+
+</details>
+
 ## Breaking Changes ⚠️

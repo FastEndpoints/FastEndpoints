@@ -329,7 +329,11 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
             foreach (var c in reqContent)
             {
                 foreach (var prop in c.GetAllProperties())
-                    reqParamDescriptions[prop.Key] = new(prop.Value.Description);
+                {
+                    reqParamDescriptions[prop.Key] = new(
+                        prop.Value.Description,
+                        prop.Value.Example != null ? JToken.FromObject(prop.Value.Example, serializer) : null);
+                }
             }
         }
 

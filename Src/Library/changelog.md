@@ -18,6 +18,24 @@ It is now possible to customize the route param names when using the [strongly t
 
 </details>
 
+<details><summary>Support for malformed JSON array string binding</summary>
+
+When submitting requests via SwaggerUI where a complex object collection is to be bound to a collection property of a DTO, SwaggerUI sends in a malformed string of JSON objects without properly enclosing them in the JSON array notation `[...]` such as the following:
+
+```json
+{"something":"one"},{"something":"two"}
+```
+
+whereas it should be a proper JSON array such as this:
+
+```json
+[{"something":"one"},{"something":"two"}]
+```
+
+Since we have no control over how SwaggerUI behaves, support has been added to the default request binder to support parsing and binding the malformed comma separateed JSON objects that SwaggerUI sends at the expense of a minor performance hit.
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>Header example value not picked up from swagger example request</summary>

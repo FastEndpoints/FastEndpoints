@@ -237,6 +237,14 @@ static class BinderExtensions
 
                 return result is not null;
 
+            case 1 when input[0].IsMalformedJsonArrayString(out var json):
+
+                //swagger ui likes to send {...},{...} without enclosing in [...]
+
+                result = JsonSerializer.Deserialize(json, tProp, Cfg.SerOpts.Options);
+
+                return result is not null;
+
             case 1 when input[0].IsCsvString():
                 input = input[0]!.Split(','); //csv input support is undocumented
 
@@ -311,6 +319,80 @@ static class BinderExtensions
         }
 
         return sawComma;
+    }
+
+    static bool IsMalformedJsonArrayString(this string? input, out string json)
+    {
+        json = null!;
+
+        if (string.IsNullOrWhiteSpace(input))
+            return false;
+
+        var index = 0;
+
+        while (index < input.Length && char.IsWhiteSpace(input[index]))
+            index++;
+
+        if (index >= input.Length || input[index] != '{')
+            return false;
+
+        var inString = false;
+        var escapeNext = false;
+        var braceCount = 1;
+
+        for (var i = index + 1; i < input.Length; i++)
+        {
+            if (escapeNext)
+            {
+                escapeNext = false;
+
+                continue;
+            }
+
+            var c = input[i];
+
+            switch (c)
+            {
+                case '\\':
+                    escapeNext = true;
+
+                    break;
+                case '"':
+                    inString = !inString;
+
+                    break;
+                default:
+                {
+                    if (!inString)
+                    {
+                        switch (c)
+                        {
+                            case '{':
+                                braceCount++;
+
+                                break;
+                            case '}':
+                            {
+                                braceCount--;
+
+                                if (braceCount == 0)
+                                {
+                                    json = $"[{input}]";
+
+                                    return true;
+                                }
+
+                                break;
+                            }
+                        }
+                    }
+
+                    break;
+                }
+            }
+        }
+
+        return false;
     }
 
     static bool IsJsonArrayString(this string? val)

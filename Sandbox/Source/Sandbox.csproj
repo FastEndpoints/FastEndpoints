@@ -16,8 +16,9 @@
         <!-- <ProjectReference Include="..\..\Src\OData\FastEndpoints.OData.csproj"/> -->
         <!-- <PackageReference Include="ErrorOr" VersionOverride="2.0.1"/> -->
         <!-- <PackageReference Include="FastEndpoints.AspVersioning" VersionOverride="5.29.0"/> -->
-        <!-- <PackageReference Include="FastEndpoints" VersionOverride="5.8.1"/> -->
-        <!-- <PackageReference Include="FastEndpoints.Swagger" VersionOverride="5.8.1"/> -->
+        <!-- <PackageReference Include="FastEndpoints" VersionOverride="5.35.0"/> -->
+        <!-- <PackageReference Include="FastEndpoints.Swagger" VersionOverride="5.35.0"/> -->
+        <!-- <PackageReference Include="FastEndpoints.Security" VersionOverride="5.35.0"/> -->
         <!-- <PackageReference Include="Ardalis.ApiEndpoints" VersionOverride="4.1.0"/> -->
         <!-- <PackageReference Include="Microsoft.AspNetCore.OpenApi" VersionOverride="9.0.0-rc.2.24474.3"/> -->
         <!-- <PackageReference Include="MongoDB.Entities" VersionOverride="24.0.0"/> -->

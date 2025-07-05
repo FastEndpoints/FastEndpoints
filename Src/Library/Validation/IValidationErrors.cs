@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 
 namespace FastEndpoints;
 
-interface IValidationErrors<T>
+public interface IValidationErrors<T>
 {
     /// <summary>
     /// validation failures collection for the endpoint

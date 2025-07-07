@@ -107,13 +107,11 @@ public static class HttpContextExtensions
         return st;
     }
 
-    internal static void MarkEdiHandled(this HttpContext ctx)
-        => ctx.Items[CtxKey.EdiIsHandled] = null;
-
-    internal static bool EdiIsHandled(this HttpContext ctx)
-        => ctx.Items.ContainsKey(CtxKey.EdiIsHandled);
-
-    internal static void PopulateResponseHeadersFrom(this HttpContext ctx, object? response)
+    /// <summary>
+    /// adds headers to the http response by reading response dto properties decorated with the [ToHeader(...)] attribute
+    /// </summary>
+    /// <param name="response">the response dto instance</param>
+    public static void PopulateResponseHeadersFromResponseDto(this HttpContext ctx, object? response)
     {
         var toHeaderProps = ctx.Items[CtxKey.ToHeaderProps] as ToHeaderProp[] ?? [];
 
@@ -123,6 +121,12 @@ public static class HttpContextExtensions
             ctx.Response.Headers[p.HeaderName] = p.PropGetter?.Invoke(response!)?.ToString();
         }
     }
+
+    internal static void MarkEdiHandled(this HttpContext ctx)
+        => ctx.Items[CtxKey.EdiIsHandled] = null;
+
+    internal static bool EdiIsHandled(this HttpContext ctx)
+        => ctx.Items.ContainsKey(CtxKey.EdiIsHandled);
 }
 
 static class CtxKey

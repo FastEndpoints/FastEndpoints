@@ -97,4 +97,10 @@ swagger generated the incorrect request example value which included the propert
 
 </details>
 
+<details><summary>Default exception handler setting incorrect mime type</summary>
+
+Due to an oversight, the [default exception handler](https://fast-endpoints.com/docs/exception-handler) was not correctly setting the intended content-type value of `application/problem+json`. Instead, it was being overwritten with `application/json` due to not using the correct overload of `WriteAsJsonAsync()` method internally.
+
+</details>
+
 ## Breaking Changes ⚠️

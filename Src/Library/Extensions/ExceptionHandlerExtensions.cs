@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using System.Net;
 
 namespace FastEndpoints;
 
@@ -52,8 +51,7 @@ public static class ExceptionHandlerExtensions
                                 logger.LogUnStructuredException(exceptionType, route, reason, exHandlerFeature.Error.StackTrace);
                             }
 
-                            ctx.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                            ctx.Response.ContentType = "application/problem+json";
+                            ctx.Response.StatusCode = 500;
                             await ctx.Response.WriteAsJsonAsync(
                                 new InternalErrorResponse
                                 {
@@ -61,7 +59,10 @@ public static class ExceptionHandlerExtensions
                                     Code = ctx.Response.StatusCode,
                                     Reason = useGenericReason ? "An unexpected error has occurred." : reason,
                                     Note = "See application log for stack trace."
-                                });
+                                },
+                                Cfg.SerOpts.Options,
+                                "application/problem+json",
+                                ctx.RequestAborted);
                         }
                     });
             });

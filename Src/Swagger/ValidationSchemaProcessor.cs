@@ -194,13 +194,14 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
                     throw new InvalidOperationException("ChildValidatorAdaptor.ValidatorType is null");
 
                 // Retrieve or create an instance of the validator
-                if (!_childAdaptorValidators.TryGetValue(validatorType.FullName!, out var childValidator))
+                if (!validatorType.IsInterface &&                                                          //can't create instances of interfaces.
+                    !_childAdaptorValidators.TryGetValue(validatorType.FullName!, out var childValidator)) //avoid infinite recursions if child validator seen.
                 {
                     childValidator = _childAdaptorValidators[validatorType.FullName!] =
                                          (IValidator)_serviceResolver.CreateInstance(validatorType, services);
                 }
                 else
-                    continue; //avoid infinite recursions if child validator already seen.
+                    continue;
 
                 // Apply the validator to the schema. Again, recursively
                 var childSchema = schema.ActualProperties[propertyName].ActualSchema;

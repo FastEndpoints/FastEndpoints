@@ -1,11 +1,8 @@
-﻿using System.Text.Encodings.Web;
-using System.Web;
-
-namespace TestCases.HydratedQueryParamGeneratorTest;
+﻿namespace TestCases.HydratedQueryParamGeneratorTest;
 
 public sealed class Request
 {
-    [FromQuery]
+    [FromQuery] //this is the right way to bind complex data from query params
     public NestedClass Nested { get; set; }
 
     [QueryParam]
@@ -17,7 +14,14 @@ public sealed class Request
     public record NestedClass(string? First, int Last);
 }
 
-sealed class Endpoint : Endpoint<Request>
+public sealed class Response
+{
+    public string Nested { get; set; }
+    public string Guids { get; set; }
+    public string Some { get; set; }
+}
+
+sealed class Endpoint : Endpoint<Request, Response>
 {
     public override void Configure()
     {
@@ -25,8 +29,16 @@ sealed class Endpoint : Endpoint<Request>
         AllowAnonymous();
     }
 
-    public override async Task HandleAsync(Request r, CancellationToken c)
+    public override Task HandleAsync(Request r, CancellationToken c)
     {
-        await SendAsync(HttpContext.Request.Query.ToDictionary(q => q.Key, q => q.Value.ToString()));
+        //we only care about the correct querystring in this test
+        Response = new()
+        {
+            Nested = HttpContext.Request.Query["nested"]!,
+            Guids = HttpContext.Request.Query["guids"]!,
+            Some = HttpContext.Request.Query["some"]!
+        };
+
+        return Task.CompletedTask;
     }
 }

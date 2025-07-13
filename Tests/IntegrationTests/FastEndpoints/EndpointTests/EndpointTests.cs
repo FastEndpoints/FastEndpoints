@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
+using System.Text.Json;
 using TestCases.EmptyRequestTest;
 using TestCases.Routing;
 
@@ -116,13 +117,13 @@ public class EndpointTests(Sut App) : TestBase<Sut>
                                   .GETAsync<
                                       TestCases.HydratedQueryParamGeneratorTest.Endpoint,
                                       TestCases.HydratedQueryParamGeneratorTest.Request,
-                                      Dictionary<string, string>
+                                      TestCases.HydratedQueryParamGeneratorTest.Response
                                   >(req);
 
         rsp.IsSuccessStatusCode.ShouldBeTrue();
-        res.ShouldContainKeyAndValue("some", "some");
-        res.ShouldContainKeyAndValue("guids", $"[\"{guid1}\",\"{guid2}\"]");
-        res.ShouldContainKeyAndValue("nested", "NestedClass { First = First, Last = 20 }");
+        res.Nested.ShouldBe(JsonSerializer.Serialize(req.Nested), StringCompareShould.IgnoreCase);
+        res.Guids.ShouldBe(JsonSerializer.Serialize(req.Guids), StringCompareShould.IgnoreCase);
+        res.Some.ShouldBe(req.Some);
     }
 
     [Fact]

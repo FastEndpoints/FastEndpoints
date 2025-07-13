@@ -551,9 +551,19 @@ public static class HttpClientExtensions
 
         var tValue = value.GetType();
         var stringVal = value.ToString();
+        var isTypeName = stringVal == tValue.ToString();
+        var isRecord = tValue.IsRecordType();
 
-        return stringVal == tValue.ToString()
-                   ? JsonSerializer.Serialize(value, SerOpts.Options) //value is type name - serialize it
-                   : stringVal;                                       //not the type name - return it
+        if (isTypeName || isRecord)
+            return JsonSerializer.Serialize(value, SerOpts.Options);
+
+        return stringVal;
+    }
+
+    static bool IsRecordType(this Type type)
+    {
+        var cloneMethod = type.GetMethod("<Clone>$");
+
+        return cloneMethod is not null && cloneMethod.ReturnType == type;
     }
 }

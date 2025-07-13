@@ -2208,8 +2208,15 @@
           }
         ],
         "responses": {
-          "204": {
-            "description": "No Content"
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesHydratedQueryParamGeneratorTestResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -5494,6 +5501,21 @@
           "content": {
             "type": "string",
             "description": "overriden content text"
+          }
+        }
+      },
+      "TestCasesHydratedQueryParamGeneratorTestResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "nested": {
+            "type": "string"
+          },
+          "guids": {
+            "type": "string"
+          },
+          "some": {
+            "type": "string"
           }
         }
       },

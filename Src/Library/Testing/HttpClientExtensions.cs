@@ -552,8 +552,10 @@ public static class HttpClientExtensions
         var tValue = value.GetType();
         var stringVal = value.ToString();
 
-        return stringVal == tValue.ToString()
-                   ? JsonSerializer.Serialize(value, SerOpts.Options) //value is type name - serialize it
+        // Record type's ToString() overload returns a string in the format 'ClassName { Properties... }'.  It is not
+        // json and won't parse correctly.
+        return  (stringVal?.StartsWith($"{tValue.Name} {{") ?? false) || stringVal == tValue.ToString()
+                   ? JsonSerializer.Serialize(value, SerOpts.Options) //value is type name or record - serialize it
                    : stringVal;                                       //not the type name - return it
     }
 }

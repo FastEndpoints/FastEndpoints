@@ -2417,8 +2417,15 @@
           }
         ],
         "responses": {
-          "204": {
-            "description": "No Content"
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesHydratedQueryParamGeneratorTestResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -5706,9 +5713,25 @@
           }
         }
       },
-      "TestCasesHydratedQueryParamGeneratorTestRequest": {
+      "TestCasesHydratedQueryParamGeneratorTestResponse": {
         "type": "object",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "properties": {
+          "nested": {
+            "$ref": "#/components/schemas/TestCasesHydratedQueryParamGeneratorTestRequest_NestedClass"
+          },
+          "guids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "guid"
+            }
+          },
+          "some": {
+            "type": "string",
+            "nullable": true
+          }
+        }
       },
       "TestCasesHydratedQueryParamGeneratorTestRequest_NestedClass": {
         "type": "object",
@@ -5723,6 +5746,10 @@
             "format": "int32"
           }
         }
+      },
+      "TestCasesHydratedQueryParamGeneratorTestRequest": {
+        "type": "object",
+        "additionalProperties": false
       },
       "TestCasesHydratedTestUrlGeneratorTestRequest": {
         "type": "object",

@@ -116,13 +116,13 @@ public class EndpointTests(Sut App) : TestBase<Sut>
                                   .GETAsync<
                                       TestCases.HydratedQueryParamGeneratorTest.Endpoint,
                                       TestCases.HydratedQueryParamGeneratorTest.Request,
-                                      Dictionary<string, string>
+                                      TestCases.HydratedQueryParamGeneratorTest.Response
                                   >(req);
 
         rsp.IsSuccessStatusCode.ShouldBeTrue();
-        res.ShouldContainKeyAndValue("some", "some");
-        res.ShouldContainKeyAndValue("guids", $"[\"{guid1}\",\"{guid2}\"]");
-        res.ShouldContainKeyAndValue("nested", "NestedClass { First = First, Last = 20 }");
+        res.Nested.ShouldBe(req.Nested);
+        res.Some.ShouldBe(req.Some);
+        res.Guids.ShouldBe(req.Guids);
     }
 
     [Fact]

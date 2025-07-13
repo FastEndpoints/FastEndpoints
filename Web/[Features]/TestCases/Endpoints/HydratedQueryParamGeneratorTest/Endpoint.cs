@@ -1,11 +1,8 @@
-﻿using System.Text.Encodings.Web;
-using System.Web;
-
-namespace TestCases.HydratedQueryParamGeneratorTest;
+﻿namespace TestCases.HydratedQueryParamGeneratorTest;
 
 public sealed class Request
 {
-    [FromQuery]
+    [QueryParam]
     public NestedClass Nested { get; set; }
 
     [QueryParam]
@@ -17,7 +14,16 @@ public sealed class Request
     public record NestedClass(string? First, int Last);
 }
 
-sealed class Endpoint : Endpoint<Request>
+public sealed class Response
+{
+    public Request.NestedClass Nested { get; set; }
+
+    public List<Guid> Guids { get; set; }
+
+    public string? Some { get; set; }
+}
+
+sealed class Endpoint : Endpoint<Request, Response>
 {
     public override void Configure()
     {
@@ -25,8 +31,9 @@ sealed class Endpoint : Endpoint<Request>
         AllowAnonymous();
     }
 
-    public override async Task HandleAsync(Request r, CancellationToken c)
+    public override Task HandleAsync(Request r, CancellationToken c)
     {
-        await SendAsync(HttpContext.Request.Query.ToDictionary(q => q.Key, q => q.Value.ToString()));
+        Response = new Response { Nested = r.Nested, Guids = r.Guids, Some = r.Some };
+        return Task.CompletedTask;
     }
 }

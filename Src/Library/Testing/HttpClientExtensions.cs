@@ -414,11 +414,17 @@ public static class HttpClientExtensions
     static void PopulateHeaders<TRequest>(HttpRequestHeaders headers, TRequest req) where TRequest : notnull
     {
         var hdrProps = req.GetType()
-                          .GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy)
-                          .Where(p => p is { CanWrite: true, CanRead: true } && p.GetCustomAttribute<FromHeaderAttribute>()?.IsRequired is true);
+                          .BindableProps()
+                          .Where(p => p.GetCustomAttribute<FromHeaderAttribute>()?.IsRequired is true);
 
         foreach (var prop in hdrProps)
             headers.Add(prop.FieldName(), prop.GetValue(req)?.ToString());
+    }
+
+    struct ReqPropVal
+    {
+        public string? Value { get; set; }
+        public bool IsQueryParam { get; set; }
     }
 
     static string GetTestUrlFor<TEndpoint, TRequest>(TRequest req) where TRequest : notnull
@@ -431,10 +437,9 @@ public static class HttpClientExtensions
         //get property values as strings and stick em in a dictionary for easy lookup
         //ignore props annotated with security related attributes that has IsRequired set to true.
         var reqProps = req.GetType()
-                          .GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy)
+                          .BindableProps()
                           .Where(
-                              p => p is { CanWrite: true, CanRead: true } &&
-                                   p.GetCustomAttribute<FromClaimAttribute>()?.IsRequired is not true &&
+                              p => p.GetCustomAttribute<FromClaimAttribute>()?.IsRequired is not true &&
                                    p.GetCustomAttribute<FromHeaderAttribute>()?.IsRequired is not true &&
                                    p.GetCustomAttribute<HasPermissionAttribute>()?.IsRequired is not true);
 
@@ -496,11 +501,8 @@ public static class HttpClientExtensions
     {
         var form = new MultipartFormDataContent();
 
-        foreach (var p in req!.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy))
+        foreach (var p in req!.GetType().BindableProps())
         {
-            if (p is { CanWrite: false, CanRead: false })
-                continue;
-
             if (p.PropertyType.GetUnderlyingType() == Types.IFormFile)
                 AddFileToForm(p.GetValue(req) as IFormFile, p);
 

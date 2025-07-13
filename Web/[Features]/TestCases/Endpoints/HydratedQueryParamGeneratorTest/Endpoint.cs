@@ -2,7 +2,7 @@
 
 public sealed class Request
 {
-    [QueryParam]
+    [FromQuery] //this is the right way to bind complex data from query params
     public NestedClass Nested { get; set; }
 
     [QueryParam]
@@ -16,11 +16,9 @@ public sealed class Request
 
 public sealed class Response
 {
-    public Request.NestedClass Nested { get; set; }
-
-    public List<Guid> Guids { get; set; }
-
-    public string? Some { get; set; }
+    public string Nested { get; set; }
+    public string Guids { get; set; }
+    public string Some { get; set; }
 }
 
 sealed class Endpoint : Endpoint<Request, Response>
@@ -33,7 +31,14 @@ sealed class Endpoint : Endpoint<Request, Response>
 
     public override Task HandleAsync(Request r, CancellationToken c)
     {
-        Response = new Response { Nested = r.Nested, Guids = r.Guids, Some = r.Some };
+        //we only care about the correct querystring in this test
+        Response = new()
+        {
+            Nested = HttpContext.Request.Query["nested"]!,
+            Guids = HttpContext.Request.Query["guids"]!,
+            Some = HttpContext.Request.Query["some"]!
+        };
+
         return Task.CompletedTask;
     }
 }

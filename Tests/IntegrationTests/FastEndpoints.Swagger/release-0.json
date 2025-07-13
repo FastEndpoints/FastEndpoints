@@ -5509,20 +5509,19 @@
         "additionalProperties": false,
         "properties": {
           "nested": {
-            "$ref": "#/components/schemas/TestCasesHydratedQueryParamGeneratorTestRequest_NestedClass"
+            "type": "string"
           },
           "guids": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "format": "guid"
-            }
+            "type": "string"
           },
           "some": {
-            "type": "string",
-            "nullable": true
+            "type": "string"
           }
         }
+      },
+      "TestCasesHydratedQueryParamGeneratorTestRequest": {
+        "type": "object",
+        "additionalProperties": false
       },
       "TestCasesHydratedQueryParamGeneratorTestRequest_NestedClass": {
         "type": "object",
@@ -5537,10 +5536,6 @@
             "format": "int32"
           }
         }
-      },
-      "TestCasesHydratedQueryParamGeneratorTestRequest": {
-        "type": "object",
-        "additionalProperties": false
       },
       "TestCasesHydratedTestUrlGeneratorTestRequest": {
         "type": "object",

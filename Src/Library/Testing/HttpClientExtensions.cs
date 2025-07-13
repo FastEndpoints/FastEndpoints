@@ -551,11 +551,19 @@ public static class HttpClientExtensions
 
         var tValue = value.GetType();
         var stringVal = value.ToString();
+        var isTypeName = stringVal == tValue.ToString();
+        var isRecord = tValue.IsRecordType();
 
-        // Record type's ToString() overload returns a string in the format 'ClassName { Properties... }'.  It is not
-        // json and won't parse correctly.
-        return  (stringVal?.StartsWith($"{tValue.Name} {{") ?? false) || stringVal == tValue.ToString()
-                   ? JsonSerializer.Serialize(value, SerOpts.Options) //value is type name or record - serialize it
-                   : stringVal;                                       //not the type name - return it
+        if (isTypeName || isRecord)
+            return JsonSerializer.Serialize(value, SerOpts.Options);
+
+        return stringVal;
+    }
+
+    static bool IsRecordType(this Type type)
+    {
+        var cloneMethod = type.GetMethod("<Clone>$");
+
+        return cloneMethod is not null && cloneMethod.ReturnType == type;
     }
 }

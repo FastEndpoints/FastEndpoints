@@ -102,6 +102,30 @@ public class EndpointTests(Sut App) : TestBase<Sut>
     }
 
     [Fact]
+    public async Task HydratedQueryParamGenerationWorks()
+    {
+        var guid1 = Guid.NewGuid();
+        var guid2 = Guid.NewGuid();
+        var req = new TestCases.HydratedQueryParamGeneratorTest.Request
+        {
+            Nested = new("First", 20),
+            Some = "some",
+            Guids = [guid1, guid2]
+        };
+        var (rsp, res) = await App.GuestClient
+                                  .GETAsync<
+                                      TestCases.HydratedQueryParamGeneratorTest.Endpoint,
+                                      TestCases.HydratedQueryParamGeneratorTest.Request,
+                                      Dictionary<string, string>
+                                  >(req);
+
+        rsp.IsSuccessStatusCode.ShouldBeTrue();
+        res.ShouldContainKeyAndValue("some", "some");
+        res.ShouldContainKeyAndValue("guids", $"[\"{guid1}\",\"{guid2}\"]");
+        res.ShouldContainKeyAndValue("nested", "NestedClass { First = First, Last = 20 }");
+    }
+
+    [Fact]
     public async Task NonOptionalRouteParamThrowsExceptionIfParamIsNull()
     {
         var request = new NonOptionalRouteParamTest.Request(null!);

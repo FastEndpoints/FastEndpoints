@@ -2158,6 +2158,62 @@
         }
       }
     },
+    "/api/test-cases/query-param-creation-from-test-helpers": {
+      "get": {
+        "tags": [
+          "TestCases"
+        ],
+        "operationId": "TestCasesHydratedQueryParamGeneratorTestEndpoint",
+        "parameters": [
+          {
+            "name": "nested",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/TestCasesHydratedQueryParamGeneratorTestRequest_NestedClass"
+                }
+              ]
+            },
+            "example": {
+              "first": "first",
+              "last": 0
+            }
+          },
+          {
+            "name": "guids",
+            "in": "query",
+            "style": "form",
+            "explode": true,
+            "required": true,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "guid"
+              }
+            },
+            "example": [
+              ""
+            ]
+          },
+          {
+            "name": "some",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
     "/api/test/hydrated-test-url-generator-test/{id}/{guid}/{stringBindFrom}/{nullableString}/{fromClaim}/{fromHeader}/{hasPermission}": {
       "get": {
         "tags": [
@@ -5438,6 +5494,24 @@
           "content": {
             "type": "string",
             "description": "overriden content text"
+          }
+        }
+      },
+      "TestCasesHydratedQueryParamGeneratorTestRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "TestCasesHydratedQueryParamGeneratorTestRequest_NestedClass": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "first": {
+            "type": "string",
+            "nullable": true
+          },
+          "last": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },

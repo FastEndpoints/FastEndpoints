@@ -36,6 +36,34 @@ Since we have no control over how SwaggerUI behaves, support has been added to t
 
 </details>
 
+<details><summary>Auto infer query parameters for routeless integration tests</summary>
+
+If you annotate request dto properties with `[RouteParam]` attribute, the helper extensions such as `.GETAsync()` will now automatically populate
+the request query string with values from the supplied dto instance when sending integration tests.
+
+```cs
+sealed class MyRequest
+{
+    [RouteParam]
+    public string FirstName { get; set; }
+
+    public string LastName { get; set; }
+}
+
+[Fact]
+public async Task Query_Param_Test()
+{
+    var request = new MyRequest
+    {
+        FirstName = "John", //will turn into a query parameter
+        LastName = "Gallow" //will be in json body content
+    };
+    var result = await App.Client.GETAsync<MyEndpoint, MyRequest, string>(request);
+}
+```
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>Header example value not picked up from swagger example request</summary>

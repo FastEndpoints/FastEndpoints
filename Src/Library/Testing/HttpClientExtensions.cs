@@ -418,13 +418,7 @@ public static class HttpClientExtensions
                           .Where(p => p.GetCustomAttribute<FromHeaderAttribute>()?.IsRequired is true);
 
         foreach (var prop in hdrProps)
-            headers.Add(prop.FieldName(), prop.GetValue(req)?.ToString());
-    }
-
-    struct ReqPropVal
-    {
-        public string? Value { get; set; }
-        public bool IsQueryParam { get; set; }
+            headers.Add(prop.FieldName(), prop.GetValueAsString(req));
     }
 
     static string GetTestUrlFor<TEndpoint, TRequest>(TRequest req) where TRequest : notnull
@@ -434,23 +428,15 @@ public static class HttpClientExtensions
         if (req is IEnumerable)
             return IEndpoint.TestURLFor<TEndpoint>();
 
-        //get property values as strings and stick em in a dictionary for easy lookup
+        //get props and stick em in a dictionary for easy lookup
         //ignore props annotated with security related attributes that has IsRequired set to true.
         var reqProps = req.GetType()
                           .BindableProps()
                           .Where(
                               p => p.GetCustomAttribute<FromClaimAttribute>()?.IsRequired is not true &&
                                    p.GetCustomAttribute<FromHeaderAttribute>()?.IsRequired is not true &&
-                                   p.GetCustomAttribute<HasPermissionAttribute>()?.IsRequired is not true);
-
-        var reqPropValues = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
-
-        foreach (var prop in reqProps)
-        {
-            reqPropValues.Add(
-                prop.FieldName(),
-                prop.GetValue(req)?.ToString());
-        }
+                                   p.GetCustomAttribute<HasPermissionAttribute>()?.IsRequired is not true)
+                          .ToDictionary(p => p.FieldName(), StringComparer.OrdinalIgnoreCase);
 
         //split url into route segments, iterate and replace param names with values from matching dto props
         //while rebuilding the url back up again into a string builder
@@ -475,9 +461,11 @@ public static class HttpClientExtensions
                                 ? segmentParts[0][1..^1]
                                 : segmentParts[0][1..]).TrimEnd('?');
 
-            var propValue = reqPropValues.GetValueOrDefault(propName, segment);
+            var propVal = reqProps.TryGetValue(propName, out var prop)
+                              ? prop.GetValueAsString(req)
+                              : segment;
 
-            if (propValue is null)
+            if (propVal is null)
             {
                 switch (isOptional)
                 {
@@ -490,11 +478,22 @@ public static class HttpClientExtensions
                 }
             }
 
-            sb.Append(propValue);
+            sb.Append(propVal);
             sb.Append('/');
         }
 
-        return sb.ToString()[..^1]; //trim trailing forward slash
+        //append query parameters if there's any props decorated with [QueryParam]
+        var queryParamProps = reqProps.Where(p => p.Value.GetCustomAttribute<DontBindAttribute>()?.BindingSources.HasFlag(Source.QueryParam) is false).ToArray();
+
+        if (queryParamProps.Length > 0)
+        {
+            sb.Append('?');
+
+            foreach (var qp in queryParamProps)
+                sb.Append(qp.Key).Append('=').Append(qp.Value.GetValueAsString(req)).Append('&');
+        }
+
+        return sb.Remove(sb.Length - 1, 1).ToString();
     }
 
     static MultipartFormDataContent ToForm<TRequest>(this TRequest req)
@@ -554,7 +553,7 @@ public static class HttpClientExtensions
         var stringVal = value.ToString();
 
         return stringVal == tValue.ToString()
-                   ? JsonSerializer.Serialize(value, SerOpts.Options)
-                   : stringVal;
+                   ? JsonSerializer.Serialize(value, SerOpts.Options) //value is type name - serialize it
+                   : stringVal;                                       //not the type name - return it
     }
 }

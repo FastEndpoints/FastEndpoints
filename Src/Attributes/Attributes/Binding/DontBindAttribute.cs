@@ -1,5 +1,8 @@
 ﻿namespace FastEndpoints;
 
+/// <summary></summary>
+public abstract class NonJsonBindingAttribute : Attribute;
+
 /// <summary>
 /// you can prevent one or more binding sources from supplying values for a dto property decorated with this attribute.
 /// </summary>

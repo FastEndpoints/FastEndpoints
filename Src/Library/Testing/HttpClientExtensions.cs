@@ -546,24 +546,26 @@ public static class HttpClientExtensions
     {
         var value = p.GetValue(req);
 
-        if (value is null)
-            return null;
-
-        var tValue = value.GetType();
-        var stringVal = value.ToString();
-        var isTypeName = stringVal == tValue.ToString();
-        var isRecord = tValue.IsRecordType();
-
-        if (isTypeName || isRecord)
-            return JsonSerializer.Serialize(value, SerOpts.Options);
-
-        return stringVal;
+        return p.IsObjectOrCollection()
+                   ? JsonSerializer.Serialize(value, SerOpts.Options)
+                   : value?.ToString();
     }
 
-    static bool IsRecordType(this Type type)
+    static bool IsObjectOrCollection(this PropertyInfo prop)
     {
-        var cloneMethod = type.GetMethod("<Clone>$");
+        var type = prop.PropertyType.GetUnderlyingType();
 
-        return cloneMethod is not null && cloneMethod.ReturnType == type;
+        if (type == Types.String)
+            return false; //treat strings as scalars even though they're IEnumerable
+
+        if (Types.IEnumerable.IsAssignableFrom(type))
+            return true; //everything else that's not a scalar/primitive below
+
+        return type is { IsPrimitive: false, IsEnum: false } &&
+               type != typeof(decimal) &&
+               type != typeof(DateTime) &&
+               type != typeof(DateTimeOffset) &&
+               type != typeof(TimeSpan) &&
+               type != typeof(Guid);
     }
 }

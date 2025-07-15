@@ -4,6 +4,7 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using TestCases.EmptyRequestTest;
+using TestCases.HydratedQueryParamGeneratorTest;
 using TestCases.Routing;
 
 namespace EndpointTests;
@@ -107,22 +108,26 @@ public class EndpointTests(Sut App) : TestBase<Sut>
     {
         var guid1 = Guid.NewGuid();
         var guid2 = Guid.NewGuid();
-        var req = new TestCases.HydratedQueryParamGeneratorTest.Request
+        var req = new Request
         {
             Nested = new("First", 20),
-            Some = "some",
-            Guids = [guid1, guid2]
+            Some = "{<some thing>}",
+            Guids = [guid1, guid2],
+            ComplexId = new() { Number1 = 111, Number2 = 222 },
+            ComplexIdString = new() { Number1 = 333, Number2 = 444 }
         };
         var (rsp, res) = await App.GuestClient
                                   .GETAsync<
-                                      TestCases.HydratedQueryParamGeneratorTest.Endpoint,
-                                      TestCases.HydratedQueryParamGeneratorTest.Request,
-                                      TestCases.HydratedQueryParamGeneratorTest.Response
+                                      Endpoint,
+                                      Request,
+                                      Response
                                   >(req);
 
         rsp.IsSuccessStatusCode.ShouldBeTrue();
         res.Nested.ShouldBe(JsonSerializer.Serialize(req.Nested), StringCompareShould.IgnoreCase);
         res.Guids.ShouldBe(JsonSerializer.Serialize(req.Guids), StringCompareShould.IgnoreCase);
+        res.ComplexId.ShouldBe(JsonSerializer.Serialize(req.ComplexId), StringCompareShould.IgnoreCase);
+        res.ComplexIdString.ShouldBe(req.ComplexIdString.ToString(), StringCompareShould.IgnoreCase);
         res.Some.ShouldBe(req.Some);
     }
 

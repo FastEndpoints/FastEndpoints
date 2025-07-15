@@ -2158,13 +2158,45 @@
         }
       }
     },
-    "/api/test-cases/query-param-creation-from-test-helpers": {
+    "/api/test-cases/query-param-creation-from-test-helpers/{complexId}/{complexIdString}": {
       "get": {
         "tags": [
           "TestCases"
         ],
         "operationId": "TestCasesHydratedQueryParamGeneratorTestEndpoint",
         "parameters": [
+          {
+            "name": "complexId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/TestCasesHydratedQueryParamGeneratorTestRequest_ComplexIdClass"
+                }
+              ]
+            },
+            "example": {
+              "number1": 0,
+              "number2": 0
+            }
+          },
+          {
+            "name": "complexIdString",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/TestCasesHydratedQueryParamGeneratorTestRequest_ComplexIdClassWithToString"
+                }
+              ]
+            },
+            "example": {
+              "number1": 0,
+              "number2": 0
+            }
+          },
           {
             "name": "nested",
             "in": "query",
@@ -5516,6 +5548,12 @@
           },
           "some": {
             "type": "string"
+          },
+          "complexId": {
+            "type": "string"
+          },
+          "complexIdString": {
+            "type": "string"
           }
         }
       },
@@ -5532,6 +5570,34 @@
             "nullable": true
           },
           "last": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "TestCasesHydratedQueryParamGeneratorTestRequest_ComplexIdClass": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "number1": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "number2": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "TestCasesHydratedQueryParamGeneratorTestRequest_ComplexIdClassWithToString": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "number1": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "number2": {
             "type": "integer",
             "format": "int32"
           }

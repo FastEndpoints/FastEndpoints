@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using FluentValidation.Results;
@@ -536,8 +536,21 @@ public static class HttpResponseExtensions
     /// <param name="eventName">the name of the event stream</param>
     /// <param name="eventStream">an IAsyncEnumerable that is the source of the data</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    public static async Task SendEventStreamAsync<T>(this HttpResponse rsp,
+    public static Task SendEventStreamAsync<T>(this HttpResponse rsp,
                                                      string eventName,
+                                                     IAsyncEnumerable<T> eventStream,
+                                                     CancellationToken cancellation = default)
+        => SendEventStreamAsync<T>(rsp, _ => eventName, eventStream, cancellation);
+
+    /// <summary>
+    /// start a "server-sent-events" data stream for the client asynchronously without blocking any threads
+    /// </summary>
+    /// <typeparam name="T">the type of the objects being sent in the event stream</typeparam>
+    /// <param name="getEventName">a Func that returns the name of the event stream of the current <typeparamref name="T"/> item</param>
+    /// <param name="eventStream">an IAsyncEnumerable that is the source of the data</param>
+    /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
+    public static async Task SendEventStreamAsync<T>(this HttpResponse rsp,
+                                                     Func<T, string> getEventName,
                                                      IAsyncEnumerable<T> eventStream,
                                                      CancellationToken cancellation = default)
     {
@@ -557,6 +570,7 @@ public static class HttpResponseExtensions
         await foreach (var item in eventStream.WithCancellation(ct))
         {
             id++;
+            var eventName = getEventName(item);
             await rsp.WriteAsync(
                 text: $"id:{id}\nevent: {eventName}\ndata: {JsonSerializer.Serialize(item, SerOpts.Options)}\n\n",
                 cancellationToken: ct);

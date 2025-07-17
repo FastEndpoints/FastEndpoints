@@ -344,7 +344,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <param name="eventStream">an IAsyncEnumerable that is the source of the data</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
     protected Task SendEventStreamAsync<T>(Func<T, string> getEventName, IAsyncEnumerable<T> eventStream, CancellationToken cancellation = default)
-        => HttpContext.Response.SendEventStreamAsync( getEventName, eventStream, cancellation);
+        => HttpContext.Response.SendEventStreamAsync(getEventName, eventStream, cancellation);
 
     /// <summary>
     /// send an empty json object in the body

@@ -544,7 +544,7 @@ public static class HttpResponseExtensions
                                                                                IAsyncEnumerable<T> source,
                                                                                [EnumeratorCancellation] CancellationToken ct)
         {
-            long id = 0;
+            long id = 1;
 
             await foreach (var item in source.WithCancellation(ct))
                 yield return new((id++).ToString(), eventName, item);
@@ -571,7 +571,7 @@ public static class HttpResponseExtensions
         await rsp.Body.FlushAsync(ct);
 
         await foreach (var streamItem in eventStream.WithCancellation(ct))
-            await rsp.WriteAsync($"id:{streamItem.Id}\nevent: {streamItem.EventName}\ndata: {streamItem.GetDataString(SerOpts.Options)}\n\n", ct);
+            await rsp.WriteAsync($"id: {streamItem.Id}\nevent: {streamItem.EventName}\ndata: {streamItem.GetDataString(SerOpts.Options)}\n\n", ct);
     }
 
     /// <summary>

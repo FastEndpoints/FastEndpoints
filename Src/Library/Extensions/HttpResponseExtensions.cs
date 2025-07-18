@@ -1,6 +1,7 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
+using FastEndpoints.DTOs;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -540,21 +541,30 @@ public static class HttpResponseExtensions
                                                      string eventName,
                                                      IAsyncEnumerable<T> eventStream,
                                                      CancellationToken cancellation = default)
-        => SendEventStreamAsync<T>(rsp, _ => eventName, eventStream, cancellation);
+    {
+        var streamItemEventStream = GetStreamItemAsyncEnumerable(eventName, eventStream);
+        return SendEventStreamAsync(rsp, streamItemEventStream, cancellation);
+    }
+
+    private static async IAsyncEnumerable<StreamItem> GetStreamItemAsyncEnumerable<T>(string eventName, IAsyncEnumerable<T> source)
+    {
+        long id = 0;
+        await foreach (var item in source)
+        {
+            id++;
+            yield return new StreamItem(id.ToString(), eventName, item);
+        }
+    }
 
     /// <summary>
     /// start a "server-sent-events" data stream for the client asynchronously without blocking any threads
     /// </summary>
-    /// <typeparam name="T">the type of the objects being sent in the event stream</typeparam>
-    /// <param name="getEventName">a Func that returns the name of the event stream of the current <typeparamref name="T"/> item</param>
     /// <param name="eventStream">an IAsyncEnumerable that is the source of the data</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    public static async Task SendEventStreamAsync<T>(this HttpResponse rsp,
-                                                     Func<T, string> getEventName,
-                                                     IAsyncEnumerable<T> eventStream,
+    public static async Task SendEventStreamAsync(this HttpResponse rsp,
+                                                     IAsyncEnumerable<StreamItem> eventStream,
                                                      CancellationToken cancellation = default)
     {
-        long id = 0;
         var ct = cancellation.IfDefault(rsp);
 
         rsp.HttpContext.MarkResponseStart();
@@ -567,12 +577,10 @@ public static class HttpResponseExtensions
 
         await rsp.Body.FlushAsync(ct);
 
-        await foreach (var item in eventStream.WithCancellation(ct))
+        await foreach (var streamItem in eventStream.WithCancellation(ct))
         {
-            id++;
-            var eventName = getEventName(item);
             await rsp.WriteAsync(
-                text: $"id:{id}\nevent: {eventName}\ndata: {JsonSerializer.Serialize(item, SerOpts.Options)}\n\n",
+                text: $"id:{streamItem.Id}\nevent: {streamItem.EventName}\ndata: {streamItem.GetDataString(SerOpts.Options)}\n\n",
                 cancellationToken: ct);
         }
     }

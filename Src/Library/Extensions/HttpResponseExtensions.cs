@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Runtime.CompilerServices;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using FluentValidation.Results;
@@ -536,12 +536,28 @@ public static class HttpResponseExtensions
     /// <param name="eventName">the name of the event stream</param>
     /// <param name="eventStream">an IAsyncEnumerable that is the source of the data</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    public static async Task SendEventStreamAsync<T>(this HttpResponse rsp,
-                                                     string eventName,
-                                                     IAsyncEnumerable<T> eventStream,
-                                                     CancellationToken cancellation = default)
+    public static Task SendEventStreamAsync<T>(this HttpResponse rsp, string eventName, IAsyncEnumerable<T> eventStream, CancellationToken cancellation = default)
     {
-        long id = 0;
+        return SendEventStreamAsync(rsp, GetStreamItemAsyncEnumerable(eventName, eventStream, cancellation), cancellation);
+
+        static async IAsyncEnumerable<StreamItem> GetStreamItemAsyncEnumerable(string eventName,
+                                                                               IAsyncEnumerable<T> source,
+                                                                               [EnumeratorCancellation] CancellationToken ct)
+        {
+            long id = 1;
+
+            await foreach (var item in source.WithCancellation(ct))
+                yield return new((id++).ToString(), eventName, item);
+        }
+    }
+
+    /// <summary>
+    /// start a "server-sent-events" data stream for the client asynchronously without blocking any threads
+    /// </summary>
+    /// <param name="eventStream">an IAsyncEnumerable that is the source of the data</param>
+    /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
+    public static async Task SendEventStreamAsync(this HttpResponse rsp, IAsyncEnumerable<StreamItem> eventStream, CancellationToken cancellation = default)
+    {
         var ct = cancellation.IfDefault(rsp);
 
         rsp.HttpContext.MarkResponseStart();
@@ -554,13 +570,8 @@ public static class HttpResponseExtensions
 
         await rsp.Body.FlushAsync(ct);
 
-        await foreach (var item in eventStream.WithCancellation(ct))
-        {
-            id++;
-            await rsp.WriteAsync(
-                text: $"id:{id}\nevent: {eventName}\ndata: {JsonSerializer.Serialize(item, SerOpts.Options)}\n\n",
-                cancellationToken: ct);
-        }
+        await foreach (var streamItem in eventStream.WithCancellation(ct))
+            await rsp.WriteAsync($"id: {streamItem.Id}\nevent: {streamItem.EventName}\ndata: {streamItem.GetDataString(SerOpts.Options)}\n\n", ct);
     }
 
     /// <summary>

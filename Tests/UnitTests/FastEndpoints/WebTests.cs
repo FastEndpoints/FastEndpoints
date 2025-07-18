@@ -1,4 +1,3 @@
-using System.Text.Json;
 using FakeItEasy;
 using FastEndpoints;
 using FluentValidation.Results;
@@ -7,6 +6,8 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Primitives;
+using System.Text.Json;
 using TestCases.TypedResultTest;
 using Web.Services;
 using Xunit;
@@ -199,6 +200,43 @@ public class WebTests
         var response = res2.Result as Ok<Response>;
         response!.StatusCode.ShouldBe(200);
         response.Value!.RequestId.ShouldBe(2);
+    }
+
+    [Fact]
+    public async Task event_stream_endpoint()
+    {
+        var responseStream = new MemoryStream();
+        var ep = Factory.Create<TestCases.EventStreamTest.EventStreamEndpoint>(httpContext => 
+        { 
+            httpContext.Response.Body = responseStream;
+        });
+        var eventName = "some-notification";
+        var notifications = new[]
+        {
+            new TestCases.EventStreamTest.SomeNotification("First notification"),
+            new TestCases.EventStreamTest.SomeNotification("Second notification"),
+            new TestCases.EventStreamTest.SomeNotification("Third notification")
+        };
+        await ep.HandleAsync(new(eventName, notifications), default);
+
+        ep.HttpContext.Response.StatusCode.ShouldBe(200);
+        ep.HttpContext.Response.ContentType.ShouldBe("text/event-stream; charset=utf-8");
+        ep.HttpContext.Response.Headers.CacheControl.ShouldBe(new StringValues("no-cache"));
+        ep.HttpContext.Response.Headers.Connection.ShouldBe(new StringValues("keep-alive"));
+
+        responseStream.Seek(0, SeekOrigin.Begin);
+        using var reader = new StreamReader(responseStream);
+        reader.ReadLine().ShouldBe("id: 1");
+        reader.ReadLine().ShouldBe($"event: {eventName}");
+        reader.ReadLine().ShouldBe($"data: {JsonSerializer.Serialize(notifications[0])}");
+        reader.ReadLine().ShouldBe(string.Empty);
+        reader.ReadLine().ShouldBe("id: 2");
+        reader.ReadLine().ShouldBe($"event: {eventName}");
+        reader.ReadLine().ShouldBe($"data: {JsonSerializer.Serialize(notifications[1])}");
+        reader.ReadLine().ShouldBe(string.Empty);
+        reader.ReadLine().ShouldBe("id: 3");
+        reader.ReadLine().ShouldBe($"event: {eventName}");
+        reader.ReadLine().ShouldBe($"data: {JsonSerializer.Serialize(notifications[2])}");
     }
 
     [Fact]

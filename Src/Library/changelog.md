@@ -167,9 +167,9 @@ This is a breaking change which you can easily fix by doing a quick find+replace
 
 1. Open the top level folder of where your endpoint classes exist in the project in a text editor such as vscode.
 2. Click `Edit > Replace In Files` and enable `Regex Matching`
-2. Use `(?<=\b)Send(?=[A-Z][A-Za-z0-9_]*Async\b)` as the regex to find matches to target for editing.
+2. Use `(?<!\.)\bSend(?=[A-Z][A-Za-z0-9_]*Async\b)` as the regex to find matches to target for editing.
 3. Enter `Send.` in the replacement field and hit `Replace All`
-4. Then use `(?<= )SendAsync\b` as the regex.
+4. Then use `(?<!\.)\bSendAsync\b` as the regex.
 5. Enter `Send.ResponseAsync` as the replacement and hit `Replace All` again.
 6. Build the project and profit!
 

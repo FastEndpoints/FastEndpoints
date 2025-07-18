@@ -26,6 +26,6 @@ sealed class Endpoint : EndpointWithoutRequest<Response>
             currentResponse = currentResponse.Res;
         }
 
-        await SendAsync(response);
+        await Send.ResponseAsync(response);
     }
 }

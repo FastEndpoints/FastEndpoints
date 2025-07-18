@@ -13,6 +13,6 @@ public class Endpoint : EndpointWithoutRequest<Response>
     {
         Response.Category = HttpContext.GetRouteValue("CategoryID")?.ToString();
 
-        return SendAsync(Response);
+        return Send.ResponseAsync(Response);
     }
 }

@@ -15,6 +15,6 @@ public class Endpoint : EndpointWithoutRequest
 
     public override Task HandleAsync(CancellationToken ct)
     {
-        return SendBytesAsync(content, contentType: "text/plain", enableRangeProcessing: true);
+        return Send.BytesAsync(content, contentType: "text/plain", enableRangeProcessing: true);
     }
 }

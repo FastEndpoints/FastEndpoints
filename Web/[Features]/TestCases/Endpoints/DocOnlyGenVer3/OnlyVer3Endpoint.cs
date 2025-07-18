@@ -9,5 +9,5 @@ public class OnlyVer3Endpoint : EndpointWithoutRequest
         Version(3, 4);
     }
 
-    public override async Task HandleAsync(CancellationToken ct) => await SendOkAsync(ct);
+    public override async Task HandleAsync(CancellationToken ct) => await Send.OkAsync(ct);
 }

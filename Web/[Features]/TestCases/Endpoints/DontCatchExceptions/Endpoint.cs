@@ -11,7 +11,7 @@ public class Endpoint : Endpoint<Request>
 
     public override async Task HandleAsync(Request r, CancellationToken c)
     {
-        await SendStringAsync(r.Number.ToString());
+        await Send.StringAsync(r.Number.ToString());
     }
 }
 

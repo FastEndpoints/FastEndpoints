@@ -11,7 +11,7 @@ public class GlobalErrorResponseTest : EndpointWithoutRequest<Response>
     }
 
     public override Task HandleAsync(CancellationToken ct)
-        => SendAsync(
+        => Send.ResponseAsync(
             new()
             {
                 CustomerID = Query<int>("CustomerID", isRequired: false),

@@ -23,6 +23,6 @@ public class Endpoint : EndpointWithoutRequest
                 o.User["scope"] = "one two three";
             });
 
-        return SendAsync(token);
+        return Send.ResponseAsync(token);
     }
 }

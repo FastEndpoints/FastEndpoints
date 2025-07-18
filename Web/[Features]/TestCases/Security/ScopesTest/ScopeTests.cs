@@ -10,7 +10,7 @@ public class ScopeTestAnyPassEndpoint : EndpointWithoutRequest<string>
 
     public override async Task HandleAsync(CancellationToken ct)
     {
-        await SendAsync("ok!");
+        await Send.ResponseAsync("ok!");
     }
 }
 
@@ -24,7 +24,7 @@ public class ScopeTestAnyFailEndpoint : EndpointWithoutRequest<string>
 
     public override async Task HandleAsync(CancellationToken ct)
     {
-        await SendAsync("ok!");
+        await Send.ResponseAsync("ok!");
     }
 }
 
@@ -38,7 +38,7 @@ public class ScopeTestAllPassEndpoint : EndpointWithoutRequest<string>
 
     public override async Task HandleAsync(CancellationToken ct)
     {
-        await SendAsync("ok!");
+        await Send.ResponseAsync("ok!");
     }
 }
 
@@ -52,6 +52,6 @@ public class ScopeTestAllFailEndpoint : EndpointWithoutRequest<string>
 
     public override async Task HandleAsync(CancellationToken ct)
     {
-        await SendAsync("ok!");
+        await Send.ResponseAsync("ok!");
     }
 }

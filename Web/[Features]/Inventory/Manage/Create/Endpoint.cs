@@ -84,7 +84,7 @@ public class Endpoint : Endpoint<Request>
             ProductName = req.Name
         };
 
-        await SendCreatedAtAsync<GetProduct.Endpoint>(
+        await Send.CreatedAtAsync<GetProduct.Endpoint>(
             routeValues: new { ProductID = res.ProductId },
             responseBody: res,
             generateAbsoluteUrl: req.GenerateFullUrl);

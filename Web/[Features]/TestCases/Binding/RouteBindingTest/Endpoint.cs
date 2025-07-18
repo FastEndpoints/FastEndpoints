@@ -30,7 +30,7 @@ public class Endpoint : Endpoint<Request, Response>
         if (logger != null)
             ThrowError("property injection failed us!");
 
-        return SendResultAsync(
+        return Send.ResultAsync(
             TypedResults.Ok(
                 new Response
                 {

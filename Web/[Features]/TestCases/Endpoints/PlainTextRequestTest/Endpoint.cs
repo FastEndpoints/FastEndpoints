@@ -37,6 +37,6 @@ public class Endpoint : Endpoint<Request, Response>
             BodyContent = req.Content
         };
 
-        return SendAsync(Response);
+        return Send.ResponseAsync(Response);
     }
 }

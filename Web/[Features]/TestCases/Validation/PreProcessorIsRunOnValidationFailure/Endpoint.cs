@@ -12,6 +12,6 @@ public class Endpoint : Endpoint<Request, Response>
     public override Task HandleAsync(Request r, CancellationToken c)
     {
         //a validaiton failure will occur but pre processor should run
-        return SendAsync(Response);
+        return Send.ResponseAsync(Response);
     }
 }

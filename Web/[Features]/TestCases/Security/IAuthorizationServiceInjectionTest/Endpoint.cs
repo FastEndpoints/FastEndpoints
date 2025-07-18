@@ -19,6 +19,6 @@ sealed class Endpoint : EndpointWithoutRequest<bool>
     public override async Task HandleAsync(CancellationToken c)
     {
         var res = await _auth.AuthorizeAsync(User, "AdminOnly");
-        await SendAsync(res.Succeeded);
+        await Send.ResponseAsync(res.Succeeded);
     }
 }

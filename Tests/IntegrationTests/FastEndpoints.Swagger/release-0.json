@@ -1911,6 +1911,33 @@
         }
       }
     },
+    "/api/test-cases/event-stream": {
+      "post": {
+        "tags": [
+          "TestCases"
+        ],
+        "summary": "event stream request endpoint summary",
+        "operationId": "TestCasesEventStreamTestEventStreamEndpoint",
+        "requestBody": {
+          "x-name": "Request",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesEventStreamTestRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
     "/api/test-cases/form-binding-complex-dtos": {
       "post": {
         "tags": [
@@ -5294,6 +5321,30 @@
       "TestCasesEndpointsCacheBypassTestRequest": {
         "type": "object",
         "additionalProperties": false
+      },
+      "TestCasesEventStreamTestRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "eventName": {
+            "type": "string"
+          },
+          "notifications": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TestCasesEventStreamTestSomeNotification"
+            }
+          }
+        }
+      },
+      "TestCasesEventStreamTestSomeNotification": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
       },
       "TestCasesFormBindingComplexDtosRequest": {
         "type": "object",

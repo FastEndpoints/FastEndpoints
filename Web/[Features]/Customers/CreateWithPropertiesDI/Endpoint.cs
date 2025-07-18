@@ -45,6 +45,6 @@ public class Endpoint : Endpoint<Request>
 
         var msg = Emailer.SendEmail() + " " + r.CreatedBy;
 
-        await SendAsync(msg ?? "emailer not resolved!");
+        await Send.ResponseAsync(msg ?? "emailer not resolved!");
     }
 }

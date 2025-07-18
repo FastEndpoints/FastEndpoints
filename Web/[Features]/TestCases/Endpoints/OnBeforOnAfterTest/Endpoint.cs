@@ -21,6 +21,6 @@ public class Endpoint : Endpoint<Request, Response>
     public override Task HandleAsync(Request r, CancellationToken c)
     {
         Response.Host = r.Host;
-        return SendAsync(Response);
+        return Send.ResponseAsync(Response);
     }
 }

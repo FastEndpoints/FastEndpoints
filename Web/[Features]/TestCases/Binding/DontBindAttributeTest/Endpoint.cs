@@ -23,6 +23,6 @@ sealed class Endpoint : Endpoint<Request, string>
 
     public override async Task HandleAsync(Request r, CancellationToken c)
     {
-        await SendStringAsync($"{r.Id} - {r.Name}");
+        await Send.StringAsync($"{r.Id} - {r.Name}");
     }
 }

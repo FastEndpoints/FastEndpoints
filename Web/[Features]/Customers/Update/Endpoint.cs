@@ -37,6 +37,6 @@ public class Endpoint : Endpoint<Request>
         if (!User.HasPermission(Allow.Customers_Update))
             ThrowError("no permission!");
 
-        return SendAsync(req.CustomerID);
+        return Send.ResponseAsync(req.CustomerID);
     }
 }

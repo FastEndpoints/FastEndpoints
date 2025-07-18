@@ -12,7 +12,7 @@ sealed class Endpoint : EndpointWithoutRequest<int>
     {
         var evnt = new TestEventBus { Id = 100 };
         await evnt.PublishAsync();
-        await SendAsync(evnt.Id);
+        await Send.ResponseAsync(evnt.Id);
     }
 }
 

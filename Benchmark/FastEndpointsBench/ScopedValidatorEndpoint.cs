@@ -49,12 +49,13 @@ public class ScopedValidatorEndpoint : Endpoint<ScopedValidatorRequest>
 
         await Validator!.ValidateAsync(req, ct);
 
-        await SendAsync(new ScopedValidatorResponse()
-        {
-            Id = req.Id,
-            Name = req.FirstName + " " + req.LastName,
-            Age = req.Age,
-            PhoneNumber = req.PhoneNumbers?.FirstOrDefault()
-        });
+        await Send.ResponseAsync(
+            new ScopedValidatorResponse
+            {
+                Id = req.Id,
+                Name = req.FirstName + " " + req.LastName,
+                Age = req.Age,
+                PhoneNumber = req.PhoneNumbers?.FirstOrDefault()
+            });
     }
 }

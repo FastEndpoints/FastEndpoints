@@ -55,7 +55,7 @@ public class Endpoint : Endpoint<Request, Response>
 
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
-        await SendAsync(
+        await Send.ResponseAsync(
             new()
             {
                 Id = req.Id,

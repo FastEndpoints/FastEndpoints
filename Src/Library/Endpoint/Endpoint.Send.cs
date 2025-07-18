@@ -1,21 +1,53 @@
+using System.Diagnostics.CodeAnalysis;
 using FastEndpoints.DTOs;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 
 namespace FastEndpoints;
 
-public abstract partial class Endpoint<TRequest, TResponse> where TRequest : notnull
+/// <summary>
+/// target this interface type for creating your own custom response sending methods.
+/// </summary>
+[SuppressMessage("ReSharper", "UnusedMemberInSuper.Global")]
+public interface IResponseSender
 {
+    /// <summary>
+    /// the http context of the current request
+    /// </summary>
+    HttpContext HttpContext { get; } //this is for allowing consumers to write extension methods
+
+    /// <summary>
+    /// validation failures collection for the endpoint
+    /// </summary>
+    List<ValidationFailure> ValidationFailures { get; } //also for extensibility
+
+    /// <summary>
+    /// gets the endpoint definition which contains all the configuration info for the endpoint
+    /// </summary>
+    EndpointDefinition Definition { get; } //also for extensibility
+}
+
+/// <summary>
+/// this class encapsulates the default response sending methods for endpoints.
+/// you can add your own custom send methods by writing extension methods targeting <see cref="IResponseSender" /> interface.
+/// </summary>
+public sealed class ResponseSender<TRequest, TResponse>(Endpoint<TRequest, TResponse> ep) : IResponseSender where TRequest : notnull
+{
+    public HttpContext HttpContext => ep.HttpContext;
+    public List<ValidationFailure> ValidationFailures => ep.ValidationFailures;
+    public EndpointDefinition Definition => ep.Definition;
+
     /// <summary>
     /// send the supplied response dto serialized as json to the client.
     /// </summary>
     /// <param name="response">the object to serialize to json</param>
     /// <param name="statusCode">optional custom http status code</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
-    protected Task SendAsync(TResponse response, int statusCode = 200, CancellationToken cancellation = default)
+    public Task ResponseAsync(TResponse response, int statusCode = 200, CancellationToken cancellation = default)
     {
-        _response = response;
+        ep.Response = response;
 
-        return HttpContext.Response.SendAsync(response, statusCode, Definition.SerializerContext, cancellation);
+        return ep.HttpContext.Response.SendAsync(response, statusCode, ep.Definition.SerializerContext, cancellation);
     }
 
     /// <summary>
@@ -28,8 +60,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// Results.Ok(...);
     /// </code>
     /// </param>
-    protected Task SendResultAsync(IResult result)
-        => HttpContext.Response.SendResultAsync(result);
+    public Task ResultAsync(IResult result)
+        => ep.HttpContext.Response.SendResultAsync(result);
 
     /// <summary>
     /// sends an object serialized as json to the client. if a response interceptor has been defined,
@@ -39,15 +71,15 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <param name="statusCode">optional custom http status code</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
     /// <exception cref="InvalidOperationException">will throw if an interceptor has not been defined against the endpoint or globally</exception>
-    protected async Task SendInterceptedAsync(object response, int statusCode = 200, CancellationToken cancellation = default)
+    public async Task InterceptedAsync(object response, int statusCode = 200, CancellationToken cancellation = default)
     {
-        if (Definition.ResponseIntrcptr is null)
+        if (ep.Definition.ResponseIntrcptr is null)
             throw new InvalidOperationException("Response interceptor has not been configured!");
 
-        await RunResponseInterceptor(Definition.ResponseIntrcptr, response, statusCode, HttpContext, ValidationFailures, cancellation);
+        await ep.RunResponseInterceptor(ep.Definition.ResponseIntrcptr, response, statusCode, ep.HttpContext, ep.ValidationFailures, cancellation);
 
-        if (!HttpContext.ResponseStarted())
-            await HttpContext.Response.SendAsync(response, statusCode, Definition.SerializerContext, cancellation);
+        if (!ep.HttpContext.ResponseStarted())
+            await ep.HttpContext.Response.SendAsync(response, statusCode, ep.Definition.SerializerContext, cancellation);
     }
 
     /// <summary>
@@ -68,22 +100,22 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <param name="routeNumber">only useful when pointing to a multi route endpoint</param>
     /// <param name="generateAbsoluteUrl">set to true for generating an absolute url instead of relative url for the location header</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
-    protected Task SendCreatedAtAsync<TEndpoint>(object? routeValues = null,
-                                                 TResponse? responseBody = default,
-                                                 Http? verb = null,
-                                                 int? routeNumber = null,
-                                                 bool generateAbsoluteUrl = false,
-                                                 CancellationToken cancellation = default) where TEndpoint : IEndpoint
+    public Task CreatedAtAsync<TEndpoint>(object? routeValues = null,
+                                          TResponse? responseBody = default,
+                                          Http? verb = null,
+                                          int? routeNumber = null,
+                                          bool generateAbsoluteUrl = false,
+                                          CancellationToken cancellation = default) where TEndpoint : IEndpoint
     {
         if (responseBody is not null)
-            _response = responseBody;
+            ep.Response = responseBody;
 
-        return HttpContext.Response.SendCreatedAtAsync<TEndpoint>(
+        return ep.HttpContext.Response.SendCreatedAtAsync<TEndpoint>(
             routeValues,
             responseBody,
             verb,
             routeNumber,
-            Definition.SerializerContext,
+            ep.Definition.SerializerContext,
             generateAbsoluteUrl,
             cancellation);
     }
@@ -100,20 +132,20 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <param name="responseBody">the content to be serialized in the response body</param>
     /// <param name="generateAbsoluteUrl">set to true for generating an absolute url instead of relative url for the location header</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
-    protected Task SendCreatedAtAsync(string endpointName,
-                                      object? routeValues = null,
-                                      TResponse? responseBody = default,
-                                      bool generateAbsoluteUrl = false,
-                                      CancellationToken cancellation = default)
+    public Task CreatedAtAsync(string endpointName,
+                               object? routeValues = null,
+                               TResponse? responseBody = default,
+                               bool generateAbsoluteUrl = false,
+                               CancellationToken cancellation = default)
     {
         if (responseBody is not null)
-            _response = responseBody;
+            ep.Response = responseBody;
 
-        return HttpContext.Response.SendCreatedAtAsync(
+        return ep.HttpContext.Response.SendCreatedAtAsync(
             endpointName,
             routeValues,
             responseBody,
-            Definition.SerializerContext,
+            ep.Definition.SerializerContext,
             generateAbsoluteUrl,
             cancellation);
     }
@@ -136,22 +168,22 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <param name="routeNumber">only useful when pointing to a multi route endpoint</param>
     /// <param name="generateAbsoluteUrl">set to true for generating an absolute url instead of relative url for the location header</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
-    protected Task SendAcceptedAtAsync<TEndpoint>(object? routeValues = null,
-                                                  TResponse? responseBody = default,
-                                                  Http? verb = null,
-                                                  int? routeNumber = null,
-                                                  bool generateAbsoluteUrl = false,
-                                                  CancellationToken cancellation = default) where TEndpoint : IEndpoint
+    public Task AcceptedAtAsync<TEndpoint>(object? routeValues = null,
+                                           TResponse? responseBody = default,
+                                           Http? verb = null,
+                                           int? routeNumber = null,
+                                           bool generateAbsoluteUrl = false,
+                                           CancellationToken cancellation = default) where TEndpoint : IEndpoint
     {
         if (responseBody is not null)
-            _response = responseBody;
+            ep.Response = responseBody;
 
-        return HttpContext.Response.SendAcceptedAtAsync<TEndpoint>(
+        return ep.HttpContext.Response.SendAcceptedAtAsync<TEndpoint>(
             routeValues,
             responseBody,
             verb,
             routeNumber,
-            Definition.SerializerContext,
+            ep.Definition.SerializerContext,
             generateAbsoluteUrl,
             cancellation);
     }
@@ -168,20 +200,20 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <param name="responseBody">the content to be serialized in the response body</param>
     /// <param name="generateAbsoluteUrl">set to true for generating an absolute url instead of relative url for the location header</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
-    protected Task SendAcceptedAtAsync(string endpointName,
-                                       object? routeValues = null,
-                                       TResponse? responseBody = default,
-                                       bool generateAbsoluteUrl = false,
-                                       CancellationToken cancellation = default)
+    public Task AcceptedAtAsync(string endpointName,
+                                object? routeValues = null,
+                                TResponse? responseBody = default,
+                                bool generateAbsoluteUrl = false,
+                                CancellationToken cancellation = default)
     {
         if (responseBody is not null)
-            _response = responseBody;
+            ep.Response = responseBody;
 
-        return HttpContext.Response.SendAcceptedAtAsync(
+        return ep.HttpContext.Response.SendAcceptedAtAsync(
             endpointName,
             routeValues,
             responseBody,
-            Definition.SerializerContext,
+            ep.Definition.SerializerContext,
             generateAbsoluteUrl,
             cancellation);
     }
@@ -193,63 +225,63 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <param name="statusCode">optional custom http status code</param>
     /// <param name="contentType">optional content type header value</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
-    protected Task SendStringAsync(string content, int statusCode = 200, string contentType = "text/plain; charset=utf-8", CancellationToken cancellation = default)
-        => HttpContext.Response.SendStringAsync(content, statusCode, contentType, cancellation);
+    public Task StringAsync(string content, int statusCode = 200, string contentType = "text/plain; charset=utf-8", CancellationToken cancellation = default)
+        => ep.HttpContext.Response.SendStringAsync(content, statusCode, contentType, cancellation);
 
     /// <summary>
     /// send an http 200 ok response with the supplied response dto serialized as json to the client.
     /// </summary>
     /// <param name="response">the object to serialize to json</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
-    protected Task SendOkAsync(TResponse response, CancellationToken cancellation = default)
+    public Task OkAsync(TResponse response, CancellationToken cancellation = default)
     {
-        _response = response;
+        ep.Response = response;
 
-        return HttpContext.Response.SendOkAsync(response, Definition.SerializerContext, cancellation);
+        return ep.HttpContext.Response.SendOkAsync(response, ep.Definition.SerializerContext, cancellation);
     }
 
     /// <summary>
     /// send an http 200 ok response without a body.
     /// </summary>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
-    protected Task SendOkAsync(CancellationToken cancellation = default)
-        => HttpContext.Response.SendOkAsync(cancellation);
+    public Task OkAsync(CancellationToken cancellation = default)
+        => ep.HttpContext.Response.SendOkAsync(cancellation);
 
     /// <summary>
     /// send a 400 bad request with error details of the current validation failures
     /// </summary>
     /// <param name="statusCode">the status code for the error response</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
-    protected Task SendErrorsAsync(int statusCode = 400, CancellationToken cancellation = default)
-        => HttpContext.Response.SendErrorsAsync(ValidationFailures, statusCode, Definition.SerializerContext, cancellation);
+    public Task ErrorsAsync(int statusCode = 400, CancellationToken cancellation = default)
+        => ep.HttpContext.Response.SendErrorsAsync(ep.ValidationFailures, statusCode, ep.Definition.SerializerContext, cancellation);
 
     /// <summary>
     /// send a 204 no content response
     /// </summary>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
-    protected Task SendNoContentAsync(CancellationToken cancellation = default)
-        => HttpContext.Response.SendNoContentAsync(cancellation);
+    public Task NoContentAsync(CancellationToken cancellation = default)
+        => ep.HttpContext.Response.SendNoContentAsync(cancellation);
 
     /// <summary>
     /// send a 404 not found response
     /// </summary>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
-    protected Task SendNotFoundAsync(CancellationToken cancellation = default)
-        => HttpContext.Response.SendNotFoundAsync(cancellation);
+    public Task NotFoundAsync(CancellationToken cancellation = default)
+        => ep.HttpContext.Response.SendNotFoundAsync(cancellation);
 
     /// <summary>
     /// send a 401 unauthorized response
     /// </summary>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
-    protected Task SendUnauthorizedAsync(CancellationToken cancellation = default)
-        => HttpContext.Response.SendUnauthorizedAsync(cancellation);
+    public Task UnauthorizedAsync(CancellationToken cancellation = default)
+        => ep.HttpContext.Response.SendUnauthorizedAsync(cancellation);
 
     /// <summary>
     /// send a 403 unauthorized response
     /// </summary>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
-    protected Task SendForbiddenAsync(CancellationToken cancellation = default)
-        => HttpContext.Response.SendForbiddenAsync(cancellation);
+    public Task ForbiddenAsync(CancellationToken cancellation = default)
+        => ep.HttpContext.Response.SendForbiddenAsync(cancellation);
 
     /// <summary>
     /// send a 302/301 redirect response
@@ -258,8 +290,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <param name="isPermanent">set to true for a 301 redirect. 302 is the default.</param>
     /// <param name="allowRemoteRedirects">set to true if it's ok to redirect to remote addresses, which is prone to open redirect attacks.</param>
     /// <exception cref="InvalidOperationException">thrown if <paramref name="allowRemoteRedirects" /> is not set to true and the supplied url is not local</exception>
-    protected Task SendRedirectAsync(string location, bool isPermanent = false, bool allowRemoteRedirects = false)
-        => HttpContext.Response.SendRedirectAsync(location, isPermanent, allowRemoteRedirects);
+    public Task RedirectAsync(string location, bool isPermanent = false, bool allowRemoteRedirects = false)
+        => ep.HttpContext.Response.SendRedirectAsync(location, isPermanent, allowRemoteRedirects);
 
     /// <summary>
     /// send headers in response to a HEAD request
@@ -267,8 +299,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <param name="headers">an action to be performed on the headers dictionary of the response</param>
     /// <param name="statusCode">optional custom http status code</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    protected Task SendHeadersAsync(Action<IHeaderDictionary> headers, int statusCode = 200, CancellationToken cancellation = default)
-        => HttpContext.Response.SendHeadersAsync(headers, statusCode, cancellation);
+    public Task HeadersAsync(Action<IHeaderDictionary> headers, int statusCode = 200, CancellationToken cancellation = default)
+        => ep.HttpContext.Response.SendHeadersAsync(headers, statusCode, cancellation);
 
     /// <summary>
     /// send a byte array to the client
@@ -278,13 +310,13 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <param name="lastModified">optional last modified date-time-offset for the data stream</param>
     /// <param name="enableRangeProcessing">optional switch for enabling range processing</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
-    protected Task SendBytesAsync(byte[] bytes,
-                                  string? fileName = null,
-                                  string contentType = "application/octet-stream",
-                                  DateTimeOffset? lastModified = null,
-                                  bool enableRangeProcessing = false,
-                                  CancellationToken cancellation = default)
-        => HttpContext.Response.SendBytesAsync(bytes, fileName, contentType, lastModified, enableRangeProcessing, cancellation);
+    public Task BytesAsync(byte[] bytes,
+                           string? fileName = null,
+                           string contentType = "application/octet-stream",
+                           DateTimeOffset? lastModified = null,
+                           bool enableRangeProcessing = false,
+                           CancellationToken cancellation = default)
+        => ep.HttpContext.Response.SendBytesAsync(bytes, fileName, contentType, lastModified, enableRangeProcessing, cancellation);
 
     /// <summary>
     /// send a file to the client
@@ -294,12 +326,12 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <param name="lastModified">optional last modified date-time-offset for the data stream</param>
     /// <param name="enableRangeProcessing">optional switch for enabling range processing</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
-    protected Task SendFileAsync(FileInfo fileInfo,
-                                 string contentType = "application/octet-stream",
-                                 DateTimeOffset? lastModified = null,
-                                 bool enableRangeProcessing = false,
-                                 CancellationToken cancellation = default)
-        => HttpContext.Response.SendFileAsync(fileInfo, contentType, lastModified, enableRangeProcessing, cancellation);
+    public Task FileAsync(FileInfo fileInfo,
+                          string contentType = "application/octet-stream",
+                          DateTimeOffset? lastModified = null,
+                          bool enableRangeProcessing = false,
+                          CancellationToken cancellation = default)
+        => ep.HttpContext.Response.SendFileAsync(fileInfo, contentType, lastModified, enableRangeProcessing, cancellation);
 
     /// <summary>
     /// send the contents of a stream to the client
@@ -311,14 +343,14 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <param name="lastModified">optional last modified date-time-offset for the data stream</param>
     /// <param name="enableRangeProcessing">optional switch for enabling range processing</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
-    protected Task SendStreamAsync(Stream stream,
-                                   string? fileName = null,
-                                   long? fileLengthBytes = null,
-                                   string contentType = "application/octet-stream",
-                                   DateTimeOffset? lastModified = null,
-                                   bool enableRangeProcessing = false,
-                                   CancellationToken cancellation = default)
-        => HttpContext.Response.SendStreamAsync(
+    public Task StreamAsync(Stream stream,
+                            string? fileName = null,
+                            long? fileLengthBytes = null,
+                            string contentType = "application/octet-stream",
+                            DateTimeOffset? lastModified = null,
+                            bool enableRangeProcessing = false,
+                            CancellationToken cancellation = default)
+        => ep.HttpContext.Response.SendStreamAsync(
             stream,
             fileName,
             fileLengthBytes,
@@ -334,8 +366,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <param name="eventName">the name of the event stream</param>
     /// <param name="eventStream">an IAsyncEnumerable that is the source of the data</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    protected Task SendEventStreamAsync<T>(string eventName, IAsyncEnumerable<T> eventStream, CancellationToken cancellation = default)
-        => HttpContext.Response.SendEventStreamAsync(eventName, eventStream, cancellation);
+    public Task EventStreamAsync<T>(string eventName, IAsyncEnumerable<T> eventStream, CancellationToken cancellation = default)
+        => ep.HttpContext.Response.SendEventStreamAsync(eventName, eventStream, cancellation);
 
     /// <summary>
     /// start a "server-sent-events" data stream for the client asynchronously without blocking any threads
@@ -349,6 +381,6 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// send an empty json object in the body
     /// </summary>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
-    protected Task SendEmptyJsonObject(CancellationToken cancellation = default)
-        => HttpContext.Response.SendEmptyJsonObject(null, cancellation);
+    public Task EmptyJsonObject(CancellationToken cancellation = default)
+        => ep.HttpContext.Response.SendEmptyJsonObject(null, cancellation);
 }

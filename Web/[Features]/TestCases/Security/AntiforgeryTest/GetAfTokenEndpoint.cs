@@ -27,7 +27,7 @@ public class GetAfTokenEndpoint : EndpointWithoutRequest<TokenResponse>
     public override async Task HandleAsync(CancellationToken ct)
     {
         var token = _antiforgery.GetAndStoreTokens(HttpContext!);
-        await SendAsync(
+        await Send.ResponseAsync(
             new()
             {
                 TokenName = token.FormFieldName,

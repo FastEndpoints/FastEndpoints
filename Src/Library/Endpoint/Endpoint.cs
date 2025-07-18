@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
 
+// ReSharper disable ReplaceWithFieldKeyword
+
 // ReSharper disable UnusedParameter.Global
 // ReSharper disable MemberCanBeProtected.Global
 
@@ -90,7 +92,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
                 _response = await ExecuteAsync(req, ct);
 
                 if (Definition is { DontAutoSend: false, ExecuteAsyncReturnsIResult: true })
-                    await SendResultAsync((IResult)_response!);
+                    await Send.ResultAsync((IResult)_response!);
             }
             else
                 await HandleAsync(req, ct);
@@ -143,7 +145,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
                 throw x;
 
             if (!ResponseStarted) //pre-processors may have already sent a response
-                await SendErrorsAsync(statusCode, ct);
+                await Send.ErrorsAsync(statusCode, ct);
         }
     }
 
@@ -209,10 +211,8 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
     /// <param name="paramName">route parameter name</param>
     /// <param name="isRequired">set to false for disabling the automatic validation error</param>
     /// <returns>the value if retrieval is successful or null if <paramref name="isRequired" /> is set to false</returns>
-    protected T? Route<T>(
-        [StringSyntax("Route")]
-        string paramName,
-        bool isRequired = true)
+    protected T? Route<T>([StringSyntax("Route")] string paramName,
+                          bool isRequired = true)
     {
         if (HttpContext.Request.RouteValues.TryGetValue(paramName, out var val))
         {
@@ -362,7 +362,7 @@ public abstract class Endpoint<TRequest, TResponse, TMapper> : Endpoint<TRequest
     {
         var resp = ((Mapper<TRequest, TResponse, TEntity>)Definition.GetMapper()!).FromEntity(entity);
 
-        return SendAsync(resp, statusCode, ct);
+        return Send.ResponseAsync(resp, statusCode, ct);
     }
 
     /// <summary>
@@ -375,7 +375,7 @@ public abstract class Endpoint<TRequest, TResponse, TMapper> : Endpoint<TRequest
     protected async Task SendMappedAsync<TEntity>(TEntity entity, int statusCode = 200, CancellationToken ct = default)
     {
         var resp = await ((Mapper<TRequest, TResponse, TEntity>)Definition.GetMapper()!).FromEntityAsync(entity, ct);
-        await SendAsync(resp, statusCode, ct);
+        await Send.ResponseAsync(resp, statusCode, ct);
     }
 }
 
@@ -488,7 +488,7 @@ public abstract class EndpointWithoutRequest<TResponse, TMapper> : EndpointWitho
     {
         var resp = ((ResponseMapper<TResponse, TEntity>)Definition.GetMapper()!).FromEntity(entity);
 
-        return SendAsync(resp, statusCode, ct);
+        return Send.ResponseAsync(resp, statusCode, ct);
     }
 
     /// <summary>
@@ -501,7 +501,7 @@ public abstract class EndpointWithoutRequest<TResponse, TMapper> : EndpointWitho
     protected async Task SendMappedAsync<TEntity>(TEntity entity, int statusCode = 200, CancellationToken ct = default)
     {
         var resp = await ((ResponseMapper<TResponse, TEntity>)Definition.GetMapper()!).FromEntityAsync(entity, ct);
-        await SendAsync(resp, statusCode, ct);
+        await Send.ResponseAsync(resp, statusCode, ct);
     }
 }
 

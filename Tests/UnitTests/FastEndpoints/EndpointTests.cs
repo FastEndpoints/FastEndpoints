@@ -13,7 +13,7 @@ public class SendShouldSetCorrectResponse : Endpoint<Request, Response>
         HttpContext = new DefaultHttpContext();
         Definition = new(typeof(SendShouldSetCorrectResponse), typeof(Request), typeof(Response));
 
-        await SendAsync(
+        await Send.ResponseAsync(
             new()
             {
                 Id = 1,
@@ -35,7 +35,7 @@ public class SendOkShouldSetCorrectResponse : Endpoint<Request, Response>
         HttpContext = new DefaultHttpContext();
         Definition = new(typeof(SendOkShouldSetCorrectResponse), typeof(Request), typeof(Response));
 
-        await SendOkAsync(
+        await Send.OkAsync(
             new()
             {
                 Id = 1,
@@ -58,7 +58,7 @@ public class SendForbiddenShouldSetCorrectResponse : Endpoint<Request, Response>
         HttpContext = new DefaultHttpContext();
         Definition = new(typeof(SendForbiddenShouldSetCorrectResponse), typeof(Request), typeof(Response));
 
-        await SendForbiddenAsync(CancellationToken.None);
+        await Send.ForbiddenAsync(CancellationToken.None);
         Response.ShouldNotBeNull();
         ValidationFailed.ShouldBeFalse();
         HttpContext.Items[0].ShouldBeNull();
@@ -78,7 +78,7 @@ public class SendShouldCallResponseInterceptorIfUntypedResponseObjectIsSupplied 
         await Assert.ThrowsAsync<ResponseInterceptor.InterceptedResponseException>(
             () =>
             {
-                return SendInterceptedAsync(
+                return Send.InterceptedAsync(
                     new
                     {
                         Id = 0,
@@ -99,7 +99,7 @@ public class SendInterceptedShouldThrowInvalidOperationExceptionIfCalledWithNoIn
 
         await Assert.ThrowsAsync<InvalidOperationException>(
             () =>
-                SendInterceptedAsync(
+                Send.InterceptedAsync(
                     new
                     {
                         Id = 0,
@@ -118,7 +118,7 @@ public class SendShouldNotCallResponseInterceptorIfExpectedTypedResponseObjectIs
         Definition = new(typeof(SendShouldNotCallResponseInterceptorIfExpectedTypedResponseObjectIsSupplied), typeof(Request), typeof(Response));
         Definition.ResponseInterceptor(new ResponseInterceptor());
 
-        await SendAsync(
+        await Send.ResponseAsync(
             new()
             {
                 Id = 1,

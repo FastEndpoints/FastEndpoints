@@ -44,17 +44,15 @@ public class ThrottleEndpoint : Endpoint<ThrottleRequest>
     }
 
     public override Task HandleAsync(ThrottleRequest req, CancellationToken ct)
-    {
+
         //Logger.LogInformation("request received!");
-
         //validator is automatically being run by FastEndpoints
-
-        return SendAsync(new Response()
-        {
-            Id = req.Id,
-            Name = req.FirstName + " " + req.LastName,
-            Age = req.Age,
-            PhoneNumber = req.PhoneNumbers?.FirstOrDefault()
-        });
-    }
+        => Send.ResponseAsync(
+            new Response
+            {
+                Id = req.Id,
+                Name = req.FirstName + " " + req.LastName,
+                Age = req.Age,
+                PhoneNumber = req.PhoneNumbers?.FirstOrDefault()
+            });
 }

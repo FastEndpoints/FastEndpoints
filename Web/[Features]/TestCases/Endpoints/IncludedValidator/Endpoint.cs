@@ -39,6 +39,6 @@ sealed class Endpoint : Endpoint<Request>
 
     public override async Task HandleAsync(Request r, CancellationToken c)
     {
-        await SendOkAsync();
+        await Send.OkAsync();
     }
 }

@@ -34,6 +34,6 @@ public class RenderFormHtml : EndpointWithoutRequest
                     </html>
                     """;
 
-        await SendStringAsync(html, 200, "text/html");
+        await Send.StringAsync(html, 200, "text/html");
     }
 }

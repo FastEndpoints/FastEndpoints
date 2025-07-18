@@ -16,6 +16,6 @@ public class Endpoint : Endpoint<Request>
     public override Task HandleAsync(Request req, CancellationToken ct)
     {
         //this is a test case for checking security policy restrictions
-        return SendOkAsync();
+        return Send.OkAsync();
     }
 }

@@ -39,7 +39,7 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
         await RefreshRequestValidationAsync(req);
         ThrowIfAnyErrors();
         var res = await ((IRefreshTokenService<TResponse>)this).CreateToken(req.UserId, null, true, req);
-        await SendAsync(res, 200, ct);
+        await Send.ResponseAsync(res, 200, ct);
     }
 
     /// <summary>

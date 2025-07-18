@@ -10,7 +10,7 @@ class Endpoint : Endpoint<Request, Response>
 
     public override async Task HandleAsync(Request r, CancellationToken ct)
     {
-        await SendAsync(
+        await Send.ResponseAsync(
             new()
             {
                 CarNames = new() { r.Cars.Select(f => f.FileName).ToArray() },

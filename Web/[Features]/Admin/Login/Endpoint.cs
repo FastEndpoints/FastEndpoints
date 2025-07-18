@@ -80,7 +80,7 @@ public class Endpoint : Endpoint<Request, Response>
                     o.User.Claims.AddRange(userClaims);
                 });
 
-            return SendAsync(
+            return Send.ResponseAsync(
                 new()
                 {
                     JWTToken = token,
@@ -90,7 +90,7 @@ public class Endpoint : Endpoint<Request, Response>
         }
         AddError("Authentication Failed!");
 
-        return SendErrorsAsync();
+        return Send.ErrorsAsync();
     }
 }
 
@@ -119,5 +119,5 @@ public class Endpoint_V2 : Endpoint<EmptyRequest, object>
     }
 
     public override Task HandleAsync(EmptyRequest r, CancellationToken ct)
-        => SendAsync(2);
+        => Send.ResponseAsync(2);
 }

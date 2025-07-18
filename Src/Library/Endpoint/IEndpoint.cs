@@ -1,6 +1,4 @@
-﻿using FluentValidation.Results;
-using Microsoft.AspNetCore.Http;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 
 // ReSharper disable UnusedMemberInSuper.Global
 
@@ -9,23 +7,8 @@ namespace FastEndpoints;
 /// <summary>
 /// the common interface implemented by all endpoints
 /// </summary>
-public interface IEndpoint
+public interface IEndpoint : IResponseSender
 {
-    /// <summary>
-    /// the http context of the current request
-    /// </summary>
-    HttpContext HttpContext { get; } //this is for allowing consumers to write extension methods
-
-    /// <summary>
-    /// validation failures collection for the endpoint
-    /// </summary>
-    List<ValidationFailure> ValidationFailures { get; } //also for extensibility
-
-    /// <summary>
-    /// gets the endpoint definition which contains all the configuration info for the endpoint
-    /// </summary>
-    EndpointDefinition Definition { get; } //also for extensibility
-
     /// <summary>
     /// retrieves the name of a given endpoint by supplying its type. the name is generated using the <see cref="EndpointOptions.NameGenerator" /> func.
     /// </summary>

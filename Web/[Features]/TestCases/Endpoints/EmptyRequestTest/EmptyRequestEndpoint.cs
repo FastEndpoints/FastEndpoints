@@ -9,5 +9,5 @@ namespace TestCases.EmptyRequestTest;
 public class EmptyRequestEndpoint : Endpoint<EmptyRequest, EmptyResponse>
 {
     public override async Task HandleAsync(EmptyRequest req, CancellationToken ct)
-        => await SendOkAsync(ct);
+        => await Send.OkAsync(ct);
 }

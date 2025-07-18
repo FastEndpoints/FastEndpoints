@@ -12,7 +12,7 @@ public class NonOptionalRouteParamTest : Ep
 
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
-        await SendAsync(req.UserId);
+        await Send.ResponseAsync(req.UserId);
     }
 
     public record Request(string UserId);

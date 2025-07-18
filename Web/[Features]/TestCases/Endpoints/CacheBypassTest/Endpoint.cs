@@ -16,7 +16,7 @@ sealed class CachedResponseEndpoint : Endpoint<Request, Guid>
 
     public override async Task HandleAsync(Request r, CancellationToken c)
     {
-        await SendAsync(r.Id);
+        await Send.ResponseAsync(r.Id);
     }
 }
 
@@ -32,6 +32,6 @@ sealed class CachedOutputEndpoint : Endpoint<Request, Guid>
     public override async Task HandleAsync(Request r, CancellationToken c)
     {
         var q = HttpContext.Request.Query;
-        await SendAsync(r.Id);
+        await Send.ResponseAsync(r.Id);
     }
 }

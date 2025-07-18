@@ -18,6 +18,6 @@ sealed class MyEndpoint : Endpoint<Request>
 
     public override async Task HandleAsync(Request r, CancellationToken c)
     {
-        await SendAsync(r);
+        await Send.ResponseAsync(r);
     }
 }

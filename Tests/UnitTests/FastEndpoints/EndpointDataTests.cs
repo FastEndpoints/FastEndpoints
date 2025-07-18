@@ -147,7 +147,7 @@ public class Foo : EndpointWithoutRequest
         => Get(nameof(Foo));
 
     public override async Task HandleAsync(CancellationToken ct)
-        => await SendOkAsync(ct);
+        => await Send.OkAsync(ct);
 }
 
 public class Boo : EndpointWithoutRequest
@@ -156,7 +156,7 @@ public class Boo : EndpointWithoutRequest
         => Get(nameof(Boo));
 
     public override async Task HandleAsync(CancellationToken ct)
-        => await SendOkAsync(ct);
+        => await Send.OkAsync(ct);
 }
 
 public class PreProcessorRegistration : EndpointWithoutRequest
@@ -213,5 +213,5 @@ public class ConfigureEndpoint : EndpointWithoutRequest
     }
 
     public override Task HandleAsync(CancellationToken ct)
-        => SendOkAsync(ct);
+        => Send.OkAsync(ct);
 }

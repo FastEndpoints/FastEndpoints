@@ -59,7 +59,7 @@ public class CodeGenEndpoint : Endpoint<CodeGenRequest, CodeGenResponse>
 
         //Logger.LogInformation("request received!");
         //validator is automatically being run by FastEndpoints
-        => SendAsync(
+        => Send.ResponseAsync(
             new()
             {
                 Id = req.Id,

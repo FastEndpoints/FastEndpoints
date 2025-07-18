@@ -13,6 +13,7 @@ public class ObjectRequestEndpoint : Endpoint<object, object>
     public override Task HandleAsync(object _, CancellationToken __)
     {
         HttpContext.Response.ContentLength = 27;
-        return SendAsync(new { message = "Hello, World!" });
+
+        return Send.ResponseAsync(new { message = "Hello, World!" });
     }
 }

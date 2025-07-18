@@ -13,7 +13,7 @@ public class CommandHandlerEndpoint1 : Endpoint<Command, EmptyResponse>
     }
 
     public override async Task HandleAsync(Command req, CancellationToken ct)
-        => await SendAsync(new EmptyResponse());
+        => await Send.ResponseAsync(new());
 }
 
 public class CommandHandlerEndpoint2 : Endpoint<Command, EmptyResponse>
@@ -25,7 +25,7 @@ public class CommandHandlerEndpoint2 : Endpoint<Command, EmptyResponse>
     }
 
     public override async Task HandleAsync(Command cmd, CancellationToken ct)
-        => await SendAsync(await cmd.ExecuteAsync());
+        => await Send.ResponseAsync(await cmd.ExecuteAsync());
 }
 
 public class CommandHandler : CommandHandler<Command, EmptyResponse>

@@ -6,6 +6,8 @@ using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
+// ReSharper disable ReplaceWithFieldKeyword
+
 namespace FastEndpoints;
 
 public abstract partial class Endpoint<TRequest, TResponse> where TRequest : notnull
@@ -15,6 +17,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     ILogger? _logger;
     IWebHostEnvironment? _env;
     TResponse? _response;
+    ResponseSender<TRequest, TResponse>? _sender;
     IConfiguration? _config;
 
     /// <summary>
@@ -42,6 +45,12 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
         get => _config ??= Cfg.ServiceResolver.Resolve<IConfiguration>();
         internal set => _config = value;
     }
+
+    /// <summary>
+    /// gives access to response sending methods for the endpoint. you can add your own custom response sending methods by targeting the
+    /// <see cref="IResponseSender" /> interface.
+    /// </summary>
+    protected ResponseSender<TRequest, TResponse> Send => _sender ??= new(this);
 
     /// <summary>
     /// gives access to the hosting environment

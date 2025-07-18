@@ -5,6 +5,8 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 
+// ReSharper disable ReplaceWithFieldKeyword
+
 namespace FastEndpoints;
 
 /// <summary>

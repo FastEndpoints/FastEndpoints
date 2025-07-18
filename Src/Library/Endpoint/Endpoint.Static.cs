@@ -80,12 +80,12 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
         }
     }
 
-    static Task RunResponseInterceptor(IResponseInterceptor interceptor,
-                                       object resp,
-                                       int statusCode,
-                                       HttpContext ctx,
-                                       IReadOnlyCollection<ValidationFailure> validationFailures,
-                                       CancellationToken cancellation)
+    internal Task RunResponseInterceptor(IResponseInterceptor interceptor,
+                                         object resp,
+                                         int statusCode,
+                                         HttpContext ctx,
+                                         IReadOnlyCollection<ValidationFailure> validationFailures,
+                                         CancellationToken cancellation)
         => interceptor.InterceptResponseAsync(resp, statusCode, ctx, validationFailures, cancellation);
 
     static Task AutoSendResponse(HttpContext ctx,

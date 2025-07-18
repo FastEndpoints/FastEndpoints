@@ -374,7 +374,7 @@ public sealed class ResponseSender<TRequest, TResponse>(Endpoint<TRequest, TResp
     /// </summary>
     /// <param name="eventStream">an IAsyncEnumerable that is the source of the data</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    protected Task SendEventStreamAsync(IAsyncEnumerable<StreamItem> eventStream, CancellationToken cancellation = default)
+    public Task EventStreamAsync(IAsyncEnumerable<StreamItem> eventStream, CancellationToken cancellation = default)
         => HttpContext.Response.SendEventStreamAsync(eventStream, cancellation);
 
     /// <summary>

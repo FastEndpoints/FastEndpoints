@@ -12,6 +12,33 @@ Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H
 
 ## Improvements 🚀
 
+<details><summary>New way to send responses from endpoints and create extensions ⚠️</summary>
+
+Response sending methods such as `SendOkAsync()` have been ripped out of the endpoint base class for a better intellisense experience and extensibility via extension methods.
+
+Going forward, the response sending methods are accessed via the `Send` property of the endpoint like so:
+
+```cs
+public override async Task HandleAsync(CancellationToken c)
+{
+    await Send.OkAsync("hello world!");
+}
+```
+
+In order to add your own custom response sending methods, simply target the `IResponseSender` interface and write your extensions like so:
+
+```cs
+static class SendExtensions
+{
+    public static Task HelloResponse(this IResponseSender sender)
+        => sender.HttpContext.Response.SendOkAsync("hello!");
+}
+```
+
+This is obviously is a wide-reaching breaking change which can be easily remedied with a quick regex based find & replace. Please see the breaking changes section below for step-by-step instructions on how to migrate.
+
+</details>
+
 <details><summary>Ability to customize param names for strongly typed route params</summary>
 
 It is now possible to customize the route param names when using the [strongly typed route params](https://fast-endpoints.com/docs/misc-conveniences#strongly-typed-route-parameters) feature by simply decorating the target dto property with a `[BindFrom("customName"))]` attribute. If a `BindFrom` attribute annotation is not present on the property, the actual name of the property itself will end up being the route param name.
@@ -131,4 +158,21 @@ Due to an oversight, the [default exception handler](https://fast-endpoints.com/
 
 </details>
 
-## Breaking Changes ⚠️
+## Minor Breaking Changes ⚠️
+
+<details><summary>API change of endpoint response sending methods</summary>
+
+The response sending methods are no longer located on the endpoint class itself and are now accessed via the `Send` property of the endpoint.
+This is a breaking change which you can easily fix by doing a quick find+replace using a text editor such as vscode. Please follow the following steps in order to update your files:
+
+1. Open the top level folder of where your endpoint classes exist in the project in a text editor such as vscode.
+2. Click `Edit > Replace In Files` and enable `Regex Matching`
+2. Use `(?<=\b)Send(?=[A-Z][A-Za-z0-9_]*Async\b)` as the regex to find matches to target for editing.
+3. Enter `Send.` in the replacement field and hit `Replace All`
+4. Then use `(?<= )SendAsync\b` as the regex.
+5. Enter `Send.ResponseAsync` as the replacement and hit `Replace All` again.
+6. Build the project and profit!
+
+Here's a complete [walkthrough](https://imgur.com/j0OVrKp) of the above process.
+
+</details>

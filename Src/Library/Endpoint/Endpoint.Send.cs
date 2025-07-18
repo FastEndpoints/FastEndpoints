@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 
@@ -359,7 +359,7 @@ public sealed class ResponseSender<TRequest, TResponse>(Endpoint<TRequest, TResp
             cancellation);
 
     /// <summary>
-    /// start a "server-sent-events" data stream (which will only contain a single type of data) for the client asynchronously without blocking any threads
+    /// start an asynchronous "server-sent-events" data stream for the client with items of the same type, without blocking any threads
     /// </summary>
     /// <typeparam name="T">the type of the objects being sent in the event stream</typeparam>
     /// <param name="eventName">the name of the event stream</param>
@@ -369,7 +369,7 @@ public sealed class ResponseSender<TRequest, TResponse>(Endpoint<TRequest, TResp
         => ep.HttpContext.Response.SendEventStreamAsync(eventName, eventStream, cancellation);
 
     /// <summary>
-    /// start a "server-sent-events" data stream (that may send more than one type of event data) for the client asynchronously without blocking any threads
+    /// start an asynchronous "server-sent-events" data stream for the client with items that might be of different types, without blocking any threads
     /// </summary>
     /// <param name="eventStream">an IAsyncEnumerable of stream items that is the source of the data</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>

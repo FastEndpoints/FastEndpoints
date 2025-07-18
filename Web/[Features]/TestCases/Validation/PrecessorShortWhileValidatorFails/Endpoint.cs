@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace TestCases.PrecessorShortWhileValidatorFails;
+namespace TestCases.PreProcessorShortWhileValidatorFails;
 
 public class Validator : Validator<Request>
 {

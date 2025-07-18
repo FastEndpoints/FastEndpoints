@@ -8,8 +8,8 @@ public class ProcessorTests(Sut App) : TestBase<Sut>
     public async Task PreProcessorShortCircuitingWhileValidatorFails()
     {
         var x = await App.Client.GETAsync<
-                    TestCases.PrecessorShortWhileValidatorFails.Endpoint,
-                    TestCases.PrecessorShortWhileValidatorFails.Request,
+                    TestCases.PreProcessorShortWhileValidatorFails.Endpoint,
+                    TestCases.PreProcessorShortWhileValidatorFails.Request,
                     object>(
                     new()
                     {

@@ -39,6 +39,36 @@ This is obviously is a wide-reaching breaking change which can be easily remedie
 
 </details>
 
+<details><summary>Send multiple Server-Sent-Event models in a single stream</summary>
+
+It is now possible to send different types of data in a single SSE stream with the use of the wrapper type **StreamItem** like so:
+
+```cs
+public override async Task HandleAsync(CancellationToken c)
+{
+    await Send.EventStreamAsync(GetMultiDataStream(c), c);
+
+    async IAsyncEnumerable<StreamItem> GetMultiDataStream([EnumeratorCancellation] CancellationToken ct)
+    {
+        long id = 0;
+
+        while (!ct.IsCancellationRequested)
+        {
+            await Task.Delay(1000);
+
+            id++;
+
+            if (DateTime.Now.Second % 2 == 1)
+                yield return new StreamItem(id.ToString(), "odd-second", Guid.NewGuid()); //guide data
+            else
+                yield return new StreamItem(id.ToString(), "even-second", "hello!"); //string data
+        }
+    }
+}
+```
+
+</details>
+
 <details><summary>Ability to customize param names for strongly typed route params</summary>
 
 It is now possible to customize the route param names when using the [strongly typed route params](https://fast-endpoints.com/docs/misc-conveniences#strongly-typed-route-parameters) feature by simply decorating the target dto property with a `[BindFrom("customName"))]` attribute. If a `BindFrom` attribute annotation is not present on the property, the actual name of the property itself will end up being the route param name.
@@ -167,11 +197,11 @@ This is a breaking change which you can easily fix by doing a quick find+replace
 
 1. Open the top level folder of where your endpoint classes exist in the project in a text editor such as vscode.
 2. Click `Edit > Replace In Files` and enable `Regex Matching`
-2. Use `(?<!\.)\bSend(?=[A-Z][A-Za-z0-9_]*Async\b)` as the regex to find matches to target for editing.
-3. Enter `Send.` in the replacement field and hit `Replace All`
-4. Then use `(?<!\.)\bSendAsync\b` as the regex.
-5. Enter `Send.ResponseAsync` as the replacement and hit `Replace All` again.
-6. Build the project and profit!
+3. Use `(?<!\.)\bSend(?=[A-Z][A-Za-z0-9_]*Async\b)` as the regex to find matches to target for editing.
+4. Enter `Send.` in the replacement field and hit `Replace All`
+5. Then use `(?<!\.)\bSendAsync\b` as the regex.
+6. Enter `Send.ResponseAsync` as the replacement and hit `Replace All` again.
+7. Build the project and profit!
 
 Here's a complete [walkthrough](https://imgur.com/j0OVrKp) of the above process.
 

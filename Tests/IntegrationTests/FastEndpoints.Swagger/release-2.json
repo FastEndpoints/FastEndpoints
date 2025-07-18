@@ -3602,40 +3602,6 @@
         }
       }
     },
-    "/api/testcases/pre-processor-shortcircuit-while-validator-fails": {
-      "get": {
-        "tags": [
-          "Testcases"
-        ],
-        "operationId": "TestCasesPrecessorShortWhileValidatorFailsEndpoint",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "No Content"
-          },
-          "400": {
-            "description": "Bad Request",
-            "content": {
-              "application/problem+json": {
-                "schema": {
-                  "$ref": "#/components/schemas/FastEndpointsErrorResponse"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/test-cases/pre-processor-is-run-on-validation-failure": {
       "post": {
         "tags": [
@@ -3685,6 +3651,40 @@
             "JWTBearerAuth": []
           }
         ]
+      }
+    },
+    "/api/testcases/pre-processor-shortcircuit-while-validator-fails": {
+      "get": {
+        "tags": [
+          "Testcases"
+        ],
+        "operationId": "TestCasesPreProcessorShortWhileValidatorFailsEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsErrorResponse"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/test-cases/processor-attributes-test": {
@@ -6144,10 +6144,6 @@
         "type": "object",
         "additionalProperties": false
       },
-      "TestCasesPrecessorShortWhileValidatorFailsRequest": {
-        "type": "object",
-        "additionalProperties": false
-      },
       "TestCasesPreProcessorIsRunOnValidationFailureResponse": {
         "type": "object",
         "additionalProperties": false,
@@ -6174,6 +6170,10 @@
             "format": "int32"
           }
         }
+      },
+      "TestCasesPreProcessorShortWhileValidatorFailsRequest": {
+        "type": "object",
+        "additionalProperties": false
       },
       "TestCasesProcessorAttributesTestRequest": {
         "type": "object",

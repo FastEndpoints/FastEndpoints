@@ -35,7 +35,7 @@ public sealed class Request
         public override string ToString()
             => $"{Number1}:{Number2}";
 
-        public static bool TryParse(string s, out ComplexIdClassWithToString? result)
+        public static bool TryParse(string? s, out ComplexIdClassWithToString? result)
         {
             var parts = s?.Split(':');
 

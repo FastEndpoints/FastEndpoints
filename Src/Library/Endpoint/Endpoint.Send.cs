@@ -1,4 +1,5 @@
-﻿using FluentValidation.Results;
+﻿using System.Diagnostics.CodeAnalysis;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 
 namespace FastEndpoints;
@@ -6,7 +7,24 @@ namespace FastEndpoints;
 /// <summary>
 /// target this interface type for creating your own custom response sending methods.
 /// </summary>
-public interface IResponseSender : IEndpoint;
+[SuppressMessage("ReSharper", "UnusedMemberInSuper.Global")]
+public interface IResponseSender
+{
+    /// <summary>
+    /// the http context of the current request
+    /// </summary>
+    HttpContext HttpContext { get; } //this is for allowing consumers to write extension methods
+
+    /// <summary>
+    /// validation failures collection for the endpoint
+    /// </summary>
+    List<ValidationFailure> ValidationFailures { get; } //also for extensibility
+
+    /// <summary>
+    /// gets the endpoint definition which contains all the configuration info for the endpoint
+    /// </summary>
+    EndpointDefinition Definition { get; } //also for extensibility
+}
 
 /// <summary>
 /// this class encapsulates the default response sending methods for endpoints.

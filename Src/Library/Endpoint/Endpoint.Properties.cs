@@ -1,17 +1,19 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using System.Security.Claims;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using System.Security.Claims;
-using System.Text.Json;
-using System.Text.Json.Nodes;
-
-// ReSharper disable ReplaceWithFieldKeyword
 
 namespace FastEndpoints;
 
 public abstract partial class Endpoint<TRequest, TResponse> where TRequest : notnull
 {
+    //NOTE:
+    //  the following vars are initialized lazily in order to prevent
+    //  instantiation during endpoint config phase at startup.
+    //  ReSharper disable ReplaceWithFieldKeyword
     Http? _httpMethod;
     string? _baseUrl;
     ILogger? _logger;
@@ -47,7 +49,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     }
 
     /// <summary>
-    /// gives access to response sending methods for the endpoint. you can add your own custom response sending methods by targeting the
+    /// gives access to response sending methods for the endpoint. you can add your own custom response sending methods via extension methods targeting the
     /// <see cref="IResponseSender" /> interface.
     /// </summary>
     protected ResponseSender<TRequest, TResponse> Send => _sender ??= new(this);
@@ -89,9 +91,11 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     public bool ResponseStarted
     {
         get => HttpContext.ResponseStarted();
-
-        // ReSharper disable once ValueParameterNotUsed
-        set => HttpContext.MarkResponseStart();
+        set
+        {
+            if (value)
+                HttpContext.MarkResponseStart();
+        }
     }
 
     static readonly JsonObject _emptyObject = new();
@@ -104,9 +108,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
 
         try
         {
-            _response = JsonSerializer.Deserialize<TResponse>(
-                _isCollectionResponse ? _emptyArray : _emptyObject,
-                Cfg.SerOpts.Options)!;
+            _response = JsonSerializer.Deserialize<TResponse>(_isCollectionResponse ? _emptyArray : _emptyObject, Cfg.SerOpts.Options)!;
         }
         catch
         {

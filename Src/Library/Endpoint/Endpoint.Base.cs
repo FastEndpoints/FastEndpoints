@@ -18,16 +18,13 @@ public abstract partial class BaseEndpoint : IEndpoint
 
     internal abstract Task ExecAsync(CancellationToken ct);
 
-    /// <inheritdoc />
     [DontInject]
     public EndpointDefinition Definition { get; internal set; } = null!;
 
-    /// <inheritdoc />
     [DontInject]
     public HttpContext HttpContext { get; internal set; } = null!;
 
-    /// <inheritdoc />
-    public List<ValidationFailure> ValidationFailures => _failures ??= [];
+    public List<ValidationFailure> ValidationFailures => _failures ??= []; //lazy init to prevent alloc at startup
 
     /// <summary>
     /// use this method to configure how the endpoint should be listening to incoming requests.

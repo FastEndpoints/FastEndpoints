@@ -19,7 +19,8 @@ public interface IEndpoint : IResponseSender
         => Cfg.EpOpts.NameGenerator(new(typeof(TEndpoint), verb?.ToString("F"), routeNumber, tagPrefix));
 
     //key: the type of the endpoint
-    static ConcurrentDictionary<Type, string> TestUrlCache { get; } = new();
+    private static ConcurrentDictionary<Type, string>? _testUrlCache;
+    private static ConcurrentDictionary<Type, string> TestUrlCache => _testUrlCache ??= new(); //lazy init to prevent alloc at startup
 
     internal static void SetTestUrl(Type endpointType, string url)
         => TestUrlCache[endpointType] = url;

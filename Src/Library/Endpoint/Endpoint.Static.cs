@@ -80,14 +80,6 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
         }
     }
 
-    internal Task RunResponseInterceptor(IResponseInterceptor interceptor,
-                                         object resp,
-                                         int statusCode,
-                                         HttpContext ctx,
-                                         IReadOnlyCollection<ValidationFailure> validationFailures,
-                                         CancellationToken cancellation)
-        => interceptor.InterceptResponseAsync(resp, statusCode, ctx, validationFailures, cancellation);
-
     static Task AutoSendResponse(HttpContext ctx,
                                  TResponse responseDto,
                                  JsonSerializerContext? jsonSerializerContext,
@@ -95,4 +87,12 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
         => responseDto is null
                ? ctx.Response.SendNoContentAsync(cancellation)
                : ctx.Response.SendAsync(responseDto, ctx.Response.StatusCode, jsonSerializerContext, cancellation);
+
+    internal static Task RunResponseInterceptor(IResponseInterceptor interceptor,
+                                                object resp,
+                                                int statusCode,
+                                                HttpContext ctx,
+                                                IReadOnlyCollection<ValidationFailure> validationFailures,
+                                                CancellationToken cancellation)
+        => interceptor.InterceptResponseAsync(resp, statusCode, ctx, validationFailures, cancellation);
 }

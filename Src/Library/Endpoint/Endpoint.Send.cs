@@ -27,11 +27,13 @@ public interface IResponseSender
 }
 
 /// <summary>
-/// this class encapsulates the default response sending methods for endpoints.
+/// this struct encapsulates the default response sending methods for endpoints.
 /// you can add your own custom send methods by writing extension methods targeting <see cref="IResponseSender" /> interface.
 /// </summary>
-public sealed class ResponseSender<TRequest, TResponse>(Endpoint<TRequest, TResponse> ep) : IResponseSender where TRequest : notnull
+public readonly struct ResponseSender<TRequest, TResponse>(Endpoint<TRequest, TResponse> ep) : IResponseSender where TRequest : notnull
 {
+    //NOTE: being a struct here reduces gc pressure (verified with benchmarks)
+
     public HttpContext HttpContext => ep.HttpContext;
     public List<ValidationFailure> ValidationFailures => ep.ValidationFailures;
     public EndpointDefinition Definition => ep.Definition;
@@ -75,7 +77,13 @@ public sealed class ResponseSender<TRequest, TResponse>(Endpoint<TRequest, TResp
         if (ep.Definition.ResponseIntrcptr is null)
             throw new InvalidOperationException("Response interceptor has not been configured!");
 
-        await ep.RunResponseInterceptor(ep.Definition.ResponseIntrcptr, response, statusCode, ep.HttpContext, ep.ValidationFailures, cancellation);
+        await Endpoint<TRequest, TResponse>.RunResponseInterceptor(
+            ep.Definition.ResponseIntrcptr,
+            response,
+            statusCode,
+            ep.HttpContext,
+            ep.ValidationFailures,
+            cancellation);
 
         if (!ep.HttpContext.ResponseStarted())
             await ep.HttpContext.Response.SendAsync(response, statusCode, ep.Definition.SerializerContext, cancellation);
@@ -349,14 +357,7 @@ public sealed class ResponseSender<TRequest, TResponse>(Endpoint<TRequest, TResp
                             DateTimeOffset? lastModified = null,
                             bool enableRangeProcessing = false,
                             CancellationToken cancellation = default)
-        => ep.HttpContext.Response.SendStreamAsync(
-            stream,
-            fileName,
-            fileLengthBytes,
-            contentType,
-            lastModified,
-            enableRangeProcessing,
-            cancellation);
+        => ep.HttpContext.Response.SendStreamAsync(stream, fileName, fileLengthBytes, contentType, lastModified, enableRangeProcessing, cancellation);
 
     /// <summary>
     /// start an asynchronous "server-sent-events" data stream for the client with items of the same type, without blocking any threads

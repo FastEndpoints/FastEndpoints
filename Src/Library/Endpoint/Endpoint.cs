@@ -9,8 +9,6 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
 
-// ReSharper disable ReplaceWithFieldKeyword
-
 // ReSharper disable UnusedParameter.Global
 // ReSharper disable MemberCanBeProtected.Global
 

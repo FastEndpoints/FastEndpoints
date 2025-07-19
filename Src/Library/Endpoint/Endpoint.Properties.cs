@@ -13,7 +13,6 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     //NOTE:
     //  the following vars are initialized lazily in order to prevent
     //  instantiation during endpoint config phase at startup.
-    //  ReSharper disable ReplaceWithFieldKeyword
     Http? _httpMethod;
     string? _baseUrl;
     ILogger? _logger;

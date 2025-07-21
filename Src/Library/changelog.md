@@ -10,13 +10,11 @@ Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H
 
 ## New 🎉
 
-## Improvements 🚀
+<details><summary>API change of response sending methods ⚠️</summary>
 
-<details><summary>New way to send responses from endpoints and create extensions ⚠️</summary>
+Response sending methods such as `SendOkAsync()` have been ripped out of the endpoint base class for a better intellisense experience and extensibility.
 
-Response sending methods such as `SendOkAsync()` have been ripped out of the endpoint base class for a better intellisense experience and extensibility via extension methods.
-
-Going forward, the response sending methods are accessed via the `Send` property of the endpoint like so:
+Going forward, the response sending methods are accessed via the `Send` property of the endpoint as follows:
 
 ```cs
 public override async Task HandleAsync(CancellationToken c)
@@ -25,7 +23,7 @@ public override async Task HandleAsync(CancellationToken c)
 }
 ```
 
-In order to add your own custom response sending methods, simply target the `IResponseSender` interface and write your extensions like so:
+In order to add your own custom response sending methods, simply target the `IResponseSender` interface and write extension methods like so:
 
 ```cs
 static class SendExtensions
@@ -35,13 +33,13 @@ static class SendExtensions
 }
 ```
 
-This is obviously is a wide-reaching breaking change which can be easily remedied with a quick regex based find & replace. Please see the breaking changes section below for step-by-step instructions on how to migrate.
+This is obviously is a wide-reaching breaking change which can be easily remedied with a quick regex based find & replace. Please see the breaking changes section below for step-by-step instructions on how to migrate. Takes less than a minute.
 
 </details>
 
 <details><summary>Send multiple Server-Sent-Event models in a single stream</summary>
 
-It is now possible to send different types of data in a single SSE stream with the use of the wrapper type **StreamItem** like so:
+It is now possible to send different types of data in a single SSE stream with the use of a wrapper type called **StreamItem** like so:
 
 ```cs
 public override async Task HandleAsync(CancellationToken ct)
@@ -68,8 +66,6 @@ public override async Task HandleAsync(CancellationToken ct)
 ```
 
 By default, the `StreamItem` will be serialized as a JSON object, but you can change this by inheriting from it and overriding the `GetDataString` method to return a different format such as XML or plain text.
-
-```cs
 
 </details>
 
@@ -99,7 +95,7 @@ Since we have no control over how SwaggerUI behaves, support has been added to t
 
 <details><summary>Auto infer query parameters for routeless integration tests</summary>
 
-If you annotate request dto properties with `[RouteParam]` attribute, the helper extensions such as `.GETAsync()` will now automatically populate
+If you annotate request DTO properties with `[RouteParam]` attribute, the helper extensions such as `.GETAsync()` will now automatically populate
 the request query string with values from the supplied dto instance when sending integration tests.
 
 ```cs
@@ -124,6 +120,8 @@ public async Task Query_Param_Test()
 ```
 
 </details>
+
+<!-- ## Improvements 🚀 -->
 
 ## Fixes 🪲
 
@@ -197,9 +195,9 @@ Due to an oversight, the [default exception handler](https://fast-endpoints.com/
 <details><summary>API change of endpoint response sending methods</summary>
 
 The response sending methods are no longer located on the endpoint class itself and are now accessed via the `Send` property of the endpoint.
-This is a breaking change which you can easily fix by doing a quick find+replace using a text editor such as vscode. Please follow the following steps in order to update your files:
+This is a breaking change which you can easily fix by doing a quick find+replace using a text editor such as VSCode. Please follow the following steps in order to update your files:
 
-1. Open the top level folder of where your endpoint classes exist in the project in a text editor such as vscode.
+1. Open the top level folder of where your endpoint classes exist in the project in a text editor like VSCode.
 2. Click `Edit > Replace In Files` and enable `Regex Matching`
 3. Use `(?<!\.)\bSend(?=[A-Z][A-Za-z0-9_]*Async\b)` as the regex to find matches to target for editing.
 4. Enter `Send.` in the replacement field and hit `Replace All`
@@ -214,6 +212,7 @@ Here's a complete [walkthrough](https://imgur.com/j0OVrKp) of the above process.
 <details><summary>Small change in the Server-Sent-Event response stream</summary>
 
 Previously the Server-Sent-Event response was written as:
+
 ``` plain
 id:12345
 event: my-event
@@ -223,6 +222,7 @@ data: hello world!
 ```
 
 Notice the inconsistency in the spacing between the `id`, `event` and `data` fields. This has now been fixed to be consistent with the following format:
+
 ``` plain
 id: 12345
 event: my-event

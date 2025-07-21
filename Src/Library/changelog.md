@@ -44,9 +44,9 @@ This is obviously is a wide-reaching breaking change which can be easily remedie
 It is now possible to send different types of data in a single SSE stream with the use of the wrapper type **StreamItem** like so:
 
 ```cs
-public override async Task HandleAsync(CancellationToken c)
+public override async Task HandleAsync(CancellationToken ct)
 {
-    await Send.EventStreamAsync(GetMultiDataStream(c), c);
+    await Send.EventStreamAsync(GetMultiDataStream(ct), ct);
 
     async IAsyncEnumerable<StreamItem> GetMultiDataStream([EnumeratorCancellation] CancellationToken ct)
     {
@@ -54,7 +54,7 @@ public override async Task HandleAsync(CancellationToken c)
 
         while (!ct.IsCancellationRequested)
         {
-            await Task.Delay(1000);
+            await Task.Delay(1000, ct);
 
             id++;
 
@@ -66,6 +66,10 @@ public override async Task HandleAsync(CancellationToken c)
     }
 }
 ```
+
+By default, the `StreamItem` will be serialized as a JSON object, but you can change this by inheriting from it and overriding the `GetDataString` method to return a different format such as XML or plain text.
+
+```cs
 
 </details>
 
@@ -204,5 +208,27 @@ This is a breaking change which you can easily fix by doing a quick find+replace
 7. Build the project and profit!
 
 Here's a complete [walkthrough](https://imgur.com/j0OVrKp) of the above process.
+
+</details>
+
+<details><summary>Small change in the Server-Sent-Event response stream</summary>
+
+Previously the Server-Sent-Event response was written as:
+``` plain
+id:12345
+event: my-event
+data: hello world!
+
+
+```
+
+Notice the inconsistency in the spacing between the `id`, `event` and `data` fields. This has now been fixed to be consistent with the following format:
+``` plain
+id: 12345
+event: my-event
+data: hello world!
+
+
+```
 
 </details>

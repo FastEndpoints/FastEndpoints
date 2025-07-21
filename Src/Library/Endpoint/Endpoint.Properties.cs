@@ -22,12 +22,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     IConfiguration? _config;
 
     /// <summary>
-    /// the current user principal
-    /// </summary>
-    public ClaimsPrincipal User => HttpContext.User;
-
-    /// <summary>
-    /// the response that is sent to the client.
+    /// the response object that is serialized to the response stream.
     /// </summary>
     [DontInject]
     public TResponse Response
@@ -37,15 +32,14 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     }
 
     /// <summary>
-    /// gives access to the configuration. if you need to access this property from within the endpoint Configure() method, make sure to pass in the config
-    /// to <c>.AddFastEndpoints(config: builder.Configuration)</c>
+    /// the current user principal
     /// </summary>
-    [DontInject]
-    public IConfiguration Config
-    {
-        get => _config ??= Cfg.ServiceResolver.Resolve<IConfiguration>();
-        internal set => _config = value;
-    }
+    public ClaimsPrincipal User => HttpContext.User;
+
+    /// <summary>
+    /// gives access to the app configuration.
+    /// </summary>
+    public IConfiguration Config => _config ??= Cfg.ServiceResolver.Resolve<IConfiguration>();
 
     /// <summary>
     /// gives access to response sending methods for the endpoint. you can add your own custom response sending methods via extension methods targeting the

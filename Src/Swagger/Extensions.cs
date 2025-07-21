@@ -254,7 +254,7 @@ public static class Extensions
         => x.SchemaSettings.SchemaProcessors.Add(new MarkNonNullablePropsAsRequired());
 
     /// <summary>
-    /// gets the <see cref="EndpointDefinition" /> from the nwag operation processor context if this is a FastEndpoint operation. otherwise returns null.
+    /// gets the <see cref="EndpointDefinition" /> from the nswag operation processor context if this is a FastEndpoint operation. otherwise returns null.
     /// </summary>
     public static EndpointDefinition? GetEndpointDefinition(this OperationProcessorContext ctx)
         => ((AspNetCoreOperationProcessorContext)ctx)

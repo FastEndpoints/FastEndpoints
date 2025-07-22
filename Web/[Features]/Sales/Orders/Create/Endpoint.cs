@@ -45,7 +45,7 @@ public class Endpoint : Endpoint<Request, Response, MyMapper>
         IEvent evnt = new SomeEvent();
         await evnt.PublishAsync();
 
-        await Send.ResponseAsync(
+        await Send.OkAsync(
             new()
             {
                 Message = "order created!",

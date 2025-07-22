@@ -38,6 +38,6 @@ sealed class Endpoint : EndpointWithoutRequest<string[]>
 
     public override async Task HandleAsync(CancellationToken c)
     {
-        await Send.ResponseAsync([ScopedService.Type, TransientService.Type, SingletonService.Type]);
+        await Send.OkAsync([ScopedService.Type, TransientService.Type, SingletonService.Type]);
     }
 }

@@ -202,8 +202,10 @@ This is a breaking change which you can easily fix by doing a quick find+replace
 3. Use `(?<!\.)\bSend(?=[A-Z][A-Za-z0-9_]*Async\b)` as the regex to find matches to target for editing.
 4. Enter `Send.` in the replacement field and hit `Replace All`
 5. Then use `(?<!\.)\bSendAsync\b` as the regex.
-6. Enter `Send.ResponseAsync` as the replacement and hit `Replace All` again.
+6. Enter `Send.OkAsync` as the replacement and hit `Replace All` again.
 7. Build the project and profit!
+
+**Note:** In case some `Send.OkAsync()` calls won't compile, it's most likely you were using the `SendAsync()` overload that allowed to set a custom status code, and all you have to do to fix it is to use the `Send.ResponseAsync()` method instead of `Send.OkAsync()` as `OkAsync()` doesn't allow custom status codes.
 
 Here's a complete [walkthrough](https://imgur.com/j0OVrKp) of the above process.
 

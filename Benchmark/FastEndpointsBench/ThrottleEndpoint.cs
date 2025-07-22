@@ -47,7 +47,7 @@ public class ThrottleEndpoint : Endpoint<ThrottleRequest>
 
         //Logger.LogInformation("request received!");
         //validator is automatically being run by FastEndpoints
-        => Send.ResponseAsync(
+        => Send.OkAsync(
             new Response
             {
                 Id = req.Id,

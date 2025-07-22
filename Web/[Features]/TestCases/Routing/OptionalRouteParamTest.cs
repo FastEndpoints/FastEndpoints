@@ -12,7 +12,7 @@ public class OptionalRouteParamTest : Ep
 
     public override async Task HandleAsync(Request req, CancellationToken ct)
     {
-        await Send.ResponseAsync(req.OfferId ?? "default offer");
+        await Send.OkAsync(req.OfferId ?? "default offer");
     }
 
     public record Request(string? OfferId);

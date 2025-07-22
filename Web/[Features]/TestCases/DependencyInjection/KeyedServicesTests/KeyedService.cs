@@ -22,5 +22,5 @@ sealed class Endpoint : EndpointWithoutRequest<string>
     }
 
     public override Task HandleAsync(CancellationToken c)
-        => Send.ResponseAsync(KeyedService.KeyName);
+        => Send.OkAsync(KeyedService.KeyName);
 }

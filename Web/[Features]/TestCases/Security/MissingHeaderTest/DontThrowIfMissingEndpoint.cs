@@ -10,6 +10,6 @@ public class DontThrowIfMissingEndpoint : Endpoint<DontThrowIfMissingRequest>
 
     public override Task HandleAsync(DontThrowIfMissingRequest req, CancellationToken ct)
     {
-        return Send.ResponseAsync($"you sent {req.TenantID}");
+        return Send.OkAsync($"you sent {req.TenantID}");
     }
 }

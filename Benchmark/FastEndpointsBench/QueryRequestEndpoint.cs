@@ -56,7 +56,7 @@ public class QueryRequestEndpoint : Endpoint<QueryRequest, QueryResponse>
     }
 
     public override Task HandleAsync(QueryRequest req, CancellationToken ct)
-        => Send.ResponseAsync(
+        => Send.OkAsync(
             new()
             {
                 Id = req.Query!.Id,

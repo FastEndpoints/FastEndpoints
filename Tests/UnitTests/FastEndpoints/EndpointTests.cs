@@ -13,7 +13,7 @@ public class SendShouldSetCorrectResponse : Endpoint<Request, Response>
         HttpContext = new DefaultHttpContext();
         Definition = new(typeof(SendShouldSetCorrectResponse), typeof(Request), typeof(Response));
 
-        await Send.ResponseAsync(
+        await Send.OkAsync(
             new()
             {
                 Id = 1,
@@ -118,7 +118,7 @@ public class SendShouldNotCallResponseInterceptorIfExpectedTypedResponseObjectIs
         Definition = new(typeof(SendShouldNotCallResponseInterceptorIfExpectedTypedResponseObjectIsSupplied), typeof(Request), typeof(Response));
         Definition.ResponseInterceptor(new ResponseInterceptor());
 
-        await Send.ResponseAsync(
+        await Send.OkAsync(
             new()
             {
                 Id = 1,

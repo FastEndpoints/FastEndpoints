@@ -12,7 +12,7 @@ public class EpWithoutReqQueryParamBindingTest : EndpointWithoutRequest<Response
     }
 
     public override Task HandleAsync(CancellationToken ct)
-        => Send.ResponseAsync(
+        => Send.OkAsync(
             new()
             {
                 CustomerID = Query<int>("customerId"),

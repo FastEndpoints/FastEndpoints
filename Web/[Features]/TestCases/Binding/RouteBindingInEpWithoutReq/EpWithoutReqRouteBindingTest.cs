@@ -12,7 +12,7 @@ public class EpWithoutReqRouteBindingTest : EndpointWithoutRequest<Response>
     }
 
     public override Task HandleAsync(CancellationToken ct)
-        => Send.ResponseAsync(
+        => Send.OkAsync(
             new()
             {
                 CustomerID = Route<int>("customerId"),

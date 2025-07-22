@@ -51,7 +51,7 @@ public class StructEndpoint : Endpoint<StructRequest>
 
         //Logger.LogInformation("request received!");
         //validator is automatically being run by FastEndpoints
-        => Send.ResponseAsync(
+        => Send.OkAsync(
             new StructResponse
             {
                 Id = req.Id,

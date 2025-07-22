@@ -26,7 +26,7 @@ sealed class GenericCmdEndpoint : EndpointWithoutRequest<IEnumerable<Guid>>
     {
         var cmd = new GenericCommand<Guid>();
         var list = await cmd.ExecuteAsync();
-        await Send.ResponseAsync(list);
+        await Send.OkAsync(list);
     }
 }
 
@@ -63,6 +63,6 @@ sealed class GenericCmdWithoutResultEndpoint : EndpointWithoutRequest<Guid>
         };
 
         await cmd.ExecuteAsync();
-        await Send.ResponseAsync(cmd.Id);
+        await Send.OkAsync(cmd.Id);
     }
 }

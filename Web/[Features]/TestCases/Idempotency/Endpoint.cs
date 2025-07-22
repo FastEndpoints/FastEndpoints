@@ -24,7 +24,7 @@ sealed class Endpoint : Endpoint<Request, Response>
     public override async Task HandleAsync(Request r, CancellationToken c)
     {
         var id = Route<string>("id");
-        await Send.ResponseAsync(
+        await Send.OkAsync(
             new()
             {
                 Id = id ?? "",

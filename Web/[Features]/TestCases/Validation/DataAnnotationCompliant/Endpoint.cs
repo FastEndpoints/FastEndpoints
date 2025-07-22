@@ -26,5 +26,5 @@ public class Endpoint : Endpoint<Request, Request>
     }
 
     public override Task HandleAsync(Request r, CancellationToken c)
-        => Send.ResponseAsync(r);
+        => Send.OkAsync(r);
 }

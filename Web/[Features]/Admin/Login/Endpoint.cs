@@ -80,7 +80,7 @@ public class Endpoint : Endpoint<Request, Response>
                     o.User.Claims.AddRange(userClaims);
                 });
 
-            return Send.ResponseAsync(
+            return Send.OkAsync(
                 new()
                 {
                     JWTToken = token,
@@ -119,5 +119,5 @@ public class Endpoint_V2 : Endpoint<EmptyRequest, object>
     }
 
     public override Task HandleAsync(EmptyRequest r, CancellationToken ct)
-        => Send.ResponseAsync(2);
+        => Send.OkAsync(2);
 }

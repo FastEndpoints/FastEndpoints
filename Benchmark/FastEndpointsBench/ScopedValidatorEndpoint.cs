@@ -49,7 +49,7 @@ public class ScopedValidatorEndpoint : Endpoint<ScopedValidatorRequest>
 
         await Validator!.ValidateAsync(req, ct);
 
-        await Send.ResponseAsync(
+        await Send.OkAsync(
             new ScopedValidatorResponse
             {
                 Id = req.Id,

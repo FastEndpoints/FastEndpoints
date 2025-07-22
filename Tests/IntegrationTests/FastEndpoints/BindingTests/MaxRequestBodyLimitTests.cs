@@ -66,7 +66,7 @@ public class MaxRequestBodyLimitTests : IAsyncLifetime
 
         public override async Task HandleAsync(Request r, CancellationToken c)
         {
-            await Send.ResponseAsync(r.File.FileName);
+            await Send.OkAsync(r.File.FileName);
         }
     }
 

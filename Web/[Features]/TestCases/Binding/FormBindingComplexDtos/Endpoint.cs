@@ -62,6 +62,6 @@ sealed class ToFormEndpoint : Endpoint<Book, Book>
 
     public override async Task HandleAsync(Book r, CancellationToken ct)
     {
-        await Send.ResponseAsync(r);
+        await Send.OkAsync(r);
     }
 }

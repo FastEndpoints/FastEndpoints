@@ -46,7 +46,7 @@ public class Endpoint : Endpoint<Request, Response>
 
         //validator is automatically being run by FastEndpoints
 
-        return Send.ResponseAsync(
+        return Send.OkAsync(
             new()
             {
                 Id = req.Id,

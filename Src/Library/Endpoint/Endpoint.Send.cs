@@ -238,6 +238,9 @@ public readonly struct ResponseSender<TRequest, TResponse>(Endpoint<TRequest, TR
     /// </summary>
     /// <param name="response">the object to serialize to json</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
+#if NET9_0_OR_GREATER
+    [System.Runtime.CompilerServices.OverloadResolutionPriority(1)]
+#endif
     public Task OkAsync(TResponse response, CancellationToken cancellation = default)
     {
         ep.Response = response;

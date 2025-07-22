@@ -10,7 +10,7 @@ public class Endpoint : Endpoint<Request, Response>
 
     public override Task HandleAsync(Request r, CancellationToken c)
     {
-        return Send.ResponseAsync(new()
+        return Send.OkAsync(new()
         {
             Id = r.Id,
             CustomerID = r.CustomerID,

@@ -14,6 +14,6 @@ public class EmptyRequestEndpoint : Endpoint<EmptyRequest, object>
     {
         HttpContext.Response.ContentLength = 27;
 
-        return Send.ResponseAsync(new { message = "Hello, World!" });
+        return Send.OkAsync(new { message = "Hello, World!" });
     }
 }

@@ -18,6 +18,6 @@ sealed class MyEndpoint : Endpoint<MyRequest, string>
 
     public override async Task HandleAsync(MyRequest r, CancellationToken c)
     {
-        await Send.ResponseAsync(r.Disposition.FileName.Value!);
+        await Send.OkAsync(r.Disposition.FileName.Value!);
     }
 }

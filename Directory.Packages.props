@@ -18,7 +18,6 @@
         <PackageVersion Include="Microsoft.AspNetCore.OData" Version="9.4.0-preview"/>
         <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="4.14.0"/>
         <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="[4.11.0]"/> <!-- not upgradeable for net8 compatibility -->
-        <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1"/>
         <PackageVersion Include="Microsoft.OpenApi.Kiota.Builder" Version="1.28.0"/>
         <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0"/>
         <PackageVersion Include="NSwag.AspNetCore" Version="14.4.0"/>
@@ -30,7 +29,6 @@
         <PackageVersion Include="Shouldly" Version="4.3.0"/>
         <PackageVersion Include="xunit.v3" Version="3.0.0"/>
         <PackageVersion Include="xunit.v3.extensibility.core" Version="3.0.0"/>
-        <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.3" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive"/>
     </ItemGroup>
     <ItemGroup Condition="'$(TargetFramework)' == 'net8.0' or '$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'netstandard2.1'">
         <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.18"/>

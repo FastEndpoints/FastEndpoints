@@ -10,7 +10,7 @@ Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H
 
 ## New 🎉
 
-<details><summary>API change of response sending methods ⚠️</summary>
+<details><summary>Relocate response sending methods ⚠️</summary>
 
 Response sending methods such as `SendOkAsync()` have been ripped out of the endpoint base class for a better intellisense experience and extensibility.
 
@@ -69,9 +69,9 @@ By default, the `StreamItem` will be serialized as a JSON object, but you can ch
 
 </details>
 
-<details><summary>Ability to customize param names for strongly typed route params</summary>
+<details><summary>Customize param names for strongly typed route params</summary>
 
-It is now possible to customize the route param names when using the [strongly typed route params](https://fast-endpoints.com/docs/misc-conveniences#strongly-typed-route-parameters) feature by simply decorating the target dto property with a `[BindFrom("customName"))]` attribute. If a `BindFrom` attribute annotation is not present on the property, the actual name of the property itself will end up being the route param name.
+It is now possible to customize the route param names when using the [strongly typed route params](https://fast-endpoints.com/docs/misc-conveniences#strongly-typed-route-parameters) feature by simply decorating the target DTO property with a `[BindFrom("customName"))]` attribute. If a `BindFrom` attribute annotation is not present on the property, the actual name of the property itself will end up being the route param name.
 
 </details>
 
@@ -96,7 +96,7 @@ Since we have no control over how SwaggerUI behaves, support has been added to t
 <details><summary>Auto infer query parameters for routeless integration tests</summary>
 
 If you annotate request DTO properties with `[RouteParam]` attribute, the helper extensions such as `.GETAsync()` will now automatically populate
-the request query string with values from the supplied dto instance when sending integration tests.
+the request query string with values from the supplied DTO instance when sending integration test requests.
 
 ```cs
 sealed class MyRequest
@@ -205,7 +205,7 @@ This is a breaking change which you can easily fix by doing a quick find+replace
 6. Enter `Send.OkAsync` as the replacement and hit `Replace All` again.
 7. Build the project and profit!
 
-**Note:** In case some `Send.OkAsync()` calls won't compile, it's most likely you were using the `SendAsync()` overload that allowed to set a custom status code, and all you have to do to fix it is to use the `Send.ResponseAsync()` method instead of `Send.OkAsync()` as `OkAsync()` doesn't allow custom status codes.
+**Note:** In case some `Send.OkAsync()` calls won't compile, it's most likely you were using the `SendAsync()` overload that allowed to set a custom status code. Simply use the `Send.ResponseAsync()` method instead of `Send.OkAsync()` for those calls as `OkAsync()` doesn't allow custom status codes.
 
 Here's a complete [walkthrough](https://imgur.com/mTucCkS) of the above process.
 

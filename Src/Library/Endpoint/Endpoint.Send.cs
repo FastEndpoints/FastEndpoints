@@ -238,10 +238,7 @@ public readonly struct ResponseSender<TRequest, TResponse>(Endpoint<TRequest, TR
     /// </summary>
     /// <param name="response">the object to serialize to json</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
-#if NET9_0_OR_GREATER
-    [System.Runtime.CompilerServices.OverloadResolutionPriority(1)]
-#endif
-    public Task OkAsync(TResponse response, CancellationToken cancellation = default)
+    public Task OkAsync(TResponse response, CancellationToken cancellation)
     {
         ep.Response = response;
 
@@ -249,11 +246,27 @@ public readonly struct ResponseSender<TRequest, TResponse>(Endpoint<TRequest, TR
     }
 
     /// <summary>
+    /// send an http 200 ok response with the supplied response dto serialized as json to the client.
+    /// </summary>
+    /// <param name="response">the object to serialize to json</param>
+#if NET9_0_OR_GREATER
+    [System.Runtime.CompilerServices.OverloadResolutionPriority(1)]
+#endif
+    public Task OkAsync(TResponse response)
+        => OkAsync(response, CancellationToken.None);
+
+    /// <summary>
     /// send an http 200 ok response without a body.
     /// </summary>
-    /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
-    public Task OkAsync(CancellationToken cancellation = default)
+    /// <param name="cancellation">cancellation token</param>
+    public Task OkAsync(CancellationToken cancellation)
         => ep.HttpContext.Response.SendOkAsync(cancellation);
+
+    /// <summary>
+    /// send an http 200 ok response without a body.
+    /// </summary>
+    public Task OkAsync()
+        => ep.HttpContext.Response.SendOkAsync();
 
     /// <summary>
     /// send a 400 bad request with error details of the current validation failures

@@ -1,11 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <ItemGroup>
-        <PackageReference Include="Shouldly"/>
-        <PackageReference Include="xunit.v3"/>
-    </ItemGroup>
-
-    <ItemGroup>
         <ProjectReference Include="..\..\..\Src\Swagger\FastEndpoints.Swagger.csproj"/>
     </ItemGroup>
 

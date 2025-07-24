@@ -1,13 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <ItemGroup>
-        <PackageReference Include="Shouldly"/>
-        <PackageReference Include="xunit.v3"/>
-        <PackageReference Include="FakeItEasy"/>
-        <PackageReference Include="FakeItEasy.Analyzer.CSharp" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive"/>
-    </ItemGroup>
-
-    <ItemGroup>
         <ProjectReference Include="..\..\..\Src\Library\FastEndpoints.csproj"/>
         <ProjectReference Include="..\..\..\Src\Messaging\Messaging.Remote.Testing\FastEndpoints.Messaging.Remote.Testing.csproj"/>
         <ProjectReference Include="..\..\..\Src\Testing\FastEndpoints.Testing.csproj"/>

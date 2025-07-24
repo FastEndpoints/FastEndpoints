@@ -6,6 +6,14 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <NoWarn>CS1587,CS1591,CS1998,NU5105,RCS1102,IDE1006,xUnit1051</NoWarn>
         <OutputType>Exe</OutputType>
-        <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
     </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Shouldly"/>
+        <PackageReference Include="xunit.v3"/>
+        <PackageReference Include="FakeItEasy"/>
+        <PackageReference Include="FakeItEasy.Analyzer.CSharp" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive"/>
+        <PackageReference Include="Microsoft.NET.Test.Sdk"/>
+        <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive"/>
+    </ItemGroup>
 </Project>

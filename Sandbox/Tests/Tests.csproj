@@ -5,17 +5,16 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
-        <IsTestProject>true</IsTestProject>
         <RootNamespace>Tests</RootNamespace>
+        <OutputType>Exe</OutputType>
+        <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
     </PropertyGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\..\Src\Testing\FastEndpoints.Testing.csproj"/>
         <PackageReference Include="FakeItEasy"/>
-        <PackageReference Include="Microsoft.NET.Test.Sdk"/>
         <PackageReference Include="Shouldly"/>
         <PackageReference Include="xunit.v3"/>
-        <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive"/>
         <!-- <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions"/> -->
         <!-- <PackageReference Include="Microsoft.Extensions.Options" /> -->
     </ItemGroup>

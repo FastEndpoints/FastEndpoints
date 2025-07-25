@@ -134,7 +134,7 @@ public static class Extensions
             new()
             {
                 Type = OpenApiSecuritySchemeType.Http,
-                Scheme = "Bearer",
+                Scheme = "bearer",
                 BearerFormat = "JWT",
                 Description = "Enter a JWT token to authorize the requests..."
             });

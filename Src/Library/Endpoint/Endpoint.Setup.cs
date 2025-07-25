@@ -444,7 +444,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// processors are executed in the order they are configured in the endpoint.
     /// </summary>
     /// <typeparam name="TPostProcessor">the post-processor to add</typeparam>
-    protected void PostProcessor<TPostProcessor>() where TPostProcessor : class, IPostProcessor<TRequest, TResponse>
+    public void PostProcessor<TPostProcessor>() where TPostProcessor : class, IPostProcessor<TRequest, TResponse>
     {
         Definition.ThrowIfLocked();
         EndpointDefinition.AddProcessor<TPostProcessor>(Order.After, Definition.PostProcessorList, ref _unused);
@@ -455,7 +455,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// here.
     /// </summary>
     /// <param name="postProcessors">the post processors to be executed</param>
-    protected void PostProcessors(params IPostProcessor<TRequest, TResponse>[] postProcessors)
+    public void PostProcessors(params IPostProcessor<TRequest, TResponse>[] postProcessors)
     {
         Definition.ThrowIfLocked();
         EndpointDefinition.AddProcessors(Order.After, postProcessors, Definition.PostProcessorList, ref _unused);
@@ -466,7 +466,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// processors are executed in the order they are configured in the endpoint.
     /// </summary>
     /// <typeparam name="TPreProcessor">the pre-processor to add</typeparam>
-    protected void PreProcessor<TPreProcessor>() where TPreProcessor : class, IPreProcessor<TRequest>
+    public void PreProcessor<TPreProcessor>() where TPreProcessor : class, IPreProcessor<TRequest>
     {
         Definition.ThrowIfLocked();
         EndpointDefinition.AddProcessor<TPreProcessor>(Order.After, Definition.PreProcessorList, ref _unused);
@@ -477,7 +477,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// here.
     /// </summary>
     /// <param name="preProcessors">the pre-processors to be executed</param>
-    protected void PreProcessors(params IPreProcessor<TRequest>[] preProcessors)
+    public void PreProcessors(params IPreProcessor<TRequest>[] preProcessors)
     {
         Definition.ThrowIfLocked();
         EndpointDefinition.AddProcessors(Order.After, preProcessors, Definition.PreProcessorList, ref _unused);

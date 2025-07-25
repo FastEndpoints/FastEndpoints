@@ -14,10 +14,4 @@ Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H
 
 ## Fixes 🪲
 
-<details><summary>Overload resolution issue with 'Send.OkAsync()' method</summary>
-
-There was an issue when only a cancellation token was supplied for the `OkAsync()` method which resulted in IDEs assuming the token was the response DTO.
-
-</details>
-
 ## Breaking Changes ⚠️

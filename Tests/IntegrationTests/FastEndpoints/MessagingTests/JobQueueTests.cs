@@ -189,14 +189,14 @@ public class JobQueueTests(Sut App) : TestBase<Sut>
     public async Task Job_Generic_Command()
     {
         var cts = new CancellationTokenSource(5000);
-        
+
         var cmd = new JobTestGenericCommand<SomeEvent>
         {
             Id = 1,
-            Event = new SomeEvent()
+            Event = new()
         };
         await cmd.QueueJobAsync(ct: cts.Token);
-        
+
         while (!cts.IsCancellationRequested && JobTestGenericCommand<SomeEvent>.CompletedIDs.Count == 0)
             await Task.Delay(100, Cancellation);
 

@@ -7,8 +7,8 @@ public class StreamItem
     /// <summary>event id, omitted when NULL/summary>
     public string? Id { get; init; }
 
-    /// <summary>event name, omitted when NULL</summary>
-    public string? EventName { get; init; }
+    /// <summary>event name</summary>
+    public string EventName { get; init; }
 
     /// <summary>event data</summary>
     public object Data { get; init; }
@@ -18,7 +18,7 @@ public class StreamItem
 
     /// <param name="eventName">the name of the event</param>
     /// <param name="data">the event data</param>
-    public StreamItem(string? eventName, object data)
+    public StreamItem(string eventName, object data)
     {
         EventName = eventName;
         Data = data;
@@ -30,7 +30,7 @@ public class StreamItem
     /// <param name="eventName">the name of the event</param>
     /// <param name="data">the event data</param>
     /// <param name="retry">reconnection time in seconds</param>
-    public StreamItem(string? id, string? eventName, object data, int? retry = null)
+    public StreamItem(string? id, string eventName, object data, int? retry = null)
     {
         Id = id;
         EventName = eventName;

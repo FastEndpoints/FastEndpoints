@@ -577,8 +577,7 @@ public static class HttpResponseExtensions
             var sb = new StringBuilder();
             if (streamItem.Id != null)
                 sb.Append($"id: {streamItem.Id}\n");
-            if (streamItem.EventName != null)
-                sb.Append($"event: {streamItem.EventName}\n");
+            sb.Append($"event: {streamItem.EventName}\n");
             sb.Append($"data: {streamItem.GetDataString(SerOpts.Options)}\n");
             if (streamItem.Retry.HasValue)
                 sb.Append($"retry: {streamItem.Retry.Value}\n");

@@ -29,7 +29,7 @@ public class RefreshServiceOptions
     /// defaults to HmacSha256 for symmetric keys.
     /// </summary>
     [DontInject]
-    public string TokenSigningAlgorithm { internal get; set; } = SecurityAlgorithms.HmacSha256Signature;
+    public string TokenSigningAlgorithm { internal get; set; } = SecurityAlgorithms.HmacSha256;
 
     /// <summary>
     /// specifies whether the key is pem encoded.

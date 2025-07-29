@@ -50,7 +50,7 @@ public sealed class JwtCreationOptions
     /// defaults to HmacSha256 for symmetric keys. don't forget to set an appropriate algorithm when changing <see cref="SigningStyle" /> to
     /// <see cref="TokenSigningStyle.Asymmetric" />
     /// </remarks>
-    public string SigningAlgorithm { get; set; } = SecurityAlgorithms.HmacSha256Signature;
+    public string SigningAlgorithm { get; set; } = SecurityAlgorithms.HmacSha256;
 
     /// <summary>
     /// specifies whether the key is pem encoded.

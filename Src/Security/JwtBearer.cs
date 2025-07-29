@@ -28,7 +28,7 @@ public static class JwtBearer
         if (string.IsNullOrEmpty(opts.SigningKey))
             throw new InvalidOperationException($"'{nameof(JwtCreationOptions)}.{nameof(JwtCreationOptions.SigningKey)}' is required!");
 
-        if (opts.SigningStyle is TokenSigningStyle.Asymmetric && opts.SigningAlgorithm is SecurityAlgorithms.HmacSha256Signature)
+        if (opts.SigningStyle is TokenSigningStyle.Asymmetric && opts.SigningAlgorithm is SecurityAlgorithms.HmacSha256)
             throw new InvalidOperationException(
                 $"Please set an appropriate '{nameof(JwtCreationOptions)}.{nameof(JwtCreationOptions.SigningAlgorithm)}' when creating Asymmetric JWTs!");
 

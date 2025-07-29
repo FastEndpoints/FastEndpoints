@@ -13,7 +13,7 @@ public class StreamItem
     /// <summary>event data</summary>
     public object Data { get; init; }
 
-    /// <summary>reconnection time in seconds</summary>
+    /// <summary>reconnection time in milliseconds</summary>
     public int? Retry { get; init; }
 
     /// <param name="eventName">the name of the event</param>

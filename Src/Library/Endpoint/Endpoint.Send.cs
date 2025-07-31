@@ -380,7 +380,7 @@ public readonly struct ResponseSender<TRequest, TResponse>(Endpoint<TRequest, TR
     /// <param name="eventName">the name of the event stream</param>
     /// <param name="eventStream">an IAsyncEnumerable that is the source of the data</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    public Task EventStreamAsync<T>(string eventName, IAsyncEnumerable<T> eventStream, CancellationToken cancellation = default)
+    public Task EventStreamAsync<T>(string eventName, IAsyncEnumerable<T> eventStream, CancellationToken cancellation = default) where T : notnull
         => ep.HttpContext.Response.SendEventStreamAsync(eventName, eventStream, cancellation);
 
     /// <summary>
@@ -389,7 +389,7 @@ public readonly struct ResponseSender<TRequest, TResponse>(Endpoint<TRequest, TR
     /// <param name="eventStream">an IAsyncEnumerable of stream items that is the source of the data</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
     public Task EventStreamAsync(IAsyncEnumerable<StreamItem> eventStream, CancellationToken cancellation = default)
-        => HttpContext.Response.SendEventStreamAsync(eventStream, cancellation);
+        => ep.HttpContext.Response.SendEventStreamAsync(eventStream, cancellation);
 
     /// <summary>
     /// send an empty json object in the body

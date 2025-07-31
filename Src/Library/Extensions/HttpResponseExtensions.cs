@@ -574,17 +574,7 @@ public static class HttpResponseExtensions
 
         await foreach (var streamItem in eventStream.WithCancellation(ct))
         {
-            var sb = new StringBuilder();
-            if (streamItem.Id != null)
-                sb.Append($"id: {streamItem.Id}\n");
-            sb.Append($"event: {streamItem.EventName}\n");
-            sb.Append($"data: {streamItem.GetDataString(SerOpts.Options)}\n");
-            if (streamItem.Retry.HasValue)
-                sb.Append($"retry: {streamItem.Retry.Value}\n");
-
-            sb.Append('\n');
-
-            await rsp.WriteAsync(sb.ToString(), Encoding.UTF8, ct);
+            await rsp.WriteAsync($"id: {streamItem.Id}\nevent: {streamItem.EventName}\ndata: {streamItem.GetDataString(SerOpts.Options)}\nretry: {streamItem.Retry}\n\n", Encoding.UTF8, ct);
         }
     }
 

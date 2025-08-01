@@ -12,6 +12,16 @@ Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H
 
 ## Improvements 🚀
 
+<details><summary>SSE response standard compliance</summary>
+
+The SSE response implementation has been enhanced by making the `id` field in `StreamItem` optional, adding an optional `Retry` property for client-side reconnection control, as well as introducing an extra `StreamItem` constructor overload for better flexibility. Additionally, the `X-Accel-Buffering: no` response header is now automatically sent to improve compatibility with reverse proxies like NGINX, ensuring streamed data is delivered without buffering. You can now do the following when doing multi-type data responses:
+
+```csharp
+yield return new StreamItem("my-event", myData, 30);
+```
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>Incorrect enum value for JWT security algorithm was used</summary>

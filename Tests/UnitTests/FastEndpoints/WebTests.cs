@@ -1,3 +1,4 @@
+using System.Text.Json;
 using FakeItEasy;
 using FastEndpoints;
 using FluentValidation.Results;
@@ -6,11 +7,18 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Primitives;
-using System.Text.Json;
+using TestCases.EventStreamTest;
+using TestCases.ProcessorStateTest;
 using TestCases.TypedResultTest;
+using TestCases.UnitTestConcurrencyTest;
+using TestCases.ValidationErrorTest;
 using Web.Services;
 using Xunit;
+using Endpoint = TestCases.MapperTest.Endpoint;
+using Request = TestCases.MapperTest.Request;
+using Response = TestCases.TypedResultTest.Response;
+
+// ReSharper disable MethodHasAsyncOverload
 
 namespace Web;
 
@@ -20,10 +28,10 @@ public class WebTests
     public async Task mapper_endpoint_setting_mapper_manually()
     {
         //arrange
-        var logger = A.Fake<ILogger<TestCases.MapperTest.Endpoint>>();
-        var ep = Factory.Create<TestCases.MapperTest.Endpoint>(logger);
+        var logger = A.Fake<ILogger<Endpoint>>();
+        var ep = Factory.Create<Endpoint>(logger);
         ep.Map = new();
-        var req = new TestCases.MapperTest.Request
+        var req = new Request
         {
             FirstName = "john",
             LastName = "doe",
@@ -31,7 +39,7 @@ public class WebTests
         };
 
         //act
-        await ep.HandleAsync(req, default);
+        await ep.HandleAsync(req, CancellationToken.None);
 
         //assert
         ep.Response.ShouldNotBeNull();
@@ -43,9 +51,9 @@ public class WebTests
     public async Task mapper_endpoint_resolves_mapper_automatically()
     {
         //arrange
-        var logger = A.Fake<ILogger<TestCases.MapperTest.Endpoint>>();
-        var ep = Factory.Create<TestCases.MapperTest.Endpoint>(logger);
-        var req = new TestCases.MapperTest.Request
+        var logger = A.Fake<ILogger<Endpoint>>();
+        var ep = Factory.Create<Endpoint>(logger);
+        var req = new Request
         {
             FirstName = "john",
             LastName = "doe",
@@ -53,7 +61,7 @@ public class WebTests
         };
 
         //act
-        await ep.HandleAsync(req, default);
+        await ep.HandleAsync(req, CancellationToken.None);
 
         //assert
         ep.Response.ShouldNotBeNull();
@@ -64,13 +72,13 @@ public class WebTests
     [Fact]
     public async Task endpoint_with_mapper_throws_mapper_not_set()
     {
-        var logger = A.Fake<ILogger<TestCases.MapperTest.Endpoint>>();
-        var ep = Factory.Create<TestCases.MapperTest.Endpoint>(logger);
+        var logger = A.Fake<ILogger<Endpoint>>();
+        var ep = Factory.Create<Endpoint>(logger);
 
         ep.Map = null!;
         ep.Definition.MapperType = null;
 
-        var req = new TestCases.MapperTest.Request
+        var req = new Request
         {
             FirstName = "john",
             LastName = "doe",
@@ -94,7 +102,7 @@ public class WebTests
             CreatedBy = "by harry potter"
         };
 
-        await ep.HandleAsync(req, default);
+        await ep.HandleAsync(req, CancellationToken.None);
 
         ep.Response.ShouldBe("test email by harry potter");
     }
@@ -116,7 +124,7 @@ public class WebTests
             CreatedBy = "by harry potter"
         };
 
-        await ep.HandleAsync(req, default);
+        await ep.HandleAsync(req, CancellationToken.None);
 
         ep.Response.ShouldBe("test email by harry potter");
     }
@@ -140,7 +148,7 @@ public class WebTests
         };
 
         //act
-        await ep.HandleAsync(req, default);
+        await ep.HandleAsync(req, CancellationToken.None);
         var rsp = ep.Response;
 
         //assert
@@ -165,7 +173,7 @@ public class WebTests
         };
 
         //act
-        await ep.HandleAsync(req, default);
+        await ep.HandleAsync(req, CancellationToken.None);
 
         //assert
         ep.ValidationFailed.ShouldBeTrue();
@@ -176,7 +184,7 @@ public class WebTests
     public async Task execute_customer_recent_list_should_return_correct_data()
     {
         var endpoint = Factory.Create<Customers.List.Recent.Endpoint>();
-        var res = await endpoint.ExecuteAsync(default) as Customers.List.Recent.Response;
+        var res = await endpoint.ExecuteAsync(CancellationToken.None) as Customers.List.Recent.Response;
 
         res?.Customers?.Count().ShouldBe(3);
         res?.Customers?.First().Key.ShouldBe("ryan gunner");
@@ -194,7 +202,7 @@ public class WebTests
         var res1 = await ep.ExecuteAsync(new() { Id = 1 }, CancellationToken.None);
         var errors = (res1.Result as ProblemDetails)!.Errors;
         errors.Count().ShouldBe(1);
-        errors.Single(e => e.Name == nameof(Request.Id)).Reason.ShouldBe("value has to be greater than 1");
+        errors.Single(e => e.Name == nameof(TestCases.TypedResultTest.Request.Id)).Reason.ShouldBe("value has to be greater than 1");
 
         var res2 = await ep.ExecuteAsync(new() { Id = 2 }, CancellationToken.None);
         var response = res2.Result as Ok<Response>;
@@ -206,33 +214,36 @@ public class WebTests
     public async Task event_stream_endpoint()
     {
         var responseStream = new MemoryStream();
-        var ep = Factory.Create<TestCases.EventStreamTest.EventStreamEndpoint>(httpContext => 
-        { 
-            httpContext.Response.Body = responseStream;
-        });
+        var ep = Factory.Create<EventStreamEndpoint>(
+            httpContext =>
+            {
+                httpContext.Response.Body = responseStream;
+            });
         var eventName = "some-notification";
         var notifications = new[]
         {
-            new TestCases.EventStreamTest.SomeNotification("First notification"),
-            new TestCases.EventStreamTest.SomeNotification("Second notification"),
-            new TestCases.EventStreamTest.SomeNotification("Third notification")
+            new SomeNotification("First notification"),
+            new SomeNotification("Second notification"),
+            new SomeNotification("Third notification")
         };
-        await ep.HandleAsync(new(eventName, notifications), default);
+        await ep.HandleAsync(new(eventName, notifications), CancellationToken.None);
 
         ep.HttpContext.Response.StatusCode.ShouldBe(200);
         ep.HttpContext.Response.ContentType.ShouldBe("text/event-stream; charset=utf-8");
-        ep.HttpContext.Response.Headers.CacheControl.ShouldBe(new StringValues("no-cache"));
-        ep.HttpContext.Response.Headers.Connection.ShouldBe(new StringValues("keep-alive"));
+        ep.HttpContext.Response.Headers.CacheControl.ShouldBe(new("no-cache"));
+        ep.HttpContext.Response.Headers.Connection.ShouldBe(new("keep-alive"));
 
         responseStream.Seek(0, SeekOrigin.Begin);
         using var reader = new StreamReader(responseStream);
         reader.ReadLine().ShouldBe("id: 1");
         reader.ReadLine().ShouldBe($"event: {eventName}");
         reader.ReadLine().ShouldBe($"data: {JsonSerializer.Serialize(notifications[0])}");
+        reader.ReadLine().ShouldBe("retry: ");
         reader.ReadLine().ShouldBe(string.Empty);
         reader.ReadLine().ShouldBe("id: 2");
         reader.ReadLine().ShouldBe($"event: {eventName}");
         reader.ReadLine().ShouldBe($"data: {JsonSerializer.Serialize(notifications[1])}");
+        reader.ReadLine().ShouldBe("retry: ");
         reader.ReadLine().ShouldBe(string.Empty);
         reader.ReadLine().ShouldBe("id: 3");
         reader.ReadLine().ShouldBe($"event: {eventName}");
@@ -259,7 +270,7 @@ public class WebTests
                 Price = 100,
                 GenerateFullUrl = false
             },
-            default);
+            CancellationToken.None);
 
         ep.HttpContext.Response.Headers.ContainsKey("Location");
         ep.HttpContext.Response.StatusCode.ShouldBe(201);
@@ -271,12 +282,12 @@ public class WebTests
         //arrange
         var ep = Factory.Create<TestCases.ProcessorStateTest.Endpoint>();
 
-        var state = ep.ProcessorState<TestCases.ProcessorStateTest.Thingy>();
+        var state = ep.ProcessorState<Thingy>();
         state.Id = 101;
         state.Name = "blah";
 
         //act
-        await ep.HandleAsync(new() { Id = 0 }, default);
+        await ep.HandleAsync(new() { Id = 0 }, CancellationToken.None);
 
         //assert
         // False represents the lack of global state addition from endpoint without global preprocessor
@@ -294,23 +305,23 @@ public class WebTests
                 var ep = Factory.Create<TestCases.UnitTestConcurrencyTest.Endpoint>(
                     ctx =>
                     {
-                        ctx.AddTestServices(s => s.AddSingleton(new TestCases.UnitTestConcurrencyTest.SingltonSVC(id)));
+                        ctx.AddTestServices(s => s.AddSingleton(new SingltonSVC(id)));
                     });
 
-                (await ep.ExecuteAsync(new() { Id = id }, default)).ShouldBe(id);
+                (await ep.ExecuteAsync(new() { Id = id }, CancellationToken.None)).ShouldBe(id);
             });
     }
 
     [Fact]
     public async Task list_element_validation_error()
     {
-        var ep = Factory.Create<TestCases.ValidationErrorTest.ListValidationErrorTestEndpoint>();
+        var ep = Factory.Create<ListValidationErrorTestEndpoint>();
         await ep.HandleAsync(
             new()
             {
                 NumbersList = [1, 2, 3]
             },
-            default);
+            CancellationToken.None);
 
         ep.ValidationFailed.ShouldBeTrue();
         ep.ValidationFailures.Count.ShouldBe(3);
@@ -322,7 +333,7 @@ public class WebTests
     [Fact]
     public async Task dict_element_validation_error()
     {
-        var ep = Factory.Create<TestCases.ValidationErrorTest.DictionaryValidationErrorTestEndpoint>();
+        var ep = Factory.Create<DictionaryValidationErrorTestEndpoint>();
         await ep.HandleAsync(
             new()
             {
@@ -332,7 +343,7 @@ public class WebTests
                     { "b", "2" }
                 }
             },
-            default);
+            CancellationToken.None);
 
         ep.ValidationFailed.ShouldBeTrue();
         ep.ValidationFailures.Count.ShouldBe(2);
@@ -343,7 +354,7 @@ public class WebTests
     [Fact]
     public async Task array_element_validation_error()
     {
-        var ep = Factory.Create<TestCases.ValidationErrorTest.ArrayValidationErrorTestEndpoint>();
+        var ep = Factory.Create<ArrayValidationErrorTestEndpoint>();
         await ep.HandleAsync(
             new()
             {
@@ -353,7 +364,7 @@ public class WebTests
                     "b"
                 ]
             },
-            default);
+            CancellationToken.None);
 
         ep.ValidationFailed.ShouldBeTrue();
         ep.ValidationFailures.Count.ShouldBe(2);
@@ -364,7 +375,7 @@ public class WebTests
     [Fact]
     public async Task array_element_object_property_validation_error()
     {
-        var ep = Factory.Create<TestCases.ValidationErrorTest.ObjectArrayValidationErrorTestEndpoint>();
+        var ep = Factory.Create<ObjectArrayValidationErrorTestEndpoint>();
         await ep.HandleAsync(
             new()
             {
@@ -374,7 +385,7 @@ public class WebTests
                     new() { Test = "b" }
                 ]
             },
-            default);
+            CancellationToken.None);
 
         ep.ValidationFailed.ShouldBeTrue();
         ep.ValidationFailures.Count.ShouldBe(2);
@@ -385,7 +396,7 @@ public class WebTests
     [Fact]
     public async Task list_in_list_validation_error()
     {
-        var ep = Factory.Create<TestCases.ValidationErrorTest.ListInListValidationErrorTestEndpoint>();
+        var ep = Factory.Create<ListInListValidationErrorTestEndpoint>();
         await ep.HandleAsync(
             new()
             {
@@ -395,7 +406,7 @@ public class WebTests
                     new() { 3, 4 }
                 ]
             },
-            default);
+            CancellationToken.None);
 
         ep.ValidationFailed.ShouldBeTrue();
         ep.ValidationFailures.Count.ShouldBe(4);

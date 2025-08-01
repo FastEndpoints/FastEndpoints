@@ -1,4 +1,5 @@
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using FluentValidation.Results;
@@ -536,7 +537,7 @@ public static class HttpResponseExtensions
     /// <param name="eventName">the name of the event stream</param>
     /// <param name="eventStream">an IAsyncEnumerable that is the source of the data</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    public static Task SendEventStreamAsync<T>(this HttpResponse rsp, string eventName, IAsyncEnumerable<T> eventStream, CancellationToken cancellation = default)
+    public static Task SendEventStreamAsync<T>(this HttpResponse rsp, string eventName, IAsyncEnumerable<T> eventStream, CancellationToken cancellation = default) where T : notnull
     {
         return SendEventStreamAsync(rsp, GetStreamItemAsyncEnumerable(eventName, eventStream, cancellation), cancellation);
 
@@ -565,13 +566,16 @@ public static class HttpResponseExtensions
         rsp.ContentType = "text/event-stream; charset=utf-8";
         rsp.Headers.CacheControl = "no-cache";
         rsp.Headers.Connection = "keep-alive";
+        rsp.Headers.Append("X-Accel-Buffering", "no");
 
         EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
 
         await rsp.Body.FlushAsync(ct);
 
         await foreach (var streamItem in eventStream.WithCancellation(ct))
-            await rsp.WriteAsync($"id: {streamItem.Id}\nevent: {streamItem.EventName}\ndata: {streamItem.GetDataString(SerOpts.Options)}\n\n", ct);
+        {
+            await rsp.WriteAsync($"id: {streamItem.Id}\nevent: {streamItem.EventName}\ndata: {streamItem.GetDataString(SerOpts.Options)}\nretry: {streamItem.Retry}\n\n", Encoding.UTF8, ct);
+        }
     }
 
     /// <summary>

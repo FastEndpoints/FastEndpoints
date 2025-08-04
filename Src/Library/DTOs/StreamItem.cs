@@ -4,7 +4,7 @@ namespace FastEndpoints;
 
 public class StreamItem
 {
-    /// <summary>event id, omitted when NULL</summary>
+    /// <summary>event id</summary>
     public string? Id { get; init; }
 
     /// <summary>event name</summary>
@@ -29,7 +29,7 @@ public class StreamItem
     /// <param name="id">the id of the event</param>
     /// <param name="eventName">the name of the event</param>
     /// <param name="data">the event data</param>
-    /// <param name="retry">reconnection time in seconds</param>
+    /// <param name="retry">reconnection time in milliseconds</param>
     public StreamItem(string? id, string eventName, object data, int? retry = null)
     {
         Id = id;

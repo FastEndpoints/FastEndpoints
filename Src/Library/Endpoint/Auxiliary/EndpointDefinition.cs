@@ -72,7 +72,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     int _preProcessorPosition;
     internal readonly List<IProcessor> PostProcessorList = [];
     int _postProcessorPosition;
-    internal object? RequestBinder;
+    internal object? EpRequestBinder;
     string? _reqDtoFromBodyPropName;
     internal string ReqDtoFromBodyPropName => _reqDtoFromBodyPropName ??= GetFromBodyPropName();
     ServiceBoundEpProp[]? _serviceBoundEpProps;
@@ -453,7 +453,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
         {
             if (!tProc.IsGenericType ||
                 tProc.GetGenericArguments().Length != 2 ||
-                !tProc.GetInterfaces().Any(t => t.IsGenericType && t.GetGenericTypeDefinition() == Types.PostProcessorOf2))
+                !tProc.GetInterfaces().Any(t => t.IsGenericType && t.GetGenericTypeDefinition() == Types.IPostProcessorOf2))
                 throw new InvalidOperationException($"[{tProc.FullName}] is not a valid open-generic post-processor for registering globally!");
 
             var tFinal = tProc.MakeGenericType(ReqDtoType, ResDtoType);
@@ -515,7 +515,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
         {
             if (!tProc.IsGenericType ||
                 tProc.GetGenericArguments().Length != 1 ||
-                !tProc.GetInterfaces().Any(t => t.IsGenericType && t.GetGenericTypeDefinition() == Types.PreProcessorOf1))
+                !tProc.GetInterfaces().Any(t => t.IsGenericType && t.GetGenericTypeDefinition() == Types.IPreProcessorOf1))
                 throw new InvalidOperationException($"[{tProc.FullName}] is not a valid open generic pre-processor for registering globally!");
 
             var tFinal = tProc.MakeGenericType(ReqDtoType);
@@ -529,6 +529,30 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
             {
                 throw new InvalidOperationException($"Could not find/construct processor type {tFinal.FullName}", ex);
             }
+        }
+    }
+
+    /// <summary>
+    /// sets an open-generic request binder for the endpoint.
+    /// </summary>
+    /// <param name="binderType">the open generic type of the request binder</param>
+    /// <exception cref="InvalidOperationException">thrown if the supplied binder type is not open generic.</exception>
+    public void RequestBinder(Type binderType)
+    {
+        if (!binderType.IsGenericType ||
+            binderType.GetGenericArguments().Length != 1 ||
+            !binderType.GetInterfaces().Any(t => t.IsGenericType && t.GetGenericTypeDefinition() == Types.IRequestBinderOf1))
+            throw new InvalidOperationException($"[{binderType.FullName}] is not a valid open generic request binder for registering globally!");
+
+        var tFinal = binderType.MakeGenericType(ReqDtoType);
+
+        try
+        {
+            EpRequestBinder = Cfg.ServiceResolver.CreateSingleton(tFinal);
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException($"Could not find/construct request binder type {tFinal.FullName}", ex);
         }
     }
 

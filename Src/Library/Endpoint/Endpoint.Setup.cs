@@ -520,7 +520,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     protected void RequestBinder(IRequestBinder<TRequest> binder)
     {
         Definition.ThrowIfLocked();
-        Definition.RequestBinder = binder;
+        Definition.EpRequestBinder = binder;
     }
 
     /// <summary>

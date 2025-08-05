@@ -49,6 +49,9 @@ static class Types
     internal static readonly Type IJobResultStorage = typeof(IJobResultStorage);
     internal static readonly Type IJobResultProvider = typeof(IJobResultProvider);
     internal static readonly Type IPlainTextRequest = typeof(IPlainTextRequest);
+    internal static readonly Type IPreProcessorOf1 = typeof(IPreProcessor<>);
+    internal static readonly Type IPostProcessorOf2 = typeof(IPostProcessor<,>);
+    internal static readonly Type IRequestBinderOf1 = typeof(IRequestBinder<>);
     internal static readonly Type IResult = typeof(IResult);
     internal static readonly Type ISummary = typeof(ISummary);
     internal static readonly Type IValidator = typeof(IValidator);
@@ -58,8 +61,6 @@ static class Types
     internal static readonly Type NonJsonBindingAttribute = typeof(NonJsonBindingAttribute);
     internal static readonly Type Object = typeof(object);
     internal static readonly Type ParseResult = typeof(ParseResult);
-    internal static readonly Type PreProcessorOf1 = typeof(IPreProcessor<>);
-    internal static readonly Type PostProcessorOf2 = typeof(IPostProcessor<,>);
     internal static readonly Type QueryParamAttribute = typeof(QueryParamAttribute);
     internal static readonly Type String = typeof(string);
     internal static readonly Type StringSegment = typeof(StringSegment);

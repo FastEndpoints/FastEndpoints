@@ -13,7 +13,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
                                                       CancellationToken ct)
     {
         var binder = (IRequestBinder<TRequest>)
-            (def.RequestBinder ??= Cfg.ServiceResolver.Resolve(typeof(IRequestBinder<TRequest>)));
+            (def.EpRequestBinder ??= Cfg.ServiceResolver.Resolve(typeof(IRequestBinder<TRequest>)));
 
         var binderCtx = new BinderContext(ctx, failures, def.SerializerContext, def.DontBindFormData, binder.RequiredProps);
 

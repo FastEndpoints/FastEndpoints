@@ -10,6 +10,39 @@ Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H
 
 ## New 🎉
 
+<details><summary>Specify a request binder per group</summary>
+
+It is now possible to register a particular open generic request binder such as the following:
+
+```csharp
+class MyBinder<TRequest> : RequestBinder<TRequest> where TRequest : notnull 
+{ 
+    public override async ValueTask<TRequest> BindAsync(BinderContext ctx, CancellationToken ct) 
+    { 
+        var req = await base.BindAsync(ctx, ct); // run the default binding logic
+ 
+        if (req is MyRequest r) 
+            r.SomeValue = Guid.NewGuid().ToString(); // do whatever you like
+ 
+        return req; 
+    } 
+} 
+```
+
+only for a certain group configuration, so that only endpoints of that group will have the above custom binder associated with them.
+
+```csharp
+sealed class MyGroup : Group 
+{ 
+    public MyGroup() 
+    { 
+        Configure("/my-group", ep => ep.RequestBinder(typeof(MyBinder<>))); 
+    } 
+} 
+```
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>SSE response standard compliance</summary>

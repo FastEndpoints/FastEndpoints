@@ -1,7 +1,5 @@
-﻿using Grpc.AspNetCore.Server.Model;
+using Grpc.AspNetCore.Server.Model;
 using Grpc.Core;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 namespace FastEndpoints;
 
@@ -25,21 +23,16 @@ sealed class ServerStreamHandlerExecutor<TCommand, THandler, TResult>
                                                       ServerCallContext ctx)
     {
         var svcProvider = ctx.GetHttpContext().RequestServices;
-        var appCancellation = svcProvider.GetRequiredService<IHostApplicationLifetime>().ApplicationStopping;
-        var cts = CancellationTokenSource.CreateLinkedTokenSource(ctx.CancellationToken, appCancellation);
         var handler = (THandler)HandlerFactory(svcProvider, null);
 
         // ReSharper disable once SuspiciousTypeConversion.Global
         if (handler is IHasServerCallContext scc)
             scc.ServerCallContext = ctx;
 
-        await foreach (var item in handler.ExecuteAsync(cmd, cts.Token))
+        await foreach (var item in handler.ExecuteAsync(cmd, ctx.CancellationToken))
         {
-            try
-            {
-                await responseStream.WriteAsync(item, cts.Token);
-            }
-            catch (OperationCanceledException) { }
+            
+            await responseStream.WriteAsync(item, ctx.CancellationToken);
         }
     }
 }

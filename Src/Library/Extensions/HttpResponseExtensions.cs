@@ -6,6 +6,7 @@ using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using static FastEndpoints.Config;
 
 namespace FastEndpoints;
@@ -560,6 +561,8 @@ public static class HttpResponseExtensions
     public static async Task SendEventStreamAsync(this HttpResponse rsp, IAsyncEnumerable<StreamItem> eventStream, CancellationToken cancellation = default)
     {
         var ct = cancellation.IfDefault(rsp);
+        var applicationStopping = rsp.HttpContext.RequestServices.GetRequiredService<IHostApplicationLifetime>().ApplicationStopping;
+        var cts = CancellationTokenSource.CreateLinkedTokenSource(ct, applicationStopping);
 
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 200;
@@ -572,9 +575,19 @@ public static class HttpResponseExtensions
 
         await rsp.Body.FlushAsync(ct);
 
-        await foreach (var streamItem in eventStream.WithCancellation(ct))
+        try
         {
-            await rsp.WriteAsync($"id: {streamItem.Id}\nevent: {streamItem.EventName}\ndata: {streamItem.GetDataString(SerOpts.Options)}\nretry: {streamItem.Retry}\n\n", Encoding.UTF8, ct);
+            await foreach (var streamItem in eventStream.WithCancellation(cts.Token))
+            {
+                await rsp.WriteAsync($"id: {streamItem.Id}\nevent: {streamItem.EventName}\ndata: {streamItem.GetDataString(SerOpts.Options)}\nretry: {streamItem.Retry}\n\n", Encoding.UTF8, cts.Token);
+            }
+        }
+        catch (TaskCanceledException) { }
+        finally
+        {
+            // Flush the buffer only if the client did not trigger the cancellation
+            if (!ct.IsCancellationRequested)
+                await rsp.Body.FlushAsync(CancellationToken.None);
         }
     }
 

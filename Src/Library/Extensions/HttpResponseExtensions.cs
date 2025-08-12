@@ -582,7 +582,7 @@ public static class HttpResponseExtensions
                 await rsp.WriteAsync($"id: {streamItem.Id}\nevent: {streamItem.EventName}\ndata: {streamItem.GetDataString(SerOpts.Options)}\nretry: {streamItem.Retry}\n\n", Encoding.UTF8, cts.Token);
             }
         }
-        catch (TaskCanceledException) { }
+        catch (OperationCanceledException) { }
         finally
         {
             // Flush the buffer only if the client did not trigger the cancellation

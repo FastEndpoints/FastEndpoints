@@ -39,7 +39,7 @@ sealed class ServerStreamHandlerExecutor<TCommand, THandler, TResult>
             {
                 await responseStream.WriteAsync(item, cts.Token);
             }
-            catch (TaskCanceledException) { }
+            catch (OperationCanceledException) { }
         }
     }
 }

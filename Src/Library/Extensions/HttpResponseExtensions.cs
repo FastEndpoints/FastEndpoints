@@ -562,7 +562,6 @@ public static class HttpResponseExtensions
     {
         var ct = cancellation.IfDefault(rsp);
         var applicationStopping = rsp.HttpContext.RequestServices.GetRequiredService<IHostApplicationLifetime>().ApplicationStopping;
-        var cts = CancellationTokenSource.CreateLinkedTokenSource(ct, applicationStopping);
 
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 200;
@@ -577,7 +576,7 @@ public static class HttpResponseExtensions
 
         try
         {
-            await foreach (var streamItem in eventStream.WithCancellation(cts.Token))
+            await foreach (var streamItem in eventStream.WithCancellation(applicationStopping))
             {
                 await rsp.WriteAsync($"id: {streamItem.Id}\nevent: {streamItem.EventName}\ndata: {streamItem.GetDataString(SerOpts.Options)}\nretry: {streamItem.Retry}\n\n", Encoding.UTF8, cts.Token);
             }

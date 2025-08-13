@@ -71,7 +71,7 @@ public override async Task HandleAsync(CancellationToken ct)
         {
             await Task.Delay(1000, ct);
 
-            yield return new StreamItem(id.ToString(), "even-second", "hello!");
+            yield return new StreamItem(Guid.NewGuid(), "your-event-type", 42);
         }
     }
 }

@@ -55,6 +55,32 @@ yield return new StreamItem("my-event", myData, 3000);
 
 </details>
 
+<details><summary>Application host respecting shutdown when using SSE</summary>
+
+The SSE implementation now passes the ApplicationStopping CancellationToken to your IAsyncEnumerable method. This means that streaming is cancelled at least when the application host is shutting down, and also when an user provided CancellationToken (if provided) triggeres it.
+
+```csharp
+public override async Task HandleAsync(CancellationToken ct)
+{
+    await Send.EventStreamAsync(GetMultiDataStream(ct), ct);
+
+    async IAsyncEnumerable<StreamItem> GetMultiDataStream([EnumeratorCancellation] CancellationToken ct)
+    {
+        // Here ct is now your user provided CancellationToken combined with the ApplicationStopping CancellationToken.
+        while (!ct.IsCancellationRequested)
+        {
+            await Task.Delay(1000, ct);
+
+            yield return new StreamItem(id.ToString(), "even-second", "hello!");
+        }
+    }
+}
+```
+
+</details>
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>Incorrect enum value for JWT security algorithm was used</summary>

@@ -75,4 +75,17 @@ var token = JwtBearer.CreateToken(
 
 </details>
 
+
+<details><summary>Integration testing extensions ignoring custom header names</summary>
+
+The testing httpclient extensions were ignoring user supplied custom header names such as the following:
+
+```csharp
+[FromHeader("x-something")]
+```
+
+during the constructing of the http request message. It was instead using the DTO property name completely dismissing the custom header names.
+
+</details>
+
 ## Breaking Changes ⚠️

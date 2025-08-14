@@ -376,7 +376,7 @@ public static class HttpClientExtensions
         msg.Headers.Add(Constants.RoutelessTest, "true");
 
         if (populateHeaders)
-            PopulateHeaders(msg.Headers, request);
+            PopulateHeaders(msg, request);
 
         var rsp = await client.SendAsync(msg);
 
@@ -411,14 +411,31 @@ public static class HttpClientExtensions
         return new(rsp, res!);
     }
 
-    static void PopulateHeaders<TRequest>(HttpRequestHeaders headers, TRequest req) where TRequest : notnull
+    static readonly string[] contentHeaders =
+    {
+        "Content-Encoding",
+        "Content-Language",
+        "Content-Length",
+        "Content-Location",
+        "Content-MD5",
+        "Content-Range",
+        "Content-Type"
+    };
+
+    static void PopulateHeaders<TRequest>(HttpRequestMessage reqMsg, TRequest req) where TRequest : notnull
     {
         var hdrProps = req.GetType()
                           .BindableProps()
                           .Where(p => p.GetCustomAttribute<FromHeaderAttribute>()?.IsRequired is true);
 
         foreach (var prop in hdrProps)
-            headers.Add(prop.FieldName(), prop.GetValueAsString(req));
+        {
+            var headerName = prop.GetCustomAttribute<FromHeaderAttribute>()?.HeaderName ?? prop.FieldName();
+            var headerValue = prop.GetValueAsString(req);
+
+            if (!contentHeaders.Contains(headerName, StringComparer.OrdinalIgnoreCase))
+                reqMsg.Headers.Add(headerName, headerValue);
+        }
     }
 
     static string GetTestUrlFor<TEndpoint, TRequest>(TRequest req) where TRequest : notnull

@@ -55,9 +55,9 @@ yield return new StreamItem("my-event", myData, 3000);
 
 </details>
 
-<details><summary>Application host respecting shutdown when using SSE</summary>
+<details><summary>Respect app shutdown when using SSE</summary>
 
-The SSE implementation now passes the ApplicationStopping CancellationToken to your IAsyncEnumerable method. This means that streaming is cancelled at least when the application host is shutting down, and also when an user provided CancellationToken (if provided) triggeres it.
+The SSE implementation now passes the `ApplicationStopping` cancellation token to your `IAsyncEnumerable` method. This means that streaming is cancelled at least when the application host is shutting down, and also when a user provided `CancellationToken` (if provided) triggers it.
 
 ```csharp
 public override async Task HandleAsync(CancellationToken ct)
@@ -76,8 +76,6 @@ public override async Task HandleAsync(CancellationToken ct)
     }
 }
 ```
-
-</details>
 
 </details>
 

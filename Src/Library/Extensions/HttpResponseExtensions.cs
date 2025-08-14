@@ -538,7 +538,8 @@ public static class HttpResponseExtensions
     /// <param name="eventName">the name of the event stream</param>
     /// <param name="eventStream">an IAsyncEnumerable that is the source of the data</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    public static Task SendEventStreamAsync<T>(this HttpResponse rsp, string eventName, IAsyncEnumerable<T> eventStream, CancellationToken cancellation = default) where T : notnull
+    public static Task SendEventStreamAsync<T>(this HttpResponse rsp, string eventName, IAsyncEnumerable<T> eventStream, CancellationToken cancellation = default)
+        where T : notnull
     {
         return SendEventStreamAsync(rsp, GetStreamItemAsyncEnumerable(eventName, eventStream, cancellation), cancellation);
 
@@ -573,14 +574,16 @@ public static class HttpResponseExtensions
         await rsp.Body.FlushAsync(ct);
 
         var applicationStopping = rsp.HttpContext.RequestServices.GetRequiredService<IHostApplicationLifetime>().ApplicationStopping;
+
         try
         {
             // Pass the ApplicationStopping CancellationToken to the IAsyncEnumerable, the framework will combine it automatically with any user provided token.
             // This makes sure that the stream at least stops when the host is shutting down.
             await foreach (var streamItem in eventStream.WithCancellation(applicationStopping))
-            {
-                await rsp.WriteAsync($"id: {streamItem.Id}\nevent: {streamItem.EventName}\ndata: {streamItem.GetDataString(SerOpts.Options)}\nretry: {streamItem.Retry}\n\n", Encoding.UTF8, ct);
-            }
+                await rsp.WriteAsync(
+                    $"id: {streamItem.Id}\nevent: {streamItem.EventName}\ndata: {streamItem.GetDataString(SerOpts.Options)}\nretry: {streamItem.Retry}\n\n",
+                    Encoding.UTF8,
+                    ct);
         }
         catch (OperationCanceledException) { }
         finally

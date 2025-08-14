@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using TestCases.EventStreamTest;
 using TestCases.ProcessorStateTest;
@@ -218,6 +219,12 @@ public class WebTests
             httpContext =>
             {
                 httpContext.Response.Body = responseStream;
+                httpContext.AddTestServices(s => s.AddSingleton(sp =>
+                {
+                    var fake = new Fake<IHostApplicationLifetime>();
+                    fake.CallsTo(x => x.ApplicationStopping).Returns(CancellationToken.None);
+                    return fake.FakedObject;
+                }));
             });
         var eventName = "some-notification";
         var notifications = new[]

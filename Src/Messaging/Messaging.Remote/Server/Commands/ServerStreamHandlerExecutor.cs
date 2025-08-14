@@ -1,4 +1,4 @@
-﻿using Grpc.AspNetCore.Server.Model;
+using Grpc.AspNetCore.Server.Model;
 using Grpc.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;

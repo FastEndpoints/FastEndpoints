@@ -79,6 +79,35 @@ public override async Task HandleAsync(CancellationToken ct)
 
 </details>
 
+<details><summary>Customize error response builder func when using 'ProblemDetails'</summary>
+
+You can now specify a custom response builder function when doing `.UseProblemDetails()` as shown below in case you have a special requirement to use a certain shape
+for one or more of your endpoints while the rest of the endpoints use the standard response.
+
+```csharp
+app.UseFastEndpoints(
+       c => c.Errors.UseProblemDetails(
+           p =>
+           {
+               p.ResponseBuilder = (failures, ctx, statusCode) =>
+                                   {
+                                       if (ctx.Request.Path.StartsWithSegments("/group-name"))
+                                       {
+                                           // return any shape you want to be serialized
+                                           return new
+                                           {
+                                               Errors = failures
+                                           };
+                                       }
+
+                                       // anything else will use the standard problem details.
+                                       return new ProblemDetails(failures, ctx.Request.Path, ctx.TraceIdentifier, statusCode);
+                                   };
+           }))
+```
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>Incorrect enum value for JWT security algorithm was used</summary>

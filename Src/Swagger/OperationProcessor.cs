@@ -232,7 +232,7 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
                     //fix nswag byte[] quirk
                     foreach (var content in rsp.Value.Content.Values)
                     {
-                        if (content.Schema != null && content.Schema.Type == JsonObjectType.String && content.Schema.Format == "byte")
+                        if (content.Schema is { Type: JsonObjectType.String, Format: "byte" })
                             content.Schema.Format = "binary";
                     }
                 }
@@ -869,6 +869,7 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
         return prm;
     }
 
+    // ReSharper disable once ArrangeTypeMemberModifiers
     internal readonly partial struct ParamCreationContext
     {
         public OperationProcessorContext OpCtx { get; }

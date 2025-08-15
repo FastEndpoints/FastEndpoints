@@ -56,8 +56,8 @@ public sealed class ErrorOptions
     public void UseProblemDetails(Action<ProblemDetailsConfig>? config = null)
     {
         ProducesMetadataType = typeof(ProblemDetails);
-        ResponseBuilder = ProblemDetailsConf.ResponseBuilder;
         config?.Invoke(ProblemDetailsConf);
+        ResponseBuilder = ProblemDetailsConf.ResponseBuilder;
     }
 
     internal ProblemDetailsConfig ProblemDetailsConf { get; } = new();

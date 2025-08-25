@@ -10,5 +10,6 @@ public enum Source
 {
     FormField = 1 << 0,
     RouteParam = 1 << 1,
-    QueryParam = 1 << 2
+    QueryParam = 1 << 2,
+    All = FormField | RouteParam | QueryParam,
 }

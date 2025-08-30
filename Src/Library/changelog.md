@@ -6,7 +6,7 @@ Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H
 
 ---
 
-<!-- <details><summary>title text</summary></details> -->
+[//]: # (<details><summary>title text</summary></details>)
 
 ## New 🎉
 
@@ -138,6 +138,39 @@ The testing httpclient extensions were ignoring user supplied custom header name
 ```
 
 during the constructing of the http request message. It was instead using the DTO property name completely dismissing the custom header names.
+
+</details>
+
+<details><summary>Integration test extensions causing 404 if grouped endpoint configured with empty string</summary>
+
+The test helper methods were constructing the url/route of the endpoint being tested if that endpoint belonged to a group and was configured with an empty route like so:
+
+```csharp
+sealed class MyGroup : Group 
+{ 
+    public MyGroup() 
+    { 
+        Configure("my-group", ep => ep.AllowAnonymous()); 
+    } 
+} 
+ 
+sealed class Request 
+{ 
+    [QueryParam] 
+    public string Id { get; set; } 
+} 
+ 
+sealed class RootEndpoint : Endpoint<Request, string> 
+{ 
+    public override void Configure() 
+    { 
+        Get(string.Empty); 
+        Group<MyGroup>(); 
+    } 
+ 
+    ...
+}
+```
 
 </details>
 

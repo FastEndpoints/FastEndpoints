@@ -1,7 +1,6 @@
 // ReSharper disable InconsistentNaming
 
 using System.Collections;
-using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Reflection;
 using System.Text;
@@ -412,7 +411,7 @@ public static class HttpClientExtensions
     }
 
     static readonly string[] contentHeaders =
-    {
+    [
         "Content-Encoding",
         "Content-Language",
         "Content-Length",
@@ -420,7 +419,7 @@ public static class HttpClientExtensions
         "Content-MD5",
         "Content-Range",
         "Content-Type"
-    };
+    ];
 
     static void PopulateHeaders<TRequest>(HttpRequestMessage reqMsg, TRequest req) where TRequest : notnull
     {
@@ -458,7 +457,8 @@ public static class HttpClientExtensions
         //split url into route segments, iterate and replace param names with values from matching dto props
         //while rebuilding the url back up again into a string builder
         StringBuilder sb = new();
-        var routeSegments = IEndpoint.TestURLFor<TEndpoint>().Split('/');
+        var routeSegments = IEndpoint.TestURLFor<TEndpoint>()
+                                     .Split('/', StringSplitOptions.RemoveEmptyEntries); // group root endpoints are allowed to set string.empty #988
 
         foreach (var segment in routeSegments)
         {

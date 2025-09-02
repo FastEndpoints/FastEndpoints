@@ -2,6 +2,7 @@
 using System.Text.Json.Serialization;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 
 namespace FastEndpoints;
 
@@ -14,6 +15,14 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     {
         var binder = (IRequestBinder<TRequest>)
             (def.EpRequestBinder ??= Cfg.ServiceResolver.Resolve(typeof(IRequestBinder<TRequest>)));
+
+        if (def.MaxRequestSize > 0)
+        {
+            var feature = ctx.Features.Get<IHttpMaxRequestBodySizeFeature>();
+
+            if (feature?.IsReadOnly is false)
+                feature.MaxRequestBodySize = def.MaxRequestSize;
+        }
 
         var binderCtx = new BinderContext(ctx, failures, def.SerializerContext, def.DontBindFormData, binder.RequiredProps);
 

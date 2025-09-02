@@ -6,6 +6,7 @@ using System.Text.Json.Serialization.Metadata;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc;
 using static FastEndpoints.Config;
@@ -68,6 +69,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     internal HitCounter? HitCounter { get; private set; }
     internal bool ImplementsConfigure;
     internal bool IsLocked;
+    internal long? MaxRequestSize { get; private set; }
     internal readonly List<IProcessor> PreProcessorList = [];
     int _preProcessorPosition;
     internal readonly List<IProcessor> PostProcessorList = [];
@@ -320,6 +322,17 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
         ThrowIfLocked();
         IdempotencyOptions ??= new();
         options?.Invoke(IdempotencyOptions);
+    }
+
+    /// <summary>
+    /// specify a custom maximum request body size to be set on <see cref="IHttpMaxRequestBodySizeFeature.MaxRequestBodySize" /> which would apply to this particular
+    /// endpoint only. typically useful with <see cref="AllowFormData" /> and <see cref="AllowFileUploads" />.
+    /// </summary>
+    /// <param name="size"></param>
+    public void MaxRequestBodySize(long size)
+    {
+        ThrowIfLocked();
+        MaxRequestSize = size;
     }
 
     /// <summary>

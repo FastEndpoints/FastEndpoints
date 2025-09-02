@@ -43,6 +43,21 @@ sealed class MyGroup : Group
 
 </details>
 
+<details><summary>Specify max request body size per endpoint</summary>
+
+Instead of globally increasing the max request body size in Kestrel, you can now set a max body size per endpoint where necessary like so:
+
+```csharp
+public override void Configure()
+{
+    Post("/file-upload");
+    AllowFileUploads();
+    MaxRequestBodySize(50 * 1024 * 1024);
+}
+```
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>SSE response standard compliance</summary>

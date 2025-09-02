@@ -7,6 +7,7 @@ using FluentValidation;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc;
 
@@ -298,6 +299,14 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <param name="options">the idempotency options</param>
     protected void Idempotency(Action<IdempotencyOptions>? options = null)
         => Definition.Idempotency(options);
+
+    /// <summary>
+    /// specify a custom maximum request body size to be set on <see cref="IHttpMaxRequestBodySizeFeature.MaxRequestBodySize" /> which would apply to this particular
+    /// endpoint only. typically useful with <see cref="AllowFormData" /> and <see cref="AllowFileUploads" />.
+    /// </summary>
+    /// <param name="size"></param>
+    protected void MaxRequestBodySize(long size)
+        => Definition.MaxRequestBodySize(size);
 
     /// <summary>
     /// set endpoint configurations options using an endpoint builder action ///

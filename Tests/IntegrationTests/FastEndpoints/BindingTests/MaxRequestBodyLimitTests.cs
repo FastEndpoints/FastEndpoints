@@ -12,15 +12,15 @@ public class MaxRequestBodyLimitTests : IAsyncLifetime
     public MaxRequestBodyLimitTests()
     {
         var bld = WebApplication.CreateBuilder();
-        bld.WebHost.ConfigureKestrel(
-            o =>
-            {
-                o.Limits.MaxRequestBodySize = 100; //this doesn't work with WAF/TestServer :-(
-                o.ListenLocalhost(100);
-            });
+        bld.WebHost.ConfigureKestrel(o => o.ListenLocalhost(100));
         bld.Services.AddFastEndpoints(o => o.Filter = t => t == typeof(Endpoint));
         var app = bld.Build();
-        app.UseFastEndpoints(c => c.Binding.FormExceptionTransformer = ex => new("formErrors", ex.Message));
+        app.UseFastEndpoints(
+            c =>
+            {
+                c.Endpoints.Configurator = ep => ep.MaxRequestBodySize(100);
+                c.Binding.FormExceptionTransformer = ex => new("formErrors", ex.Message);
+            });
         _app = app;
     }
 
@@ -62,6 +62,7 @@ public class MaxRequestBodyLimitTests : IAsyncLifetime
             Post("max-req-body-size-limit");
             AllowAnonymous();
             AllowFileUploads();
+            MaxRequestBodySize(1);
         }
 
         public override async Task HandleAsync(Request r, CancellationToken c)

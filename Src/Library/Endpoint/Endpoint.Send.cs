@@ -291,6 +291,13 @@ public readonly struct ResponseSender<TRequest, TResponse>(Endpoint<TRequest, TR
         => ep.HttpContext.Response.SendNotFoundAsync(cancellation);
 
     /// <summary>
+    /// send a 406 not acceptable response
+    /// </summary>
+    /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
+    public Task NotAcceptableAsync(CancellationToken cancellation = default)
+        => ep.HttpContext.Response.SendNotAcceptableAsync(cancellation);
+
+    /// <summary>
     /// send a 401 unauthorized response
     /// </summary>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>

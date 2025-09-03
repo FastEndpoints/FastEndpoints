@@ -13,6 +13,15 @@ namespace FastEndpoints;
 
 public static class HttpResponseExtensions
 {
+    private static Task SendResponseCodeAsync(this HttpResponse rsp, int statusCode, CancellationToken cancellation = default) {
+        rsp.HttpContext.MarkResponseStart();
+        rsp.StatusCode = statusCode;
+
+        EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
+
+        return rsp.StartAsync(cancellation.IfDefault(rsp));
+    }
+
     /// <summary>
     /// send the supplied response dto serialized as json to the client.
     /// </summary>
@@ -281,15 +290,8 @@ public static class HttpResponseExtensions
     /// send an http 200 ok response without a body.
     /// </summary>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    public static Task SendOkAsync(this HttpResponse rsp, CancellationToken cancellation = default)
-    {
-        rsp.HttpContext.MarkResponseStart();
-        rsp.StatusCode = 200;
-
-        EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
-
-        return rsp.StartAsync(cancellation.IfDefault(rsp));
-    }
+    public static Task SendOkAsync(this HttpResponse rsp, CancellationToken cancellation = default) =>
+        SendResponseCodeAsync(rsp, StatusCodes.Status200OK, cancellation);
 
     /// <summary>
     /// send an http 200 ok response with the supplied response dto serialized as json to the client.
@@ -343,57 +345,36 @@ public static class HttpResponseExtensions
     /// send a 204 no content response
     /// </summary>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    public static Task SendNoContentAsync(this HttpResponse rsp, CancellationToken cancellation = default)
-    {
-        rsp.HttpContext.MarkResponseStart();
-        rsp.StatusCode = 204;
-
-        EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
-
-        return rsp.StartAsync(cancellation.IfDefault(rsp));
-    }
+    public static Task SendNoContentAsync(this HttpResponse rsp, CancellationToken cancellation = default) =>
+        SendResponseCodeAsync(rsp, StatusCodes.Status204NoContent, cancellation);
 
     /// <summary>
     /// send a 404 not found response
     /// </summary>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    public static Task SendNotFoundAsync(this HttpResponse rsp, CancellationToken cancellation = default)
-    {
-        rsp.HttpContext.MarkResponseStart();
-        rsp.StatusCode = 404;
+    public static Task SendNotFoundAsync(this HttpResponse rsp, CancellationToken cancellation = default) =>
+        SendResponseCodeAsync(rsp, StatusCodes.Status404NotFound, cancellation);
 
-        EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
-
-        return rsp.StartAsync(cancellation.IfDefault(rsp));
-    }
+    /// <summary>
+    /// send a 406 not acceptable response
+    /// </summary>
+    /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
+    public static Task SendNotAcceptableAsync(this HttpResponse rsp, CancellationToken cancellation = default) =>
+        SendResponseCodeAsync(rsp, StatusCodes.Status406NotAcceptable, cancellation);
 
     /// <summary>
     /// send a 401 unauthorized response
     /// </summary>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    public static Task SendUnauthorizedAsync(this HttpResponse rsp, CancellationToken cancellation = default)
-    {
-        rsp.HttpContext.MarkResponseStart();
-        rsp.StatusCode = 401;
-
-        EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
-
-        return rsp.StartAsync(cancellation.IfDefault(rsp));
-    }
+    public static Task SendUnauthorizedAsync(this HttpResponse rsp, CancellationToken cancellation = default) =>
+        SendResponseCodeAsync(rsp, StatusCodes.Status401Unauthorized, cancellation);
 
     /// <summary>
     /// send a 403 unauthorized response
     /// </summary>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    public static Task SendForbiddenAsync(this HttpResponse rsp, CancellationToken cancellation = default)
-    {
-        rsp.HttpContext.MarkResponseStart();
-        rsp.StatusCode = 403;
-
-        EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
-
-        return rsp.StartAsync(cancellation.IfDefault(rsp));
-    }
+    public static Task SendForbiddenAsync(this HttpResponse rsp, CancellationToken cancellation = default) =>
+        SendResponseCodeAsync(rsp, StatusCodes.Status403Forbidden, cancellation);
 
     /// <summary>
     /// send a 302/301 redirect response
@@ -417,12 +398,8 @@ public static class HttpResponseExtensions
                                         CancellationToken cancellation = default)
     {
         headers(rsp.Headers);
-        rsp.HttpContext.MarkResponseStart();
-        rsp.StatusCode = statusCode;
 
-        EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
-
-        return rsp.StartAsync(cancellation.IfDefault(rsp));
+        return SendResponseCodeAsync(rsp, statusCode, cancellation);
     }
 
     /// <summary>

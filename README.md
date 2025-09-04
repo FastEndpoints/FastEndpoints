@@ -16,6 +16,12 @@ Please visit the official website for detailed documentation.
 
 ## Meet Our Sponsors:
 
+[![Sent](.images/sent.png)](https://sent.dm)
+
+[Sent Unified Messaging API](https://sent.dm) - Sent is a unified API for messaging across SMS, RCS, and apps like WhatsApp.
+
+---
+
 - [VeeFriends](https://veefriends.com/) - VeeFriends is an innovative entertainment company that uses its unique art, compelling storytelling, and collectibles to enhance its intellectual property.
 
 - [EKBY'S](#) - EKBY'S provides digital sales & marketing solutions to the Food & Beverage industry.
@@ -23,3 +29,4 @@ Please visit the official website for detailed documentation.
 - [Pique Events](#) - Pique Events allows couples to search, compare and book their All Inclusive Wedding Package in one place.
 
 - [Hungry Minds](#) - Hungry Minds is an online platform for learning and sharing knowledge with an intricately woven community of like minded people.
+

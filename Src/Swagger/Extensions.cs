@@ -423,7 +423,7 @@ public static class Extensions
         var visitedSchemas = new HashSet<JsonSchema>();
         const int maxDepth = 100;
 
-        TraverseProperties(string.Empty, allProperties.ToDictionary(p => p.Key, p => p.Value), res, visitedSchemas, 0, maxDepth);
+        TraverseProperties(string.Empty, allProperties.DistinctBy(p => p.Key).ToDictionary(p => p.Key, p => p.Value), res, visitedSchemas, 0, maxDepth);
 
         return res;
 

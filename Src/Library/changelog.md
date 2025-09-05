@@ -10,6 +10,50 @@ Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H
 
 ## New 🎉
 
+<details><summary>Specify max request body size per endpoint</summary>
+
+Instead of globally increasing the max request body size in Kestrel, you can now set a max body size per endpoint where necessary like so:
+
+```csharp
+public override void Configure()
+{
+    Post("/file-upload");
+    AllowFileUploads();
+    MaxRequestBodySize(50 * 1024 * 1024);
+}
+```
+
+</details>
+
+<details><summary>Customize error response builder func when using 'ProblemDetails'</summary>
+
+You can now specify a custom response builder function when doing `.UseProblemDetails()` as shown below in case you have a special requirement to use a certain shape
+for one or more of your endpoints while the rest of the endpoints use the standard response.
+
+```csharp
+app.UseFastEndpoints(
+       c => c.Errors.UseProblemDetails(
+           p =>
+           {
+               p.ResponseBuilder = (failures, ctx, statusCode) =>
+                                   {
+                                       if (ctx.Request.Path.StartsWithSegments("/group-name"))
+                                       {
+                                           // return any shape you want to be serialized
+                                           return new
+                                           {
+                                               Errors = failures
+                                           };
+                                       }
+
+                                       // anything else will use the standard problem details.
+                                       return new ProblemDetails(failures, ctx.Request.Path, ctx.TraceIdentifier, statusCode);
+                                   };
+           }))
+```
+
+</details>
+
 <details><summary>Specify a request binder per group</summary>
 
 It is now possible to register a particular open generic request binder such as the following:
@@ -39,21 +83,6 @@ sealed class MyGroup : Group
         Configure("/my-group", ep => ep.RequestBinder(typeof(MyBinder<>))); 
     } 
 } 
-```
-
-</details>
-
-<details><summary>Specify max request body size per endpoint</summary>
-
-Instead of globally increasing the max request body size in Kestrel, you can now set a max body size per endpoint where necessary like so:
-
-```csharp
-public override void Configure()
-{
-    Post("/file-upload");
-    AllowFileUploads();
-    MaxRequestBodySize(50 * 1024 * 1024);
-}
 ```
 
 </details>
@@ -94,35 +123,6 @@ public override async Task HandleAsync(CancellationToken ct)
 
 </details>
 
-<details><summary>Customize error response builder func when using 'ProblemDetails'</summary>
-
-You can now specify a custom response builder function when doing `.UseProblemDetails()` as shown below in case you have a special requirement to use a certain shape
-for one or more of your endpoints while the rest of the endpoints use the standard response.
-
-```csharp
-app.UseFastEndpoints(
-       c => c.Errors.UseProblemDetails(
-           p =>
-           {
-               p.ResponseBuilder = (failures, ctx, statusCode) =>
-                                   {
-                                       if (ctx.Request.Path.StartsWithSegments("/group-name"))
-                                       {
-                                           // return any shape you want to be serialized
-                                           return new
-                                           {
-                                               Errors = failures
-                                           };
-                                       }
-
-                                       // anything else will use the standard problem details.
-                                       return new ProblemDetails(failures, ctx.Request.Path, ctx.TraceIdentifier, statusCode);
-                                   };
-           }))
-```
-
-</details>
-
 ## Fixes 🪲
 
 <details><summary>Incorrect enum value for JWT security algorithm was used</summary>
@@ -158,7 +158,7 @@ during the constructing of the http request message. It was instead using the DT
 
 <details><summary>Integration test extensions causing 404 if grouped endpoint configured with empty string</summary>
 
-The test helper methods were constructing the url/route of the endpoint being tested if that endpoint belonged to a group and was configured with an empty route like so:
+The test helper methods were constructing the url/route of the endpoint being tested incorrectly if that endpoint belonged to a group and was configured with an empty route like so:
 
 ```csharp
 sealed class MyGroup : Group 
@@ -184,6 +184,24 @@ sealed class RootEndpoint : Endpoint<Request, string>
     } 
  
     ...
+}
+```
+
+</details>
+
+<details><summary>Swagger generation failing when DTO inherits a virtual base property</summary>
+
+When a base class has a virtual property that a derived class was overriding as shown below, Swagger generator was throwing an exception due an internal dictionary key duplication.
+
+```csharp
+public abstract class BaseDto
+{
+    public virtual string Name { get; set; }
+}
+
+sealed class DerivedClass : BaseDto
+{
+    public override string Name { get; set; }
 }
 ```
 

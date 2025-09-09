@@ -498,6 +498,7 @@ public static class HttpClientExtensions
             sb.Append(propVal);
             sb.Append('/');
         }
+        sb.Remove(sb.Length - 1, 1); //remove the last '/'
 
         //append query parameters if there's any props decorated with [QueryParam]
         var queryParamProps = reqProps.Where(p => p.Value.GetCustomAttribute<DontBindAttribute>()?.BindingSources.HasFlag(Source.QueryParam) is false).ToArray();
@@ -508,9 +509,11 @@ public static class HttpClientExtensions
 
             foreach (var qp in queryParamProps)
                 sb.Append(qp.Key).Append('=').Append(qp.Value.GetValueAsString(req)).Append('&');
+
+            sb.Remove(sb.Length - 1, 1); //remove the last '&'
         }
 
-        return sb.Remove(sb.Length - 1, 1).ToString();
+        return sb.ToString();
     }
 
     static MultipartFormDataContent ToForm<TRequest>(this TRequest req)

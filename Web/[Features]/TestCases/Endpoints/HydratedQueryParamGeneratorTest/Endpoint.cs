@@ -84,8 +84,8 @@ sealed class Endpoint : Endpoint<Request, Response>
             Nested = HttpContext.Request.Query["nested"]!,
             Guids = HttpContext.Request.Query["guids"]!,
             Some = HttpContext.Request.Query["some"]!,
-            ComplexId = pathSegments?[^3] ?? "",
-            ComplexIdString = pathSegments?[^2] ?? ""
+            ComplexId = pathSegments?[^2] ?? "",
+            ComplexIdString = pathSegments?[^1] ?? ""
         };
 
         return Task.CompletedTask;

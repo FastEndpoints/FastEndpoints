@@ -1,5 +1,5 @@
 {
-  "x-generator": "NSwag v14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))",
+  "x-generator": "NSwag v14.5.0.0 (NJsonSchema v11.4.0.0 (Newtonsoft.Json v13.0.0.0))",
   "openapi": "3.0.0",
   "info": {
     "title": "FastEndpoints Sandbox",
@@ -6084,6 +6084,28 @@
       "FastEndpointsHttp": {
         "type": "integer",
         "description": "enum for specifying a http verb",
+        "x-enum-names": [
+          "GET",
+          "POST",
+          "PUT",
+          "PATCH",
+          "DELETE",
+          "HEAD",
+          "OPTIONS",
+          "CONNECT",
+          "TRACE"
+        ],
+        "x-enum-varnames": [
+          "GET",
+          "POST",
+          "PUT",
+          "PATCH",
+          "DELETE",
+          "HEAD",
+          "OPTIONS",
+          "CONNECT",
+          "TRACE"
+        ],
         "x-enumNames": [
           "GET",
           "POST",
@@ -6094,6 +6116,28 @@
           "OPTIONS",
           "CONNECT",
           "TRACE"
+        ],
+        "x-enum-descriptions": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "x-enumDescriptions": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
         ],
         "enum": [
           1,
@@ -6227,6 +6271,24 @@
       "SystemDayOfWeek": {
         "type": "integer",
         "description": "",
+        "x-enum-names": [
+          "Sunday",
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday"
+        ],
+        "x-enum-varnames": [
+          "Sunday",
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday"
+        ],
         "x-enumNames": [
           "Sunday",
           "Monday",
@@ -6235,6 +6297,24 @@
           "Thursday",
           "Friday",
           "Saturday"
+        ],
+        "x-enum-descriptions": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "x-enumDescriptions": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
         ],
         "enum": [
           0,
@@ -6317,10 +6397,30 @@
       "TestCasesQueryObjectBindingTestByteEnum": {
         "type": "integer",
         "description": "",
+        "x-enum-names": [
+          "Check",
+          "Test",
+          "AnotherCheck"
+        ],
+        "x-enum-varnames": [
+          "Check",
+          "Test",
+          "AnotherCheck"
+        ],
         "x-enumNames": [
           "Check",
           "Test",
           "AnotherCheck"
+        ],
+        "x-enum-descriptions": [
+          null,
+          null,
+          null
+        ],
+        "x-enumDescriptions": [
+          null,
+          null,
+          null
         ],
         "enum": [
           0,

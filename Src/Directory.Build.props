@@ -1,7 +1,7 @@
 <Project>
     <PropertyGroup>
 
-        <Version>7.1.0-beta.11</Version>
+        <Version>7.1.0-beta.12</Version>
 
         <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
         <LangVersion>latest</LangVersion>

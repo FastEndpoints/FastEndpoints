@@ -18,7 +18,7 @@ sealed class SchemaNameGenerator : ISchemaNameGenerator
         var fullNameWithoutGenericArgs =
             isGeneric
                 ? type.FullName![..type.FullName!.IndexOf('`')]
-                : type.FullName;
+                : type.FullName ?? type.Name;
 
         if (_shortSchemaNames)
         {

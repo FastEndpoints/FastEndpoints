@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using TestCases.DataAnnotationCompliant;
 
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -18,12 +18,26 @@ public class DataAnnotationsTest(DaFixture App) : TestBase<DaFixture>
                 new()
                 {
                     Id = 10,
-                    Name = "x"
+                    Name = "x",
+                    Meta = new NestedRequest
+                    {
+                        Age = 0,
+                        Gender = ""
+                    },
+                    Children = new()
+                    {
+                        new()
+                        {
+                            Name = "c",
+                            Age = 101,
+                            Gender = ""
+                        }
+                    }
                 });
 
         rsp.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
-        res.Errors.Count.ShouldBe(2);
-        res.Errors.Keys.ShouldBe(["id", "name"]);
+        res.Errors.Count.ShouldBe(7);
+        res.Errors.Keys.ShouldBe(["id", "name", "meta.Gender", "meta.Age", "children[0].Name", "children[0].Age", "children[0].Gender"]);
     }
 
     [Fact]
@@ -34,7 +48,27 @@ public class DataAnnotationsTest(DaFixture App) : TestBase<DaFixture>
                 new()
                 {
                     Id = 100,
-                    Name = "pass"
+                    Name = "pass",
+                    Meta = new NestedRequest
+                    {
+                        Age = 38,
+                        Gender = "Male"
+                    },
+                    Children = new()
+                    {
+                        new()
+                        {
+                            Name = "child1",
+                            Age = 3,
+                            Gender = "Female"
+                        },
+                        new()
+                        {
+                            Name = "child2",
+                            Age = 0,
+                            Gender = "Male"
+                        }
+                    }
                 });
 
         resp.StatusCode.ShouldBe(HttpStatusCode.OK);

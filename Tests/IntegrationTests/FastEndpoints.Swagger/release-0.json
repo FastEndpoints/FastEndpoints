@@ -5261,7 +5261,8 @@
         "type": "object",
         "additionalProperties": false,
         "required": [
-          "name"
+          "name",
+          "meta"
         ],
         "properties": {
           "id": {
@@ -5273,6 +5274,61 @@
             "type": "string",
             "maxLength": 10,
             "minLength": 2
+          },
+          "meta": {
+            "$ref": "#/components/schemas/TestCasesDataAnnotationCompliantNestedRequest"
+          },
+          "children": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TestCasesDataAnnotationCompliantChildRequest"
+            }
+          }
+        }
+      },
+      "TestCasesDataAnnotationCompliantNestedRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "gender"
+        ],
+        "properties": {
+          "gender": {
+            "type": "string",
+            "maxLength": 10,
+            "minLength": 1
+          },
+          "age": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 150.0,
+            "minimum": 1.0
+          }
+        }
+      },
+      "TestCasesDataAnnotationCompliantChildRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "gender"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 50,
+            "minLength": 2
+          },
+          "age": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 100.0,
+            "minimum": 0.0
+          },
+          "gender": {
+            "type": "string",
+            "maxLength": 10,
+            "minLength": 1
           }
         }
       },

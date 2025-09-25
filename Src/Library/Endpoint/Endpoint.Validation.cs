@@ -30,6 +30,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : IValidationErrors<
 
         if (validationFailures.Count > 0 && def.ThrowIfValidationFails)
             throw new ValidationFailureException(validationFailures, "Request validation failed");
+        return;
 
         static void ValidateRecursively(object obj, string propertyPath, List<ValidationFailure> validationFailures, HashSet<object> visitedObjects)
         {
@@ -84,7 +85,9 @@ public abstract partial class Endpoint<TRequest, TResponse> : IValidationErrors<
                 visitedObjects.Remove(obj);
             }
 
-            string AppendToPropertyPath(string propPath, string propName)
+            return;
+
+            static string AppendToPropertyPath(string propPath, string propName)
                 => string.IsNullOrEmpty(propPath) ? propName : $"{propPath}.{propName}";
         }
     }

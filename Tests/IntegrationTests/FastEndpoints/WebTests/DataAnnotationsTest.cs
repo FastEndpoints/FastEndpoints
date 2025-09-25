@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using TestCases.DataAnnotationCompliant;
 
 #pragma warning disable CS0618 // Type or member is obsolete
@@ -19,7 +19,7 @@ public class DataAnnotationsTest(DaFixture App) : TestBase<DaFixture>
                 {
                     Id = 10,
                     Name = "x",
-                    Meta = new NestedRequest
+                    Meta = new()
                     {
                         Age = 0,
                         Gender = ""
@@ -35,9 +35,10 @@ public class DataAnnotationsTest(DaFixture App) : TestBase<DaFixture>
                     }
                 });
 
+        List<string> expected = ["id", "name", "children[0].Name", "children[0].Age", "children[0].Gender", "meta.Gender", "meta.Age"];
         rsp.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
         res.Errors.Count.ShouldBe(7);
-        res.Errors.Keys.ShouldBe(["id", "name", "meta.Gender", "meta.Age", "children[0].Name", "children[0].Age", "children[0].Gender"]);
+        res.Errors.Keys.Order().ShouldBe(expected.Order());
     }
 
     [Fact]
@@ -49,7 +50,7 @@ public class DataAnnotationsTest(DaFixture App) : TestBase<DaFixture>
                 {
                     Id = 100,
                     Name = "pass",
-                    Meta = new NestedRequest
+                    Meta = new()
                     {
                         Age = 38,
                         Gender = "Male"

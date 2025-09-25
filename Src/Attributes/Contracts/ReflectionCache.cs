@@ -30,6 +30,11 @@ public sealed class TypeDefinition
     /// a func used for converting string values to the respective type by calling it's <c>TryParse()</c> method.
     /// </summary>
     public Func<StringValues, ParseResult>? ValueParser { get; set; }
+
+    /// <summary>
+    /// indicates if this type, or it's immediate properties has data annotation validation attributes.
+    /// </summary>
+    public bool? IsValidatable { get; set; }
 }
 
 /// <summary>

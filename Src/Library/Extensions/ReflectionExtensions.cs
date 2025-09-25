@@ -61,6 +61,7 @@ static class ReflectionExtensions
         var isComplex = type.IsClass || (type.IsValueType && type is { IsPrimitive: false, IsEnum: false } && type != typeof(decimal));
         var isSimpleType = type == typeof(string) ||
                            type == typeof(DateTime) ||
+                           type == typeof(DateTimeOffset) ||
                            type == typeof(TimeSpan) ||
                            type == typeof(Guid) ||
                            type == typeof(Uri) ||
@@ -77,4 +78,19 @@ static class ReflectionExtensions
 
     internal static bool IsFormFileCollectionProp(this Type tProp)
         => Types.IEnumerableOfIFormFile.IsAssignableFrom(tProp);
+
+    internal static bool IsValidatable(this Type type)
+    {
+        var typeDef = Cfg.BndOpts.ReflectionCache.GetOrAdd(type, new TypeDefinition());
+
+        if (typeDef.IsValidatable is null) // was never initialized
+        {
+            if (type.IsComplexType() && (type.IsDefined(Types.ValidationAttribute) || type.BindableProps().Any(p => p.IsDefined(Types.ValidationAttribute))))
+                typeDef.IsValidatable = true;
+            else
+                typeDef.IsValidatable = false;
+        }
+
+        return typeDef.IsValidatable is true;
+    }
 }

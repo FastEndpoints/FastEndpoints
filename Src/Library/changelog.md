@@ -89,6 +89,12 @@ sealed class MyGroup : Group
 
 ## Improvements 🚀
 
+<details><summary>Recursive validation of  Data Annotation Attributes</summary>
+
+Until now, only the top level properties of a request DTO was being validated when using Data Annotation Attributes. This release adds support for recursively validating the whole object graph and generating errors for each that fails validation.
+
+</details>
+
 <details><summary>SSE response standard compliance</summary>
 
 The SSE response implementation has been enhanced by making the `Id` property in `StreamItem` optional, adding an optional `Retry` property for client-side reconnection control, as well as introducing an extra `StreamItem` constructor overload for more flexibility. Additionally, the `X-Accel-Buffering: no` response header is now automatically sent to improve compatibility with reverse proxies like NGINX, ensuring streamed data is delivered without buffering. You can now do the following when doing multi-type data responses:

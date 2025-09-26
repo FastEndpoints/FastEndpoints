@@ -30,6 +30,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : IValidationErrors<
 
         if (validationFailures.Count > 0 && def.ThrowIfValidationFails)
             throw new ValidationFailureException(validationFailures, "Request validation failed");
+
         return;
 
         static void ValidateRecursively(object obj, string propertyPath, List<ValidationFailure> validationFailures, HashSet<object> visitedObjects)
@@ -82,7 +83,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : IValidationErrors<
             }
             finally
             {
-                visitedObjects.Remove(obj);
+                visitedObjects.Remove(obj); // if we didn't remove, only the first referenced instance will get an error generated.
             }
 
             return;

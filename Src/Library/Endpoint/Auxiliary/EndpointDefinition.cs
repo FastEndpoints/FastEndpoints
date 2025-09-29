@@ -300,10 +300,13 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// specify a feature flag to run in order to determine if this endpoint is enabled or disabled for the current request.
     /// </summary>
     /// <typeparam name="TFlag">type of the feature flag</typeparam>
-    public void FeatureFlag<TFlag>() where TFlag : IFeatureFlag
+    /// <param name="featureName">optional name of the feature flag</param>
+    public void FeatureFlag<TFlag>(string? featureName = null) where TFlag : IFeatureFlag
     {
         ThrowIfLocked();
-        FeatureFlags.Add((IFeatureFlag)Cfg.ServiceResolver.CreateSingleton(typeof(TFlag)));
+        var flag = (IFeatureFlag)Cfg.ServiceResolver.CreateSingleton(typeof(TFlag));
+        flag.Name = featureName;
+        FeatureFlags.Add(flag);
     }
 
     /// <summary>

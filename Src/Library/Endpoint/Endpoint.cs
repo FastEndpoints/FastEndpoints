@@ -61,6 +61,9 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
 
         try
         {
+            if (Definition.FeatureFlags.Count > 0 && await FeatureFlagTriggered(Definition.FeatureFlags, this, ct))
+                return;
+
             //execution stops here if a JsonException is thrown and continues at try/catch below
             req = await BindRequestAsync(Definition, HttpContext, ValidationFailures, ct);
 

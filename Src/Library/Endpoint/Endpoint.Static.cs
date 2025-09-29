@@ -33,6 +33,22 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
         return req;
     }
 
+    static async Task<bool> FeatureFlagTriggered(IEnumerable<IFeatureFlag> flags, IEndpoint endpoint, CancellationToken ct)
+    {
+        foreach (var flag in flags)
+        {
+            if (await flag.IsEnabledAsync(endpoint))
+                continue;
+
+            if (!endpoint.HttpContext.ResponseStarted())
+                await endpoint.HttpContext.Response.SendNotFoundAsync(ct);
+
+            return true;
+        }
+
+        return false;
+    }
+
     static async Task RunPreprocessors(List<IProcessor> preProcessors,
                                        TRequest? req,
                                        HttpContext ctx,

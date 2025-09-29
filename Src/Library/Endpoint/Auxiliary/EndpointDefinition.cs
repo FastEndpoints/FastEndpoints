@@ -65,6 +65,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     internal bool ExecuteAsyncImplemented;
     bool? _execReturnsIResults;
     internal bool ExecuteAsyncReturnsIResult => _execReturnsIResults ??= ResDtoType.IsAssignableTo(Types.IResult);
+    internal HashSet<IFeatureFlag> FeatureFlags = [];
     internal bool FoundDuplicateValidators;
     internal HitCounter? HitCounter { get; private set; }
     internal bool ImplementsConfigure;
@@ -293,6 +294,16 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
         Version.DeprecatedAt = deprecateAt;
 
         return Version;
+    }
+
+    /// <summary>
+    /// specify a feature flag to run in order to determine if this endpoint is enabled or disabled for the current request.
+    /// </summary>
+    /// <typeparam name="TFlag">type of the feature flag</typeparam>
+    public void FeatureFlag<TFlag>() where TFlag : IFeatureFlag
+    {
+        ThrowIfLocked();
+        FeatureFlags.Add((IFeatureFlag)Cfg.ServiceResolver.CreateSingleton(typeof(TFlag)));
     }
 
     /// <summary>

@@ -224,6 +224,13 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
         => Definition.EnableAntiforgery();
 
     /// <summary>
+    /// specify a feature flag to run in order to determine if this endpoint is enabled or disabled for the current request.
+    /// </summary>
+    /// <typeparam name="TFlag">type of the feature flag</typeparam>
+    protected void FeatureFlag<TFlag>() where TFlag : IFeatureFlag
+        => Definition.FeatureFlag<TFlag>();
+
+    /// <summary>
     /// specify to listen for GET requests on one or more routes.
     /// </summary>
     protected void Get([StringSyntax("Route")] [RouteTemplate] params string[] routePatterns)

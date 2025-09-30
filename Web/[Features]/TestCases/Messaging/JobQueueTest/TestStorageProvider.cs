@@ -10,6 +10,8 @@ public class Job : IJobStorageRecord, IHasCommandType, IJobResultStorage
     public DateTime ExecuteAfter { get; set; }
     public DateTime ExpireOn { get; set; }
     public bool IsComplete { get; set; }
+    public DateTime? LockExpiresOn { get; set; }
+    public string? LockedBy { get; set; }
     public object? Result { get; set; }
 }
 
@@ -25,6 +27,21 @@ public class JobStorage : IJobStorageProvider<Job>, IJobResultProvider
             Jobs.Add(r);
 
         return Task.CompletedTask;
+    }
+
+    public Task<bool> TryAcquireLockAsync(string queueId, CancellationToken ct)
+    {
+        return Task.FromResult(true);
+    }
+
+    public Task<bool> TryReleaseLockAsync(string queueId, CancellationToken ct)
+    {
+        return Task.FromResult(true);
+    }
+
+    public ValueTask OnLeaseHeartbeatAsync(Job record, CancellationToken ct)
+    {
+        return ValueTask.CompletedTask;
     }
 
     public Task<IEnumerable<Job>> GetNextBatchAsync(PendingJobSearchParams<Job> p)

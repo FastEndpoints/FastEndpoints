@@ -237,8 +237,9 @@ app.UseJobQueues(
     o =>
     {
         o.MaxConcurrency = 4;
-        o.LimitsFor<JobTestCommand>(1, TimeSpan.FromSeconds(1));
-        o.LimitsFor<JobCancelTestCommand>(100, TimeSpan.FromSeconds(60));
+        o.LeaseHeartbeatDelay = TimeSpan.FromSeconds(30);
+        o.LimitsFor<JobTestCommand>(1, TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(30));
+        o.LimitsFor<JobCancelTestCommand>(100, TimeSpan.FromSeconds(60), TimeSpan.FromSeconds(30));
         o.StorageProbeDelay = TimeSpan.FromMilliseconds(100);
     });
 

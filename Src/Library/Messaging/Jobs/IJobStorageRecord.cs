@@ -1,4 +1,4 @@
-﻿// ReSharper disable PropertyCanBeMadeInitOnly.Global
+// ReSharper disable PropertyCanBeMadeInitOnly.Global
 
 namespace FastEndpoints;
 
@@ -45,6 +45,17 @@ public interface IJobStorageRecord
     /// indicates whether the job has successfully completed or not.
     /// </summary>
     bool IsComplete { get; set; }
+
+    /// <summary>
+    /// the date/time when the current lock will expire. if the job processing takes longer than expected and this time is exceeded, 
+    /// the lock will be considered stale and can be acquired by another worker. null if the job is not currently locked.
+    /// </summary>
+    DateTime? LockExpiresOn { get; set; }
+
+    /// <summary>
+    /// identifies the worker/process that has locked the job for processing. null if the job is not currently locked.
+    /// </summary>
+    string? LockedBy { get; set; }
 
     /// <summary>
     /// implement this function to customize command deserialization.

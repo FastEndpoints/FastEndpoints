@@ -87,6 +87,37 @@ sealed class MyGroup : Group
 
 </details>
 
+<details><summary>Position endpoint version anywhere in the route</summary>
+
+With the built-in versioning, you could only have the endpoint version number either pre-fixed or post-fixed. You can now make the version appear anywhere in the route by using a route template. The template segment will be replaced by the actual version number instead of being prepended or appended.
+
+```csharp
+sealed class MyEndpoint : EndpointWithoutRequest
+{
+    public override void Configure()
+    {
+        Get("/sales/{_version_}/my-endpoint");
+        Version(1);
+    }
+
+    ...
+}
+```
+
+This version placement strategy must be enabled at startup like so:
+
+```csharp
+app.UseFastEndpoints(
+       c =>
+       {
+           c.Versioning.RouteTemplate = "{_version_}";
+       })
+```
+
+If this setting is enabled, it will take precedence over the default behavior of appending/prepending the version number to the route.
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Recursive validation of  Data Annotation Attributes</summary>

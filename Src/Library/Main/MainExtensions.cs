@@ -214,12 +214,6 @@ public static class MainExtensions
 
     internal static string BuildRoute(this StringBuilder builder, int epVersion, string route, string? prefixOverride)
     {
-        // {rPrfix}/{p}{ver}/{route}
-        // mobile/v1/customer/retrieve
-
-        // {rPrfix}/{route}/{p}{ver}
-        // mobile/customer/retrieve/v1
-
         if (Cfg.EpOpts.RoutePrefix is not null && prefixOverride != string.Empty)
         {
             builder.Append('/')
@@ -227,48 +221,69 @@ public static class MainExtensions
                    .Append('/');
         }
 
-        if (Cfg.VerOpts.PrependToRoute is true)
-            AppendVersion(builder, epVersion, trailingSlash: true);
+        if (Cfg.VerOpts.RouteTemplate is not null && (epVersion > 0 || Cfg.VerOpts.DefaultVersion != 0))
+        {
+            var index = route.IndexOf(Cfg.VerOpts.RouteTemplate, StringComparison.Ordinal);
 
-        if (builder.Length > 0 && route.StartsWith('/'))
-            builder.Remove(builder.Length - 1, 1);
+            if (index < 0)
+                throw new InvalidOperationException($"The route [{route}], doesn't contain the versioning template pattern [{Cfg.VerOpts.RouteTemplate}]!");
 
-        builder.Append(route);
+            SetVersion(builder, Cfg.VerOpts.RouteTemplate, index, route, epVersion);
+        }
+        else
+        {
+            // {rPrfix}/{p}{ver}/{route}
+            // mobile/v1/customer/retrieve
 
-        if (Cfg.VerOpts.PrependToRoute is not true)
-            AppendVersion(builder, epVersion, trailingSlash: false);
+            if (Cfg.VerOpts.PrependToRoute is true)
+                AppendVersion(builder, epVersion, trailingSlash: true);
+
+            if (builder.Length > 0 && route.StartsWith('/'))
+                builder.Length--;
+
+            builder.Append(route);
+
+            // {rPrfix}/{route}/{p}{ver}
+            // mobile/customer/retrieve/v1
+
+            if (Cfg.VerOpts.PrependToRoute is not true)
+                AppendVersion(builder, epVersion, trailingSlash: false);
+        }
 
         var final = builder.ToString();
         builder.Clear();
 
         return final;
 
+        static void SetVersion(StringBuilder builder, string routeTemplate, int indexPos, string route, int epVersion)
+        {
+            if (builder.Length > 0 && builder[^1] == '/' && route.StartsWith('/'))
+                builder.Length--;
+
+            builder.Append(route.AsSpan(0, indexPos))                              //add up to beginning of routeTemplate
+                   .Append(Cfg.VerOpts.Prefix ?? "v")                              //add version prefix
+                   .Append(epVersion > 0 ? epVersion : Cfg.VerOpts.DefaultVersion) //add version number
+                   .Append(route.AsSpan(indexPos + routeTemplate.Length));         //add the part after routeTemplate
+        }
+
         static void AppendVersion(StringBuilder builder, int epVersion, bool trailingSlash)
         {
             var prefix = Cfg.VerOpts.Prefix ?? "v";
+            var version = epVersion > 0
+                              ? epVersion
+                              : Cfg.VerOpts.DefaultVersion;
 
-            if (epVersion > 0)
-            {
-                if (builder.Length > 0 && builder[^1] != '/')
-                    builder.Append('/');
+            if (version == 0)
+                return;
 
-                builder.Append(prefix)
-                       .Append(epVersion);
+            if (builder.Length > 0 && builder[^1] != '/')
+                builder.Append('/');
 
-                if (trailingSlash)
-                    builder.Append('/');
-            }
-            else if (Cfg.VerOpts.DefaultVersion != 0)
-            {
-                if (builder.Length > 0 && builder[^1] != '/')
-                    builder.Append('/');
+            builder.Append(prefix)
+                   .Append(version);
 
-                builder.Append(prefix)
-                       .Append(Cfg.VerOpts.DefaultVersion);
-
-                if (trailingSlash)
-                    builder.Append('/');
-            }
+            if (trailingSlash)
+                builder.Append('/');
         }
     }
 

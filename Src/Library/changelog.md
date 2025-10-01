@@ -10,6 +10,12 @@ Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H
 
 ## New 🎉
 
+<details><summary>Return Send Methods</summary>
+
+TODO: write docs and update here
+
+</details>
+
 <details><summary>Specify max request body size per endpoint</summary>
 
 Instead of globally increasing the max request body size in Kestrel, you can now set a max body size per endpoint where necessary like so:

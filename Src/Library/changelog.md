@@ -231,6 +231,12 @@ public override async Task HandleAsync(CancellationToken ct)
 
 </details>
 
+<details><summary>Async variation of Global Response Modifier</summary>
+
+TODO: describe it
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>Incorrect enum value for JWT security algorithm was used</summary>

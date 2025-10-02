@@ -90,7 +90,9 @@ public static class HttpResponseExtensions
 
         EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, response);
 
-        return SerOpts.ResponseSerializer(rsp, response, "application/json", jsonSerializerContext, cancellation.IfDefault(rsp)).ToVoid();
+        return Execute(
+            EpOpts.GlobalResponseModifierAsync?.Invoke(rsp.HttpContext, response),
+            SerOpts.ResponseSerializer(rsp, response, "application/json", jsonSerializerContext, cancellation.IfDefault(rsp)));
     }
 
     /// <summary>
@@ -174,9 +176,11 @@ public static class HttpResponseExtensions
 
         EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, responseBody);
 
-        return (responseBody is null
-                    ? rsp.StartAsync(cancellation.IfDefault(rsp))
-                    : SerOpts.ResponseSerializer(rsp, responseBody, contentType, jsonSerializerContext, cancellation.IfDefault(rsp))).ToVoid();
+        return Execute(
+            EpOpts.GlobalResponseModifierAsync?.Invoke(rsp.HttpContext, responseBody),
+            responseBody is null
+                ? rsp.StartAsync(cancellation.IfDefault(rsp))
+                : SerOpts.ResponseSerializer(rsp, responseBody, contentType, jsonSerializerContext, cancellation.IfDefault(rsp)));
     }
 
     /// <summary>
@@ -281,12 +285,9 @@ public static class HttpResponseExtensions
 
         EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
 
-        return SerOpts.ResponseSerializer(
-            rsp,
-            new JsonObject(),
-            "application/json",
-            jsonSerializerContext,
-            cancellation.IfDefault(rsp)).ToVoid();
+        return Execute(
+            EpOpts.GlobalResponseModifierAsync?.Invoke(rsp.HttpContext, null),
+            SerOpts.ResponseSerializer(rsp, new JsonObject(), "application/json", jsonSerializerContext, cancellation.IfDefault(rsp)));
     }
 
     /// <summary>
@@ -309,12 +310,9 @@ public static class HttpResponseExtensions
 
         EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, content);
 
-        return SerOpts.ResponseSerializer(
-            rsp,
-            content,
-            ErrOpts.ContentType,
-            jsonSerializerContext,
-            cancellation.IfDefault(rsp)).ToVoid();
+        return Execute(
+            EpOpts.GlobalResponseModifierAsync?.Invoke(rsp.HttpContext, content),
+            SerOpts.ResponseSerializer(rsp, content, ErrOpts.ContentType, jsonSerializerContext, cancellation.IfDefault(rsp)));
     }
 
     /// <summary>
@@ -327,8 +325,7 @@ public static class HttpResponseExtensions
     public static Task<Void> SendEventStreamAsync<T>(this HttpResponse rsp,
                                                      string eventName,
                                                      IAsyncEnumerable<T> eventStream,
-                                                     CancellationToken cancellation = default)
-        where T : notnull
+                                                     CancellationToken cancellation = default) where T : notnull
     {
         return SendEventStreamAsync(rsp, GetStreamItemAsyncEnumerable(eventName, eventStream, cancellation), cancellation);
 
@@ -358,6 +355,8 @@ public static class HttpResponseExtensions
         rsp.Headers.Append("X-Accel-Buffering", "no");
 
         EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
+        if (EpOpts.GlobalResponseModifierAsync is not null)
+            await EpOpts.GlobalResponseModifierAsync.Invoke(rsp.HttpContext, null);
 
         var ct = cancellation.IfDefault(rsp);
         await rsp.Body.FlushAsync(ct);
@@ -422,7 +421,9 @@ public static class HttpResponseExtensions
 
         EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
 
-        return rsp.StartAsync(cancellation.IfDefault(rsp)).ToVoid();
+        return Execute(
+            EpOpts.GlobalResponseModifierAsync?.Invoke(rsp.HttpContext, null),
+            rsp.StartAsync(cancellation.IfDefault(rsp)));
     }
 
     /// <summary>
@@ -442,7 +443,9 @@ public static class HttpResponseExtensions
 
         EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
 
-        return rsp.StartAsync(cancellation.IfDefault(rsp)).ToVoid();
+        return Execute(
+            EpOpts.GlobalResponseModifierAsync?.Invoke(rsp.HttpContext, null),
+            rsp.StartAsync(cancellation.IfDefault(rsp)));
     }
 
     /// <summary>
@@ -456,7 +459,9 @@ public static class HttpResponseExtensions
 
         EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
 
-        return rsp.StartAsync(cancellation.IfDefault(rsp)).ToVoid();
+        return Execute(
+            EpOpts.GlobalResponseModifierAsync?.Invoke(rsp.HttpContext, null),
+            rsp.StartAsync(cancellation.IfDefault(rsp)));
     }
 
     /// <summary>
@@ -470,7 +475,9 @@ public static class HttpResponseExtensions
 
         EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
 
-        return rsp.StartAsync(cancellation.IfDefault(rsp)).ToVoid();
+        return Execute(
+            EpOpts.GlobalResponseModifierAsync?.Invoke(rsp.HttpContext, null),
+            rsp.StartAsync(cancellation.IfDefault(rsp)));
     }
 
     /// <summary>
@@ -484,7 +491,9 @@ public static class HttpResponseExtensions
 
         EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
 
-        return rsp.StartAsync(cancellation.IfDefault(rsp)).ToVoid();
+        return Execute(
+            EpOpts.GlobalResponseModifierAsync?.Invoke(rsp.HttpContext, null),
+            rsp.StartAsync(cancellation.IfDefault(rsp)));
     }
 
     /// <summary>
@@ -504,12 +513,9 @@ public static class HttpResponseExtensions
 
         EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, response);
 
-        return SerOpts.ResponseSerializer(
-            rsp,
-            response,
-            "application/json",
-            jsonSerializerContext,
-            cancellation.IfDefault(rsp)).ToVoid();
+        return Execute(
+            EpOpts.GlobalResponseModifierAsync?.Invoke(rsp.HttpContext, response),
+            SerOpts.ResponseSerializer(rsp, response, "application/json", jsonSerializerContext, cancellation.IfDefault(rsp)));
     }
 
     /// <summary>
@@ -537,7 +543,9 @@ public static class HttpResponseExtensions
         rsp.HttpContext.MarkResponseStart();
         EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, result);
 
-        return result.ExecuteAsync(rsp.HttpContext).ToVoid();
+        return Execute(
+            EpOpts.GlobalResponseModifierAsync?.Invoke(rsp.HttpContext, result),
+            result.ExecuteAsync(rsp.HttpContext));
     }
 
     /// <summary>
@@ -552,7 +560,9 @@ public static class HttpResponseExtensions
 
         EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
 
-        return rsp.StartAsync(cancellation.IfDefault(rsp)).ToVoid();
+        return Execute(
+            EpOpts.GlobalResponseModifierAsync?.Invoke(rsp.HttpContext, null),
+            rsp.StartAsync(cancellation.IfDefault(rsp)));
     }
 
     /// <summary>
@@ -630,7 +640,9 @@ public static class HttpResponseExtensions
 
         EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, content);
 
-        return rsp.WriteAsync(content, cancellation.IfDefault(rsp)).ToVoid();
+        return Execute(
+            EpOpts.GlobalResponseModifierAsync?.Invoke(rsp.HttpContext, content),
+            rsp.WriteAsync(content, cancellation.IfDefault(rsp)));
     }
 
     /// <summary>
@@ -644,7 +656,9 @@ public static class HttpResponseExtensions
 
         EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
 
-        return rsp.StartAsync(cancellation.IfDefault(rsp)).ToVoid();
+        return Execute(
+            EpOpts.GlobalResponseModifierAsync?.Invoke(rsp.HttpContext, null),
+            rsp.StartAsync(cancellation.IfDefault(rsp)));
     }
 
     static CancellationToken IfDefault(this CancellationToken token, HttpResponse httpResponse)
@@ -652,9 +666,12 @@ public static class HttpResponseExtensions
                ? httpResponse.HttpContext.RequestAborted
                : token;
 
-    static async Task<Void> ToVoid(this Task task)
+    static async Task<Void> Execute(Task? modifierTask, Task finalTask)
     {
-        await task.ConfigureAwait(false);
+        if (modifierTask is not null)
+            await modifierTask;
+
+        await finalTask.ConfigureAwait(false);
 
         return Void.Instance;
     }

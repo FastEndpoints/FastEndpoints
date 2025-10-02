@@ -81,6 +81,17 @@ public sealed class EndpointOptions
     /// </code>
     /// </summary>
     public Action<HttpContext, object?>? GlobalResponseModifier { internal get; set; }
+
+    /// <summary>
+    /// an async global response modifier function which will be executed right before any response is written to the response stream, giving you a chance to
+    /// modify the response before being sent.
+    /// the arguments for the func are:
+    /// <code>
+    /// HttpContext : the http context of the current request/response
+    /// object? : response content which may be null
+    /// </code>
+    /// </summary>
+    public Func<HttpContext, object?, Task>? GlobalResponseModifierAsync { internal get; set; }
 }
 
 public struct EndpointNameGenerationContext(Type endpointType, string? httpVerb, int? routeNumber, string? tagPrefix)

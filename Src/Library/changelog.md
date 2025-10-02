@@ -10,9 +10,31 @@ Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H
 
 ## New 🎉
 
-<details><summary>Return Send Methods</summary>
+<details><summary>Better conditional sending of responses</summary>
 
-TODO: write docs and update here
+All **Send.\*Async()** methods now return a Task<Void> result. If a response needs to be sent conditionally in your handler, you can simply change the return type of the handler from **Task** to **Task<Void>**  and return the awaited result as shown below in order to stop further execution of endpoint handler logic:
+
+```csharp
+public override async Task<Void> HandleAsync(CancellationToken c)
+{
+    if (id == 0)
+        return await Send.NotFoundAsync();
+
+    if (id == 1)
+        return await Send.NoContentAsync();
+
+    return await Send.OkAsync();
+}
+```
+
+If there's no async work being done in the handler, the **Task<Void>** can simply be returned as well:
+
+```csharp
+public override Task<Void> HandleAsync(CancellationToken c)
+{
+    return Send.OkAsync();
+}
+```
 
 </details>
 

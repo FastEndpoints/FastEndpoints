@@ -12,7 +12,7 @@ Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H
 
 <details><summary>Better conditional sending of responses</summary>
 
-All **Send.\*Async()** methods now return a Task<Void> result. If a response needs to be sent conditionally in your handler, you can simply change the return type of the handler from **Task** to **Task<Void>**  and return the awaited result as shown below in order to stop further execution of endpoint handler logic:
+All **Send.\*Async()** methods now return a T**ask\<Void\>** result. If a response needs to be sent conditionally, you can simply change the return type of the handler from **Task** to **Task\<Void\>**  and return the awaited result as shown below in order to stop further execution of endpoint handler logic:
 
 ```csharp
 public override async Task<Void> HandleAsync(CancellationToken c)
@@ -27,7 +27,7 @@ public override async Task<Void> HandleAsync(CancellationToken c)
 }
 ```
 
-If there's no async work being done in the handler, the **Task<Void>** can simply be returned as well:
+If there's no async work being done in the handler, the **Task\<Void\>** can simply be returned as well:
 
 ```csharp
 public override Task<Void> HandleAsync(CancellationToken c)
@@ -143,6 +143,49 @@ app.UseFastEndpoints(
 ```
 
 If this setting is enabled, it will take precedence over the default behavior of appending/prepending the version number to the route.
+
+</details>
+
+<details><summary>Support for Feature Management libraries</summary>
+
+Endpoints can now be setup to execute a `FeatureFlag` for every Http request that comes in, which allows an endpoint to be conditionally available according to some evaluation logic.
+
+To create a feature flag, implement the interface `IFeatureFlag` and simply return `true` from the `IsEnabledAsync()` handler method if the endpoint is to be accessible to that particular request.
+
+```csharp
+sealed class BetaTestersOnly : IFeatureFlag 
+{ 
+    public async Task<bool> IsEnabledAsync(IEndpoint endpoint) 
+    { 
+        //use whatever mechanism/library you like to determine if this endpoint is enabled for the current request. 
+        if (endpoint.HttpContext.Request.Headers.TryGetValue("x-beta-tester", out _)) 
+            return true; // return true to enable 
+ 
+        //this is optional. if you don't send anything, a 404 is sent automatically. 
+        await endpoint.HttpContext.Response.SendErrorsAsync([new("featureDisabled", "You are not a beta tester!")]); 
+ 
+        return false; // return false to disable 
+    } 
+}
+```
+
+Attach it to the endpoint like so:
+
+```csharp
+sealed class BetaEndpoint : EndpointWithoutRequest<string>
+{
+    public override void Configure()
+    {
+        Get("beta");
+        FeatureFlag<BetaTestersOnly>();
+    }
+
+    public override async Task HandleAsync(CancellationToken c)
+    {
+        await Send.OkAsync("this is the beta!");
+    }
+}
+```
 
 </details>
 

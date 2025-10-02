@@ -78,21 +78,23 @@ public static class HttpResponseExtensions
     /// <param name="statusCode">optional custom http status code</param>
     /// <param name="jsonSerializerContext">json serializer context if code generation is used</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    public static Task<Void> SendAsync<TResponse>(this HttpResponse rsp,
-                                                  TResponse response,
-                                                  int statusCode = 200,
-                                                  JsonSerializerContext? jsonSerializerContext = null,
-                                                  CancellationToken cancellation = default)
+    public static async Task<Void> SendAsync<TResponse>(this HttpResponse rsp,
+                                                        TResponse response,
+                                                        int statusCode = 200,
+                                                        JsonSerializerContext? jsonSerializerContext = null,
+                                                        CancellationToken cancellation = default)
     {
         rsp.HttpContext.MarkResponseStart();
         rsp.HttpContext.PopulateResponseHeadersFromResponseDto(response);
         rsp.StatusCode = statusCode;
 
         EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, response);
+        if (EpOpts.GlobalResponseModifierAsync is not null)
+            await EpOpts.GlobalResponseModifierAsync(rsp.HttpContext, response);
 
-        return Execute(
-            EpOpts.GlobalResponseModifierAsync?.Invoke(rsp.HttpContext, response),
-            SerOpts.ResponseSerializer(rsp, response, "application/json", jsonSerializerContext, cancellation.IfDefault(rsp)));
+        await SerOpts.ResponseSerializer(rsp, response, "application/json", jsonSerializerContext, cancellation.IfDefault(rsp));
+
+        return Void.Instance;
     }
 
     /// <summary>
@@ -152,15 +154,15 @@ public static class HttpResponseExtensions
     /// <param name="responseBody">the content to be serialized in the response body</param>
     /// <param name="jsonSerializerContext">json serializer context if code generation is used</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    public static Task<Void> SendAtAsync(this HttpResponse rsp,
-                                         int statusCode,
-                                         string endpointName,
-                                         object? routeValues = null,
-                                         bool generateAbsoluteUrl = false,
-                                         string contentType = "application/json",
-                                         object? responseBody = null,
-                                         JsonSerializerContext? jsonSerializerContext = null,
-                                         CancellationToken cancellation = default)
+    public static async Task<Void> SendAtAsync(this HttpResponse rsp,
+                                               int statusCode,
+                                               string endpointName,
+                                               object? routeValues = null,
+                                               bool generateAbsoluteUrl = false,
+                                               string contentType = "application/json",
+                                               object? responseBody = null,
+                                               JsonSerializerContext? jsonSerializerContext = null,
+                                               CancellationToken cancellation = default)
     {
         // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
         var linkGen = Cfg.ServiceResolver.TryResolve<LinkGenerator>() ??              //unit tests (won't have the LinkGenerator registered)
@@ -175,12 +177,14 @@ public static class HttpResponseExtensions
                                    : linkGen.GetPathByName(endpointName, routeValues);
 
         EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, responseBody);
+        if (EpOpts.GlobalResponseModifierAsync is not null)
+            await EpOpts.GlobalResponseModifierAsync(rsp.HttpContext, responseBody);
 
-        return Execute(
-            EpOpts.GlobalResponseModifierAsync?.Invoke(rsp.HttpContext, responseBody),
-            responseBody is null
-                ? rsp.StartAsync(cancellation.IfDefault(rsp))
-                : SerOpts.ResponseSerializer(rsp, responseBody, contentType, jsonSerializerContext, cancellation.IfDefault(rsp)));
+        await (responseBody is null
+                   ? rsp.StartAsync(cancellation.IfDefault(rsp))
+                   : SerOpts.ResponseSerializer(rsp, responseBody, contentType, jsonSerializerContext, cancellation.IfDefault(rsp)));
+
+        return Void.Instance;
     }
 
     /// <summary>
@@ -276,18 +280,20 @@ public static class HttpResponseExtensions
     /// </summary>
     /// <param name="jsonSerializerContext">json serializer context if code generation is used</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    public static Task<Void> SendEmptyJsonObject(this HttpResponse rsp,
-                                                 JsonSerializerContext? jsonSerializerContext = null,
-                                                 CancellationToken cancellation = default)
+    public static async Task<Void> SendEmptyJsonObject(this HttpResponse rsp,
+                                                       JsonSerializerContext? jsonSerializerContext = null,
+                                                       CancellationToken cancellation = default)
     {
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 200;
 
         EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
+        if (EpOpts.GlobalResponseModifierAsync is not null)
+            await EpOpts.GlobalResponseModifierAsync(rsp.HttpContext, null);
 
-        return Execute(
-            EpOpts.GlobalResponseModifierAsync?.Invoke(rsp.HttpContext, null),
-            SerOpts.ResponseSerializer(rsp, new JsonObject(), "application/json", jsonSerializerContext, cancellation.IfDefault(rsp)));
+        await SerOpts.ResponseSerializer(rsp, new JsonObject(), "application/json", jsonSerializerContext, cancellation.IfDefault(rsp));
+
+        return Void.Instance;
     }
 
     /// <summary>
@@ -297,11 +303,11 @@ public static class HttpResponseExtensions
     /// <param name="statusCode">the http status code for the error response</param>
     /// <param name="jsonSerializerContext">json serializer context if code generation is used</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    public static Task<Void> SendErrorsAsync(this HttpResponse rsp,
-                                             List<ValidationFailure> failures,
-                                             int statusCode = 400,
-                                             JsonSerializerContext? jsonSerializerContext = null,
-                                             CancellationToken cancellation = default)
+    public static async Task<Void> SendErrorsAsync(this HttpResponse rsp,
+                                                   List<ValidationFailure> failures,
+                                                   int statusCode = 400,
+                                                   JsonSerializerContext? jsonSerializerContext = null,
+                                                   CancellationToken cancellation = default)
     {
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = statusCode;
@@ -309,10 +315,12 @@ public static class HttpResponseExtensions
         var content = ErrOpts.ResponseBuilder(failures, rsp.HttpContext, statusCode);
 
         EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, content);
+        if (EpOpts.GlobalResponseModifierAsync is not null)
+            await EpOpts.GlobalResponseModifierAsync(rsp.HttpContext, content);
 
-        return Execute(
-            EpOpts.GlobalResponseModifierAsync?.Invoke(rsp.HttpContext, content),
-            SerOpts.ResponseSerializer(rsp, content, ErrOpts.ContentType, jsonSerializerContext, cancellation.IfDefault(rsp)));
+        await SerOpts.ResponseSerializer(rsp, content, ErrOpts.ContentType, jsonSerializerContext, cancellation.IfDefault(rsp));
+
+        return Void.Instance;
     }
 
     /// <summary>
@@ -414,16 +422,18 @@ public static class HttpResponseExtensions
     /// send a 403 unauthorized response
     /// </summary>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    public static Task<Void> SendForbiddenAsync(this HttpResponse rsp, CancellationToken cancellation = default)
+    public static async Task<Void> SendForbiddenAsync(this HttpResponse rsp, CancellationToken cancellation = default)
     {
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 403;
 
         EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
+        if (EpOpts.GlobalResponseModifierAsync is not null)
+            await EpOpts.GlobalResponseModifierAsync(rsp.HttpContext, null);
 
-        return Execute(
-            EpOpts.GlobalResponseModifierAsync?.Invoke(rsp.HttpContext, null),
-            rsp.StartAsync(cancellation.IfDefault(rsp)));
+        await rsp.StartAsync(cancellation.IfDefault(rsp));
+
+        return Void.Instance;
     }
 
     /// <summary>
@@ -432,68 +442,76 @@ public static class HttpResponseExtensions
     /// <param name="headers">an action to be performed on the headers dictionary of the response</param>
     /// <param name="statusCode">optional custom http status code</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    public static Task<Void> SendHeadersAsync(this HttpResponse rsp,
-                                              Action<IHeaderDictionary> headers,
-                                              int statusCode = 200,
-                                              CancellationToken cancellation = default)
+    public static async Task<Void> SendHeadersAsync(this HttpResponse rsp,
+                                                    Action<IHeaderDictionary> headers,
+                                                    int statusCode = 200,
+                                                    CancellationToken cancellation = default)
     {
         headers(rsp.Headers);
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = statusCode;
 
         EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
+        if (EpOpts.GlobalResponseModifierAsync is not null)
+            await EpOpts.GlobalResponseModifierAsync(rsp.HttpContext, null);
 
-        return Execute(
-            EpOpts.GlobalResponseModifierAsync?.Invoke(rsp.HttpContext, null),
-            rsp.StartAsync(cancellation.IfDefault(rsp)));
+        await rsp.StartAsync(cancellation.IfDefault(rsp));
+
+        return Void.Instance;
     }
 
     /// <summary>
     /// send a 204 no content response
     /// </summary>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    public static Task<Void> SendNoContentAsync(this HttpResponse rsp, CancellationToken cancellation = default)
+    public static async Task<Void> SendNoContentAsync(this HttpResponse rsp, CancellationToken cancellation = default)
     {
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 204;
 
         EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
+        if (EpOpts.GlobalResponseModifierAsync is not null)
+            await EpOpts.GlobalResponseModifierAsync(rsp.HttpContext, null);
 
-        return Execute(
-            EpOpts.GlobalResponseModifierAsync?.Invoke(rsp.HttpContext, null),
-            rsp.StartAsync(cancellation.IfDefault(rsp)));
+        await rsp.StartAsync(cancellation.IfDefault(rsp));
+
+        return Void.Instance;
     }
 
     /// <summary>
     /// send a 404 not found response
     /// </summary>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    public static Task<Void> SendNotFoundAsync(this HttpResponse rsp, CancellationToken cancellation = default)
+    public static async Task<Void> SendNotFoundAsync(this HttpResponse rsp, CancellationToken cancellation = default)
     {
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 404;
 
         EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
+        if (EpOpts.GlobalResponseModifierAsync is not null)
+            await EpOpts.GlobalResponseModifierAsync(rsp.HttpContext, null);
 
-        return Execute(
-            EpOpts.GlobalResponseModifierAsync?.Invoke(rsp.HttpContext, null),
-            rsp.StartAsync(cancellation.IfDefault(rsp)));
+        await rsp.StartAsync(cancellation.IfDefault(rsp));
+
+        return Void.Instance;
     }
 
     /// <summary>
     /// send an http 200 ok response without a body.
     /// </summary>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    public static Task<Void> SendOkAsync(this HttpResponse rsp, CancellationToken cancellation = default)
+    public static async Task<Void> SendOkAsync(this HttpResponse rsp, CancellationToken cancellation = default)
     {
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 200;
 
         EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
+        if (EpOpts.GlobalResponseModifierAsync is not null)
+            await EpOpts.GlobalResponseModifierAsync(rsp.HttpContext, null);
 
-        return Execute(
-            EpOpts.GlobalResponseModifierAsync?.Invoke(rsp.HttpContext, null),
-            rsp.StartAsync(cancellation.IfDefault(rsp)));
+        await rsp.StartAsync(cancellation.IfDefault(rsp));
+
+        return Void.Instance;
     }
 
     /// <summary>
@@ -502,20 +520,22 @@ public static class HttpResponseExtensions
     /// <param name="response">the object to serialize to json</param>
     /// <param name="jsonSerializerContext">json serializer context if code generation is used</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    public static Task<Void> SendOkAsync<TResponse>(this HttpResponse rsp,
-                                                    TResponse response,
-                                                    JsonSerializerContext? jsonSerializerContext = null,
-                                                    CancellationToken cancellation = default)
+    public static async Task<Void> SendOkAsync<TResponse>(this HttpResponse rsp,
+                                                          TResponse response,
+                                                          JsonSerializerContext? jsonSerializerContext = null,
+                                                          CancellationToken cancellation = default)
     {
         rsp.HttpContext.MarkResponseStart();
         rsp.HttpContext.PopulateResponseHeadersFromResponseDto(response);
         rsp.StatusCode = 200;
 
         EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, response);
+        if (EpOpts.GlobalResponseModifierAsync is not null)
+            await EpOpts.GlobalResponseModifierAsync(rsp.HttpContext, response);
 
-        return Execute(
-            EpOpts.GlobalResponseModifierAsync?.Invoke(rsp.HttpContext, response),
-            SerOpts.ResponseSerializer(rsp, response, "application/json", jsonSerializerContext, cancellation.IfDefault(rsp)));
+        await SerOpts.ResponseSerializer(rsp, response, "application/json", jsonSerializerContext, cancellation.IfDefault(rsp));
+
+        return Void.Instance;
     }
 
     /// <summary>
@@ -538,14 +558,17 @@ public static class HttpResponseExtensions
     ///   - TypedResults.NotFound();
     /// </code>
     /// </param>
-    public static Task<Void> SendResultAsync(this HttpResponse rsp, IResult result)
+    public static async Task<Void> SendResultAsync(this HttpResponse rsp, IResult result)
     {
         rsp.HttpContext.MarkResponseStart();
-        EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, result);
 
-        return Execute(
-            EpOpts.GlobalResponseModifierAsync?.Invoke(rsp.HttpContext, result),
-            result.ExecuteAsync(rsp.HttpContext));
+        EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, result);
+        if (EpOpts.GlobalResponseModifierAsync is not null)
+            await EpOpts.GlobalResponseModifierAsync(rsp.HttpContext, result);
+
+        await result.ExecuteAsync(rsp.HttpContext);
+
+        return Void.Instance;
     }
 
     /// <summary>
@@ -553,16 +576,18 @@ public static class HttpResponseExtensions
     /// </summary>
     /// <param name="statusCode">the http status code</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    public static Task<Void> SendStatusCodeAsync(this HttpResponse rsp, int statusCode, CancellationToken cancellation = default)
+    public static async Task<Void> SendStatusCodeAsync(this HttpResponse rsp, int statusCode, CancellationToken cancellation = default)
     {
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = statusCode;
 
         EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
+        if (EpOpts.GlobalResponseModifierAsync is not null)
+            await EpOpts.GlobalResponseModifierAsync(rsp.HttpContext, null);
 
-        return Execute(
-            EpOpts.GlobalResponseModifierAsync?.Invoke(rsp.HttpContext, null),
-            rsp.StartAsync(cancellation.IfDefault(rsp)));
+        await rsp.StartAsync(cancellation.IfDefault(rsp));
+
+        return Void.Instance;
     }
 
     /// <summary>
@@ -606,6 +631,8 @@ public static class HttpResponseExtensions
                 lastModified);
 
             EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, stream);
+            if (EpOpts.GlobalResponseModifierAsync is not null)
+                await EpOpts.GlobalResponseModifierAsync(rsp.HttpContext, stream);
 
             if (!shouldSendBody)
                 return Void.Instance;
@@ -628,51 +655,45 @@ public static class HttpResponseExtensions
     /// <param name="statusCode">optional custom http status code</param>
     /// <param name="contentType">optional content type header value</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    public static Task<Void> SendStringAsync(this HttpResponse rsp,
-                                             string content,
-                                             int statusCode = 200,
-                                             string contentType = "text/plain; charset=utf-8",
-                                             CancellationToken cancellation = default)
+    public static async Task<Void> SendStringAsync(this HttpResponse rsp,
+                                                   string content,
+                                                   int statusCode = 200,
+                                                   string contentType = "text/plain; charset=utf-8",
+                                                   CancellationToken cancellation = default)
     {
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = statusCode;
         rsp.ContentType = contentType;
 
         EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, content);
+        if (EpOpts.GlobalResponseModifierAsync is not null)
+            await EpOpts.GlobalResponseModifierAsync(rsp.HttpContext, content);
 
-        return Execute(
-            EpOpts.GlobalResponseModifierAsync?.Invoke(rsp.HttpContext, content),
-            rsp.WriteAsync(content, cancellation.IfDefault(rsp)));
+        await rsp.WriteAsync(content, cancellation.IfDefault(rsp));
+
+        return Void.Instance;
     }
 
     /// <summary>
     /// send a 401 unauthorized response
     /// </summary>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-    public static Task<Void> SendUnauthorizedAsync(this HttpResponse rsp, CancellationToken cancellation = default)
+    public static async Task<Void> SendUnauthorizedAsync(this HttpResponse rsp, CancellationToken cancellation = default)
     {
         rsp.HttpContext.MarkResponseStart();
         rsp.StatusCode = 401;
 
         EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
+        if (EpOpts.GlobalResponseModifierAsync is not null)
+            await EpOpts.GlobalResponseModifierAsync(rsp.HttpContext, null);
 
-        return Execute(
-            EpOpts.GlobalResponseModifierAsync?.Invoke(rsp.HttpContext, null),
-            rsp.StartAsync(cancellation.IfDefault(rsp)));
+        await rsp.StartAsync(cancellation.IfDefault(rsp));
+
+        return Void.Instance;
     }
 
     static CancellationToken IfDefault(this CancellationToken token, HttpResponse httpResponse)
         => token == CancellationToken.None
                ? httpResponse.HttpContext.RequestAborted
                : token;
-
-    static async Task<Void> Execute(Task? modifierTask, Task finalTask)
-    {
-        if (modifierTask is not null)
-            await modifierTask;
-
-        await finalTask.ConfigureAwait(false);
-
-        return Void.Instance;
-    }
 }

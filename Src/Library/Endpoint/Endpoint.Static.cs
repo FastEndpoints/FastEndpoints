@@ -105,10 +105,10 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
         }
     }
 
-    static Task AutoSendResponse(HttpContext ctx,
-                                 TResponse responseDto,
-                                 JsonSerializerContext? jsonSerializerContext,
-                                 CancellationToken cancellation)
+    static Task<Void> AutoSendResponse(HttpContext ctx,
+                                       TResponse responseDto,
+                                       JsonSerializerContext? jsonSerializerContext,
+                                       CancellationToken cancellation)
         => responseDto is null
                ? ctx.Response.SendNoContentAsync(cancellation)
                : ctx.Response.SendAsync(responseDto, ctx.Response.StatusCode, jsonSerializerContext, cancellation);

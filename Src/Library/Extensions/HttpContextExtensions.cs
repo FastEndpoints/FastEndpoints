@@ -127,6 +127,9 @@ public static class HttpContextExtensions
 
     internal static bool EdiIsHandled(this HttpContext ctx)
         => ctx.Items.ContainsKey(CtxKey.EdiIsHandled);
+
+    internal static void StoreResponse(this HttpContext ctx, object? response)
+        => ctx.Items[Constants.FastEndpointsResponse] = response;
 }
 
 static class CtxKey

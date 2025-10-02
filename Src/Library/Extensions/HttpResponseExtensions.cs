@@ -85,6 +85,7 @@ public static class HttpResponseExtensions
                                                         CancellationToken cancellation = default)
     {
         rsp.HttpContext.MarkResponseStart();
+        rsp.HttpContext.StoreResponse(response);
         rsp.HttpContext.PopulateResponseHeadersFromResponseDto(response);
         rsp.StatusCode = statusCode;
 
@@ -170,6 +171,7 @@ public static class HttpResponseExtensions
                       throw new InvalidOperationException("LinkGenerator is not registered! Have you done the unit test setup correctly?");
 
         rsp.HttpContext.MarkResponseStart();
+        rsp.HttpContext.StoreResponse(responseBody);
         rsp.HttpContext.PopulateResponseHeadersFromResponseDto(responseBody);
         rsp.StatusCode = statusCode;
         rsp.Headers.Location = generateAbsoluteUrl
@@ -313,6 +315,7 @@ public static class HttpResponseExtensions
         rsp.StatusCode = statusCode;
 
         var content = ErrOpts.ResponseBuilder(failures, rsp.HttpContext, statusCode);
+        rsp.HttpContext.StoreResponse(content);
 
         EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, content);
         if (EpOpts.GlobalResponseModifierAsync is not null)
@@ -526,6 +529,7 @@ public static class HttpResponseExtensions
                                                           CancellationToken cancellation = default)
     {
         rsp.HttpContext.MarkResponseStart();
+        rsp.HttpContext.StoreResponse(response);
         rsp.HttpContext.PopulateResponseHeadersFromResponseDto(response);
         rsp.StatusCode = 200;
 

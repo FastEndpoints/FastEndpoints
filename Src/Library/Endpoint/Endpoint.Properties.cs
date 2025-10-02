@@ -60,7 +60,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <summary>
     /// the base url of the current request
     /// </summary>
-    public string BaseURL => _baseUrl ??= $"{HttpContext.Request?.Scheme}://{HttpContext.Request?.Host.ToString()}/";
+    public string BaseURL => _baseUrl ??= $"{HttpContext.Request.Scheme}://{HttpContext.Request.Host.ToString()}/";
 
     /// <summary>
     /// the http method of the current request

@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace FastEndpoints.Messaging.Jobs;
 
@@ -18,4 +18,13 @@ static partial class LoggingExtensions
 
     [LoggerMessage(5, LogLevel.Error, "Job storage 'store-job-result' error for [queue-id:{queueID}]({tCommand}): {msg}. Retrying in 5 seconds...")]
     public static partial void StorageStoreJobResultError(this ILogger l, string queueID, string tCommand, string msg);
+
+    [LoggerMessage(6, LogLevel.Error, "Job storage 'try-acquire-lock' error for [queue-id:{queueID}]({tCommand}): {msg}")]
+    public static partial void StorageTryAcquireLockError(this ILogger l, string queueID, string tCommand, string msg);
+
+    [LoggerMessage(7, LogLevel.Error, "Job storage 'try-release-lock' error for [queue-id:{queueID}]({tCommand}): {msg}")]
+    public static partial void StorageTryReleaseLockError(this ILogger l, string queueID, string tCommand, string msg);
+
+    [LoggerMessage(8, LogLevel.Error, "Job storage 'on-lease-heartbeat' error for [queue-id:{queueID}]({tCommand}): {msg}")]
+    public static partial void StorageOnLeaseHeartbeatError(this ILogger l, string queueID, string tCommand, string msg);
 }

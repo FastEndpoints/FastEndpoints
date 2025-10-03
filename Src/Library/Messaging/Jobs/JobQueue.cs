@@ -27,7 +27,7 @@ abstract class JobQueueBase
 
     protected abstract Task StoreJobResultAsync<TResult>(Guid trackingId, TResult result, CancellationToken ct);
 
-    internal abstract void SetLimits(int concurrencyLimit, TimeSpan executionTimeLimit, TimeSpan semWaitLimit);
+    internal abstract void SetLimits(int concurrencyLimit, TimeSpan executionTimeLimit, TimeSpan leaseHeartbeatDelay, TimeSpan semWaitLimit);
 
     internal static TStorageRecord CreateJob<TStorageRecord>(ICommandBase command, DateTime? executeAfter, DateTime? expireOn)
         where TStorageRecord : class, IJobStorageRecord, new()
@@ -104,6 +104,8 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
     where TStorageRecord : class, IJobStorageRecord, new()
     where TStorageProvider : class, IJobStorageProvider<TStorageRecord>
 {
+    const int OnErrorDelayMs = 5000;
+
     static readonly Type _tCommand = typeof(TCommand);
     static readonly string _tCommandName = _tCommand.FullName!;
 
@@ -117,6 +119,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
     readonly IJobResultProvider? _resultStorage;
     readonly SemaphoreSlim _sem = new(0);
     readonly ILogger _log;
+    TimeSpan _leaseHeartbeatDelay;
     TimeSpan _executionTimeLimit;
     TimeSpan _cancellationExpiry;
     TimeSpan _semWaitLimit;
@@ -136,10 +139,11 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
         JobStorage<TStorageRecord, TStorageProvider>.AppCancellation = _appCancellation;
     }
 
-    internal override void SetLimits(int concurrencyLimit, TimeSpan executionTimeLimit, TimeSpan semWaitLimit)
+    internal override void SetLimits(int concurrencyLimit, TimeSpan executionTimeLimit, TimeSpan leaseHeartbeatDelay, TimeSpan semWaitLimit)
     {
         _parallelOptions.MaxDegreeOfParallelism = concurrencyLimit;
         _executionTimeLimit = executionTimeLimit;
+        _leaseHeartbeatDelay = leaseHeartbeatDelay;
         _cancellationExpiry = executionTimeLimit + TimeSpan.FromHours(1);
         _semWaitLimit = semWaitLimit;
         _ = CommandExecutorTask();
@@ -257,44 +261,106 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
     {
         while (!_appCancellation.IsCancellationRequested)
         {
-            IEnumerable<TStorageRecord> records;
+            var lockAcquired = false;
+            IEnumerable<TStorageRecord> records = [];
 
             try
             {
-                records = await _storage.GetNextBatchAsync(
-                              new()
-                              {
-                                  Limit = _parallelOptions.MaxDegreeOfParallelism,
-                                  QueueID = QueueID,
-                                  CancellationToken = _appCancellation,
-                                  Match = r => r.QueueID == QueueID &&
-                                               r.IsComplete == false &&
-                                               DateTime.UtcNow >= r.ExecuteAfter &&
-                                               DateTime.UtcNow <= r.ExpireOn
-                              });
-            }
-            catch (Exception x)
-            {
-                _log.StorageRetrieveError(QueueID, _tCommandName, x.Message);
-                await Task.Delay(5000);
+                try
+                {
+                    lockAcquired = await _storage.TryAcquireLockAsync(QueueID, _appCancellation);
+                }
+                catch (Exception x)
+                {
+                    _log.StorageTryAcquireLockError(QueueID, _tCommandName, x.Message);
+                    await Task.Delay(OnErrorDelayMs);
 
-                continue;
-            }
+                    continue;
+                }
 
-            if (!records.Any())
-            {
-                // If _isInUse is false, it signifies that no job has been queued yet.
-                // Therefore, there is no necessity for further iterations within the loop until the semaphore is released upon queuing the first job.
-                //
-                // If _isInUse is true, it indicates that we must await the queuing of the next job or the passage of delay duration (default: 1 minute), whichever comes first.
-                // We must periodically reevaluate the storage status to ascertain if the user has rescheduled any previous jobs while no new jobs are being queued.
-                // Failure to conduct this periodic check could result in rescheduled jobs only executing upon the arrival of new jobs, potentially leading to expired job executions.
-                await (_isInUse
-                           ? Task.WhenAny(_sem.WaitAsync(_appCancellation), Task.Delay(_semWaitLimit))
-                           : _sem.WaitAsync(_appCancellation));
-            }
-            else
+                try
+                {
+                    if (lockAcquired)
+                    {
+                        var utcNow = DateTime.UtcNow;
+
+                        records = await _storage.GetNextBatchAsync(
+                                      new()
+                                      {
+                                          Limit = _parallelOptions.MaxDegreeOfParallelism,
+                                          QueueID = QueueID,
+                                          CancellationToken = _appCancellation,
+                                          Match = r => r.QueueID == QueueID &&
+                                                       r.IsComplete == false &&
+                                                       utcNow >= r.ExecuteAfter &&
+                                                       utcNow <= r.ExpireOn &&
+                                                       (r.LockExpiresOn == null || r.LockExpiresOn <= utcNow)
+                                      });
+                    }
+                }
+                catch (Exception x)
+                {
+                    _log.StorageRetrieveError(QueueID, _tCommandName, x.Message);
+                    await Task.Delay(OnErrorDelayMs);
+
+                    continue;
+                }
+
+                if (!records.Any())
+                {
+                    // If _isInUse is false, it signifies that no job has been queued yet.
+                    // Therefore, there is no necessity for further iterations within the loop until the semaphore is released upon queuing the first job.
+                    //
+                    // If _isInUse is true, it indicates that we must await the queuing of the next job or the passage of delay duration (default: 1 minute), whichever comes first.
+                    // We must periodically reevaluate the storage status to ascertain if the user has rescheduled any previous jobs while no new jobs are being queued.
+                    // Failure to conduct this periodic check could result in rescheduled jobs only executing upon the arrival of new jobs, potentially leading to expired job executions.
+                    await (_isInUse
+                               ? Task.WhenAny(_sem.WaitAsync(_appCancellation), Task.Delay(_semWaitLimit))
+                               : _sem.WaitAsync(_appCancellation));
+
+                    continue;
+                }
+
+                var commandExecuting = true;
+
+                var heartbeatTask = Task.Run(async () =>
+                {
+                    while (commandExecuting && !_appCancellation.IsCancellationRequested)
+                    {
+                        try
+                        {
+                            await Task.Delay(_leaseHeartbeatDelay, _appCancellation);
+
+                            var pendingRecords = records.Where(r => !r.IsComplete).ToList();
+
+                            await Parallel.ForEachAsync(pendingRecords, _parallelOptions, _storage.OnLeaseHeartbeatAsync);
+                        }
+                        catch (Exception x)
+                        {
+                            _log.StorageOnLeaseHeartbeatError(QueueID, _tCommandName, x.Message);
+                        }
+                    }
+                });
+
                 await Parallel.ForEachAsync(records, _parallelOptions, ExecuteCommand);
+
+                commandExecuting = false;
+                await heartbeatTask;
+            }
+            finally
+            {
+                if (lockAcquired)
+                {
+                    try
+                    {
+                        await _storage.TryReleaseLockAsync(QueueID, _appCancellation);
+                    }
+                    catch (Exception x)
+                    {
+                        _log.StorageTryReleaseLockError(QueueID, _tCommandName, x.Message);
+                    }
+                }
+            }
         }
 
         async ValueTask ExecuteCommand(TStorageRecord record, CancellationToken _)
@@ -357,7 +423,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                         if (_appCancellation.IsCancellationRequested)
                             break;
 
-                        await Task.Delay(5000);
+                        await Task.Delay(OnErrorDelayMs);
                     }
                 }
 
@@ -369,6 +435,8 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 try
                 {
                     record.IsComplete = true;
+                    record.LockExpiresOn = null;
+                    record.LockedBy = null;
                     await _storage.MarkJobAsCompleteAsync(record, _appCancellation);
 
                     break;
@@ -380,7 +448,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                     if (_appCancellation.IsCancellationRequested)
                         break;
 
-                    await Task.Delay(5000);
+                    await Task.Delay(OnErrorDelayMs);
                 }
             }
 
@@ -402,7 +470,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                     if (_appCancellation.IsCancellationRequested)
                         break;
 
-                    await Task.Delay(5000);
+                    await Task.Delay(OnErrorDelayMs);
                 }
             }
         }

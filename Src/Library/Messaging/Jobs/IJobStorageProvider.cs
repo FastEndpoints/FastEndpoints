@@ -1,4 +1,4 @@
-﻿namespace FastEndpoints;
+namespace FastEndpoints;
 
 /// <summary>
 /// interface for defining the contract of a job storage provider
@@ -12,6 +12,44 @@ public interface IJobStorageProvider<TStorageRecord> where TStorageRecord : IJob
     /// <param name="r">the job storage record which contains the actual command object as well as some metadata</param>
     /// <param name="ct"></param>
     Task StoreJobAsync(TStorageRecord r, CancellationToken ct);
+
+    /// <summary>
+    /// attempt to acquire an exclusive lock for processing jobs in the specified queue.
+    /// this method has a default implementation that always returns true, making it optional to override.
+    /// implement this method if you need to coordinate job processing across multiple workers/instances to prevent duplicate processing.
+    /// </summary>
+    /// <param name="queueId">the unique identifier of the job queue to acquire a lock for</param>
+    /// <param name="ct">cancellation token</param>
+    /// <returns>true if the lock was successfully acquired; false if another worker already holds the lock</returns>
+    Task<bool> TryAcquireLockAsync(string queueId, CancellationToken ct)
+    {
+        return Task.FromResult(true);
+    }
+
+    /// <summary>
+    /// attempt to release the exclusive lock for the specified queue.
+    /// this method has a default implementation that always returns true, making it optional to override.
+    /// implement this method if you need to coordinate job processing across multiple workers/instances.
+    /// </summary>
+    /// <param name="queueId">the unique identifier of the job queue to release the lock for</param>
+    /// <param name="ct">cancellation token</param>
+    /// <returns>true if the lock was successfully released; false otherwise</returns>
+    Task<bool> TryReleaseLockAsync(string queueId, CancellationToken ct)
+    {
+        return Task.FromResult(true);
+    }
+
+    /// <summary>
+    /// called periodically to signal that the lease for a job is still active.
+    /// implement this method if you need to update lease information or perform custom logic when a lease heartbeat occurs.
+    /// this method has a default implementation that does nothing.
+    /// </summary>
+    /// <param name="record">the job storage record for which the lease heartbeat is being sent</param>
+    /// <param name="ct">cancellation token</param>
+    ValueTask OnLeaseHeartbeatAsync(TStorageRecord record, CancellationToken ct)
+    {
+        return ValueTask.CompletedTask;
+    }
 
     /// <summary>
     /// fetch the next pending batch of job storage records that need to be processed, with the supplied search parameters.

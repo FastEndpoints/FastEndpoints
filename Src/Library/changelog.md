@@ -82,6 +82,25 @@ app.UseFastEndpoints(
 
 </details>
 
+<details><summary>title text</summary>
+
+The `FastEndpoints.ProblemDetails.Detail` property has been unused until now. It will by default be populated according to the following `DetailTransformer` logic, which you can customize if needed. The transformer can also be set to `null` in case you'd like to go back to the previous behavior.
+
+```csharp
+app.UseFastEndpoints(
+       c => c.Errors.UseProblemDetails(
+           p =>
+           {
+               p.DetailTransformer = pd => pd.Errors.Count() == 1
+                                               ? pd.Errors.First().Reason
+                                               : null;
+           }))
+```
+
+The default behavior is to populate the `Detail` property with the reason if there's only 1 error and not populate it at all in case there's more than 1 error.
+
+</details>
+
 <details><summary>Specify a request binder per group</summary>
 
 It is now possible to register a particular open generic request binder such as the following:

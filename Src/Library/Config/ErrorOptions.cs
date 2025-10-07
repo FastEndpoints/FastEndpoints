@@ -95,6 +95,11 @@ public sealed class ErrorOptions
         public Func<ProblemDetails, string> TitleTransformer { internal get; set; } = TransformTitle;
 
         /// <summary>
+        /// sets a function that will be called per instance/response that allows customization of the <see cref="ProblemDetails.Detail" /> value.
+        /// </summary>
+        public Func<ProblemDetails, string?>? DetailTransformer { internal get; set; } = TransformDetail;
+
+        /// <summary>
         /// controls whether duplicate errors with the same name should be allowed for <see cref="ProblemDetails.Errors" />.
         /// </summary>
         public bool AllowDuplicateErrors { internal get; set; }
@@ -118,6 +123,11 @@ public sealed class ErrorOptions
             => _codeMap.TryGetValue(p.Status, out var entry)
                    ? entry.Url
                    : Cfg.ErrOpts.ProblemDetailsConf.TypeValue;
+
+        static string? TransformDetail(ProblemDetails p)
+            => p.Errors.Count() == 1
+                   ? p.Errors.First().Reason
+                   : null;
 
         static readonly Dictionary<int, (string Title, string Url)> _codeMap = new()
         {

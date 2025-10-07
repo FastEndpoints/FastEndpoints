@@ -74,15 +74,12 @@ public sealed class ErrorOptions
             = (failures, ctx, statusCode)
                   => new ProblemDetails(failures, ctx.Request.Path, ctx.TraceIdentifier, statusCode);
 
+    #pragma warning disable CA1822
         /// <summary>
-        /// globally sets the value of <see cref="ProblemDetails.Type" />.
+        /// the built-in map that ties together status codes to the relevant title and type values.
         /// </summary>
-        public string TypeValue { internal get; set; } = "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1";
-
-        /// <summary>
-        /// sets a function that will be called per instance/response that allows customization of the <see cref="ProblemDetails.Type" /> value.
-        /// </summary>
-        public Func<ProblemDetails, string> TypeTransformer { internal get; set; } = TransformType;
+        public Dictionary<int, (string Title, string Url)> Map => _codeMap;
+    #pragma warning restore CA1822
 
         /// <summary>
         /// globally sets the value of <see cref="ProblemDetails.Title" />.
@@ -93,6 +90,16 @@ public sealed class ErrorOptions
         /// sets a function that will be called per instance/response that allows customization of the <see cref="ProblemDetails.Title" /> value.
         /// </summary>
         public Func<ProblemDetails, string> TitleTransformer { internal get; set; } = TransformTitle;
+
+        /// <summary>
+        /// globally sets the value of <see cref="ProblemDetails.Type" />.
+        /// </summary>
+        public string TypeValue { internal get; set; } = "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1";
+
+        /// <summary>
+        /// sets a function that will be called per instance/response that allows customization of the <see cref="ProblemDetails.Type" /> value.
+        /// </summary>
+        public Func<ProblemDetails, string> TypeTransformer { internal get; set; } = TransformType;
 
         /// <summary>
         /// sets a function that will be called per instance/response that allows customization of the <see cref="ProblemDetails.Detail" /> value.

@@ -98,6 +98,11 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
             else
                 await HandleAsync(req, ct);
 
+            if (_response is null & HttpContext.Items.TryGetValue(Constants.FastEndpointsResponse, out var res) && res is TResponse r)
+                _response = r; // HttpResponse extensions set the response in HttpContext.Items
+            else
+                HttpContext.Items[Constants.FastEndpointsResponse] = _response; // for third party libs to access the response
+
             if (!Definition.DontAutoSend && !ResponseStarted)
                 await AutoSendResponse(HttpContext, _response!, Definition.SerializerContext, ct);
 
@@ -124,8 +129,6 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
         finally
         {
             await RunPostProcessors(Definition.PostProcessorList, req, _response, HttpContext, edi, ValidationFailures, ct);
-
-            HttpContext.Items["FastEndpointsResponse"] = _response; //for use by idempotency libraries
 
             //throw here if an exception has been captured and a post-processor hasn't handled it.
             //without this UseDefaultExceptionHandler() or user's custom exception handling middleware becomes useless as the exception is silently swallowed.

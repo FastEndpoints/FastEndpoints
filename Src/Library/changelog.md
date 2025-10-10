@@ -82,6 +82,25 @@ app.UseFastEndpoints(
 
 </details>
 
+<details><summary>Use 'ProblemDetails.Detail' property for describing single error instances</summary>
+
+The `FastEndpoints.ProblemDetails.Detail` property has been unused until now. It will now by default be populated according to the following `DetailTransformer` logic, which you can customize if needed. The transformer can also be set to `null` in case you'd like to go back to the previous behavior.
+
+```csharp
+app.UseFastEndpoints(
+       c => c.Errors.UseProblemDetails(
+           p =>
+           {
+               p.DetailTransformer = pd => pd.Errors.Count() == 1
+                                               ? pd.Errors.First().Reason
+                                               : null;
+           }))
+```
+
+The default behavior is to populate the `Detail` property with the reason if there's only 1 error and not populate it at all in case there's more than 1 error.
+
+</details>
+
 <details><summary>Specify a request binder per group</summary>
 
 It is now possible to register a particular open generic request binder such as the following:
@@ -228,6 +247,18 @@ public override async Task HandleAsync(CancellationToken ct)
     }
 }
 ```
+
+</details>
+
+<details><summary>Async variation of Global Response Modifier</summary>
+
+TODO: describe it
+
+</details>
+
+<details><summary>Allow 'ValidationContext' instances to be cached</summary>
+
+Until now, you were meant to obtain an instance of the validation context via `ValidationContext.Instance` in the method itself. Starting this release, you are now able to obtain it either in the constructor or property initializers and cache it for later use.
 
 </details>
 

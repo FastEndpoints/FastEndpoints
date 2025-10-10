@@ -8,9 +8,4 @@ Content-Type: application/json
 }
 
 ###
-POST http://localhost:5000/user
-Content-Type: application/ld+json
-
-{
-    "fullName": "full name"
-}
+GET http://localhost:5000/test

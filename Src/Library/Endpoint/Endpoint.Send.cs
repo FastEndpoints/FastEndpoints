@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 
@@ -6,6 +7,7 @@ namespace FastEndpoints;
 /// <summary>
 /// target this interface type for creating your own custom response sending methods.
 /// </summary>
+[SuppressMessage("ReSharper", "UnusedMemberInSuper.Global")]
 public interface IResponseSender
 {
     /// <summary>

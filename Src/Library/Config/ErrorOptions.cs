@@ -74,6 +74,23 @@ public sealed class ErrorOptions
             = (failures, ctx, statusCode)
                   => new ProblemDetails(failures, ctx.Request.Path, ctx.TraceIdentifier, statusCode);
 
+    #pragma warning disable CA1822
+        /// <summary>
+        /// the built-in map that ties together status codes to the relevant title and type values.
+        /// </summary>
+        public Dictionary<int, (string Title, string Url)> Map => _codeMap;
+    #pragma warning restore CA1822
+
+        /// <summary>
+        /// globally sets the value of <see cref="ProblemDetails.Title" />.
+        /// </summary>
+        public string TitleValue { internal get; set; } = "One or more errors occurred.";
+
+        /// <summary>
+        /// sets a function that will be called per instance/response that allows customization of the <see cref="ProblemDetails.Title" /> value.
+        /// </summary>
+        public Func<ProblemDetails, string> TitleTransformer { internal get; set; } = TransformTitle;
+
         /// <summary>
         /// globally sets the value of <see cref="ProblemDetails.Type" />.
         /// </summary>
@@ -85,14 +102,9 @@ public sealed class ErrorOptions
         public Func<ProblemDetails, string> TypeTransformer { internal get; set; } = TransformType;
 
         /// <summary>
-        /// globally sets the value of <see cref="ProblemDetails.Title" />.
+        /// sets a function that will be called per instance/response that allows customization of the <see cref="ProblemDetails.Detail" /> value.
         /// </summary>
-        public string TitleValue { internal get; set; } = "One or more errors occurred.";
-
-        /// <summary>
-        /// sets a function that will be called per instance/response that allows customization of the <see cref="ProblemDetails.Title" /> value.
-        /// </summary>
-        public Func<ProblemDetails, string> TitleTransformer { internal get; set; } = TransformTitle;
+        public Func<ProblemDetails, string?>? DetailTransformer { internal get; set; } = TransformDetail;
 
         /// <summary>
         /// controls whether duplicate errors with the same name should be allowed for <see cref="ProblemDetails.Errors" />.
@@ -118,6 +130,11 @@ public sealed class ErrorOptions
             => _codeMap.TryGetValue(p.Status, out var entry)
                    ? entry.Url
                    : Cfg.ErrOpts.ProblemDetailsConf.TypeValue;
+
+        static string? TransformDetail(ProblemDetails p)
+            => p.Errors.Count() == 1
+                   ? p.Errors.First().Reason
+                   : null;
 
         static readonly Dictionary<int, (string Title, string Url)> _codeMap = new()
         {

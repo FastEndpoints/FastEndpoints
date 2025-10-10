@@ -64,6 +64,8 @@ public sealed class ProblemDetails : IResult, IEndpointMetadataProvider
                 set.Add(new(failures[i]));
             Errors = set;
         }
+
+        Detail = Cfg.ErrOpts.ProblemDetailsConf.DetailTransformer?.Invoke(this);
     }
 
     /// <inheritdoc />

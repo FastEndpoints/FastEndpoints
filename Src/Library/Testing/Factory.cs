@@ -96,7 +96,8 @@ public static class Factory
            .AddSingleton<ILoggerFactory, LoggerFactory>()
            .AddSingleton(typeof(ILogger<>), typeof(Logger<>))
            .AddSingleton<CommandHandlerRegistry>()
-           .AddSingleton(typeof(EventBus<>));
+           .AddSingleton(typeof(EventBus<>))
+           .AddHttpContextAccessor();
 
     /// <summary>
     /// register fake/mock/test services for the http context. typically only used with unit tests with the <c>Factory.Create()</c> method/>

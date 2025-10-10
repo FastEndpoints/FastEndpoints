@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-namespace TestCases.HydratedQueryParamGeneratorTest;
+﻿namespace TestCases.HydratedQueryParamGeneratorTest;
 
 public sealed class Request
 {

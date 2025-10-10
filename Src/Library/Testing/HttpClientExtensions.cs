@@ -577,13 +577,24 @@ public static class HttpClientExtensions
         if (toStringMethod is not null && toStringMethod.DeclaringType != Types.Object && isRecord is false)
             return value.ToString();
 
-        var json = JsonSerializer.Serialize(value, SerOpts.Options);
+        try
+        {
+            var json = JsonSerializer.Serialize(value, SerOpts.Options);
 
-        //this is a json string literal
-        if (json.StartsWith('"') && json.EndsWith('"'))
-            return json.TrimStart('"').TrimEnd('"');
+            //this is a json string literal
+            if (json.StartsWith('"') && json.EndsWith('"'))
+                return json.TrimStart('"').TrimEnd('"');
 
-        //this is either a json array or object
-        return json;
+            //this is either a json array or object
+            return json;
+        }
+        catch
+        {
+            if (p.IsDefined(Types.FromFormAttribute))
+                throw new NotSupportedException(
+                    "Automatically constructing MultiPartFormData requests for properties annotated with [FromForm] is not yet supported!");
+
+            throw;
+        }
     }
 }

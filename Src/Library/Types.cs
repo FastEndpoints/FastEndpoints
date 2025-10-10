@@ -1,7 +1,6 @@
 ﻿// ReSharper disable InconsistentNaming
 
 using System.Collections;
-using System.Text.Json.Serialization;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;

@@ -5,8 +5,9 @@ using System.Linq.Expressions;
 
 namespace FastEndpoints;
 
-public interface IValidationErrors<T>
+public interface IValidationErrors
 {
+    // ReSharper disable once UnusedMemberInSuper.Global
     /// <summary>
     /// validation failures collection for the endpoint
     /// </summary>
@@ -30,15 +31,6 @@ public interface IValidationErrors<T>
     /// <param name="errorCode">the error code associated with the error</param>
     /// <param name="severity">the severity of the error</param>
     void AddError(string message, string? errorCode = null, Severity severity = Severity.Error);
-
-    /// <summary>
-    /// adds an error message for the specified property of the request dto
-    /// </summary>
-    /// <param name="property">the property to add the error message for</param>
-    /// <param name="errorMessage">the error message</param>
-    /// <param name="errorCode">the error code associated with the error</param>
-    /// <param name="severity">the severity of the error</param>
-    void AddError(Expression<Func<T, object?>> property, string errorMessage, string? errorCode = null, Severity severity = Severity.Error);
 
     // ReSharper disable once UnusedMemberInSuper.Global
     /// <summary>
@@ -76,6 +68,18 @@ public interface IValidationErrors<T>
     /// <param name="statusCode">an optional status code to be used when building the error response</param>
     [DoesNotReturn]
     void ThrowError(string message, string errorCode, Severity severity = Severity.Error, int? statusCode = null);
+}
+
+public interface IValidationErrors<T> : IValidationErrors
+{
+    /// <summary>
+    /// adds an error message for the specified property of the request dto
+    /// </summary>
+    /// <param name="property">the property to add the error message for</param>
+    /// <param name="errorMessage">the error message</param>
+    /// <param name="errorCode">the error code associated with the error</param>
+    /// <param name="severity">the severity of the error</param>
+    void AddError(Expression<Func<T, object?>> property, string errorMessage, string? errorCode = null, Severity severity = Severity.Error);
 
     /// <summary>
     /// adds an error message for the specified property of the request dto and sends back a 400 bad request with error details immediately interrupting
@@ -97,9 +101,5 @@ public interface IValidationErrors<T>
     /// <param name="severity">the severity of the error</param>
     /// <param name="statusCode">an optional status code to be used when building the error response</param>
     [DoesNotReturn]
-    void ThrowError(Expression<Func<T, object?>> property,
-                    string errorMessage,
-                    string errorCode,
-                    Severity severity = Severity.Error,
-                    int? statusCode = null);
+    void ThrowError(Expression<Func<T, object?>> property, string errorMessage, string errorCode, Severity severity = Severity.Error, int? statusCode = null);
 }

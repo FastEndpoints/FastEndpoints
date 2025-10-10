@@ -82,9 +82,9 @@ app.UseFastEndpoints(
 
 </details>
 
-<details><summary>title text</summary>
+<details><summary>Use 'ProblemDetails.Detail' property for describing single error instances</summary>
 
-The `FastEndpoints.ProblemDetails.Detail` property has been unused until now. It will by default be populated according to the following `DetailTransformer` logic, which you can customize if needed. The transformer can also be set to `null` in case you'd like to go back to the previous behavior.
+The `FastEndpoints.ProblemDetails.Detail` property has been unused until now. It will now by default be populated according to the following `DetailTransformer` logic, which you can customize if needed. The transformer can also be set to `null` in case you'd like to go back to the previous behavior.
 
 ```csharp
 app.UseFastEndpoints(
@@ -253,6 +253,12 @@ public override async Task HandleAsync(CancellationToken ct)
 <details><summary>Async variation of Global Response Modifier</summary>
 
 TODO: describe it
+
+</details>
+
+<details><summary>Allow 'ValidationContext' instances to be cached</summary>
+
+Until now, you were meant to obtain an instance of the validation context via `ValidationContext.Instance` in the method itself. Starting this release, you are now able to obtain it either in the constructor or property initializers and cache it for later use.
 
 </details>
 

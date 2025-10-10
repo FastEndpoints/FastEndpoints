@@ -1,4 +1,3 @@
-using FluentValidation;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
@@ -25,6 +24,7 @@ public class NestedRequest
 {
     [Required, StringLength(10, MinimumLength = 1)]
     public string Gender { get; set; }
+
     [Range(1, 150)]
     public int Age { get; set; }
 }
@@ -33,8 +33,10 @@ public class ChildRequest
 {
     [Required, StringLength(50, MinimumLength = 2)]
     public string Name { get; set; }
+
     [Range(0, 100)]
     public int Age { get; set; }
+
     [Required, StringLength(10, MinimumLength = 1)]
     public string Gender { get; set; }
 }

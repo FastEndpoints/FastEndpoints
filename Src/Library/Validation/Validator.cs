@@ -1,8 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
-using FluentValidation;
+﻿using FluentValidation;
 using JetBrains.Annotations;
 using Microsoft.Extensions.DependencyInjection;
-using ValidationResult = FluentValidation.Results.ValidationResult;
 
 namespace FastEndpoints;
 

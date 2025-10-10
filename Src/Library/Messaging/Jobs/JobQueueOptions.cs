@@ -7,13 +7,20 @@ public class JobQueueOptions
 {
     //key: tCommand
     //val: value tuple of concurrency and execution time limit
-    readonly Dictionary<Type, (int concurrency, TimeSpan timeLimit)> _limitOverrides = new();
+    readonly Dictionary<Type, (int concurrency, TimeSpan timeLimit, TimeSpan leaseHeartbeatDelay)> _limitOverrides = new();
 
     /// <summary>
     /// the default max concurrency per job type. default value is the number of logical processors of the computer.
     /// you can specify per queue type overrides using <see cref="LimitsFor{TCommand}(int, TimeSpan)" />
     /// </summary>
     public int MaxConcurrency { get; set; } = Environment.ProcessorCount;
+
+    /// <summary>
+    /// specifies the interval in seconds for sending heartbeat signals to maintain job leases.
+    /// the default value is 30 seconds. adjust this value to control how frequently
+    /// the system renews job leases to prevent them from expiring during long-running job executions.
+    /// </summary>
+    public TimeSpan LeaseHeartbeatDelay { get; set; } = TimeSpan.FromSeconds(30);
 
     /// <summary>
     /// specifies the interval for periodic re-checks of the storage to detect any scheduled jobs. these checks ensure that re-scheduled jobs are promptly executed.
@@ -39,16 +46,16 @@ public class JobQueueOptions
     /// when that happens you can handle it in the
     /// <see cref="IJobStorageProvider{TStorageRecord}.OnHandlerExecutionFailureAsync(TStorageRecord, Exception, CancellationToken)" /> method.
     /// </param>
-    public void LimitsFor<TCommand>(int maxConcurrency, TimeSpan timeLimit) where TCommand : ICommand
+    public void LimitsFor<TCommand>(int maxConcurrency, TimeSpan timeLimit, TimeSpan leaseHeartbeatDelay) where TCommand : ICommand
     {
-        _limitOverrides[typeof(TCommand)] = new(maxConcurrency, timeLimit);
+        _limitOverrides[typeof(TCommand)] = new(maxConcurrency, timeLimit, leaseHeartbeatDelay);
     }
 
     internal void SetLimits(Type tCommand, JobQueueBase jobQueue)
     {
         if (_limitOverrides.TryGetValue(tCommand, out var limits))
-            jobQueue.SetLimits(limits.concurrency, limits.timeLimit, StorageProbeDelay);
+            jobQueue.SetLimits(limits.concurrency, limits.timeLimit, limits.leaseHeartbeatDelay, StorageProbeDelay);
         else
-            jobQueue.SetLimits(MaxConcurrency, ExecutionTimeLimit, StorageProbeDelay);
+            jobQueue.SetLimits(MaxConcurrency, ExecutionTimeLimit, LeaseHeartbeatDelay, StorageProbeDelay);
     }
 }

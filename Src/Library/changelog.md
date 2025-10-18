@@ -346,4 +346,11 @@ sealed class DerivedClass : BaseDto
 
 </details>
 
+<details><summary>Jobs scheduled for the future not executed after app restart</summary>
+
+If a job was scheduled for the future, it would not get picked up for execution in case the app was restarted.
+It would only get executed upon queuing a new job. It has now been fixed by probing the storage provider once at startup to check if there's any jobs scheduled for the future.
+
+</details>
+
 ## Breaking Changes ⚠️

@@ -120,7 +120,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
     TimeSpan _executionTimeLimit;
     TimeSpan _cancellationExpiry;
     TimeSpan _semWaitLimit;
-    bool _isInUse;
+    bool? _isInUse;
 
     public JobQueue(TStorageProvider storageProvider,
                     IHostApplicationLifetime appLife,
@@ -261,6 +261,23 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
 
             try
             {
+                if (_isInUse is null)
+                {
+                    // hit storage once at startup to check if there's any incomplete jobs (possibly scheduled for the future) and set _isInUse
+                    // ref: https://github.com/FastEndpoints/FastEndpoints/issues/1007
+                    records = await _storage.GetNextBatchAsync(
+                                  new()
+                                  {
+                                      Limit = 1,
+                                      QueueID = QueueID,
+                                      CancellationToken = _appCancellation,
+                                      Match = r => r.QueueID == QueueID &&
+                                                   r.IsComplete == false &&
+                                                   r.ExpireOn >= DateTime.UtcNow
+                                  });
+                    _isInUse = records.Any();
+                }
+
                 records = await _storage.GetNextBatchAsync(
                               new()
                               {
@@ -269,8 +286,8 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                                   CancellationToken = _appCancellation,
                                   Match = r => r.QueueID == QueueID &&
                                                r.IsComplete == false &&
-                                               DateTime.UtcNow >= r.ExecuteAfter &&
-                                               DateTime.UtcNow <= r.ExpireOn
+                                               r.ExecuteAfter <= DateTime.UtcNow &&
+                                               r.ExpireOn >= DateTime.UtcNow
                               });
             }
             catch (Exception x)
@@ -283,13 +300,14 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
 
             if (!records.Any())
             {
-                // If _isInUse is false, it signifies that no job has been queued yet.
-                // Therefore, there is no necessity for further iterations within the loop until the semaphore is released upon queuing the first job.
+                // if _isInUse is false, that means no job has been queued yet nor is there any incomplete jobs for the future. so, it's necessary for further
+                // iterations within the loop until the semaphore is released upon queuing the first job.
                 //
-                // If _isInUse is true, it indicates that we must await the queuing of the next job or the passage of delay duration (default: 1 minute), whichever comes first.
-                // We must periodically reevaluate the storage status to ascertain if the user has rescheduled any previous jobs while no new jobs are being queued.
-                // Failure to conduct this periodic check could result in rescheduled jobs only executing upon the arrival of new jobs, potentially leading to expired job executions.
-                await (_isInUse
+                // if _isInUse is true, it indicates that we must await the queuing of the next job or the passage of delay duration (default: 1 minute),
+                // whichever comes first. we must periodically re-evaluate the storage status to check if there are jobs scheduled for the future while
+                // no new jobs are being queued. not doing this periodic check could result in future jobs only executing upon the arrival of new jobs,
+                // potentially leading to jobs being expired without being executed.
+                await (_isInUse is true
                            ? Task.WhenAny(_sem.WaitAsync(_appCancellation), Task.Delay(_semWaitLimit))
                            : _sem.WaitAsync(_appCancellation));
             }

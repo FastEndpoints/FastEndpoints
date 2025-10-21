@@ -12,5 +12,6 @@ public enum BindingSource
     QueryParams = 1 << 3,
     UserClaims = 1 << 4,
     Headers = 1 << 5,
-    Permissions = 1 << 6
+    Permissions = 1 << 6,
+    Cookies = 1 << 7
 }

@@ -475,6 +475,19 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
 
                             break;
                         }
+                        
+                        case FromCookieAttribute cAttrib: //add header params if there are any props marked with [FromHeader] attribute
+                        {
+                            var pName = cAttrib.CookieName ?? p.Name;
+
+                            reqParams.Add(CreateParam(paramCtx, OpenApiParameterKind.Cookie, p, pName, cAttrib.IsRequired));
+
+                            //remove corresponding json body field if it's required. allow binding only from cookie.
+                            if (cAttrib.IsRequired || cAttrib.RemoveFromSchema)
+                                RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample, docOpts);
+
+                            break;
+                        }
 
                         //can only be bound from claim since it's required. so remove prop from body.
                         //can only be bound from permission since it's required. so remove prop from body.

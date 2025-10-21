@@ -17,6 +17,7 @@ public class HttpClientExtensionsTests
         mockHttp.Expect(
                     HttpMethod.Get,
                     "http://localhost/api/test/1/00000000-0000-0000-0000-000000000000/stringValue/{fromClaim}/{fromHeader}/{hasPermission}")
+                .WithHeaders("Cookie", "cookie=fromCookie")
                 .Respond("application/json", "{}");
         var http = mockHttp.ToHttpClient();
         http.BaseAddress = new("http://localhost");
@@ -34,6 +35,7 @@ public class HttpClientExtensionsTests
                 NullableString = null,
                 FromClaim = "fromClaim",
                 FromHeader = "fromHeader",
+                FromCookie = "fromCookie",
                 HasPermission = true
             });
 
@@ -59,6 +61,9 @@ file class Request
 
     [FromHeader("tenant-id")]
     public string FromHeader { get; set; } = null!;
+
+    [FromCookie("cookie")]
+    public string FromCookie { get; set; } = null!;
 
     [HasPermission(Allow.Customers_Create)]
     public bool? HasPermission { get; set; }

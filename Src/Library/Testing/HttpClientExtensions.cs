@@ -1,6 +1,7 @@
 // ReSharper disable InconsistentNaming
 
 using System.Collections;
+using System.Net;
 using System.Net.Http.Json;
 using System.Reflection;
 using System.Text;
@@ -357,12 +358,16 @@ public static class HttpClientExtensions
     /// <param name="populateHeaders">
     /// when set to false, headers will not be automatically added to the http request from request dto properties decorated with the [FromHeader] attribute.
     /// </param>
+    /// <param name="populateCookies">
+    /// when set to false, cookies will not be automatically added to the http request from request dto properties decorated with the [FromCookie] attribute.
+    /// </param>
     public static async Task<TestResult<TResponse>> SENDAsync<TRequest, TResponse>(this HttpClient client,
                                                                                    HttpMethod method,
                                                                                    string requestUri,
                                                                                    TRequest request,
                                                                                    bool sendAsFormData = false,
-                                                                                   bool populateHeaders = true) where TRequest : notnull
+                                                                                   bool populateHeaders = true,
+                                                                                   bool populateCookies = true) where TRequest : notnull
     {
         var msg = new HttpRequestMessage
         {
@@ -376,6 +381,9 @@ public static class HttpClientExtensions
 
         if (populateHeaders)
             PopulateHeaders(msg, request);
+        
+        if (populateCookies)
+            PopulateCookies(msg, request);
 
         var rsp = await client.SendAsync(msg);
 
@@ -435,6 +443,31 @@ public static class HttpClientExtensions
             if (!contentHeaders.Contains(headerName, StringComparer.OrdinalIgnoreCase))
                 reqMsg.Headers.Add(headerName, headerValue);
         }
+    }
+
+    static void PopulateCookies<TRequest>(HttpRequestMessage reqMsg, TRequest req) where TRequest : notnull
+    {
+        if (reqMsg.RequestUri is null)
+            return;
+        
+        var cookieProps = req.GetType()
+            .BindableProps()
+            .Where(p => p.GetCustomAttribute<FromCookieAttribute>()?.IsRequired is true);
+
+        var cookieJar = new CookieContainer();
+        
+        foreach (var prop in cookieProps)
+        {
+            var cookieName = prop.GetCustomAttribute<FromCookieAttribute>()?.CookieName ?? prop.FieldName();
+            var cookieValue = prop.GetValueAsString(req);
+
+            cookieJar.Add(new Cookie(cookieName, cookieValue, "/", reqMsg.RequestUri.Host));
+        }
+
+        if (cookieJar.Count == 0)
+            return;
+
+        reqMsg.Headers.Add("Cookie", cookieJar.GetCookieHeader(reqMsg.RequestUri));
     }
 
     static string GetTestUrlFor<TEndpoint, TRequest>(TRequest req) where TRequest : notnull

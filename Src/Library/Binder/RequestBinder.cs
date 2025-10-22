@@ -106,7 +106,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                     case FromHeaderAttribute fhAtt:
                         addPrimary = AddFromHeaderPropCacheEntry(fhAtt, prop, propSetter);
 
-                        break;;
+                        break;
 
                     case FromCookieAttribute fhAtt:
                         addPrimary = AddFromCookiePropCacheEntry(fhAtt, prop, propSetter);
@@ -464,7 +464,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             }
         }
     }
-    
+
     static void BindCookies(TRequest req, BinderContext ctx)
     {
         for (var i = 0; i < _fromCookieProps.Count; i++)
@@ -476,6 +476,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             {
                 case null when prop.ForbidIfMissing:
                     ctx.ValidationFailures.Add(new(prop.Identifier, "This cookie is missing from the request!"));
+
                     break;
                 default:
                 {
@@ -554,7 +555,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     static bool AddFromCookiePropCacheEntry(FromCookieAttribute att, PropertyInfo propInfo, Action<object, object?> compiledSetter)
     {
         _fromCookieProps.Add(
-            new ()
+            new()
             {
                 Identifier = att.CookieName ?? propInfo.FieldName(),
                 ForbidIfMissing = att.IsRequired,
@@ -562,8 +563,8 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                 ValueParser = propInfo.PropertyType.ValueParser(),
                 PropSetter = compiledSetter
             });
-        
-        return !att.IsRequired;
+
+        return !att.IsRequired; //if cookie is optional, return true so it will also be added as a PropCacheEntry;
     }
 
     static bool AddHasPermissionPropCacheEntry(HasPermissionAttribute att, PropertyInfo propInfo, Action<object, object?> compiledSetter)

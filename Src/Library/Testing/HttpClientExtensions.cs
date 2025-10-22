@@ -356,10 +356,12 @@ public static class HttpClientExtensions
     /// <param name="request">the request dto</param>
     /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
     /// <param name="populateHeaders">
-    /// when set to false, headers will not be automatically added to the http request from request dto properties decorated with the [FromHeader] attribute.
+    /// when set to false, headers will not be automatically added to the http request from request dto properties decorated with the
+    /// [FromHeader] attribute.
     /// </param>
     /// <param name="populateCookies">
-    /// when set to false, cookies will not be automatically added to the http request from request dto properties decorated with the [FromCookie] attribute.
+    /// when set to false, cookies will not be automatically added to the http request from request dto properties decorated with the
+    /// [FromCookie] attribute.
     /// </param>
     public static async Task<TestResult<TResponse>> SENDAsync<TRequest, TResponse>(this HttpClient client,
                                                                                    HttpMethod method,
@@ -381,7 +383,7 @@ public static class HttpClientExtensions
 
         if (populateHeaders)
             PopulateHeaders(msg, request);
-        
+
         if (populateCookies)
             PopulateCookies(msg, request);
 
@@ -449,13 +451,13 @@ public static class HttpClientExtensions
     {
         if (reqMsg.RequestUri is null)
             return;
-        
+
         var cookieProps = req.GetType()
-            .BindableProps()
-            .Where(p => p.GetCustomAttribute<FromCookieAttribute>()?.IsRequired is true);
+                             .BindableProps()
+                             .Where(p => p.GetCustomAttribute<FromCookieAttribute>()?.IsRequired is true);
 
         var cookieJar = new CookieContainer();
-        
+
         foreach (var prop in cookieProps)
         {
             var cookieName = prop.GetCustomAttribute<FromCookieAttribute>()?.CookieName ?? prop.FieldName();
@@ -478,13 +480,14 @@ public static class HttpClientExtensions
             return IEndpoint.TestURLFor<TEndpoint>();
 
         //get props and stick em in a dictionary for easy lookup
-        //ignore props annotated with security related attributes that has IsRequired set to true.
+        //ignore props annotated with security/header/cookie attributes that has IsRequired set to true.
         var reqProps = req.GetType()
                           .BindableProps()
                           .Where(
                               p => p.GetCustomAttribute<FromClaimAttribute>()?.IsRequired is not true &&
                                    p.GetCustomAttribute<FromHeaderAttribute>()?.IsRequired is not true &&
-                                   p.GetCustomAttribute<HasPermissionAttribute>()?.IsRequired is not true)
+                                   p.GetCustomAttribute<HasPermissionAttribute>()?.IsRequired is not true &&
+                                   p.GetCustomAttribute<FromCookieAttribute>()?.IsRequired is not true)
                           .ToDictionary(p => p.FieldName(), StringComparer.OrdinalIgnoreCase);
 
         //split url into route segments, iterate and replace param names with values from matching dto props
@@ -624,8 +627,10 @@ public static class HttpClientExtensions
         catch
         {
             if (p.IsDefined(Types.FromFormAttribute))
+            {
                 throw new NotSupportedException(
                     "Automatically constructing MultiPartFormData requests for properties annotated with [FromForm] is not yet supported!");
+            }
 
             throw;
         }

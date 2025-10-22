@@ -525,7 +525,7 @@ public class BindingTests(Sut App) : TestBase<Sut>
         var book = new Book
         {
             BarCodes = new List<int>([1, 2, 3]),
-            CoAuthors = [new Author { Name = "a1" }, new Author { Name = "a2" }],
+            CoAuthors = [new() { Name = "a1" }, new() { Name = "a2" }],
             MainAuthor = new() { Name = "main" }
         };
 
@@ -789,5 +789,45 @@ public class BindingTests(Sut App) : TestBase<Sut>
 
         var res = await rsp.Content.ReadAsStringAsync(Cancellation);
         res.ShouldBe("123 - test");
+    }
+
+    [Fact]
+    public async Task FromCookieAttributeBindingPass()
+    {
+        var id = Guid.NewGuid();
+        var ck = Guid.NewGuid().ToString();
+        var req = new TestCases.FromCookieRequestBindingTest.Request
+        {
+            Id = id,
+            SomeCookie = ck
+        };
+
+        var (rsp, res) = await App.GuestClient.POSTAsync<
+                             TestCases.FromCookieRequestBindingTest.Endpoint,
+                             TestCases.FromCookieRequestBindingTest.Request,
+                             TestCases.FromCookieRequestBindingTest.Response>(req);
+        rsp.IsSuccessStatusCode.ShouldBeTrue();
+        res.Id.ShouldBe(id);
+        res.CookieValue.ShouldBe(ck);
+    }
+
+    [Fact]
+    public async Task FromCookieAttributeBindingFail()
+    {
+        var id = Guid.NewGuid();
+        var ck = Guid.NewGuid().ToString();
+        var req = new TestCases.FromCookieRequestBindingTest.Request
+        {
+            Id = id,
+            SomeCookie = ck
+        };
+
+        var (rsp, res) = await App.GuestClient.POSTAsync<
+                             TestCases.FromCookieRequestBindingTest.Endpoint,
+                             TestCases.FromCookieRequestBindingTest.Request,
+                             ErrorResponse>(req, populateCookies: false);
+        rsp.IsSuccessStatusCode.ShouldBeFalse();
+        res.Errors.Count.ShouldBe(1);
+        res.Errors.Keys.Contains(nameof(TestCases.FromCookieRequestBindingTest.Request.SomeCookie));
     }
 }

@@ -2096,6 +2096,45 @@
         }
       }
     },
+    "/api/test-cases/from-cookie-binding-test/{id}": {
+      "post": {
+        "tags": [
+          "TestCases"
+        ],
+        "operationId": "TestCasesFromCookieRequestBindingTestEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            }
+          },
+          {
+            "name": "someCookie",
+            "in": "cookie",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesFromCookieRequestBindingTestResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/testcases/global-generic-processors": {
       "post": {
         "tags": [
@@ -5595,6 +5634,23 @@
             "exclusiveMinimum": true
           }
         }
+      },
+      "TestCasesFromCookieRequestBindingTestResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "guid"
+          },
+          "cookieValue": {
+            "type": "string"
+          }
+        }
+      },
+      "TestCasesFromCookieRequestBindingTestRequest": {
+        "type": "object",
+        "additionalProperties": false
       },
       "TestCasesGlobalGenericProcessorTestRequest": {
         "type": "object",

@@ -25,6 +25,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     static readonly Dictionary<string, PropCache> _formFileCollectionProps = new(StringComparer.OrdinalIgnoreCase);
     static readonly List<SecondaryPropCacheEntry> _fromClaimProps = [];
     static readonly List<SecondaryPropCacheEntry> _fromHeaderProps = [];
+    static readonly List<SecondaryPropCacheEntry> _fromCookieProps = [];
     static readonly List<SecondaryPropCacheEntry> _hasPermissionProps = [];
 
     static RequestBinder()
@@ -107,6 +108,11 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
                         break;
 
+                    case FromCookieAttribute fhAtt:
+                        addPrimary = AddFromCookiePropCacheEntry(fhAtt, prop, propSetter);
+
+                        break;
+
                     case HasPermissionAttribute hpAtt:
                         addPrimary = AddHasPermissionPropCacheEntry(hpAtt, prop, propSetter);
 
@@ -147,6 +153,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     readonly bool _bindQueryParams;
     readonly bool _bindUserClaims;
     readonly bool _bindHeaders;
+    readonly bool _bindCookies;
     readonly bool _bindPermissions;
 
     /// <summary>
@@ -160,6 +167,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         _bindQueryParams = true;
         _bindUserClaims = true;
         _bindHeaders = true;
+        _bindCookies = true;
         _bindPermissions = true;
     }
 
@@ -175,6 +183,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         _bindQueryParams = enabledSources.HasFlag(BindingSource.QueryParams);
         _bindUserClaims = enabledSources.HasFlag(BindingSource.UserClaims);
         _bindHeaders = enabledSources.HasFlag(BindingSource.Headers);
+        _bindCookies = enabledSources.HasFlag(BindingSource.Cookies);
         _bindPermissions = enabledSources.HasFlag(BindingSource.Permissions);
     }
 
@@ -209,6 +218,9 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
         if (_bindHeaders)
             BindHeaders(req, ctx);
+
+        if (_bindCookies)
+            BindCookies(req, ctx);
 
         if (_bindPermissions)
             BindHasPermissionProps(req, ctx);
@@ -453,6 +465,33 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         }
     }
 
+    static void BindCookies(TRequest req, BinderContext ctx)
+    {
+        for (var i = 0; i < _fromCookieProps.Count; i++)
+        {
+            var prop = _fromCookieProps[i];
+            var cookieVal = ctx.HttpContext.Request.Cookies[prop.Identifier];
+
+            switch (cookieVal)
+            {
+                case null when prop.ForbidIfMissing:
+                    ctx.ValidationFailures.Add(new(prop.Identifier, "This cookie is missing from the request!"));
+
+                    break;
+                default:
+                {
+                    var res = prop.ValueParser(cookieVal);
+                    prop.PropSetter(req, res.Value);
+
+                    if (!res.IsSuccess)
+                        ctx.ValidationFailures.Add(new(prop.Identifier, $"Unable to bind cookie value [{cookieVal}] to a [{prop.PropType.Name}] property!"));
+
+                    break;
+                }
+            }
+        }
+    }
+
     static void BindHasPermissionProps(TRequest req, BinderContext ctx)
     {
         for (var i = 0; i < _hasPermissionProps.Count; i++)
@@ -511,6 +550,21 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             });
 
         return !att.IsRequired; //if header is optional, return true so it will also be added as a PropCacheEntry;
+    }
+
+    static bool AddFromCookiePropCacheEntry(FromCookieAttribute att, PropertyInfo propInfo, Action<object, object?> compiledSetter)
+    {
+        _fromCookieProps.Add(
+            new()
+            {
+                Identifier = att.CookieName ?? propInfo.FieldName(),
+                ForbidIfMissing = att.IsRequired,
+                PropType = propInfo.PropertyType,
+                ValueParser = propInfo.PropertyType.ValueParser(),
+                PropSetter = compiledSetter
+            });
+
+        return !att.IsRequired; //if cookie is optional, return true so it will also be added as a PropCacheEntry;
     }
 
     static bool AddHasPermissionPropCacheEntry(HasPermissionAttribute att, PropertyInfo propInfo, Action<object, object?> compiledSetter)

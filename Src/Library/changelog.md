@@ -208,6 +208,12 @@ sealed class BetaEndpoint : EndpointWithoutRequest<string>
 
 </details>
 
+<details><summary>[FromCookie] attribute for auto binding cookie values</summary>
+
+You can now decorate request DTO properties with `[FromCookie]` and matching cookies will be auto bound from incoming request cookies.
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Recursive validation of  Data Annotation Attributes</summary>

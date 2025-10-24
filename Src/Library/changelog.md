@@ -258,7 +258,7 @@ public override async Task HandleAsync(CancellationToken ct)
 
 <details><summary>Async variation of Global Response Modifier</summary>
 
-TODO: describe it
+If you need to do some async work in the [global response modifier](https://fast-endpoints.com/docs/pre-post-processors#intercepting-responses-before-being-sent), you can now use the `GlobalResponseModifierAsync` variant.
 
 </details>
 
@@ -359,4 +359,4 @@ It would only get executed upon queuing a new job. It has now been fixed by prob
 
 </details>
 
-## Breaking Changes ⚠️
+[//]: # (## Breaking Changes ⚠️)

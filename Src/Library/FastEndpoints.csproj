@@ -16,6 +16,7 @@
 
         <ProjectReference Include="..\Attributes\FastEndpoints.Attributes.csproj"/>
         <ProjectReference Include="..\Messaging\Messaging.Core\FastEndpoints.Messaging.Core.csproj"/>
+        <ProjectReference Include="..\Messaging\Messaging\FastEndpoints.Messaging.csproj"/>
 
         <PackageReference Include="FluentValidation"/>
         <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>

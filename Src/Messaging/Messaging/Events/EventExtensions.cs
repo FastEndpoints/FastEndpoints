@@ -3,6 +3,9 @@ using System.Linq.Expressions;
 
 namespace FastEndpoints;
 
+/// <summary>
+/// extension methods for event publishing
+/// </summary>
 public static class EventExtensions
 {
     /// <summary>
@@ -19,14 +22,14 @@ public static class EventExtensions
     /// <see cref="Mode.WaitForAll" /> return a Task that will complete only when all the subscribers complete their work.
     /// </returns>
     public static Task PublishAsync<TEvent>(this TEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = default) where TEvent : IEvent
-        => Cfg.ServiceResolver.Resolve<EventBus<TEvent>>().PublishAsync(eventModel, waitMode, cancellation);
+        => MsgCfg.ServiceResolver.Resolve<EventBus<TEvent>>().PublishAsync(eventModel, waitMode, cancellation);
 
     //key: tEvent
     //val: the PublishAsync compiled expression - Event<TEvent>.PublishAsync(...)
     static readonly ConcurrentDictionary<Type, Func<IEvent, Mode, CancellationToken, Task>> _publishFuncCache = new();
 
     static EventBus<T> CreateEventInstance<T>() where T : IEvent
-        => Cfg.ServiceResolver.Resolve<EventBus<T>>();
+        => MsgCfg.ServiceResolver.Resolve<EventBus<T>>();
 
     /// <summary>
     /// publish the event to all subscribers registered to handle this type of event.
@@ -90,5 +93,5 @@ public static class EventExtensions
                                                     Func<Type, bool> handlerFilter,
                                                     Mode waitMode = Mode.WaitForAll,
                                                     CancellationToken cancellation = default) where TEvent : IEvent
-        => Cfg.ServiceResolver.Resolve<EventBus<TEvent>>().PublishFilteredAsync(eventModel, handlerFilter, waitMode, cancellation);
+        => MsgCfg.ServiceResolver.Resolve<EventBus<TEvent>>().PublishFilteredAsync(eventModel, handlerFilter, waitMode, cancellation);
 }

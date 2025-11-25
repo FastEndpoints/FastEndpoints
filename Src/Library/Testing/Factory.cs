@@ -116,6 +116,8 @@ public static class Factory
                 provider: testingProvider,
                 ctxAccessor: testingProvider.GetRequiredService<IHttpContextAccessor>(),
                 isUnitTestMode: true);
+            // Initialize the messaging package resolver using an adapter
+            MessagingConfig.ServiceResolver = new MessagingServiceResolverAdapter(Cfg.ServiceResolver);
         }
 
         var collection = new ServiceCollection();
@@ -123,6 +125,8 @@ public static class Factory
         s(collection);
         ctx.RequestServices = collection.BuildServiceProvider();
         Cfg.ServiceResolver.Resolve<IHttpContextAccessor>().HttpContext = ctx;
+        // Update the messaging resolver to use the test context's services  
+        MessagingConfig.ServiceResolver = new MessagingServiceResolverAdapter(Cfg.ServiceResolver);
         if (ctx.RequestServices.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions is { } serializerOpts)
             Cfg.SerOpts.Options = serializerOpts;
     }

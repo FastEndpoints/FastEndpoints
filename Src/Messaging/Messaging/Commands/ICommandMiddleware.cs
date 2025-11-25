@@ -9,7 +9,7 @@ public interface ICommandMiddleware<in TCommand, TResult> where TCommand : IComm
 {
     /// <summary>
     /// implement this method to run some common piece of logic for all command handlers.
-    /// make sure to execute the <paramref name="next" /> delegate within your logic in order to no break the pipeline.
+    /// make sure to execute the <paramref name="next" /> delegate within your logic in order to not break the pipeline.
     /// </summary>
     /// <param name="command">the command instance</param>
     /// <param name="next">the command delegate to execute next</param>

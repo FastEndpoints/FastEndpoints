@@ -1,37 +1,23 @@
-# .NET 10 Support
+---
 
-> We've had .NET 10 preview support for a while and this is just a patch release to update the SDK references to .NET 10 final.
+## ❇️ Help Keep FastEndpoints Free & Open-Source ❇️
 
-[//]: # (---)
+Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H96Va36xbvo), please consider [becoming a sponsor](https://opencollective.com/fast-endpoints) and help us beat the odds to keep the project alive and free for everyone.
 
-[//]: # ()
+---
 
-[//]: # (## ❇️ Help Keep FastEndpoints Free & Open-Source ❇️)
+[//]: # (<details><summary>title text</summary></details>)
 
-[//]: # ()
+## New 🎉
 
-[//]: # (Due to the current [unfortunate state of FOSS]&#40;https://www.youtube.com/watch?v=H96Va36xbvo&#41;, please consider [becoming a sponsor]&#40;https://opencollective.com/fast-endpoints&#41; and help us beat the odds to keep the project alive and free for everyone.)
+## Improvements 🚀
 
-[//]: # ()
+<details><summary>Strong-Name-Signed Assemblies</summary>
 
-[//]: # (---)
+All FastEndpoints assemblies are now strong-name-signed. This only matters if your project is utilizing assembly signing. Signed projects will no longer show warnings about FastEndpoints not being signed.
 
-[//]: # ()
+</details>
 
-[//]: # ([//]: # &#40;<details><summary>title text</summary></details>&#41;)
+## Fixes 🪲
 
-[//]: # ()
-
-[//]: # (## New 🎉)
-
-[//]: # ()
-
-[//]: # (## Improvements 🚀)
-
-[//]: # ()
-
-[//]: # (## Fixes 🪲)
-
-[//]: # ()
-
-[//]: # (## Breaking Changes ⚠️)
+## Breaking Changes ⚠️

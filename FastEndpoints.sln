@@ -72,15 +72,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FastEndpoints.Messaging.Rem
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastEndpoints.OData", "Src\OData\FastEndpoints.OData.csproj", "{8485B877-C0E8-4461-9DE4-2B2D9F168D92}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Src", "Src", "{827E0CD3-B72D-47B6-A68D-7590B98EB39B}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Messaging", "Messaging", "{1AB6002E-85EB-C75A-9828-95B8B8565E80}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Messaging", "Messaging", "{C2B3F6B9-B032-80A8-C569-19AD423D7921}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastEndpoints.Messaging", "Src\Messaging\Messaging\FastEndpoints.Messaging.csproj", "{B3AAD578-2BA1-46F3-839B-499A87196A73}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Messaging.Core", "Messaging.Core", "{03B4B058-5BD3-E33A-04C2-3135182859C4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

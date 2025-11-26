@@ -664,7 +664,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     public void Summary<TRequest>(Action<EndpointSummary<TRequest>> endpointSummary) where TRequest : notnull
     {
         ThrowIfLocked();
-        var summary = EndpointSummary as EndpointSummary<TRequest> ?? new EndpointSummary<TRequest>();
+        var summary = EndpointSummary as EndpointSummary<TRequest> ?? new EndpointSummary<TRequest>(EndpointSummary);
         endpointSummary(summary);
         EndpointSummary = summary;
     }

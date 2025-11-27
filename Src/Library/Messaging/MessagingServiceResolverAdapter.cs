@@ -1,4 +1,4 @@
-﻿namespace FastEndpoints;
+namespace FastEndpoints;
 
 /// <summary>
 /// adapter that wraps IServiceResolver to implement IMessagingServiceResolver for the messaging package
@@ -11,6 +11,9 @@ sealed class MessagingServiceResolverAdapter : IMessagingServiceResolver
     {
         _resolver = resolver;
     }
+
+    public Microsoft.Extensions.DependencyInjection.IServiceScope CreateScope()
+        => _resolver.CreateScope();
 
     public object CreateInstance(Type type, IServiceProvider? serviceProvider = null)
         => _resolver.CreateInstance(type, serviceProvider);

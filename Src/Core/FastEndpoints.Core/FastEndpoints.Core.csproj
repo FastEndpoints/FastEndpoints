@@ -1,9 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <NoWarn>CS1591</NoWarn>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <TargetFrameworks></TargetFrameworks>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <Description>Standalone messaging library for Command Bus/Event Bus implementations compatible with any .NET 8+ application.</Description>
+        <Description>Core service resolution abstractions for FastEndpoints.</Description>
         <PackageIcon>icon.png</PackageIcon>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <IncludeSymbols>true</IncludeSymbols>
@@ -11,10 +12,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\Core\FastEndpoints.Core\FastEndpoints.Core.csproj"/>
-        <ProjectReference Include="..\Messaging.Core\FastEndpoints.Messaging.Core.csproj"/>
-
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions"/>
         <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
     </ItemGroup>
 

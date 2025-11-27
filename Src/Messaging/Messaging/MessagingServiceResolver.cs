@@ -22,6 +22,10 @@ public sealed class MessagingServiceResolver : IMessagingServiceResolver
     }
 
     /// <inheritdoc />
+    public IServiceScope CreateScope()
+        => _provider.CreateScope();
+
+    /// <inheritdoc />
     public object CreateInstance(Type type, IServiceProvider? serviceProvider = null)
     {
         var factory = _factoryCache.GetOrAdd(type, FactoryInitializer);

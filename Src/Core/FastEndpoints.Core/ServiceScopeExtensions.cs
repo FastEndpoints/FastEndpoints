@@ -11,6 +11,7 @@ public static class ServiceScopeExtensions
     /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
     /// </summary>
     /// <typeparam name="TService">the type of the service to resolve</typeparam>
+    /// <param name="scope">the service scope</param>
     public static TService? TryResolve<TService>(this IServiceScope scope) where TService : class
         => scope.ServiceProvider.GetService<TService>();
 
@@ -26,6 +27,7 @@ public static class ServiceScopeExtensions
     /// resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
     /// </summary>
     /// <typeparam name="TService">the type of the service to resolve</typeparam>
+    /// <param name="scope">the service scope</param>
     /// <exception cref="InvalidOperationException">Thrown if requested service cannot be resolved</exception>
     public static TService Resolve<TService>(this IServiceScope scope) where TService : class
         => scope.ServiceProvider.GetRequiredService<TService>();

@@ -23,7 +23,7 @@ public static class MessagingExtensions
         services.TryAddSingleton<CommandHandlerRegistry>();
 
         // Register messaging service resolver
-        services.TryAddSingleton<IMessagingServiceResolver, MessagingServiceResolver>();
+        services.TryAddSingleton<IServiceResolverBase, MessagingServiceResolver>();
 
         // Discover and register command handlers
         var commandHandlerRegistry = new CommandHandlerRegistry();
@@ -79,7 +79,7 @@ public static class MessagingExtensions
     /// <returns>the service provider for chaining</returns>
     public static IServiceProvider UseMessaging(this IServiceProvider provider)
     {
-        MsgCfg.ServiceResolver = provider.GetRequiredService<IMessagingServiceResolver>();
+        MsgCfg.ServiceResolver = provider.GetRequiredService<IServiceResolverBase>();
 
         return provider;
     }

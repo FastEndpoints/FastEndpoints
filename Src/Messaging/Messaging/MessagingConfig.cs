@@ -7,11 +7,11 @@ namespace FastEndpoints;
 /// </summary>
 public sealed class MessagingConfig
 {
-    static IMessagingServiceResolver? _resolver;
+    static IServiceResolverBase? _resolver;
 
     internal static bool ResolverIsNotSet => _resolver is null;
 
-    internal static IMessagingServiceResolver ServiceResolver
+    internal static IServiceResolverBase ServiceResolver
     {
         get => _resolver ?? throw new InvalidOperationException("Service resolver is null! Have you called AddMessaging() or configured the unit test environment correctly?");
         set => _resolver = value;

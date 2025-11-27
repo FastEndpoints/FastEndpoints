@@ -45,6 +45,12 @@ public abstract class Mapper<TRequest, TResponse, TEntity> : IRequestMapper<TReq
     public IServiceScope CreateScope()
         => Cfg.ServiceResolver.CreateScope();
 
+    public object CreateInstance(Type type, IServiceProvider? serviceProvider = null)
+        => Cfg.ServiceResolver.CreateInstance(type, serviceProvider);
+
+    public object CreateSingleton(Type type)
+        => Cfg.ServiceResolver.CreateSingleton(type);
+
     public TService? TryResolve<TService>(string keyName) where TService : class
         => Cfg.ServiceResolver.TryResolve<TService>(keyName);
 
@@ -93,6 +99,12 @@ public abstract class RequestMapper<TRequest, TEntity> : IRequestMapper<TRequest
     public IServiceScope CreateScope()
         => Cfg.ServiceResolver.CreateScope();
 
+    public object CreateInstance(Type type, IServiceProvider? serviceProvider = null)
+        => Cfg.ServiceResolver.CreateInstance(type, serviceProvider);
+
+    public object CreateSingleton(Type type)
+        => Cfg.ServiceResolver.CreateSingleton(type);
+
     public TService? TryResolve<TService>(string keyName) where TService : class
         => Cfg.ServiceResolver.TryResolve<TService>(keyName);
 
@@ -134,6 +146,12 @@ public abstract class ResponseMapper<TResponse, TEntity> : IResponseMapper<TResp
 
     public IServiceScope CreateScope()
         => Cfg.ServiceResolver.CreateScope();
+
+    public object CreateInstance(Type type, IServiceProvider? serviceProvider = null)
+        => Cfg.ServiceResolver.CreateInstance(type, serviceProvider);
+
+    public object CreateSingleton(Type type)
+        => Cfg.ServiceResolver.CreateSingleton(type);
 
     public TService? TryResolve<TService>(string keyName) where TService : class
         => Cfg.ServiceResolver.TryResolve<TService>(keyName);

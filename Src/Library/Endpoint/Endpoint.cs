@@ -192,6 +192,14 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
         => Cfg.ServiceResolver.CreateScope();
 
     /// <inheritdoc />
+    public object CreateInstance(Type type, IServiceProvider? serviceProvider = null)
+        => Cfg.ServiceResolver.CreateInstance(type, serviceProvider);
+
+    /// <inheritdoc />
+    public object CreateSingleton(Type type)
+        => Cfg.ServiceResolver.CreateSingleton(type);
+
+    /// <inheritdoc />
     public TService? TryResolve<TService>(string keyName) where TService : class
         => Cfg.ServiceResolver.TryResolve<TService>(keyName);
 

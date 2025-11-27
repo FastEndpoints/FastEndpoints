@@ -4,9 +4,9 @@ using System.Collections.Concurrent;
 namespace FastEndpoints;
 
 /// <summary>
-/// default implementation of <see cref="IMessagingServiceResolver"/> using Microsoft.Extensions.DependencyInjection
+/// default implementation of <see cref="IServiceResolverBase"/> using Microsoft.Extensions.DependencyInjection
 /// </summary>
-public sealed class MessagingServiceResolver : IMessagingServiceResolver
+public sealed class MessagingServiceResolver : IServiceResolverBase
 {
     readonly IServiceProvider _provider;
     readonly ConcurrentDictionary<Type, ObjectFactory> _factoryCache = new();

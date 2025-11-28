@@ -1,4 +1,4 @@
-﻿global using Cfg = FastEndpoints.Config;
+global using Cfg = FastEndpoints.Config;
 
 // ReSharper disable MemberCanBeMadeStatic.Global
 #pragma warning disable RCS1102,CA1822
@@ -8,16 +8,8 @@ namespace FastEndpoints;
 /// <summary>
 /// global configuration settings for FastEndpoints
 /// </summary>
-public sealed class Config
+public sealed class Config : ConfigBase<IServiceResolver>
 {
-    static IServiceResolver? _resolver;
-    internal static bool ResolverIsNotSet => _resolver is null;
-
-    internal static IServiceResolver ServiceResolver
-    {
-        get => _resolver ?? throw new InvalidOperationException("Service resolver is null! Have you done the unit test setup correctly?");
-        set => _resolver = value;
-    }
 
     internal static readonly BindingOptions BndOpts = new();
     internal static readonly EndpointOptions EpOpts = new();

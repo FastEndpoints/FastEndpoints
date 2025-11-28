@@ -11,7 +11,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\Core\FastEndpoints.Core\FastEndpoints.Core.csproj"/>
+        <ProjectReference Include="..\..\Core\FastEndpoints.Core.csproj"/>
         <ProjectReference Include="..\Messaging.Core\FastEndpoints.Messaging.Core.csproj"/>
 
         <PackageReference Include="Microsoft.Extensions.DependencyInjection"/>

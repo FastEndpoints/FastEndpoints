@@ -74,10 +74,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastEndpoints.OData", "Src\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastEndpoints.Messaging", "Src\Messaging\Messaging\FastEndpoints.Messaging.csproj", "{B3AAD578-2BA1-46F3-839B-499A87196A73}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Src", "Src", "{827E0CD3-B72D-47B6-A68D-7590B98EB39B}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{8D626EA8-CB54-BC41-363A-217881BEBA6E}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastEndpoints.Core", "Src\Core\FastEndpoints.Core\FastEndpoints.Core.csproj", "{DC5B82BA-CFF3-4F23-98E2-9C2BF993D0C6}"
 EndProject
 Global

@@ -6,7 +6,7 @@ namespace FastEndpoints;
 
 //this class is instantiated by either the IOC container in normal mode
 //or by Factory.AddTestServices() method in unit testing mode
-internal sealed class ServiceResolver(IServiceProvider provider, IHttpContextAccessor ctxAccessor, bool isUnitTestMode = false) : IServiceResolver
+sealed class ServiceResolver(IServiceProvider provider, IHttpContextAccessor ctxAccessor, bool isUnitTestMode = false) : IServiceResolver
 {
     static IServiceResolver? _instance;
 

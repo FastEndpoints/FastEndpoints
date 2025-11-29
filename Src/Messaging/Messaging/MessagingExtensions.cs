@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using FastEndpoints.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -13,47 +14,61 @@ public static class MessagingExtensions
     /// adds the messaging services (command bus and event bus) to the service collection.
     /// </summary>
     /// <param name="services"></param>
-    /// <param name="assemblies">assemblies to scan for command handlers and event handlers. if not specified, scans all loaded assemblies.</param>
+    /// <param name="assemblies">assemblies to scan for command handlers and event handlers, in addition to all loaded assemblies.</param>
     public static IServiceCollection AddMessaging(this IServiceCollection services, params Assembly[]? assemblies)
     {
         services.TryAddSingleton<IServiceResolver, ServiceResolver>();
 
-        var assembliesToScan = assemblies?.Length > 0 ? assemblies : AppDomain.CurrentDomain.GetAssemblies();
+        var discoveredTypes = AppDomain.CurrentDomain
+                                       .GetAssemblies()
+                                       .Union(assemblies ?? [])
+                                       .Where(a => !a.IsDynamic)
+                                       .SelectMany(a => a.GetTypes())
+                                       .Where(
+                                           t =>
+                                               t is { IsAbstract: false, IsInterface: false, IsGenericType: false } &&
+                                               t.GetInterfaces().Intersect(
+                                               [
+                                                   Types.IEventHandler,
+                                                   Types.ICommandHandler
+                                               ]).Any());
+
         var cmdHandlerRegistry = new CommandHandlerRegistry();
 
-        foreach (var assembly in assembliesToScan)
+        foreach (var t in discoveredTypes)
         {
-            try
+            var tInterfaces = t.GetInterfaces();
+
+            foreach (var tInterface in tInterfaces)
             {
-                foreach (var type in assembly.GetTypes().Where(t => t is { IsAbstract: false, IsInterface: false, IsGenericTypeDefinition: false }))
+                var tGeneric = tInterface.IsGenericType
+                                   ? tInterface.GetGenericTypeDefinition()
+                                   : null;
+
+                if (tGeneric is null)
+                    continue;
+
+                if (tGeneric == Types.IEventHandlerOf1) // IsAssignableTo() is no good here
                 {
-                    var cmdHandlerInterface = type.GetInterfaces()
-                                                  .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICommandHandler<,>));
+                    var tEvent = tInterface.GetGenericArguments()[0];
 
-                    if (cmdHandlerInterface is not null)
-                    {
-                        var tCommand = cmdHandlerInterface.GetGenericArguments()[0];
-                        cmdHandlerRegistry[tCommand] = new(type);
-                    }
+                    if (EventBase.HandlerDict.TryGetValue(tEvent, out var handlers))
+                        handlers.Add(t);
+                    else
+                        EventBase.HandlerDict[tEvent] = [t];
 
-                    var evtHandlerInterface = type.GetInterfaces()
-                                                  .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEventHandler<>));
-
-                    if (evtHandlerInterface is null)
-                        continue;
-
-                    var tEvent = evtHandlerInterface.GetGenericArguments()[0];
-
-                    var handlers = EventBase.HandlerDict.GetOrAdd(tEvent, _ => []);
-                    handlers.Add(type);
-
-                    var eventBusType = typeof(EventBus<>).MakeGenericType(tEvent);
-                    services.TryAddTransient(eventBusType);
+                    continue;
                 }
-            }
-            catch (ReflectionTypeLoadException)
-            {
-                // Ignore assemblies that cannot be loaded
+
+                if (tGeneric == Types.ICommandHandlerOf1 || tGeneric == Types.ICommandHandlerOf2) // IsAssignableTo() is no good here
+                {
+                    cmdHandlerRegistry.TryAdd(
+                        key: tInterface.GetGenericArguments()[0],
+                        value: new(t));
+
+                    // ReSharper disable once RedundantJumpStatement
+                    continue;
+                }
             }
         }
 

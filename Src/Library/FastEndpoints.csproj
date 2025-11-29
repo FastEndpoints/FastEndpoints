@@ -15,8 +15,6 @@
         <FrameworkReference Include="Microsoft.AspNetCore.App"/>
 
         <ProjectReference Include="..\Attributes\FastEndpoints.Attributes.csproj"/>
-        <ProjectReference Include="..\Core\FastEndpoints.Core.csproj"/>
-        <ProjectReference Include="..\Messaging\Messaging.Core\FastEndpoints.Messaging.Core.csproj"/>
         <ProjectReference Include="..\Messaging\Messaging\FastEndpoints.Messaging.csproj"/>
 
         <PackageReference Include="FluentValidation"/>

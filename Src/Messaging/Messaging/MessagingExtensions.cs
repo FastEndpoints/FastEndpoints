@@ -10,55 +10,45 @@ namespace FastEndpoints;
 public static class MessagingExtensions
 {
     /// <summary>
-    /// adds the messaging services (command bus, event bus) to the service collection.
+    /// adds the messaging services (command bus and event bus) to the service collection.
     /// </summary>
-    /// <param name="services">the service collection to add services to</param>
+    /// <param name="services"></param>
     /// <param name="assemblies">assemblies to scan for command handlers and event handlers. if not specified, scans all loaded assemblies.</param>
-    /// <returns>the service collection for chaining</returns>
     public static IServiceCollection AddMessaging(this IServiceCollection services, params Assembly[]? assemblies)
     {
-        var scanAssemblies = assemblies?.Length > 0 ? assemblies : AppDomain.CurrentDomain.GetAssemblies();
+        services.TryAddSingleton<IServiceResolver, ServiceResolver>();
 
-        // Register command handler registry
-        services.TryAddSingleton<CommandHandlerRegistry>();
+        var assembliesToScan = assemblies?.Length > 0 ? assemblies : AppDomain.CurrentDomain.GetAssemblies();
+        var cmdHandlerRegistry = new CommandHandlerRegistry();
 
-        // Register messaging service resolver
-        services.TryAddSingleton<IServiceResolverBase, MessagingServiceResolver>();
-
-        // Discover and register command handlers
-        var commandHandlerRegistry = new CommandHandlerRegistry();
-
-        foreach (var assembly in scanAssemblies)
+        foreach (var assembly in assembliesToScan)
         {
             try
             {
                 foreach (var type in assembly.GetTypes().Where(t => t is { IsAbstract: false, IsInterface: false, IsGenericTypeDefinition: false }))
                 {
-                    // Register command handlers
                     var cmdHandlerInterface = type.GetInterfaces()
-                                                   .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICommandHandler<,>));
+                                                  .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICommandHandler<,>));
 
                     if (cmdHandlerInterface is not null)
                     {
                         var tCommand = cmdHandlerInterface.GetGenericArguments()[0];
-                        commandHandlerRegistry[tCommand] = new CommandHandlerDefinition(type);
+                        cmdHandlerRegistry[tCommand] = new(type);
                     }
 
-                    // Register event handlers
                     var evtHandlerInterface = type.GetInterfaces()
-                                                   .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEventHandler<>));
+                                                  .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEventHandler<>));
 
-                    if (evtHandlerInterface is not null)
-                    {
-                        var tEvent = evtHandlerInterface.GetGenericArguments()[0];
+                    if (evtHandlerInterface is null)
+                        continue;
 
-                        var handlers = EventBase.HandlerDict.GetOrAdd(tEvent, _ => []);
-                        handlers.Add(type);
+                    var tEvent = evtHandlerInterface.GetGenericArguments()[0];
 
-                        // Register EventBus<TEvent>
-                        var eventBusType = typeof(EventBus<>).MakeGenericType(tEvent);
-                        services.TryAddTransient(eventBusType);
-                    }
+                    var handlers = EventBase.HandlerDict.GetOrAdd(tEvent, _ => []);
+                    handlers.Add(type);
+
+                    var eventBusType = typeof(EventBus<>).MakeGenericType(tEvent);
+                    services.TryAddTransient(eventBusType);
                 }
             }
             catch (ReflectionTypeLoadException)
@@ -67,7 +57,7 @@ public static class MessagingExtensions
             }
         }
 
-        services.AddSingleton(commandHandlerRegistry);
+        services.TryAddSingleton(cmdHandlerRegistry);
 
         return services;
     }
@@ -79,7 +69,7 @@ public static class MessagingExtensions
     /// <returns>the service provider for chaining</returns>
     public static IServiceProvider UseMessaging(this IServiceProvider provider)
     {
-        MsgCfg.ServiceResolver = provider.GetRequiredService<IServiceResolverBase>();
+        ServiceResolver.Instance = provider.GetRequiredService<IServiceResolver>();
 
         return provider;
     }

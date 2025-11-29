@@ -6,10 +6,25 @@ namespace FastEndpoints;
 
 //this class is instantiated by either the IOC container in normal mode
 //or by Factory.AddTestServices() method in unit testing mode
-sealed class ServiceResolver(IServiceProvider provider,
-                             IHttpContextAccessor ctxAccessor,
-                             bool isUnitTestMode = false) : IServiceResolver
+internal sealed class ServiceResolver(IServiceProvider provider, IHttpContextAccessor ctxAccessor, bool isUnitTestMode = false) : IServiceResolver
 {
+    static IServiceResolver? _instance;
+
+    /// <summary>
+    /// Indicates whether the service resolver is not set.
+    /// </summary>
+    internal static bool InstanceNotSet => _instance is null;
+
+    /// <summary>
+    /// Gets the service resolver.
+    /// </summary>
+    /// <exception cref="InvalidOperationException"></exception>
+    internal static IServiceResolver Instance
+    {
+        get => _instance ?? throw new InvalidOperationException("Service resolver is null! Have you done the unit test setup correctly?");
+        set => _instance = value;
+    }
+
     readonly ConcurrentDictionary<Type, ObjectFactory> _factoryCache = new();
     readonly ConcurrentDictionary<Type, object> _singletonCache = new();
 

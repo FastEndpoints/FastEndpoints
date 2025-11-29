@@ -66,9 +66,7 @@ public static class MainExtensions
 
     public static IEndpointRouteBuilder MapFastEndpoints(this IEndpointRouteBuilder app, Action<Cfg>? configAction = null)
     {
-        Cfg.ServiceResolver = app.ServiceProvider.GetRequiredService<IServiceResolver>();
-        // Initialize the messaging package resolver - IServiceResolver extends IServiceResolverBase
-        MessagingConfig.ServiceResolver = Cfg.ServiceResolver;
+        ServiceResolver.Instance = app.ServiceProvider.GetRequiredService<IServiceResolver>();
         var jsonOpts = app.ServiceProvider.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions;
         Cfg.SerOpts.Options = jsonOpts is not null
                                   ? new(jsonOpts) //make a copy to avoid configAction modifying the global JsonOptions

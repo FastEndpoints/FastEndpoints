@@ -3,7 +3,7 @@
     <PropertyGroup>
         <NoWarn>CS1591</NoWarn>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <Description>Standalone messaging library for Command Bus/Event Bus implementations compatible with any .NET 8+ application.</Description>
+        <Description>Standalone messaging library for Command Bus/Event Bus implementations compatible with any .NET application.</Description>
         <PackageIcon>icon.png</PackageIcon>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <IncludeSymbols>true</IncludeSymbols>

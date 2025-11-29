@@ -31,7 +31,7 @@ public sealed class EventBus<TEvent> : EventBase where TEvent : notnull
         if (eventHandlers?.Any() is true)
             _handlers = eventHandlers;
         else if (HandlerDict.TryGetValue(typeof(TEvent), out var hndlrs) && hndlrs.Count > 0)
-            _handlers = hndlrs.Select(MsgCfg.ServiceResolver.CreateSingleton).Cast<IEventHandler<TEvent>>().ToArray(); //ToArray() is essential here!!!
+            _handlers = hndlrs.Select(ServiceResolver.Instance.CreateSingleton).Cast<IEventHandler<TEvent>>().ToArray(); //ToArray() is essential here!!!
 
         _testEventReceiver = testEventReceiver;
     }

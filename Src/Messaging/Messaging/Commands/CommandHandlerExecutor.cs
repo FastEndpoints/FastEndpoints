@@ -16,7 +16,7 @@ sealed class CommandHandlerExecutor<TCommand, TResult>(IEnumerable<ICommandMiddl
     public Task<TResult> Execute(ICommand<TResult> command, Type tCommandHandler, CancellationToken ct)
     {
         var cmdHandler = handler ?? //handler is not null for unit tests
-                         (ICommandHandler<TCommand, TResult>)MsgCfg.ServiceResolver.CreateInstance(tCommandHandler);
+                         (ICommandHandler<TCommand, TResult>)ServiceResolver.Instance.CreateInstance(tCommandHandler);
 
         return InvokeMiddleware(0);
 
@@ -24,7 +24,7 @@ sealed class CommandHandlerExecutor<TCommand, TResult>(IEnumerable<ICommandMiddl
         {
             return index == _tMiddlewares.Length
                        ? cmdHandler.ExecuteAsync((TCommand)command, ct)
-                       : ((ICommandMiddleware<TCommand, TResult>)MsgCfg.ServiceResolver.CreateInstance(_tMiddlewares[index])).ExecuteAsync(
+                       : ((ICommandMiddleware<TCommand, TResult>)ServiceResolver.Instance.CreateInstance(_tMiddlewares[index])).ExecuteAsync(
                            (TCommand)command,
                            () => InvokeMiddleware(index + 1),
                            ct);

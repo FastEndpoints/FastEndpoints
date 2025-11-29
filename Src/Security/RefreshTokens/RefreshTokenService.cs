@@ -48,7 +48,7 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
     /// <param name="options">action to be performed on the refresh service options object</param>
     public void Setup(Action<RefreshServiceOptions> options)
     {
-        _opts = new(Cfg.ServiceResolver.TryResolve<IOptions<JwtCreationOptions>>()?.Value);
+        _opts = new(ServiceResolver.Instance.TryResolve<IOptions<JwtCreationOptions>>()?.Value);
         options(_opts);
     }
 
@@ -155,7 +155,7 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
         if (isRenewal && request is not null)
             await SetRenewalPrivilegesAsync((TRequest)request, privs);
 
-        var time = Cfg.ServiceResolver.TryResolve<TimeProvider>() ?? TimeProvider.System;
+        var time = ServiceResolver.Instance.TryResolve<TimeProvider>() ?? TimeProvider.System;
         var accessExpiry = time.GetUtcNow().Add(_opts.AccessTokenValidity).UtcDateTime;
         var refreshExpiry = time.GetUtcNow().Add(_opts.RefreshTokenValidity).UtcDateTime;
         var jwtOpts = new JwtCreationOptions

@@ -8,9 +8,8 @@ namespace FastEndpoints;
 /// <summary>
 /// global configuration settings for FastEndpoints
 /// </summary>
-public sealed class Config : ConfigBase<IServiceResolver>
+public sealed class Config
 {
-
     internal static readonly BindingOptions BndOpts = new();
     internal static readonly EndpointOptions EpOpts = new();
     internal static readonly ErrorOptions ErrOpts = new();

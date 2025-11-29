@@ -3,7 +3,7 @@
 /// <summary>
 /// definition for a command handler, containing the handler type and executor.
 /// </summary>
-public sealed class CommandHandlerDefinition
+sealed class CommandHandlerDefinition
 {
     internal Type HandlerType { get; set; }
     internal object? HandlerExecutor { get; set; }

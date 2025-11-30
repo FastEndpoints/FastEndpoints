@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using FastEndpoints.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -98,32 +99,35 @@ public static class CommandExtensions
         };
     }
 
-    /// <summary>
-    /// register a generic command handler for a generic command
-    /// </summary>
-    /// <typeparam name="TCommand">the type of the command</typeparam>
-    /// <typeparam name="THandler">the type of the command handler</typeparam>
     /// <param name="sp">the service provider</param>
-    /// <returns>the service provider for chaining</returns>
-    public static IServiceProvider RegisterGenericCommand<TCommand, THandler>(this IServiceProvider sp) where TCommand : ICommand where THandler : ICommandHandler
-        => RegisterGenericCommand(sp, typeof(TCommand), typeof(THandler));
-
-    /// <summary>
-    /// register a generic command handler for a generic command
-    /// </summary>
-    /// <param name="sp">the service provider</param>
-    /// <param name="genericCommandType">
-    /// the open generic type of the command. ex: <c> typeof(MyCommand&lt;&gt;) </c>
-    /// </param>
-    /// <param name="genericHandlerType">the open generic type of the command handler. ex: <c> typeof(MyCommandHandler&lt;,&gt;) </c></param>
-    /// <returns>the service provider for chaining</returns>
-    public static IServiceProvider RegisterGenericCommand(this IServiceProvider sp, Type genericCommandType, Type genericHandlerType)
+    extension(IServiceProvider sp)
     {
-        var registry = sp.GetRequiredService<CommandHandlerRegistry>();
+        /// <summary>
+        /// register a generic command handler for a generic command
+        /// </summary>
+        /// <typeparam name="TCommand">the type of the command</typeparam>
+        /// <typeparam name="THandler">the type of the command handler</typeparam>
+        /// <returns>the service provider for chaining</returns>
+        [SuppressMessage("Usage", "CA2263:Prefer generic overload when type is known")]
+        public IServiceProvider RegisterGenericCommand<TCommand, THandler>() where TCommand : ICommand where THandler : ICommandHandler
+            => RegisterGenericCommand(sp, typeof(TCommand), typeof(THandler));
 
-        registry[genericCommandType] = new(genericHandlerType);
+        /// <summary>
+        /// register a generic command handler for a generic command
+        /// </summary>
+        /// <param name="genericCommandType">
+        /// the open generic type of the command. ex: <c> typeof(MyCommand&lt;&gt;) </c>
+        /// </param>
+        /// <param name="genericHandlerType">the open generic type of the command handler. ex: <c> typeof(MyCommandHandler&lt;,&gt;) </c></param>
+        /// <returns>the service provider for chaining</returns>
+        public IServiceProvider RegisterGenericCommand(Type genericCommandType, Type genericHandlerType)
+        {
+            var registry = sp.GetRequiredService<CommandHandlerRegistry>();
 
-        return sp;
+            registry[genericCommandType] = new(genericHandlerType);
+
+            return sp;
+        }
     }
 
     /// <summary>

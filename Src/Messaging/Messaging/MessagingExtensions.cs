@@ -34,44 +34,44 @@ public static class MessagingExtensions
 
         foreach (var t in discoveredTypes)
         {
-            var tInterfaces = t.GetInterfaces();
-
-            foreach (var tInterface in tInterfaces)
+            foreach (var tInterface in t.GetInterfaces())
             {
                 var tGeneric = tInterface.IsGenericType
                                    ? tInterface.GetGenericTypeDefinition()
                                    : null;
 
                 if (tGeneric is null)
-                    continue;
+                    return services;
 
-                if (tGeneric == Types.IEventHandlerOf1) // IsAssignableTo() is no good here
-                {
-                    var tEvent = tInterface.GetGenericArguments()[0];
-
-                    if (EventBase.HandlerDict.TryGetValue(tEvent, out var handlers))
-                        handlers.Add(t);
-                    else
-                        EventBase.HandlerDict[tEvent] = [t];
-
-                    continue;
-                }
-
-                if (tGeneric == Types.ICommandHandlerOf1 || tGeneric == Types.ICommandHandlerOf2) // IsAssignableTo() is no good here
-                {
-                    cmdHandlerRegistry.TryAdd(
-                        key: tInterface.GetGenericArguments()[0],
-                        value: new(t));
-
-                    // ReSharper disable once RedundantJumpStatement
-                    continue;
-                }
+                RegisterHandler(tGeneric, tInterface, t, cmdHandlerRegistry);
             }
         }
 
         services.TryAddSingleton(cmdHandlerRegistry);
 
         return services;
+    }
+
+    internal static void RegisterHandler(Type tGeneric, Type tInterface, Type t, CommandHandlerRegistry cmdHandlerRegistry)
+    {
+        if (tGeneric == Types.IEventHandlerOf1) //IsAssignableTo() is no good here if the user inherits the interface.
+        {
+            var tEvent = tInterface.GetGenericArguments()[0];
+
+            if (EventBase.HandlerDict.TryGetValue(tEvent, out var handlers))
+                handlers.Add(t);
+            else
+                EventBase.HandlerDict[tEvent] = [t];
+
+            return;
+        }
+
+        if (tGeneric == Types.ICommandHandlerOf1 || tGeneric == Types.ICommandHandlerOf2) // IsAssignableTo() is no good here either
+        {
+            cmdHandlerRegistry.TryAdd(
+                key: tInterface.GetGenericArguments()[0],
+                value: new(t));
+        }
     }
 
     /// <summary>

@@ -41,7 +41,7 @@ public static class EventExtensions
     /// a Task that matches the wait mode specified.
     /// <see cref="Mode.WaitForNone" /> returns an already completed Task (fire and forget).
     /// <see cref="Mode.WaitForAny" /> returns a Task that will complete when any of the subscribers complete their work.
-    /// <see cref="Mode.WaitForAll" /> return a Task that will complete only when all of the subscribers complete their work.
+    /// <see cref="Mode.WaitForAll" /> return a Task that will complete only when all the subscribers complete their work.
     /// </returns>
     public static Task PublishAsync(this IEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = default)
     {

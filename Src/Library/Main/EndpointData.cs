@@ -115,26 +115,7 @@ sealed class EndpointData
                     continue;
                 }
 
-                if (tGeneric == Types.IEventHandlerOf1) // IsAssignableTo() is no good here also
-                {
-                    var tEvent = tInterface.GetGenericArguments()[0];
-
-                    if (EventBase.HandlerDict.TryGetValue(tEvent, out var handlers))
-                        handlers.Add(t);
-                    else
-                        EventBase.HandlerDict[tEvent] = [t];
-
-                    continue;
-                }
-
-                if (tGeneric == Types.ICommandHandlerOf1 || tGeneric == Types.ICommandHandlerOf2) // IsAssignableTo() is no good here also
-                {
-                    cmdHandlerRegistry.TryAdd(
-                        key: tInterface.GetGenericArguments()[0],
-                        value: new(t));
-
-                    //continue;
-                }
+                MessagingExtensions.RegisterHandler(tGeneric, tInterface, t, cmdHandlerRegistry);
             }
         }
 

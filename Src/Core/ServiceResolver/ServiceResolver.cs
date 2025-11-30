@@ -6,10 +6,25 @@ namespace FastEndpoints;
 
 //this class is instantiated by either the IOC container in normal mode
 //or by Factory.AddTestServices() method in unit testing mode
-sealed class ServiceResolver(IServiceProvider provider,
-                             IHttpContextAccessor ctxAccessor,
-                             bool isUnitTestMode = false) : IServiceResolver
+sealed class ServiceResolver(IServiceProvider provider, IHttpContextAccessor? ctxAccessor = null, bool isUnitTestMode = false) : IServiceResolver
 {
+    static IServiceResolver? _instance;
+
+    /// <summary>
+    /// Indicates whether the service resolver is not set.
+    /// </summary>
+    internal static bool InstanceNotSet => _instance is null;
+
+    /// <summary>
+    /// Gets the service resolver.
+    /// </summary>
+    /// <exception cref="InvalidOperationException"></exception>
+    internal static IServiceResolver Instance
+    {
+        get => _instance ?? throw new InvalidOperationException("Service resolver is null! Have you done the unit test setup correctly?");
+        set => _instance = value;
+    }
+
     readonly ConcurrentDictionary<Type, ObjectFactory> _factoryCache = new();
     readonly ConcurrentDictionary<Type, object> _singletonCache = new();
 
@@ -20,54 +35,54 @@ sealed class ServiceResolver(IServiceProvider provider,
         //WARNING: DO NOT DO THIS!!! it results in a perf degradation. no idea why.
         // var factory = _factoryCache.GetOrAdd(type, ActivatorUtilities.CreateFactory(type, Type.EmptyTypes));
 
-        return factory(serviceProvider ?? ctxAccessor.HttpContext?.RequestServices ?? provider, null);
+        return factory(serviceProvider ?? ctxAccessor?.HttpContext?.RequestServices ?? provider, null);
 
         static ObjectFactory FactoryInitializer(Type t)
             => ActivatorUtilities.CreateFactory(t, Type.EmptyTypes);
     }
 
     public object CreateSingleton(Type type)
-        => _singletonCache.GetOrAdd(type, ActivatorUtilities.GetServiceOrCreateInstance(ctxAccessor.HttpContext?.RequestServices ?? provider, type));
+        => _singletonCache.GetOrAdd(type, ActivatorUtilities.GetServiceOrCreateInstance(ctxAccessor?.HttpContext?.RequestServices ?? provider, type));
 
     public IServiceScope CreateScope()
         => isUnitTestMode
-               ? ctxAccessor.HttpContext?.RequestServices.CreateScope() ??
+               ? ctxAccessor?.HttpContext?.RequestServices.CreateScope() ??
                  throw new InvalidOperationException("Please follow documentation to configure unit test environment properly!")
                : provider.CreateScope();
 
     public TService Resolve<TService>() where TService : class
-        => ctxAccessor.HttpContext?.RequestServices.GetRequiredService<TService>() ??
+        => ctxAccessor?.HttpContext?.RequestServices.GetRequiredService<TService>() ??
            provider.GetRequiredService<TService>();
 
     public object Resolve(Type typeOfService)
-        => ctxAccessor.HttpContext?.RequestServices.GetRequiredService(typeOfService) ??
+        => ctxAccessor?.HttpContext?.RequestServices.GetRequiredService(typeOfService) ??
            provider.GetRequiredService(typeOfService);
 
     public TService? TryResolve<TService>() where TService : class
-        => ctxAccessor.HttpContext?.RequestServices.GetService<TService>() ??
+        => ctxAccessor?.HttpContext?.RequestServices.GetService<TService>() ??
            provider.GetService<TService>();
 
     public object? TryResolve(Type typeOfService)
-        => ctxAccessor.HttpContext?.RequestServices.GetService(typeOfService) ??
+        => ctxAccessor?.HttpContext?.RequestServices.GetService(typeOfService) ??
            provider.GetService(typeOfService);
 
     public TService? TryResolve<TService>(string keyName) where TService : class
-        => ctxAccessor.HttpContext?.RequestServices.GetKeyedService<TService>(keyName) ??
+        => ctxAccessor?.HttpContext?.RequestServices.GetKeyedService<TService>(keyName) ??
            provider.GetKeyedService<TService>(keyName);
 
     public object? TryResolve(Type typeOfService, string keyName)
     {
-        if ((ctxAccessor.HttpContext?.RequestServices ?? provider) is IKeyedServiceProvider p)
+        if ((ctxAccessor?.HttpContext?.RequestServices ?? provider) is IKeyedServiceProvider p)
             return p.GetKeyedService(typeOfService, keyName);
 
         throw new InvalidOperationException("Keyed services not supported!");
     }
 
     public TService Resolve<TService>(string keyName) where TService : class
-        => ctxAccessor.HttpContext?.RequestServices.GetRequiredKeyedService<TService>(keyName) ??
+        => ctxAccessor?.HttpContext?.RequestServices.GetRequiredKeyedService<TService>(keyName) ??
            provider.GetRequiredService<TService>();
 
     public object Resolve(Type typeOfService, string keyName)
-        => ctxAccessor.HttpContext?.RequestServices.GetRequiredKeyedService(typeOfService, keyName) ??
+        => ctxAccessor?.HttpContext?.RequestServices.GetRequiredKeyedService(typeOfService, keyName) ??
            provider.GetRequiredKeyedService(typeOfService, keyName);
 }

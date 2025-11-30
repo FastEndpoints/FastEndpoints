@@ -109,10 +109,10 @@ public static class Factory
         if (ctx.RequestServices is not null)
             throw new InvalidOperationException("You cannot add services to this http context because it's not empty!");
 
-        if (Cfg.ResolverIsNotSet)
+        if (ServiceResolver.InstanceNotSet)
         {
             var testingProvider = new ServiceCollection().AddHttpContextAccessor().BuildServiceProvider();
-            Cfg.ServiceResolver = new ServiceResolver(
+            ServiceResolver.Instance = new ServiceResolver(
                 provider: testingProvider,
                 ctxAccessor: testingProvider.GetRequiredService<IHttpContextAccessor>(),
                 isUnitTestMode: true);
@@ -122,7 +122,7 @@ public static class Factory
         collection.AddServicesForUnitTesting();
         s(collection);
         ctx.RequestServices = collection.BuildServiceProvider();
-        Cfg.ServiceResolver.Resolve<IHttpContextAccessor>().HttpContext = ctx;
+        ServiceResolver.Instance.Resolve<IHttpContextAccessor>().HttpContext = ctx;
         if (ctx.RequestServices.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions is { } serializerOpts)
             Cfg.SerOpts.Options = serializerOpts;
     }
@@ -145,7 +145,7 @@ public static class Factory
     {
         new DefaultHttpContext().AddTestServices(s);
 
-        return (TValidator)Cfg.ServiceResolver.CreateInstance(typeof(TValidator));
+        return (TValidator)ServiceResolver.Instance.CreateInstance(typeof(TValidator));
     }
 
     /// <summary>
@@ -157,7 +157,7 @@ public static class Factory
     {
         new DefaultHttpContext().AddTestServices(s);
 
-        return (TMapper)Cfg.ServiceResolver.CreateInstance(typeof(TMapper));
+        return (TMapper)ServiceResolver.Instance.CreateInstance(typeof(TMapper));
     }
 
     /// <summary>
@@ -171,7 +171,7 @@ public static class Factory
     {
         new DefaultHttpContext().AddTestServices(Action + s);
 
-        return (TEvent)Cfg.ServiceResolver.CreateInstance(typeof(TEvent));
+        return (TEvent)ServiceResolver.Instance.CreateInstance(typeof(TEvent));
 
         void Action(IServiceCollection sc)
             => sc.AddSingleton(handlers);

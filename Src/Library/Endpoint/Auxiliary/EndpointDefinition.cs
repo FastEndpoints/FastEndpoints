@@ -304,7 +304,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     public void FeatureFlag<TFlag>(string? featureName = null) where TFlag : IFeatureFlag
     {
         ThrowIfLocked();
-        var flag = (IFeatureFlag)Cfg.ServiceResolver.CreateSingleton(typeof(TFlag));
+        var flag = (IFeatureFlag)ServiceResolver.Instance.CreateSingleton(typeof(TFlag));
         flag.Name = featureName;
         FeatureFlags.Add(flag);
     }
@@ -487,7 +487,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
 
             try
             {
-                var processor = (IProcessor)Cfg.ServiceResolver.CreateSingleton(tFinal);
+                var processor = (IProcessor)ServiceResolver.Instance.CreateSingleton(tFinal);
                 AddProcessor(order, processor, PostProcessorList, ref _postProcessorPosition);
             }
             catch (Exception ex)
@@ -549,7 +549,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
 
             try
             {
-                var processor = (IProcessor)Cfg.ServiceResolver.CreateSingleton(tFinal);
+                var processor = (IProcessor)ServiceResolver.Instance.CreateSingleton(tFinal);
                 AddProcessor(order, processor, PreProcessorList, ref _preProcessorPosition);
             }
             catch (Exception ex)
@@ -575,7 +575,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
 
         try
         {
-            EpRequestBinder = Cfg.ServiceResolver.CreateSingleton(tFinal);
+            EpRequestBinder = ServiceResolver.Instance.CreateSingleton(tFinal);
         }
         catch (Exception ex)
         {
@@ -747,7 +747,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     internal object? GetMapper()
     {
         if (_mapper is null && MapperType is not null)
-            _mapper = Cfg.ServiceResolver.CreateSingleton(MapperType);
+            _mapper = ServiceResolver.Instance.CreateSingleton(MapperType);
 
         return _mapper;
     }
@@ -757,7 +757,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     internal object? GetValidator()
     {
         if (_validator is null && ValidatorType is not null)
-            _validator = Cfg.ServiceResolver.CreateSingleton(ValidatorType);
+            _validator = ServiceResolver.Instance.CreateSingleton(ValidatorType);
 
         return _validator;
     }
@@ -766,7 +766,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     {
         try
         {
-            var processor = (IProcessor)Cfg.ServiceResolver.CreateSingleton(typeof(TProcessor));
+            var processor = (IProcessor)ServiceResolver.Instance.CreateSingleton(typeof(TProcessor));
             AddProcessor(order, processor, list, ref pos);
         }
         catch (Exception ex)

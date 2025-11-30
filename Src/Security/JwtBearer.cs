@@ -22,15 +22,17 @@ public static class JwtBearer
 
     internal static string CreateToken(JwtCreationOptions? options = null, Action<JwtCreationOptions>? optsAction = null)
     {
-        var opts = options ?? new JwtCreationOptions(Cfg.ServiceResolver.TryResolve<IOptions<JwtCreationOptions>>()?.Value);
+        var opts = options ?? new JwtCreationOptions(ServiceResolver.Instance.TryResolve<IOptions<JwtCreationOptions>>()?.Value);
         optsAction?.Invoke(opts);
 
         if (string.IsNullOrEmpty(opts.SigningKey))
             throw new InvalidOperationException($"'{nameof(JwtCreationOptions)}.{nameof(JwtCreationOptions.SigningKey)}' is required!");
 
         if (opts.SigningStyle is TokenSigningStyle.Asymmetric && opts.SigningAlgorithm is SecurityAlgorithms.HmacSha256)
+        {
             throw new InvalidOperationException(
                 $"Please set an appropriate '{nameof(JwtCreationOptions)}.{nameof(JwtCreationOptions.SigningAlgorithm)}' when creating Asymmetric JWTs!");
+        }
 
         var claimList = new List<Claim>();
 
@@ -47,7 +49,7 @@ public static class JwtBearer
         {
             Issuer = opts.Issuer,
             Audience = opts.Audience,
-            IssuedAt = (Cfg.ServiceResolver.TryResolve<TimeProvider>() ?? TimeProvider.System).GetUtcNow().UtcDateTime,
+            IssuedAt = (ServiceResolver.Instance.TryResolve<TimeProvider>() ?? TimeProvider.System).GetUtcNow().UtcDateTime,
             Subject = new(claimList),
             Expires = opts.ExpireAt,
             SigningCredentials = GetSigningCredentials(opts)

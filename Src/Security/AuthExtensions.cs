@@ -26,7 +26,7 @@ public static class AuthExtensions
                 .AddJwtBearer(
                     o =>
                     {
-                        var sOpts = Cfg.ServiceResolver.TryResolve<IOptions<JwtSigningOptions>>()?.Value ?? new JwtSigningOptions();
+                        var sOpts = ServiceResolver.Instance.TryResolve<IOptions<JwtSigningOptions>>()?.Value ?? new JwtSigningOptions();
                         signingOptions(sOpts);
                         sOpts.UpdateSigningKey(sOpts.SigningKey);
 

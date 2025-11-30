@@ -18,7 +18,7 @@ public sealed class EndpointFactory : IEndpointFactory
     {
         //note: if the default factory is being called, that means it's ok to use HttpContext.RequestServices below since the default MS DI is being used
 
-        var epInstance = (BaseEndpoint)Cfg.ServiceResolver.CreateInstance(definition.EndpointType, ctx.RequestServices);
+        var epInstance = (BaseEndpoint)ServiceResolver.Instance.CreateInstance(definition.EndpointType, ctx.RequestServices);
 
         for (var i = 0; i < definition.ServiceBoundEpProps.Length; i++)
         {

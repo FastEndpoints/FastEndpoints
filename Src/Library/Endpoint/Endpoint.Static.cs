@@ -8,13 +8,10 @@ namespace FastEndpoints;
 
 public abstract partial class Endpoint<TRequest, TResponse> where TRequest : notnull
 {
-    static async ValueTask<TRequest> BindRequestAsync(EndpointDefinition def,
-                                                      HttpContext ctx,
-                                                      List<ValidationFailure> failures,
-                                                      CancellationToken ct)
+    static async ValueTask<TRequest> BindRequestAsync(EndpointDefinition def, HttpContext ctx, List<ValidationFailure> failures, CancellationToken ct)
     {
         var binder = (IRequestBinder<TRequest>)
-            (def.EpRequestBinder ??= Cfg.ServiceResolver.Resolve(typeof(IRequestBinder<TRequest>)));
+            (def.EpRequestBinder ??= ServiceResolver.Instance.Resolve<IRequestBinder<TRequest>>());
 
         if (def.MaxRequestSize > 0)
         {

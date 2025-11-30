@@ -39,7 +39,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <summary>
     /// gives access to the app configuration.
     /// </summary>
-    public IConfiguration Config => _config ??= Cfg.ServiceResolver.Resolve<IConfiguration>();
+    public IConfiguration Config => _config ??= ServiceResolver.Instance.Resolve<IConfiguration>();
 
     /// <summary>
     /// gives access to response sending methods for the endpoint. you can add your own custom response sending methods via extension methods targeting the
@@ -50,12 +50,12 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// <summary>
     /// gives access to the hosting environment
     /// </summary>
-    public IWebHostEnvironment Env => _env ??= Cfg.ServiceResolver.Resolve<IWebHostEnvironment>();
+    public IWebHostEnvironment Env => _env ??= ServiceResolver.Instance.Resolve<IWebHostEnvironment>();
 
     /// <summary>
     /// the logger for the current endpoint type
     /// </summary>
-    public ILogger Logger => _logger ??= Cfg.ServiceResolver.Resolve<ILoggerFactory>().CreateLogger(Definition.EndpointType);
+    public ILogger Logger => _logger ??= ServiceResolver.Instance.Resolve<ILoggerFactory>().CreateLogger(Definition.EndpointType);
 
     /// <summary>
     /// the base url of the current request

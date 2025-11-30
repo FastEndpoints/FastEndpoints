@@ -21,70 +21,34 @@ sealed class EndpointData
 
     static EndpointDefinition[] BuildEndpointDefinitions(EndpointDiscoveryOptions opts, CommandHandlerRegistry cmdHandlerRegistry)
     {
-        if (opts.DisableAutoDiscovery && opts.Assemblies?.Any() is false)
-            throw new InvalidOperationException($"If '{nameof(opts.DisableAutoDiscovery)}' is true, a collection of `{nameof(opts.Assemblies)}` must be provided!");
-
         if (opts.SourceGeneratorDiscoveredTypes.Count > 0 && opts.Assemblies?.Any() is true)
         {
             throw new InvalidOperationException(
                 $"{nameof(opts.SourceGeneratorDiscoveredTypes)}' and `{nameof(opts.Assemblies)}` cannot be used together! Choose only one of these strategies.");
         }
 
-        IEnumerable<string> exclusions =
-        [
-            "JetBrains",
-            "Microsoft",
-            "System",
-            "FastEndpoints",
-            "testhost",
-            "netstandard",
-            "Newtonsoft",
-            "mscorlib",
-            "NuGet",
-            "NSwag",
-            "FluentValidation",
-            "YamlDotNet",
-            "Accessibility",
-            "NJsonSchema",
-            "Namotion",
-            "StackExchange",
-            "Grpc",
-            "PresentationFramework",
-            "PresentationCore",
-            "WindowsBase"
-        ];
-
         var discoveredTypes = opts.SourceGeneratorDiscoveredTypes.AsEnumerable();
 
         if (!discoveredTypes.Any())
         {
-            var assemblies = Enumerable.Empty<Assembly>();
+            var scanOptions = new AssemblyScanOptions
+            {
+                DisableAutoDiscovery = opts.DisableAutoDiscovery,
+                Assemblies = opts.Assemblies,
+                AssemblyFilter = opts.AssemblyFilter,
+                TypeFilter = opts.Filter,
+                ExcludeAttribute = Types.DontRegisterAttribute,
+                InterfaceTypes =
+                [
+                    Types.IEndpoint,
+                    Types.IEventHandler,
+                    Types.ICommandHandler,
+                    Types.ISummary,
+                    opts.IncludeAbstractValidators ? Types.IValidator : Types.IEndpointValidator
+                ]
+            };
 
-            if (opts.Assemblies?.Any() is true)
-                assemblies = opts.Assemblies;
-
-            if (!opts.DisableAutoDiscovery)
-                assemblies = assemblies.Union(AppDomain.CurrentDomain.GetAssemblies());
-
-            if (opts.AssemblyFilter is not null)
-                assemblies = assemblies.Where(opts.AssemblyFilter);
-
-            discoveredTypes = assemblies
-                              .Where(a => !a.IsDynamic && (opts.Assemblies?.Contains(a) is true || !exclusions.Any(x => a.FullName!.StartsWith(x))))
-                              .SelectMany(a => a.GetTypes())
-                              .Where(
-                                  t =>
-                                      !t.IsDefined(Types.DontRegisterAttribute) &&
-                                      t is { IsAbstract: false, IsInterface: false, IsGenericType: false } &&
-                                      t.GetInterfaces().Intersect(
-                                      [
-                                          Types.IEndpoint,
-                                          Types.IEventHandler,
-                                          Types.ICommandHandler,
-                                          Types.ISummary,
-                                          opts.IncludeAbstractValidators ? Types.IValidator : Types.IEndpointValidator
-                                      ]).Any() &&
-                                      (opts.Filter is null || opts.Filter(t)));
+            discoveredTypes = AssemblyScanner.ScanForTypes(scanOptions);
         }
 
         //Endpoint<TRequest>

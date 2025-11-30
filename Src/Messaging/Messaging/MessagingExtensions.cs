@@ -19,19 +19,16 @@ public static class MessagingExtensions
     {
         services.TryAddSingleton<IServiceResolver, ServiceResolver>();
 
-        var discoveredTypes = AppDomain.CurrentDomain
-                                       .GetAssemblies()
-                                       .Union(assemblies ?? [])
-                                       .Where(a => !a.IsDynamic)
-                                       .SelectMany(a => a.GetTypes())
-                                       .Where(
-                                           t =>
-                                               t is { IsAbstract: false, IsInterface: false, IsGenericType: false } &&
-                                               t.GetInterfaces().Intersect(
-                                               [
-                                                   Types.IEventHandler,
-                                                   Types.ICommandHandler
-                                               ]).Any());
+        var discoveredTypes = AssemblyScanner.ScanForTypes(
+            new()
+            {
+                Assemblies = assemblies,
+                InterfaceTypes =
+                [
+                    Types.ICommandHandler,
+                    Types.IEventHandler
+                ]
+            });
 
         var cmdHandlerRegistry = new CommandHandlerRegistry();
 

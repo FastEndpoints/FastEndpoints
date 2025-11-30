@@ -31,24 +31,23 @@ sealed class EndpointData
 
         if (!discoveredTypes.Any())
         {
-            var scanOptions = new AssemblyScanOptions
-            {
-                DisableAutoDiscovery = opts.DisableAutoDiscovery,
-                Assemblies = opts.Assemblies,
-                AssemblyFilter = opts.AssemblyFilter,
-                TypeFilter = opts.Filter,
-                ExcludeAttribute = Types.DontRegisterAttribute,
-                InterfaceTypes =
-                [
-                    Types.IEndpoint,
-                    Types.IEventHandler,
-                    Types.ICommandHandler,
-                    Types.ISummary,
-                    opts.IncludeAbstractValidators ? Types.IValidator : Types.IEndpointValidator
-                ]
-            };
-
-            discoveredTypes = AssemblyScanner.ScanForTypes(scanOptions);
+            discoveredTypes = AssemblyScanner.ScanForTypes(
+                new()
+                {
+                    DisableAutoDiscovery = opts.DisableAutoDiscovery,
+                    Assemblies = opts.Assemblies,
+                    AssemblyFilter = opts.AssemblyFilter,
+                    TypeFilter = opts.Filter,
+                    ExcludeAttribute = Types.DontRegisterAttribute,
+                    InterfaceTypes =
+                    [
+                        Types.IEndpoint,
+                        Types.IEventHandler,
+                        Types.ICommandHandler,
+                        Types.ISummary,
+                        opts.IncludeAbstractValidators ? Types.IValidator : Types.IEndpointValidator
+                    ]
+                });
         }
 
         //Endpoint<TRequest>

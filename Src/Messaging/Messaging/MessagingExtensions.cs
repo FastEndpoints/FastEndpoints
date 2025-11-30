@@ -19,17 +19,16 @@ public static class MessagingExtensions
     {
         services.TryAddSingleton<IServiceResolver, ServiceResolver>();
 
-        var scanOptions = new AssemblyScanOptions
-        {
-            Assemblies = assemblies,
-            InterfaceTypes =
-            [
-                Types.IEventHandler,
-                Types.ICommandHandler
-            ]
-        };
-
-        var discoveredTypes = AssemblyScanner.ScanForTypes(scanOptions);
+        var discoveredTypes = AssemblyScanner.ScanForTypes(
+            new()
+            {
+                Assemblies = assemblies,
+                InterfaceTypes =
+                [
+                    Types.ICommandHandler,
+                    Types.IEventHandler
+                ]
+            });
 
         var cmdHandlerRegistry = new CommandHandlerRegistry();
 

@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
 using FastEndpoints.Messaging;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace FastEndpoints;
 
@@ -17,37 +16,39 @@ public static class MessagingExtensions
     /// <param name="assemblies">assemblies to scan for command handlers and event handlers, in addition to all loaded assemblies.</param>
     public static IServiceCollection AddMessaging(this IServiceCollection services, params Assembly[]? assemblies)
     {
-        services.TryAddSingleton<IServiceResolver, ServiceResolver>();
-
-        var discoveredTypes = AssemblyScanner.ScanForTypes(
-            new()
+        services.AddSingleton<IServiceResolver, ServiceResolver>();
+        services.AddSingleton<CommandHandlerRegistry>(
+            _ =>
             {
-                Assemblies = assemblies,
-                InterfaceTypes =
-                [
-                    Types.ICommandHandler,
-                    Types.IEventHandler
-                ]
+                var cmdHandlerRegistry = new CommandHandlerRegistry();
+                var discoveredTypes = AssemblyScanner.ScanForTypes(
+                    new()
+                    {
+                        Assemblies = assemblies,
+                        InterfaceTypes =
+                        [
+                            Types.ICommandHandler,
+                            Types.IEventHandler
+                        ]
+                    });
+
+                foreach (var t in discoveredTypes)
+                {
+                    foreach (var tInterface in t.GetInterfaces())
+                    {
+                        var tGeneric = tInterface.IsGenericType
+                                           ? tInterface.GetGenericTypeDefinition()
+                                           : null;
+
+                        if (tGeneric is null)
+                            continue;
+
+                        RegisterHandler(tGeneric, tInterface, t, cmdHandlerRegistry);
+                    }
+                }
+
+                return cmdHandlerRegistry;
             });
-
-        var cmdHandlerRegistry = new CommandHandlerRegistry();
-
-        foreach (var t in discoveredTypes)
-        {
-            foreach (var tInterface in t.GetInterfaces())
-            {
-                var tGeneric = tInterface.IsGenericType
-                                   ? tInterface.GetGenericTypeDefinition()
-                                   : null;
-
-                if (tGeneric is null)
-                    return services;
-
-                RegisterHandler(tGeneric, tInterface, t, cmdHandlerRegistry);
-            }
-        }
-
-        services.TryAddSingleton(cmdHandlerRegistry);
 
         return services;
     }

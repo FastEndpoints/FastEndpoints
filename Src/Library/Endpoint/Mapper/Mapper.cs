@@ -9,7 +9,7 @@ namespace FastEndpoints;
 /// <typeparam name="TRequest">the type of request dto</typeparam>
 /// <typeparam name="TResponse">the type of response dto</typeparam>
 /// <typeparam name="TEntity">the type of domain entity to map to/from</typeparam>
-public abstract class Mapper<TRequest, TResponse, TEntity> : IRequestMapper<TRequest, TEntity>, IResponseMapper<TResponse, TEntity>, IServiceResolverBase
+public abstract class Mapper<TRequest, TResponse, TEntity> : IRequestMapper<TRequest, TEntity>, IResponseMapper<TResponse, TEntity>, IServiceResolver
     where TRequest : notnull where TResponse : notnull
 {
     public virtual TEntity ToEntity(TRequest r)
@@ -31,31 +31,37 @@ public abstract class Mapper<TRequest, TResponse, TEntity> : IRequestMapper<TReq
         => throw new NotImplementedException($"Please override the {nameof(FromEntityAsync)} method!");
 
     public TService? TryResolve<TService>() where TService : class
-        => Cfg.ServiceResolver.TryResolve<TService>();
+        => ServiceResolver.Instance.TryResolve<TService>();
 
     public object? TryResolve(Type typeOfService)
-        => Cfg.ServiceResolver.TryResolve(typeOfService);
+        => ServiceResolver.Instance.TryResolve(typeOfService);
 
     public TService Resolve<TService>() where TService : class
-        => Cfg.ServiceResolver.Resolve<TService>();
+        => ServiceResolver.Instance.Resolve<TService>();
 
     public object Resolve(Type typeOfService)
-        => Cfg.ServiceResolver.Resolve(typeOfService);
+        => ServiceResolver.Instance.Resolve(typeOfService);
 
     public IServiceScope CreateScope()
-        => Cfg.ServiceResolver.CreateScope();
+        => ServiceResolver.Instance.CreateScope();
+
+    public object CreateInstance(Type type, IServiceProvider? serviceProvider = null)
+        => ServiceResolver.Instance.CreateInstance(type, serviceProvider);
+
+    public object CreateSingleton(Type type)
+        => ServiceResolver.Instance.CreateSingleton(type);
 
     public TService? TryResolve<TService>(string keyName) where TService : class
-        => Cfg.ServiceResolver.TryResolve<TService>(keyName);
+        => ServiceResolver.Instance.TryResolve<TService>(keyName);
 
     public object? TryResolve(Type typeOfService, string keyName)
-        => Cfg.ServiceResolver.TryResolve(typeOfService, keyName);
+        => ServiceResolver.Instance.TryResolve(typeOfService, keyName);
 
     public TService Resolve<TService>(string keyName) where TService : class
-        => Cfg.ServiceResolver.Resolve<TService>(keyName);
+        => ServiceResolver.Instance.Resolve<TService>(keyName);
 
     public object Resolve(Type typeOfService, string keyName)
-        => Cfg.ServiceResolver.Resolve(typeOfService, keyName);
+        => ServiceResolver.Instance.Resolve(typeOfService, keyName);
 }
 
 /// <summary>
@@ -64,7 +70,7 @@ public abstract class Mapper<TRequest, TResponse, TEntity> : IRequestMapper<TReq
 /// </summary>
 /// <typeparam name="TRequest">the type of request dto</typeparam>
 /// <typeparam name="TEntity">the type of domain entity to map to/from</typeparam>
-public abstract class RequestMapper<TRequest, TEntity> : IRequestMapper<TRequest, TEntity>, IServiceResolverBase where TRequest : notnull
+public abstract class RequestMapper<TRequest, TEntity> : IRequestMapper<TRequest, TEntity>, IServiceResolver where TRequest : notnull
 {
     public virtual TEntity ToEntity(TRequest r)
         => throw new NotImplementedException($"Please override the {nameof(ToEntity)} method!");
@@ -79,31 +85,37 @@ public abstract class RequestMapper<TRequest, TEntity> : IRequestMapper<TRequest
         => throw new NotImplementedException($"Please override the {nameof(UpdateEntityAsync)} method!");
 
     public TService? TryResolve<TService>() where TService : class
-        => Cfg.ServiceResolver.TryResolve<TService>();
+        => ServiceResolver.Instance.TryResolve<TService>();
 
     public object? TryResolve(Type typeOfService)
-        => Cfg.ServiceResolver.TryResolve(typeOfService);
+        => ServiceResolver.Instance.TryResolve(typeOfService);
 
     public TService Resolve<TService>() where TService : class
-        => Cfg.ServiceResolver.Resolve<TService>();
+        => ServiceResolver.Instance.Resolve<TService>();
 
     public object Resolve(Type typeOfService)
-        => Cfg.ServiceResolver.Resolve(typeOfService);
+        => ServiceResolver.Instance.Resolve(typeOfService);
 
     public IServiceScope CreateScope()
-        => Cfg.ServiceResolver.CreateScope();
+        => ServiceResolver.Instance.CreateScope();
+
+    public object CreateInstance(Type type, IServiceProvider? serviceProvider = null)
+        => ServiceResolver.Instance.CreateInstance(type, serviceProvider);
+
+    public object CreateSingleton(Type type)
+        => ServiceResolver.Instance.CreateSingleton(type);
 
     public TService? TryResolve<TService>(string keyName) where TService : class
-        => Cfg.ServiceResolver.TryResolve<TService>(keyName);
+        => ServiceResolver.Instance.TryResolve<TService>(keyName);
 
     public object? TryResolve(Type typeOfService, string keyName)
-        => Cfg.ServiceResolver.TryResolve(typeOfService, keyName);
+        => ServiceResolver.Instance.TryResolve(typeOfService, keyName);
 
     public TService Resolve<TService>(string keyName) where TService : class
-        => Cfg.ServiceResolver.Resolve<TService>(keyName);
+        => ServiceResolver.Instance.Resolve<TService>(keyName);
 
     public object Resolve(Type typeOfService, string keyName)
-        => Cfg.ServiceResolver.Resolve(typeOfService, keyName);
+        => ServiceResolver.Instance.Resolve(typeOfService, keyName);
 }
 
 /// <summary>
@@ -112,7 +124,7 @@ public abstract class RequestMapper<TRequest, TEntity> : IRequestMapper<TRequest
 /// </summary>
 /// <typeparam name="TResponse">the type of response dto</typeparam>
 /// <typeparam name="TEntity">the type of domain entity to map to/from</typeparam>
-public abstract class ResponseMapper<TResponse, TEntity> : IResponseMapper<TResponse, TEntity>, IServiceResolverBase where TResponse : notnull
+public abstract class ResponseMapper<TResponse, TEntity> : IResponseMapper<TResponse, TEntity>, IServiceResolver where TResponse : notnull
 {
     public virtual TResponse FromEntity(TEntity e)
         => throw new NotImplementedException($"Please override the {nameof(FromEntity)} method!");
@@ -121,29 +133,35 @@ public abstract class ResponseMapper<TResponse, TEntity> : IResponseMapper<TResp
         => throw new NotImplementedException($"Please override the {nameof(FromEntityAsync)} method!");
 
     public TService? TryResolve<TService>() where TService : class
-        => Cfg.ServiceResolver.TryResolve<TService>();
+        => ServiceResolver.Instance.TryResolve<TService>();
 
     public object? TryResolve(Type typeOfService)
-        => Cfg.ServiceResolver.TryResolve(typeOfService);
+        => ServiceResolver.Instance.TryResolve(typeOfService);
 
     public TService Resolve<TService>() where TService : class
-        => Cfg.ServiceResolver.Resolve<TService>();
+        => ServiceResolver.Instance.Resolve<TService>();
 
     public object Resolve(Type typeOfService)
-        => Cfg.ServiceResolver.Resolve(typeOfService);
+        => ServiceResolver.Instance.Resolve(typeOfService);
 
     public IServiceScope CreateScope()
-        => Cfg.ServiceResolver.CreateScope();
+        => ServiceResolver.Instance.CreateScope();
+
+    public object CreateInstance(Type type, IServiceProvider? serviceProvider = null)
+        => ServiceResolver.Instance.CreateInstance(type, serviceProvider);
+
+    public object CreateSingleton(Type type)
+        => ServiceResolver.Instance.CreateSingleton(type);
 
     public TService? TryResolve<TService>(string keyName) where TService : class
-        => Cfg.ServiceResolver.TryResolve<TService>(keyName);
+        => ServiceResolver.Instance.TryResolve<TService>(keyName);
 
     public object? TryResolve(Type typeOfService, string keyName)
-        => Cfg.ServiceResolver.TryResolve(typeOfService, keyName);
+        => ServiceResolver.Instance.TryResolve(typeOfService, keyName);
 
     public TService Resolve<TService>(string keyName) where TService : class
-        => Cfg.ServiceResolver.Resolve<TService>(keyName);
+        => ServiceResolver.Instance.Resolve<TService>(keyName);
 
     public object Resolve(Type typeOfService, string keyName)
-        => Cfg.ServiceResolver.Resolve(typeOfService, keyName);
+        => ServiceResolver.Instance.Resolve(typeOfService, keyName);
 }

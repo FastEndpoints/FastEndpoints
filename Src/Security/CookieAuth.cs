@@ -18,9 +18,10 @@ public static class CookieAuth
     /// <exception cref="InvalidOperationException">thrown if the auth middleware hasn't been configure or method is used outside the scope of an http request</exception>
     public static Task SignInAsync(Action<UserPrivileges> privileges, Action<AuthenticationProperties>? properties = null)
     {
-        var svc = Cfg.ServiceResolver.TryResolve<IAuthenticationService>() ?? throw new InvalidOperationException("Authentication middleware has not been configured!");
+        var svc = ServiceResolver.Instance.TryResolve<IAuthenticationService>() ??
+                  throw new InvalidOperationException("Authentication middleware has not been configured!");
 
-        var ctx = Cfg.ServiceResolver.TryResolve<IHttpContextAccessor>()?.HttpContext ??
+        var ctx = ServiceResolver.Instance.TryResolve<IHttpContextAccessor>()?.HttpContext ??
                   throw new InvalidOperationException("This operation is only valid during an http request!");
 
         var privs = new UserPrivileges();
@@ -40,7 +41,7 @@ public static class CookieAuth
         var props = new AuthenticationProperties
         {
             IsPersistent = true,
-            IssuedUtc = (Cfg.ServiceResolver.TryResolve<TimeProvider>() ?? TimeProvider.System).GetUtcNow()
+            IssuedUtc = (ServiceResolver.Instance.TryResolve<TimeProvider>() ?? TimeProvider.System).GetUtcNow()
         };
 
         properties?.Invoke(props);
@@ -59,15 +60,16 @@ public static class CookieAuth
     /// <exception cref="InvalidOperationException">thrown if the auth middleware hasn't been configured or method is used outside the scope of a http request</exception>
     public static Task SignOutAsync(Action<AuthenticationProperties>? properties = null)
     {
-        var svc = Cfg.ServiceResolver.TryResolve<IAuthenticationService>() ?? throw new InvalidOperationException("Authentication middleware has not been configured!");
+        var svc = ServiceResolver.Instance.TryResolve<IAuthenticationService>() ??
+                  throw new InvalidOperationException("Authentication middleware has not been configured!");
 
-        var ctx = Cfg.ServiceResolver.TryResolve<IHttpContextAccessor>()?.HttpContext ??
+        var ctx = ServiceResolver.Instance.TryResolve<IHttpContextAccessor>()?.HttpContext ??
                   throw new InvalidOperationException("This operation is only valid during an http request!");
 
         var props = new AuthenticationProperties
         {
             IsPersistent = true,
-            IssuedUtc = (Cfg.ServiceResolver.TryResolve<TimeProvider>() ?? TimeProvider.System).GetUtcNow()
+            IssuedUtc = (ServiceResolver.Instance.TryResolve<TimeProvider>() ?? TimeProvider.System).GetUtcNow()
         };
 
         properties?.Invoke(props);

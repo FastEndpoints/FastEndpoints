@@ -21,70 +21,33 @@ sealed class EndpointData
 
     static EndpointDefinition[] BuildEndpointDefinitions(EndpointDiscoveryOptions opts, CommandHandlerRegistry cmdHandlerRegistry)
     {
-        if (opts.DisableAutoDiscovery && opts.Assemblies?.Any() is false)
-            throw new InvalidOperationException($"If '{nameof(opts.DisableAutoDiscovery)}' is true, a collection of `{nameof(opts.Assemblies)}` must be provided!");
-
         if (opts.SourceGeneratorDiscoveredTypes.Count > 0 && opts.Assemblies?.Any() is true)
         {
             throw new InvalidOperationException(
                 $"{nameof(opts.SourceGeneratorDiscoveredTypes)}' and `{nameof(opts.Assemblies)}` cannot be used together! Choose only one of these strategies.");
         }
 
-        IEnumerable<string> exclusions =
-        [
-            "JetBrains",
-            "Microsoft",
-            "System",
-            "FastEndpoints",
-            "testhost",
-            "netstandard",
-            "Newtonsoft",
-            "mscorlib",
-            "NuGet",
-            "NSwag",
-            "FluentValidation",
-            "YamlDotNet",
-            "Accessibility",
-            "NJsonSchema",
-            "Namotion",
-            "StackExchange",
-            "Grpc",
-            "PresentationFramework",
-            "PresentationCore",
-            "WindowsBase"
-        ];
-
         var discoveredTypes = opts.SourceGeneratorDiscoveredTypes.AsEnumerable();
 
         if (!discoveredTypes.Any())
         {
-            var assemblies = Enumerable.Empty<Assembly>();
-
-            if (opts.Assemblies?.Any() is true)
-                assemblies = opts.Assemblies;
-
-            if (!opts.DisableAutoDiscovery)
-                assemblies = assemblies.Union(AppDomain.CurrentDomain.GetAssemblies());
-
-            if (opts.AssemblyFilter is not null)
-                assemblies = assemblies.Where(opts.AssemblyFilter);
-
-            discoveredTypes = assemblies
-                              .Where(a => !a.IsDynamic && (opts.Assemblies?.Contains(a) is true || !exclusions.Any(x => a.FullName!.StartsWith(x))))
-                              .SelectMany(a => a.GetTypes())
-                              .Where(
-                                  t =>
-                                      !t.IsDefined(Types.DontRegisterAttribute) &&
-                                      t is { IsAbstract: false, IsInterface: false, IsGenericType: false } &&
-                                      t.GetInterfaces().Intersect(
-                                      [
-                                          Types.IEndpoint,
-                                          Types.IEventHandler,
-                                          Types.ICommandHandler,
-                                          Types.ISummary,
-                                          opts.IncludeAbstractValidators ? Types.IValidator : Types.IEndpointValidator
-                                      ]).Any() &&
-                                      (opts.Filter is null || opts.Filter(t)));
+            discoveredTypes = AssemblyScanner.ScanForTypes(
+                new()
+                {
+                    DisableAutoDiscovery = opts.DisableAutoDiscovery,
+                    Assemblies = opts.Assemblies,
+                    AssemblyFilter = opts.AssemblyFilter,
+                    TypeFilter = opts.Filter,
+                    ExcludeAttribute = Types.DontRegisterAttribute,
+                    InterfaceTypes =
+                    [
+                        Types.IEndpoint,
+                        Types.IEventHandler,
+                        Types.ICommandHandler,
+                        Types.ISummary,
+                        opts.IncludeAbstractValidators ? Types.IValidator : Types.IEndpointValidator
+                    ]
+                });
         }
 
         //Endpoint<TRequest>
@@ -152,26 +115,7 @@ sealed class EndpointData
                     continue;
                 }
 
-                if (tGeneric == Types.IEventHandlerOf1) // IsAssignableTo() is no good here also
-                {
-                    var tEvent = tInterface.GetGenericArguments()[0];
-
-                    if (EventBase.HandlerDict.TryGetValue(tEvent, out var handlers))
-                        handlers.Add(t);
-                    else
-                        EventBase.HandlerDict[tEvent] = [t];
-
-                    continue;
-                }
-
-                if (tGeneric == Types.ICommandHandlerOf1 || tGeneric == Types.ICommandHandlerOf2) // IsAssignableTo() is no good here also
-                {
-                    cmdHandlerRegistry.TryAdd(
-                        key: tInterface.GetGenericArguments()[0],
-                        value: new(t));
-
-                    //continue;
-                }
+                MessagingExtensions.RegisterHandler(tGeneric, tInterface, t, cmdHandlerRegistry);
             }
         }
 

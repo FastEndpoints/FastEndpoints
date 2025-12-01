@@ -12,7 +12,7 @@ namespace FastEndpoints;
 /// </summary>
 public class ValidationContext : IValidationErrors
 {
-    static readonly IHttpContextAccessor? _httpCtxAccessor = Cfg.ServiceResolver.Resolve<IHttpContextAccessor>();
+    static readonly IHttpContextAccessor? _httpCtxAccessor = ServiceResolver.Instance.Resolve<IHttpContextAccessor>();
 
     /// <summary>
     /// provides access to the validation context of the currently executing endpoint.

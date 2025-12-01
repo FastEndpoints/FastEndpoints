@@ -166,7 +166,7 @@ public static class HttpResponseExtensions
                                                CancellationToken cancellation = default)
     {
         // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
-        var linkGen = Cfg.ServiceResolver.TryResolve<LinkGenerator>() ??              //unit tests (won't have the LinkGenerator registered)
+        var linkGen = ServiceResolver.Instance.TryResolve<LinkGenerator>() ??         //unit tests (won't have the LinkGenerator registered)
                       rsp.HttpContext.RequestServices?.GetService<LinkGenerator>() ?? //so get it from httpcontext. do not change to Resolve<T>() here
                       throw new InvalidOperationException("LinkGenerator is not registered! Have you done the unit test setup correctly?");
 

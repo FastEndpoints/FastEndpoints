@@ -44,7 +44,7 @@ public class EndpointDataTests
         services.TryAddSingleton<IServiceResolver, ServiceResolver>();
         services.TryAddSingleton<IEndpointFactory, EndpointFactory>();
         var sp = services.BuildServiceProvider();
-        Config.ServiceResolver = sp.GetRequiredService<IServiceResolver>();
+        ServiceResolver.Instance = sp.GetRequiredService<IServiceResolver>();
         var epFactory = sp.GetRequiredService<IEndpointFactory>();
         using var scope = sp.CreateScope();
         var httpCtx = new DefaultHttpContext { RequestServices = scope.ServiceProvider };

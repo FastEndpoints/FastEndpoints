@@ -10,6 +10,20 @@ Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H
 
 ## New 🎉
 
+<details><summary>Standalone package for Event/Command Bus functionality</summary>
+
+The in-process Event Bus and Command Bus features have been liberated from the clutches of the FastEndpoints main library. A new, independent `FastEndpoints.Messaging` package has been created. This package can be used in any .NET 8+ application, even with Blazor WASM. Simply install the nuget package and register it with the IOC container like so:
+
+```csharp
+builder.Services.AddMessaging();
+var host = builder.Build();
+host.Services.UseMessaging();
+```
+
+There's no setup (nor code changes) needed for projects using FastEndpoints main library. The above is only for when you want to use the messaging functionality in projects that don't have FastEndpoints.
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Strong-Name-Signed Assemblies</summary>

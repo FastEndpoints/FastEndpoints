@@ -9,7 +9,7 @@ namespace FastEndpoints;
 /// <typeparam name="TRequest">the type of request dto</typeparam>
 /// <typeparam name="TResponse">the type of response dto</typeparam>
 /// <typeparam name="TEntity">the type of domain entity to map to/from</typeparam>
-public abstract class Mapper<TRequest, TResponse, TEntity> : IRequestMapper<TRequest, TEntity>, IResponseMapper<TResponse, TEntity>, IServiceResolver
+public abstract class Mapper<TRequest, TResponse, TEntity> : IRequestMapper<TRequest, TEntity>, IResponseMapper<TResponse, TEntity>, IServiceResolverBase
     where TRequest : notnull where TResponse : notnull
 {
     public virtual TEntity ToEntity(TRequest r)
@@ -45,12 +45,6 @@ public abstract class Mapper<TRequest, TResponse, TEntity> : IRequestMapper<TReq
     public IServiceScope CreateScope()
         => ServiceResolver.Instance.CreateScope();
 
-    public object CreateInstance(Type type, IServiceProvider? serviceProvider = null)
-        => ServiceResolver.Instance.CreateInstance(type, serviceProvider);
-
-    public object CreateSingleton(Type type)
-        => ServiceResolver.Instance.CreateSingleton(type);
-
     public TService? TryResolve<TService>(string keyName) where TService : class
         => ServiceResolver.Instance.TryResolve<TService>(keyName);
 
@@ -70,7 +64,7 @@ public abstract class Mapper<TRequest, TResponse, TEntity> : IRequestMapper<TReq
 /// </summary>
 /// <typeparam name="TRequest">the type of request dto</typeparam>
 /// <typeparam name="TEntity">the type of domain entity to map to/from</typeparam>
-public abstract class RequestMapper<TRequest, TEntity> : IRequestMapper<TRequest, TEntity>, IServiceResolver where TRequest : notnull
+public abstract class RequestMapper<TRequest, TEntity> : IRequestMapper<TRequest, TEntity>, IServiceResolverBase where TRequest : notnull
 {
     public virtual TEntity ToEntity(TRequest r)
         => throw new NotImplementedException($"Please override the {nameof(ToEntity)} method!");
@@ -99,12 +93,6 @@ public abstract class RequestMapper<TRequest, TEntity> : IRequestMapper<TRequest
     public IServiceScope CreateScope()
         => ServiceResolver.Instance.CreateScope();
 
-    public object CreateInstance(Type type, IServiceProvider? serviceProvider = null)
-        => ServiceResolver.Instance.CreateInstance(type, serviceProvider);
-
-    public object CreateSingleton(Type type)
-        => ServiceResolver.Instance.CreateSingleton(type);
-
     public TService? TryResolve<TService>(string keyName) where TService : class
         => ServiceResolver.Instance.TryResolve<TService>(keyName);
 
@@ -124,7 +112,7 @@ public abstract class RequestMapper<TRequest, TEntity> : IRequestMapper<TRequest
 /// </summary>
 /// <typeparam name="TResponse">the type of response dto</typeparam>
 /// <typeparam name="TEntity">the type of domain entity to map to/from</typeparam>
-public abstract class ResponseMapper<TResponse, TEntity> : IResponseMapper<TResponse, TEntity>, IServiceResolver where TResponse : notnull
+public abstract class ResponseMapper<TResponse, TEntity> : IResponseMapper<TResponse, TEntity>, IServiceResolverBase where TResponse : notnull
 {
     public virtual TResponse FromEntity(TEntity e)
         => throw new NotImplementedException($"Please override the {nameof(FromEntity)} method!");
@@ -146,12 +134,6 @@ public abstract class ResponseMapper<TResponse, TEntity> : IResponseMapper<TResp
 
     public IServiceScope CreateScope()
         => ServiceResolver.Instance.CreateScope();
-
-    public object CreateInstance(Type type, IServiceProvider? serviceProvider = null)
-        => ServiceResolver.Instance.CreateInstance(type, serviceProvider);
-
-    public object CreateSingleton(Type type)
-        => ServiceResolver.Instance.CreateSingleton(type);
 
     public TService? TryResolve<TService>(string keyName) where TService : class
         => ServiceResolver.Instance.TryResolve<TService>(keyName);

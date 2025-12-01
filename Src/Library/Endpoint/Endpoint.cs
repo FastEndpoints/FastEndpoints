@@ -51,7 +51,7 @@ public abstract class EndpointWithMapper<TRequest, TMapper> : Endpoint<TRequest,
 /// <typeparam name="TRequest">the type of the request dto</typeparam>
 /// <typeparam name="TResponse">the type of the response dto</typeparam>
 [UsedImplicitly(ImplicitUseTargetFlags.WithInheritors)]
-public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEventBus, IServiceResolver where TRequest : notnull
+public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEventBus, IServiceResolverBase where TRequest : notnull
 {
     internal override async Task ExecAsync(CancellationToken ct)
     {
@@ -190,14 +190,6 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
     /// <inheritdoc />
     public IServiceScope CreateScope()
         => ServiceResolver.Instance.CreateScope();
-
-    /// <inheritdoc />
-    public object CreateInstance(Type type, IServiceProvider? serviceProvider = null)
-        => ServiceResolver.Instance.CreateInstance(type, serviceProvider);
-
-    /// <inheritdoc />
-    public object CreateSingleton(Type type)
-        => ServiceResolver.Instance.CreateSingleton(type);
 
     /// <inheritdoc />
     public TService? TryResolve<TService>(string keyName) where TService : class

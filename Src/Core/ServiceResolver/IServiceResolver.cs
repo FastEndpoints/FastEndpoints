@@ -4,9 +4,9 @@ namespace FastEndpoints;
 
 /// <summary>
 /// interface used by fastendpoints for resolving services from the DI container.
-/// implement this interface and register the implementation in MS DI for customizing service resolution.
+/// implement this interface and register the implementation in MS DI for customizing service resolving.
 /// </summary>
-public interface IServiceResolver
+public interface IServiceResolverBase
 {
     /// <summary>
     /// if you'd like to resolve scoped or transient services from the MS DI container, obtain a service scope from this method and dispose the scope when
@@ -18,7 +18,7 @@ public interface IServiceResolver
     ///  </code>
     /// </para>
     /// </summary>
-    IServiceScope CreateScope();
+    IServiceScope CreateScope(); //todo: need to figure out how to get rid of this from this interface!
 
     /// <summary>
     /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
@@ -45,22 +45,6 @@ public interface IServiceResolver
     /// <param name="typeOfService">the type of the service to resolve</param>
     /// <exception cref="InvalidOperationException">Thrown if requested service cannot be resolved</exception>
     object Resolve(Type typeOfService);
-
-    /// <summary>
-    /// create an instance of a given type (which may not be registered in the DI container). this method will be called repeatedly. so a cached
-    /// delegate/compiled expression using something like <see cref="ActivatorUtilities.CreateFactory(Type, Type[])" /> should be used for instance creation.
-    /// </summary>
-    /// <param name="type">the type to create an instance of</param>
-    /// <param name="serviceProvider">optional service provider</param>
-    object CreateInstance(Type type, IServiceProvider? serviceProvider = null);
-
-    /// <summary>
-    /// create an instance of a given type (which may not be registered in the DI container) which will be used as a singleton. a utility such as
-    /// <see cref="ActivatorUtilities.CreateInstance(IServiceProvider, Type, object[])" /> may be used. repeated calls with the same input type should return the same
-    /// singleton instance by utilizing an internal concurrent/thread-safe cache.
-    /// </summary>
-    /// <param name="type">the type to create an instance of</param>
-    object CreateSingleton(Type type);
 
     /// <summary>
     /// try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
@@ -91,4 +75,28 @@ public interface IServiceResolver
     /// <param name="keyName">the key name for resolving keyed service</param>
     /// <exception cref="InvalidOperationException">Thrown if requested service cannot be resolved</exception>
     object Resolve(Type typeOfService, string keyName);
+}
+
+/// <summary>
+/// interface used by fastendpoints for resolving services from the DI container.
+/// implement this interface and register the implementation in MS DI for customizing service resolving.
+/// </summary>
+public interface IServiceResolver : IServiceResolverBase
+{
+    /// <summary>
+    /// create an instance of a given type (which may not be registered in the DI container). this method will be called repeatedly. so a cached
+    /// delegate/compiled expression using something like <see cref="ActivatorUtilities.CreateFactory(Type, Type[])" /> should be used for instance creation.
+    /// </summary>
+    /// <param name="type">the type to create an instance of</param>
+    /// <param name="serviceProvider">optional service provider</param>
+    object CreateInstance(Type type, IServiceProvider? serviceProvider = null);
+
+    /// <summary>
+    /// create an instance of a given type (which may not be registered in the DI container) which will be used as a singleton. a utility such as
+    /// <see cref="ActivatorUtilities.CreateInstance(IServiceProvider, Type, object[])" /> may be used. repeated calls with the same input type should return the same
+    /// singleton
+    /// instance by utilizing an internal concurrent/thread-safe cache.
+    /// </summary>
+    /// <param name="type">the type to create an instance of</param>
+    object CreateSingleton(Type type);
 }

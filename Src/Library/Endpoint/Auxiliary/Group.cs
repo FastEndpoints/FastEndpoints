@@ -6,7 +6,7 @@ namespace FastEndpoints;
 /// common configuration for a group of endpoints can be specified by implementing this abstract class and calling
 /// <see cref="Configure(string, Action{EndpointDefinition})" /> in the constructor.
 /// </summary>
-public abstract class Group : IServiceResolver
+public abstract class Group : IServiceResolverBase
 {
     internal Action<EndpointDefinition> Action { get; set; } = null!;
 
@@ -51,14 +51,6 @@ public abstract class Group : IServiceResolver
     /// <inheritdoc />
     public IServiceScope CreateScope()
         => ServiceResolver.Instance.CreateScope();
-
-    /// <inheritdoc />
-    public object CreateInstance(Type type, IServiceProvider? serviceProvider = null)
-        => ServiceResolver.Instance.CreateInstance(type, serviceProvider);
-
-    /// <inheritdoc />
-    public object CreateSingleton(Type type)
-        => ServiceResolver.Instance.CreateSingleton(type);
 
     /// <inheritdoc />
     public TService? TryResolve<TService>(string keyName) where TService : class

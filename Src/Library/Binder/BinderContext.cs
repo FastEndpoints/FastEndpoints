@@ -11,7 +11,7 @@ namespace FastEndpoints;
 /// <summary>
 /// binder context supplied to custom request binders.
 /// </summary>
-public readonly struct BinderContext : IServiceResolver
+public readonly struct BinderContext : IServiceResolverBase
 {
     /// <summary>
     /// the http context of the current request
@@ -87,14 +87,6 @@ public readonly struct BinderContext : IServiceResolver
     /// <inheritdoc />
     public IServiceScope CreateScope()
         => ServiceResolver.Instance.CreateScope();
-
-    /// <inheritdoc />
-    public object CreateInstance(Type type, IServiceProvider? serviceProvider = null)
-        => ServiceResolver.Instance.CreateInstance(type, serviceProvider);
-
-    /// <inheritdoc />
-    public object CreateSingleton(Type type)
-        => ServiceResolver.Instance.CreateSingleton(type);
 
     /// <inheritdoc />
     public TService? TryResolve<TService>(string keyName) where TService : class

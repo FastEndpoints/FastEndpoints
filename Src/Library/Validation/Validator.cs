@@ -13,7 +13,7 @@ namespace FastEndpoints;
 /// </summary>
 /// <typeparam name="TRequest">the type of the request dto</typeparam>
 [UsedImplicitly(ImplicitUseTargetFlags.WithInheritors)]
-public abstract class Validator<TRequest> : AbstractValidator<TRequest>, IServiceResolver, IEndpointValidator where TRequest : notnull
+public abstract class Validator<TRequest> : AbstractValidator<TRequest>, IServiceResolverBase, IEndpointValidator where TRequest : notnull
 {
     /// <inheritdoc />
     public TService? TryResolve<TService>() where TService : class
@@ -34,14 +34,6 @@ public abstract class Validator<TRequest> : AbstractValidator<TRequest>, IServic
     /// <inheritdoc />
     public IServiceScope CreateScope()
         => ServiceResolver.Instance.CreateScope();
-
-    /// <inheritdoc />
-    public object CreateInstance(Type type, IServiceProvider? serviceProvider = null)
-        => ServiceResolver.Instance.CreateInstance(type, serviceProvider);
-
-    /// <inheritdoc />
-    public object CreateSingleton(Type type)
-        => ServiceResolver.Instance.CreateSingleton(type);
 
     /// <inheritdoc />
     public TService? TryResolve<TService>(string keyName) where TService : class

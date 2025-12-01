@@ -384,15 +384,10 @@ public static class HttpResponseExtensions
                     $"id: {streamItem.Id}\nevent: {streamItem.EventName}\ndata: {streamItem.GetDataString(SerOpts.Options)}\nretry: {streamItem.Retry}\n\n",
                     Encoding.UTF8,
                     ct);
+                await rsp.Body.FlushAsync(ct);
             }
         }
         catch (OperationCanceledException) { }
-        finally
-        {
-            // Flush the buffer only if the client did not trigger the cancellation
-            if (!ct.IsCancellationRequested)
-                await rsp.Body.FlushAsync(ct);
-        }
 
         return Void.Instance;
     }

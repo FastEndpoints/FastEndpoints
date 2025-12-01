@@ -388,12 +388,6 @@ public static class HttpResponseExtensions
             }
         }
         catch (OperationCanceledException) { }
-        finally
-        {
-            // Flush the buffer only if the client did not trigger the cancellation
-            if (!ct.IsCancellationRequested)
-                await rsp.Body.FlushAsync(ct);
-        }
 
         return Void.Instance;
     }

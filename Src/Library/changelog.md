@@ -20,4 +20,30 @@ All FastEndpoints assemblies are now strong-name-signed. This only matters if yo
 
 ## Fixes 🪲
 
+<details><summary>Group summary overriding endpoint level summary data</summary>
+
+There was an oversight that resulted in endpoint level summary data being overwritten by group level summary data in situations such as the following:
+
+```csharp
+sealed class MyGroup : Group
+{
+    public MyGroup()
+    {
+        Configure("group", ep => ep.Summary(s => s.Description = "group level text"));
+    }
+}
+
+sealed class MyEndpoint : EndpointWithoutRequest
+{
+    public override void Configure()
+    {
+        Get("/something");
+        Group<MyGroup>();
+        Summary(s => s.Description = "endpoint level text"); //this would get loss due to the bug
+    }
+}
+```
+
+</details>
+
 ## Breaking Changes ⚠️

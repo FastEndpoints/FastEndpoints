@@ -9,8 +9,8 @@ namespace FastEndpoints;
 /// </summary>
 public class EndpointSummary
 {
-    internal List<IProducesResponseTypeMetadata> ProducesMetas { get; } = [];
-    internal Dictionary<int, Dictionary<string, string>> ResponseParams { get; } = new(); //key: status-code //val: [propname]=description
+    internal List<IProducesResponseTypeMetadata> ProducesMetas { get; set; } = [];
+    internal Dictionary<int, Dictionary<string, string>> ResponseParams { get; set; } = new(); //key: status-code //val: [propname]=description
 
     internal static readonly Action<RouteHandlerBuilder> ClearDefaultProduces200Metadata
         = b => b.Add(
@@ -47,7 +47,7 @@ public class EndpointSummary
     /// <summary>
     /// specify multiple request examples by adding to this collection.
     /// </summary>
-    public ICollection<RequestExample> RequestExamples { get; } = new List<RequestExample>();
+    public ICollection<RequestExample> RequestExamples { get; protected set; } = new List<RequestExample>();
 
     /// <summary>
     /// an example request object to be used in swagger/ openapi.
@@ -140,6 +140,22 @@ public class EndpointSummary
 /// <typeparam name="TRequest">the type of the request dto</typeparam>
 public class EndpointSummary<TRequest> : EndpointSummary where TRequest : notnull
 {
+    public EndpointSummary(EndpointSummary? summary = null) //clone the supplied base instance
+    {
+        if (summary is null)
+            return;
+
+        ProducesMetas = summary.ProducesMetas;
+        ResponseParams = summary.ResponseParams;
+        Summary = summary.Summary;
+        Description = summary.Description;
+        RequestExamples = summary.RequestExamples;
+        Params = summary.Params;
+        Responses = summary.Responses;
+        ResponseExamples = summary.ResponseExamples;
+        ResponseHeaders = summary.ResponseHeaders;
+    }
+
     /// <summary>
     /// add a description for a request param for a given property of the request dto
     /// </summary>

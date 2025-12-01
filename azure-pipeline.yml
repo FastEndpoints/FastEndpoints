@@ -14,16 +14,16 @@ variables:
 
 steps:
   - task: UseDotNet@2
-    displayName: "Use .Net Core SDK 9.x"
+    displayName: "Use .Net Core SDK 10.x"
     inputs:
       packageType: "sdk"
-      version: "9.x"
+      version: "10.x"
       includePreviewVersions: true
 
   - task: Bash@3
     displayName: "Update xUnit Runner Config"
     inputs:
-      targetType: 'inline'
+      targetType: "inline"
       script: |
         echo '{
             "parallelizeAssembly": false,

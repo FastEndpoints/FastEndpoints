@@ -29,7 +29,7 @@ jobs:
           }' > Tests/IntegrationTests/FastEndpoints/xunit.runner.json
 
       - name: Run Tests
-        run: dotnet test FastEndpoints.sln --configuration Release --verbosity minimal --filter "ExcludeInCiCd!=Yes"
+        run: dotnet test FastEndpoints.slnx --configuration Release --verbosity minimal --filter "ExcludeInCiCd!=Yes"
 
       - name: Make Nuget Packages
         run: dotnet pack -c Release

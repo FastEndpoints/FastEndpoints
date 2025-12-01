@@ -1,0 +1,49 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Benchmark/">
+    <File Path="Benchmark/Directory.Build.props" />
+    <Project Path="Benchmark/FastEndpointsBench/FEBench.csproj" />
+    <Project Path="Benchmark/MinimalApi/MinimalApi.csproj" />
+    <Project Path="Benchmark/MvcControllers/MvcControllers.csproj" />
+    <Project Path="Benchmark/Runner/Runner.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="Directory.Packages.props" />
+    <File Path="README.md" />
+    <File Path="Src/Directory.Build.props" />
+    <File Path="Src/Library/changelog.md" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <File Path="Tests/Directory.Build.props" />
+  </Folder>
+  <Folder Name="/Tests/IntegrationTests/">
+    <Project Path="Tests/IntegrationTests/FastEndpoints.Swagger/Int.Swagger.csproj" />
+    <Project Path="Tests/IntegrationTests/FastEndpoints/Int.FastEndpoints.csproj" />
+  </Folder>
+  <Folder Name="/Tests/UnitTests/">
+    <Project Path="Tests/UnitTests/FastEndpoints.Swagger/Unit.Swagger.csproj" />
+    <Project Path="Tests/UnitTests/FastEndpoints/Unit.FastEndpoints.csproj" />
+  </Folder>
+  <Project Path="Src/AspVersioning/FastEndpoints.AspVersioning.csproj" />
+  <Project Path="Src/Attributes/FastEndpoints.Attributes.csproj" />
+  <Project Path="Src/ClientGen.Kiota/FastEndpoints.ClientGen.Kiota.csproj" />
+  <Project Path="Src/ClientGen/FastEndpoints.ClientGen.csproj" />
+  <Project Path="Src/Core/FastEndpoints.Core.csproj" />
+  <Project Path="Src/Generator/FastEndpoints.Generator.csproj" />
+  <Project Path="Src/Library/FastEndpoints.csproj" />
+  <Project Path="Src/Messaging/Messaging.Core/FastEndpoints.Messaging.Core.csproj" />
+  <Project Path="Src/Messaging/Messaging.Remote.Core/FastEndpoints.Messaging.Remote.Core.csproj" />
+  <Project Path="Src/Messaging/Messaging.Remote.Testing/FastEndpoints.Messaging.Remote.Testing.csproj" />
+  <Project Path="Src/Messaging/Messaging.Remote/FastEndpoints.Messaging.Remote.csproj" />
+  <Project Path="Src/Messaging/Messaging/FastEndpoints.Messaging.csproj" />
+  <Project Path="Src/OData/FastEndpoints.OData.csproj" />
+  <Project Path="Src/Security/FastEndpoints.Security.csproj" />
+  <Project Path="Src/Swagger/FastEndpoints.Swagger.csproj" />
+  <Project Path="Src/Testing/FastEndpoints.Testing.csproj" />
+  <Project Path="Web/Web.csproj" />
+</Solution>

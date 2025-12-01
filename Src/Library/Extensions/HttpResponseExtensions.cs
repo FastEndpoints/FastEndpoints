@@ -1,12 +1,9 @@
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Text.Json.Nodes;
-using System.Text.Json.Serialization;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using System.Security.Cryptography;
 using static FastEndpoints.Config;
 
 namespace FastEndpoints;
@@ -364,21 +361,33 @@ public static class HttpResponseExtensions
             await rsp.Body.FlushAsync(ct);
 
             var applicationStopping = rsp.HttpContext.RequestServices.GetRequiredService<IHostApplicationLifetime>().ApplicationStopping;
-
+            var enumerator = eventStream.GetAsyncEnumerator(applicationStopping);
             try
             {
-                // Pass the ApplicationStopping CancellationToken to the IAsyncEnumerable, the framework will combine it automatically with any user provided token.
-                // This makes sure that the stream at least stops when the host is shutting down.
-                await foreach (var streamItem in eventStream.WithCancellation(applicationStopping))
+                var next = enumerator.MoveNextAsync();
+                while (await next)
                 {
                     await rsp.WriteAsync(
-                        $"id: {streamItem.Id}\nevent: {streamItem.EventName}\ndata: {streamItem.GetDataString(SerOpts.Options)}\nretry: {streamItem.Retry}\n\n",
+                        $"id: {enumerator.Current.Id}\nevent: {enumerator.Current.EventName}\ndata: {enumerator.Current.GetDataString(SerOpts.Options)}\nretry: {enumerator.Current.Retry}\n\n",
                         Encoding.UTF8,
                         ct);
-                    await rsp.Body.FlushAsync(ct);
+
+                    next = enumerator.MoveNextAsync();
+                    var hasNextAvailable = next.GetAwaiter().IsCompleted;
+                    if (!hasNextAvailable)
+                    {
+                        await rsp.Body.FlushAsync(ct);
+                    }
                 }
             }
             catch (OperationCanceledException) { }
+            finally
+            {
+                // Flush the buffer only if the client did not trigger the cancellation
+                if (!ct.IsCancellationRequested)
+                    await rsp.Body.FlushAsync(ct);
+                await enumerator.DisposeAsync();
+            }
 
             return Void.Instance;
         }

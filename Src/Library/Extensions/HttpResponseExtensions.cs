@@ -384,6 +384,7 @@ public static class HttpResponseExtensions
                     $"id: {streamItem.Id}\nevent: {streamItem.EventName}\ndata: {streamItem.GetDataString(SerOpts.Options)}\nretry: {streamItem.Retry}\n\n",
                     Encoding.UTF8,
                     ct);
+                await rsp.Body.FlushAsync(ct);
             }
         }
         catch (OperationCanceledException) { }

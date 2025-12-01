@@ -17,6 +17,7 @@ public static class MessagingExtensions
     public static IServiceCollection AddMessaging(this IServiceCollection services, params Assembly[]? assemblies)
     {
         services.AddSingleton<IServiceResolver, ServiceResolver>();
+        services.AddSingleton(typeof(EventBus<>));
         services.AddSingleton<CommandHandlerRegistry>(
             _ =>
             {
@@ -53,6 +54,19 @@ public static class MessagingExtensions
         return services;
     }
 
+    /// <summary>
+    /// configures the messaging service resolver. Call this after building the service provider.
+    /// </summary>
+    /// <param name="provider">the service provider</param>
+    /// <returns>the service provider for chaining</returns>
+    public static IServiceProvider UseMessaging(this IServiceProvider provider)
+    {
+        ServiceResolver.Instance = provider.GetRequiredService<IServiceResolver>();
+        _ = provider.GetRequiredService<CommandHandlerRegistry>(); //cause the above factory to run
+
+        return provider;
+    }
+
     internal static void RegisterHandler(Type tGeneric, Type tInterface, Type t, CommandHandlerRegistry cmdHandlerRegistry)
     {
         if (tGeneric == Types.IEventHandlerOf1) //IsAssignableTo() is no good here if the user inherits the interface.
@@ -70,20 +84,8 @@ public static class MessagingExtensions
         if (tGeneric == Types.ICommandHandlerOf1 || tGeneric == Types.ICommandHandlerOf2) // IsAssignableTo() is no good here either
         {
             cmdHandlerRegistry.TryAdd(
-                key: tInterface.GetGenericArguments()[0],
-                value: new(t));
+                tInterface.GetGenericArguments()[0],
+                new(t));
         }
-    }
-
-    /// <summary>
-    /// configures the messaging service resolver. Call this after building the service provider.
-    /// </summary>
-    /// <param name="provider">the service provider</param>
-    /// <returns>the service provider for chaining</returns>
-    public static IServiceProvider UseMessaging(this IServiceProvider provider)
-    {
-        ServiceResolver.Instance = provider.GetRequiredService<IServiceResolver>();
-
-        return provider;
     }
 }

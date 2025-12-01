@@ -32,6 +32,12 @@ All FastEndpoints assemblies are now strong-name-signed. This only matters if yo
 
 </details>
 
+<details><summary>Increased frequency of stream flushing in SSE</summary>
+
+SSE streams are now flushed after each write as opposed to after every batch. This eliminates random pauses on the client-side due to stream buffering.
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>Group summary overriding endpoint level summary data</summary>

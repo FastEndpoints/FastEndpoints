@@ -363,6 +363,7 @@ public static class HttpResponseExtensions
             var ct = cancellation.IfDefault(rsp);
             await rsp.Body.FlushAsync(ct);
 
+            // combine the external cancellation token with the application stopping token
             var applicationStopping = rsp.HttpContext.RequestServices.GetRequiredService<IHostApplicationLifetime>().ApplicationStopping;
             var enumerator = eventStream.GetAsyncEnumerator(applicationStopping);
             try

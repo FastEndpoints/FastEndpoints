@@ -376,9 +376,9 @@ public static class HttpResponseExtensions
                         ct);
 
                     next = enumerator.MoveNextAsync();
-                    var hasNextAvailable = next.GetAwaiter().IsCompleted;
-                    if (!hasNextAvailable)
+                    if (!next.IsCompleted)
                     {
+                        // flush the data to the client if the next item is not already available
                         await rsp.Body.FlushAsync(ct);
                     }
                 }

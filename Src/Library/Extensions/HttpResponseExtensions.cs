@@ -363,9 +363,10 @@ public static class HttpResponseExtensions
             var ct = cancellation.IfDefault(rsp);
             await rsp.Body.FlushAsync(ct);
 
-            // combine the external cancellation token with the application stopping token
+            // The C# compiler automatically creates a linked CancellationToken by combining the applicationStopping token passed into the GetAsyncEnumerator method
+            // and any token marked by [EnumeratorCancellation] in the method returning the IAsyncEnumerable
             var applicationStopping = rsp.HttpContext.RequestServices.GetRequiredService<IHostApplicationLifetime>().ApplicationStopping;
-            var enumerator = eventStream.GetAsyncEnumerator(applicationStopping);
+            using var enumerator = eventStream.GetAsyncEnumerator(applicationStopping);
             try
             {
                 var next = enumerator.MoveNextAsync();
@@ -390,7 +391,6 @@ public static class HttpResponseExtensions
                 // Flush the buffer only if the client did not trigger the cancellation
                 if (!ct.IsCancellationRequested)
                     await rsp.Body.FlushAsync(ct);
-                await enumerator.DisposeAsync();
             }
 
             return Void.Instance;

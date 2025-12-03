@@ -209,6 +209,10 @@ public static class MainExtensions
 
         CommandExtensions.TestHandlersPresent = app.ServiceProvider.GetService<TestCommandHandlerMarker>() is not null;
 
+        app.MapGet("_test_url_cache_", IEndpoint.GetTestUrlCache)
+           .Produces<string[]>(contentType: "text/plain")
+           .ExcludeFromDescription();
+
         return app;
     }
 

@@ -17,492 +17,491 @@ namespace FastEndpoints;
 /// </summary>
 public static class HttpClientExtensions
 {
-    /// <summary>
-    /// make a POST request using a request dto and get back a <see cref="TestResult{TResponse}" /> containing the <see cref="HttpResponseMessage" /> as well
-    /// as the <typeparamref name="TResponse" /> DTO/>.
-    /// </summary>
-    /// <typeparam name="TRequest">type of the request dto</typeparam>
-    /// <typeparam name="TResponse">type of the response dto</typeparam>
-    /// <param name="requestUri">the route url to post to</param>
-    /// <param name="request">the request dto</param>
-    /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
-    /// <param name="populateHeaders">
-    /// when set to false, headers will not be automatically added to the http request from request dto properties decorated with the
-    /// [FromHeader] attribute.
-    /// </param>
-    /// <param name="populateCookies">
-    /// when set to false, cookies will not be automatically added to the http request from request dto properties decorated with the
-    /// [FromCookie] attribute.
-    /// </param>
-    public static Task<TestResult<TResponse>> POSTAsync<TRequest, TResponse>(this HttpClient client,
-                                                                             string requestUri,
-                                                                             TRequest request,
-                                                                             bool sendAsFormData = false,
-                                                                             bool populateHeaders = true,
-                                                                             bool populateCookies = true) where TRequest : notnull
-        => client.SENDAsync<TRequest, TResponse>(HttpMethod.Post, requestUri, request, sendAsFormData, populateHeaders, populateCookies);
-
-    /// <summary>
-    /// make a POST request to an endpoint using auto route discovery using a request dto and get back a <see cref="TestResult{TResponse}" /> containing the
-    /// <see cref="HttpResponseMessage" /> as well as the <typeparamref name="TResponse" /> DTO.
-    /// </summary>
-    /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
-    /// <typeparam name="TRequest">the type of the request dto</typeparam>
-    /// <typeparam name="TResponse">the type of the response dto</typeparam>
-    /// <param name="request">the request dto</param>
-    /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
-    /// <param name="populateHeaders">
-    /// when set to false, headers will not be automatically added to the http request from request dto properties decorated with the
-    /// [FromHeader] attribute.
-    /// </param>
-    /// <param name="populateCookies">
-    /// when set to false, cookies will not be automatically added to the http request from request dto properties decorated with the
-    /// [FromCookie] attribute.
-    /// </param>
-    public static Task<TestResult<TResponse>> POSTAsync<TEndpoint, TRequest, TResponse>(this HttpClient client,
-                                                                                        TRequest request,
-                                                                                        bool sendAsFormData = false,
-                                                                                        bool populateHeaders = true,
-                                                                                        bool populateCookies = true)
-        where TEndpoint : IEndpoint where TRequest : notnull
-        => POSTAsync<TRequest, TResponse>(client, GetTestUrlFor<TEndpoint, TRequest>(request), request, sendAsFormData, populateHeaders, populateCookies);
-
-    /// <summary>
-    /// make a POST request to an endpoint using auto route discovery using a request dto that does not send back a response dto.
-    /// </summary>
-    /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
-    /// <typeparam name="TRequest">the type of the request dto</typeparam>
-    /// <param name="request">the request dto</param>
-    /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
-    /// <param name="populateHeaders">
-    /// when set to false, headers will not be automatically added to the http request from request dto properties decorated with the
-    /// [FromHeader] attribute.
-    /// </param>
-    /// <param name="populateCookies">
-    /// when set to false, cookies will not be automatically added to the http request from request dto properties decorated with the
-    /// [FromCookie] attribute.
-    /// </param>
-    public static async Task<HttpResponseMessage> POSTAsync<TEndpoint, TRequest>(this HttpClient client,
-                                                                                 TRequest request,
-                                                                                 bool sendAsFormData = false,
-                                                                                 bool populateHeaders = true,
-                                                                                 bool populateCookies = true)
-        where TEndpoint : IEndpoint where TRequest : notnull
+    extension(HttpClient client)
     {
-        var (rsp, _) = await POSTAsync<TEndpoint, TRequest, EmptyResponse>(client, request, sendAsFormData, populateHeaders, populateCookies);
+        /// <summary>
+        /// make a POST request using a request dto and get back a <see cref="TestResult{TResponse}" /> containing the <see cref="HttpResponseMessage" /> as well
+        /// as the <typeparamref name="TResponse" /> DTO/>.
+        /// </summary>
+        /// <typeparam name="TRequest">type of the request dto</typeparam>
+        /// <typeparam name="TResponse">type of the response dto</typeparam>
+        /// <param name="requestUri">the route url to post to</param>
+        /// <param name="request">the request dto</param>
+        /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
+        /// <param name="populateHeaders">
+        /// when set to false, headers will not be automatically added to the http request from request dto properties decorated with the
+        /// [FromHeader] attribute.
+        /// </param>
+        /// <param name="populateCookies">
+        /// when set to false, cookies will not be automatically added to the http request from request dto properties decorated with the
+        /// [FromCookie] attribute.
+        /// </param>
+        public Task<TestResult<TResponse>> POSTAsync<TRequest, TResponse>(string requestUri,
+                                                                          TRequest request,
+                                                                          bool sendAsFormData = false,
+                                                                          bool populateHeaders = true,
+                                                                          bool populateCookies = true) where TRequest : notnull
+            => client.SENDAsync<TRequest, TResponse>(HttpMethod.Post, requestUri, request, sendAsFormData, populateHeaders, populateCookies);
 
-        return rsp;
-    }
+        /// <summary>
+        /// make a POST request to an endpoint using auto route discovery using a request dto and get back a <see cref="TestResult{TResponse}" /> containing the
+        /// <see cref="HttpResponseMessage" /> as well as the <typeparamref name="TResponse" /> DTO.
+        /// </summary>
+        /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
+        /// <typeparam name="TRequest">the type of the request dto</typeparam>
+        /// <typeparam name="TResponse">the type of the response dto</typeparam>
+        /// <param name="request">the request dto</param>
+        /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
+        /// <param name="populateHeaders">
+        /// when set to false, headers will not be automatically added to the http request from request dto properties decorated with the
+        /// [FromHeader] attribute.
+        /// </param>
+        /// <param name="populateCookies">
+        /// when set to false, cookies will not be automatically added to the http request from request dto properties decorated with the
+        /// [FromCookie] attribute.
+        /// </param>
+        public Task<TestResult<TResponse>> POSTAsync<TEndpoint, TRequest, TResponse>(TRequest request,
+                                                                                     bool sendAsFormData = false,
+                                                                                     bool populateHeaders = true,
+                                                                                     bool populateCookies = true)
+            where TEndpoint : IEndpoint where TRequest : notnull
+            => POSTAsync<TRequest, TResponse>(
+                client,
+                GetTestUrlFor<TEndpoint, TRequest>(request, client),
+                request,
+                sendAsFormData,
+                populateHeaders,
+                populateCookies);
 
-    /// <summary>
-    /// make a POST request to an endpoint using auto route discovery without a request dto and get back a <see cref="TestResult{TResponse}" /> containing
-    /// the <see cref="HttpResponseMessage" /> as well as the <typeparamref name="TResponse" /> DTO.
-    /// </summary>
-    /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
-    /// <typeparam name="TResponse">the type of the response dto</typeparam>
-    public static Task<TestResult<TResponse>> POSTAsync<TEndpoint, TResponse>(this HttpClient client) where TEndpoint : IEndpoint
-        => POSTAsync<TEndpoint, EmptyRequest, TResponse>(client, new());
-
-    /// <summary>
-    /// make a PATCH request using a request dto and get back a <see cref="TestResult{TResponse}" /> containing the <see cref="HttpResponseMessage" /> as
-    /// well as the <typeparamref name="TResponse" /> DTO.
-    /// </summary>
-    /// <typeparam name="TRequest">type of the request dto</typeparam>
-    /// <typeparam name="TResponse">type of the response dto</typeparam>
-    /// <param name="requestUri">the route url to PATCH to</param>
-    /// <param name="request">the request dto</param>
-    /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
-    /// <param name="populateHeaders">
-    /// when set to false, headers will not be automatically added to the http request from request dto properties decorated with the
-    /// [FromHeader] attribute.
-    /// </param>
-    /// <param name="populateCookies">
-    /// when set to false, cookies will not be automatically added to the http request from request dto properties decorated with the
-    /// [FromCookie] attribute.
-    /// </param>
-    public static Task<TestResult<TResponse>> PATCHAsync<TRequest, TResponse>(this HttpClient client,
-                                                                              string requestUri,
-                                                                              TRequest request,
+        /// <summary>
+        /// make a POST request to an endpoint using auto route discovery using a request dto that does not send back a response dto.
+        /// </summary>
+        /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
+        /// <typeparam name="TRequest">the type of the request dto</typeparam>
+        /// <param name="request">the request dto</param>
+        /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
+        /// <param name="populateHeaders">
+        /// when set to false, headers will not be automatically added to the http request from request dto properties decorated with the
+        /// [FromHeader] attribute.
+        /// </param>
+        /// <param name="populateCookies">
+        /// when set to false, cookies will not be automatically added to the http request from request dto properties decorated with the
+        /// [FromCookie] attribute.
+        /// </param>
+        public async Task<HttpResponseMessage> POSTAsync<TEndpoint, TRequest>(TRequest request,
                                                                               bool sendAsFormData = false,
                                                                               bool populateHeaders = true,
-                                                                              bool populateCookies = true) where TRequest : notnull
-        => client.SENDAsync<TRequest, TResponse>(HttpMethod.Patch, requestUri, request, sendAsFormData, populateHeaders, populateCookies);
+                                                                              bool populateCookies = true)
+            where TEndpoint : IEndpoint where TRequest : notnull
+        {
+            var (rsp, _) = await POSTAsync<TEndpoint, TRequest, EmptyResponse>(client, request, sendAsFormData, populateHeaders, populateCookies);
 
-    /// <summary>
-    /// make a PATCH request to an endpoint using auto route discovery using a request dto and get back a <see cref="TestResult{TResponse}" /> containing the
-    /// <see cref="HttpResponseMessage" /> as well as the <typeparamref name="TResponse" /> DTO.
-    /// </summary>
-    /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
-    /// <typeparam name="TRequest">the type of the request dto</typeparam>
-    /// <typeparam name="TResponse">the type of the response dto</typeparam>
-    /// <param name="request">the request dto</param>
-    /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
-    /// <param name="populateHeaders">
-    /// when set to true, headers will be automatically added to the http request from request dto properties decorated with the [FromHeader] attribute.
-    /// </param>
-    public static Task<TestResult<TResponse>> PATCHAsync<TEndpoint, TRequest, TResponse>(this HttpClient client,
-                                                                                         TRequest request,
-                                                                                         bool sendAsFormData = false,
-                                                                                         bool populateHeaders = true,
-                                                                                         bool populateCookies = true)
-        where TEndpoint : IEndpoint where TRequest : notnull
-        => PATCHAsync<TRequest, TResponse>(client, GetTestUrlFor<TEndpoint, TRequest>(request), request, sendAsFormData, populateHeaders, populateCookies);
+            return rsp;
+        }
 
-    /// <summary>
-    /// make a PATCH request to an endpoint using auto route discovery using a request dto that does not send back a response dto.
-    /// </summary>
-    /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
-    /// <typeparam name="TRequest">the type of the request dto</typeparam>
-    /// <param name="request">the request dto</param>
-    /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
-    /// <param name="populateHeaders">
-    /// when set to false, headers will not be automatically added to the http request from request dto properties decorated with the
-    /// [FromHeader] attribute.
-    /// </param>
-    /// <param name="populateCookies">
-    /// when set to false, cookies will not be automatically added to the http request from request dto properties decorated with the
-    /// [FromCookie] attribute.
-    /// </param>
-    public static async Task<HttpResponseMessage> PATCHAsync<TEndpoint, TRequest>(this HttpClient client,
-                                                                                  TRequest request,
-                                                                                  bool sendAsFormData = false,
-                                                                                  bool populateHeaders = true,
-                                                                                  bool populateCookies = true)
-        where TEndpoint : IEndpoint where TRequest : notnull
-    {
-        var (rsp, _) = await PATCHAsync<TEndpoint, TRequest, EmptyResponse>(client, request, sendAsFormData, populateHeaders, populateCookies);
+        /// <summary>
+        /// make a POST request to an endpoint using auto route discovery without a request dto and get back a <see cref="TestResult{TResponse}" /> containing
+        /// the <see cref="HttpResponseMessage" /> as well as the <typeparamref name="TResponse" /> DTO.
+        /// </summary>
+        /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
+        /// <typeparam name="TResponse">the type of the response dto</typeparam>
+        public Task<TestResult<TResponse>> POSTAsync<TEndpoint, TResponse>() where TEndpoint : IEndpoint
+            => POSTAsync<TEndpoint, EmptyRequest, TResponse>(client, new());
 
-        return rsp;
-    }
+        /// <summary>
+        /// make a PATCH request using a request dto and get back a <see cref="TestResult{TResponse}" /> containing the <see cref="HttpResponseMessage" /> as
+        /// well as the <typeparamref name="TResponse" /> DTO.
+        /// </summary>
+        /// <typeparam name="TRequest">type of the request dto</typeparam>
+        /// <typeparam name="TResponse">type of the response dto</typeparam>
+        /// <param name="requestUri">the route url to PATCH to</param>
+        /// <param name="request">the request dto</param>
+        /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
+        /// <param name="populateHeaders">
+        /// when set to false, headers will not be automatically added to the http request from request dto properties decorated with the
+        /// [FromHeader] attribute.
+        /// </param>
+        /// <param name="populateCookies">
+        /// when set to false, cookies will not be automatically added to the http request from request dto properties decorated with the
+        /// [FromCookie] attribute.
+        /// </param>
+        public Task<TestResult<TResponse>> PATCHAsync<TRequest, TResponse>(string requestUri,
+                                                                           TRequest request,
+                                                                           bool sendAsFormData = false,
+                                                                           bool populateHeaders = true,
+                                                                           bool populateCookies = true) where TRequest : notnull
+            => client.SENDAsync<TRequest, TResponse>(HttpMethod.Patch, requestUri, request, sendAsFormData, populateHeaders, populateCookies);
 
-    /// <summary>
-    /// make a PATCH request to an endpoint using auto route discovery without a request dto and get back a <see cref="TestResult{TResponse}" /> containing
-    /// the <see cref="HttpResponseMessage" /> as well as the <typeparamref name="TResponse" /> DTO.
-    /// </summary>
-    /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
-    /// <typeparam name="TResponse">the type of the response dto</typeparam>
-    public static Task<TestResult<TResponse>> PATCHAsync<TEndpoint, TResponse>(this HttpClient client) where TEndpoint : IEndpoint
-        => PATCHAsync<TEndpoint, EmptyRequest, TResponse>(client, new());
+        /// <summary>
+        /// make a PATCH request to an endpoint using auto route discovery using a request dto and get back a <see cref="TestResult{TResponse}" /> containing the
+        /// <see cref="HttpResponseMessage" /> as well as the <typeparamref name="TResponse" /> DTO.
+        /// </summary>
+        /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
+        /// <typeparam name="TRequest">the type of the request dto</typeparam>
+        /// <typeparam name="TResponse">the type of the response dto</typeparam>
+        /// <param name="request">the request dto</param>
+        /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
+        /// <param name="populateHeaders">
+        /// when set to true, headers will be automatically added to the http request from request dto properties decorated with the [FromHeader] attribute.
+        /// </param>
+        public Task<TestResult<TResponse>> PATCHAsync<TEndpoint, TRequest, TResponse>(TRequest request,
+                                                                                      bool sendAsFormData = false,
+                                                                                      bool populateHeaders = true,
+                                                                                      bool populateCookies = true)
+            where TEndpoint : IEndpoint where TRequest : notnull
+            => PATCHAsync<TRequest, TResponse>(
+                client,
+                GetTestUrlFor<TEndpoint, TRequest>(request, client),
+                request,
+                sendAsFormData,
+                populateHeaders,
+                populateCookies);
 
-    /// <summary>
-    /// make a PUT request using a request dto and get back a <see cref="TestResult{TResponse}" /> containing the <see cref="HttpResponseMessage" /> as well
-    /// as the <typeparamref name="TResponse" /> DTO.
-    /// </summary>
-    /// <typeparam name="TRequest">type of the request dto</typeparam>
-    /// <typeparam name="TResponse">type of the response dto</typeparam>
-    /// <param name="requestUri">the route url to post to</param>
-    /// <param name="request">the request dto</param>
-    /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
-    /// <param name="populateHeaders">
-    /// when set to false, headers will not be automatically added to the http request from request dto properties decorated with the
-    /// [FromHeader] attribute.
-    /// </param>
-    /// <param name="populateCookies">
-    /// when set to false, cookies will not be automatically added to the http request from request dto properties decorated with the
-    /// [FromCookie] attribute.
-    /// </param>
-    public static Task<TestResult<TResponse>> PUTAsync<TRequest, TResponse>(this HttpClient client,
-                                                                            string requestUri,
+        /// <summary>
+        /// make a PATCH request to an endpoint using auto route discovery using a request dto that does not send back a response dto.
+        /// </summary>
+        /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
+        /// <typeparam name="TRequest">the type of the request dto</typeparam>
+        /// <param name="request">the request dto</param>
+        /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
+        /// <param name="populateHeaders">
+        /// when set to false, headers will not be automatically added to the http request from request dto properties decorated with the
+        /// [FromHeader] attribute.
+        /// </param>
+        /// <param name="populateCookies">
+        /// when set to false, cookies will not be automatically added to the http request from request dto properties decorated with the
+        /// [FromCookie] attribute.
+        /// </param>
+        public async Task<HttpResponseMessage> PATCHAsync<TEndpoint, TRequest>(TRequest request,
+                                                                               bool sendAsFormData = false,
+                                                                               bool populateHeaders = true,
+                                                                               bool populateCookies = true)
+            where TEndpoint : IEndpoint where TRequest : notnull
+        {
+            var (rsp, _) = await PATCHAsync<TEndpoint, TRequest, EmptyResponse>(client, request, sendAsFormData, populateHeaders, populateCookies);
+
+            return rsp;
+        }
+
+        /// <summary>
+        /// make a PATCH request to an endpoint using auto route discovery without a request dto and get back a <see cref="TestResult{TResponse}" /> containing
+        /// the <see cref="HttpResponseMessage" /> as well as the <typeparamref name="TResponse" /> DTO.
+        /// </summary>
+        /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
+        /// <typeparam name="TResponse">the type of the response dto</typeparam>
+        public Task<TestResult<TResponse>> PATCHAsync<TEndpoint, TResponse>() where TEndpoint : IEndpoint
+            => PATCHAsync<TEndpoint, EmptyRequest, TResponse>(client, new());
+
+        /// <summary>
+        /// make a PUT request using a request dto and get back a <see cref="TestResult{TResponse}" /> containing the <see cref="HttpResponseMessage" /> as well
+        /// as the <typeparamref name="TResponse" /> DTO.
+        /// </summary>
+        /// <typeparam name="TRequest">type of the request dto</typeparam>
+        /// <typeparam name="TResponse">type of the response dto</typeparam>
+        /// <param name="requestUri">the route url to post to</param>
+        /// <param name="request">the request dto</param>
+        /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
+        /// <param name="populateHeaders">
+        /// when set to false, headers will not be automatically added to the http request from request dto properties decorated with the
+        /// [FromHeader] attribute.
+        /// </param>
+        /// <param name="populateCookies">
+        /// when set to false, cookies will not be automatically added to the http request from request dto properties decorated with the
+        /// [FromCookie] attribute.
+        /// </param>
+        public Task<TestResult<TResponse>> PUTAsync<TRequest, TResponse>(string requestUri,
+                                                                         TRequest request,
+                                                                         bool sendAsFormData = false,
+                                                                         bool populateHeaders = true,
+                                                                         bool populateCookies = true) where TRequest : notnull
+            => client.SENDAsync<TRequest, TResponse>(HttpMethod.Put, requestUri, request, sendAsFormData, populateHeaders, populateCookies);
+
+        /// <summary>
+        /// make a PUT request to an endpoint using auto route discovery using a request dto and get back a <see cref="TestResult{TResponse}" /> containing the
+        /// <see cref="HttpResponseMessage" /> as well as the <typeparamref name="TResponse" /> DTO.
+        /// </summary>
+        /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
+        /// <typeparam name="TRequest">the type of the request dto</typeparam>
+        /// <typeparam name="TResponse">the type of the response dto</typeparam>
+        /// <param name="request">the request dto</param>
+        /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
+        /// <param name="populateHeaders">
+        /// when set to false, headers will not be automatically added to the http request from request dto properties decorated with the
+        /// [FromHeader] attribute.
+        /// </param>
+        /// <param name="populateCookies">
+        /// when set to false, cookies will not be automatically added to the http request from request dto properties decorated with the
+        /// [FromCookie] attribute.
+        /// </param>
+        public Task<TestResult<TResponse>> PUTAsync<TEndpoint, TRequest, TResponse>(TRequest request,
+                                                                                    bool sendAsFormData = false,
+                                                                                    bool populateHeaders = true,
+                                                                                    bool populateCookies = true)
+            where TEndpoint : IEndpoint where TRequest : notnull
+            => PUTAsync<TRequest, TResponse>(client, GetTestUrlFor<TEndpoint, TRequest>(request, client), request, sendAsFormData, populateHeaders, populateCookies);
+
+        /// <summary>
+        /// make a PUT request to an endpoint using auto route discovery using a request dto that does not send back a response dto.
+        /// </summary>
+        /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
+        /// <typeparam name="TRequest">the type of the request dto</typeparam>
+        /// <param name="request">the request dto</param>
+        /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
+        /// <param name="populateHeaders">
+        /// when set to false, headers will not be automatically added to the http request from request dto properties decorated with the
+        /// [FromHeader] attribute.
+        /// </param>
+        /// <param name="populateCookies">
+        /// when set to false, cookies will not be automatically added to the http request from request dto properties decorated with the
+        /// [FromCookie] attribute.
+        /// </param>
+        public async Task<HttpResponseMessage> PUTAsync<TEndpoint, TRequest>(TRequest request,
+                                                                             bool sendAsFormData = false,
+                                                                             bool populateHeaders = true,
+                                                                             bool populateCookies = true)
+            where TEndpoint : IEndpoint where TRequest : notnull
+        {
+            var (rsp, _) = await PUTAsync<TEndpoint, TRequest, EmptyResponse>(client, request, sendAsFormData, populateHeaders, populateCookies);
+
+            return rsp;
+        }
+
+        /// <summary>
+        /// make a PUT request to an endpoint using auto route discovery without a request dto and get back a <see cref="TestResult{TResponse}" /> containing the
+        /// <see cref="HttpResponseMessage" /> as well as the <typeparamref name="TResponse" /> DTO.
+        /// </summary>
+        /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
+        /// <typeparam name="TResponse">the type of the response dto</typeparam>
+        public Task<TestResult<TResponse>> PUTAsync<TEndpoint, TResponse>() where TEndpoint : IEndpoint
+            => PUTAsync<TEndpoint, EmptyRequest, TResponse>(client, new());
+
+        /// <summary>
+        /// make a GET request using a request dto and get back a <see cref="TestResult{TResponse}" /> containing the <see cref="HttpResponseMessage" /> as well
+        /// as the <typeparamref name="TResponse" /> DTO.
+        /// </summary>
+        /// <typeparam name="TRequest">type of the request dto</typeparam>
+        /// <typeparam name="TResponse">type of the response dto</typeparam>
+        /// <param name="requestUri">the route url to post to</param>
+        /// <param name="request">the request dto</param>
+        /// <param name="populateHeaders">
+        /// when set to false, headers will not be automatically added to the http request from request dto properties decorated with the
+        /// [FromHeader] attribute.
+        /// </param>
+        /// <param name="populateCookies">
+        /// when set to false, cookies will not be automatically added to the http request from request dto properties decorated with the
+        /// [FromCookie] attribute.
+        /// </param>
+        public Task<TestResult<TResponse>> GETAsync<TRequest, TResponse>(string requestUri,
+                                                                         TRequest request,
+                                                                         bool populateHeaders = true,
+                                                                         bool populateCookies = true) where TRequest : notnull
+            => client.SENDAsync<TRequest, TResponse>(HttpMethod.Get, requestUri, request, populateHeaders: populateHeaders, populateCookies: populateCookies);
+
+        /// <summary>
+        /// make a GET request to an endpoint using auto route discovery using a request dto and get back a <see cref="TestResult{TResponse}" /> containing the
+        /// <see cref="HttpResponseMessage" /> as well as the <typeparamref name="TResponse" /> DTO.
+        /// </summary>
+        /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
+        /// <typeparam name="TRequest">the type of the request dto</typeparam>
+        /// <typeparam name="TResponse">the type of the response dto</typeparam>
+        /// <param name="request">the request dto</param>
+        /// <param name="populateHeaders">
+        /// when set to false, headers will not be automatically added to the http request from request dto properties decorated with the
+        /// [FromHeader] attribute.
+        /// </param>
+        /// <param name="populateCookies">
+        /// when set to false, cookies will not be automatically added to the http request from request dto properties decorated with the
+        /// [FromCookie] attribute.
+        /// </param>
+        public Task<TestResult<TResponse>> GETAsync<TEndpoint, TRequest, TResponse>(TRequest request,
+                                                                                    bool populateHeaders = true,
+                                                                                    bool populateCookies = true)
+            where TEndpoint : IEndpoint where TRequest : notnull
+            => GETAsync<TRequest, TResponse>(client, GetTestUrlFor<TEndpoint, TRequest>(request, client), request, populateHeaders, populateCookies);
+
+        /// <summary>
+        /// make a GET request to an endpoint using auto route discovery using a request dto that does not send back a response dto.
+        /// </summary>
+        /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
+        /// <typeparam name="TRequest">the type of the request dto</typeparam>
+        /// <param name="request">the request dto</param>
+        /// <param name="populateHeaders">
+        /// when set to false, headers will not be automatically added to the http request from request dto properties decorated with the
+        /// [FromHeader] attribute.
+        /// </param>
+        /// <param name="populateCookies">
+        /// when set to false, cookies will not be automatically added to the http request from request dto properties decorated with the
+        /// [FromCookie] attribute.
+        /// </param>
+        public async Task<HttpResponseMessage> GETAsync<TEndpoint, TRequest>(TRequest request,
+                                                                             bool populateHeaders = true,
+                                                                             bool populateCookies = true)
+            where TEndpoint : IEndpoint where TRequest : notnull
+        {
+            var (rsp, _) = await GETAsync<TEndpoint, TRequest, EmptyResponse>(client, request, populateHeaders, populateCookies);
+
+            return rsp;
+        }
+
+        /// <summary>
+        /// make a GET request to an endpoint using auto route discovery without a request dto and get back a <see cref="TestResult{TResponse}" /> containing the
+        /// <see cref="HttpResponseMessage" /> as well as the <typeparamref name="TResponse" /> DTO.
+        /// </summary>
+        /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
+        /// <typeparam name="TResponse">the type of the response dto</typeparam>
+        public Task<TestResult<TResponse>> GETAsync<TEndpoint, TResponse>() where TEndpoint : IEndpoint
+            => GETAsync<TEndpoint, EmptyRequest, TResponse>(client, new());
+
+        /// <summary>
+        /// make a DELETE request using a request dto and get back a <see cref="TestResult{TResponse}" /> containing the <see cref="HttpResponseMessage" /> as
+        /// well as the <typeparamref name="TResponse" /> DTO.
+        /// </summary>
+        /// <typeparam name="TRequest">type of the request dto</typeparam>
+        /// <typeparam name="TResponse">type of the response dto</typeparam>
+        /// <param name="requestUri">the route url to post to</param>
+        /// <param name="request">the request dto</param>
+        /// <param name="populateHeaders">
+        /// when set to false, headers will not be automatically added to the http request from request dto properties decorated with the
+        /// [FromHeader] attribute.
+        /// </param>
+        /// <param name="populateCookies">
+        /// when set to false, cookies will not be automatically added to the http request from request dto properties decorated with the
+        /// [FromCookie] attribute.
+        /// </param>
+        public Task<TestResult<TResponse>> DELETEAsync<TRequest, TResponse>(string requestUri,
                                                                             TRequest request,
-                                                                            bool sendAsFormData = false,
                                                                             bool populateHeaders = true,
                                                                             bool populateCookies = true) where TRequest : notnull
-        => client.SENDAsync<TRequest, TResponse>(HttpMethod.Put, requestUri, request, sendAsFormData, populateHeaders, populateCookies);
+            => client.SENDAsync<TRequest, TResponse>(HttpMethod.Delete, requestUri, request, populateHeaders: populateHeaders, populateCookies: populateCookies);
 
-    /// <summary>
-    /// make a PUT request to an endpoint using auto route discovery using a request dto and get back a <see cref="TestResult{TResponse}" /> containing the
-    /// <see cref="HttpResponseMessage" /> as well as the <typeparamref name="TResponse" /> DTO.
-    /// </summary>
-    /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
-    /// <typeparam name="TRequest">the type of the request dto</typeparam>
-    /// <typeparam name="TResponse">the type of the response dto</typeparam>
-    /// <param name="request">the request dto</param>
-    /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
-    /// <param name="populateHeaders">
-    /// when set to false, headers will not be automatically added to the http request from request dto properties decorated with the
-    /// [FromHeader] attribute.
-    /// </param>
-    /// <param name="populateCookies">
-    /// when set to false, cookies will not be automatically added to the http request from request dto properties decorated with the
-    /// [FromCookie] attribute.
-    /// </param>
-    public static Task<TestResult<TResponse>> PUTAsync<TEndpoint, TRequest, TResponse>(this HttpClient client,
-                                                                                       TRequest request,
-                                                                                       bool sendAsFormData = false,
+        /// <summary>
+        /// make a DELETE request to an endpoint using auto route discovery using a request dto and get back a <see cref="TestResult{TResponse}" /> containing
+        /// the <see cref="HttpResponseMessage" /> as well as the <typeparamref name="TResponse" /> DTO.
+        /// </summary>
+        /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
+        /// <typeparam name="TRequest">the type of the request dto</typeparam>
+        /// <typeparam name="TResponse">the type of the response dto</typeparam>
+        /// <param name="request">the request dto</param>
+        /// <param name="populateHeaders">
+        /// when set to false, headers will not be automatically added to the http request from request dto properties decorated with the
+        /// [FromHeader] attribute.
+        /// </param>
+        /// <param name="populateCookies">
+        /// when set to false, cookies will not be automatically added to the http request from request dto properties decorated with the
+        /// [FromCookie] attribute.
+        /// </param>
+        public Task<TestResult<TResponse>> DELETEAsync<TEndpoint, TRequest, TResponse>(TRequest request,
                                                                                        bool populateHeaders = true,
                                                                                        bool populateCookies = true)
-        where TEndpoint : IEndpoint where TRequest : notnull
-        => PUTAsync<TRequest, TResponse>(client, GetTestUrlFor<TEndpoint, TRequest>(request), request, sendAsFormData, populateHeaders, populateCookies);
+            where TEndpoint : IEndpoint where TRequest : notnull
+            => DELETEAsync<TRequest, TResponse>(client, GetTestUrlFor<TEndpoint, TRequest>(request, client), request, populateHeaders, populateCookies);
 
-    /// <summary>
-    /// make a PUT request to an endpoint using auto route discovery using a request dto that does not send back a response dto.
-    /// </summary>
-    /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
-    /// <typeparam name="TRequest">the type of the request dto</typeparam>
-    /// <param name="request">the request dto</param>
-    /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
-    /// <param name="populateHeaders">
-    /// when set to false, headers will not be automatically added to the http request from request dto properties decorated with the
-    /// [FromHeader] attribute.
-    /// </param>
-    /// <param name="populateCookies">
-    /// when set to false, cookies will not be automatically added to the http request from request dto properties decorated with the
-    /// [FromCookie] attribute.
-    /// </param>
-    public static async Task<HttpResponseMessage> PUTAsync<TEndpoint, TRequest>(this HttpClient client,
+        /// <summary>
+        /// make a DELETE request to an endpoint using auto route discovery using a request dto that does not send back a response dto.
+        /// </summary>
+        /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
+        /// <typeparam name="TRequest">the type of the request dto</typeparam>
+        /// <param name="request">the request dto</param>
+        /// <param name="populateHeaders">
+        /// when set to false, headers will not be automatically added to the http request from request dto properties decorated with the
+        /// [FromHeader] attribute.
+        /// </param>
+        /// <param name="populateCookies">
+        /// when set to false, cookies will not be automatically added to the http request from request dto properties decorated with the
+        /// [FromCookie] attribute.
+        /// </param>
+        public async Task<HttpResponseMessage> DELETEAsync<TEndpoint, TRequest>(TRequest request,
+                                                                                bool populateHeaders = true,
+                                                                                bool populateCookies = true)
+            where TEndpoint : IEndpoint where TRequest : notnull
+        {
+            var (rsp, _) = await DELETEAsync<TEndpoint, TRequest, EmptyResponse>(client, request, populateHeaders, populateCookies);
+
+            return rsp;
+        }
+
+        /// <summary>
+        /// make a DELETE request to an endpoint using auto route discovery without a request dto and get back a <see cref="TestResult{TResponse}" /> containing
+        /// the <see cref="HttpResponseMessage" /> as well as the <typeparamref name="TResponse" /> DTO.
+        /// </summary>
+        /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
+        /// <typeparam name="TResponse">the type of the response dto</typeparam>
+        public Task<TestResult<TResponse>> DELETEAsync<TEndpoint, TResponse>() where TEndpoint : IEndpoint
+            => DELETEAsync<TEndpoint, EmptyRequest, TResponse>(client, new());
+
+        /// <summary>
+        /// send a request DTO to a given endpoint URL and get back a <see cref="TestResult{TResponse}" /> containing the <see cref="HttpResponseMessage" /> as
+        /// well as the <typeparamref name="TResponse" /> DTO
+        /// </summary>
+        /// <typeparam name="TRequest">type of the request dto</typeparam>
+        /// <typeparam name="TResponse">type of the response dto</typeparam>
+        /// <param name="method">the http method to use</param>
+        /// <param name="requestUri">the route url of the endpoint</param>
+        /// <param name="request">the request dto</param>
+        /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
+        /// <param name="populateHeaders">
+        /// when set to false, headers will not be automatically added to the http request from request dto properties decorated with the
+        /// [FromHeader] attribute.
+        /// </param>
+        /// <param name="populateCookies">
+        /// when set to false, cookies will not be automatically added to the http request from request dto properties decorated with the
+        /// [FromCookie] attribute.
+        /// </param>
+        public async Task<TestResult<TResponse>> SENDAsync<TRequest, TResponse>(HttpMethod method,
+                                                                                string requestUri,
                                                                                 TRequest request,
                                                                                 bool sendAsFormData = false,
                                                                                 bool populateHeaders = true,
-                                                                                bool populateCookies = true)
-        where TEndpoint : IEndpoint where TRequest : notnull
-    {
-        var (rsp, _) = await PUTAsync<TEndpoint, TRequest, EmptyResponse>(client, request, sendAsFormData, populateHeaders, populateCookies);
-
-        return rsp;
-    }
-
-    /// <summary>
-    /// make a PUT request to an endpoint using auto route discovery without a request dto and get back a <see cref="TestResult{TResponse}" /> containing the
-    /// <see cref="HttpResponseMessage" /> as well as the <typeparamref name="TResponse" /> DTO.
-    /// </summary>
-    /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
-    /// <typeparam name="TResponse">the type of the response dto</typeparam>
-    public static Task<TestResult<TResponse>> PUTAsync<TEndpoint, TResponse>(this HttpClient client) where TEndpoint : IEndpoint
-        => PUTAsync<TEndpoint, EmptyRequest, TResponse>(client, new());
-
-    /// <summary>
-    /// make a GET request using a request dto and get back a <see cref="TestResult{TResponse}" /> containing the <see cref="HttpResponseMessage" /> as well
-    /// as the <typeparamref name="TResponse" /> DTO.
-    /// </summary>
-    /// <typeparam name="TRequest">type of the request dto</typeparam>
-    /// <typeparam name="TResponse">type of the response dto</typeparam>
-    /// <param name="requestUri">the route url to post to</param>
-    /// <param name="request">the request dto</param>
-    /// <param name="populateHeaders">
-    /// when set to false, headers will not be automatically added to the http request from request dto properties decorated with the
-    /// [FromHeader] attribute.
-    /// </param>
-    /// <param name="populateCookies">
-    /// when set to false, cookies will not be automatically added to the http request from request dto properties decorated with the
-    /// [FromCookie] attribute.
-    /// </param>
-    public static Task<TestResult<TResponse>> GETAsync<TRequest, TResponse>(this HttpClient client,
-                                                                            string requestUri,
-                                                                            TRequest request,
-                                                                            bool populateHeaders = true,
-                                                                            bool populateCookies = true) where TRequest : notnull
-        => client.SENDAsync<TRequest, TResponse>(HttpMethod.Get, requestUri, request, populateHeaders: populateHeaders, populateCookies: populateCookies);
-
-    /// <summary>
-    /// make a GET request to an endpoint using auto route discovery using a request dto and get back a <see cref="TestResult{TResponse}" /> containing the
-    /// <see cref="HttpResponseMessage" /> as well as the <typeparamref name="TResponse" /> DTO.
-    /// </summary>
-    /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
-    /// <typeparam name="TRequest">the type of the request dto</typeparam>
-    /// <typeparam name="TResponse">the type of the response dto</typeparam>
-    /// <param name="request">the request dto</param>
-    /// <param name="populateHeaders">
-    /// when set to false, headers will not be automatically added to the http request from request dto properties decorated with the
-    /// [FromHeader] attribute.
-    /// </param>
-    /// <param name="populateCookies">
-    /// when set to false, cookies will not be automatically added to the http request from request dto properties decorated with the
-    /// [FromCookie] attribute.
-    /// </param>
-    public static Task<TestResult<TResponse>> GETAsync<TEndpoint, TRequest, TResponse>(this HttpClient client,
-                                                                                       TRequest request,
-                                                                                       bool populateHeaders = true,
-                                                                                       bool populateCookies = true)
-        where TEndpoint : IEndpoint where TRequest : notnull
-        => GETAsync<TRequest, TResponse>(client, GetTestUrlFor<TEndpoint, TRequest>(request), request, populateHeaders, populateCookies);
-
-    /// <summary>
-    /// make a GET request to an endpoint using auto route discovery using a request dto that does not send back a response dto.
-    /// </summary>
-    /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
-    /// <typeparam name="TRequest">the type of the request dto</typeparam>
-    /// <param name="request">the request dto</param>
-    /// <param name="populateHeaders">
-    /// when set to false, headers will not be automatically added to the http request from request dto properties decorated with the
-    /// [FromHeader] attribute.
-    /// </param>
-    /// <param name="populateCookies">
-    /// when set to false, cookies will not be automatically added to the http request from request dto properties decorated with the
-    /// [FromCookie] attribute.
-    /// </param>
-    public static async Task<HttpResponseMessage> GETAsync<TEndpoint, TRequest>(this HttpClient client,
-                                                                                TRequest request,
-                                                                                bool populateHeaders = true,
-                                                                                bool populateCookies = true)
-        where TEndpoint : IEndpoint where TRequest : notnull
-    {
-        var (rsp, _) = await GETAsync<TEndpoint, TRequest, EmptyResponse>(client, request, populateHeaders, populateCookies);
-
-        return rsp;
-    }
-
-    /// <summary>
-    /// make a GET request to an endpoint using auto route discovery without a request dto and get back a <see cref="TestResult{TResponse}" /> containing the
-    /// <see cref="HttpResponseMessage" /> as well as the <typeparamref name="TResponse" /> DTO.
-    /// </summary>
-    /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
-    /// <typeparam name="TResponse">the type of the response dto</typeparam>
-    public static Task<TestResult<TResponse>> GETAsync<TEndpoint, TResponse>(this HttpClient client) where TEndpoint : IEndpoint
-        => GETAsync<TEndpoint, EmptyRequest, TResponse>(client, new());
-
-    /// <summary>
-    /// make a DELETE request using a request dto and get back a <see cref="TestResult{TResponse}" /> containing the <see cref="HttpResponseMessage" /> as
-    /// well as the <typeparamref name="TResponse" /> DTO.
-    /// </summary>
-    /// <typeparam name="TRequest">type of the request dto</typeparam>
-    /// <typeparam name="TResponse">type of the response dto</typeparam>
-    /// <param name="requestUri">the route url to post to</param>
-    /// <param name="request">the request dto</param>
-    /// <param name="populateHeaders">
-    /// when set to false, headers will not be automatically added to the http request from request dto properties decorated with the
-    /// [FromHeader] attribute.
-    /// </param>
-    /// <param name="populateCookies">
-    /// when set to false, cookies will not be automatically added to the http request from request dto properties decorated with the
-    /// [FromCookie] attribute.
-    /// </param>
-    public static Task<TestResult<TResponse>> DELETEAsync<TRequest, TResponse>(this HttpClient client,
-                                                                               string requestUri,
-                                                                               TRequest request,
-                                                                               bool populateHeaders = true,
-                                                                               bool populateCookies = true) where TRequest : notnull
-        => client.SENDAsync<TRequest, TResponse>(HttpMethod.Delete, requestUri, request, populateHeaders: populateHeaders, populateCookies: populateCookies);
-
-    /// <summary>
-    /// make a DELETE request to an endpoint using auto route discovery using a request dto and get back a <see cref="TestResult{TResponse}" /> containing
-    /// the <see cref="HttpResponseMessage" /> as well as the <typeparamref name="TResponse" /> DTO.
-    /// </summary>
-    /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
-    /// <typeparam name="TRequest">the type of the request dto</typeparam>
-    /// <typeparam name="TResponse">the type of the response dto</typeparam>
-    /// <param name="request">the request dto</param>
-    /// <param name="populateHeaders">
-    /// when set to false, headers will not be automatically added to the http request from request dto properties decorated with the
-    /// [FromHeader] attribute.
-    /// </param>
-    /// <param name="populateCookies">
-    /// when set to false, cookies will not be automatically added to the http request from request dto properties decorated with the
-    /// [FromCookie] attribute.
-    /// </param>
-    public static Task<TestResult<TResponse>> DELETEAsync<TEndpoint, TRequest, TResponse>(this HttpClient client,
-                                                                                          TRequest request,
-                                                                                          bool populateHeaders = true,
-                                                                                          bool populateCookies = true)
-        where TEndpoint : IEndpoint where TRequest : notnull
-        => DELETEAsync<TRequest, TResponse>(client, GetTestUrlFor<TEndpoint, TRequest>(request), request, populateHeaders, populateCookies);
-
-    /// <summary>
-    /// make a DELETE request to an endpoint using auto route discovery using a request dto that does not send back a response dto.
-    /// </summary>
-    /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
-    /// <typeparam name="TRequest">the type of the request dto</typeparam>
-    /// <param name="request">the request dto</param>
-    /// <param name="populateHeaders">
-    /// when set to false, headers will not be automatically added to the http request from request dto properties decorated with the
-    /// [FromHeader] attribute.
-    /// </param>
-    /// <param name="populateCookies">
-    /// when set to false, cookies will not be automatically added to the http request from request dto properties decorated with the
-    /// [FromCookie] attribute.
-    /// </param>
-    public static async Task<HttpResponseMessage> DELETEAsync<TEndpoint, TRequest>(this HttpClient client,
-                                                                                   TRequest request,
-                                                                                   bool populateHeaders = true,
-                                                                                   bool populateCookies = true)
-        where TEndpoint : IEndpoint where TRequest : notnull
-    {
-        var (rsp, _) = await DELETEAsync<TEndpoint, TRequest, EmptyResponse>(client, request, populateHeaders, populateCookies);
-
-        return rsp;
-    }
-
-    /// <summary>
-    /// make a DELETE request to an endpoint using auto route discovery without a request dto and get back a <see cref="TestResult{TResponse}" /> containing
-    /// the <see cref="HttpResponseMessage" /> as well as the <typeparamref name="TResponse" /> DTO.
-    /// </summary>
-    /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
-    /// <typeparam name="TResponse">the type of the response dto</typeparam>
-    public static Task<TestResult<TResponse>> DELETEAsync<TEndpoint, TResponse>(this HttpClient client) where TEndpoint : IEndpoint
-        => DELETEAsync<TEndpoint, EmptyRequest, TResponse>(client, new());
-
-    /// <summary>
-    /// send a request DTO to a given endpoint URL and get back a <see cref="TestResult{TResponse}" /> containing the <see cref="HttpResponseMessage" /> as
-    /// well as the <typeparamref name="TResponse" /> DTO
-    /// </summary>
-    /// <typeparam name="TRequest">type of the request dto</typeparam>
-    /// <typeparam name="TResponse">type of the response dto</typeparam>
-    /// <param name="method">the http method to use</param>
-    /// <param name="requestUri">the route url of the endpoint</param>
-    /// <param name="request">the request dto</param>
-    /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
-    /// <param name="populateHeaders">
-    /// when set to false, headers will not be automatically added to the http request from request dto properties decorated with the
-    /// [FromHeader] attribute.
-    /// </param>
-    /// <param name="populateCookies">
-    /// when set to false, cookies will not be automatically added to the http request from request dto properties decorated with the
-    /// [FromCookie] attribute.
-    /// </param>
-    public static async Task<TestResult<TResponse>> SENDAsync<TRequest, TResponse>(this HttpClient client,
-                                                                                   HttpMethod method,
-                                                                                   string requestUri,
-                                                                                   TRequest request,
-                                                                                   bool sendAsFormData = false,
-                                                                                   bool populateHeaders = true,
-                                                                                   bool populateCookies = true) where TRequest : notnull
-    {
-        var msg = new HttpRequestMessage
+                                                                                bool populateCookies = true) where TRequest : notnull
         {
-            Method = method,
-            RequestUri = new($"{client.BaseAddress}{requestUri.TrimStart('/')}"),
-            Content = sendAsFormData
-                          ? request.ToForm()
-                          : new StringContent(JsonSerializer.Serialize(request, SerOpts.Options), Encoding.UTF8, "application/json")
-        };
-        msg.Headers.Add(Constants.RoutelessTest, "true");
-
-        if (populateHeaders)
-            PopulateHeaders(msg, request);
-
-        if (populateCookies)
-            PopulateCookies(msg, request);
-
-        var rsp = await client.SendAsync(msg);
-
-        var hasNoJsonContent = rsp.Content.Headers.ContentType?.MediaType?.Contains("json") is null or false;
-        TResponse? res = default!;
-
-        if (typeof(TResponse) == Types.EmptyResponse || hasNoJsonContent)
-            return new(rsp, res);
-
-        if (rsp.IsSuccessStatusCode)
-        {
-            //this disposes the content stream. test code doesn't need to read it again.
-            res = await rsp.Content.ReadFromJsonAsync<TResponse>(SerOpts.Options);
-        }
-        else
-        {
-            //make a copy of the content stream to allow test code to read content stream.
-            using var copy = new MemoryStream();
-            await rsp.Content.CopyToAsync(copy); //this doesn't dispose the original stream.
-            copy.Position = 0;
-
-            try
+            var msg = new HttpRequestMessage
             {
-                res = await JsonSerializer.DeserializeAsync<TResponse>(copy, SerOpts.Options);
-            }
-            catch
-            {
-                //do nothing
-            }
-        }
+                Method = method,
+                RequestUri = new($"{client.BaseAddress}{requestUri.TrimStart('/')}"),
+                Content = sendAsFormData
+                              ? request.ToForm()
+                              : new StringContent(JsonSerializer.Serialize(request, SerOpts.Options), Encoding.UTF8, "application/json")
+            };
+            msg.Headers.Add(Constants.RoutelessTest, "true");
 
-        return new(rsp, res!);
+            if (populateHeaders)
+                PopulateHeaders(msg, request);
+
+            if (populateCookies)
+                PopulateCookies(msg, request);
+
+            var rsp = await client.SendAsync(msg);
+
+            var hasNoJsonContent = rsp.Content.Headers.ContentType?.MediaType?.Contains("json") is null or false;
+            TResponse? res = default!;
+
+            if (typeof(TResponse) == Types.EmptyResponse || hasNoJsonContent)
+                return new(rsp, res);
+
+            if (rsp.IsSuccessStatusCode)
+            {
+                //this disposes the content stream. test code doesn't need to read it again.
+                res = await rsp.Content.ReadFromJsonAsync<TResponse>(SerOpts.Options);
+            }
+            else
+            {
+                //make a copy of the content stream to allow test code to read content stream.
+                using var copy = new MemoryStream();
+                await rsp.Content.CopyToAsync(copy); //this doesn't dispose the original stream.
+                copy.Position = 0;
+
+                try
+                {
+                    res = await JsonSerializer.DeserializeAsync<TResponse>(copy, SerOpts.Options);
+                }
+                catch
+                {
+                    //do nothing
+                }
+            }
+
+            return new(rsp, res!);
+        }
     }
 
     static readonly string[] contentHeaders =
@@ -557,12 +556,42 @@ public static class HttpClientExtensions
         reqMsg.Headers.Add("Cookie", cookieJar.GetCookieHeader(reqMsg.RequestUri));
     }
 
-    static string GetTestUrlFor<TEndpoint, TRequest>(TRequest req) where TRequest : notnull
+    static readonly Dictionary<string, string> _testUrlCache = new();
+
+    static string GetTestUrlFor<TEndpoint, TRequest>(TRequest req, HttpClient client) where TRequest : notnull
     {
+        var epTypeName = typeof(TEndpoint).FullName ?? throw new InvalidOperationException("Unable to determine endpoint type name!");
+
+        if (!_testUrlCache.ContainsKey(epTypeName))
+        {
+            var shouldGetViaHttp = false;
+
+            try
+            {
+                _testUrlCache[epTypeName] = IEndpoint.TestURLFor<TEndpoint>();
+                shouldGetViaHttp = false;
+            }
+            catch (KeyNotFoundException) //will be thrown when running with aspire tests (due to aspire black-boxing)
+            {
+                shouldGetViaHttp = true;
+            }
+
+            if (shouldGetViaHttp)
+            {
+                var res = client.GetFromJsonAsync<string[]>("_test_url_cache_").GetAwaiter().GetResult();
+
+                foreach (var line in res ?? [])
+                {
+                    var parts = line.Split('|');
+                    _testUrlCache[parts[0]] = parts[1];
+                }
+            }
+        }
+
         // request with multiple repeating dtos, most likely not populated from route values.
         // we don't know which one to populate from anyway.
         if (req is IEnumerable)
-            return IEndpoint.TestURLFor<TEndpoint>();
+            return _testUrlCache[epTypeName];
 
         //get props and stick em in a dictionary for easy lookup
         //ignore props annotated with security/header/cookie attributes that has IsRequired set to true.
@@ -578,8 +607,7 @@ public static class HttpClientExtensions
         //split url into route segments, iterate and replace param names with values from matching dto props
         //while rebuilding the url back up again into a string builder
         StringBuilder sb = new();
-        var routeSegments = IEndpoint.TestURLFor<TEndpoint>()
-                                     .Split('/', StringSplitOptions.RemoveEmptyEntries); // group root endpoints are allowed to set string.empty #988
+        var routeSegments = _testUrlCache[epTypeName].Split('/', StringSplitOptions.RemoveEmptyEntries); // group root endpoints are allowed to set string.empty #988
 
         foreach (var segment in routeSegments)
         {

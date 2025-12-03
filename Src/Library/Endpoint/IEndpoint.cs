@@ -28,6 +28,12 @@ public interface IEndpoint : IResponseSender
     //don't change to internal. this is unofficially exposed to public.
     public static string TestURLFor<TEndpoint>()
         => TestUrlCache[typeof(TEndpoint)];
+
+    internal static IEnumerable<string> GetTestUrlCache()
+    {
+        foreach (var kvp in TestUrlCache)
+            yield return $"{kvp.Key.FullName}|{kvp.Value}";
+    }
 }
 
 /// <summary>

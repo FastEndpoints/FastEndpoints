@@ -24,6 +24,32 @@ There's no setup (nor code changes) needed for projects using FastEndpoints main
 
 </details>
 
+<details><summary>Aspire Testing support for routeless test helpers</summary>
+
+You can now use the routeless test helpers such as `.GETAsync<MyEndpoint>()` with Aspire `DistributedApplication` testing like so:
+
+```csharp
+[Fact]
+public async Task Endpoint_Returns_Ok_Response()
+{
+    // Arrange
+    var ct = TestContext.Current.CancellationToken;
+    var appHost = await DistributedApplicationTestingBuilder.CreateAsync<Projects.AspireApp_AppHost>(ct);
+    await using var app = await appHost.BuildAsync(ct).WaitAsync(_defaultTimeout, ct);
+    await app.StartAsync(ct).WaitAsync(_defaultTimeout, ct);
+    await app.ResourceNotifications.WaitForResourceHealthyAsync("apiservice", ct).WaitAsync(_defaultTimeout, ct);
+
+    // Act
+    var httpClient = app.CreateHttpClient("apiservice");
+    var (response, _) = await httpClient.GETAsync<HelloEndpoint, EmptyResponse>();
+
+    // Assert
+    Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+}
+```
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Strong-Name-Signed Assemblies</summary>

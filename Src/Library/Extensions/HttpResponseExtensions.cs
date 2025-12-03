@@ -366,7 +366,7 @@ public static class HttpResponseExtensions
             // The C# compiler automatically creates a linked CancellationToken by combining the applicationStopping token passed into the GetAsyncEnumerator method
             // and any token marked by [EnumeratorCancellation] in the method returning the IAsyncEnumerable
             var applicationStopping = rsp.HttpContext.RequestServices.GetRequiredService<IHostApplicationLifetime>().ApplicationStopping;
-            using var enumerator = eventStream.GetAsyncEnumerator(applicationStopping);
+            await using var enumerator = eventStream.GetAsyncEnumerator(applicationStopping);
             try
             {
                 var next = enumerator.MoveNextAsync();

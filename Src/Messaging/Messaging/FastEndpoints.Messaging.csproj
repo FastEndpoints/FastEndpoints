@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <NoWarn>CS1591</NoWarn>
@@ -15,7 +15,9 @@
         <ProjectReference Include="..\Messaging.Core\FastEndpoints.Messaging.Core.csproj"/>
 
         <PackageReference Include="Microsoft.Extensions.DependencyInjection"/>
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions"/>
         <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
+        
     </ItemGroup>
 
     <ItemGroup>

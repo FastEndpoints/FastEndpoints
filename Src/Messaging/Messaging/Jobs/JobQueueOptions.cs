@@ -44,11 +44,11 @@ public class JobQueueOptions
         _limitOverrides[typeof(TCommand)] = new(maxConcurrency, timeLimit);
     }
 
-    internal void SetLimits(Type tCommand, JobQueueBase jobQueue)
+    internal void SetLimits(Type tCommand, JobQueueBase jobQueue, CancellationToken applicationStopping)
     {
         if (_limitOverrides.TryGetValue(tCommand, out var limits))
-            jobQueue.SetLimits(limits.concurrency, limits.timeLimit, StorageProbeDelay);
+            jobQueue.SetLimits(limits.concurrency, limits.timeLimit, StorageProbeDelay, applicationStopping);
         else
-            jobQueue.SetLimits(MaxConcurrency, ExecutionTimeLimit, StorageProbeDelay);
+            jobQueue.SetLimits(MaxConcurrency, ExecutionTimeLimit, StorageProbeDelay, applicationStopping);
     }
 }

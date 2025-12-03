@@ -261,9 +261,25 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
 
             try
             {
-                if (_isInUse is null)
+                records = await _storage.GetNextBatchAsync(
+                              new()
+                              {
+                                  Limit = _parallelOptions.MaxDegreeOfParallelism,
+                                  QueueID = QueueID,
+                                  CancellationToken = _appCancellation,
+                                  Match = r => r.QueueID == QueueID &&
+                                               r.IsComplete == false &&
+                                               r.ExecuteAfter <= DateTime.UtcNow &&
+                                               r.ExpireOn >= DateTime.UtcNow
+                              });
+
+                if (records.Any())
                 {
-                    // hit storage once at startup to check if there's any incomplete jobs (possibly scheduled for the future) and set _isInUse
+                    _isInUse = true;
+                }
+                else if (_isInUse is null)
+                {
+                    // hit storage once more at startup to check if there's any incomplete jobs (possibly scheduled for the future) and set _isInUse
                     // ref: https://github.com/FastEndpoints/FastEndpoints/issues/1007
                     records = await _storage.GetNextBatchAsync(
                                   new()
@@ -277,18 +293,6 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                                   });
                     _isInUse = records.Any();
                 }
-
-                records = await _storage.GetNextBatchAsync(
-                              new()
-                              {
-                                  Limit = _parallelOptions.MaxDegreeOfParallelism,
-                                  QueueID = QueueID,
-                                  CancellationToken = _appCancellation,
-                                  Match = r => r.QueueID == QueueID &&
-                                               r.IsComplete == false &&
-                                               r.ExecuteAfter <= DateTime.UtcNow &&
-                                               r.ExpireOn >= DateTime.UtcNow
-                              });
             }
             catch (Exception x)
             {

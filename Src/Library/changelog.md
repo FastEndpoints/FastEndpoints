@@ -64,6 +64,12 @@ SSE streams are now flushed after each write as opposed to after every batch. Th
 
 </details>
 
+<details><summary>Job storage performance optimization</summary>
+
+Optimized the `JobQueue` startup initialization by reusing the results of the existing scheduled-jobs query to determine whether the queue is in use, allowing the system to skip the additional query for future scheduled jobs when current jobs are already present, thereby reducing database load and improving startup performance without changing observable behavior.
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>Group summary overriding endpoint level summary data</summary>

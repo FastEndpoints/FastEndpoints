@@ -10,7 +10,7 @@
         <PackageVersion Include="Bogus" Version="35.6.5"/>
         <PackageVersion Include="FakeItEasy" Version="8.3.0"/>
         <PackageVersion Include="FakeItEasy.Analyzer.CSharp" Version="6.1.1"/>
-        <PackageVersion Include="FluentValidation" Version="12.1.0"/>
+        <PackageVersion Include="FluentValidation" Version="12.1.1"/>
         <PackageVersion Include="Grpc.AspNetCore.Server" Version="2.71.0"/>
         <PackageVersion Include="Grpc.Net.Client" Version="2.71.0"/>
         <PackageVersion Include="Grpc.Net.Client.Web" Version="2.71.0"/>

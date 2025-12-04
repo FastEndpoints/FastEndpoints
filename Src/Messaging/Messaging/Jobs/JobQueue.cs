@@ -266,10 +266,13 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                                                r.ExpireOn >= DateTime.UtcNow
                               });
 
-                _isInUse = records.Any();
-                if (!_isInUse)
+                if (records.Any())
                 {
-                    // hit storage once at startup to check if there's any incomplete jobs (possibly scheduled for the future) and set _isInUse
+                    _isInUse = true;
+                }
+                else if (_isInUse is null)
+                {
+                    // hit storage once more at startup to check if there's any incomplete jobs (possibly scheduled for the future) and set _isInUse
                     // ref: https://github.com/FastEndpoints/FastEndpoints/issues/1007
                     records = await _storage.GetNextBatchAsync(
                                   new()
@@ -301,7 +304,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 // whichever comes first. we must periodically re-evaluate the storage status to check if there are jobs scheduled for the future while
                 // no new jobs are being queued. not doing this periodic check could result in future jobs only executing upon the arrival of new jobs,
                 // potentially leading to jobs being expired without being executed.
-                await (_isInUse
+                await (_isInUse is true
                            ? Task.WhenAny(_sem.WaitAsync(_appCancellation), Task.Delay(_semWaitLimit))
                            : _sem.WaitAsync(_appCancellation));
             }

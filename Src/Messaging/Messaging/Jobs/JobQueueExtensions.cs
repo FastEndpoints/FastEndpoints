@@ -53,12 +53,15 @@ public static class JobQueueExtensions
         var opts = new JobQueueOptions();
         options?.Invoke(opts);
 
-        CancellationToken applicationStopping = CancellationToken.None;
+        var applicationStopping = CancellationToken.None;
         var hostApplicationLifetimeType = Type.GetType("Microsoft.Extensions.Hosting.IHostApplicationLifetime, Microsoft.Extensions.Hosting.Abstractions");
         if (hostApplicationLifetimeType != null)
         {
             var hostApplicationLifetime = app.ApplicationServices.GetService(hostApplicationLifetimeType);
-            applicationStopping = hostApplicationLifetimeType.GetProperty("ApplicationStopping")?.GetValue(hostApplicationLifetime) as CancellationToken? ?? CancellationToken.None;
+            if (hostApplicationLifetime != null)
+            {
+                applicationStopping = (CancellationToken)hostApplicationLifetimeType.GetProperty("ApplicationStopping")!.GetValue(hostApplicationLifetime)!;
+            }
         }
 
         foreach (var tCommand in registry.Keys.Where(t => t.IsAssignableTo(Types.ICommandBase)))

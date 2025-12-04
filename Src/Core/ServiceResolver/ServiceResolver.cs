@@ -80,7 +80,7 @@ sealed class ServiceResolver(IServiceProvider provider, IHttpContextAccessor? ct
 
     public TService Resolve<TService>(string keyName) where TService : class
         => ctxAccessor?.HttpContext?.RequestServices.GetRequiredKeyedService<TService>(keyName) ??
-           provider.GetRequiredService<TService>();
+           provider.GetRequiredKeyedService<TService>(keyName);
 
     public object Resolve(Type typeOfService, string keyName)
         => ctxAccessor?.HttpContext?.RequestServices.GetRequiredKeyedService(typeOfService, keyName) ??

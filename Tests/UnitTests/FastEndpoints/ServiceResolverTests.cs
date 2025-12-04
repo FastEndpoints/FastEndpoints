@@ -23,6 +23,9 @@ public class ServiceResolverTests : IDisposable
             ServiceResolver.Instance = _originalInstance;
     }
 
+    static IServiceProvider CreateEmptyServiceProvider()
+        => new ServiceCollection().BuildServiceProvider();
+
     [Fact]
     public void Instance_WhenNotSet_ThrowsInvalidOperationException()
     {
@@ -84,7 +87,7 @@ public class ServiceResolverTests : IDisposable
         var services = new ServiceCollection();
         services.AddSingleton<IDependency, TestDependency>();
         var provider = services.BuildServiceProvider();
-        var resolver = new ServiceResolver(new ServiceCollection().BuildServiceProvider());
+        var resolver = new ServiceResolver(CreateEmptyServiceProvider());
 
         var instance = resolver.CreateInstance(typeof(ServiceWithDependency), provider);
 
@@ -103,7 +106,7 @@ public class ServiceResolverTests : IDisposable
         var ctxAccessor = A.Fake<IHttpContextAccessor>();
         A.CallTo(() => ctxAccessor.HttpContext).Returns(httpContext);
 
-        var resolver = new ServiceResolver(new ServiceCollection().BuildServiceProvider(), ctxAccessor);
+        var resolver = new ServiceResolver(CreateEmptyServiceProvider(), ctxAccessor);
 
         var instance = resolver.CreateInstance(typeof(ServiceWithDependency));
 
@@ -153,7 +156,7 @@ public class ServiceResolverTests : IDisposable
         var ctxAccessor = A.Fake<IHttpContextAccessor>();
         A.CallTo(() => ctxAccessor.HttpContext).Returns(httpContext);
 
-        var resolver = new ServiceResolver(new ServiceCollection().BuildServiceProvider(), ctxAccessor);
+        var resolver = new ServiceResolver(CreateEmptyServiceProvider(), ctxAccessor);
 
         var instance = resolver.CreateSingleton(typeof(ServiceWithDependency));
 
@@ -231,7 +234,7 @@ public class ServiceResolverTests : IDisposable
         var ctxAccessor = A.Fake<IHttpContextAccessor>();
         A.CallTo(() => ctxAccessor.HttpContext).Returns(httpContext);
 
-        var resolver = new ServiceResolver(new ServiceCollection().BuildServiceProvider(), ctxAccessor);
+        var resolver = new ServiceResolver(CreateEmptyServiceProvider(), ctxAccessor);
 
         var service = resolver.Resolve<ITestService>();
 
@@ -264,7 +267,7 @@ public class ServiceResolverTests : IDisposable
         var ctxAccessor = A.Fake<IHttpContextAccessor>();
         A.CallTo(() => ctxAccessor.HttpContext).Returns(httpContext);
 
-        var resolver = new ServiceResolver(new ServiceCollection().BuildServiceProvider(), ctxAccessor);
+        var resolver = new ServiceResolver(CreateEmptyServiceProvider(), ctxAccessor);
 
         var service = resolver.Resolve(typeof(ITestService));
 
@@ -309,7 +312,7 @@ public class ServiceResolverTests : IDisposable
         var ctxAccessor = A.Fake<IHttpContextAccessor>();
         A.CallTo(() => ctxAccessor.HttpContext).Returns(httpContext);
 
-        var resolver = new ServiceResolver(new ServiceCollection().BuildServiceProvider(), ctxAccessor);
+        var resolver = new ServiceResolver(CreateEmptyServiceProvider(), ctxAccessor);
 
         var service = resolver.TryResolve<ITestService>();
 
@@ -354,7 +357,7 @@ public class ServiceResolverTests : IDisposable
         var ctxAccessor = A.Fake<IHttpContextAccessor>();
         A.CallTo(() => ctxAccessor.HttpContext).Returns(httpContext);
 
-        var resolver = new ServiceResolver(new ServiceCollection().BuildServiceProvider(), ctxAccessor);
+        var resolver = new ServiceResolver(CreateEmptyServiceProvider(), ctxAccessor);
 
         var service = resolver.TryResolve(typeof(ITestService));
 
@@ -399,7 +402,7 @@ public class ServiceResolverTests : IDisposable
         var ctxAccessor = A.Fake<IHttpContextAccessor>();
         A.CallTo(() => ctxAccessor.HttpContext).Returns(httpContext);
 
-        var resolver = new ServiceResolver(new ServiceCollection().BuildServiceProvider(), ctxAccessor);
+        var resolver = new ServiceResolver(CreateEmptyServiceProvider(), ctxAccessor);
 
         var service = resolver.TryResolve<ITestService>("myKey");
 
@@ -444,7 +447,7 @@ public class ServiceResolverTests : IDisposable
         var ctxAccessor = A.Fake<IHttpContextAccessor>();
         A.CallTo(() => ctxAccessor.HttpContext).Returns(httpContext);
 
-        var resolver = new ServiceResolver(new ServiceCollection().BuildServiceProvider(), ctxAccessor);
+        var resolver = new ServiceResolver(CreateEmptyServiceProvider(), ctxAccessor);
 
         var service = resolver.TryResolve(typeof(ITestService), "myKey");
 
@@ -466,7 +469,7 @@ public class ServiceResolverTests : IDisposable
         var ctxAccessor = A.Fake<IHttpContextAccessor>();
         A.CallTo(() => ctxAccessor.HttpContext).Returns(httpContext);
 
-        var resolver = new ServiceResolver(new ServiceCollection().BuildServiceProvider(), ctxAccessor);
+        var resolver = new ServiceResolver(CreateEmptyServiceProvider(), ctxAccessor);
 
         var service = resolver.Resolve<ITestService>("myKey");
 
@@ -499,7 +502,7 @@ public class ServiceResolverTests : IDisposable
         var ctxAccessor = A.Fake<IHttpContextAccessor>();
         A.CallTo(() => ctxAccessor.HttpContext).Returns(httpContext);
 
-        var resolver = new ServiceResolver(new ServiceCollection().BuildServiceProvider(), ctxAccessor);
+        var resolver = new ServiceResolver(CreateEmptyServiceProvider(), ctxAccessor);
 
         var service = resolver.Resolve(typeof(ITestService), "myKey");
 

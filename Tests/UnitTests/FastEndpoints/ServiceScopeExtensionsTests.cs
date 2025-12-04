@@ -2,7 +2,7 @@ using FastEndpoints;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Unit.FastEndpoints;
+namespace ServiceScopeExtensionsTests;
 
 public class ServiceScopeExtensionsTests
 {
@@ -235,14 +235,10 @@ public class ServiceScopeExtensionsTests
         IScopedService service2;
 
         using (var scope1 = provider.CreateScope())
-        {
             service1 = scope1.Resolve<IScopedService>();
-        }
 
         using (var scope2 = provider.CreateScope())
-        {
             service2 = scope2.Resolve<IScopedService>();
-        }
 
         service1.ShouldNotBeSameAs(service2);
     }

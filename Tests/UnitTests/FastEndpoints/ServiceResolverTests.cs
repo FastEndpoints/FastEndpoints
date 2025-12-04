@@ -4,69 +4,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Unit.FastEndpoints;
+namespace ServiceResolverTests;
 
-public class ServiceResolverTests : IDisposable
+public class ServiceResolverTests
 {
-    readonly IServiceResolver? _originalInstance;
-
-    public ServiceResolverTests()
-    {
-        // Save the original instance to restore after tests
-        _originalInstance = ServiceResolver.InstanceNotSet ? null : ServiceResolver.Instance;
-    }
-
-    public void Dispose()
-    {
-        // Restore the original instance after each test
-        if (_originalInstance != null)
-            ServiceResolver.Instance = _originalInstance;
-    }
-
     static IServiceProvider CreateEmptyServiceProvider()
         => new ServiceCollection().BuildServiceProvider();
-
-    [Fact]
-    public void Instance_WhenNotSet_ThrowsInvalidOperationException()
-    {
-        // Clear the instance to ensure it's null
-        ServiceResolver.Instance = null!;
-
-        var ex = Assert.Throws<InvalidOperationException>(() => _ = ServiceResolver.Instance);
-        ex.Message.ShouldContain("Service resolver is null");
-    }
-
-    [Fact]
-    public void Instance_WhenSet_ReturnsSetValue()
-    {
-        var services = new ServiceCollection();
-        var provider = services.BuildServiceProvider();
-        var resolver = new ServiceResolver(provider);
-
-        ServiceResolver.Instance = resolver;
-
-        ServiceResolver.Instance.ShouldBe(resolver);
-    }
-
-    [Fact]
-    public void InstanceNotSet_WhenNull_ReturnsTrue()
-    {
-        ServiceResolver.Instance = null!;
-
-        ServiceResolver.InstanceNotSet.ShouldBeTrue();
-    }
-
-    [Fact]
-    public void InstanceNotSet_WhenSet_ReturnsFalse()
-    {
-        var services = new ServiceCollection();
-        var provider = services.BuildServiceProvider();
-        var resolver = new ServiceResolver(provider);
-
-        ServiceResolver.Instance = resolver;
-
-        ServiceResolver.InstanceNotSet.ShouldBeFalse();
-    }
 
     [Fact]
     public void CreateInstance_CreatesInstanceOfType()
@@ -169,7 +112,7 @@ public class ServiceResolverTests : IDisposable
     {
         var services = new ServiceCollection();
         var provider = services.BuildServiceProvider();
-        var resolver = new ServiceResolver(provider, null, isUnitTestMode: false);
+        var resolver = new ServiceResolver(provider);
 
         using var scope = resolver.CreateScope();
 

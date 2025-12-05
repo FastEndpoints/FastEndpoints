@@ -187,27 +187,19 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
 
     protected override async Task CancelJobAsync(Guid trackingId, CancellationToken ct)
     {
-        _ = AttemptCancellationTask(trackingId, _cancellations, _cancellationExpiry);
+        _ = AttemptCancellationTask(trackingId, _cancellations);
         await _storage.CancelJobAsync(trackingId, ct);
 
-        static async Task AttemptCancellationTask(Guid trackingId, MemoryCache cancellations, TimeSpan cancelExpiry)
+        static async Task AttemptCancellationTask(Guid trackingId, MemoryCache cancellations)
         {
-            var cts = cancellations.GetOrCreate<CancellationTokenSource?>(
-                trackingId,
-                cacheEntry =>
-                {
-                    cacheEntry.SlidingExpiration = cancelExpiry;
-
-                    return null;
-                });
-
-            //this is probably unnecessary. but could come in handy in case there's some delays (or race condition) in
-            //marking the job as complete via the storage provider and the job gets picked up for execution in the meantime.
+            // we need to retry since the job might have been fetched (the storage CancelJobAsync method was to late to update the job as canceled), but not yet started
             for (var i = 0; i < 10; i++)
             {
-                if (cts is not null) //job execution has started and cts is available
+                // try fetching the cts, the ExecuteCommand method adds it
+                if (cancellations.TryGetValue<CancellationTokenSource>(trackingId, out var cts))
                 {
-                    if (!cts.IsCancellationRequested)
+                    //job execution has started and cts is available
+                    if (cts is not null && !cts.IsCancellationRequested)
                         cts.Cancel(false);
 
                     return; //we're done!
@@ -321,7 +313,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
 
         async ValueTask ExecuteCommand(TStorageRecord record, CancellationToken _)
         {
-            using var cts = _cancellations.GetOrCreate<CancellationTokenSource?>(
+            using var cts = _cancellations.GetOrCreate(
                 record.TrackingID,
                 e =>
                 {
@@ -332,8 +324,8 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                     return s;
                 });
 
-            if (cts is null) //don't execute this job because cancellation has been requested already
-                return;      //the cts will be null if the entry was created by a call to CancelJobAsync() before the job was picked up for execution
+            if (cts is null || cts.IsCancellationRequested) // don't execute this job because cancellation has been requested already
+                return;                                         // the cts will be null if the entry was created by a call to CancelJobAsync() before the job was picked up for execution
 
             //if cts is not null, proceed with job execution as cancellation has not been requested yet.
 

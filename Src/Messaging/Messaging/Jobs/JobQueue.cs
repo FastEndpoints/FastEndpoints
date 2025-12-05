@@ -109,14 +109,13 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
     //public due to: https://github.com/FastEndpoints/FastEndpoints/issues/468
     public static readonly string QueueID = _tCommandName.ToHash();
 
-    readonly ConcurrentDictionary<Guid, CancellationTokenSource?> _cancellations = new();
+    readonly ConcurrentDictionary<Guid, CancellationTokenSource> _cancellations = new();
     readonly ParallelOptions _parallelOptions = new() { MaxDegreeOfParallelism = Environment.ProcessorCount };
     readonly TStorageProvider _storage;
     readonly IJobResultProvider? _resultStorage;
     readonly SemaphoreSlim _sem = new(0);
     readonly ILogger _log;
     TimeSpan _executionTimeLimit;
-    TimeSpan _cancellationExpiry;
     TimeSpan _semWaitLimit;
     CancellationToken _appCancellation;
     bool? _isInUse;
@@ -136,7 +135,6 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
     {
         _parallelOptions.MaxDegreeOfParallelism = concurrencyLimit;
         _executionTimeLimit = executionTimeLimit;
-        _cancellationExpiry = executionTimeLimit + TimeSpan.FromHours(1);
         _semWaitLimit = semWaitLimit;
         _appCancellation = applicationStopping;
         _ = CommandExecutorTask();
@@ -184,31 +182,24 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
 
     protected override async Task CancelJobAsync(Guid trackingId, CancellationToken ct)
     {
-        var cts = _cancellations.GetOrAdd(
-            trackingId,
-            cacheEntry =>
-            {
-                return null;
-            });
-
-        if (cts is not null) 
-        {
-            if (!ct.IsCancellationRequested) // job execution has started and cts is available
-                cts.Cancel(false);
-        }
-        else if (_executionTimeLimit != Timeout.InfiniteTimeSpan)
-        {
-            // only if the execution time is not infinite we schedule a cleanup task to remove the cancellation entry after a delay.
-            _ = Task.Delay(_cancellationExpiry, ct).ContinueWith((_, _) =>
-                {
-                    // remove the entry after a delay to prevent memory leak in case the trackingId is never found in storage
-                    _cancellations.TryRemove(trackingId, out var _);
-                }, 
-                TaskContinuationOptions.NotOnCanceled, 
-                ct);
-        }
-
+        _ = AttemptCancellationTask(trackingId, _cancellations);
         await _storage.CancelJobAsync(trackingId, ct);
+
+        static async Task AttemptCancellationTask(Guid trackingId, ConcurrentDictionary<Guid, CancellationTokenSource> cancellations)
+        {
+            for (var i = 0; i < 10; i++)
+            {
+                if (cancellations.TryGetValue(trackingId, out var cts))
+                {
+                    //job execution has started and cts is available
+                    if (!cts.IsCancellationRequested)
+                        cts.Cancel(false);
+
+                    return; //we're done!
+                }
+                await Task.Delay(1000);
+            }
+        }
     }
 
     protected override Task<TRes?> GetJobResultAsync<TRes>(Guid trackingId, CancellationToken ct) where TRes : default
@@ -324,9 +315,6 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
 
                     return s;
                 });
-
-            if (cts is null) //don't execute this job because cancellation has been requested already
-                return;      //the cts will be null if the entry was created by a call to CancelJobAsync() before the job was picked up for execution
 
             // if cts is not null, proceed with job execution as cancellation has not been requested yet.
             try

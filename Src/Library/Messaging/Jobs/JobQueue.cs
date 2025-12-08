@@ -188,10 +188,9 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
         var cts = _cancellations.GetOrAdd(
             trackingId,
             cacheEntry =>
-            {
-                // the job did not start yet, so create a new cts that is instant cancelled, but should not be removed yet
-                return new CancellationTokenSource(-1);
-            });
+                // the job didn't start yet, so create a new cts that is instantly cancelled, but should not be removed yet
+                new CancellationTokenSource(-1)
+            );
 
         // job execution has started and cts is available
         if (cts is not null && !cts.IsCancellationRequested)

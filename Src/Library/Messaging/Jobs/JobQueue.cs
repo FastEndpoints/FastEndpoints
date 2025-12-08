@@ -186,12 +186,12 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
     protected override async Task CancelJobAsync(Guid trackingId, CancellationToken ct)
     {
         var cts = _cancellations.GetOrAdd(
-                trackingId,
-                cacheEntry =>
-                {
-                    // the job did not start yet, so create a new cts that is instant cancelled, but should not be removed yet
-                    return new CancellationTokenSource(TimeSpan.MinValue);
-                });
+            trackingId,
+            cacheEntry =>
+            {
+                // the job did not start yet, so create a new cts that is instant cancelled, but should not be removed yet
+                return new CancellationTokenSource(TimeSpan.MinValue);
+            });
 
         // job execution has started and cts is available
         if (cts is not null && !cts.IsCancellationRequested)
@@ -200,10 +200,10 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
         await _storage.CancelJobAsync(trackingId, ct);
 
         // the job is updated as cancelled in storage, so set cts as null to allow deletion
-        _ = _cancellations.AddOrUpdate(
-                trackingId,
-                _ => null,
-                (_, _) => null);
+        _ = _cancellations.TryUpdate(
+            trackingId,
+            null,
+            cts);
     }
 
     protected override Task<TRes?> GetJobResultAsync<TRes>(Guid trackingId, CancellationToken ct) where TRes : default

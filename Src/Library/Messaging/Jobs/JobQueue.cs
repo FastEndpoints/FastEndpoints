@@ -110,7 +110,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
     //public due to: https://github.com/FastEndpoints/FastEndpoints/issues/468
     public static readonly string QueueID = _tCommandName.ToHash();
 
-    readonly MemoryCache _cancellations = new(new MemoryCacheOptions());
+    readonly ConcurrentDictionary<Guid, CancellationTokenSource?> _cancellations = new();
     readonly ParallelOptions _parallelOptions = new() { MaxDegreeOfParallelism = Environment.ProcessorCount };
     readonly CancellationToken _appCancellation;
     readonly TStorageProvider _storage;
@@ -118,7 +118,6 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
     readonly SemaphoreSlim _sem = new(0);
     readonly ILogger _log;
     TimeSpan _executionTimeLimit;
-    TimeSpan _cancellationExpiry;
     TimeSpan _semWaitLimit;
     bool? _isInUse;
 
@@ -140,7 +139,6 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
     {
         _parallelOptions.MaxDegreeOfParallelism = concurrencyLimit;
         _executionTimeLimit = executionTimeLimit;
-        _cancellationExpiry = executionTimeLimit + TimeSpan.FromHours(1);
         _semWaitLimit = semWaitLimit;
         _ = CommandExecutorTask();
     }
@@ -187,26 +185,25 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
 
     protected override async Task CancelJobAsync(Guid trackingId, CancellationToken ct)
     {
-        _ = AttemptCancellationTask(trackingId, _cancellations);
+        var cts = _cancellations.GetOrAdd(
+                trackingId,
+                cacheEntry =>
+                {
+                    // the job did not start yet, so create a new cts that is instant cancelled, but should not be removed yet
+                    return new CancellationTokenSource(TimeSpan.MinValue);
+                });
+
+        // job execution has started and cts is available
+        if (cts is not null && !cts.IsCancellationRequested)
+            cts.Cancel(false);
+
         await _storage.CancelJobAsync(trackingId, ct);
 
-        static async Task AttemptCancellationTask(Guid trackingId, MemoryCache cancellations)
-        {
-            // we need to retry since the job might have been fetched (the storage CancelJobAsync method was to late to update the job as canceled), but not yet started
-            for (var i = 0; i < 10; i++)
-            {
-                // try fetching the cts, the ExecuteCommand method adds it
-                if (cancellations.TryGetValue<CancellationTokenSource>(trackingId, out var cts))
-                {
-                    //job execution has started and cts is available
-                    if (cts is not null && !cts.IsCancellationRequested)
-                        cts.Cancel(false);
-
-                    return; //we're done!
-                }
-                await Task.Delay(1000);
-            }
-        }
+        // the job is updated as cancelled in storage, so set cts as null to allow deletion
+        _ = _cancellations.AddOrUpdate(
+                trackingId,
+                _ => null,
+                (_, _) => null);
     }
 
     protected override Task<TRes?> GetJobResultAsync<TRes>(Guid trackingId, CancellationToken ct) where TRes : default
@@ -309,15 +306,21 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
             }
             else
                 await Parallel.ForEachAsync(records, _parallelOptions, ExecuteCommand);
+
+            // cleanup job cancellations with a null cts, the corresponding jobs are updated as cancelled in storage, meaning they won't be returned next time GetNextBatchAsync is called
+            foreach (var cancellation in _cancellations)
+            {
+                if (cancellation.Value is null)
+                    _cancellations.TryRemove(cancellation.Key, out var _);
+            }
         }
 
         async ValueTask ExecuteCommand(TStorageRecord record, CancellationToken _)
         {
-            using var cts = _cancellations.GetOrCreate(
+            using var cts = _cancellations.GetOrAdd(
                 record.TrackingID,
                 e =>
                 {
-                    e.AbsoluteExpirationRelativeToNow = _cancellationExpiry;
                     var s = CancellationTokenSource.CreateLinkedTokenSource(_appCancellation);
                     s.CancelAfter(_executionTimeLimit);
 
@@ -325,10 +328,9 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 });
 
             if (cts is null || cts.IsCancellationRequested) // don't execute this job because cancellation has been requested already
-                return;                                         // the cts will be null if the entry was created by a call to CancelJobAsync() before the job was picked up for execution
+                return;                                     // the cts will be null if the entry was created by a call to CancelJobAsync() before the job was picked up for execution
 
             //if cts is not null, proceed with job execution as cancellation has not been requested yet.
-
             try
             {
                 var cmd = record.GetCommand<TCommand>();
@@ -346,11 +348,11 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                         break;
                 }
 
-                _cancellations.Remove(record.TrackingID); //remove entry on completion. cancellations are not possible/valid after this point.
+                _cancellations.TryRemove(record.TrackingID, out var _); // remove entry on completion. cancellations are not possible/valid after this point.
             }
             catch (Exception x)
             {
-                _cancellations.Remove(record.TrackingID); //remove entry on execution error to allow obtaining a new cts on retry/reentry
+                _cancellations.TryRemove(record.TrackingID, out var _); // remove entry on execution error to allow obtaining a new cts on retry/reentry
                 _log.CommandExecutionCritical(_tCommandName, x.Message);
 
                 while (true)

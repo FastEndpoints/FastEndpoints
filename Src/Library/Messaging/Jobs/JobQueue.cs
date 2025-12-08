@@ -190,7 +190,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
             cacheEntry =>
             {
                 // the job did not start yet, so create a new cts that is instant cancelled, but should not be removed yet
-                return new CancellationTokenSource(TimeSpan.MinValue);
+                return new CancellationTokenSource(-1);
             });
 
         // job execution has started and cts is available

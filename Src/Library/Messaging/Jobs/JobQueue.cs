@@ -1,7 +1,6 @@
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using FastEndpoints.Messaging.Jobs;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
@@ -141,6 +140,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
         _executionTimeLimit = executionTimeLimit;
         _semWaitLimit = semWaitLimit;
         _ = CommandExecutorTask();
+        _ = CancellationsCleanerTask();
     }
 
     protected override TStorageRecord CreateJob(ICommandBase command, DateTime? executeAfter, DateTime? expireOn)
@@ -183,28 +183,6 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
         return job.TrackingID;
     }
 
-    protected override async Task CancelJobAsync(Guid trackingId, CancellationToken ct)
-    {
-        var cts = _cancellations.GetOrAdd(
-            trackingId,
-            cacheEntry =>
-                // the job didn't start yet, so create a new cts that is instantly cancelled, but should not be removed yet
-                new CancellationTokenSource(-1)
-            );
-
-        // job execution has started and cts is available
-        if (cts is not null && !cts.IsCancellationRequested)
-            cts.Cancel(false);
-
-        await _storage.CancelJobAsync(trackingId, ct);
-
-        // the job is updated as cancelled in storage, so set cts as null to allow deletion
-        _ = _cancellations.TryUpdate(
-            trackingId,
-            null,
-            cts);
-    }
-
     protected override Task<TRes?> GetJobResultAsync<TRes>(Guid trackingId, CancellationToken ct) where TRes : default
     {
         if (_storage is not IJobResultProvider s)
@@ -239,6 +217,38 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
         }
 
         return s.StoreJobResultAsync(trackingId, result, ct);
+    }
+
+    protected override async Task CancelJobAsync(Guid trackingId, CancellationToken ct)
+    {
+        // if job is executing, fetch the cts added by ExecuteCommand, else store an already canceled cts
+        var cts = _cancellations.GetOrAdd(trackingId, new CancellationTokenSource(-1));
+
+        // job execution has started and cts is available
+        if (cts is not null && !cts.IsCancellationRequested)
+            cts.Cancel(false);
+
+        // ReSharper disable once PossiblyMistakenUseOfCancellationToken
+        await _storage.CancelJobAsync(trackingId, ct);
+
+        // set null as the mark for cleanup task
+        _ = _cancellations.TryUpdate(trackingId, null, cts);
+    }
+
+    async Task CancellationsCleanerTask()
+    {
+        while (!_appCancellation.IsCancellationRequested)
+        {
+            await Task.Delay(TimeSpan.FromMinutes(5), _appCancellation);
+
+            // remove cancellations with a null cts, the corresponding jobs are updated as canceled in storage.
+            // they won't be fetched next time GetNextBatchAsync is called
+            foreach (var kv in _cancellations)
+            {
+                if (kv.Value is null)
+                    _cancellations.TryRemove(kv.Key, out _);
+            }
+        }
     }
 
     async Task CommandExecutorTask()
@@ -302,20 +312,13 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
             }
             else
                 await Parallel.ForEachAsync(records, _parallelOptions, ExecuteCommand);
-
-            // cleanup job cancellations with a null cts, the corresponding jobs are updated as cancelled in storage, meaning they won't be returned next time GetNextBatchAsync is called
-            foreach (var cancellation in _cancellations)
-            {
-                if (cancellation.Value is null)
-                    _cancellations.TryRemove(cancellation.Key, out var _);
-            }
         }
 
         async ValueTask ExecuteCommand(TStorageRecord record, CancellationToken _)
         {
             using var cts = _cancellations.GetOrAdd(
                 record.TrackingID,
-                e =>
+                _ =>
                 {
                     var s = CancellationTokenSource.CreateLinkedTokenSource(_appCancellation);
                     s.CancelAfter(_executionTimeLimit);
@@ -323,10 +326,12 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                     return s;
                 });
 
-            if (cts is null || cts.IsCancellationRequested) // don't execute this job because cancellation has been requested already
-                return;                                     // the cts will be null if the entry was created by a call to CancelJobAsync() before the job was picked up for execution
+            // don't execute this job because cancellation has been requested already
+            // the cts will be null or already canceled if the entry was created by a call to CancelJobAsync() before the job was picked up for execution
+            if (cts is null || cts.IsCancellationRequested)
+                return;
 
-            //if cts is not null, proceed with job execution as cancellation has not been requested yet.
+            //if cts is not null/canceled, proceed with job execution as cancellation has not been requested yet.
             try
             {
                 var cmd = record.GetCommand<TCommand>();

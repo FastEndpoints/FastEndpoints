@@ -274,24 +274,21 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                               });
 
                 if (records.Any())
-                {
                     _isInUse = true;
-                }
                 else if (_isInUse is null)
                 {
                     // hit storage once more at startup to check if there's any incomplete jobs (possibly scheduled for the future) and set _isInUse
                     // ref: https://github.com/FastEndpoints/FastEndpoints/issues/1007
-                    var futureRecords = await _storage.GetNextBatchAsync(
-                                  new()
-                                  {
-                                      Limit = 1,
-                                      QueueID = QueueID,
-                                      CancellationToken = _appCancellation,
-                                      Match = r => r.QueueID == QueueID &&
-                                                   r.IsComplete == false &&
-                                                   r.ExpireOn >= DateTime.UtcNow
-                                  });
-                    _isInUse = futureRecords.Any();
+                    _isInUse = (await _storage.GetNextBatchAsync(
+                                    new()
+                                    {
+                                        Limit = 1,
+                                        QueueID = QueueID,
+                                        CancellationToken = _appCancellation,
+                                        Match = r => r.QueueID == QueueID &&
+                                                     r.IsComplete == false &&
+                                                     r.ExpireOn >= DateTime.UtcNow
+                                    })).Any();
                 }
             }
             catch (Exception x)

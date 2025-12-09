@@ -224,6 +224,9 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
         // if job is executing, fetch the cts added by ExecuteCommand, else store an already canceled cts
         var cts = _cancellations.GetOrAdd(trackingId, new CancellationTokenSource(-1));
 
+        if (cts is null)
+            return; // job is already marked cancelled in storage
+
         // job execution has started and cts is available
         if (cts is not null && !cts.IsCancellationRequested)
             cts.Cancel(false);

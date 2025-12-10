@@ -118,7 +118,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
     readonly ILogger _log;
     TimeSpan _executionTimeLimit;
     TimeSpan _semWaitLimit;
-    DateTimeOffset _lastCleanedOn;
+    DateTimeOffset _nextCleanupOn;
     bool? _isInUse;
 
     public JobQueue(TStorageProvider storageProvider,
@@ -131,7 +131,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
         _appCancellation = appLife.ApplicationStopping;
         _parallelOptions.CancellationToken = _appCancellation;
         _log = logger;
-        _lastCleanedOn = DateTimeOffset.UtcNow;
+        _nextCleanupOn = DateTime.UtcNow.AddMinutes(5);
         JobStorage<TStorageRecord, TStorageProvider>.Provider = _storage;
         JobStorage<TStorageRecord, TStorageProvider>.AppCancellation = _appCancellation;
     }
@@ -302,7 +302,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 await Parallel.ForEachAsync(records, _parallelOptions, ExecuteCommand);
 
             // cleanup any cancellations that have been marked canceled in storage
-            if ((DateTimeOffset.UtcNow - _lastCleanedOn).TotalMinutes >= 5)
+            if (DateTime.UtcNow >= _nextCleanupOn)
             {
                 foreach (var kv in _cancellations)
                 {
@@ -310,7 +310,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                         _cancellations.TryRemove(kv.Key, out _);
                 }
 
-                _lastCleanedOn = DateTimeOffset.UtcNow;
+                _nextCleanupOn = DateTime.UtcNow.AddMinutes(5);
             }
         }
 

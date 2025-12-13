@@ -1,5 +1,5 @@
-using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 namespace FastEndpoints;
 
@@ -39,9 +39,21 @@ public static class JobQueueExtensions
     /// </summary>
     /// <param name="options">specify settings/execution limits for each job queue type</param>
     /// <exception cref="InvalidOperationException">thrown when no commands/handlers have been detected</exception>
-    public static IApplicationBuilder UseJobQueues(this IApplicationBuilder app, Action<JobQueueOptions>? options = null)
+    public static IHost UseJobQueues(this IHost app, Action<JobQueueOptions>? options = null)
     {
-        var registry = app.ApplicationServices.GetRequiredService<CommandHandlerRegistry>();
+        app.Services.UseJobQueues(options);
+
+        return app;
+    }
+
+    /// <summary>
+    /// enable job queue functionality with given settings
+    /// </summary>
+    /// <param name="options">specify settings/execution limits for each job queue type</param>
+    /// <exception cref="InvalidOperationException">thrown when no commands/handlers have been detected</exception>
+    public static IServiceProvider UseJobQueues(this IServiceProvider provider, Action<JobQueueOptions>? options = null)
+    {
+        var registry = provider.GetRequiredService<CommandHandlerRegistry>();
 
         if (registry.IsEmpty)
         {
@@ -59,7 +71,7 @@ public static class JobQueueExtensions
 
             var tResult = tCommand.GetInterface(typeof(ICommand<>).Name)!.GetGenericArguments()[0];
 
-            var tHandler = app.ApplicationServices.GetService(
+            var tHandler = provider.GetService(
                 tResult == Types.VoidResult
                     ? Types.ICommandHandlerOf1.MakeGenericType(tCommand)
                     : Types.ICommandHandlerOf2.MakeGenericType(tCommand, tResult))?.GetType();
@@ -68,32 +80,34 @@ public static class JobQueueExtensions
                 registry[tCommand].HandlerType = tHandler;
 
             var tJobQ = Types.JobQueueOf4.MakeGenericType(tCommand, tResult, _tStorageRecord, _tStorageProvider);
-            var jobQ = app.ApplicationServices.GetRequiredService(tJobQ);
+            var jobQ = provider.GetRequiredService(tJobQ);
             opts.SetLimits(tCommand, (JobQueueBase)jobQ);
         }
 
-        return app;
+        return provider;
     }
 
-    /// <summary>
-    /// creates a new job object for the provided command.
-    /// </summary>
-    /// <typeparam name="TStorageRecord">the type of your <see cref="IJobStorageRecord" /> concrete class</typeparam>
     /// <param name="cmd">the command to be set in the job</param>
-    /// <param name="executeAfter">if set, the job won't be executed before this date/time. if unspecified, execution is attempted as soon as possible.</param>
-    /// <param name="expireOn">if set, job will be considered stale/expired after this date/time. if unspecified, jobs expire after 4 hours of creation.</param>
-    /// <returns>the new job object</returns>
-    /// <exception cref="ArgumentException">thrown if the <paramref name="executeAfter" /> and <paramref name="expireOn" /> arguments are not UTC values</exception>
-    public static TStorageRecord CreateJob<TStorageRecord>(this ICommandBase cmd, DateTime? executeAfter = null, DateTime? expireOn = null)
-        where TStorageRecord : class, IJobStorageRecord, new()
-        => JobQueueBase.CreateJob<TStorageRecord>(cmd, executeAfter, expireOn);
+    extension(ICommandBase cmd)
+    {
+        /// <summary>
+        /// creates a new job object for the provided command.
+        /// </summary>
+        /// <typeparam name="TStorageRecord">the type of your <see cref="IJobStorageRecord" /> concrete class</typeparam>
+        /// <param name="executeAfter">if set, the job won't be executed before this date/time. if unspecified, execution is attempted as soon as possible.</param>
+        /// <param name="expireOn">if set, job will be considered stale/expired after this date/time. if unspecified, jobs expire after 4 hours of creation.</param>
+        /// <returns>the new job object</returns>
+        /// <exception cref="ArgumentException">thrown if the <paramref name="executeAfter" /> and <paramref name="expireOn" /> arguments are not UTC values</exception>
+        public TStorageRecord CreateJob<TStorageRecord>(DateTime? executeAfter = null, DateTime? expireOn = null)
+            where TStorageRecord : class, IJobStorageRecord, new()
+            => JobQueueBase.CreateJob<TStorageRecord>(cmd, executeAfter, expireOn);
 
-    /// <summary>
-    /// triggers the execution of jobs in the respective queue for that command type.
-    /// </summary>
-    /// <param name="cmd">the command used to determine which queue to trigger</param>
-    public static void TriggerJobExecution(this ICommandBase cmd)
-        => JobQueueBase.TriggerJobExecution(cmd.GetType());
+        /// <summary>
+        /// triggers the execution of jobs in the respective queue for that command type.
+        /// </summary>
+        public void TriggerJobExecution()
+            => JobQueueBase.TriggerJobExecution(cmd.GetType());
+    }
 
     /// <summary>
     /// triggers the execution of jobs in the respective queue for that command type.

@@ -20,20 +20,13 @@ static class Types
     internal static readonly Type EmptyRequest = typeof(EmptyRequest);
     internal static readonly Type EmptyResponse = typeof(EmptyResponse);
     internal static readonly Type EndpointOf2 = typeof(Endpoint<,>);
-    internal static readonly Type EndpointOf3 = typeof(Endpoint<,,>);
-    internal static readonly Type EndpointWithMapperOf2 = typeof(EndpointWithMapper<,>);
-    internal static readonly Type EndpointWithOutRequestOf2 = typeof(EndpointWithoutRequest<,>);
     internal static readonly Type FormFileCollection = typeof(FormFileCollection);
     internal static readonly Type FromBodyAttribute = typeof(FromBodyAttribute);
     internal static readonly Type FromFormAttribute = typeof(FromFormAttribute);
     internal static readonly Type FromHeaderAttribute = typeof(FromHeaderAttribute);
-    internal static readonly Type FromCookieAttribute = typeof(FromCookieAttribute);
     internal static readonly Type HideFromDocsAttribute = typeof(HideFromDocsAttribute);
     internal static readonly Type Http = typeof(Http);
-    internal static readonly Type ICommandBase = typeof(ICommandBase);
     internal static readonly Type ICommandHandler = typeof(ICommandHandler);
-    internal static readonly Type ICommandHandlerOf1 = typeof(ICommandHandler<>);
-    internal static readonly Type ICommandHandlerOf2 = typeof(ICommandHandler<,>);
     internal static readonly Type IDictionary = typeof(IDictionary);
     internal static readonly Type IEndpoint = typeof(IEndpoint);
     internal static readonly Type IEndpointFeature = typeof(IEndpointFeature);
@@ -41,12 +34,9 @@ static class Types
     internal static readonly Type IEnumerable = typeof(IEnumerable);
     internal static readonly Type IEnumerableOfIFormFile = typeof(IEnumerable<IFormFile>);
     internal static readonly Type IEventHandler = typeof(IEventHandler);
-    internal static readonly Type IEventHandlerOf1 = typeof(IEventHandler<>);
     internal static readonly Type IFormatProvider = typeof(IFormatProvider);
     internal static readonly Type IFormFile = typeof(IFormFile);
     internal static readonly Type IHasMapperOf1 = typeof(IHasMapper<>);
-    internal static readonly Type IJobResultStorage = typeof(IJobResultStorage);
-    internal static readonly Type IJobResultProvider = typeof(IJobResultProvider);
     internal static readonly Type IPlainTextRequest = typeof(IPlainTextRequest);
     internal static readonly Type IPreProcessorOf1 = typeof(IPreProcessor<>);
     internal static readonly Type IPostProcessorOf2 = typeof(IPostProcessor<,>);
@@ -54,7 +44,6 @@ static class Types
     internal static readonly Type IResult = typeof(IResult);
     internal static readonly Type ISummary = typeof(ISummary);
     internal static readonly Type IValidator = typeof(IValidator);
-    internal static readonly Type JobQueueOf4 = typeof(JobQueue<,,,>);
     internal static readonly Type ListOf1 = typeof(List<>);
     internal static readonly Type NotImplementedAttribute = typeof(NotImplementedAttribute);
     internal static readonly Type NonJsonBindingAttribute = typeof(NonJsonBindingAttribute);
@@ -70,6 +59,5 @@ static class Types
     internal static readonly Type ValidatorOf1 = typeof(AbstractValidator<>);
     internal static readonly Type ValidationAttribute = typeof(System.ComponentModel.DataAnnotations.ValidationAttribute);
     internal static readonly Type Void = typeof(void);
-    internal static readonly Type VoidResult = typeof(Void);
     internal static readonly Type Uri = typeof(Uri);
 }

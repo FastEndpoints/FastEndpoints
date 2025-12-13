@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace FastEndpoints.Messaging.Jobs;
+namespace FastEndpoints.JobsQueues;
 
 static partial class LoggingExtensions
 {

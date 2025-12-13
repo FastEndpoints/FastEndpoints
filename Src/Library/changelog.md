@@ -24,6 +24,12 @@ There's no setup (nor code changes) needed for projects using FastEndpoints main
 
 </details>
 
+<details><summary>Standalone package for Job Queues functionality</summary>
+
+The job queuing functionality has also been extracted out to a separate package `FastEndpoints.JobQueues` which can be used independently of the main FE library. No code changes are needed for existing FE projects.
+
+</details>
+
 <details><summary>Aspire Testing support for routeless test helpers</summary>
 
 You can now use the routeless test helpers such as `.GETAsync<MyEndpoint>()` with Aspire `DistributedApplication` testing like so:

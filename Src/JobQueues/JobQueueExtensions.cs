@@ -1,3 +1,4 @@
+using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -16,7 +17,12 @@ public static class JobQueueExtensions
     /// </summary>
     /// <typeparam name="TStorageRecord">the implementation type of the job storage record</typeparam>
     /// <typeparam name="TStorageProvider">the implementation type of the job storage provider</typeparam>
-    public static IServiceCollection AddJobQueues<TStorageRecord, TStorageProvider>(this IServiceCollection svc)
+    /// <param name="svc"></param>
+    /// <param name="assemblies">
+    /// assemblies to scan for command handlers, in addition to all loaded assemblies.
+    /// only applicable when using job queues as a standalone library.
+    /// </param>
+    public static IServiceCollection AddJobQueues<TStorageRecord, TStorageProvider>(this IServiceCollection svc, params Assembly[]? assemblies)
         where TStorageRecord : class, IJobStorageRecord, new()
         where TStorageProvider : class, IJobStorageProvider<TStorageRecord>
     {
@@ -27,6 +33,7 @@ public static class JobQueueExtensions
             !_tStorageRecord.IsAssignableTo(Types.IJobResultStorage))
             throw new InvalidOperationException($"Job storage record: [{typeof(TStorageRecord).FullName}] must implement [{nameof(IJobResultProvider)}]!");
 
+        svc.AddMessaging(assemblies);
         svc.AddSingleton<TStorageProvider>();
         svc.AddSingleton(typeof(IJobTracker<>), typeof(JobTracker<>));
         svc.AddSingleton(typeof(JobQueue<,,,>));
@@ -55,13 +62,12 @@ public static class JobQueueExtensions
     /// <exception cref="InvalidOperationException">thrown when no commands/handlers have been detected</exception>
     public static IServiceProvider UseJobQueues(this IServiceProvider provider, Action<JobQueueOptions>? options = null)
     {
+        provider.UseMessaging();
+
         var registry = provider.GetRequiredService<CommandHandlerRegistry>();
 
         if (registry.IsEmpty)
-        {
-            throw new InvalidOperationException(
-                "No Commands/Handlers found in the system! Have you called yet AddFastEndpoints() on the IServiceCollection, or RegisterGenericCommand previously on the WebApplication?");
-        }
+            throw new InvalidOperationException("No Commands/Handlers found in the system! Have you done the startup configuration correctly?");
 
         var opts = new JobQueueOptions();
         options?.Invoke(opts);

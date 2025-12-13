@@ -1,5 +1,7 @@
 ﻿// ReSharper disable InconsistentNaming
 
+using System;
+
 namespace FastEndpoints.Messaging;
 
 static class Types

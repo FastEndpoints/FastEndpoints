@@ -385,87 +385,90 @@ public static class MainExtensions
             });
     }
 
-    static void AddSwaggerDefaults(this RouteHandlerBuilder b, EndpointDefinition ep)
+    extension(RouteHandlerBuilder b)
     {
-        //clearing all produces metadata before proceeding - https://github.com/FastEndpoints/FastEndpoints/issues/833
-        //this is possibly related to .net 9+ only, but we'll be covering all bases this way.
-        b.Add(
-            eb =>
-            {
-                for (var i = eb.Metadata.Count - 1; i >= 0; i--)
+        void AddSwaggerDefaults(EndpointDefinition ep)
+        {
+            //clearing all produces metadata before proceeding - https://github.com/FastEndpoints/FastEndpoints/issues/833
+            //this is possibly related to .net 9+ only, but we'll be covering all bases this way.
+            b.Add(
+                eb =>
                 {
-                    if (eb.Metadata[i] is IProducesResponseTypeMetadata)
-                        eb.Metadata.RemoveAt(i);
-                }
-            });
-
-        var isPlainTextRequest = Types.IPlainTextRequest.IsAssignableFrom(ep.ReqDtoType);
-
-        if (isPlainTextRequest)
-        {
-            b.Accepts(ep.ReqDtoType, "text/plain", "application/json");
-            b.ProducesDeDuped(200, ep.ResDtoType, ["text/plain", "application/json"]);
-
-            return;
-        }
-
-        if (ep.ReqDtoType != Types.EmptyRequest)
-        {
-            if (ep.ReqDtoType.AllPropsAreNonJsonSourced())
-                b.Accepts(ep.ReqDtoType, "*/*");
-            else if (ep.Verbs.Any(m => m is "GET" or "HEAD" or "DELETE"))
-                b.Accepts(ep.ReqDtoType, "*/*", "application/json");
-            else
-                b.Accepts(ep.ReqDtoType, "application/json");
-        }
-
-        if (ep.ExecuteAsyncReturnsIResult)
-            b.Add(eb => ProducesMetaForResultOfResponse.AddMetadata(eb, ep.ResDtoType));
-        else
-        {
-            if (ep.ResDtoType == Types.Object || ep.ResDtoType == Types.EmptyResponse)
-                b.ProducesDeDuped(204, Types.Void, []);
-            else
-                b.ProducesDeDuped(200, ep.ResDtoType, ["application/json"]);
-        }
-
-        if (ep.AnonymousVerbs?.Length is null or 0)
-            b.ProducesDeDuped(401, Types.Void, []);
-
-        if (ep.RequiresAuthorization())
-            b.ProducesDeDuped(403, Types.Void, []);
-
-        if (Cfg.ErrOpts.ProducesMetadataType is not null && ep.ValidatorType is not null)
-            b.ProducesDeDuped(Cfg.ErrOpts.StatusCode, Cfg.ErrOpts.ProducesMetadataType, [Cfg.ErrOpts.ContentType]);
-    }
-
-    static void ProducesDeDuped(this RouteHandlerBuilder hb, int statusCode, Type type, string[] contentTypes)
-    {
-        hb.Finally(
-            b =>
-            {
-                for (var i = 0; i < b.Metadata.Count; i++)
-                {
-                    int? code = b.Metadata[i] switch
+                    for (var i = eb.Metadata.Count - 1; i >= 0; i--)
                     {
-                        IProducesResponseTypeMetadata p => p.StatusCode,
-                        IApiResponseMetadataProvider a => a.StatusCode,
-                        _ => null
-                    };
-
-                    if (code is null)
-                        continue;
-
-                    switch (statusCode)
-                    {
-                        case >= 200 and < 300 when code is >= 200 and < 300:
-                        case >= 400 and < 500 when code == statusCode:
-                            return;
+                        if (eb.Metadata[i] is IProducesResponseTypeMetadata)
+                            eb.Metadata.RemoveAt(i);
                     }
-                }
+                });
 
-                b.Metadata.Add(new DefaultProducesResponseMetadata(type, statusCode, contentTypes));
-            });
+            var isPlainTextRequest = Types.IPlainTextRequest.IsAssignableFrom(ep.ReqDtoType);
+
+            if (isPlainTextRequest)
+            {
+                b.Accepts(ep.ReqDtoType, "text/plain", "application/json");
+                b.ProducesDeDuped(200, ep.ResDtoType, ["text/plain", "application/json"]);
+
+                return;
+            }
+
+            if (ep.ReqDtoType != Types.EmptyRequest)
+            {
+                if (ep.ReqDtoType.AllPropsAreNonJsonSourced())
+                    b.Accepts(ep.ReqDtoType, "*/*");
+                else if (ep.Verbs.Any(m => m is "GET" or "HEAD" or "DELETE"))
+                    b.Accepts(ep.ReqDtoType, "*/*", "application/json");
+                else
+                    b.Accepts(ep.ReqDtoType, "application/json");
+            }
+
+            if (ep.ExecuteAsyncReturnsIResult)
+                b.Add(eb => ProducesMetaForResultOfResponse.AddMetadata(eb, ep.ResDtoType));
+            else
+            {
+                if (ep.ResDtoType == Types.Object || ep.ResDtoType == Types.EmptyResponse)
+                    b.ProducesDeDuped(204, Types.Void, []);
+                else
+                    b.ProducesDeDuped(200, ep.ResDtoType, ["application/json"]);
+            }
+
+            if (ep.AnonymousVerbs?.Length is null or 0)
+                b.ProducesDeDuped(401, Types.Void, []);
+
+            if (ep.RequiresAuthorization())
+                b.ProducesDeDuped(403, Types.Void, []);
+
+            if (Cfg.ErrOpts.ProducesMetadataType is not null && ep.ValidatorType is not null)
+                b.ProducesDeDuped(Cfg.ErrOpts.StatusCode, Cfg.ErrOpts.ProducesMetadataType, [Cfg.ErrOpts.ContentType]);
+        }
+
+        void ProducesDeDuped(int statusCode, Type type, string[] contentTypes)
+        {
+            b.Finally(
+                b1 =>
+                {
+                    for (var i = 0; i < b1.Metadata.Count; i++)
+                    {
+                        int? code = b1.Metadata[i] switch
+                        {
+                            IProducesResponseTypeMetadata p => p.StatusCode,
+                            IApiResponseMetadataProvider a => a.StatusCode,
+                            _ => null
+                        };
+
+                        if (code is null)
+                            continue;
+
+                        switch (statusCode)
+                        {
+                            case >= 200 and < 300 when code is >= 200 and < 300:
+                            case >= 400 and < 500 when code == statusCode:
+                                return;
+                        }
+                    }
+
+                    b1.Metadata.Add(new DefaultProducesResponseMetadata(type, statusCode, contentTypes));
+                });
+        }
     }
 
     static bool AllPropsAreNonJsonSourced(this Type tRequest)

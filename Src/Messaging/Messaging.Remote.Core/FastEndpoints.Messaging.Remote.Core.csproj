@@ -15,7 +15,8 @@
         <PackageReference Include="Grpc.Net.Client"/>
         <PackageReference Include="Grpc.Net.Client.Web"/>
         <PackageReference Include="MessagePack"/>
-        <PackageReference Include="Microsoft.Extensions.Hosting"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions"/>
+        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions"/>
         <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
     </ItemGroup>
 

@@ -14,7 +14,7 @@
         <ProjectReference Include="..\..\Core\FastEndpoints.Core.csproj"/>
         <ProjectReference Include="..\Messaging.Core\FastEndpoints.Messaging.Core.csproj"/>
 
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection"/>
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions"/>
         <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
     </ItemGroup>
 

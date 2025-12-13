@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.1;</TargetFrameworks>
+        <!-- <TargetFrameworks>netstandard2.1;</TargetFrameworks> -->
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <Description>Command based background job queueing with scheduling and tracking for any .NET application</Description>
         <PackageIcon>icon.png</PackageIcon>
@@ -11,6 +11,11 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Core\FastEndpoints.Core.csproj"/>
+        <ProjectReference Include="..\Messaging\Messaging\FastEndpoints.Messaging.csproj"/>
+
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection"/>
+        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions"/>
         <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
     </ItemGroup>
 

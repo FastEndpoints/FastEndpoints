@@ -30,116 +30,116 @@ public static class RemoteConnectionCoreExtensions
         return services;
     }
 
-    /// <summary>
-    /// execute the command on the relevant remote server
-    /// </summary>
     /// <param name="command"></param>
-    /// <param name="ct">cancellation token</param>
-    /// <exception cref="InvalidOperationException">thrown if the relevant remote handler has not been registered</exception>
-    public static Task RemoteExecuteAsync(this ICommand command, CancellationToken ct)
-        => RemoteExecuteAsync(command, new CallOptions(cancellationToken: ct));
-
-    /// <summary>
-    /// execute the command on the relevant remote server
-    /// </summary>
-    /// <param name="command"></param>
-    /// <param name="options">call options</param>
-    /// <exception cref="InvalidOperationException">thrown if the relevant remote handler has not been registered</exception>
-    public static Task RemoteExecuteAsync(this ICommand command, CallOptions options = default)
+    extension(ICommand command)
     {
-        var tCommand = command.GetType();
+        /// <summary>
+        /// execute the command on the relevant remote server
+        /// </summary>
+        /// <param name="ct">cancellation token</param>
+        /// <exception cref="InvalidOperationException">thrown if the relevant remote handler has not been registered</exception>
+        public Task RemoteExecuteAsync(CancellationToken ct)
+            => RemoteExecuteAsync(command, new CallOptions(cancellationToken: ct));
 
-        return
-            RemoteConnectionCore.RemoteMap.TryGetValue(tCommand, out var remote)
-                ? remote.ExecuteVoid(command, tCommand, options)
-                : throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
+        /// <summary>
+        /// execute the command on the relevant remote server
+        /// </summary>
+        /// <param name="options">call options</param>
+        /// <exception cref="InvalidOperationException">thrown if the relevant remote handler has not been registered</exception>
+        public Task RemoteExecuteAsync(CallOptions options = default)
+        {
+            var tCommand = command.GetType();
+
+            return
+                RemoteConnectionCore.RemoteMap.TryGetValue(tCommand, out var remote)
+                    ? remote.ExecuteVoid(command, tCommand, options)
+                    : throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
+        }
     }
 
-    /// <summary>
-    /// execute the command on the relevant remote server and get back a <typeparamref name="TResult" /> result
-    /// </summary>
+    /// <param name="command"></param>
     /// <typeparam name="TResult">the type of the result</typeparam>
-    /// <param name="command"></param>
-    /// <param name="ct">cancellation token</param>
-    /// <exception cref="InvalidOperationException">thrown if the relevant remote handler has not been registered</exception>
-    public static Task<TResult> RemoteExecuteAsync<TResult>(this ICommand<TResult> command, CancellationToken ct) where TResult : class
-        => RemoteExecuteAsync(command, new CallOptions(cancellationToken: ct));
-
-    /// <summary>
-    /// execute the command on the relevant remote server and get back a <typeparamref name="TResult" /> result
-    /// </summary>
-    /// <typeparam name="TResult">the type of the result</typeparam>
-    /// <param name="command"></param>
-    /// <param name="options">call options</param>
-    /// <exception cref="InvalidOperationException">thrown if the relevant remote handler has not been registered</exception>
-    public static Task<TResult> RemoteExecuteAsync<TResult>(this ICommand<TResult> command, CallOptions options = default) where TResult : class
+    extension<TResult>(ICommand<TResult> command) where TResult : class
     {
-        var tCommand = command.GetType();
+        /// <summary>
+        /// execute the command on the relevant remote server and get back a <typeparamref name="TResult" /> result
+        /// </summary>
+        /// <param name="ct">cancellation token</param>
+        /// <exception cref="InvalidOperationException">thrown if the relevant remote handler has not been registered</exception>
+        public Task<TResult> RemoteExecuteAsync(CancellationToken ct)
+            => RemoteExecuteAsync(command, new CallOptions(cancellationToken: ct));
 
-        return
-            RemoteConnectionCore.RemoteMap.TryGetValue(tCommand, out var remote)
-                ? remote.ExecuteUnary(command, tCommand, options)
-                : throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
+        /// <summary>
+        /// execute the command on the relevant remote server and get back a <typeparamref name="TResult" /> result
+        /// </summary>
+        /// <param name="options">call options</param>
+        /// <exception cref="InvalidOperationException">thrown if the relevant remote handler has not been registered</exception>
+        public Task<TResult> RemoteExecuteAsync(CallOptions options = default)
+        {
+            var tCommand = command.GetType();
+
+            return
+                RemoteConnectionCore.RemoteMap.TryGetValue(tCommand, out var remote)
+                    ? remote.ExecuteUnary(command, tCommand, options)
+                    : throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
+        }
     }
 
-    /// <summary>
-    /// execute the command on the relevant remote server and get back a stream of <typeparamref name="TResult" />
-    /// </summary>
-    /// <typeparam name="TResult">the type of the result stream</typeparam>
     /// <param name="command"></param>
-    /// <param name="ct">cancellation token</param>
-    /// <exception cref="InvalidOperationException">thrown if the relevant remote handler has not been registered</exception>
-    public static IAsyncEnumerable<TResult> RemoteExecuteAsync<TResult>(this IServerStreamCommand<TResult> command, CancellationToken ct) where TResult : class
-        => RemoteExecuteAsync(command, new CallOptions(cancellationToken: ct));
-
-    /// <summary>
-    /// execute the command on the relevant remote server and get back a stream of <typeparamref name="TResult" />
-    /// </summary>
     /// <typeparam name="TResult">the type of the result stream</typeparam>
-    /// <param name="command"></param>
-    /// <param name="options">call options</param>
-    /// <exception cref="InvalidOperationException">thrown if the relevant remote handler has not been registered</exception>
-    public static IAsyncEnumerable<TResult> RemoteExecuteAsync<TResult>(this IServerStreamCommand<TResult> command, CallOptions options = default)
-        where TResult : class
+    extension<TResult>(IServerStreamCommand<TResult> command) where TResult : class
     {
-        var tCommand = command.GetType();
+        /// <summary>
+        /// execute the command on the relevant remote server and get back a stream of <typeparamref name="TResult" />
+        /// </summary>
+        /// <param name="ct">cancellation token</param>
+        /// <exception cref="InvalidOperationException">thrown if the relevant remote handler has not been registered</exception>
+        public IAsyncEnumerable<TResult> RemoteExecuteAsync(CancellationToken ct)
+            => RemoteExecuteAsync(command, new CallOptions(cancellationToken: ct));
 
-        return
-            RemoteConnectionCore.RemoteMap.TryGetValue(tCommand, out var remote)
-                ? remote.ExecuteServerStream(command, tCommand, options).ReadAllAsync(options.CancellationToken)
-                : throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
+        /// <summary>
+        /// execute the command on the relevant remote server and get back a stream of <typeparamref name="TResult" />
+        /// </summary>
+        /// <param name="options">call options</param>
+        /// <exception cref="InvalidOperationException">thrown if the relevant remote handler has not been registered</exception>
+        public IAsyncEnumerable<TResult> RemoteExecuteAsync(CallOptions options = default)
+        {
+            var tCommand = command.GetType();
+
+            return
+                RemoteConnectionCore.RemoteMap.TryGetValue(tCommand, out var remote)
+                    ? remote.ExecuteServerStream(command, tCommand, options).ReadAllAsync(options.CancellationToken)
+                    : throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
+        }
     }
 
-    /// <summary>
-    /// send the stream of <typeparamref name="TCommand" /> commands to the relevant remote server and get back a result of <typeparamref name="TResult" />
-    /// </summary>
-    /// <typeparam name="TCommand">the type of command in the stream</typeparam>
-    /// <typeparam name="TResult">the type of the result that will be returned when the stream ends</typeparam>
     /// <param name="commands">the stream to send</param>
-    /// <param name="ct">cancellation token</param>
-    /// <exception cref="InvalidOperationException">thrown if the relevant remote handler has not been registered</exception>
-    public static Task<TResult> RemoteExecuteAsync<TCommand, TResult>(this IAsyncEnumerable<TCommand> commands, CancellationToken ct)
-        where TCommand : class
-        where TResult : class
-        => RemoteExecuteAsync<TCommand, TResult>(commands, new CallOptions(cancellationToken: ct));
-
-    /// <summary>
-    /// send the stream of <typeparamref name="TCommand" /> commands to the relevant remote server and get back a result of <typeparamref name="TResult" />
-    /// </summary>
     /// <typeparam name="TCommand">the type of command in the stream</typeparam>
-    /// <typeparam name="TResult">the type of the result that will be returned when the stream ends</typeparam>
-    /// <param name="commands">the stream to send</param>
-    /// <param name="options">call options</param>
-    /// <exception cref="InvalidOperationException">thrown if the relevant remote handler has not been registered</exception>
-    public static Task<TResult> RemoteExecuteAsync<TCommand, TResult>(this IAsyncEnumerable<TCommand> commands, CallOptions options = default)
-        where TCommand : class
-        where TResult : class
+    extension<TCommand>(IAsyncEnumerable<TCommand> commands) where TCommand : class
     {
-        var tCommand = typeof(IAsyncEnumerable<TCommand>);
+        /// <summary>
+        /// send the stream of <typeparamref name="TCommand" /> commands to the relevant remote server and get back a result of <typeparamref name="TResult" />
+        /// </summary>
+        /// <typeparam name="TResult">the type of the result that will be returned when the stream ends</typeparam>
+        /// <param name="ct">cancellation token</param>
+        /// <exception cref="InvalidOperationException">thrown if the relevant remote handler has not been registered</exception>
+        public Task<TResult> RemoteExecuteAsync<TResult>(CancellationToken ct) where TResult : class
+            => RemoteExecuteAsync<TCommand, TResult>(commands, new CallOptions(cancellationToken: ct));
 
-        return
-            RemoteConnectionCore.RemoteMap.TryGetValue(tCommand, out var remote)
-                ? remote.ExecuteClientStream<TCommand, TResult>(commands, tCommand, options)
-                : throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
+        /// <summary>
+        /// send the stream of <typeparamref name="TCommand" /> commands to the relevant remote server and get back a result of <typeparamref name="TResult" />
+        /// </summary>
+        /// <typeparam name="TResult">the type of the result that will be returned when the stream ends</typeparam>
+        /// <param name="options">call options</param>
+        /// <exception cref="InvalidOperationException">thrown if the relevant remote handler has not been registered</exception>
+        public Task<TResult> RemoteExecuteAsync<TResult>(CallOptions options = default) where TResult : class
+        {
+            var tCommand = typeof(IAsyncEnumerable<TCommand>);
+
+            return
+                RemoteConnectionCore.RemoteMap.TryGetValue(tCommand, out var remote)
+                    ? remote.ExecuteClientStream<TCommand, TResult>(commands, tCommand, options)
+                    : throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
+        }
     }
 }

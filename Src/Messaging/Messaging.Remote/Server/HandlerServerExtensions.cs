@@ -49,32 +49,33 @@ public static class HandlerServerExtensions
             => opts.IgnoreUnknownServices = true;
     }
 
-    /// <summary>
-    /// specify which handlers/event hubs this server will be hosting. the in-memory storage provider will be used.
-    /// </summary>
     /// <param name="b"></param>
-    /// <param name="h">handler options</param>
-    public static IEndpointRouteBuilder MapHandlers(this IEndpointRouteBuilder b, Action<HandlerOptions<InMemoryEventStorageRecord, InMemoryEventHubStorage>> h)
+    extension(IEndpointRouteBuilder b)
     {
-        h(new(b));
+        /// <summary>
+        /// specify which handlers/event hubs this server will be hosting. the in-memory storage provider will be used.
+        /// </summary>
+        /// <param name="h">handler options</param>
+        public IEndpointRouteBuilder MapHandlers(Action<HandlerOptions<InMemoryEventStorageRecord, InMemoryEventHubStorage>> h)
+        {
+            h(new(b));
 
-        return b;
-    }
+            return b;
+        }
 
-    /// <summary>
-    /// specify which handlers/event hubs this server will be hosting together with a custom storage provider
-    /// </summary>
-    /// <typeparam name="TStorageRecord">the type of the event storage record</typeparam>
-    /// <typeparam name="TStorageProvider">the type of the event storage provider</typeparam>
-    /// <param name="b"></param>
-    /// <param name="h">handler options</param>
-    public static IEndpointRouteBuilder MapHandlers<TStorageRecord, TStorageProvider>(this IEndpointRouteBuilder b,
-                                                                                      Action<HandlerOptions<TStorageRecord, TStorageProvider>> h)
-        where TStorageRecord : class, IEventStorageRecord, new()
-        where TStorageProvider : class, IEventHubStorageProvider<TStorageRecord>
-    {
-        h(new(b));
+        /// <summary>
+        /// specify which handlers/event hubs this server will be hosting together with a custom storage provider
+        /// </summary>
+        /// <typeparam name="TStorageRecord">the type of the event storage record</typeparam>
+        /// <typeparam name="TStorageProvider">the type of the event storage provider</typeparam>
+        /// <param name="h">handler options</param>
+        public IEndpointRouteBuilder MapHandlers<TStorageRecord, TStorageProvider>(Action<HandlerOptions<TStorageRecord, TStorageProvider>> h)
+            where TStorageRecord : class, IEventStorageRecord, new()
+            where TStorageProvider : class, IEventHubStorageProvider<TStorageRecord>
+        {
+            h(new(b));
 
-        return b;
+            return b;
+        }
     }
 }

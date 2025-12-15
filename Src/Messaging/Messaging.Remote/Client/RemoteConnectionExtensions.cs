@@ -47,28 +47,30 @@ public static class RemoteConnectionExtensions
         return services;
     }
 
-    /// <summary>
-    /// publish the event to the relevant remote server that's running in <see cref="HubMode.EventBroker" /> mode.
-    /// </summary>
-    /// <param name="event"></param>
-    /// <param name="ct">cancellation token</param>
-    /// <exception cref="InvalidOperationException">thrown if the relevant remote handler has not been registered</exception>
-    public static Task RemotePublishAsync(this IEvent @event, CancellationToken ct)
-        => RemotePublishAsync(@event, new CallOptions(cancellationToken: ct));
-
-    /// <summary>
-    /// publish the event to the relevant remote server that's running in <see cref="HubMode.EventBroker" /> mode.
-    /// </summary>
-    /// <param name="event"></param>
-    /// <param name="options">call options</param>
-    /// <exception cref="InvalidOperationException">thrown if the relevant remote handler has not been registered</exception>
-    public static Task RemotePublishAsync(this IEvent @event, CallOptions options = default)
+    /// <param name="evnt"></param>
+    extension(IEvent evnt)
     {
-        var tEvent = @event.GetType();
+        /// <summary>
+        /// publish the event to the relevant remote server that's running in <see cref="HubMode.EventBroker" /> mode.
+        /// </summary>
+        /// <param name="ct">cancellation token</param>
+        /// <exception cref="InvalidOperationException">thrown if the relevant remote handler has not been registered</exception>
+        public Task RemotePublishAsync(CancellationToken ct)
+            => RemotePublishAsync(evnt, new CallOptions(cancellationToken: ct));
 
-        return
-            RemoteConnectionCore.RemoteMap.TryGetValue(tEvent, out var remote)
-                ? ((RemoteConnection)remote).PublishEvent(@event, tEvent, options)
-                : throw new InvalidOperationException($"No remote broker has been mapped for the event: [{tEvent.FullName}]");
+        /// <summary>
+        /// publish the event to the relevant remote server that's running in <see cref="HubMode.EventBroker" /> mode.
+        /// </summary>
+        /// <param name="options">call options</param>
+        /// <exception cref="InvalidOperationException">thrown if the relevant remote handler has not been registered</exception>
+        public Task RemotePublishAsync(CallOptions options = default)
+        {
+            var tEvent = evnt.GetType();
+
+            return
+                RemoteConnectionCore.RemoteMap.TryGetValue(tEvent, out var remote)
+                    ? ((RemoteConnection)remote).PublishEvent(evnt, tEvent, options)
+                    : throw new InvalidOperationException($"No remote broker has been mapped for the event: [{tEvent.FullName}]");
+        }
     }
 }

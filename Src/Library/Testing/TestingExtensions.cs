@@ -52,16 +52,34 @@ public static class TestingExtensions
         /// </summary>
         public IServiceCollection RegisterTestEventReceivers()
             => s.AddSingleton(typeof(IEventReceiver<>), typeof(EventReceiver<>));
+
+        /// <summary>
+        /// registers test command receivers for the purpose of testing receipt of commands.
+        /// </summary>
+        public IServiceCollection RegisterTestCommandReceivers()
+            => s.AddSingleton(typeof(ICommandReceiver<>), typeof(CommandReceiver<>));
     }
 
-    /// <summary>
-    /// gets a test event receiver for a given event type.
-    /// </summary>
-    /// <typeparam name="TEvent">the type of the event</typeparam>
-    /// <exception cref="InvalidOperationException">thrown when test event receivers are not registered</exception>
-    public static IEventReceiver<TEvent> GetTestEventReceiver<TEvent>(this IServiceProvider provider) where TEvent : IEvent
-        => provider.GetService(typeof(IEventReceiver<TEvent>)) as IEventReceiver<TEvent> ??
-           throw new InvalidOperationException("Test event receivers are not registered!");
+    extension(IServiceProvider provider)
+    {
+        /// <summary>
+        /// gets a test event receiver for a given event type.
+        /// </summary>
+        /// <typeparam name="TEvent">the type of the event</typeparam>
+        /// <exception cref="InvalidOperationException">thrown when test event receivers are not registered</exception>
+        public IEventReceiver<TEvent> GetTestEventReceiver<TEvent>() where TEvent : IEvent
+            => provider.GetService(typeof(IEventReceiver<TEvent>)) as IEventReceiver<TEvent> ??
+               throw new InvalidOperationException("Test event receivers are not registered!");
+
+        /// <summary>
+        /// gets a test command receiver for a given command type.
+        /// </summary>
+        /// <typeparam name="TCommand">the type of the command</typeparam>
+        /// <exception cref="InvalidOperationException">thrown when test command receivers are not registered</exception>
+        public ICommandReceiver<TCommand> GetTestCommandReceiver<TCommand>() where TCommand : ICommandBase
+            => provider.GetService(typeof(ICommandReceiver<TCommand>)) as ICommandReceiver<TCommand> ??
+               throw new InvalidOperationException("Test command receivers are not registered!");
+    }
 }
 
 sealed class TestCommandHandlerMarker;

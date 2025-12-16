@@ -3,7 +3,7 @@ using Grpc.Core;
 
 namespace FastEndpoints;
 
-sealed class UnaryHandlerExecutor<TCommand, THandler, TResult>
+sealed class UnaryHandlerExecutor<TCommand, THandler, TResult>(ICommandReceiver<TCommand>? testCommandReceiver = null)
     : BaseHandlerExecutor<TCommand, THandler, TResult, UnaryHandlerExecutor<TCommand, THandler, TResult>>
     where TCommand : class, ICommand<TResult>
     where THandler : class, ICommandHandler<TCommand, TResult>
@@ -19,6 +19,8 @@ sealed class UnaryHandlerExecutor<TCommand, THandler, TResult>
 
     protected override Task<TResult> ExecuteUnary(UnaryHandlerExecutor<TCommand, THandler, TResult> _, TCommand cmd, ServerCallContext ctx)
     {
+        testCommandReceiver?.AddCommand(cmd);
+
         var handler = (THandler)HandlerFactory(ctx.GetHttpContext().RequestServices, null);
 
         // ReSharper disable once SuspiciousTypeConversion.Global

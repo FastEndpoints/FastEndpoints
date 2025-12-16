@@ -3,7 +3,7 @@ using Grpc.Core;
 
 namespace FastEndpoints;
 
-sealed class VoidHandlerExecutor<TCommand, THandler>
+sealed class VoidHandlerExecutor<TCommand, THandler>(ICommandReceiver<TCommand>? testCommandReceiver = null)
     : BaseHandlerExecutor<TCommand, THandler, EmptyObject, VoidHandlerExecutor<TCommand, THandler>>
     where TCommand : class, ICommand
     where THandler : class, ICommandHandler<TCommand>
@@ -18,6 +18,8 @@ sealed class VoidHandlerExecutor<TCommand, THandler>
 
     protected override async Task<EmptyObject> ExecuteUnary(VoidHandlerExecutor<TCommand, THandler> _, TCommand cmd, ServerCallContext ctx)
     {
+        testCommandReceiver?.AddCommand(cmd);
+
         var handler = (THandler)HandlerFactory(ctx.GetHttpContext().RequestServices, null);
         await handler.ExecuteAsync(cmd, ctx.CancellationToken);
 

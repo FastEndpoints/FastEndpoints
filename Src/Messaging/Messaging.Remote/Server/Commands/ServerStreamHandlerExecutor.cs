@@ -5,7 +5,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace FastEndpoints;
 
-sealed class ServerStreamHandlerExecutor<TCommand, THandler, TResult>
+sealed class ServerStreamHandlerExecutor<TCommand, THandler, TResult>(ICommandReceiver<TCommand>? testCommandReceiver = null)
     : BaseHandlerExecutor<TCommand, THandler, TResult, ServerStreamHandlerExecutor<TCommand, THandler, TResult>>
     where TCommand : class, IServerStreamCommand<TResult>
     where THandler : class, IServerStreamCommandHandler<TCommand, TResult>
@@ -24,6 +24,8 @@ sealed class ServerStreamHandlerExecutor<TCommand, THandler, TResult>
                                                       IServerStreamWriter<TResult> responseStream,
                                                       ServerCallContext ctx)
     {
+        testCommandReceiver?.AddCommand(cmd);
+
         var svcProvider = ctx.GetHttpContext().RequestServices;
         var appCancellation = svcProvider.GetRequiredService<IHostApplicationLifetime>().ApplicationStopping;
         var cts = CancellationTokenSource.CreateLinkedTokenSource(ctx.CancellationToken, appCancellation);

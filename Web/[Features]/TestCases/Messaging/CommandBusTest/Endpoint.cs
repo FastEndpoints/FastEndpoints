@@ -10,7 +10,8 @@ public class Endpoint : EndpointWithoutRequest<string>
 
     public override async Task<string> ExecuteAsync(CancellationToken ct)
     {
-        await new VoidCommand() { FirstName = "x", LastName = "y" }.ExecuteAsync(ct);
-        return await new SomeCommand() { FirstName = "x", LastName = "y" }.ExecuteAsync(ct);
+        await new VoidCommand { FirstName = "x", LastName = "y" }.ExecuteAsync(ct);
+
+        return await new SomeCommand { FirstName = "x", LastName = "y" }.ExecuteAsync(ct);
     }
 }

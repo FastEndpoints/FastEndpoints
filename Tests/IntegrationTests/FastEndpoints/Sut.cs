@@ -50,6 +50,7 @@ public class Sut : AppFixture<Web.Program>
         s.RegisterTestEventHandler<TestEventBus, AnotherFakeEventHandler>();
         s.AddScoped<IEmailService, MockEmailService>();
         s.RegisterTestEventReceivers();
+        s.RegisterTestCommandReceivers();
     }
 
     protected override ValueTask TearDownAsync()

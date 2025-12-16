@@ -5,6 +5,23 @@ namespace Messaging;
 public class CommandBusTests(Sut App) : TestBase<Sut>
 {
     [Fact]
+    public async Task Test_Command_Receiver_Receives_Executed_Command()
+    {
+        var name = Guid.NewGuid().ToString();
+
+        var rsp = await App.GuestClient.GETAsync<ReceiverEndpoint, ReceiverRequest>(
+                      new()
+                      {
+                          Name = name
+                      });
+        rsp.IsSuccessStatusCode.ShouldBeTrue();
+
+        var receiver = App.Services.GetTestCommandReceiver<VoidCommand>();
+        var received = await receiver.WaitForMatchAsync(v => v.FirstName == name && v.LastName == name);
+        received.ShouldContain(v => v.FirstName == name);
+    }
+
+    [Fact]
     public async Task Generic_Command_With_Result()
     {
         var (rsp, res) = await App.GuestClient.GETAsync<TestCases.CommandHandlerTest.GenericCmdEndpoint, IEnumerable<Guid>>();

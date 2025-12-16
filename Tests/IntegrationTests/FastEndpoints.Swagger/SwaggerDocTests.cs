@@ -59,7 +59,7 @@ public class SwaggerDocTests(Fixture App) : TestBase<Fixture>
     // ReSharper disable once UnusedMember.Local
     static async Task UpdateSnapshotIfEnabled(string jsonFileName, string jsonContent)
     {
-        if (_updateSnapshots is false)
+        if (!_updateSnapshots)
             return;
 
         var destination = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", jsonFileName));

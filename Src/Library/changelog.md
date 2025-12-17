@@ -58,7 +58,7 @@ public async Task Endpoint_Returns_Ok_Response()
 
 <details><summary>'FastEndpoints.HealthChecks' package</summary>
 
-An opt-in library that eliminates boilerplate health check wiring for apps running behind orchestrators such as Kubernetes/.NET Aspire. You can now use the following convenient extensions:
+An opt-in library that eliminates boilerplate health check wiring for apps running behind orchestrators such as Kubernetes/.NET Aspire. You can now use the following convenient extension method and it's overloads:
 
 ```csharp
 // Defaults: 
@@ -84,6 +84,14 @@ builder.Services.AddServiceHealthChecks(
 ```
 
 Liveness returns 200 if process is alive (no dependency checks). Readiness runs all registered health checks and returns aggregate status with optional JSON response.
+
+</details>
+
+<details><summary>Test/verify command executions in endpoints without mocks/fakes</summary>
+
+In a similar fashion to the previously released [Test Event Receivers](https://gist.github.com/dj-nitehawk/ae85c63fefb1e8163fdd37ca6dcb7bfd) feature, you can now use [Test Command Receivers](https://gist.github.com/dj-nitehawk/abf3fd08bae544ee3bcafb5c5f487c4a) to verify that a certain command execution was initiated by an endpoint or service without having to register fake command handlers.
+
+Typically, you'd unit test the command/handlers in isolation to verify the business logic in those handlers and use the "Test Event/Command Receivers" to validate that certain entrypoints in your application actually do trigger/issue particular commands and events.
 
 </details>
 

@@ -35,6 +35,7 @@
   <Project Path="Src/ClientGen/FastEndpoints.ClientGen.csproj" />
   <Project Path="Src/Core/FastEndpoints.Core.csproj" />
   <Project Path="Src/Generator/FastEndpoints.Generator.csproj" />
+  <Project Path="Src/HealthChecks/FastEndpoints.HealthChecks.csproj" />
   <Project Path="Src/JobQueues/FastEndpoints.JobQueues.csproj" />
   <Project Path="Src/Library/FastEndpoints.csproj" />
   <Project Path="Src/Messaging/Messaging.Core/FastEndpoints.Messaging.Core.csproj" />

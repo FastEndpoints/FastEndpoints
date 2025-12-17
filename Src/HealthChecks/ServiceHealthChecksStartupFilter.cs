@@ -10,6 +10,12 @@ namespace FastEndpoints;
 
 sealed class ServiceHealthChecksStartupFilter : IStartupFilter
 {
+    static readonly JsonSerializerOptions SerializerOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+        WriteIndented = false
+    };
+
     readonly ServiceHealthChecksOptions _opts;
 
     public ServiceHealthChecksStartupFilter(IOptions<ServiceHealthChecksOptions> opts)
@@ -62,6 +68,6 @@ sealed class ServiceHealthChecksStartupFilter : IStartupFilter
                 })
         };
 
-        return ctx.Response.WriteAsync(JsonSerializer.Serialize(payload));
+        return ctx.Response.WriteAsync(JsonSerializer.Serialize(payload, SerializerOptions));
     }
 }

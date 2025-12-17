@@ -56,6 +56,37 @@ public async Task Endpoint_Returns_Ok_Response()
 
 </details>
 
+<details><summary>'FastEndpoints.HealthChecks' package</summary>
+
+An opt-in library that eliminates boilerplate health check wiring for apps running behind orchestrators such as Kubernetes/.NET Aspire. You can now use the following convenient extensions:
+
+```csharp
+// Defaults: 
+// - /health/live (liveness)
+// - /health/ready (readiness)
+builder.Services.AddServiceHealthChecks();
+
+// Custom paths
+builder.Services.AddServiceHealthChecks(
+    configureOptions: opts =>
+    {
+        opts.LivePath = "/alive";
+        opts.ReadyPath = "/ready";
+    });
+
+// Add custom health checks
+builder.Services.AddServiceHealthChecks(
+    configureChecks: hc =>
+    {
+        hc.AddNpgSql(connectionString, name: "postgres");
+        hc.AddRedis("localhost:6379", name: "redis");
+    });
+```
+
+Liveness returns 200 if process is alive (no dependency checks). Readiness runs all registered health checks and returns aggregate status with optional JSON response.
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Strong-Name-Signed Assemblies</summary>

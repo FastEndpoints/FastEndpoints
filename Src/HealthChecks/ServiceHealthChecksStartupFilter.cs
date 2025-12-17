@@ -3,51 +3,44 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Json;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 
 namespace FastEndpoints;
 
-sealed class ServiceHealthChecksStartupFilter : IStartupFilter
+sealed class ServiceHealthChecksStartupFilter(IOptions<ServiceHealthChecksOptions> opts) : IStartupFilter
 {
-    static readonly JsonSerializerOptions SerializerOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        WriteIndented = false
-    };
-
-    readonly ServiceHealthChecksOptions _opts;
-
-    public ServiceHealthChecksStartupFilter(IOptions<ServiceHealthChecksOptions> opts)
-        => _opts = opts.Value;
+    readonly ServiceHealthChecksOptions _opts = opts.Value;
 
     public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next)
-    {
-        return app =>
-        {
-            if (_opts.EnableLive)
-            {
-                // Liveness: no dependency checks - if the process is alive, return 200 OK
-                var liveOptions = new HealthCheckOptions { Predicate = _ => false };
-                if (_opts.UseJsonResponse)
-                    liveOptions.ResponseWriter = WriteJson;
+        => app =>
+           {
+               if (_opts.EnableLive)
+               {
+                   // Liveness: no dependency checks - if the process is alive, return 200 OK
+                   var liveOptions = new HealthCheckOptions { Predicate = _ => false };
+                   if (_opts.UseJsonResponse)
+                       liveOptions.ResponseWriter = WriteJson;
 
-                app.UseHealthChecks(_opts.LivePath, liveOptions);
-            }
+                   app.UseHealthChecks(_opts.LivePath, liveOptions);
+               }
 
-            if (_opts.EnableReady)
-            {
-                // Readiness: run all registered health checks
-                var readyOptions = new HealthCheckOptions { Predicate = _ => true };
-                if (_opts.UseJsonResponse)
-                    readyOptions.ResponseWriter = WriteJson;
+               if (_opts.EnableReady)
+               {
+                   // Readiness: run all registered health checks
+                   var readyOptions = new HealthCheckOptions { Predicate = _ => true };
+                   if (_opts.UseJsonResponse)
+                       readyOptions.ResponseWriter = WriteJson;
 
-                app.UseHealthChecks(_opts.ReadyPath, readyOptions);
-            }
+                   app.UseHealthChecks(_opts.ReadyPath, readyOptions);
+               }
 
-            next(app);
-        };
-    }
+               next(app);
+           };
+
+    static readonly JsonSerializerOptions _defaultSerializerOpts = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
     static Task WriteJson(HttpContext ctx, HealthReport report)
     {
@@ -68,6 +61,9 @@ sealed class ServiceHealthChecksStartupFilter : IStartupFilter
                 })
         };
 
-        return ctx.Response.WriteAsync(JsonSerializer.Serialize(payload, SerializerOptions));
+        return ctx.Response.WriteAsync(
+            JsonSerializer.Serialize(
+                payload,
+                ctx.RequestServices.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions ?? _defaultSerializerOpts));
     }
 }

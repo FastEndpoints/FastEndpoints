@@ -42,6 +42,72 @@ public class HttpClientExtensionsTests
         // Assert
         mockHttp.VerifyNoOutstandingExpectation();
     }
+
+    [Fact]
+    public void GetTestUrlForGeneratesUrlWithoutNullQueryParam()
+    {
+        // Arrange
+        MockHttpMessageHandler mockHttp = new();
+        mockHttp.When(HttpMethod.Get, "http://localhost/_test_url_cache_")
+                .Respond("application/json", "[]");
+        var http = mockHttp.ToHttpClient();
+        http.BaseAddress = new("http://localhost");
+
+        const string route = "/api/test/{id}/{guid:guid}/{stringBindFrom}/{fromClaim}/{fromHeader}/{hasPermission}/{NullableString?}";
+        IEndpoint.SetTestUrl(typeof(Endpoint), route);
+
+        var req = new Request
+        {
+            Id = 1,
+            Guid = Guid.Empty,
+            String = "stringValue",
+            NullableString = null,
+            FromQuery = null,
+            FromClaim = "fromClaim",
+            FromHeader = "fromHeader",
+            FromCookie = "fromCookie",
+            HasPermission = true
+        };
+
+        // Act
+        var testUrl = HttpClientExtensions.GetTestUrlFor<Endpoint, Request>(req, http);
+
+        // Assert
+        testUrl.ShouldBe("api/test/1/00000000-0000-0000-0000-000000000000/stringValue/{fromClaim}/{fromHeader}/{hasPermission}");
+    }
+
+    [Fact]
+    public void GetTestUrlForGeneratesUrlWithQueryParam()
+    {
+        // Arrange
+        MockHttpMessageHandler mockHttp = new();
+        mockHttp.When(HttpMethod.Get, "http://localhost/_test_url_cache_")
+                .Respond("application/json", "[]");
+        var http = mockHttp.ToHttpClient();
+        http.BaseAddress = new("http://localhost");
+
+        const string route = "/api/test/{id}/{guid:guid}/{stringBindFrom}/{fromClaim}/{fromHeader}/{hasPermission}/{NullableString?}";
+        IEndpoint.SetTestUrl(typeof(Endpoint), route);
+
+        var req = new Request
+        {
+            Id = 1,
+            Guid = Guid.Empty,
+            String = "stringValue",
+            NullableString = null,
+            FromQuery = "fromQuery",
+            FromClaim = "fromClaim",
+            FromHeader = "fromHeader",
+            FromCookie = "fromCookie",
+            HasPermission = true
+        };
+
+        // Act
+        var testUrl = HttpClientExtensions.GetTestUrlFor<Endpoint, Request>(req, http);
+
+        // Assert
+        testUrl.ShouldBe("api/test/1/00000000-0000-0000-0000-000000000000/stringValue/{fromClaim}/{fromHeader}/{hasPermission}?FromQuery=fromQuery");
+    }
 }
 
 file class Endpoint : Endpoint<Request, Response>;
@@ -55,6 +121,9 @@ file class Request
     public string String { get; set; } = null!;
 
     public string? NullableString { get; set; }
+
+    [FromQuery]
+    public string? FromQuery { get; set; }
 
     [FromClaim(Claim.UserType)]
     public string FromClaim { get; set; } = null!;

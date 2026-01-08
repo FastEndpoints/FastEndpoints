@@ -558,7 +558,7 @@ public static class HttpClientExtensions
 
     static readonly Dictionary<string, string> _testUrlCache = new();
 
-    static string GetTestUrlFor<TEndpoint, TRequest>(TRequest req, HttpClient client) where TRequest : notnull
+    internal static string GetTestUrlFor<TEndpoint, TRequest>(TRequest req, HttpClient client) where TRequest : notnull
     {
         var epTypeName = typeof(TEndpoint).FullName ?? throw new InvalidOperationException("Unable to determine endpoint type name!");
 
@@ -657,9 +657,20 @@ public static class HttpClientExtensions
             sb.Append('?');
 
             foreach (var qp in queryParamProps)
-                sb.Append(qp.Key).Append('=').Append(qp.Value.GetValueAsString(req)).Append('&');
+            {
+                var value = qp.Value.GetValueAsString(req);
 
-            sb.Length--; //remove the last '&'
+                if (value is not null)
+                {
+                    sb.Append(qp.Key).Append('=').Append(value).Append('&');
+                }
+            }
+
+            // remove the last '&', or '?' if no query parameters were added
+            if (sb.Length > 0 && sb[^1] is '&' or '?')
+            {
+                sb.Length--;
+            }
         }
 
         return sb.ToString();

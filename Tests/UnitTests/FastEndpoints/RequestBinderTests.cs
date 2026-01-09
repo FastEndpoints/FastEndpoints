@@ -28,6 +28,19 @@ public class RequestBinderTests
     }
 
     [Fact]
+    public async Task CanBindClassDto_WithDefaultStructParameter() {
+        var hCtx = new DefaultHttpContext();
+        var binder = new RequestBinder<RequestClassWithDefaultStructParameter>();
+        var ctx = new BinderContext(hCtx, [], null, false, ((IRequestBinder<RequestClassWithDefaultStructParameter>)binder).RequiredProps);
+
+        var res = await binder.BindAsync(ctx, default);
+
+        // Should be a zeroed struct - not a default constructor call
+        res.SomeStruct.Value.ShouldBe(0);
+        res.SomeStruct.ConstructorCalled.ShouldBe(false);
+    }
+
+    [Fact]
     public async Task MissingInputThrowsFailure()
     {
         var hCtx = new DefaultHttpContext();
@@ -50,4 +63,26 @@ public class RequestBinderTests
         [RouteParam(IsRequired = true), BindFrom("req_quired")]
         public bool Required { get; set; }
     }
+
+    // ReSharper disable once ClassNeverInstantiated.Local
+    sealed class RequestClassWithDefaultStructParameter(SomeStruct someOptionalStruct = default) {
+
+        // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
+        public SomeStruct SomeStruct { get; set; } = someOptionalStruct;
+
+    }
+
+    struct SomeStruct {
+
+        public int Value;
+        public bool ConstructorCalled;
+
+        // ReSharper disable once UnusedMember.Local
+        public SomeStruct(int value) {
+            Value = value;
+            ConstructorCalled = true;
+        }
+
+    }
+
 }

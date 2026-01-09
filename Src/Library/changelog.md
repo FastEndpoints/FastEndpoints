@@ -143,4 +143,26 @@ sealed class MyEndpoint : EndpointWithoutRequest
 
 </details>
 
+<details><summary>Routeless test helpers and optional query params issue</summary>
+
+Given a request DTO class such as:
+
+```csharp
+public class MyRequest 
+{
+    [RouteParam]
+    public string? Something
+}
+```
+
+When you don't supply a value for `Something` during testing with the routeless test helpers such as `.GETAsync<>()`, and empty query parameter would be appended to the request URL like so:
+
+```csharp
+/my/endpoint?Something=
+```
+
+While this isn't inherently wrong, the common behavior in most REST clients, is to not send in a query parameter at all for when the value is empty. The test helpers will also follow suit from now on.
+
+</details>
+
 ## Breaking Changes ⚠️

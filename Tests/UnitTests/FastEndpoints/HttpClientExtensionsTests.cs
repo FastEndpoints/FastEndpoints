@@ -22,11 +22,12 @@ public class HttpClientExtensionsTests
         var http = mockHttp.ToHttpClient();
         http.BaseAddress = new("http://localhost");
 
-        const string route = "/api/test/{id}/{guid:guid}/{stringBindFrom}/{fromClaim}/{fromHeader}/{hasPermission}/{NullableString?}";
-        IEndpoint.SetTestUrl(typeof(Endpoint), route);
+        IEndpoint.SetTestUrl(
+            typeof(HydratedRouteArgsEndpoint),
+            "/api/test/{id}/{guid:guid}/{stringBindFrom}/{fromClaim}/{fromHeader}/{hasPermission}/{NullableString?}");
 
         // Act
-        await http.GETAsync<Endpoint, Request, Response>(
+        await http.GETAsync<HydratedRouteArgsEndpoint, Request>(
             new()
             {
                 Id = 1,
@@ -43,37 +44,28 @@ public class HttpClientExtensionsTests
         mockHttp.VerifyNoOutstandingExpectation();
     }
 
+    const string NullParamRoute = "null/param/test";
+
     [Fact]
     public void GetTestUrlForGeneratesUrlWithoutNullQueryParam()
     {
         // Arrange
         MockHttpMessageHandler mockHttp = new();
-        mockHttp.When(HttpMethod.Get, "http://localhost/_test_url_cache_")
-                .Respond("application/json", "[]");
         var http = mockHttp.ToHttpClient();
         http.BaseAddress = new("http://localhost");
 
-        const string route = "/api/test/{id}/{guid:guid}/{stringBindFrom}/{fromClaim}/{fromHeader}/{hasPermission}/{NullableString?}";
-        IEndpoint.SetTestUrl(typeof(Endpoint), route);
+        IEndpoint.SetTestUrl(typeof(NullQueryParamEndpoint), NullParamRoute);
 
-        var req = new Request
+        var req = new NullParamRequest
         {
-            Id = 1,
-            Guid = Guid.Empty,
-            String = "stringValue",
-            NullableString = null,
-            FromQuery = null,
-            FromClaim = "fromClaim",
-            FromHeader = "fromHeader",
-            FromCookie = "fromCookie",
-            HasPermission = true
+            QueryParam = null
         };
 
         // Act
-        var testUrl = HttpClientExtensions.GetTestUrlFor<Endpoint, Request>(req, http);
+        var testUrl = HttpClientExtensions.GetTestUrlFor<NullQueryParamEndpoint, NullParamRequest>(req, http);
 
         // Assert
-        testUrl.ShouldBe("api/test/1/00000000-0000-0000-0000-000000000000/stringValue/{fromClaim}/{fromHeader}/{hasPermission}");
+        testUrl.ShouldBe(NullParamRoute);
     }
 
     [Fact]
@@ -81,36 +73,25 @@ public class HttpClientExtensionsTests
     {
         // Arrange
         MockHttpMessageHandler mockHttp = new();
-        mockHttp.When(HttpMethod.Get, "http://localhost/_test_url_cache_")
-                .Respond("application/json", "[]");
         var http = mockHttp.ToHttpClient();
         http.BaseAddress = new("http://localhost");
 
-        const string route = "/api/test/{id}/{guid:guid}/{stringBindFrom}/{fromClaim}/{fromHeader}/{hasPermission}/{NullableString?}";
-        IEndpoint.SetTestUrl(typeof(Endpoint), route);
+        IEndpoint.SetTestUrl(typeof(NullQueryParamEndpoint), NullParamRoute);
 
-        var req = new Request
+        var req = new NullParamRequest
         {
-            Id = 1,
-            Guid = Guid.Empty,
-            String = "stringValue",
-            NullableString = null,
-            FromQuery = "fromQuery",
-            FromClaim = "fromClaim",
-            FromHeader = "fromHeader",
-            FromCookie = "fromCookie",
-            HasPermission = true
+            QueryParam = NullParamRequest.Guid
         };
 
         // Act
-        var testUrl = HttpClientExtensions.GetTestUrlFor<Endpoint, Request>(req, http);
+        var testUrl = HttpClientExtensions.GetTestUrlFor<NullQueryParamEndpoint, NullParamRequest>(req, http);
 
         // Assert
-        testUrl.ShouldBe("api/test/1/00000000-0000-0000-0000-000000000000/stringValue/{fromClaim}/{fromHeader}/{hasPermission}?FromQuery=fromQuery");
+        testUrl.ShouldBe($"{NullParamRoute}?{nameof(NullParamRequest.QueryParam)}={NullParamRequest.Guid}");
     }
 }
 
-file class Endpoint : Endpoint<Request, Response>;
+file class HydratedRouteArgsEndpoint : Endpoint<Request>;
 
 file class Request
 {
@@ -122,7 +103,6 @@ file class Request
 
     public string? NullableString { get; set; }
 
-    [FromQuery]
     public string? FromQuery { get; set; }
 
     [FromClaim(Claim.UserType)]
@@ -138,4 +118,12 @@ file class Request
     public bool? HasPermission { get; set; }
 }
 
-file class Response { }
+file class NullQueryParamEndpoint : Endpoint<NullParamRequest>;
+
+file class NullParamRequest
+{
+    public static Guid Guid { get; } = Guid.NewGuid();
+
+    [QueryParam]
+    public Guid? QueryParam { get; set; }
+}

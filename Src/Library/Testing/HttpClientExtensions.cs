@@ -65,8 +65,7 @@ public static class HttpClientExtensions
                                                                                      bool populateHeaders = true,
                                                                                      bool populateCookies = true)
             where TEndpoint : IEndpoint where TRequest : notnull
-            => POSTAsync<TRequest, TResponse>(
-                client,
+            => client.POSTAsync<TRequest, TResponse>(
                 GetTestUrlFor<TEndpoint, TRequest>(request, client),
                 request,
                 sendAsFormData,
@@ -94,7 +93,7 @@ public static class HttpClientExtensions
                                                                               bool populateCookies = true)
             where TEndpoint : IEndpoint where TRequest : notnull
         {
-            var (rsp, _) = await POSTAsync<TEndpoint, TRequest, EmptyResponse>(client, request, sendAsFormData, populateHeaders, populateCookies);
+            var (rsp, _) = await client.POSTAsync<TEndpoint, TRequest, EmptyResponse>(request, sendAsFormData, populateHeaders, populateCookies);
 
             return rsp;
         }
@@ -106,7 +105,7 @@ public static class HttpClientExtensions
         /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
         /// <typeparam name="TResponse">the type of the response dto</typeparam>
         public Task<TestResult<TResponse>> POSTAsync<TEndpoint, TResponse>() where TEndpoint : IEndpoint
-            => POSTAsync<TEndpoint, EmptyRequest, TResponse>(client, new());
+            => client.POSTAsync<TEndpoint, EmptyRequest, TResponse>(new());
 
         /// <summary>
         /// make a PATCH request using a request dto and get back a <see cref="TestResult{TResponse}" /> containing the <see cref="HttpResponseMessage" /> as
@@ -149,8 +148,7 @@ public static class HttpClientExtensions
                                                                                       bool populateHeaders = true,
                                                                                       bool populateCookies = true)
             where TEndpoint : IEndpoint where TRequest : notnull
-            => PATCHAsync<TRequest, TResponse>(
-                client,
+            => client.PATCHAsync<TRequest, TResponse>(
                 GetTestUrlFor<TEndpoint, TRequest>(request, client),
                 request,
                 sendAsFormData,
@@ -178,7 +176,7 @@ public static class HttpClientExtensions
                                                                                bool populateCookies = true)
             where TEndpoint : IEndpoint where TRequest : notnull
         {
-            var (rsp, _) = await PATCHAsync<TEndpoint, TRequest, EmptyResponse>(client, request, sendAsFormData, populateHeaders, populateCookies);
+            var (rsp, _) = await client.PATCHAsync<TEndpoint, TRequest, EmptyResponse>(request, sendAsFormData, populateHeaders, populateCookies);
 
             return rsp;
         }
@@ -190,7 +188,7 @@ public static class HttpClientExtensions
         /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
         /// <typeparam name="TResponse">the type of the response dto</typeparam>
         public Task<TestResult<TResponse>> PATCHAsync<TEndpoint, TResponse>() where TEndpoint : IEndpoint
-            => PATCHAsync<TEndpoint, EmptyRequest, TResponse>(client, new());
+            => client.PATCHAsync<TEndpoint, EmptyRequest, TResponse>(new());
 
         /// <summary>
         /// make a PUT request using a request dto and get back a <see cref="TestResult{TResponse}" /> containing the <see cref="HttpResponseMessage" /> as well
@@ -238,7 +236,7 @@ public static class HttpClientExtensions
                                                                                     bool populateHeaders = true,
                                                                                     bool populateCookies = true)
             where TEndpoint : IEndpoint where TRequest : notnull
-            => PUTAsync<TRequest, TResponse>(client, GetTestUrlFor<TEndpoint, TRequest>(request, client), request, sendAsFormData, populateHeaders, populateCookies);
+            => client.PUTAsync<TRequest, TResponse>(GetTestUrlFor<TEndpoint, TRequest>(request, client), request, sendAsFormData, populateHeaders, populateCookies);
 
         /// <summary>
         /// make a PUT request to an endpoint using auto route discovery using a request dto that does not send back a response dto.
@@ -261,7 +259,7 @@ public static class HttpClientExtensions
                                                                              bool populateCookies = true)
             where TEndpoint : IEndpoint where TRequest : notnull
         {
-            var (rsp, _) = await PUTAsync<TEndpoint, TRequest, EmptyResponse>(client, request, sendAsFormData, populateHeaders, populateCookies);
+            var (rsp, _) = await client.PUTAsync<TEndpoint, TRequest, EmptyResponse>(request, sendAsFormData, populateHeaders, populateCookies);
 
             return rsp;
         }
@@ -273,7 +271,7 @@ public static class HttpClientExtensions
         /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
         /// <typeparam name="TResponse">the type of the response dto</typeparam>
         public Task<TestResult<TResponse>> PUTAsync<TEndpoint, TResponse>() where TEndpoint : IEndpoint
-            => PUTAsync<TEndpoint, EmptyRequest, TResponse>(client, new());
+            => client.PUTAsync<TEndpoint, EmptyRequest, TResponse>(new());
 
         /// <summary>
         /// make a GET request using a request dto and get back a <see cref="TestResult{TResponse}" /> containing the <see cref="HttpResponseMessage" /> as well
@@ -317,7 +315,7 @@ public static class HttpClientExtensions
                                                                                     bool populateHeaders = true,
                                                                                     bool populateCookies = true)
             where TEndpoint : IEndpoint where TRequest : notnull
-            => GETAsync<TRequest, TResponse>(client, GetTestUrlFor<TEndpoint, TRequest>(request, client), request, populateHeaders, populateCookies);
+            => client.GETAsync<TRequest, TResponse>(GetTestUrlFor<TEndpoint, TRequest>(request, client), request, populateHeaders, populateCookies);
 
         /// <summary>
         /// make a GET request to an endpoint using auto route discovery using a request dto that does not send back a response dto.
@@ -338,7 +336,7 @@ public static class HttpClientExtensions
                                                                              bool populateCookies = true)
             where TEndpoint : IEndpoint where TRequest : notnull
         {
-            var (rsp, _) = await GETAsync<TEndpoint, TRequest, EmptyResponse>(client, request, populateHeaders, populateCookies);
+            var (rsp, _) = await client.GETAsync<TEndpoint, TRequest, EmptyResponse>(request, populateHeaders, populateCookies);
 
             return rsp;
         }
@@ -350,7 +348,7 @@ public static class HttpClientExtensions
         /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
         /// <typeparam name="TResponse">the type of the response dto</typeparam>
         public Task<TestResult<TResponse>> GETAsync<TEndpoint, TResponse>() where TEndpoint : IEndpoint
-            => GETAsync<TEndpoint, EmptyRequest, TResponse>(client, new());
+            => client.GETAsync<TEndpoint, EmptyRequest, TResponse>(new());
 
         /// <summary>
         /// make a DELETE request using a request dto and get back a <see cref="TestResult{TResponse}" /> containing the <see cref="HttpResponseMessage" /> as
@@ -394,7 +392,7 @@ public static class HttpClientExtensions
                                                                                        bool populateHeaders = true,
                                                                                        bool populateCookies = true)
             where TEndpoint : IEndpoint where TRequest : notnull
-            => DELETEAsync<TRequest, TResponse>(client, GetTestUrlFor<TEndpoint, TRequest>(request, client), request, populateHeaders, populateCookies);
+            => client.DELETEAsync<TRequest, TResponse>(GetTestUrlFor<TEndpoint, TRequest>(request, client), request, populateHeaders, populateCookies);
 
         /// <summary>
         /// make a DELETE request to an endpoint using auto route discovery using a request dto that does not send back a response dto.
@@ -415,7 +413,7 @@ public static class HttpClientExtensions
                                                                                 bool populateCookies = true)
             where TEndpoint : IEndpoint where TRequest : notnull
         {
-            var (rsp, _) = await DELETEAsync<TEndpoint, TRequest, EmptyResponse>(client, request, populateHeaders, populateCookies);
+            var (rsp, _) = await client.DELETEAsync<TEndpoint, TRequest, EmptyResponse>(request, populateHeaders, populateCookies);
 
             return rsp;
         }
@@ -427,7 +425,7 @@ public static class HttpClientExtensions
         /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
         /// <typeparam name="TResponse">the type of the response dto</typeparam>
         public Task<TestResult<TResponse>> DELETEAsync<TEndpoint, TResponse>() where TEndpoint : IEndpoint
-            => DELETEAsync<TEndpoint, EmptyRequest, TResponse>(client, new());
+            => client.DELETEAsync<TEndpoint, EmptyRequest, TResponse>(new());
 
         /// <summary>
         /// send a request DTO to a given endpoint URL and get back a <see cref="TestResult{TResponse}" /> containing the <see cref="HttpResponseMessage" /> as
@@ -564,7 +562,7 @@ public static class HttpClientExtensions
 
         if (!_testUrlCache.ContainsKey(epTypeName))
         {
-            var shouldGetViaHttp = false;
+            bool shouldGetViaHttp;
 
             try
             {
@@ -654,22 +652,21 @@ public static class HttpClientExtensions
 
         if (queryParamProps.Length > 0)
         {
-            sb.Append('?');
+            var hasAny = false;
 
             foreach (var qp in queryParamProps)
             {
                 var value = qp.Value.GetValueAsString(req);
 
-                if (value is not null)
-                {
-                    sb.Append(qp.Key).Append('=').Append(value).Append('&');
-                }
-            }
+                if (value is null)
+                    continue;
 
-            // remove the last '&', or '?' if no query parameters were added
-            if (sb.Length > 0 && sb[^1] is '&' or '?')
-            {
-                sb.Length--;
+                sb.Append(hasAny ? '&' : '?')
+                  .Append(qp.Key)
+                  .Append('=')
+                  .Append(value);
+
+                hasAny = true;
             }
         }
 
@@ -734,7 +731,7 @@ public static class HttpClientExtensions
         var isRecord = type.GetMethod("<Clone>$") is not null;
 
         //use overridden ToString() method except for records
-        if (toStringMethod is not null && toStringMethod.DeclaringType != Types.Object && isRecord is false)
+        if (toStringMethod is not null && toStringMethod.DeclaringType != Types.Object && !isRecord)
             return value.ToString();
 
         try

@@ -62,7 +62,7 @@ static class BinderExtensions
             for (var i = 0; i < args.Length; i++)
             {
                 argExpressions.Add(
-                    args[i].HasDefaultValue
+                    args[i].HasDefaultValue && args[i].DefaultValue is not null
                         ? Expression.Constant(args[i].DefaultValue, args[i].ParameterType)
                         : Expression.Default(args[i].ParameterType));
             }

@@ -165,4 +165,17 @@ While this isn't inherently wrong, the common behavior in most REST clients, is 
 
 </details>
 
+<details><summary>Request binder exception when request DTO ctor has a optional struct argument</summary>
+
+The default request binder was throwing an exception when a request DTO has an optional constructor argument that is a struct type like the following.
+
+```csharp
+sealed class MyRequest(SomeStruct someOptionalStruct = default)
+{
+  ...
+}
+```
+
+</details>
+
 ## Breaking Changes ⚠️

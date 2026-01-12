@@ -479,6 +479,24 @@ public static class HttpResponseExtensions
         }
 
         /// <summary>
+        /// send a 304 not modified response
+        /// </summary>
+        /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
+        public async Task<Void> SendNotModifiedAsync(CancellationToken cancellation = default)
+        {
+            rsp.HttpContext.MarkResponseStart();
+            rsp.StatusCode = 304;
+
+            EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
+            if (EpOpts.GlobalResponseModifierAsync is not null)
+                await EpOpts.GlobalResponseModifierAsync(rsp.HttpContext, null);
+
+            await rsp.StartAsync(cancellation.IfDefault(rsp));
+
+            return Void.Instance;
+        }
+
+        /// <summary>
         /// send a 404 not found response
         /// </summary>
         /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>

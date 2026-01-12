@@ -295,8 +295,8 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 // no new jobs are being queued. not doing this periodic check could result in future jobs only executing upon the arrival of new jobs,
                 // potentially leading to jobs being expired without being executed.
                 await (_isInUse is true
-                           ? Task.WhenAny(_sem.WaitAsync(_appCancellation), Task.Delay(_semWaitLimit))
-                           : _sem.WaitAsync(_appCancellation));
+                    ? _sem.WaitAsync(_semWaitLimit, _appCancellation)
+                    : _sem.WaitAsync(_appCancellation));
             }
             else
                 await Parallel.ForEachAsync(records, _parallelOptions, ExecuteCommand);

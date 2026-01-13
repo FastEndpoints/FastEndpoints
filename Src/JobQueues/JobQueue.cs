@@ -247,6 +247,8 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
 
             try
             {
+                // if _isInUse is null, we need to also retrieve future scheduled jobs in order to update _isInUse correctly.
+                var executeAfter = _isInUse is null ? (DateTime?)null : DateTime.UtcNow;
                 records = await _storage.GetNextBatchAsync(
                               new()
                               {
@@ -255,26 +257,14 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                                   CancellationToken = _appCancellation,
                                   Match = r => r.QueueID == QueueID &&
                                                r.IsComplete == false &&
-                                               r.ExecuteAfter <= DateTime.UtcNow &&
+                                               (executeAfter == null || r.ExecuteAfter <= executeAfter) &&
                                                r.ExpireOn >= DateTime.UtcNow
                               });
 
-                if (records.Any())
-                    _isInUse = true;
-                else if (_isInUse is null)
+                if (_isInUse is null)
                 {
-                    // hit storage once more at startup to check if there's any incomplete jobs (possibly scheduled for the future) and set _isInUse
-                    // ref: https://github.com/FastEndpoints/FastEndpoints/issues/1007
-                    _isInUse = (await _storage.GetNextBatchAsync(
-                                    new()
-                                    {
-                                        Limit = 1,
-                                        QueueID = QueueID,
-                                        CancellationToken = _appCancellation,
-                                        Match = r => r.QueueID == QueueID &&
-                                                     r.IsComplete == false &&
-                                                     r.ExpireOn >= DateTime.UtcNow
-                                    })).Any();
+                    _isInUse = records.Any();
+                    records = records.Where(r => r.ExecuteAfter <= DateTime.UtcNow);
                 }
             }
             catch (Exception x)

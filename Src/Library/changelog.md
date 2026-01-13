@@ -1,8 +1,13 @@
 ---
 
-## ❇️ Help Keep FastEndpoints Free & Open-Source ❇️
+## ⚠️ Sponsorship Level Critically Low ⚠️
 
-Due to the current [unfortunate state of FOSS](https://www.youtube.com/watch?v=H96Va36xbvo), please consider [becoming a sponsor](https://opencollective.com/fast-endpoints) and help us beat the odds to keep the project alive and free for everyone.
+Due to low financial backing by the community, FastEndpoints will soon be going into "Bugfix Only" mode until the situation improves. Please [join the discussion here](https://github.com/FastEndpoints/FastEndpoints/issues/1042) and help out if you can.
+
+[//]: # (## ❇️ Help Keep FastEndpoints Free & Open-Source ❇️)
+
+[//]: # ()
+[//]: # (Due to the current [unfortunate state of FOSS]&#40;https://www.youtube.com/watch?v=H96Va36xbvo&#41;, please consider [becoming a sponsor]&#40;https://opencollective.com/fast-endpoints&#41; and help us beat the odds to keep the project alive and free for everyone.)
 
 ---
 
@@ -178,4 +183,4 @@ sealed class MyRequest(SomeStruct someOptionalStruct = default)
 
 </details>
 
-## Breaking Changes ⚠️
+[//]: # (## Breaking Changes ⚠️)

@@ -285,8 +285,28 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 continue;
             }
 
-            if (!records.Any())
+            var recordsCount = records.Count();
+            if (recordsCount > 0)
             {
+                await Parallel.ForEachAsync(records, _parallelOptions, ExecuteCommand);
+
+                // cleanup any cancellations that have been marked canceled in storage
+                if (DateTime.UtcNow >= _nextCleanupOn)
+                {
+                    foreach (var kv in _cancellations)
+                    {
+                        if (kv.Value is null)
+                            _cancellations.TryRemove(kv.Key, out _);
+                    }
+
+                    _nextCleanupOn = DateTime.UtcNow.AddMinutes(5);
+                }
+            }
+            
+            if (recordsCount < _parallelOptions.MaxDegreeOfParallelism)
+            {
+                // less records than page size, so wait on the semaphore before next iteration
+                //
                 // if _isInUse is false, that means no job has been queued yet nor is there any incomplete jobs for the future. so, it's necessary for further
                 // iterations within the loop until the semaphore is released upon queuing the first job.
                 //
@@ -298,20 +318,10 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                            ? Task.WhenAny(_sem.WaitAsync(_appCancellation), Task.Delay(_semWaitLimit))
                            : _sem.WaitAsync(_appCancellation));
             }
-            else
-                await Parallel.ForEachAsync(records, _parallelOptions, ExecuteCommand);
+            // else there are more records than the page size, so continue next iteration
 
-            // cleanup any cancellations that have been marked canceled in storage
-            if (DateTime.UtcNow >= _nextCleanupOn)
-            {
-                foreach (var kv in _cancellations)
-                {
-                    if (kv.Value is null)
-                        _cancellations.TryRemove(kv.Key, out _);
-                }
-
-                _nextCleanupOn = DateTime.UtcNow.AddMinutes(5);
-            }
+            // reset _sem CurrentCount to 0 in case multiple releases happened
+            while (_sem.Wait(0, _appCancellation));
         }
 
         async ValueTask ExecuteCommand(TStorageRecord record, CancellationToken _)

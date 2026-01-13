@@ -287,9 +287,10 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
 
             var recordsCount = records.Count();
             if (recordsCount > 0)
-            {
                 await Parallel.ForEachAsync(records, _parallelOptions, ExecuteCommand);
-
+            
+            if (recordsCount < _parallelOptions.MaxDegreeOfParallelism)
+            {
                 // cleanup any cancellations that have been marked canceled in storage
                 if (DateTime.UtcNow >= _nextCleanupOn)
                 {
@@ -301,10 +302,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
 
                     _nextCleanupOn = DateTime.UtcNow.AddMinutes(5);
                 }
-            }
-            
-            if (recordsCount < _parallelOptions.MaxDegreeOfParallelism)
-            {
+
                 // less records than page size, so wait on the semaphore before next iteration
                 //
                 // if _isInUse is false, that means no job has been queued yet nor is there any incomplete jobs for the future. so, it's necessary for further

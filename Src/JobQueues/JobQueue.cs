@@ -291,18 +291,6 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
             
             if (recordsCount < _parallelOptions.MaxDegreeOfParallelism)
             {
-                // cleanup any cancellations that have been marked canceled in storage
-                if (DateTime.UtcNow >= _nextCleanupOn)
-                {
-                    foreach (var kv in _cancellations)
-                    {
-                        if (kv.Value is null)
-                            _cancellations.TryRemove(kv.Key, out _);
-                    }
-
-                    _nextCleanupOn = DateTime.UtcNow.AddMinutes(5);
-                }
-
                 // less records than page size, so wait on the semaphore before next iteration
                 //
                 // if _isInUse is false, that means no job has been queued yet nor is there any incomplete jobs for the future. so, it's necessary for further
@@ -317,6 +305,18 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                            : _sem.WaitAsync(_appCancellation));
             }
             // else there are more records than the page size, so continue next iteration
+
+            // cleanup any cancellations that have been marked canceled in storage
+            if (DateTime.UtcNow >= _nextCleanupOn)
+            {
+                foreach (var kv in _cancellations)
+                {
+                    if (kv.Value is null)
+                        _cancellations.TryRemove(kv.Key, out _);
+                }
+
+                _nextCleanupOn = DateTime.UtcNow.AddMinutes(5);
+            }
 
             // reset _sem CurrentCount to 0 in case multiple releases happened
             while (_sem.Wait(0, _appCancellation));

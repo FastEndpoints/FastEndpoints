@@ -4,18 +4,18 @@
         <NuGetAuditMode>direct</NuGetAuditMode>
     </PropertyGroup>
     <ItemGroup>
-        <PackageVersion Include="Asp.Versioning.Http" Version="8.1.0"/>
-        <PackageVersion Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.0"/>
+        <PackageVersion Include="Asp.Versioning.Http" Version="8.1.1"/>
+        <PackageVersion Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.1"/>
         <PackageVersion Include="BenchmarkDotNet" Version="0.15.8"/>
         <PackageVersion Include="Bogus" Version="35.6.5"/>
-        <PackageVersion Include="FakeItEasy" Version="8.3.0"/>
+        <PackageVersion Include="FakeItEasy" Version="9.0.0"/>
         <PackageVersion Include="FakeItEasy.Analyzer.CSharp" Version="6.1.1"/>
         <PackageVersion Include="FluentValidation" Version="12.1.1"/>
         <PackageVersion Include="Grpc.AspNetCore.Server" Version="2.71.0"/>
         <PackageVersion Include="Grpc.Net.Client" Version="2.71.0"/>
         <PackageVersion Include="Grpc.Net.Client.Web" Version="2.71.0"/>
         <PackageVersion Include="MessagePack" Version="3.1.4"/>
-        <PackageVersion Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0"/>
+        <PackageVersion Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.9"/>
         <PackageVersion Include="Microsoft.AspNetCore.OData" Version="9.4.1"/>
         <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="4.14.0"/>
         <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="[4.11.0]"/><!-- not upgradeable for net8 compatibility -->

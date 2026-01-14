@@ -288,7 +288,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
             var recordsCount = records.Count();
             if (recordsCount > 0)
                 await Parallel.ForEachAsync(records, _parallelOptions, ExecuteCommand);
-            
+
             if (recordsCount < _parallelOptions.MaxDegreeOfParallelism)
             {
                 // less records than page size, so wait on the semaphore before next iteration
@@ -304,6 +304,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                            ? _sem.WaitAsync(_semWaitLimit, _appCancellation)
                            : _sem.WaitAsync(_appCancellation));
             }
+
             // else there are more records than the page size, so continue next iteration
 
             // cleanup any cancellations that have been marked canceled in storage
@@ -318,8 +319,10 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 _nextCleanupOn = DateTime.UtcNow.AddMinutes(5);
             }
 
-            // reset _sem CurrentCount to 0 in case multiple releases happened
-            while (_sem.Wait(0, _appCancellation));
+            // ReSharper disable once MethodHasAsyncOverloadWithCancellation
+            // reset/drain _sem CurrentCount to 0 in case multiple releases happened
+            // passing app cancellation here is not needed as it's an immediate return.
+            while (_sem.Wait(0)) { }
         }
 
         async ValueTask ExecuteCommand(TStorageRecord record, CancellationToken _)

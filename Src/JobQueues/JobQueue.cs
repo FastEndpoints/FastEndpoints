@@ -243,28 +243,28 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
     {
         while (!_appCancellation.IsCancellationRequested)
         {
-            IEnumerable<TStorageRecord> records;
+            ICollection<TStorageRecord> records;
 
             try
             {
                 // if _isInUse is null, we need to also retrieve future scheduled jobs in order to update _isInUse correctly.
                 var executeAfter = _isInUse is null ? (DateTime?)null : DateTime.UtcNow;
                 records = await _storage.GetNextBatchAsync(
-                              new()
-                              {
-                                  Limit = _parallelOptions.MaxDegreeOfParallelism,
-                                  QueueID = QueueID,
-                                  CancellationToken = _appCancellation,
-                                  Match = r => r.QueueID == QueueID &&
-                                               r.IsComplete == false &&
-                                               (executeAfter == null || r.ExecuteAfter <= executeAfter) &&
-                                               r.ExpireOn >= DateTime.UtcNow
-                              });
+                        new()
+                        {
+                            Limit = _parallelOptions.MaxDegreeOfParallelism,
+                            QueueID = QueueID,
+                            CancellationToken = _appCancellation,
+                            Match = r => r.QueueID == QueueID &&
+                                        r.IsComplete == false &&
+                                        (executeAfter == null || r.ExecuteAfter <= executeAfter) &&
+                                        r.ExpireOn >= DateTime.UtcNow
+                        });
 
                 if (_isInUse is null)
                 {
-                    _isInUse = records.Any();
-                    records = records.Where(r => r.ExecuteAfter <= DateTime.UtcNow);
+                    _isInUse = records.Count > 0;
+                    records = records.Where(r => r.ExecuteAfter <= DateTime.UtcNow).ToArray();
                 }
             }
             catch (Exception x)
@@ -275,11 +275,10 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 continue;
             }
 
-            var recordsCount = records.Count();
-            if (recordsCount > 0)
+            if (records.Count > 0)
                 await Parallel.ForEachAsync(records, _parallelOptions, ExecuteCommand);
 
-            if (recordsCount < _parallelOptions.MaxDegreeOfParallelism)
+            if (records.Count < _parallelOptions.MaxDegreeOfParallelism)
             {
                 // less records than page size, so wait on the semaphore before next iteration
                 //                

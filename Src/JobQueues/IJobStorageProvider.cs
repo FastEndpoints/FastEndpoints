@@ -1,4 +1,4 @@
-﻿namespace FastEndpoints;
+namespace FastEndpoints;
 
 /// <summary>
 /// interface for defining the contract of a job storage provider
@@ -17,7 +17,7 @@ public interface IJobStorageProvider<TStorageRecord> where TStorageRecord : IJob
     /// fetch the next pending batch of job storage records that need to be processed, with the supplied search parameters.
     /// </summary>
     /// <param name="parameters">use these supplied search parameters to find the next batch of job records from your database</param>
-    Task<IEnumerable<TStorageRecord>> GetNextBatchAsync(PendingJobSearchParams<TStorageRecord> parameters);
+    Task<ICollection<TStorageRecord>> GetNextBatchAsync(PendingJobSearchParams<TStorageRecord> parameters);
 
     /// <summary>
     /// mark the job storage record as complete by either replacing the entity on storage with the supplied instance or

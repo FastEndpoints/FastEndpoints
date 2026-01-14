@@ -275,9 +275,15 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 continue;
             }
 
-            if (!records.Any())
+            var recordsCount = records.Count();
+            if (recordsCount > 0)
+                await Parallel.ForEachAsync(records, _parallelOptions, ExecuteCommand);
+
+            if (recordsCount < _parallelOptions.MaxDegreeOfParallelism)
             {
-                // if _isInUse is false, that means no job has been queued yet nor is there any incomplete jobs for the future. so, it's necessary for further
+                // less records than page size, so wait on the semaphore before next iteration
+                //                
+                // if _isInUse is false, that means no job has been queued yet nor is there any incomplete jobs for the future. so, it's not necessary for further
                 // iterations within the loop until the semaphore is released upon queuing the first job.
                 //
                 // if _isInUse is true, it indicates that we must await the queuing of the next job or the passage of delay duration (default: 1 minute),
@@ -285,11 +291,11 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 // no new jobs are being queued. not doing this periodic check could result in future jobs only executing upon the arrival of new jobs,
                 // potentially leading to jobs being expired without being executed.
                 await (_isInUse is true
-                           ? Task.WhenAny(_sem.WaitAsync(_appCancellation), Task.Delay(_semWaitLimit))
+                           ? _sem.WaitAsync(_semWaitLimit, _appCancellation)
                            : _sem.WaitAsync(_appCancellation));
             }
-            else
-                await Parallel.ForEachAsync(records, _parallelOptions, ExecuteCommand);
+
+            // else there are more records than the page size, so continue next iteration
 
             // cleanup any cancellations that have been marked canceled in storage
             if (DateTime.UtcNow >= _nextCleanupOn)
@@ -302,6 +308,11 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
 
                 _nextCleanupOn = DateTime.UtcNow.AddMinutes(5);
             }
+
+            // ReSharper disable once MethodHasAsyncOverloadWithCancellation
+            // reset/drain _sem CurrentCount to 0 in case multiple releases happened
+            // passing app cancellation here is not needed as it's an immediate return.
+            while (_sem.Wait(0)) { }
         }
 
         async ValueTask ExecuteCommand(TStorageRecord record, CancellationToken _)

@@ -247,24 +247,29 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
 
             try
             {
-                // if _isInUse is null, we need to also retrieve future scheduled jobs in order to update _isInUse correctly.
-                var executeAfter = _isInUse is null ? (DateTime?)null : DateTime.UtcNow;
-                records = await _storage.GetNextBatchAsync(
-                        new()
-                        {
-                            Limit = _parallelOptions.MaxDegreeOfParallelism,
-                            QueueID = QueueID,
-                            CancellationToken = _appCancellation,
-                            Match = r => r.QueueID == QueueID &&
-                                        r.IsComplete == false &&
-                                        (executeAfter == null || r.ExecuteAfter <= executeAfter) &&
-                                        r.ExpireOn >= DateTime.UtcNow
-                        });
+                // capture once so providers that translate predicates can parameterize it cleanly and,
+                // the in-memory filtering can use the same time instance.
+                var now = DateTime.UtcNow;
 
-                if (_isInUse is null)
+                // if _isInUse is null, we need to also retrieve future scheduled jobs in order to update _isInUse correctly.
+                var includeFutureJobs = _isInUse is null;
+
+                records = await _storage.GetNextBatchAsync(
+                              new()
+                              {
+                                  Limit = _parallelOptions.MaxDegreeOfParallelism,
+                                  QueueID = QueueID,
+                                  CancellationToken = _appCancellation,
+                                  Match = r => r.QueueID == QueueID &&
+                                               !r.IsComplete &&
+                                               (includeFutureJobs || r.ExecuteAfter <= now) &&
+                                               r.ExpireOn >= now
+                              });
+
+                if (includeFutureJobs)
                 {
                     _isInUse = records.Count > 0;
-                    records = records.Where(r => r.ExecuteAfter <= DateTime.UtcNow).ToArray();
+                    records = records.Where(r => r.ExecuteAfter <= now).ToArray();
                 }
             }
             catch (Exception x)

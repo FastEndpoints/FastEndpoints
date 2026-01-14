@@ -41,8 +41,7 @@ public static class HttpResponseExtensions
                                                          JsonSerializerContext? jsonSerializerContext = null,
                                                          bool generateAbsoluteUrl = false,
                                                          CancellationToken cancellation = default) where TEndpoint : IEndpoint
-            => SendAcceptedAtAsync(
-                rsp,
+            => rsp.SendAcceptedAtAsync(
                 EpOpts.NameGenerator(new(typeof(TEndpoint), verb?.ToString("F"), routeNumber, null)),
                 routeValues,
                 responseBody,
@@ -69,7 +68,7 @@ public static class HttpResponseExtensions
                                               JsonSerializerContext? jsonSerializerContext = null,
                                               bool generateAbsoluteUrl = false,
                                               CancellationToken cancellation = default)
-            => SendAtAsync(rsp, 202, endpointName, routeValues, generateAbsoluteUrl, "application/json", responseBody, jsonSerializerContext, cancellation);
+            => rsp.SendAtAsync(202, endpointName, routeValues, generateAbsoluteUrl, "application/json", responseBody, jsonSerializerContext, cancellation);
 
         /// <summary>
         /// send the supplied response dto serialized as json to the client.
@@ -87,11 +86,7 @@ public static class HttpResponseExtensions
             rsp.HttpContext.StoreResponse(response);
             rsp.HttpContext.PopulateResponseHeadersFromResponseDto(response);
             rsp.StatusCode = statusCode;
-
-            EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, response);
-            if (EpOpts.GlobalResponseModifierAsync is not null)
-                await EpOpts.GlobalResponseModifierAsync(rsp.HttpContext, response);
-
+            await rsp.ApplyGlobalResponseModifier();
             await SerOpts.ResponseSerializer(rsp, response, "application/json", jsonSerializerContext, cancellation.IfDefault(rsp));
 
             return Void.Instance;
@@ -127,8 +122,7 @@ public static class HttpResponseExtensions
                                                  int? routeNumber = null,
                                                  JsonSerializerContext? jsonSerializerContext = null,
                                                  CancellationToken cancellation = default) where TEndpoint : IEndpoint
-            => SendAtAsync(
-                rsp,
+            => rsp.SendAtAsync(
                 statusCode,
                 EpOpts.NameGenerator(new(typeof(TEndpoint), verb?.ToString("F"), routeNumber, null)),
                 routeValues,
@@ -174,11 +168,7 @@ public static class HttpResponseExtensions
             rsp.Headers.Location = generateAbsoluteUrl
                                        ? linkGen.GetUriByName(rsp.HttpContext, endpointName, routeValues)
                                        : linkGen.GetPathByName(endpointName, routeValues);
-
-            EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, responseBody);
-            if (EpOpts.GlobalResponseModifierAsync is not null)
-                await EpOpts.GlobalResponseModifierAsync(rsp.HttpContext, responseBody);
-
+            await rsp.ApplyGlobalResponseModifier();
             await (responseBody is null
                        ? rsp.StartAsync(cancellation.IfDefault(rsp))
                        : SerOpts.ResponseSerializer(rsp, responseBody, contentType, jsonSerializerContext, cancellation.IfDefault(rsp)));
@@ -202,8 +192,7 @@ public static class HttpResponseExtensions
                                                CancellationToken cancellation = default)
         {
             using var memoryStream = new MemoryStream(bytes);
-            await SendStreamAsync(
-                rsp,
+            await rsp.SendStreamAsync(
                 memoryStream,
                 fileName,
                 bytes.Length,
@@ -241,8 +230,7 @@ public static class HttpResponseExtensions
                                                         JsonSerializerContext? jsonSerializerContext = null,
                                                         bool generateAbsoluteUrl = false,
                                                         CancellationToken cancellation = default) where TEndpoint : IEndpoint
-            => SendCreatedAtAsync(
-                rsp,
+            => rsp.SendCreatedAtAsync(
                 EpOpts.NameGenerator(new(typeof(TEndpoint), verb?.ToString("F"), routeNumber, null)),
                 routeValues,
                 responseBody,
@@ -269,7 +257,7 @@ public static class HttpResponseExtensions
                                              JsonSerializerContext? jsonSerializerContext = null,
                                              bool generateAbsoluteUrl = false,
                                              CancellationToken cancellation = default)
-            => SendAtAsync(rsp, 201, endpointName, routeValues, generateAbsoluteUrl, "application/json", responseBody, jsonSerializerContext, cancellation);
+            => rsp.SendAtAsync(201, endpointName, routeValues, generateAbsoluteUrl, "application/json", responseBody, jsonSerializerContext, cancellation);
 
         /// <summary>
         /// send an empty json object in the body
@@ -281,11 +269,7 @@ public static class HttpResponseExtensions
         {
             rsp.HttpContext.MarkResponseStart();
             rsp.StatusCode = 200;
-
-            EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
-            if (EpOpts.GlobalResponseModifierAsync is not null)
-                await EpOpts.GlobalResponseModifierAsync(rsp.HttpContext, null);
-
+            await rsp.ApplyGlobalResponseModifier();
             await SerOpts.ResponseSerializer(rsp, new JsonObject(), "application/json", jsonSerializerContext, cancellation.IfDefault(rsp));
 
             return Void.Instance;
@@ -308,11 +292,7 @@ public static class HttpResponseExtensions
 
             var content = ErrOpts.ResponseBuilder(failures, rsp.HttpContext, statusCode);
             rsp.HttpContext.StoreResponse(content);
-
-            EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, content);
-            if (EpOpts.GlobalResponseModifierAsync is not null)
-                await EpOpts.GlobalResponseModifierAsync(rsp.HttpContext, content);
-
+            await rsp.ApplyGlobalResponseModifier();
             await SerOpts.ResponseSerializer(rsp, content, ErrOpts.ContentType, jsonSerializerContext, cancellation.IfDefault(rsp));
 
             return Void.Instance;
@@ -329,7 +309,7 @@ public static class HttpResponseExtensions
                                                   IAsyncEnumerable<T> eventStream,
                                                   CancellationToken cancellation = default) where T : notnull
         {
-            return SendEventStreamAsync(rsp, GetStreamItemAsyncEnumerable(eventName, eventStream, cancellation), cancellation);
+            return rsp.SendEventStreamAsync(GetStreamItemAsyncEnumerable(eventName, eventStream, cancellation), cancellation);
 
             static async IAsyncEnumerable<StreamItem> GetStreamItemAsyncEnumerable(string eventName,
                                                                                    IAsyncEnumerable<T> source,
@@ -355,10 +335,7 @@ public static class HttpResponseExtensions
             rsp.Headers.CacheControl = "no-cache";
             rsp.Headers.Connection = "keep-alive";
             rsp.Headers.Append("X-Accel-Buffering", "no");
-
-            EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
-            if (EpOpts.GlobalResponseModifierAsync is not null)
-                await EpOpts.GlobalResponseModifierAsync.Invoke(rsp.HttpContext, null);
+            await rsp.ApplyGlobalResponseModifier();
 
             var ct = cancellation.IfDefault(rsp);
             await rsp.Body.FlushAsync(ct);
@@ -367,9 +344,11 @@ public static class HttpResponseExtensions
             // and any token marked by [EnumeratorCancellation] in the method returning the IAsyncEnumerable
             var applicationStopping = rsp.HttpContext.RequestServices.GetRequiredService<IHostApplicationLifetime>().ApplicationStopping;
             await using var enumerator = eventStream.GetAsyncEnumerator(applicationStopping);
+
             try
             {
                 var next = enumerator.MoveNextAsync();
+
                 while (await next)
                 {
                     await rsp.WriteAsync(
@@ -378,6 +357,7 @@ public static class HttpResponseExtensions
                         ct);
 
                     next = enumerator.MoveNextAsync();
+
                     if (!next.IsCompleted)
                     {
                         // flush the data to the client if the next item is not already available
@@ -409,8 +389,7 @@ public static class HttpResponseExtensions
                                         DateTimeOffset? lastModified = null,
                                         bool enableRangeProcessing = false,
                                         CancellationToken cancellation = default)
-            => SendStreamAsync(
-                rsp,
+            => rsp.SendStreamAsync(
                 fileInfo.OpenRead(),
                 fileInfo.Name,
                 fileInfo.Length,
@@ -427,11 +406,7 @@ public static class HttpResponseExtensions
         {
             rsp.HttpContext.MarkResponseStart();
             rsp.StatusCode = 403;
-
-            EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
-            if (EpOpts.GlobalResponseModifierAsync is not null)
-                await EpOpts.GlobalResponseModifierAsync(rsp.HttpContext, null);
-
+            await rsp.ApplyGlobalResponseModifier();
             await rsp.StartAsync(cancellation.IfDefault(rsp));
 
             return Void.Instance;
@@ -450,11 +425,7 @@ public static class HttpResponseExtensions
             headers(rsp.Headers);
             rsp.HttpContext.MarkResponseStart();
             rsp.StatusCode = statusCode;
-
-            EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
-            if (EpOpts.GlobalResponseModifierAsync is not null)
-                await EpOpts.GlobalResponseModifierAsync(rsp.HttpContext, null);
-
+            await rsp.ApplyGlobalResponseModifier();
             await rsp.StartAsync(cancellation.IfDefault(rsp));
 
             return Void.Instance;
@@ -468,11 +439,21 @@ public static class HttpResponseExtensions
         {
             rsp.HttpContext.MarkResponseStart();
             rsp.StatusCode = 204;
+            await rsp.ApplyGlobalResponseModifier();
+            await rsp.StartAsync(cancellation.IfDefault(rsp));
 
-            EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
-            if (EpOpts.GlobalResponseModifierAsync is not null)
-                await EpOpts.GlobalResponseModifierAsync(rsp.HttpContext, null);
+            return Void.Instance;
+        }
 
+        /// <summary>
+        /// send a 304 not modified response
+        /// </summary>
+        /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
+        public async Task<Void> SendNotModifiedAsync(CancellationToken cancellation = default)
+        {
+            rsp.HttpContext.MarkResponseStart();
+            rsp.StatusCode = 304;
+            await rsp.ApplyGlobalResponseModifier();
             await rsp.StartAsync(cancellation.IfDefault(rsp));
 
             return Void.Instance;
@@ -486,11 +467,7 @@ public static class HttpResponseExtensions
         {
             rsp.HttpContext.MarkResponseStart();
             rsp.StatusCode = 404;
-
-            EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
-            if (EpOpts.GlobalResponseModifierAsync is not null)
-                await EpOpts.GlobalResponseModifierAsync(rsp.HttpContext, null);
-
+            await rsp.ApplyGlobalResponseModifier();
             await rsp.StartAsync(cancellation.IfDefault(rsp));
 
             return Void.Instance;
@@ -504,11 +481,7 @@ public static class HttpResponseExtensions
         {
             rsp.HttpContext.MarkResponseStart();
             rsp.StatusCode = 200;
-
-            EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
-            if (EpOpts.GlobalResponseModifierAsync is not null)
-                await EpOpts.GlobalResponseModifierAsync(rsp.HttpContext, null);
-
+            await rsp.ApplyGlobalResponseModifier();
             await rsp.StartAsync(cancellation.IfDefault(rsp));
 
             return Void.Instance;
@@ -528,11 +501,7 @@ public static class HttpResponseExtensions
             rsp.HttpContext.StoreResponse(response);
             rsp.HttpContext.PopulateResponseHeadersFromResponseDto(response);
             rsp.StatusCode = 200;
-
-            EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, response);
-            if (EpOpts.GlobalResponseModifierAsync is not null)
-                await EpOpts.GlobalResponseModifierAsync(rsp.HttpContext, response);
-
+            await rsp.ApplyGlobalResponseModifier();
             await SerOpts.ResponseSerializer(rsp, response, "application/json", jsonSerializerContext, cancellation.IfDefault(rsp));
 
             return Void.Instance;
@@ -546,7 +515,7 @@ public static class HttpResponseExtensions
         /// <param name="allowRemoteRedirects">set to true if it's ok to redirect to remote addresses, which is prone to open redirect attacks.</param>
         /// <exception cref="InvalidOperationException">thrown if <paramref name="allowRemoteRedirects" /> is not set to true and the supplied url is not local</exception>
         public Task<Void> SendRedirectAsync(string location, bool isPermanent, bool allowRemoteRedirects = false)
-            => SendResultAsync(rsp, allowRemoteRedirects ? Results.Redirect(location, isPermanent) : Results.LocalRedirect(location, isPermanent));
+            => rsp.SendResultAsync(allowRemoteRedirects ? Results.Redirect(location, isPermanent) : Results.LocalRedirect(location, isPermanent));
 
         /// <summary>
         /// execute and send any <see cref="IResult" /> produced by the <see cref="Results" /> or <see cref="TypedResults" /> classes in minimal apis.
@@ -561,11 +530,7 @@ public static class HttpResponseExtensions
         public async Task<Void> SendResultAsync(IResult result)
         {
             rsp.HttpContext.MarkResponseStart();
-
-            EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, result);
-            if (EpOpts.GlobalResponseModifierAsync is not null)
-                await EpOpts.GlobalResponseModifierAsync(rsp.HttpContext, result);
-
+            await rsp.ApplyGlobalResponseModifier();
             await result.ExecuteAsync(rsp.HttpContext);
 
             return Void.Instance;
@@ -580,11 +545,7 @@ public static class HttpResponseExtensions
         {
             rsp.HttpContext.MarkResponseStart();
             rsp.StatusCode = statusCode;
-
-            EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
-            if (EpOpts.GlobalResponseModifierAsync is not null)
-                await EpOpts.GlobalResponseModifierAsync(rsp.HttpContext, null);
-
+            await rsp.ApplyGlobalResponseModifier();
             await rsp.StartAsync(cancellation.IfDefault(rsp));
 
             return Void.Instance;
@@ -629,9 +590,7 @@ public static class HttpResponseExtensions
                     enableRangeProcessing,
                     lastModified);
 
-                EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, stream);
-                if (EpOpts.GlobalResponseModifierAsync is not null)
-                    await EpOpts.GlobalResponseModifierAsync(rsp.HttpContext, stream);
+                await rsp.ApplyGlobalResponseModifier();
 
                 if (!shouldSendBody)
                     return Void.Instance;
@@ -662,11 +621,7 @@ public static class HttpResponseExtensions
             rsp.HttpContext.MarkResponseStart();
             rsp.StatusCode = statusCode;
             rsp.ContentType = contentType;
-
-            EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, content);
-            if (EpOpts.GlobalResponseModifierAsync is not null)
-                await EpOpts.GlobalResponseModifierAsync(rsp.HttpContext, content);
-
+            await rsp.ApplyGlobalResponseModifier();
             await rsp.WriteAsync(content, cancellation.IfDefault(rsp));
 
             return Void.Instance;
@@ -680,14 +635,17 @@ public static class HttpResponseExtensions
         {
             rsp.HttpContext.MarkResponseStart();
             rsp.StatusCode = 401;
-
-            EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
-            if (EpOpts.GlobalResponseModifierAsync is not null)
-                await EpOpts.GlobalResponseModifierAsync(rsp.HttpContext, null);
-
+            await rsp.ApplyGlobalResponseModifier();
             await rsp.StartAsync(cancellation.IfDefault(rsp));
 
             return Void.Instance;
+        }
+
+        async Task ApplyGlobalResponseModifier()
+        {
+            EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
+            if (EpOpts.GlobalResponseModifierAsync is not null)
+                await EpOpts.GlobalResponseModifierAsync(rsp.HttpContext, null);
         }
     }
 

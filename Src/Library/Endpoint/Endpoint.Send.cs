@@ -289,6 +289,13 @@ public readonly struct ResponseSender<TRequest, TResponse>(Endpoint<TRequest, TR
         => ep.HttpContext.Response.SendNoContentAsync(cancellation);
 
     /// <summary>
+    /// send a 304 not modified response
+    /// </summary>
+    /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
+    public Task<Void> NotModifiedAsync(CancellationToken cancellation = default)
+        => ep.HttpContext.Response.SendNotModifiedAsync(cancellation);
+
+    /// <summary>
     /// send a 404 not found response
     /// </summary>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>

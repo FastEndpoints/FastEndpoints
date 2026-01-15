@@ -607,45 +607,48 @@ public static class HttpClientExtensions
         StringBuilder sb = new();
         var routeSegments = _testUrlCache[epTypeName].Split('/', StringSplitOptions.RemoveEmptyEntries); // group root endpoints are allowed to set string.empty #988
 
-        foreach (var segment in routeSegments)
+        if (routeSegments.Length > 0)
         {
-            if (!segment.StartsWith('{') && !segment.EndsWith('}'))
+            foreach (var segment in routeSegments)
             {
-                sb.Append(segment).Append('/');
-
-                continue;
-            }
-
-            //examples: {id}, {id?}, {id:int}, {ssn:regex(^\\d{{3}}-\\d{{2}}-\\d{{4}}$)}
-
-            var segmentParts = segment.Split(':', StringSplitOptions.RemoveEmptyEntries);
-            var isLastSegment = routeSegments.Last() == segment;
-            var isOptional = segment.Contains('?');
-            var propName = (segmentParts.Length == 1
-                                ? segmentParts[0][1..^1]
-                                : segmentParts[0][1..]).TrimEnd('?');
-
-            var propVal = reqProps.TryGetValue(propName, out var prop)
-                              ? prop.GetValueAsString(req)
-                              : segment;
-
-            if (propVal is null)
-            {
-                switch (isOptional)
+                if (!segment.StartsWith('{') && !segment.EndsWith('}'))
                 {
-                    case true when isLastSegment:
-                        continue;
-                    case true when !isLastSegment:
-                        throw new InvalidOperationException($"Optional route parameter [{segment}] must be the last route segment.");
-                    case false:
-                        throw new InvalidOperationException($"Route param value missing for required param [{segment}].");
-                }
-            }
+                    sb.Append(segment).Append('/');
 
-            sb.Append(propVal);
-            sb.Append('/');
+                    continue;
+                }
+
+                //examples: {id}, {id?}, {id:int}, {ssn:regex(^\\d{{3}}-\\d{{2}}-\\d{{4}}$)}
+
+                var segmentParts = segment.Split(':', StringSplitOptions.RemoveEmptyEntries);
+                var isLastSegment = routeSegments.Last() == segment;
+                var isOptional = segment.Contains('?');
+                var propName = (segmentParts.Length == 1
+                                    ? segmentParts[0][1..^1]
+                                    : segmentParts[0][1..]).TrimEnd('?');
+
+                var propVal = reqProps.TryGetValue(propName, out var prop)
+                                  ? prop.GetValueAsString(req)
+                                  : segment;
+
+                if (propVal is null)
+                {
+                    switch (isOptional)
+                    {
+                        case true when isLastSegment:
+                            continue;
+                        case true when !isLastSegment:
+                            throw new InvalidOperationException($"Optional route parameter [{segment}] must be the last route segment.");
+                        case false:
+                            throw new InvalidOperationException($"Route param value missing for required param [{segment}].");
+                    }
+                }
+
+                sb.Append(propVal);
+                sb.Append('/');
+            }
+            sb.Length--; //remove the last '/'
         }
-        sb.Length--; //remove the last '/'
 
         //append query parameters if there's any props decorated with [QueryParam]
         var queryParamProps = reqProps.Where(p => p.Value.GetCustomAttribute<DontBindAttribute>()?.BindingSources.HasFlag(Source.QueryParam) is false).ToArray();

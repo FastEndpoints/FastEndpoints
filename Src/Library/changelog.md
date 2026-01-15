@@ -25,4 +25,10 @@ public override async Task HandleAsync(CancellationToken c)
 
 ## Fixes 🪲
 
+<details><summary>Index out of range exception in routeless test helpers</summary>
+
+The routeless integration test helpers such as `.GETAsync<>()` would throw an exception when testing an endpoint configured with the root URL `/`, which has now been fixed.
+
+</details>
+
 ## Breaking Changes ⚠️

@@ -731,10 +731,11 @@ public static class HttpClientExtensions
 
         var type = p.PropertyType;
 
-        if (type == typeof(DateTime) || type == typeof(DateTime?) ||
-            type == typeof(DateTimeOffset) || type == typeof(DateTimeOffset?) ||
-            type == typeof(DateOnly) || type == typeof(DateOnly?) ||
-            type == typeof(TimeOnly) || type == typeof(TimeOnly?))
+        var underlyingType = type.GetUnderlyingType();
+        if (underlyingType == typeof(DateTime) || 
+            underlyingType == typeof(DateTimeOffset) ||
+            underlyingType == typeof(DateOnly) || 
+            underlyingType == typeof(TimeOnly))
         {
             return string.Format(System.Globalization.CultureInfo.InvariantCulture, "{0:o}", value);
         }
@@ -744,11 +745,7 @@ public static class HttpClientExtensions
 
         //use overridden ToString() method except for records
         if (toStringMethod is not null && toStringMethod.DeclaringType != Types.Object && !isRecord)
-        {
-            return value is IFormattable f
-                       ? f.ToString(null, System.Globalization.CultureInfo.InvariantCulture) //https://github.com/FastEndpoints/FastEndpoints/pull/1046
-                       : value.ToString();
-        }
+            return value.ToString();
 
         try
         {

@@ -1,6 +1,7 @@
 // ReSharper disable InconsistentNaming
 
 using System.Collections;
+using System.Globalization;
 using System.Net;
 using System.Net.Http.Json;
 using System.Reflection;
@@ -730,6 +731,15 @@ public static class HttpClientExtensions
             return null;
 
         var type = p.PropertyType;
+
+        if (type == typeof(DateTime) || type == typeof(DateTime?) ||
+            type == typeof(DateTimeOffset) || type == typeof(DateTimeOffset?) ||
+            type == typeof(DateOnly) || type == typeof(DateOnly?) ||
+            type == typeof(TimeOnly) || type == typeof(TimeOnly?))
+        {
+            return string.Format(CultureInfo.InvariantCulture, "{0}", value);
+        }
+
         var toStringMethod = type.GetMethod("ToString", Type.EmptyTypes);
         var isRecord = type.GetMethod("<Clone>$") is not null;
 

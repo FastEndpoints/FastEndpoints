@@ -27,14 +27,15 @@ public class JobStorage : IJobStorageProvider<Job>, IJobResultProvider
         return Task.CompletedTask;
     }
 
-    public Task<IEnumerable<Job>> GetNextBatchAsync(PendingJobSearchParams<Job> p)
+    public Task<ICollection<Job>> GetNextBatchAsync(PendingJobSearchParams<Job> p)
     {
         var match = p.Match.Compile();
 
-        return Task.FromResult(
+        return Task.FromResult<ICollection<Job>>(
             Jobs.Where(match)
                 .OrderBy(r => r.ID)
-                .Take(p.Limit));
+                .Take(p.Limit)
+                .ToArray());
     }
 
     public Task MarkJobAsCompleteAsync(Job r, CancellationToken ct)

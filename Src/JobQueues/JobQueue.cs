@@ -243,10 +243,17 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
     {
         while (!_appCancellation.IsCancellationRequested)
         {
-            IEnumerable<TStorageRecord> records;
+            ICollection<TStorageRecord> records;
 
             try
             {
+                // capture once so providers that translate predicates can parameterize it cleanly and,
+                // the in-memory filtering can use the same time instance.
+                var now = DateTime.UtcNow;
+
+                // if _isInUse is null, we need to also retrieve future scheduled jobs in order to update _isInUse correctly.
+                var includeFutureJobs = _isInUse is null;
+
                 records = await _storage.GetNextBatchAsync(
                               new()
                               {
@@ -254,27 +261,15 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                                   QueueID = QueueID,
                                   CancellationToken = _appCancellation,
                                   Match = r => r.QueueID == QueueID &&
-                                               r.IsComplete == false &&
-                                               r.ExecuteAfter <= DateTime.UtcNow &&
-                                               r.ExpireOn >= DateTime.UtcNow
+                                               !r.IsComplete &&
+                                               (includeFutureJobs || r.ExecuteAfter <= now) &&
+                                               r.ExpireOn >= now
                               });
 
-                if (records.Any())
-                    _isInUse = true;
-                else if (_isInUse is null)
+                if (includeFutureJobs)
                 {
-                    // hit storage once more at startup to check if there's any incomplete jobs (possibly scheduled for the future) and set _isInUse
-                    // ref: https://github.com/FastEndpoints/FastEndpoints/issues/1007
-                    _isInUse = (await _storage.GetNextBatchAsync(
-                                    new()
-                                    {
-                                        Limit = 1,
-                                        QueueID = QueueID,
-                                        CancellationToken = _appCancellation,
-                                        Match = r => r.QueueID == QueueID &&
-                                                     r.IsComplete == false &&
-                                                     r.ExpireOn >= DateTime.UtcNow
-                                    })).Any();
+                    _isInUse = records.Count > 0;
+                    records = records.Where(r => r.ExecuteAfter <= now).ToArray();
                 }
             }
             catch (Exception x)
@@ -285,11 +280,10 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 continue;
             }
 
-            var recordsCount = records.Count();
-            if (recordsCount > 0)
+            if (records.Count > 0)
                 await Parallel.ForEachAsync(records, _parallelOptions, ExecuteCommand);
 
-            if (recordsCount < _parallelOptions.MaxDegreeOfParallelism)
+            if (records.Count < _parallelOptions.MaxDegreeOfParallelism)
             {
                 // less records than page size, so wait on the semaphore before next iteration
                 //                

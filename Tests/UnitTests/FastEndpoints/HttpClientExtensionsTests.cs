@@ -111,7 +111,7 @@ public class HttpClientExtensionsTests
         var testUrl = HttpClientExtensions.GetTestUrlFor<DateTimeQueryParamEndpoint, DateTimeParamRequest>(req, http);
 
         // Assert
-        testUrl.ShouldBe($"{DateTimeParamRoute}?{nameof(DateTimeParamRequest.QueryParam)}={DateTimeParamRequest.DateTime}");
+        testUrl.ShouldBe($"{DateTimeParamRoute}?{nameof(DateTimeParamRequest.QueryParam)}={DateTimeParamRequest.DateTime:o}");
     }
 }
 

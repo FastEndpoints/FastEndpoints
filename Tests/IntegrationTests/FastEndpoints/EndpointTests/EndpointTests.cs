@@ -95,7 +95,7 @@ public class EndpointTests(Sut App) : TestBase<Sut>
                                   .DELETEAsync<TestCases.HydratedTestUrlGeneratorTest.Endpoint, TestCases.HydratedTestUrlGeneratorTest.Request, string>(req);
 
         // Assert
-        var expectedPath = "/api/test/hydrated-test-url-generator-test/123/00000000-0000-0000-0000-000000000000/string/null/{fromClaim}/{fromHeader}/True";
+        var expectedPath = "/api/test/hydrated-test-url-generator-test/123/00000000-0000-0000-0000-000000000000/string/null/{fromClaim}/{fromHeader}/true";
         getResp.Result.ShouldBeEquivalentTo(expectedPath);
         postResp.Result.ShouldBeEquivalentTo(expectedPath);
         putResp.Result.ShouldBeEquivalentTo(expectedPath);

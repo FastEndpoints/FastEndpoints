@@ -1,6 +1,7 @@
 // ReSharper disable InconsistentNaming
 
 using System.Collections;
+using System.Globalization;
 using System.Net;
 using System.Net.Http.Json;
 using System.Reflection;
@@ -730,12 +731,13 @@ public static class HttpClientExtensions
             return null;
 
         var type = p.PropertyType;
+
         var toStringMethod = type.GetMethod("ToString", Type.EmptyTypes);
         var isRecord = type.GetMethod("<Clone>$") is not null;
 
         //use overridden ToString() method except for records
         if (toStringMethod is not null && toStringMethod.DeclaringType != Types.Object && !isRecord)
-            return value.ToString();
+            return ToInvariantIsoString(value);
 
         try
         {
@@ -757,6 +759,26 @@ public static class HttpClientExtensions
             }
 
             throw;
+        }
+
+        static string? ToInvariantIsoString(object value)
+        {
+            return value switch
+            {
+                DateTime dt => dt.ToUniversalTime().ToString("O", CultureInfo.InvariantCulture),
+                DateTimeOffset dto => dto.ToUniversalTime().ToString("O", CultureInfo.InvariantCulture),
+                DateOnly d => d.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
+                TimeOnly t => t.ToString("HH:mm:ss.fffffff", CultureInfo.InvariantCulture),
+                TimeSpan ts => ts.ToString("c", CultureInfo.InvariantCulture),
+                bool b => b ? "true" : "false",
+                Enum e => e.ToString(),
+                Guid g => g.ToString("D"),
+                float f => f.ToString("R", CultureInfo.InvariantCulture),
+                double d => d.ToString("R", CultureInfo.InvariantCulture),
+                decimal m => m.ToString(CultureInfo.InvariantCulture),
+                IFormattable f => f.ToString(null, CultureInfo.InvariantCulture),
+                _ => value.ToString()
+            };
         }
     }
 }

@@ -89,7 +89,32 @@ public class HttpClientExtensionsTests
         // Assert
         testUrl.ShouldBe($"{NullParamRoute}?{nameof(NullParamRequest.QueryParam)}={NullParamRequest.Guid}");
     }
+
+    const string DateTimeParamRoute = "datetime/param/test";
+
+    [Fact]
+    public void GetTestUrlForGeneratesUrlWithDateTimeQueryParamInCorrectFormat()
+    {
+        // Arrange
+        MockHttpMessageHandler mockHttp = new();
+        var http = mockHttp.ToHttpClient();
+        http.BaseAddress = new("http://localhost");
+
+        IEndpoint.SetTestUrl(typeof(DateTimeQueryParamEndpoint), DateTimeParamRoute);
+
+        var req = new DateTimeParamRequest
+        {
+            QueryParam = DateTimeParamRequest.DateTime
+        };
+
+        // Act
+        var testUrl = HttpClientExtensions.GetTestUrlFor<DateTimeQueryParamEndpoint, DateTimeParamRequest>(req, http);
+
+        // Assert
+        testUrl.ShouldBe($"{DateTimeParamRoute}?{nameof(DateTimeParamRequest.QueryParam)}={DateTimeParamRequest.DateTime:o}");
+    }
 }
+
 
 file class HydratedRouteArgsEndpoint : Endpoint<Request>;
 
@@ -126,4 +151,14 @@ file class NullParamRequest
 
     [QueryParam]
     public Guid? QueryParam { get; set; }
+}
+
+file class DateTimeQueryParamEndpoint : Endpoint<DateTimeParamRequest>;
+
+file class DateTimeParamRequest
+{
+    public static DateTime DateTime { get; } = DateTime.UtcNow;
+
+    [QueryParam]
+    public DateTime? QueryParam { get; set; }
 }

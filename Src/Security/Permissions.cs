@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 #pragma warning disable CS8618,CA1822
@@ -22,6 +23,7 @@ public abstract class Permissions : IEnumerable<(string PermissionName, string P
 
     static IEnumerable<(string PermissionName, string PermissionCode)> _permissions = [];
 
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "Permission fields are const strings preserved by user code")]
     protected Permissions()
     {
         if (!_isInitialized)

@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 namespace FastEndpoints;
@@ -42,6 +43,8 @@ public class StreamItem
     /// override this method in order to take control of the serialization of the event data
     /// </summary>
     /// <param name="options">json serializer options</param>
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "JSON serialization types are preserved via rd.xml")]
+    [UnconditionalSuppressMessage("AOT", "IL3050", Justification = "JSON serialization types are preserved via rd.xml")]
     public virtual string GetDataString(JsonSerializerOptions options)
         => JsonSerializer.Serialize(Data, options);
 }

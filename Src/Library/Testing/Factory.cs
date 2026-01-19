@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using System.Diagnostics.CodeAnalysis;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,6 +21,9 @@ public static class Factory
     /// <typeparam name="TEndpoint">the type of the endpoint to create an instance of</typeparam>
     /// <param name="httpContext">a default http context object</param>
     /// <param name="ctorDependencies">the dependencies of the endpoint if it has any constructor injected dependencies</param>
+    [UnconditionalSuppressMessage("Trimming", "IL2087", Justification = "Endpoint types are preserved by user code")]
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "Types are preserved via source generator or rd.xml")]
+    [UnconditionalSuppressMessage("Trimming", "IL2070", Justification = "Types are preserved via source generator or rd.xml")]
     public static TEndpoint Create<TEndpoint>(DefaultHttpContext httpContext, params object?[] ctorDependencies) where TEndpoint : class, IEndpoint
     {
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract

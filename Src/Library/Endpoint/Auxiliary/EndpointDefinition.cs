@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
@@ -472,6 +473,9 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// </param>
     /// <param name="processorTypes">open generic post-processor types</param>
     /// <exception cref="InvalidOperationException">thrown if the supplied post-processor types are not open generic.</exception>
+    [UnconditionalSuppressMessage("AOT", "IL2055", Justification = "Types are preserved via source generator or rd.xml")]
+    [UnconditionalSuppressMessage("AOT", "IL3050", Justification = "Types are preserved via source generator or rd.xml")]
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "Types are preserved via source generator or rd.xml")]
     public void PostProcessors(Order order, params Type[] processorTypes)
     {
         ThrowIfLocked();
@@ -534,6 +538,9 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// </param>
     /// <param name="processorTypes">open generic pre-processor types</param>
     /// <exception cref="InvalidOperationException">thrown if the supplied pre-processor types are not open generic.</exception>
+    [UnconditionalSuppressMessage("AOT", "IL2055", Justification = "Types are preserved via source generator or rd.xml")]
+    [UnconditionalSuppressMessage("AOT", "IL3050", Justification = "Types are preserved via source generator or rd.xml")]
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "Types are preserved via source generator or rd.xml")]
     public void PreProcessors(Order order, params Type[] processorTypes)
     {
         ThrowIfLocked();
@@ -564,6 +571,9 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     /// </summary>
     /// <param name="binderType">the open generic type of the request binder</param>
     /// <exception cref="InvalidOperationException">thrown if the supplied binder type is not open generic.</exception>
+    [UnconditionalSuppressMessage("AOT", "IL2055", Justification = "Types are preserved via source generator or rd.xml")]
+    [UnconditionalSuppressMessage("AOT", "IL3050", Justification = "Types are preserved via source generator or rd.xml")]
+    [UnconditionalSuppressMessage("Trimming", "IL2070", Justification = "Types are preserved via source generator or rd.xml")]
     public void RequestBinder(Type binderType)
     {
         if (!binderType.IsGenericType ||

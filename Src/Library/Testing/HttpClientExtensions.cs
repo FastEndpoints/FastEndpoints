@@ -446,6 +446,7 @@ public static class HttpClientExtensions
         /// when set to false, cookies will not be automatically added to the http request from request dto properties decorated with the
         /// [FromCookie] attribute.
         /// </param>
+#pragma warning disable IL2026, IL3050 // JSON serialization types are preserved via rd.xml
         public async Task<TestResult<TResponse>> SENDAsync<TRequest, TResponse>(HttpMethod method,
                                                                                 string requestUri,
                                                                                 TRequest request,
@@ -501,6 +502,7 @@ public static class HttpClientExtensions
 
             return new(rsp, res!);
         }
+#pragma warning restore IL2026, IL3050
     }
 
     static readonly string[] contentHeaders =
@@ -732,8 +734,10 @@ public static class HttpClientExtensions
 
         var type = p.PropertyType;
 
+#pragma warning disable IL2075 // Types are preserved via reflection caching
         var toStringMethod = type.GetMethod("ToString", Type.EmptyTypes);
         var isRecord = type.GetMethod("<Clone>$") is not null;
+#pragma warning restore IL2075
 
         //use overridden ToString() method except for records
         if (toStringMethod is not null && toStringMethod.DeclaringType != Types.Object && !isRecord)
@@ -741,7 +745,9 @@ public static class HttpClientExtensions
 
         try
         {
+#pragma warning disable IL2026, IL3050 // JSON serialization types are preserved via rd.xml
             var json = JsonSerializer.Serialize(value, SerOpts.Options);
+#pragma warning restore IL2026, IL3050
 
             //this is a json string literal
             if (json.StartsWith('"') && json.EndsWith('"'))

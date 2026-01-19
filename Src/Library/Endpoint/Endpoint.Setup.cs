@@ -723,6 +723,7 @@ static class ProducesMetaForResultOfResponse
     static readonly MethodInfo _populateMethod =
         typeof(ProducesMetaForResultOfResponse).GetMethod(nameof(Populate), BindingFlags.NonPublic | BindingFlags.Static)!;
 
+#pragma warning disable IL2060, IL3050 // MakeGenericMethod requires dynamic code
     public static void AddMetadata(EndpointBuilder builder, Type tResponse)
     {
         // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
@@ -732,6 +733,7 @@ static class ProducesMetaForResultOfResponse
             _populateMethod.MakeGenericMethod(tResponse).Invoke(null, invokeArgs);
         }
     }
+#pragma warning restore IL2060, IL3050
 
     static void Populate<T>(EndpointBuilder b) where T : IEndpointMetadataProvider
     {

@@ -94,6 +94,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     static readonly JsonObject _emptyObject = new();
     static readonly JsonArray _emptyArray = [];
 
+#pragma warning disable IL2026, IL3050 // JSON serialization types are preserved via rd.xml
     TResponse InitResponseDto()
     {
         if (_isStringResponse) //otherwise strings are detected as IEnumerable of chars
@@ -113,4 +114,5 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
                          $"Unable to create an instance of the response DTO. Please create it yourself and assign to the [{nameof(Response)}] property!")
                    : _response;
     }
+#pragma warning restore IL2026, IL3050
 }

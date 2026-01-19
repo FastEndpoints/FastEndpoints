@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace FastEndpoints;
@@ -15,6 +16,7 @@ public static class TestingExtensions
         /// </summary>
         /// <typeparam name="TCommand">the type of the command model to register a test handler for</typeparam>
         /// <typeparam name="THandler">the type of the test command handler</typeparam>
+        [UnconditionalSuppressMessage("Trimming", "IL2091", Justification = "Handler types are preserved by user code")]
         public void RegisterTestCommandHandler<TCommand, THandler>()
             where TCommand : ICommand
             where THandler : class, ICommandHandler<TCommand>
@@ -29,6 +31,7 @@ public static class TestingExtensions
         /// <typeparam name="TCommand">the type of the command model to register a test handler for</typeparam>
         /// <typeparam name="THandler">the type of the test command handler</typeparam>
         /// <typeparam name="TResult">the type of the result</typeparam>
+        [UnconditionalSuppressMessage("Trimming", "IL2091", Justification = "Handler types are preserved by user code")]
         public void RegisterTestCommandHandler<TCommand, THandler, TResult>()
             where TCommand : ICommand<TResult>
             where THandler : class, ICommandHandler<TCommand, TResult>
@@ -42,6 +45,7 @@ public static class TestingExtensions
         /// </summary>
         /// <typeparam name="TEvent">the type of the event model to register a test handler for</typeparam>
         /// <typeparam name="THandler">the type of the test event handler</typeparam>
+        [UnconditionalSuppressMessage("Trimming", "IL2091", Justification = "Handler types are preserved by user code")]
         public void RegisterTestEventHandler<TEvent, THandler>()
             where TEvent : IEvent
             where THandler : class, IEventHandler<TEvent>

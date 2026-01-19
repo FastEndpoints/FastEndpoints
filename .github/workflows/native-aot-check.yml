@@ -28,6 +28,7 @@ jobs:
           dotnet build Src/Library/FastEndpoints.csproj -c Release -f net10.0 /p:TreatWarningsAsErrors=true /warnaserror:IL2026,IL2070,IL2075,IL2077,IL2087,IL2090,IL2091,IL3050,IL3051,IL3052,IL3053,IL3054,IL3055,IL3056
           dotnet build Src/Messaging/Messaging/FastEndpoints.Messaging.csproj -c Release -f net10.0 /p:TreatWarningsAsErrors=true /warnaserror:IL2026,IL2070,IL2075,IL2077,IL2087,IL2090,IL2091,IL3050,IL3051,IL3052,IL3053,IL3054,IL3055,IL3056
           dotnet build Src/JobQueues/FastEndpoints.JobQueues.csproj -c Release -f net10.0 /p:TreatWarningsAsErrors=true /warnaserror:IL2026,IL2070,IL2075,IL2077,IL2087,IL2090,IL2091,IL3050,IL3051,IL3052,IL3053,IL3054,IL3055,IL3056
+          dotnet build Src/Security/FastEndpoints.Security.csproj -c Release -f net10.0 /p:TreatWarningsAsErrors=true /warnaserror:IL2026,IL2070,IL2075,IL2077,IL2087,IL2090,IL2091,IL3050,IL3051,IL3052,IL3053,IL3054,IL3055,IL3056
 
       # Note: Full Native AOT publish is not yet supported due to netstandard dependencies.
       # The library code is AOT-compatible, but the netstandard2.x dependencies prevent

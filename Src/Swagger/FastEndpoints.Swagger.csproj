@@ -1,12 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <NoWarn>1701;1702;CS1591;CS1573</NoWarn>
+        <NoWarn>1701;1702;CS1591;CS1573;IL2026;IL2070;IL2072;IL2075;IL3050</NoWarn>
         <Description>Swagger support for FastEndpoints.</Description>
         <PackageIcon>icon.png</PackageIcon>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <!-- Swagger/NSwag is inherently not AOT-compatible due to runtime reflection requirements -->
+        <IsAotCompatible>false</IsAotCompatible>
     </PropertyGroup>
 
     <ItemGroup>

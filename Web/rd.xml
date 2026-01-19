@@ -1,20 +1,32 @@
 <Directives xmlns="http://schemas.microsoft.com/netfx/2013/01/metadata">
     <Application>
+        <!--
+            Runtime Directives for Native AOT
+            These preserve types from external libraries that use reflection extensively.
+            NSwag/Swagger and FluentValidation are not AOT-compatible by design, but
+            we preserve their types here to allow the project to build with PublishAot=true
+            when Swagger is conditionally disabled at runtime.
+        -->
+
         <!-- Preserve System.Text.Json types for reflection-based serialization -->
         <Assembly Name="System.Text.Json" Dynamic="Required All" />
 
-        <!-- Preserve FluentValidation types -->
+        <!-- Preserve FluentValidation types - extensive reflection usage for validation rules -->
         <Assembly Name="FluentValidation">
             <Type Name="FluentValidation.AbstractValidator`1" Dynamic="Required All" />
         </Assembly>
 
-        <!-- Preserve NSwag types for Swagger generation (excluded from AOT requirements) -->
+        <!--
+            NSwag assemblies - required for Swagger documentation generation.
+            These use extensive runtime reflection and cannot be statically analyzed.
+            Full assembly preservation is necessary for NSwag to function correctly.
+        -->
         <Assembly Name="NSwag.AspNetCore" Dynamic="Required All" />
         <Assembly Name="NSwag.Core" Dynamic="Required All" />
         <Assembly Name="NSwag.Generation" Dynamic="Required All" />
         <Assembly Name="NSwag.Generation.AspNetCore" Dynamic="Required All" />
 
-        <!-- Preserve NJsonSchema types -->
+        <!-- NJsonSchema - used by NSwag for JSON Schema generation -->
         <Assembly Name="NJsonSchema" Dynamic="Required All" />
         <Assembly Name="NJsonSchema.NewtonsoftJson" Dynamic="Required All" />
     </Application>

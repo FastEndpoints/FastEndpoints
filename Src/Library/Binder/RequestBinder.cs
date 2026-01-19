@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using FluentValidation.Results;
@@ -14,6 +15,7 @@ namespace FastEndpoints;
 /// <typeparam name="TRequest">the type of the request dto this binder will be dealing with</typeparam>
 public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest : notnull
 {
+    [UnconditionalSuppressMessage("Trimming", "IL2080", Justification = "Types are preserved via source generator or rd.xml")]
     static readonly Type _tRequest = typeof(TRequest);
     static readonly Func<object> _dtoInitializer = _tRequest.ObjectFactory();
     static readonly bool _isPlainTextRequest = Types.IPlainTextRequest.IsAssignableFrom(_tRequest);
@@ -28,6 +30,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     static readonly List<SecondaryPropCacheEntry> _fromCookieProps = [];
     static readonly List<SecondaryPropCacheEntry> _hasPermissionProps = [];
 
+    [UnconditionalSuppressMessage("Trimming", "IL2080", Justification = "Types are preserved via source generator or rd.xml")]
     static RequestBinder()
     {
         if (_skipModelBinding)
@@ -521,6 +524,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         }
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "Types are preserved via source generator or rd.xml")]
     static bool AddFromClaimPropCacheEntry(FromClaimAttribute att, PropertyInfo propInfo, Action<object, object?> compiledSetter)
     {
         _fromClaimProps.Add(

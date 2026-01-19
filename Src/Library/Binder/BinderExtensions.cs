@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -20,6 +21,7 @@ static class BinderExtensions
         return indexOfOpeningBracket != -1 ? file.Name[..indexOfOpeningBracket] : file.Name;
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2070", Justification = "Types are preserved via source generator or rd.xml")]
     internal static ICollection<PropertyInfo> BindableProps(this Type type)
     {
         return (Cfg.BndOpts.ReflectionCache.GetOrAdd(type, new TypeDefinition())
@@ -39,6 +41,8 @@ static class BinderExtensions
 
     static readonly Func<object> _emptyRequestInitializer = () => new EmptyRequest();
 
+    [UnconditionalSuppressMessage("Trimming", "IL2067", Justification = "Types are preserved via source generator or rd.xml")]
+    [UnconditionalSuppressMessage("Trimming", "IL2070", Justification = "Types are preserved via source generator or rd.xml")]
     internal static Func<object> ObjectFactory(this Type type)
     {
         if (type == Types.EmptyRequest)
@@ -72,6 +76,7 @@ static class BinderExtensions
         }
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Types are preserved via source generator or rd.xml")]
     internal static Action<object, object?> SetterForProp(this Type tOwner, PropertyInfo prop)
     {
         if (!Cfg.BndOpts.ReflectionCache.TryGetValue(tOwner, out var classDef))
@@ -95,8 +100,10 @@ static class BinderExtensions
         }
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2080", Justification = "ParseResult constructor is always preserved")]
     static readonly ConstructorInfo _parseResultCtor = Types.ParseResult.GetConstructor([Types.Bool, Types.Object])!;
 
+    [UnconditionalSuppressMessage("Trimming", "IL2070", Justification = "Types are preserved via source generator or rd.xml")]
     internal static Func<StringValues, ParseResult> ValueParser(this Type type)
     {
         //user may have already registered a parser func for a given type via config at startup.
@@ -178,6 +185,8 @@ static class BinderExtensions
         }
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "JSON serialization types are preserved via rd.xml")]
+    [UnconditionalSuppressMessage("AOT", "IL3050", Justification = "JSON serialization types are preserved via rd.xml")]
     static bool TryParseObject(StringValues input, Type tProp, out object? result)
     {
         if (input.Count == 0 || !input[0].IsJsonObjectString())
@@ -215,6 +224,8 @@ static class BinderExtensions
         }
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "JSON serialization types are preserved via rd.xml")]
+    [UnconditionalSuppressMessage("AOT", "IL3050", Justification = "JSON serialization types are preserved via rd.xml")]
     static bool TryParseCollection(StringValues input, Type tProp, out object? result)
     {
         switch (input.Count)

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.AspNetCore.Http;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using static FastEndpoints.Config;
@@ -37,12 +38,14 @@ public sealed class SerializerOptions
     /// CancellationToken : a cancellation token
     /// </code>
     /// </summary>
+#pragma warning disable IL2026, IL3050 // JSON serialization types are preserved via rd.xml
     public Func<HttpRequest, Type, JsonSerializerContext?, CancellationToken, ValueTask<object?>> RequestDeserializer { internal get; set; }
         = (req, tReqDto, jCtx, cancellation)
               => req.ReadFromJsonAsync(
                   type: tReqDto,
                   options: jCtx?.Options ?? SerOpts.Options,
                   cancellationToken: cancellation);
+#pragma warning restore IL2026, IL3050
 
     /// <summary>
     /// a function for writing serialized response dtos to the response body.
@@ -65,6 +68,7 @@ public sealed class SerializerOptions
     /// };
     /// </code>
     /// </summary>
+#pragma warning disable IL2026, IL3050 // JSON serialization types are preserved via rd.xml
     public Func<HttpResponse, object?, string, JsonSerializerContext?, CancellationToken, Task> ResponseSerializer { internal get; set; }
         = (rsp, dto, contentType, jCtx, cancellation)
               => dto is null
@@ -74,4 +78,5 @@ public sealed class SerializerOptions
                          options: jCtx?.Options ?? SerOpts.Options,
                          contentType: SerOpts.CharacterEncoding is null ? contentType : $"{contentType}; charset={SerOpts.CharacterEncoding}",
                          cancellationToken: cancellation);
+#pragma warning restore IL2026, IL3050
 }

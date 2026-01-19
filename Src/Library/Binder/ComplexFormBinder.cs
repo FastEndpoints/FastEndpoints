@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
@@ -94,6 +95,8 @@ static class ComplexFormBinder
             return bound;
         }
 
+        [UnconditionalSuppressMessage("AOT", "IL2055", Justification = "Types are preserved via source generator or rd.xml")]
+        [UnconditionalSuppressMessage("AOT", "IL3050", Justification = "Types are preserved via source generator or rd.xml")]
         static bool BindCollectionType(object parent,
                                        Type tParent,
                                        PropertyInfo prop,

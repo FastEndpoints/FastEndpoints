@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace FastEndpoints;
@@ -81,6 +82,7 @@ static class PropertyChainExtensions
         return expression.Method.Invoke(obj, args);
     }
 
+    [UnconditionalSuppressMessage("AOT", "IL3050", Justification = "Expression compilation is runtime-only")]
     static object? GetValueCompiled(Expression expression)
         => Expression.Lambda(expression).Compile().DynamicInvoke();
 }

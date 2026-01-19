@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
@@ -23,6 +24,8 @@ public static class ExceptionHandlerExtensions
     /// <param name="logger">an optional logger instance</param>
     /// <param name="logStructuredException">set to true if you'd like to log the error in a structured manner</param>
     /// <param name="useGenericReason">set to true if you don't want to expose the actual exception reason in the json response sent to the client</param>
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "JSON serialization types are preserved via rd.xml")]
+    [UnconditionalSuppressMessage("AOT", "IL3050", Justification = "JSON serialization types are preserved via rd.xml")]
     public static IApplicationBuilder UseDefaultExceptionHandler(this IApplicationBuilder app,
                                                                  ILogger? logger = null,
                                                                  bool logStructuredException = false,

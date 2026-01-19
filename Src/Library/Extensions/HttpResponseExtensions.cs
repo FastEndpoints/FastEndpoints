@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json.Nodes;
@@ -147,6 +148,7 @@ public static class HttpResponseExtensions
         /// <param name="responseBody">the content to be serialized in the response body</param>
         /// <param name="jsonSerializerContext">json serializer context if code generation is used</param>
         /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
+        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Route values are provided by user code")]
         public async Task<Void> SendAtAsync(int statusCode,
                                             string endpointName,
                                             object? routeValues = null,

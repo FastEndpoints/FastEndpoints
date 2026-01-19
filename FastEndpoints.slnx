@@ -11,6 +11,10 @@
     <Project Path="Benchmark/MvcControllers/MvcControllers.csproj" />
     <Project Path="Benchmark/Runner/Runner.csproj" />
   </Folder>
+  <Folder Name="/Playgrounds/">
+    <Project Path="Sandbox/Source/Sandbox.csproj" />
+    <Project Path="Web/Web.csproj" />
+  </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
     <File Path="Directory.Packages.props" />
@@ -47,5 +51,4 @@
   <Project Path="Src/Security/FastEndpoints.Security.csproj" />
   <Project Path="Src/Swagger/FastEndpoints.Swagger.csproj" />
   <Project Path="Src/Testing/FastEndpoints.Testing.csproj" />
-  <Project Path="Web/Web.csproj" />
 </Solution>

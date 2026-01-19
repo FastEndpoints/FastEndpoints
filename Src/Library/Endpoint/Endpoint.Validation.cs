@@ -33,6 +33,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : IValidationErrors<
 
         return;
 
+        [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Request DTO types are preserved by user code")]
         static void ValidateRecursively(object obj, string propertyPath, List<ValidationFailure> validationFailures, HashSet<object> visitedObjects)
         {
             var tObject = obj.GetType();

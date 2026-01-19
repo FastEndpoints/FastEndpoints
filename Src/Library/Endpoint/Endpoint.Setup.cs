@@ -604,6 +604,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// the json serializer context will be instantiated with <see cref="SerializerOptions" /> from the UseFastEndpoints(...) call.
     /// </summary>
     /// <typeparam name="TContext">the type of the json serializer context for this endpoint</typeparam>
+    [UnconditionalSuppressMessage("Trimming", "IL2087", Justification = "JsonSerializerContext types are preserved by user code")]
     protected void SerializerContext<TContext>() where TContext : JsonSerializerContext
     {
         Definition.ThrowIfLocked();

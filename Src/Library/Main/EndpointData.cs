@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace FastEndpoints;
@@ -19,6 +20,8 @@ sealed class EndpointData
             throw new InvalidOperationException("FastEndpoints was unable to find any endpoint declarations!");
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "Types are preserved via source generator or rd.xml")]
+    [UnconditionalSuppressMessage("Trimming", "IL2080", Justification = "Types are preserved via source generator or rd.xml")]
     static EndpointDefinition[] BuildEndpointDefinitions(EndpointDiscoveryOptions opts, CommandHandlerRegistry cmdHandlerRegistry)
     {
         if (opts.SourceGeneratorDiscoveredTypes.Count > 0 && opts.Assemblies?.Any() is true)

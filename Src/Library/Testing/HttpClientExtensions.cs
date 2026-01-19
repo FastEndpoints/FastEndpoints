@@ -579,7 +579,9 @@ public static class HttpClientExtensions
 
             if (shouldGetViaHttp)
             {
+#pragma warning disable IL2026, IL3050 // JSON serialization for test URL cache
                 var res = client.GetFromJsonAsync<string[]>("_test_url_cache_").GetAwaiter().GetResult();
+#pragma warning restore IL2026, IL3050
 
                 foreach (var line in res ?? [])
                 {

@@ -133,10 +133,12 @@ public static class MainExtensions
 
                 foreach (var verb in def.Verbs)
                 {
+#pragma warning disable IL2026, IL3050 // Delegate-based routing is preserved by user code
                     var hb = app.MapMethods(
                         finalRoute,
                         [verb],
                         (HttpContext ctx, [FromServices] IEndpointFactory factory) => RequestHandler.Invoke(ctx, factory));
+#pragma warning restore IL2026, IL3050
 
                     hb.WithName(
                         Cfg.EpOpts.NameGenerator(
@@ -209,9 +211,11 @@ public static class MainExtensions
 
         CommandExtensions.TestHandlersPresent = app.ServiceProvider.GetService<TestCommandHandlerMarker>() is not null;
 
+#pragma warning disable IL2026, IL3050 // Delegate-based routing is preserved by user code
         app.MapGet("_test_url_cache_", IEndpoint.GetTestUrlCache)
            .Produces<string[]>(contentType: "text/plain")
            .ExcludeFromDescription();
+#pragma warning restore IL2026, IL3050
 
         return app;
     }

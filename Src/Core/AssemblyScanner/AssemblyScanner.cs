@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace FastEndpoints;
@@ -28,6 +29,8 @@ internal static class AssemblyScanner
         "YamlDotNet"
     ];
 
+    [UnconditionalSuppressMessage("Trimming", "IL2026", Justification = "Types are preserved via source generator or rd.xml")]
+    [UnconditionalSuppressMessage("Trimming", "IL2070", Justification = "Types are preserved via source generator or rd.xml")]
     internal static IEnumerable<Type> ScanForTypes(AssemblyScanOptions opts)
     {
         if (opts.DisableAutoDiscovery && opts.Assemblies?.Any() is false)

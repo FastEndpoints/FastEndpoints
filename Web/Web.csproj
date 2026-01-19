@@ -27,13 +27,14 @@
         <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
     </PropertyGroup>-->
 
+    <!-- Source Generator - exclude AOT property from propagating to the generator project -->
     <ItemGroup>
         <ProjectReference Include="..\Src\Generator\FastEndpoints.Generator.csproj"
                           OutputItemType="Analyzer"
                           ReferenceOutputAssembly="false"
                           ExcludeAssets="all"
-                          PrivateAssets="all"/>
-        <!--<Compile Remove="$(CompilerGeneratedFilesOutputPath)/**/*.cs"/>-->
+                          PrivateAssets="all"
+                          GlobalPropertiesToRemove="PublishAot"/>
     </ItemGroup>
 
     <ItemGroup>

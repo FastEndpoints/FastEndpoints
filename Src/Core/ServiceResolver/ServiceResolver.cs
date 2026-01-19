@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Concurrent;
 
@@ -28,6 +29,7 @@ sealed class ServiceResolver(IServiceProvider provider, IHttpContextAccessor? ct
     readonly ConcurrentDictionary<Type, ObjectFactory> _factoryCache = new();
     readonly ConcurrentDictionary<Type, object> _singletonCache = new();
 
+    [UnconditionalSuppressMessage("Trimming", "IL2067", Justification = "Types are preserved via user code or source generator")]
     public object CreateInstance(Type type, IServiceProvider? serviceProvider = null)
     {
         var factory = _factoryCache.GetOrAdd(type, FactoryInitializer);
@@ -41,6 +43,7 @@ sealed class ServiceResolver(IServiceProvider provider, IHttpContextAccessor? ct
             => ActivatorUtilities.CreateFactory(t, Type.EmptyTypes);
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2067", Justification = "Types are preserved via user code or source generator")]
     public object CreateSingleton(Type type)
         => _singletonCache.GetOrAdd(type, ActivatorUtilities.GetServiceOrCreateInstance(ctxAccessor?.HttpContext?.RequestServices ?? provider, type));
 

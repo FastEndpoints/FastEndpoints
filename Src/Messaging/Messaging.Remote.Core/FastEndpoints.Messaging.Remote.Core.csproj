@@ -2,15 +2,14 @@
 
     <PropertyGroup>
         <NoWarn>CS1591</NoWarn>
-        <TargetFrameworks>netstandard2.1;</TargetFrameworks>
+        <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <Description>Core componets of the FastEndpoints remote messaging library</Description>
         <PackageIcon>icon.png</PackageIcon>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-        <!-- Exclude from AOT analysis - netstandard doesn't support AOT -->
-        <IsAotCompatible>false</IsAotCompatible>
+        <IsAotCompatible>true</IsAotCompatible>
     </PropertyGroup>
 
     <ItemGroup>

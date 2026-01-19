@@ -8,6 +8,8 @@
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
         <IsRoslynComponent>true</IsRoslynComponent>
         <NoWarn>1701;1702;CS1591;CS1573</NoWarn>
+        <!-- Exclude from AOT analysis - netstandard doesn't support AOT -->
+        <IsAotCompatible>false</IsAotCompatible>
     </PropertyGroup>
 
     <ItemGroup>

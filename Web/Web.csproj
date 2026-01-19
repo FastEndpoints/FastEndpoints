@@ -9,6 +9,12 @@
         <NoWarn>CS1591;1701;1702;CA2016;RCS1090;CA2254;CS8618;ASP0014</NoWarn>
     </PropertyGroup>
 
+    <!-- Native AOT Configuration -->
+    <PropertyGroup Condition="'$(PublishAot)' == 'true'">
+        <InvariantGlobalization>true</InvariantGlobalization>
+        <TrimmerSingleWarn>false</TrimmerSingleWarn>
+    </PropertyGroup>
+
     <ItemGroup>
         <ProjectReference Include="..\Src\Library\FastEndpoints.csproj"/>
         <ProjectReference Include="..\Src\Messaging\Messaging.Remote\FastEndpoints.Messaging.Remote.csproj"/>
@@ -22,11 +28,20 @@
     </PropertyGroup>-->
 
     <ItemGroup>
-        <ProjectReference Include="..\Src\Generator\FastEndpoints.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <ProjectReference Include="..\Src\Generator\FastEndpoints.Generator.csproj"
+                          OutputItemType="Analyzer"
+                          ReferenceOutputAssembly="false"
+                          ExcludeAssets="all"
+                          PrivateAssets="all"/>
         <!--<Compile Remove="$(CompilerGeneratedFilesOutputPath)/**/*.cs"/>-->
     </ItemGroup>
 
     <ItemGroup>
         <None Remove="Web.csproj.DotSettings"/>
+    </ItemGroup>
+
+    <!-- Runtime Directives for Native AOT -->
+    <ItemGroup Condition="'$(PublishAot)' == 'true'">
+        <RdXmlFile Include="rd.xml"/>
     </ItemGroup>
 </Project>

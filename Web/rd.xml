@@ -1,0 +1,21 @@
+<Directives xmlns="http://schemas.microsoft.com/netfx/2013/01/metadata">
+    <Application>
+        <!-- Preserve System.Text.Json types for reflection-based serialization -->
+        <Assembly Name="System.Text.Json" Dynamic="Required All" />
+
+        <!-- Preserve FluentValidation types -->
+        <Assembly Name="FluentValidation">
+            <Type Name="FluentValidation.AbstractValidator`1" Dynamic="Required All" />
+        </Assembly>
+
+        <!-- Preserve NSwag types for Swagger generation (excluded from AOT requirements) -->
+        <Assembly Name="NSwag.AspNetCore" Dynamic="Required All" />
+        <Assembly Name="NSwag.Core" Dynamic="Required All" />
+        <Assembly Name="NSwag.Generation" Dynamic="Required All" />
+        <Assembly Name="NSwag.Generation.AspNetCore" Dynamic="Required All" />
+
+        <!-- Preserve NJsonSchema types -->
+        <Assembly Name="NJsonSchema" Dynamic="Required All" />
+        <Assembly Name="NJsonSchema.NewtonsoftJson" Dynamic="Required All" />
+    </Application>
+</Directives>

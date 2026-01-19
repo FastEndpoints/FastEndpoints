@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using FastEndpoints.Messaging;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +18,7 @@ public static class MessagingExtensions
     /// </summary>
     /// <param name="services"></param>
     /// <param name="assemblies">assemblies to scan for command handlers and event handlers, in addition to all loaded assemblies.</param>
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "Types are preserved via source generator or rd.xml")]
     public static IServiceCollection AddMessaging(this IServiceCollection services, params Assembly[]? assemblies)
     {
         services.TryAddSingleton<IServiceResolver, ServiceResolver>();

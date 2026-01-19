@@ -38,6 +38,8 @@ public static class CommandExtensions
     /// <param name="command">the command to execute</param>
     /// <param name="ct">optional cancellation token</param>
     /// <exception cref="InvalidOperationException">thrown when a handler for the command cannot be instantiated</exception>
+    [UnconditionalSuppressMessage("AOT", "IL2055", Justification = "Types are preserved via source generator or rd.xml")]
+    [UnconditionalSuppressMessage("AOT", "IL3050", Justification = "Types are preserved via source generator or rd.xml")]
     public static Task<TResult> ExecuteAsync<TResult>(this ICommand<TResult> command, CancellationToken ct = default)
     {
         var tCommand = command.GetType();
@@ -137,6 +139,7 @@ public static class CommandExtensions
     /// <param name="services">the service collection</param>
     /// <param name="config">configuration action for adding middleware components to the pipeline</param>
     /// <returns>the service collection for chaining</returns>
+    [UnconditionalSuppressMessage("Trimming", "IL2077", Justification = "Types are preserved via source generator or rd.xml")]
     public static IServiceCollection AddCommandMiddleware(this IServiceCollection services, Action<CommandMiddlewareConfig> config)
     {
         var c = new CommandMiddlewareConfig();
@@ -151,6 +154,8 @@ public static class CommandExtensions
         return services;
     }
 
+    [UnconditionalSuppressMessage("AOT", "IL2055", Justification = "Types are preserved via source generator or rd.xml")]
+    [UnconditionalSuppressMessage("AOT", "IL3050", Justification = "Types are preserved via source generator or rd.xml")]
     static void InitGenericHandler<TResult>(ref CommandHandlerDefinition? def, Type tCommand, CommandHandlerRegistry registry)
     {
         if (def is not null || !tCommand.IsGenericType)

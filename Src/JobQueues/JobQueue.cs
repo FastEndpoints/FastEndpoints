@@ -64,6 +64,7 @@ abstract class JobQueueBase
                    : queue.CancelJobAsync(trackingId, ct);
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2090", Justification = "Types are preserved via source generator or rd.xml")]
     internal static Task<TResult?> GetJobResultAsync<TCommand, TResult>(Guid trackingId, CancellationToken ct) where TCommand : ICommandBase
     {
         var tCommand = typeof(TCommand);
@@ -77,6 +78,7 @@ abstract class JobQueueBase
                    : queue.GetJobResultAsync<TResult>(trackingId, ct);
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2090", Justification = "Types are preserved via source generator or rd.xml")]
     internal static Task StoreJobResultAsync<TCommand, TResult>(Guid trackingId, TResult result, CancellationToken ct)
         where TCommand : ICommandBase
         where TResult : IJobResult

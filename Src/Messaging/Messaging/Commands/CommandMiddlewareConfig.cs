@@ -1,4 +1,6 @@
-﻿namespace FastEndpoints;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace FastEndpoints;
 
 /// <summary>
 /// command middleware configuration
@@ -27,6 +29,7 @@ public class CommandMiddlewareConfig
             Middleware.Add((typeof(ICommandMiddleware<,>), tMiddleware));
         }
 
+        [UnconditionalSuppressMessage("Trimming", "IL2070", Justification = "Types are preserved via source generator or rd.xml")]
         static bool IsValid(Type type)
             => type.IsGenericTypeDefinition &&
                type.GetGenericArguments().Length == 2 &&

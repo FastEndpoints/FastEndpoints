@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -22,6 +23,7 @@ public static class JobQueueExtensions
     /// assemblies to scan for command handlers, in addition to all loaded assemblies.
     /// only applicable when using job queues as a standalone library.
     /// </param>
+    [UnconditionalSuppressMessage("Trimming", "IL2091", Justification = "Storage provider types are preserved by user code")]
     public static IServiceCollection AddJobQueues<TStorageRecord, TStorageProvider>(this IServiceCollection svc, params Assembly[]? assemblies)
         where TStorageRecord : class, IJobStorageRecord, new()
         where TStorageProvider : class, IJobStorageProvider<TStorageRecord>
@@ -60,6 +62,9 @@ public static class JobQueueExtensions
     /// <param name="provider"></param>
     /// <param name="options">specify settings/execution limits for each job queue type</param>
     /// <exception cref="InvalidOperationException">thrown when no commands/handlers have been detected</exception>
+    [UnconditionalSuppressMessage("AOT", "IL2055", Justification = "Types are preserved via source generator or rd.xml")]
+    [UnconditionalSuppressMessage("AOT", "IL3050", Justification = "Types are preserved via source generator or rd.xml")]
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "Types are preserved via source generator or rd.xml")]
     public static IServiceProvider UseJobQueues(this IServiceProvider provider, Action<JobQueueOptions>? options = null)
     {
         provider.UseMessaging();

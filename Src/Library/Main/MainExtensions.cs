@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Metadata;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
@@ -59,7 +58,7 @@ public static class MainExtensions
         if (app is not IEndpointRouteBuilder routeBuilder)
             throw new InvalidCastException($"Cannot cast [{nameof(app)}] to IEndpointRouteBuilder");
 
-        MapFastEndpoints(routeBuilder, configAction);
+        routeBuilder.MapFastEndpoints(configAction);
 
         return app;
     }
@@ -133,10 +132,7 @@ public static class MainExtensions
 
                 foreach (var verb in def.Verbs)
                 {
-                    var hb = app.MapMethods(
-                        finalRoute,
-                        [verb],
-                        (HttpContext ctx, [FromServices] IEndpointFactory factory) => RequestHandler.Invoke(ctx, factory));
+                    var hb = app.MapMethods(finalRoute, [verb], () => FeRequestHandler.Instance);
 
                     hb.WithName(
                         Cfg.EpOpts.NameGenerator(

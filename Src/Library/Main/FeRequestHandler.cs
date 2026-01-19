@@ -1,13 +1,16 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
 using static FastEndpoints.Config;
 
 namespace FastEndpoints;
 
-static class RequestHandler
+sealed class FeRequestHandler : IResult
 {
-    internal static Task Invoke(HttpContext ctx, IEndpointFactory epFactory)
+    internal static FeRequestHandler Instance { get; } = new();
+
+    public Task ExecuteAsync(HttpContext ctx)
     {
         var epDef = ((IEndpointFeature)ctx.Features[Types.IEndpointFeature]!).Endpoint!.Metadata.GetMetadata<EndpointDefinition>()!;
 
@@ -50,7 +53,7 @@ static class RequestHandler
             return ctx.Response.StartAsync(ctx.RequestAborted);
         }
 
-        var epInstance = epFactory.Create(epDef, ctx);
+        var epInstance = ctx.RequestServices.GetRequiredService<IEndpointFactory>().Create(epDef, ctx);
         epInstance.Definition = epDef;
         epInstance.HttpContext = ctx;
         ctx.Items[CtxKey.ValidationFailures] = epInstance.ValidationFailures;

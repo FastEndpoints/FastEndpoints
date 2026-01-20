@@ -72,6 +72,7 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
               namespace {{_assemblyName}};
 
               using System;
+              using System.Diagnostics.CodeAnalysis;
 
               public static class DiscoveredTypes
               {
@@ -83,14 +84,18 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
         {
             b.w(
                 $"""
-                 
-                         typeof({t}),
+
+                         Preserve<{t}>(),
                  """);
         }
         b.w(
             """
-            
+
                 ];
+                
+                // this method instructs the native aot linker to not strip away public ctors and methods on a given type
+                static Type Preserve<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods)] T>()
+                        => typeof(T);
             }
             """);
 

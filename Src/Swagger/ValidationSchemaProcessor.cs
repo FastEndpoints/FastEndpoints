@@ -21,6 +21,7 @@
 // SOFTWARE.
 
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using FastEndpoints.Swagger.ValidationProcessor;
 using FastEndpoints.Swagger.ValidationProcessor.Extensions;
 using FluentValidation;
@@ -112,6 +113,7 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
         ApplyRulesToSchema(schema.InheritedSchema, rulesDict, propertyPrefix, services);
     }
 
+    [DynamicDependency(DynamicallyAccessedMemberTypes.PublicMethods, typeof(ChildValidatorAdaptor<,>))]
     void ApplyRulesFromIncludedValidators(JsonSchema schema, IValidator validator, IServiceProvider services)
     {
         if (validator is not IEnumerable<IValidationRule> rules)

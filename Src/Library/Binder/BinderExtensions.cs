@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -23,7 +24,7 @@ static class BinderExtensions
     static readonly Func<object> _emptyRequestInitializer = () => EmptyRequest.Instance;
     static readonly ConstructorInfo _parseResultCtor = Types.ParseResult.GetConstructor([Types.Bool, Types.Object])!;
 
-    extension(Type type)
+    extension([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods)] Type type)
     {
         internal Func<object> ObjectFactory()
         {

@@ -89,7 +89,7 @@ public class AdminTests(Sut App) : TestBase<Sut>
     [Fact]
     public async Task AdminLoginV2()
     {
-        var (resp, result) = await App.GuestClient.GETAsync<Login.Endpoint_V2, EmptyRequest, int>(new());
+        var (resp, result) = await App.GuestClient.GETAsync<Login.Endpoint_V2, EmptyRequest, int>(EmptyRequest.Instance);
         resp.StatusCode.ShouldBe(HttpStatusCode.OK);
         result.ShouldBe(2);
     }

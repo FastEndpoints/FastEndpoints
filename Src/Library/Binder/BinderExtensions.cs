@@ -20,7 +20,7 @@ static class BinderExtensions
         return indexOfOpeningBracket != -1 ? file.Name[..indexOfOpeningBracket] : file.Name;
     }
 
-    static readonly Func<object> _emptyRequestInitializer = () => new EmptyRequest();
+    static readonly Func<object> _emptyRequestInitializer = () => EmptyRequest.Instance;
     static readonly ConstructorInfo _parseResultCtor = Types.ParseResult.GetConstructor([Types.Bool, Types.Object])!;
 
     extension(Type type)
@@ -325,6 +325,7 @@ static class BinderExtensions
             return sawComma;
         }
 
+        // ReSharper disable once OutParameterValueIsAlwaysDiscarded.Local
         bool IsMalformedJsonArrayString(out string json)
         {
             json = null!;

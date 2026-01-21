@@ -312,7 +312,7 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
                               ? null
                               : reqDtoType?.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy).ToList();
 
-        if (reqDtoType != Types.EmptyRequest && reqDtoProps?.Any() is false && !GlobalConfig.AllowEmptyRequestDtos) //see: RequestBinder.cs > static ctor
+        if (reqDtoType != Types.EmptyRequest && reqDtoProps?.Count == 0 && !GlobalConfig.AllowEmptyRequestDtos) //see: RequestBinder.cs > static ctor
         {
             throw new NotSupportedException(
                 "Request DTOs without any publicly accessible properties are not supported. " +
@@ -475,7 +475,7 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
 
                             break;
                         }
-                        
+
                         case FromCookieAttribute cAttrib: //add header params if there are any props marked with [FromHeader] attribute
                         {
                             var pName = cAttrib.CookieName ?? p.Name;

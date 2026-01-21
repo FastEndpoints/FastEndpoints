@@ -106,7 +106,7 @@ public static class HttpClientExtensions
         /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
         /// <typeparam name="TResponse">the type of the response dto</typeparam>
         public Task<TestResult<TResponse>> POSTAsync<TEndpoint, TResponse>() where TEndpoint : IEndpoint
-            => client.POSTAsync<TEndpoint, EmptyRequest, TResponse>(new());
+            => client.POSTAsync<TEndpoint, EmptyRequest, TResponse>(EmptyRequest.Instance);
 
         /// <summary>
         /// make a PATCH request using a request dto and get back a <see cref="TestResult{TResponse}" /> containing the <see cref="HttpResponseMessage" /> as
@@ -189,7 +189,7 @@ public static class HttpClientExtensions
         /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
         /// <typeparam name="TResponse">the type of the response dto</typeparam>
         public Task<TestResult<TResponse>> PATCHAsync<TEndpoint, TResponse>() where TEndpoint : IEndpoint
-            => client.PATCHAsync<TEndpoint, EmptyRequest, TResponse>(new());
+            => client.PATCHAsync<TEndpoint, EmptyRequest, TResponse>(EmptyRequest.Instance);
 
         /// <summary>
         /// make a PUT request using a request dto and get back a <see cref="TestResult{TResponse}" /> containing the <see cref="HttpResponseMessage" /> as well
@@ -272,7 +272,7 @@ public static class HttpClientExtensions
         /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
         /// <typeparam name="TResponse">the type of the response dto</typeparam>
         public Task<TestResult<TResponse>> PUTAsync<TEndpoint, TResponse>() where TEndpoint : IEndpoint
-            => client.PUTAsync<TEndpoint, EmptyRequest, TResponse>(new());
+            => client.PUTAsync<TEndpoint, EmptyRequest, TResponse>(EmptyRequest.Instance);
 
         /// <summary>
         /// make a GET request using a request dto and get back a <see cref="TestResult{TResponse}" /> containing the <see cref="HttpResponseMessage" /> as well
@@ -349,7 +349,7 @@ public static class HttpClientExtensions
         /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
         /// <typeparam name="TResponse">the type of the response dto</typeparam>
         public Task<TestResult<TResponse>> GETAsync<TEndpoint, TResponse>() where TEndpoint : IEndpoint
-            => client.GETAsync<TEndpoint, EmptyRequest, TResponse>(new());
+            => client.GETAsync<TEndpoint, EmptyRequest, TResponse>(EmptyRequest.Instance);
 
         /// <summary>
         /// make a DELETE request using a request dto and get back a <see cref="TestResult{TResponse}" /> containing the <see cref="HttpResponseMessage" /> as
@@ -426,7 +426,7 @@ public static class HttpClientExtensions
         /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
         /// <typeparam name="TResponse">the type of the response dto</typeparam>
         public Task<TestResult<TResponse>> DELETEAsync<TEndpoint, TResponse>() where TEndpoint : IEndpoint
-            => client.DELETEAsync<TEndpoint, EmptyRequest, TResponse>(new());
+            => client.DELETEAsync<TEndpoint, EmptyRequest, TResponse>(EmptyRequest.Instance);
 
         /// <summary>
         /// send a request DTO to a given endpoint URL and get back a <see cref="TestResult{TResponse}" /> containing the <see cref="HttpResponseMessage" /> as

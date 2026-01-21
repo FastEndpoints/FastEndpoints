@@ -1,10 +1,10 @@
 ﻿#pragma warning disable RCS1074
-namespace FastEndpoints;
+    namespace FastEndpoints;
 
-/// <summary>
-/// a request dto that doesn't have any properties
-/// </summary>
-public struct EmptyRequest
-{
-    public EmptyRequest() { } //removing this ctor breaks tests
-}
+    /// <summary>
+    /// a request dto that doesn't have any properties
+    /// </summary>
+    public struct EmptyRequest
+    {
+        public EmptyRequest() { } //removing this ctor breaks tests
+    }

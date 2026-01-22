@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <IsPackable>false</IsPackable>
+        <OutputType>Exe</OutputType>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Aspire.Hosting" />
+        <PackageReference Include="Aspire.Hosting.Testing" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" />
+        <PackageReference Include="xunit.v3" />
+        <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
+    </ItemGroup>
+
+    <!-- MSBuild target to publish AOT API before tests -->
+    <Target Name="PublishAotApi" BeforeTargets="VSTest">
+        <Exec Command="dotnet publish ..\..\src\NativeAotChecker -c Release -r win-x64 -p:PublishAot=true -o $(BaseIntermediateOutputPath)aot" />
+    </Target>
+
+</Project>

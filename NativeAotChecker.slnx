@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="src/NativeAotChecker/NativeAotChecker.csproj" />
+  <Project Path="tests/NativeAotChecker.Tests/NativeAotChecker.Tests.csproj" />
+</Solution>

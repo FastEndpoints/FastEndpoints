@@ -1,26 +1,32 @@
+using Aspire.Hosting;
+using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Testing;
+using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
 namespace NativeAotChecker.Tests;
 
 public class HelloEndpointTests : IAsyncLifetime
 {
-    private DistributedApplicationFactory? _appFactory;
+    private DistributedApplication? _app;
 
     public async ValueTask InitializeAsync()
     {
-        _appFactory = new DistributedApplicationFactory(typeof(Program));
-        await _appFactory.StartAsync();
+        var appHost = await DistributedApplicationTestingBuilder.CreateAsync<Program>();
+        _app = await appHost.BuildAsync();
+        await _app.StartAsync();
 
-        // Give the API time to start
-        await Task.Delay(2000);
+        // Wait for the API resource to be ready
+        var resourceNotificationService = _app.Services.GetRequiredService<ResourceNotificationService>();
+        await resourceNotificationService.WaitForResourceAsync("api", KnownResourceStates.Running);
     }
 
     public async ValueTask DisposeAsync()
     {
-        if (_appFactory != null)
+        if (_app != null)
         {
-            await _appFactory.DisposeAsync();
+            await _app.StopAsync();
+            await _app.DisposeAsync();
         }
     }
 

@@ -9,16 +9,26 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Xunit;
 
+// NOTE:
+//  native aot executables cannot be debugged (in rider).
+//  cannot be tested via WAF either. as of jan-2026.
+//  current testing flow is as follows:
+//  - publish a native aot executable with `dotnet publish /p:PublishAot=true`
+//  - start the built app
+//  - wait for it to respond on /healthy endpoint
+//  - run test suit via http client (with routeless testing helpers from fastendpoints)
+//  - clean up on completion
+
 public class App : IAsyncLifetime
 {
+    public HttpClient Client { get; } = new() { BaseAddress = new(_baseUrl) };
+
     private static readonly string _port = "5050";
     private static readonly string _baseUrl = $"http://localhost:{_port}";
     private static readonly string _appName = "NativeAotChecker";
     private static readonly string _projectPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "..", _appName);
     private static string _exePath = "";
-
-    private Process? _apiProcess;
-    public HttpClient Client { get; } = new() { BaseAddress = new(_baseUrl) };
+    private static Process? _apiProcess;
 
     public async ValueTask InitializeAsync()
     {
@@ -35,7 +45,7 @@ public class App : IAsyncLifetime
         await WaitForApiReadyAsync();
     }
 
-    private async Task RunPublishAsync(string outputDir, string rid)
+    private static async Task RunPublishAsync(string outputDir, string rid)
     {
         var startInfo = new ProcessStartInfo
         {
@@ -57,7 +67,7 @@ public class App : IAsyncLifetime
         }
     }
 
-    private void StartApiProcess()
+    private static void StartApiProcess()
     {
         _apiProcess = new()
         {

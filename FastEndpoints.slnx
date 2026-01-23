@@ -14,11 +14,7 @@
   <Folder Name="/Playgrounds/">
     <Project Path="Sandbox/Source/Sandbox.csproj" />
     <Project Path="Web/Web.csproj" />
-  </Folder>
-  <Folder Name="/Playgrounds/NativeAot/">
-    <Project Path="NativeAotChecker/NativeAotChecker.csproj" />
-    <Project Path="Tests/NativeAotTests/NativeAotCheckerTests/NativeAotCheckerTests.csproj" />
-  </Folder>
+  </Folder>  
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
     <File Path="Directory.Packages.props" />

@@ -1,0 +1,13 @@
+<Solution>
+  <Folder Name="/REFs/">
+    <Project Path="Src/Attributes/FastEndpoints.Attributes.csproj" />
+    <Project Path="Src/Core/FastEndpoints.Core.csproj" />
+    <Project Path="Src/JobQueues/FastEndpoints.JobQueues.csproj" />
+    <Project Path="Src/Library/FastEndpoints.csproj" />
+    <Project Path="Src/Messaging/Messaging.Core/FastEndpoints.Messaging.Core.csproj" />
+    <Project Path="Src/Messaging/Messaging/FastEndpoints.Messaging.csproj" />
+  </Folder>
+  <Project Path="NativeAotChecker/NativeAotChecker.csproj" />
+  <Project Path="Tests/NativeAotTests/NativeAotCheckerTests/NativeAotCheckerTests.csproj" />
+  
+</Solution>

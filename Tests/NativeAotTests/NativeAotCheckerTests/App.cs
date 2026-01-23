@@ -40,7 +40,7 @@ public class App : IAsyncLifetime
         var startInfo = new ProcessStartInfo
         {
             FileName = "dotnet",
-            Arguments = $"publish \"{_projectPath}\" -c Debug -r {rid} -o \"{outputDir}\" /p:PublishAot=true",
+            Arguments = $"publish \"{_projectPath}\" -c Release -r {rid} -o \"{outputDir}\" /p:PublishAot=true",
             WindowStyle = ProcessWindowStyle.Normal,
             UseShellExecute = true,
             RedirectStandardError = false
@@ -87,7 +87,7 @@ public class App : IAsyncLifetime
             }
             catch
             {
-                /* Polling */
+                //do nothing
             }
             await Task.Delay(500);
         }
@@ -104,5 +104,19 @@ public class App : IAsyncLifetime
         }
         _apiProcess?.Dispose();
         Client.Dispose();
+
+        //fire off a non-aot build to avoid ide errors
+        var startInfo = new ProcessStartInfo
+        {
+            FileName = "dotnet",
+            Arguments = "build",
+            WindowStyle = ProcessWindowStyle.Normal,
+            UseShellExecute = true,
+            RedirectStandardError = false,
+            WorkingDirectory = _projectPath
+        };
+
+        using var process = Process.Start(startInfo) ?? throw new("Failed to run dotnet clean");
+        await process.WaitForExitAsync();
     }
 }

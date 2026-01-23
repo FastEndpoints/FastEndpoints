@@ -14,7 +14,7 @@
   <Folder Name="/Playgrounds/">
     <Project Path="Sandbox/Source/Sandbox.csproj" />
     <Project Path="Web/Web.csproj" />
-  </Folder>
+  </Folder>  
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
     <File Path="Directory.Packages.props" />

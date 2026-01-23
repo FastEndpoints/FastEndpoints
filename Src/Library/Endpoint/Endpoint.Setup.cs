@@ -604,7 +604,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     /// the json serializer context will be instantiated with <see cref="SerializerOptions" /> from the UseFastEndpoints(...) call.
     /// </summary>
     /// <typeparam name="TContext">the type of the json serializer context for this endpoint</typeparam>
-    protected void SerializerContext<TContext>() where TContext : JsonSerializerContext
+    protected void SerializerContext<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TContext>()
+        where TContext : JsonSerializerContext
     {
         Definition.ThrowIfLocked();
         Definition.SerializerContext = (TContext?)Activator.CreateInstance(typeof(TContext), new JsonSerializerOptions(Cfg.SerOpts.Options));

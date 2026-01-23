@@ -357,3 +357,5 @@ Src/Documentation/api/
 .vscode/
 
 .idea/
+
+NativeAotChecker/aot/

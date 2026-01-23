@@ -1,7 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.1;</TargetFrameworks>
+        <TargetFrameworks Condition="'$(PublishAot)' == 'true'">net8.0;net9.0;net10.0</TargetFrameworks>
+        <TargetFrameworks Condition="'$(PublishAot)' != 'true'">netstandard2.1;</TargetFrameworks>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <Description>Core service resolution and other shared functionality of FastEndpoints.</Description>
         <PackageIcon>icon.png</PackageIcon>

@@ -1,4 +1,5 @@
-﻿using NativeAotCheckerTests;
+﻿using System.Text.Json;
+using NativeAotCheckerTests;
 
 [assembly: AssemblyFixture(typeof(App))]
 
@@ -10,22 +11,26 @@ using Xunit;
 
 public class App : IAsyncLifetime
 {
-    private Process? _apiProcess;
-    private readonly string _port = "5050";
-    public string BaseUrl => $"http://localhost:{_port}";
-    public HttpClient Client { get; } = new();
+    private static readonly string _port = "5050";
+    private static readonly string _baseUrl = $"http://localhost:{_port}";
+    private static readonly string _appName = "NativeAotChecker";
+    private static readonly string _projectPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "..", _appName);
+    private static string _exePath = "";
 
-    private readonly string _projectPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "..", "NativeAotChecker");
-    private string _exePath = "";
+    private Process? _apiProcess;
+    public HttpClient Client { get; } = new() { BaseAddress = new(_baseUrl) };
 
     public async ValueTask InitializeAsync()
     {
+        //make the aot app and the test helpers use the same serializer settings
+        var cfg = new Config();
+        cfg.Serializer.Options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+
         var publishDir = Path.Combine(_projectPath, "aot");
-        var rid = RuntimeInformation.RuntimeIdentifier;
-        var exeName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "NativeAotChecker.exe" : "NativeAotChecker";
+        var exeName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? $"{_appName}.exe" : _appName;
         _exePath = Path.Combine(publishDir, exeName);
 
-        await RunPublishAsync(publishDir, rid);
+        await RunPublishAsync(publishDir, RuntimeInformation.RuntimeIdentifier);
         StartApiProcess();
         await WaitForApiReadyAsync();
     }
@@ -35,9 +40,10 @@ public class App : IAsyncLifetime
         var startInfo = new ProcessStartInfo
         {
             FileName = "dotnet",
-            Arguments = $"publish \"{_projectPath}\" -c Release -r {rid} -o \"{outputDir}\" /p:PublishAot=true",
+            Arguments = $"publish \"{_projectPath}\" -c Debug -r {rid} -o \"{outputDir}\" /p:PublishAot=true",
+            WindowStyle = ProcessWindowStyle.Normal,
             UseShellExecute = true,
-            WindowStyle = ProcessWindowStyle.Normal
+            RedirectStandardError = false
         };
 
         using var process = Process.Start(startInfo) ?? throw new("Failed to start dotnet publish");
@@ -58,7 +64,7 @@ public class App : IAsyncLifetime
             StartInfo = new()
             {
                 FileName = _exePath,
-                Arguments = $"--urls={BaseUrl}",
+                Arguments = $"--urls={_baseUrl}",
                 UseShellExecute = true,
                 WindowStyle = ProcessWindowStyle.Minimized
             }
@@ -74,7 +80,7 @@ public class App : IAsyncLifetime
         {
             try
             {
-                var response = await Client.GetAsync($"{BaseUrl}/healthy");
+                var response = await Client.GetAsync($"{_baseUrl}/healthy");
 
                 if (response.IsSuccessStatusCode)
                     return;
@@ -91,7 +97,7 @@ public class App : IAsyncLifetime
 
     public async ValueTask DisposeAsync()
     {
-        if (_apiProcess != null && !_apiProcess.HasExited)
+        if (_apiProcess is { HasExited: false })
         {
             _apiProcess.Kill();
             await _apiProcess.WaitForExitAsync();

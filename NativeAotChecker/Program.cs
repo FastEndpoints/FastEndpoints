@@ -1,13 +1,15 @@
-var bld = WebApplication.CreateSlimBuilder(args);
+using System.Text.Json.Serialization;
+using NativeAotChecker;
 
-bld.Services.ConfigureHttpJsonOptions(
-    options =>
-    {
-        //options.SerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonSerializerContext.Default);
-    });
+var bld = WebApplication.CreateSlimBuilder(args);
+bld.Services.AddFastEndpoints(o => o.SourceGeneratorDiscoveredTypes = DiscoveredTypes.All);
+bld.Services.ConfigureHttpJsonOptions(o => o.SerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonSerializerContext.Default));
 
 var app = bld.Build();
 app.MapGet("healthy", () => Results.Ok());
-app.MapGet("hello", () => "hello world!");
-
+app.UseFastEndpoints(c => c.Binding.ReflectionCache.AddFromNativeAotChecker());
 app.Run();
+
+//needed by the hidden /_test_url_cache_ endpoint
+[JsonSerializable(typeof(IEnumerable<string>))]
+public partial class AppJsonSerializerContext : JsonSerializerContext { }

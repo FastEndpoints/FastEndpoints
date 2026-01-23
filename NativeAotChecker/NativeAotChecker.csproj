@@ -12,6 +12,15 @@
     <ItemGroup>
         <Content Remove="aot\**"/>
         <None Remove="aot\**"/>
+        <None Remove="NativeAotChecker.csproj.DotSettings"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Src\Library\FastEndpoints.csproj"/>
+        <PackageReference Include="FastEndpoints.Generator" VersionOverride="7.3.0-beta.6">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
     </ItemGroup>
 
 </Project>

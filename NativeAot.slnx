@@ -7,6 +7,13 @@
     <Project Path="Src/Messaging/Messaging.Core/FastEndpoints.Messaging.Core.csproj" />
     <Project Path="Src/Messaging/Messaging/FastEndpoints.Messaging.csproj" />
   </Folder>
+  <Folder Name="/Solution Items/" />
+  <Folder Name="/Solution Items/Main/">
+    <File Path="Directory.Packages.props" />
+  </Folder>
+  <Folder Name="/Solution Items/Tests/">
+    <File Path="Tests/Directory.Build.props" />
+  </Folder>
   <Project Path="NativeAotChecker/NativeAotChecker.csproj" />
   <Project Path="Tests/NativeAotTests/NativeAotCheckerTests/NativeAotCheckerTests.csproj" />
   

@@ -471,35 +471,39 @@ public static class HttpClientExtensions
 
             var rsp = await client.SendAsync(msg);
 
-            var hasNoJsonContent = rsp.Content.Headers.ContentType?.MediaType?.Contains("json") is null or false;
-            TResponse? res = default!;
+            if (typeof(TResponse) == Types.EmptyResponse)
+                return new(rsp, default!);
 
-            if (typeof(TResponse) == Types.EmptyResponse || hasNoJsonContent)
-                return new(rsp, res);
+            await rsp.Content.LoadIntoBufferAsync();            // enables consuming the response stream repeatedly.
+            var stream = await rsp.Content.ReadAsStreamAsync(); // do not dispose this stream. HttpContent is the owner which handles disposing it.
 
-            if (rsp.IsSuccessStatusCode)
+            if (rsp.Content.Headers.ContentType?.MediaType?.Contains("json") is true)
             {
-                //this disposes the content stream. test code doesn't need to read it again.
-                res = await rsp.Content.ReadFromJsonAsync<TResponse>(SerOpts.Options);
-            }
-            else
-            {
-                //make a copy of the content stream to allow test code to read content stream.
-                using var copy = new MemoryStream();
-                await rsp.Content.CopyToAsync(copy); //this doesn't dispose the original stream.
-                copy.Position = 0;
-
                 try
                 {
-                    res = await JsonSerializer.DeserializeAsync<TResponse>(copy, SerOpts.Options);
+                    return new(rsp, JsonSerializer.Deserialize<TResponse>(stream, SerOpts.Options)!);
                 }
-                catch
+                catch (Exception e)
                 {
-                    //do nothing
+                    return new(rsp, default!, $"Unable to deserialize response body to type: [{typeof(TResponse).FullName}]. {e.Message}");
+                }
+                finally
+                {
+                    stream.Position = 0;
                 }
             }
 
-            return new(rsp, res!);
+            if (rsp.IsSuccessStatusCode)
+                return new(rsp, default!);
+
+            try
+            {
+                return new(rsp, default!, await rsp.Content.ReadAsStringAsync());
+            }
+            finally
+            {
+                stream.Position = 0;
+            }
         }
     }
 

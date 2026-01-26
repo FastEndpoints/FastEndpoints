@@ -45,6 +45,25 @@ Several optimizations have been done to the job queues storage logic to reduce t
 
 </details>
 
+<details><summary>Easy access to error response content with testing helpers</summary>
+
+You can now easily inspect why a request failed when you expected it to succeed. There's now a new string property `ErrorContent` on the `TestResult` record that routeless testing helpers return.
+
+```csharp
+[Fact]
+public async Task Get_Request_Responds_With_200_Ok()
+{
+    var (rsp, res, errorContent) = await app.Client.GETAsync<MyEndpoint, MyRequest, string>(new() { ... });
+
+    if (rsp.IsSuccessStatusCode)
+        Assert.True(...);
+    else
+        Assert.Fail(errorContent); //errorContent contains the error response body as a string
+}
+```
+
+</details>
+
 ## Minor Breaking Changes ⚠️
 
 <details><summary>'IJobStorageProvider.GetNextBatchAsync()' return type change</summary>

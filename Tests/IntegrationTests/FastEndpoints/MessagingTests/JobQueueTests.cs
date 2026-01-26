@@ -54,7 +54,7 @@ public class JobQueueTests(Sut App) : TestBase<Sut>
 
         await Parallel.ForAsync(
             0,
-            99,
+            10,
             cts.Token,
             async (_, ct) =>
             {

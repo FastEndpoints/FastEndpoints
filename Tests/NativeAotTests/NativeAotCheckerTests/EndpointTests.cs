@@ -46,9 +46,11 @@ public class EndpointTests(App app)
     [Fact] //todo: investigate why command handler registration fails in aot
     public async Task Command_Execution_With_Result()
     {
-        var (rsp, res) = await app.Client.GETAsync<CommandExecutionEndpoint, CommandExecutionRequest, string>(new() { Name = "IRIS" });
+        var (rsp, res, err) = await app.Client.GETAsync<CommandExecutionEndpoint, CommandExecutionRequest, string>(new() { Name = "IRIS" });
 
-        rsp.IsSuccessStatusCode.ShouldBeTrue();
-        res.ShouldBe("SIRI");
+        if (rsp.IsSuccessStatusCode)
+            res.ShouldBe("SIRI");
+        else
+            Assert.Fail(err);
     }
 }

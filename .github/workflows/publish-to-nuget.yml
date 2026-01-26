@@ -32,7 +32,7 @@ jobs:
         run: dotnet test FastEndpoints.slnx --configuration Release --verbosity minimal --filter "ExcludeInCiCd!=Yes"
 
       - name: Make Nuget Packages
-        run: dotnet pack -c Release
+        run: dotnet pack FastEndpoints.slnx -c Release
 
       - name: Publish To Nuget
         run: dotnet nuget push "Src/**/*.nupkg" -k $NUGET_AUTH_TOKEN -s https://api.nuget.org/v3/index.json

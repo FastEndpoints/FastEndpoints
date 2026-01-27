@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using FastEndpoints.Messaging;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,7 +30,7 @@ public static class CommandExtensions
     /// <param name="ct">optional cancellation token</param>
     /// <exception cref="InvalidOperationException">thrown when a handler for the command cannot be instantiated</exception>
     public static Task ExecuteAsync<TCommand>(this TCommand command, CancellationToken ct = default) where TCommand : class, ICommand
-        => ExecuteAsync<Void>(command, ct);
+        => command.ExecuteAsync<Void>(ct);
 
     /// <summary>
     /// executes the command and returns a result
@@ -110,7 +111,7 @@ public static class CommandExtensions
         /// <returns>the service provider for chaining</returns>
         [SuppressMessage("Usage", "CA2263:Prefer generic overload when type is known")]
         public IServiceProvider RegisterGenericCommand<TCommand, THandler>() where TCommand : ICommand where THandler : ICommandHandler
-            => RegisterGenericCommand(sp, typeof(TCommand), typeof(THandler));
+            => sp.RegisterGenericCommand(typeof(TCommand), typeof(THandler));
 
         /// <summary>
         /// register a generic command handler for a generic command

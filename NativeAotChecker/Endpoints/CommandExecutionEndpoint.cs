@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Text.Json.Serialization;
 
 namespace NativeAotChecker.Endpoints;
 
@@ -8,9 +8,18 @@ sealed class CommandExecutionRequest
     public string Name { get; set; }
 }
 
-[HttpGet("command-execution/{name}"), AllowAnonymous]
+[JsonSerializable(typeof(CommandExecutionRequest))]
+partial class CommandExecuteSerializerCtx : JsonSerializerContext;
+
 sealed class CommandExecutionEndpoint : Endpoint<CommandExecutionRequest, string>
 {
+    public override void Configure()
+    {
+        Get("command-execution/{name}");
+        AllowAnonymous();
+        SerializerContext<CommandExecuteSerializerCtx>();
+    }
+
     public override Task<string> ExecuteAsync(CommandExecutionRequest req, CancellationToken ct)
     {
         var cmd = new NameReverseCommand { Name = req.Name };

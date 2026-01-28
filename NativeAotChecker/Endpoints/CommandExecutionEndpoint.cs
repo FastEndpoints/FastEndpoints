@@ -8,6 +8,7 @@ sealed class CommandExecutionRequest
     public string Name { get; set; }
 }
 
+//todo: this is a temp workaround until test helpers can remove empty json body
 [JsonSerializable(typeof(CommandExecutionRequest))]
 partial class CommandExecuteSerializerCtx : JsonSerializerContext;
 

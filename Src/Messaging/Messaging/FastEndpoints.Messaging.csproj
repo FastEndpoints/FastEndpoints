@@ -11,6 +11,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <EmbeddedResource Include="ILLink.Descriptors.xml">
+            <LogicalName>ILLink.Descriptors.xml</LogicalName>
+        </EmbeddedResource>
+    </ItemGroup>
+
+    <ItemGroup>
         <ProjectReference Include="..\..\Core\FastEndpoints.Core.csproj"/>
         <ProjectReference Include="..\Messaging.Core\FastEndpoints.Messaging.Core.csproj"/>
 

@@ -12,10 +12,8 @@ sealed class CommandHandlerDefinition
     /// creates a new command handler definition for the specified handler type.
     /// </summary>
     /// <param name="handlerType">the type of the command handler</param>
-    /// <param name="handlerExecutor">optional handler executor instance</param>
-    public CommandHandlerDefinition(Type handlerType, object? handlerExecutor = null)
+    public CommandHandlerDefinition(Type handlerType)
     {
         HandlerType = handlerType;
-        HandlerExecutor = handlerExecutor;
     }
 }

@@ -1,0 +1,5 @@
+﻿<linker>
+    <assembly fullname="FastEndpoints.Messaging">
+        <type fullname="FastEndpoints.CommandHandlerExecutor`2" preserve="all"/>
+    </assembly>
+</linker>

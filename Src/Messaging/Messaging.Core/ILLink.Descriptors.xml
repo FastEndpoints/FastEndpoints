@@ -1,0 +1,5 @@
+﻿<linker>
+    <assembly fullname="FastEndpoints.Messaging.Core">
+        <type fullname="FastEndpoints.ICommand`1" preserve="all"/>
+    </assembly>
+</linker>

@@ -36,5 +36,5 @@ sealed class NameReverseCommand : ICommand<string>
 sealed class NameReverseCommandHandler : ICommandHandler<NameReverseCommand, string>
 {
     public Task<string> ExecuteAsync(NameReverseCommand cmd, CancellationToken c)
-        => Task.FromResult(cmd.Name.Reverse().ToString() ?? string.Empty);
+        => Task.FromResult(string.Concat(cmd.Name.Reverse()));
 }

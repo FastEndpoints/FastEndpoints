@@ -43,7 +43,7 @@ public class EndpointTests(App app)
             });
     }
 
-    [Fact] //todo: investigate why command handler registration fails in aot
+    [Fact]
     public async Task Command_Execution_With_Result()
     {
         var (rsp, res, err) = await app.Client.GETAsync<CommandExecutionEndpoint, CommandExecutionRequest, string>(new() { Name = "IRIS" });

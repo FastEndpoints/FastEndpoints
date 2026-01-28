@@ -12,6 +12,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <EmbeddedResource Include="ILLink.Descriptors.xml">
+            <LogicalName>ILLink.Descriptors.xml</LogicalName>
+        </EmbeddedResource>
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
     </ItemGroup>
 

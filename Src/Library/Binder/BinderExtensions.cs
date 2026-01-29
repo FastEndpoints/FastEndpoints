@@ -12,6 +12,7 @@ using Microsoft.Net.Http.Headers;
 
 namespace FastEndpoints;
 
+[SuppressMessage("Trimming", "IL2070"), SuppressMessage("Trimming", "IL2067"), SuppressMessage("Trimming", "IL2111"), SuppressMessage("Trimming", "IL2026")]
 static class BinderExtensions
 {
     internal static string BareFieldName(this IFormFile file)

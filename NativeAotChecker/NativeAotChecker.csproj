@@ -18,6 +18,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\Src\Library\FastEndpoints.csproj"/>
+        <ProjectReference Include="..\Src\Security\FastEndpoints.Security.csproj"/>
         <PackageReference Include="FastEndpoints.Generator" VersionOverride="7.3.0-beta.9">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

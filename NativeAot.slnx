@@ -7,6 +7,7 @@
     <Project Path="Src/Library/FastEndpoints.csproj" />
     <Project Path="Src/Messaging/Messaging.Core/FastEndpoints.Messaging.Core.csproj" />
     <Project Path="Src/Messaging/Messaging/FastEndpoints.Messaging.csproj" />
+    <Project Path="Src/Security/FastEndpoints.Security.csproj" />
   </Folder>
   <Folder Name="/Solution Items/" />
   <Folder Name="/Solution Items/Main/">

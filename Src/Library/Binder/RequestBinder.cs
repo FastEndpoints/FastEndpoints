@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using FluentValidation.Results;
@@ -12,9 +13,12 @@ namespace FastEndpoints;
 /// the default request binder for a given request dto type
 /// </summary>
 /// <typeparam name="TRequest">the type of the request dto this binder will be dealing with</typeparam>
-public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest : notnull
+public class RequestBinder<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods | DynamicallyAccessedMemberTypes.Interfaces)] TRequest>
+    : IRequestBinder<TRequest> where TRequest : notnull
 {
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods | DynamicallyAccessedMemberTypes.Interfaces)]
     static readonly Type _tRequest = typeof(TRequest);
+
     static readonly Func<object> _dtoInitializer = _tRequest.ObjectFactory();
     static readonly bool _isPlainTextRequest = Types.IPlainTextRequest.IsAssignableFrom(_tRequest);
     static readonly bool _skipModelBinding = _tRequest == Types.EmptyRequest && !_isPlainTextRequest;
@@ -521,6 +525,8 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         }
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2072", Justification = "PropertyType comes from TRequest which is annotated"),
+     UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "PropertyType comes from TRequest which is annotated")]
     static bool AddFromClaimPropCacheEntry(FromClaimAttribute att, PropertyInfo propInfo, Action<object, object?> compiledSetter)
     {
         _fromClaimProps.Add(
@@ -537,6 +543,8 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         return !att.IsRequired; //if claim is optional, return true so it will also be added as a PropCacheEntry
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2072", Justification = "PropertyType comes from TRequest which is annotated"),
+     UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "PropertyType comes from TRequest which is annotated")]
     static bool AddFromHeaderPropCacheEntry(FromHeaderAttribute att, PropertyInfo propInfo, Action<object, object?> compiledSetter)
     {
         _fromHeaderProps.Add(
@@ -552,6 +560,8 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         return !att.IsRequired; //if header is optional, return true so it will also be added as a PropCacheEntry;
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2072", Justification = "PropertyType comes from TRequest which is annotated"),
+     UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "PropertyType comes from TRequest which is annotated")]
     static bool AddFromCookiePropCacheEntry(FromCookieAttribute att, PropertyInfo propInfo, Action<object, object?> compiledSetter)
     {
         _fromCookieProps.Add(
@@ -567,6 +577,8 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         return !att.IsRequired; //if cookie is optional, return true so it will also be added as a PropCacheEntry;
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2072", Justification = "PropertyType comes from TRequest which is annotated"),
+     UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "PropertyType comes from TRequest which is annotated")]
     static bool AddHasPermissionPropCacheEntry(HasPermissionAttribute att, PropertyInfo propInfo, Action<object, object?> compiledSetter)
     {
         _hasPermissionProps.Add(
@@ -583,6 +595,8 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         return false; // don't allow binding from any other sources
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2072", Justification = "PropertyType comes from TRequest which is annotated"),
+     UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "PropertyType comes from TRequest which is annotated")]
     static void AddPrimaryPropCacheEntry(string? fieldName, PropertyInfo propInfo, Action<object, object?> compiledSetter, Source? disabledSources)
     {
         _primaryProps.Add(

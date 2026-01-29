@@ -1,6 +1,7 @@
 ﻿// ReSharper disable InconsistentNaming
 
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
@@ -48,7 +49,10 @@ static class Types
     internal static readonly Type NotImplementedAttribute = typeof(NotImplementedAttribute);
     internal static readonly Type NonJsonBindingAttribute = typeof(NonJsonBindingAttribute);
     internal static readonly Type Object = typeof(object);
+
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
     internal static readonly Type ParseResult = typeof(ParseResult);
+
     internal static readonly Type QueryParamAttribute = typeof(QueryParamAttribute);
     internal static readonly Type String = typeof(string);
     internal static readonly Type StringSegment = typeof(StringSegment);

@@ -91,4 +91,31 @@ public class EndpointTests(App app)
             res.ShouldBe(id.ToString());
         }
     }
+
+    [Fact]
+    public async Task Multi_Source_Binding()
+    {
+        var (_, token) = await app.Client.GETAsync<GetJwtTokenEndpoint, string>();
+
+        app.Client.DefaultRequestHeaders.Authorization = new("Bearer", token);
+
+        var req = new MultiSourceBindingRequest
+        {
+            Description = "Test description from JSON",
+            Id = 456,
+            Category = "test-category",
+            FormValue = "Hello from form",
+            RequestId = "test-req-789"
+        };
+
+        var (rsp, res) = await app.Client.POSTAsync<MultiSourceBindingEndpoint, MultiSourceBindingRequest, MultiSourceBindingResponse>(req, sendAsFormData: true);
+
+        rsp.IsSuccessStatusCode.ShouldBeTrue();
+        res.Description.ShouldBe("Test description from JSON");
+        res.Id.ShouldBe(456);
+        res.Category.ShouldBe("test-category");
+        res.UserId.ShouldBe("001");
+        res.FormValue.ShouldBe("Hello from form");
+        res.RequestId.ShouldBe("test-req-789");
+    }
 }

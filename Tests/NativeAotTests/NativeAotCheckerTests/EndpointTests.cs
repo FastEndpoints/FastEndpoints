@@ -118,4 +118,31 @@ public class EndpointTests(App app)
         res.FormValue.ShouldBe("Hello from form");
         res.RequestId.ShouldBe("test-req-789");
     }
+
+    [Fact]
+    public async Task Complex_Object_Query_Binding()
+    {
+        var id = Guid.NewGuid();
+        var req = new ComplexObjectQueryBindingRequest
+        {
+            Person = new()
+            {
+                Id = id,
+                Name = "John Doe",
+                Age = 30
+            },
+            Category = "test-category"
+        };
+
+        var (rsp, res, err) = await app.Client.GETAsync<ComplexObjectQueryBindingEndpoint, ComplexObjectQueryBindingRequest, ComplexObjectQueryBindingResponse>(req);
+
+        if (!rsp.IsSuccessStatusCode)
+            Assert.Fail(err);
+
+        rsp.IsSuccessStatusCode.ShouldBeTrue();
+        res.Person.Id.ShouldBe(id);
+        res.Person.Name.ShouldBe("John Doe");
+        res.Person.Age.ShouldBe(30);
+        res.Category.ShouldBe("test-category");
+    }
 }

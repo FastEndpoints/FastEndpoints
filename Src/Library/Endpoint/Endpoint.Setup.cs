@@ -597,6 +597,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     {
         Definition.ThrowIfLocked();
         Definition.SerializerContext = serializerContext;
+        Cfg.SerOpts.Options.TypeInfoResolverChain.Insert(0, Definition.SerializerContext);
     }
 
     /// <summary>
@@ -609,6 +610,8 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     {
         Definition.ThrowIfLocked();
         Definition.SerializerContext = (TContext?)Activator.CreateInstance(typeof(TContext), new JsonSerializerOptions(Cfg.SerOpts.Options));
+        if (Definition.SerializerContext is not null)
+            Cfg.SerOpts.Options.TypeInfoResolverChain.Insert(0, Definition.SerializerContext);
     }
 
     /// <summary>

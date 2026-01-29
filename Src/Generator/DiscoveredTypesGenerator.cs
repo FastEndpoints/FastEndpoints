@@ -1,4 +1,4 @@
-﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using System.Collections.Immutable;
@@ -17,6 +17,7 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
         "FastEndpoints.IEventHandler",
         "FastEndpoints.ICommandHandler",
         "FastEndpoints.ISummary",
+        "FastEndpoints.IJobStorageProvider<",
         "FluentValidation.IValidator"
     ];
 
@@ -48,7 +49,7 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
                 type.IsAbstract ||
                 type.GetAttributes().Any(a => a.AttributeClass!.Name == DontRegisterAttribute || type.AllInterfaces.Length == 0)
                     ? null
-                    : type.AllInterfaces.Any(i => _whiteList.Contains(i.ToDisplayString()))
+                    : type.AllInterfaces.Any(i => _whiteList.Any(w => i.ToDisplayString().StartsWith(w)))
                         ? type.ToDisplayString()
                         : null;
         }

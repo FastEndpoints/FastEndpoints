@@ -1,5 +1,4 @@
 ﻿using System.Collections.Concurrent;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 
 namespace FastEndpoints;
@@ -44,7 +43,6 @@ public static class EventExtensions
     /// <see cref="Mode.WaitForAny" /> returns a Task that will complete when any of the subscribers complete their work.
     /// <see cref="Mode.WaitForAll" /> return a Task that will complete only when all the subscribers complete their work.
     /// </returns>
-    [DynamicDependency(DynamicallyAccessedMemberTypes.PublicMethods, typeof(EventBus<>))]
     public static Task PublishAsync(this IEvent eventModel, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = default)
     {
         var publishFunc = _publishFuncCache.GetOrAdd(eventModel.GetType(), PublishAsyncFuncFactory);

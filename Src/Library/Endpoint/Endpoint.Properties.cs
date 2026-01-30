@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
+#pragma warning disable IL2026,IL3050
+
 namespace FastEndpoints;
 
 public abstract partial class Endpoint<TRequest, TResponse> where TRequest : notnull

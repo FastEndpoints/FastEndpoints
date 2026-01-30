@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
 using static FastEndpoints.Config;
 
+#pragma warning disable IL2026,IL3050
+
 namespace FastEndpoints;
 
 /// <summary>

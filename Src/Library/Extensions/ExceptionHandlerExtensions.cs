@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
+#pragma warning disable IL2026,IL3050
+
 namespace FastEndpoints;
 
 class ExceptionHandler;

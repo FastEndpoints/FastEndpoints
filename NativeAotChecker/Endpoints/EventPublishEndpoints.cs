@@ -16,9 +16,9 @@ sealed class EventPublishEndpoint : Endpoint<EventPublishRequest, Guid>
 
     public override async Task HandleAsync(EventPublishRequest req, CancellationToken ct)
     {
-        var e = new EventHasBeenPublished(req.Id);
+        IEvent e = new EventHasBeenPublished(req.Id);
         await e.PublishAsync(Mode.WaitForAll, ct);
-        await Send.OkAsync(e.Received, ct);
+        await Send.OkAsync(((EventHasBeenPublished)e).Received, ct);
     }
 }
 

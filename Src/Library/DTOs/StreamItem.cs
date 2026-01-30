@@ -1,5 +1,7 @@
 using System.Text.Json;
 
+#pragma warning disable IL2026,IL3050
+
 namespace FastEndpoints;
 
 public class StreamItem

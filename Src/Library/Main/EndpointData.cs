@@ -20,7 +20,6 @@ sealed class EndpointData
             throw new InvalidOperationException("FastEndpoints was unable to find any endpoint declarations!");
     }
 
-    [DynamicDependency(DynamicallyAccessedMemberTypes.PublicConstructors, typeof(EndpointSummary))]
     static EndpointDefinition[] BuildEndpointDefinitions(EndpointDiscoveryOptions opts, CommandHandlerRegistry cmdHandlerRegistry)
     {
         if (opts.SourceGeneratorDiscoveredTypes.Count > 0 && opts.Assemblies?.Any() is true)

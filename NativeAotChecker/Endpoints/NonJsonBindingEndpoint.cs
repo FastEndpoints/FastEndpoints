@@ -61,5 +61,5 @@ public class NonJsonBindingEndpoint : Endpoint<NonJsonRequest, NonJsonResponse>
     }
 }
 
-[JsonSerializable(typeof(NonJsonRequest)), JsonSerializable(typeof(UserName)), JsonSerializable(typeof(NonJsonResponse))]
+[JsonSerializable(typeof(NonJsonResponse))]
 public partial class NonJsonBindingSerCtx : JsonSerializerContext;

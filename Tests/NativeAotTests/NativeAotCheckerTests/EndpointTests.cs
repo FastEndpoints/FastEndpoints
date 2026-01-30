@@ -108,9 +108,12 @@ public class EndpointTests(App app)
             RequestId = "test-req-789"
         };
 
-        var (rsp, res) = await app.Client.POSTAsync<MultiSourceBindingEndpoint, MultiSourceBindingRequest, MultiSourceBindingResponse>(req, sendAsFormData: true);
+        var (rsp, res, err) =
+            await app.Client.POSTAsync<MultiSourceBindingEndpoint, MultiSourceBindingRequest, MultiSourceBindingResponse>(req, sendAsFormData: true);
 
-        rsp.IsSuccessStatusCode.ShouldBeTrue();
+        if (!rsp.IsSuccessStatusCode)
+            Assert.Fail(err);
+
         res.Description.ShouldBe("Test description from JSON");
         res.Id.ShouldBe(456);
         res.Category.ShouldBe("test-category");

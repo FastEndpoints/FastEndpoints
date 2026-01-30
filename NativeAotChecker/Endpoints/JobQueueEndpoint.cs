@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-
 namespace NativeAotChecker.Endpoints;
 
 public sealed class JobQueueRequest
@@ -8,16 +6,12 @@ public sealed class JobQueueRequest
     public Guid Id { get; set; }
 }
 
-[JsonSerializable(typeof(JobQueueRequest)), JsonSerializable(typeof(string))]
-public partial class JobQueueSerCtx : JsonSerializerContext;
-
 public sealed class JobQueueEndpoint : Endpoint<JobQueueRequest, string>
 {
     public override void Configure()
     {
         Get("job-queue/{id:guid}");
         AllowAnonymous();
-        SerializerContext<JobQueueSerCtx>();
     }
 
     public override async Task<string> ExecuteAsync(JobQueueRequest req, CancellationToken ct)

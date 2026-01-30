@@ -57,5 +57,5 @@ public sealed class MultiSourceBindingEndpoint : Endpoint<MultiSourceBindingRequ
     }
 }
 
-[JsonSerializable(typeof(MultiSourceBindingRequest)), JsonSerializable(typeof(MultiSourceBindingResponse)), JsonSerializable(typeof(ErrorResponse))]
+[JsonSerializable(typeof(MultiSourceBindingResponse))]
 public partial class MultiSourceBindingSerCtx : JsonSerializerContext;

@@ -1,15 +1,10 @@
-﻿using System.Text.Json.Serialization;
-
-namespace NativeAotChecker.Endpoints;
+﻿namespace NativeAotChecker.Endpoints;
 
 sealed class EventPublishRequest
 {
+    [QueryParam]
     public Guid Id { get; set; }
 }
-
-//todo: remove when test helper fix is in place
-[JsonSerializable(typeof(EventPublishRequest))]
-sealed partial class EventPublishSerializerCtx : JsonSerializerContext;
 
 sealed class EventPublishEndpoint : Endpoint<EventPublishRequest, Guid>
 {
@@ -17,7 +12,6 @@ sealed class EventPublishEndpoint : Endpoint<EventPublishRequest, Guid>
     {
         Post("event-publish");
         AllowAnonymous();
-        SerializerContext<EventPublishSerializerCtx>();
     }
 
     public override async Task HandleAsync(EventPublishRequest req, CancellationToken ct)

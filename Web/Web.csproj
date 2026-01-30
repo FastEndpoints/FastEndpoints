@@ -9,6 +9,49 @@
         <NoWarn>CS1591;1701;1702;CA2016;RCS1090;CA2254;CS8618;ASP0014</NoWarn>
     </PropertyGroup>
 
+
+     <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
+        <PublishAot>false</PublishAot>
+    </PropertyGroup>
+
+    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+        <PublishAot>true</PublishAot>
+        <PublishSingleFile>true</PublishSingleFile>
+        <SelfContained>true</SelfContained>
+        <!--optional-->
+        <PublishTrimmed>true</PublishTrimmed>
+        <InvariantGlobalization>false</InvariantGlobalization>
+        <StripSymbols>true</StripSymbols>
+        <DebuggerSupport>false</DebuggerSupport>
+        <DefineConstants>$(DefineConstants);AOT_COMPATIBLE</DefineConstants>
+
+        <!-- Disable PDB and XML files -->
+        <DebugType>none</DebugType>
+        <DebugSymbols>false</DebugSymbols>
+        <GenerateDocumentationFile>false</GenerateDocumentationFile>
+        <CopyDocumentationFilesFromPackages>false</CopyDocumentationFilesFromPackages>
+        <CopyDebugSymbolFilesFromPackages>false</CopyDebugSymbolFilesFromPackages>
+        <PublishReferencesDocumentationFiles>false</PublishReferencesDocumentationFiles>
+        <ExcludeGeneratedDebugSymbol>true</ExcludeGeneratedDebugSymbol>
+        <IncludeSymbolsInSingleFile>false</IncludeSymbolsInSingleFile>
+    </PropertyGroup>
+
+    <!-- Remove XML and PDB from publish output -->
+    <Target Name="RemoveDocAndSymbolsFromPublish" AfterTargets="ComputeResolvedFilesToPublishList">
+        <ItemGroup>
+            <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)" Condition="'%(Extension)' == '.pdb'" />
+            <ResolvedFileToPublish Remove="@(ResolvedFileToPublish)" Condition="'%(Extension)' == '.xml'" />
+        </ItemGroup>
+    </Target>
+    
+    <!-- Delete PDB files after publish -->
+    <Target Name="DeletePdbAfterPublish" AfterTargets="Publish">
+        <Delete Files="$(PublishDir)\*.pdb" />
+        <Delete Files="$(PublishDir)\*.xml" />
+    </Target>
+
+
+
     <ItemGroup>
         <ProjectReference Include="..\Src\Library\FastEndpoints.csproj"/>
         <ProjectReference Include="..\Src\Messaging\Messaging.Remote\FastEndpoints.Messaging.Remote.csproj"/>

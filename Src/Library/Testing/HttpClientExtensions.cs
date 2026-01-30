@@ -457,9 +457,7 @@ public static class HttpClientExtensions
             {
                 Method = method,
                 RequestUri = new($"{client.BaseAddress}{requestUri.TrimStart('/')}"),
-                Content = sendAsFormData
-                              ? request.ToForm()
-                              : new StringContent(JsonSerializer.Serialize(request, SerOpts.Options), Encoding.UTF8, "application/json")
+                Content = sendAsFormData ? request.ToForm() : request.ToContent()
             };
             msg.Headers.Add(Constants.RoutelessTest, "true");
 
@@ -505,6 +503,29 @@ public static class HttpClientExtensions
                 stream.Position = 0;
             }
         }
+    }
+
+    static StringContent? ToContent<TRequest>(this TRequest request) where TRequest : notnull
+    {
+        foreach (var prop in request.GetType().BindableProps())
+        {
+            if (prop.GetCustomAttribute<FromFormAttribute>() is not null)
+                continue;
+            if (prop.GetCustomAttribute<FromClaimAttribute>()?.IsRequired is true)
+                continue;
+            if (prop.GetCustomAttribute<FromHeaderAttribute>()?.IsRequired is true)
+                continue;
+            if (prop.GetCustomAttribute<HasPermissionAttribute>()?.IsRequired is true)
+                continue;
+            if (prop.GetCustomAttribute<FromCookieAttribute>()?.IsRequired is true)
+                continue;
+            if (prop.GetCustomAttribute<DontBindAttribute>()?.IsRequired is true) //covers FormField, RouteParam, QueryParam, FromQuery
+                continue;
+
+            return new(JsonSerializer.Serialize(request, SerOpts.Options), Encoding.UTF8, "application/json");
+        }
+
+        return null;
     }
 
     static readonly string[] contentHeaders =

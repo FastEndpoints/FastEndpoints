@@ -10,7 +10,7 @@ public class Request
 
     public string OrderID { get; set; }
 
-    [FromHeader("Content-Type")]
+    [FromHeader("Content-Type", IsRequired = false)]
     public string ContentType { get; set; }
 }
 

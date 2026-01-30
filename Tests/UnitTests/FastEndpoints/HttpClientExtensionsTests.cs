@@ -95,7 +95,6 @@ public class HttpClientExtensionsTests
     [Fact]
     public void GetTestUrlForGeneratesUrlWithDateTimeQueryParamInCorrectFormat()
     {
-        // Arrange
         MockHttpMessageHandler mockHttp = new();
         var http = mockHttp.ToHttpClient();
         http.BaseAddress = new("http://localhost");
@@ -107,14 +106,86 @@ public class HttpClientExtensionsTests
             QueryParam = DateTimeParamRequest.DateTime
         };
 
-        // Act
         var testUrl = HttpClientExtensions.GetTestUrlFor<DateTimeQueryParamEndpoint, DateTimeParamRequest>(req, http);
 
-        // Assert
         testUrl.ShouldBe($"{DateTimeParamRoute}?{nameof(DateTimeParamRequest.QueryParam)}={DateTimeParamRequest.DateTime:o}");
     }
-}
 
+    [Fact]
+    public async Task POSTAsync_WithOnlyRequiredBindingProperties_EmptyBody()
+    {
+        MockHttpMessageHandler mockHttp = new();
+        mockHttp.Expect(HttpMethod.Post, "http://localhost/api/only-headers")
+                .With(
+                    message =>
+                    {
+                        var content = message.Content?.ReadAsStringAsync().Result;
+
+                        return string.IsNullOrEmpty(content);
+                    })
+                .Respond("application/json", "\"ok\"");
+        var http = mockHttp.ToHttpClient();
+        http.BaseAddress = new("http://localhost");
+
+        IEndpoint.SetTestUrl(typeof(OnlyRequiredHeadersEndpoint), "/api/only-headers");
+
+        var (res, _) = await http.POSTAsync<OnlyRequiredHeadersEndpoint, OnlyRequiredHeadersRequest, string>(
+                           new()
+                           {
+                               Header1 = "value1",
+                               Header2 = "value2"
+                           });
+
+        res.StatusCode.ShouldBe(System.Net.HttpStatusCode.OK);
+        mockHttp.VerifyNoOutstandingExpectation();
+    }
+
+    [Fact]
+    public async Task POSTAsync_WithJsonProperty_SerializesToJson()
+    {
+        MockHttpMessageHandler mockHttp = new();
+        mockHttp
+            .Expect(HttpMethod.Post, "http://localhost/api/with-json")
+            .WithContent("{\"Id\":42,\"Header1\":\"value1\"}")
+            .Respond("application/json", "\"ok\"");
+        var http = mockHttp.ToHttpClient();
+        http.BaseAddress = new("http://localhost");
+
+        IEndpoint.SetTestUrl(typeof(WithJsonPropertyEndpoint), "/api/with-json");
+
+        var (res, _) = await http.POSTAsync<WithJsonPropertyEndpoint, WithJsonPropertyRequest, string>(
+                           new()
+                           {
+                               Id = 42,
+                               Header1 = "value1"
+                           });
+
+        res.StatusCode.ShouldBe(System.Net.HttpStatusCode.OK);
+        mockHttp.VerifyNoOutstandingExpectation();
+    }
+
+    [Fact]
+    public async Task POSTAsync_WithNonRequiredHeader_SerializesToJson()
+    {
+        MockHttpMessageHandler mockHttp = new();
+        mockHttp.Expect(HttpMethod.Post, "http://localhost/api/non-required-header")
+                .WithContent("{\"Header1\":\"value1\"}")
+                .Respond("application/json", "\"ok\"");
+        var http = mockHttp.ToHttpClient();
+        http.BaseAddress = new("http://localhost");
+
+        IEndpoint.SetTestUrl(typeof(NonRequiredHeaderEndpoint), "/api/non-required-header");
+
+        var (res, _) = await http.POSTAsync<NonRequiredHeaderEndpoint, NonRequiredHeaderRequest, string>(
+                           new()
+                           {
+                               Header1 = "value1"
+                           });
+
+        res.StatusCode.ShouldBe(System.Net.HttpStatusCode.OK);
+        mockHttp.VerifyNoOutstandingExpectation();
+    }
+}
 
 file class HydratedRouteArgsEndpoint : Endpoint<Request>;
 
@@ -161,4 +232,45 @@ file class DateTimeParamRequest
 
     [QueryParam]
     public DateTime? QueryParam { get; set; }
+}
+
+file class OnlyRequiredHeadersEndpoint : Endpoint<OnlyRequiredHeadersRequest, string>
+{
+    public override Task HandleAsync(OnlyRequiredHeadersRequest req, CancellationToken ct)
+        => Task.FromResult("ok");
+}
+
+file class OnlyRequiredHeadersRequest
+{
+    [FromHeader(IsRequired = true)]
+    public string Header1 { get; set; } = null!;
+
+    [FromHeader(IsRequired = true)]
+    public string Header2 { get; set; } = null!;
+}
+
+file class WithJsonPropertyEndpoint : Endpoint<WithJsonPropertyRequest, string>
+{
+    public override Task HandleAsync(WithJsonPropertyRequest req, CancellationToken ct)
+        => Task.FromResult("ok");
+}
+
+file class WithJsonPropertyRequest
+{
+    public int Id { get; set; }
+
+    [FromHeader(IsRequired = true)]
+    public string Header1 { get; set; } = null!;
+}
+
+file class NonRequiredHeaderEndpoint : Endpoint<NonRequiredHeaderRequest, string>
+{
+    public override Task HandleAsync(NonRequiredHeaderRequest req, CancellationToken ct)
+        => Task.FromResult("ok");
+}
+
+file class NonRequiredHeaderRequest
+{
+    [FromHeader(IsRequired = false)]
+    public string Header1 { get; set; } = null!;
 }

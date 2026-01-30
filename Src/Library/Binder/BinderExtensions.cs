@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 
-#pragma warning disable IL2070,IL2067,IL2111,IL2026,IL3050
+#pragma warning disable IL2070,IL2067,IL2111,IL2026,IL3050, IL2080
 
 namespace FastEndpoints;
 

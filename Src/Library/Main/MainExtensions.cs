@@ -15,6 +15,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using JsonOptions = Microsoft.AspNetCore.Http.Json.JsonOptions;
 
+#pragma warning disable IL2026, IL3050
+
 namespace FastEndpoints;
 
 /// <summary>

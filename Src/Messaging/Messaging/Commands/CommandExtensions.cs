@@ -1,5 +1,4 @@
 using System.Collections.Concurrent;
-using System.Data;
 using System.Diagnostics.CodeAnalysis;
 using FastEndpoints.Messaging;
 using Microsoft.Extensions.DependencyInjection;

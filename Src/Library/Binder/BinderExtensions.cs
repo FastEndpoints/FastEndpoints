@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -10,10 +9,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 
+#pragma warning disable IL2070,IL2067,IL2111,IL2026,IL3050
+
 namespace FastEndpoints;
 
-[SuppressMessage("Trimming", "IL2070"), SuppressMessage("Trimming", "IL2067"), SuppressMessage("Trimming", "IL2111"), SuppressMessage("Trimming", "IL2026"),
- SuppressMessage("Trimming", "IL2026"), SuppressMessage("AOT", "IL3050")]
 static class BinderExtensions
 {
     internal static string BareFieldName(this IFormFile file)
@@ -26,7 +25,7 @@ static class BinderExtensions
     static readonly Func<object> _emptyRequestInitializer = () => EmptyRequest.Instance;
     static readonly ConstructorInfo _parseResultCtor = Types.ParseResult.GetConstructor([Types.Bool, Types.Object])!;
 
-    extension([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods)] Type type)
+    extension(Type type)
     {
         internal Func<object> ObjectFactory()
         {

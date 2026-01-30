@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
+#pragma warning disable IL2091
+
 namespace FastEndpoints;
 
 /// <summary>

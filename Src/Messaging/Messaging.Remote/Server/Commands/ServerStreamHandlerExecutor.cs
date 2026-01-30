@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Grpc.AspNetCore.Server.Model;
 using Grpc.Core;
 using Microsoft.Extensions.DependencyInjection;
@@ -5,7 +6,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace FastEndpoints;
 
-sealed class ServerStreamHandlerExecutor<TCommand, THandler, TResult>(ICommandReceiver<TCommand>? testCommandReceiver = null)
+sealed class ServerStreamHandlerExecutor<TCommand, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] THandler, TResult>(ICommandReceiver<TCommand>? testCommandReceiver = null)
     : BaseHandlerExecutor<TCommand, THandler, TResult, ServerStreamHandlerExecutor<TCommand, THandler, TResult>>
     where TCommand : class, IServerStreamCommand<TResult>
     where THandler : class, IServerStreamCommandHandler<TCommand, TResult>

@@ -21,6 +21,9 @@ sealed class EndpointData
     }
 
     [DynamicDependency(DynamicallyAccessedMemberTypes.PublicConstructors, typeof(EndpointSummary))]
+    [UnconditionalSuppressMessage("Trimming", "IL2075", Justification = "Types are discovered by AssemblyScanner which validates interface requirements.")]
+    [UnconditionalSuppressMessage("Trimming", "IL2080", Justification = "Types are discovered by AssemblyScanner which validates method requirements.")]
+    [UnconditionalSuppressMessage("Trimming", "IL2067", Justification = "Summary types are preserved via DynamicDependency attribute.")]
     static EndpointDefinition[] BuildEndpointDefinitions(EndpointDiscoveryOptions opts, CommandHandlerRegistry cmdHandlerRegistry)
     {
         if (opts.SourceGeneratorDiscoveredTypes.Count > 0 && opts.Assemblies?.Any() is true)

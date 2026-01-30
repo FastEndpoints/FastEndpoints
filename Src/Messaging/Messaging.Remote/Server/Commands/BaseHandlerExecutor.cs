@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace FastEndpoints;
 
-abstract class BaseHandlerExecutor<TCommand, THandler, TResult, TSelf> : IMethodBinder<TSelf>
+abstract class BaseHandlerExecutor<TCommand, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] THandler, TResult, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods | DynamicallyAccessedMemberTypes.NonPublicMethods)] TSelf> : IMethodBinder<TSelf>
     where TCommand : class
     where THandler : class
     where TResult : class

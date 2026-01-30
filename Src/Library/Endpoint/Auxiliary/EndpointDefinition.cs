@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
@@ -792,9 +793,11 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
             list.Add(processor);
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2072", Justification = "ReqDtoType is discovered at startup and its public properties are preserved.")]
     string GetFromBodyPropName()
         => $"{ReqDtoType.BindableProps().FirstOrDefault(p => p.IsDefined(Types.FromBodyAttribute))?.Name}.";
 
+    [UnconditionalSuppressMessage("Trimming", "IL2072", Justification = "EndpointType is discovered at startup and its public properties are preserved.")]
     ServiceBoundEpProp[] GetServiceBoundEpProps()
         => EndpointType.BindableProps()
                        .Select(p => new ServiceBoundEpProp(p, p.GetCustomAttribute<KeyedServiceAttribute>()?.Key))

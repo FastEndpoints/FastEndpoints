@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using FluentValidation;
 using FluentValidation.Internal;
@@ -467,7 +468,7 @@ public static class MainExtensions
         }
     }
 
-    static bool AllPropsAreNonJsonSourced(this Type tRequest)
+    static bool AllPropsAreNonJsonSourced([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] this Type tRequest)
         => tRequest.BindableProps().All(p => p.CustomAttributes.Any(a => Types.NonJsonBindingAttribute.IsAssignableFrom(a.AttributeType)));
 }
 

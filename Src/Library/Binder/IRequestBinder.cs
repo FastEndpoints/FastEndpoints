@@ -8,7 +8,7 @@ namespace FastEndpoints;
 /// endpoint.
 /// </summary>
 /// <typeparam name="TRequest">the type of the request dto</typeparam>
-public interface IRequestBinder<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods | DynamicallyAccessedMemberTypes.Interfaces)] TRequest>
+public interface IRequestBinder<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods | DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicProperties | DynamicallyAccessedMemberTypes.Interfaces)] TRequest>
     where TRequest : notnull
 {
     /// <summary>

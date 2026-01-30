@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.AspNetCore.Builder;
 
 namespace FastEndpoints.Security;
 
@@ -8,6 +9,6 @@ public static class JwtRevocationExtensions
     /// adds an implementation of <see cref="JwtRevocationMiddleware" /> to the pipeline for the purpose of checking incoming jwt bearer tokens for validity.
     /// </summary>
     /// <typeparam name="T">implementation type of the token revocation middleware</typeparam>
-    public static IApplicationBuilder UseJwtRevocation<T>(this IApplicationBuilder app) where T : JwtRevocationMiddleware
+    public static IApplicationBuilder UseJwtRevocation<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicMethods)] T>(this IApplicationBuilder app) where T : JwtRevocationMiddleware
         => app.UseMiddleware<T>();
 }

@@ -13,10 +13,10 @@ namespace FastEndpoints;
 /// the default request binder for a given request dto type
 /// </summary>
 /// <typeparam name="TRequest">the type of the request dto this binder will be dealing with</typeparam>
-public class RequestBinder<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods | DynamicallyAccessedMemberTypes.Interfaces)] TRequest>
+public class RequestBinder<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods | DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicProperties | DynamicallyAccessedMemberTypes.Interfaces)] TRequest>
     : IRequestBinder<TRequest> where TRequest : notnull
 {
-    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods | DynamicallyAccessedMemberTypes.Interfaces)]
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods | DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicProperties | DynamicallyAccessedMemberTypes.Interfaces)]
     static readonly Type _tRequest = typeof(TRequest);
 
     static readonly Func<object> _dtoInitializer = _tRequest.ObjectFactory();

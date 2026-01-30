@@ -1,6 +1,7 @@
 // ReSharper disable MethodSupportsCancellation
 
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using FastEndpoints.Messaging.Remote;
 using FastEndpoints.Messaging.Remote.Core;
 using Grpc.AspNetCore.Server.Model;
@@ -49,7 +50,7 @@ abstract class EventHubBase
     }
 }
 
-sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, IMethodBinder<EventHub<TEvent, TStorageRecord, TStorageProvider>>
+sealed class EventHub<TEvent, TStorageRecord, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TStorageProvider> : EventHubBase, IMethodBinder<EventHub<TEvent, TStorageRecord, TStorageProvider>>
     where TEvent : class, IEvent
     where TStorageRecord : class, IEventStorageRecord, new()
     where TStorageProvider : IEventHubStorageProvider<TStorageRecord>

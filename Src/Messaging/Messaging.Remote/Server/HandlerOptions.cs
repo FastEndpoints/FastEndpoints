@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,7 +9,7 @@ namespace FastEndpoints;
 /// <summary>
 /// handler registration options
 /// </summary>
-public class HandlerOptions<TStorageRecord, TStorageProvider>
+public class HandlerOptions<TStorageRecord, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TStorageProvider>
     where TStorageRecord : class, IEventStorageRecord, new()
     where TStorageProvider : class, IEventHubStorageProvider<TStorageRecord>
 {
@@ -26,7 +27,7 @@ public class HandlerOptions<TStorageRecord, TStorageProvider>
     /// </summary>
     /// <typeparam name="TCommand">the type of the incoming command</typeparam>
     /// <typeparam name="THandler">the type of the handler for the incoming command</typeparam>
-    public GrpcServiceEndpointConventionBuilder Register<TCommand, THandler>()
+    public GrpcServiceEndpointConventionBuilder Register<TCommand, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] THandler>()
         where TCommand : class, ICommand
         where THandler : class, ICommandHandler<TCommand>
     {
@@ -49,7 +50,7 @@ public class HandlerOptions<TStorageRecord, TStorageProvider>
     /// <typeparam name="TCommand">the type of the incoming command</typeparam>
     /// <typeparam name="THandler">the type of the handler for the incoming command</typeparam>
     /// <typeparam name="TResult">the type of the result that will be returned from the handler</typeparam>
-    public GrpcServiceEndpointConventionBuilder Register<TCommand, THandler, TResult>()
+    public GrpcServiceEndpointConventionBuilder Register<TCommand, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] THandler, TResult>()
         where TCommand : class, ICommand<TResult>
         where THandler : class, ICommandHandler<TCommand, TResult>
         where TResult : class
@@ -61,7 +62,7 @@ public class HandlerOptions<TStorageRecord, TStorageProvider>
     /// <typeparam name="TCommand">the type of the incoming command</typeparam>
     /// <typeparam name="THandler">the type of the handler for the incoming command</typeparam>
     /// <typeparam name="TResult">the type of the result stream that will be returned from the handler</typeparam>
-    public GrpcServiceEndpointConventionBuilder RegisterServerStream<TCommand, THandler, TResult>()
+    public GrpcServiceEndpointConventionBuilder RegisterServerStream<TCommand, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] THandler, TResult>()
         where TCommand : class, IServerStreamCommand<TResult>
         where THandler : class, IServerStreamCommandHandler<TCommand, TResult>
         where TResult : class
@@ -73,7 +74,7 @@ public class HandlerOptions<TStorageRecord, TStorageProvider>
     /// <typeparam name="T">the type of the incoming item stream</typeparam>
     /// <typeparam name="THandler">the type of the handler for the incoming stream</typeparam>
     /// <typeparam name="TResult">the type of the result that will be returned from the handler when the stream ends</typeparam>
-    public GrpcServiceEndpointConventionBuilder RegisterClientStream<T, THandler, TResult>()
+    public GrpcServiceEndpointConventionBuilder RegisterClientStream<T, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] THandler, TResult>()
         where T : class
         where THandler : class, IClientStreamCommandHandler<T, TResult>
         where TResult : class

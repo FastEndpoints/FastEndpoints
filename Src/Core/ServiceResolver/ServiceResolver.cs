@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Concurrent;
 
@@ -37,11 +38,20 @@ sealed class ServiceResolver(IServiceProvider provider, IHttpContextAccessor? ct
 
         return factory(serviceProvider ?? ctxAccessor?.HttpContext?.RequestServices ?? provider, null);
 
+#if NET5_0_OR_GREATER
+        static ObjectFactory FactoryInitializer([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type t)
+            => ActivatorUtilities.CreateFactory(t, Type.EmptyTypes);
+#else
         static ObjectFactory FactoryInitializer(Type t)
             => ActivatorUtilities.CreateFactory(t, Type.EmptyTypes);
+#endif
     }
 
+#if NET5_0_OR_GREATER
+    public object CreateSingleton([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type type)
+#else
     public object CreateSingleton(Type type)
+#endif
         => _singletonCache.GetOrAdd(type, ActivatorUtilities.GetServiceOrCreateInstance(ctxAccessor?.HttpContext?.RequestServices ?? provider, type));
 
     public IServiceScope CreateScope()

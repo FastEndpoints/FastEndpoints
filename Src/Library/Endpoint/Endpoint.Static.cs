@@ -1,4 +1,5 @@
-﻿using System.Runtime.ExceptionServices;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.ExceptionServices;
 using System.Text.Json.Serialization;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
@@ -8,6 +9,7 @@ namespace FastEndpoints;
 
 public abstract partial class Endpoint<TRequest, TResponse> where TRequest : notnull
 {
+    [UnconditionalSuppressMessage("Trimming", "IL2091", Justification = "TRequest types are preserved through user endpoint declarations")]
     static async ValueTask<TRequest> BindRequestAsync(EndpointDefinition def, HttpContext ctx, List<ValidationFailure> failures, CancellationToken ct)
     {
         var binder = (IRequestBinder<TRequest>)

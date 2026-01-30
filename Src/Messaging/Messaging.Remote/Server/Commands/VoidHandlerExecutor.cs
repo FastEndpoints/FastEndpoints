@@ -1,9 +1,10 @@
-﻿using Grpc.AspNetCore.Server.Model;
+﻿using System.Diagnostics.CodeAnalysis;
+using Grpc.AspNetCore.Server.Model;
 using Grpc.Core;
 
 namespace FastEndpoints;
 
-sealed class VoidHandlerExecutor<TCommand, THandler>(ICommandReceiver<TCommand>? testCommandReceiver = null)
+sealed class VoidHandlerExecutor<TCommand, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] THandler>(ICommandReceiver<TCommand>? testCommandReceiver = null)
     : BaseHandlerExecutor<TCommand, THandler, EmptyObject, VoidHandlerExecutor<TCommand, THandler>>
     where TCommand : class, ICommand
     where THandler : class, ICommandHandler<TCommand>

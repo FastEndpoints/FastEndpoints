@@ -1,9 +1,10 @@
-﻿using Grpc.AspNetCore.Server.Model;
+﻿using System.Diagnostics.CodeAnalysis;
+using Grpc.AspNetCore.Server.Model;
 using Grpc.Core;
 
 namespace FastEndpoints;
 
-sealed class UnaryHandlerExecutor<TCommand, THandler, TResult>(ICommandReceiver<TCommand>? testCommandReceiver = null)
+sealed class UnaryHandlerExecutor<TCommand, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] THandler, TResult>(ICommandReceiver<TCommand>? testCommandReceiver = null)
     : BaseHandlerExecutor<TCommand, THandler, TResult, UnaryHandlerExecutor<TCommand, THandler, TResult>>
     where TCommand : class, ICommand<TResult>
     where THandler : class, ICommandHandler<TCommand, TResult>

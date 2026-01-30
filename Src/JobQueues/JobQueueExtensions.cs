@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -22,7 +23,7 @@ public static class JobQueueExtensions
     /// assemblies to scan for command handlers, in addition to all loaded assemblies.
     /// only applicable when using job queues as a standalone library.
     /// </param>
-    public static IServiceCollection AddJobQueues<TStorageRecord, TStorageProvider>(this IServiceCollection svc, params Assembly[]? assemblies)
+    public static IServiceCollection AddJobQueues<TStorageRecord, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TStorageProvider>(this IServiceCollection svc, params Assembly[]? assemblies)
         where TStorageRecord : class, IJobStorageRecord, new()
         where TStorageProvider : class, IJobStorageProvider<TStorageRecord>
     {

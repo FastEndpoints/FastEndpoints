@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace FastEndpoints;
@@ -49,7 +50,11 @@ internal static class AssemblyScanner
                .SelectMany(a => a.GetTypes())
                .Where(t => IsTypeMatch(t, opts));
 
+#if NET5_0_OR_GREATER
+        static bool IsTypeMatch([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] Type t, AssemblyScanOptions options)
+#else
         static bool IsTypeMatch(Type t, AssemblyScanOptions options)
+#endif
         {
             if (t.IsAbstract || t.IsInterface || t.IsGenericType)
                 return false;

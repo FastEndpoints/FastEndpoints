@@ -64,7 +64,7 @@ abstract class JobQueueBase
                    : queue.CancelJobAsync(trackingId, ct);
     }
 
-    internal static Task<TResult?> GetJobResultAsync<TCommand, TResult>(Guid trackingId, CancellationToken ct) where TCommand : ICommandBase
+    internal static Task<TResult?> GetJobResultAsync<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] TCommand, TResult>(Guid trackingId, CancellationToken ct) where TCommand : ICommandBase
     {
         var tCommand = typeof(TCommand);
         var tResult = tCommand.GetInterface(typeof(ICommand<>).Name)?.GetGenericArguments()[0];
@@ -77,7 +77,7 @@ abstract class JobQueueBase
                    : queue.GetJobResultAsync<TResult>(trackingId, ct);
     }
 
-    internal static Task StoreJobResultAsync<TCommand, TResult>(Guid trackingId, TResult result, CancellationToken ct)
+    internal static Task StoreJobResultAsync<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] TCommand, TResult>(Guid trackingId, TResult result, CancellationToken ct)
         where TCommand : ICommandBase
         where TResult : IJobResult
     {

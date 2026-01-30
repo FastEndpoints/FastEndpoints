@@ -1,11 +1,12 @@
-﻿using Grpc.AspNetCore.Server.Model;
+﻿using System.Diagnostics.CodeAnalysis;
+using Grpc.AspNetCore.Server.Model;
 using Grpc.Core;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace FastEndpoints;
 
-sealed class ClientStreamHandlerExecutor<TCommand, THandler, TResult>
+sealed class ClientStreamHandlerExecutor<TCommand, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] THandler, TResult>
     : BaseHandlerExecutor<TCommand, THandler, TResult, ClientStreamHandlerExecutor<TCommand, THandler, TResult>>
     where TCommand : class
     where THandler : class, IClientStreamCommandHandler<TCommand, TResult>

@@ -26,7 +26,7 @@ static class BinderExtensions
     static readonly Func<object> _emptyRequestInitializer = () => EmptyRequest.Instance;
     static readonly ConstructorInfo _parseResultCtor = Types.ParseResult.GetConstructor([Types.Bool, Types.Object])!;
 
-    extension([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods)] Type type)
+    extension([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods | DynamicallyAccessedMemberTypes.PublicConstructors | DynamicallyAccessedMemberTypes.PublicProperties | DynamicallyAccessedMemberTypes.Interfaces)] Type type)
     {
         internal Func<object> ObjectFactory()
         {
@@ -36,7 +36,7 @@ static class BinderExtensions
             return Cfg.BndOpts.ReflectionCache.GetOrAdd(type, new TypeDefinition())
                       .ObjectFactory ??= CompileFactory(type);
 
-            static Func<object> CompileFactory(Type t)
+            static Func<object> CompileFactory([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] Type t)
             {
                 if (t.IsValueType)
                     return Expression.Lambda<Func<object>>(Expression.Convert(Expression.New(t), typeof(object))).Compile();
@@ -92,7 +92,7 @@ static class BinderExtensions
             return Cfg.BndOpts.ReflectionCache.GetOrAdd(type, new TypeDefinition()).ValueParser
                        ??= GetOrCompileParser(type);
 
-            static Func<StringValues, ParseResult> GetOrCompileParser(Type type)
+            static Func<StringValues, ParseResult> GetOrCompileParser([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods | DynamicallyAccessedMemberTypes.Interfaces)] Type type)
             {
                 type = type.GetUnderlyingType();
 
@@ -170,7 +170,7 @@ static class BinderExtensions
             return (Cfg.BndOpts.ReflectionCache.GetOrAdd(type, new TypeDefinition())
                        .Properties ??= new(GetProperties(type))).Keys;
 
-            static IEnumerable<KeyValuePair<PropertyInfo, PropertyDefinition>> GetProperties(Type t)
+            static IEnumerable<KeyValuePair<PropertyInfo, PropertyDefinition>> GetProperties([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicProperties)] Type t)
             {
                 return t.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
                         .Where(

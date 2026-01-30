@@ -1,10 +1,12 @@
-﻿namespace FastEndpoints;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace FastEndpoints;
 
 /// <summary>
 /// the interface defining a job tracker
 /// </summary>
 /// <typeparam name="TCommand">the command type of the job</typeparam>
-public interface IJobTracker<TCommand> where TCommand : ICommandBase
+public interface IJobTracker<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] TCommand> where TCommand : ICommandBase
 {
     /// <summary>
     /// cancel a job by its tracking id. if the job is currently executing, the cancellation token passed down to the command handler method will be notified of the
@@ -45,7 +47,7 @@ public interface IJobTracker<TCommand> where TCommand : ICommandBase
 /// a <see cref="IJobTracker{TCommand}" /> implementation used for tracking queued jobs
 /// </summary>
 /// <typeparam name="TCommand">the command type of the job</typeparam>
-public class JobTracker<TCommand> : IJobTracker<TCommand> where TCommand : ICommandBase
+public class JobTracker<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] TCommand> : IJobTracker<TCommand> where TCommand : ICommandBase
 {
     /// <summary>
     /// cancel a job by its tracking id. if the job is currently executing, the cancellation token passed down to the command handler method will be notified of the

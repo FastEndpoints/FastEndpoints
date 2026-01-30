@@ -215,7 +215,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
     /// <param name="paramName">route parameter name</param>
     /// <param name="isRequired">set to false for disabling the automatic validation error</param>
     /// <returns>the value if retrieval is successful or null if <paramref name="isRequired" /> is set to false</returns>
-    protected T? Route<T>([StringSyntax("Route")] string paramName,
+    protected T? Route<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods)] T>([StringSyntax("Route")] string paramName,
                           bool isRequired = true)
     {
         if (HttpContext.Request.RouteValues.TryGetValue(paramName, out var val))
@@ -244,7 +244,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
     /// <param name="paramName">query parameter name</param>
     /// <param name="isRequired">set to false for disabling the automatic validation error</param>
     /// <returns>the value if retrieval is successful or null if <paramref name="isRequired" /> is set to false</returns>
-    protected T? Query<T>(string paramName, bool isRequired = true)
+    protected T? Query<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicMethods)] T>(string paramName, bool isRequired = true)
     {
         if (HttpContext.Request.Query.TryGetValue(paramName, out var val))
         {

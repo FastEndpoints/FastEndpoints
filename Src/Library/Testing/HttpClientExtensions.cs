@@ -519,7 +519,7 @@ public static class HttpClientExtensions
                 continue;
             if (prop.GetCustomAttribute<FromCookieAttribute>()?.IsRequired is true)
                 continue;
-            if (prop.GetCustomAttribute<DontBindAttribute>()?.IsRequired is true) //covers FormField, RouteParam, QueryParam, FromQuery
+            if (prop.GetCustomAttribute<DontBindAttribute>(true) is not null) //covers FormField, RouteParam, QueryParam, FromQuery
                 continue;
 
             return new(JsonSerializer.Serialize(request, SerOpts.Options), Encoding.UTF8, "application/json");

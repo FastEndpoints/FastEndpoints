@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace NativeAotChecker.Endpoints;
+﻿namespace NativeAotChecker.Endpoints;
 
 sealed class CommandExecutionRequest
 {
@@ -8,17 +6,12 @@ sealed class CommandExecutionRequest
     public string Name { get; set; }
 }
 
-//todo: this is a temp workaround until test helpers can remove empty json body
-[JsonSerializable(typeof(CommandExecutionRequest))]
-partial class CommandExecuteSerializerCtx : JsonSerializerContext;
-
 sealed class CommandExecutionEndpoint : Endpoint<CommandExecutionRequest, string>
 {
     public override void Configure()
     {
         Get("command-execution/{name}");
         AllowAnonymous();
-        SerializerContext<CommandExecuteSerializerCtx>();
     }
 
     public override Task<string> ExecuteAsync(CommandExecutionRequest req, CancellationToken ct)

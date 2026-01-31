@@ -359,3 +359,4 @@ Src/Documentation/api/
 .idea/
 
 Tests/NativeAotTests/NativeAotCheckerTests/aot
+NativeAotChecker/aot

@@ -72,11 +72,14 @@ public sealed class JobStorage : IJobStorageProvider<Job>, IJobResultProvider
     {
         var match = p.Match.Compile();
 
-        return Task.FromResult<ICollection<Job>>(
-            _jobs.Where(match)
-                 .OrderBy(r => r.ID)
-                 .Take(p.Limit)
-                 .ToArray());
+        lock (_lock)
+        {
+            return Task.FromResult<ICollection<Job>>(
+                _jobs.Where(match)
+                     .OrderBy(r => r.ID)
+                     .Take(p.Limit)
+                     .ToArray());
+        }
     }
 
     public Task MarkJobAsCompleteAsync(Job r, CancellationToken ct)

@@ -2,6 +2,8 @@
 
     <ItemGroup>
         <Content Include="xunit.runner.json" CopyToOutputDirectory="Always" Visible="false"/>
+        <Content Remove="aot\**"/>
+        <None Remove="aot\**"/>
     </ItemGroup>
 
     <PropertyGroup>
@@ -11,7 +13,7 @@
 
     <ItemGroup>
         <ProjectReference Include="$(AotProjectPath)NativeAotChecker.csproj"/>
-        <AotSourceFiles Include="$(AotProjectPath)**\*.cs"/>
+        <AotSourceFiles Include="$(AotProjectPath)**\*.cs" Visible="false"/>
     </ItemGroup>
 
     <!-- Incremental AOT publish - only runs when source files are newer than the executable -->

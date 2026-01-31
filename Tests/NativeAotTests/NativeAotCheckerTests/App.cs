@@ -60,7 +60,7 @@ public class App : IAsyncLifetime
                 FileName = _exePath,
                 Arguments = $"--urls={_baseUrl}",
                 UseShellExecute = true,
-                WindowStyle = ProcessWindowStyle.Minimized
+                WindowStyle = ProcessWindowStyle.Normal
             }
         };
         _apiProcess.Start();

@@ -50,7 +50,7 @@ public class App : IAsyncLifetime
         var startInfo = new ProcessStartInfo
         {
             FileName = "dotnet",
-            Arguments = $"publish \"{_projectPath}\" -c Release -r {rid} -o \"{outputDir}\" /p:PublishAot=true",
+            Arguments = $"publish \"{_projectPath}\" -c Release -r {rid} -o \"{outputDir}\"",
             WindowStyle = ProcessWindowStyle.Normal,
             UseShellExecute = true,
             RedirectStandardError = false
@@ -120,7 +120,7 @@ public class App : IAsyncLifetime
         {
             FileName = "dotnet",
             Arguments = "build",
-            WindowStyle = ProcessWindowStyle.Normal,
+            WindowStyle = ProcessWindowStyle.Minimized,
             UseShellExecute = true,
             RedirectStandardError = false,
             WorkingDirectory = _projectPath

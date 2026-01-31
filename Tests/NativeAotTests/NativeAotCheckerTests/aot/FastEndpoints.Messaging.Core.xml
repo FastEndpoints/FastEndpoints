@@ -1,0 +1,191 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>FastEndpoints.Messaging.Core</name>
+    </assembly>
+    <members>
+        <member name="T:FastEndpoints.Void">
+            <summary>
+            </summary>
+        </member>
+        <member name="T:FastEndpoints.IJobResult">
+            <summary>
+            </summary>
+        </member>
+        <member name="T:FastEndpoints.ICommandBase">
+            <summary>
+            common marker interface for all command types.
+            </summary>
+        </member>
+        <member name="T:FastEndpoints.ICommand">
+            <summary>
+            interface for a command that does not return anything
+            </summary>
+        </member>
+        <member name="T:FastEndpoints.ICommand`1">
+            <summary>
+            interface for a command that returns a <typeparamref name="TResult" />
+            </summary>
+            <typeparam name="TResult">the type of the result that will be returned from the handler of this command (i.e. <see cref="T:FastEndpoints.ICommandHandler`2" />)</typeparam>
+        </member>
+        <member name="T:FastEndpoints.IHasTrackingID">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.IHasTrackingID.TrackingID">
+            <summary>
+            tracking id of the job
+            </summary>
+        </member>
+        <member name="T:FastEndpoints.ITrackableJob`1">
+            <summary>
+            interface for a trackable job that returns a <typeparamref name="TResult" />
+            </summary>
+            <typeparam name="TResult">the type of the result</typeparam>
+        </member>
+        <member name="T:FastEndpoints.IServerStreamCommand`1">
+            <summary>
+            interface for a command that returns a stream of <typeparamref name="TResult" />
+            </summary>
+            <typeparam name="TResult">
+            the type of the result stream that will be returned from the handler of this command (i.e.
+            <see cref="T:FastEndpoints.IServerStreamCommandHandler`2" />)
+            </typeparam>
+        </member>
+        <member name="T:FastEndpoints.ICommandHandler">
+            <summary>
+            marker interface for all command handlers
+            </summary>
+        </member>
+        <member name="T:FastEndpoints.ICommandHandler`1">
+            <summary>
+            interface to be implemented by a command handler for a given command type that does not return a result
+            </summary>
+            <typeparam name="TCommand">the type of the command</typeparam>
+        </member>
+        <member name="M:FastEndpoints.ICommandHandler`1.ExecuteAsync(`0,System.Threading.CancellationToken)">
+            <summary>
+            accepts a command and does not return a result.
+            </summary>
+            <param name="command">the input command object</param>
+            <param name="ct">optional cancellation token</param>
+        </member>
+        <member name="T:FastEndpoints.ICommandHandler`2">
+            <summary>
+            interface to be implemented by a command handler for a given command type that returns a result
+            </summary>
+            <typeparam name="TCommand">the type of the input command</typeparam>
+            <typeparam name="TResult">the type of the result returned</typeparam>
+        </member>
+        <member name="M:FastEndpoints.ICommandHandler`2.ExecuteAsync(`0,System.Threading.CancellationToken)">
+            <summary>
+            receives a command and returns a result.
+            </summary>
+            <param name="command">the input command object</param>
+            <param name="ct">optional cancellation token</param>
+        </member>
+        <member name="T:FastEndpoints.IServerStreamCommandHandler`2">
+            <summary>
+            interface to be implemented by a command handler for a given command type that returns <typeparamref name="TResult" /> stream
+            </summary>
+            <typeparam name="TCommand">the type of the input command</typeparam>
+            <typeparam name="TResult">the type of the result stream returned</typeparam>
+        </member>
+        <member name="M:FastEndpoints.IServerStreamCommandHandler`2.ExecuteAsync(`0,System.Threading.CancellationToken)">
+            <summary>
+            receives a command and returns a stream of <typeparamref name="TResult" />.
+            </summary>
+            <param name="command">the input command object</param>
+            <param name="ct">optional cancellation token</param>
+        </member>
+        <member name="T:FastEndpoints.IClientStreamCommandHandler`2">
+            <summary>
+            interface to be implemented by a command handler for a stream of <typeparamref name="T" /> that returns a single <typeparamref name="TResult" />.
+            </summary>
+            <typeparam name="T">the type of item in the stream</typeparam>
+            <typeparam name="TResult">the type of the result returned when the stream ends</typeparam>
+        </member>
+        <member name="M:FastEndpoints.IClientStreamCommandHandler`2.ExecuteAsync(System.Collections.Generic.IAsyncEnumerable{`0},System.Threading.CancellationToken)">
+            <summary>
+            accepts a stream of <typeparamref name="T" /> and returns a <typeparamref name="TResult" /> when the stream ends.
+            </summary>
+            <param name="stream">the stream of incoming items</param>
+            <param name="ct">optional cancellation token</param>
+        </member>
+        <member name="T:FastEndpoints.ICommandReceiver`1">
+            <summary>
+            interface for a command receiver that can be used to test the receipt of commands in testing.
+            </summary>
+            <typeparam name="TCommand">the type of the command</typeparam>
+        </member>
+        <member name="M:FastEndpoints.ICommandReceiver`1.AddCommand(`0)">
+            <summary />
+        </member>
+        <member name="M:FastEndpoints.ICommandReceiver`1.WaitForMatchAsync(System.Func{`0,System.Boolean},System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            waits until at least one matching command is received not exceeding the timeout period.
+            </summary>
+            <param name="match">a predicate for matching commands that should be returned by the method</param>
+            <param name="timeoutSeconds">how long the method will wait until a matching command is received. default value is 2 seconds</param>
+            <param name="ct">optional cancellation token</param>
+        </member>
+        <member name="T:FastEndpoints.CommandReceiver`1">
+            <summary>
+            the default implementation of a command receiver that can be used to test the execution of a command.
+            </summary>
+            <typeparam name="TCommand">the type of the event</typeparam>
+        </member>
+        <member name="M:FastEndpoints.CommandReceiver`1.WaitForMatchAsync(System.Func{`0,System.Boolean},System.Int32,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+        <member name="T:FastEndpoints.IEvent">
+            <summary>
+            marker interface for an event model
+            </summary>
+        </member>
+        <member name="T:FastEndpoints.IEventHandler">
+            <summary>
+            marker interface for all event handlers
+            </summary>
+        </member>
+        <member name="T:FastEndpoints.IEventHandler`1">
+            <summary>
+            interface to be implemented by event handlers
+            </summary>
+            <typeparam name="TEvent">the type of the event model to be handled by this event handler</typeparam>
+        </member>
+        <member name="M:FastEndpoints.IEventHandler`1.HandleAsync(`0,System.Threading.CancellationToken)">
+            <summary>
+            the handler logic for the event handler
+            </summary>
+            <param name="eventModel">the input event model</param>
+            <param name="ct">optional cancellation token</param>
+        </member>
+        <member name="T:FastEndpoints.IEventReceiver`1">
+            <summary>
+            interface for an event receiver that can be used to test the receipt of events in testing.
+            </summary>
+            <typeparam name="TEvent">the type of the event</typeparam>
+        </member>
+        <member name="M:FastEndpoints.IEventReceiver`1.AddEvent(`0)">
+            <summary />
+        </member>
+        <member name="M:FastEndpoints.IEventReceiver`1.WaitForMatchAsync(System.Func{`0,System.Boolean},System.Int32,System.Threading.CancellationToken)">
+            <summary>
+            waits until at least one matching event is received not exceeding the timeout period.
+            </summary>
+            <param name="match">a predicate for matching events that should be returned by the method</param>
+            <param name="timeoutSeconds">how long the method will wait until a matching event is received. default value is 2 seconds</param>
+            <param name="ct">optional cancellation token</param>
+        </member>
+        <member name="T:FastEndpoints.EventReceiver`1">
+            <summary>
+            the default implementation of an event receiver that can be used to test the execution of and event.
+            </summary>
+            <typeparam name="TEvent">the type of the event</typeparam>
+        </member>
+        <member name="M:FastEndpoints.EventReceiver`1.WaitForMatchAsync(System.Func{`0,System.Boolean},System.Int32,System.Threading.CancellationToken)">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>

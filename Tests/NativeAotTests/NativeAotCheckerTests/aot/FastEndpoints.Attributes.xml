@@ -1,0 +1,656 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>FastEndpoints.Attributes</name>
+    </assembly>
+    <members>
+        <member name="T:FastEndpoints.BindFromAttribute">
+            <summary>
+            use this attribute to specify the name of route param, query param, or form field if it's different from the name of the property being bound to.
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.BindFromAttribute.Name">
+            <summary>
+            the name of the incoming query param, route param or form field
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.BindFromAttribute.#ctor(System.String)">
+            <summary>
+            use this attribute to specify the name of route param, query param, or form field if it's different from the name of the property being bound to.
+            </summary>
+            <param name="name">the name to use for binding</param>
+        </member>
+        <member name="T:FastEndpoints.NonJsonBindingAttribute">
+            <summary></summary>
+        </member>
+        <member name="T:FastEndpoints.DontBindAttribute">
+            <summary>
+            you can prevent one or more binding sources from supplying values for a dto property decorated with this attribute.
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.DontBindAttribute.BindingSources">
+            <summary>
+            gets the disabled binding sources.
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.DontBindAttribute.IsRequired">
+            <summary>
+            set to true if a validation error should be thrown when the request doesn't have a value for this property.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.DontBindAttribute.#ctor(FastEndpoints.Source)">
+            <summary>
+            specify a bitwise combination of binding sources to disable for the property.
+            </summary>
+        </member>
+        <member name="T:FastEndpoints.FormFieldAttribute">
+            <summary>
+            disables all other binding sources for a dto property except form fields.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.FormFieldAttribute.#ctor">
+            <summary>
+            disables all other binding sources for a dto property except form fields.
+            </summary>
+        </member>
+        <member name="T:FastEndpoints.RouteParamAttribute">
+            <summary>
+            disables all other binding sources for a dto property except route params.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.RouteParamAttribute.#ctor">
+            <summary>
+            disables all other binding sources for a dto property except route params.
+            </summary>
+        </member>
+        <member name="T:FastEndpoints.QueryParamAttribute">
+            <summary>
+            disables all other binding sources for a dto property except query params.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.QueryParamAttribute.#ctor">
+            <summary>
+            disables all other binding sources for a dto property except query params.
+            </summary>
+        </member>
+        <member name="T:FastEndpoints.FromAttribute">
+            <summary>
+            properties decorated with this attribute will have their values auto bound from the relevant claim of the current user principal.
+            this is a shorter alias for the [FromClaim] attribute.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.FromAttribute.#ctor(System.String,System.Boolean)">
+            <summary>
+            properties decorated with this attribute will have their values auto bound from the relevant claim of the current user principal.
+            this is a shorter alias for the [FromClaim] attribute.
+            </summary>
+            <param name="claimType">the claim type to auto bind</param>
+            <param name="isRequired">set to true if a validation error should be thrown when the current user principal doesn't have the specified claim</param>
+        </member>
+        <member name="T:FastEndpoints.FromBodyAttribute">
+            <summary>
+            properties decorated with this attribute will have their values auto bound from the incoming request's json body.
+            <para>HINT: no other binding sources will be used for binding that property.</para>
+            </summary>
+        </member>
+        <member name="T:FastEndpoints.FromClaimAttribute">
+            <summary>
+            properties decorated with this attribute will have their values auto bound from the relevant claim of the current user principal
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.FromClaimAttribute.ClaimType">
+            <summary>
+            the claim type to auto bind
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.FromClaimAttribute.IsRequired">
+            <summary>
+            set to true if a validation error should be thrown when the current user principal doesn't have the specified claim
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.FromClaimAttribute.RemoveFromSchema">
+            <summary>
+            set to true if your header is not required but shouldn't be added to schema model
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.FromClaimAttribute.#ctor(System.Boolean,System.Boolean)">
+            <summary>
+            properties decorated with this attribute will have their values auto bound from the relevant claim of the current user principal
+            </summary>
+            <param name="isRequired">
+            set to false if a validation error shouldn't be thrown when the current user principal doesn't have a claim type matching the property name
+            being bound to.
+            </param>
+            <param name="removeFromSchema">set to true if your header is not required but shouldn't be added to schema model.</param>
+        </member>
+        <member name="M:FastEndpoints.FromClaimAttribute.#ctor(System.String,System.Boolean,System.Boolean)">
+            <summary>
+            properties decorated with this attribute will have their values auto bound from the relevant claim of the current user principal
+            </summary>
+            <param name="claimType">
+            optionally specify the claim type to bind from. if not specified, the claim type of the user principal must match the name of the property being
+            bound to.
+            </param>
+            <param name="isRequired">set to false if a validation error shouldn't be thrown when the current user principal doesn't have the specified claim type</param>
+            <param name="removeFromSchema">set to true if your header is not required but shouldn't be added to schema model.</param>
+        </member>
+        <member name="T:FastEndpoints.FromCookieAttribute">
+            <summary>
+            properties decorated with this attribute will have their values auto bound from the relevant cookie of the current request.
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.FromCookieAttribute.CookieName">
+            <summary>
+            the cookie name to auto bind from
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.FromCookieAttribute.IsRequired">
+            <summary>
+            set to true if a validation error should be thrown when the current request doesn't have the specified cookie
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.FromCookieAttribute.RemoveFromSchema">
+            <summary>
+            set to true if your cookie is not required but shouldn't be added to schema model
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.FromCookieAttribute.#ctor(System.Boolean,System.Boolean)">
+            <summary>
+            properties decorated with this attribute will have their values auto bound from the relevant http cookie of the current request.
+            </summary>
+            <param name="isRequired">
+            set to false if a validation error shouldn't be thrown when the current user request doesn't have a cookie matching the property name being
+            bound to.
+            </param>
+            <param name="removeFromSchema">set to true if your cookie is not required but shouldn't be added to schema model.</param>
+        </member>
+        <member name="M:FastEndpoints.FromCookieAttribute.#ctor(System.String,System.Boolean,System.Boolean)">
+            <summary>
+            properties decorated with this attribute will have their values auto bound from the relevant http cookie of the current request.
+            </summary>
+            <param name="cookieName">optionally specify the cookie name to bind from. if not specified, the cookie name must match the name of the property being bound to.</param>
+            <param name="isRequired">set to false if a validation error shouldn't be thrown when the current request doesn't have the specified cookie.</param>
+            <param name="removeFromSchema">set to true if your cookie is not required but shouldn't be added to schema model.</param>
+        </member>
+        <member name="T:FastEndpoints.FromFormAttribute">
+            <summary>
+            if a request dto property is decorated with this attribute, that property will be bound from complex multipart form data (including files) from the
+            incoming request. only valid on complex type properties. only one dto property can be decorated. the incoming form data should be in the correct format.
+            incoming content-type must be <c>multipart/form-data</c>
+            <para>
+            HINT: recursively binding complex object graphs from form data is less performant than binding to top level dto properties.
+            so... use sparingly!
+            </para>
+            </summary>
+        </member>
+        <member name="T:FastEndpoints.FromHeaderAttribute">
+            <summary>
+            properties decorated with this attribute will have their values auto bound from the relevant http header of the current request.
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.FromHeaderAttribute.HeaderName">
+            <summary>
+            the header name to auto bind from
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.FromHeaderAttribute.IsRequired">
+            <summary>
+            set to true if a validation error should be thrown when the current request doesn't have the specified header
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.FromHeaderAttribute.RemoveFromSchema">
+            <summary>
+            set to true if your header is not required but shouldn't be added to schema model
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.FromHeaderAttribute.#ctor(System.Boolean,System.Boolean)">
+            <summary>
+            properties decorated with this attribute will have their values auto bound from the relevant http header of the current request.
+            </summary>
+            <param name="isRequired">
+            set to false if a validation error shouldn't be thrown when the current user request doesn't have a header matching the property name being
+            bound to.
+            </param>
+            <param name="removeFromSchema">set to true if your header is not required but shouldn't be added to schema model.</param>
+        </member>
+        <member name="M:FastEndpoints.FromHeaderAttribute.#ctor(System.String,System.Boolean,System.Boolean)">
+            <summary>
+            properties decorated with this attribute will have their values auto bound from the relevant http header of the current request.
+            </summary>
+            <param name="headerName">optionally specify the header name to bind from. if not specified, the header name must match the name of the property being bound to.</param>
+            <param name="isRequired">set to false if a validation error shouldn't be thrown when the current request doesn't have the specified header.</param>
+            <param name="removeFromSchema">set to true if your header is not required but shouldn't be added to schema model.</param>
+        </member>
+        <member name="T:FastEndpoints.FromQueryAttribute">
+            <summary>
+            if a request dto property is decorated with this attribute, that property will be bound from complex query parameter data from the  incoming request.
+            only valid on complex type properties. only one dto property can be decorated. the incoming query parameters should be in the correct format.
+            <para>
+            HINT: recursively binding complex object graphs from query parameters is less performant than binding to top level primitive dto properties.
+            so... use sparingly!
+            </para>
+            </summary>
+        </member>
+        <member name="T:FastEndpoints.HasPermissionAttribute">
+            <summary>
+            boolean properties decorated with this attribute will have their values set to true if the current principal has the specified permission.
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.HasPermissionAttribute.Permission">
+            <summary>
+            the permission to check for
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.HasPermissionAttribute.IsRequired">
+            <summary>
+            set to true if a validation error should be thrown when the current user principal doesn't have the specified permission
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.HasPermissionAttribute.RemoveFromSchema">
+            <summary>
+            set to true if your header is not required but shouldn't be added to model
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.HasPermissionAttribute.#ctor(System.String,System.Boolean,System.Boolean)">
+            <summary>
+            boolean properties decorated with this attribute will have their values set to true if the current principal has the specified permission.
+            </summary>
+            <param name="permission">the permission to check for</param>
+            <param name="isRequired">set to false if a validation error shouldn't be thrown when the current principal doesn't have the specified permission.</param>
+            <param name="removeFromSchema">set to true if your header is not required but shouldn't be added to body model.</param>
+        </member>
+        <member name="T:FastEndpoints.AllowFileUploadsAttribute">
+            <summary>
+            enable file uploads with multipart/form-data content type
+            </summary>
+            <param name="dontAutoBindFormData">
+            set 'true' to disable auto binding of form data which enables uploading and reading of large files without buffering to memory/disk.
+            you can access the multipart sections for reading via the <c>FormFileSectionsAsync()</c> method.
+            </param>
+        </member>
+        <member name="M:FastEndpoints.AllowFileUploadsAttribute.#ctor(System.Boolean)">
+            <summary>
+            enable file uploads with multipart/form-data content type
+            </summary>
+            <param name="dontAutoBindFormData">
+            set 'true' to disable auto binding of form data which enables uploading and reading of large files without buffering to memory/disk.
+            you can access the multipart sections for reading via the <c>FormFileSectionsAsync()</c> method.
+            </param>
+        </member>
+        <member name="P:FastEndpoints.AllowFileUploadsAttribute.DontAutoBindFormData">
+            <summary>
+            set 'true' to disable auto binding of form data which enables uploading and reading of large files without buffering to memory/disk.
+            you can access the multipart sections for reading via the <c>FormFileSectionsAsync()</c> method.
+            </summary>
+        </member>
+        <member name="T:FastEndpoints.HttpAttribute">
+            <summary>
+            base http attribute class
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.HttpAttribute.#ctor(FastEndpoints.Http,System.String)">
+            <summary>
+            constructor
+            </summary>
+            <param name="verb">verb</param>
+            <param name="route">route</param>
+        </member>
+        <member name="M:FastEndpoints.HttpAttribute.#ctor(FastEndpoints.Http,System.String[])">
+            <summary>
+            constructor
+            </summary>
+            <param name="verb">verb</param>
+            <param name="routes">routes</param>
+        </member>
+        <member name="T:FastEndpoints.HttpDeleteAttribute">
+            <summary>
+            use this attribute to specify a DELETE route for an endpoint
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.HttpDeleteAttribute.#ctor(System.String[])">
+            <summary>
+            use this attribute to specify a DELETE route for an endpoint
+            </summary>
+            <param name="routes">the routes for the endpoint</param>
+        </member>
+        <member name="T:FastEndpoints.HttpGetAttribute">
+            <summary>
+            use this attribute to specify a GET route for an endpoint
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.HttpGetAttribute.#ctor(System.String[])">
+            <summary>
+            use this attribute to specify a GET route for an endpoint
+            </summary>
+            <param name="routes">the routes for the endpoint</param>
+        </member>
+        <member name="T:FastEndpoints.HttpPatchAttribute">
+            <summary>
+            use this attribute to specify a PATCH route for an endpoint
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.HttpPatchAttribute.#ctor(System.String[])">
+            <summary>
+            use this attribute to specify a PATCH route for an endpoint
+            </summary>
+            <param name="routes">the routes for the endpoint</param>
+        </member>
+        <member name="T:FastEndpoints.HttpPostAttribute">
+            <summary>
+            use this attribute to specify a POST route for an endpoint
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.HttpPostAttribute.#ctor(System.String[])">
+            <summary>
+            use this attribute to specify a POST route for an endpoint
+            </summary>
+            <param name="routes">the routes for the endpoint</param>
+        </member>
+        <member name="T:FastEndpoints.HttpPutAttribute">
+            <summary>
+            use this attribute to specify a PUT route for an endpoint
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.HttpPutAttribute.#ctor(System.String[])">
+            <summary>
+            use this attribute to specify a PUT route for an endpoint
+            </summary>
+            <param name="routes">the routes for the endpoint</param>
+        </member>
+        <member name="T:FastEndpoints.ThrottleAttribute">
+            <summary>
+            rate limit requests to this endpoint based on a request http header sent by the client.
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.ThrottleAttribute.HitLimit">
+            <summary>
+            how many requests are allowed within the given duration
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.ThrottleAttribute.DurationSeconds">
+            <summary>
+            the frequency in seconds where the accrued hit count should be reset
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.ThrottleAttribute.HeaderName">
+            <summary>
+            the name of the request header used to uniquely identify clients.
+            header name can also be configured globally using <c>app.UseFastEndpoints(c=> c.Throttle...)</c>
+            not specifying a header name will first look for 'X-Forwarded-For' header and if not present, will use `HttpContext.Connection.RemoteIpAddress`.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.ThrottleAttribute.#ctor(System.Int32,System.Double,System.String)">
+            <summary>
+            rate limit requests to this endpoint based on a request http header sent by the client.
+            </summary>
+            <param name="hitLimit">how many requests are allowed within the given duration</param>
+            <param name="durationSeconds">the frequency in seconds where the accrued hit count should be reset</param>
+            <param name="headerName">
+            the name of the request header used to uniquely identify clients.
+            header name can also be configured globally using <c>app.UseFastEndpoints(c=> c.ThrottleOptions...)</c>
+            not specifying a header name will first look for 'X-Forwarded-For' header and if not present, will use `HttpContext.Connection.RemoteIpAddress`.
+            </param>
+        </member>
+        <member name="T:FastEndpoints.DontInjectAttribute">
+            <summary>
+            endpoint properties marked with this attribute will disable property injection for that property
+            </summary>
+        </member>
+        <member name="T:FastEndpoints.DontRegisterAttribute">
+            <summary>
+            classes marked with this attribute will be skipped during assembly scanning for auto registration
+            </summary>
+        </member>
+        <member name="T:FastEndpoints.HideFromDocsAttribute">
+            <summary>
+            attribute used to mark classes, properties, methods that should be hidden from public api
+            </summary>
+        </member>
+        <member name="T:FastEndpoints.KeyedServiceAttribute">
+            <summary>
+            use this attribute to mark a property to be auto injected from the DI container.
+            </summary>
+            <param name="keyName">the key name</param>
+        </member>
+        <member name="M:FastEndpoints.KeyedServiceAttribute.#ctor(System.String)">
+            <summary>
+            use this attribute to mark a property to be auto injected from the DI container.
+            </summary>
+            <param name="keyName">the key name</param>
+        </member>
+        <member name="P:FastEndpoints.KeyedServiceAttribute.Key">
+            <summary>
+            the key to use for obtaining the service from the DI container.
+            </summary>
+        </member>
+        <member name="T:FastEndpoints.NotImplementedAttribute">
+            <summary>
+            indicates a base/abstract method that's not implemented.
+            </summary>
+        </member>
+        <member name="T:FastEndpoints.RegisterServiceAttribute`1">
+            <summary>
+            When using the 'FastEndpoints.Generator' package, any concrete class can be decorated with this attribute to source generate extension methods
+            in the form of <c>.RegisterServicesFrom{assembly-name}()</c> which can be used to automatically register services with a single call per assembly.
+            instead of multiple calls per each service you need registered in DI.
+            <para>
+            specify the service type with the <typeparamref name="TService" /> generic attribute argument. the service type would typically be an interface type.
+            </para>
+            </summary>
+            <typeparam name="TService">the type of the service you are registering. typically an interface type.</typeparam>
+        </member>
+        <member name="M:FastEndpoints.RegisterServiceAttribute`1.#ctor(FastEndpoints.LifeTime)">
+            <summary>
+            mark a class for registration in DI using the 'FastEndpoints.Generator' package by specifying the service lifetime.
+            </summary>
+            <param name="serviceLifetime">the service lifetime to use when registering in DI</param>
+        </member>
+        <member name="T:FastEndpoints.LifeTime">
+            <summary>
+            enum for selecting the DI service lifetime
+            </summary>
+        </member>
+        <member name="F:FastEndpoints.LifeTime.Scoped">
+            <summary>
+            scoped service lifetime
+            </summary>
+        </member>
+        <member name="F:FastEndpoints.LifeTime.Transient">
+            <summary>
+            transient service lifetime
+            </summary>
+        </member>
+        <member name="F:FastEndpoints.LifeTime.Singleton">
+            <summary>
+            singleton service lifetime
+            </summary>
+        </member>
+        <member name="T:FastEndpoints.ToHeaderAttribute">
+            <summary>
+            response dto properties marked with this attribute will cause an automatic response header to be added to the http response with the value from the property  that is
+            annotated.
+            </summary>
+            <param name="headerName">a custom name for the header. if not supplied, the property name will be used.</param>
+        </member>
+        <member name="M:FastEndpoints.ToHeaderAttribute.#ctor(System.String)">
+            <summary>
+            response dto properties marked with this attribute will cause an automatic response header to be added to the http response with the value from the property  that is
+            annotated.
+            </summary>
+            <param name="headerName">a custom name for the header. if not supplied, the property name will be used.</param>
+        </member>
+        <member name="P:FastEndpoints.ToHeaderAttribute.HeaderName">
+            <summary>
+            a custom name for the header. if not supplied, the property name will be used.
+            </summary>
+        </member>
+        <member name="T:FastEndpoints.ParseResult">
+            <summary>
+            dto used to hold the result of a value parsing operation
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.ParseResult.IsSuccess">
+            <summary>
+            will be true if the parsing operation was a success
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.ParseResult.Value">
+            <summary>
+            will hold the parsed value if the parsing was successful
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.ParseResult.#ctor(System.Boolean,System.Object)">
+            <summary>
+            constructor for initializing a ParseResult instance
+            </summary>
+            <param name="isSuccess">set to true of parsing was successful</param>
+            <param name="value">set the value that was obtained from the parsing operation</param>
+        </member>
+        <member name="T:FastEndpoints.ReflectionCache">
+            <summary>
+            the central repository of reflection related data for request dtos and their children
+            </summary>
+        </member>
+        <member name="T:FastEndpoints.TypeDefinition">
+            <summary>
+            represents reflection data for a given type
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.TypeDefinition.ObjectFactory">
+            <summary>
+            a func for creating a new blank instance of a type
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.TypeDefinition.Properties">
+            <summary>
+            the reflection data for all the properties of a type
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.TypeDefinition.ValueParser">
+            <summary>
+            a func used for converting string values to the respective type by calling it's <c>TryParse()</c> method.
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.TypeDefinition.IsValidatable">
+            <summary>
+            indicates if this type, or it's immediate properties has data annotation validation attributes.
+            </summary>
+        </member>
+        <member name="T:FastEndpoints.PropertyDefinition">
+            <summary>
+            represents reflection data for a property of a type
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.PropertyDefinition.Setter">
+            <summary>
+            action used for setting the value of a property on a class
+            </summary>
+        </member>
+        <member name="T:FastEndpoints.Http">
+            <summary>
+            enum for specifying a http verb
+            </summary>
+        </member>
+        <member name="F:FastEndpoints.Http.GET">
+            <summary>
+            retrieve a record
+            </summary>
+        </member>
+        <member name="F:FastEndpoints.Http.POST">
+            <summary>
+            create a record
+            </summary>
+        </member>
+        <member name="F:FastEndpoints.Http.PUT">
+            <summary>
+            replace a record
+            </summary>
+        </member>
+        <member name="F:FastEndpoints.Http.PATCH">
+            <summary>
+            partially update a record
+            </summary>
+        </member>
+        <member name="F:FastEndpoints.Http.DELETE">
+            <summary>
+            remove a record
+            </summary>
+        </member>
+        <member name="F:FastEndpoints.Http.HEAD">
+            <summary>
+            retrieve only headers
+            </summary>
+        </member>
+        <member name="F:FastEndpoints.Http.OPTIONS">
+            <summary>
+            retrieve communication options
+            </summary>
+        </member>
+        <member name="F:FastEndpoints.Http.CONNECT">
+            <summary>
+            establish a communication tunnel
+            </summary>
+        </member>
+        <member name="F:FastEndpoints.Http.TRACE">
+            <summary>
+            perform a message loop-back test for debugging purposes
+            </summary>
+        </member>
+        <member name="T:FastEndpoints.Source">
+            <summary>
+            enum for choosing which binding sources to disable for a given property using the <see cref="T:FastEndpoints.DontBindAttribute" />
+            </summary>
+        </member>
+        <member name="T:JetBrains.Annotations.RouteTemplateAttribute">
+            <summary>
+            Indicates that the marked parameter, field, or property is a route template.
+            </summary>
+        </member>
+        <member name="T:JetBrains.Annotations.UsedImplicitlyAttribute">
+            <summary>
+            Indicates that the marked symbol is used implicitly (e.g. via reflection, in external library), so this symbol will be ignored by usage-checking inspections. You can use
+            <see cref="T:JetBrains.Annotations.ImplicitUseKindFlags" /> and <see cref="T:JetBrains.Annotations.ImplicitUseTargetFlags" /> to configure how this attribute is applied.
+            </summary>
+        </member>
+        <member name="M:JetBrains.Annotations.UsedImplicitlyAttribute.#ctor(JetBrains.Annotations.ImplicitUseKindFlags,JetBrains.Annotations.ImplicitUseTargetFlags)">
+            <summary>
+            Indicates that the marked symbol is used implicitly (e.g. via reflection, in external library), so this symbol will be ignored by usage-checking inspections. You can use
+            <see cref="T:JetBrains.Annotations.ImplicitUseKindFlags" /> and <see cref="T:JetBrains.Annotations.ImplicitUseTargetFlags" /> to configure how this attribute is applied.
+            </summary>
+        </member>
+        <member name="T:JetBrains.Annotations.ImplicitUseKindFlags">
+            <summary>
+            Specifies the details of an implicitly used symbol when it is marked with <see cref="T:JetBrains.Annotations.UsedImplicitlyAttribute" />.
+            </summary>
+        </member>
+        <member name="F:JetBrains.Annotations.ImplicitUseKindFlags.Access">
+            <summary>Only entity marked with attribute considered used.</summary>
+        </member>
+        <member name="F:JetBrains.Annotations.ImplicitUseKindFlags.Assign">
+            <summary>Indicates implicit assignment to a member.</summary>
+        </member>
+        <member name="F:JetBrains.Annotations.ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature">
+            <summary>
+            Indicates implicit instantiation of a type with fixed constructor signature.
+            That means any unused constructor parameters won't be reported as such.
+            </summary>
+        </member>
+        <member name="F:JetBrains.Annotations.ImplicitUseKindFlags.InstantiatedNoFixedConstructorSignature">
+            <summary>Indicates implicit instantiation of a type.</summary>
+        </member>
+        <member name="T:JetBrains.Annotations.ImplicitUseTargetFlags">
+            <summary>
+            Specifies what is considered to be used implicitly when marked with <see cref="T:JetBrains.Annotations.UsedImplicitlyAttribute" />.
+            </summary>
+        </member>
+        <member name="F:JetBrains.Annotations.ImplicitUseTargetFlags.Members">
+            <summary>Members of the type marked with the attribute are considered used.</summary>
+        </member>
+        <member name="F:JetBrains.Annotations.ImplicitUseTargetFlags.WithInheritors">
+            <summary> Inherited entities are considered used. </summary>
+        </member>
+        <member name="F:JetBrains.Annotations.ImplicitUseTargetFlags.WithMembers">
+            <summary>Entity marked with the attribute and all its members considered used.</summary>
+        </member>
+    </members>
+</doc>

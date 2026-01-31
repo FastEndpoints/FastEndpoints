@@ -9,6 +9,14 @@ bld.Services
    .AddAuthorization()
    .AddFastEndpoints(o => o.SourceGeneratorDiscoveredTypes = DiscoveredTypes.All)
    .AddJobQueues<Job, JobStorage>();
+
+// Register DI services for testing
+bld.Services.AddScoped<IScopedCounter, ScopedCounter>();
+bld.Services.AddSingleton<ISingletonService, SingletonService>();
+bld.Services.AddTransient<ITransientService, TransientService>();
+bld.Services.AddScoped<IAotTestService, AotTestService>();
+bld.Services.AddScoped<IPropertyInjectedService, PropertyInjectedService>();
+
 bld.Services.ConfigureHttpJsonOptions(o => o.SerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonSerializerContext.Default));
 
 var app = bld.Build();

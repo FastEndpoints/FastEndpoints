@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
+#pragma warning disable IL2087, IL2075, IL2070
 namespace FastEndpoints;
 
 /// <summary>

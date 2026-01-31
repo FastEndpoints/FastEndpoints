@@ -6,6 +6,8 @@ using FluentValidation.Results;
 using DAValidationResult = System.ComponentModel.DataAnnotations.ValidationResult;
 using DAValidator = System.ComponentModel.DataAnnotations.Validator;
 
+#pragma warning disable IL2026
+
 namespace FastEndpoints;
 
 public abstract partial class Endpoint<TRequest, TResponse> : IValidationErrors<TRequest> where TRequest : notnull

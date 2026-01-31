@@ -1,6 +1,8 @@
 using System.Diagnostics;
 using System.Reflection;
 
+#pragma warning disable IL2075, IL2080
+
 namespace FastEndpoints;
 
 //lives as a singleton in each DI container instance

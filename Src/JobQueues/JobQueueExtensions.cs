@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -7,6 +8,8 @@ namespace FastEndpoints;
 /// <summary>
 /// extension methods for job queues
 /// </summary>
+[UnconditionalSuppressMessage("Trimming", "IL2091"), UnconditionalSuppressMessage("Trimming", "IL2075"), UnconditionalSuppressMessage("Trimming", "IL2055"),
+ UnconditionalSuppressMessage("AOT", "IL3050")]
 public static class JobQueueExtensions
 {
     static Type _tStorageRecord = null!;

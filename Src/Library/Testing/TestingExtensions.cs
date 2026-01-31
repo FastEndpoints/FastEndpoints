@@ -1,13 +1,13 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-
-#pragma warning disable IL2091
 
 namespace FastEndpoints;
 
 /// <summary>
 /// extension methods for registering fake/test/mock command and event handlers for integration testing
 /// </summary>
+[UnconditionalSuppressMessage("aot", "IL2091")]
 public static class TestingExtensions
 {
     extension(IServiceCollection s)

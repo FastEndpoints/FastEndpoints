@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.Hosting;
@@ -6,10 +7,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
-#pragma warning disable IL2026,IL3050
-
 namespace FastEndpoints;
 
+[UnconditionalSuppressMessage("Trimming", "IL2026"), UnconditionalSuppressMessage("AOT", "IL3050")]
 public abstract partial class Endpoint<TRequest, TResponse> where TRequest : notnull
 {
     //NOTE:

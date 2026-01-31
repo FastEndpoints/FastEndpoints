@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -5,7 +6,7 @@ using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 
-#pragma warning disable IL2077, IL2091, IL2080, IL2072, IL2075
+//#pragma warning disable , , , ,
 
 namespace FastEndpoints;
 
@@ -14,6 +15,8 @@ namespace FastEndpoints;
 /// the default request binder for a given request dto type
 /// </summary>
 /// <typeparam name="TRequest">the type of the request dto this binder will be dealing with</typeparam>
+[UnconditionalSuppressMessage("aot", "IL2077"), UnconditionalSuppressMessage("aot", "IL2091"), UnconditionalSuppressMessage("aot", "IL2080"),
+ UnconditionalSuppressMessage("aot", "IL2072"), UnconditionalSuppressMessage("aot", "IL2075")]
 public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest : notnull
 {
     static readonly Type _tRequest = typeof(TRequest);

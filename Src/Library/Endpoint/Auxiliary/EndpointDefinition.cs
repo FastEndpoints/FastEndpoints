@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
@@ -11,13 +12,13 @@ using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc;
 using static FastEndpoints.Config;
 
-#pragma warning disable IL2070,IL2075, IL3050, IL2055
-
 namespace FastEndpoints;
 
 /// <summary>
 /// represents the configuration settings of an endpoint
 /// </summary>
+[UnconditionalSuppressMessage("aot", "IL2070"), UnconditionalSuppressMessage("aot", "IL2075"), UnconditionalSuppressMessage("aot", "IL3050"),
+ UnconditionalSuppressMessage("aot", "IL2055")]
 public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, Type responseDtoType)
 {
     //these can only be set from internal code but accessible for user

@@ -6,6 +6,7 @@ using FastEndpoints.JobsQueues;
 
 namespace FastEndpoints;
 
+[UnconditionalSuppressMessage("aot", "IL2090")]
 abstract class JobQueueBase
 {
     //key: tCommand

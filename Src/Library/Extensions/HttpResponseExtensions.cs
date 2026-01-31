@@ -9,6 +9,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using static FastEndpoints.Config;
 
+#pragma warning disable IL2026
+
 namespace FastEndpoints;
 
 public static class HttpResponseExtensions

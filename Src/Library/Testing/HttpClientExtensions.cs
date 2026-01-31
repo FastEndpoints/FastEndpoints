@@ -1,6 +1,7 @@
 // ReSharper disable InconsistentNaming
 
 using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Net;
 using System.Net.Http.Json;
@@ -11,13 +12,12 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
 using static FastEndpoints.Config;
 
-#pragma warning disable IL2026,IL3050, IL2075
-
 namespace FastEndpoints;
 
 /// <summary>
 /// a set of extensions to the httpclient in order to facilitate route-less integration testing
 /// </summary>
+[UnconditionalSuppressMessage("aot", "IL2026"), UnconditionalSuppressMessage("aot", "IL3050"), UnconditionalSuppressMessage("aot", "IL2075")]
 public static class HttpClientExtensions
 {
     extension(HttpClient client)

@@ -1,15 +1,15 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.AspNetCore.Http;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using static FastEndpoints.Config;
-
-#pragma warning disable IL2026,IL3050
 
 namespace FastEndpoints;
 
 /// <summary>
 /// serialization options for the endpoints
 /// </summary>
+[UnconditionalSuppressMessage("aot", "IL2026"), UnconditionalSuppressMessage("aot", "IL3050")]
 public sealed class SerializerOptions
 {
     /// <summary>

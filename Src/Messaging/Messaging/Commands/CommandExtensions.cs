@@ -16,6 +16,7 @@ internal sealed class CommandHandlerRegistry : ConcurrentDictionary<Type, Comman
 /// <summary>
 /// extension methods for command execution
 /// </summary>
+[UnconditionalSuppressMessage("aot", "IL3050"), UnconditionalSuppressMessage("aot", "IL2055"), UnconditionalSuppressMessage("aot", "IL2077")]
 public static class CommandExtensions
 {
 #pragma warning disable CS0649 // Field is never assigned to

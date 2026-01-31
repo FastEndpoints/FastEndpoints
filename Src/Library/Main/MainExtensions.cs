@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using FluentValidation;
 using FluentValidation.Internal;
@@ -15,13 +16,12 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using JsonOptions = Microsoft.AspNetCore.Http.Json.JsonOptions;
 
-#pragma warning disable IL2026, IL3050
-
 namespace FastEndpoints;
 
 /// <summary>
 /// provides extensions to easily bootstrap fastendpoints in the asp.net middleware pipeline
 /// </summary>
+[UnconditionalSuppressMessage("aot", "IL2026"), UnconditionalSuppressMessage("aot", "IL3050")]
 public static class MainExtensions
 {
     /// <summary>

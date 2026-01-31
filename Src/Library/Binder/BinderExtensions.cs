@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -9,10 +10,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using Microsoft.Net.Http.Headers;
 
-#pragma warning disable IL2070,IL2067,IL2111,IL2026,IL3050, IL2080
-
 namespace FastEndpoints;
 
+[UnconditionalSuppressMessage("aot", "IL2070"), UnconditionalSuppressMessage("aot", "IL2111"), UnconditionalSuppressMessage("aot", "IL3050"),
+ UnconditionalSuppressMessage("aot", "IL2080"), UnconditionalSuppressMessage("aot", "IL2067"), UnconditionalSuppressMessage("aot", "IL2026"),
+ UnconditionalSuppressMessage("aot", "IL2075")]
 static class BinderExtensions
 {
     internal static string BareFieldName(this IFormFile file)

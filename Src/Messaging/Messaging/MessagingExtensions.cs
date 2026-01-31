@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using FastEndpoints.Messaging;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -8,6 +9,7 @@ namespace FastEndpoints;
 /// <summary>
 /// extension methods for registering messaging services
 /// </summary>
+[UnconditionalSuppressMessage("aot", "IL2075")]
 public static class MessagingExtensions
 {
     /// <summary>

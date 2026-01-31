@@ -1,16 +1,17 @@
-﻿using FluentValidation;
+﻿using System.Diagnostics.CodeAnalysis;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-#pragma warning disable IL2087, IL2075, IL2070
 namespace FastEndpoints;
 
 /// <summary>
 /// a factory for instantiating endpoints/event/mappers/validators/etc. for testing purposes
 /// </summary>
+[UnconditionalSuppressMessage("aot", "IL2087"), UnconditionalSuppressMessage("aot", "IL2075"), UnconditionalSuppressMessage("aot", "IL2070")]
 public static class Factory
 {
     static readonly EndpointFactory _epFactory = new();

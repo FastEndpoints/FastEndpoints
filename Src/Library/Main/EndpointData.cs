@@ -1,11 +1,11 @@
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
-
-#pragma warning disable IL2075, IL2080
 
 namespace FastEndpoints;
 
 //lives as a singleton in each DI container instance
+[UnconditionalSuppressMessage("aot", "IL2080"), UnconditionalSuppressMessage("aot", "IL2067"), UnconditionalSuppressMessage("aot", "IL2075")]
 sealed class EndpointData
 {
     internal Stopwatch Stopwatch { get; } = new();

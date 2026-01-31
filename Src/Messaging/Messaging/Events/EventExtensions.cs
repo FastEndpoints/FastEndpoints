@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 
 namespace FastEndpoints;
@@ -6,6 +7,7 @@ namespace FastEndpoints;
 /// <summary>
 /// extension methods for event publishing
 /// </summary>
+[UnconditionalSuppressMessage("aot", "IL3050")]
 public static class EventExtensions
 {
     /// <summary>

@@ -1,9 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-
-#pragma warning disable IL2026,IL3050
 
 namespace FastEndpoints;
 
@@ -12,6 +11,7 @@ class ExceptionHandler;
 /// <summary>
 /// extensions for global exception handling
 /// </summary>
+[UnconditionalSuppressMessage("aot", "IL2026"), UnconditionalSuppressMessage("aot", "IL3050")]
 public static class ExceptionHandlerExtensions
 {
     /// <summary>

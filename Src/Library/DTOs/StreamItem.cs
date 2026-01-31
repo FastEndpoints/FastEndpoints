@@ -1,9 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
-
-#pragma warning disable IL2026,IL3050
 
 namespace FastEndpoints;
 
+[UnconditionalSuppressMessage("AOT", "IL2026"), UnconditionalSuppressMessage("AOT", "IL3050")]
 public class StreamItem
 {
     /// <summary>event id</summary>

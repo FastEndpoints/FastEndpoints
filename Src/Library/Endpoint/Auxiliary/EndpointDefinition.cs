@@ -11,6 +11,8 @@ using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc;
 using static FastEndpoints.Config;
 
+#pragma warning disable IL2070,IL2075, IL3050, IL2055
+
 namespace FastEndpoints;
 
 /// <summary>
@@ -65,7 +67,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     internal bool ExecuteAsyncImplemented;
     bool? _execReturnsIResults;
     internal bool ExecuteAsyncReturnsIResult => _execReturnsIResults ??= ResDtoType.IsAssignableTo(Types.IResult);
-    internal HashSet<IFeatureFlag> FeatureFlags = [];
+    internal readonly HashSet<IFeatureFlag> FeatureFlags = [];
     internal bool FoundDuplicateValidators;
     internal HitCounter? HitCounter { get; private set; }
     internal bool ImplementsConfigure;

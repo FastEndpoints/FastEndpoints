@@ -181,4 +181,21 @@ public class EndpointTests(App app)
         res.ProcessedValue.ShouldBe($"CUSTOM-BINDER:{id}");
         res.BinderWasUsed.ShouldBeTrue();
     }
+
+    [Fact]
+    public async Task Pre_Processors_Execute()
+    {
+        var id = Guid.NewGuid().ToString();
+        var (rsp, res, err) = await app.Client.POSTAsync<PreProcessorEndpoint, PreProcessorRequest, PreProcessorResponse>(
+                                  new()
+                                  {
+                                      InputValue = id
+                                  });
+
+        if (!rsp.IsSuccessStatusCode)
+            Assert.Fail(err);
+
+        res.ResultValue.ShouldBe($"PROCESSED:{id}");
+        res.PreProcessorExecuted.ShouldBeTrue();
+    }
 }

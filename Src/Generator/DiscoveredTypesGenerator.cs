@@ -18,6 +18,8 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
         "FastEndpoints.ICommandHandler",
         "FastEndpoints.ISummary",
         "FastEndpoints.IJobStorageProvider<",
+        "FastEndpoints.IPreProcessor<",
+        "FastEndpoints.IPostProcessor<",
         "FluentValidation.IValidator"
     ];
 

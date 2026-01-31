@@ -1,8 +1,10 @@
-﻿using System.Linq.Expressions;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace FastEndpoints;
 
+[UnconditionalSuppressMessage("aot", "IL3050")]
 static class PropertyChainExtensions
 {
     internal static string GetPropertyChain(this Expression expression)
@@ -12,7 +14,7 @@ static class PropertyChainExtensions
             MemberExpression m => BuildMemberChain(m),
             BinaryExpression { NodeType: ExpressionType.ArrayIndex } be => FormatIndexerExpression(be.Left, be.Right),
             MethodCallExpression { Object: not null } mce when IsItemAccessor(mce) => FormatIndexerExpression(mce.Object, mce.Arguments[0]),
-            UnaryExpression ue => GetPropertyChain(ue.Operand),
+            UnaryExpression ue => ue.Operand.GetPropertyChain(),
             _ => throw new NotSupportedException($"[{expression}] is not a supported expression type!")
         };
     }
@@ -28,13 +30,13 @@ static class PropertyChainExtensions
             var v => v?.ToString()
         };
 
-        return $"{GetPropertyChain(objectExpression)}[{indexValueText}]";
+        return $"{objectExpression.GetPropertyChain()}[{indexValueText}]";
     }
 
     static string BuildMemberChain(MemberExpression memberExpression)
         => memberExpression.Expression is null or ParameterExpression
                ? memberExpression.Member.Name
-               : $"{GetPropertyChain(memberExpression.Expression)}.{memberExpression.Member.Name}";
+               : $"{memberExpression.Expression.GetPropertyChain()}.{memberExpression.Member.Name}";
 
     static object? GetValue(Expression? expression)
         => expression switch

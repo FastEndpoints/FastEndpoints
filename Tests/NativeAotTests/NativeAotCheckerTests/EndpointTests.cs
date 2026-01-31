@@ -1,3 +1,4 @@
+using System.Net;
 using NativeAotChecker.Endpoints;
 
 namespace NativeAotCheckerTests;
@@ -197,5 +198,21 @@ public class EndpointTests(App app)
 
         res.ResultValue.ShouldBe($"PROCESSED:{id}");
         res.PreProcessorExecuted.ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task Error_Response_With_Property_Expression_Use()
+    {
+        var (rsp, res, err) = await app.Client.POSTAsync<ErrorWithPropertyExpressionEndpoint, ErrorWithPropertyExpressionRequest, ErrorResponse>(
+                                  new()
+                                  {
+                                      Items = ["123", "321"]
+                                  });
+
+        if (rsp.StatusCode != HttpStatusCode.BadRequest)
+            Assert.Fail(err);
+
+        res.Errors.Count.ShouldBe(1);
+        res.Errors.Keys.ShouldContain("items[1]");
     }
 }

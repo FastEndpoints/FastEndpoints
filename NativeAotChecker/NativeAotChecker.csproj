@@ -12,6 +12,8 @@
 
     <ItemGroup>
         <None Remove="NativeAotChecker.csproj.DotSettings"/>
+        <Content Remove="aot\**"/>
+        <None Remove="aot\**"/>
     </ItemGroup>
 
     <ItemGroup>

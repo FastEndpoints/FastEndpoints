@@ -70,6 +70,12 @@ Testing helpers such as `.POSTAsync<>()` will only serialize the request DTO in 
 
 </details>
 
+<details><summary>Mitigate incorrect service scoping due to user error in Command Bus</summary>
+
+If a user for whatever reason registerd command handlers as scoped services in DI themselves (when they're not supposed to), it could lead to unexpected behavior. This is no longer an issue.
+
+</details>
+
 ## Minor Breaking Changes ⚠️
 
 <details><summary>'IJobStorageProvider.GetNextBatchAsync()' return type change</summary>

@@ -1,4 +1,5 @@
 ﻿using TestCases.CommandBusTest;
+using TestCases.CommandHandlerTest;
 
 namespace Messaging;
 
@@ -24,7 +25,7 @@ public class CommandBusTests(Sut App) : TestBase<Sut>
     [Fact]
     public async Task Generic_Command_With_Result()
     {
-        var (rsp, res) = await App.GuestClient.GETAsync<TestCases.CommandHandlerTest.GenericCmdEndpoint, IEnumerable<Guid>>();
+        var (rsp, res) = await App.GuestClient.GETAsync<GenericCmdEndpoint, IEnumerable<Guid>>();
         rsp.IsSuccessStatusCode.ShouldBeTrue();
         res.Count().ShouldBe(3);
         res.First().ShouldBe(Guid.Empty);
@@ -33,7 +34,7 @@ public class CommandBusTests(Sut App) : TestBase<Sut>
     [Fact]
     public async Task Generic_Command_Without_Result()
     {
-        var (rsp, res) = await App.GuestClient.GETAsync<TestCases.CommandHandlerTest.GenericCmdWithoutResultEndpoint, Guid>();
+        var (rsp, res) = await App.GuestClient.GETAsync<GenericCmdWithoutResultEndpoint, Guid>();
         rsp.IsSuccessStatusCode.ShouldBeTrue();
         res.ShouldBe(Guid.Empty);
     }
@@ -41,7 +42,7 @@ public class CommandBusTests(Sut App) : TestBase<Sut>
     [Fact]
     public async Task Command_Handler_Sends_Error_Response()
     {
-        var res = await App.Client.GETAsync<TestCases.CommandHandlerTest.ConcreteCmdEndpoint, ErrorResponse>();
+        var res = await App.Client.GETAsync<ConcreteCmdEndpoint, ErrorResponse>();
         res.Response.IsSuccessStatusCode.ShouldBeFalse();
         res.Result.StatusCode.ShouldBe(400);
         res.Result.Errors.Count.ShouldBe(2);
@@ -77,6 +78,33 @@ public class CommandBusTests(Sut App) : TestBase<Sut>
 
         rsp.StatusCode.ShouldBe(System.Net.HttpStatusCode.OK);
         TestVoidCommandHandler.FullName.ShouldBe("x y z");
+    }
+
+    [Fact]
+    public async Task Command_Handler_Instances_Are_Unique()
+    {
+        var (rsp, res) = await App.Client.GETAsync<GetCommandHandlerHashCodes, IEnumerable<int>>();
+
+        rsp.IsSuccessStatusCode.ShouldBeTrue();
+        res.Distinct().Count().ShouldBe(res.Count()); // no duplicate hash codes
+    }
+
+    [Fact]
+    public async Task Scoped_Service_Instances_Are_Unique_To_Each_Request()
+    {
+        List<Guid> svcInstanceIds = [];
+
+        await Parallel.ForEachAsync(
+            Enumerable.Range(1, 100),
+            async (_, _) =>
+            {
+                var (rsp, res) = await App.Client.GETAsync<ScopedServiceCheckEndpoint, Guid>();
+                rsp.IsSuccessStatusCode.ShouldBeTrue();
+                res.ShouldNotBe(Guid.Empty);
+                svcInstanceIds.Add(res);
+            });
+
+        svcInstanceIds.Distinct().Count().ShouldBe(svcInstanceIds.Count); // no duplicate service instances
     }
 }
 

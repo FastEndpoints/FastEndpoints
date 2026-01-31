@@ -1749,6 +1749,51 @@
         }
       }
     },
+    "/api/tests/command-handler-hashcodes": {
+      "get": {
+        "tags": [
+          "Tests"
+        ],
+        "operationId": "TestCasesCommandHandlerTestGetCommandHandlerHashCodes",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "format": "int32"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tests/scoped-service-check": {
+      "get": {
+        "tags": [
+          "Tests"
+        ],
+        "operationId": "TestCasesCommandHandlerTestScopedServiceCheckEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "guid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/test-cases/custom-request-binder": {
       "post": {
         "tags": [

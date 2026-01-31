@@ -159,4 +159,26 @@ public class EndpointTests(App app)
 
         res.ShouldBe("hello");
     }
+
+    [Fact]
+    public async Task Custom_Endpoint_Level_Binder()
+    {
+        var id = Guid.NewGuid().ToString();
+        app.Client.DefaultRequestHeaders.Add("X-Custom-Value", id);
+
+        var (rsp, res, err) = await app.Client.POSTAsync<CustomBinderEndpoint, CustomBinderRequest, CustomBinderResponse>(
+                                  new()
+                                  {
+                                      InputValue = "ignored",
+                                      ProcessedValue = "ignored"
+                                  });
+
+        if (!rsp.IsSuccessStatusCode)
+            Assert.Fail(err);
+
+        rsp.IsSuccessStatusCode.ShouldBeTrue();
+        res.InputValue.ShouldBe(id);
+        res.ProcessedValue.ShouldBe($"CUSTOM-BINDER:{id}");
+        res.BinderWasUsed.ShouldBeTrue();
+    }
 }

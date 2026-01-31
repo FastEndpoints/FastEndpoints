@@ -149,7 +149,7 @@ public class EndpointTests(App app)
         res.Category.ShouldBe("test-category");
     }
 
-    [Fact]
+[Fact]
     public async Task Result_Returning_Endpoint()
     {
         var (rsp, res, err) = await app.Client.GETAsync<ResultReturningEndpoint, string>();
@@ -197,5 +197,40 @@ public class EndpointTests(App app)
 
         res.ResultValue.ShouldBe($"PROCESSED:{id}");
         res.PreProcessorExecuted.ShouldBeTrue();
+    }
+
+    /// <summary>
+    /// Tests that open generic pre/post processors work in AOT mode.
+    /// 
+    /// This test validates PR1 (Core AOT Infrastructure) - without the source generator
+    /// producing factory methods for closed generic processors, this test FAILS in AOT:
+    /// 
+    /// - The endpoint uses typeof(AotGenericPreProcessor&lt;&gt;) and typeof(AotGenericPostProcessor&lt;,&gt;)
+    /// - At runtime, the framework must close these to the endpoint's TRequest/TResponse
+    /// - In AOT without factories, MakeGenericType + Activator.CreateInstance fails
+    /// - With PR1's source-generated factories, TryCreateClosedPreProcessor/PostProcessor succeeds
+    /// 
+    /// Expected behavior:
+    /// - PreProcessorRan == true: Source generator created AotGenericPreProcessor&lt;GenericProcessorRequest&gt; factory
+    /// - PostProcessorRan == true: Source generator created AotGenericPostProcessor&lt;GenericProcessorRequest, GenericProcessorResponse&gt; factory
+    /// </summary>
+    [Fact]
+    public async Task Generic_Processors_Work_In_AOT_Mode()
+    {
+        var req = new GenericProcessorRequest
+        {
+            Input = "Test Input"
+        };
+
+        var (rsp, res, err) = await app.Client.POSTAsync<GenericProcessorEndpoint, GenericProcessorRequest, GenericProcessorResponse>(req);
+
+        if (!rsp.IsSuccessStatusCode)
+            Assert.Fail(err);
+
+        // These assertions validate that the source generator correctly produced factories
+        // for the open generic processors. Without PR1, both would be false.
+        res.PreProcessorRan.ShouldBeTrue("Generic PreProcessor did not run - source generator factory missing?");
+        res.PostProcessorRan.ShouldBeTrue("Generic PostProcessor did not run - source generator factory missing?");
+        res.Output.ShouldBe("Processed: Test Input");
     }
 }

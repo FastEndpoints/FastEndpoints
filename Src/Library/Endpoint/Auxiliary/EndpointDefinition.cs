@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
@@ -480,22 +481,40 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
 
         foreach (var tProc in processorTypes)
         {
-            if (!tProc.IsGenericType ||
-                tProc.GetGenericArguments().Length != 2 ||
-                !tProc.GetInterfaces().Any(t => t.IsGenericType && t.GetGenericTypeDefinition() == Types.IPostProcessorOf2))
-                throw new InvalidOperationException($"[{tProc.FullName}] is not a valid open-generic post-processor for registering globally!");
+            ValidateAndAddPostProcessor(tProc, order);
+        }
+    }
 
-            var tFinal = tProc.MakeGenericType(ReqDtoType, ResDtoType);
+    void ValidateAndAddPostProcessor([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] Type tProc, Order order)
+    {
+        if (!tProc.IsGenericType ||
+            tProc.GetGenericArguments().Length != 2 ||
+            !tProc.GetInterfaces().Any(t => t.IsGenericType && t.GetGenericTypeDefinition() == Types.IPostProcessorOf2))
+            throw new InvalidOperationException($"[{tProc.FullName}] is not a valid open-generic post-processor for registering globally!");
 
-            try
-            {
-                var processor = (IProcessor)ServiceResolver.Instance.CreateSingleton(tFinal);
-                AddProcessor(order, processor, PostProcessorList, ref _postProcessorPosition);
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException($"Could not find/construct processor type {tFinal.FullName}", ex);
-            }
+        // Try AOT-safe factory first
+        if (GenericTypeRegistryProvider.TryCreateClosedPostProcessor(tProc, ReqDtoType, ResDtoType, out var processorInstance))
+        {
+            AddProcessor(order, (IProcessor)processorInstance!, PostProcessorList, ref _postProcessorPosition);
+            return;
+        }
+
+        // Fallback to type lookup + reflection-based creation
+        if (!GenericTypeRegistryProvider.TryGetClosedPostProcessor(tProc, ReqDtoType, ResDtoType, out var tFinal))
+        {
+            if (!RuntimeFeature.IsDynamicCodeSupported)
+                throw new InvalidOperationException($"Closed post-processor {tProc.Name}<{ReqDtoType.Name}, {ResDtoType.Name}> was not pre-registered. Ensure the source generator has discovered all processor types.");
+            tFinal = tProc.MakeGenericType(ReqDtoType, ResDtoType);
+        }
+
+        try
+        {
+            var processor = (IProcessor)ServiceResolver.Instance.CreateSingleton(tFinal);
+            AddProcessor(order, processor, PostProcessorList, ref _postProcessorPosition);
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException($"Could not find/construct processor type {tFinal!.FullName}", ex);
         }
     }
 
@@ -542,22 +561,40 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
 
         foreach (var tProc in processorTypes)
         {
-            if (!tProc.IsGenericType ||
-                tProc.GetGenericArguments().Length != 1 ||
-                !tProc.GetInterfaces().Any(t => t.IsGenericType && t.GetGenericTypeDefinition() == Types.IPreProcessorOf1))
-                throw new InvalidOperationException($"[{tProc.FullName}] is not a valid open generic pre-processor for registering globally!");
+            ValidateAndAddPreProcessor(tProc, order);
+        }
+    }
 
-            var tFinal = tProc.MakeGenericType(ReqDtoType);
+    void ValidateAndAddPreProcessor([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] Type tProc, Order order)
+    {
+        if (!tProc.IsGenericType ||
+            tProc.GetGenericArguments().Length != 1 ||
+            !tProc.GetInterfaces().Any(t => t.IsGenericType && t.GetGenericTypeDefinition() == Types.IPreProcessorOf1))
+            throw new InvalidOperationException($"[{tProc.FullName}] is not a valid open generic pre-processor for registering globally!");
 
-            try
-            {
-                var processor = (IProcessor)ServiceResolver.Instance.CreateSingleton(tFinal);
-                AddProcessor(order, processor, PreProcessorList, ref _preProcessorPosition);
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException($"Could not find/construct processor type {tFinal.FullName}", ex);
-            }
+        // Try AOT-safe factory first
+        if (GenericTypeRegistryProvider.TryCreateClosedPreProcessor(tProc, ReqDtoType, out var processorInstance))
+        {
+            AddProcessor(order, (IProcessor)processorInstance!, PreProcessorList, ref _preProcessorPosition);
+            return;
+        }
+
+        // Fallback to type lookup + reflection-based creation
+        if (!GenericTypeRegistryProvider.TryGetClosedPreProcessor(tProc, ReqDtoType, out var tFinal))
+        {
+            if (!RuntimeFeature.IsDynamicCodeSupported)
+                throw new InvalidOperationException($"Closed pre-processor {tProc.Name}<{ReqDtoType.Name}> was not pre-registered. Ensure the source generator has discovered all processor types.");
+            tFinal = tProc.MakeGenericType(ReqDtoType);
+        }
+
+        try
+        {
+            var processor = (IProcessor)ServiceResolver.Instance.CreateSingleton(tFinal);
+            AddProcessor(order, processor, PreProcessorList, ref _preProcessorPosition);
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException($"Could not find/construct processor type {tFinal!.FullName}", ex);
         }
     }
 
@@ -573,7 +610,13 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
             !binderType.GetInterfaces().Any(t => t.IsGenericType && t.GetGenericTypeDefinition() == Types.IRequestBinderOf1))
             throw new InvalidOperationException($"[{binderType.FullName}] is not a valid open generic request binder for registering globally!");
 
-        var tFinal = binderType.MakeGenericType(ReqDtoType);
+        // Try AOT-safe registry lookup first
+        if (!GenericTypeRegistryProvider.TryGetClosedRequestBinder(binderType, ReqDtoType, out var tFinal))
+        {
+            if (!RuntimeFeature.IsDynamicCodeSupported)
+                throw new InvalidOperationException($"Closed request binder {binderType.Name}<{ReqDtoType.Name}> was not pre-registered. Ensure the source generator has discovered all binder types.");
+            tFinal = binderType.MakeGenericType(ReqDtoType);
+        }
 
         try
         {
@@ -764,11 +807,33 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
         return _validator;
     }
 
-    internal static void AddProcessor<TProcessor>(Order order, IList<IProcessor> list, ref int pos)
+    internal static void AddProcessor<TProcessor>(Order order, IList<IProcessor> list, ref int pos) where TProcessor : IProcessor
     {
         try
         {
-            var processor = (IProcessor)ServiceResolver.Instance.CreateSingleton(typeof(TProcessor));
+            IProcessor processor;
+            
+            // First, try AOT-safe factory lookup for closed generic processors
+            if (typeof(TProcessor).IsGenericType && 
+                !typeof(TProcessor).IsGenericTypeDefinition &&
+                typeof(IPreProcessor).IsAssignableFrom(typeof(TProcessor)) &&
+                GenericTypeRegistryProvider.TryCreatePreProcessorFromClosedType(typeof(TProcessor), out var preInstance))
+            {
+                processor = (IProcessor)preInstance!;
+            }
+            else if (typeof(TProcessor).IsGenericType && 
+                     !typeof(TProcessor).IsGenericTypeDefinition &&
+                     typeof(IPostProcessor).IsAssignableFrom(typeof(TProcessor)) &&
+                     GenericTypeRegistryProvider.TryCreatePostProcessorFromClosedType(typeof(TProcessor), out var postInstance))
+            {
+                processor = (IProcessor)postInstance!;
+            }
+            else
+            {
+                // Fall back to service resolver
+                processor = (IProcessor)ServiceResolver.Instance.CreateSingleton(typeof(TProcessor));
+            }
+            
             AddProcessor(order, processor, list, ref pos);
         }
         catch (Exception ex)

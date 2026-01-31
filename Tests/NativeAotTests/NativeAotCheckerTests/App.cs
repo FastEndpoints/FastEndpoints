@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using NativeAotCheckerTests;
 
 [assembly: AssemblyFixture(typeof(App))]
@@ -13,11 +13,10 @@ using Xunit;
 //  native aot executables cannot be debugged (in rider).
 //  cannot be tested via WAF either. as of jan-2026.
 //  current testing flow is as follows:
-//  - publish a native aot executable with `dotnet publish /p:PublishAot=true`
+//  - aot binary is built incrementally via msbuild target before test compilation (only when NativeAotChecker source files are newer than the binary)
 //  - start the built app
 //  - wait for it to respond on /healthy endpoint
 //  - run test suit via http client (with routeless testing helpers from fastendpoints)
-//  - clean up on completion
 
 public class App : IAsyncLifetime
 {
@@ -26,9 +25,18 @@ public class App : IAsyncLifetime
     private static readonly string _port = "5050";
     private static readonly string _baseUrl = $"http://localhost:{_port}";
     private static readonly string _appName = "NativeAotChecker";
-    private static readonly string _projectPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "..", _appName);
-    private static string _exePath = "";
+    private static readonly string _exePath = GetExePath();
     private static Process? _apiProcess;
+
+    private static string GetExePath()
+    {
+        var testDir = Path.GetDirectoryName(typeof(App).Assembly.Location)!;
+        var aotDir = Path.Combine(testDir, "..", "..", "..", "aot");
+        aotDir = Path.GetFullPath(aotDir);
+        var exeName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? $"{_appName}.exe" : _appName;
+
+        return Path.Combine(aotDir, exeName); // path to aot binary: Tests/NativeAotTests/NativeAotCheckerTests/aot/
+    }
 
     public async ValueTask InitializeAsync()
     {
@@ -36,35 +44,11 @@ public class App : IAsyncLifetime
         var cfg = new Config();
         cfg.Serializer.Options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
 
-        var publishDir = Path.Combine(_projectPath, "aot");
-        var exeName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? $"{_appName}.exe" : _appName;
-        _exePath = Path.Combine(publishDir, exeName);
+        if (!File.Exists(_exePath))
+            throw new FileNotFoundException("AOT executable not found. Run build to generate it.", _exePath);
 
-        await RunPublishAsync(publishDir, RuntimeInformation.RuntimeIdentifier);
         StartApiProcess();
         await WaitForApiReadyAsync();
-    }
-
-    private static async Task RunPublishAsync(string outputDir, string rid)
-    {
-        var startInfo = new ProcessStartInfo
-        {
-            FileName = "dotnet",
-            Arguments = $"publish \"{_projectPath}\" -c Release -r {rid} -o \"{outputDir}\"",
-            WindowStyle = ProcessWindowStyle.Normal,
-            UseShellExecute = true,
-            RedirectStandardError = false
-        };
-
-        using var process = Process.Start(startInfo) ?? throw new("Failed to start dotnet publish");
-        await process.WaitForExitAsync();
-
-        if (process.ExitCode != 0)
-        {
-            var error = await process.StandardError.ReadToEndAsync();
-
-            throw new($"AOT Publish failed: {error}");
-        }
     }
 
     private static void StartApiProcess()
@@ -114,19 +98,5 @@ public class App : IAsyncLifetime
         }
         _apiProcess?.Dispose();
         Client.Dispose();
-
-        //fire off a non-aot build to avoid ide errors
-        var startInfo = new ProcessStartInfo
-        {
-            FileName = "dotnet",
-            Arguments = "build",
-            WindowStyle = ProcessWindowStyle.Minimized,
-            UseShellExecute = true,
-            RedirectStandardError = false,
-            WorkingDirectory = _projectPath
-        };
-
-        using var process = Process.Start(startInfo) ?? throw new("Failed to run dotnet clean");
-        await process.WaitForExitAsync();
     }
 }

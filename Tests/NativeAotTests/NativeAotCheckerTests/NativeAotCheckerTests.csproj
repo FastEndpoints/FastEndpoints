@@ -4,8 +4,63 @@
         <Content Include="xunit.runner.json" CopyToOutputDirectory="Always" Visible="false"/>
     </ItemGroup>
 
+    <PropertyGroup>
+        <AotOutputPath>$(MSBuildThisFileDirectory)aot\</AotOutputPath>
+        <AotProjectPath>$(MSBuildThisFileDirectory)..\..\..\NativeAotChecker\</AotProjectPath>
+    </PropertyGroup>
+
     <ItemGroup>
-        <ProjectReference Include="..\..\..\NativeAotChecker\NativeAotChecker.csproj"/>
+        <ProjectReference Include="$(AotProjectPath)NativeAotChecker.csproj"/>
+        <AotSourceFiles Include="$(AotProjectPath)**\*.cs"/>
     </ItemGroup>
+
+    <!-- Incremental AOT publish - only runs when source files are newer than the executable -->
+    <Target Name="PublishAotBeforeBuild" BeforeTargets="BeforeBuild">
+        <PropertyGroup>
+            <AotExeName Condition="$([MSBuild]::IsOSPlatform('Windows'))">NativeAotChecker.exe</AotExeName>
+            <AotExeName Condition="!$([MSBuild]::IsOSPlatform('Windows'))">NativeAotChecker</AotExeName>
+            <AotExePath>$(AotOutputPath)$(AotExeName)</AotExePath>
+        </PropertyGroup>
+
+        <!-- Check if exe exists -->
+        <PropertyGroup>
+            <AotExeExists Condition="Exists('$(AotExePath)')">true</AotExeExists>
+            <AotExeExists Condition="!Exists('$(AotExePath)')">false</AotExeExists>
+        </PropertyGroup>
+
+        <!-- Get the newest source file by sorting them -->
+        <ItemGroup>
+            <_SortedSources Include="%(AotSourceFiles.FullPath)"/>
+        </ItemGroup>
+
+        <!-- We can't easily find max in pure MSBuild without custom tasks or inline code -->
+        <!-- So we'll use a stamp file approach: compare against the exe's timestamp -->
+        <PropertyGroup>
+            <AotExeTimeTicks Condition="$(AotExeExists) == 'true'">$([System.IO.File]::GetLastWriteTime($(AotExePath)).Ticks)</AotExeTimeTicks>
+            <AotExeTimeTicks Condition="$(AotExeExists) == 'false'">0</AotExeTimeTicks>
+        </PropertyGroup>
+
+        <!-- Check each source file individually - if ANY are newer, we need to publish -->
+        <ItemGroup>
+            <_NewerSource Include="%(AotSourceFiles.FullPath)"
+                          Condition="$([System.DateTime]::Parse('%(AotSourceFiles.ModifiedTime)').Ticks) > $(AotExeTimeTicks)"/>
+        </ItemGroup>
+
+        <!-- Determine if we need to publish -->
+        <PropertyGroup>
+            <_NeedsPublish Condition="$(AotExeExists) == 'false'">true</_NeedsPublish>
+            <_NeedsPublish Condition="$(AotExeExists) == 'true' AND '@(_NewerSource)' != ''">true</_NeedsPublish>
+            <_NeedsPublish Condition="$(_NeedsPublish) == ''">false</_NeedsPublish>
+        </PropertyGroup>
+
+        <!-- Publish if needed -->
+        <Exec Command="dotnet publish &quot;$(AotProjectPath)NativeAotChecker.csproj&quot; -c Release -o &quot;$(AotOutputPath)&quot;"
+              Condition="$(_NeedsPublish) == 'true'"
+              StandardOutputImportance="low"
+              StandardErrorImportance="high"/>
+
+        <Message Text="AOT executable is up to date." Importance="high" Condition="$(_NeedsPublish) == 'false'"/>
+        <Message Text="Published NativeAotChecker AOT binary." Importance="high" Condition="$(_NeedsPublish) == 'true'"/>
+    </Target>
 
 </Project>

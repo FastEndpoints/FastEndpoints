@@ -1,0 +1,15 @@
+  Determining projects to restore...
+  All projects are up-to-date for restore.
+  FastEndpoints.Messaging.Core -> C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Core\bin\Release\netstandard2.1\FastEndpoints.Messaging.Core.dll
+  FastEndpoints.Attributes -> C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Attributes\bin\Release\netstandard2.0\FastEndpoints.Attributes.dll
+  FastEndpoints.Core -> C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Core\bin\Release\netstandard2.1\FastEndpoints.Core.dll
+  FastEndpoints.Messaging.Remote.Core -> C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Remote.Core\bin\Release\netstandard2.1\FastEndpoints.Messaging.Remote.Core.dll
+  FastEndpoints.Messaging -> C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging\bin\Release\net10.0\FastEndpoints.Messaging.dll
+  FastEndpoints.Messaging.Remote -> C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Remote\bin\Release\net10.0\FastEndpoints.Messaging.Remote.dll
+  FastEndpoints.JobQueues -> C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\JobQueues\bin\Release\net10.0\FastEndpoints.JobQueues.dll
+  FastEndpoints -> C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Library\bin\Release\net10.0\FastEndpoints.dll
+  FastEndpoints.Swagger -> C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Swagger\bin\Release\net10.0\FastEndpoints.Swagger.dll
+  FastEndpoints.Security -> C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Security\bin\Release\net10.0\FastEndpoints.Security.dll
+  FastEndpoints.Generator -> C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Generator\bin\Release\netstandard2.0\FastEndpoints.Generator.dll
+  Web -> C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Web\bin\Release\net10.0\win-x64\Web.dll
+  Web -> C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Web\bin\Release\net10.0\win-x64\publish\

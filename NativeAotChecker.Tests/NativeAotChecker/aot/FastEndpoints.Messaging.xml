@@ -1,0 +1,352 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>FastEndpoints.Messaging</name>
+    </assembly>
+    <members>
+        <member name="T:FastEndpoints.CommandHandlerRegistry">
+            <summary>
+            registry for command handlers. maps command types to their handler definitions.
+            </summary>
+        </member>
+        <member name="T:FastEndpoints.CommandExtensions">
+            <summary>
+            extension methods for command execution
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.CommandExtensions.ExecuteAsync``1(``0,System.Threading.CancellationToken)">
+            <summary>
+            executes the command that does not return a result
+            </summary>
+            <param name="command">the command to execute</param>
+            <param name="ct">optional cancellation token</param>
+            <exception cref="T:System.InvalidOperationException">thrown when a handler for the command cannot be instantiated</exception>
+        </member>
+        <member name="M:FastEndpoints.CommandExtensions.ExecuteAsync``1(FastEndpoints.ICommand{``0},System.Threading.CancellationToken)">
+            <summary>
+            executes the command and returns a result
+            </summary>
+            <typeparam name="TResult">the type of the returned result</typeparam>
+            <param name="command">the command to execute</param>
+            <param name="ct">optional cancellation token</param>
+            <exception cref="T:System.InvalidOperationException">thrown when a handler for the command cannot be instantiated</exception>
+        </member>
+        <member name="M:FastEndpoints.CommandExtensions.RegisterForTesting``1(FastEndpoints.ICommandHandler{``0,FastEndpoints.Void})">
+            <summary>
+            registers a fake command handler for unit testing purposes
+            </summary>
+            <typeparam name="TCommand">type of the command</typeparam>
+            <param name="handler">a fake handler instance</param>
+        </member>
+        <member name="M:FastEndpoints.CommandExtensions.RegisterForTesting``2(FastEndpoints.ICommandHandler{``0,``1})">
+            <summary>
+            registers a fake command handler for unit testing purposes
+            </summary>
+            <typeparam name="TCommand">type of the command</typeparam>
+            <typeparam name="TResult">type of the result being returned by the handler</typeparam>
+            <param name="handler">a fake handler instance</param>
+        </member>
+        <member name="M:FastEndpoints.CommandExtensions.RegisterGenericCommand``2(System.IServiceProvider)">
+            <inheritdoc cref="M:FastEndpoints.CommandExtensions.&lt;G&gt;$AEA33270220B6BEE5910F5E99F6B03EE.RegisterGenericCommand``2"/>
+        </member>
+        <member name="M:FastEndpoints.CommandExtensions.RegisterGenericCommand(System.IServiceProvider,System.Type,System.Type)">
+            <inheritdoc cref="M:FastEndpoints.CommandExtensions.&lt;G&gt;$AEA33270220B6BEE5910F5E99F6B03EE.RegisterGenericCommand(System.Type,System.Type)"/>
+        </member>
+        <member name="M:FastEndpoints.CommandExtensions.AddCommandMiddleware(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Action{FastEndpoints.CommandMiddlewareConfig})">
+            <summary>
+            register a common middleware pipeline for command handlers. the middleware can be created as open generic classes that implement the
+            <see cref="T:FastEndpoints.ICommandMiddleware`2" /> interface as well as closed generic classes implementing the same interface.
+            </summary>
+            <param name="services">the service collection</param>
+            <param name="config">configuration action for adding middleware components to the pipeline</param>
+            <returns>the service collection for chaining</returns>
+        </member>
+        <member name="T:FastEndpoints.CommandExtensions.&lt;G&gt;$AEA33270220B6BEE5910F5E99F6B03EE.&lt;M&gt;$11645D5D304D9724C1AB01093815E01A">
+            <param name="sp">the service provider</param>
+        </member>
+        <member name="M:FastEndpoints.CommandExtensions.&lt;G&gt;$AEA33270220B6BEE5910F5E99F6B03EE.RegisterGenericCommand``2">
+            <summary>
+            register a generic command handler for a generic command
+            </summary>
+            <typeparam name="TCommand">the type of the command</typeparam>
+            <typeparam name="THandler">the type of the command handler</typeparam>
+            <returns>the service provider for chaining</returns>
+        </member>
+        <member name="M:FastEndpoints.CommandExtensions.&lt;G&gt;$AEA33270220B6BEE5910F5E99F6B03EE.RegisterGenericCommand(System.Type,System.Type)">
+            <summary>
+            register a generic command handler for a generic command
+            </summary>
+            <param name="genericCommandType">
+            the open generic type of the command. ex: <c> typeof(MyCommand&lt;&gt;) </c>
+            </param>
+            <param name="genericHandlerType">the open generic type of the command handler. ex: <c> typeof(MyCommandHandler&lt;,&gt;) </c></param>
+            <returns>the service provider for chaining</returns>
+        </member>
+        <member name="T:FastEndpoints.CommandHandlerDefinition">
+            <summary>
+            definition for a command handler, containing the handler type and executor.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.CommandHandlerDefinition.#ctor(System.Type)">
+            <summary>
+            creates a new command handler definition for the specified handler type.
+            </summary>
+            <param name="handlerType">the type of the command handler</param>
+        </member>
+        <member name="T:FastEndpoints.CommandHandlerExecutor`2">
+            <summary>
+            Internal executor for command handlers. Not intended for direct use.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.CommandHandlerExecutor`2.#ctor(System.Collections.Generic.IEnumerable{FastEndpoints.ICommandMiddleware{`0,`1}},FastEndpoints.ICommandHandler{`0,`1},FastEndpoints.ICommandReceiver{`0})">
+            <summary>
+            Internal executor for command handlers. Not intended for direct use.
+            </summary>
+        </member>
+        <member name="T:FastEndpoints.CommandMiddlewareConfig">
+            <summary>
+            command middleware configuration
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.CommandMiddlewareConfig.Register(System.Type[])">
+            <summary>
+            register one or more open-generic command middleware pieces in the order you'd like them registered.
+            <code>
+            c.Register(typeof(CommandLogger&lt;,&gt;), typeof(CommandValidator&lt;,&gt;));
+            </code>
+            </summary>
+            <param name="middlewareTypes">the open-generic middleware types to add to the pipeline.</param>
+            <exception cref="T:System.ArgumentException">thrown if any of the supplied types are not open-generic.</exception>
+        </member>
+        <member name="M:FastEndpoints.CommandMiddlewareConfig.Register``3">
+            <summary>
+            register a closed-generic command middleware in the pipeline.
+            </summary>
+            <typeparam name="TCommand">the type of the command</typeparam>
+            <typeparam name="TResult">the type of the result</typeparam>
+            <typeparam name="TMiddleware">the type of the middleware</typeparam>
+        </member>
+        <member name="T:FastEndpoints.ICommandMiddleware`2">
+            <summary>
+            interface for creating a command middleware used to build a pipeline around command handlers.
+            </summary>
+            <typeparam name="TCommand">the type of the command</typeparam>
+            <typeparam name="TResult">the type of the result</typeparam>
+        </member>
+        <member name="M:FastEndpoints.ICommandMiddleware`2.ExecuteAsync(`0,FastEndpoints.CommandDelegate{`1},System.Threading.CancellationToken)">
+            <summary>
+            implement this method to run some common piece of logic for all command handlers.
+            make sure to execute the <paramref name="next" /> delegate within your logic in order to not break the pipeline.
+            </summary>
+            <param name="command">the command instance</param>
+            <param name="next">the command delegate to execute next</param>
+            <param name="ct">cancellation token</param>
+        </member>
+        <member name="T:FastEndpoints.CommandDelegate`1">
+            <summary>
+            command delegate
+            </summary>
+            <typeparam name="TResult">the type of the result</typeparam>
+        </member>
+        <member name="T:FastEndpoints.EventBase">
+            <summary>
+            base class for the event bus
+            </summary>
+        </member>
+        <member name="T:FastEndpoints.EventBus`1">
+            <summary>
+            event notification bus which uses an in-process pub/sub messaging system
+            </summary>
+            <typeparam name="TEvent">the type of notification event dto</typeparam>
+        </member>
+        <member name="M:FastEndpoints.EventBus`1.#ctor(System.Collections.Generic.IEnumerable{FastEndpoints.IEventHandler{`0}},FastEndpoints.IEventReceiver{`0})">
+            <summary>
+            instantiates an event bus for the given event dto type.
+            </summary>
+            <param name="eventHandlers">a collection of concrete event handler implementations that should receive notifications from this event bus</param>
+            <param name="testEventReceiver">a test event receiver that can be used to assert receipt of events</param>
+        </member>
+        <member name="M:FastEndpoints.EventBus`1.PublishAsync(`0,FastEndpoints.Mode,System.Threading.CancellationToken)">
+            <summary>
+            publish the given model/dto to all the subscribers of the event notification
+            </summary>
+            <param name="eventModel">the notification event model/dto to publish</param>
+            <param name="waitMode">specify whether to wait for none, any or all of the subscribers to complete their work</param>
+            <param name="cancellation">an optional cancellation token</param>
+            <returns>
+            a Task that matches the wait mode specified.
+            <see cref="F:FastEndpoints.Mode.WaitForNone" /> returns an already completed Task (fire and forget).
+            <see cref="F:FastEndpoints.Mode.WaitForAny" /> returns a Task that will complete when any of the subscribers complete their work.
+            <see cref="F:FastEndpoints.Mode.WaitForAll" /> return a Task that will complete only when all the subscribers complete their work.
+            </returns>
+        </member>
+        <member name="M:FastEndpoints.EventBus`1.PublishFilteredAsync(`0,System.Func{System.Type,System.Boolean},FastEndpoints.Mode,System.Threading.CancellationToken)">
+            <summary>
+            publish the given model/dto to a subset of the subscribers of the event notification
+            </summary>
+            <param name="eventModel">the notification event model/dto to publish</param>
+            <param name="handlerFilter">
+            a predicate for selecting which of the registered event handlers should be executed. if the predicate returns <c>false</c> for a particular event
+            handler, that handler will not be executed during the invocation.
+            </param>
+            <param name="waitMode">specify whether to wait for none, any or all of the subscribers to complete their work</param>
+            <param name="cancellation">an optional cancellation token</param>
+            <returns>
+            a Task that matches the wait mode specified.
+            <see cref="F:FastEndpoints.Mode.WaitForNone" /> returns an already completed Task (fire and forget).
+            <see cref="F:FastEndpoints.Mode.WaitForAny" /> returns a Task that will complete when any of the subscribers complete their work.
+            <see cref="F:FastEndpoints.Mode.WaitForAll" /> return a Task that will complete only when all the subscribers complete their work.
+            </returns>
+        </member>
+        <member name="T:FastEndpoints.EventExtensions">
+            <summary>
+            extension methods for event publishing
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.EventExtensions.PublishAsync``1(``0,FastEndpoints.Mode,System.Threading.CancellationToken)">
+            <summary>
+            publish the event to all subscribers registered to handle this type of event.
+            </summary>
+            <typeparam name="TEvent">the type of the event model</typeparam>
+            <param name="eventModel">the notification event model/dto to publish</param>
+            <param name="waitMode">specify whether to wait for none, any or all of the subscribers to complete their work</param>
+            <param name="cancellation">an optional cancellation token</param>
+            <returns>
+            a Task that matches the wait mode specified.
+            <see cref="F:FastEndpoints.Mode.WaitForNone" /> returns an already completed Task (fire and forget).
+            <see cref="F:FastEndpoints.Mode.WaitForAny" /> returns a Task that will complete when any of the subscribers complete their work.
+            <see cref="F:FastEndpoints.Mode.WaitForAll" /> return a Task that will complete only when all the subscribers complete their work.
+            </returns>
+        </member>
+        <member name="M:FastEndpoints.EventExtensions.PublishAsync(FastEndpoints.IEvent,FastEndpoints.Mode,System.Threading.CancellationToken)">
+            <summary>
+            publish the event to all subscribers registered to handle this type of event.
+            </summary>
+            <param name="eventModel">the notification event model/dto to publish</param>
+            <param name="waitMode">specify whether to wait for none, any or all of the subscribers to complete their work</param>
+            <param name="cancellation">an optional cancellation token</param>
+            <returns>
+            a Task that matches the wait mode specified.
+            <see cref="F:FastEndpoints.Mode.WaitForNone" /> returns an already completed Task (fire and forget).
+            <see cref="F:FastEndpoints.Mode.WaitForAny" /> returns a Task that will complete when any of the subscribers complete their work.
+            <see cref="F:FastEndpoints.Mode.WaitForAll" /> return a Task that will complete only when all the subscribers complete their work.
+            </returns>
+        </member>
+        <member name="M:FastEndpoints.EventExtensions.PublishFilteredAsync``1(``0,System.Func{System.Type,System.Boolean},FastEndpoints.Mode,System.Threading.CancellationToken)">
+            <summary>
+            publish the event to a subset of the subscribers registered to handle this type of event.
+            </summary>
+            <typeparam name="TEvent">the type of the event model</typeparam>
+            <param name="eventModel">the notification event model/dto to publish</param>
+            <param name="handlerFilter">
+            a predicate for selecting which of the registered event handlers should be executed. if the predicate returns <c>false</c> for a particular event
+            handler, that handler will not be executed during the invocation.
+            </param>
+            <param name="waitMode">specify whether to wait for none, any or all of the subscribers to complete their work</param>
+            <param name="cancellation">an optional cancellation token</param>
+            <returns>
+            a Task that matches the wait mode specified.
+            <see cref="F:FastEndpoints.Mode.WaitForNone" /> returns an already completed Task (fire and forget).
+            <see cref="F:FastEndpoints.Mode.WaitForAny" /> returns a Task that will complete when any of the subscribers complete their work.
+            <see cref="F:FastEndpoints.Mode.WaitForAll" /> return a Task that will complete only when all the subscribers complete their work.
+            </returns>
+        </member>
+        <member name="T:FastEndpoints.EventPublisherRegistry">
+            <summary>
+            Registry for source-generated event publishers.
+            Used by the EventPublishersGenerator to enable AOT-compatible event publishing
+            without MakeGenericType or Expression.Compile() at runtime.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.EventPublisherRegistry.RegisterGeneratedPublishers(System.Func{System.Type,System.Func{FastEndpoints.IEvent,FastEndpoints.Mode,System.Threading.CancellationToken,System.Threading.Tasks.Task}})">
+            <summary>
+            Registers the source-generated publisher lookup function.
+            Called by the module initializer in generated code.
+            </summary>
+            <param name="lookup">A function that returns a publish delegate for a given event type.</param>
+        </member>
+        <member name="M:FastEndpoints.EventPublisherRegistry.TryGetPublisher(System.Type,System.Func{FastEndpoints.IEvent,FastEndpoints.Mode,System.Threading.CancellationToken,System.Threading.Tasks.Task}@)">
+            <summary>
+            Tries to get a pre-compiled publish delegate for the specified event type.
+            </summary>
+            <param name="eventType">The type of the event.</param>
+            <param name="publisher">The publish delegate if found.</param>
+            <returns>True if a generated publisher was found.</returns>
+        </member>
+        <member name="M:FastEndpoints.EventPublisherRegistry.PublishEvent``1(``0,FastEndpoints.Mode,System.Threading.CancellationToken)">
+            <summary>
+            Publishes an event using the strongly-typed EventBus.
+            This method is called by the generated publish delegates to avoid naming conflicts.
+            </summary>
+            <typeparam name="TEvent">The type of the event.</typeparam>
+            <param name="eventModel">The event to publish.</param>
+            <param name="waitMode">The wait mode for subscribers.</param>
+            <param name="cancellation">Cancellation token.</param>
+            <returns>A task representing the publish operation.</returns>
+        </member>
+        <member name="T:FastEndpoints.IEventBus">
+            <summary>
+            interface to be implemented by an event bus
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.IEventBus.PublishAsync``1(``0,FastEndpoints.Mode,System.Threading.CancellationToken)">
+            <summary>
+            publishes a given event model to all subscribers registered to handle the that type of event.
+            </summary>
+            <typeparam name="TEvent">the type of the event model</typeparam>
+            <param name="eventModel">the notification event model/dto to publish</param>
+            <param name="waitMode">specify whether to wait for none, any or all of the subscribers to complete their work</param>
+            <param name="cancellation">an optional cancellation token</param>
+            <returns>
+            a Task that matches the wait mode specified.
+            <see cref="F:FastEndpoints.Mode.WaitForNone" /> returns an already completed Task (fire and forget).
+            <see cref="F:FastEndpoints.Mode.WaitForAny" /> returns a Task that will complete when any of the subscribers complete their work.
+            <see cref="F:FastEndpoints.Mode.WaitForAll" /> return a Task that will complete only when all of the subscribers complete their work.
+            </returns>
+        </member>
+        <member name="T:FastEndpoints.Mode">
+            <summary>
+            enum for specifying the waiting mode for event notifications
+            </summary>
+        </member>
+        <member name="F:FastEndpoints.Mode.WaitForNone">
+            <summary>
+            returns an already completed Task (fire and forget)
+            <para>WARNING: exceptions cannot be captured by caller</para>
+            </summary>
+        </member>
+        <member name="F:FastEndpoints.Mode.WaitForAny">
+            <summary>
+            returns a Task that will complete when any of the subscribers complete their work
+            <para>WARNING: exceptions cannot be captured by caller</para>
+            </summary>
+        </member>
+        <member name="F:FastEndpoints.Mode.WaitForAll">
+            <summary>
+            return a Task that will complete only when all of the subscribers complete their work.
+            <para>HINT: exceptions can be captured by caller</para>
+            </summary>
+        </member>
+        <member name="T:FastEndpoints.MessagingExtensions">
+            <summary>
+            extension methods for registering messaging services
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.MessagingExtensions.AddMessaging(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Reflection.Assembly[])">
+            <summary>
+            adds the messaging services (command bus and event bus) to the service collection.
+            <para>TIP: You don't have to call this method if you already have <c>.AddFastEndpoints()</c> in your pipeline.</para>
+            </summary>
+            <param name="services"></param>
+            <param name="assemblies">assemblies to scan for command handlers and event handlers, in addition to all loaded assemblies.</param>
+        </member>
+        <member name="M:FastEndpoints.MessagingExtensions.UseMessaging(System.IServiceProvider)">
+            <summary>
+            configures the messaging functionality.
+            <para>TIP: You don't have to call this method if you already have <c>.UseFastEndpoints()</c> in your pipeline.</para>
+            </summary>
+            <param name="provider">the service provider</param>
+            <returns>the service provider for chaining</returns>
+        </member>
+    </members>
+</doc>

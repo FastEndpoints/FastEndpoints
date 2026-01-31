@@ -1,0 +1,388 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>FastEndpoints.Core</name>
+    </assembly>
+    <members>
+        <member name="T:FastEndpoints.GenericTypeRegistryProvider">
+            <summary>
+            Central provider for source-generated type registrations.
+            Used to provide AOT-compatible type lookups.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.GenericTypeRegistryProvider.RegisterFromAssembly(System.Collections.Generic.Dictionary{System.Type,System.Type},System.Collections.Generic.Dictionary{System.Type,System.Collections.Generic.List{System.Type}},System.Collections.Generic.Dictionary{System.Type,System.Collections.Generic.List{System.Type}},System.Collections.Generic.Dictionary{System.Type,System.ValueTuple{System.Type,System.Type}})">
+            <summary>
+            Registers type information from a source-generated assembly.
+            Called by module initializers in generated code.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.GenericTypeRegistryProvider.RegisterListTypes(System.Collections.Generic.Dictionary{System.Type,System.Type})">
+            <summary>
+            Registers pre-computed List&lt;T&gt; type mappings.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.GenericTypeRegistryProvider.RegisterClosedPreProcessors(System.Collections.Generic.Dictionary{System.ValueTuple{System.Type,System.Type},System.Type})">
+            <summary>
+            Registers pre-computed closed pre-processor type mappings.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.GenericTypeRegistryProvider.RegisterClosedPostProcessors(System.Collections.Generic.Dictionary{System.ValueTuple{System.Type,System.Type,System.Type},System.Type})">
+            <summary>
+            Registers pre-computed closed post-processor type mappings.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.GenericTypeRegistryProvider.RegisterClosedPreProcessorFactories(System.Collections.Generic.Dictionary{System.ValueTuple{System.Type,System.Type},System.Func{System.Object}})">
+            <summary>
+            Registers factory functions for creating closed pre-processor instances.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.GenericTypeRegistryProvider.RegisterClosedPostProcessorFactories(System.Collections.Generic.Dictionary{System.ValueTuple{System.Type,System.Type,System.Type},System.Func{System.Object}})">
+            <summary>
+            Registers factory functions for creating closed post-processor instances.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.GenericTypeRegistryProvider.TryGetCommandHandler(System.Type,System.Type@)">
+            <summary>
+            Tries to get the handler type for a command.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.GenericTypeRegistryProvider.TryGetPreProcessors(System.Type,System.Collections.Generic.List{System.Type}@)">
+            <summary>
+            Tries to get pre-processor types for a request type.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.GenericTypeRegistryProvider.TryGetPostProcessors(System.Type,System.Collections.Generic.List{System.Type}@)">
+            <summary>
+            Tries to get post-processor types for a request type.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.GenericTypeRegistryProvider.TryGetEndpointTypes(System.Type,System.ValueTuple{System.Type,System.Type}@)">
+            <summary>
+            Tries to get the request/response types for an endpoint type.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.GenericTypeRegistryProvider.TryGetListType(System.Type,System.Type@)">
+            <summary>
+            Tries to get a pre-computed List&lt;T&gt; type for an element type.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.GenericTypeRegistryProvider.TryGetClosedPreProcessor(System.Type,System.Type,System.Type@)">
+            <summary>
+            Tries to get a pre-computed closed pre-processor type.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.GenericTypeRegistryProvider.TryGetClosedPostProcessor(System.Type,System.Type,System.Type,System.Type@)">
+            <summary>
+            Tries to get a pre-computed closed post-processor type.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.GenericTypeRegistryProvider.TryCreateClosedPreProcessor(System.Type,System.Type,System.Object@)">
+            <summary>
+            Tries to create a closed pre-processor instance using an AOT-safe factory.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.GenericTypeRegistryProvider.TryCreateClosedPostProcessor(System.Type,System.Type,System.Type,System.Object@)">
+            <summary>
+            Tries to create a closed post-processor instance using an AOT-safe factory.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.GenericTypeRegistryProvider.TryCreatePreProcessorFromClosedType(System.Type,System.Object@)">
+            <summary>
+            Tries to create a pre-processor instance from its closed generic type using an AOT-safe factory.
+            </summary>
+            <param name="closedProcessorType">The closed generic processor type (e.g., SecurityProcessor&lt;Request&gt;).</param>
+            <param name="instance">The created processor instance if found.</param>
+            <returns>True if the factory was found and instance created; otherwise false.</returns>
+        </member>
+        <member name="M:FastEndpoints.GenericTypeRegistryProvider.TryCreatePostProcessorFromClosedType(System.Type,System.Object@)">
+            <summary>
+            Tries to create a post-processor instance from its closed generic type using an AOT-safe factory.
+            </summary>
+            <param name="closedProcessorType">The closed generic processor type (e.g., MyPostProcessor&lt;Request, Response&gt;).</param>
+            <param name="instance">The created processor instance if found.</param>
+            <returns>True if the factory was found and instance created; otherwise false.</returns>
+        </member>
+        <member name="M:FastEndpoints.GenericTypeRegistryProvider.RegisterCommandHandlerExecutorTypePairs(System.Type,System.Collections.Generic.List{System.ValueTuple{System.Type,System.Type}})">
+            <summary>
+            Registers pre-computed command handler executor type pairs.
+            The actual CommandHandlerExecutor types are constructed using the provided open generic type.
+            </summary>
+            <param name="openGenericExecutorType">The open generic CommandHandlerExecutor&lt;,&gt; type.</param>
+            <param name="typePairs">The command and result type pairs.</param>
+        </member>
+        <member name="M:FastEndpoints.GenericTypeRegistryProvider.RegisterCommandHandlerExecutorTypePairs(System.Collections.Generic.List{System.ValueTuple{System.Type,System.Type}})">
+            <summary>
+            Registers pre-computed command handler executor type pairs using the internal CommandHandlerExecutor type.
+            This overload is used when the generator cannot reference the internal type directly.
+            </summary>
+            <param name="typePairs">The command and result type pairs.</param>
+        </member>
+        <member name="M:FastEndpoints.GenericTypeRegistryProvider.RegisterCommandHandlerInterfaces(System.Collections.Generic.Dictionary{System.Type,System.Type})">
+            <summary>
+            Registers pre-computed command handler interface type mappings.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.GenericTypeRegistryProvider.RegisterJobQueueTypes(System.Collections.Generic.Dictionary{System.ValueTuple{System.Type,System.Type,System.Type,System.Type},System.Type})">
+            <summary>
+            Registers pre-computed job queue type mappings.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.GenericTypeRegistryProvider.RegisterJobQueueFactories(System.Collections.Generic.Dictionary{System.ValueTuple{System.Type,System.Type,System.Type,System.Type},System.Func{System.IServiceProvider,System.Object}})">
+            <summary>
+            Registers factory functions for creating job queue instances.
+            These direct new() calls ensure the AOT compiler preserves the constructors.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.GenericTypeRegistryProvider.RegisterEventBusTypes(System.Collections.Generic.Dictionary{System.Type,System.Type})">
+            <summary>
+            Registers pre-computed EventBus&lt;T&gt; type mappings.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.GenericTypeRegistryProvider.RegisterClosedRequestBinders(System.Collections.Generic.Dictionary{System.ValueTuple{System.Type,System.Type},System.Type})">
+            <summary>
+            Registers pre-computed closed request binder type mappings.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.GenericTypeRegistryProvider.TryGetCommandHandlerExecutor(System.Type,System.Type,System.Type@)">
+            <summary>
+            Tries to get a pre-computed CommandHandlerExecutor&lt;TCommand, TResult&gt; type.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.GenericTypeRegistryProvider.TryGetCommandHandlerInterface(System.Type,System.Type@)">
+            <summary>
+            Tries to get a pre-computed ICommandHandler&lt;TCommand&gt; or ICommandHandler&lt;TCommand, TResult&gt; interface type.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.GenericTypeRegistryProvider.TryGetJobQueueType(System.Type,System.Type,System.Type,System.Type,System.Type@)">
+            <summary>
+            Tries to get a pre-computed JobQueue&lt;TCommand, TResult, TStorageRecord, TStorageProvider&gt; type.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.GenericTypeRegistryProvider.TryCreateJobQueue(System.Type,System.Type,System.Type,System.Type,System.IServiceProvider,System.Object@)">
+            <summary>
+            Tries to create a JobQueue instance using a pre-registered factory.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.GenericTypeRegistryProvider.TryGetEventBusType(System.Type,System.Type@)">
+            <summary>
+            Tries to get a pre-computed EventBus&lt;TEvent&gt; type.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.GenericTypeRegistryProvider.TryGetClosedRequestBinder(System.Type,System.Type,System.Type@)">
+            <summary>
+            Tries to get a pre-computed closed request binder type.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.GenericTypeRegistryProvider.RegisterEventHandlers(System.Collections.Generic.Dictionary{System.Type,System.Collections.Generic.List{System.Type}})">
+            <summary>
+            Registers pre-computed event handler type mappings.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.GenericTypeRegistryProvider.TryGetEventHandlers(System.Type,System.Collections.Generic.List{System.Type}@)">
+            <summary>
+            Tries to get event handler types for an event type.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.GenericTypeRegistryProvider.GetJobQueueTypesForStorage(System.Type,System.Type)">
+            <summary>
+            Gets all pre-registered job queue types for a specific storage record and provider.
+            </summary>
+        </member>
+        <member name="T:FastEndpoints.IServiceResolverBase">
+            <summary>
+            interface used by fastendpoints for resolving services from the DI container.
+            implement this interface and register the implementation in MS DI for customizing service resolving.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.IServiceResolverBase.CreateScope">
+            <summary>
+            if you'd like to resolve scoped or transient services from the MS DI container, obtain a service scope from this method and dispose the scope when
+            the work is complete.
+            <para>
+                <code>
+             using var scope = CreateScope();
+             var scopedService = scope.Resolve&lt;MyService&gt;();
+             </code>
+            </para>
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.IServiceResolverBase.TryResolve``1">
+            <summary>
+            try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
+            </summary>
+            <typeparam name="TService">the type of the service to resolve</typeparam>
+        </member>
+        <member name="M:FastEndpoints.IServiceResolverBase.TryResolve(System.Type)">
+            <summary>
+            try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
+            </summary>
+            <param name="typeOfService">the type of the service to resolve</param>
+        </member>
+        <member name="M:FastEndpoints.IServiceResolverBase.Resolve``1">
+            <summary>
+            resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
+            </summary>
+            <typeparam name="TService">the type of the service to resolve</typeparam>
+            <exception cref="T:System.InvalidOperationException">Thrown if requested service cannot be resolved</exception>
+        </member>
+        <member name="M:FastEndpoints.IServiceResolverBase.Resolve(System.Type)">
+            <summary>
+            resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
+            </summary>
+            <param name="typeOfService">the type of the service to resolve</param>
+            <exception cref="T:System.InvalidOperationException">Thrown if requested service cannot be resolved</exception>
+        </member>
+        <member name="M:FastEndpoints.IServiceResolverBase.TryResolve``1(System.String)">
+            <summary>
+            try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
+            </summary>
+            <typeparam name="TService">the type of the service to resolve</typeparam>
+            <param name="keyName">the key name for resolving keyed service</param>
+        </member>
+        <member name="M:FastEndpoints.IServiceResolverBase.TryResolve(System.Type,System.String)">
+            <summary>
+            try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
+            </summary>
+            <param name="typeOfService">the type of the service to resolve</param>
+            <param name="keyName">the key name for resolving keyed service</param>
+        </member>
+        <member name="M:FastEndpoints.IServiceResolverBase.Resolve``1(System.String)">
+            <summary>
+            resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
+            </summary>
+            <typeparam name="TService">the type of the service to resolve</typeparam>
+            <param name="keyName">the key name for resolving keyed service</param>
+            <exception cref="T:System.InvalidOperationException">Thrown if requested service cannot be resolved</exception>
+        </member>
+        <member name="M:FastEndpoints.IServiceResolverBase.Resolve(System.Type,System.String)">
+            <summary>
+            resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
+            </summary>
+            <param name="typeOfService">the type of the service to resolve</param>
+            <param name="keyName">the key name for resolving keyed service</param>
+            <exception cref="T:System.InvalidOperationException">Thrown if requested service cannot be resolved</exception>
+        </member>
+        <member name="T:FastEndpoints.IServiceResolver">
+            <summary>
+            interface used by fastendpoints for resolving services from the DI container.
+            implement this interface and register the implementation in MS DI for customizing service resolving.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.IServiceResolver.CreateInstance(System.Type,System.IServiceProvider)">
+            <summary>
+            create an instance of a given type (which may not be registered in the DI container). this method will be called repeatedly. so a cached
+            delegate/compiled expression using something like <see cref="M:Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateFactory(System.Type,System.Type[])" /> should be used for instance creation.
+            </summary>
+            <param name="type">the type to create an instance of</param>
+            <param name="serviceProvider">optional service provider</param>
+        </member>
+        <member name="M:FastEndpoints.IServiceResolver.CreateSingleton(System.Type)">
+            <summary>
+            create an instance of a given type (which may not be registered in the DI container) which will be used as a singleton. a utility such as
+            <see cref="M:Microsoft.Extensions.DependencyInjection.ActivatorUtilities.CreateInstance(System.IServiceProvider,System.Type,System.Object[])" /> may be used. repeated calls with the same input type should return the same
+            singleton
+            instance by utilizing an internal concurrent/thread-safe cache.
+            </summary>
+            <param name="type">the type to create an instance of</param>
+        </member>
+        <member name="P:FastEndpoints.ServiceResolver.InstanceNotSet">
+            <summary>
+            Indicates whether the service resolver is not set.
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.ServiceResolver.Instance">
+            <summary>
+            Gets the service resolver.
+            </summary>
+            <exception cref="T:System.InvalidOperationException"></exception>
+        </member>
+        <member name="T:FastEndpoints.ServiceScopeExtensions">
+            <summary>
+            service scope extensions
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.ServiceScopeExtensions.TryResolve``1(Microsoft.Extensions.DependencyInjection.IServiceScope)">
+            <inheritdoc cref="M:FastEndpoints.ServiceScopeExtensions.&lt;G&gt;$8B1E0B065ADD9CA16E85EC382B5A5354.TryResolve``1"/>
+        </member>
+        <member name="M:FastEndpoints.ServiceScopeExtensions.TryResolve(Microsoft.Extensions.DependencyInjection.IServiceScope,System.Type)">
+            <inheritdoc cref="M:FastEndpoints.ServiceScopeExtensions.&lt;G&gt;$8B1E0B065ADD9CA16E85EC382B5A5354.TryResolve(System.Type)"/>
+        </member>
+        <member name="M:FastEndpoints.ServiceScopeExtensions.Resolve``1(Microsoft.Extensions.DependencyInjection.IServiceScope)">
+            <inheritdoc cref="M:FastEndpoints.ServiceScopeExtensions.&lt;G&gt;$8B1E0B065ADD9CA16E85EC382B5A5354.Resolve``1"/>
+        </member>
+        <member name="M:FastEndpoints.ServiceScopeExtensions.Resolve(Microsoft.Extensions.DependencyInjection.IServiceScope,System.Type)">
+            <inheritdoc cref="M:FastEndpoints.ServiceScopeExtensions.&lt;G&gt;$8B1E0B065ADD9CA16E85EC382B5A5354.Resolve(System.Type)"/>
+        </member>
+        <member name="M:FastEndpoints.ServiceScopeExtensions.TryResolve``1(Microsoft.Extensions.DependencyInjection.IServiceScope,System.String)">
+            <inheritdoc cref="M:FastEndpoints.ServiceScopeExtensions.&lt;G&gt;$8B1E0B065ADD9CA16E85EC382B5A5354.TryResolve``1(System.String)"/>
+        </member>
+        <member name="M:FastEndpoints.ServiceScopeExtensions.TryResolve(Microsoft.Extensions.DependencyInjection.IServiceScope,System.Type,System.String)">
+            <inheritdoc cref="M:FastEndpoints.ServiceScopeExtensions.&lt;G&gt;$8B1E0B065ADD9CA16E85EC382B5A5354.TryResolve(System.Type,System.String)"/>
+        </member>
+        <member name="M:FastEndpoints.ServiceScopeExtensions.Resolve``1(Microsoft.Extensions.DependencyInjection.IServiceScope,System.String)">
+            <inheritdoc cref="M:FastEndpoints.ServiceScopeExtensions.&lt;G&gt;$8B1E0B065ADD9CA16E85EC382B5A5354.Resolve``1(System.String)"/>
+        </member>
+        <member name="M:FastEndpoints.ServiceScopeExtensions.Resolve(Microsoft.Extensions.DependencyInjection.IServiceScope,System.Type,System.String)">
+            <inheritdoc cref="M:FastEndpoints.ServiceScopeExtensions.&lt;G&gt;$8B1E0B065ADD9CA16E85EC382B5A5354.Resolve(System.Type,System.String)"/>
+        </member>
+        <member name="T:FastEndpoints.ServiceScopeExtensions.&lt;G&gt;$8B1E0B065ADD9CA16E85EC382B5A5354.&lt;M&gt;$5FFAFCDCD6BF0176379AA44C5912BDE9">
+            <param name="scope"></param>
+        </member>
+        <member name="M:FastEndpoints.ServiceScopeExtensions.&lt;G&gt;$8B1E0B065ADD9CA16E85EC382B5A5354.TryResolve``1">
+            <summary>
+            try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
+            </summary>
+            <typeparam name="TService">the type of the service to resolve</typeparam>
+        </member>
+        <member name="M:FastEndpoints.ServiceScopeExtensions.&lt;G&gt;$8B1E0B065ADD9CA16E85EC382B5A5354.TryResolve(System.Type)">
+            <summary>
+            try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
+            </summary>
+            <param name="typeOfService">the type of the service to resolve</param>
+        </member>
+        <member name="M:FastEndpoints.ServiceScopeExtensions.&lt;G&gt;$8B1E0B065ADD9CA16E85EC382B5A5354.Resolve``1">
+            <summary>
+            resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
+            </summary>
+            <typeparam name="TService">the type of the service to resolve</typeparam>
+            <exception cref="T:System.InvalidOperationException">Thrown if requested service cannot be resolved</exception>
+        </member>
+        <member name="M:FastEndpoints.ServiceScopeExtensions.&lt;G&gt;$8B1E0B065ADD9CA16E85EC382B5A5354.Resolve(System.Type)">
+            <summary>
+            resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
+            </summary>
+            <param name="typeOfService">the type of the service to resolve</param>
+            <exception cref="T:System.InvalidOperationException">Thrown if requested service cannot be resolved</exception>
+        </member>
+        <member name="M:FastEndpoints.ServiceScopeExtensions.&lt;G&gt;$8B1E0B065ADD9CA16E85EC382B5A5354.TryResolve``1(System.String)">
+            <summary>
+            try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
+            </summary>
+            <param name="keyName">key name</param>
+            <typeparam name="TService">the type of the service to resolve</typeparam>
+        </member>
+        <member name="M:FastEndpoints.ServiceScopeExtensions.&lt;G&gt;$8B1E0B065ADD9CA16E85EC382B5A5354.TryResolve(System.Type,System.String)">
+            <summary>
+            try to resolve an instance for the given type from the dependency injection container. will return null if unresolvable.
+            </summary>
+            <param name="typeOfService">the type of the service to resolve</param>
+            <param name="keyName">key name</param>
+        </member>
+        <member name="M:FastEndpoints.ServiceScopeExtensions.&lt;G&gt;$8B1E0B065ADD9CA16E85EC382B5A5354.Resolve``1(System.String)">
+            <summary>
+            resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
+            </summary>
+            <param name="keyName">key name</param>
+            <typeparam name="TService">the type of the service to resolve</typeparam>
+            <exception cref="T:System.InvalidOperationException">Thrown if requested service cannot be resolved</exception>
+        </member>
+        <member name="M:FastEndpoints.ServiceScopeExtensions.&lt;G&gt;$8B1E0B065ADD9CA16E85EC382B5A5354.Resolve(System.Type,System.String)">
+            <summary>
+            resolve an instance for the given type from the dependency injection container. will throw if unresolvable.
+            </summary>
+            <param name="typeOfService">the type of the service to resolve</param>
+            <param name="keyName">key name</param>
+            <exception cref="T:System.InvalidOperationException">Thrown if requested service cannot be resolved</exception>
+        </member>
+    </members>
+</doc>

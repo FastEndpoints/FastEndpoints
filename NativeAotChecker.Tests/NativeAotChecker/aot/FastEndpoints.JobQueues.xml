@@ -1,0 +1,469 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>FastEndpoints.JobQueues</name>
+    </assembly>
+    <members>
+        <member name="T:FastEndpoints.IJobStorageProvider`1">
+            <summary>
+            interface for defining the contract of a job storage provider
+            </summary>
+            <typeparam name="TStorageRecord">the type of job storage record of this storage provider</typeparam>
+        </member>
+        <member name="M:FastEndpoints.IJobStorageProvider`1.StoreJobAsync(`0,System.Threading.CancellationToken)">
+            <summary>
+            store the job storage record however you please. ideally on a nosql database.
+            </summary>
+            <param name="r">the job storage record which contains the actual command object as well as some metadata</param>
+            <param name="ct"></param>
+        </member>
+        <member name="M:FastEndpoints.IJobStorageProvider`1.GetNextBatchAsync(FastEndpoints.PendingJobSearchParams{`0})">
+            <summary>
+            fetch the next pending batch of job storage records that need to be processed, with the supplied search parameters.
+            </summary>
+            <param name="parameters">use these supplied search parameters to find the next batch of job records from your database</param>
+        </member>
+        <member name="M:FastEndpoints.IJobStorageProvider`1.MarkJobAsCompleteAsync(`0,System.Threading.CancellationToken)">
+            <summary>
+            mark the job storage record as complete by either replacing the entity on storage with the supplied instance or
+            simply update the <see cref="P:FastEndpoints.IJobStorageRecord.IsComplete" /> field to true with a partial update operation.
+            </summary>
+            <param name="r">the job storage record to mark as complete</param>
+            <param name="ct">cancellation token</param>
+        </member>
+        <member name="M:FastEndpoints.IJobStorageProvider`1.CancelJobAsync(System.Guid,System.Threading.CancellationToken)">
+            <summary>
+            either delete the job storage record from the db using the supplied tracking id or update the <see cref="P:FastEndpoints.IJobStorageRecord.IsComplete" /> field to true
+            with a partial update operation.
+            </summary>
+            <param name="trackingId">the <see cref="P:FastEndpoints.IJobStorageRecord.TrackingID" /> of the job to be cancelled</param>
+            <param name="ct">cancellation token</param>
+        </member>
+        <member name="M:FastEndpoints.IJobStorageProvider`1.OnHandlerExecutionFailureAsync(`0,System.Exception,System.Threading.CancellationToken)">
+            <summary>
+            this will only be triggered when a command handler (<see cref="T:FastEndpoints.ICommandHandler`1" />) associated with a command
+            throws an exception. If you've set an execution time limit for the command, the thrown exception would be of type
+            <see cref="T:System.OperationCanceledException" />.
+            <para>
+            when a job/command execution fails, it will be retried immediately. the failed job will be fetched again with the next batch of pending jobs.
+            if one or more jobs keep failing repeatedly, it may cause the whole queue to get stuck in a retry loop preventing it from progressing.
+            </para>
+            <para>
+            to prevent this from happening and allow other jobs to be given a chance at execution, you can reschedule failed jobs
+            to be re-attempted at a future time instead. simply update the <see cref="P:FastEndpoints.IJobStorageRecord.ExecuteAfter" /> property to a future date/time
+            and save the entity to the database (or do a partial update of only that property value).
+            </para>
+            </summary>
+            <param name="r">the job that failed to execute successfully</param>
+            <param name="exception">the exception that was thrown</param>
+            <param name="ct">cancellation token</param>
+        </member>
+        <member name="M:FastEndpoints.IJobStorageProvider`1.PurgeStaleJobsAsync(FastEndpoints.StaleJobSearchParams{`0})">
+            <summary>
+            this method will be called hourly. implement this method to delete stale records (completed or expired) from storage.
+            you can safely delete the completed records. the incomplete &amp; expired records can be moved to some other location (dead-letter-queue maybe) or
+            for inspection by a human.
+            or if you'd like to retry expired events, update the <see cref="P:FastEndpoints.IJobStorageRecord.ExpireOn" /> field to a future date/time.
+            </summary>
+            <param name="parameters">use these supplied search parameters to find stale job records from your database</param>
+        </member>
+        <member name="T:FastEndpoints.IJobResultProvider">
+            <summary>
+            addon interface to enable a job storage provider (<see cref="T:FastEndpoints.IJobStorageProvider`1" />) to support commands that return results.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.IJobResultProvider.StoreJobResultAsync``1(System.Guid,``0,System.Threading.CancellationToken)">
+            <summary>
+            lookup the job storage record by the supplied tracking id and update it's <see cref="P:FastEndpoints.IJobResultStorage.Result" /> property and persist to the database.
+            </summary>
+            <param name="trackingId">the <see cref="P:FastEndpoints.IJobStorageRecord.TrackingID" /> of the job to be looked up</param>
+            <param name="result">the job result to be stored</param>
+            <param name="ct">cancellation token</param>
+            <typeparam name="TResult">the type of the result object</typeparam>
+        </member>
+        <member name="M:FastEndpoints.IJobResultProvider.GetJobResultAsync``1(System.Guid,System.Threading.CancellationToken)">
+            <summary>
+            lookup the job storage record by the supplied tracking id and return its <see cref="P:FastEndpoints.IJobResultStorage.Result" /> value.
+            </summary>
+            <param name="trackingId">the <see cref="P:FastEndpoints.IJobStorageRecord.TrackingID" /> of the job to be looked up</param>
+            <param name="ct">cancellation token</param>
+            <typeparam name="TResult">the type of the result object</typeparam>
+        </member>
+        <member name="T:FastEndpoints.IJobStorageRecord">
+            <summary>
+            the contract for a job storage record entity
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.IJobStorageRecord.QueueID">
+            <summary>
+            a unique id for the job queue. each command type has its own queue. this is automatically generated by the library.
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.IJobStorageRecord.TrackingID">
+            <summary>
+            a unique id used to track a particular job for the purpose of progress monitoring and/or termination.
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.IJobStorageRecord.Command">
+            <summary>
+            the actual command object that will be embedded in the storage record.
+            if your database/orm (such as ef-core) doesn't support embedding objects, you can take the following steps:
+            <code>
+            1. add a [NotMapped] attribute to this property.
+            2. add a new property, either a <c>string</c> or <c>byte[]</c>
+            3. implement both GetCommand() and SetCommand() methods to serialize/deserialize the command object back and forth and store it in the newly added property.
+            </code>
+            you may use any serializer you please. recommendation is to use MessagePack.
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.IJobStorageRecord.ExecuteAfter">
+            <summary>
+            the job will not be executed before this date/time. by default, it will automatically be set to the time of creation allowing jobs to be executed as soon as they're
+            created.
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.IJobStorageRecord.ExpireOn">
+            <summary>
+            the expiration date/time of job. if the job remains in an incomplete state past this time, the record is considered stale, and will be marked for removal from
+            storage.
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.IJobStorageRecord.IsComplete">
+            <summary>
+            indicates whether the job has successfully completed or not.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.IJobStorageRecord.GetCommand``1">
+            <summary>
+            implement this function to customize command deserialization.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.IJobStorageRecord.SetCommand``1(``0)">
+            <summary>
+            implement this method to customize command serialization.
+            </summary>
+        </member>
+        <member name="T:FastEndpoints.IJobResultStorage">
+            <summary>
+            addon interface to enable storage of job results on a job storage record (<see cref="T:FastEndpoints.IJobStorageRecord" />)
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.IJobResultStorage.Result">
+            <summary>
+            the actual result object that will be embedded in the storage record.
+            if your database/orm (such as ef-core) doesn't support embedding objects, you can take the following steps:
+            <code>
+            1. add a [NotMapped] attribute to this property.
+            2. add a new property, either a <c>string</c> or <c>byte[]</c>
+            3. implement both GetResult() and SetResult() methods to serialize/deserialize the command object back and forth and store it in the newly added property.
+            </code>
+            you may use any serializer you please. recommendation is to use MessagePack.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.IJobResultStorage.GetResult``1">
+            <summary>
+            implement this function to customize the result deserialization.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.IJobResultStorage.SetResult``1(``0)">
+            <summary>
+            implement this method to customize the result serialization.
+            </summary>
+        </member>
+        <member name="T:FastEndpoints.IHasCommandType">
+            <summary>
+            implement this interface on your job storage record if you'd like to persist the full type name of the command class which is associated with the storage record.
+            you don't need to set the value yourself as it will be automatically set by the system.
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.IHasCommandType.CommandType">
+            <summary>
+            the full type name of the command
+            </summary>
+        </member>
+        <member name="T:FastEndpoints.JobQueueBase">
+            <summary>
+            Base class for job queues. Public to allow AOT-generated code to reference it.
+            </summary>
+        </member>
+        <member name="T:FastEndpoints.JobQueueExtensions">
+            <summary>
+            extension methods for job queues
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.JobQueueExtensions.AddJobQueues``2(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Reflection.Assembly[])">
+            <summary>
+            add job queue functionality
+            </summary>
+            <typeparam name="TStorageRecord">the implementation type of the job storage record</typeparam>
+            <typeparam name="TStorageProvider">the implementation type of the job storage provider</typeparam>
+            <param name="svc"></param>
+            <param name="assemblies">
+            assemblies to scan for command handlers, in addition to all loaded assemblies.
+            only applicable when using job queues as a standalone library.
+            </param>
+        </member>
+        <member name="M:FastEndpoints.JobQueueExtensions.UseJobQueues(Microsoft.Extensions.Hosting.IHost,System.Action{FastEndpoints.JobQueueOptions})">
+            <summary>
+            enable job queue functionality with given settings
+            </summary>
+            <param name="app"></param>
+            <param name="options">specify settings/execution limits for each job queue type</param>
+            <exception cref="T:System.InvalidOperationException">thrown when no commands/handlers have been detected</exception>
+        </member>
+        <member name="M:FastEndpoints.JobQueueExtensions.UseJobQueues(System.IServiceProvider,System.Action{FastEndpoints.JobQueueOptions})">
+            <summary>
+            enable job queue functionality with given settings
+            </summary>
+            <param name="provider"></param>
+            <param name="options">specify settings/execution limits for each job queue type</param>
+            <exception cref="T:System.InvalidOperationException">thrown when no commands/handlers have been detected</exception>
+        </member>
+        <member name="M:FastEndpoints.JobQueueExtensions.CreateJob``1(FastEndpoints.ICommandBase,System.Nullable{System.DateTime},System.Nullable{System.DateTime})">
+            <inheritdoc cref="M:FastEndpoints.JobQueueExtensions.&lt;G&gt;$19B08B1F2A4B5EB1E86A0FB492452F60.CreateJob``1(System.Nullable{System.DateTime},System.Nullable{System.DateTime})"/>
+        </member>
+        <member name="M:FastEndpoints.JobQueueExtensions.TriggerJobExecution(FastEndpoints.ICommandBase)">
+            <inheritdoc cref="M:FastEndpoints.JobQueueExtensions.&lt;G&gt;$19B08B1F2A4B5EB1E86A0FB492452F60.TriggerJobExecution"/>
+        </member>
+        <member name="M:FastEndpoints.JobQueueExtensions.TriggerJobExecution``1">
+            <summary>
+            triggers the execution of jobs in the respective queue for that command type.
+            </summary>
+            <typeparam name="TCommand">the command type used to determine which queue to trigger</typeparam>
+        </member>
+        <member name="M:FastEndpoints.JobQueueExtensions.QueueJobAsync(FastEndpoints.ICommandBase,System.Nullable{System.DateTime},System.Nullable{System.DateTime},System.Threading.CancellationToken)">
+            <summary>
+            queues up a given command in the respective job queue for that command type.
+            </summary>
+            <param name="cmd">the command to be queued</param>
+            <param name="executeAfter">if set, the job won't be executed before this date/time. if unspecified, execution is attempted as soon as possible.</param>
+            <param name="expireOn">if set, job will be considered stale/expired after this date/time. if unspecified, jobs expire after 4 hours of creation.</param>
+            <param name="ct">cancellation token</param>
+            <exception cref="T:System.ArgumentException">thrown if the <paramref name="executeAfter" /> and <paramref name="expireOn" /> arguments are not UTC values</exception>
+        </member>
+        <member name="T:FastEndpoints.JobQueueExtensions.&lt;G&gt;$19B08B1F2A4B5EB1E86A0FB492452F60.&lt;M&gt;$858D44F1A1729022B102A0084227D900">
+            <param name="cmd">the command to be set in the job</param>
+        </member>
+        <member name="M:FastEndpoints.JobQueueExtensions.&lt;G&gt;$19B08B1F2A4B5EB1E86A0FB492452F60.CreateJob``1(System.Nullable{System.DateTime},System.Nullable{System.DateTime})">
+            <summary>
+            creates a new job object for the provided command.
+            </summary>
+            <typeparam name="TStorageRecord">the type of your <see cref="T:FastEndpoints.IJobStorageRecord" /> concrete class</typeparam>
+            <param name="executeAfter">if set, the job won't be executed before this date/time. if unspecified, execution is attempted as soon as possible.</param>
+            <param name="expireOn">if set, job will be considered stale/expired after this date/time. if unspecified, jobs expire after 4 hours of creation.</param>
+            <returns>the new job object</returns>
+            <exception cref="T:System.ArgumentException">thrown if the <paramref name="executeAfter" /> and <paramref name="expireOn" /> arguments are not UTC values</exception>
+        </member>
+        <member name="M:FastEndpoints.JobQueueExtensions.&lt;G&gt;$19B08B1F2A4B5EB1E86A0FB492452F60.TriggerJobExecution">
+            <summary>
+            triggers the execution of jobs in the respective queue for that command type.
+            </summary>
+        </member>
+        <member name="T:FastEndpoints.JobQueueOptions">
+            <summary>
+            options for job queues
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.JobQueueOptions.MaxConcurrency">
+            <summary>
+            the default max concurrency per job type. default value is the number of logical processors of the computer.
+            you can specify per queue type overrides using <see cref="M:FastEndpoints.JobQueueOptions.LimitsFor``1(System.Int32,System.TimeSpan)" />
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.JobQueueOptions.StorageProbeDelay">
+            <summary>
+            specifies the interval for periodic re-checks of the storage to detect any scheduled jobs. these checks ensure that re-scheduled jobs are promptly executed.
+            the default interval is set to 60 seconds. a shorter delay will make re-scheduled jobs run faster but will increase the overall load on the storage system,
+            due to too frequent queries being issued. only reduce this delay if you need re-scheduled jobs re-execute faster.
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.JobQueueOptions.ExecutionTimeLimit">
+            <summary>
+            the per job type max execution time limit for handler executions unless otherwise overridden using <see cref="M:FastEndpoints.JobQueueOptions.LimitsFor``1(System.Int32,System.TimeSpan)" />
+            defaults to <see cref="F:System.Threading.Timeout.Infinite" />.
+            </summary>
+        </member>
+        <member name="M:FastEndpoints.JobQueueOptions.LimitsFor``1(System.Int32,System.TimeSpan)">
+            <summary>
+            specify execution limits such a max concurrency and execution time limit for a given command type.
+            </summary>
+            <typeparam name="TCommand">the type of the command the limits apply to</typeparam>
+            <param name="maxConcurrency">the maximum number of command executions of the same command type that's allowed to execute at the same time</param>
+            <param name="timeLimit">
+            the maximum amount of time each command is allowed to execute for.
+            when execution time exceeds this value, a <see cref="T:System.OperationCanceledException" /> will be thrown.
+            when that happens you can handle it in the
+            <see cref="M:FastEndpoints.IJobStorageProvider`1.OnHandlerExecutionFailureAsync(`0,System.Exception,System.Threading.CancellationToken)" /> method.
+            </param>
+        </member>
+        <member name="T:FastEndpoints.JobResult`1">
+            <summary>
+            a wrapper for holding a job execution result as well as any progress details.
+            </summary>
+            <typeparam name="TResult">the type of the end result</typeparam>
+            <param name="totalSteps">the total number of steps the job is expected to have</param>
+        </member>
+        <member name="M:FastEndpoints.JobResult`1.#ctor(System.Int32)">
+            <summary>
+            a wrapper for holding a job execution result as well as any progress details.
+            </summary>
+            <typeparam name="TResult">the type of the end result</typeparam>
+            <param name="totalSteps">the total number of steps the job is expected to have</param>
+        </member>
+        <member name="P:FastEndpoints.JobResult`1.CurrentStep">
+            <summary>
+            the number of steps currently completed
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.JobResult`1.TotalSteps">
+            <summary>
+            the number of total steps to be completed
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.JobResult`1.ProgressPercentage">
+            <summary>
+            the percentage of steps currently completed
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.JobResult`1.CurrentStatus">
+            <summary>
+            the current status
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.JobResult`1.Result">
+            <summary>
+            the end result
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.JobResult`1.IsComplete">
+            <summary>
+            returns true if either the result is ready or if all the steps are complete.
+            </summary>
+        </member>
+        <member name="T:FastEndpoints.IJobTracker`1">
+            <summary>
+            the interface defining a job tracker
+            </summary>
+            <typeparam name="TCommand">the command type of the job</typeparam>
+        </member>
+        <member name="M:FastEndpoints.IJobTracker`1.CancelJobAsync(System.Guid,System.Threading.CancellationToken)">
+            <summary>
+            cancel a job by its tracking id. if the job is currently executing, the cancellation token passed down to the command handler method will be notified of the
+            cancellation. the job storage record will also be marked complete via <see cref="M:FastEndpoints.IJobStorageProvider`1.CancelJobAsync(System.Guid,System.Threading.CancellationToken)" /> method of the job storage
+            provider, which will prevent the job from being picked up for execution.
+            </summary>
+            <param name="trackingId">the job tracking id</param>
+            <param name="ct">optional cancellation token</param>
+            <exception cref="T:System.Exception">
+            this method will throw any exceptions that the job storage provider may throw in case of transient errors. you can safely retry calling this
+            method repeatedly with the same tracking id.
+            </exception>
+        </member>
+        <member name="M:FastEndpoints.IJobTracker`1.StoreJobResultAsync``1(System.Guid,``0,System.Threading.CancellationToken)">
+            <summary>
+            this method can be used to either store a preliminary job result and/or job progress before the job execution fully completes.
+            </summary>
+            <param name="trackingId">the job tracking id</param>
+            <param name="result">the preliminary job result or progress to store</param>
+            <param name="ct">cancellation token</param>
+            <typeparam name="TResult">the type of the preliminary result or progress</typeparam>
+        </member>
+        <member name="M:FastEndpoints.IJobTracker`1.GetJobResultAsync``1(System.Guid,System.Threading.CancellationToken)">
+            <summary>
+            retrieve the result of a command (that returns a result) which was previously queued as a job.
+            the returned result will be null/default until the job is actually complete.
+            </summary>
+            <param name="trackingId">the job tracking id</param>
+            <param name="ct">cancellation token</param>
+            <typeparam name="TResult">the type of the expected result</typeparam>
+        </member>
+        <member name="T:FastEndpoints.JobTracker`1">
+            <summary>
+            a <see cref="T:FastEndpoints.IJobTracker`1" /> implementation used for tracking queued jobs
+            </summary>
+            <typeparam name="TCommand">the command type of the job</typeparam>
+        </member>
+        <member name="M:FastEndpoints.JobTracker`1.CancelJobAsync(System.Guid,System.Threading.CancellationToken)">
+            <summary>
+            cancel a job by its tracking id. if the job is currently executing, the cancellation token passed down to the command handler method will be notified of the
+            cancellation. the job storage record will also be marked complete via <see cref="M:FastEndpoints.IJobStorageProvider`1.CancelJobAsync(System.Guid,System.Threading.CancellationToken)" /> method of the job storage
+            provider, which will prevent the job from being picked up for execution.
+            </summary>
+            <param name="trackingId">the job tracking id</param>
+            <param name="ct">optional cancellation token</param>
+            <exception cref="T:System.Exception">
+            this method will throw any exceptions that the job storage provider may throw in case of transient errors. you can safely retry calling this
+            method repeatedly with the same tracking id.
+            </exception>
+        </member>
+        <member name="M:FastEndpoints.JobTracker`1.StoreJobResultAsync``1(System.Guid,``0,System.Threading.CancellationToken)">
+            <summary>
+            this method can be used to either store a preliminary job result and/or job progress before the job execution fully completes.
+            </summary>
+            <param name="trackingId">the job tracking id</param>
+            <param name="result">the preliminary job result or progress to store</param>
+            <param name="ct">cancellation token</param>
+            <typeparam name="TResult">the type of the preliminary result or progress</typeparam>
+        </member>
+        <member name="M:FastEndpoints.JobTracker`1.GetJobResultAsync``1(System.Guid,System.Threading.CancellationToken)">
+            <summary>
+            retrieve the result of a command (that returns a result) which was previously queued as a job.
+            the returned result will be null/default until the job is actually complete.
+            </summary>
+            <param name="trackingId">the job tracking id</param>
+            <param name="ct">cancellation token</param>
+            <typeparam name="TResult">the type of the expected result</typeparam>
+        </member>
+        <member name="T:FastEndpoints.PendingJobSearchParams`1">
+            <summary>
+            a dto representing search parameters for pending job storage record retrieval
+            </summary>
+            <typeparam name="TStorageRecord">the type of storage record</typeparam>
+        </member>
+        <member name="P:FastEndpoints.PendingJobSearchParams`1.QueueID">
+            <summary>
+            the ID of the job queue for fetching the next batch of records for.
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.PendingJobSearchParams`1.Match">
+            <summary>
+            a boolean lambda expression to match the next batch of records
+            <code>
+            	r => r.QueueID == "xxx" &amp;&amp;
+            	     !r.IsComplete &amp;&amp;
+            	     DateTime.UtcNow &gt;= r.ExecuteAfter &amp;&amp;
+            	     DateTime.UtcNow &lt;= r.ExpireOn
+            </code>
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.PendingJobSearchParams`1.Limit">
+            <summary>
+            the number of pending records to fetch
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.PendingJobSearchParams`1.CancellationToken">
+            <summary>
+            cancellation token
+            </summary>
+        </member>
+        <member name="T:FastEndpoints.StaleJobSearchParams`1">
+            <summary>
+            a dto representing search parameters for matching stale job storage records
+            </summary>
+            <typeparam name="TStorageRecord">the type of storage record</typeparam>
+        </member>
+        <member name="P:FastEndpoints.StaleJobSearchParams`1.Match">
+            <summary>
+            a boolean lambda expression to match stale job records
+            <code>
+                r => r.IsComplete || r.ExpireOn &lt;= DateTime.UtcNow
+            </code>
+            </summary>
+        </member>
+        <member name="P:FastEndpoints.StaleJobSearchParams`1.CancellationToken">
+            <summary>
+            cancellation token
+            </summary>
+        </member>
+    </members>
+</doc>

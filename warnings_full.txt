@@ -1,0 +1,354 @@
+Build started 30 Jan 2026 18:28:29.
+     1>Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Web\Web.csproj" on node 1 (Restore target(s)).
+     1>_GetAllRestoreProjectPathItems:
+         Determining projects to restore...
+     1>Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Web\Web.csproj" (1) is building "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Generator\FastEndpoints.Generator.csproj" (5:6) on node 3 (_GenerateProjectRestoreGraph target(s)).
+   5:6>Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Generator\FastEndpoints.Generator.csproj" (5:6) is building "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Generator\FastEndpoints.Generator.csproj" (5:8) on node 3 (_GenerateProjectRestoreGraphPerFramework target(s)).
+     5>AddPrunePackageReferences:
+         Loaded prune package data from framework packages
+     5>Done Building Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Generator\FastEndpoints.Generator.csproj" (_GenerateProjectRestoreGraphPerFramework target(s)).
+     1>Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Web\Web.csproj" (1) is building "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Remote\FastEndpoints.Messaging.Remote.csproj" (6:10) on node 2 (_GenerateProjectRestoreGraph target(s)).
+  6:10>Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Remote\FastEndpoints.Messaging.Remote.csproj" (6:10) is building "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Remote\FastEndpoints.Messaging.Remote.csproj" (6:14) on node 2 (_GenerateProjectRestoreGraphPerFramework target(s)).
+     6>AddPrunePackageReferences:
+         Loaded prune package data from framework packages
+     1>Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Web\Web.csproj" (1) is building "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Security\FastEndpoints.Security.csproj" (4:10) on node 4 (_GenerateProjectRestoreGraph target(s)).
+  4:10>Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Security\FastEndpoints.Security.csproj" (4:10) is building "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Security\FastEndpoints.Security.csproj" (4:14) on node 4 (_GenerateProjectRestoreGraphPerFramework target(s)).
+     4>AddPrunePackageReferences:
+         Loaded prune package data from framework packages
+     5>Done Building Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Generator\FastEndpoints.Generator.csproj" (_GenerateProjectRestoreGraph target(s)).
+     6>Done Building Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Remote\FastEndpoints.Messaging.Remote.csproj" (_GenerateProjectRestoreGraphPerFramework target(s)).
+     4>Done Building Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Security\FastEndpoints.Security.csproj" (_GenerateProjectRestoreGraphPerFramework target(s)).
+     1>Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Web\Web.csproj" (1) is building "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Swagger\FastEndpoints.Swagger.csproj" (3:10) on node 5 (_GenerateProjectRestoreGraph target(s)).
+  3:10>Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Swagger\FastEndpoints.Swagger.csproj" (3:10) is building "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Swagger\FastEndpoints.Swagger.csproj" (3:14) on node 5 (_GenerateProjectRestoreGraphPerFramework target(s)).
+     3>AddPrunePackageReferences:
+         Loaded prune package data from framework packages
+     3>Done Building Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Swagger\FastEndpoints.Swagger.csproj" (_GenerateProjectRestoreGraphPerFramework target(s)).
+     1>Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Web\Web.csproj" (1) is building "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Library\FastEndpoints.csproj" (2:12) on node 1 (_GenerateProjectRestoreGraph target(s)).
+  2:12>Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Library\FastEndpoints.csproj" (2:12) is building "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Library\FastEndpoints.csproj" (2:16) on node 1 (_GenerateProjectRestoreGraphPerFramework target(s)).
+     2>AddPrunePackageReferences:
+         Loaded prune package data from framework packages
+         Loaded prune package data from framework packages
+  4:10>Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Security\FastEndpoints.Security.csproj" (4:10) is building "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Security\FastEndpoints.Security.csproj" (4:15) on node 4 (_GenerateProjectRestoreGraphPerFramework target(s)).
+     4>AddPrunePackageReferences:
+         Loaded prune package data from framework packages
+     4>Done Building Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Security\FastEndpoints.Security.csproj" (_GenerateProjectRestoreGraphPerFramework target(s)).
+  3:10>Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Swagger\FastEndpoints.Swagger.csproj" (3:10) is building "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Swagger\FastEndpoints.Swagger.csproj" (3:15) on node 5 (_GenerateProjectRestoreGraphPerFramework target(s)).
+     3>AddPrunePackageReferences:
+         Loaded prune package data from framework packages
+     2>Done Building Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Library\FastEndpoints.csproj" (_GenerateProjectRestoreGraphPerFramework target(s)).
+     3>Done Building Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Swagger\FastEndpoints.Swagger.csproj" (_GenerateProjectRestoreGraphPerFramework target(s)).
+  4:10>Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Security\FastEndpoints.Security.csproj" (4:10) is building "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Security\FastEndpoints.Security.csproj" (4:16) on node 4 (_GenerateProjectRestoreGraphPerFramework target(s)).
+     4>AddPrunePackageReferences:
+         Loading prune package data from PrunePackageData folder
+         Failed to load prune package data from PrunePackageData folder, loading from targeting packs instead
+         Looking for targeting packs in C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref
+         Pack directories found: C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\10.0.0-preview.7.25380.108
+         C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\10.0.2
+         Found package overrides file C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\10.0.2\data\PackageOverrides.txt
+  6:10>Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Remote\FastEndpoints.Messaging.Remote.csproj" (6:10) is building "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Remote\FastEndpoints.Messaging.Remote.csproj" (6:15) on node 2 (_GenerateProjectRestoreGraphPerFramework target(s)).
+     6>AddPrunePackageReferences:
+         Loaded prune package data from framework packages
+     4>Done Building Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Security\FastEndpoints.Security.csproj" (_GenerateProjectRestoreGraphPerFramework target(s)).
+  2:12>Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Library\FastEndpoints.csproj" (2:12) is building "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Library\FastEndpoints.csproj" (2:17) on node 1 (_GenerateProjectRestoreGraphPerFramework target(s)).
+     2>AddPrunePackageReferences:
+         Loaded prune package data from framework packages
+         Loaded prune package data from framework packages
+     4>Done Building Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Security\FastEndpoints.Security.csproj" (_GenerateProjectRestoreGraph target(s)).
+  3:10>Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Swagger\FastEndpoints.Swagger.csproj" (3:10) is building "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Swagger\FastEndpoints.Swagger.csproj" (3:16) on node 5 (_GenerateProjectRestoreGraphPerFramework target(s)).
+     3>AddPrunePackageReferences:
+         Loading prune package data from PrunePackageData folder
+         Failed to load prune package data from PrunePackageData folder, loading from targeting packs instead
+         Looking for targeting packs in C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref
+         Pack directories found: C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\10.0.0-preview.7.25380.108
+         C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\10.0.2
+         Found package overrides file C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\10.0.2\data\PackageOverrides.txt
+     3>Done Building Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Swagger\FastEndpoints.Swagger.csproj" (_GenerateProjectRestoreGraphPerFramework target(s)).
+     6>Done Building Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Remote\FastEndpoints.Messaging.Remote.csproj" (_GenerateProjectRestoreGraphPerFramework target(s)).
+     2>Done Building Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Library\FastEndpoints.csproj" (_GenerateProjectRestoreGraphPerFramework target(s)).
+     3>Done Building Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Swagger\FastEndpoints.Swagger.csproj" (_GenerateProjectRestoreGraph target(s)).
+     1>Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Web\Web.csproj" (1) is building "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Core\FastEndpoints.Messaging.Core.csproj" (11:7) on node 3 (_GenerateProjectRestoreGraph target(s)).
+  11:7>Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Core\FastEndpoints.Messaging.Core.csproj" (11:7) is building "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Core\FastEndpoints.Messaging.Core.csproj" (11:9) on node 4 (_GenerateProjectRestoreGraphPerFramework target(s)).
+    11>AddPrunePackageReferences:
+         Loaded prune package data from framework packages
+    11>Done Building Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Core\FastEndpoints.Messaging.Core.csproj" (_GenerateProjectRestoreGraphPerFramework target(s)).
+  6:10>Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Remote\FastEndpoints.Messaging.Remote.csproj" (6:10) is building "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Remote\FastEndpoints.Messaging.Remote.csproj" (6:16) on node 2 (_GenerateProjectRestoreGraphPerFramework target(s)).
+     6>AddPrunePackageReferences:
+         Loading prune package data from PrunePackageData folder
+         Failed to load prune package data from PrunePackageData folder, loading from targeting packs instead
+         Looking for targeting packs in C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref
+         Pack directories found: C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\10.0.0-preview.7.25380.108
+         C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\10.0.2
+         Found package overrides file C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\10.0.2\data\PackageOverrides.txt
+    11>Done Building Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Core\FastEndpoints.Messaging.Core.csproj" (_GenerateProjectRestoreGraph target(s)).
+  2:12>Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Library\FastEndpoints.csproj" (2:12) is building "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Library\FastEndpoints.csproj" (2:18) on node 1 (_GenerateProjectRestoreGraphPerFramework target(s)).
+     2>AddPrunePackageReferences:
+         Loading prune package data from PrunePackageData folder
+         Failed to load prune package data from PrunePackageData folder, loading from targeting packs instead
+         Looking for targeting packs in C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref
+         Pack directories found: C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\10.0.0-preview.7.25380.108
+         C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\10.0.2
+     6>Done Building Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Remote\FastEndpoints.Messaging.Remote.csproj" (_GenerateProjectRestoreGraphPerFramework target(s)).
+     2>AddPrunePackageReferences:
+         Found package overrides file C:\Program Files\dotnet\packs\Microsoft.NETCore.App.Ref\10.0.2\data\PackageOverrides.txt
+         Loading prune package data from PrunePackageData folder
+         Failed to load prune package data from PrunePackageData folder, loading from targeting packs instead
+         Looking for targeting packs in C:\Program Files\dotnet\packs\Microsoft.AspNetCore.App.Ref
+         Pack directories found: C:\Program Files\dotnet\packs\Microsoft.AspNetCore.App.Ref\10.0.0-preview.7.25380.108
+         C:\Program Files\dotnet\packs\Microsoft.AspNetCore.App.Ref\10.0.2
+         Found package overrides file C:\Program Files\dotnet\packs\Microsoft.AspNetCore.App.Ref\10.0.2\data\PackageOverrides.txt
+     6>Done Building Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Remote\FastEndpoints.Messaging.Remote.csproj" (_GenerateProjectRestoreGraph target(s)).
+     2>Done Building Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Library\FastEndpoints.csproj" (_GenerateProjectRestoreGraphPerFramework target(s)).
+     2>Done Building Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Library\FastEndpoints.csproj" (_GenerateProjectRestoreGraph target(s)).
+     1>Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Web\Web.csproj" (1) is building "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Remote.Core\FastEndpoints.Messaging.Remote.Core.csproj" (9:6) on node 2 (_GenerateProjectRestoreGraph target(s)).
+   9:6>Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Remote.Core\FastEndpoints.Messaging.Remote.Core.csproj" (9:6) is building "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Remote.Core\FastEndpoints.Messaging.Remote.Core.csproj" (9:8) on node 5 (_GenerateProjectRestoreGraphPerFramework target(s)).
+     9>AddPrunePackageReferences:
+         Loaded prune package data from framework packages
+     9>Done Building Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Remote.Core\FastEndpoints.Messaging.Remote.Core.csproj" (_GenerateProjectRestoreGraphPerFramework target(s)).
+     9>Done Building Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Remote.Core\FastEndpoints.Messaging.Remote.Core.csproj" (_GenerateProjectRestoreGraph target(s)).
+     1>Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Web\Web.csproj" (1) is building "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Core\FastEndpoints.Core.csproj" (12:6) on node 3 (_GenerateProjectRestoreGraph target(s)).
+  12:6>Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Core\FastEndpoints.Core.csproj" (12:6) is building "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Core\FastEndpoints.Core.csproj" (12:8) on node 1 (_GenerateProjectRestoreGraphPerFramework target(s)).
+    12>AddPrunePackageReferences:
+         Loaded prune package data from framework packages
+    12>Done Building Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Core\FastEndpoints.Core.csproj" (_GenerateProjectRestoreGraphPerFramework target(s)).
+    12>Done Building Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Core\FastEndpoints.Core.csproj" (_GenerateProjectRestoreGraph target(s)).
+     1>Restore:
+         X.509 certificate chain validation will use the default trust store selected by .NET for code signing.
+         X.509 certificate chain validation will use the default trust store selected by .NET for timestamping.
+         Assets file has not changed. Skipping assets file writing. Path: C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging\obj\project.assets.json
+         Assets file has not changed. Skipping assets file writing. Path: C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Core\obj\project.assets.json
+         Assets file has not changed. Skipping assets file writing. Path: C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Attributes\obj\project.assets.json
+         Assets file has not changed. Skipping assets file writing. Path: C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Generator\obj\project.assets.json
+         Assets file has not changed. Skipping assets file writing. Path: C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Core\obj\project.assets.json
+         Assets file has not changed. Skipping assets file writing. Path: C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Library\obj\project.assets.json
+         Assets file has not changed. Skipping assets file writing. Path: C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\JobQueues\obj\project.assets.json
+         Assets file has not changed. Skipping assets file writing. Path: C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Remote\obj\project.assets.json
+         Assets file has not changed. Skipping assets file writing. Path: C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Remote.Core\obj\project.assets.json
+         Restored C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Generator\FastEndpoints.Generator.csproj (in 50 ms).
+         Restored C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging\FastEndpoints.Messaging.csproj (in 50 ms).
+         Restored C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Core\FastEndpoints.Messaging.Core.csproj (in 50 ms).
+         Restored C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Attributes\FastEndpoints.Attributes.csproj (in 50 ms).
+         Restored C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Remote\FastEndpoints.Messaging.Remote.csproj (in 52 ms).
+         Restored C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Core\FastEndpoints.Core.csproj (in 50 ms).
+         Restored C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Library\FastEndpoints.csproj (in 52 ms).
+         Restored C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Remote.Core\FastEndpoints.Messaging.Remote.Core.csproj (in 52 ms).
+         Restored C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\JobQueues\FastEndpoints.JobQueues.csproj (in 52 ms).
+         Assets file has not changed. Skipping assets file writing. Path: C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Security\obj\project.assets.json
+         Restored C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Security\FastEndpoints.Security.csproj (in 53 ms).
+         Assets file has not changed. Skipping assets file writing. Path: C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Swagger\obj\project.assets.json
+         Restored C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Swagger\FastEndpoints.Swagger.csproj (in 53 ms).
+         Assets file has not changed. Skipping assets file writing. Path: C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Web\obj\project.assets.json
+         Restored C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Web\Web.csproj (in 53 ms).
+         
+         NuGet Config files used:
+             C:\Users\johan\AppData\Roaming\NuGet\NuGet.Config
+             C:\Program Files (x86)\NuGet\Config\Microsoft.VisualStudio.FallbackLocation.config
+             C:\Program Files (x86)\NuGet\Config\Microsoft.VisualStudio.Offline.config
+         
+         Feeds used:
+             https://api.nuget.org/v3/index.json
+             C:\Program Files\dotnet\library-packs
+         All projects are up-to-date for restore.
+     1>Done Building Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Web\Web.csproj" (Restore target(s)).
+   1:7>Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Web\Web.csproj" on node 2 (Publish target(s)).
+   1:7>Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Web\Web.csproj" (1:7) is building "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Library\FastEndpoints.csproj" (2:23) on node 14 (default targets).
+  2:23>Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Library\FastEndpoints.csproj" (2:23) is building "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Attributes\FastEndpoints.Attributes.csproj" (7:13) on node 7 (default targets).
+     7>GenerateTargetFrameworkMonikerAttribute:
+       Skipping target "GenerateTargetFrameworkMonikerAttribute" because all output files are up-to-date with respect to the input files.
+       CoreGenerateAssemblyInfo:
+       Skipping target "CoreGenerateAssemblyInfo" because all output files are up-to-date with respect to the input files.
+       _GenerateSourceLinkFile:
+         Source Link file 'obj\Release\netstandard2.0\FastEndpoints.Attributes.sourcelink.json' is up-to-date.
+       CoreCompile:
+       Skipping target "CoreCompile" because all output files are up-to-date with respect to the input files.
+   1:7>Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Web\Web.csproj" (1:7) is building "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Remote\FastEndpoints.Messaging.Remote.csproj" (6:21) on node 16 (default targets).
+  6:21>Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Remote\FastEndpoints.Messaging.Remote.csproj" (6:21) is building "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Core\FastEndpoints.Messaging.Core.csproj" (11:14) on node 6 (default targets).
+    11>GenerateTargetFrameworkMonikerAttribute:
+       Skipping target "GenerateTargetFrameworkMonikerAttribute" because all output files are up-to-date with respect to the input files.
+     7>GenerateBuildDependencyFile:
+       Skipping target "GenerateBuildDependencyFile" because all output files are up-to-date with respect to the input files.
+       CopyFilesToOutputDirectory:
+         FastEndpoints.Attributes -> C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Attributes\bin\Release\netstandard2.0\FastEndpoints.Attributes.dll
+    11>CoreGenerateAssemblyInfo:
+       Skipping target "CoreGenerateAssemblyInfo" because all output files are up-to-date with respect to the input files.
+     7>Done Building Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Attributes\FastEndpoints.Attributes.csproj" (default targets).
+    11>_GenerateSourceLinkFile:
+         Source Link file 'obj\Release\netstandard2.1\FastEndpoints.Messaging.Core.sourcelink.json' is up-to-date.
+       CoreCompile:
+       Skipping target "CoreCompile" because all output files are up-to-date with respect to the input files.
+       GenerateBuildDependencyFile:
+       Skipping target "GenerateBuildDependencyFile" because all output files are up-to-date with respect to the input files.
+       CopyFilesToOutputDirectory:
+         FastEndpoints.Messaging.Core -> C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Core\bin\Release\netstandard2.1\FastEndpoints.Messaging.Core.dll
+    11>Done Building Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Core\FastEndpoints.Messaging.Core.csproj" (default targets).
+   1:7>Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Web\Web.csproj" (1:7) is building "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Security\FastEndpoints.Security.csproj" (4:21) on node 13 (default targets).
+  4:21>Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Security\FastEndpoints.Security.csproj" (4:21) is building "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging\FastEndpoints.Messaging.csproj" (8:26) on node 13 (default targets).
+  8:26>Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging\FastEndpoints.Messaging.csproj" (8:26) is building "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Core\FastEndpoints.Core.csproj" (12:16) on node 9 (default targets).
+    12>GenerateTargetFrameworkMonikerAttribute:
+       Skipping target "GenerateTargetFrameworkMonikerAttribute" because all output files are up-to-date with respect to the input files.
+       CoreGenerateAssemblyInfo:
+       Skipping target "CoreGenerateAssemblyInfo" because all output files are up-to-date with respect to the input files.
+       _GenerateSourceLinkFile:
+         Source Link file 'obj\Release\netstandard2.1\FastEndpoints.Core.sourcelink.json' is up-to-date.
+       CoreCompile:
+       Skipping target "CoreCompile" because all output files are up-to-date with respect to the input files.
+       GenerateBuildDependencyFile:
+       Skipping target "GenerateBuildDependencyFile" because all output files are up-to-date with respect to the input files.
+       CopyFilesToOutputDirectory:
+         FastEndpoints.Core -> C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Core\bin\Release\netstandard2.1\FastEndpoints.Core.dll
+    12>Done Building Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Core\FastEndpoints.Core.csproj" (default targets).
+  6:21>Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Remote\FastEndpoints.Messaging.Remote.csproj" (6:21) is building "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Remote.Core\FastEndpoints.Messaging.Remote.Core.csproj" (9:12) on node 8 (default targets).
+     9>GenerateTargetFrameworkMonikerAttribute:
+       Skipping target "GenerateTargetFrameworkMonikerAttribute" because all output files are up-to-date with respect to the input files.
+       CoreGenerateAssemblyInfo:
+       Skipping target "CoreGenerateAssemblyInfo" because all output files are up-to-date with respect to the input files.
+       _GenerateSourceLinkFile:
+         Source Link file 'obj\Release\netstandard2.1\FastEndpoints.Messaging.Remote.Core.sourcelink.json' is up-to-date.
+       CoreCompile:
+       Skipping target "CoreCompile" because all output files are up-to-date with respect to the input files.
+       GenerateBuildDependencyFile:
+       Skipping target "GenerateBuildDependencyFile" because all output files are up-to-date with respect to the input files.
+       CopyFilesToOutputDirectory:
+         FastEndpoints.Messaging.Remote.Core -> C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Remote.Core\bin\Release\netstandard2.1\FastEndpoints.Messaging.Remote.Core.dll
+     9>Done Building Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Remote.Core\FastEndpoints.Messaging.Remote.Core.csproj" (default targets).
+     8>GenerateTargetFrameworkMonikerAttribute:
+       Skipping target "GenerateTargetFrameworkMonikerAttribute" because all output files are up-to-date with respect to the input files.
+       CoreGenerateAssemblyInfo:
+       Skipping target "CoreGenerateAssemblyInfo" because all output files are up-to-date with respect to the input files.
+       _GenerateSourceLinkFile:
+         Source Link file 'obj\Release\net10.0\FastEndpoints.Messaging.sourcelink.json' is up-to-date.
+       CoreCompile:
+       Skipping target "CoreCompile" because all output files are up-to-date with respect to the input files.
+       GenerateBuildDependencyFile:
+       Skipping target "GenerateBuildDependencyFile" because all output files are up-to-date with respect to the input files.
+       CopyFilesToOutputDirectory:
+         FastEndpoints.Messaging -> C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging\bin\Release\net10.0\FastEndpoints.Messaging.dll
+     8>Done Building Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging\FastEndpoints.Messaging.csproj" (default targets).
+     6>GenerateTargetFrameworkMonikerAttribute:
+       Skipping target "GenerateTargetFrameworkMonikerAttribute" because all output files are up-to-date with respect to the input files.
+   1:7>Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Web\Web.csproj" (1:7) is building "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\JobQueues\FastEndpoints.JobQueues.csproj" (10:21) on node 19 (default targets).
+    10>GenerateTargetFrameworkMonikerAttribute:
+       Skipping target "GenerateTargetFrameworkMonikerAttribute" because all output files are up-to-date with respect to the input files.
+     6>CoreGenerateAssemblyInfo:
+       Skipping target "CoreGenerateAssemblyInfo" because all output files are up-to-date with respect to the input files.
+    10>CoreGenerateAssemblyInfo:
+       Skipping target "CoreGenerateAssemblyInfo" because all output files are up-to-date with respect to the input files.
+     6>_GenerateSourceLinkFile:
+         Source Link file 'obj\Release\net10.0\FastEndpoints.Messaging.Remote.sourcelink.json' is up-to-date.
+       CoreCompile:
+       Skipping target "CoreCompile" because all output files are up-to-date with respect to the input files.
+    10>_GenerateSourceLinkFile:
+         Source Link file 'obj\Release\net10.0\FastEndpoints.JobQueues.sourcelink.json' is up-to-date.
+       CoreCompile:
+       Skipping target "CoreCompile" because all output files are up-to-date with respect to the input files.
+     6>GenerateBuildDependencyFile:
+       Skipping target "GenerateBuildDependencyFile" because all output files are up-to-date with respect to the input files.
+       CopyFilesToOutputDirectory:
+         FastEndpoints.Messaging.Remote -> C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Remote\bin\Release\net10.0\FastEndpoints.Messaging.Remote.dll
+    10>GenerateBuildDependencyFile:
+       Skipping target "GenerateBuildDependencyFile" because all output files are up-to-date with respect to the input files.
+       CopyFilesToOutputDirectory:
+         FastEndpoints.JobQueues -> C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\JobQueues\bin\Release\net10.0\FastEndpoints.JobQueues.dll
+     6>Done Building Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Messaging\Messaging.Remote\FastEndpoints.Messaging.Remote.csproj" (default targets).
+    10>Done Building Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\JobQueues\FastEndpoints.JobQueues.csproj" (default targets).
+     2>GenerateTargetFrameworkMonikerAttribute:
+       Skipping target "GenerateTargetFrameworkMonikerAttribute" because all output files are up-to-date with respect to the input files.
+       CoreGenerateAssemblyInfo:
+       Skipping target "CoreGenerateAssemblyInfo" because all output files are up-to-date with respect to the input files.
+       _GenerateSourceLinkFile:
+         Source Link file 'obj\Release\net10.0\FastEndpoints.sourcelink.json' is up-to-date.
+       CoreCompile:
+       Skipping target "CoreCompile" because all output files are up-to-date with respect to the input files.
+       GenerateBuildDependencyFile:
+       Skipping target "GenerateBuildDependencyFile" because all output files are up-to-date with respect to the input files.
+       CopyFilesToOutputDirectory:
+         FastEndpoints -> C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Library\bin\Release\net10.0\FastEndpoints.dll
+     2>Done Building Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Library\FastEndpoints.csproj" (default targets).
+     4>GenerateTargetFrameworkMonikerAttribute:
+       Skipping target "GenerateTargetFrameworkMonikerAttribute" because all output files are up-to-date with respect to the input files.
+       CoreGenerateAssemblyInfo:
+       Skipping target "CoreGenerateAssemblyInfo" because all output files are up-to-date with respect to the input files.
+   1:7>Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Web\Web.csproj" (1:7) is building "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Swagger\FastEndpoints.Swagger.csproj" (3:21) on node 5 (default targets).
+     3>GenerateTargetFrameworkMonikerAttribute:
+       Skipping target "GenerateTargetFrameworkMonikerAttribute" because all output files are up-to-date with respect to the input files.
+     4>_GenerateSourceLinkFile:
+         Source Link file 'obj\Release\net10.0\FastEndpoints.Security.sourcelink.json' is up-to-date.
+       CoreCompile:
+       Skipping target "CoreCompile" because all output files are up-to-date with respect to the input files.
+     3>CoreGenerateAssemblyInfo:
+       Skipping target "CoreGenerateAssemblyInfo" because all output files are up-to-date with respect to the input files.
+       _GenerateSourceLinkFile:
+         Source Link file 'obj\Release\net10.0\FastEndpoints.Swagger.sourcelink.json' is up-to-date.
+       CoreCompile:
+       Skipping target "CoreCompile" because all output files are up-to-date with respect to the input files.
+     4>GenerateBuildDependencyFile:
+       Skipping target "GenerateBuildDependencyFile" because all output files are up-to-date with respect to the input files.
+       CopyFilesToOutputDirectory:
+         FastEndpoints.Security -> C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Security\bin\Release\net10.0\FastEndpoints.Security.dll
+     3>GenerateBuildDependencyFile:
+       Skipping target "GenerateBuildDependencyFile" because all output files are up-to-date with respect to the input files.
+       CopyFilesToOutputDirectory:
+         FastEndpoints.Swagger -> C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Swagger\bin\Release\net10.0\FastEndpoints.Swagger.dll
+     4>Done Building Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Security\FastEndpoints.Security.csproj" (default targets).
+     3>Done Building Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Swagger\FastEndpoints.Swagger.csproj" (default targets).
+   1:7>Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Web\Web.csproj" (1:7) is building "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Generator\FastEndpoints.Generator.csproj" (5:11) on node 2 (default targets).
+     5>GenerateTargetFrameworkMonikerAttribute:
+       Skipping target "GenerateTargetFrameworkMonikerAttribute" because all output files are up-to-date with respect to the input files.
+       CoreGenerateAssemblyInfo:
+       Skipping target "CoreGenerateAssemblyInfo" because all output files are up-to-date with respect to the input files.
+       _GenerateSourceLinkFile:
+         Source Link file 'obj\Release\netstandard2.0\FastEndpoints.Generator.sourcelink.json' is up-to-date.
+       CoreCompile:
+       Skipping target "CoreCompile" because all output files are up-to-date with respect to the input files.
+       GenerateBuildDependencyFile:
+       Skipping target "GenerateBuildDependencyFile" because all output files are up-to-date with respect to the input files.
+       CopyFilesToOutputDirectory:
+         FastEndpoints.Generator -> C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Generator\bin\Release\netstandard2.0\FastEndpoints.Generator.dll
+     5>Done Building Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Src\Generator\FastEndpoints.Generator.csproj" (default targets).
+     1>GenerateTargetFrameworkMonikerAttribute:
+       Skipping target "GenerateTargetFrameworkMonikerAttribute" because all output files are up-to-date with respect to the input files.
+       CoreGenerateAssemblyInfo:
+       Skipping target "CoreGenerateAssemblyInfo" because all output files are up-to-date with respect to the input files.
+       _DiscoverMvcApplicationParts:
+       Skipping target "_DiscoverMvcApplicationParts" because all output files are up-to-date with respect to the input files.
+       CoreCompile:
+       Skipping target "CoreCompile" because all output files are up-to-date with respect to the input files.
+       _ProcessScopedCssFiles:
+       Skipping target "_ProcessScopedCssFiles" because it has no outputs.
+       _ProcessScopedCssFiles:
+       Skipping target "_ProcessScopedCssFiles" because it has no outputs.
+       _BuildCopyStaticWebAssetsPreserveNewest:
+       Skipping target "_BuildCopyStaticWebAssetsPreserveNewest" because it has no outputs.
+       _CopyOutOfDateSourceItemsToOutputDirectory:
+       Skipping target "_CopyOutOfDateSourceItemsToOutputDirectory" because all output files are up-to-date with respect to the input files.
+       GenerateBuildDependencyFile:
+       Skipping target "GenerateBuildDependencyFile" because all output files are up-to-date with respect to the input files.
+       GenerateBuildRuntimeConfigurationFiles:
+       Skipping target "GenerateBuildRuntimeConfigurationFiles" because all output files are up-to-date with respect to the input files.
+       CopyFilesToOutputDirectory:
+         Web -> C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Web\bin\Release\net10.0\win-x64\Web.dll
+       SetupOSSpecificProps:
+         "C:\Users\johan\.nuget\packages\microsoft.dotnet.ilcompiler\10.0.2\build\findvcvarsall.bat" x64
+       _ComputeManagedAssemblyToLink:
+         Task assembly was loaded from 'C:\Program Files\dotnet\sdk\10.0.102\Microsoft.Build.dll' while the desired location was 'C:\Users\johan\.nuget\packages\microsoft.net.illink.tasks\10.0.2\tools\net\ILLink.Tasks.dll'.
+       IlcCompile:
+       Skipping target "IlcCompile" because all output files are up-to-date with respect to the input files.
+       LinkNative:
+       Skipping target "LinkNative" because all output files are up-to-date with respect to the input files.
+       _CopyResolvedFilesToPublishPreserveNewest:
+       Skipping target "_CopyResolvedFilesToPublishPreserveNewest" because all output files are up-to-date with respect to the input files.
+       _PublishCopyStaticWebAssetsPreserveNewest:
+       Skipping target "_PublishCopyStaticWebAssetsPreserveNewest" because it has no outputs.
+       CopyStaticWebAssetsEndpointsManifest:
+         Copying file from "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Web\obj\Release\net10.0\win-x64\staticwebassets.publish.endpoints.json" to "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Web\bin\Release\net10.0\win-x64\publish\Web.staticwebassets.endpoints.json".
+       Publish:
+         Web -> C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Web\bin\Release\net10.0\win-x64\publish\
+       CopyNativeBinary:
+         Deleting file "bin\Release\net10.0\win-x64\publish\\Web.exe".
+         Copying file from "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Web\bin\Release\net10.0\win-x64\native\Web.exe" to "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Web\bin\Release\net10.0\win-x64\publish\Web.exe".
+     1>Done Building Project "C:\Users\johan\OneDrive\Documents\GitHub\FastEndpoints\Web\Web.csproj" (Publish target(s)).
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:07.20

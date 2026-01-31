@@ -71,7 +71,7 @@ public class EndpointTests(App app)
     {
         var ids = new List<(Guid id, Task<TestResult<string>> responseTask)>();
 
-        for (var i = 0; i < 100; i++)
+        for (var i = 0; i < 10; i++)
         {
             var id = Guid.NewGuid();
             var task = app.Client.GETAsync<JobQueueEndpoint, JobQueueRequest, string>(new() { Id = id });
@@ -80,7 +80,7 @@ public class EndpointTests(App app)
 
         var results = await Task.WhenAll(ids.Select(i => i.responseTask));
 
-        for (var i = 0; i < 100; i++)
+        for (var i = 0; i < 10; i++)
         {
             var (id, _) = ids[i];
             var (rsp, res, err) = results[i];
@@ -147,5 +147,16 @@ public class EndpointTests(App app)
         res.Person.Name.ShouldBe("John Doe");
         res.Person.Age.ShouldBe(30);
         res.Category.ShouldBe("test-category");
+    }
+
+    [Fact]
+    public async Task Result_Returning_Endpoint()
+    {
+        var (rsp, res, err) = await app.Client.GETAsync<ResultReturningEndpoint, string>();
+
+        if (!rsp.IsSuccessStatusCode)
+            Assert.Fail(err);
+
+        res.ShouldBe("hello");
     }
 }

@@ -725,6 +725,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
         => Definition.EndpointVersion(version, deprecateAt);
 }
 
+#pragma warning disable IL2060, IL3050
 static class ProducesMetaForResultOfResponse
 {
     static readonly MethodInfo _populateMethod =

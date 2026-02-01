@@ -8,7 +8,14 @@ bld.Services
    .AddAuthenticationJwtBearer(o => o.SigningKey = bld.Configuration["Jwt-Secret"])
    .AddAuthorization()
    .AddFastEndpoints(o => o.SourceGeneratorDiscoveredTypes = DiscoveredTypes.All)
-   .AddJobQueues<Job, JobStorage>();
+   .AddJobQueues<Job, JobStorage>()
+    .AddCommandMiddleware(
+        c =>
+        {
+            c.Register<MiddlewareTestCmd, MiddlewareTestResult, FirstMiddleware>();
+            c.Register<MiddlewareTestCmd, MiddlewareTestResult, SecondMiddleware<MiddlewareTestCmd, MiddlewareTestResult>>();
+            c.Register<MiddlewareTestCmd, MiddlewareTestResult, ThirdMiddleware<MiddlewareTestCmd, MiddlewareTestResult>>();
+        });
 bld.Services.ConfigureHttpJsonOptions(o => o.SerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonSerializerContext.Default));
 
 var app = bld.Build();

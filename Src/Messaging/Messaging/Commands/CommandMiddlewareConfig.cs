@@ -1,4 +1,6 @@
-﻿namespace FastEndpoints;
+using System.Diagnostics.CodeAnalysis;
+
+namespace FastEndpoints;
 
 /// <summary>
 /// command middleware configuration
@@ -15,6 +17,8 @@ public class CommandMiddlewareConfig
     /// </summary>
     /// <param name="middlewareTypes">the open-generic middleware types to add to the pipeline.</param>
     /// <exception cref="ArgumentException">thrown if any of the supplied types are not open-generic.</exception>
+    [RequiresUnreferencedCode(
+        "open-generic middleware registration is not compatible with native aot/trimming. use the generic Register<TCommand, TResult, TMiddleware>() method instead.")]
     public void Register(params Type[] middlewareTypes)
     {
         for (var i = 0; i < middlewareTypes.Length; i++)
@@ -39,6 +43,8 @@ public class CommandMiddlewareConfig
     /// <typeparam name="TCommand">the type of the command</typeparam>
     /// <typeparam name="TResult">the type of the result</typeparam>
     /// <typeparam name="TMiddleware">the type of the middleware</typeparam>
-    public void Register<TCommand, TResult, TMiddleware>() where TCommand : ICommand<TResult> where TMiddleware : ICommandMiddleware<TCommand, TResult>
+    public void Register<TCommand, TResult, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)] TMiddleware>()
+        where TCommand : ICommand<TResult>
+        where TMiddleware : ICommandMiddleware<TCommand, TResult>
         => Middleware.Add((typeof(ICommandMiddleware<TCommand, TResult>), typeof(TMiddleware)));
 }

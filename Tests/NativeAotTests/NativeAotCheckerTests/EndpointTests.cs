@@ -215,4 +215,19 @@ public class EndpointTests(App app)
         res.Errors.Count.ShouldBe(1);
         res.Errors.Keys.ShouldContain("items[1]");
     }
+
+    [Fact]
+    public async Task Command_Middleware_Executes_In_Correct_Order()
+    {
+        var (rsp, res, err) = await app.Client.POSTAsync<CommandMiddlewareEndpoint, CommandMiddlewareRequest, CommandMiddlewareResponse>(
+                                  new()
+                                  {
+                                      Input = "test"
+                                  });
+
+        if (!rsp.IsSuccessStatusCode)
+            Assert.Fail(err);
+
+        res.Result.ShouldBe("[ first-in >> second-in >> third-in >> [handler] << third-out << second-out << first-out ]");
+    }
 }

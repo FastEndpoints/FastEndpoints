@@ -118,7 +118,7 @@ public class EndpointTests(App app)
         res.Description.ShouldBe("Test description from JSON");
         res.Id.ShouldBe(456);
         res.Category.ShouldBe("test-category");
-        res.UserId.ShouldBe("001");
+        res.UserId.ShouldBe("0001");
         res.FormValue.ShouldBe("Hello from form");
         res.RequestId.ShouldBe("test-req-789");
     }

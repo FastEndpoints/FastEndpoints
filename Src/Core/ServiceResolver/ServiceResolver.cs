@@ -1,11 +1,17 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Concurrent;
+#if NET8_0_OR_GREATER
+using System.Diagnostics.CodeAnalysis;
+#endif
 
 namespace FastEndpoints;
 
 //this class is instantiated by either the IOC container in normal mode
 //or by Factory.AddTestServices() method in unit testing mode
+#if NET8_0_OR_GREATER
+[UnconditionalSuppressMessage("aot", "IL2067"), UnconditionalSuppressMessage("aot", "IL2026"), UnconditionalSuppressMessage("aot", "IL2070")]
+#endif
 sealed class ServiceResolver(IServiceProvider provider, IHttpContextAccessor? ctxAccessor = null, bool isUnitTestMode = false) : IServiceResolver
 {
     static IServiceResolver? _instance;

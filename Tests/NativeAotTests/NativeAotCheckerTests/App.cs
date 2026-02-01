@@ -59,8 +59,9 @@ public class App : IAsyncLifetime
             {
                 FileName = _exePath,
                 Arguments = $"--urls={_baseUrl}",
-                UseShellExecute = true,
-                WindowStyle = ProcessWindowStyle.Normal
+                UseShellExecute = false,
+                RedirectStandardError = true,
+                WindowStyle = ProcessWindowStyle.Hidden
             }
         };
         _apiProcess.Start();

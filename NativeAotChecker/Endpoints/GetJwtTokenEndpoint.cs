@@ -16,7 +16,7 @@ public class GetJwtTokenEndpoint : EndpointWithoutRequest<string>
             o =>
             {
                 o.SigningKey = Config["Jwt-Secret"]!;
-                o.User["user-id"] = "001";
+                o.User["user-id"] = "0001";
             });
         await Send.OkAsync(token);
     }

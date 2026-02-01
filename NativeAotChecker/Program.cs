@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using FastEndpoints.Security;
 using NativeAotChecker;
 using NativeAotChecker.Endpoints;
@@ -16,7 +15,6 @@ bld.Services
            c.Register<MiddlewareTestCmd, MiddlewareTestResult, SecondMiddleware<MiddlewareTestCmd, MiddlewareTestResult>>();
            c.Register<MiddlewareTestCmd, MiddlewareTestResult, ThirdMiddleware<MiddlewareTestCmd, MiddlewareTestResult>>();
        });
-bld.Services.ConfigureHttpJsonOptions(o => o.SerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonSerializerContext.Default));
 
 var app = bld.Build();
 app.MapGet("healthy", () => Results.Ok());
@@ -30,7 +28,3 @@ app.UseAuthentication()
        });
 app.UseJobQueues(o => o.StorageProbeDelay = TimeSpan.FromMilliseconds(50));
 app.Run();
-
-//needed by the hidden /_test_url_cache_ endpoint
-[JsonSerializable(typeof(IEnumerable<string>))]
-public partial class AppJsonSerializerContext : JsonSerializerContext { }

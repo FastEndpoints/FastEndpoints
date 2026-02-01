@@ -76,4 +76,10 @@ public sealed class SerializerOptions
                          options: jCtx?.Options ?? SerOpts.Options,
                          contentType: SerOpts.CharacterEncoding is null ? contentType : $"{contentType}; charset={SerOpts.CharacterEncoding}",
                          cancellationToken: cancellation);
+
+    /// <summary>
+    /// the original json serializer options from the di-registered JsonOptions.
+    /// used by IResult types (like Ok&lt;T&gt;) which get their serializer options from di.
+    /// </summary>
+    internal JsonSerializerOptions? AspNetCoreOptions { get; set; }
 }

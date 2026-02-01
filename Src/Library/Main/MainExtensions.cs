@@ -1,6 +1,8 @@
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using FluentValidation;
 using FluentValidation.Internal;
 using Microsoft.AspNetCore.Antiforgery;
@@ -69,6 +71,7 @@ public static class MainExtensions
     {
         ServiceResolver.Instance = app.ServiceProvider.GetRequiredService<IServiceResolver>();
         var jsonOpts = app.ServiceProvider.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions;
+        Cfg.SerOpts.AspNetCoreOptions = jsonOpts; // store reference to original for IResult types
         Cfg.SerOpts.Options = jsonOpts is not null
                                   ? new(jsonOpts) //make a copy to avoid configAction modifying the global JsonOptions
                                   : Cfg.SerOpts.Options;
@@ -207,8 +210,14 @@ public static class MainExtensions
 
         CommandExtensions.TestHandlersPresent = app.ServiceProvider.GetService<TestCommandHandlerMarker>() is not null;
 
-        app.MapGet("_test_url_cache_", IEndpoint.GetTestUrlCache)
-           .Produces<string[]>(contentType: "text/plain")
+        app.MapGet(
+               "_test_url_cache_",
+               () => Results.Content(
+                   JsonSerializer.Serialize(
+                       IEndpoint.GetTestUrlCache(),
+                       typeof(IEnumerable<string>),
+                       TestUrlCacheSerializerContext.Default),
+                   "application/json"))
            .ExcludeFromDescription();
 
         return app;
@@ -476,3 +485,6 @@ public static class MainExtensions
 sealed class StartupTimer;
 
 sealed class DuplicateHandlerRegistration;
+
+[JsonSerializable(typeof(IEnumerable<string>))]
+sealed partial class TestUrlCacheSerializerContext : JsonSerializerContext;

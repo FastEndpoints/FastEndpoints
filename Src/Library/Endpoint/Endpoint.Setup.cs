@@ -597,9 +597,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     {
         Definition.ThrowIfLocked();
         Definition.SerializerContext = serializerContext;
-
-        if (!Cfg.SerOpts.Options.IsReadOnly)
-            Cfg.SerOpts.Options.TypeInfoResolverChain.Insert(0, Definition.SerializerContext);
+        AddCtxToGlobalChain();
     }
 
     /// <summary>
@@ -612,9 +610,19 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     {
         Definition.ThrowIfLocked();
         Definition.SerializerContext = (TContext?)Activator.CreateInstance(typeof(TContext), new JsonSerializerOptions(Cfg.SerOpts.Options));
+        AddCtxToGlobalChain();
+    }
 
-        if (Definition.SerializerContext is not null && !Cfg.SerOpts.Options.IsReadOnly)
-            Cfg.SerOpts.Options.TypeInfoResolverChain.Insert(0, Definition.SerializerContext);
+    void AddCtxToGlobalChain()
+    {
+        if (Definition.SerializerContext is not null)
+        {
+            if (!Cfg.SerOpts.Options.IsReadOnly)
+                Cfg.SerOpts.Options.TypeInfoResolverChain.Insert(0, Definition.SerializerContext);
+
+            if (Cfg.SerOpts.AspNetCoreOptions is { IsReadOnly: false })
+                Cfg.SerOpts.AspNetCoreOptions.TypeInfoResolverChain.Insert(0, Definition.SerializerContext);
+        }
     }
 
     /// <summary>

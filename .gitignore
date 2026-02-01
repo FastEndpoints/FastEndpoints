@@ -360,3 +360,4 @@ Src/Documentation/api/
 
 Tests/NativeAotTests/NativeAotCheckerTests/aot
 NativeAotChecker/aot
+NativeAotChecker/GeneratedFiles/

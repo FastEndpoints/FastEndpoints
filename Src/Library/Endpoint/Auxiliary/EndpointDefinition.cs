@@ -18,7 +18,7 @@ namespace FastEndpoints;
 /// represents the configuration settings of an endpoint
 /// </summary>
 [UnconditionalSuppressMessage("aot", "IL2070"), UnconditionalSuppressMessage("aot", "IL2075"), UnconditionalSuppressMessage("aot", "IL3050"),
- UnconditionalSuppressMessage("aot", "IL2055")]
+ UnconditionalSuppressMessage("aot", "IL2055"), UnconditionalSuppressMessage("aot", "IL2065")]
 public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, Type responseDtoType)
 {
     //these can only be set from internal code but accessible for user

@@ -71,7 +71,7 @@ public class App : IAsyncLifetime
     {
         var stopwatch = Stopwatch.StartNew();
 
-        while (stopwatch.Elapsed < TimeSpan.FromSeconds(15))
+        while (stopwatch.Elapsed < TimeSpan.FromSeconds(5))
         {
             try
             {

@@ -260,4 +260,20 @@ public class EndpointTests(App app)
 
         res.Result.ShouldBe("[ first-in >> second-in >> third-in >> [handler] << third-out << second-out << first-out ]");
     }
+
+    [Fact]
+    public async Task Open_Generic_Global_PreProcessor_Executes()
+    {
+        var id = Guid.NewGuid().ToString();
+        var (rsp, res, err) = await app.Client.POSTAsync<
+                                  OpenGenericGlobalProcessorEndpoint,
+                                  OpenGenericGlobalProcessorRequest,
+                                  OpenGenericGlobalProcessorResponse>(new() { InputValue = id });
+
+        if (!rsp.IsSuccessStatusCode)
+            Assert.Fail(err);
+
+        res.ResultValue.ShouldBe($"PROCESSED:{id}");
+        res.GlobalPreProcessorExecuted.ShouldBeTrue();
+    }
 }

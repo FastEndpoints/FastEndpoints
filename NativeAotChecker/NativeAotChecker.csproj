@@ -8,9 +8,12 @@
         <InvariantGlobalization>true</InvariantGlobalization>
         <PublishAot>true</PublishAot>
         <IsPackable>false</IsPackable>
+        <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+        <CompilerGeneratedFilesOutputPath>GeneratedFiles</CompilerGeneratedFilesOutputPath>
     </PropertyGroup>
 
     <ItemGroup>
+        <Compile Remove="GeneratedFiles\**"/>
         <None Remove="NativeAotChecker.csproj.DotSettings"/>
         <Content Remove="aot\**"/>
         <None Remove="aot\**"/>

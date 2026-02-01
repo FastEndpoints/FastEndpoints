@@ -97,7 +97,7 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
 
                 ];
                 
-                // this method instructs the native aot linker to not strip away public ctors and methods on a given type
+                // this method instructs the native aot linker to not strip away metadata on a given type
                 static Type Preserve<
                     [DynamicallyAccessedMembers(
                         DynamicallyAccessedMemberTypes.PublicConstructors | 

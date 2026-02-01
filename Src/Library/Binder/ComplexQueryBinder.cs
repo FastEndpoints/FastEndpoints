@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
@@ -47,6 +48,7 @@ static class ComplexQueryBinder
             return bound;
         }
 
+        [UnconditionalSuppressMessage("aot", "IL2055"), UnconditionalSuppressMessage("aot", "IL3050")]
         static bool BindCollectionType(object parent, PropertyInfo prop, Type tProp, string key, IQueryCollection queryParams, List<ValidationFailure> failures)
         {
             var tElement = tProp.IsGenericType

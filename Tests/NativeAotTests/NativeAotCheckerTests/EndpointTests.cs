@@ -151,6 +151,36 @@ public class EndpointTests(App app)
     }
 
     [Fact]
+    public async Task Complex_Query_Binding_FromQuery_Attribute()
+    {
+        var editorId = Guid.NewGuid();
+        var author1Id = Guid.NewGuid();
+        var author2Id = Guid.NewGuid();
+
+        var url = $"/complex-query-binding?Title=Test+Book+Title&BarCodes=12345&BarCodes=54321&Editor.Id={editorId}&" +
+                  $"Editor.Name=John+Doe&Authors[0].Id={author1Id}&Authors[0].Name=Author+One&Authors[1].Id={author2Id}&" +
+                  $"Authors[1].Name=Author+Two";
+
+        var (rsp, res, err) = await app.Client.GETAsync<ComplexQueryBindingRequest, Book>(url, new());
+
+        if (!rsp.IsSuccessStatusCode)
+            Assert.Fail(err);
+
+        rsp.IsSuccessStatusCode.ShouldBeTrue();
+        res.Title.ShouldBe("Test Book Title");
+        res.BarCodes.Count.ShouldBe(2);
+        res.BarCodes[0].ShouldBe(12345);
+        res.BarCodes[1].ShouldBe(54321);
+        res.Editor.Id.ShouldBe(editorId);
+        res.Editor.Name.ShouldBe("John Doe");
+        res.Authors.Count.ShouldBe(2);
+        res.Authors[0].Id.ShouldBe(author1Id);
+        res.Authors[0].Name.ShouldBe("Author One");
+        res.Authors[1].Id.ShouldBe(author2Id);
+        res.Authors[1].Name.ShouldBe("Author Two");
+    }
+
+    [Fact]
     public async Task Result_Returning_Endpoint()
     {
         var (rsp, res, err) = await app.Client.GETAsync<ResultReturningEndpoint, string>();

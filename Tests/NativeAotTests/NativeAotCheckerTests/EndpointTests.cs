@@ -276,4 +276,27 @@ public class EndpointTests(App app)
         res.ResultValue.ShouldBe($"PROCESSED:{id}");
         res.GlobalPreProcessorExecuted.ShouldBeTrue();
     }
+
+    [Fact]
+    public async Task FluentValidation_Validator_Works_With_AOT()
+    {
+        var (rsp, res) = await app.Client.POSTAsync<FluentValidationEndpoint, FluentValidationRequest, ErrorResponse>(
+                             new()
+                             {
+                                 Email = "",
+                                 FullName = "AB",
+                                 Age = 0
+                             });
+
+        rsp.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+
+        res.Errors.Count.ShouldBeGreaterThanOrEqualTo(3);
+        res.Errors.Keys.ShouldContain("email");
+        res.Errors.Keys.ShouldContain("fullName");
+        res.Errors.Keys.ShouldContain("age");
+
+        res.Errors["email"].ShouldContain("Email is required!");
+        res.Errors["fullName"].ShouldContain("Full name must be at least 3 characters!");
+        res.Errors["age"].ShouldContain("Age must be greater than 0!");
+    }
 }

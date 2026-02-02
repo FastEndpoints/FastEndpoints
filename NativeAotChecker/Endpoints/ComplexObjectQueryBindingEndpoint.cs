@@ -45,5 +45,5 @@ public class ComplexObjectQueryBindingEndpoint : Endpoint<ComplexObjectQueryBind
     }
 }
 
-[JsonSerializable(typeof(ComplexObjectQueryBindingResponse))]
+[JsonSerializable(typeof(ComplexObjectQueryBindingResponse)), JsonSerializable(typeof(ErrorResponse))]
 public partial class ComplexObjectQueryBindingSerCtx : JsonSerializerContext;

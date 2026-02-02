@@ -12,6 +12,11 @@
         <!-- <CompilerGeneratedFilesOutputPath>GeneratedFiles</CompilerGeneratedFilesOutputPath> -->
     </PropertyGroup>
 
+    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+        <ExportSwaggerDocs>true</ExportSwaggerDocs>
+    </PropertyGroup>
+    <Import Project="..\Src\Swagger\FastEndpoints.Swagger.targets"/>
+
     <ItemGroup>
         <!-- <Compile Remove="GeneratedFiles\**"/> -->
         <None Remove="NativeAotChecker.csproj.DotSettings"/>
@@ -23,6 +28,8 @@
         <ProjectReference Include="..\Src\Generator\FastEndpoints.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
         <ProjectReference Include="..\Src\Library\FastEndpoints.csproj"/>
         <ProjectReference Include="..\Src\Security\FastEndpoints.Security.csproj"/>
+        <ProjectReference Include="..\Src\Swagger\FastEndpoints.Swagger.csproj"/>
+        <PackageReference Include="Scalar.AspNetCore" VersionOverride="2.12.30"/>
     </ItemGroup>
 
 </Project>

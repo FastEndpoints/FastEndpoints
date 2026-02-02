@@ -3,7 +3,7 @@
     <Target Name="ExportSwaggerDocs" AfterTargets="Build" Condition="'$(ExportSwaggerDocs)' == 'true'">
         <Message Text="Exporting Swagger documents..." Importance="high" />
 
-        <Exec Command="dotnet run --project $(MSBuildProjectFullPath) --no-build --configuration $(Configuration) -- --export-swagger-docs true" 
+        <Exec Command="dotnet run --project $(MSBuildProjectFullPath) --no-build --configuration Debug --property:PublishAot=false -- --export-swagger-docs true" 
               WorkingDirectory="$(MSBuildProjectDirectory)"
               ContinueOnError="true"
               ConsoleToMSBuild="true">

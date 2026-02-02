@@ -20,6 +20,7 @@ public sealed class JsonPostEndpoint : Endpoint<JsonPostRequest, JsonPostRespons
         Post("json-post");
         AllowAnonymous();
         SerializerContext<JsonPostSerCtx>();
+        Summary(s => s.Summary = "this is the summary of this endpoint");
     }
 
     public override async Task HandleAsync(JsonPostRequest r, CancellationToken c)

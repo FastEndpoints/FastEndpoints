@@ -21,6 +21,6 @@
         <None Include="FastEndpoints.Swagger.targets" Pack="true" PackagePath="build\FastEndpoints.Swagger.targets" Visible="true"/>
     </ItemGroup>
 
-    <Import Project="FastEndpoints.Swagger.targets" />
+    <Import Project="FastEndpoints.Swagger.targets"/>
 
 </Project>

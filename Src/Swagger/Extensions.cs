@@ -5,6 +5,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Namotion.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -472,6 +473,58 @@ public static class Extensions
                     property.ActualSchema.IsNullable(SchemaType.OpenApi3) &&
                     property.ActualSchema.AllOf.Any(schema => schema.Type == JsonObjectType.Array));
         }
+    }
+
+    /// <summary>
+    /// exports swagger.json files to disk and exits the program with a zero exit code.
+    /// <para>HINT: make sure to place the call straight after <c>app.UseFastEndpoints()</c></para>
+    /// <para>
+    /// to enable automatic export during build, add this to your .csproj:
+    /// <code>
+    /// &lt;PropertyGroup&gt;
+    ///     &lt;ExportSwaggerDocs&gt;true&lt;/ExportSwaggerDocs&gt;
+    /// &lt;/PropertyGroup&gt;
+    /// </code>
+    /// </para>
+    /// </summary>
+    /// <param name="destinationPath">the folder path where swagger.json files will be saved. defaults to current directory.</param>
+    /// <param name="documentNames">the swagger document names to export. these must match the names used in <c>.SwaggerDocument()</c> configuration.</param>
+    public static async Task ExportSwaggerDocsAndExitAsync(this WebApplication app, string? destinationPath = null, params string[] documentNames)
+    {
+        if (app.Configuration["export-swagger-docs"] != "true")
+            return;
+
+        if (documentNames.Length == 0)
+            return;
+
+        destinationPath ??= Directory.GetCurrentDirectory();
+
+        await app.StartAsync();
+
+        var logger = app.Services.GetRequiredService<ILogger<SwaggerExportRunner>>();
+        var generator = app.Services.GetRequiredService<IOpenApiDocumentGenerator>();
+
+        Directory.CreateDirectory(destinationPath);
+
+        foreach (var docName in documentNames)
+        {
+            try
+            {
+                logger.ExportingSwaggerDoc(docName);
+                var doc = await generator.GenerateAsync(docName);
+                var json = doc.ToJson();
+                var filePath = Path.Combine(destinationPath, $"{docName}.json");
+                await File.WriteAllTextAsync(filePath, json);
+                logger.SwaggerDocExportSuccessful(docName, filePath);
+            }
+            catch (Exception ex)
+            {
+                logger.SwaggerDocExportFailed(docName, ex.Message);
+            }
+        }
+
+        await app.StopAsync();
+        Environment.Exit(0);
     }
 
     internal static TValue GetOrAdd<TKey, TValue>(this IDictionary<TKey, TValue> dict, TKey key, TValue value)

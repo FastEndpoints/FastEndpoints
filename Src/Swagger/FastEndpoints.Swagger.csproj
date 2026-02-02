@@ -18,6 +18,9 @@
 
     <ItemGroup>
         <None Include="..\icon.png" Pack="true" PackagePath="\" Link="Content\Icon" Visible="false"/>
+        <None Include="FastEndpoints.Swagger.targets" Pack="true" PackagePath="build\FastEndpoints.Swagger.targets" Visible="true"/>
     </ItemGroup>
+
+    <Import Project="FastEndpoints.Swagger.targets" />
 
 </Project>

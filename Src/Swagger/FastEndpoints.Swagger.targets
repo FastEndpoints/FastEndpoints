@@ -1,0 +1,22 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <Target Name="ExportSwaggerDocs" AfterTargets="Build" Condition="'$(ExportSwaggerDocs)' == 'true'">
+        <Message Text="Exporting Swagger documents..." Importance="high" />
+
+        <Exec Command="dotnet run --project $(MSBuildProjectFullPath) --no-build --configuration $(Configuration) -- --export-swagger-docs true" 
+              WorkingDirectory="$(MSBuildProjectDirectory)"
+              ContinueOnError="true"
+              ConsoleToMSBuild="true">
+            <Output TaskParameter="ExitCode" PropertyName="_SwaggerExportExitCode" />
+            <Output TaskParameter="ConsoleOutput" PropertyName="_SwaggerExportOutput" />
+        </Exec>
+
+        <Warning Text="Swagger document export failed with exit code $(_SwaggerExportExitCode). Output: $(_SwaggerExportOutput)" 
+                 Condition="'$(_SwaggerExportExitCode)' != '0'" />
+
+        <Message Text="Swagger documents exported successfully" 
+                 Importance="high" 
+                 Condition="'$(_SwaggerExportExitCode)' == '0'" />
+    </Target>
+
+</Project>

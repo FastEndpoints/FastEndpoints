@@ -214,6 +214,8 @@ app.UseRequestLocalization(
            c.MapGet("test/{testId:int?}", (int? testId) => $"hello {testId}").WithTags("map-get");
        });
 
+await app.ExportSwaggerDocsAndExitAsync("swagger-export", "Initial Release", "Release 1.0", "Release 2.0");
+
 if (!app.Environment.IsProduction())
     app.UseSwaggerGen();
 

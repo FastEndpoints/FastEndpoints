@@ -9,6 +9,11 @@
         <NoWarn>CS1591;1701;1702;CA2016;RCS1090;CA2254;CS8618;ASP0014</NoWarn>
     </PropertyGroup>
 
+    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+        <ExportSwaggerDocs>true</ExportSwaggerDocs>
+    </PropertyGroup>
+    <Import Project="..\Src\Swagger\FastEndpoints.Swagger.targets"/>
+
     <ItemGroup>
         <ProjectReference Include="..\Src\Library\FastEndpoints.csproj"/>
         <ProjectReference Include="..\Src\Messaging\Messaging.Remote\FastEndpoints.Messaging.Remote.csproj"/>

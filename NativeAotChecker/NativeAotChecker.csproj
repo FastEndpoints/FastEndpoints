@@ -8,28 +8,30 @@
         <InvariantGlobalization>true</InvariantGlobalization>
         <PublishAot>true</PublishAot>
         <IsPackable>false</IsPackable>
-        <!-- <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles> -->
-        <!-- <CompilerGeneratedFilesOutputPath>GeneratedFiles</CompilerGeneratedFilesOutputPath> -->
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)' == 'Release'">
         <ExportSwaggerDocs>true</ExportSwaggerDocs>
+        <!-- <SwaggerExportPath>wwwroot/open_check</SwaggerExportPath> -->
     </PropertyGroup>
-    <Import Project="..\Src\Swagger\FastEndpoints.Swagger.targets"/>
+    <Import Project="..\Src\Swagger\FastEndpoints.Swagger.targets"/> <!-- only needed for project references -->
 
     <ItemGroup>
-        <!-- <Compile Remove="GeneratedFiles\**"/> -->
         <None Remove="NativeAotChecker.csproj.DotSettings"/>
         <Content Remove="aot\**"/>
         <None Remove="aot\**"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Src\Generator\FastEndpoints.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <ProjectReference Include="..\Src\Generator\FastEndpoints.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all"/>
         <ProjectReference Include="..\Src\Library\FastEndpoints.csproj"/>
         <ProjectReference Include="..\Src\Security\FastEndpoints.Security.csproj"/>
         <ProjectReference Include="..\Src\Swagger\FastEndpoints.Swagger.csproj"/>
         <PackageReference Include="Scalar.AspNetCore" VersionOverride="2.12.30"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Folder Include="wwwroot\"/>
     </ItemGroup>
 
 </Project>

@@ -3,25 +3,69 @@
     <PropertyGroup>
         <SuppressTrimAnalysisWarnings>true</SuppressTrimAnalysisWarnings>
         <SuppressAotAnalysisWarnings>true</SuppressAotAnalysisWarnings>
+        <SwaggerExportPath Condition="'$(SwaggerExportPath)' == ''">wwwroot/openapi</SwaggerExportPath>
     </PropertyGroup>
 
-    <Target Name="ExportSwaggerDocs" AfterTargets="Build" Condition="'$(ExportSwaggerDocs)' == 'true'">
-        <Message Text="Exporting Swagger documents..." Importance="high" />
+    <Target Name="GenerateSwaggerExportPathInitializer"
+            BeforeTargets="CoreCompile"
+            Condition="'$(MSBuildProjectName)' != 'FastEndpoints.Swagger'">
+        <PropertyGroup>
+            <_SwaggerInitFile>$(IntermediateOutputPath)SwaggerExportPathInitializer.g.cs</_SwaggerInitFile>
+            <_SwaggerInitFileContent>
+                using System.Runtime.CompilerServices%3b
+                namespace FastEndpoints.Swagger%3b
+                internal static class SwaggerExportPathInitializer
+                {
+                [ModuleInitializer]
+                internal static void Initialize()
+                {
+                DocumentOptions.SwaggerExportPath = "$(SwaggerExportPath)"%3b
+                }
+                }
+            </_SwaggerInitFileContent>
+        </PropertyGroup>
+        <WriteLinesToFile File="$(_SwaggerInitFile)" Lines="$(_SwaggerInitFileContent)" Overwrite="true"/>
+        <ItemGroup>
+            <Compile Include="$(_SwaggerInitFile)"/>
+        </ItemGroup>
+    </Target>
 
-        <Exec Command="dotnet run --project $(MSBuildProjectFullPath) --no-build --configuration Debug --property:PublishAot=false -- --export-swagger-docs true" 
+    <Target Name="ExportSwaggerDocsBeforeAotPublish"
+            BeforeTargets="PrepareForILLink;RunResolvePublishAssemblies"
+            Condition="'$(ExportSwaggerDocs)' == 'true' AND '$(PublishAot)' == 'true' AND '$(_SwaggerDocsExporting)' != 'true'"
+            DependsOnTargets="Build">
+        <Message Text="Exporting Swagger documents before Native AOT compilation..." Importance="high"/>
+        <Message Text="Swagger export path: $(SwaggerExportPath)" Importance="high"/>
+
+        <MSBuild Projects="$(MSBuildProjectFullPath)"
+                 Targets="Build"
+                 Properties="Configuration=Debug;PublishAot=false;_SwaggerDocsExporting=true;OutputPath=$(IntermediateOutputPath)swagger_export\"
+                 ContinueOnError="false">
+            <Output TaskParameter="TargetOutputs" PropertyName="_SwaggerBuildOutputs"/>
+        </MSBuild>
+
+        <Exec Command="dotnet exec $(IntermediateOutputPath)swagger_export\$(AssemblyName).dll --export-swagger-docs true"
               WorkingDirectory="$(MSBuildProjectDirectory)"
-              ContinueOnError="true"
-              ConsoleToMSBuild="true">
-            <Output TaskParameter="ExitCode" PropertyName="_SwaggerExportExitCode" />
-            <Output TaskParameter="ConsoleOutput" PropertyName="_SwaggerExportOutput" />
+              ContinueOnError="false">
+            <Output TaskParameter="ExitCode" PropertyName="_SwaggerExportExitCode"/>
+            <Output TaskParameter="ConsoleOutput" PropertyName="_SwaggerExportOutput"/>
         </Exec>
 
-        <Warning Text="Swagger document export failed with exit code $(_SwaggerExportExitCode). Output: $(_SwaggerExportOutput)" 
-                 Condition="'$(_SwaggerExportExitCode)' != '0'" />
+        <Warning Text="Swagger document export failed with exit code $(_SwaggerExportExitCode). Output: $(_SwaggerExportOutput)"
+                 Condition="'$(_SwaggerExportExitCode)' != '0'"/>
 
-        <Message Text="Swagger documents exported successfully" 
-                 Importance="high" 
-                 Condition="'$(_SwaggerExportExitCode)' == '0'" />
+        <Message Text="Swagger documents exported successfully"
+                 Importance="high"
+                 Condition="'$(_SwaggerExportExitCode)' == '0'"/>
+
+        <ItemGroup Condition="'$(_SwaggerExportExitCode)' == '0' AND '$(PublishDir)' != ''">
+            <_SwaggerFiles Include="$(MSBuildProjectDirectory)\$(SwaggerExportPath)\**\*"/>
+        </ItemGroup>
+
+        <Copy SourceFiles="@(_SwaggerFiles)"
+              DestinationFolder="$(PublishDir)\$(SwaggerExportPath)\%(RecursiveDir)"
+              Condition="'$(_SwaggerExportExitCode)' == '0' AND '$(PublishDir)' != '' AND '@(_SwaggerFiles)' != ''"
+              SkipUnchangedFiles="true"/>
     </Target>
 
 </Project>

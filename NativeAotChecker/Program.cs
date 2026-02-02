@@ -18,7 +18,8 @@ bld.Services
            c.Register<MiddlewareTestCmd, MiddlewareTestResult, ThirdMiddleware<MiddlewareTestCmd, MiddlewareTestResult>>();
        });
 
-#if !RELEASE //exclude nswag from aot build
+//todo: try rd.xml for nswag
+#if !RELEASE // exclude nswag from release/aot builds
 bld.Services.SwaggerDocument(o => o.DocumentSettings = s => s.DocumentName = "v1");
 #endif
 
@@ -34,7 +35,7 @@ app.UseAuthentication()
            c.Endpoints.Configurator = ep => { ep.PreProcessors(Order.Before, typeof(OpenGenericGlobalPreProcessor<>)); };
        });
 
-await app.ExportSwaggerDocsAndExitAsync(Path.Combine(app.Environment.WebRootPath, "openapi"), "v1");
+await app.ExportSwaggerDocsAndExitAsync("v1");
 
 app.UseJobQueues(o => o.StorageProbeDelay = TimeSpan.FromMilliseconds(50));
 app.UseOpenApi(c => c.Path = "/openapi/{documentName}.json");

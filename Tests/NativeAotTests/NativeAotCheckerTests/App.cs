@@ -7,6 +7,7 @@ namespace NativeAotCheckerTests;
 
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Text;
 using Xunit;
 
 // NOTE:
@@ -22,11 +23,13 @@ public class App : IAsyncLifetime
 {
     public HttpClient Client { get; } = new() { BaseAddress = new(_baseUrl) };
 
-    private static readonly string _port = "5050";
+    private static readonly string _port = "5000";
     private static readonly string _baseUrl = $"http://localhost:{_port}";
     private static readonly string _appName = "NativeAotChecker";
     private static readonly string _exePath = GetExePath();
+    private static readonly string _exeDir = Path.GetDirectoryName(_exePath)!;
     private static Process? _apiProcess;
+    private static readonly StringBuilder _processOutput = new();
 
     private static string GetExePath()
     {
@@ -53,18 +56,33 @@ public class App : IAsyncLifetime
 
     private static void StartApiProcess()
     {
+        _processOutput.Clear();
         _apiProcess = new()
         {
             StartInfo = new()
             {
                 FileName = _exePath,
                 Arguments = $"--urls={_baseUrl}",
+                WorkingDirectory = _exeDir,
                 UseShellExecute = false,
                 RedirectStandardError = true,
-                WindowStyle = ProcessWindowStyle.Hidden
+                RedirectStandardOutput = true,
+                WindowStyle = ProcessWindowStyle.Normal
             }
         };
+        _apiProcess.OutputDataReceived += (_, e) =>
+                                          {
+                                              if (e.Data != null)
+                                                  _processOutput.AppendLine(e.Data);
+                                          };
+        _apiProcess.ErrorDataReceived += (_, e) =>
+                                         {
+                                             if (e.Data != null)
+                                                 _processOutput.AppendLine(e.Data);
+                                         };
         _apiProcess.Start();
+        _apiProcess.BeginErrorReadLine();
+        _apiProcess.BeginOutputReadLine();
     }
 
     private async Task WaitForApiReadyAsync()
@@ -73,6 +91,13 @@ public class App : IAsyncLifetime
 
         while (stopwatch.Elapsed < TimeSpan.FromSeconds(5))
         {
+            if (_apiProcess?.HasExited == true)
+            {
+                var output = _processOutput.ToString();
+
+                throw new($"AOT process exited unexpectedly with code {_apiProcess.ExitCode}.\n\nProcess output:\n{output}");
+            }
+
             try
             {
                 var response = await Client.GetAsync($"{_baseUrl}/healthy");
@@ -87,7 +112,9 @@ public class App : IAsyncLifetime
             await Task.Delay(500);
         }
 
-        throw new("AOT API failed to respond in time.");
+        var finalOutput = _processOutput.ToString();
+
+        throw new($"AOT API failed to respond in time.\n\nProcess output:\n{finalOutput}");
     }
 
     public async ValueTask DisposeAsync()

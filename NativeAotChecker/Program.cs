@@ -34,7 +34,7 @@ app.UseAuthentication()
            c.Endpoints.Configurator = ep => { ep.PreProcessors(Order.Before, typeof(OpenGenericGlobalPreProcessor<>)); };
        });
 
-await app.ExportSwaggerDocsAndExitAsync("", "v1");
+await app.ExportSwaggerDocsAndExitAsync(Path.Combine(app.Environment.WebRootPath, "openapi"), "v1");
 
 app.UseJobQueues(o => o.StorageProbeDelay = TimeSpan.FromMilliseconds(50));
 app.UseOpenApi(c => c.Path = "/openapi/{documentName}.json");

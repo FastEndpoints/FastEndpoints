@@ -487,7 +487,7 @@ public static class Extensions
     /// </code>
     /// </para>
     /// </summary>
-    /// <param name="destinationPath">the folder path where swagger.json files will be saved. defaults to current directory.</param>
+    /// <param name="destinationPath">the folder path where swagger.json files will be saved. set an empty string to use the default <c>wwwroot/openapi</c></param>
     /// <param name="documentNames">the swagger document names to export. these must match the names used in <c>.SwaggerDocument()</c> configuration.</param>
     public static async Task ExportSwaggerDocsAndExitAsync(this WebApplication app, string destinationPath, params string[] documentNames)
     {

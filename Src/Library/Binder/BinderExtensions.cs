@@ -90,7 +90,7 @@ static class BinderExtensions
             //user may have already registered a parser func for a given type via config at startup.
             //or reflection source generator may have already populated the cache.
             //if it's not there, compile the func at runtime.
-            return Cfg.BndOpts.ReflectionCache.GetOrAdd(type, new TypeDefinition()).ValueParser
+            return Cfg.BndOpts.ReflectionCache.GetOrAdd(type.GetUnderlyingType(), new TypeDefinition()).ValueParser
                        ??= GetOrCompileParser(type);
 
             static Func<StringValues, ParseResult> GetOrCompileParser(Type type)

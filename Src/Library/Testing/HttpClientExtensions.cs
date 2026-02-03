@@ -8,6 +8,7 @@ using System.Net.Http.Json;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
 using static FastEndpoints.Config;
@@ -20,6 +21,11 @@ namespace FastEndpoints;
 [UnconditionalSuppressMessage("aot", "IL2026"), UnconditionalSuppressMessage("aot", "IL3050"), UnconditionalSuppressMessage("aot", "IL2075")]
 public static class HttpClientExtensions
 {
+    static readonly JsonSerializerOptions _errSerOpts = new(SerOpts.Options)
+    {
+        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow
+    };
+
     extension(HttpClient client)
     {
         /// <summary>
@@ -481,11 +487,15 @@ public static class HttpClientExtensions
             {
                 try
                 {
-                    return new(rsp, JsonSerializer.Deserialize<TResponse>(stream, SerOpts.Options)!);
+                    return new(rsp, JsonSerializer.Deserialize<TResponse>(stream, _errSerOpts)!);
                 }
-                catch (Exception e)
+                catch
                 {
-                    return new(rsp, default!, $"Unable to deserialize response body to type: [{typeof(TResponse).FullName}]. {e.Message}");
+                    return new(
+                        rsp,
+                        default!,
+                        $"Unable to deserialize response body to DTO type:" +
+                        $" [{typeof(TResponse).FullName}]. \n\nReceived JSON: \n\n{await rsp.Content.ReadAsStringAsync()}\n");
                 }
                 finally
                 {

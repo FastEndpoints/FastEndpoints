@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using FluentValidation;
 using Microsoft.AspNetCore.Builder;
@@ -38,6 +39,9 @@ public static class Extensions
     /// <param name="options">swagger document configuration options</param>
     public static IServiceCollection SwaggerDocument(this IServiceCollection services, Action<DocumentOptions>? options = null)
     {
+        if (!RuntimeFeature.IsDynamicCodeSupported)
+            return services;
+
         services.AddEndpointsApiExplorer();
         services.AddOpenApiDocument(
             (genSettings, serviceProvider) =>
@@ -476,20 +480,27 @@ public static class Extensions
     }
 
     /// <summary>
-    /// exports swagger.json files to disk and exits the program with a zero exit code.
+    /// exports swagger.json files to disk (ONLY DURING NATIVE AOT BUILDS) and exits the program.
     /// <para>HINT: make sure to place the call straight after <c>app.UseFastEndpoints()</c></para>
     /// <para>
-    /// to enable automatic export during build, add this to your .csproj:
+    /// to enable automatic export during AOT builds, add this to your .csproj:
     /// <code>
     /// &lt;PropertyGroup&gt;
     ///     &lt;ExportSwaggerDocs&gt;true&lt;/ExportSwaggerDocs&gt;
     /// &lt;/PropertyGroup&gt;
     /// </code>
     /// </para>
+    /// <para>
+    /// to customize the export path, add this to your .csproj:
+    /// <code>
+    /// &lt;PropertyGroup&gt;
+    ///     &lt;SwaggerExportPath&gt;docs/api&lt;/SwaggerExportPath&gt;
+    /// &lt;/PropertyGroup&gt;
+    /// </code>
+    /// </para>
     /// </summary>
-    /// <param name="destinationPath">the folder path where swagger.json files will be saved. set an empty string to use the default <c>wwwroot/openapi</c></param>
     /// <param name="documentNames">the swagger document names to export. these must match the names used in <c>.SwaggerDocument()</c> configuration.</param>
-    public static async Task ExportSwaggerDocsAndExitAsync(this WebApplication app, string destinationPath, params string[] documentNames)
+    public static async Task ExportSwaggerDocsAndExitAsync(this WebApplication app, params string[] documentNames)
     {
         if (app.Configuration["export-swagger-docs"] != "true")
             return;
@@ -497,8 +508,7 @@ public static class Extensions
         if (documentNames.Length == 0)
             return;
 
-        if (string.IsNullOrEmpty(destinationPath))
-            destinationPath = Path.Combine(app.Environment.ContentRootPath, "wwwroot", "openapi");
+        var destinationPath = Path.Combine(app.Environment.ContentRootPath, DocumentOptions.SwaggerExportPath);
 
         await app.StartAsync();
 

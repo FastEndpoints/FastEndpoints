@@ -181,7 +181,7 @@ public class EndpointTests(App app)
     }
 
     [Fact]
-    public async Task Result_Returning_Endpoint()
+    public async Task IResult_Returning_Endpoint()
     {
         var (rsp, res, err) = await app.Client.GETAsync<ResultReturningEndpoint, string>();
 

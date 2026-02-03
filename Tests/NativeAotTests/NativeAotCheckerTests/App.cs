@@ -38,7 +38,7 @@ public class App : IAsyncLifetime
         aotDir = Path.GetFullPath(aotDir);
         var exeName = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? $"{_appName}.exe" : _appName;
 
-        return Path.Combine(aotDir, exeName); // path to aot binary: Tests/NativeAotTests/NativeAotCheckerTests/aot/
+        return Path.Combine(aotDir, exeName); // path to aot binary: Tests/NativeAotTests/NativeAotCheckerTests/aot/NativeAotChecker.exe
     }
 
     public async ValueTask InitializeAsync()

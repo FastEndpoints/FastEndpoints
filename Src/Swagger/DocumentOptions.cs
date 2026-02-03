@@ -1,4 +1,4 @@
-﻿using NSwag.Generation.AspNetCore;
+using NSwag.Generation.AspNetCore;
 using System.Text.Json;
 
 namespace FastEndpoints.Swagger;
@@ -8,6 +8,11 @@ namespace FastEndpoints.Swagger;
 /// </summary>
 public class DocumentOptions(IServiceProvider serviceProvider)
 {
+    /// <summary>
+    /// the path where swagger documents will be exported. set via SwaggerExportPath MSBuild property (default: wwwroot/openapi).
+    /// </summary>
+    public static string SwaggerExportPath { get; set; } = "wwwroot/openapi";
+
     /// <summary>
     /// service provider instance for resolving any services from the di container
     /// </summary>

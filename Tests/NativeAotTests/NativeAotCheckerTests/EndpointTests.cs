@@ -318,4 +318,24 @@ public class EndpointTests(App app)
         res.Age.ShouldBe(30);
         res.MapperWasUsed.ShouldBeTrue();
     }
+
+    [Fact]
+    public async Task Nullable_Bool_Query_Parameter_Binding_Fails_In_AOT_Mode()
+    {
+        var rsp1 = await app.Client.GetAsync("nullable-bool-query-test?NonNullableBool=true");
+        rsp1.StatusCode.ShouldBe(HttpStatusCode.OK);
+
+        var (rsp2, res2, err2) = await app.Client.GETAsync<NullableBoolQueryEndpoint, NullableBoolQueryRequest, NullableBoolQueryResponse>(
+                                     new()
+                                     {
+                                         NonNullableBool = true,
+                                         NullableBool = true
+                                     });
+
+        if (!rsp2.IsSuccessStatusCode)
+            Assert.Fail(err2);
+
+        res2.NonNullableBool.ShouldBeTrue();
+        res2.NullableBool.ShouldBe(true);
+    }
 }

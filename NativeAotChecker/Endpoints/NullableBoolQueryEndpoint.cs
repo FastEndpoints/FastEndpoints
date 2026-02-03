@@ -2,11 +2,6 @@ using System.Text.Json.Serialization;
 
 namespace NativeAotChecker.Endpoints;
 
-/// <summary>
-/// Test: Nullable bool query parameter binding in AOT mode.
-/// AOT ISSUE: Nullable value type (bool?) binding from query string fails.
-/// Non-nullable bool works fine, but bool? causes 500 error.
-/// </summary>
 public sealed class NullableBoolQueryRequest
 {
     [QueryParam]
@@ -33,14 +28,14 @@ public sealed class NullableBoolQueryEndpoint : Endpoint<NullableBoolQueryReques
 
     public override async Task HandleAsync(NullableBoolQueryRequest req, CancellationToken ct)
     {
-        await Send.OkAsync(new NullableBoolQueryResponse
-        {
-            NonNullableBool = req.NonNullableBool,
-            NullableBool = req.NullableBool
-        });
+        await Send.OkAsync(
+            new()
+            {
+                NonNullableBool = req.NonNullableBool,
+                NullableBool = req.NullableBool
+            });
     }
 }
 
-[JsonSerializable(typeof(NullableBoolQueryRequest))]
-[JsonSerializable(typeof(NullableBoolQueryResponse))]
+[JsonSerializable(typeof(NullableBoolQueryResponse)), JsonSerializable(typeof(ErrorResponse))]
 public partial class NullableBoolQuerySerCtx : JsonSerializerContext;

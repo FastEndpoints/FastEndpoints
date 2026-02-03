@@ -12,7 +12,7 @@
 
     <PropertyGroup Condition="'$(Configuration)' == 'Release'">
         <ExportSwaggerDocs>true</ExportSwaggerDocs>
-        <!-- <SwaggerExportPath>wwwroot/open_check</SwaggerExportPath> -->
+        <SwaggerExportPath>wwwroot/openapi</SwaggerExportPath>
     </PropertyGroup>
     <Import Project="..\Src\Swagger\FastEndpoints.Swagger.targets"/> <!-- only needed for project references -->
 

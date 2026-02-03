@@ -18,10 +18,7 @@ bld.Services
            c.Register<MiddlewareTestCmd, MiddlewareTestResult, ThirdMiddleware<MiddlewareTestCmd, MiddlewareTestResult>>();
        });
 
-//todo: try rd.xml for nswag
-#if !RELEASE // exclude nswag from release/aot builds
 bld.Services.SwaggerDocument(o => o.DocumentSettings = s => s.DocumentName = "v1");
-#endif
 
 var app = bld.Build();
 app.UseStaticFiles();

@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using FluentValidation;
 using Microsoft.AspNetCore.Builder;
@@ -38,6 +39,9 @@ public static class Extensions
     /// <param name="options">swagger document configuration options</param>
     public static IServiceCollection SwaggerDocument(this IServiceCollection services, Action<DocumentOptions>? options = null)
     {
+        if (!RuntimeFeature.IsDynamicCodeSupported)
+            return services;
+
         services.AddEndpointsApiExplorer();
         services.AddOpenApiDocument(
             (genSettings, serviceProvider) =>

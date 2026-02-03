@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-
 namespace NativeAotChecker.Endpoints;
 
 public sealed class NullableBoolQueryRequest
@@ -23,7 +21,6 @@ public sealed class NullableBoolQueryEndpoint : Endpoint<NullableBoolQueryReques
     {
         Get("nullable-bool-query-test");
         AllowAnonymous();
-        SerializerContext<NullableBoolQuerySerCtx>();
     }
 
     public override async Task HandleAsync(NullableBoolQueryRequest req, CancellationToken ct)
@@ -36,6 +33,3 @@ public sealed class NullableBoolQueryEndpoint : Endpoint<NullableBoolQueryReques
             });
     }
 }
-
-[JsonSerializable(typeof(NullableBoolQueryResponse)), JsonSerializable(typeof(ErrorResponse))]
-public partial class NullableBoolQuerySerCtx : JsonSerializerContext;

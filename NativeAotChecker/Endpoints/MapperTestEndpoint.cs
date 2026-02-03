@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-
 namespace NativeAotChecker.Endpoints;
 
 public class MapperTestRequest
@@ -46,7 +44,6 @@ public sealed class MapperTestEndpoint : Endpoint<MapperTestRequest, MapperTestR
     {
         Post("mapper-test");
         AllowAnonymous();
-        SerializerContext<MapperTestSerCtx>();
     }
 
     public override async Task HandleAsync(MapperTestRequest r, CancellationToken c)
@@ -56,6 +53,3 @@ public sealed class MapperTestEndpoint : Endpoint<MapperTestRequest, MapperTestR
         await Send.OkAsync(response, c);
     }
 }
-
-[JsonSerializable(typeof(MapperTestRequest)), JsonSerializable(typeof(MapperTestResponse))]
-public partial class MapperTestSerCtx : JsonSerializerContext;

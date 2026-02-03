@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-
 namespace NativeAotChecker.Endpoints;
 
 public sealed class PreProcessorRequest
@@ -20,7 +18,6 @@ public sealed class PreProcessorEndpoint : Endpoint<PreProcessorRequest, PreProc
         Post("pre-post-processor");
         AllowAnonymous();
         PreProcessor<PreProcessor>();
-        SerializerContext<PrePostProcessorSerCtx>();
     }
 
     public override async Task HandleAsync(PreProcessorRequest r, CancellationToken c)
@@ -46,6 +43,3 @@ public sealed class PreProcessor : IPreProcessor<PreProcessorRequest>
         return Task.CompletedTask;
     }
 }
-
-[JsonSerializable(typeof(PreProcessorRequest)), JsonSerializable(typeof(PreProcessorResponse))]
-public partial class PrePostProcessorSerCtx : JsonSerializerContext;

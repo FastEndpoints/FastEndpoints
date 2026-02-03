@@ -278,7 +278,7 @@ public class EndpointTests(App app)
     }
 
     [Fact]
-    public async Task FluentValidation_Validator_Works_With_AOT()
+    public async Task FluentValidation_Validator()
     {
         var (rsp, res) = await app.Client.POSTAsync<FluentValidationEndpoint, FluentValidationRequest, ErrorResponse>(
                              new()
@@ -292,11 +292,11 @@ public class EndpointTests(App app)
 
         res.Errors.Count.ShouldBeGreaterThanOrEqualTo(3);
         res.Errors.Keys.ShouldContain("email");
-        res.Errors.Keys.ShouldContain("fullName");
+        res.Errors.Keys.ShouldContain("full_name");
         res.Errors.Keys.ShouldContain("age");
 
         res.Errors["email"].ShouldContain("Email is required!");
-        res.Errors["fullName"].ShouldContain("Full name must be at least 3 characters!");
+        res.Errors["full_name"].ShouldContain("Full name must be at least 3 characters!");
         res.Errors["age"].ShouldContain("Age must be greater than 0!");
     }
 
@@ -320,7 +320,7 @@ public class EndpointTests(App app)
     }
 
     [Fact]
-    public async Task Nullable_Bool_Query_Parameter_Binding_Fails_In_AOT_Mode()
+    public async Task Nullable_Bool_Query_Parameter_Binding()
     {
         var rsp1 = await app.Client.GetAsync("nullable-bool-query-test?NonNullableBool=true");
         rsp1.StatusCode.ShouldBe(HttpStatusCode.OK);

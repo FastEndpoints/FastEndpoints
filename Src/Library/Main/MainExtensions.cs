@@ -210,14 +210,7 @@ public static class MainExtensions
 
         CommandExtensions.TestHandlersPresent = app.ServiceProvider.GetService<TestCommandHandlerMarker>() is not null;
 
-        app.MapGet(
-               "_test_url_cache_",
-               () => Results.Content(
-                   JsonSerializer.Serialize(
-                       IEndpoint.GetTestUrlCache(),
-                       typeof(IEnumerable<string>),
-                       TestUrlCacheSerializerContext.Default),
-                   "application/json"))
+        app.MapGet("_test_url_cache_", () => TypedResults.Ok(IEndpoint.GetTestUrlCache()))
            .ExcludeFromDescription();
 
         return app;
@@ -486,5 +479,5 @@ sealed class StartupTimer;
 
 sealed class DuplicateHandlerRegistration;
 
-[JsonSerializable(typeof(IEnumerable<string>))]
-sealed partial class TestUrlCacheSerializerContext : JsonSerializerContext;
+[JsonSerializable(typeof(string)), JsonSerializable(typeof(IEnumerable<string>)), JsonSerializable(typeof(ErrorResponse)), JsonSerializable(typeof(ProblemDetails))]
+sealed partial class FastEndpointsSerializerContext : JsonSerializerContext;

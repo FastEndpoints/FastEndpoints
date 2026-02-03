@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using System.Text.Json.Serialization;
 
 namespace NativeAotChecker.Endpoints;
 
@@ -46,7 +45,6 @@ public class NonJsonBindingEndpoint : Endpoint<NonJsonRequest, NonJsonResponse>
     {
         Get("non-json-binding-endpoint/{id}");
         AllowAnonymous();
-        SerializerContext<NonJsonBindingSerCtx>();
     }
 
     public override async Task HandleAsync(NonJsonRequest req, CancellationToken ct)
@@ -60,6 +58,3 @@ public class NonJsonBindingEndpoint : Endpoint<NonJsonRequest, NonJsonResponse>
             });
     }
 }
-
-[JsonSerializable(typeof(NonJsonResponse))]
-public partial class NonJsonBindingSerCtx : JsonSerializerContext;

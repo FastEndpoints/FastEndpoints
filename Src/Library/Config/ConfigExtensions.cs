@@ -26,5 +26,9 @@ static class ConfigExtensions
                         pi.ShouldSerialize = (_, _) => false;
                 }
             });
+
+        var ctx = new FastEndpointsSerializerContext(new(opts));
+        Cfg.SerOpts.AspNetCoreOptions?.TypeInfoResolverChain.Insert(0, ctx); // to make IResults serialization use the ctx
+        opts.TypeInfoResolverChain.Insert(0, ctx);
     }
 }

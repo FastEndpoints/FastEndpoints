@@ -1,5 +1,4 @@
-﻿using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Http.HttpResults;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace NativeAotChecker.Endpoints;
 
@@ -9,7 +8,6 @@ public class ResultReturningEndpoint : EndpointWithoutRequest<Results<NotFound, 
     {
         Get("i-result-returning-endpoint");
         AllowAnonymous();
-        SerializerContext<ResultReturningEndpointSerCtx>();
     }
 
     public override async Task<Results<NotFound, Ok<string>>> ExecuteAsync(CancellationToken ct)
@@ -19,6 +17,3 @@ public class ResultReturningEndpoint : EndpointWithoutRequest<Results<NotFound, 
         return TypedResults.Ok("hello");
     }
 }
-
-[JsonSerializable(typeof(string))]
-public partial class ResultReturningEndpointSerCtx : JsonSerializerContext;

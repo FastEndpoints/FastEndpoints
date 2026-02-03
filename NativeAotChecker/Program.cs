@@ -1,3 +1,4 @@
+using System.Text.Json;
 using FastEndpoints.Security;
 using NativeAotChecker;
 using FastEndpoints.Swagger;
@@ -16,11 +17,11 @@ bld.Services
            c.Register<MiddlewareTestCmd, MiddlewareTestResult, FirstMiddleware>();
            c.Register<MiddlewareTestCmd, MiddlewareTestResult, SecondMiddleware<MiddlewareTestCmd, MiddlewareTestResult>>();
            c.Register<MiddlewareTestCmd, MiddlewareTestResult, ThirdMiddleware<MiddlewareTestCmd, MiddlewareTestResult>>();
-       });
-
-bld.Services.SwaggerDocument(o => o.DocumentSettings = s => s.DocumentName = "v1");
+       })
+   .SwaggerDocument(o => o.DocumentSettings = s => s.DocumentName = "v1");
 
 var app = bld.Build();
+
 app.UseStaticFiles();
 app.MapGet("healthy", () => Results.Ok());
 app.UseAuthentication()
@@ -28,6 +29,8 @@ app.UseAuthentication()
    .UseFastEndpoints(
        c =>
        {
+           c.Serializer.Options.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
+           c.Serializer.Options.AddSerializerContextsFromNativeAotChecker();
            c.Binding.ReflectionCache.AddFromNativeAotChecker();
            c.Endpoints.Configurator = ep => { ep.PreProcessors(Order.Before, typeof(OpenGenericGlobalPreProcessor<>)); };
        });

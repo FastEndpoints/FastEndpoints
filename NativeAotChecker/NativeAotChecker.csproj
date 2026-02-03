@@ -23,6 +23,13 @@
     </ItemGroup>
 
     <ItemGroup>
+        <!-- <PackageReference Include="FastEndpoints" VersionOverride="7.3.0-beta.12"/> -->
+        <!-- <PackageReference Include="FastEndpoints.Generator" VersionOverride="7.3.0-beta.12"> -->
+        <!--     <PrivateAssets>all</PrivateAssets> -->
+        <!--     <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets> -->
+        <!-- </PackageReference> -->
+        <!-- <PackageReference Include="FastEndpoints.Security" VersionOverride="7.3.0-beta.12"/> -->
+        <!-- <PackageReference Include="FastEndpoints.Swagger" VersionOverride="7.3.0-beta.12"/> -->
         <ProjectReference Include="..\Src\Generator\FastEndpoints.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all"/>
         <ProjectReference Include="..\Src\Library\FastEndpoints.csproj"/>
         <ProjectReference Include="..\Src\Security\FastEndpoints.Security.csproj"/>

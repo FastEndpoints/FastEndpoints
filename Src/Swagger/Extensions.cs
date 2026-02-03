@@ -480,10 +480,10 @@ public static class Extensions
     }
 
     /// <summary>
-    /// exports swagger.json files to disk and exits the program with a zero exit code.
+    /// exports swagger.json files to disk (ONLY DURING NATIVE AOT BUILDS) and exits the program.
     /// <para>HINT: make sure to place the call straight after <c>app.UseFastEndpoints()</c></para>
     /// <para>
-    /// to enable automatic export during build, add this to your .csproj:
+    /// to enable automatic export during AOT builds, add this to your .csproj:
     /// <code>
     /// &lt;PropertyGroup&gt;
     ///     &lt;ExportSwaggerDocs&gt;true&lt;/ExportSwaggerDocs&gt;

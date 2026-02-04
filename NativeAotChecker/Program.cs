@@ -21,7 +21,6 @@ bld.Services
    .SwaggerDocument(o => o.DocumentSettings = s => s.DocumentName = "v1");
 
 var app = bld.Build();
-
 app.UseStaticFiles();
 app.MapGet("healthy", () => Results.Ok());
 app.UseAuthentication()

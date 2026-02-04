@@ -49,8 +49,4 @@
         <Folder Include="wwwroot\"/>
     </ItemGroup>
 
-    <ItemGroup>
-        <_ContentIncludedByDefault Remove="wwwroot\openapi\v1.json"/>
-    </ItemGroup>
-
 </Project>

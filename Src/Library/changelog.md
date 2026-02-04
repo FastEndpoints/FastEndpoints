@@ -23,6 +23,12 @@ public override async Task HandleAsync(CancellationToken c)
 
 </details>
 
+<details><summary>STJ 'JsonSerializationContext' generator</summary>
+
+TODO: write documentation
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>Index out of range exception in routeless test helpers</summary>

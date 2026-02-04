@@ -11,6 +11,8 @@
 
         <GeneratorCliPath>$(MSBuildThisFileDirectory)../Src/Generator/bin/Debug/net8.0/FastEndpoints.Generator.Cli.dll</GeneratorCliPath><!-- only needed for project references -->
         <GenerateSerializerContexts>true</GenerateSerializerContexts>
+        <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+        <CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)generated</CompilerGeneratedFilesOutputPath>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)' == 'Release'">

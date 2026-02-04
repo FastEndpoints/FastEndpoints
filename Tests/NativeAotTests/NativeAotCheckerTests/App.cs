@@ -45,7 +45,7 @@ public class App : IAsyncLifetime
     {
         //make the aot app and the test helpers use the same serializer settings
         var cfg = new Config();
-        cfg.Serializer.Options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+        cfg.Serializer.Options.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
 
         if (!File.Exists(_exePath))
             throw new FileNotFoundException("AOT executable not found. Run build to generate it.", _exePath);

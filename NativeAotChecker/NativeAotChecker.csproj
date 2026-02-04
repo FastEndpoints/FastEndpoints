@@ -8,13 +8,19 @@
         <InvariantGlobalization>true</InvariantGlobalization>
         <PublishAot>true</PublishAot>
         <IsPackable>false</IsPackable>
+        <GenerateSerializerContexts>true</GenerateSerializerContexts>
+
+        <!-- only needed for project references -->
+        <GeneratorCliPath>$(MSBuildThisFileDirectory)../Src/Generator/bin/Debug/net8.0/FastEndpoints.Generator.Cli.dll</GeneratorCliPath>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)' == 'Release'">
         <ExportSwaggerDocs>true</ExportSwaggerDocs>
         <SwaggerExportPath>wwwroot/openapi</SwaggerExportPath>
     </PropertyGroup>
+
     <Import Project="..\Src\Swagger\FastEndpoints.Swagger.targets"/> <!-- only needed for project references -->
+    <Import Project="..\Src\Generator\FastEndpoints.Generator.targets"/> <!-- Enable the serializer context generator -->
 
     <ItemGroup>
         <None Remove="NativeAotChecker.csproj.DotSettings"/>
@@ -23,6 +29,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Scalar.AspNetCore" VersionOverride="2.12.30"/>
         <!-- <PackageReference Include="FastEndpoints" VersionOverride="7.3.0-beta.12"/> -->
         <!-- <PackageReference Include="FastEndpoints.Generator" VersionOverride="7.3.0-beta.12"> -->
         <!--     <PrivateAssets>all</PrivateAssets> -->
@@ -30,15 +37,22 @@
         <!-- </PackageReference> -->
         <!-- <PackageReference Include="FastEndpoints.Security" VersionOverride="7.3.0-beta.12"/> -->
         <!-- <PackageReference Include="FastEndpoints.Swagger" VersionOverride="7.3.0-beta.12"/> -->
-        <ProjectReference Include="..\Src\Generator\FastEndpoints.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all"/>
+        <ProjectReference Include="..\Src\Generator\FastEndpoints.Generator.csproj"
+                          OutputItemType="Analyzer"
+                          ReferenceOutputAssembly="false"
+                          PrivateAssets="all"
+                          SetTargetFramework="TargetFramework=netstandard2.0"/>
         <ProjectReference Include="..\Src\Library\FastEndpoints.csproj"/>
         <ProjectReference Include="..\Src\Security\FastEndpoints.Security.csproj"/>
         <ProjectReference Include="..\Src\Swagger\FastEndpoints.Swagger.csproj"/>
-        <PackageReference Include="Scalar.AspNetCore" VersionOverride="2.12.30"/>
     </ItemGroup>
 
     <ItemGroup>
         <Folder Include="wwwroot\"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <_ContentIncludedByDefault Remove="wwwroot\openapi\v1.json"/>
     </ItemGroup>
 
 </Project>

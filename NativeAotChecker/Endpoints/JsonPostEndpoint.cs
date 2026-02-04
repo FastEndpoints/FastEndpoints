@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace NativeAotChecker.Endpoints;
+﻿namespace NativeAotChecker.Endpoints;
 
 public sealed class JsonPostRequest
 {
@@ -19,7 +17,6 @@ public sealed class JsonPostEndpoint : Endpoint<JsonPostRequest, JsonPostRespons
     {
         Post("json-post");
         AllowAnonymous();
-        SerializerContext<JsonPostSerCtx>();
         Summary(s => s.Summary = "this is the summary of this endpoint");
     }
 
@@ -28,6 +25,3 @@ public sealed class JsonPostEndpoint : Endpoint<JsonPostRequest, JsonPostRespons
         await Send.OkAsync(new() { Message = $"Hello {r.FirstName} {r.LastName}!" });
     }
 }
-
-[JsonSerializable(typeof(JsonPostRequest)), JsonSerializable(typeof(JsonPostResponse))]
-public partial class JsonPostSerCtx : JsonSerializerContext;

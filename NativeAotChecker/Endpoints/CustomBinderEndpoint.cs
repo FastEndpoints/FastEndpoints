@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-
 namespace NativeAotChecker.Endpoints;
 
 public sealed class CustomBinderRequest
@@ -38,7 +36,6 @@ public sealed class CustomBinderEndpoint : Endpoint<CustomBinderRequest, CustomB
         Post("custom-binder-test");
         AllowAnonymous();
         RequestBinder(new CustomBinder());
-        SerializerContext<CustomBinderSerCtx>();
     }
 
     public override async Task HandleAsync(CustomBinderRequest r, CancellationToken ct)
@@ -55,6 +52,3 @@ public sealed class CustomBinderEndpoint : Endpoint<CustomBinderRequest, CustomB
             ct);
     }
 }
-
-[JsonSerializable(typeof(CustomBinderRequest)), JsonSerializable(typeof(CustomBinderResponse))]
-public partial class CustomBinderSerCtx : JsonSerializerContext;

@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-
 namespace NativeAotChecker.Endpoints;
 
 sealed class CommandMiddlewareRequest
@@ -18,7 +16,6 @@ sealed class CommandMiddlewareEndpoint : Endpoint<CommandMiddlewareRequest, Comm
     {
         Post("command-middleware");
         AllowAnonymous();
-        SerializerContext<CommandMiddlewareSerCtx>();
     }
 
     public override async Task<CommandMiddlewareResponse> ExecuteAsync(CommandMiddlewareRequest req, CancellationToken ct)
@@ -29,9 +26,6 @@ sealed class CommandMiddlewareEndpoint : Endpoint<CommandMiddlewareRequest, Comm
         return new() { Result = result.Output };
     }
 }
-
-[JsonSerializable(typeof(CommandMiddlewareRequest)), JsonSerializable(typeof(CommandMiddlewareResponse))]
-partial class CommandMiddlewareSerCtx : JsonSerializerContext;
 
 class MiddlewareTestCmd : ICommand<MiddlewareTestResult>
 {

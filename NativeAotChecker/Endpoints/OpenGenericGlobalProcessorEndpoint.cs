@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-
 namespace NativeAotChecker.Endpoints;
 
 public sealed class OpenGenericGlobalProcessorRequest
@@ -19,7 +17,6 @@ public sealed class OpenGenericGlobalProcessorEndpoint : Endpoint<OpenGenericGlo
     {
         Post("open-generic-global-processor");
         AllowAnonymous();
-        SerializerContext<OpenGenericGlobalProcessorSerCtx>();
     }
 
     public override async Task HandleAsync(OpenGenericGlobalProcessorRequest r, CancellationToken c)
@@ -35,6 +32,3 @@ public sealed class OpenGenericGlobalProcessorEndpoint : Endpoint<OpenGenericGlo
             c);
     }
 }
-
-[JsonSerializable(typeof(OpenGenericGlobalProcessorRequest)), JsonSerializable(typeof(OpenGenericGlobalProcessorResponse))]
-public partial class OpenGenericGlobalProcessorSerCtx : JsonSerializerContext;

@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using FluentValidation;
 
 namespace NativeAotChecker.Endpoints;
@@ -45,7 +44,6 @@ public sealed class FluentValidationEndpoint : Endpoint<FluentValidationRequest,
     {
         Post("fluent-validation");
         AllowAnonymous();
-        SerializerContext<FluentValidationSerCtx>();
     }
 
     public override async Task HandleAsync(FluentValidationRequest r, CancellationToken c)
@@ -53,6 +51,3 @@ public sealed class FluentValidationEndpoint : Endpoint<FluentValidationRequest,
         await Send.OkAsync(new() { Message = $"Hello {r.FullName}! Your email {r.Email} has been validated." }, c);
     }
 }
-
-[JsonSerializable(typeof(FluentValidationRequest)), JsonSerializable(typeof(FluentValidationResponse)), JsonSerializable(typeof(ErrorResponse))]
-public partial class FluentValidationSerCtx : JsonSerializerContext;

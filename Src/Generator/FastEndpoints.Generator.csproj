@@ -1,25 +1,62 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;</TargetFrameworks>
+        <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
         <Description>Source generator library for FastEndpoints.</Description>
         <PackageIcon>icon.png</PackageIcon>
         <DevelopmentDependency>true</DevelopmentDependency>
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
         <IsRoslynComponent>true</IsRoslynComponent>
-        <NoWarn>1701;1702;CS1591;CS1573</NoWarn>
+        <NoWarn>1701;1702;CS1591;CS1573;NU5128</NoWarn>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
     </PropertyGroup>
 
-    <ItemGroup>
-        <ProjectReference Include="..\Attributes\FastEndpoints.Attributes.csproj"/>
+    <!-- cli tool config for net8.0 -->
+    <PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
+        <OutputType>Exe</OutputType>
+        <AssemblyName>FastEndpoints.Generator.Cli</AssemblyName>
+        <IsRoslynComponent>false</IsRoslynComponent>
+        <DevelopmentDependency>false</DevelopmentDependency>
+        <EnforceExtendedAnalyzerRules>false</EnforceExtendedAnalyzerRules>
+        <NoWarn>$(NoWarn);RS1035</NoWarn>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+    </PropertyGroup>
 
+    <!-- roslyn generator config for netstandard2.0 -->
+    <PropertyGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+        <OutputType>Library</OutputType>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+    </PropertyGroup>
+
+    <!-- packages for cli tool -->
+    <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp"/>
+    </ItemGroup>
+
+    <!-- packages for analyzer -->
+    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all"/>
         <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" PrivateAssets="all"/>
+        <ProjectReference Include="..\Attributes\FastEndpoints.Attributes.csproj"/>
+        <Compile Remove="Cli\**"/><!-- exclude cli code from analyzer build -->
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="$(OutputPath)\netstandard2.0\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false"/>
         <None Include="..\icon.png" Pack="true" PackagePath="\" Link="Content\Icon" Visible="false"/>
+        <!-- pack analyzer -->
+        <None Include="$(OutputPath)\netstandard2.0\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false"/>
+        <!-- pack cli and all it's dependencies -->
+        <None Include="$(OutputPath)\net8.0\FastEndpoints.Generator.Cli.dll" Pack="true" PackagePath="tools/net8.0" Visible="false"/>
+        <None Include="$(OutputPath)\net8.0\FastEndpoints.Generator.Cli.runtimeconfig.json" Pack="true" PackagePath="tools/net8.0" Visible="false"/>
+        <None Include="$(OutputPath)\net8.0\FastEndpoints.Generator.Cli.deps.json" Pack="true" PackagePath="tools/net8.0" Visible="false"/>
+        <None Include="$(OutputPath)\net8.0\Microsoft.CodeAnalysis.dll" Pack="true" PackagePath="tools/net8.0" Visible="false"/>
+        <None Include="$(OutputPath)\net8.0\Microsoft.CodeAnalysis.CSharp.dll" Pack="true" PackagePath="tools/net8.0" Visible="false"/>
+        <!-- pack msbuild targets for generator pkg -->
+        <None Include="FastEndpoints.Generator.targets" Pack="true" PackagePath="build/FastEndpoints.Generator.targets" Visible="true"/>
     </ItemGroup>
+
+    <Import Project="FastEndpoints.Generator.targets"/>
 
 </Project>

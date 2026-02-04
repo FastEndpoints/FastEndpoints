@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-
 namespace NativeAotChecker.Endpoints;
 
 public class ComplexQueryBindingRequest
@@ -28,7 +26,6 @@ public class ComplexQueryBindingEndpoint : Endpoint<ComplexQueryBindingRequest, 
     {
         Get("complex-query-binding");
         AllowAnonymous();
-        SerializerContext<ComplexQueryBindingSerCtx>();
     }
 
     public override async Task HandleAsync(ComplexQueryBindingRequest req, CancellationToken ct)
@@ -36,6 +33,3 @@ public class ComplexQueryBindingEndpoint : Endpoint<ComplexQueryBindingRequest, 
         await Send.OkAsync(req.Book, ct);
     }
 }
-
-[JsonSerializable(typeof(Book)), JsonSerializable(typeof(Author))]
-public partial class ComplexQueryBindingSerCtx : JsonSerializerContext;

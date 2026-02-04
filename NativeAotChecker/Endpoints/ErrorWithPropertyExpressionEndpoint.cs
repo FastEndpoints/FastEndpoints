@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-
 namespace NativeAotChecker.Endpoints;
 
 public class ErrorWithPropertyExpressionRequest
@@ -13,7 +11,6 @@ public class ErrorWithPropertyExpressionEndpoint : Endpoint<ErrorWithPropertyExp
     {
         Post("error-with-prop-expression");
         AllowAnonymous();
-        SerializerContext<ErrorWithPropertyExpressionSerCtx>();
     }
 
     public override Task HandleAsync(ErrorWithPropertyExpressionRequest req, CancellationToken ct)
@@ -28,6 +25,3 @@ public class ErrorWithPropertyExpressionEndpoint : Endpoint<ErrorWithPropertyExp
         return Task.CompletedTask;
     }
 }
-
-[JsonSerializable(typeof(ErrorWithPropertyExpressionRequest)), JsonSerializable(typeof(ErrorResponse))]
-public partial class ErrorWithPropertyExpressionSerCtx : JsonSerializerContext;

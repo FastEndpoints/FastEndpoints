@@ -1,5 +1,3 @@
-using System.Text.Json.Serialization;
-
 namespace NativeAotChecker.Endpoints;
 
 public sealed class MultiSourceBindingRequest
@@ -38,7 +36,6 @@ public sealed class MultiSourceBindingEndpoint : Endpoint<MultiSourceBindingRequ
     {
         Post("multi-source/{id}");
         AllowFormData();
-        SerializerContext<MultiSourceBindingSerCtx>();
     }
 
     public override async Task HandleAsync(MultiSourceBindingRequest req, CancellationToken ct)
@@ -56,6 +53,3 @@ public sealed class MultiSourceBindingEndpoint : Endpoint<MultiSourceBindingRequ
             ct);
     }
 }
-
-[JsonSerializable(typeof(MultiSourceBindingResponse))]
-public partial class MultiSourceBindingSerCtx : JsonSerializerContext;

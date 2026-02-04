@@ -109,6 +109,9 @@ public static class Extensions
                                                     Action<OpenApiDocumentMiddlewareSettings>? config = null,
                                                     Action<SwaggerUiSettings>? uiConfig = null)
     {
+        if (!RuntimeFeature.IsDynamicCodeSupported)
+            throw new NotSupportedException("Not supported in AOT applications! Use Scalar for API visualization.");
+
         app.UseOpenApi(config);
         app.UseSwaggerUi((c => c.ConfigureDefaults()) + uiConfig);
 
@@ -480,10 +483,10 @@ public static class Extensions
     }
 
     /// <summary>
-    /// exports swagger.json files to disk (ONLY DURING NATIVE AOT BUILDS) and exits the program.
+    /// exports swagger.json files to disk (ONLY DURING NATIVE AOT PUBLISHING) and exits the program.
     /// <para>HINT: make sure to place the call straight after <c>app.UseFastEndpoints()</c></para>
     /// <para>
-    /// to enable automatic export during AOT builds, add this to your .csproj:
+    /// to enable automatic export during AOT publish builds, add this to your .csproj:
     /// <code>
     /// &lt;PropertyGroup&gt;
     ///     &lt;ExportSwaggerDocs&gt;true&lt;/ExportSwaggerDocs&gt;
@@ -494,9 +497,15 @@ public static class Extensions
     /// to customize the export path, add this to your .csproj:
     /// <code>
     /// &lt;PropertyGroup&gt;
-    ///     &lt;SwaggerExportPath&gt;docs/api&lt;/SwaggerExportPath&gt;
+    ///     &lt;SwaggerExportPath&gt;wwwroot/swagger&lt;/SwaggerExportPath&gt;
     /// &lt;/PropertyGroup&gt;
     /// </code>
+    /// </para>
+    /// <para>
+    /// to force generate swagger docs outside a AOT publish, run the following in a terminal:
+    /// <code>dotnet run --export-swagger-docs true -p:PublishAot=false</code>
+    /// optionally specify the output folder:
+    /// <code>dotnet run --export-swagger-docs true -p:PublishAot=false -p:SwaggerExportPath=wwwroot/swagger</code>
     /// </para>
     /// </summary>
     /// <param name="documentNames">the swagger document names to export. these must match the names used in <c>.SwaggerDocument()</c> configuration.</param>

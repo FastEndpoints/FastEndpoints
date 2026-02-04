@@ -18,7 +18,6 @@
         <AotSourceFiles Include="$(AotProjectPath)**\*.cs" Visible="false"/>
     </ItemGroup>
 
-    <!-- Incremental AOT publish - MSBuild skips this target if all inputs are older than outputs -->
     <Target Name="PublishAotBeforeBuild"
             BeforeTargets="BeforeBuild"
             Inputs="@(AotSourceFiles)"

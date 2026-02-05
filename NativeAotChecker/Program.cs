@@ -2,7 +2,9 @@ using System.Text.Json;
 using FastEndpoints.Security;
 using NativeAotChecker;
 using FastEndpoints.Swagger;
-using NativeAotChecker.Endpoints;
+using NativeAotChecker.Endpoints.Commands;
+using NativeAotChecker.Endpoints.Jobs;
+using NativeAotChecker.Endpoints.Processors;
 using Scalar.AspNetCore;
 
 var bld = WebApplication.CreateSlimBuilder(args);

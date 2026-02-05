@@ -1,6 +1,7 @@
 // ReSharper disable InconsistentNaming
 
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Net;
@@ -596,7 +597,7 @@ public static class HttpClientExtensions
         reqMsg.Headers.Add("Cookie", cookieJar.GetCookieHeader(reqMsg.RequestUri));
     }
 
-    static readonly Dictionary<string, string> _testUrlCache = new();
+    static readonly ConcurrentDictionary<string, string> _testUrlCache = new();
 
     internal static string GetTestUrlFor<TEndpoint, TRequest>(TRequest req, HttpClient client) where TRequest : notnull
     {
@@ -605,10 +606,11 @@ public static class HttpClientExtensions
         if (!_testUrlCache.ContainsKey(epTypeName))
         {
             bool shouldGetViaHttp;
+            string? url = null;
 
             try
             {
-                _testUrlCache[epTypeName] = IEndpoint.TestURLFor<TEndpoint>();
+                url = IEndpoint.TestURLFor<TEndpoint>();
                 shouldGetViaHttp = false;
             }
             catch (KeyNotFoundException) //will be thrown when running with aspire tests (due to aspire black-boxing)
@@ -623,8 +625,12 @@ public static class HttpClientExtensions
                 foreach (var line in res ?? [])
                 {
                     var parts = line.Split('|');
-                    _testUrlCache[parts[0]] = parts[1];
+                    _testUrlCache.TryAdd(parts[0], parts[1]);
                 }
+            }
+            else
+            {
+                _testUrlCache.TryAdd(epTypeName, url!);
             }
         }
 

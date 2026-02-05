@@ -2,20 +2,18 @@ using System.Text.Json.Serialization;
 
 namespace NativeAotChecker.Endpoints.KnownAotIssues;
 
-// Test: BindFrom attribute for property name aliasing in AOT mode
 public sealed class BindFromRequest
 {
-    [BindFrom("customer_id")]
+    [JsonPropertyName("customer_id")] // for STJ we need to use JsonPropertyName
     public int CustomerId { get; set; }
 
     [BindFrom("product_name")]
     public string ProductName { get; set; } = string.Empty;
 
-    [BindFrom("qty")]
+    [JsonPropertyName("qty")] // for STJ we need to use JsonPropertyName
     public int Quantity { get; set; }
 
-    [QueryParam]
-    [BindFrom("cat")]
+    [QueryParam, BindFrom("cat")]
     public string Category { get; set; } = string.Empty;
 }
 
@@ -34,24 +32,21 @@ public sealed class BindFromEndpoint : Endpoint<BindFromRequest, BindFromRespons
     {
         Post("bind-from-test");
         AllowAnonymous();
-        SerializerContext<BindFromSerCtx>();
     }
 
     public override async Task HandleAsync(BindFromRequest req, CancellationToken ct)
     {
-        await Send.OkAsync(new BindFromResponse
-        {
-            CustomerId = req.CustomerId,
-            ProductName = req.ProductName,
-            Quantity = req.Quantity,
-            Category = req.Category,
-            AllBindingsWorked = req.CustomerId > 0 && 
-                                !string.IsNullOrEmpty(req.ProductName) &&
-                                req.Quantity > 0
-        }, ct);
+        await Send.OkAsync(
+            new()
+            {
+                CustomerId = req.CustomerId,
+                ProductName = req.ProductName,
+                Quantity = req.Quantity,
+                Category = req.Category,
+                AllBindingsWorked = req.CustomerId > 0 &&
+                                    !string.IsNullOrEmpty(req.ProductName) &&
+                                    req.Quantity > 0
+            },
+            ct);
     }
 }
-
-[JsonSerializable(typeof(BindFromRequest))]
-[JsonSerializable(typeof(BindFromResponse))]
-public partial class BindFromSerCtx : JsonSerializerContext;

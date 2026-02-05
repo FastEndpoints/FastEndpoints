@@ -43,6 +43,12 @@ The routeless test helpers such as `.GETAsync<>()` would construct route/query p
 
 </details>
 
+<details><summary>Routeless testing helpers contention issue</summary>
+
+The test helpers were using a regular dictionary to cache test URLs internally which could sometimes cause trouble under high load. This has been solved by switching to a concurrent dictionary.
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Job Queues storage processing ⚠️</summary>

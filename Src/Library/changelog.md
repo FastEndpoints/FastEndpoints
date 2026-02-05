@@ -10,6 +10,12 @@ Due to low financial backing by the community, FastEndpoints will soon be going 
 
 ## New 🎉
 
+<details><summary>Auto generate STJ JsonSerializationContexts</summary>
+
+You no longer need to ever see a `JsonSerializerContext` thanks to the new serializer context generator in FastEndpoints. (Unless you want to that is 😜). See the documentation [here](https://fast-endpoints.com/docs/model-binding#auto-generate-stj-serializer-contexts) on how to enable it.
+
+</details>
+
 <details><summary>Response sending method 'NotModifiedAsync'</summary>
 
 A new response sending method has been added for sending a 304 status code response.
@@ -20,12 +26,6 @@ public override async Task HandleAsync(CancellationToken c)
     await Send.NotModifiedAsync();
 }
 ```
-
-</details>
-
-<details><summary>STJ 'JsonSerializationContext' generator</summary>
-
-TODO: write documentation
 
 </details>
 

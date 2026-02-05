@@ -560,9 +560,13 @@ public static class HttpClientExtensions
         foreach (var prop in hdrProps)
         {
             var headerName = prop.GetCustomAttribute<FromHeaderAttribute>()?.HeaderName ?? prop.FieldName();
+
+            if (contentHeaders.Contains(headerName, StringComparer.OrdinalIgnoreCase))
+                continue;
+
             var headerValue = prop.GetValueAsString(req);
 
-            if (!contentHeaders.Contains(headerName, StringComparer.OrdinalIgnoreCase))
+            if (headerValue is not null)
                 reqMsg.Headers.Add(headerName, headerValue);
         }
     }

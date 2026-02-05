@@ -1,11 +1,11 @@
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Collections.Concurrent;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace FastEndpoints.Generator.Cli;
 
@@ -77,13 +77,18 @@ partial class Program
     {
         if (args.Length == 0)
         {
-            Console.WriteLine("Usage: FastEndpoints.Generator.Cli <project-file-path> [--force]");
+            Console.WriteLine("Usage: FastEndpoints.Generator.Cli <project-file-path> [--force] [--output <path>]");
 
             return 1;
         }
 
         var projectPath = Path.GetFullPath(args[0]);
         var forceRegenerate = args.Contains("--force", StringComparer.OrdinalIgnoreCase);
+
+        var outputArgIndex = Array.IndexOf(args, "--output");
+        var customOutputPath = outputArgIndex >= 0 && outputArgIndex + 1 < args.Length
+                                   ? args[outputArgIndex + 1]
+                                   : null;
 
         if (!File.Exists(projectPath))
         {
@@ -94,7 +99,7 @@ partial class Program
 
         try
         {
-            return RunGenerator(projectPath, forceRegenerate);
+            return RunGenerator(projectPath, forceRegenerate, customOutputPath);
         }
         catch (Exception ex)
         {
@@ -104,7 +109,7 @@ partial class Program
         }
     }
 
-    private static int RunGenerator(string projectPath, bool forceRegenerate)
+    private static int RunGenerator(string projectPath, bool forceRegenerate, string? customOutputPath)
     {
         var projectDir = Path.GetDirectoryName(projectPath)!;
         var projectName = Path.GetFileNameWithoutExtension(projectPath);
@@ -122,7 +127,7 @@ partial class Program
 
         Console.WriteLine($"Found {csFiles.Count} source files.");
 
-        var outputDir = Path.Combine(projectDir, "Generated", "FastEndpoints");
+        var outputDir = GetGeneratorOutputPath(projectDir, customOutputPath);
         var cacheFilePath = Path.Combine(outputDir, CacheFileName);
         var currentHash = ComputeSourceHash(csFiles);
 
@@ -738,6 +743,18 @@ partial class Program
             Properties = mergedProps,
             BaseTypes = mergedBaseTypes
         };
+    }
+
+    private static string GetGeneratorOutputPath(string projectDir, string? customOutputPath)
+    {
+        if (!string.IsNullOrWhiteSpace(customOutputPath))
+        {
+            return Path.IsPathRooted(customOutputPath)
+                       ? customOutputPath
+                       : Path.Combine(projectDir, customOutputPath);
+        }
+
+        return Path.Combine(projectDir, "Generated", "FastEndpoints");
     }
 
     private static string? GetRootNamespace(string projectPath)

@@ -3,6 +3,7 @@
     <PropertyGroup>
         <GenerateSerializerContexts Condition="'$(GenerateSerializerContexts)' == ''">false</GenerateSerializerContexts>
         <GeneratorCliPath Condition="'$(GeneratorCliPath)' == ''">$(MSBuildThisFileDirectory)../tools/net8.0/FastEndpoints.Generator.Cli.dll</GeneratorCliPath>
+        <SerializerContextOutputPath Condition="'$(SerializerContextOutputPath)' == ''">Generated/FastEndpoints</SerializerContextOutputPath>
     </PropertyGroup>
 
     <Target Name="GenerateFastEndpointsSerializerContexts"
@@ -15,10 +16,10 @@
         <Message Text="FastEndpoints: Generating serializer contexts..." Importance="high"
                  Condition="Exists('$(GeneratorCliPath)')"/>
 
-        <MakeDir Directories="$(ProjectDir)Generated/FastEndpoints"
+        <MakeDir Directories="$(SerializerContextOutputPath)"
                  Condition="Exists('$(GeneratorCliPath)')"/>
 
-        <Exec Command="dotnet &quot;$(GeneratorCliPath)&quot; &quot;$(MSBuildProjectFullPath)&quot;"
+        <Exec Command="dotnet &quot;$(GeneratorCliPath)&quot; &quot;$(MSBuildProjectFullPath)&quot; --output &quot;$(SerializerContextOutputPath)&quot;"
               WorkingDirectory="$(ProjectDir)"
               StandardOutputImportance="normal"
               StandardErrorImportance="high"

@@ -340,20 +340,25 @@ public class EndpointTests(App app)
     }
 
     [Fact]
-    public async Task Header_Binding()
+    public async Task Override_Client_Request_Header_In_Test_Request() // unrelated to aot
     {
+        const string tenantId = "tenant-123";
         var correlationId = Guid.NewGuid().ToString();
-        var tenantId = "tenant-123";
 
         app.Client.DefaultRequestHeaders.Add("x-correlation-id", correlationId);
         app.Client.DefaultRequestHeaders.Add("x-tenant-id", tenantId);
 
-        var (rsp, res, err) = await app.Client.GETAsync<FromHeaderBindingEndpoint, FromHeaderRequest, FromHeaderResponse>(new());
+        var (rsp, res, err) = await app.Client.GETAsync<FromHeaderBindingEndpoint, FromHeaderRequest, FromHeaderResponse>(
+                                  new()
+                                  {
+                                      CorrelationId = "this-should-override-default-correlation-id",
+                                      TenantId = null! // setting null is needed if the intent is to not override the default header
+                                  });
 
         if (!rsp.IsSuccessStatusCode)
             Assert.Fail(err);
 
-        res.CorrelationId.ShouldBe(correlationId);
+        res.CorrelationId.ShouldBe("this-should-override-default-correlation-id");
         res.TenantId.ShouldBe(tenantId);
         res.AllHeadersBound.ShouldBeTrue();
     }

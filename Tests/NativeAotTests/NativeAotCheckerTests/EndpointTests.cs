@@ -362,4 +362,27 @@ public class EndpointTests(App app)
         res.TenantId.ShouldBe(tenantId);
         res.AllHeadersBound.ShouldBeTrue();
     }
+
+    [Fact]
+    public async Task Binding_With_BindFrom_Attribute()
+    {
+        var (rsp, res, err) = await app.Client.POSTAsync<BindFromEndpoint, BindFromRequest, BindFromResponse>(
+                                  new()
+                                  {
+                                      CustomerId = 123,
+                                      ProductName = "Test Product",
+                                      Quantity = 5,
+                                      Category = "electronics"
+                                  });
+
+        if (!rsp.IsSuccessStatusCode)
+            Assert.Fail(err);
+
+        res.ShouldNotBeNull();
+        res.CustomerId.ShouldBe(123);
+        res.ProductName.ShouldBe("Test Product");
+        res.Quantity.ShouldBe(5);
+        res.Category.ShouldBe("electronics");
+        res.AllBindingsWorked.ShouldBeTrue();
+    }
 }

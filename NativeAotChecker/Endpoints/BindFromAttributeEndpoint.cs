@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace NativeAotChecker.Endpoints.KnownAotIssues;
+namespace NativeAotChecker.Endpoints;
 
 public sealed class BindFromRequest
 {

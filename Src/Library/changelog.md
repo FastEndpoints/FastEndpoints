@@ -16,6 +16,43 @@ You no longer need to ever see a `JsonSerializerContext` thanks to the new seria
 
 </details>
 
+<details><summary>Qualify endpoints in global configurator according to endpoint level metadata</summary>
+
+You can now register any object as metadata at the endpoint level like so:
+
+```csharp
+sealed class SomeObject
+{
+    public int Id { get; set; }
+    public bool Yes { get; set; }
+}
+
+sealed class MetaDataRegistrationEndpoint : EndpointWithoutRequest
+{
+    public override void Configure()
+    {
+        Get("/test-cases/endpoint-metadata-reg-test");
+        Metadata(
+            new SomeObject { Id = 1, Yes = true },
+            new SomeObject { Id = 2, Yes = false });
+    }
+}
+```
+
+and configure endpoints conditionally at startup according to the endpoint level metadata that was added by the endpoint configure method:
+
+```csharp
+app.UseFastEndpoints(
+       c => c.Endpoints.Configurator =
+                ep =>
+                {
+                    if (ep.EndpointMetadata?.OfType<SomeObject>().Any(s => s.Yes) is true)
+                        ep.AllowAnonymous();
+                })
+```
+
+</details>
+
 <details><summary>Response sending method 'NotModifiedAsync'</summary>
 
 A new response sending method has been added for sending a 304 status code response.

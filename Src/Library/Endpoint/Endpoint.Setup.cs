@@ -309,6 +309,13 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
         => Definition.Idempotency(options);
 
     /// <summary>
+    /// register metadata objects for the endpoint. these will be auto added to the endpoint metadata collection during startup.
+    /// </summary>
+    /// <param name="metadata"></param>
+    protected void Metadata(params object[] metadata)
+        => Definition.Metadata(metadata);
+
+    /// <summary>
     /// specify a custom maximum request body size to be set on <see cref="IHttpMaxRequestBodySizeFeature.MaxRequestBodySize" /> which would apply to this particular
     /// endpoint only. typically useful with <see cref="AllowFormData" /> and <see cref="AllowFileUploads" />.
     /// </summary>

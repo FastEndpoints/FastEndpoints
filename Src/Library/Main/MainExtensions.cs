@@ -146,7 +146,7 @@ public static class MainExtensions
                                 def.Routes.Length > 1 ? routeNum : null,
                                 def.EndpointTags?.Count > 0 ? def.EndpointTags[0] : null))); //user can override this via Options(x=>x.WithName(...))
 
-                    hb.WithMetadata(def);
+                    hb.WithMetadata(def.EndpointMetadata is not null ? [def, ..def.EndpointMetadata] : [def]);
 
                     if (def.AttribsToForward is not null)
                         hb.WithMetadata(def.AttribsToForward.ToArray());
@@ -183,9 +183,7 @@ public static class MainExtensions
             }
         }
 
-        app.ServiceProvider.GetRequiredService<ILogger<StartupTimer>>().EndpointsRegistered(
-            totalEndpointCount,
-            endpoints.Stopwatch.ElapsedMilliseconds.ToString("N0"));
+        app.ServiceProvider.GetRequiredService<ILogger<StartupTimer>>().EndpointsRegistered(totalEndpointCount, endpoints.Stopwatch.ElapsedMilliseconds.ToString("N0"));
 
         endpoints.Stopwatch.Stop();
 

@@ -165,4 +165,14 @@ public class EndpointTests(Sut App) : TestBase<Sut>
 
         res.ShouldBe("blah blah!");
     }
+
+    [Fact]
+    public async Task MetadataRegistrationTest()
+    {
+        var (rsp, res) = await App.GuestClient
+            .GETAsync<TestCases.MetadataRegistrationTest.Endpoint, int>();
+
+        rsp.StatusCode.ShouldBe(HttpStatusCode.OK);
+        res.ShouldBe(1);
+    }
 }

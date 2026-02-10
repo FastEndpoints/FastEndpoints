@@ -11,6 +11,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\Src\Generator\FastEndpoints.Generator.csproj"/>
         <ProjectReference Include="..\..\Src\Testing\FastEndpoints.Testing.csproj"/>
         <PackageReference Include="FakeItEasy"/>
         <PackageReference Include="Microsoft.NET.Test.Sdk"/>

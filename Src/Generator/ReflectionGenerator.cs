@@ -344,10 +344,13 @@ public class ReflectionGenerator : IIncrementalGenerator
             if (type.DeclaringSyntaxReferences.Length > 0)
                 HashCode = type.DeclaringSyntaxReferences[0].Span.Length;
 
-            if (isEndpoint is false && noRecursion) //treating an endpoint as a regular class to generate its props for property injection support
+            if (!isEndpoint && noRecursion) //treating an endpoint as a regular class to generate its props for property injection support
                 SkipObjectFactory = true;
 
-            if (SkipObjectFactory is false && Properties.Count == 0)
+            if (!SkipObjectFactory && Properties.Count == 0)
+                SkipObjectFactory = true;
+
+            if (type.IsAbstract)
                 SkipObjectFactory = true;
 
             if (Properties.Count > 0)

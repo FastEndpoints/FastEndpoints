@@ -8,7 +8,15 @@
         <NoWarn>CS1591;CA2016</NoWarn>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <LangVersion>latest</LangVersion>
+        <RootNamespace>Sand_Box</RootNamespace>
+
+        <!-- <GenerateSerializerContexts>true</GenerateSerializerContexts> -->
+        <!-- &lt;!&ndash; only needed for project references &ndash;&gt; -->
+        <!-- <GeneratorCliPath>$(MSBuildThisFileDirectory)../../Src/Generator/bin/Debug/net8.0/FastEndpoints.Generator.Cli.dll</GeneratorCliPath> -->
     </PropertyGroup>
+
+    <!-- &lt;!&ndash; only needed for project references &ndash;&gt; -->
+    <!-- <Import Project="..\..\Src\Generator\FastEndpoints.Generator.targets"/> -->
 
     <ItemGroup>
         <!-- <PackageReference Include="Microsoft.EntityFrameworkCore" VersionOverride="9.0.4"/> -->

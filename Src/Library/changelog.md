@@ -86,6 +86,12 @@ The test helpers were using a regular dictionary to cache test URLs internally w
 
 </details>
 
+<details><summary>Source generators having trouble with special characters in project names</summary>
+
+The source generators were generating incorrect namespaces if the project name has dashes such as `My-Project.csproj` which would result in generating namespaces with dashes, which is invalid for C#.
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Job Queues storage processing ⚠️</summary>

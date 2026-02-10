@@ -45,7 +45,7 @@ public class ReflectionGenerator : IIncrementalGenerator
         TypeInfo? Transform(GeneratorSyntaxContext ctx, CancellationToken _)
         {
             //should be re-assigned on every call. do not cache!
-            _assemblyName = ctx.SemanticModel.Compilation.AssemblyName;
+            _assemblyName = ctx.SemanticModel.Compilation.AssemblyName?.Sanitize() ?? "Assembly";
 
             return ctx.SemanticModel.GetDeclaredSymbol(ctx.Node) is not ITypeSymbol type ||
                    type.IsAbstract ||
@@ -63,10 +63,6 @@ public class ReflectionGenerator : IIncrementalGenerator
 
     string RenderClass()
     {
-        _assemblyName ??= "Assembly"; //when no endpoints are present
-
-        var sanitizedAssemblyName = _assemblyName.Sanitize(string.Empty);
-
         b.Clear().w(
             """
             #pragma warning disable CS0618
@@ -98,10 +94,10 @@ public class ReflectionGenerator : IIncrementalGenerator
               /// </summary>
               public static class GeneratedReflection
               {
-                  /// <summary>
-                  /// register source generated reflection data from [{{sanitizedAssemblyName}}] with the central cache.
-                  /// </summary>
-                  public static ReflectionCache AddFrom{{sanitizedAssemblyName}}(this ReflectionCache cache)
+              /// <summary>
+              /// register source generated reflection data from [{{_assemblyName}}] with the central cache.
+              /// </summary>
+              public static ReflectionCache AddFrom{{_assemblyName}}(this ReflectionCache cache)
                   {
 
               """);
@@ -366,7 +362,7 @@ public class ReflectionGenerator : IIncrementalGenerator
                 }
             }
 
-            if (isEndpoint && Properties.Count > 0) //create entry for endpoint class to support property injection
+            if (isEndpoint && Properties.Count > 0)                                                    //create entry for endpoint class to support property injection
                 _ = new TypeInfo(ref collector, symbol: symbol, isEndpoint: false, noRecursion: true); //process the endpoint as a regular class without recursion
             else
             {

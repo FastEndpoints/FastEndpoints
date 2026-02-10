@@ -261,12 +261,12 @@ partial class Program
 
         Directory.CreateDirectory(outputDir);
 
-        var rootNamespace = GetRootNamespace(projectPath) ?? projectName;
+        var rootNamespace = GetRootNamespace(projectPath) ?? projectName.Sanitize();
         var contextCode = GenerateSerializerContext(rootNamespace, serializableTypes);
         var contextPath = Path.Combine(outputDir, "SerializerContexts.g.cs");
         File.WriteAllText(contextPath, contextCode, Encoding.UTF8);
 
-        var extensionCode = GenerateExtensionMethod(rootNamespace, projectName);
+        var extensionCode = GenerateExtensionMethod(rootNamespace);
         var extensionPath = Path.Combine(outputDir, "SerializerContextExtensions.g.cs");
         File.WriteAllText(extensionPath, extensionCode, Encoding.UTF8);
 
@@ -764,7 +764,7 @@ partial class Program
             var doc = XDocument.Load(projectPath);
             var rootNs = doc.Descendants().FirstOrDefault(e => e.Name.LocalName == "RootNamespace")?.Value;
 
-            return rootNs;
+            return rootNs?.Sanitize();
         }
         catch
         {
@@ -813,37 +813,10 @@ partial class Program
         if (string.IsNullOrWhiteSpace(fullTypeName))
             return "TI_Unknown";
 
-        var simpleName = fullTypeName.Split('.').LastOrDefault() ?? fullTypeName;
-        simpleName = SanitizeIdentifier(simpleName);
+        var simpleName = (fullTypeName.Split('.').LastOrDefault() ?? fullTypeName).Sanitize();
         var hash = ComputeStableShortHash(fullTypeName);
 
         return $"TI_{simpleName}_{hash}";
-    }
-
-    private static string SanitizeIdentifier(string value)
-    {
-        var sb = new StringBuilder(value.Length);
-
-        for (var i = 0; i < value.Length; i++)
-        {
-            var ch = value[i];
-            if (ch is >= 'a' and <= 'z' ||
-                ch is >= 'A' and <= 'Z' ||
-                ch is >= '0' and <= '9' ||
-                ch == '_')
-                sb.Append(ch);
-            else
-                sb.Append('_');
-        }
-
-        if (sb.Length == 0)
-            return "Unknown";
-
-        var first = sb[0];
-        if (first is >= '0' and <= '9')
-            sb.Insert(0, '_');
-
-        return sb.ToString();
     }
 
     private static string ComputeStableShortHash(string value)
@@ -853,7 +826,7 @@ partial class Program
         return Convert.ToHexString(bytes, 0, 4);
     }
 
-    private static string GenerateExtensionMethod(string rootNamespace, string assemblyName)
+    private static string GenerateExtensionMethod(string rootNamespace)
     {
         var sb = new StringBuilder();
 
@@ -875,7 +848,7 @@ partial class Program
         sb.l("    /// <summary>");
         sb.l("    /// Adds the generated JSON serializer context to the JSON serializer options.");
         sb.l("    /// </summary>");
-        sb.l($"   internal static JsonSerializerOptions AddSerializerContextsFrom{assemblyName}(this JsonSerializerOptions options)");
+        sb.l($"   internal static JsonSerializerOptions AddSerializerContextsFrom{rootNamespace}(this JsonSerializerOptions options)");
         sb.l("    {");
         sb.l("        var context = new GeneratedSerializerContext(new(options));");
         sb.l("        options.TypeInfoResolverChain.Insert(0, context);");

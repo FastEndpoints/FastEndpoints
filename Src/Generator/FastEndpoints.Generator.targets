@@ -3,8 +3,18 @@
     <PropertyGroup>
         <GenerateSerializerContexts Condition="'$(GenerateSerializerContexts)' == ''">false</GenerateSerializerContexts>
         <SerializerContextOutputPath Condition="'$(SerializerContextOutputPath)' == ''">Generated/FastEndpoints</SerializerContextOutputPath>
-        <GeneratorCliVersion Condition="'$(GeneratorCliVersion)' == ''">$(Version)</GeneratorCliVersion>
-        <GeneratorCliVersion Condition="'$(GeneratorCliVersion)' == ''">*</GeneratorCliVersion>
+
+        <!-- Extract package version from the build directory path when installed via NuGet (e.g., .../8.0.0-beta.8/build/) -->
+        <!-- In dev mode, the parent folder is 'Generator', so we check if it looks like a version (contains digits) -->
+        <_GeneratorPackageBuildDir>$([MSBuild]::NormalizeDirectory('$(MSBuildThisFileDirectory)'))</_GeneratorPackageBuildDir>
+        <_GeneratorPackageVersionDir>$([System.IO.Directory]::GetParent('$(_GeneratorPackageBuildDir)'))</_GeneratorPackageVersionDir>
+        <_GeneratorPackageVersion>$([System.IO.Path]::GetFileName('$(_GeneratorPackageVersionDir)'))</_GeneratorPackageVersion>
+        <_GeneratorPackageVersionIsValid Condition="$(_GeneratorPackageVersion.Contains('.'))">true</_GeneratorPackageVersionIsValid>
+
+        <!-- Use user-specified version, or extracted package version (if valid), or empty (will use - -prerelease) -->
+        <GeneratorCliVersion Condition="'$(GeneratorCliVersion)' == '' AND '$(_GeneratorPackageVersionIsValid)' == 'true'">$(_GeneratorPackageVersion)</GeneratorCliVersion>
+        <_GeneratorCliVersionArg Condition="'$(GeneratorCliVersion)' != ''">--version $(GeneratorCliVersion)</_GeneratorCliVersionArg>
+        <_GeneratorCliPrereleaseArg Condition="'$(GeneratorCliVersion)' == ''">--prerelease</_GeneratorCliPrereleaseArg>
         <_FastEndpointsToolSentinel>$(IntermediateOutputPath)fastendpoints-tool.version</_FastEndpointsToolSentinel>
 
         <!-- Path to locally built CLI for development mode -->
@@ -42,35 +52,44 @@
             <_ToolVersionMismatch Condition="'$(_InstalledToolVersion)' != '$(GeneratorCliVersion)'">true</_ToolVersionMismatch>
         </PropertyGroup>
 
-        <!-- Install/update only if sentinel doesn't exist or version changed -->
-        <CallTarget Targets="_DoInstallFastEndpointsGeneratorTool" Condition="!Exists('$(_FastEndpointsToolSentinel)') OR '$(_ToolVersionMismatch)' == 'true'"/>
+        <!-- Install/update if:
+             - Sentinel doesn't exist (first time), OR
+             - Version doesn't match what was installed, OR  
+             - No version specified (need to check for updates to latest) -->
+        <PropertyGroup>
+            <_ShouldInstallTool Condition="!Exists('$(_FastEndpointsToolSentinel)')">true</_ShouldInstallTool>
+            <_ShouldInstallTool Condition="'$(_ToolVersionMismatch)' == 'true'">true</_ShouldInstallTool>
+            <_ShouldInstallTool Condition="'$(GeneratorCliVersion)' == ''">true</_ShouldInstallTool>
+        </PropertyGroup>
+
+        <CallTarget Targets="_DoInstallFastEndpointsGeneratorTool" Condition="'$(_ShouldInstallTool)' == 'true'"/>
 
     </Target>
 
     <Target Name="_DoInstallFastEndpointsGeneratorTool">
 
         <!-- Ensure tool manifest exists (required for local tools) -->
-        <Exec Command="dotnet new tool-manifest --force"
+        <Exec Command="dotnet new tool-manifest"
               WorkingDirectory="$(ProjectDir)"
               IgnoreExitCode="true"
               StandardOutputImportance="low"
               StandardErrorImportance="low"/>
 
         <!-- Try to install the tool (succeeds if not present, fails if already installed) -->
-        <Exec Command="dotnet tool install --local FastEndpoints.Generator.Cli --version $(GeneratorCliVersion)"
+        <Exec Command="dotnet tool install --local FastEndpoints.Generator.Cli $(_GeneratorCliVersionArg) $(_GeneratorCliPrereleaseArg)"
               WorkingDirectory="$(ProjectDir)"
               IgnoreExitCode="true"
               StandardOutputImportance="low"
-              StandardErrorImportance="low">
+              StandardErrorImportance="normal">
             <Output TaskParameter="ExitCode" PropertyName="_ToolInstallExitCode"/>
         </Exec>
 
         <!-- If install failed (tool already exists), update it -->
-        <Exec Command="dotnet tool update --local FastEndpoints.Generator.Cli --version $(GeneratorCliVersion)"
+        <Exec Command="dotnet tool update --local FastEndpoints.Generator.Cli $(_GeneratorCliVersionArg) $(_GeneratorCliPrereleaseArg)"
               WorkingDirectory="$(ProjectDir)"
               IgnoreExitCode="true"
               StandardOutputImportance="low"
-              StandardErrorImportance="low"
+              StandardErrorImportance="normal"
               Condition="'$(_ToolInstallExitCode)' != '0'"/>
 
         <!-- Write the version to the sentinel file -->

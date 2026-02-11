@@ -49,8 +49,16 @@
 
     <Target Name="_DoInstallFastEndpointsGeneratorTool">
 
+        <!-- Ensure tool manifest exists (required for local tools) -->
+        <Exec Command="dotnet new tool-manifest --force"
+              WorkingDirectory="$(ProjectDir)"
+              IgnoreExitCode="true"
+              StandardOutputImportance="low"
+              StandardErrorImportance="low"/>
+
         <!-- Try to install the tool (succeeds if not present, fails if already installed) -->
         <Exec Command="dotnet tool install --local FastEndpoints.Generator.Cli --version $(GeneratorCliVersion)"
+              WorkingDirectory="$(ProjectDir)"
               IgnoreExitCode="true"
               StandardOutputImportance="low"
               StandardErrorImportance="low">
@@ -59,6 +67,7 @@
 
         <!-- If install failed (tool already exists), update it -->
         <Exec Command="dotnet tool update --local FastEndpoints.Generator.Cli --version $(GeneratorCliVersion)"
+              WorkingDirectory="$(ProjectDir)"
               IgnoreExitCode="true"
               StandardOutputImportance="low"
               StandardErrorImportance="low"

@@ -6,7 +6,7 @@
         <GeneratorCliVersion Condition="'$(GeneratorCliVersion)' == ''">$(Version)</GeneratorCliVersion>
         <GeneratorCliVersion Condition="'$(GeneratorCliVersion)' == ''">*</GeneratorCliVersion>
         <_FastEndpointsToolSentinel>$(IntermediateOutputPath)fastendpoints-tool.version</_FastEndpointsToolSentinel>
-        
+
         <!-- Path to locally built CLI for development mode -->
         <_FastEndpointsCliDevPath>$(MSBuildThisFileDirectory)../Generator.Cli/bin/$(Configuration)/net8.0/FastEndpoints.Generator.Cli.dll</_FastEndpointsCliDevPath>
         <_FastEndpointsCliProjectPath>$(MSBuildThisFileDirectory)../Generator.Cli/FastEndpoints.Generator.Cli.csproj</_FastEndpointsCliProjectPath>
@@ -18,7 +18,7 @@
             Condition="'$(GenerateSerializerContexts)' == 'true' AND '$(DesignTimeBuild)' != 'true' AND Exists('$(_FastEndpointsCliProjectPath)') AND !Exists('$(_FastEndpointsCliDevPath)')">
 
         <Message Text="FastEndpoints: Building Generator.Cli tool..." Importance="high"/>
-        
+
         <Exec Command="dotnet build &quot;$(_FastEndpointsCliProjectPath)&quot; -c $(Configuration)"
               WorkingDirectory="$(MSBuildThisFileDirectory).."
               StandardOutputImportance="low"
@@ -50,7 +50,7 @@
     <Target Name="_DoInstallFastEndpointsGeneratorTool">
 
         <!-- Try to install the tool (succeeds if not present, fails if already installed) -->
-        <Exec Command="dotnet tool install --global FastEndpoints.Generator.Cli --version $(GeneratorCliVersion)"
+        <Exec Command="dotnet tool install --local FastEndpoints.Generator.Cli --version $(GeneratorCliVersion)"
               IgnoreExitCode="true"
               StandardOutputImportance="low"
               StandardErrorImportance="low">
@@ -58,7 +58,7 @@
         </Exec>
 
         <!-- If install failed (tool already exists), update it -->
-        <Exec Command="dotnet tool update --global FastEndpoints.Generator.Cli --version $(GeneratorCliVersion)"
+        <Exec Command="dotnet tool update --local FastEndpoints.Generator.Cli --version $(GeneratorCliVersion)"
               IgnoreExitCode="true"
               StandardOutputImportance="low"
               StandardErrorImportance="low"
@@ -82,7 +82,7 @@
         <!-- Use local CLI in dev mode if available, otherwise use global tool -->
         <PropertyGroup>
             <_CliCommand Condition="Exists('$(_FastEndpointsCliDevPath)')">dotnet &quot;$(_FastEndpointsCliDevPath)&quot;</_CliCommand>
-            <_CliCommand Condition="!Exists('$(_FastEndpointsCliDevPath)')">fastendpoints-generator</_CliCommand>
+            <_CliCommand Condition="!Exists('$(_FastEndpointsCliDevPath)')">dotnet tool run fastendpoints-generator</_CliCommand>
         </PropertyGroup>
 
         <Exec Command="$(_CliCommand) &quot;$(MSBuildProjectFullPath)&quot; --output &quot;$(SerializerContextOutputPath)&quot;"

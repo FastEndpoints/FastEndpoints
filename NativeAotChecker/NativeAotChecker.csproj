@@ -9,7 +9,6 @@
         <PublishAot>true</PublishAot>
         <IsPackable>false</IsPackable>
 
-        <GeneratorCliPath>$(MSBuildThisFileDirectory)../Src/Generator/bin/Debug/net8.0/FastEndpoints.Generator.Cli.dll</GeneratorCliPath><!-- only needed for project references -->
         <GenerateSerializerContexts>true</GenerateSerializerContexts>
         <SerializerContextOutputPath>Generated/SerializerCtx</SerializerContextOutputPath>
     </PropertyGroup>
@@ -36,11 +35,7 @@
         <!-- <PackageReference Include="FastEndpoints.Security" VersionOverride="7.3.0-beta.13"/> -->
         <!-- <PackageReference Include="FastEndpoints.Swagger" VersionOverride="7.3.0-beta.13"/> -->
 
-        <ProjectReference Include="..\Src\Generator\FastEndpoints.Generator.csproj"
-                          OutputItemType="Analyzer"
-                          ReferenceOutputAssembly="false"
-                          PrivateAssets="all"
-                          SetTargetFramework="TargetFramework=netstandard2.0"/>
+        <ProjectReference Include="..\Src\Generator\FastEndpoints.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
         <ProjectReference Include="..\Src\Library\FastEndpoints.csproj"/>
         <ProjectReference Include="..\Src\Security\FastEndpoints.Security.csproj"/>
         <ProjectReference Include="..\Src\Swagger\FastEndpoints.Swagger.csproj"/>

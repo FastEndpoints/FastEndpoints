@@ -191,18 +191,18 @@ app.UseRequestLocalization(
            c.Endpoints.ShortNames = false;
            c.Endpoints.PrefixNameWithFirstTag = true;
            c.Endpoints.Filter = ep => ep.EndpointTags?.Contains("exclude") is not true;
-            c.Endpoints.Configurator =
-                ep =>
-                {
-                    ep.PreProcessors(Order.Before, typeof(GlobalGenericPreProcessor<>));
-                    ep.PostProcessors(Order.After, typeof(GlobalGenericPostProcessor<,>));
-                    ep.PreProcessor<GlobalStatePreProcessor>(Order.Before);
-                    ep.PreProcessors(Order.Before, new AdminHeaderChecker());
-                    if (ep.EndpointTags?.Contains("Orders") is true)
-                        ep.Description(b => b.Produces<ErrorResponse>(400, "application/problem+json"));
-                    if (ep.EndpointMetadata?.OfType<TestCases.MetadataRegistrationTest.SomeObject>().Any(s => s.Yes) is true)
-                        ep.AllowAnonymous();
-                };
+           c.Endpoints.Configurator =
+               ep =>
+               {
+                   ep.PreProcessors(Order.Before, typeof(GlobalGenericPreProcessor<>));
+                   ep.PostProcessors(Order.After, typeof(GlobalGenericPostProcessor<,>));
+                   ep.PreProcessor<GlobalStatePreProcessor>(Order.Before);
+                   ep.PreProcessors(Order.Before, new AdminHeaderChecker());
+                   if (ep.EndpointTags?.Contains("Orders") is true)
+                       ep.Description(b => b.Produces<ErrorResponse>(400, "application/problem+json"));
+                   if (ep.EndpointMetadata?.OfType<TestCases.MetadataRegistrationTest.SomeObject>().Any(s => s.Yes) is true)
+                       ep.AllowAnonymous();
+               };
 
            c.Versioning.Prefix = "ver";
 

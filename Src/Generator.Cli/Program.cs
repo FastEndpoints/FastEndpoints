@@ -77,7 +77,16 @@ partial class Program
     {
         if (args.Length == 0)
         {
-            Console.WriteLine("Usage: FastEndpoints.Generator.Cli <project-file-path> [--force] [--output <path>]");
+            Console.WriteLine("Usage: fastendpoints-generator <project-file-path> [--force] [--output <path>]");
+            Console.WriteLine("");
+            Console.WriteLine("Options:");
+            Console.WriteLine("  --force         Force regeneration even if files are up to date");
+            Console.WriteLine("  --output <path> Custom output path for generated files");
+            Console.WriteLine("");
+            Console.WriteLine("Examples:");
+            Console.WriteLine("  fastendpoints-generator MyProject.csproj");
+            Console.WriteLine("  fastendpoints-generator MyProject.csproj --output Generated");
+            Console.WriteLine("  fastendpoints-generator MyProject.csproj --force");
 
             return 1;
         }

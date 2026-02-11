@@ -2,6 +2,7 @@
   <Folder Name="/REFs/">
     <Project Path="Src/Attributes/FastEndpoints.Attributes.csproj" />
     <Project Path="Src/Core/FastEndpoints.Core.csproj" />
+    <Project Path="Src/Generator.Cli/FastEndpoints.Generator.Cli.csproj" />
     <Project Path="Src/Generator/FastEndpoints.Generator.csproj" />
     <Project Path="Src/JobQueues/FastEndpoints.JobQueues.csproj" />
     <Project Path="Src/Library/FastEndpoints.csproj" />
@@ -13,6 +14,7 @@
   <Folder Name="/Solution Items/" />
   <Folder Name="/Solution Items/Main/">
     <File Path="Directory.Packages.props" />
+    <File Path="Src\Directory.Build.props" />
   </Folder>
   <Folder Name="/Solution Items/Tests/">
     <File Path="Tests/Directory.Build.props" />

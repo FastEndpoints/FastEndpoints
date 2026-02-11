@@ -2,28 +2,93 @@
 
     <PropertyGroup>
         <GenerateSerializerContexts Condition="'$(GenerateSerializerContexts)' == ''">false</GenerateSerializerContexts>
-        <GeneratorCliPath Condition="'$(GeneratorCliPath)' == ''">$(MSBuildThisFileDirectory)../tools/net8.0/FastEndpoints.Generator.Cli.dll</GeneratorCliPath>
         <SerializerContextOutputPath Condition="'$(SerializerContextOutputPath)' == ''">Generated/FastEndpoints</SerializerContextOutputPath>
+        <GeneratorCliVersion Condition="'$(GeneratorCliVersion)' == ''">$(Version)</GeneratorCliVersion>
+        <GeneratorCliVersion Condition="'$(GeneratorCliVersion)' == ''">*</GeneratorCliVersion>
+        <_FastEndpointsToolSentinel>$(IntermediateOutputPath)fastendpoints-tool.version</_FastEndpointsToolSentinel>
+        
+        <!-- Path to locally built CLI for development mode -->
+        <_FastEndpointsCliDevPath>$(MSBuildThisFileDirectory)../Generator.Cli/bin/$(Configuration)/net8.0/FastEndpoints.Generator.Cli.dll</_FastEndpointsCliDevPath>
+        <_FastEndpointsCliProjectPath>$(MSBuildThisFileDirectory)../Generator.Cli/FastEndpoints.Generator.Cli.csproj</_FastEndpointsCliProjectPath>
     </PropertyGroup>
 
+    <!-- Target to build the CLI tool in development mode -->
+    <Target Name="BuildFastEndpointsGeneratorCli"
+            BeforeTargets="CoreCompile"
+            Condition="'$(GenerateSerializerContexts)' == 'true' AND '$(DesignTimeBuild)' != 'true' AND Exists('$(_FastEndpointsCliProjectPath)') AND !Exists('$(_FastEndpointsCliDevPath)')">
+
+        <Message Text="FastEndpoints: Building Generator.Cli tool..." Importance="high"/>
+        
+        <Exec Command="dotnet build &quot;$(_FastEndpointsCliProjectPath)&quot; -c $(Configuration)"
+              WorkingDirectory="$(MSBuildThisFileDirectory).."
+              StandardOutputImportance="low"
+              StandardErrorImportance="high"/>
+
+    </Target>
+
+    <!-- Target to install/update the FastEndpoints.Generator.Cli tool -->
+    <!-- Only runs when NOT in development mode (i.e., CLI project doesn't exist) -->
+    <Target Name="InstallFastEndpointsGeneratorTool"
+            BeforeTargets="CoreCompile"
+            Condition="'$(GenerateSerializerContexts)' == 'true' AND '$(DesignTimeBuild)' != 'true' AND !Exists('$(_FastEndpointsCliProjectPath)')">
+
+        <!-- Read the currently installed version from sentinel file -->
+        <ReadLinesFromFile File="$(_FastEndpointsToolSentinel)" Condition="Exists('$(_FastEndpointsToolSentinel)')">
+            <Output TaskParameter="Lines" PropertyName="_InstalledToolVersion"/>
+        </ReadLinesFromFile>
+
+        <!-- Skip if version matches -->
+        <PropertyGroup>
+            <_ToolVersionMismatch Condition="'$(_InstalledToolVersion)' != '$(GeneratorCliVersion)'">true</_ToolVersionMismatch>
+        </PropertyGroup>
+
+        <!-- Install/update only if sentinel doesn't exist or version changed -->
+        <CallTarget Targets="_DoInstallFastEndpointsGeneratorTool" Condition="!Exists('$(_FastEndpointsToolSentinel)') OR '$(_ToolVersionMismatch)' == 'true'"/>
+
+    </Target>
+
+    <Target Name="_DoInstallFastEndpointsGeneratorTool">
+
+        <!-- Try to install the tool (succeeds if not present, fails if already installed) -->
+        <Exec Command="dotnet tool install --global FastEndpoints.Generator.Cli --version $(GeneratorCliVersion)"
+              IgnoreExitCode="true"
+              StandardOutputImportance="low"
+              StandardErrorImportance="low">
+            <Output TaskParameter="ExitCode" PropertyName="_ToolInstallExitCode"/>
+        </Exec>
+
+        <!-- If install failed (tool already exists), update it -->
+        <Exec Command="dotnet tool update --global FastEndpoints.Generator.Cli --version $(GeneratorCliVersion)"
+              IgnoreExitCode="true"
+              StandardOutputImportance="low"
+              StandardErrorImportance="low"
+              Condition="'$(_ToolInstallExitCode)' != '0'"/>
+
+        <!-- Write the version to the sentinel file -->
+        <WriteLinesToFile File="$(_FastEndpointsToolSentinel)" Lines="$(GeneratorCliVersion)" Overwrite="true"/>
+
+    </Target>
+
+    <!-- Target to generate serializer contexts using the CLI tool -->
     <Target Name="GenerateFastEndpointsSerializerContexts"
             BeforeTargets="CoreCompile"
+            DependsOnTargets="BuildFastEndpointsGeneratorCli;InstallFastEndpointsGeneratorTool"
             Condition="'$(GenerateSerializerContexts)' == 'true' AND '$(DesignTimeBuild)' != 'true'">
 
-        <Warning Text="FastEndpoints Generator CLI not found at: $(GeneratorCliPath). Serializer context generation will be skipped."
-                 Condition="!Exists('$(GeneratorCliPath)')"/>
+        <Message Text="FastEndpoints: Generating serializer contexts..." Importance="high"/>
 
-        <Message Text="FastEndpoints: Generating serializer contexts..." Importance="high"
-                 Condition="Exists('$(GeneratorCliPath)')"/>
+        <MakeDir Directories="$(SerializerContextOutputPath)"/>
 
-        <MakeDir Directories="$(SerializerContextOutputPath)"
-                 Condition="Exists('$(GeneratorCliPath)')"/>
+        <!-- Use local CLI in dev mode if available, otherwise use global tool -->
+        <PropertyGroup>
+            <_CliCommand Condition="Exists('$(_FastEndpointsCliDevPath)')">dotnet &quot;$(_FastEndpointsCliDevPath)&quot;</_CliCommand>
+            <_CliCommand Condition="!Exists('$(_FastEndpointsCliDevPath)')">fastendpoints-generator</_CliCommand>
+        </PropertyGroup>
 
-        <Exec Command="dotnet &quot;$(GeneratorCliPath)&quot; &quot;$(MSBuildProjectFullPath)&quot; --output &quot;$(SerializerContextOutputPath)&quot;"
+        <Exec Command="$(_CliCommand) &quot;$(MSBuildProjectFullPath)&quot; --output &quot;$(SerializerContextOutputPath)&quot;"
               WorkingDirectory="$(ProjectDir)"
               StandardOutputImportance="normal"
-              StandardErrorImportance="high"
-              Condition="Exists('$(GeneratorCliPath)')"/>
+              StandardErrorImportance="high"/>
 
     </Target>
 

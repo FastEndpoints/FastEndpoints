@@ -2,11 +2,11 @@
   "profiles": {
     "GeneratorWeb": {
       "commandName": "DebugRoslynComponent",
-      "targetProject": "..\\..\\Web\\Web.csproj"
+      "targetProject": "../../Web/Web.csproj"
     },
     "GeneratorSandbox": {
       "commandName": "DebugRoslynComponent",
-      "targetProject": "..\\..\\Sandbox\\Source\\Sandbox.csproj"
+      "targetProject": "../../Sandbox/Source/Sandbox.csproj"
     }
   }
 }

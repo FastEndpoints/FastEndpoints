@@ -12,6 +12,6 @@
     <Project Path="../Src/Testing/FastEndpoints.Testing.csproj" />
   </Folder>
   <Project Path="Contracts/Contracts.csproj" />
-  <Project Path="Source/Sandbox.csproj" />
+  <Project Path="Source\Sandbox.csproj" />
   <Project Path="Tests/Tests.csproj" />
 </Solution>

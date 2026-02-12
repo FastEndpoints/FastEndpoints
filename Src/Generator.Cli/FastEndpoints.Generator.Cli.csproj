@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <PackAsTool>true</PackAsTool>
+        <ToolCommandName>fastendpoints-generator</ToolCommandName>
+        <PackageId>FastEndpoints.Generator.Cli</PackageId>
+        <Description>CLI tool for generating JSON serializer contexts for FastEndpoints.</Description>
+        <PackageTags>fastendpoints;json;serializer;source-generator</PackageTags>
+        <PackageIcon>icon.png</PackageIcon>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageProjectUrl>https://fast-endpoints.com/</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/FastEndpoints/FastEndpoints.git</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <GenerateDocumentationFile>false</GenerateDocumentationFile>
+        <NoWarn>1701;1702;CS1591;RS1035</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\icon.png" Pack="true" PackagePath="\" Link="Content\Icon" Visible="false"/>
+    </ItemGroup>
+
+</Project>

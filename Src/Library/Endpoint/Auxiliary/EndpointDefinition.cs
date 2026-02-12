@@ -54,6 +54,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     public List<string>? EndpointTags { get; private set; }
     public string? FormDataContentType { get; private set; }
     public IdempotencyOptions? IdempotencyOptions { get; private set; }
+    public object[]? EndpointMetadata { get; private set; }
     public string? OverriddenRoutePrefix { get; private set; }
     public List<string>? PreBuiltUserPolicies { get; private set; }
     public Action<AuthorizationPolicyBuilder>? PolicyBuilder { get; private set; }
@@ -323,10 +324,8 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
         ThrowIfLocked();
 
         if (Routes.Length == 0)
-        {
-            throw new InvalidOperationException(
-                $"Endpoint group can only be specified after the route has been configured in the [{EndpointType.FullName}] endpoint class!");
-        }
+            throw new InvalidOperationException($"Endpoint group can only be specified after the route has been configured in the [{EndpointType.FullName}] endpoint class!");
+
         new TEndpointGroup().Action(this);
     }
 
@@ -339,6 +338,16 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
         ThrowIfLocked();
         IdempotencyOptions ??= new();
         options?.Invoke(IdempotencyOptions);
+    }
+
+    /// <summary>
+    /// register metadata objects for the endpoint. these will be auto added to the endpoint metadata collection during startup.
+    /// </summary>
+    /// <param name="metadata">the metadata to add to the endpoint</param>
+    public void Metadata(params object[] metadata)
+    {
+        ThrowIfLocked();
+        EndpointMetadata = metadata;
     }
 
     /// <summary>

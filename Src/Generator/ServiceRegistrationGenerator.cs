@@ -35,7 +35,7 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
         Match Transform(GeneratorSyntaxContext ctx, CancellationToken _)
         {
             //should be re-assigned on every call. do not cache!
-            _assemblyName = ctx.SemanticModel.Compilation.AssemblyName;
+            _assemblyName = ctx.SemanticModel.Compilation.AssemblyName?.Sanitize() ?? "Assembly";
 
             return new(ctx.SemanticModel.GetDeclaredSymbol(ctx.Node), (ClassDeclarationSyntax)ctx.Node);
         }
@@ -57,7 +57,7 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
 
               public static class ServiceRegistrationExtensions
               {
-                  public static IServiceCollection RegisterServicesFrom{{_assemblyName?.Sanitize(string.Empty) ?? "Assembly"}}(this IServiceCollection sc)
+                  public static IServiceCollection RegisterServicesFrom{{_assemblyName}}(this IServiceCollection sc)
                   {
 
               """);

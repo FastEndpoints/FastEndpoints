@@ -3431,6 +3431,27 @@
         ]
       }
     },
+    "/api/test-cases/endpoint-metadata-reg-test": {
+      "get": {
+        "tags": [
+          "TestCases"
+        ],
+        "operationId": "TestCasesMetadataRegistrationTestEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/test-cases/missing-claim-test/dont-throw": {
       "post": {
         "tags": [

@@ -37,7 +37,7 @@ public class GenericProcessorTypesGenerator : IIncrementalGenerator
     TypeData Transform(GeneratorSyntaxContext ctx, CancellationToken _)
     {
         //should be re-assigned on every call. do not cache!
-        _assemblyName = ctx.SemanticModel.Compilation.AssemblyName;
+        _assemblyName = ctx.SemanticModel.Compilation.AssemblyName?.Sanitize() ?? "Assembly";
 
         if (ctx.SemanticModel.GetDeclaredSymbol(ctx.Node) is not INamedTypeSymbol type ||
             type.IsAbstract ||

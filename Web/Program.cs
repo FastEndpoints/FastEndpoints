@@ -200,6 +200,8 @@ app.UseRequestLocalization(
                    ep.PreProcessors(Order.Before, new AdminHeaderChecker());
                    if (ep.EndpointTags?.Contains("Orders") is true)
                        ep.Description(b => b.Produces<ErrorResponse>(400, "application/problem+json"));
+                   if (ep.EndpointMetadata?.OfType<TestCases.MetadataRegistrationTest.SomeObject>().Any(s => s.Yes) is true)
+                       ep.AllowAnonymous();
                };
 
            c.Versioning.Prefix = "ver";

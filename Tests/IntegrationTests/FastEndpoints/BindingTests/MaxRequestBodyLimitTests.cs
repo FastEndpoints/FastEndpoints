@@ -12,7 +12,7 @@ public class MaxRequestBodyLimitTests : IAsyncLifetime
     public MaxRequestBodyLimitTests()
     {
         var bld = WebApplication.CreateBuilder();
-        bld.WebHost.ConfigureKestrel(o => o.ListenLocalhost(100));
+        bld.WebHost.ConfigureKestrel(o => o.ListenLocalhost(1024));
         bld.Services.AddFastEndpoints(o => o.Filter = t => t == typeof(Endpoint));
         var app = bld.Build();
         app.UseFastEndpoints(

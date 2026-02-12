@@ -38,6 +38,7 @@
   <Project Path="Src/ClientGen.Kiota/FastEndpoints.ClientGen.Kiota.csproj" />
   <Project Path="Src/ClientGen/FastEndpoints.ClientGen.csproj" />
   <Project Path="Src/Core/FastEndpoints.Core.csproj" />
+  <Project Path="Src/Generator.Cli/FastEndpoints.Generator.Cli.csproj" />
   <Project Path="Src/Generator/FastEndpoints.Generator.csproj" />
   <Project Path="Src/HealthChecks/FastEndpoints.HealthChecks.csproj" />
   <Project Path="Src/JobQueues/FastEndpoints.JobQueues.csproj" />

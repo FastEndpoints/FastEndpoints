@@ -106,13 +106,31 @@ public static class CommandExtensions
     extension(IServiceProvider sp)
     {
         /// <summary>
-        /// register a generic command handler for a generic command
+        /// register a generic command handler for a generic command that returns no result.
         /// </summary>
         /// <typeparam name="TCommand">the type of the command</typeparam>
         /// <typeparam name="THandler">the type of the command handler</typeparam>
         /// <returns>the service provider for chaining</returns>
-        [SuppressMessage("Usage", "CA2263:Prefer generic overload when type is known")]
-        public IServiceProvider RegisterGenericCommand<TCommand, THandler>() where TCommand : ICommand where THandler : ICommandHandler
+        public IServiceProvider RegisterGenericCommand<
+            [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
+            TCommand,
+            [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
+            THandler>() where TCommand : ICommand where THandler : ICommandHandler
+            => sp.RegisterGenericCommand(typeof(TCommand), typeof(THandler));
+
+        /// <summary>
+        /// register a generic command handler for a generic command that returns a result.
+        /// </summary>
+        /// <typeparam name="TCommand">the generic command type</typeparam>
+        /// <typeparam name="TResult">the result type</typeparam>
+        /// <typeparam name="THandler">the generic command handler type</typeparam>
+        public IServiceProvider RegisterGenericCommand<
+            [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
+            TCommand,
+            [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
+            TResult,
+            [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
+            THandler>() where TCommand : ICommand<TResult> where THandler : ICommandHandler<TCommand, TResult>
             => sp.RegisterGenericCommand(typeof(TCommand), typeof(THandler));
 
         /// <summary>

@@ -38,7 +38,9 @@ app.UseAuthentication()
 
 await app.ExportSwaggerDocsAndExitAsync("v1");
 
-app.UseJobQueues(o => o.StorageProbeDelay = TimeSpan.FromMilliseconds(50));
 app.UseOpenApi(c => c.Path = "/openapi/{documentName}.json");
 app.MapScalarApiReference(o => o.AddDocument("v1"));
+
+app.UseJobQueues(o => o.StorageProbeDelay = TimeSpan.FromMilliseconds(50));
+app.Services.RegisterGenericCommand<AotGenericCommand<ProductData>, AotGenericResult<ProductData>, AotGenericCommandHandler<ProductData>>();
 app.Run();

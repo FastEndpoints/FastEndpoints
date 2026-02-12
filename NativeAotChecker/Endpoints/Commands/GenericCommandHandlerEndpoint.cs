@@ -1,8 +1,5 @@
-using System.Text.Json.Serialization;
+namespace NativeAotChecker.Endpoints.Commands;
 
-namespace NativeAotChecker.Endpoints.KnownAotIssues;
-
-// Test: Generic command handler with result in AOT mode
 public sealed class AotGenericCommand<TData> : ICommand<AotGenericResult<TData>> where TData : class, new()
 {
     public string OperationType { get; set; } = string.Empty;
@@ -20,18 +17,16 @@ public sealed class AotGenericResult<TData>
 public sealed class AotGenericCommandHandler<TData> : ICommandHandler<AotGenericCommand<TData>, AotGenericResult<TData>> where TData : class, new()
 {
     public Task<AotGenericResult<TData>> ExecuteAsync(AotGenericCommand<TData> cmd, CancellationToken ct)
-    {
-        return Task.FromResult(new AotGenericResult<TData>
-        {
-            Success = true,
-            OperationType = cmd.OperationType,
-            Data = cmd.Data,
-            HandlerType = $"AotGenericCommandHandler<{typeof(TData).Name}>"
-        });
-    }
+        => Task.FromResult(
+            new AotGenericResult<TData>
+            {
+                Success = true,
+                OperationType = cmd.OperationType,
+                Data = cmd.Data,
+                HandlerType = $"AotGenericCommandHandler<{typeof(TData).Name}>"
+            });
 }
 
-// Concrete types for testing
 public sealed class ProductData
 {
     public string Name { get; set; } = string.Empty;
@@ -44,7 +39,6 @@ public sealed class OrderData
     public string CustomerName { get; set; } = string.Empty;
 }
 
-// Test endpoint for generic command with ProductData
 public sealed class GenericCommandRequest
 {
     public string OperationType { get; set; } = string.Empty;
@@ -67,7 +61,6 @@ public sealed class GenericCommandEndpoint : Endpoint<GenericCommandRequest, Gen
     {
         Post("generic-command");
         AllowAnonymous();
-        SerializerContext<GenericCommandSerCtx>();
     }
 
     public override async Task HandleAsync(GenericCommandRequest req, CancellationToken ct)
@@ -75,7 +68,7 @@ public sealed class GenericCommandEndpoint : Endpoint<GenericCommandRequest, Gen
         var cmd = new AotGenericCommand<ProductData>
         {
             OperationType = req.OperationType,
-            Data = new ProductData
+            Data = new()
             {
                 Name = req.ProductName,
                 Price = req.ProductPrice
@@ -84,17 +77,15 @@ public sealed class GenericCommandEndpoint : Endpoint<GenericCommandRequest, Gen
 
         var result = await cmd.ExecuteAsync(ct);
 
-        await Send.OkAsync(new GenericCommandResponse
-        {
-            Success = result.Success,
-            OperationType = result.OperationType,
-            ProductName = result.Data?.Name ?? "",
-            ProductPrice = result.Data?.Price ?? 0,
-            HandlerType = result.HandlerType
-        }, ct);
+        await Send.OkAsync(
+            new()
+            {
+                Success = result.Success,
+                OperationType = result.OperationType,
+                ProductName = result.Data?.Name ?? "",
+                ProductPrice = result.Data?.Price ?? 0,
+                HandlerType = result.HandlerType
+            },
+            ct);
     }
 }
-
-[JsonSerializable(typeof(GenericCommandRequest))]
-[JsonSerializable(typeof(GenericCommandResponse))]
-public partial class GenericCommandSerCtx : JsonSerializerContext;

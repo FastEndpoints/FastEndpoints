@@ -1,4 +1,4 @@
-﻿using System.Runtime.ExceptionServices;
+using System.Runtime.ExceptionServices;
 using System.Text.Json.Serialization;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
@@ -10,8 +10,9 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
 {
     static async ValueTask<TRequest> BindRequestAsync(EndpointDefinition def, HttpContext ctx, List<ValidationFailure> failures, CancellationToken ct)
     {
-        var binder = (IRequestBinder<TRequest>)
-            (def.EpRequestBinder ??= ServiceResolver.Instance.Resolve<IRequestBinder<TRequest>>());
+        var binder = (IRequestBinder<TRequest>)(def.EpRequestBinder ??= _tRequest.IsValueType
+                                                                            ? new RequestBinder<TRequest>() // native aot cannot instantiate value type generic binders
+                                                                            : ServiceResolver.Instance.Resolve<IRequestBinder<TRequest>>());
 
         if (def.MaxRequestSize > 0)
         {

@@ -205,4 +205,25 @@ public class BindingTests(App app)
         res.Category.ShouldBe("electronics");
         res.AllBindingsWorked.ShouldBeTrue();
     }
+
+    [Fact]
+    public async Task Struct_Type_Dto_Binding()
+    {
+        var req = new StructRequest
+        {
+            Id = 123,
+            Name = "Test Struct",
+            Value = 99.99
+        };
+
+        var (rsp, res, err) = await app.Client.POSTAsync<StructTypesEndpoint, StructRequest, StructResponse>(req);
+
+        if (!rsp.IsSuccessStatusCode)
+            Assert.Fail(err);
+
+        res.Id.ShouldBe(123);
+        res.Name.ShouldBe("Test Struct");
+        res.Value.ShouldBe(99.99);
+        res.IsValid.ShouldBeTrue();
+    }
 }

@@ -10,9 +10,24 @@ Due to low financial backing by the community, FastEndpoints will soon be going 
 
 ## New 🎉
 
+<details><summary>Support for Native AOT compilation</summary>
+
+FastEndpoints is now Native AOT compatible. Please see the [documentation here](https://fast-endpoints.com/docs/native-aot) on how to configure it.
+
+If you'd like to jump in head first, a fresh AOT primed starter project can be scaffolded like so:
+
+```sh
+dotnet new install FastEndpoints.TemplatePack
+dotnet new feaot -n MyProject
+```
+
+If you've not worked with AOT compilation in .NET before, it's highly recommended to read the docs linked above.
+
+</details>
+
 <details><summary>Auto generate STJ JsonSerializationContexts</summary>
 
-You no longer need to ever see a `JsonSerializerContext` thanks to the new serializer context generator in FastEndpoints. (Unless you want to that is 😜). See the documentation [here](https://fast-endpoints.com/docs/model-binding#auto-generate-stj-serializer-contexts) on how to enable it.
+You no longer need to ever see a `JsonSerializerContext` thanks to the new serializer context generator in FastEndpoints. (Unless you want to that is 😜). See the documentation [here](https://fast-endpoints.com/docs/model-binding#auto-generate-stj-serializer-contexts) on how to enable it for non-AOT projects.
 
 </details>
 

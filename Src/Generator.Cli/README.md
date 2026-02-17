@@ -13,7 +13,7 @@ dotnet tool install --global FastEndpoints.Generator.Cli
 ### Install a Specific Version
 
 ```bash
-dotnet tool install --global FastEndpoints.Generator.Cli --version 8.0.0-beta.5
+dotnet tool install --global FastEndpoints.Generator.Cli --version 8.0.0
 ```
 
 ### Update to Latest Version

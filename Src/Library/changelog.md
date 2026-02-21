@@ -136,7 +136,7 @@ public async Task Get_Request_Responds_With_200_Ok()
 
 <details><summary>Request DTO serialization behavior of testing helpers</summary>
 
-Testing helpers such as `.POSTAsync<>()` will only serialize the request DTO in to the request body if there's at least one property on the DTO will be bound from the JSON body. In instances where nothing should be bound from the JSON body, the request body content will be empty.
+Testing helpers such as `.POSTAsync<>()` will only serialize the request DTO in to the request body if there's at least one property on the DTO that will be bound from the JSON body. In instances where nothing should be bound from the JSON body, the request body content will be empty.
 
 </details>
 

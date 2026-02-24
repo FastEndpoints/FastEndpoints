@@ -160,6 +160,19 @@ If a user for whatever reason registerd command handlers as scoped services in D
 
 ## Minor Breaking Changes ⚠️
 
+<details><summary>New 'IJobStorageProvider.DistributedJobProcessingEnabled' property</summary>
+
+Due to adding support for distributed job processing, all storage provider implementations must now implement the following boolean property. Simply set it to `false` when not using distributed jobs processing like so:
+
+```cs
+sealed class JobStorageProvider : IJobStorageProvider<JobRecord>
+{
+    public bool DistributedJobProcessingEnabled => false;
+}
+```
+
+</details>
+
 <details><summary>'IJobStorageProvider.GetNextBatchAsync()' return type change</summary>
 
 As a result of optimizations done to the storage processing logic in job queues, your job storage provider implementation requires minor change from:

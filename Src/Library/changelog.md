@@ -107,6 +107,12 @@ The source generators were generating incorrect namespaces if the project name h
 
 </details>
 
+<details><summary>Test collection ordering regression</summary>
+
+Due to an internal behavior change in XUnit v3, test collection ordering was being overriden by XUnit. This has been rectified by taking matters in to our own hands and bypassing XUnit's collection runner.
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Job Queues storage processing ⚠️</summary>

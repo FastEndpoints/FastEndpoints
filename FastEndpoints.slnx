@@ -32,6 +32,7 @@
   <Folder Name="/Tests/UnitTests/">
     <Project Path="Tests/UnitTests/FastEndpoints.Swagger/Unit.Swagger.csproj" />
     <Project Path="Tests/UnitTests/FastEndpoints/Unit.FastEndpoints.csproj" />
+    <Project Path="Tests/UnitTests/FastEndpoints.Testing/Unit.FastEndpoints.Testing.csproj" />
   </Folder>
   <Project Path="Src/AspVersioning/FastEndpoints.AspVersioning.csproj" />
   <Project Path="Src/Attributes/FastEndpoints.Attributes.csproj" />

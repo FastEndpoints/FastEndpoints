@@ -1,4 +1,4 @@
-﻿using System.Globalization;
+using System.Globalization;
 using System.Reflection;
 using Xunit.Internal;
 using Xunit.Sdk;
@@ -90,27 +90,35 @@ sealed class TestAssemblyRunner : XunitTestAssemblyRunner
         ArgumentNullException.ThrowIfNull(collection);
         ArgumentNullException.ThrowIfNull(cases);
 
-        return ctx.RunTestCollection(collection, OrderAccordingToClassLevelPriority(cases), _testCaseOrderer);
+        return PriorityAwareCollectionRunner.Instance.Run(
+            collection,
+            OrderAccordingToClassLevelPriority(cases),
+            ctx.ExplicitOption,
+            ctx.MessageBus,
+            _testCaseOrderer,
+            ctx.Aggregator.Clone(),
+            ctx.CancellationTokenSource,
+            ctx.AssemblyFixtureMappings);
+    }
 
-        static IReadOnlyCollection<IXunitTestCase> OrderAccordingToClassLevelPriority(IReadOnlyCollection<IXunitTestCase> cases)
+    internal static IReadOnlyCollection<IXunitTestCase> OrderAccordingToClassLevelPriority(IReadOnlyCollection<IXunitTestCase> cases)
+    {
+        var orderedTests = new List<(int priority, IXunitTestCase testCase)>();
+        var unorderedTests = new List<IXunitTestCase>();
+
+        foreach (var t in cases)
         {
-            var orderedTests = new List<(int priority, IXunitTestCase testCase)>();
-            var unorderedTests = new List<IXunitTestCase>();
+            var priority = t.TestMethod.TestClass.Class.GetCustomAttribute<PriorityAttribute>()?.Priority;
 
-            foreach (var t in cases)
-            {
-                var priority = t.TestMethod.TestClass.Class.GetCustomAttribute<PriorityAttribute>()?.Priority;
-
-                if (priority is not null)
-                    orderedTests.Add((priority.Value, t));
-                else
-                    unorderedTests.Add(t);
-            }
-
-            return orderedTests.OrderBy(t => t.priority)
-                               .Select(t => t.testCase)
-                               .Union(unorderedTests)
-                               .ToArray();
+            if (priority is not null)
+                orderedTests.Add((priority.Value, t));
+            else
+                unorderedTests.Add(t);
         }
+
+        return orderedTests.OrderBy(t => t.priority)
+                           .Select(t => t.testCase)
+                           .Union(unorderedTests)
+                           .ToArray();
     }
 }

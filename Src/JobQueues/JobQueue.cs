@@ -114,6 +114,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
     readonly ParallelOptions _parallelOptions = new() { MaxDegreeOfParallelism = Environment.ProcessorCount };
     readonly CancellationToken _appCancellation;
     readonly TStorageProvider _storage;
+    readonly IDistributedJobStorageProvider<TStorageRecord>? _distributedStorage;
     readonly IJobResultProvider? _resultStorage;
     readonly SemaphoreSlim _sem = new(0);
     readonly ILogger _log;
@@ -128,6 +129,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
     {
         JobQueues[_tCommand] = this;
         _storage = storageProvider;
+        _distributedStorage = storageProvider as IDistributedJobStorageProvider<TStorageRecord>;
         _resultStorage = storageProvider as IJobResultProvider;
         _appCancellation = appLife.ApplicationStopping;
         _parallelOptions.CancellationToken = _appCancellation;
@@ -135,6 +137,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
         _nextCleanupOn = DateTime.UtcNow.AddMinutes(5);
         JobStorage<TStorageRecord, TStorageProvider>.Provider = _storage;
         JobStorage<TStorageRecord, TStorageProvider>.AppCancellation = _appCancellation;
+        JobStorage<TStorageRecord, TStorageProvider>.Logger = _log;
     }
 
     internal override void SetLimits(int concurrencyLimit, TimeSpan executionTimeLimit, TimeSpan semWaitLimit)
@@ -151,12 +154,13 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
             expireOn?.Kind is not null and not DateTimeKind.Utc)
             throw new ArgumentException($"Only UTC dates are accepted for '{nameof(executeAfter)}' & '{nameof(expireOn)}' parameters!");
 
+        var now = DateTime.UtcNow; //capture current time to avoid discrepancies
         var job = new TStorageRecord
         {
             TrackingID = Guid.NewGuid(),
             QueueID = QueueID,
-            ExecuteAfter = executeAfter ?? DateTime.UtcNow,
-            ExpireOn = expireOn ?? DateTime.UtcNow.AddHours(4)
+            ExecuteAfter = executeAfter ?? now,
+            ExpireOn = expireOn ?? now.AddHours(4)
         };
 
         if (job is IHasCommandType jct)
@@ -195,10 +199,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
         var cmdName = typeof(TCommand).FullName;
 
         if (tRes != tResult)
-        {
-            throw new InvalidOperationException(
-                $"The correct result type for the command [{cmdName}] should be: [{tResult.FullName}]! You specified: [{tRes.FullName}]!");
-        }
+            throw new InvalidOperationException($"The correct result type for the command [{cmdName}] should be: [{tResult.FullName}]! You specified: [{tRes.FullName}]!");
 
         return s.GetJobResultAsync<TRes>(trackingId, ct);
     }
@@ -213,10 +214,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
         var cmdName = typeof(TCommand).FullName;
 
         if (tRes != tResult)
-        {
-            throw new InvalidOperationException(
-                $"The correct result type for the command [{cmdName}] should be: [{tResult.FullName}]! You specified: [{tRes.FullName}]!");
-        }
+            throw new InvalidOperationException($"The correct result type for the command [{cmdName}] should be: [{tResult.FullName}]! You specified: [{tRes.FullName}]!");
 
         return s.StoreJobResultAsync(trackingId, result, ct);
     }
@@ -224,7 +222,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
     protected override async Task CancelJobAsync(Guid trackingId, CancellationToken ct)
     {
         // if job is executing, fetch the cts added by ExecuteCommand, else store an already canceled cts
-        var cts = _cancellations.GetOrAdd(trackingId, new CancellationTokenSource(-1));
+        var cts = _cancellations.GetOrAdd(trackingId, static _ => new(-1));
 
         if (cts is null)
             return; // job is already marked canceled in storage
@@ -236,8 +234,9 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
         // ReSharper disable once PossiblyMistakenUseOfCancellationToken
         await _storage.CancelJobAsync(trackingId, ct);
 
-        // set null as the mark for cleanup task
-        _ = _cancellations.TryUpdate(trackingId, null, cts);
+        // set null as the mark for cleanup task and dispose the cts if it was created by us
+        if (_cancellations.TryUpdate(trackingId, null, cts))
+            cts.Dispose();
     }
 
     async Task CommandExecutorTask()
@@ -252,25 +251,55 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 // the in-memory filtering can use the same time instance.
                 var now = DateTime.UtcNow;
 
-                // if _isInUse is null, we need to also retrieve future scheduled jobs in order to update _isInUse correctly.
-                var includeFutureJobs = _isInUse is null;
-
-                records = await _storage.GetNextBatchAsync(
-                              new()
-                              {
-                                  Limit = _parallelOptions.MaxDegreeOfParallelism,
-                                  QueueID = QueueID,
-                                  CancellationToken = _appCancellation,
-                                  Match = r => r.QueueID == QueueID &&
-                                               !r.IsComplete &&
-                                               (includeFutureJobs || r.ExecuteAfter <= now) &&
-                                               r.ExpireOn >= now
-                              });
-
-                if (includeFutureJobs)
+                if (_distributedStorage is not null) // distributed provider: use HasPendingJobsAsync for the existence probe and AtomicGetNextBatchAsync for claiming
                 {
-                    _isInUse = records.Count > 0;
-                    records = records.Where(r => r.ExecuteAfter <= now).ToArray();
+                    _isInUse ??= await _distributedStorage.HasPendingJobsAsync(
+                                     new()
+                                     {
+                                         QueueID = QueueID,
+                                         CancellationToken = _appCancellation,
+                                         Match = r => r.QueueID == QueueID &&
+                                                      !r.IsComplete &&
+                                                      r.ExpireOn >= now
+                                     });
+
+                    records = await _distributedStorage.AtomicGetNextBatchAsync(
+                                  new()
+                                  {
+                                      Limit = _parallelOptions.MaxDegreeOfParallelism,
+                                      QueueID = QueueID,
+                                      CancellationToken = _appCancellation,
+                                      ExecutionTimeLimit = _executionTimeLimit,
+                                      Match = r => r.QueueID == QueueID &&
+                                                   !r.IsComplete &&
+                                                   r.ExecuteAfter <= now &&
+                                                   r.ExpireOn >= now &&
+                                                   r.DequeueAfter <= now
+                                  });
+                }
+                else // non-distributed provider: use GetNextBatchAsync with future job probing
+                {
+                    // if _isInUse is null, we need to also retrieve future scheduled jobs in order to update _isInUse correctly.
+                    var includeFutureJobs = _isInUse is null;
+
+                    records = await _storage.GetNextBatchAsync(
+                                  new()
+                                  {
+                                      Limit = _parallelOptions.MaxDegreeOfParallelism,
+                                      QueueID = QueueID,
+                                      CancellationToken = _appCancellation,
+                                      ExecutionTimeLimit = _executionTimeLimit,
+                                      Match = r => r.QueueID == QueueID &&
+                                                   !r.IsComplete &&
+                                                   (includeFutureJobs || r.ExecuteAfter <= now) &&
+                                                   r.ExpireOn >= now
+                                  });
+
+                    if (includeFutureJobs)
+                    {
+                        _isInUse = records.Count > 0;
+                        records = records.Where(r => r.ExecuteAfter <= now).ToArray();
+                    }
                 }
             }
             catch (Exception x)
@@ -295,7 +324,8 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 // whichever comes first. we must periodically re-evaluate the storage status to check if there are jobs scheduled for the future while
                 // no new jobs are being queued. not doing this periodic check could result in future jobs only executing upon the arrival of new jobs,
                 // potentially leading to jobs being expired without being executed.
-                await (_isInUse is true
+                await (_isInUse is true ||
+                       _distributedStorage is not null // distributed jobs should always check periodically in case a different worker adds jobs
                            ? _sem.WaitAsync(_semWaitLimit, _appCancellation)
                            : _sem.WaitAsync(_appCancellation));
             }

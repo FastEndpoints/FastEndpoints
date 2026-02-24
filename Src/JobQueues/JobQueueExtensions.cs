@@ -34,7 +34,7 @@ public static class JobQueueExtensions
 
         if (_tStorageProvider.IsAssignableTo(Types.IJobResultProvider) &&
             !_tStorageRecord.IsAssignableTo(Types.IJobResultStorage))
-            throw new InvalidOperationException($"Job storage record: [{typeof(TStorageRecord).FullName}] must implement [{nameof(IJobResultProvider)}]!");
+            throw new InvalidOperationException($"Job storage record: [{typeof(TStorageRecord).FullName}] must implement [{nameof(IJobResultStorage)}]!");
 
         svc.AddMessaging(assemblies);
         svc.AddSingleton<TStorageProvider>();

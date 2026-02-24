@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
 
 namespace FastEndpoints.JobsQueues;
 
@@ -18,4 +18,7 @@ static partial class LoggingExtensions
 
     [LoggerMessage(5, LogLevel.Error, "Job storage 'store-job-result' error for [queue-id:{queueID}]({tCommand}): {msg}. Retrying in 5 seconds...")]
     public static partial void StorageStoreJobResultError(this ILogger l, string queueID, string tCommand, string msg);
+
+    [LoggerMessage(6, LogLevel.Warning, "Job storage 'purge-stale-jobs' error: {msg}")]
+    public static partial void StoragePurgeStaleJobsError(this ILogger l, string msg);
 }

@@ -31,6 +31,12 @@ You no longer need to ever see a `JsonSerializerContext` thanks to the new seria
 
 </details>
 
+<details><summary>Distributed job processing support</summary>
+
+The job queueing functionality now has support for distributed workers that talk to the same underlying database, via an addon interface. See the documentation [here](https://fast-endpoints.com/docs/job-queues#distributed-job-processing).
+
+</details>
+
 <details><summary>Qualify endpoints in global configurator according to endpoint level metadata</summary>
 
 You can now register any object as metadata at the endpoint level like so:

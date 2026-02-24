@@ -1,4 +1,7 @@
-﻿namespace FastEndpoints;
+using Microsoft.Extensions.Logging;
+using FastEndpoints.JobsQueues;
+
+namespace FastEndpoints;
 
 #pragma warning disable CS8618
 
@@ -8,6 +11,7 @@ class JobStorage<TStorageRecord, TStorageProvider>
 {
     internal static TStorageProvider Provider { private get; set; }
     internal static CancellationToken AppCancellation { private get; set; }
+    internal static ILogger Logger { private get; set; }
 
     static JobStorage()
     {
@@ -29,9 +33,9 @@ class JobStorage<TStorageRecord, TStorageProvider>
                         CancellationToken = AppCancellation
                     });
             }
-            catch
+            catch (Exception x)
             {
-                // ignored
+                Logger?.StoragePurgeStaleJobsError(x.Message);
             }
         }
 

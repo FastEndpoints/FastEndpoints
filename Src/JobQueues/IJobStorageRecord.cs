@@ -1,4 +1,4 @@
-﻿// ReSharper disable PropertyCanBeMadeInitOnly.Global
+// ReSharper disable PropertyCanBeMadeInitOnly.Global
 
 namespace FastEndpoints;
 
@@ -45,6 +45,31 @@ public interface IJobStorageRecord
     /// indicates whether the job has successfully completed or not.
     /// </summary>
     bool IsComplete { get; set; }
+
+    /// <summary>
+    /// a utc timestamp indicating when this job record becomes eligible for a worker to pick up for processing.
+    /// <para>
+    /// in distributed scenarios (when using <see cref="IDistributedJobStorageProvider{TStorageRecord}" />), the storage provider uses this value to implement
+    /// lease-based claiming of job records. when a worker picks up a job via
+    /// <see cref="IDistributedJobStorageProvider{TStorageRecord}.AtomicGetNextBatchAsync" />, the storage provider sets this to a future date/time
+    /// (e.g., <c>DateTime.UtcNow + leaseTime</c>) to prevent other workers from picking up the same job. the
+    /// <see cref="PendingJobSearchParams{TStorageRecord}.ExecutionTimeLimit" /> value can be used as a guide for determining a suitable lease duration.
+    /// </para>
+    /// <para>
+    /// if the worker process crashes before completing the job, the lease will naturally expire and the job becomes available for another worker to pick up.
+    /// </para>
+    /// <para>
+    /// the default implementation is a no-op, meaning this property is ignored in non-distributed (single worker instance) scenarios.
+    /// to enable distributed processing, override this property in your storage record class with a real backing field mapped to your database.
+    /// </para>
+    /// </summary>
+    DateTime DequeueAfter
+    {
+        get => default;
+
+        // ReSharper disable once ValueParameterNotUsed
+        set { }
+    }
 
     /// <summary>
     /// implement this function to customize command deserialization.

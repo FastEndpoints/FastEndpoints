@@ -19,6 +19,8 @@ public class JobStorage : IJobStorageProvider<Job>, IJobResultProvider
 
     static readonly Lock _lock = new();
 
+    public bool DistributedJobProcessingEnabled => false;
+
     public Task StoreJobAsync(Job r, CancellationToken ct)
     {
         lock (_lock)

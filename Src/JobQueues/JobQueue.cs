@@ -114,14 +114,13 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
     readonly ParallelOptions _parallelOptions = new() { MaxDegreeOfParallelism = Environment.ProcessorCount };
     readonly CancellationToken _appCancellation;
     readonly TStorageProvider _storage;
-    readonly IDistributedJobStorageProvider<TStorageRecord>? _distributedStorage;
     readonly IJobResultProvider? _resultStorage;
     readonly SemaphoreSlim _sem = new(0);
     readonly ILogger _log;
+    bool _activated; //when false, the executor blocks indefinitely on the semaphore (no DB polling)
     TimeSpan _executionTimeLimit;
     TimeSpan _semWaitLimit;
     DateTimeOffset _nextCleanupOn;
-    bool? _isInUse;
 
     public JobQueue(TStorageProvider storageProvider,
                     IHostApplicationLifetime appLife,
@@ -129,8 +128,8 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
     {
         JobQueues[_tCommand] = this;
         _storage = storageProvider;
-        _distributedStorage = storageProvider as IDistributedJobStorageProvider<TStorageRecord>;
         _resultStorage = storageProvider as IJobResultProvider;
+        _activated = storageProvider.DistributedJobProcessingEnabled;
         _appCancellation = appLife.ApplicationStopping;
         _parallelOptions.CancellationToken = _appCancellation;
         _log = logger;
@@ -176,7 +175,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
 
     protected override void TriggerJob()
     {
-        _isInUse = true;
+        _activated = true;
         _sem.Release();
     }
 
@@ -247,60 +246,21 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
 
             try
             {
-                // capture once so providers that translate predicates can parameterize it cleanly and,
-                // the in-memory filtering can use the same time instance.
-                var now = DateTime.UtcNow;
+                var now = DateTime.UtcNow; // capture once so providers that translate predicates can parameterize it cleanly
 
-                if (_distributedStorage is not null) // distributed provider: use HasPendingJobsAsync for the existence probe and AtomicGetNextBatchAsync for claiming
-                {
-                    _isInUse ??= await _distributedStorage.HasPendingJobsAsync(
-                                     new()
-                                     {
-                                         QueueID = QueueID,
-                                         CancellationToken = _appCancellation,
-                                         Match = r => r.QueueID == QueueID &&
-                                                      !r.IsComplete &&
-                                                      r.ExpireOn >= now
-                                     });
-
-                    records = await _distributedStorage.AtomicGetNextBatchAsync(
-                                  new()
-                                  {
-                                      Limit = _parallelOptions.MaxDegreeOfParallelism,
-                                      QueueID = QueueID,
-                                      CancellationToken = _appCancellation,
-                                      ExecutionTimeLimit = _executionTimeLimit,
-                                      Match = r => r.QueueID == QueueID &&
-                                                   !r.IsComplete &&
-                                                   r.ExecuteAfter <= now &&
-                                                   r.ExpireOn >= now &&
-                                                   r.DequeueAfter <= now
-                                  });
-                }
-                else // non-distributed provider: use GetNextBatchAsync with future job probing
-                {
-                    // if _isInUse is null, we need to also retrieve future scheduled jobs in order to update _isInUse correctly.
-                    var includeFutureJobs = _isInUse is null;
-
-                    records = await _storage.GetNextBatchAsync(
-                                  new()
-                                  {
-                                      Limit = _parallelOptions.MaxDegreeOfParallelism,
-                                      QueueID = QueueID,
-                                      CancellationToken = _appCancellation,
-                                      ExecutionTimeLimit = _executionTimeLimit,
-                                      Match = r => r.QueueID == QueueID &&
-                                                   !r.IsComplete &&
-                                                   (includeFutureJobs || r.ExecuteAfter <= now) &&
-                                                   r.ExpireOn >= now
-                                  });
-
-                    if (includeFutureJobs)
-                    {
-                        _isInUse = records.Count > 0;
-                        records = records.Where(r => r.ExecuteAfter <= now).ToArray();
-                    }
-                }
+                records = await _storage.GetNextBatchAsync(
+                              new()
+                              {
+                                  Limit = _parallelOptions.MaxDegreeOfParallelism,
+                                  QueueID = QueueID,
+                                  CancellationToken = _appCancellation,
+                                  ExecutionTimeLimit = _executionTimeLimit,
+                                  Match = r => r.QueueID == QueueID &&
+                                               !r.IsComplete &&
+                                               r.ExecuteAfter <= now &&
+                                               r.ExpireOn >= now &&
+                                               r.DequeueAfter <= now
+                              });
             }
             catch (Exception x)
             {
@@ -311,23 +271,46 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
             }
 
             if (records.Count > 0)
+            {
+                _activated = true;
                 await Parallel.ForEachAsync(records, _parallelOptions, ExecuteCommand);
+            }
+            else if (!_activated)
+            {
+                // non-distributed startup: no ready-now jobs found. do a lightweight existence check for future-scheduled jobs (without the ExecuteAfter filter).
+                // if any exist, activate timed polling so they get picked up when due.
+                try
+                {
+                    var now = DateTime.UtcNow;
+                    var probe = await _storage.GetNextBatchAsync(
+                                    new()
+                                    {
+                                        Limit = 1,
+                                        QueueID = QueueID,
+                                        CancellationToken = _appCancellation,
+                                        ExecutionTimeLimit = _executionTimeLimit,
+                                        Match = r => r.QueueID == QueueID &&
+                                                     !r.IsComplete &&
+                                                     r.ExpireOn >= now &&
+                                                     r.DequeueAfter <= now
+                                    });
+
+                    if (probe.Count > 0)
+                        _activated = true;
+                }
+                catch
+                {
+                    // probe failure is non-critical. the queue will activate on first TriggerJob() call
+                }
+            }
 
             if (records.Count < _parallelOptions.MaxDegreeOfParallelism)
             {
-                // less records than page size, so wait on the semaphore before next iteration
-                //                
-                // if _isInUse is false, that means no job has been queued yet nor is there any incomplete jobs for the future. so, it's not necessary for further
-                // iterations within the loop until the semaphore is released upon queuing the first job.
-                //
-                // if _isInUse is true, it indicates that we must await the queuing of the next job or the passage of delay duration (default: 1 minute),
-                // whichever comes first. we must periodically re-evaluate the storage status to check if there are jobs scheduled for the future while
-                // no new jobs are being queued. not doing this periodic check could result in future jobs only executing upon the arrival of new jobs,
-                // potentially leading to jobs being expired without being executed.
-                await (_isInUse is true ||
-                       _distributedStorage is not null // distributed jobs should always check periodically in case a different worker adds jobs
-                           ? _sem.WaitAsync(_semWaitLimit, _appCancellation)
-                           : _sem.WaitAsync(_appCancellation));
+                // when activated (distributed mode, or jobs have been found/queued), wait with a timeout so we periodically
+                // re-check for future-scheduled jobs becoming due or jobs added by other distributed workers.
+                // when not activated (non-distributed with no jobs found yet), block indefinitely to avoid pointless DB polling.
+                // TriggerJob() sets _activated=true and releases the semaphore when the first job is queued.
+                await _sem.WaitAsync(_activated ? _semWaitLimit : Timeout.InfiniteTimeSpan, _appCancellation);
             }
 
             // else there are more records than the page size, so continue next iteration

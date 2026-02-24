@@ -49,9 +49,8 @@ public interface IJobStorageRecord
     /// <summary>
     /// a utc timestamp indicating when this job record becomes eligible for a worker to pick up for processing.
     /// <para>
-    /// in distributed scenarios (when using <see cref="IDistributedJobStorageProvider{TStorageRecord}" />), the storage provider uses this value to implement
-    /// lease-based claiming of job records. when a worker picks up a job via
-    /// <see cref="IDistributedJobStorageProvider{TStorageRecord}.AtomicGetNextBatchAsync" />, the storage provider sets this to a future date/time
+    /// in distributed scenarios, the storage provider uses this value to implement lease-based claiming of job records. when a worker picks up a job via
+    /// <see cref="IJobStorageProvider{TStorageRecord}.GetNextBatchAsync" />, the storage provider sets this to a future date/time
     /// (e.g., <c>DateTime.UtcNow + leaseTime</c>) to prevent other workers from picking up the same job. the
     /// <see cref="PendingJobSearchParams{TStorageRecord}.ExecutionTimeLimit" /> value can be used as a guide for determining a suitable lease duration.
     /// </para>

@@ -30,11 +30,12 @@ public class JobQueueTests
     }
 
     // distributed aware storage provider that atomically claims jobs (simulates database level atomic operations)
-    class DistributedJobStorage : IJobStorageProvider<DistributedJob>, IDistributedJobStorageProvider<DistributedJob>
+    class DistributedJobStorage : IJobStorageProvider<DistributedJob>
     {
         readonly Lock _lock = new();
         readonly List<DistributedJob> _jobs = [];
 
+        public bool DistributedJobProcessingEnabled => true;
         public List<DistributedJob> Jobs => _jobs;
 
         public Task StoreJobAsync(DistributedJob r, CancellationToken ct)
@@ -45,11 +46,7 @@ public class JobQueueTests
             return Task.CompletedTask;
         }
 
-        // not used in distributed scenarios. the engine calls AtomicGetNextBatchAsync instead.
         public Task<ICollection<DistributedJob>> GetNextBatchAsync(PendingJobSearchParams<DistributedJob> p)
-            => Task.FromResult<ICollection<DistributedJob>>([]);
-
-        public Task<ICollection<DistributedJob>> AtomicGetNextBatchAsync(PendingJobSearchParams<DistributedJob> p)
         {
             var match = p.Match.Compile();
             var now = DateTime.UtcNow;
@@ -72,18 +69,6 @@ public class JobQueueTests
                     job.DequeueAfter = now + leaseTime;
 
                 return Task.FromResult<ICollection<DistributedJob>>(results);
-            }
-        }
-
-        public Task<bool> HasPendingJobsAsync(PendingJobSearchParams<DistributedJob> p)
-        {
-            var match = p.Match.Compile();
-
-            lock (_lock)
-            {
-                var hasPending = _jobs.Any(match);
-
-                return Task.FromResult(hasPending);
             }
         }
 
@@ -214,11 +199,11 @@ public class JobQueueTests
         };
 
         // worker 1 claims all 5 jobs
-        var batch1 = await storage.AtomicGetNextBatchAsync(searchParams);
+        var batch1 = await storage.GetNextBatchAsync(searchParams);
         batch1.Count.ShouldBe(5);
 
         // worker 2 tries to claim. should get 0 because all are leased.
-        var batch2 = await storage.AtomicGetNextBatchAsync(searchParams);
+        var batch2 = await storage.GetNextBatchAsync(searchParams);
         batch2.Count.ShouldBe(0);
     }
 
@@ -254,7 +239,7 @@ public class JobQueueTests
         // simulate 5 concurrent workers each requesting a batch of 3
         var tasks = Enumerable.Range(0, 5)
                               .Select(
-                                  _ => storage.AtomicGetNextBatchAsync(
+                                  _ => storage.GetNextBatchAsync(
                                       new()
                                       {
                                           QueueID = "test-queue",
@@ -308,7 +293,7 @@ public class JobQueueTests
         };
 
         // should be able to pick up the job since its lease expired
-        var batch = await storage.AtomicGetNextBatchAsync(searchParams);
+        var batch = await storage.GetNextBatchAsync(searchParams);
         batch.Count.ShouldBe(1);
         batch.First().TrackingID.ShouldBe(job.TrackingID);
     }
@@ -347,7 +332,7 @@ public class JobQueueTests
         };
 
         // should not be able to pick up the job because lease is still active
-        var batch = await storage.AtomicGetNextBatchAsync(searchParams);
+        var batch = await storage.GetNextBatchAsync(searchParams);
         batch.Count.ShouldBe(0);
     }
 
@@ -385,18 +370,18 @@ public class JobQueueTests
         };
 
         // worker picks up the job (lease is set)
-        var batch1 = await storage.AtomicGetNextBatchAsync(searchParams);
+        var batch1 = await storage.GetNextBatchAsync(searchParams);
         batch1.Count.ShouldBe(1);
 
         // job is now leased. another worker can't pick it up
-        var batch2 = await storage.AtomicGetNextBatchAsync(searchParams);
+        var batch2 = await storage.GetNextBatchAsync(searchParams);
         batch2.Count.ShouldBe(0);
 
         // handler fails. provider resets DequeueAfter.
         await storage.OnHandlerExecutionFailureAsync(job, new InvalidOperationException("test failure"), default);
 
         // now the job should be available again
-        var batch3 = await storage.AtomicGetNextBatchAsync(searchParams);
+        var batch3 = await storage.GetNextBatchAsync(searchParams);
         batch3.Count.ShouldBe(1);
         batch3.First().TrackingID.ShouldBe(job.TrackingID);
     }
@@ -435,7 +420,7 @@ public class JobQueueTests
         };
 
         // claim and complete the job
-        var batch = await storage.AtomicGetNextBatchAsync(searchParams);
+        var batch = await storage.GetNextBatchAsync(searchParams);
         batch.Count.ShouldBe(1);
         await storage.MarkJobAsCompleteAsync(batch.First(), CancellationToken.None);
 
@@ -443,7 +428,7 @@ public class JobQueueTests
         job.DequeueAfter = DateTime.MinValue;
 
         // it should still not be returned because IsComplete is true (filtered by Match)
-        var batch2 = await storage.AtomicGetNextBatchAsync(searchParams);
+        var batch2 = await storage.GetNextBatchAsync(searchParams);
         batch2.Count.ShouldBe(0);
     }
 
@@ -486,7 +471,7 @@ public class JobQueueTests
                  r.ExpireOn >= now &&
                  r.DequeueAfter <= now;
 
-        var batchA = await storage.AtomicGetNextBatchAsync(
+        var batchA = await storage.GetNextBatchAsync(
                          new()
                          {
                              QueueID = "queue-A",
@@ -506,7 +491,7 @@ public class JobQueueTests
                  r.ExpireOn >= now &&
                  r.DequeueAfter <= now;
 
-        var batchB = await storage.AtomicGetNextBatchAsync(
+        var batchB = await storage.GetNextBatchAsync(
                          new()
                          {
                              QueueID = "queue-B",
@@ -554,130 +539,9 @@ public class JobQueueTests
         ((IJobStorageRecord)result[0]).DequeueAfter.ShouldBe(default);
     }
 
-    // HasPendingJobsAsync
-    [Fact]
-    public async Task has_pending_jobs_returns_true_for_future_scheduled_jobs()
-    {
-        var storage = new DistributedJobStorage();
-        var now = DateTime.UtcNow;
-
-        // create a future scheduled job
-        await storage.StoreJobAsync(
-            new()
-            {
-                QueueID = "test-queue",
-                TrackingID = Guid.NewGuid(),
-                Command = "future-cmd",
-                ExecuteAfter = now.AddMinutes(30), // 30 minutes in the future
-                ExpireOn = now.AddHours(2),
-                DequeueAfter = DateTime.MinValue
-            },
-            default);
-
-        // HasPendingJobsAsync should return true (future jobs count as pending)
-        // the match expression deliberately excludes ExecuteAfter to catch future scheduled jobs
-        var hasPending = await storage.HasPendingJobsAsync(
-                             new()
-                             {
-                                 QueueID = "test-queue",
-                                 CancellationToken = CancellationToken.None,
-                                 Match = r => r.QueueID == "test-queue" &&
-                                              !r.IsComplete &&
-                                              r.ExpireOn >= now
-                             });
-        hasPending.ShouldBeTrue();
-    }
-
-    [Fact]
-    public async Task has_pending_jobs_returns_false_for_empty_queue()
-    {
-        var storage = new DistributedJobStorage();
-        var now = DateTime.UtcNow;
-
-        var hasPending = await storage.HasPendingJobsAsync(
-                             new()
-                             {
-                                 QueueID = "test-queue",
-                                 CancellationToken = CancellationToken.None,
-                                 Match = r => r.QueueID == "test-queue" &&
-                                              !r.IsComplete &&
-                                              r.ExpireOn >= now
-                             });
-        hasPending.ShouldBeFalse();
-    }
-
-    [Fact]
-    public async Task has_pending_jobs_returns_false_when_all_jobs_complete()
-    {
-        var storage = new DistributedJobStorage();
-        var now = DateTime.UtcNow;
-
-        var job = new DistributedJob
-        {
-            QueueID = "test-queue",
-            TrackingID = Guid.NewGuid(),
-            Command = "done-cmd",
-            ExecuteAfter = now.AddMinutes(-1),
-            ExpireOn = now.AddHours(1),
-            IsComplete = true, // already completed
-            DequeueAfter = DateTime.MinValue
-        };
-        await storage.StoreJobAsync(job, default);
-
-        var hasPending = await storage.HasPendingJobsAsync(
-                             new()
-                             {
-                                 QueueID = "test-queue",
-                                 CancellationToken = CancellationToken.None,
-                                 Match = r => r.QueueID == "test-queue" &&
-                                              !r.IsComplete &&
-                                              r.ExpireOn >= now
-                             });
-        hasPending.ShouldBeFalse();
-    }
-
-    // distributed GetNextBatchAsync is a no-op
-    [Fact]
-    public async Task distributed_provider_get_next_batch_returns_empty()
-    {
-        var storage = new DistributedJobStorage();
-        var now = DateTime.UtcNow;
-
-        // add a job
-        await storage.StoreJobAsync(
-            new()
-            {
-                QueueID = "test-queue",
-                TrackingID = Guid.NewGuid(),
-                Command = "cmd",
-                ExecuteAfter = now.AddMinutes(-1),
-                ExpireOn = now.AddHours(1),
-                DequeueAfter = DateTime.MinValue
-            },
-            CancellationToken.None);
-
-        Expression<Func<DistributedJob, bool>> match =
-            r => r.QueueID == "test-queue" &&
-                 !r.IsComplete &&
-                 r.ExecuteAfter <= now &&
-                 r.ExpireOn >= now;
-
-        // GetNextBatchAsync should return empty (it's a no-op for distributed providers)
-        var result = await storage.GetNextBatchAsync(
-                         new()
-                         {
-                             QueueID = "test-queue",
-                             Match = match,
-                             Limit = 10,
-                             ExecutionTimeLimit = TimeSpan.FromMinutes(10)
-                         });
-
-        result.Count.ShouldBe(0);
-    }
-
     // future-scheduled jobs are not prematurely claimed
     [Fact]
-    public async Task future_scheduled_jobs_are_not_claimed_by_atomic_get_next_batch()
+    public async Task future_scheduled_jobs_are_not_claimed_by_get_next_batch()
     {
         var storage = new DistributedJobStorage();
         var now = DateTime.UtcNow;
@@ -710,23 +574,11 @@ public class JobQueueTests
             ExecutionTimeLimit = TimeSpan.FromMinutes(10)
         };
 
-        // AtomicGetNextBatchAsync should return 0 (job is not yet due)
-        var batch = await storage.AtomicGetNextBatchAsync(searchParams);
+        // GetNextBatchAsync should return 0 (job is not yet due)
+        var batch = await storage.GetNextBatchAsync(searchParams);
         batch.Count.ShouldBe(0);
 
         // the job's DequeueAfter should still be at its original value (not prematurely claimed)
         job.DequeueAfter.ShouldBe(DateTime.MinValue);
-
-        // but HasPendingJobsAsync should still see it (so the engine knows to keep polling)
-        var hasPending = await storage.HasPendingJobsAsync(
-                             new()
-                             {
-                                 QueueID = "test-queue",
-                                 CancellationToken = CancellationToken.None,
-                                 Match = r => r.QueueID == "test-queue" &&
-                                              !r.IsComplete &&
-                                              r.ExpireOn >= now
-                             });
-        hasPending.ShouldBeTrue();
     }
 }

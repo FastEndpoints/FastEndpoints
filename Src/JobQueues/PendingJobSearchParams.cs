@@ -15,18 +15,6 @@ public struct PendingJobSearchParams<TStorageRecord> where TStorageRecord : IJob
 
     /// <summary>
     /// a boolean lambda expression to match the next batch of records.
-    /// <para>
-    /// for <see cref="IJobStorageProvider{TStorageRecord}.GetNextBatchAsync" /> (non-distributed):
-    /// <code>
-    /// 	r => r.QueueID == "xxx" &amp;&amp;
-    /// 	     !r.IsComplete &amp;&amp;
-    /// 	     DateTime.UtcNow &gt;= r.ExecuteAfter &amp;&amp;
-    /// 	     DateTime.UtcNow &lt;= r.ExpireOn
-    /// </code>
-    /// </para>
-    /// <para>
-    /// for <see cref="IDistributedJobStorageProvider{TStorageRecord}.AtomicGetNextBatchAsync" /> (distributed),
-    /// the expression additionally includes a <see cref="IJobStorageRecord.DequeueAfter" /> <c>&lt;= now</c> check:
     /// <code>
     /// 	r => r.QueueID == "xxx" &amp;&amp;
     /// 	     !r.IsComplete &amp;&amp;
@@ -34,11 +22,9 @@ public struct PendingJobSearchParams<TStorageRecord> where TStorageRecord : IJob
     /// 	     r.ExpireOn &gt;= now &amp;&amp;
     /// 	     r.DequeueAfter &lt;= now
     /// </code>
-    /// </para>
     /// <para>
-    /// for <see cref="IDistributedJobStorageProvider{TStorageRecord}.HasPendingJobsAsync" />,
-    /// <see cref="IJobStorageRecord.ExecuteAfter" /> and <see cref="IJobStorageRecord.DequeueAfter" /> are deliberately excluded
-    /// so that future-scheduled jobs are included in the existence check.
+    /// note: the <see cref="IJobStorageRecord.DequeueAfter" /> <c>&lt;= now</c> check is always included. for non-distributed (single-instance) providers,
+    /// this condition is always true since <see cref="IJobStorageRecord.DequeueAfter" /> defaults to <see cref="DateTime.MinValue" />.
     /// </para>
     /// </summary>
     public Expression<Func<TStorageRecord, bool>> Match { get; internal set; }

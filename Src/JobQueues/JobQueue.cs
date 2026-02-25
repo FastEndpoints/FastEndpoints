@@ -117,7 +117,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
     readonly IJobResultProvider? _resultStorage;
     readonly SemaphoreSlim _sem = new(0);
     readonly ILogger _log;
-    bool _activated; //when false, the executor blocks indefinitely on the semaphore (no DB polling)
+    bool _activated; // when false, the executor blocks indefinitely on the semaphore (no DB polling)
     TimeSpan _executionTimeLimit;
     TimeSpan _semWaitLimit;
     DateTimeOffset _nextCleanupOn;
@@ -227,15 +227,22 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
             return; // job is already marked canceled in storage
 
         // job execution has started and cts is available
-        if (!cts.IsCancellationRequested)
-            cts.Cancel(false);
+        try
+        {
+            if (!cts.IsCancellationRequested)
+                cts.Cancel(false);
+        }
+        catch (ObjectDisposedException) { }
 
         // ReSharper disable once PossiblyMistakenUseOfCancellationToken
         await _storage.CancelJobAsync(trackingId, ct);
 
         // set null as the mark for cleanup task and dispose the cts if it was created by us
         if (_cancellations.TryUpdate(trackingId, null, cts))
-            cts.Dispose();
+        {
+            try { cts.Dispose(); }
+            catch (ObjectDisposedException) { }
+        }
     }
 
     async Task CommandExecutorTask()
@@ -243,10 +250,16 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
         while (!_appCancellation.IsCancellationRequested)
         {
             ICollection<TStorageRecord> records;
+            int fetchedCount;
 
             try
             {
-                var now = DateTime.UtcNow; // capture once so providers that translate predicates can parameterize it cleanly
+                // only becomes 'true' in non-distributed first iteration making 'ExecuteAfter <= now' in the Match filter ineffective, causing future jobs to get fetched as well.
+                // when in distributed mode, all instances must periodically poll to ensure jobs created by other instances are picked up.
+                var isProbe = !_activated;
+
+                // capture once so providers that translate predicates can parameterize it cleanly
+                var now = DateTime.UtcNow;
 
                 records = await _storage.GetNextBatchAsync(
                               new()
@@ -257,10 +270,20 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                                   ExecutionTimeLimit = _executionTimeLimit,
                                   Match = r => r.QueueID == QueueID &&
                                                !r.IsComplete &&
-                                               r.ExecuteAfter <= now &&
+                                               (isProbe || r.ExecuteAfter <= now) &&
                                                r.ExpireOn >= now &&
                                                r.DequeueAfter <= now
                               });
+
+                fetchedCount = records.Count;
+
+                if (isProbe)
+                {
+                    if (fetchedCount > 0) // jobs (eligible + future) found during probe
+                        _activated = true;
+
+                    records = records.Where(r => r.ExecuteAfter <= now).ToArray(); // filter out future jobs
+                }
             }
             catch (Exception x)
             {
@@ -275,39 +298,11 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 _activated = true;
                 await Parallel.ForEachAsync(records, _parallelOptions, ExecuteCommand);
             }
-            else if (!_activated)
-            {
-                // non-distributed startup: no ready-now jobs found. do a lightweight existence check for future-scheduled jobs (without the ExecuteAfter filter).
-                // if any exist, activate timed polling so they get picked up when due.
-                try
-                {
-                    var now = DateTime.UtcNow;
-                    var probe = await _storage.GetNextBatchAsync(
-                                    new()
-                                    {
-                                        Limit = 1,
-                                        QueueID = QueueID,
-                                        CancellationToken = _appCancellation,
-                                        ExecutionTimeLimit = _executionTimeLimit,
-                                        Match = r => r.QueueID == QueueID &&
-                                                     !r.IsComplete &&
-                                                     r.ExpireOn >= now &&
-                                                     r.DequeueAfter <= now
-                                    });
 
-                    if (probe.Count > 0)
-                        _activated = true;
-                }
-                catch
-                {
-                    // probe failure is non-critical. the queue will activate on first TriggerJob() call
-                }
-            }
-
-            if (records.Count < _parallelOptions.MaxDegreeOfParallelism)
+            if (fetchedCount < _parallelOptions.MaxDegreeOfParallelism)
             {
-                // when activated (distributed mode, or jobs have been found/queued), wait with a timeout so we periodically
-                // re-check for future-scheduled jobs becoming due or jobs added by other distributed workers.
+                // when activated (distributed mode, or jobs have been found), wait with a timeout so we periodically re-check for future jobs
+                // becoming due or jobs added by other distributed workers.
                 // when not activated (non-distributed with no jobs found yet), block indefinitely to avoid pointless DB polling.
                 // TriggerJob() sets _activated=true and releases the semaphore when the first job is queued.
                 await _sem.WaitAsync(_activated ? _semWaitLimit : Timeout.InfiniteTimeSpan, _appCancellation);
@@ -390,7 +385,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                     {
                         _log.StorageOnExecutionFailureError(QueueID, _tCommandName, xx.Message);
 
-                        if (_appCancellation.IsCancellationRequested)
+                        if (_appCancellation.IsCancellationRequested || IsCancelled())
                             break;
 
                         await Task.Delay(5000);
@@ -413,7 +408,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 {
                     _log.StorageMarkAsCompleteError(QueueID, _tCommandName, x.Message);
 
-                    if (_appCancellation.IsCancellationRequested)
+                    if (_appCancellation.IsCancellationRequested || IsCancelled())
                         break;
 
                     await Task.Delay(5000);
@@ -435,11 +430,42 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 {
                     _log.StorageStoreJobResultError(QueueID, _tCommandName, x.Message);
 
-                    if (_appCancellation.IsCancellationRequested)
+                    if (_appCancellation.IsCancellationRequested || IsCancelled())
                         break;
 
                     await Task.Delay(5000);
                 }
+            }
+
+            bool IsCancelled()
+            {
+                try
+                {
+                    if (cts.IsCancellationRequested)
+                        return true;
+                }
+                catch (ObjectDisposedException)
+                {
+                    return true;
+                }
+
+                if (_cancellations.TryGetValue(record.TrackingID, out var c))
+                {
+                    if (c is null)
+                        return true;
+
+                    try
+                    {
+                        if (c.IsCancellationRequested)
+                            return true;
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
             }
         }
     }

@@ -121,7 +121,7 @@ Due to an internal behavior change in XUnit v3, test collection ordering was bei
 
 ## Improvements 🚀
 
-<details><summary>Job Queues storage processing ⚠️</summary>
+<details><summary>Job Queues storage processing</summary>
 
 Several optimizations have been done to the job queues storage logic to reduce the number of queries in certain scenarios. Please see the breaking changes section below as one of the methods of `IJobStorageProvider` needs a minor change.
 

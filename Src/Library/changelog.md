@@ -27,13 +27,13 @@ If you've not worked with AOT compilation in .NET before, it's highly recommende
 
 <details><summary>Auto generate STJ JsonSerializationContexts</summary>
 
-You no longer need to ever see a `JsonSerializerContext` thanks to the new serializer context generator in FastEndpoints. (Unless you want to that is 😜). See the documentation [here](https://fast-endpoints.com/docs/model-binding#auto-generate-stj-serializer-contexts) on how to enable it for non-AOT projects.
+You no longer need to ever see a `JsonSerializerContext` thanks to the new serializer context generator in FastEndpoints. (Unless you want to that is 😉). See the documentation [here](https://fast-endpoints.com/docs/model-binding#auto-generate-stj-serializer-contexts) on how to enable it for non-AOT projects.
 
 </details>
 
 <details><summary>Distributed job processing support</summary>
 
-The job queueing functionality now has support for distributed workers that talk to the same underlying database, via an addon interface. See the documentation [here](https://fast-endpoints.com/docs/job-queues#distributed-job-processing).
+The job queueing functionality now has support for distributed workers that connect to the same underlying database. See the documentation [here](https://fast-endpoints.com/docs/job-queues#distributed-job-processing).
 
 </details>
 
@@ -162,7 +162,7 @@ If a user for whatever reason registerd command handlers as scoped services in D
 
 <details><summary>New 'IJobStorageProvider.DistributedJobProcessingEnabled' property</summary>
 
-Due to adding support for distributed job processing, all storage provider implementations must now implement the following boolean property. Simply set it to `false` when not using distributed jobs processing like so:
+Due to adding support for distributed job processing, all storage provider implementations must now implement the following boolean property. Simply set it to `false` when not using distributed job processing like so:
 
 ```cs
 sealed class JobStorageProvider : IJobStorageProvider<JobRecord>
@@ -173,9 +173,15 @@ sealed class JobStorageProvider : IJobStorageProvider<JobRecord>
 
 </details>
 
+<details><summary>New 'IJobStorageRecord.DequeueAfter' property</summary>
+
+Even though you only need to implement this property when using distributed job processing, it's recommended to either let all the jobs in your database run to completion before upgrading to `v8.0` and/or run a migration to set the value of `DequeueAfter` to `DateTime.MinValue` for all jobs already in the database to ensure that they get picked up properly for processing. (Even when not using distributed processing.)
+
+</details>
+
 <details><summary>'IJobStorageProvider.GetNextBatchAsync()' return type change</summary>
 
-As a result of optimizations done to the storage processing logic in job queues, your job storage provider implementation requires minor change from:
+As a result of optimizations done to the storage processing logic in job queues, your job storage provider implementation requires a minor change from:
 
 ```csharp
 public Task<IEnumerable<...>> GetNextBatchAsync(...)

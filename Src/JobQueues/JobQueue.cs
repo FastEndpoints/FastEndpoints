@@ -137,6 +137,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
         JobStorage<TStorageRecord, TStorageProvider>.Provider = _storage;
         JobStorage<TStorageRecord, TStorageProvider>.AppCancellation = _appCancellation;
         JobStorage<TStorageRecord, TStorageProvider>.Logger = _log;
+        JobStorage<TStorageRecord, TStorageProvider>.StartStaleJobPurging();
     }
 
     internal override void SetLimits(int concurrencyLimit, TimeSpan executionTimeLimit, TimeSpan semWaitLimit)
@@ -234,15 +235,15 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
         }
         catch (ObjectDisposedException) { }
 
-        // ReSharper disable once PossiblyMistakenUseOfCancellationToken
-        await _storage.CancelJobAsync(trackingId, ct);
-
         // set null as the mark for dictionary cleanup and dispose the cts
         if (_cancellations.TryUpdate(trackingId, null, cts))
         {
             try { cts.Dispose(); }
             catch (ObjectDisposedException) { }
         }
+
+        // ReSharper disable once PossiblyMistakenUseOfCancellationToken
+        await _storage.CancelJobAsync(trackingId, ct);
     }
 
     async Task CommandExecutorTask()
@@ -317,6 +318,15 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
             catch (OperationCanceledException) when (_appCancellation.IsCancellationRequested)
             {
                 break; // exit immediately if app is being shutdown
+            }
+            catch (Exception x)
+            {
+                // this would typically never be hit because ExecuteCommand handles exceptions internally.
+                // only here as a safety net to prevent the executor loop from crashing.
+                _log.CommandParallelExecutionWarning(_tCommandName, x.Message);
+                await Task.Delay(5000);
+
+                continue;
             }
 
             // else there are more records than the page size, so continue next iteration

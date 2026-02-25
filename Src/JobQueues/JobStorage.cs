@@ -13,9 +13,12 @@ class JobStorage<TStorageRecord, TStorageProvider>
     internal static CancellationToken AppCancellation { private get; set; }
     internal static ILogger Logger { private get; set; }
 
-    static JobStorage()
+    static int _purgeTaskStarted;
+
+    internal static void StartStaleJobPurging()
     {
-        _ = StaleJobPurgingTask();
+        if (Interlocked.CompareExchange(ref _purgeTaskStarted, 1, 0) == 0)
+            _ = StaleJobPurgingTask();
     }
 
     static async Task StaleJobPurgingTask()

@@ -20,9 +20,16 @@ class JobStorage<TStorageRecord, TStorageProvider>
 
     static async Task StaleJobPurgingTask()
     {
-        while (true)
+        while (!AppCancellation.IsCancellationRequested)
         {
-            await Task.Delay(TimeSpan.FromHours(1));
+            try
+            {
+                await Task.Delay(TimeSpan.FromHours(1), AppCancellation);
+            }
+            catch (OperationCanceledException)
+            {
+                break;
+            }
 
             try
             {
@@ -33,12 +40,14 @@ class JobStorage<TStorageRecord, TStorageProvider>
                         CancellationToken = AppCancellation
                     });
             }
+            catch (OperationCanceledException)
+            {
+                break;
+            }
             catch (Exception x)
             {
                 Logger?.StoragePurgeStaleJobsError(x.Message);
             }
         }
-
-        // ReSharper disable once FunctionNeverReturns
     }
 }

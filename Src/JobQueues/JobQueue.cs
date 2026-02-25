@@ -221,7 +221,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
     protected override async Task CancelJobAsync(Guid trackingId, CancellationToken ct)
     {
         // if job is executing, fetch the cts added by ExecuteCommand, else store an already canceled cts
-        var cts = _cancellations.GetOrAdd(trackingId, static _ => new(-1));
+        var cts = _cancellations.GetOrAdd(trackingId, static _ => new(0));
 
         if (cts is null)
             return; // job is already marked canceled in storage

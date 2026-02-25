@@ -237,7 +237,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
         // ReSharper disable once PossiblyMistakenUseOfCancellationToken
         await _storage.CancelJobAsync(trackingId, ct);
 
-        // set null as the mark for cleanup task and dispose the cts if it was created by us
+        // set null as the mark for dictionary cleanup and dispose the cts
         if (_cancellations.TryUpdate(trackingId, null, cts))
         {
             try { cts.Dispose(); }
@@ -279,11 +279,15 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
 
                 if (isProbe)
                 {
-                    if (fetchedCount > 0) // jobs (eligible + future) found during probe
+                    if (fetchedCount > 0) // eligible + future jobs found during probe
                         _activated = true;
 
                     records = records.Where(r => r.ExecuteAfter <= now).ToArray(); // filter out future jobs
                 }
+            }
+            catch (OperationCanceledException) when (_appCancellation.IsCancellationRequested)
+            {
+                break; // no need to log/retry if app is being shutdown
             }
             catch (Exception x)
             {
@@ -293,19 +297,26 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 continue;
             }
 
-            if (records.Count > 0)
+            try
             {
-                _activated = true;
-                await Parallel.ForEachAsync(records, _parallelOptions, ExecuteCommand);
-            }
+                if (records.Count > 0)
+                {
+                    _activated = true;
+                    await Parallel.ForEachAsync(records, _parallelOptions, ExecuteCommand);
+                }
 
-            if (fetchedCount < _parallelOptions.MaxDegreeOfParallelism)
+                if (fetchedCount < _parallelOptions.MaxDegreeOfParallelism)
+                {
+                    // when activated (distributed mode, or jobs have been found), wait with a timeout so we periodically re-check for future jobs
+                    // becoming due or jobs added by other distributed workers.
+                    // when not activated (non-distributed with no jobs found yet), block indefinitely to avoid pointless DB polling.
+                    // TriggerJob() sets _activated=true and releases the semaphore when the first job is queued.
+                    await _sem.WaitAsync(_activated ? _semWaitLimit : Timeout.InfiniteTimeSpan, _appCancellation);
+                }
+            }
+            catch (OperationCanceledException) when (_appCancellation.IsCancellationRequested)
             {
-                // when activated (distributed mode, or jobs have been found), wait with a timeout so we periodically re-check for future jobs
-                // becoming due or jobs added by other distributed workers.
-                // when not activated (non-distributed with no jobs found yet), block indefinitely to avoid pointless DB polling.
-                // TriggerJob() sets _activated=true and releases the semaphore when the first job is queued.
-                await _sem.WaitAsync(_activated ? _semWaitLimit : Timeout.InfiniteTimeSpan, _appCancellation);
+                break; // exit immediately if app is being shutdown
             }
 
             // else there are more records than the page size, so continue next iteration
@@ -330,6 +341,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
 
         async ValueTask ExecuteCommand(TStorageRecord record, CancellationToken _)
         {
+            // ReSharper disable once HeapView.CanAvoidClosure
             using var cts = _cancellations.GetOrAdd(
                 record.TrackingID,
                 _ =>
@@ -365,6 +377,14 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
 
                 _cancellations.TryRemove(record.TrackingID, out var _); // remove entry on completion. cancellations are not possible/valid after this point.
             }
+            catch (Exception x) when (x is OperationCanceledException && IsManuallyCancelled())
+            {
+                // don't treat as a handler execution failure when manually canceled mid-execution
+                _cancellations.TryRemove(record.TrackingID, out var _);
+                _log.JobCancelledManually(_tCommandName, record.TrackingID);
+
+                return;
+            }
             catch (Exception x)
             {
                 _cancellations.TryRemove(record.TrackingID, out var _); // remove entry on execution error to allow obtaining a new cts on retry/reentry
@@ -385,7 +405,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                     {
                         _log.StorageOnExecutionFailureError(QueueID, _tCommandName, xx.Message);
 
-                        if (_appCancellation.IsCancellationRequested || IsCancelled())
+                        if (_appCancellation.IsCancellationRequested || IsJobCancelled())
                             break;
 
                         await Task.Delay(5000);
@@ -408,7 +428,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 {
                     _log.StorageMarkAsCompleteError(QueueID, _tCommandName, x.Message);
 
-                    if (_appCancellation.IsCancellationRequested || IsCancelled())
+                    if (_appCancellation.IsCancellationRequested || IsJobCancelled())
                         break;
 
                     await Task.Delay(5000);
@@ -430,14 +450,20 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 {
                     _log.StorageStoreJobResultError(QueueID, _tCommandName, x.Message);
 
-                    if (_appCancellation.IsCancellationRequested || IsCancelled())
+                    if (_appCancellation.IsCancellationRequested || IsJobCancelled())
                         break;
 
                     await Task.Delay(5000);
                 }
             }
 
-            bool IsCancelled()
+            // checks if the job was manually canceled via CancelJobAsync().
+            // CancelJobAsync sets the _cancellations entry to null after cancelling.
+            // this is used to distinguish manual cancellation from execution time limit expiry or app shutdown.
+            bool IsManuallyCancelled()
+                => !_appCancellation.IsCancellationRequested && _cancellations.TryGetValue(record.TrackingID, out var c) && c is null;
+
+            bool IsJobCancelled()
             {
                 try
                 {
@@ -449,20 +475,20 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                     return true;
                 }
 
-                if (_cancellations.TryGetValue(record.TrackingID, out var c))
-                {
-                    if (c is null)
-                        return true;
+                if (!_cancellations.TryGetValue(record.TrackingID, out var c))
+                    return false;
 
-                    try
-                    {
-                        if (c.IsCancellationRequested)
-                            return true;
-                    }
-                    catch (ObjectDisposedException)
-                    {
+                if (c is null)
+                    return true;
+
+                try
+                {
+                    if (c.IsCancellationRequested)
                         return true;
-                    }
+                }
+                catch (ObjectDisposedException)
+                {
+                    return true;
                 }
 
                 return false;

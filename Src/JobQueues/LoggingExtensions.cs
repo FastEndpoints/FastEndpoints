@@ -21,4 +21,7 @@ static partial class LoggingExtensions
 
     [LoggerMessage(6, LogLevel.Warning, "Job storage 'purge-stale-jobs' error: {msg}")]
     public static partial void StoragePurgeStaleJobsError(this ILogger l, string msg);
+
+    [LoggerMessage(7, LogLevel.Information, "Job [{tCommand}] with tracking id [{trackingId}] was manually cancelled during execution.")]
+    public static partial void JobCancelledManually(this ILogger l, string tCommand, Guid trackingId);
 }

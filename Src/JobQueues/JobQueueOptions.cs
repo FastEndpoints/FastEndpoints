@@ -39,7 +39,7 @@ public class JobQueueOptions
     /// when that happens you can handle it in the
     /// <see cref="IJobStorageProvider{TStorageRecord}.OnHandlerExecutionFailureAsync(TStorageRecord, Exception, CancellationToken)" /> method.
     /// </param>
-    public void LimitsFor<TCommand>(int maxConcurrency, TimeSpan timeLimit) where TCommand : ICommand
+    public void LimitsFor<TCommand>(int maxConcurrency, TimeSpan timeLimit) where TCommand : ICommandBase
     {
         _limitOverrides[typeof(TCommand)] = new(maxConcurrency, timeLimit);
     }

@@ -18,25 +18,11 @@ public abstract class ODataEndpoint<TEntity> : Endpoint<ODataQueryOptions<TEntit
     public sealed override void Configure()
     {
         RequestBinder(new ODataBinder());
-        DontAutoSendResponse();
         Description(
             x => x.ClearDefaultAccepts()
                   .ClearDefaultProduces()
                   .Produces<ODataResult<TEntity>>(200, "application/json")); //not sure if this is the correct thing to do with swagger
-        Options(
-            x =>
-            {
-                x.WithODataResult();
-                x.AddEndpointFilter(
-                    async (ctx, next) =>
-                    {
-                        await next(ctx);
-
-                        return ctx.HttpContext.Items.TryGetValue("FastEndpointsResponse", out var res)
-                                   ? res
-                                   : null;
-                    });
-            });
+        Options(x => x.WithODataResult());
         Setup();
     }
 

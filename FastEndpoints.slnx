@@ -12,8 +12,8 @@
     <Project Path="Benchmark/Runner/Runner.csproj" />
   </Folder>
   <Folder Name="/Playgrounds/">
-    <Project Path="Sandbox/Source/Sandbox.csproj" />
-    <Project Path="Web/Web.csproj" />
+    <Project Path="TestHarness/Sandbox/Source/Sandbox.csproj" />
+    <Project Path="TestHarness/Web/Web.csproj" />
   </Folder>  
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />

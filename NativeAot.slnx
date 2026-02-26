@@ -19,7 +19,7 @@
   <Folder Name="/Solution Items/Tests/">
     <File Path="Tests/Directory.Build.props" />
   </Folder>
-  <Project Path="NativeAotChecker/NativeAotChecker.csproj" />
+  <Project Path="TestHarness/NativeAotChecker/NativeAotChecker.csproj" />
   <Project Path="Tests/NativeAotTests/NativeAotCheckerTests/NativeAotCheckerTests.csproj" />
   
 </Solution>

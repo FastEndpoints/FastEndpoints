@@ -4,7 +4,7 @@
         <ProjectReference Include="..\..\..\Src\Library\FastEndpoints.csproj"/>
         <ProjectReference Include="..\..\..\Src\Messaging\Messaging.Remote.Testing\FastEndpoints.Messaging.Remote.Testing.csproj"/>
         <ProjectReference Include="..\..\..\Src\Testing\FastEndpoints.Testing.csproj"/>
-        <ProjectReference Include="..\..\..\Web\Web.csproj"/>
+        <ProjectReference Include="..\..\..\TestHarness\Web\Web.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

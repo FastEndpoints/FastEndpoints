@@ -5,7 +5,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\..\Web\Web.csproj"/>
+        <ProjectReference Include="..\..\..\TestHarness\Web\Web.csproj"/>
     </ItemGroup>
 
 </Project>

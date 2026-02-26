@@ -18,8 +18,8 @@
         <SwaggerExportPath>wwwroot/openapi</SwaggerExportPath>
     </PropertyGroup>
 
-    <Import Project="..\Src\Swagger\FastEndpoints.Swagger.targets"/><!-- only needed for project references -->
-    <Import Project="..\Src\Generator\FastEndpoints.Generator.targets"/><!-- only needed for project references -->
+    <Import Project="..\..\Src\Swagger\FastEndpoints.Swagger.targets"/><!-- only needed for project references -->
+    <Import Project="..\..\Src\Generator\FastEndpoints.Generator.targets"/><!-- only needed for project references -->
 
     <ItemGroup>
         <None Remove="NativeAotChecker.csproj.DotSettings"/>
@@ -35,14 +35,18 @@
         <!-- <PackageReference Include="FastEndpoints.Security" VersionOverride="7.3.0-beta.13"/> -->
         <!-- <PackageReference Include="FastEndpoints.Swagger" VersionOverride="7.3.0-beta.13"/> -->
 
-        <ProjectReference Include="..\Src\Generator\FastEndpoints.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
-        <ProjectReference Include="..\Src\Library\FastEndpoints.csproj"/>
-        <ProjectReference Include="..\Src\Security\FastEndpoints.Security.csproj"/>
-        <ProjectReference Include="..\Src\Swagger\FastEndpoints.Swagger.csproj"/>
+        <ProjectReference Include="..\..\Src\Generator\FastEndpoints.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <ProjectReference Include="..\..\Src\Library\FastEndpoints.csproj"/>
+        <ProjectReference Include="..\..\Src\Security\FastEndpoints.Security.csproj"/>
+        <ProjectReference Include="..\..\Src\Swagger\FastEndpoints.Swagger.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
         <Folder Include="wwwroot\"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="wwwroot\openapi\v1.json" />
     </ItemGroup>
 
 </Project>

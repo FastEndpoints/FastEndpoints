@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <OutputType>Exe</OutputType>
+        <NoWarn>CS1591;CA2016</NoWarn>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <LangVersion>latest</LangVersion>
+        <RootNamespace>Sand_Box</RootNamespace>
+
+        <!-- <GenerateSerializerContexts>true</GenerateSerializerContexts> -->
+    </PropertyGroup>
+
+    <!-- &lt;!&ndash; only needed for project references &ndash;&gt; -->
+    <!-- <Import Project="..\..\Src\Generator\FastEndpoints.Generator.targets"/> -->
+
+    <ItemGroup>
+        <!-- <PackageReference Include="Microsoft.EntityFrameworkCore" VersionOverride="9.0.4"/> -->
+        <!-- <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" VersionOverride="9.0.4"/> -->
+        <!-- <ProjectReference Include="..\..\..\Src\OData\FastEndpoints.OData.csproj"/> -->
+
+        <!-- <ProjectReference Include="..\..\..\Contracts\Contracts.csproj"/> -->
+        <ProjectReference Include="..\..\..\Src\Library\FastEndpoints.csproj"/>
+        <ProjectReference Include="..\..\..\Src\AspVersioning\FastEndpoints.AspVersioning.csproj"/>
+        <ProjectReference Include="..\..\..\Src\Attributes\FastEndpoints.Attributes.csproj"/>
+        <ProjectReference Include="..\..\..\Src\ClientGen\FastEndpoints.ClientGen.csproj"/>
+        <ProjectReference Include="..\..\..\Src\Generator\FastEndpoints.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <ProjectReference Include="..\..\..\Src\ClientGen.Kiota\FastEndpoints.ClientGen.Kiota.csproj"/>
+        <ProjectReference Include="..\..\..\Src\Security\FastEndpoints.Security.csproj"/>
+        <ProjectReference Include="..\..\..\Src\Swagger\FastEndpoints.Swagger.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="wwwroot\index.html"/>
+    </ItemGroup>
+
+</Project>

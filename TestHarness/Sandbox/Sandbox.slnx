@@ -1,0 +1,17 @@
+<Solution>
+  <Folder Name="/Refs/">
+    <Project Path="../../Src/AspVersioning/FastEndpoints.AspVersioning.csproj" />
+    <Project Path="../../Src/Attributes/FastEndpoints.Attributes.csproj" />
+    <Project Path="../../Src/ClientGen.Kiota/FastEndpoints.ClientGen.Kiota.csproj" />
+    <Project Path="../../Src/ClientGen/FastEndpoints.ClientGen.csproj" />
+    <Project Path="../../Src/Generator/FastEndpoints.Generator.csproj" />
+    <Project Path="../../Src/Library/FastEndpoints.csproj" />
+    <Project Path="../../Src/OData/FastEndpoints.OData.csproj" />
+    <Project Path="../../Src/Security/FastEndpoints.Security.csproj" />
+    <Project Path="../../Src/Swagger/FastEndpoints.Swagger.csproj" />
+    <Project Path="../../Src/Testing/FastEndpoints.Testing.csproj" />
+  </Folder>
+  <Project Path="Contracts/Contracts.csproj" />
+  <Project Path="Source\Sandbox.csproj" />
+  <Project Path="Tests/Tests.csproj" />
+</Solution>

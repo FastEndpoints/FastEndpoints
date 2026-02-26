@@ -3,7 +3,7 @@
     <ItemGroup>
         <ProjectReference Include="..\..\..\Src\Swagger\FastEndpoints.Swagger.csproj"/>
         <ProjectReference Include="..\..\..\Src\Testing\FastEndpoints.Testing.csproj"/>
-        <ProjectReference Include="..\..\..\Web\Web.csproj"/>
+        <ProjectReference Include="..\..\..\TestHarness\Web\Web.csproj"/>
     </ItemGroup>
 
     <ItemGroup>

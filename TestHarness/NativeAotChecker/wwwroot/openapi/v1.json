@@ -1,0 +1,1387 @@
+{
+  "x-generator": "NSwag v14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))",
+  "openapi": "3.0.0",
+  "info": {
+    "title": "NativeAotChecker",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/healthy": {
+      "get": {
+        "operationId": "GetHealthy",
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      }
+    },
+    "/bind-from-test": {
+      "post": {
+        "tags": [
+          "Bind-From-Test"
+        ],
+        "operationId": "NativeAotCheckerEndpointsBindingBindFromEndpoint",
+        "parameters": [
+          {
+            "name": "cat",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "BindFromRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NativeAotCheckerEndpointsBindingBindFromRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NativeAotCheckerEndpointsBindingBindFromResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/complex-object-query-binding": {
+      "get": {
+        "tags": [
+          "Complex-Object-Query-Binding"
+        ],
+        "operationId": "NativeAotCheckerEndpointsBindingComplexObjectQueryBindingEndpoint",
+        "parameters": [
+          {
+            "name": "person",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/NativeAotCheckerEndpointsBindingPerson"
+                }
+              ]
+            },
+            "example": {
+              "id": "id",
+              "name": "name",
+              "age": 0
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NativeAotCheckerEndpointsBindingComplexObjectQueryBindingResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/complex-query-binding": {
+      "get": {
+        "tags": [
+          "Complex-Query-Binding"
+        ],
+        "operationId": "NativeAotCheckerEndpointsBindingComplexQueryBindingEndpoint",
+        "parameters": [
+          {
+            "name": "book",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/NativeAotCheckerEndpointsBindingBook"
+                }
+              ]
+            },
+            "example": {
+              "title": "title",
+              "bar_codes": [
+                0
+              ],
+              "editor": {
+                "id": "id",
+                "name": "name"
+              },
+              "authors": [
+                {
+                  "id": "id",
+                  "name": "name"
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NativeAotCheckerEndpointsBindingBook"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/custom-binder-test": {
+      "post": {
+        "tags": [
+          "Custom-Binder-Test"
+        ],
+        "operationId": "NativeAotCheckerEndpointsBindingCustomBinderEndpoint",
+        "requestBody": {
+          "x-name": "CustomBinderRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NativeAotCheckerEndpointsBindingCustomBinderRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NativeAotCheckerEndpointsBindingCustomBinderResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/aot/from-header-binding": {
+      "get": {
+        "tags": [
+          "Aot"
+        ],
+        "operationId": "NativeAotCheckerEndpointsBindingFromHeaderBindingEndpoint",
+        "parameters": [
+          {
+            "name": "x-correlation-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-tenant-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-optional-header",
+            "in": "header",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NativeAotCheckerEndpointsBindingFromHeaderResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/jwt-token": {
+      "get": {
+        "tags": [
+          "Jwt-Token"
+        ],
+        "operationId": "NativeAotCheckerEndpointsBindingGetJwtTokenEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/multi-source/{id}": {
+      "post": {
+        "tags": [
+          "Multi-Source"
+        ],
+        "operationId": "NativeAotCheckerEndpointsBindingMultiSourceBindingEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "category",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "x-request-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "MultiSourceBindingRequest",
+          "description": "",
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/NativeAotCheckerEndpointsBindingMultiSourceBindingRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NativeAotCheckerEndpointsBindingMultiSourceBindingResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          }
+        ]
+      }
+    },
+    "/non-json-binding-endpoint/{id}": {
+      "get": {
+        "tags": [
+          "Non-Json-Binding-Endpoint"
+        ],
+        "operationId": "NativeAotCheckerEndpointsBindingNonJsonBindingEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "identifier",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            }
+          },
+          {
+            "name": "user_name",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/NativeAotCheckerEndpointsBindingUserName"
+                }
+              ]
+            },
+            "example": {
+              "value": "value"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NativeAotCheckerEndpointsBindingNonJsonResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/nullable-bool-query-test": {
+      "get": {
+        "tags": [
+          "Nullable-Bool-Query-Test"
+        ],
+        "operationId": "NativeAotCheckerEndpointsBindingNullableBoolQueryEndpoint",
+        "parameters": [
+          {
+            "name": "non_nullable_bool",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "nullable_bool",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "nullable": true
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NativeAotCheckerEndpointsBindingNullableBoolQueryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/struct-types-test": {
+      "post": {
+        "tags": [
+          "Struct-Types-Test"
+        ],
+        "operationId": "NativeAotCheckerEndpointsBindingStructTypesEndpoint",
+        "requestBody": {
+          "x-name": "StructRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NativeAotCheckerEndpointsBindingStructRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NativeAotCheckerEndpointsBindingStructResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/command-execution/{name}": {
+      "get": {
+        "tags": [
+          "Command-Execution"
+        ],
+        "operationId": "NativeAotCheckerEndpointsCommandsCommandExecutionEndpoint",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/command-middleware": {
+      "post": {
+        "tags": [
+          "Command-Middleware"
+        ],
+        "operationId": "NativeAotCheckerEndpointsCommandsCommandMiddlewareEndpoint",
+        "requestBody": {
+          "x-name": "CommandMiddlewareRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NativeAotCheckerEndpointsCommandsCommandMiddlewareRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NativeAotCheckerEndpointsCommandsCommandMiddlewareResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/generic-command": {
+      "post": {
+        "tags": [
+          "Generic-Command"
+        ],
+        "operationId": "NativeAotCheckerEndpointsCommandsGenericCommandEndpoint",
+        "requestBody": {
+          "x-name": "GenericCommandRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NativeAotCheckerEndpointsCommandsGenericCommandRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NativeAotCheckerEndpointsCommandsGenericCommandResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/event-publish": {
+      "post": {
+        "tags": [
+          "Event-Publish"
+        ],
+        "operationId": "NativeAotCheckerEndpointsEventsEventPublishEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string",
+                  "format": "guid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/job-queue/{id}": {
+      "get": {
+        "tags": [
+          "Job-Queue"
+        ],
+        "operationId": "NativeAotCheckerEndpointsJobsJobQueueEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/json-post": {
+      "post": {
+        "tags": [
+          "Json-Post"
+        ],
+        "summary": "this is the summary of this endpoint",
+        "operationId": "NativeAotCheckerEndpointsJsonJsonPostEndpoint",
+        "requestBody": {
+          "x-name": "JsonPostRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NativeAotCheckerEndpointsJsonJsonPostRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NativeAotCheckerEndpointsJsonJsonPostResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mapper-test": {
+      "post": {
+        "tags": [
+          "Mapper-Test"
+        ],
+        "operationId": "NativeAotCheckerEndpointsMappingMapperTestEndpoint",
+        "requestBody": {
+          "x-name": "MapperTestRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NativeAotCheckerEndpointsMappingMapperTestRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NativeAotCheckerEndpointsMappingMapperTestResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/open-generic-global-processor": {
+      "post": {
+        "tags": [
+          "Open-Generic-Global-Processor"
+        ],
+        "operationId": "NativeAotCheckerEndpointsProcessorsOpenGenericGlobalProcessorEndpoint",
+        "requestBody": {
+          "x-name": "OpenGenericGlobalProcessorRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NativeAotCheckerEndpointsProcessorsOpenGenericGlobalProcessorRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NativeAotCheckerEndpointsProcessorsOpenGenericGlobalProcessorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pre-post-processor": {
+      "post": {
+        "tags": [
+          "Pre-Post-Processor"
+        ],
+        "operationId": "NativeAotCheckerEndpointsProcessorsPreProcessorEndpoint",
+        "requestBody": {
+          "x-name": "PreProcessorRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NativeAotCheckerEndpointsProcessorsPreProcessorRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NativeAotCheckerEndpointsProcessorsPreProcessorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/i-result-returning-endpoint": {
+      "get": {
+        "tags": [
+          "I-Result-Returning-Endpoint"
+        ],
+        "operationId": "NativeAotCheckerEndpointsResultsResultReturningEndpoint",
+        "responses": {
+          "404": {
+            "description": "Not Found"
+          },
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/error-with-prop-expression": {
+      "post": {
+        "tags": [
+          "Error-With-Prop-Expression"
+        ],
+        "operationId": "NativeAotCheckerEndpointsValidationErrorWithPropertyExpressionEndpoint",
+        "requestBody": {
+          "x-name": "ErrorWithPropertyExpressionRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NativeAotCheckerEndpointsValidationErrorWithPropertyExpressionRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/fluent-validation": {
+      "post": {
+        "tags": [
+          "Fluent-Validation"
+        ],
+        "operationId": "NativeAotCheckerEndpointsValidationFluentValidationEndpoint",
+        "requestBody": {
+          "x-name": "FluentValidationRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NativeAotCheckerEndpointsValidationFluentValidationRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NativeAotCheckerEndpointsValidationFluentValidationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "NativeAotCheckerEndpointsBindingBindFromResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "customer_id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "product_name": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "category": {
+            "type": "string"
+          },
+          "all_bindings_worked": {
+            "type": "boolean"
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsBindingBindFromRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "customer_id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "product_name": {
+            "type": "string"
+          },
+          "qty": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsBindingComplexObjectQueryBindingResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "person": {
+            "$ref": "#/components/schemas/NativeAotCheckerEndpointsBindingPerson"
+          },
+          "category": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsBindingPerson": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "guid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "age": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsBindingComplexObjectQueryBindingRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "NativeAotCheckerEndpointsBindingBook": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "bar_codes": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          "editor": {
+            "$ref": "#/components/schemas/NativeAotCheckerEndpointsBindingAuthor"
+          },
+          "authors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NativeAotCheckerEndpointsBindingAuthor"
+            }
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsBindingAuthor": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "guid"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsBindingComplexQueryBindingRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "NativeAotCheckerEndpointsBindingCustomBinderResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "input_value": {
+            "type": "string"
+          },
+          "processed_value": {
+            "type": "string",
+            "nullable": true
+          },
+          "binder_was_used": {
+            "type": "boolean"
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsBindingCustomBinderRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "input_value": {
+            "type": "string"
+          },
+          "processed_value": {
+            "type": "string"
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsBindingFromHeaderResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "correlation_id": {
+            "type": "string"
+          },
+          "tenant_id": {
+            "type": "string"
+          },
+          "content_type": {
+            "type": "string"
+          },
+          "optional_header": {
+            "type": "string",
+            "nullable": true
+          },
+          "all_headers_bound": {
+            "type": "boolean"
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsBindingFromHeaderRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "optional_header": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsBindingMultiSourceBindingResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "category": {
+            "type": "string"
+          },
+          "user_id": {
+            "type": "string"
+          },
+          "form_value": {
+            "type": "string"
+          },
+          "request_id": {
+            "type": "string"
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsBindingMultiSourceBindingRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "form_value": {
+            "type": "string"
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsBindingNonJsonResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "identifier": {
+            "type": "string",
+            "format": "guid"
+          },
+          "user_name": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsBindingNonJsonRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "NativeAotCheckerEndpointsBindingUserName": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "value": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsBindingNullableBoolQueryResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "non_nullable_bool": {
+            "type": "boolean"
+          },
+          "nullable_bool": {
+            "type": "boolean",
+            "nullable": true
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsBindingNullableBoolQueryRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "NativeAotCheckerEndpointsBindingStructResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "value": {
+            "type": "number",
+            "format": "double"
+          },
+          "is_valid": {
+            "type": "boolean"
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsBindingStructRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "value": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsCommandsCommandExecutionRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "NativeAotCheckerEndpointsCommandsCommandMiddlewareResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "result": {
+            "type": "string"
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsCommandsCommandMiddlewareRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "input": {
+            "type": "string"
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsCommandsGenericCommandResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "operation_type": {
+            "type": "string"
+          },
+          "product_name": {
+            "type": "string"
+          },
+          "product_price": {
+            "type": "number",
+            "format": "decimal"
+          },
+          "handler_type": {
+            "type": "string"
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsCommandsGenericCommandRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "operation_type": {
+            "type": "string"
+          },
+          "product_name": {
+            "type": "string"
+          },
+          "product_price": {
+            "type": "number",
+            "format": "decimal"
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsEventsEventPublishRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "NativeAotCheckerEndpointsJobsJobQueueRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "NativeAotCheckerEndpointsJsonJsonPostResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsJsonJsonPostRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "first_name": {
+            "type": "string"
+          },
+          "last_name": {
+            "type": "string"
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsMappingMapperTestResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "full_name": {
+            "type": "string"
+          },
+          "age": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "mapper_was_used": {
+            "type": "boolean"
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsMappingMapperTestRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "first_name": {
+            "type": "string"
+          },
+          "last_name": {
+            "type": "string"
+          },
+          "age": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsProcessorsOpenGenericGlobalProcessorResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "result_value": {
+            "type": "string"
+          },
+          "global_pre_processor_executed": {
+            "type": "boolean"
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsProcessorsOpenGenericGlobalProcessorRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "input_value": {
+            "type": "string"
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsProcessorsPreProcessorResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "result_value": {
+            "type": "string"
+          },
+          "pre_processor_executed": {
+            "type": "boolean"
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsProcessorsPreProcessorRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "input_value": {
+            "type": "string"
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsValidationErrorWithPropertyExpressionRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsValidationFluentValidationResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsValidationFluentValidationRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "email",
+          "full_name"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "minLength": 1,
+            "pattern": "^[^@]+@[^@]+$",
+            "nullable": false
+          },
+          "full_name": {
+            "type": "string",
+            "minLength": 3,
+            "nullable": false
+          },
+          "age": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 120.0,
+            "minimum": 0.0,
+            "exclusiveMinimum": true
+          }
+        }
+      },
+      "FastEndpointsErrorResponse": {
+        "type": "object",
+        "description": "the dto used to send an error response to the client",
+        "additionalProperties": false,
+        "properties": {
+          "status_code": {
+            "type": "integer",
+            "description": "the http status code sent to the client. default is 400.",
+            "format": "int32",
+            "default": 400
+          },
+          "message": {
+            "type": "string",
+            "description": "the message for the error response",
+            "default": "One or more errors occurred!"
+          },
+          "errors": {
+            "type": "object",
+            "description": "the collection of errors for the current context",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "JWTBearerAuth": {
+        "type": "http",
+        "description": "Enter a JWT token to authorize the requests...",
+        "scheme": "Bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

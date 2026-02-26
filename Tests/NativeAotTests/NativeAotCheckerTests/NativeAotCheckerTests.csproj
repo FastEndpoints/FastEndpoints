@@ -8,7 +8,7 @@
 
     <PropertyGroup>
         <AotOutputPath>$(MSBuildThisFileDirectory)aot\</AotOutputPath>
-        <AotProjectPath>$(MSBuildThisFileDirectory)..\..\..\NativeAotChecker\</AotProjectPath>
+        <AotProjectPath>$(MSBuildThisFileDirectory)..\..\..\TestHarness\NativeAotChecker\</AotProjectPath>
         <AotExeName Condition="$([MSBuild]::IsOSPlatform('Windows'))">NativeAotChecker.exe</AotExeName>
         <AotExeName Condition="!$([MSBuild]::IsOSPlatform('Windows'))">NativeAotChecker</AotExeName>
     </PropertyGroup>

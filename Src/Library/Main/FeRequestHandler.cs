@@ -6,7 +6,7 @@ using static FastEndpoints.Config;
 
 namespace FastEndpoints;
 
-sealed class FeRequestHandler : IResult
+internal sealed class FeRequestHandler : IResult
 {
     internal static FeRequestHandler Instance { get; } = new();
 

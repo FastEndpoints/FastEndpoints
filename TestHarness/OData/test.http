@@ -16,7 +16,7 @@ Accept: application/json
 
 ###
 
-GET {{basePath}}/odata/customers?$filter=Name eq 'John Doe'
+GET {{basePath}}/odata/customers?$filter=Name eq 'John Doe'&$expand=*
 Accept: application/json
 
 ###

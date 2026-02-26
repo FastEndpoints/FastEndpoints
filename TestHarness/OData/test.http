@@ -1,0 +1,22 @@
+@basePath = http://localhost:5000
+
+###
+
+GET {{basePath}}/odata/$metadata
+
+###
+
+GET {{basePath}}/odata/customers?orderby=Name asc&top=3
+Accept: application/json
+
+###
+
+GET {{basePath}}/odata/customers?$filter=startswith(Name,'Michael')&orderby=Name asc&top=3
+Accept: application/json
+
+###
+
+GET {{basePath}}/odata/customers?$filter=Name eq 'John Doe'
+Accept: application/json
+
+###

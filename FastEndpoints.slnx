@@ -10,10 +10,6 @@
     <Project Path="Benchmark/MinimalApi/MinimalApi.csproj" />
     <Project Path="Benchmark/MvcControllers/MvcControllers.csproj" />
     <Project Path="Benchmark/Runner/Runner.csproj" />
-  </Folder>
-  <Folder Name="/Playgrounds/">
-    <Project Path="TestHarness/Sandbox/Source/Sandbox.csproj" />
-    <Project Path="TestHarness/Web/Web.csproj" />
   </Folder>  
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
@@ -21,6 +17,11 @@
     <File Path="README.md" />
     <File Path="Src/Directory.Build.props" />
     <File Path="Src/Library/changelog.md" />
+  </Folder>
+  <Folder Name="/TestHarnesses/">
+    <Project Path="TestHarness/OData/OData.csproj" />
+    <Project Path="TestHarness/Sandbox/Source/Sandbox.csproj" />
+    <Project Path="TestHarness/Web/Web.csproj" />
   </Folder>
   <Folder Name="/Tests/">
     <File Path="Tests/Directory.Build.props" />

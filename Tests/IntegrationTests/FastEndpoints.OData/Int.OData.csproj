@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <RootNamespace>Int.FastEndpoints.OData</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\Src\Library\FastEndpoints.csproj"/>
+        <ProjectReference Include="..\..\..\Src\OData\FastEndpoints.OData.csproj"/>
+        <ProjectReference Include="..\..\..\Src\Testing\FastEndpoints.Testing.csproj"/>
+        <ProjectReference Include="..\..\..\TestHarness\OData\OData.csproj"/>
+    </ItemGroup>
+
+</Project>

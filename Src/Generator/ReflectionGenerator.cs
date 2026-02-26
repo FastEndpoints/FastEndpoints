@@ -22,7 +22,7 @@ public class ReflectionGenerator : IIncrementalGenerator
 
     readonly StringBuilder b = new();
     readonly StringBuilder _initArgsBuilder = new();
-    string? _assemblyName;
+    string? _rootNamespace;
     TypeCollector _collector = new();
 
     // ReSharper restore InconsistentNaming
@@ -45,7 +45,7 @@ public class ReflectionGenerator : IIncrementalGenerator
         TypeInfo? Transform(GeneratorSyntaxContext ctx, CancellationToken _)
         {
             //should be re-assigned on every call. do not cache!
-            _assemblyName = ctx.SemanticModel.Compilation.AssemblyName?.Sanitize() ?? "Assembly";
+            _rootNamespace = ctx.SemanticModel.Compilation.AssemblyName?.ToValidNameSpace() ?? "Assembly";
 
             return ctx.SemanticModel.GetDeclaredSymbol(ctx.Node) is not ITypeSymbol type ||
                    type.IsAbstract ||
@@ -87,17 +87,17 @@ public class ReflectionGenerator : IIncrementalGenerator
         b.w(
             $$"""
 
-              namespace {{_assemblyName}};
+              namespace {{_rootNamespace}};
 
               /// <summary>
-              /// source generated reflection data for request dtos located in the [{{_assemblyName}}] assembly.
+              /// source generated reflection data for request dtos located in the [{{_rootNamespace}}] assembly.
               /// </summary>
               public static class GeneratedReflection
               {
               /// <summary>
-              /// register source generated reflection data from [{{_assemblyName}}] with the central cache.
+              /// register source generated reflection data from [{{_rootNamespace}}] with the central cache.
               /// </summary>
-              public static ReflectionCache AddFrom{{_assemblyName}}(this ReflectionCache cache)
+              public static ReflectionCache AddFrom{{_rootNamespace!.ToValidIdentifier(string.Empty)}}(this ReflectionCache cache)
                   {
 
               """);

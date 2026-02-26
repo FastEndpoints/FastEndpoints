@@ -16,7 +16,7 @@ public class GenericProcessorTypesGenerator : IIncrementalGenerator
     const string DontRegisterAttribute = "DontRegisterAttribute";
 
     readonly StringBuilder b = new();
-    string? _assemblyName;
+    string? _rootNamespace;
 
     public void Initialize(IncrementalGeneratorInitializationContext initCtx)
     {
@@ -37,7 +37,7 @@ public class GenericProcessorTypesGenerator : IIncrementalGenerator
     TypeData Transform(GeneratorSyntaxContext ctx, CancellationToken _)
     {
         //should be re-assigned on every call. do not cache!
-        _assemblyName = ctx.SemanticModel.Compilation.AssemblyName?.Sanitize() ?? "Assembly";
+        _rootNamespace = ctx.SemanticModel.Compilation.AssemblyName?.ToValidNameSpace() ?? "Assembly";
 
         if (ctx.SemanticModel.GetDeclaredSymbol(ctx.Node) is not INamedTypeSymbol type ||
             type.IsAbstract ||
@@ -99,7 +99,7 @@ public class GenericProcessorTypesGenerator : IIncrementalGenerator
             $$"""
               #pragma warning disable CS0618
 
-              namespace {{_assemblyName}};
+              namespace {{_rootNamespace}};
 
               using System;
               using System.Diagnostics.CodeAnalysis;

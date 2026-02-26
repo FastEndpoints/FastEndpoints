@@ -14,7 +14,7 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
 
     // ReSharper disable once InconsistentNaming
     readonly StringBuilder b = new();
-    string? _assemblyName;
+    string? _rootNamespace;
 
     public void Initialize(IncrementalGeneratorInitializationContext initCtx)
     {
@@ -35,7 +35,7 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
         Match Transform(GeneratorSyntaxContext ctx, CancellationToken _)
         {
             //should be re-assigned on every call. do not cache!
-            _assemblyName = ctx.SemanticModel.Compilation.AssemblyName?.Sanitize() ?? "Assembly";
+            _rootNamespace = ctx.SemanticModel.Compilation.AssemblyName?.ToValidNameSpace() ?? "Assembly";
 
             return new(ctx.SemanticModel.GetDeclaredSymbol(ctx.Node), (ClassDeclarationSyntax)ctx.Node);
         }
@@ -51,13 +51,13 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
 
         b.Clear().w(
             $$"""
-              namespace {{_assemblyName}};
+              namespace {{_rootNamespace}};
 
               using Microsoft.Extensions.DependencyInjection;
 
               public static class ServiceRegistrationExtensions
               {
-                  public static IServiceCollection RegisterServicesFrom{{_assemblyName}}(this IServiceCollection sc)
+                  public static IServiceCollection RegisterServicesFrom{{_rootNamespace!.ToValidIdentifier(string.Empty)}}(this IServiceCollection sc)
                   {
 
               """);
@@ -72,7 +72,7 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
         }
         b.w(
             """
-            
+
                     return sc;
                 }
             }

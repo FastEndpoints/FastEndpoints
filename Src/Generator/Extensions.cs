@@ -22,10 +22,17 @@ static class Extensions
         return sb;
     }
 
-    static readonly Regex _regex = new("[^a-zA-Z0-9]+", RegexOptions.Compiled);
+    static readonly Regex _identifierRegex = new("[^a-zA-Z0-9]+", RegexOptions.Compiled);
+    static readonly Regex _namespaceRegex = new("[^a-zA-Z0-9.]+", RegexOptions.Compiled);
 
-    internal static string Sanitize(this string input, string replacement = "_")
-        => _regex.Replace(input, replacement);
+    extension(string input)
+    {
+        internal string ToValidIdentifier(string replacement)
+            => _identifierRegex.Replace(input, replacement);
+
+        internal string ToValidNameSpace(string replacement = "_")
+            => _namespaceRegex.Replace(input, replacement);
+    }
 
     internal static ITypeSymbol GetUnderlyingType(this ITypeSymbol symbol)
     {

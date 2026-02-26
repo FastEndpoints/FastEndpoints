@@ -12,7 +12,7 @@ namespace FastEndpoints.Generator;
 public class AccessControlGenerator : IIncrementalGenerator
 {
     const string AccessControl = "AccessControl";
-    string? _assemblyName;
+    string? _rootNamespace;
 
     // ReSharper disable once InconsistentNaming
     readonly StringBuilder b = new();
@@ -22,7 +22,7 @@ public class AccessControlGenerator : IIncrementalGenerator
         var assemblyName = initCtx.CompilationProvider.Select(static (c, _) => c.AssemblyName);
         initCtx.RegisterSourceOutput(
             assemblyName,
-            static (spc, assembly) => spc.AddSource("Allow.b.g.cs", SourceText.From(RenderBase(assembly), Encoding.UTF8)));
+            static (spc, assemblyName) => spc.AddSource("Allow.b.g.cs", SourceText.From(RenderBase(assemblyName), Encoding.UTF8)));
 
         var matches = initCtx.SyntaxProvider
                              .CreateSyntaxProvider(Qualify, Transform)
@@ -40,7 +40,7 @@ public class AccessControlGenerator : IIncrementalGenerator
         Match Transform(GeneratorSyntaxContext ctx, CancellationToken _)
         {
             //should be re-assigned on every call. do not cache!
-            _assemblyName = ctx.SemanticModel.Compilation.AssemblyName?.Sanitize() ?? "Assembly";
+            _rootNamespace = ctx.SemanticModel.Compilation.AssemblyName?.ToValidNameSpace() ?? "Assembly";
 
             return new(ctx.SemanticModel.GetDeclaredSymbol(ctx.Node.Parent!.Parent!.Parent!.Parent!), (InvocationExpressionSyntax)ctx.Node);
         }
@@ -67,7 +67,7 @@ public class AccessControlGenerator : IIncrementalGenerator
 
               using FastEndpoints;
 
-              namespace {{_assemblyName}}.Auth;
+              namespace {{_rootNamespace}}.Auth;
 
               public static partial class Allow
               {
@@ -195,7 +195,7 @@ public class AccessControlGenerator : IIncrementalGenerator
              using FastEndpoints;
              using System.Reflection;
 
-             namespace {{assemblyName?.Sanitize() ?? "Assembly"}}.Auth;
+             namespace {{assemblyName?.ToValidNameSpace() ?? "Assembly"}}.Auth;
 
              public static partial class Allow
              {
@@ -323,7 +323,7 @@ public class AccessControlGenerator : IIncrementalGenerator
                         .Arguments
                         .Select(a => a.Expression)
                         .OfType<LiteralExpressionSyntax>()
-                        .Select(l => l.Token.ValueText.Sanitize());
+                        .Select(l => l.Token.ValueText.ToValidIdentifier("_"));
 
             var desc = m.Invocation.ArgumentList.OpenParenToken.TrailingTrivia.SingleOrDefault(t => t.IsKind(SyntaxKind.SingleLineCommentTrivia))
                         .ToString();

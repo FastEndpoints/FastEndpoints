@@ -18,6 +18,12 @@ Due to recent changes in FastEndpoints v8, the OData library stopped producing r
 
 </details>
 
+<details><summary>Serializer context generator was skipping collection DTO types</summary>
+
+The serializer context generator tool was not creating `JsonSerializable` attributes for request and response DTO types if they were collection types such a `List<Request>`, `IEnumerable<Response>`, etc.
+
+</details>
+
 ## Improvements 🚀
 
 ## Minor Breaking Changes ⚠️

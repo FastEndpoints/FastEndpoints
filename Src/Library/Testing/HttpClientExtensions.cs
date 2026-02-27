@@ -520,6 +520,9 @@ public static class HttpClientExtensions
 
     static StringContent? ToContent<TRequest>(this TRequest request) where TRequest : notnull
     {
+        if (request.GetType().GetInterfaces().Contains(Types.IEnumerable))
+            return new(JsonSerializer.Serialize(request, SerOpts.Options), Encoding.UTF8, "application/json");
+
         foreach (var prop in request.GetType().BindableProps())
         {
             if (prop.GetCustomAttribute<FromFormAttribute>() is not null)
@@ -629,9 +632,7 @@ public static class HttpClientExtensions
                 }
             }
             else
-            {
                 _testUrlCache.TryAdd(epTypeName, url!);
-            }
         }
 
         // request with multiple repeating dtos, most likely not populated from route values.
@@ -801,8 +802,7 @@ public static class HttpClientExtensions
         {
             if (p.IsDefined(Types.FromFormAttribute))
             {
-                throw new NotSupportedException(
-                    "Automatically constructing MultiPartFormData requests for properties annotated with [FromForm] is not yet supported!");
+                throw new NotSupportedException("Automatically constructing MultiPartFormData requests for properties annotated with [FromForm] is not yet supported!");
             }
 
             throw;

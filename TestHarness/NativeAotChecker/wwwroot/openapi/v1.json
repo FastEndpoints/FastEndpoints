@@ -763,6 +763,45 @@
         }
       }
     },
+    "/ser-ctx-gen-for-collection-dtos": {
+      "post": {
+        "tags": [
+          "Ser-Ctx-Gen-For-Collection-Dtos"
+        ],
+        "operationId": "NativeAotCheckerEndpointsSerializerCtxGenEndpointWithArrayResponse",
+        "requestBody": {
+          "x-name": "Request[]",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/NativeAotCheckerEndpointsSerializerCtxGenRequest"
+                }
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/NativeAotCheckerEndpointsSerializerCtxGenResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/error-with-prop-expression": {
       "post": {
         "tags": [
@@ -1292,6 +1331,27 @@
         "additionalProperties": false,
         "properties": {
           "input_value": {
+            "type": "string"
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsSerializerCtxGenResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "full_name": {
+            "type": "string"
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsSerializerCtxGenRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "first_name": {
+            "type": "string"
+          },
+          "last_name": {
             "type": "string"
           }
         }

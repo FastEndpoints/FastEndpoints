@@ -46,7 +46,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <_ContentIncludedByDefault Remove="wwwroot\openapi\v1.json" />
+        <_ContentIncludedByDefault Remove="wwwroot\openapi\v1.json"/>
     </ItemGroup>
 
 </Project>

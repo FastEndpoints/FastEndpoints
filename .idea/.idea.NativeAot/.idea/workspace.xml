@@ -37,18 +37,12 @@
     </option>
   </component>
   <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/TestHarness/NativeAotChecker/Endpoints/SerializerCtxGen/EndpointWithArrayResponse.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/0983b02300d54b9e8a813a2546f75aa133f08/8c/d26f0a0c/Assert.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/1f7d81c92c01349f8e68213d932e21041fa2083dc3c66e37a976b86d247666/ShouldBeBooleanExtensions.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/aa1b45f3f86166f2831a18e0a327c822ba284c2e2367db0ac9752edf3e867d/IAsyncDisposable.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/cecc4b425274155e65ebb19c891ee2954ce18dfb2f5d0288fe691a6f6386c/ThrowHelper.Serialization.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/e22fcaf21f5efd4c8fffde98fc15ebc2453e36f1bf7618eb72e47a63bd0facf/Type.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/NativeAotChecker/Endpoints/CommandExecutionEndpoint.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/NativeAotChecker/Endpoints/EventPublishEndpoints.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/NativeAotChecker/Endpoints/GetJwtTokenEndpoint.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/NativeAotChecker/Endpoints/JobQueueEndpoint.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/NativeAotChecker/Endpoints/NonJsonBindingEndpoint.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/NativeAotChecker/Program.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$PROJECT_DIR$/Src/Generator/Cli/Program.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="CurrentFile" />
@@ -65,7 +59,7 @@
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
-    &quot;.NET Project.NativeAotChecker.executor&quot;: &quot;Run&quot;,
+    &quot;.NET Project.NativeAotChecker.executor&quot;: &quot;Debug&quot;,
     &quot;.NET Project.NativeAotCheckerTests.executor&quot;: &quot;Run&quot;,
     &quot;5f017c13-5719-4b96-8313-58ff3fadeb7a.executor&quot;: &quot;Run&quot;,
     &quot;5ffee4ec-56a2-4840-9b6b-4d5135e56d58.executor&quot;: &quot;Debug&quot;,
@@ -140,27 +134,6 @@
       <option name="PROJECT_WORKING_DIRECTORY_TRACKING" value="1" />
       <option name="PROJECT_KIND" value="Unloaded" />
       <option name="PROJECT_TFM" value="" />
-      <method v="2">
-        <option name="Build" />
-      </method>
-    </configuration>
-    <configuration name="NativeAotChecker" type="DotNetProject" factoryName=".NET Project">
-      <option name="EXE_PATH" value="$PROJECT_DIR$/NativeAotChecker/bin/Debug/net10.0/NativeAotChecker.exe" />
-      <option name="PROGRAM_PARAMETERS" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/NativeAotChecker" />
-      <option name="PASS_PARENT_ENVS" value="1" />
-      <option name="ENV_FILE_PATHS" value="" />
-      <option name="REDIRECT_INPUT_PATH" value="" />
-      <option name="MIXED_MODE_DEBUG" value="0" />
-      <option name="USE_MONO" value="0" />
-      <option name="RUNTIME_ARGUMENTS" value="" />
-      <option name="AUTO_ATTACH_CHILDREN" value="0" />
-      <option name="PROJECT_PATH" value="$PROJECT_DIR$/NativeAotChecker/NativeAotChecker.csproj" />
-      <option name="PROJECT_EXE_PATH_TRACKING" value="1" />
-      <option name="PROJECT_ARGUMENTS_TRACKING" value="1" />
-      <option name="PROJECT_WORKING_DIRECTORY_TRACKING" value="1" />
-      <option name="PROJECT_KIND" value="DotNetCore" />
-      <option name="PROJECT_TFM" value="net10.0" />
       <method v="2">
         <option name="Build" />
       </method>
@@ -384,6 +357,34 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Src/Library/Testing/HttpClientExtensions.cs</url>
+          <line>540</line>
+          <properties documentPath="$PROJECT_DIR$/Src/Library/Testing/HttpClientExtensions.cs" containingFunctionPresentation="Method 'ToContent'">
+            <startOffsets>
+              <option value="34829" />
+            </startOffsets>
+            <endOffsets>
+              <option value="34927" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="6" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Src/Library/Testing/HttpClientExtensions.cs</url>
+          <line>543</line>
+          <properties documentPath="$PROJECT_DIR$/Src/Library/Testing/HttpClientExtensions.cs" containingFunctionPresentation="Method 'ToContent'">
+            <startOffsets>
+              <option value="34947" />
+            </startOffsets>
+            <endOffsets>
+              <option value="34959" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="7" />
+        </line-breakpoint>
+      </breakpoints>
       <default-breakpoints>
         <breakpoint type="DotNet_Exception_Breakpoints" />
       </default-breakpoints>

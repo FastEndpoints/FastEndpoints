@@ -71,6 +71,20 @@ partial class Program
         "EmptyResponse"
     ];
 
+    private static readonly HashSet<string> _builtInCollectionTypes = new(StringComparer.Ordinal)
+    {
+        "IEnumerable",
+        "List",
+        "ICollection",
+        "IList",
+        "IReadOnlyList",
+        "IReadOnlyCollection",
+        "HashSet",
+        "SortedSet",
+        "Stack",
+        "Queue"
+    };
+
     private const string CacheFileName = ".fastendpoints-generator-cache";
 
     static int Main(string[] args)
@@ -658,6 +672,23 @@ partial class Program
         if (typeExpression.EndsWith("?", StringComparison.Ordinal))
             typeExpression = typeExpression.TrimEnd('?');
 
+        // check if this is a collection type and register it
+        var collectionType = TryResolveCollectionType(typeExpression, currentNamespace, currentTypeFullName, usings, typeAliases, analysis.TypesByFullName);
+
+        if (collectionType != null)
+        {
+            serializableTypes.Add(collectionType);
+
+            // for IEnumerable<T>, also register List<T> since it's the most common concrete implementation
+            const string ienumerablePrefix = "System.Collections.Generic.IEnumerable<";
+
+            if (collectionType.StartsWith(ienumerablePrefix, StringComparison.Ordinal))
+            {
+                var listType = string.Concat("System.Collections.Generic.List<", collectionType.AsSpan(ienumerablePrefix.Length));
+                serializableTypes.Add(listType);
+            }
+        }
+
         var resolved = ResolveTypeName(typeExpression, currentNamespace, currentTypeFullName, usings, typeAliases, analysis.TypesByFullName);
 
         if (resolved != null)
@@ -665,6 +696,55 @@ partial class Program
 
         foreach (var arg in ExtractTypeArguments(typeExpression))
             ProcessTypeExpression(arg, currentNamespace, currentTypeFullName, usings, typeAliases, serializableTypes, analysis);
+    }
+
+    private static string? TryResolveCollectionType(string typeExpression,
+                                                    string currentNamespace,
+                                                    string currentTypeFullName,
+                                                    List<string> usings,
+                                                    Dictionary<string, string> typeAliases,
+                                                    Dictionary<string, TypeInfo> types)
+    {
+        if (typeExpression.EndsWith("[]", StringComparison.Ordinal))
+        {
+            var elementType = typeExpression[..^2];
+            var resolvedElement = ResolveTypeName(elementType, currentNamespace, currentTypeFullName, usings, typeAliases, types);
+
+            if (resolvedElement != null)
+                return resolvedElement + "[]";
+        }
+
+        var genericIndex = typeExpression.IndexOf('<');
+
+        if (genericIndex > 0)
+        {
+            var typeName = typeExpression[..genericIndex];
+            var simpleTypeName = typeName.Split('.').Last();
+
+            if (_builtInCollectionTypes.Contains(simpleTypeName))
+            {
+                var args = ExtractTypeArguments(typeExpression);
+
+                if (args.Count > 0)
+                {
+                    var resolvedArgs = new List<string>();
+
+                    foreach (var arg in args)
+                    {
+                        var resolvedArg = ResolveTypeName(arg, currentNamespace, currentTypeFullName, usings, typeAliases, types);
+                        resolvedArgs.Add(resolvedArg ?? arg);
+                    }
+
+                    var collectionNamespace = typeName.Contains('.')
+                                                  ? typeName[..typeName.LastIndexOf('.')]
+                                                  : "System.Collections.Generic";
+
+                    return $"{collectionNamespace}.{simpleTypeName}<{string.Join(", ", resolvedArgs)}>";
+                }
+            }
+        }
+
+        return null;
     }
 
     private static string ExtractRootType(string typeName)

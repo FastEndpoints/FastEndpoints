@@ -30,6 +30,7 @@ public class ODataTests(Sut App) : TestBase<Sut>
         res.Value[0].Name.ShouldBe("Emily Williams");
         res.Value[1].Name.ShouldBe("Jane Smith");
         res.Value[2].Name.ShouldBe("John Doe");
+        res.Context.ShouldContain("#Customer");
     }
 
     [Fact]
@@ -44,6 +45,7 @@ public class ODataTests(Sut App) : TestBase<Sut>
         res.ShouldNotBeNull();
         res.Value.Length.ShouldBe(1);
         res.Value[0].Name.ShouldBe("Michael Johnson");
+        res.Context.ShouldContain("#Customer");
     }
 
     [Fact]
@@ -59,5 +61,6 @@ public class ODataTests(Sut App) : TestBase<Sut>
         res.Value.Length.ShouldBe(1);
         res.Value[0].Name.ShouldBe("John Doe");
         res.Value[0].Address.City.ShouldBe("New York");
+        res.Context.ShouldContain("#Customer");
     }
 }

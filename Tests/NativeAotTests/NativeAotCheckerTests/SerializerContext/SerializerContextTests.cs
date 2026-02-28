@@ -24,6 +24,15 @@ public class SerializerContextTests(App app)
     }
 
     [Fact]
+    public async Task Bool_Response_Endpoint()
+    {
+        var (rsp, res) = await app.Client.GETAsync<BoolResponseEndpoint, bool>();
+
+        rsp.IsSuccessStatusCode.ShouldBeTrue();
+        res.ShouldBeTrue();
+    }
+
+    [Fact]
     public async Task Fluent_Req_NoRes_Endpoint()
     {
         var req = new FluentNoResRequest { FirstName = "John", LastName = "Doe" };

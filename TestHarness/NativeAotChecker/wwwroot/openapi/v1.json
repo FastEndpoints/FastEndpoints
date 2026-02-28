@@ -763,6 +763,26 @@
         }
       }
     },
+    "/ser-ctx-gen-bool-response": {
+      "get": {
+        "tags": [
+          "Ser-Ctx-Gen-Bool-Response"
+        ],
+        "operationId": "NativeAotCheckerEndpointsSerializerCtxGenBoolResponseEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/ser-ctx-gen-for-collection-dtos": {
       "post": {
         "tags": [

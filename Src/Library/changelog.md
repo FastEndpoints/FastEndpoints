@@ -32,4 +32,10 @@ The STJ serializer context generator now supports endpoints defined with [fluent
 
 </details>
 
+<details><summary>Optimize serializer context generator</summary>
+
+The serializer context generator has been improved to use less resources and do the generation in a more efficient and faster manner.
+
+</details>
+
 ## Minor Breaking Changes ⚠️

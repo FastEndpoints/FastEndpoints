@@ -13,79 +13,87 @@ partial class Program
 {
     private static readonly Dictionary<string, string> _emptyAliases = new(StringComparer.Ordinal);
     private static readonly List<string> _emptyUsings = [];
-
-    private static readonly HashSet<string> _rootTypeSkipNames = new(StringComparer.Ordinal)
-    {
-        "PlainTextRequest"
-    };
-
-    private static readonly string[] _endpointBaseTypePatterns =
-    [
-        "Endpoint",
-        "EndpointWithoutRequest",
-        "EndpointWithMapper",
-        "EndpointWithMapping",
-        "Ep"
-    ];
-
-    private static readonly string[] _excludedBaseTypes =
-    [
-        "Mapper",
-        "Validator",
-        "AbstractValidator",
-        "Summary",
-        "EndpointSummary",
-        "ICommand",
-        "ICommandHandler",
-        "IEvent",
-        "IEventHandler"
-    ];
-
-    private static readonly string[] _skipNamespaces =
-    [
-        "Accessibility",
-        "FastEndpoints",
-        "FluentValidation",
-        "Grpc",
-        "JetBrains",
-        "Microsoft",
-        "mscorlib",
-        "Namotion",
-        "netstandard",
-        "Newtonsoft",
-        "NJsonSchema",
-        "NSwag",
-        "NuGet",
-        "PresentationCore",
-        "PresentationFramework",
-        "StackExchange",
-        "System",
-        "testhost",
-        "WindowsBase",
-        "YamlDotNet"
-    ];
-
-    private static readonly string[] _skipTypes =
-    [
-        "EmptyRequest",
-        "EmptyResponse"
-    ];
-
-    private static readonly HashSet<string> _builtInCollectionTypes = new(StringComparer.Ordinal)
-    {
-        "IEnumerable",
-        "List",
-        "ICollection",
-        "IList",
-        "IReadOnlyList",
-        "IReadOnlyCollection",
-        "HashSet",
-        "SortedSet",
-        "Stack",
-        "Queue"
-    };
+    private static readonly GeneratorConfig _config = GeneratorConfig.Instance;
 
     private const string CacheFileName = ".fastendpoints-generator-cache";
+
+    private sealed class GeneratorConfig
+    {
+        public static readonly GeneratorConfig Instance = new();
+
+        public HashSet<string> RootTypeSkipNames { get; } = new(StringComparer.Ordinal)
+        {
+            "PlainTextRequest"
+        };
+
+        public string[] EndpointBaseTypePatterns { get; } =
+        [
+            "Endpoint",
+            "EndpointWithoutRequest",
+            "EndpointWithMapper",
+            "EndpointWithMapping",
+            "Ep"
+        ];
+
+        public string[] ExcludedBaseTypes { get; } =
+        [
+            "Mapper",
+            "Validator",
+            "AbstractValidator",
+            "Summary",
+            "EndpointSummary",
+            "ICommand",
+            "ICommandHandler",
+            "IEvent",
+            "IEventHandler"
+        ];
+
+        public string[] SkipNamespaces { get; } =
+        [
+            "Accessibility",
+            "FastEndpoints",
+            "FluentValidation",
+            "Grpc",
+            "JetBrains",
+            "Microsoft",
+            "mscorlib",
+            "Namotion",
+            "netstandard",
+            "Newtonsoft",
+            "NJsonSchema",
+            "NSwag",
+            "NuGet",
+            "PresentationCore",
+            "PresentationFramework",
+            "StackExchange",
+            "System",
+            "testhost",
+            "WindowsBase",
+            "YamlDotNet"
+        ];
+
+        public string[] SkipTypes { get; } =
+        [
+            "EmptyRequest",
+            "EmptyResponse"
+        ];
+
+        public HashSet<string> BuiltInCollectionTypes { get; } = new(StringComparer.Ordinal)
+        {
+            "IEnumerable",
+            "List",
+            "ICollection",
+            "IList",
+            "IReadOnlyList",
+            "IReadOnlyCollection",
+            "HashSet",
+            "SortedSet",
+            "Stack",
+            "Queue"
+        };
+
+        private GeneratorConfig() { }
+    }
 
     static int Main(string[] args)
     {
@@ -139,7 +147,7 @@ partial class Program
 
         Console.WriteLine($"Analyzing project: {projectName}");
 
-        var csFiles = GetSourceFiles(projectDir);
+        var (csFiles, currentHash) = GetSourceFilesWithHash(projectDir);
 
         if (csFiles.Count == 0)
         {
@@ -152,7 +160,6 @@ partial class Program
 
         var outputDir = GetGeneratorOutputPath(projectDir, customOutputPath);
         var cacheFilePath = Path.Combine(outputDir, CacheFileName);
-        var currentHash = ComputeSourceHash(csFiles);
 
         if (!forceRegenerate && IsUpToDate(cacheFilePath, currentHash, outputDir))
         {
@@ -160,6 +167,31 @@ partial class Program
 
             return 0;
         }
+
+        var parseResults = ParseAllFiles(csFiles);
+        var (syntaxTrees, typeDeclarations, allUsingsByFile, allTypeAliasesByFile) = AggregateResults(parseResults);
+        var analysis = AnalysisContext.Create(typeDeclarations, allUsingsByFile, allTypeAliasesByFile);
+
+        Console.WriteLine($"Found {typeDeclarations.Count} type declarations.");
+
+        var (serializableTypes, endpointCount) = AnalyzeEndpoints(syntaxTrees, analysis);
+
+        Console.WriteLine($"Found {endpointCount} endpoints with {serializableTypes.Count} serializable types.");
+
+        if (serializableTypes.Count == 0)
+        {
+            Console.WriteLine("No serializable types found in endpoints.");
+
+            return 0;
+        }
+
+        GenerateOutput(outputDir, projectPath, projectName, serializableTypes, currentHash, cacheFilePath);
+
+        return 0;
+    }
+
+    private static ConcurrentBag<FileParseResult> ParseAllFiles(List<string> csFiles)
+    {
         var parseResults = new ConcurrentBag<FileParseResult>();
 
         Parallel.ForEach(
@@ -170,6 +202,15 @@ partial class Program
                 parseResults.Add(result);
             });
 
+        return parseResults;
+    }
+
+    private static (List<(SyntaxTree Tree, string FilePath)> SyntaxTrees,
+        Dictionary<string, TypeInfo> TypeDeclarations,
+        Dictionary<string, List<string>> AllUsingsByFile,
+        Dictionary<string, Dictionary<string, string>> AllTypeAliasesByFile)
+        AggregateResults(ConcurrentBag<FileParseResult> parseResults)
+    {
         var globalUsings = new List<string>();
         var globalTypeAliases = new Dictionary<string, string>(StringComparer.Ordinal);
         var ignoredGlobalAliases = new HashSet<string>(StringComparer.Ordinal);
@@ -199,7 +240,6 @@ partial class Program
                 {
                     if (!string.Equals(existingTarget, kvp.Value, StringComparison.Ordinal))
                     {
-                        // conflicting global alias definitions. ignore this alias entirely.
                         globalTypeAliases.Remove(kvp.Key);
                         ignoredGlobalAliases.Add(kvp.Key);
                     }
@@ -236,10 +276,11 @@ partial class Program
             allTypeAliasesByFile[fp] = map;
         }
 
-        var analysis = new AnalysisContext(typeDeclarations, allUsingsByFile, allTypeAliasesByFile);
+        return (syntaxTrees, typeDeclarations, allUsingsByFile, allTypeAliasesByFile);
+    }
 
-        Console.WriteLine($"Found {typeDeclarations.Count} type declarations.");
-
+    private static (HashSet<string> SerializableTypes, int EndpointCount) AnalyzeEndpoints(List<(SyntaxTree Tree, string FilePath)> syntaxTrees, AnalysisContext analysis)
+    {
         var serializableTypes = new HashSet<string>(StringComparer.Ordinal);
         var endpointCount = 0;
 
@@ -268,23 +309,19 @@ partial class Program
                 var currentNs = GetContainingNamespace(classDecl);
 
                 var typeArgs = IsFluentEndpointBaseType(endpointBase)
-                                  ? ExtractFluentTypeArguments(endpointBase)
-                                  : ExtractTypeArguments(endpointBase);
+                                   ? ExtractFluentTypeArguments(endpointBase)
+                                   : ExtractTypeArguments(endpointBase);
 
                 foreach (var typeArg in typeArgs)
                     ProcessTypeExpression(typeArg, currentNs, className, allUsings, typeAliases, serializableTypes, analysis);
             }
         }
 
-        Console.WriteLine($"Found {endpointCount} endpoints with {serializableTypes.Count} serializable types.");
+        return (serializableTypes, endpointCount);
+    }
 
-        if (serializableTypes.Count == 0)
-        {
-            Console.WriteLine("No serializable types found in endpoints.");
-
-            return 0;
-        }
-
+    private static void GenerateOutput(string outputDir, string projectPath, string projectName, HashSet<string> serializableTypes, string currentHash, string cacheFilePath)
+    {
         Directory.CreateDirectory(outputDir);
 
         var rootNamespace = GetRootNamespace(projectPath) ?? projectName.Sanitize();
@@ -301,37 +338,34 @@ partial class Program
         Console.WriteLine("Generated files:");
         Console.WriteLine($"  {contextPath}");
         Console.WriteLine($"  {extensionPath}");
-
-        return 0;
     }
 
-    private static List<string> GetSourceFiles(string projectDir)
+    private static (List<string> Files, string Hash) GetSourceFilesWithHash(string projectDir)
     {
-        return Directory.GetFiles(projectDir, "*.cs", SearchOption.AllDirectories)
-                        .Where(f => !f.Contains(Path.DirectorySeparatorChar + "bin" + Path.DirectorySeparatorChar))
-                        .Where(f => !f.Contains(Path.DirectorySeparatorChar + "obj" + Path.DirectorySeparatorChar))
-                        .Where(f => !f.EndsWith(".g.cs", StringComparison.OrdinalIgnoreCase))
-                        .ToList();
-    }
+        var separator = Path.DirectorySeparatorChar;
+        var binSep = $"{separator}bin{separator}";
+        var objSep = $"{separator}obj{separator}";
 
-    private static string ComputeSourceHash(List<string> files)
-    {
+        var files = new List<string>();
         using var sha256 = SHA256.Create();
         using var stream = new MemoryStream();
         using var writer = new StreamWriter(stream);
 
-        foreach (var file in files.OrderBy(f => f))
+        foreach (var file in Directory.EnumerateFiles(projectDir, "*.cs", SearchOption.AllDirectories))
         {
-            writer.WriteLine(file);
-            writer.WriteLine(File.GetLastWriteTimeUtc(file).Ticks);
+            if (!file.Contains(binSep) && !file.Contains(objSep) && !file.EndsWith(".g.cs", StringComparison.OrdinalIgnoreCase))
+            {
+                files.Add(file);
+                writer.WriteLine(file);
+                writer.WriteLine(File.GetLastWriteTimeUtc(file).Ticks);
+            }
         }
 
         writer.Flush();
         stream.Position = 0;
+        var hash = Convert.ToHexString(sha256.ComputeHash(stream));
 
-        var hashBytes = sha256.ComputeHash(stream);
-
-        return Convert.ToHexString(hashBytes);
+        return (files, hash);
     }
 
     private static bool IsUpToDate(string cacheFilePath, string currentHash, string outputDir)
@@ -362,73 +396,77 @@ partial class Program
         var globalTypeAliases = new Dictionary<string, string>(StringComparer.Ordinal);
         var types = new Dictionary<string, TypeInfo>(StringComparer.Ordinal);
 
-        foreach (var usingDirective in root.DescendantNodes().OfType<UsingDirectiveSyntax>())
+        var allNodes = root.DescendantNodes().ToList();
+
+        foreach (var node in allNodes)
         {
-            if (usingDirective.Name == null)
-                continue;
-
-            if (usingDirective.StaticKeyword.IsKind(SyntaxKind.StaticKeyword)) // "using static" imports members. it doesn't help type resolution.
-                continue;
-
-            var usingName = usingDirective.Name.ToString();
-
-            if (usingDirective.Alias != null) // type alias: using Foo = Bar.Baz;
+            if (node is UsingDirectiveSyntax usingDirective)
             {
-                var aliasName = usingDirective.Alias.Name.ToString();
+                if (usingDirective.Name == null)
+                    continue;
+
+                if (usingDirective.StaticKeyword.IsKind(SyntaxKind.StaticKeyword))
+                    continue;
+
+                var usingName = usingDirective.Name.ToString();
+
+                if (usingDirective.Alias != null)
+                {
+                    var aliasName = usingDirective.Alias.Name.ToString();
+                    if (usingDirective.GlobalKeyword.IsKind(SyntaxKind.GlobalKeyword))
+                        globalTypeAliases[aliasName] = usingName;
+                    else
+                        fileTypeAliases[aliasName] = usingName;
+
+                    continue;
+                }
+
                 if (usingDirective.GlobalKeyword.IsKind(SyntaxKind.GlobalKeyword))
-                    globalTypeAliases[aliasName] = usingName;
+                    globalUsings.Add(usingName);
                 else
-                    fileTypeAliases[aliasName] = usingName;
-
-                continue;
+                    fileUsings.Add(usingName);
             }
-
-            if (usingDirective.GlobalKeyword.IsKind(SyntaxKind.GlobalKeyword))
-                globalUsings.Add(usingName);
-            else
-                fileUsings.Add(usingName);
-        }
-
-        foreach (var typeDecl in root.DescendantNodes().OfType<TypeDeclarationSyntax>())
-        {
-            if (typeDecl.Modifiers.Any(m => m.Text == "file")) // file-scoped types
-                continue;
-
-            var fullName = GetFullTypeName(typeDecl);
-            var baseTypes = typeDecl.BaseList?.Types.Select(t => new TypeRef(t.ToString(), filePath)).ToList() ?? [];
-            var properties = new List<PropertyInfo>();
-
-            foreach (var prop in typeDecl.Members.OfType<PropertyDeclarationSyntax>())
-                properties.Add(new(prop.Identifier.Text, prop.Type.ToString(), filePath));
-
-            if (typeDecl is RecordDeclarationSyntax { ParameterList: not null } recordDecl)
+            else if (node is TypeDeclarationSyntax typeDecl)
             {
-                foreach (var param in recordDecl.ParameterList.Parameters)
+                if (typeDecl.Modifiers.Any(m => m.Text == "file"))
+                    continue;
+
+                var fullName = GetFullTypeName(typeDecl);
+                var baseTypes = typeDecl.BaseList?.Types.Select(t => new TypeRef(t.ToString(), filePath)).ToList() ?? [];
+                var properties = new List<PropertyInfo>();
+
+                foreach (var prop in typeDecl.Members.OfType<PropertyDeclarationSyntax>())
+                    properties.Add(new(prop.Identifier.Text, prop.Type.ToString(), filePath));
+
+                if (typeDecl is RecordDeclarationSyntax { ParameterList: not null } recordDecl)
                 {
-                    if (param.Type != null)
-                        properties.Add(new(param.Identifier.Text, param.Type.ToString(), filePath));
+                    foreach (var param in recordDecl.ParameterList.Parameters)
+                    {
+                        if (param.Type != null)
+                            properties.Add(new(param.Identifier.Text, param.Type.ToString(), filePath));
+                    }
                 }
-            }
 
-            var ns = "";
-            var parent = typeDecl.Parent;
+                var ns = "";
+                var parent = typeDecl.Parent;
 
-            while (parent != null)
-            {
-                if (parent is BaseNamespaceDeclarationSyntax nsDecl)
+                while (parent != null)
                 {
-                    ns = nsDecl.Name.ToString();
+                    if (parent is BaseNamespaceDeclarationSyntax nsDecl)
+                    {
+                        ns = nsDecl.Name.ToString();
 
-                    break;
+                        break;
+                    }
+                    parent = parent.Parent;
                 }
-                parent = parent.Parent;
-            }
 
-            var typeInfo = new TypeInfo(fullName, ns, typeDecl.Identifier.Text, filePath, properties, baseTypes);
-            if (types.TryGetValue(fullName, out var existing))
-                types[fullName] = MergeTypeInfos(existing, typeInfo);
-            else
-                types[fullName] = typeInfo;
+                var typeInfo = new TypeInfo(fullName, ns, typeDecl.Identifier.Text, filePath, properties, baseTypes);
+                if (types.TryGetValue(fullName, out var existing))
+                    types[fullName] = MergeTypeInfos(existing, typeInfo);
+                else
+                    types[fullName] = typeInfo;
+            }
         }
 
         return new(filePath, tree, fileUsings, globalUsings, fileTypeAliases, globalTypeAliases, types);
@@ -448,7 +486,7 @@ partial class Program
 
             var baseName = baseType.Split('<')[0].Split('.').Last().Trim();
 
-            if (_endpointBaseTypePatterns.Any(p => baseName.StartsWith(p, StringComparison.Ordinal)))
+            if (_config.EndpointBaseTypePatterns.Any(p => baseName.StartsWith(p, StringComparison.Ordinal)))
                 return baseType;
         }
 
@@ -504,15 +542,15 @@ partial class Program
         return result;
     }
 
-    private static List<string> SplitDotSegments(string typeName)
+    private static List<string> SplitBalanced(string input, char delimiter, bool trimItems = false)
     {
         var result = new List<string>();
         var depth = 0;
         var lastSplit = 0;
 
-        for (var i = 0; i < typeName.Length; i++)
+        for (var i = 0; i < input.Length; i++)
         {
-            switch (typeName[i])
+            switch (input[i])
             {
                 case '<':
                     depth++;
@@ -522,65 +560,42 @@ partial class Program
                     depth--;
 
                     break;
-                case '.' when depth == 0:
-                    if (i > lastSplit)
-                        result.Add(typeName[lastSplit..i]);
-                    lastSplit = i + 1;
+                default:
+                    if (depth == 0 && input[i] == delimiter)
+                    {
+                        var item = trimItems ? input[lastSplit..i].Trim() : input[lastSplit..i];
+                        if (item.Length > 0)
+                            result.Add(item);
+                        lastSplit = i + 1;
+                    }
 
                     break;
             }
         }
 
-        if (lastSplit < typeName.Length)
-            result.Add(typeName[lastSplit..]);
+        if (lastSplit < input.Length)
+        {
+            var item = trimItems ? input[lastSplit..].Trim() : input[lastSplit..];
+            if (item.Length > 0)
+                result.Add(item);
+        }
 
         return result;
     }
+
+    private static List<string> SplitDotSegments(string typeName)
+        => SplitBalanced(typeName, '.');
 
     private static List<string> SplitTypeArguments(string argsString)
-    {
-        var result = new List<string>();
-        var depth = 0;
-        var lastSplit = 0;
-
-        for (var i = 0; i < argsString.Length; i++)
-        {
-            switch (argsString[i])
-            {
-                case '<':
-                    depth++;
-
-                    break;
-                case '>':
-                    depth--;
-
-                    break;
-                case ',' when depth == 0:
-                    var arg = argsString[lastSplit..i].Trim();
-                    if (arg.Length > 0)
-                        result.Add(arg);
-                    lastSplit = i + 1;
-
-                    break;
-            }
-        }
-
-        if (lastSplit < argsString.Length)
-        {
-            var arg = argsString[lastSplit..].Trim();
-            if (arg.Length > 0)
-                result.Add(arg);
-        }
-
-        return result;
-    }
+        => SplitBalanced(argsString, ',', true);
 
     private static string? ResolveTypeName(string typeName,
                                            string currentNamespace,
                                            string currentTypeFullName,
                                            List<string> usings,
                                            Dictionary<string, string> typeAliases,
-                                           Dictionary<string, TypeInfo> types)
+                                           Dictionary<string, TypeInfo> types,
+                                           Dictionary<string, string>? simpleNameCache = null)
     {
         if (string.IsNullOrWhiteSpace(typeName))
             return null;
@@ -627,12 +642,10 @@ partial class Program
                 return fullName;
         }
 
-        var simpleTypeName = lookupName.Split('.').Last();
-        var match = types.Keys.FirstOrDefault(
-            k => k.EndsWith("." + simpleTypeName, StringComparison.Ordinal) ||
-                 string.Equals(k, simpleTypeName, StringComparison.Ordinal));
+        if (simpleNameCache != null && simpleNameCache.TryGetValue(lookupName, out var cached))
+            return cached;
 
-        return match;
+        return null;
     }
 
     private static IEnumerable<string> GetNestedTypeCandidates(string currentTypeFullName, string lookupName)
@@ -672,7 +685,7 @@ partial class Program
 
     private static bool ShouldSkipType(string fullTypeName, Dictionary<string, TypeInfo> allTypes)
     {
-        foreach (var skipNs in _skipNamespaces)
+        foreach (var skipNs in _config.SkipNamespaces)
         {
             if (fullTypeName.StartsWith(skipNs + ".", StringComparison.Ordinal) ||
                 fullTypeName.StartsWith("global::" + skipNs + ".", StringComparison.Ordinal))
@@ -681,7 +694,7 @@ partial class Program
 
         var simpleTypeName = fullTypeName.Split('.').Last();
 
-        if (_skipTypes.Contains(simpleTypeName))
+        if (_config.SkipTypes.Contains(simpleTypeName))
             return true;
 
         if (allTypes.TryGetValue(fullTypeName, out var typeInfo))
@@ -690,7 +703,7 @@ partial class Program
             {
                 var baseTypeName = baseType.TypeName.Split('<')[0].Split('.').Last().Trim();
 
-                if (_excludedBaseTypes.Any(e => baseTypeName.StartsWith(e, StringComparison.Ordinal)))
+                if (_config.ExcludedBaseTypes.Any(e => baseTypeName.StartsWith(e, StringComparison.Ordinal)))
                     return true;
             }
         }
@@ -711,7 +724,7 @@ partial class Program
 
         var currentNs = typeInfo.Namespace;
         var simpleTypeName = typeName.Split('.').Last();
-        var skipBaseTraversal = _rootTypeSkipNames.Contains(simpleTypeName);
+        var skipBaseTraversal = _config.RootTypeSkipNames.Contains(simpleTypeName);
 
         if (!skipBaseTraversal)
         {
@@ -751,7 +764,14 @@ partial class Program
             typeExpression = typeExpression.TrimEnd('?');
 
         // check if this is a collection type and register it
-        var collectionType = TryResolveCollectionType(typeExpression, currentNamespace, currentTypeFullName, usings, typeAliases, analysis.TypesByFullName);
+        var collectionType = TryResolveCollectionType(
+            typeExpression,
+            currentNamespace,
+            currentTypeFullName,
+            usings,
+            typeAliases,
+            analysis.TypesByFullName,
+            analysis.SimpleNameToFullName);
 
         if (collectionType != null)
         {
@@ -767,7 +787,7 @@ partial class Program
             }
         }
 
-        var resolved = ResolveTypeName(typeExpression, currentNamespace, currentTypeFullName, usings, typeAliases, analysis.TypesByFullName);
+        var resolved = ResolveTypeName(typeExpression, currentNamespace, currentTypeFullName, usings, typeAliases, analysis.TypesByFullName, analysis.SimpleNameToFullName);
 
         if (resolved != null)
             AddTypeAndDependencies(resolved, serializableTypes, analysis);
@@ -781,12 +801,13 @@ partial class Program
                                                     string currentTypeFullName,
                                                     List<string> usings,
                                                     Dictionary<string, string> typeAliases,
-                                                    Dictionary<string, TypeInfo> types)
+                                                    Dictionary<string, TypeInfo> types,
+                                                    Dictionary<string, string>? simpleNameCache = null)
     {
         if (typeExpression.EndsWith("[]", StringComparison.Ordinal))
         {
             var elementType = typeExpression[..^2];
-            var resolvedElement = ResolveTypeName(elementType, currentNamespace, currentTypeFullName, usings, typeAliases, types);
+            var resolvedElement = ResolveTypeName(elementType, currentNamespace, currentTypeFullName, usings, typeAliases, types, simpleNameCache);
 
             if (resolvedElement != null)
                 return resolvedElement + "[]";
@@ -799,7 +820,7 @@ partial class Program
             var typeName = typeExpression[..genericIndex];
             var simpleTypeName = typeName.Split('.').Last();
 
-            if (_builtInCollectionTypes.Contains(simpleTypeName))
+            if (_config.BuiltInCollectionTypes.Contains(simpleTypeName))
             {
                 var args = ExtractTypeArguments(typeExpression);
 
@@ -809,7 +830,7 @@ partial class Program
 
                     foreach (var arg in args)
                     {
-                        var resolvedArg = ResolveTypeName(arg, currentNamespace, currentTypeFullName, usings, typeAliases, types);
+                        var resolvedArg = ResolveTypeName(arg, currentNamespace, currentTypeFullName, usings, typeAliases, types, simpleNameCache);
                         resolvedArgs.Add(resolvedArg ?? arg);
                     }
 
@@ -1033,7 +1054,26 @@ partial class Program
 
 record AnalysisContext(Dictionary<string, TypeInfo> TypesByFullName,
                        Dictionary<string, List<string>> AllUsingsByFile,
-                       Dictionary<string, Dictionary<string, string>> AllTypeAliasesByFile);
+                       Dictionary<string, Dictionary<string, string>> AllTypeAliasesByFile)
+{
+    public Dictionary<string, string> SimpleNameToFullName { get; } = new(StringComparer.Ordinal);
+
+    public static AnalysisContext Create(Dictionary<string, TypeInfo> types,
+                                         Dictionary<string, List<string>> usings,
+                                         Dictionary<string, Dictionary<string, string>> aliases)
+    {
+        var ctx = new AnalysisContext(types, usings, aliases);
+
+        foreach (var fullName in types.Keys)
+        {
+            var simpleName = fullName.Split('.').Last();
+            if (!ctx.SimpleNameToFullName.ContainsKey(simpleName))
+                ctx.SimpleNameToFullName[simpleName] = fullName;
+        }
+
+        return ctx;
+    }
+}
 
 record FileParseResult(string FilePath,
                        SyntaxTree Tree,

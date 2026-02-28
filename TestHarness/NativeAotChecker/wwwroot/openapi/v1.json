@@ -802,6 +802,177 @@
         }
       }
     },
+    "/fluent-noreq-nores": {
+      "get": {
+        "tags": [
+          "Fluent-Noreq-Nores"
+        ],
+        "operationId": "NativeAotCheckerEndpointsSerializerCtxGenFluentNoReqNoResEndpoint",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/fluent-noreq-res": {
+      "get": {
+        "tags": [
+          "Fluent-Noreq-Res"
+        ],
+        "operationId": "NativeAotCheckerEndpointsSerializerCtxGenFluentNoReqResEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NativeAotCheckerEndpointsSerializerCtxGenFluentNoReqResResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fluent-noreq-res-map": {
+      "get": {
+        "tags": [
+          "Fluent-Noreq-Res-Map"
+        ],
+        "operationId": "NativeAotCheckerEndpointsSerializerCtxGenFluentNoReqResMapEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NativeAotCheckerEndpointsSerializerCtxGenFluentNoReqResMapResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fluent-req-nores": {
+      "post": {
+        "tags": [
+          "Fluent-Req-Nores"
+        ],
+        "operationId": "NativeAotCheckerEndpointsSerializerCtxGenFluentNoResEndpoint",
+        "requestBody": {
+          "x-name": "FluentNoResRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NativeAotCheckerEndpointsSerializerCtxGenFluentNoResRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/fluent-req-nores-map": {
+      "post": {
+        "tags": [
+          "Fluent-Req-Nores-Map"
+        ],
+        "operationId": "NativeAotCheckerEndpointsSerializerCtxGenFluentNoResMapEndpoint",
+        "requestBody": {
+          "x-name": "FluentNoResMapRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NativeAotCheckerEndpointsSerializerCtxGenFluentNoResMapRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/fluent-req-res": {
+      "post": {
+        "tags": [
+          "Fluent-Req-Res"
+        ],
+        "operationId": "NativeAotCheckerEndpointsSerializerCtxGenFluentResEndpoint",
+        "requestBody": {
+          "x-name": "FluentResRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NativeAotCheckerEndpointsSerializerCtxGenFluentResRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NativeAotCheckerEndpointsSerializerCtxGenFluentResResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fluent-req-res-map": {
+      "post": {
+        "tags": [
+          "Fluent-Req-Res-Map"
+        ],
+        "operationId": "NativeAotCheckerEndpointsSerializerCtxGenFluentResMapEndpoint",
+        "requestBody": {
+          "x-name": "FluentMapRequest",
+          "description": "",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NativeAotCheckerEndpointsSerializerCtxGenFluentMapRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NativeAotCheckerEndpointsSerializerCtxGenFluentMapResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/error-with-prop-expression": {
       "post": {
         "tags": [
@@ -1353,6 +1524,116 @@
           },
           "last_name": {
             "type": "string"
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsSerializerCtxGenFluentNoReqResResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsSerializerCtxGenFluentNoReqResMapResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "full_name": {
+            "type": "string"
+          },
+          "age": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "mapper_was_used": {
+            "type": "boolean"
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsSerializerCtxGenFluentNoResRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "first_name": {
+            "type": "string"
+          },
+          "last_name": {
+            "type": "string"
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsSerializerCtxGenFluentNoResMapRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "first_name": {
+            "type": "string"
+          },
+          "last_name": {
+            "type": "string"
+          },
+          "age": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsSerializerCtxGenFluentResResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "full_name": {
+            "type": "string"
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsSerializerCtxGenFluentResRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "first_name": {
+            "type": "string"
+          },
+          "last_name": {
+            "type": "string"
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsSerializerCtxGenFluentMapResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "full_name": {
+            "type": "string"
+          },
+          "age": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "mapper_was_used": {
+            "type": "boolean"
+          }
+        }
+      },
+      "NativeAotCheckerEndpointsSerializerCtxGenFluentMapRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "first_name": {
+            "type": "string"
+          },
+          "last_name": {
+            "type": "string"
+          },
+          "age": {
+            "type": "integer",
+            "format": "int32"
           }
         }
       },

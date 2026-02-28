@@ -360,29 +360,42 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/Src/Library/Testing/HttpClientExtensions.cs</url>
-          <line>540</line>
-          <properties documentPath="$PROJECT_DIR$/Src/Library/Testing/HttpClientExtensions.cs" containingFunctionPresentation="Method 'ToContent'">
+          <line>490</line>
+          <properties documentPath="$PROJECT_DIR$/Src/Library/Testing/HttpClientExtensions.cs" containingFunctionPresentation="Method 'SENDAsync'">
             <startOffsets>
-              <option value="34829" />
+              <option value="32872" />
             </startOffsets>
             <endOffsets>
-              <option value="34927" />
+              <option value="32949" />
             </endOffsets>
           </properties>
-          <option name="timeStamp" value="6" />
+          <option name="timeStamp" value="9" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/Src/Library/Testing/HttpClientExtensions.cs</url>
-          <line>543</line>
-          <properties documentPath="$PROJECT_DIR$/Src/Library/Testing/HttpClientExtensions.cs" containingFunctionPresentation="Method 'ToContent'">
+          <line>507</line>
+          <properties documentPath="$PROJECT_DIR$/Src/Library/Testing/HttpClientExtensions.cs" containingFunctionPresentation="Method 'SENDAsync'">
             <startOffsets>
-              <option value="34947" />
+              <option value="33499" />
             </startOffsets>
             <endOffsets>
-              <option value="34959" />
+              <option value="33525" />
             </endOffsets>
           </properties>
-          <option name="timeStamp" value="7" />
+          <option name="timeStamp" value="10" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/Src/Library/Testing/HttpClientExtensions.cs</url>
+          <line>511</line>
+          <properties documentPath="$PROJECT_DIR$/Src/Library/Testing/HttpClientExtensions.cs" containingFunctionPresentation="Method 'SENDAsync'">
+            <startOffsets>
+              <option value="33573" />
+            </startOffsets>
+            <endOffsets>
+              <option value="33638" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="11" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>

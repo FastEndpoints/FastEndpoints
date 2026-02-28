@@ -16,6 +16,6 @@ sealed class FluentNoResEndpoint : Ep.Req<FluentNoResRequest>.NoRes
 
     public override async Task HandleAsync(FluentNoResRequest req, CancellationToken ct)
     {
-        await Send.StringAsync($"{req.FirstName} {req.LastName}");
+        await Send.OkAsync($"{req.FirstName} {req.LastName}");
     }
 }

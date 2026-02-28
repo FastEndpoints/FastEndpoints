@@ -10,6 +10,6 @@ sealed class FluentNoReqNoResEndpoint : Ep.NoReq.NoRes
 
     public override async Task HandleAsync(CancellationToken ct)
     {
-        await Send.StringAsync("Hello from NoReq.NoRes");
+        await Send.OkAsync("Hello from NoReq.NoRes");
     }
 }

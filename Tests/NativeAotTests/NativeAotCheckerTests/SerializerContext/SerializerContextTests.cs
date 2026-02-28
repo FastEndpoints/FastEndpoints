@@ -50,7 +50,7 @@ public class SerializerContextTests(App app)
     [Fact]
     public async Task Fluent_NoReq_NoRes_Endpoint()
     {
-        var (rsp, res) = await app.Client.GETAsync<FluentNoReqNoResEndpoint, string>();
+        var (rsp, res, err) = await app.Client.GETAsync<FluentNoReqNoResEndpoint, string>();
 
         rsp.IsSuccessStatusCode.ShouldBeTrue();
         res.ShouldBe("Hello from NoReq.NoRes");

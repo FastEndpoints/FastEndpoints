@@ -34,6 +34,6 @@ sealed class FluentNoResMapEndpoint : Ep.Req<FluentNoResMapRequest>.NoRes.Map<Fl
     public override async Task HandleAsync(FluentNoResMapRequest r, CancellationToken c)
     {
         var entity = Map.ToEntity(r);
-        await Send.StringAsync($"Created: {entity.FullName} (age {entity.Age})");
+        await Send.OkAsync($"Created: {entity.FullName} (age {entity.Age})");
     }
 }

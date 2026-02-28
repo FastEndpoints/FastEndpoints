@@ -26,4 +26,10 @@ The serializer context generator tool was not creating `JsonSerializable` attrib
 
 ## Improvements 🚀
 
+<details><summary>Fluent generics support for serializer context generator</summary>
+
+The STJ serializer context generator now supports endpoints defined with [fluent generics](https://fast-endpoints.com/docs/get-started#fluent-generics).
+
+</details>
+
 ## Minor Breaking Changes ⚠️

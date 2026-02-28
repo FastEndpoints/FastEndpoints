@@ -267,7 +267,10 @@ partial class Program
 
                 var currentNs = GetContainingNamespace(classDecl);
 
-                var typeArgs = ExtractTypeArguments(endpointBase);
+                var typeArgs = IsFluentEndpointBaseType(endpointBase)
+                                  ? ExtractFluentTypeArguments(endpointBase)
+                                  : ExtractTypeArguments(endpointBase);
+
                 foreach (var typeArg in typeArgs)
                     ProcessTypeExpression(typeArg, currentNs, className, allUsings, typeAliases, serializableTypes, analysis);
             }
@@ -440,6 +443,9 @@ partial class Program
     {
         foreach (var baseType in baseTypes)
         {
+            if (IsFluentEndpointBaseType(baseType))
+                return baseType;
+
             var baseName = baseType.Split('<')[0].Split('.').Last().Trim();
 
             if (_endpointBaseTypePatterns.Any(p => baseName.StartsWith(p, StringComparison.Ordinal)))
@@ -447,6 +453,20 @@ partial class Program
         }
 
         return null;
+    }
+
+    private static bool IsFluentEndpointBaseType(string baseType)
+    {
+        var span = baseType.AsSpan();
+        var genericIdx = span.IndexOf('<');
+
+        if (genericIdx > 0)
+            span = span[..genericIdx];
+
+        span = span.Trim();
+
+        return span.StartsWith("Ep.", StringComparison.Ordinal) ||
+               span.Contains(".Ep.", StringComparison.Ordinal);
     }
 
     private static List<string> ExtractTypeArguments(string genericType)
@@ -464,15 +484,68 @@ partial class Program
         return result;
     }
 
+    private static List<string> ExtractFluentTypeArguments(string fluentBaseType)
+    {
+        var result = new List<string>();
+
+        foreach (var segment in SplitDotSegments(fluentBaseType))
+        {
+            var span = segment.AsSpan();
+            var genericIdx = span.IndexOf('<');
+            var segName = genericIdx > 0 ? span[..genericIdx].Trim() : span.Trim();
+
+            // only extract type args from Req<T> and Res<T> segments; skip Ep, NoReq, NoRes, Map
+            if (!segName.Equals("Req", StringComparison.Ordinal) && !segName.Equals("Res", StringComparison.Ordinal))
+                continue;
+
+            result.AddRange(ExtractTypeArguments(segment));
+        }
+
+        return result;
+    }
+
+    private static List<string> SplitDotSegments(string typeName)
+    {
+        var result = new List<string>();
+        var depth = 0;
+        var lastSplit = 0;
+
+        for (var i = 0; i < typeName.Length; i++)
+        {
+            switch (typeName[i])
+            {
+                case '<':
+                    depth++;
+
+                    break;
+                case '>':
+                    depth--;
+
+                    break;
+                case '.' when depth == 0:
+                    if (i > lastSplit)
+                        result.Add(typeName[lastSplit..i]);
+                    lastSplit = i + 1;
+
+                    break;
+            }
+        }
+
+        if (lastSplit < typeName.Length)
+            result.Add(typeName[lastSplit..]);
+
+        return result;
+    }
+
     private static List<string> SplitTypeArguments(string argsString)
     {
         var result = new List<string>();
         var depth = 0;
-        var current = new StringBuilder();
+        var lastSplit = 0;
 
-        foreach (var c in argsString)
+        for (var i = 0; i < argsString.Length; i++)
         {
-            switch (c)
+            switch (argsString[i])
             {
                 case '<':
                     depth++;
@@ -483,16 +556,21 @@ partial class Program
 
                     break;
                 case ',' when depth == 0:
-                    result.Add(current.ToString().Trim());
-                    current.Clear();
+                    var arg = argsString[lastSplit..i].Trim();
+                    if (arg.Length > 0)
+                        result.Add(arg);
+                    lastSplit = i + 1;
 
-                    continue;
+                    break;
             }
-            current.Append(c);
         }
 
-        if (current.Length > 0)
-            result.Add(current.ToString().Trim());
+        if (lastSplit < argsString.Length)
+        {
+            var arg = argsString[lastSplit..].Trim();
+            if (arg.Length > 0)
+                result.Add(arg);
+        }
 
         return result;
     }

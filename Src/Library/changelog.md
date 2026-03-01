@@ -38,4 +38,10 @@ The serializer context generator has been improved to use less resources and do 
 
 </details>
 
+<details><summary>Custom value parser registration internals</summary>
+
+v8 matches custom value parsers by the underlying type (due to native aot intricacies) and if a user would register the parser with the nullable type, it would not match. This has been solved by always registering the underlying type even if the user supplies a nullable type.
+
+</details>
+
 ## Minor Breaking Changes ⚠️

@@ -2,7 +2,7 @@ using NativeAotChecker.Endpoints.Json;
 
 namespace NativeAotCheckerTests;
 
-public class JsonTests(App app)
+public class JsonTests(App app) : TestBase<App>
 {
     [Fact]
     public async Task Json_Serialization_With_Http_Post()

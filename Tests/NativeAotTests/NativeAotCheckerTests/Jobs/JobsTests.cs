@@ -2,7 +2,7 @@ using NativeAotChecker.Endpoints.Jobs;
 
 namespace NativeAotCheckerTests;
 
-public class JobsTests(App app)
+public class JobsTests(App app) : TestBase<App>
 {
     [Fact]
     public async Task Queue_Jobs_That_Return_Results()

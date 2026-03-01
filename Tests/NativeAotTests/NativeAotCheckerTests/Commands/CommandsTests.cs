@@ -2,7 +2,7 @@ using NativeAotChecker.Endpoints.Commands;
 
 namespace NativeAotCheckerTests;
 
-public class CommandsTests(App app)
+public class CommandsTests(App app) : TestBase<App>
 {
     [Fact]
     public async Task Command_Execution_With_Result()

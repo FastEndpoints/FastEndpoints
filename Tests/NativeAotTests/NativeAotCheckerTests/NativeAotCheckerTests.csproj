@@ -7,6 +7,13 @@
     </ItemGroup>
 
     <PropertyGroup>
+        <RunSmokeTests>true</RunSmokeTests> <!-- flip this toggle to switch between running tests in WAF mode or native aot mode -->
+    </PropertyGroup>
+    <ItemGroup Condition="'$(RunSmokeTests)' == 'true'">
+        <RuntimeHostConfigurationOption Include="NativeAotTestMode" Value="true"/>
+    </ItemGroup>
+
+    <PropertyGroup>
         <AotOutputPath>$(MSBuildThisFileDirectory)aot\</AotOutputPath>
         <AotProjectPath>$(MSBuildThisFileDirectory)..\..\..\TestHarness\NativeAotChecker\</AotProjectPath>
         <AotExeName Condition="$([MSBuild]::IsOSPlatform('Windows'))">NativeAotChecker.exe</AotExeName>
@@ -14,12 +21,14 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\..\Src\Testing\FastEndpoints.Testing.csproj"/>
         <ProjectReference Include="$(AotProjectPath)NativeAotChecker.csproj"/>
         <AotSourceFiles Include="$(AotProjectPath)**\*.cs" Visible="false"/>
     </ItemGroup>
 
     <Target Name="PublishAotBeforeBuild"
             BeforeTargets="BeforeBuild"
+            Condition="'$(RunSmokeTests)' == 'true'"
             Inputs="@(AotSourceFiles)"
             Outputs="$(AotOutputPath)$(AotExeName)">
 

@@ -3,7 +3,7 @@ using NativeAotChecker.Endpoints.Binding;
 
 namespace NativeAotCheckerTests;
 
-public class BindingTests(App app)
+public class BindingTests(App app) : TestBase<App>
 {
     [Fact]
     public async Task Non_Json_Binding()

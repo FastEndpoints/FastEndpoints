@@ -2,7 +2,7 @@ using NativeAotChecker.Endpoints.Processors;
 
 namespace NativeAotCheckerTests;
 
-public class ProcessorsTests(App app)
+public class ProcessorsTests(App app) : TestBase<App>
 {
     [Fact]
     public async Task Pre_Processors_Execute()

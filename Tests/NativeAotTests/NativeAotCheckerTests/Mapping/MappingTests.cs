@@ -2,7 +2,7 @@ using NativeAotChecker.Endpoints.Mapping;
 
 namespace NativeAotCheckerTests;
 
-public class MappingTests(App app)
+public class MappingTests(App app) : TestBase<App>
 {
     [Fact]
     public async Task Mapper_Is_Detected_And_Used_Correctly()

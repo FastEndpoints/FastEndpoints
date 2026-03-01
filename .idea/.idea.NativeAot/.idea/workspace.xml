@@ -68,13 +68,14 @@
     &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/SOURCE-CONTROL/FastEndpoints/Src/Directory.Build.props&quot;,
+    &quot;ba5fafe5-f318-45d7-8468-c2974285f7b4.executor&quot;: &quot;Debug&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/SOURCE-CONTROL/FastEndpoints/Src/Testing/FastEndpoints.Testing.csproj&quot;,
     &quot;rider.code.cleanup.on.save&quot;: &quot;true&quot;,
     &quot;rider.code.cleanup.on.save.profile&quot;: &quot;clean-on-save&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;editor.preferences.fonts.default&quot;
   }
 }</component>
-  <component name="RunManager" selected=".NET Project.NativeAotChecker">
+  <component name="RunManager" selected=".NET Launch Settings Profile.FEBench">
     <configuration name="FastEndpoints.Generator.Cli" type="DotNetProject" factoryName=".NET Project">
       <option name="EXE_PATH" value="" />
       <option name="PROGRAM_PARAMETERS" value="" />
@@ -375,19 +376,6 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="DotNet Breakpoints">
           <url>file://$PROJECT_DIR$/Src/Library/Testing/HttpClientExtensions.cs</url>
-          <line>490</line>
-          <properties documentPath="$PROJECT_DIR$/Src/Library/Testing/HttpClientExtensions.cs" containingFunctionPresentation="Method 'SENDAsync'">
-            <startOffsets>
-              <option value="32872" />
-            </startOffsets>
-            <endOffsets>
-              <option value="32949" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="9" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/Src/Library/Testing/HttpClientExtensions.cs</url>
           <line>507</line>
           <properties documentPath="$PROJECT_DIR$/Src/Library/Testing/HttpClientExtensions.cs" containingFunctionPresentation="Method 'SENDAsync'">
             <startOffsets>
@@ -411,6 +399,19 @@
             </endOffsets>
           </properties>
           <option name="timeStamp" value="11" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/TestHarness/NativeAotChecker/Endpoints/Binding/BindFromAttributeEndpoint.cs</url>
+          <line>38</line>
+          <properties documentPath="$PROJECT_DIR$/TestHarness/NativeAotChecker/Endpoints/Binding/BindFromAttributeEndpoint.cs" containingFunctionPresentation="Method 'HandleAsync'">
+            <startOffsets>
+              <option value="1122" />
+            </startOffsets>
+            <endOffsets>
+              <option value="1568" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="13" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>

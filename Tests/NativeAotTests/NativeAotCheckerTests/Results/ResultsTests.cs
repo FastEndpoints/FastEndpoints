@@ -2,7 +2,7 @@ using NativeAotChecker.Endpoints.Results;
 
 namespace NativeAotCheckerTests;
 
-public class ResultsTests(App app)
+public class ResultsTests(App app) : TestBase<App>
 {
     [Fact]
     public async Task IResult_Returning_Endpoint()

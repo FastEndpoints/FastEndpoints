@@ -2,7 +2,7 @@ using NativeAotChecker.Endpoints.SerializerCtxGen;
 
 namespace NativeAotCheckerTests;
 
-public class SerializerContextTests(App app)
+public class SerializerContextTests(App app) : TestBase<App>
 {
     [Fact]
     public async Task Collection_Dto_Serialization()

@@ -2,7 +2,7 @@ using NativeAotChecker.Endpoints.Events;
 
 namespace NativeAotCheckerTests;
 
-public class EventsTests(App app)
+public class EventsTests(App app) : TestBase<App>
 {
     [Fact]
     public async Task Event_Publish()

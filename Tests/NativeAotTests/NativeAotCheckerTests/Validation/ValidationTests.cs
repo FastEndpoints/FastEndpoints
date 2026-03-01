@@ -3,7 +3,7 @@ using NativeAotChecker.Endpoints.Validation;
 
 namespace NativeAotCheckerTests;
 
-public class ValidationTests(App app)
+public class ValidationTests(App app) : TestBase<App>
 {
     [Fact]
     public async Task FluentValidation_Validator()

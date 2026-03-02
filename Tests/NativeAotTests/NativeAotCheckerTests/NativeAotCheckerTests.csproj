@@ -13,30 +13,9 @@
         <RuntimeHostConfigurationOption Include="NativeAotTestMode" Value="true"/>
     </ItemGroup>
 
-    <PropertyGroup>
-        <AotOutputPath>$(MSBuildThisFileDirectory)aot\</AotOutputPath>
-        <AotProjectPath>$(MSBuildThisFileDirectory)..\..\..\TestHarness\NativeAotChecker\</AotProjectPath>
-        <AotExeName Condition="$([MSBuild]::IsOSPlatform('Windows'))">NativeAotChecker.exe</AotExeName>
-        <AotExeName Condition="!$([MSBuild]::IsOSPlatform('Windows'))">NativeAotChecker</AotExeName>
-    </PropertyGroup>
-
     <ItemGroup>
         <ProjectReference Include="..\..\..\Src\Testing\FastEndpoints.Testing.csproj"/>
-        <ProjectReference Include="$(AotProjectPath)NativeAotChecker.csproj"/>
-        <AotSourceFiles Include="$(AotProjectPath)**\*.cs" Visible="false"/>
+        <ProjectReference Include="..\..\..\TestHarness\NativeAotChecker\NativeAotChecker.csproj"/>
     </ItemGroup>
-
-    <Target Name="PublishAotBeforeBuild"
-            BeforeTargets="BeforeBuild"
-            Condition="'$(RunSmokeTests)' == 'true'"
-            Inputs="@(AotSourceFiles)"
-            Outputs="$(AotOutputPath)$(AotExeName)">
-
-        <Exec Command="dotnet publish &quot;$(AotProjectPath)NativeAotChecker.csproj&quot; -c Release -o &quot;$(AotOutputPath)&quot;"
-              StandardOutputImportance="low"
-              StandardErrorImportance="high"/>
-
-        <Message Text="Published NativeAotChecker AOT binary." Importance="high"/>
-    </Target>
-
+    
 </Project>

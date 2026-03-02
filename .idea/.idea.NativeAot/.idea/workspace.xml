@@ -75,7 +75,7 @@
     &quot;settings.editor.selected.configurable&quot;: &quot;editor.preferences.fonts.default&quot;
   }
 }</component>
-  <component name="RunManager" selected=".NET Launch Settings Profile.FEBench">
+  <component name="RunManager" selected=".NET Project.NativeAotChecker">
     <configuration name="FastEndpoints.Generator.Cli" type="DotNetProject" factoryName=".NET Project">
       <option name="EXE_PATH" value="" />
       <option name="PROGRAM_PARAMETERS" value="" />

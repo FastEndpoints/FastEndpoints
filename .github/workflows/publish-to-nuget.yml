@@ -18,7 +18,6 @@ jobs:
             8.x
             9.x
             10.x
-          cache: true
           #dotnet-quality: 'preview'
 
       - name: Modify xUnit Runner Config

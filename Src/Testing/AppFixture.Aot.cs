@@ -154,6 +154,8 @@ public abstract partial class AppFixture<TProgram>
 
         Directory.CreateDirectory(outputPath);
 
+        var buildOutput = new ConcurrentQueue<string>();
+
         using var process = new Process();
         process.StartInfo = new()
         {
@@ -165,11 +167,26 @@ public abstract partial class AppFixture<TProgram>
             RedirectStandardError = true
         };
 
-        process.Start();
+        process.OutputDataReceived += (_, e) =>
+                                      {
+                                          if (e.Data is not null)
+                                          {
+                                              buildOutput.Enqueue(e.Data);
+                                              Console.Error.WriteLine(e.Data);
+                                          }
+                                      };
+        process.ErrorDataReceived += (_, e) =>
+                                     {
+                                         if (e.Data is not null)
+                                         {
+                                             buildOutput.Enqueue(e.Data);
+                                             Console.Error.WriteLine(e.Data);
+                                         }
+                                     };
 
-        // drain streams concurrently to prevent deadlock when pipe buffers fill up
-        var stdoutTask = process.StandardOutput.ReadToEndAsync();
-        var stderrTask = process.StandardError.ReadToEndAsync();
+        process.Start();
+        process.BeginOutputReadLine();
+        process.BeginErrorReadLine();
 
         var effectiveTimeout = buildTimeoutMinutes > 0 ? buildTimeoutMinutes : 5;
         using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(effectiveTimeout));
@@ -182,18 +199,17 @@ public abstract partial class AppFixture<TProgram>
         {
             process.Kill(entireProcessTree: true);
 
-            var outputTimeout = await stdoutTask;
-            var errorTimeout = await stderrTask;
-
             throw new TimeoutException(
-                $"AOT build timed out after {effectiveTimeout} minute(s). Consider increasing BuildTimeoutMinutes.\n\nOutput:\n{outputTimeout}\n\nError:\n{errorTimeout}");
+                $"AOT build timed out after {effectiveTimeout} minute(s). Consider increasing BuildTimeoutMinutes.\n\n" +
+                $"Output:\n{string.Join(Environment.NewLine, buildOutput)}");
         }
 
-        var output = await stdoutTask;
-        var error = await stderrTask;
-
         if (process.ExitCode != 0)
-            throw new InvalidOperationException($"AOT build failed with exit code {process.ExitCode}.\n\nOutput:\n{output}\n\nError:\n{error}");
+        {
+            throw new InvalidOperationException(
+                $"AOT build failed with exit code {process.ExitCode}.\n\n" +
+                $"Output:\n{string.Join(Environment.NewLine, buildOutput)}");
+        }
     }
 
     HttpClient CreateAotClient()

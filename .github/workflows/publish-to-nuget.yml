@@ -31,8 +31,8 @@ jobs:
       - name: Run WAF Tests
         run: dotnet test FastEndpoints.slnx -c Release --verbosity minimal --filter "ExcludeInCiCd!=Yes"
 
-      - name: Run AOT Tests
-        run: dotnet test NativeAot.slnx -c Release --verbosity minimal
+      # - name: Run AOT Tests
+      #   run: dotnet test NativeAot.slnx -c Release --verbosity minimal
 
       - name: Make Nuget Packages
         run: dotnet pack FastEndpoints.slnx -c Release

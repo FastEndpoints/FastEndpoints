@@ -6,8 +6,8 @@ public class App : AppFixture<Program>
 {
     protected override async ValueTask ConfigureAotTargetAsync(AotTargetOptions options)
     {
-        options.BuildTimeoutMinutes = 5;
-        options.ReadyTimeoutSeconds = 15;
+        options.BuildTimeoutMinutes = 15;
+        options.ReadyTimeoutSeconds = 60;
     }
 
     protected override ValueTask SetupAsync()

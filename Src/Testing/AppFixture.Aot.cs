@@ -338,7 +338,7 @@ public abstract partial class AppFixture<TProgram>
 
                 try
                 {
-                    var response = await client.GetAsync(_healthPath);
+                    using var response = await client.GetAsync(_healthPath);
 
                     if (response.IsSuccessStatusCode)
                         return;

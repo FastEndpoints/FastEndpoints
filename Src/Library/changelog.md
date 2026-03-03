@@ -12,7 +12,7 @@ Due to low financial backing by the community, FastEndpoints will soon be going 
 
 <details><summary>Dual mode testing support for 'AppFixture'</summary>
 
-You can now use the same app fixture (without any conditional code in your tests) to run WAF based tests during regular development, and run smoke tests against a native aot build during a CI/CD pipeline run by simply doing `dotnet test MyTestProject.csproj -p:NativeAotTestMode=true` in the pipeline. This way you are able to have a faster feedback loop during development and also verify that everything works the same once the app is build with native aot by running the same set of tests against the aot build without any special handling in your code.
+You can now use the same app fixture (without any conditional code in your tests) to run WAF based tests during regular development, and run smoke tests against a native aot build during a CI/CD pipeline run by simply doing `dotnet test MyTestProject.csproj -p:NativeAotTestMode=true` in the pipeline. This way you are able to have a faster feedback loop during development and also verify that everything works the same once the app is built with native aot by running the same set of tests against the aot build without any special handling in your code.
 
 TODO: update template project and add info to the aot doc page
 

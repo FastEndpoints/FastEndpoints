@@ -1,5 +1,7 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Security.Cryptography;
+using System.Text;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
@@ -8,9 +10,21 @@ namespace FastEndpoints.Testing;
 
 public abstract partial class AppFixture<TProgram>
 {
-    AotSharedState? _aotState;
-    Type? _aotCacheKey;
+    static readonly byte[] _nullSeparator = { 0 };
     static readonly ConcurrentDictionary<Type, AsyncLazy<AotSharedState>> _aotCache = new();
+
+    static readonly HashSet<string> _aotFingerprintSkipDirs = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "bin",
+        "obj",
+        ".git",
+        ".vs",
+        ".idea",
+        "node_modules"
+    };
+
+    AotSharedState? _aotTargetState;
+    Type? _aotTargetCacheKey;
 
     // ReSharper disable once UnusedParameter.Global
     /// <summary>
@@ -25,23 +39,23 @@ public abstract partial class AppFixture<TProgram>
 
     async ValueTask InitializeAotAsync()
     {
-        _aotCacheKey = typeof(TProgram);
-        _aotState = await _aotCache.GetOrAdd(
-                        _aotCacheKey,
-                        _ => new(
-                            async () =>
-                            {
-                                var opts = new AotTargetOptions();
-                                await ConfigureAotTargetAsync(opts);
+        _aotTargetCacheKey = typeof(TProgram);
+        _aotTargetState = await _aotCache.GetOrAdd(
+                              _aotTargetCacheKey,
+                              _ => new(
+                                  async () =>
+                                  {
+                                      var opts = new AotTargetOptions();
+                                      await ConfigureAotTargetAsync(opts);
 
-                                return await StartAotAsync(ResolveAotPaths(opts), opts);
-                            }));
+                                      return await StartAotAsync(ResolveAotPaths(opts), opts);
+                                  }));
         Client = CreateAotClient();
     }
 
     static async Task<AotSharedState> StartAotAsync((string ExePath, string AotProjectPath, string AotBuildOutputPath) resolved, AotTargetOptions o)
     {
-        await BuildAotAsync(resolved.AotProjectPath, resolved.AotBuildOutputPath, o.BuildTimeoutMinutes);
+        await BuildAotAsync(resolved.AotProjectPath, resolved.AotBuildOutputPath, resolved.ExePath, o.BuildTimeoutMinutes);
 
         if (!File.Exists(resolved.ExePath))
         {
@@ -148,11 +162,30 @@ public abstract partial class AppFixture<TProgram>
         throw new InvalidOperationException($"Could not auto-detect AOT project for {assemblyName}. Please set 'PathToTargetAotProject' explicitly in ConfigureAotTargetAsync().");
     }
 
-    static async Task BuildAotAsync(string aotProjectPath, string outputPath, int buildTimeoutMinutes)
+    static async Task BuildAotAsync(string aotProjectPath, string outputPath, string exePath, int buildTimeoutMinutes)
     {
         var projectDir = Path.GetDirectoryName(aotProjectPath)!;
+        var fingerprintPath = Path.Combine(outputPath, ".aot-build.fingerprint");
 
         Directory.CreateDirectory(outputPath);
+
+        var buildInputsFingerprint = ComputeBuildInputsFingerprint(aotProjectPath, outputPath, exePath);
+
+        if (File.Exists(exePath) && File.Exists(fingerprintPath))
+        {
+            var previousFingerprint = await File.ReadAllTextAsync(fingerprintPath);
+
+            if (string.Equals(previousFingerprint, buildInputsFingerprint, StringComparison.Ordinal))
+            {
+                Console.Error.WriteLine($"Inputs unchanged. Skipping AOT publish for: '{aotProjectPath}'.");
+
+                return;
+            }
+
+            Console.Error.WriteLine($"Input fingerprint changed. AOT publish required for: '{aotProjectPath}'.");
+        }
+        else
+            Console.Error.WriteLine($"No previous fingerprint or executable found. AOT publish required for: '{aotProjectPath}'.");
 
         var buildOutput = new ConcurrentQueue<string>();
 
@@ -210,10 +243,85 @@ public abstract partial class AppFixture<TProgram>
                 $"AOT build failed with exit code {process.ExitCode}.\n\n" +
                 $"Output:\n{string.Join(Environment.NewLine, buildOutput)}");
         }
+
+        var postBuildFingerprint = ComputeBuildInputsFingerprint(aotProjectPath, outputPath, exePath);
+        await File.WriteAllTextAsync(fingerprintPath, postBuildFingerprint);
+    }
+
+    static string ComputeBuildInputsFingerprint(string aotProjectPath, string outputPath, string exePath)
+    {
+        var projectDir = Path.GetDirectoryName(aotProjectPath)!;
+
+        using var hasher = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+
+        AppendString(hasher, "fingerprint-version:v1");
+        AppendString(hasher, "publish-command:dotnet publish");
+        AppendString(hasher, "configuration:Release");
+        AppendString(hasher, $"project:{Path.GetFullPath(aotProjectPath)}");
+        AppendString(hasher, $"output:{Path.GetFullPath(outputPath)}");
+        AppendString(hasher, $"exe:{Path.GetFullPath(exePath)}");
+
+        foreach (var file in EnumerateProjectBuildInputs(projectDir))
+            AppendFileTimestamp(hasher, projectDir, file);
+
+        return Convert.ToHexString(hasher.GetHashAndReset());
+    }
+
+    static IEnumerable<string> EnumerateProjectBuildInputs(string projectDir)
+    {
+        var pending = new Stack<string>();
+        pending.Push(projectDir);
+
+        while (pending.Count > 0)
+        {
+            var dir = pending.Pop();
+
+            var subDirs = Directory.GetDirectories(dir);
+            Array.Sort(subDirs, StringComparer.Ordinal);
+
+            for (var i = subDirs.Length - 1; i >= 0; i--)
+            {
+                var subDir = subDirs[i];
+                var dirName = Path.GetFileName(subDir);
+
+                if (_aotFingerprintSkipDirs.Contains(dirName))
+                    continue;
+
+                pending.Push(subDir);
+            }
+
+            var files = Directory.GetFiles(dir);
+            Array.Sort(files, StringComparer.Ordinal);
+
+            foreach (var file in files)
+            {
+                var fileName = Path.GetFileName(file);
+
+                if (fileName.Equals(".aot-build.fingerprint", StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                if (Path.GetExtension(file).Equals(".user", StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                yield return file;
+            }
+        }
+    }
+
+    static void AppendFileTimestamp(IncrementalHash hasher, string projectDir, string filePath)
+    {
+        AppendString(hasher, Path.GetRelativePath(projectDir, filePath));
+        AppendString(hasher, File.GetLastWriteTimeUtc(filePath).Ticks.ToString());
+    }
+
+    static void AppendString(IncrementalHash hasher, string value)
+    {
+        hasher.AppendData(Encoding.UTF8.GetBytes(value));
+        hasher.AppendData(_nullSeparator);
     }
 
     HttpClient CreateAotClient()
-        => new() { BaseAddress = _aotState!.BaseAddress };
+        => new() { BaseAddress = _aotTargetState!.BaseAddress };
 
     /// <summary>
     /// configure settings for the target native aot application. all properties are optional. you can override the defaults in case the auto-detection fails.

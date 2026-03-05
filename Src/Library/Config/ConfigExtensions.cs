@@ -24,11 +24,11 @@ static class ConfigExtensions
                     //ignore dto props marked with [ToHeader]
                     if (pi.AttributeProvider?.IsDefined(Types.ToHeaderAttribute, true) is true)
                         pi.ShouldSerialize = (_, _) => false;
+
+                    //ignore dto props marks with [FromHeader] and the property type ends with 'HeaderValue'. see: AddTypedHeaderValueParsers
+                    if (pi.AttributeProvider?.IsDefined(Types.FromHeaderAttribute, true) is true && pi.PropertyType.Name.EndsWith("HeaderValue"))
+                        ti.Properties.RemoveAt(i);
                 }
             });
-
-        var ctx = new FastEndpointsSerializerContext(new(opts));
-        Cfg.SerOpts.AspNetCoreOptions?.TypeInfoResolverChain.Insert(0, ctx); // to make IResults serialization use the ctx
-        opts.TypeInfoResolverChain.Insert(0, ctx);
     }
 }

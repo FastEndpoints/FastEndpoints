@@ -32,6 +32,12 @@ The serializer context generator tool was not creating `JsonSerializable` attrib
 
 </details>
 
+<details><summary>Stack overflow issue with .NET 8 and 9</summary>
+
+A stack overflow exception was being thrown in .NET 8/9 due to cyclical calls in TypeInfoResolver, which .NET 10 has solved. We've added a workaround to prevent this from happening.
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Fluent generics support for serializer context generator</summary>

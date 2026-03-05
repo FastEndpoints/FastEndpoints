@@ -814,28 +814,31 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
 
     ToHeaderProp[] GetToHeaderProps()
     {
-        return GetProps(
-            SerializerContext ?? SerOpts.Options.TypeInfoResolver,
-            ResDtoType,
-            SerOpts.Options);
+        var typeInfo = (SerializerContext ?? SerOpts.Options.TypeInfoResolver)?
+            .GetTypeInfo(ResDtoType, SerOpts.Options);
 
-        static ToHeaderProp[] GetProps(IJsonTypeInfoResolver? resolver, Type tResDto, JsonSerializerOptions opts)
+        if (typeInfo is null)
+            return [];
+
+        var hdrProps = new List<ToHeaderProp>();
+
+        foreach (var p in typeInfo.Properties)
         {
-            return resolver?
-                   .GetTypeInfo(tResDto, opts)?
-                   .Properties.Where(p => p.AttributeProvider?.IsDefined(Types.ToHeaderAttribute, true) is true)
-                   .Select(CreateProps)
-                   .ToArray() ??
-                   [];
+            var attr = p.AttributeProvider?
+                        .GetCustomAttributes(Types.ToHeaderAttribute, true)
+                        .Cast<ToHeaderAttribute>()
+                        .FirstOrDefault();
 
-            ToHeaderProp CreateProps(JsonPropertyInfo p)
-                => new(
-                    headerName: p.AttributeProvider?.GetCustomAttributes(Types.ToHeaderAttribute, true)
-                                 .Cast<ToHeaderAttribute>()
-                                 .FirstOrDefault()?.HeaderName ??
-                                p.Name,
-                    getter: p.Get);
+            if (attr is null)
+                continue;
+
+            hdrProps.Add(
+                new(
+                    attr.HeaderName ?? p.Name,
+                    p.Get));
         }
+
+        return [..hdrProps];
     }
 }
 

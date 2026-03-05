@@ -461,7 +461,7 @@ static class BinderExtensions
         return sb;
     }
 
-    internal static void AddTypedHeaderValueParsers(this BindingOptions o, JsonSerializerOptions jso)
+    internal static void AddTypedHeaderValueParsers(this BindingOptions o)
     {
         //header parsers
         o.ValueParserFor<CacheControlHeaderValue>(input => new(CacheControlHeaderValue.TryParse(new(input), out var res), res));
@@ -476,21 +476,5 @@ static class BinderExtensions
         o.ValueParserFor<IList<MediaTypeHeaderValue>>(input => new(MediaTypeHeaderValue.TryParseList(input, out var res), res));
         o.ValueParserFor<IList<EntityTagHeaderValue>>(input => new(EntityTagHeaderValue.TryParseList(input, out var res), res));
         o.ValueParserFor<IList<SetCookieHeaderValue>>(input => new(SetCookieHeaderValue.TryParseList(input, out var res), res));
-
-        //need to prevent STJ from trying to deserialize these types
-        jso.TypeInfoResolver = jso.TypeInfoResolver?.WithAddedModifier(
-            ti =>
-            {
-                if (ti.Kind != JsonTypeInfoKind.Object)
-                    return;
-
-                for (var i = ti.Properties.Count - 1; i >= 0; i--)
-                {
-                    var pi = ti.Properties[i];
-
-                    if (pi.AttributeProvider?.IsDefined(Types.FromHeaderAttribute, true) is true && pi.PropertyType.Name.EndsWith("HeaderValue"))
-                        ti.Properties.RemoveAt(i);
-                }
-            });
     }
 }

@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
@@ -15,7 +16,30 @@ partial class Program
     private static readonly List<string> _emptyUsings = [];
     private static readonly GeneratorConfig _config = GeneratorConfig.Instance;
 
+    private static readonly HashSet<string> _primitiveTypeNames = new(StringComparer.Ordinal)
+    {
+        "bool",
+        "byte",
+        "char",
+        "decimal",
+        "double",
+        "dynamic",
+        "float",
+        "int",
+        "long",
+        "nint",
+        "nuint",
+        "object",
+        "sbyte",
+        "short",
+        "string",
+        "uint",
+        "ulong",
+        "ushort"
+    };
+
     private const string CacheFileName = ".fastendpoints-generator-cache";
+    private const string CacheSchemaVersion = "v2";
 
     private sealed class GeneratorConfig
     {
@@ -147,7 +171,8 @@ partial class Program
 
         Console.WriteLine($"Analyzing project: {projectName}");
 
-        var (csFiles, currentHash) = GetSourceFilesWithHash(projectDir);
+        var mainProjectSources = GetProjectSourceFilesWithHash(projectPath);
+        var csFiles = mainProjectSources.Files;
 
         if (csFiles.Count == 0)
         {
@@ -160,8 +185,9 @@ partial class Program
 
         var outputDir = GetGeneratorOutputPath(projectDir, customOutputPath);
         var cacheFilePath = Path.Combine(outputDir, CacheFileName);
+        var refSources = new Lazy<SourceFileSet>(() => GetReferencedProjectSourceFilesWithHash(projectPath));
 
-        if (!forceRegenerate && IsUpToDate(cacheFilePath, currentHash, outputDir))
+        if (!forceRegenerate && IsUpToDate(cacheFilePath, mainProjectSources.Hash, outputDir, refSources))
         {
             Console.WriteLine("Generated files are up-to-date. Skipping generation.");
 
@@ -171,6 +197,7 @@ partial class Program
         var parseResults = ParseAllFiles(csFiles);
         var (syntaxTrees, typeDeclarations, allUsingsByFile, allTypeAliasesByFile) = AggregateResults(parseResults);
         var analysis = AnalysisContext.Create(typeDeclarations, allUsingsByFile, allTypeAliasesByFile);
+        analysis.SetReferencedProjectLoader(() => LoadReferencedProjectData(refSources.Value));
 
         Console.WriteLine($"Found {typeDeclarations.Count} type declarations.");
 
@@ -185,7 +212,13 @@ partial class Program
             return 0;
         }
 
-        GenerateOutput(outputDir, projectPath, projectName, serializableTypes, currentHash, cacheFilePath);
+        var cacheState = new GeneratorCacheState(
+            CacheSchemaVersion,
+            mainProjectSources.Hash,
+            analysis.ReferencedProjectsInspected,
+            analysis.ReferencedProjectsHash ?? string.Empty);
+
+        GenerateOutput(outputDir, projectPath, projectName, serializableTypes, cacheState, cacheFilePath);
 
         return 0;
     }
@@ -313,14 +346,19 @@ partial class Program
                                    : ExtractTypeArguments(endpointBase);
 
                 foreach (var typeArg in typeArgs)
-                    ProcessTypeExpression(typeArg, currentNs, className, allUsings, typeAliases, serializableTypes, analysis);
+                    ProcessTypeExpression(typeArg, currentNs, className, allUsings, typeAliases, serializableTypes, analysis, allowReferencedFallback: true);
             }
         }
 
         return (serializableTypes, endpointCount);
     }
 
-    private static void GenerateOutput(string outputDir, string projectPath, string projectName, HashSet<string> serializableTypes, string currentHash, string cacheFilePath)
+    private static void GenerateOutput(string outputDir,
+                                       string projectPath,
+                                       string projectName,
+                                       HashSet<string> serializableTypes,
+                                       GeneratorCacheState cacheState,
+                                       string cacheFilePath)
     {
         Directory.CreateDirectory(outputDir);
 
@@ -333,29 +371,72 @@ partial class Program
         var extensionPath = Path.Combine(outputDir, "SerializerContextExtensions.g.cs");
         File.WriteAllText(extensionPath, extensionCode, Encoding.UTF8);
 
-        File.WriteAllText(cacheFilePath, currentHash);
+        File.WriteAllText(cacheFilePath, JsonSerializer.Serialize(cacheState));
 
         Console.WriteLine("Generated files:");
         Console.WriteLine($"  {contextPath}");
         Console.WriteLine($"  {extensionPath}");
     }
 
-    private static (List<string> Files, string Hash) GetSourceFilesWithHash(string projectDir)
+    private static SourceFileSet GetProjectSourceFilesWithHash(string projectPath)
+    {
+        var projectDir = Path.GetDirectoryName(projectPath)!;
+        var files = EnumerateProjectSourceFiles(projectDir);
+
+        return new(files, ComputeContentHash(files, [projectPath]));
+    }
+
+    private static SourceFileSet GetReferencedProjectSourceFilesWithHash(string projectPath)
+    {
+        var referencedProjectPaths = GetReferencedProjectPaths(projectPath);
+        var files = new List<string>();
+
+        foreach (var referencedProjectPath in referencedProjectPaths)
+        {
+            var referencedProjectDir = Path.GetDirectoryName(referencedProjectPath);
+
+            if (referencedProjectDir == null)
+                continue;
+
+            files.AddRange(EnumerateProjectSourceFiles(referencedProjectDir));
+        }
+
+        return new(files, ComputeContentHash(files, referencedProjectPaths));
+    }
+
+    private static List<string> EnumerateProjectSourceFiles(string projectDir)
     {
         var separator = Path.DirectorySeparatorChar;
         var binSep = $"{separator}bin{separator}";
         var objSep = $"{separator}obj{separator}";
 
         var files = new List<string>();
-        using var sha256 = SHA256.Create();
-        using var stream = new MemoryStream();
-        using var writer = new StreamWriter(stream);
 
         foreach (var file in Directory.EnumerateFiles(projectDir, "*.cs", SearchOption.AllDirectories))
         {
             if (!file.Contains(binSep) && !file.Contains(objSep) && !file.EndsWith(".g.cs", StringComparison.OrdinalIgnoreCase))
-            {
                 files.Add(file);
+        }
+
+        return files;
+    }
+
+    private static string ComputeContentHash(IEnumerable<string> files, IEnumerable<string>? additionalFiles = null)
+    {
+        using var sha256 = SHA256.Create();
+        using var stream = new MemoryStream();
+        using var writer = new StreamWriter(stream);
+
+        foreach (var file in files.OrderBy(f => f, StringComparer.OrdinalIgnoreCase))
+        {
+            writer.WriteLine(file);
+            writer.WriteLine(File.GetLastWriteTimeUtc(file).Ticks);
+        }
+
+        if (additionalFiles != null)
+        {
+            foreach (var file in additionalFiles.Where(File.Exists).OrderBy(f => f, StringComparer.OrdinalIgnoreCase))
+            {
                 writer.WriteLine(file);
                 writer.WriteLine(File.GetLastWriteTimeUtc(file).Ticks);
             }
@@ -363,12 +444,11 @@ partial class Program
 
         writer.Flush();
         stream.Position = 0;
-        var hash = Convert.ToHexString(sha256.ComputeHash(stream));
 
-        return (files, hash);
+        return Convert.ToHexString(sha256.ComputeHash(stream));
     }
 
-    private static bool IsUpToDate(string cacheFilePath, string currentHash, string outputDir)
+    private static bool IsUpToDate(string cacheFilePath, string mainProjectHash, string outputDir, Lazy<SourceFileSet> refSources)
     {
         if (!File.Exists(cacheFilePath))
             return false;
@@ -379,9 +459,15 @@ partial class Program
         if (!File.Exists(contextPath) || !File.Exists(extensionPath))
             return false;
 
-        var cachedHash = File.ReadAllText(cacheFilePath).Trim();
+        var cacheState = ReadCacheState(cacheFilePath);
 
-        return cachedHash == currentHash;
+        if (cacheState == null || !string.Equals(cacheState.MainProjectHash, mainProjectHash, StringComparison.Ordinal))
+            return false;
+
+        if (!cacheState.ReferencedProjectsInspected)
+            return true;
+
+        return string.Equals(cacheState.ReferencedProjectsHash, refSources.Value.Hash, StringComparison.Ordinal);
     }
 
     private static FileParseResult ParseFile(string filePath)
@@ -484,10 +570,19 @@ partial class Program
             if (IsFluentEndpointBaseType(baseType))
                 return baseType;
 
-            var baseName = baseType.Split('<')[0].Split('.').Last().Trim();
+            var baseSpan = baseType.AsSpan();
+            var genIdx = baseSpan.IndexOf('<');
+            if (genIdx >= 0)
+                baseSpan = baseSpan[..genIdx];
 
-            if (_config.EndpointBaseTypePatterns.Any(p => baseName.StartsWith(p, StringComparison.Ordinal)))
-                return baseType;
+            var dotIdx = baseSpan.LastIndexOf('.');
+            var baseName = dotIdx >= 0 ? baseSpan[(dotIdx + 1)..].Trim() : baseSpan.Trim();
+
+            foreach (var pattern in _config.EndpointBaseTypePatterns)
+            {
+                if (baseName.StartsWith(pattern.AsSpan(), StringComparison.Ordinal))
+                    return baseType;
+            }
         }
 
         return null;
@@ -692,7 +787,8 @@ partial class Program
                 return true;
         }
 
-        var simpleTypeName = fullTypeName.Split('.').Last();
+        var dotIndex = fullTypeName.LastIndexOf('.');
+        var simpleTypeName = dotIndex >= 0 ? fullTypeName[(dotIndex + 1)..] : fullTypeName;
 
         if (_config.SkipTypes.Contains(simpleTypeName))
             return true;
@@ -701,10 +797,19 @@ partial class Program
         {
             foreach (var baseType in typeInfo.BaseTypes)
             {
-                var baseTypeName = baseType.TypeName.Split('<')[0].Split('.').Last().Trim();
+                var baseTypeSpan = baseType.TypeName.AsSpan();
+                var genIdx = baseTypeSpan.IndexOf('<');
+                if (genIdx >= 0)
+                    baseTypeSpan = baseTypeSpan[..genIdx];
 
-                if (_config.ExcludedBaseTypes.Any(e => baseTypeName.StartsWith(e, StringComparison.Ordinal)))
-                    return true;
+                var baseDotIdx = baseTypeSpan.LastIndexOf('.');
+                var baseTypeName = baseDotIdx >= 0 ? baseTypeSpan[(baseDotIdx + 1)..].Trim() : baseTypeSpan.Trim();
+
+                foreach (var excluded in _config.ExcludedBaseTypes)
+                {
+                    if (baseTypeName.StartsWith(excluded.AsSpan(), StringComparison.Ordinal))
+                        return true;
+                }
             }
         }
 
@@ -723,7 +828,8 @@ partial class Program
             return;
 
         var currentNs = typeInfo.Namespace;
-        var simpleTypeName = typeName.Split('.').Last();
+        var dotIndex = typeName.LastIndexOf('.');
+        var simpleTypeName = dotIndex >= 0 ? typeName[(dotIndex + 1)..] : typeName;
         var skipBaseTraversal = _config.RootTypeSkipNames.Contains(simpleTypeName);
 
         if (!skipBaseTraversal)
@@ -750,7 +856,8 @@ partial class Program
                                               List<string> usings,
                                               Dictionary<string, string> typeAliases,
                                               HashSet<string> serializableTypes,
-                                              AnalysisContext analysis)
+                                              AnalysisContext analysis,
+                                              bool allowReferencedFallback = false)
     {
         if (string.IsNullOrWhiteSpace(typeExpression))
             return;
@@ -763,7 +870,21 @@ partial class Program
         if (typeExpression.EndsWith("?", StringComparison.Ordinal))
             typeExpression = typeExpression.TrimEnd('?');
 
-        // check if this is a collection type and register it
+        var resolved = ResolveTypeName(typeExpression, currentNamespace, currentTypeFullName, usings, typeAliases, analysis.TypesByFullName, analysis.SimpleNameToFullName);
+
+        if (resolved == null && allowReferencedFallback && IsReferencedFallbackCandidate(typeExpression))
+        {
+            analysis.EnsureReferencedProjectsLoaded();
+            resolved = ResolveTypeName(typeExpression, currentNamespace, currentTypeFullName, usings, typeAliases, analysis.TypesByFullName, analysis.SimpleNameToFullName);
+        }
+
+        if (resolved != null)
+            AddTypeAndDependencies(resolved, serializableTypes, analysis);
+
+        foreach (var arg in ExtractTypeArguments(typeExpression))
+            ProcessTypeExpression(arg, currentNamespace, currentTypeFullName, usings, typeAliases, serializableTypes, analysis, allowReferencedFallback);
+
+        // check if this is a collection type and register it after generic arguments have had a chance to resolve
         var collectionType = TryResolveCollectionType(
             typeExpression,
             currentNamespace,
@@ -772,6 +893,18 @@ partial class Program
             typeAliases,
             analysis.TypesByFullName,
             analysis.SimpleNameToFullName);
+
+        if (collectionType == null && allowReferencedFallback && analysis.ReferencedProjectsInspected)
+        {
+            collectionType = TryResolveCollectionType(
+                typeExpression,
+                currentNamespace,
+                currentTypeFullName,
+                usings,
+                typeAliases,
+                analysis.TypesByFullName,
+                analysis.SimpleNameToFullName);
+        }
 
         if (collectionType != null)
         {
@@ -786,14 +919,24 @@ partial class Program
                 serializableTypes.Add(listType);
             }
         }
+    }
 
-        var resolved = ResolveTypeName(typeExpression, currentNamespace, currentTypeFullName, usings, typeAliases, analysis.TypesByFullName, analysis.SimpleNameToFullName);
+    private static bool IsReferencedFallbackCandidate(string typeExpression)
+    {
+        var rootType = ExtractRootType(typeExpression);
 
-        if (resolved != null)
-            AddTypeAndDependencies(resolved, serializableTypes, analysis);
+        var dotIndex = rootType.LastIndexOf('.');
+        var simpleName = dotIndex >= 0 && dotIndex < rootType.Length - 1
+                             ? rootType[(dotIndex + 1)..]
+                             : rootType;
 
-        foreach (var arg in ExtractTypeArguments(typeExpression))
-            ProcessTypeExpression(arg, currentNamespace, currentTypeFullName, usings, typeAliases, serializableTypes, analysis);
+        if (string.IsNullOrWhiteSpace(simpleName))
+            return false;
+
+        if (_config.BuiltInCollectionTypes.Contains(simpleName) || _primitiveTypeNames.Contains(simpleName))
+            return false;
+
+        return char.IsUpper(simpleName[0]);
     }
 
     private static string? TryResolveCollectionType(string typeExpression,
@@ -818,7 +961,8 @@ partial class Program
         if (genericIndex > 0)
         {
             var typeName = typeExpression[..genericIndex];
-            var simpleTypeName = typeName.Split('.').Last();
+            var dotIndex = typeName.LastIndexOf('.');
+            var simpleTypeName = dotIndex >= 0 ? typeName[(dotIndex + 1)..] : typeName;
 
             if (_config.BuiltInCollectionTypes.Contains(simpleTypeName))
             {
@@ -909,7 +1053,7 @@ partial class Program
         return target + rest;
     }
 
-    private static TypeInfo MergeTypeInfos(TypeInfo existing, TypeInfo incoming)
+    internal static TypeInfo MergeTypeInfos(TypeInfo existing, TypeInfo incoming)
     {
         if (ReferenceEquals(existing, incoming))
             return existing;
@@ -960,6 +1104,81 @@ partial class Program
         }
     }
 
+    private static ReferencedProjectData LoadReferencedProjectData(SourceFileSet referencedProjectSources)
+    {
+        if (referencedProjectSources.Files.Count == 0)
+            return new(new(StringComparer.Ordinal), new(StringComparer.OrdinalIgnoreCase), new(StringComparer.OrdinalIgnoreCase), referencedProjectSources.Hash);
+
+        var parseResults = ParseAllFiles(referencedProjectSources.Files);
+        var (_, typeDeclarations, allUsingsByFile, allTypeAliasesByFile) = AggregateResults(parseResults);
+
+        return new(typeDeclarations, allUsingsByFile, allTypeAliasesByFile, referencedProjectSources.Hash);
+    }
+
+    private static List<string> GetReferencedProjectPaths(string projectPath)
+    {
+        var visitedProjects = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var referencedProjects = new List<string>();
+
+        CollectReferencedProjectPaths(projectPath, visitedProjects, referencedProjects);
+
+        return referencedProjects;
+    }
+
+    private static void CollectReferencedProjectPaths(string projectPath, HashSet<string> visitedProjects, List<string> referencedProjects)
+    {
+        projectPath = Path.GetFullPath(projectPath);
+
+        if (!visitedProjects.Add(projectPath) || !File.Exists(projectPath))
+            return;
+
+        XDocument doc;
+
+        try
+        {
+            doc = XDocument.Load(projectPath);
+        }
+        catch
+        {
+            return;
+        }
+
+        var projectDir = Path.GetDirectoryName(projectPath)!;
+        var projectReferences = doc.Descendants()
+                                   .Where(e => e.Name.LocalName == "ProjectReference")
+                                   .Select(e => e.Attribute("Include")?.Value)
+                                   .Where(v => !string.IsNullOrWhiteSpace(v));
+
+        foreach (var projectReference in projectReferences)
+        {
+            var normalizedReference = projectReference!
+                                      .Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar)
+                                      .Replace('\\', Path.DirectorySeparatorChar);
+            var referencedProjectPath = Path.GetFullPath(Path.Combine(projectDir, normalizedReference));
+
+            if (!File.Exists(referencedProjectPath) || visitedProjects.Contains(referencedProjectPath))
+                continue;
+
+            referencedProjects.Add(referencedProjectPath);
+            CollectReferencedProjectPaths(referencedProjectPath, visitedProjects, referencedProjects);
+        }
+    }
+
+    private static GeneratorCacheState? ReadCacheState(string cacheFilePath)
+    {
+        try
+        {
+            var json = File.ReadAllText(cacheFilePath);
+            var cacheState = JsonSerializer.Deserialize<GeneratorCacheState>(json);
+
+            return cacheState?.Version == CacheSchemaVersion ? cacheState : null;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
     private static string GenerateSerializerContext(string rootNamespace, HashSet<string> types)
     {
         var b = new StringBuilder();
@@ -1001,7 +1220,10 @@ partial class Program
         if (string.IsNullOrWhiteSpace(fullTypeName))
             return "TI_Unknown";
 
-        var simpleName = (fullTypeName.Split('.').LastOrDefault() ?? fullTypeName).Sanitize();
+        var dotIndex = fullTypeName.LastIndexOf('.');
+        var simpleName = dotIndex >= 0 ? fullTypeName[(dotIndex + 1)..] : fullTypeName;
+        simpleName = simpleName.Sanitize();
+
         var hash = ComputeStableShortHash(fullTypeName);
 
         return $"TI_{simpleName}_{hash}";
@@ -1056,7 +1278,11 @@ record AnalysisContext(Dictionary<string, TypeInfo> TypesByFullName,
                        Dictionary<string, List<string>> AllUsingsByFile,
                        Dictionary<string, Dictionary<string, string>> AllTypeAliasesByFile)
 {
+    private Func<ReferencedProjectData>? _referencedProjectLoader;
+
     public Dictionary<string, string> SimpleNameToFullName { get; } = new(StringComparer.Ordinal);
+    public bool ReferencedProjectsInspected { get; private set; }
+    public string? ReferencedProjectsHash { get; private set; }
 
     public static AnalysisContext Create(Dictionary<string, TypeInfo> types,
                                          Dictionary<string, List<string>> usings,
@@ -1066,14 +1292,62 @@ record AnalysisContext(Dictionary<string, TypeInfo> TypesByFullName,
 
         foreach (var fullName in types.Keys)
         {
-            var simpleName = fullName.Split('.').Last();
+            var dotIndex = fullName.LastIndexOf('.');
+            var simpleName = dotIndex >= 0 ? fullName[(dotIndex + 1)..] : fullName;
+
             if (!ctx.SimpleNameToFullName.ContainsKey(simpleName))
                 ctx.SimpleNameToFullName[simpleName] = fullName;
         }
 
         return ctx;
     }
+
+    public void SetReferencedProjectLoader(Func<ReferencedProjectData> referencedProjectLoader)
+        => _referencedProjectLoader = referencedProjectLoader;
+
+    public void EnsureReferencedProjectsLoaded()
+    {
+        if (ReferencedProjectsInspected)
+            return;
+
+        ReferencedProjectsInspected = true;
+
+        if (_referencedProjectLoader == null)
+            return;
+
+        var referencedProjectData = _referencedProjectLoader();
+        ReferencedProjectsHash = referencedProjectData.Hash;
+
+        foreach (var (fullName, typeInfo) in referencedProjectData.TypesByFullName)
+        {
+            if (TypesByFullName.TryGetValue(fullName, out var existingType))
+                TypesByFullName[fullName] = Program.MergeTypeInfos(existingType, typeInfo);
+            else
+                TypesByFullName[fullName] = typeInfo;
+
+            var dotIndex = fullName.LastIndexOf('.');
+            var simpleName = dotIndex >= 0 ? fullName[(dotIndex + 1)..] : fullName;
+
+            if (!SimpleNameToFullName.ContainsKey(simpleName))
+                SimpleNameToFullName[simpleName] = fullName;
+        }
+
+        foreach (var (filePath, usings) in referencedProjectData.AllUsingsByFile)
+            AllUsingsByFile[filePath] = usings;
+
+        foreach (var (filePath, aliases) in referencedProjectData.AllTypeAliasesByFile)
+            AllTypeAliasesByFile[filePath] = aliases;
+    }
 }
+
+record SourceFileSet(List<string> Files, string Hash);
+
+record ReferencedProjectData(Dictionary<string, TypeInfo> TypesByFullName,
+                             Dictionary<string, List<string>> AllUsingsByFile,
+                             Dictionary<string, Dictionary<string, string>> AllTypeAliasesByFile,
+                             string Hash);
+
+record GeneratorCacheState(string Version, string MainProjectHash, bool ReferencedProjectsInspected, string ReferencedProjectsHash);
 
 record FileParseResult(string FilePath,
                        SyntaxTree Tree,

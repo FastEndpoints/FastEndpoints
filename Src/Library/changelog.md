@@ -18,6 +18,12 @@ TODO: update template project and add info to the aot doc page
 
 </details>
 
+<details><summary>Support for generating STJ serializer contexts for DTOs in referenced projects</summary>
+
+The serializer context will now generate `JsonSerializable` attributes for request and response DTOs from referenced source projects. Previously the generator was only capable of generating attributes for DTOs from the current project directory.
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>Regression in OData library</summary>

@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq.Expressions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using FastEndpoints.JobsQueues;
@@ -118,6 +119,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
     readonly SemaphoreSlim _sem = new(0);
     readonly ILogger _log;
     bool _activated; // when false, the executor blocks indefinitely on the semaphore (no DB polling)
+    readonly bool _isDistributed;
     TimeSpan _executionTimeLimit;
     TimeSpan _semWaitLimit;
     DateTimeOffset _nextCleanupOn;
@@ -129,7 +131,8 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
         JobQueues[_tCommand] = this;
         _storage = storageProvider;
         _resultStorage = storageProvider as IJobResultProvider;
-        _activated = storageProvider.DistributedJobProcessingEnabled;
+        _isDistributed = storageProvider.DistributedJobProcessingEnabled;
+        _activated = _isDistributed;
         _appCancellation = appLife.ApplicationStopping;
         _parallelOptions.CancellationToken = _appCancellation;
         _log = logger;
@@ -262,6 +265,17 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 // capture once so providers that translate predicates can parameterize it cleanly
                 var now = DateTime.UtcNow;
 
+                Expression<Func<TStorageRecord, bool>> matchExpr = _isDistributed
+                                                                       ? r => r.QueueID == QueueID &&
+                                                                              !r.IsComplete &&
+                                                                              (isProbe || r.ExecuteAfter <= now) &&
+                                                                              r.ExpireOn >= now &&
+                                                                              r.DequeueAfter <= now
+                                                                       : r => r.QueueID == QueueID &&
+                                                                              !r.IsComplete &&
+                                                                              (isProbe || r.ExecuteAfter <= now) &&
+                                                                              r.ExpireOn >= now;
+
                 records = await _storage.GetNextBatchAsync(
                               new()
                               {
@@ -269,11 +283,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                                   QueueID = QueueID,
                                   CancellationToken = _appCancellation,
                                   ExecutionTimeLimit = _executionTimeLimit,
-                                  Match = r => r.QueueID == QueueID &&
-                                               !r.IsComplete &&
-                                               (isProbe || r.ExecuteAfter <= now) &&
-                                               r.ExpireOn >= now &&
-                                               r.DequeueAfter <= now
+                                  Match = matchExpr
                               });
 
                 fetchedCount = records.Count;

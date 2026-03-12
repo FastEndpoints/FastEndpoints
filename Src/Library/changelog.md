@@ -44,6 +44,12 @@ A stack overflow exception was being thrown in .NET 8/9 due to cyclical calls in
 
 </details>
 
+<details><summary>Job queue storage provider query translation issue</summary>
+
+The job queue search predicate has been improved to allow EF Core (and potentially other ORMs) to translate the expression correctly when the storage provider is configured in non-distributed mode. Previously, an unmapped `DequeueAfter` property was included in the expression causing EF Core translation errors.
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Fluent generics support for serializer context generator</summary>

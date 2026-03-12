@@ -23,8 +23,8 @@ public struct PendingJobSearchParams<TStorageRecord> where TStorageRecord : IJob
     /// 	     r.DequeueAfter &lt;= now
     /// </code>
     /// <para>
-    /// note: the <see cref="IJobStorageRecord.DequeueAfter" /> <c>&lt;= now</c> check is always included. for non-distributed (single-instance) providers,
-    /// this condition is always true since <see cref="IJobStorageRecord.DequeueAfter" /> defaults to <see cref="DateTime.MinValue" />.
+    /// note: the <see cref="IJobStorageRecord.DequeueAfter" /> <c>&lt;= now</c> check is only included for distributed providers. for non-distributed (single-instance) providers,
+    /// this condition is omitted because <see cref="IJobStorageRecord.DequeueAfter" /> is unmapped and defaults to <see cref="DateTime.MinValue" />.
     /// </para>
     /// </summary>
     public Expression<Func<TStorageRecord, bool>> Match { get; internal set; }

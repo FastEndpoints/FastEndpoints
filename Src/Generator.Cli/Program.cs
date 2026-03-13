@@ -38,8 +38,10 @@ partial class Program
         "ushort"
     };
 
+    private static readonly Dictionary<string, string> _rootTypeCache = new(StringComparer.Ordinal);
+
     private const string CacheFileName = ".fastendpoints-generator-cache";
-    private const string CacheSchemaVersion = "v2";
+    private const string CacheSchemaVersion = "v1";
 
     private sealed class GeneratorConfig
     {
@@ -171,8 +173,7 @@ partial class Program
 
         Console.WriteLine($"Analyzing project: {projectName}");
 
-        var mainProjectSources = GetProjectSourceFilesWithHash(projectPath);
-        var csFiles = mainProjectSources.Files;
+        var (csFiles, hash) = GetProjectSourceFilesWithHash(projectPath);
 
         if (csFiles.Count == 0)
         {
@@ -187,7 +188,7 @@ partial class Program
         var cacheFilePath = Path.Combine(outputDir, CacheFileName);
         var refSources = new Lazy<SourceFileSet>(() => GetReferencedProjectSourceFilesWithHash(projectPath));
 
-        if (!forceRegenerate && IsUpToDate(cacheFilePath, mainProjectSources.Hash, outputDir, refSources))
+        if (!forceRegenerate && IsUpToDate(cacheFilePath, hash, outputDir, refSources))
         {
             Console.WriteLine("Generated files are up-to-date. Skipping generation.");
 
@@ -212,11 +213,7 @@ partial class Program
             return 0;
         }
 
-        var cacheState = new GeneratorCacheState(
-            CacheSchemaVersion,
-            mainProjectSources.Hash,
-            analysis.ReferencedProjectsInspected,
-            analysis.ReferencedProjectsHash ?? string.Empty);
+        var cacheState = new GeneratorCacheState(CacheSchemaVersion, hash, analysis.ReferencedProjectsInspected, analysis.ReferencedProjectsHash ?? string.Empty);
 
         GenerateOutput(outputDir, projectPath, projectName, serializableTypes, cacheState, cacheFilePath);
 
@@ -238,11 +235,8 @@ partial class Program
         return parseResults;
     }
 
-    private static (List<(SyntaxTree Tree, string FilePath)> SyntaxTrees,
-        Dictionary<string, TypeInfo> TypeDeclarations,
-        Dictionary<string, List<string>> AllUsingsByFile,
-        Dictionary<string, Dictionary<string, string>> AllTypeAliasesByFile)
-        AggregateResults(ConcurrentBag<FileParseResult> parseResults)
+    private static (List<(SyntaxTree Tree, string FilePath)> SyntaxTrees, Dictionary<string, TypeInfo> TypeDeclarations, Dictionary<string, List<string>> AllUsingsByFile,
+        Dictionary<string, Dictionary<string, string>> AllTypeAliasesByFile) AggregateResults(ConcurrentBag<FileParseResult> parseResults)
     {
         var globalUsings = new List<string>();
         var globalTypeAliases = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -547,7 +541,8 @@ partial class Program
                     parent = parent.Parent;
                 }
 
-                var typeInfo = new TypeInfo(fullName, ns, typeDecl.Identifier.Text, filePath, properties, baseTypes);
+                var genericParameters = typeDecl.TypeParameterList?.Parameters.Select(p => p.Identifier.Text).ToList() ?? [];
+                var typeInfo = new TypeInfo(fullName, ns, typeDecl.Identifier.Text, filePath, properties, baseTypes, genericParameters);
                 if (types.TryGetValue(fullName, out var existing))
                     types[fullName] = MergeTypeInfos(existing, typeInfo);
                 else
@@ -780,20 +775,22 @@ partial class Program
 
     private static bool ShouldSkipType(string fullTypeName, Dictionary<string, TypeInfo> allTypes)
     {
+        var rootTypeName = ExtractRootType(fullTypeName);
+
         foreach (var skipNs in _config.SkipNamespaces)
         {
-            if (fullTypeName.StartsWith(skipNs + ".", StringComparison.Ordinal) ||
-                fullTypeName.StartsWith("global::" + skipNs + ".", StringComparison.Ordinal))
+            if (rootTypeName.StartsWith(skipNs + ".", StringComparison.Ordinal) ||
+                rootTypeName.StartsWith("global::" + skipNs + ".", StringComparison.Ordinal))
                 return true;
         }
 
-        var dotIndex = fullTypeName.LastIndexOf('.');
-        var simpleTypeName = dotIndex >= 0 ? fullTypeName[(dotIndex + 1)..] : fullTypeName;
+        var dotIndex = rootTypeName.LastIndexOf('.');
+        var simpleTypeName = dotIndex >= 0 ? rootTypeName[(dotIndex + 1)..] : rootTypeName;
 
         if (_config.SkipTypes.Contains(simpleTypeName))
             return true;
 
-        if (allTypes.TryGetValue(fullTypeName, out var typeInfo))
+        if (allTypes.TryGetValue(rootTypeName, out var typeInfo))
         {
             foreach (var baseType in typeInfo.BaseTypes)
             {
@@ -821,15 +818,22 @@ partial class Program
         if (ShouldSkipType(typeName, analysis.TypesByFullName))
             return;
 
-        if (!serializableTypes.Add(typeName))
-            return;
+        var rootTypeName = ExtractRootType(typeName);
 
-        if (!analysis.TypesByFullName.TryGetValue(typeName, out var typeInfo))
+        if (!analysis.TypesByFullName.TryGetValue(rootTypeName, out var typeInfo))
             return;
 
         var currentNs = typeInfo.Namespace;
-        var dotIndex = typeName.LastIndexOf('.');
-        var simpleTypeName = dotIndex >= 0 ? typeName[(dotIndex + 1)..] : typeName;
+        var genericParameterMap = BuildGenericParameterMap(typeName, typeInfo);
+
+        if (typeInfo.GenericParameters.Count > 0 && genericParameterMap.Count != typeInfo.GenericParameters.Count)
+            return;
+
+        if (!serializableTypes.Add(typeName))
+            return;
+
+        var dotIndex = rootTypeName.LastIndexOf('.');
+        var simpleTypeName = dotIndex >= 0 ? rootTypeName[(dotIndex + 1)..] : rootTypeName;
         var skipBaseTraversal = _config.RootTypeSkipNames.Contains(simpleTypeName);
 
         if (!skipBaseTraversal)
@@ -838,7 +842,8 @@ partial class Program
             {
                 var usings = analysis.AllUsingsByFile.GetValueOrDefault(baseType.FilePath) ?? _emptyUsings;
                 var typeAliases = analysis.AllTypeAliasesByFile.GetValueOrDefault(baseType.FilePath) ?? _emptyAliases;
-                ProcessTypeExpression(baseType.TypeName, currentNs, typeInfo.FullName, usings, typeAliases, serializableTypes, analysis);
+                var closedBaseType = ApplyGenericParameterMap(baseType.TypeName, genericParameterMap);
+                ProcessTypeExpression(closedBaseType, currentNs, typeInfo.FullName, usings, typeAliases, serializableTypes, analysis);
             }
         }
 
@@ -846,8 +851,73 @@ partial class Program
         {
             var usings = analysis.AllUsingsByFile.GetValueOrDefault(prop.FilePath) ?? _emptyUsings;
             var typeAliases = analysis.AllTypeAliasesByFile.GetValueOrDefault(prop.FilePath) ?? _emptyAliases;
-            ProcessTypeExpression(prop.TypeName, currentNs, typeInfo.FullName, usings, typeAliases, serializableTypes, analysis);
+            var closedPropertyType = ApplyGenericParameterMap(prop.TypeName, genericParameterMap);
+            ProcessTypeExpression(closedPropertyType, currentNs, typeInfo.FullName, usings, typeAliases, serializableTypes, analysis);
         }
+    }
+
+    private static Dictionary<string, string> BuildGenericParameterMap(string closedTypeName, TypeInfo typeInfo)
+    {
+        var map = new Dictionary<string, string>(StringComparer.Ordinal);
+
+        if (typeInfo.GenericParameters.Count == 0)
+            return map;
+
+        var typeArguments = ExtractTypeArguments(closedTypeName);
+
+        if (typeArguments.Count != typeInfo.GenericParameters.Count)
+            return map;
+
+        for (var i = 0; i < typeInfo.GenericParameters.Count; i++)
+            map[typeInfo.GenericParameters[i]] = typeArguments[i];
+
+        return map;
+    }
+
+    private static string ApplyGenericParameterMap(string typeExpression, Dictionary<string, string> genericParameterMap, HashSet<string>? visited = null)
+    {
+        if (genericParameterMap.Count == 0 || string.IsNullOrWhiteSpace(typeExpression))
+            return typeExpression;
+
+        var sb = new StringBuilder(typeExpression.Length);
+
+        for (var i = 0; i < typeExpression.Length;)
+        {
+            if (char.IsLetter(typeExpression[i]) || typeExpression[i] == '_')
+            {
+                var start = i++;
+
+                while (i < typeExpression.Length && (char.IsLetterOrDigit(typeExpression[i]) || typeExpression[i] == '_'))
+                    i++;
+
+                var token = typeExpression[start..i];
+                var prev = start > 0 ? typeExpression[start - 1] : '\0';
+                var next = i < typeExpression.Length ? typeExpression[i] : '\0';
+                var isQualifiedToken = prev == '.' || next == '.';
+
+                if (!isQualifiedToken && genericParameterMap.TryGetValue(token, out var replacement))
+                {
+                    visited ??= new HashSet<string>(StringComparer.Ordinal);
+
+                    if (visited.Add(token))
+                    {
+                        sb.Append(ApplyGenericParameterMap(replacement, genericParameterMap, visited));
+                        visited.Remove(token);
+                    }
+                    else
+                        sb.Append(token);
+                }
+                else
+                    sb.Append(token);
+
+                continue;
+            }
+
+            sb.Append(typeExpression[i]);
+            i++;
+        }
+
+        return sb.ToString();
     }
 
     private static void ProcessTypeExpression(string typeExpression,
@@ -862,6 +932,60 @@ partial class Program
         if (string.IsNullOrWhiteSpace(typeExpression))
             return;
 
+        var fullResolvedType = ResolveFullTypeExpression(typeExpression, currentNamespace, currentTypeFullName, usings, typeAliases, analysis, allowReferencedFallback);
+
+        if (fullResolvedType != null)
+        {
+            var baseTypeWithoutArray = fullResolvedType;
+            while (baseTypeWithoutArray.EndsWith("[]", StringComparison.Ordinal))
+                baseTypeWithoutArray = baseTypeWithoutArray[..^2];
+
+            var isBuiltInCollection = false;
+            var genericIdx = baseTypeWithoutArray.IndexOf('<');
+
+            if (genericIdx > 0)
+            {
+                var root = baseTypeWithoutArray[..genericIdx];
+                var dotIdx = root.LastIndexOf('.');
+                var simpleName = dotIdx >= 0 ? root[(dotIdx + 1)..] : root;
+
+                if (_config.BuiltInCollectionTypes.Contains(simpleName))
+                {
+                    isBuiltInCollection = true;
+                    serializableTypes.Add(baseTypeWithoutArray);
+                }
+            }
+
+            if (!isBuiltInCollection)
+                AddTypeAndDependencies(baseTypeWithoutArray, serializableTypes, analysis);
+
+            if (fullResolvedType != baseTypeWithoutArray)
+                serializableTypes.Add(fullResolvedType);
+
+            const string ienumerablePrefix = "System.Collections.Generic.IEnumerable<";
+
+            if (fullResolvedType.StartsWith(ienumerablePrefix, StringComparison.Ordinal))
+            {
+                var listType = string.Concat("System.Collections.Generic.List<", fullResolvedType.AsSpan(ienumerablePrefix.Length));
+                serializableTypes.Add(listType);
+            }
+        }
+
+        foreach (var arg in ExtractTypeArguments(typeExpression))
+            ProcessTypeExpression(arg, currentNamespace, currentTypeFullName, usings, typeAliases, serializableTypes, analysis, allowReferencedFallback);
+    }
+
+    private static string? ResolveFullTypeExpression(string typeExpression,
+                                                     string currentNamespace,
+                                                     string currentTypeFullName,
+                                                     List<string> usings,
+                                                     Dictionary<string, string> typeAliases,
+                                                     AnalysisContext analysis,
+                                                     bool allowReferencedFallback = false)
+    {
+        if (string.IsNullOrWhiteSpace(typeExpression))
+            return null;
+
         typeExpression = typeExpression.Trim();
 
         if (typeAliases.Count > 0)
@@ -870,6 +994,55 @@ partial class Program
         if (typeExpression.EndsWith("?", StringComparison.Ordinal))
             typeExpression = typeExpression.TrimEnd('?');
 
+        var arraySuffix = "";
+
+        while (typeExpression.EndsWith("[]", StringComparison.Ordinal))
+        {
+            arraySuffix += "[]";
+            typeExpression = typeExpression[..^2].TrimEnd();
+        }
+
+        var genericIndex = typeExpression.IndexOf('<');
+
+        if (genericIndex > 0)
+        {
+            var rootName = typeExpression[..genericIndex];
+            var resolvedRoot = ResolveTypeName(rootName, currentNamespace, currentTypeFullName, usings, typeAliases, analysis.TypesByFullName, analysis.SimpleNameToFullName);
+
+            if (resolvedRoot == null && allowReferencedFallback && IsReferencedFallbackCandidate(rootName))
+            {
+                analysis.EnsureReferencedProjectsLoaded();
+                resolvedRoot = ResolveTypeName(rootName, currentNamespace, currentTypeFullName, usings, typeAliases, analysis.TypesByFullName, analysis.SimpleNameToFullName);
+            }
+
+            if (resolvedRoot == null)
+            {
+                var dotIndex = rootName.LastIndexOf('.');
+                var simpleTypeName = dotIndex >= 0 ? rootName[(dotIndex + 1)..] : rootName;
+
+                if (_config.BuiltInCollectionTypes.Contains(simpleTypeName))
+                {
+                    var collectionNamespace = rootName.Contains('.')
+                                                  ? rootName[..rootName.LastIndexOf('.')]
+                                                  : "System.Collections.Generic";
+                    resolvedRoot = $"{collectionNamespace}.{simpleTypeName}";
+                }
+            }
+
+            if (resolvedRoot == null)
+                return null;
+
+            var args = ExtractTypeArguments(typeExpression);
+            var resolvedArgs = new List<string>();
+
+            foreach (var arg in args)
+            {
+                var resolvedArg = ResolveFullTypeExpression(arg, currentNamespace, currentTypeFullName, usings, typeAliases, analysis, allowReferencedFallback);
+                resolvedArgs.Add(resolvedArg ?? arg);
+            }
+
+            return $"{resolvedRoot}<{string.Join(", ", resolvedArgs)}>{arraySuffix}";
+        }
         var resolved = ResolveTypeName(typeExpression, currentNamespace, currentTypeFullName, usings, typeAliases, analysis.TypesByFullName, analysis.SimpleNameToFullName);
 
         if (resolved == null && allowReferencedFallback && IsReferencedFallbackCandidate(typeExpression))
@@ -878,47 +1051,7 @@ partial class Program
             resolved = ResolveTypeName(typeExpression, currentNamespace, currentTypeFullName, usings, typeAliases, analysis.TypesByFullName, analysis.SimpleNameToFullName);
         }
 
-        if (resolved != null)
-            AddTypeAndDependencies(resolved, serializableTypes, analysis);
-
-        foreach (var arg in ExtractTypeArguments(typeExpression))
-            ProcessTypeExpression(arg, currentNamespace, currentTypeFullName, usings, typeAliases, serializableTypes, analysis, allowReferencedFallback);
-
-        // check if this is a collection type and register it after generic arguments have had a chance to resolve
-        var collectionType = TryResolveCollectionType(
-            typeExpression,
-            currentNamespace,
-            currentTypeFullName,
-            usings,
-            typeAliases,
-            analysis.TypesByFullName,
-            analysis.SimpleNameToFullName);
-
-        if (collectionType == null && allowReferencedFallback && analysis.ReferencedProjectsInspected)
-        {
-            collectionType = TryResolveCollectionType(
-                typeExpression,
-                currentNamespace,
-                currentTypeFullName,
-                usings,
-                typeAliases,
-                analysis.TypesByFullName,
-                analysis.SimpleNameToFullName);
-        }
-
-        if (collectionType != null)
-        {
-            serializableTypes.Add(collectionType);
-
-            // for IEnumerable<T>, also register List<T> since it's the most common concrete implementation
-            const string ienumerablePrefix = "System.Collections.Generic.IEnumerable<";
-
-            if (collectionType.StartsWith(ienumerablePrefix, StringComparison.Ordinal))
-            {
-                var listType = string.Concat("System.Collections.Generic.List<", collectionType.AsSpan(ienumerablePrefix.Length));
-                serializableTypes.Add(listType);
-            }
-        }
+        return resolved != null ? resolved + arraySuffix : null;
     }
 
     private static bool IsReferencedFallbackCandidate(string typeExpression)
@@ -939,70 +1072,25 @@ partial class Program
         return char.IsUpper(simpleName[0]);
     }
 
-    private static string? TryResolveCollectionType(string typeExpression,
-                                                    string currentNamespace,
-                                                    string currentTypeFullName,
-                                                    List<string> usings,
-                                                    Dictionary<string, string> typeAliases,
-                                                    Dictionary<string, TypeInfo> types,
-                                                    Dictionary<string, string>? simpleNameCache = null)
-    {
-        if (typeExpression.EndsWith("[]", StringComparison.Ordinal))
-        {
-            var elementType = typeExpression[..^2];
-            var resolvedElement = ResolveTypeName(elementType, currentNamespace, currentTypeFullName, usings, typeAliases, types, simpleNameCache);
-
-            if (resolvedElement != null)
-                return resolvedElement + "[]";
-        }
-
-        var genericIndex = typeExpression.IndexOf('<');
-
-        if (genericIndex > 0)
-        {
-            var typeName = typeExpression[..genericIndex];
-            var dotIndex = typeName.LastIndexOf('.');
-            var simpleTypeName = dotIndex >= 0 ? typeName[(dotIndex + 1)..] : typeName;
-
-            if (_config.BuiltInCollectionTypes.Contains(simpleTypeName))
-            {
-                var args = ExtractTypeArguments(typeExpression);
-
-                if (args.Count > 0)
-                {
-                    var resolvedArgs = new List<string>();
-
-                    foreach (var arg in args)
-                    {
-                        var resolvedArg = ResolveTypeName(arg, currentNamespace, currentTypeFullName, usings, typeAliases, types, simpleNameCache);
-                        resolvedArgs.Add(resolvedArg ?? arg);
-                    }
-
-                    var collectionNamespace = typeName.Contains('.')
-                                                  ? typeName[..typeName.LastIndexOf('.')]
-                                                  : "System.Collections.Generic";
-
-                    return $"{collectionNamespace}.{simpleTypeName}<{string.Join(", ", resolvedArgs)}>";
-                }
-            }
-        }
-
-        return null;
-    }
-
     private static string ExtractRootType(string typeName)
     {
-        typeName = typeName.TrimEnd('?');
-        var genericIndex = typeName.IndexOf('<');
+        if (_rootTypeCache.TryGetValue(typeName, out var rootType))
+            return rootType;
+
+        var tn = typeName.TrimEnd('?');
+        var genericIndex = tn.IndexOf('<');
 
         if (genericIndex > 0)
-            typeName = typeName[..genericIndex];
+            tn = tn[..genericIndex];
 
-        var arrayIndex = typeName.IndexOf('[');
+        var arrayIndex = tn.IndexOf('[');
         if (arrayIndex > 0)
-            typeName = typeName[..arrayIndex];
+            tn = tn[..arrayIndex];
 
-        return typeName.Trim();
+        rootType = tn.Trim();
+        _rootTypeCache[typeName] = rootType;
+
+        return rootType;
     }
 
     private static string GetContainingNamespace(SyntaxNode node)
@@ -1073,7 +1161,10 @@ partial class Program
         return existing with
         {
             Properties = mergedProps,
-            BaseTypes = mergedBaseTypes
+            BaseTypes = mergedBaseTypes,
+            GenericParameters = existing.GenericParameters.Count >= incoming.GenericParameters.Count
+                                    ? existing.GenericParameters
+                                    : incoming.GenericParameters
         };
     }
 
@@ -1357,7 +1448,13 @@ record FileParseResult(string FilePath,
                        Dictionary<string, string> GlobalTypeAliases,
                        Dictionary<string, TypeInfo> Types);
 
-record TypeInfo(string FullName, string Namespace, string Name, string FilePath, List<PropertyInfo> Properties, List<TypeRef> BaseTypes);
+record TypeInfo(string FullName,
+                string Namespace,
+                string Name,
+                string FilePath,
+                List<PropertyInfo> Properties,
+                List<TypeRef> BaseTypes,
+                List<string> GenericParameters);
 
 record PropertyInfo(string Name, string TypeName, string FilePath);
 

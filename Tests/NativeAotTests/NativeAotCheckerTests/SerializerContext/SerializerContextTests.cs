@@ -115,4 +115,76 @@ public class SerializerContextTests(App app) : TestBase<App>
         res.Age.ShouldBe(30);
         res.MapperWasUsed.ShouldBeTrue();
     }
+
+    [Fact]
+    public async Task Fluent_Generic_Prop_Endpoint()
+    {
+        var req = new FluentGenericPropRequest
+        {
+            StringData = new() { Value = "hello" },
+            IntData = new() { Value = 42 }
+        };
+
+        var (rsp, res, err) = await app.Client.POSTAsync<FluentGenericPropEndpoint, FluentGenericPropRequest, FluentGenericPropResponse>(req);
+
+        if (!rsp.IsSuccessStatusCode)
+            Assert.Fail(err);
+
+        res.Result.ShouldBe("hello x42");
+    }
+
+    [Fact]
+    public async Task Generic_Prop_Endpoint()
+    {
+        var req = new GenericPropRequest
+        {
+            StringData = new() { Value = "world" },
+            IntData = new() { Value = 99 }
+        };
+
+        var (rsp, res, err) = await app.Client.POSTAsync<GenericPropEndpoint, GenericPropRequest, GenericPropResponse>(req);
+
+        if (!rsp.IsSuccessStatusCode)
+            Assert.Fail(err);
+
+        res.Result.ShouldBe("world x99");
+    }
+
+    [Fact]
+    public async Task Nested_Generic_Prop_Endpoint()
+    {
+        var req = new NestedGenericPropRequest
+        {
+            StringData = new()
+            {
+                Page = new()
+                {
+                    Items = ["alpha", "beta"]
+                }
+            }
+        };
+
+        var (rsp, res, err) = await app.Client.POSTAsync<NestedGenericPropEndpoint, NestedGenericPropRequest, NestedGenericPropResponse>(req);
+
+        if (!rsp.IsSuccessStatusCode)
+            Assert.Fail(err);
+
+        res.Result.ShouldBe("alpha,beta");
+    }
+
+    [Fact]
+    public async Task Generic_Request_Endpoint()
+    {
+        var req = new GenericRequest<string>
+        {
+            Value = "generic-value"
+        };
+
+        var (rsp, res, err) = await app.Client.POSTAsync<GenericRequestEndpoint, GenericRequest<string>, GenericRequestResponse>(req);
+
+        if (!rsp.IsSuccessStatusCode)
+            Assert.Fail(err);
+
+        res.Result.ShouldBe("generic-value");
+    }
 }

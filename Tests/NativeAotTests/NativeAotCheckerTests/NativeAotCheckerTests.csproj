@@ -17,5 +17,5 @@
         <ProjectReference Include="..\..\..\Src\Testing\FastEndpoints.Testing.csproj"/>
         <ProjectReference Include="..\..\..\TestHarness\NativeAotChecker\NativeAotChecker.csproj"/>
     </ItemGroup>
-    
+
 </Project>

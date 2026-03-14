@@ -12,9 +12,13 @@ Due to low financial backing by the community, FastEndpoints will soon be going 
 
 <details><summary>Dual mode testing support for 'AppFixture'</summary>
 
-You can now use the same app fixture (without any conditional code in your tests) to run WAF based tests during regular development, and run smoke tests against a native aot build during a CI/CD pipeline run by simply doing `dotnet test MyTestProject.csproj -p:NativeAotTestMode=true` in the pipeline. This way you are able to have a faster feedback loop during development and also verify that everything works the same once the app is built with native aot by running the same set of tests against the aot build without any special handling in your code.
+You can now use the same app fixture (without any conditional code in your tests) to run WAF based tests during regular development, and run smoke tests against a native aot build during a CI/CD pipeline run by simply doing `dotnet test MyTestProject.csproj -p:NativeAotTestMode=true` in the pipeline. This way you are able to have a faster feedback loop during development and also verify that everything works the same once the app is built with native aot by running the same set of tests against the aot build without any special handling in your code. See the documentation [here](https://fast-endpoints.com/docs/native-aot#testing-native-aot-builds).
 
-TODO: update template project and add info to the aot doc page
+</details>
+
+<details><summary>Fluent generics support for serializer context generator</summary>
+
+The STJ serializer context generator now supports endpoints defined with [fluent generics](https://fast-endpoints.com/docs/get-started#fluent-generics).
 
 </details>
 
@@ -26,15 +30,9 @@ The serializer context will now generate `JsonSerializable` attributes for reque
 
 ## Fixes 🪲
 
-<details><summary>Regression in OData library</summary>
-
-Due to recent changes in FastEndpoints v8, the OData library stopped producing results. This has now been fixed and the OData base endpoint class has been made leaner by removing the need for an intermediate endpoint filter.
-
-</details>
-
 <details><summary>Serializer context generator was skipping collection DTO types</summary>
 
-The serializer context generator tool was not creating `JsonSerializable` attributes for request and response DTO types if they were collection types such a `List<Request>`, `IEnumerable<Response>`, etc.
+The serializer context generator tool was not creating `JsonSerializable` attributes for request and response DTO types if they were collection types such as `List<Request>`, `IEnumerable<Response>`, etc.
 
 </details>
 
@@ -50,13 +48,13 @@ The job queue search predicate has been improved to allow EF Core (and potential
 
 </details>
 
-## Improvements 🚀
+<details><summary>Regression in OData library</summary>
 
-<details><summary>Fluent generics support for serializer context generator</summary>
-
-The STJ serializer context generator now supports endpoints defined with [fluent generics](https://fast-endpoints.com/docs/get-started#fluent-generics).
+Due to recent changes in FastEndpoints v8, the OData library stopped producing results. This has now been fixed, and comprehensive tests added to prevent a reoccurrence.
 
 </details>
+
+## Improvements 🚀
 
 <details><summary>Optimize serializer context generator</summary>
 
@@ -70,4 +68,4 @@ v8 matches custom value parsers by the underlying type (due to native aot intric
 
 </details>
 
-## Minor Breaking Changes ⚠️
+[//]: # (## Minor Breaking Changes ⚠️)

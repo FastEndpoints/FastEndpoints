@@ -1,4 +1,5 @@
 using NativeAotChecker.Endpoints.SerializerCtxGen;
+using Contracts.Dtos;
 using Scalar.AspNetCore;
 
 namespace NativeAotCheckerTests;
@@ -224,5 +225,25 @@ public class SerializerContextTests(App app) : TestBase<App>
         res.Document.Title.ShouldBe("scalar-nested");
         res.Document.RoutePattern.ShouldBe("/scalar/nested");
         res.Document.IsDefault.ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task Referenced_Project_Dto_Response_Endpoint()
+    {
+        var req = new MyDto
+        {
+            Name = "project-ref",
+            Age = 41,
+            Note = "from-contracts"
+        };
+
+        var (rsp, res, err) = await app.Client.POSTAsync<ReferencedProjectDtoEndpoint, MyDto, MyDto>(req);
+
+        if (!rsp.IsSuccessStatusCode)
+            Assert.Fail(err);
+
+        res.Name.ShouldBe("echo:project-ref");
+        res.Age.ShouldBe(42);
+        res.Note.ShouldBe("resolved:from-contracts");
     }
 }

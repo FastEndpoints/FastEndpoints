@@ -11,6 +11,7 @@
     <Project Path="Src/Security/FastEndpoints.Security.csproj" />
     <Project Path="Src/Swagger/FastEndpoints.Swagger.csproj" />
     <Project Path="Src/Testing/FastEndpoints.Testing.csproj" />
+    <Project Path="TestHarness/Sandbox/Contracts/Contracts.csproj" />
   </Folder>
   <Folder Name="/Solution Items/" />
   <Folder Name="/Solution Items/Main/">

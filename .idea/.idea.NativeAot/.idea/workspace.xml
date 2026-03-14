@@ -38,6 +38,7 @@
   </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/TestHarness/NativeAotChecker/Endpoints/SerializerCtxGen/EndpointWithArrayResponse.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/TestHarness/Sandbox/Contracts/MyDtos.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/0983b02300d54b9e8a813a2546f75aa133f08/8c/d26f0a0c/Assert.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/1f7d81c92c01349f8e68213d932e21041fa2083dc3c66e37a976b86d247666/ShouldBeBooleanExtensions.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/aa1b45f3f86166f2831a18e0a327c822ba284c2e2367db0ac9752edf3e867d/IAsyncDisposable.cs" root0="FORCE_HIGHLIGHTING" />
@@ -57,24 +58,24 @@
     <option name="openDirectoriesWithSingleClick" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;.NET Project.NativeAotChecker.executor&quot;: &quot;Debug&quot;,
-    &quot;.NET Project.NativeAotCheckerTests.executor&quot;: &quot;Run&quot;,
-    &quot;5f017c13-5719-4b96-8313-58ff3fadeb7a.executor&quot;: &quot;Run&quot;,
-    &quot;5ffee4ec-56a2-4840-9b6b-4d5135e56d58.executor&quot;: &quot;Debug&quot;,
-    &quot;8c83ea8d-a85e-435d-9cd9-ff78111e8f44.executor&quot;: &quot;Run&quot;,
-    &quot;Attach to Process.12356:NativeAotChecker.executor&quot;: &quot;Debug&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;ba5fafe5-f318-45d7-8468-c2974285f7b4.executor&quot;: &quot;Debug&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/SOURCE-CONTROL/FastEndpoints/Src/Testing/FastEndpoints.Testing.csproj&quot;,
-    &quot;rider.code.cleanup.on.save&quot;: &quot;true&quot;,
-    &quot;rider.code.cleanup.on.save.profile&quot;: &quot;clean-on-save&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;editor.preferences.fonts.default&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    ".NET Project.NativeAotChecker.executor": "Debug",
+    ".NET Project.NativeAotCheckerTests.executor": "Run",
+    "5f017c13-5719-4b96-8313-58ff3fadeb7a.executor": "Run",
+    "5ffee4ec-56a2-4840-9b6b-4d5135e56d58.executor": "Debug",
+    "8c83ea8d-a85e-435d-9cd9-ff78111e8f44.executor": "Run",
+    "Attach to Process.12356:NativeAotChecker.executor": "Debug",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "ba5fafe5-f318-45d7-8468-c2974285f7b4.executor": "Debug",
+    "last_opened_file_path": "/home/SOURCE-CONTROL/FastEndpoints/TestHarness/Sandbox/Contracts/Contracts.csproj",
+    "rider.code.cleanup.on.save": "true",
+    "rider.code.cleanup.on.save.profile": "clean-on-save",
+    "settings.editor.selected.configurable": "editor.preferences.fonts.default"
   }
-}</component>
+}]]></component>
   <component name="RunManager" selected=".NET Project.NativeAotChecker">
     <configuration name="FastEndpoints.Generator.Cli" type="DotNetProject" factoryName=".NET Project">
       <option name="EXE_PATH" value="" />

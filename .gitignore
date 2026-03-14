@@ -24,3 +24,5 @@ Tests/NativeAotTests/NativeAotCheckerTests/aot
 TestHarness/NativeAotChecker/aot
 TestHarness/NativeAotChecker/wwwroot/openapi/
 TestHarness/NativeAotChecker/Generated/
+
+.idea/.idea.NativeAot/.idea/workspace.xml

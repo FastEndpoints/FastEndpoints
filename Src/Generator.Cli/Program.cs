@@ -41,7 +41,7 @@ partial class Program
     private static readonly Dictionary<string, string> _rootTypeCache = new(StringComparer.Ordinal);
 
     private const string CacheFileName = ".fastendpoints-generator-cache";
-    private const string CacheSchemaVersion = "v1";
+    private const string CacheSchemaVersion = "v2";
 
     private sealed class GeneratorConfig
     {
@@ -106,10 +106,13 @@ partial class Program
 
         public HashSet<string> BuiltInCollectionTypes { get; } = new(StringComparer.Ordinal)
         {
+            "Dictionary",
             "IEnumerable",
             "List",
             "ICollection",
+            "IDictionary",
             "IList",
+            "IReadOnlyDictionary",
             "IReadOnlyList",
             "IReadOnlyCollection",
             "HashSet",
@@ -146,6 +149,10 @@ partial class Program
         var customOutputPath = outputArgIndex >= 0 && outputArgIndex + 1 < args.Length
                                    ? args[outputArgIndex + 1]
                                    : null;
+        var assetsFilePath = GetOptionValue(args, "--assets-file");
+        var targetFramework = GetOptionValue(args, "--target-framework");
+        var runtimeIdentifier = GetOptionValue(args, "--runtime-identifier");
+        var targetingPackRoot = GetOptionValue(args, "--targeting-pack-root");
 
         if (!File.Exists(projectPath))
         {
@@ -156,7 +163,7 @@ partial class Program
 
         try
         {
-            return RunGenerator(projectPath, forceRegenerate, customOutputPath);
+            return RunGenerator(projectPath, forceRegenerate, customOutputPath, assetsFilePath, targetFramework, runtimeIdentifier, targetingPackRoot);
         }
         catch (Exception ex)
         {
@@ -166,7 +173,22 @@ partial class Program
         }
     }
 
-    private static int RunGenerator(string projectPath, bool forceRegenerate, string? customOutputPath)
+    private static string? GetOptionValue(string[] args, string optionName)
+    {
+        var optionIndex = Array.IndexOf(args, optionName);
+
+        return optionIndex >= 0 && optionIndex + 1 < args.Length
+                   ? args[optionIndex + 1]
+                   : null;
+    }
+
+    private static int RunGenerator(string projectPath,
+                                    bool forceRegenerate,
+                                    string? customOutputPath,
+                                    string? assetsFilePath,
+                                    string? targetFramework,
+                                    string? runtimeIdentifier,
+                                    string? targetingPackRoot)
     {
         var projectDir = Path.GetDirectoryName(projectPath)!;
         var projectName = Path.GetFileNameWithoutExtension(projectPath);
@@ -187,8 +209,10 @@ partial class Program
         var outputDir = GetGeneratorOutputPath(projectDir, customOutputPath);
         var cacheFilePath = Path.Combine(outputDir, CacheFileName);
         var refSources = new Lazy<SourceFileSet>(() => GetReferencedProjectSourceFilesWithHash(projectPath));
+        var nugetPackageAssemblies = new Lazy<NuGetPackageAssemblySet>(() => GetNuGetPackageCompileAssembliesWithHash(projectPath, assetsFilePath, targetFramework, runtimeIdentifier, targetingPackRoot));
+        var nugetPackageLoader = new Lazy<NuGetPackageTypeLoader>(() => LoadNuGetPackageTypeLoader(nugetPackageAssemblies.Value));
 
-        if (!forceRegenerate && IsUpToDate(cacheFilePath, hash, outputDir, refSources))
+        if (!forceRegenerate && IsUpToDate(cacheFilePath, hash, outputDir, refSources, nugetPackageAssemblies))
         {
             Console.WriteLine("Generated files are up-to-date. Skipping generation.");
 
@@ -199,6 +223,7 @@ partial class Program
         var (syntaxTrees, typeDeclarations, allUsingsByFile, allTypeAliasesByFile) = AggregateResults(parseResults);
         var analysis = AnalysisContext.Create(typeDeclarations, allUsingsByFile, allTypeAliasesByFile);
         analysis.SetReferencedProjectLoader(() => LoadReferencedProjectData(refSources.Value));
+        analysis.SetNuGetPackageLoader(() => nugetPackageLoader.Value);
 
         Console.WriteLine($"Found {typeDeclarations.Count} type declarations.");
 
@@ -213,7 +238,13 @@ partial class Program
             return 0;
         }
 
-        var cacheState = new GeneratorCacheState(CacheSchemaVersion, hash, analysis.ReferencedProjectsInspected, analysis.ReferencedProjectsHash ?? string.Empty);
+        var cacheState = new GeneratorCacheState(
+            CacheSchemaVersion,
+            hash,
+            analysis.ReferencedProjectsInspected,
+            analysis.ReferencedProjectsHash ?? string.Empty,
+            analysis.NuGetPackagesInspected,
+            analysis.NuGetPackagesHash ?? string.Empty);
 
         GenerateOutput(outputDir, projectPath, projectName, serializableTypes, cacheState, cacheFilePath);
 
@@ -340,7 +371,7 @@ partial class Program
                                    : ExtractTypeArguments(endpointBase);
 
                 foreach (var typeArg in typeArgs)
-                    ProcessTypeExpression(typeArg, currentNs, className, allUsings, typeAliases, serializableTypes, analysis, allowReferencedFallback: true);
+                    ProcessTypeExpression(typeArg, currentNs, className, allUsings, typeAliases, serializableTypes, analysis, allowExternalFallback: true);
             }
         }
 
@@ -442,7 +473,11 @@ partial class Program
         return Convert.ToHexString(sha256.ComputeHash(stream));
     }
 
-    private static bool IsUpToDate(string cacheFilePath, string mainProjectHash, string outputDir, Lazy<SourceFileSet> refSources)
+    private static bool IsUpToDate(string cacheFilePath,
+                                   string mainProjectHash,
+                                   string outputDir,
+                                   Lazy<SourceFileSet> refSources,
+                                   Lazy<NuGetPackageAssemblySet> nugetPackageAssemblies)
     {
         if (!File.Exists(cacheFilePath))
             return false;
@@ -459,9 +494,18 @@ partial class Program
             return false;
 
         if (!cacheState.ReferencedProjectsInspected)
-            return true;
+        {
+            if (!cacheState.NuGetPackagesInspected)
+                return true;
 
-        return string.Equals(cacheState.ReferencedProjectsHash, refSources.Value.Hash, StringComparison.Ordinal);
+            return string.Equals(cacheState.NuGetPackagesHash, nugetPackageAssemblies.Value.Hash, StringComparison.Ordinal);
+        }
+
+        if (!string.Equals(cacheState.ReferencedProjectsHash, refSources.Value.Hash, StringComparison.Ordinal))
+            return false;
+
+        return !cacheState.NuGetPackagesInspected ||
+               string.Equals(cacheState.NuGetPackagesHash, nugetPackageAssemblies.Value.Hash, StringComparison.Ordinal);
     }
 
     private static FileParseResult ParseFile(string filePath)
@@ -843,7 +887,7 @@ partial class Program
                 var usings = analysis.AllUsingsByFile.GetValueOrDefault(baseType.FilePath) ?? _emptyUsings;
                 var typeAliases = analysis.AllTypeAliasesByFile.GetValueOrDefault(baseType.FilePath) ?? _emptyAliases;
                 var closedBaseType = ApplyGenericParameterMap(baseType.TypeName, genericParameterMap);
-                ProcessTypeExpression(closedBaseType, currentNs, typeInfo.FullName, usings, typeAliases, serializableTypes, analysis);
+                    ProcessTypeExpression(closedBaseType, currentNs, typeInfo.FullName, usings, typeAliases, serializableTypes, analysis, allowExternalFallback: true);
             }
         }
 
@@ -852,8 +896,8 @@ partial class Program
             var usings = analysis.AllUsingsByFile.GetValueOrDefault(prop.FilePath) ?? _emptyUsings;
             var typeAliases = analysis.AllTypeAliasesByFile.GetValueOrDefault(prop.FilePath) ?? _emptyAliases;
             var closedPropertyType = ApplyGenericParameterMap(prop.TypeName, genericParameterMap);
-            ProcessTypeExpression(closedPropertyType, currentNs, typeInfo.FullName, usings, typeAliases, serializableTypes, analysis);
-        }
+            ProcessTypeExpression(closedPropertyType, currentNs, typeInfo.FullName, usings, typeAliases, serializableTypes, analysis, allowExternalFallback: true);
+    }
     }
 
     private static Dictionary<string, string> BuildGenericParameterMap(string closedTypeName, TypeInfo typeInfo)
@@ -927,12 +971,12 @@ partial class Program
                                               Dictionary<string, string> typeAliases,
                                               HashSet<string> serializableTypes,
                                               AnalysisContext analysis,
-                                              bool allowReferencedFallback = false)
+                                              bool allowExternalFallback = false)
     {
         if (string.IsNullOrWhiteSpace(typeExpression))
             return;
 
-        var fullResolvedType = ResolveFullTypeExpression(typeExpression, currentNamespace, currentTypeFullName, usings, typeAliases, analysis, allowReferencedFallback);
+        var fullResolvedType = ResolveFullTypeExpression(typeExpression, currentNamespace, currentTypeFullName, usings, typeAliases, analysis, allowExternalFallback);
 
         if (fullResolvedType != null)
         {
@@ -972,7 +1016,7 @@ partial class Program
         }
 
         foreach (var arg in ExtractTypeArguments(typeExpression))
-            ProcessTypeExpression(arg, currentNamespace, currentTypeFullName, usings, typeAliases, serializableTypes, analysis, allowReferencedFallback);
+            ProcessTypeExpression(arg, currentNamespace, currentTypeFullName, usings, typeAliases, serializableTypes, analysis, allowExternalFallback);
     }
 
     private static string? ResolveFullTypeExpression(string typeExpression,
@@ -981,7 +1025,7 @@ partial class Program
                                                      List<string> usings,
                                                      Dictionary<string, string> typeAliases,
                                                      AnalysisContext analysis,
-                                                     bool allowReferencedFallback = false)
+                                                     bool allowExternalFallback = false)
     {
         if (string.IsNullOrWhiteSpace(typeExpression))
             return null;
@@ -1009,10 +1053,13 @@ partial class Program
             var rootName = typeExpression[..genericIndex];
             var resolvedRoot = ResolveTypeName(rootName, currentNamespace, currentTypeFullName, usings, typeAliases, analysis.TypesByFullName, analysis.SimpleNameToFullName);
 
-            if (resolvedRoot == null && allowReferencedFallback && IsReferencedFallbackCandidate(rootName))
+            if (resolvedRoot == null && allowExternalFallback && IsExternalFallbackCandidate(rootName))
             {
                 analysis.EnsureReferencedProjectsLoaded();
                 resolvedRoot = ResolveTypeName(rootName, currentNamespace, currentTypeFullName, usings, typeAliases, analysis.TypesByFullName, analysis.SimpleNameToFullName);
+
+                if (resolvedRoot == null)
+                    resolvedRoot = analysis.TryLoadNuGetType(rootName, currentNamespace, usings);
             }
 
             if (resolvedRoot == null)
@@ -1037,7 +1084,7 @@ partial class Program
 
             foreach (var arg in args)
             {
-                var resolvedArg = ResolveFullTypeExpression(arg, currentNamespace, currentTypeFullName, usings, typeAliases, analysis, allowReferencedFallback);
+                var resolvedArg = ResolveFullTypeExpression(arg, currentNamespace, currentTypeFullName, usings, typeAliases, analysis, allowExternalFallback);
                 resolvedArgs.Add(resolvedArg ?? arg);
             }
 
@@ -1045,18 +1092,30 @@ partial class Program
         }
         var resolved = ResolveTypeName(typeExpression, currentNamespace, currentTypeFullName, usings, typeAliases, analysis.TypesByFullName, analysis.SimpleNameToFullName);
 
-        if (resolved == null && allowReferencedFallback && IsReferencedFallbackCandidate(typeExpression))
+        if (resolved == null && allowExternalFallback && IsExternalFallbackCandidate(typeExpression))
         {
             analysis.EnsureReferencedProjectsLoaded();
             resolved = ResolveTypeName(typeExpression, currentNamespace, currentTypeFullName, usings, typeAliases, analysis.TypesByFullName, analysis.SimpleNameToFullName);
+
+            if (resolved == null)
+                resolved = analysis.TryLoadNuGetType(typeExpression, currentNamespace, usings);
         }
 
         return resolved != null ? resolved + arraySuffix : null;
     }
 
-    private static bool IsReferencedFallbackCandidate(string typeExpression)
+    private static bool IsExternalFallbackCandidate(string typeExpression)
     {
         var rootType = ExtractRootType(typeExpression);
+
+        if (rootType.StartsWith("global::", StringComparison.Ordinal))
+            rootType = rootType[8..];
+
+        foreach (var skipNs in _config.SkipNamespaces)
+        {
+            if (rootType.StartsWith(skipNs + ".", StringComparison.Ordinal))
+                return false;
+        }
 
         var dotIndex = rootType.LastIndexOf('.');
         var simpleName = dotIndex >= 0 && dotIndex < rootType.Length - 1
@@ -1066,7 +1125,7 @@ partial class Program
         if (string.IsNullOrWhiteSpace(simpleName))
             return false;
 
-        if (_config.BuiltInCollectionTypes.Contains(simpleName) || _primitiveTypeNames.Contains(simpleName))
+        if (_config.BuiltInCollectionTypes.Contains(simpleName) || _primitiveTypeNames.Contains(simpleName) || _primitiveTypeNames.Contains(rootType))
             return false;
 
         return char.IsUpper(simpleName[0]);
@@ -1195,6 +1254,28 @@ partial class Program
         }
     }
 
+    private static string? GetTargetFramework(string projectPath)
+    {
+        try
+        {
+            var doc = XDocument.Load(projectPath);
+            var tfm = doc.Descendants().FirstOrDefault(e => e.Name.LocalName == "TargetFramework")?.Value;
+
+            if (!string.IsNullOrWhiteSpace(tfm))
+                return tfm;
+
+            var tfms = doc.Descendants().FirstOrDefault(e => e.Name.LocalName == "TargetFrameworks")?.Value;
+
+            return string.IsNullOrWhiteSpace(tfms)
+                       ? null
+                       : tfms.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).FirstOrDefault();
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
     private static ReferencedProjectData LoadReferencedProjectData(SourceFileSet referencedProjectSources)
     {
         if (referencedProjectSources.Files.Count == 0)
@@ -1205,6 +1286,232 @@ partial class Program
 
         return new(typeDeclarations, allUsingsByFile, allTypeAliasesByFile, referencedProjectSources.Hash);
     }
+
+    private static NuGetPackageAssemblySet GetNuGetPackageCompileAssembliesWithHash(string projectPath,
+                                                                                     string? assetsFilePath,
+                                                                                     string? targetFramework,
+                                                                                     string? runtimeIdentifier,
+                                                                                     string? targetingPackRoot)
+    {
+        var projectDir = Path.GetDirectoryName(projectPath)!;
+        var resolvedAssetsFilePath = ResolveAssetsFilePath(projectDir, assetsFilePath);
+        var resolvedTargetFramework = string.IsNullOrWhiteSpace(targetFramework) ? GetTargetFramework(projectPath) : targetFramework;
+
+        if (resolvedAssetsFilePath == null || !File.Exists(resolvedAssetsFilePath))
+            return new([], [], string.Empty);
+
+        var packageAssemblies = ReadNuGetPackageCompileAssemblies(resolvedAssetsFilePath, resolvedTargetFramework, runtimeIdentifier);
+        var assemblyPaths = packageAssemblies.Select(a => a.AssemblyPath).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+        var referenceAssemblies = GetTargetFrameworkReferenceAssemblies(resolvedTargetFramework, targetingPackRoot);
+        var hashInputs = new List<string> { resolvedAssetsFilePath };
+        hashInputs.AddRange(referenceAssemblies);
+
+        return new(packageAssemblies, referenceAssemblies, ComputeContentHash(assemblyPaths, hashInputs));
+    }
+
+    private static string? ResolveAssetsFilePath(string projectDir, string? assetsFilePath)
+    {
+        if (!string.IsNullOrWhiteSpace(assetsFilePath))
+        {
+            return Path.IsPathRooted(assetsFilePath)
+                       ? assetsFilePath
+                       : Path.GetFullPath(Path.Combine(projectDir, assetsFilePath));
+        }
+
+        var defaultAssetsFilePath = Path.Combine(projectDir, "obj", "project.assets.json");
+
+        return File.Exists(defaultAssetsFilePath) ? defaultAssetsFilePath : null;
+    }
+
+    private static List<NuGetPackageAssemblyInfo> ReadNuGetPackageCompileAssemblies(string assetsFilePath, string? targetFramework, string? runtimeIdentifier)
+    {
+        using var stream = File.OpenRead(assetsFilePath);
+        using var document = JsonDocument.Parse(stream);
+
+        if (!document.RootElement.TryGetProperty("targets", out var targetsElement) || targetsElement.ValueKind != JsonValueKind.Object)
+            return [];
+
+        var targetKey = SelectAssetsTargetKey(targetsElement, targetFramework, runtimeIdentifier);
+
+        if (targetKey == null || !targetsElement.TryGetProperty(targetKey, out var targetElement) || targetElement.ValueKind != JsonValueKind.Object)
+            return [];
+
+        var packageFolders = ReadPackageFolders(document.RootElement);
+        if (packageFolders.Count == 0)
+            return [];
+
+        var packageAssemblies = new List<NuGetPackageAssemblyInfo>();
+
+        foreach (var libraryEntry in targetElement.EnumerateObject())
+        {
+            var libraryKey = libraryEntry.Name;
+            var libraryValue = libraryEntry.Value;
+
+            if (!IsPackageTarget(libraryValue))
+                continue;
+
+            if (!TryGetPackagePath(document.RootElement, libraryKey, out var packagePath))
+                continue;
+
+            if (!libraryValue.TryGetProperty("compile", out var compileElement) || compileElement.ValueKind != JsonValueKind.Object)
+                continue;
+
+            foreach (var compileEntry in compileElement.EnumerateObject())
+            {
+                if (!compileEntry.Name.EndsWith(".dll", StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                var assemblyPath = ResolvePackageFilePath(packageFolders, packagePath, compileEntry.Name);
+
+                if (assemblyPath == null)
+                    continue;
+
+                packageAssemblies.Add(new(libraryKey, assemblyPath));
+            }
+        }
+
+        return packageAssemblies;
+    }
+
+    private static string? SelectAssetsTargetKey(JsonElement targetsElement, string? targetFramework, string? runtimeIdentifier)
+    {
+        var candidates = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(targetFramework) && !string.IsNullOrWhiteSpace(runtimeIdentifier))
+            candidates.Add($"{targetFramework}/{runtimeIdentifier}");
+
+        if (!string.IsNullOrWhiteSpace(targetFramework))
+            candidates.Add(targetFramework);
+
+        foreach (var candidate in candidates)
+        {
+            if (targetsElement.TryGetProperty(candidate, out _))
+                return candidate;
+        }
+
+        foreach (var target in targetsElement.EnumerateObject())
+        {
+            if (string.IsNullOrWhiteSpace(targetFramework) || target.Name.StartsWith(targetFramework, StringComparison.OrdinalIgnoreCase))
+                return target.Name;
+        }
+
+        return targetsElement.EnumerateObject().FirstOrDefault().Name;
+    }
+
+    private static List<string> ReadPackageFolders(JsonElement root)
+    {
+        if (!root.TryGetProperty("packageFolders", out var packageFoldersElement) || packageFoldersElement.ValueKind != JsonValueKind.Object)
+            return [];
+
+        var packageFolders = new List<string>();
+
+        foreach (var folder in packageFoldersElement.EnumerateObject())
+        {
+            var path = folder.Name
+                             .Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar)
+                             .Replace('\\', Path.DirectorySeparatorChar);
+
+            if (!path.EndsWith(Path.DirectorySeparatorChar))
+                path += Path.DirectorySeparatorChar;
+
+            packageFolders.Add(path);
+        }
+
+        return packageFolders;
+    }
+
+    private static bool IsPackageTarget(JsonElement libraryValue)
+    {
+        return libraryValue.TryGetProperty("type", out var typeElement) &&
+               string.Equals(typeElement.GetString(), "package", StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool TryGetPackagePath(JsonElement root, string libraryKey, out string packagePath)
+    {
+        packagePath = string.Empty;
+
+        if (!root.TryGetProperty("libraries", out var librariesElement) || librariesElement.ValueKind != JsonValueKind.Object)
+            return false;
+
+        if (!librariesElement.TryGetProperty(libraryKey, out var libraryElement) || libraryElement.ValueKind != JsonValueKind.Object)
+            return false;
+
+        if (!libraryElement.TryGetProperty("path", out var pathElement))
+            return false;
+
+        packagePath = pathElement.GetString() ?? string.Empty;
+
+        return packagePath.Length > 0;
+    }
+
+    private static string? ResolvePackageFilePath(IEnumerable<string> packageFolders, string packagePath, string relativeFilePath)
+    {
+        var normalizedPackagePath = packagePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar);
+        var normalizedRelativeFilePath = relativeFilePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar);
+
+        foreach (var packageFolder in packageFolders)
+        {
+            var fullPath = Path.Combine(packageFolder, normalizedPackagePath, normalizedRelativeFilePath);
+
+            if (File.Exists(fullPath))
+                return fullPath;
+        }
+
+        return null;
+    }
+
+    private static List<string> GetTargetFrameworkReferenceAssemblies(string? targetFramework, string? targetingPackRoot)
+    {
+        if (string.IsNullOrWhiteSpace(targetFramework))
+            return [];
+
+        var refAssemblyPaths = new List<string>();
+        var packRoot = string.IsNullOrWhiteSpace(targetingPackRoot)
+                           ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".dotnet", "packs")
+                           : targetingPackRoot!;
+
+        AddReferenceAssemblies(refAssemblyPaths, packRoot, "Microsoft.NETCore.App.Ref", targetFramework);
+        AddReferenceAssemblies(refAssemblyPaths, packRoot, "Microsoft.AspNetCore.App.Ref", targetFramework);
+
+        var netStandardDir = Path.Combine(packRoot, "NETStandard.Library.Ref");
+        if (Directory.Exists(netStandardDir))
+        {
+            var latestVersionDir = Directory.EnumerateDirectories(netStandardDir).OrderByDescending(Path.GetFileName, StringComparer.OrdinalIgnoreCase).FirstOrDefault();
+
+            if (latestVersionDir != null)
+            {
+                var refDir = Path.Combine(latestVersionDir, "ref", "netstandard2.1");
+
+                if (Directory.Exists(refDir))
+                    refAssemblyPaths.AddRange(Directory.EnumerateFiles(refDir, "*.dll", SearchOption.TopDirectoryOnly));
+            }
+        }
+
+        return refAssemblyPaths.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+    }
+
+    private static void AddReferenceAssemblies(List<string> paths, string packRoot, string packName, string targetFramework)
+    {
+        var packDir = Path.Combine(packRoot, packName);
+
+        if (!Directory.Exists(packDir))
+            return;
+
+        var latestVersionDir = Directory.EnumerateDirectories(packDir).OrderByDescending(Path.GetFileName, StringComparer.OrdinalIgnoreCase).FirstOrDefault();
+
+        if (latestVersionDir == null)
+            return;
+
+        var refDir = Path.Combine(latestVersionDir, "ref", targetFramework);
+
+        if (!Directory.Exists(refDir))
+            return;
+
+        paths.AddRange(Directory.EnumerateFiles(refDir, "*.dll", SearchOption.TopDirectoryOnly));
+    }
+
+    private static NuGetPackageTypeLoader LoadNuGetPackageTypeLoader(NuGetPackageAssemblySet packageAssemblies)
+        => NuGetPackageTypeLoader.Create(packageAssemblies.PackageAssemblies, packageAssemblies.ReferenceAssemblies, packageAssemblies.Hash);
 
     private static List<string> GetReferencedProjectPaths(string projectPath)
     {
@@ -1370,10 +1677,14 @@ record AnalysisContext(Dictionary<string, TypeInfo> TypesByFullName,
                        Dictionary<string, Dictionary<string, string>> AllTypeAliasesByFile)
 {
     private Func<ReferencedProjectData>? _referencedProjectLoader;
+    private Func<NuGetPackageTypeLoader>? _nuGetPackageLoader;
+    private NuGetPackageTypeLoader? _loadedNuGetPackageTypes;
 
     public Dictionary<string, string> SimpleNameToFullName { get; } = new(StringComparer.Ordinal);
     public bool ReferencedProjectsInspected { get; private set; }
     public string? ReferencedProjectsHash { get; private set; }
+    public bool NuGetPackagesInspected { get; private set; }
+    public string? NuGetPackagesHash { get; private set; }
 
     public static AnalysisContext Create(Dictionary<string, TypeInfo> types,
                                          Dictionary<string, List<string>> usings,
@@ -1395,6 +1706,9 @@ record AnalysisContext(Dictionary<string, TypeInfo> TypesByFullName,
 
     public void SetReferencedProjectLoader(Func<ReferencedProjectData> referencedProjectLoader)
         => _referencedProjectLoader = referencedProjectLoader;
+
+    public void SetNuGetPackageLoader(Func<NuGetPackageTypeLoader> nuGetPackageLoader)
+        => _nuGetPackageLoader = nuGetPackageLoader;
 
     public void EnsureReferencedProjectsLoaded()
     {
@@ -1429,16 +1743,370 @@ record AnalysisContext(Dictionary<string, TypeInfo> TypesByFullName,
         foreach (var (filePath, aliases) in referencedProjectData.AllTypeAliasesByFile)
             AllTypeAliasesByFile[filePath] = aliases;
     }
+
+    public string? TryLoadNuGetType(string typeExpression, string currentNamespace, List<string> usings)
+    {
+        var packageLoader = EnsureNuGetPackageLoader();
+
+        if (packageLoader == null)
+            return null;
+
+        if (!packageLoader.TryResolveAndLoadType(typeExpression, currentNamespace, usings, out var fullName, out var typeInfo))
+            return null;
+
+        MergeType(typeInfo);
+
+        return fullName;
+    }
+
+    private NuGetPackageTypeLoader? EnsureNuGetPackageLoader()
+    {
+        if (_loadedNuGetPackageTypes != null)
+            return _loadedNuGetPackageTypes;
+
+        NuGetPackagesInspected = true;
+
+        if (_nuGetPackageLoader == null)
+            return null;
+
+        _loadedNuGetPackageTypes = _nuGetPackageLoader();
+        NuGetPackagesHash = _loadedNuGetPackageTypes.Hash;
+
+        return _loadedNuGetPackageTypes;
+    }
+
+    private void MergeType(TypeInfo typeInfo)
+    {
+        if (TypesByFullName.TryGetValue(typeInfo.FullName, out var existingType))
+            TypesByFullName[typeInfo.FullName] = Program.MergeTypeInfos(existingType, typeInfo);
+        else
+            TypesByFullName[typeInfo.FullName] = typeInfo;
+
+        var dotIndex = typeInfo.FullName.LastIndexOf('.');
+        var simpleName = dotIndex >= 0 ? typeInfo.FullName[(dotIndex + 1)..] : typeInfo.FullName;
+
+        if (!SimpleNameToFullName.ContainsKey(simpleName))
+            SimpleNameToFullName[simpleName] = typeInfo.FullName;
+    }
+}
+
+sealed class NuGetPackageTypeLoader
+{
+    private static readonly SymbolDisplayFormat _qualifiedTypeFormat = new(
+        globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Omitted,
+        typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
+        genericsOptions: SymbolDisplayGenericsOptions.IncludeTypeParameters,
+        miscellaneousOptions: SymbolDisplayMiscellaneousOptions.EscapeKeywordIdentifiers | SymbolDisplayMiscellaneousOptions.ExpandNullable);
+
+    private static readonly SymbolDisplayFormat _namespaceFormat = new(
+        globalNamespaceStyle: SymbolDisplayGlobalNamespaceStyle.Omitted,
+        typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces,
+        miscellaneousOptions: SymbolDisplayMiscellaneousOptions.EscapeKeywordIdentifiers);
+
+    private readonly Dictionary<string, INamedTypeSymbol> _typesByFullName;
+    private readonly Dictionary<string, string> _typeNamespaces;
+    private readonly Dictionary<string, List<string>> _typesBySimpleName;
+    private readonly Dictionary<string, TypeInfo> _typeInfoCache = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, string?> _resolutionCache = new(StringComparer.Ordinal);
+
+    private NuGetPackageTypeLoader(Dictionary<string, INamedTypeSymbol> typesByFullName,
+                                   Dictionary<string, string> typeNamespaces,
+                                   Dictionary<string, List<string>> typesBySimpleName,
+                                   string hash)
+    {
+        _typesByFullName = typesByFullName;
+        _typeNamespaces = typeNamespaces;
+        _typesBySimpleName = typesBySimpleName;
+        Hash = hash;
+    }
+
+    public string Hash { get; }
+
+    public static NuGetPackageTypeLoader Create(List<NuGetPackageAssemblyInfo> packageAssemblies, List<string> referenceAssemblies, string hash)
+    {
+        var typesByFullName = new Dictionary<string, INamedTypeSymbol>(StringComparer.Ordinal);
+        var typeNamespaces = new Dictionary<string, string>(StringComparer.Ordinal);
+        var typesBySimpleName = new Dictionary<string, List<string>>(StringComparer.Ordinal);
+
+        if (packageAssemblies.Count == 0)
+            return new(typesByFullName, typeNamespaces, typesBySimpleName, hash);
+
+        var metadataReferencePaths = referenceAssemblies.Concat(packageAssemblies.Select(a => a.AssemblyPath)).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+        var metadataReferences = metadataReferencePaths.Select(path => MetadataReference.CreateFromFile(path)).ToList();
+        var compilation = CSharpCompilation.Create("FastEndpoints.Generator.Cli.NuGetMetadata", references: metadataReferences);
+        var referencesByPath = metadataReferencePaths.Zip(metadataReferences, (path, reference) => new KeyValuePair<string, MetadataReference>(path, reference))
+                                                     .ToDictionary(kvp => kvp.Key, kvp => kvp.Value, StringComparer.OrdinalIgnoreCase);
+
+        foreach (var assemblyPath in packageAssemblies.Select(a => a.AssemblyPath).Distinct(StringComparer.OrdinalIgnoreCase))
+        {
+            if (!referencesByPath.TryGetValue(assemblyPath, out var reference))
+                continue;
+
+            if (compilation.GetAssemblyOrModuleSymbol(reference) is not IAssemblySymbol assemblySymbol)
+                continue;
+
+            CollectTypes(assemblySymbol.GlobalNamespace, typesByFullName, typeNamespaces, typesBySimpleName);
+        }
+
+        return new(typesByFullName, typeNamespaces, typesBySimpleName, hash);
+    }
+
+    public bool TryResolveAndLoadType(string typeExpression,
+                                      string currentNamespace,
+                                      List<string> usings,
+                                      out string fullName,
+                                      out TypeInfo typeInfo)
+    {
+        fullName = string.Empty;
+        typeInfo = default!;
+
+        var resolvedFullName = ResolveFullName(typeExpression, currentNamespace, usings);
+
+        if (resolvedFullName == null || !_typesByFullName.TryGetValue(resolvedFullName, out var symbol))
+            return false;
+
+        fullName = resolvedFullName;
+
+        if (!_typeInfoCache.TryGetValue(fullName, out var cachedTypeInfo))
+        {
+            cachedTypeInfo = CreateTypeInfo(symbol);
+            _typeInfoCache[fullName] = cachedTypeInfo;
+        }
+
+        typeInfo = cachedTypeInfo;
+
+        return true;
+    }
+
+    private string? ResolveFullName(string typeExpression, string currentNamespace, List<string> usings)
+    {
+        var lookupName = NormalizeLookupName(typeExpression);
+        var cacheKey = BuildResolutionKey(lookupName, currentNamespace, usings);
+
+        if (_resolutionCache.TryGetValue(cacheKey, out var cachedFullName))
+            return cachedFullName;
+
+        var resolvedFullName = ResolveFullNameCore(lookupName, currentNamespace, usings);
+        _resolutionCache[cacheKey] = resolvedFullName;
+
+        return resolvedFullName;
+    }
+
+    private string? ResolveFullNameCore(string lookupName, string currentNamespace, List<string> usings)
+    {
+        if (_typesByFullName.ContainsKey(lookupName))
+            return lookupName;
+
+        if (!string.IsNullOrWhiteSpace(currentNamespace))
+        {
+            var currentNamespaceCandidate = $"{currentNamespace}.{lookupName}";
+
+            if (_typesByFullName.ContainsKey(currentNamespaceCandidate))
+                return currentNamespaceCandidate;
+        }
+
+        foreach (var usingNamespace in usings)
+        {
+            var usingCandidate = $"{usingNamespace}.{lookupName}";
+
+            if (_typesByFullName.ContainsKey(usingCandidate))
+                return usingCandidate;
+        }
+
+        var dotIndex = lookupName.LastIndexOf('.');
+        var simpleName = dotIndex >= 0 ? lookupName[(dotIndex + 1)..] : lookupName;
+
+        if (!_typesBySimpleName.TryGetValue(simpleName, out var candidates) || candidates.Count == 0)
+            return null;
+
+        if (candidates.Count == 1)
+            return candidates[0];
+
+        var contextualCandidates = candidates.Where(c => MatchesContext(c, currentNamespace, usings)).ToList();
+
+        if (contextualCandidates.Count == 1)
+            return contextualCandidates[0];
+
+        return null;
+    }
+
+    private bool MatchesContext(string fullName, string currentNamespace, List<string> usings)
+    {
+        if (!_typeNamespaces.TryGetValue(fullName, out var typeNamespace))
+            return false;
+
+        return string.Equals(typeNamespace, currentNamespace, StringComparison.Ordinal) ||
+               usings.Contains(typeNamespace, StringComparer.Ordinal);
+    }
+
+    private static string BuildResolutionKey(string lookupName, string currentNamespace, List<string> usings)
+        => string.Concat(lookupName, "|", currentNamespace, "|", string.Join(";", usings));
+
+    private static string NormalizeLookupName(string typeExpression)
+    {
+        if (string.IsNullOrWhiteSpace(typeExpression))
+            return string.Empty;
+
+        var normalizedType = typeExpression.Trim().TrimEnd('?');
+
+        if (normalizedType.StartsWith("global::", StringComparison.Ordinal))
+            normalizedType = normalizedType[8..];
+
+        var genericIndex = normalizedType.IndexOf('<');
+
+        if (genericIndex >= 0)
+            normalizedType = normalizedType[..genericIndex];
+
+        var arrayIndex = normalizedType.IndexOf('[');
+
+        if (arrayIndex >= 0)
+            normalizedType = normalizedType[..arrayIndex];
+
+        return normalizedType.Trim();
+    }
+
+    private static void CollectTypes(INamespaceSymbol namespaceSymbol,
+                                     Dictionary<string, INamedTypeSymbol> typesByFullName,
+                                     Dictionary<string, string> typeNamespaces,
+                                     Dictionary<string, List<string>> typesBySimpleName)
+    {
+        foreach (var typeSymbol in namespaceSymbol.GetTypeMembers())
+            CollectTypes(typeSymbol, typesByFullName, typeNamespaces, typesBySimpleName);
+
+        foreach (var childNamespace in namespaceSymbol.GetNamespaceMembers())
+            CollectTypes(childNamespace, typesByFullName, typeNamespaces, typesBySimpleName);
+    }
+
+    private static void CollectTypes(INamedTypeSymbol typeSymbol,
+                                     Dictionary<string, INamedTypeSymbol> typesByFullName,
+                                     Dictionary<string, string> typeNamespaces,
+                                     Dictionary<string, List<string>> typesBySimpleName)
+    {
+        if (IsPubliclyAccessible(typeSymbol))
+        {
+            var fullName = GetTypeDefinitionName(typeSymbol);
+
+            if (!typesByFullName.ContainsKey(fullName))
+            {
+                typesByFullName[fullName] = typeSymbol;
+                typeNamespaces[fullName] = GetNamespace(typeSymbol);
+
+                if (!typesBySimpleName.TryGetValue(typeSymbol.Name, out var matches))
+                {
+                    matches = [];
+                    typesBySimpleName[typeSymbol.Name] = matches;
+                }
+
+                matches.Add(fullName);
+            }
+        }
+
+        foreach (var nestedType in typeSymbol.GetTypeMembers())
+            CollectTypes(nestedType, typesByFullName, typeNamespaces, typesBySimpleName);
+    }
+
+    private static bool IsPubliclyAccessible(INamedTypeSymbol typeSymbol)
+    {
+        if (!typeSymbol.CanBeReferencedByName || typeSymbol.DeclaredAccessibility != Accessibility.Public)
+            return false;
+
+        for (var containingType = typeSymbol.ContainingType; containingType != null; containingType = containingType.ContainingType)
+        {
+            if (containingType.DeclaredAccessibility != Accessibility.Public)
+                return false;
+        }
+
+        return true;
+    }
+
+    private static TypeInfo CreateTypeInfo(INamedTypeSymbol typeSymbol)
+    {
+        typeSymbol = typeSymbol.OriginalDefinition;
+
+        var fullName = GetTypeDefinitionName(typeSymbol);
+        var filePath = fullName;
+        var properties = typeSymbol.GetMembers()
+                                  .OfType<IPropertySymbol>()
+                                  .Where(p => !p.IsStatic && !p.IsIndexer && IsSerializableProperty(p))
+                                  .Select(p => new PropertyInfo(p.Name, GetDisplayTypeName(p.Type), filePath))
+                                  .ToList();
+
+        var baseTypes = new List<TypeRef>();
+
+        if (typeSymbol.TypeKind == TypeKind.Class && typeSymbol.BaseType is { SpecialType: not SpecialType.System_Object } baseType)
+            baseTypes.Add(new(GetDisplayTypeName(baseType), filePath));
+
+        var genericParameters = typeSymbol.TypeParameters.Select(p => p.Name).ToList();
+
+        return new(fullName, GetNamespace(typeSymbol), typeSymbol.Name, filePath, properties, baseTypes, genericParameters);
+    }
+
+    private static bool IsSerializableProperty(IPropertySymbol propertySymbol)
+        => propertySymbol.DeclaredAccessibility == Accessibility.Public ||
+           propertySymbol.GetMethod?.DeclaredAccessibility == Accessibility.Public ||
+           propertySymbol.SetMethod?.DeclaredAccessibility == Accessibility.Public;
+
+    private static string GetNamespace(INamedTypeSymbol typeSymbol)
+        => typeSymbol.ContainingNamespace.IsGlobalNamespace ? string.Empty : typeSymbol.ContainingNamespace.ToDisplayString(_namespaceFormat);
+
+    private static string GetTypeDefinitionName(INamedTypeSymbol typeSymbol)
+    {
+        var nameParts = new Stack<string>();
+
+        for (var current = typeSymbol.OriginalDefinition; current != null; current = current.ContainingType)
+            nameParts.Push(current.Name);
+
+        var namespaceName = GetNamespace(typeSymbol);
+        var typeName = string.Join('.', nameParts);
+
+        return string.IsNullOrWhiteSpace(namespaceName) ? typeName : $"{namespaceName}.{typeName}";
+    }
+
+    private static string GetDisplayTypeName(ITypeSymbol typeSymbol)
+    {
+        return typeSymbol switch
+        {
+            IArrayTypeSymbol arrayType => $"{GetDisplayTypeName(arrayType.ElementType)}[]",
+            INamedTypeSymbol namedType when namedType.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T && namedType.TypeArguments.Length == 1
+                => GetDisplayTypeName(namedType.TypeArguments[0]),
+            INamedTypeSymbol namedType => GetNamedTypeDisplayName(namedType),
+            ITypeParameterSymbol typeParameter => typeParameter.Name,
+            _ => typeSymbol.ToDisplayString(_qualifiedTypeFormat)
+        };
+    }
+
+    private static string GetNamedTypeDisplayName(INamedTypeSymbol typeSymbol)
+    {
+        var rootTypeName = GetTypeDefinitionName(typeSymbol.OriginalDefinition);
+
+        if (!typeSymbol.IsGenericType || typeSymbol.TypeArguments.Length == 0)
+            return rootTypeName;
+
+        var typeArguments = typeSymbol.TypeArguments.Select(GetDisplayTypeName);
+
+        return $"{rootTypeName}<{string.Join(", ", typeArguments)}>";
+    }
 }
 
 record SourceFileSet(List<string> Files, string Hash);
+
+record NuGetPackageAssemblySet(List<NuGetPackageAssemblyInfo> PackageAssemblies,
+                               List<string> ReferenceAssemblies,
+                               string Hash);
+
+record NuGetPackageAssemblyInfo(string LibraryKey, string AssemblyPath);
 
 record ReferencedProjectData(Dictionary<string, TypeInfo> TypesByFullName,
                              Dictionary<string, List<string>> AllUsingsByFile,
                              Dictionary<string, Dictionary<string, string>> AllTypeAliasesByFile,
                              string Hash);
 
-record GeneratorCacheState(string Version, string MainProjectHash, bool ReferencedProjectsInspected, string ReferencedProjectsHash);
+record GeneratorCacheState(string Version,
+                           string MainProjectHash,
+                           bool ReferencedProjectsInspected,
+                           string ReferencedProjectsHash,
+                           bool NuGetPackagesInspected,
+                           string NuGetPackagesHash);
 
 record FileParseResult(string FilePath,
                        SyntaxTree Tree,

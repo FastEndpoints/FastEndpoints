@@ -1,4 +1,5 @@
 using NativeAotChecker.Endpoints.SerializerCtxGen;
+using Scalar.AspNetCore;
 
 namespace NativeAotCheckerTests;
 
@@ -186,5 +187,42 @@ public class SerializerContextTests(App app) : TestBase<App>
             Assert.Fail(err);
 
         res.Result.ShouldBe("generic-value");
+    }
+
+    [Fact]
+    public async Task Package_Dto_Direct_Endpoint()
+    {
+        var req = new ScalarDocument("scalar-doc", "scalar-direct", "/scalar/v1", true);
+
+        var (rsp, res, err) = await app.Client.POSTAsync<PackageDtoDirectEndpoint, ScalarDocument, ScalarDocument>(req);
+
+        if (!rsp.IsSuccessStatusCode)
+            Assert.Fail(err);
+
+        res.Name.ShouldBe("copy:scalar-doc");
+        res.Title.ShouldBe("echo:scalar-direct");
+        res.RoutePattern.ShouldBe("/scalar/v1");
+        res.IsDefault.ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task Package_Dto_Nested_Endpoint()
+    {
+        var req = new PackageDtoEnvelope
+        {
+            Document = new("nested-doc", "scalar-nested", "/scalar/nested", false)
+        };
+
+        var (rsp, res, err) = await app.Client.POSTAsync<PackageDtoNestedEndpoint, PackageDtoEnvelope, PackageDtoEnvelopeResponse>(req);
+
+        if (!rsp.IsSuccessStatusCode)
+            Assert.Fail(err);
+
+        res.Summary.ShouldBe("nested-doc|False");
+        res.Document.ShouldNotBeNull();
+        res.Document!.Name.ShouldBe("nested:nested-doc");
+        res.Document.Title.ShouldBe("scalar-nested");
+        res.Document.RoutePattern.ShouldBe("/scalar/nested");
+        res.Document.IsDefault.ShouldBeFalse();
     }
 }

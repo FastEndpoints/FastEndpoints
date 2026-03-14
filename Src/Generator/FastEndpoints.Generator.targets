@@ -113,7 +113,7 @@
             <_CliCommand Condition="!Exists('$(_FastEndpointsCliDevPath)')">dotnet tool run fastendpoints-generator</_CliCommand>
         </PropertyGroup>
 
-        <Exec Command="$(_CliCommand) &quot;$(MSBuildProjectFullPath)&quot; --output &quot;$(SerializerContextOutputPath)&quot;"
+        <Exec Command="$(_CliCommand) &quot;$(MSBuildProjectFullPath)&quot; --output &quot;$(SerializerContextOutputPath)&quot; --assets-file &quot;$(ProjectAssetsFile)&quot; --target-framework &quot;$(TargetFramework)&quot; --runtime-identifier &quot;$(RuntimeIdentifier)&quot; --targeting-pack-root &quot;$(NetCoreTargetingPackRoot)&quot;"
               WorkingDirectory="$(ProjectDir)"
               StandardOutputImportance="normal"
               StandardErrorImportance="high"/>

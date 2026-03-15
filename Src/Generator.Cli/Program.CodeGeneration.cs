@@ -111,12 +111,12 @@ partial class Program
         sb.l("/// <summary>");
         sb.l("/// Extension methods for adding generated serializer contexts.");
         sb.l("/// </summary>");
-        sb.l("internal static class FastEndpointsSerializerExtensions");
+        sb.l("public static class FastEndpointsSerializerExtensions");
         sb.l("{");
         sb.l("    /// <summary>");
         sb.l("    /// Adds the generated JSON serializer context to the JSON serializer options.");
         sb.l("    /// </summary>");
-        sb.l($"    internal static JsonSerializerOptions AddSerializerContextsFrom{rootNamespace}(this JsonSerializerOptions options)");
+        sb.l($"    public static JsonSerializerOptions AddSerializerContextsFrom{rootNamespace}(this JsonSerializerOptions options)");
         sb.l("    {");
         sb.l("        var context = new GeneratedSerializerContext(new(options));");
         sb.l("        options.TypeInfoResolverChain.Insert(0, context);");

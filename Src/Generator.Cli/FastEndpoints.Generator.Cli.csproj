@@ -2,6 +2,9 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
+        <TargetFrameworks>;</TargetFrameworks> <!-- disable multi targeting from Directory.Build.Props -->
+        <TargetFramework>net8.0</TargetFramework>
+        <RollForward>Major</RollForward>
         <PackAsTool>true</PackAsTool>
         <ToolCommandName>fastendpoints-generator</ToolCommandName>
         <PackageId>FastEndpoints.Generator.Cli</PackageId>

@@ -97,13 +97,18 @@ partial class Program
 
     private static IEnumerable<string> GetNestedTypeCandidates(string currentTypeFullName, string lookupName)
     {
-        var parts = currentTypeFullName.Split('.', StringSplitOptions.RemoveEmptyEntries);
+        var prefix = currentTypeFullName;
 
-        for (var i = parts.Length; i >= 1; i--)
+        while (prefix.Length > 0)
         {
-            var prefix = string.Join('.', parts.Take(i));
-
             yield return $"{prefix}.{lookupName}";
+
+            var lastDot = prefix.LastIndexOf('.');
+
+            if (lastDot < 0)
+                break;
+
+            prefix = prefix[..lastDot];
         }
     }
 
@@ -120,6 +125,10 @@ partial class Program
 
         var dotIndex = rootTypeName.LastIndexOf('.');
         var simpleTypeName = dotIndex >= 0 ? rootTypeName[(dotIndex + 1)..] : rootTypeName;
+        var backtickIdx = simpleTypeName.IndexOf('`');
+
+        if (backtickIdx >= 0)
+            simpleTypeName = simpleTypeName[..backtickIdx];
 
         if (_config.SkipTypes.Contains(simpleTypeName))
             return true;
@@ -168,6 +177,11 @@ partial class Program
 
         var dotIndex = rootTypeName.LastIndexOf('.');
         var simpleTypeName = dotIndex >= 0 ? rootTypeName[(dotIndex + 1)..] : rootTypeName;
+        var backtickIdx = simpleTypeName.IndexOf('`');
+
+        if (backtickIdx >= 0)
+            simpleTypeName = simpleTypeName[..backtickIdx];
+
         var skipBaseTraversal = _config.RootTypeSkipNames.Contains(simpleTypeName);
 
         if (!skipBaseTraversal)
@@ -341,8 +355,10 @@ partial class Program
         if (genericIndex > 0)
         {
             var rootName = typeExpression[..genericIndex];
+            var arity = CountTopLevelGenericArgs(typeExpression, genericIndex);
+            var arityRootName = $"{rootName}`{arity}";
             var resolvedRoot = ResolveTypeName(
-                rootName,
+                arityRootName,
                 currentNamespace,
                 currentTypeFullName,
                 usings,
@@ -355,7 +371,7 @@ partial class Program
             {
                 analysis.EnsureReferencedProjectsLoaded();
                 resolvedRoot = ResolveTypeName(
-                                   rootName,
+                                   arityRootName,
                                    currentNamespace,
                                    currentTypeFullName,
                                    usings,
@@ -363,7 +379,7 @@ partial class Program
                                    analysis.TypesByFullName,
                                    analysis.SimpleNameToFullName,
                                    analysis.AmbiguousSimpleNames) ??
-                               analysis.TryLoadNuGetType(rootName, currentNamespace, usings);
+                               analysis.TryLoadNuGetType(rootName, currentNamespace, usings, arity);
             }
 
             if (resolvedRoot == null)
@@ -382,6 +398,8 @@ partial class Program
 
             if (resolvedRoot == null)
                 return null;
+
+            resolvedRoot = StripArityFromTypeName(resolvedRoot);
 
             var args = ExtractTypeArguments(typeExpression);
             var resolvedArgs = new List<string>();
@@ -430,21 +448,23 @@ partial class Program
         if (rootType.StartsWith("global::", StringComparison.Ordinal))
             rootType = rootType[8..];
 
+        var strippedRoot = StripArityFromTypeName(rootType);
+
         foreach (var skipNs in _config.SkipNamespaces)
         {
-            if (rootType.StartsWith(skipNs + ".", StringComparison.Ordinal))
+            if (strippedRoot.StartsWith(skipNs + ".", StringComparison.Ordinal))
                 return false;
         }
 
-        var dotIndex = rootType.LastIndexOf('.');
-        var simpleName = dotIndex >= 0 && dotIndex < rootType.Length - 1
-                             ? rootType[(dotIndex + 1)..]
-                             : rootType;
+        var dotIndex = strippedRoot.LastIndexOf('.');
+        var simpleName = dotIndex >= 0 && dotIndex < strippedRoot.Length - 1
+                             ? strippedRoot[(dotIndex + 1)..]
+                             : strippedRoot;
 
         if (string.IsNullOrWhiteSpace(simpleName))
             return false;
 
-        if (_config.BuiltInCollectionTypes.Contains(simpleName) || _primitiveTypeNames.Contains(simpleName) || _primitiveTypeNames.Contains(rootType))
+        if (_config.BuiltInCollectionTypes.Contains(simpleName) || _primitiveTypeNames.Contains(simpleName) || _primitiveTypeNames.Contains(strippedRoot))
             return false;
 
         return char.IsUpper(simpleName[0]);
@@ -459,7 +479,10 @@ partial class Program
         var genericIndex = tn.IndexOf('<');
 
         if (genericIndex > 0)
-            tn = tn[..genericIndex];
+        {
+            var arity = CountTopLevelGenericArgs(tn, genericIndex);
+            tn = $"{tn[..genericIndex]}`{arity}";
+        }
 
         var arrayIndex = tn.IndexOf('[');
         if (arrayIndex > 0)
@@ -469,6 +492,52 @@ partial class Program
         _rootTypeCache[typeName] = rootType;
 
         return rootType;
+    }
+
+    private static int CountTopLevelGenericArgs(string typeName, int genericIndex)
+    {
+        var depth = 0;
+        var count = 1;
+
+        for (var i = genericIndex + 1; i < typeName.Length; i++)
+        {
+            switch (typeName[i])
+            {
+                case '<':
+                    depth++;
+
+                    break;
+                case '>':
+                    if (depth == 0)
+                        return count;
+
+                    depth--;
+
+                    break;
+                case ',':
+                    if (depth == 0)
+                        count++;
+
+                    break;
+            }
+        }
+
+        return count;
+    }
+
+    private static string StripArityFromTypeName(string typeName)
+    {
+        var backtickIndex = typeName.IndexOf('`');
+
+        if (backtickIndex < 0)
+            return typeName;
+
+        var endIndex = backtickIndex + 1;
+
+        while (endIndex < typeName.Length && char.IsDigit(typeName[endIndex]))
+            endIndex++;
+
+        return string.Concat(typeName.AsSpan(0, backtickIndex), typeName.AsSpan(endIndex));
     }
 
     private static string ExpandAliasInTypeName(string typeName, Dictionary<string, string> aliases)

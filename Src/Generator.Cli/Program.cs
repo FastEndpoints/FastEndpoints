@@ -1,3 +1,5 @@
+using System.Reflection;
+
 namespace FastEndpoints.Generator.Cli;
 
 partial class Program
@@ -8,33 +10,27 @@ partial class Program
 
     static int Main(string[] args)
     {
-        if (args.Length == 0)
+        if (args.Contains("--version", StringComparer.OrdinalIgnoreCase))
         {
-            Console.WriteLine("Usage: fastendpoints-generator <project-file-path> [--force] [--output <path>] [build-options]");
-            Console.WriteLine("");
-            Console.WriteLine("Options:");
-            Console.WriteLine("  --force         Force regeneration even if files are up to date");
-            Console.WriteLine("  --output <path> Custom output path for generated files");
-            Console.WriteLine("  --assets-file <path>       Assets file path for package inspection (build integration)");
-            Console.WriteLine("  --target-framework <tfm>   Target framework to inspect package metadata for (build integration)");
-            Console.WriteLine("  --runtime-identifier <rid> Runtime identifier used for assets target selection (build integration)");
-            Console.WriteLine("  --targeting-pack-root <path> Override targeting pack root used for metadata references (build integration)");
-            Console.WriteLine("");
-            Console.WriteLine("Examples:");
-            Console.WriteLine("  fastendpoints-generator MyProject.csproj");
-            Console.WriteLine("  fastendpoints-generator MyProject.csproj --output Generated");
-            Console.WriteLine("  fastendpoints-generator MyProject.csproj --force");
+            var version = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ??
+                          Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "unknown";
 
-            return 1;
+            Console.WriteLine(version);
+
+            return 0;
+        }
+
+        if (args.Length == 0 || args.Contains("--help", StringComparer.OrdinalIgnoreCase))
+        {
+            PrintUsage();
+
+            return args.Length == 0 ? 1 : 0;
         }
 
         var projectPath = Path.GetFullPath(args[0]);
         var forceRegenerate = args.Contains("--force", StringComparer.OrdinalIgnoreCase);
-
-        var outputArgIndex = Array.IndexOf(args, "--output");
-        var customOutputPath = outputArgIndex >= 0 && outputArgIndex + 1 < args.Length
-                                   ? args[outputArgIndex + 1]
-                                   : null;
+        var includeTimestamp = args.Contains("--timestamp", StringComparer.OrdinalIgnoreCase);
+        var customOutputPath = GetOptionValue(args, "--output");
         var assetsFilePath = GetOptionValue(args, "--assets-file");
         var targetFramework = GetOptionValue(args, "--target-framework");
         var runtimeIdentifier = GetOptionValue(args, "--runtime-identifier");
@@ -49,7 +45,7 @@ partial class Program
 
         try
         {
-            return ExecuteGenerator(projectPath, forceRegenerate, customOutputPath, assetsFilePath, targetFramework, runtimeIdentifier, targetingPackRoot);
+            return ExecuteGenerator(projectPath, forceRegenerate, includeTimestamp, customOutputPath, assetsFilePath, targetFramework, runtimeIdentifier, targetingPackRoot);
         }
         catch (Exception ex)
         {
@@ -58,6 +54,27 @@ partial class Program
 
             return 1;
         }
+    }
+
+    private static void PrintUsage()
+    {
+        Console.WriteLine("Usage: fastendpoints-generator <project-file-path> [--force] [--output <path>] [build-options]");
+        Console.WriteLine("");
+        Console.WriteLine("Options:");
+        Console.WriteLine("  --force                      Force regeneration even if files are up to date");
+        Console.WriteLine("  --timestamp                  Include generation timestamp in output files");
+        Console.WriteLine("  --output <path>              Custom output path for generated files");
+        Console.WriteLine("  --assets-file <path>         Assets file path for package inspection (build integration)");
+        Console.WriteLine("  --target-framework <tfm>     Target framework to inspect package metadata for (build integration)");
+        Console.WriteLine("  --runtime-identifier <rid>   Runtime identifier used for assets target selection (build integration)");
+        Console.WriteLine("  --targeting-pack-root <path>  Override targeting pack root used for metadata references (build integration)");
+        Console.WriteLine("  --help                       Show this help message");
+        Console.WriteLine("  --version                    Show version information");
+        Console.WriteLine("");
+        Console.WriteLine("Examples:");
+        Console.WriteLine("  fastendpoints-generator MyProject.csproj");
+        Console.WriteLine("  fastendpoints-generator MyProject.csproj --output Generated");
+        Console.WriteLine("  fastendpoints-generator MyProject.csproj --force");
     }
 
     private static string? GetOptionValue(string[] args, string optionName)

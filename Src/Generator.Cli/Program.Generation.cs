@@ -7,6 +7,7 @@ partial class Program
 
     private static int ExecuteGenerator(string projectPath,
                                         bool forceRegenerate,
+                                        bool includeTimestamp,
                                         string? customOutputPath,
                                         string? assetsFilePath,
                                         string? targetFramework,
@@ -71,7 +72,7 @@ partial class Program
             analysis.NuGetPackagesInspected,
             analysis.NuGetPackagesHash ?? string.Empty);
 
-        WriteGeneratedOutput(outputDir, projectPath, projectName, serializableTypes, cacheState, cacheFilePath);
+        WriteGeneratedOutput(outputDir, projectPath, projectName, serializableTypes, cacheState, cacheFilePath, includeTimestamp);
         FlushDiagnostics();
 
         return 0;

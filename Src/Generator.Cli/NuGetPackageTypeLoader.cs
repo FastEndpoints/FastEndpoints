@@ -99,12 +99,12 @@ sealed class NuGetPackageTypeLoader
                ? $"Warning: skipping metadata reference '{path}' from package '{libraryKey}': {reason}"
                : $"Warning: skipping metadata reference '{path}': {reason}";
 
-    public bool TryResolveAndLoadType(string typeExpression, string currentNamespace, List<string> usings, out string fullName, out TypeInfo typeInfo)
+    public bool TryResolveAndLoadType(string typeExpression, string currentNamespace, List<string> usings, out string fullName, out TypeInfo typeInfo, int arity = 0)
     {
         fullName = string.Empty;
         typeInfo = null!;
 
-        var resolvedFullName = ResolveFullName(typeExpression, currentNamespace, usings);
+        var resolvedFullName = ResolveFullName(typeExpression, currentNamespace, usings, arity);
 
         if (resolvedFullName == null || !_typesByFullName.TryGetValue(resolvedFullName, out var symbol))
             return false;
@@ -122,9 +122,9 @@ sealed class NuGetPackageTypeLoader
         return true;
     }
 
-    private string? ResolveFullName(string typeExpression, string currentNamespace, List<string> usings)
+    private string? ResolveFullName(string typeExpression, string currentNamespace, List<string> usings, int arity = 0)
     {
-        var lookupName = NormalizeLookupName(typeExpression);
+        var lookupName = NormalizeLookupName(typeExpression, arity);
         var cacheKey = BuildResolutionKey(lookupName, currentNamespace, usings);
 
         if (_resolutionCache.TryGetValue(cacheKey, out var cachedFullName))
@@ -194,9 +194,25 @@ sealed class NuGetPackageTypeLoader
     }
 
     private static string BuildResolutionKey(string lookupName, string currentNamespace, List<string> usings)
-        => string.Concat(lookupName, "|", currentNamespace, "|", string.Join(";", usings));
+    {
+        var sb = new System.Text.StringBuilder(lookupName.Length + currentNamespace.Length + usings.Count * 32);
+        sb.Append(lookupName);
+        sb.Append('|');
+        sb.Append(currentNamespace);
+        sb.Append('|');
 
-    private static string NormalizeLookupName(string typeExpression)
+        for (var i = 0; i < usings.Count; i++)
+        {
+            if (i > 0)
+                sb.Append(';');
+
+            sb.Append(usings[i]);
+        }
+
+        return sb.ToString();
+    }
+
+    private static string NormalizeLookupName(string typeExpression, int arity = 0)
     {
         if (string.IsNullOrWhiteSpace(typeExpression))
             return string.Empty;
@@ -216,7 +232,12 @@ sealed class NuGetPackageTypeLoader
         if (arrayIndex >= 0)
             normalizedType = normalizedType[..arrayIndex];
 
-        return normalizedType.Trim();
+        normalizedType = normalizedType.Trim();
+
+        if (arity > 0 && !normalizedType.Contains('`'))
+            normalizedType = $"{normalizedType}`{arity}";
+
+        return normalizedType;
     }
 
     private static void CollectTypes(INamespaceSymbol namespaceSymbol,
@@ -308,7 +329,14 @@ sealed class NuGetPackageTypeLoader
         var nameParts = new Stack<string>();
 
         for (var current = typeSymbol.OriginalDefinition; current != null; current = current.ContainingType)
-            nameParts.Push(current.Name);
+        {
+            var name = current.Name;
+
+            if (current.Arity > 0)
+                name = $"{name}`{current.Arity}";
+
+            nameParts.Push(name);
+        }
 
         var namespaceName = GetNamespace(typeSymbol);
         var typeName = string.Join('.', nameParts);

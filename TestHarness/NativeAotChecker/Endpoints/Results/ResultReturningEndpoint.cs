@@ -14,6 +14,6 @@ public class ResultReturningEndpoint : EndpointWithoutRequest<Results<NotFound, 
     {
         await Task.CompletedTask;
 
-        return TypedResults.Ok("hello");
+        return TypedResults.Ok("hello!");
     }
 }

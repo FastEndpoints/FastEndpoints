@@ -27,7 +27,7 @@ partial class Program
         Dictionary<string, List<string>> AllUsingsByFile,
         Dictionary<string, Dictionary<string, string>> AllTypeAliasesByFile) BuildAnalysisInputs(ConcurrentBag<FileParseResult> parseResults)
     {
-        var globalUsings = new List<string>();
+        var globalUsings = new HashSet<string>(StringComparer.Ordinal);
         var globalTypeAliases = new Dictionary<string, string>(StringComparer.Ordinal);
         var ignoredGlobalAliases = new HashSet<string>(StringComparer.Ordinal);
         var typeDeclarations = new Dictionary<string, TypeInfo>(StringComparer.Ordinal);
@@ -42,10 +42,7 @@ partial class Program
             typeAliasesByFile[result.FilePath] = result.FileTypeAliases;
 
             foreach (var globalUsing in result.GlobalUsings)
-            {
-                if (!globalUsings.Contains(globalUsing))
-                    globalUsings.Add(globalUsing);
-            }
+                globalUsings.Add(globalUsing);
 
             foreach (var kvp in result.GlobalTypeAliases)
             {
@@ -108,7 +105,7 @@ partial class Program
         var globalTypeAliases = new Dictionary<string, string>(StringComparer.Ordinal);
         var types = new Dictionary<string, TypeInfo>(StringComparer.Ordinal);
 
-        var allNodes = root.DescendantNodes().ToList();
+        var allNodes = root.DescendantNodes();
 
         foreach (var node in allNodes)
         {
@@ -159,20 +156,7 @@ partial class Program
                     }
                 }
 
-                var ns = "";
-                var parent = typeDecl.Parent;
-
-                while (parent != null)
-                {
-                    if (parent is BaseNamespaceDeclarationSyntax nsDecl)
-                    {
-                        ns = nsDecl.Name.ToString();
-
-                        break;
-                    }
-
-                    parent = parent.Parent;
-                }
+                var ns = GetContainingNamespace(typeDecl);
 
                 var genericParameters = typeDecl.TypeParameterList?.Parameters.Select(p => p.Identifier.Text).ToList() ?? [];
                 var typeInfo = new TypeInfo(fullName, ns, typeDecl.Identifier.Text, filePath, properties, baseTypes, genericParameters);
@@ -188,20 +172,15 @@ partial class Program
 
     private static string GetFullTypeName(TypeDeclarationSyntax typeDecl)
     {
-        var nameParts = new List<string> { typeDecl.Identifier.Text };
+        var nameParts = new List<string> { GetTypeNameWithArity(typeDecl) };
         var parent = typeDecl.Parent;
 
         while (parent != null)
         {
             if (parent is BaseNamespaceDeclarationSyntax nsDecl)
-            {
                 nameParts.Insert(0, nsDecl.Name.ToString());
-
-                break;
-            }
-
-            if (parent is TypeDeclarationSyntax parentType)
-                nameParts.Insert(0, parentType.Identifier.Text);
+            else if (parent is TypeDeclarationSyntax parentType)
+                nameParts.Insert(0, GetTypeNameWithArity(parentType));
 
             parent = parent.Parent;
         }
@@ -209,19 +188,28 @@ partial class Program
         return string.Join(".", nameParts);
     }
 
+    private static string GetTypeNameWithArity(TypeDeclarationSyntax typeDecl)
+    {
+        var name = typeDecl.Identifier.Text;
+        var arity = typeDecl.TypeParameterList?.Parameters.Count ?? 0;
+
+        return arity > 0 ? $"{name}`{arity}" : name;
+    }
+
     private static string GetContainingNamespace(SyntaxNode node)
     {
+        var namespaceParts = new List<string>();
         var parent = node.Parent;
 
         while (parent != null)
         {
             if (parent is BaseNamespaceDeclarationSyntax nsDecl)
-                return nsDecl.Name.ToString();
+                namespaceParts.Insert(0, nsDecl.Name.ToString());
 
             parent = parent.Parent;
         }
 
-        return "";
+        return string.Join(".", namespaceParts);
     }
 
     internal static TypeInfo MergeTypeInfos(TypeInfo existing, TypeInfo incoming)

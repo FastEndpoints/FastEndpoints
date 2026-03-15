@@ -12,6 +12,6 @@ public class ResultsTests(App app) : TestBase<App>
         if (!rsp.IsSuccessStatusCode)
             Assert.Fail(err);
 
-        res.ShouldBe("hello");
+        res.ShouldBe("hello!");
     }
 }

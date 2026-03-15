@@ -20,21 +20,7 @@ record AnalysisContext(Dictionary<string, TypeInfo> TypesByFullName,
         var ctx = new AnalysisContext(types, usings, aliases);
 
         foreach (var fullName in types.Keys)
-        {
-            var dotIndex = fullName.LastIndexOf('.');
-            var simpleName = dotIndex >= 0 ? fullName[(dotIndex + 1)..] : fullName;
-
-            if (ctx.AmbiguousSimpleNames.Contains(simpleName))
-                continue;
-
-            if (!ctx.SimpleNameToFullName.ContainsKey(simpleName))
-                ctx.SimpleNameToFullName[simpleName] = fullName;
-            else if (!string.Equals(ctx.SimpleNameToFullName[simpleName], fullName, StringComparison.Ordinal))
-            {
-                ctx.SimpleNameToFullName.Remove(simpleName);
-                ctx.AmbiguousSimpleNames.Add(simpleName);
-            }
-        }
+            ctx.TrackSimpleName(fullName);
 
         return ctx;
     }
@@ -65,19 +51,7 @@ record AnalysisContext(Dictionary<string, TypeInfo> TypesByFullName,
             else
                 TypesByFullName[fullName] = typeInfo;
 
-            var dotIndex = fullName.LastIndexOf('.');
-            var simpleName = dotIndex >= 0 ? fullName[(dotIndex + 1)..] : fullName;
-
-            if (AmbiguousSimpleNames.Contains(simpleName))
-                continue;
-
-            if (!SimpleNameToFullName.ContainsKey(simpleName))
-                SimpleNameToFullName[simpleName] = fullName;
-            else if (!string.Equals(SimpleNameToFullName[simpleName], fullName, StringComparison.Ordinal))
-            {
-                SimpleNameToFullName.Remove(simpleName);
-                AmbiguousSimpleNames.Add(simpleName);
-            }
+            TrackSimpleName(fullName);
         }
 
         foreach (var (filePath, usings) in referencedProjectData.AllUsingsByFile)
@@ -87,14 +61,14 @@ record AnalysisContext(Dictionary<string, TypeInfo> TypesByFullName,
             AllTypeAliasesByFile[filePath] = aliases;
     }
 
-    public string? TryLoadNuGetType(string typeExpression, string currentNamespace, List<string> usings)
+    public string? TryLoadNuGetType(string typeExpression, string currentNamespace, List<string> usings, int arity = 0)
     {
         var packageLoader = EnsureNuGetPackageLoader();
 
         if (packageLoader == null)
             return null;
 
-        if (!packageLoader.TryResolveAndLoadType(typeExpression, currentNamespace, usings, out var fullName, out var typeInfo))
+        if (!packageLoader.TryResolveAndLoadType(typeExpression, currentNamespace, usings, out var fullName, out var typeInfo, arity))
             return null;
 
         MergeType(typeInfo);
@@ -125,15 +99,20 @@ record AnalysisContext(Dictionary<string, TypeInfo> TypesByFullName,
         else
             TypesByFullName[typeInfo.FullName] = typeInfo;
 
-        var dotIndex = typeInfo.FullName.LastIndexOf('.');
-        var simpleName = dotIndex >= 0 ? typeInfo.FullName[(dotIndex + 1)..] : typeInfo.FullName;
+        TrackSimpleName(typeInfo.FullName);
+    }
+
+    private void TrackSimpleName(string fullName)
+    {
+        var dotIndex = fullName.LastIndexOf('.');
+        var simpleName = dotIndex >= 0 ? fullName[(dotIndex + 1)..] : fullName;
 
         if (AmbiguousSimpleNames.Contains(simpleName))
             return;
 
         if (!SimpleNameToFullName.ContainsKey(simpleName))
-            SimpleNameToFullName[simpleName] = typeInfo.FullName;
-        else if (!string.Equals(SimpleNameToFullName[simpleName], typeInfo.FullName, StringComparison.Ordinal))
+            SimpleNameToFullName[simpleName] = fullName;
+        else if (!string.Equals(SimpleNameToFullName[simpleName], fullName, StringComparison.Ordinal))
         {
             SimpleNameToFullName.Remove(simpleName);
             AmbiguousSimpleNames.Add(simpleName);

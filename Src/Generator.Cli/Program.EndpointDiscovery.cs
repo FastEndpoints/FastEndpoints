@@ -6,9 +6,8 @@ namespace FastEndpoints.Generator.Cli;
 
 partial class Program
 {
-    private static (HashSet<string> SerializableTypes, int EndpointCount) DiscoverSerializableTypesFromEndpoints(
-        List<(SyntaxTree Tree, string FilePath)> syntaxTrees,
-        AnalysisContext analysis)
+    private static (HashSet<string> SerializableTypes, int EndpointCount) DiscoverSerializableTypesFromEndpoints(List<(SyntaxTree Tree, string FilePath)> syntaxTrees,
+                                                                                                                 AnalysisContext analysis)
     {
         var serializableTypes = new HashSet<string>(StringComparer.Ordinal);
         var endpointCount = 0;

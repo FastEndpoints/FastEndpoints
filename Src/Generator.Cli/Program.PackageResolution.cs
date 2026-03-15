@@ -28,7 +28,7 @@ partial class Program
         var hashInputs = new List<string> { resolvedAssetsFilePath };
         hashInputs.AddRange(referenceAssemblies);
 
-        return new(packageAssemblies, referenceAssemblies, ComputeContentHash(assemblyPaths, hashInputs));
+        return new(packageAssemblies, referenceAssemblies, ComputeFileSetHash(assemblyPaths, hashInputs));
     }
 
     private static string? ResolveAssetsFilePath(string projectDir, string? assetsFilePath)

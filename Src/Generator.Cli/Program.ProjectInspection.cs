@@ -11,7 +11,7 @@ partial class Program
         var projectDir = Path.GetDirectoryName(projectPath)!;
         var files = EnumerateProjectSourceFiles(projectDir);
 
-        return new(files, ComputeContentHash(files, [projectPath]));
+        return new(files, ComputeFileSetHash(files, [projectPath]));
     }
 
     private static SourceFileSet CollectReferencedProjectSourceFilesWithHash(string projectPath)
@@ -29,7 +29,7 @@ partial class Program
             files.AddRange(EnumerateProjectSourceFiles(referencedProjectDir));
         }
 
-        return new(files, ComputeContentHash(files, referencedProjectPaths));
+        return new(files, ComputeFileSetHash(files, referencedProjectPaths));
     }
 
     private static List<string> EnumerateProjectSourceFiles(string projectDir)
@@ -49,7 +49,7 @@ partial class Program
         return files;
     }
 
-    private static string ComputeContentHash(IEnumerable<string> files, IEnumerable<string>? additionalFiles = null)
+    private static string ComputeFileSetHash(IEnumerable<string> files, IEnumerable<string>? additionalFiles = null)
     {
         using var sha256 = SHA256.Create();
         using var stream = new MemoryStream();
@@ -207,9 +207,8 @@ partial class Program
 
         foreach (var projectReference in projectReferences)
         {
-            var normalizedReference = projectReference!
-                                      .Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar)
-                                      .Replace('\\', Path.DirectorySeparatorChar);
+            var normalizedReference = projectReference!.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar)
+                                                       .Replace('\\', Path.DirectorySeparatorChar);
             var referencedProjectPath = Path.GetFullPath(Path.Combine(projectDir, normalizedReference));
 
             if (!File.Exists(referencedProjectPath) || visitedProjects.Contains(referencedProjectPath))

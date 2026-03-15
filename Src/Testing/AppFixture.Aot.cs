@@ -300,7 +300,13 @@ public abstract partial class AppFixture<TProgram>
                 if (fileName.Equals(".aot-build.fingerprint", StringComparison.OrdinalIgnoreCase))
                     continue;
 
+                if (fileName.Equals(".fastendpoints-generator-cache", StringComparison.OrdinalIgnoreCase))
+                    continue;
+
                 if (Path.GetExtension(file).Equals(".user", StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                if (fileName.EndsWith(".g.cs", StringComparison.OrdinalIgnoreCase))
                     continue;
 
                 yield return file;

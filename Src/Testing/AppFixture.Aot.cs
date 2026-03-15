@@ -1,10 +1,10 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.Security.Cryptography;
-using System.Text;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace FastEndpoints.Testing;
 
@@ -12,6 +12,7 @@ public abstract partial class AppFixture<TProgram>
 {
     static readonly byte[] _nullSeparator = { 0 };
     static readonly ConcurrentDictionary<Type, AsyncLazy<AotSharedState>> _aotCache = new();
+    static int _aotProcessExitRegistered;
 
     static readonly HashSet<string> _aotFingerprintSkipDirs = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -24,7 +25,6 @@ public abstract partial class AppFixture<TProgram>
     };
 
     AotSharedState? _aotTargetState;
-    Type? _aotTargetCacheKey;
 
     // ReSharper disable once UnusedParameter.Global
     /// <summary>
@@ -39,9 +39,11 @@ public abstract partial class AppFixture<TProgram>
 
     async ValueTask InitializeAotAsync()
     {
-        _aotTargetCacheKey = typeof(TProgram);
+        if (Interlocked.CompareExchange(ref _aotProcessExitRegistered, 1, 0) == 0)
+            AppDomain.CurrentDomain.ProcessExit += static (_, _) => DisposeAotCacheBlocking();
+
         _aotTargetState = await _aotCache.GetOrAdd(
-                              _aotTargetCacheKey,
+                              typeof(TProgram),
                               _ => new(
                                   async () =>
                                   {
@@ -50,12 +52,33 @@ public abstract partial class AppFixture<TProgram>
 
                                       return await StartAotAsync(ResolveAotPaths(opts), opts);
                                   }));
+
         Client = CreateAotClient();
+
+        static void DisposeAotCacheBlocking()
+        {
+            foreach (var kvp in _aotCache)
+            {
+                try
+                {
+                    if (kvp.Value is { IsValueCreated: true, Value.IsCompletedSuccessfully: true })
+                        kvp.Value.Value.Result.DisposeAsync().AsTask().GetAwaiter().GetResult();
+                }
+                catch
+                {
+                    //do nothing
+                }
+            }
+        }
     }
 
     static async Task<AotSharedState> StartAotAsync((string ExePath, string AotProjectPath, string AotBuildOutputPath) resolved, AotTargetOptions o)
     {
-        await BuildAotAsync(resolved.AotProjectPath, resolved.AotBuildOutputPath, resolved.ExePath, o.BuildTimeoutMinutes);
+        await BuildAotAsync(
+            resolved.AotProjectPath,
+            resolved.AotBuildOutputPath,
+            resolved.ExePath,
+            o);
 
         if (!File.Exists(resolved.ExePath))
         {
@@ -162,14 +185,14 @@ public abstract partial class AppFixture<TProgram>
         throw new InvalidOperationException($"Could not auto-detect AOT project for {assemblyName}. Please set 'PathToTargetAotProject' explicitly in ConfigureAotTargetAsync().");
     }
 
-    static async Task BuildAotAsync(string aotProjectPath, string outputPath, string exePath, int buildTimeoutMinutes)
+    static async Task BuildAotAsync(string aotProjectPath, string outputPath, string exePath, AotTargetOptions o)
     {
         var projectDir = Path.GetDirectoryName(aotProjectPath)!;
         var fingerprintPath = Path.Combine(outputPath, ".aot-build.fingerprint");
 
         Directory.CreateDirectory(outputPath);
 
-        var buildInputsFingerprint = ComputeBuildInputsFingerprint(aotProjectPath, outputPath, exePath);
+        var buildInputsFingerprint = ComputeBuildInputsFingerprint(aotProjectPath, outputPath, exePath, o.AdditionalFingerprintSkipDirectories);
 
         if (File.Exists(exePath) && File.Exists(fingerprintPath))
         {
@@ -193,7 +216,9 @@ public abstract partial class AppFixture<TProgram>
         process.StartInfo = new()
         {
             FileName = "dotnet",
-            Arguments = $"publish \"{aotProjectPath}\" -c Release -o \"{outputPath}\"",
+            Arguments = string.IsNullOrWhiteSpace(o.AdditionalPublishArguments)
+                            ? $"publish \"{aotProjectPath}\" -c Release -o \"{outputPath}\""
+                            : $"publish \"{aotProjectPath}\" -c Release -o \"{outputPath}\" {o.AdditionalPublishArguments}",
             WorkingDirectory = projectDir,
             UseShellExecute = false,
             RedirectStandardOutput = true,
@@ -221,7 +246,7 @@ public abstract partial class AppFixture<TProgram>
         process.BeginOutputReadLine();
         process.BeginErrorReadLine();
 
-        var effectiveTimeout = buildTimeoutMinutes > 0 ? buildTimeoutMinutes : 5;
+        var effectiveTimeout = o.BuildTimeoutMinutes > 0 ? o.BuildTimeoutMinutes : 5;
         using var cts = new CancellationTokenSource(TimeSpan.FromMinutes(effectiveTimeout));
 
         try
@@ -244,13 +269,16 @@ public abstract partial class AppFixture<TProgram>
                 $"Output:\n{string.Join(Environment.NewLine, buildOutput)}");
         }
 
-        var postBuildFingerprint = ComputeBuildInputsFingerprint(aotProjectPath, outputPath, exePath);
+        var postBuildFingerprint = ComputeBuildInputsFingerprint(aotProjectPath, outputPath, exePath, o.AdditionalFingerprintSkipDirectories);
         await File.WriteAllTextAsync(fingerprintPath, postBuildFingerprint);
     }
 
-    static string ComputeBuildInputsFingerprint(string aotProjectPath, string outputPath, string exePath)
+    static string ComputeBuildInputsFingerprint(string aotProjectPath, string outputPath, string exePath, HashSet<string> additionalSkipDirs)
     {
         var projectDir = Path.GetDirectoryName(aotProjectPath)!;
+        var skipDirs = new HashSet<string>(_aotFingerprintSkipDirs, StringComparer.OrdinalIgnoreCase);
+
+        skipDirs.UnionWith(additionalSkipDirs);
 
         using var hasher = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
 
@@ -261,13 +289,13 @@ public abstract partial class AppFixture<TProgram>
         AppendString(hasher, $"output:{Path.GetFullPath(outputPath)}");
         AppendString(hasher, $"exe:{Path.GetFullPath(exePath)}");
 
-        foreach (var file in EnumerateProjectBuildInputs(projectDir))
+        foreach (var file in EnumerateProjectBuildInputs(projectDir, skipDirs))
             AppendFileTimestamp(hasher, projectDir, file);
 
         return Convert.ToHexString(hasher.GetHashAndReset());
     }
 
-    static IEnumerable<string> EnumerateProjectBuildInputs(string projectDir)
+    static IEnumerable<string> EnumerateProjectBuildInputs(string projectDir, HashSet<string> skipDirs)
     {
         var pending = new Stack<string>();
         pending.Push(projectDir);
@@ -284,7 +312,7 @@ public abstract partial class AppFixture<TProgram>
                 var subDir = subDirs[i];
                 var dirName = Path.GetFileName(subDir);
 
-                if (_aotFingerprintSkipDirs.Contains(dirName))
+                if (skipDirs.Contains(dirName))
                     continue;
 
                 pending.Push(subDir);
@@ -370,6 +398,18 @@ public abstract partial class AppFixture<TProgram>
         public int BuildTimeoutMinutes { get; set; } = 5;
 
         /// <summary>
+        /// additional arguments to pass to the <c>dotnet publish</c> command (e.g. <c>"-r linux-x64 -p:SomeProperty=Value"</c>).
+        /// these are appended after the default arguments.
+        /// </summary>
+        public string? AdditionalPublishArguments { get; set; }
+
+        /// <summary>
+        /// additional directory names to exclude when computing the build fingerprint (e.g. <c>"packages"</c>, <c>"artifacts"</c>, <c>"TestResults"</c>).
+        /// the default skip list already includes: bin, obj, .git, .vs, .idea, node_modules.
+        /// </summary>
+        public HashSet<string> AdditionalFingerprintSkipDirectories { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+        /// <summary>
         /// additional environment variables to pass to the aot app instance.
         /// <para>by default <c>ASPNETCORE_ENVIRONMENT</c> is set to <c>Testing</c></para>
         /// </summary>
@@ -401,7 +441,7 @@ public abstract partial class AppFixture<TProgram>
                     UseShellExecute = false,
                     RedirectStandardError = true,
                     RedirectStandardOutput = true,
-                    WindowStyle = ProcessWindowStyle.Normal
+                    WindowStyle = ProcessWindowStyle.Hidden
                 }
             };
 
@@ -421,18 +461,6 @@ public abstract partial class AppFixture<TProgram>
             _process.Start();
             _process.BeginErrorReadLine();
             _process.BeginOutputReadLine();
-
-            AppDomain.CurrentDomain.ProcessExit += (_, _) =>
-                                                   {
-                                                       try
-                                                       {
-                                                           _process.Kill(entireProcessTree: true);
-                                                       }
-                                                       catch
-                                                       {
-                                                           // ignore
-                                                       }
-                                                   };
         }
 
         public async Task WaitForReadyAsync()

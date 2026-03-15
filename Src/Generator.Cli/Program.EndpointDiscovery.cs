@@ -1,5 +1,5 @@
-using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace FastEndpoints.Generator.Cli;
@@ -19,33 +19,44 @@ partial class Program
             var allUsings = analysis.AllUsingsByFile.GetValueOrDefault(filePath) ?? _emptyUsings;
             var typeAliases = analysis.AllTypeAliasesByFile.GetValueOrDefault(filePath) ?? _emptyAliases;
 
-            foreach (var classDecl in root.DescendantNodes().OfType<ClassDeclarationSyntax>())
-            {
-                if (classDecl.Modifiers.Any(m => m.Text == "file"))
-                    continue;
-
-                var baseTypes = GetBaseTypes(classDecl);
-                var endpointBase = FindEndpointBaseType(baseTypes);
-
-                if (endpointBase == null)
-                    continue;
-
-                endpointCount++;
-                var className = GetFullTypeName(classDecl);
-                Console.WriteLine($"  Found endpoint: {className}");
-
-                var currentNs = GetContainingNamespace(classDecl);
-
-                var typeArgs = IsFluentEndpointBaseType(endpointBase)
-                                   ? ExtractFluentTypeArguments(endpointBase)
-                                   : ExtractTypeArguments(endpointBase);
-
-                foreach (var typeArg in typeArgs)
-                    ProcessTypeExpression(typeArg, currentNs, className, allUsings, typeAliases, serializableTypes, analysis, allowExternalFallback: true);
-            }
+            var walker = new EndpointDiscoveryWalker(allUsings, typeAliases, serializableTypes, analysis);
+            walker.Visit(root);
+            endpointCount += walker.EndpointCount;
         }
 
         return (serializableTypes, endpointCount);
+    }
+
+    private sealed class EndpointDiscoveryWalker(List<string> allUsings, Dictionary<string, string> typeAliases, HashSet<string> serializableTypes, AnalysisContext analysis) : CSharpSyntaxWalker
+    {
+        public int EndpointCount { get; private set; }
+
+        public override void VisitClassDeclaration(ClassDeclarationSyntax classDecl)
+        {
+            if (!classDecl.Modifiers.Any(m => m.Text == "file"))
+            {
+                var baseTypes = GetBaseTypes(classDecl);
+                var endpointBase = FindEndpointBaseType(baseTypes);
+
+                if (endpointBase != null)
+                {
+                    EndpointCount++;
+                    var className = GetFullTypeName(classDecl);
+                    Console.WriteLine($"  Found endpoint: {className}");
+
+                    var currentNs = GetContainingNamespace(classDecl);
+
+                    var typeArgs = IsFluentEndpointBaseType(endpointBase)
+                                       ? ExtractFluentTypeArguments(endpointBase)
+                                       : ExtractTypeArguments(endpointBase);
+
+                    foreach (var typeArg in typeArgs)
+                        ProcessTypeExpression(typeArg, currentNs, className, allUsings, typeAliases, serializableTypes, analysis, allowExternalFallback: true);
+                }
+            }
+
+            base.VisitClassDeclaration(classDecl);
+        }
     }
 
     private static List<string> GetBaseTypes(ClassDeclarationSyntax classDecl)
@@ -70,7 +81,7 @@ partial class Program
 
             foreach (var pattern in _config.EndpointBaseTypePatterns)
             {
-                if (baseName.StartsWith(pattern.AsSpan(), StringComparison.Ordinal))
+                if (baseName.Equals(pattern.AsSpan(), StringComparison.Ordinal))
                     return baseType;
             }
         }
@@ -95,13 +106,29 @@ partial class Program
     private static List<string> ExtractTypeArguments(string genericType)
     {
         var result = new List<string>();
-        var match = TypeArgMatcherRegex().Match(genericType);
+        var depth = 0;
+        var start = -1;
 
-        if (match.Success)
+        for (var i = 0; i < genericType.Length; i++)
         {
-            var argsString = match.Groups[1].Value;
-            var args = SplitTypeArguments(argsString);
-            result.AddRange(args);
+            if (genericType[i] == '<')
+            {
+                if (depth == 0)
+                    start = i + 1;
+
+                depth++;
+            }
+            else if (genericType[i] == '>')
+            {
+                depth--;
+
+                if (depth == 0 && start != -1)
+                {
+                    var argsString = genericType.Substring(start, i - start);
+                    result.AddRange(SplitTypeArguments(argsString));
+                    start = -1;
+                }
+            }
         }
 
         return result;
@@ -172,7 +199,4 @@ partial class Program
 
     private static List<string> SplitTypeArguments(string argsString)
         => SplitBalanced(argsString, ',', true);
-
-    [GeneratedRegex("<(.+)>")]
-    private static partial Regex TypeArgMatcherRegex();
 }

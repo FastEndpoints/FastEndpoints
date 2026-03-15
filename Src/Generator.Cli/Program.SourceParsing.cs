@@ -35,7 +35,10 @@ partial class Program
         var typeAliasesByFile = new Dictionary<string, Dictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
         var syntaxTrees = new List<(SyntaxTree Tree, string FilePath)>();
 
-        foreach (var result in parseResults)
+        // Sort by file path to ensure deterministic merging of partial classes
+        var sortedResults = parseResults.OrderBy(r => r.FilePath, StringComparer.Ordinal).ToList();
+
+        foreach (var result in sortedResults)
         {
             syntaxTrees.Add((result.Tree, result.FilePath));
             usingsByFile[result.FilePath] = result.FileUsings;
@@ -99,75 +102,98 @@ partial class Program
         var tree = CSharpSyntaxTree.ParseText(code, path: filePath);
         var root = tree.GetRoot();
 
-        var fileUsings = new List<string>();
-        var globalUsings = new List<string>();
-        var fileTypeAliases = new Dictionary<string, string>(StringComparer.Ordinal);
-        var globalTypeAliases = new Dictionary<string, string>(StringComparer.Ordinal);
-        var types = new Dictionary<string, TypeInfo>(StringComparer.Ordinal);
+        var walker = new SourceFileWalker(filePath);
+        walker.Visit(root);
 
-        var allNodes = root.DescendantNodes();
+        return new(filePath, tree, walker.FileUsings, walker.GlobalUsings, walker.FileTypeAliases, walker.GlobalTypeAliases, walker.Types);
+    }
 
-        foreach (var node in allNodes)
+    private sealed class SourceFileWalker(string filePath) : CSharpSyntaxWalker
+    {
+        public List<string> FileUsings { get; } = [];
+        public List<string> GlobalUsings { get; } = [];
+        public Dictionary<string, string> FileTypeAliases { get; } = new(StringComparer.Ordinal);
+        public Dictionary<string, string> GlobalTypeAliases { get; } = new(StringComparer.Ordinal);
+        public Dictionary<string, TypeInfo> Types { get; } = new(StringComparer.Ordinal);
+
+        public override void VisitUsingDirective(UsingDirectiveSyntax usingDirective)
         {
-            if (node is UsingDirectiveSyntax usingDirective)
+            if (usingDirective.Name == null || usingDirective.StaticKeyword.IsKind(SyntaxKind.StaticKeyword))
             {
-                if (usingDirective.Name == null)
-                    continue;
+                base.VisitUsingDirective(usingDirective);
+                return;
+            }
 
-                if (usingDirective.StaticKeyword.IsKind(SyntaxKind.StaticKeyword))
-                    continue;
+            var usingName = usingDirective.Name.ToString();
 
-                var usingName = usingDirective.Name.ToString();
-
-                if (usingDirective.Alias != null)
-                {
-                    var aliasName = usingDirective.Alias.Name.ToString();
-                    if (usingDirective.GlobalKeyword.IsKind(SyntaxKind.GlobalKeyword))
-                        globalTypeAliases[aliasName] = usingName;
-                    else
-                        fileTypeAliases[aliasName] = usingName;
-
-                    continue;
-                }
-
+            if (usingDirective.Alias != null)
+            {
+                var aliasName = usingDirective.Alias.Name.ToString();
                 if (usingDirective.GlobalKeyword.IsKind(SyntaxKind.GlobalKeyword))
-                    globalUsings.Add(usingName);
+                    GlobalTypeAliases[aliasName] = usingName;
                 else
-                    fileUsings.Add(usingName);
+                    FileTypeAliases[aliasName] = usingName;
+                
+                base.VisitUsingDirective(usingDirective);
+                return;
             }
-            else if (node is TypeDeclarationSyntax typeDecl)
-            {
-                if (typeDecl.Modifiers.Any(m => m.Text == "file"))
-                    continue;
 
-                var fullName = GetFullTypeName(typeDecl);
-                var baseTypes = typeDecl.BaseList?.Types.Select(t => new TypeRef(t.ToString(), filePath)).ToList() ?? [];
-                var properties = new List<PropertyInfo>();
+            if (usingDirective.GlobalKeyword.IsKind(SyntaxKind.GlobalKeyword))
+                GlobalUsings.Add(usingName);
+            else
+                FileUsings.Add(usingName);
 
-                foreach (var prop in typeDecl.Members.OfType<PropertyDeclarationSyntax>())
-                    properties.Add(new(prop.Identifier.Text, prop.Type.ToString(), filePath));
-
-                if (typeDecl is RecordDeclarationSyntax { ParameterList: not null } recordDecl)
-                {
-                    foreach (var param in recordDecl.ParameterList.Parameters)
-                    {
-                        if (param.Type != null)
-                            properties.Add(new(param.Identifier.Text, param.Type.ToString(), filePath));
-                    }
-                }
-
-                var ns = GetContainingNamespace(typeDecl);
-
-                var genericParameters = typeDecl.TypeParameterList?.Parameters.Select(p => p.Identifier.Text).ToList() ?? [];
-                var typeInfo = new TypeInfo(fullName, ns, typeDecl.Identifier.Text, filePath, properties, baseTypes, genericParameters);
-                if (types.TryGetValue(fullName, out var existing))
-                    types[fullName] = MergeTypeInfos(existing, typeInfo);
-                else
-                    types[fullName] = typeInfo;
-            }
+            base.VisitUsingDirective(usingDirective);
         }
 
-        return new(filePath, tree, fileUsings, globalUsings, fileTypeAliases, globalTypeAliases, types);
+        public override void VisitClassDeclaration(ClassDeclarationSyntax node)
+        {
+            ProcessTypeDeclaration(node);
+            base.VisitClassDeclaration(node);
+        }
+
+        public override void VisitStructDeclaration(StructDeclarationSyntax node)
+        {
+            ProcessTypeDeclaration(node);
+            base.VisitStructDeclaration(node);
+        }
+
+        public override void VisitRecordDeclaration(RecordDeclarationSyntax node)
+        {
+            ProcessTypeDeclaration(node);
+            base.VisitRecordDeclaration(node);
+        }
+
+        private void ProcessTypeDeclaration(TypeDeclarationSyntax typeDecl)
+        {
+            if (typeDecl.Modifiers.Any(m => m.Text == "file"))
+                return;
+
+            var fullName = GetFullTypeName(typeDecl);
+            var baseTypes = typeDecl.BaseList?.Types.Select(t => new TypeRef(t.ToString(), filePath)).ToList() ?? [];
+            var properties = new List<PropertyInfo>();
+
+            foreach (var prop in typeDecl.Members.OfType<PropertyDeclarationSyntax>())
+                properties.Add(new(prop.Identifier.Text, prop.Type.ToString(), filePath));
+
+            if (typeDecl is RecordDeclarationSyntax { ParameterList: not null } recordDecl)
+            {
+                foreach (var param in recordDecl.ParameterList.Parameters)
+                {
+                    if (param.Type != null)
+                        properties.Add(new(param.Identifier.Text, param.Type.ToString(), filePath));
+                }
+            }
+
+            var ns = GetContainingNamespace(typeDecl);
+            var genericParameters = typeDecl.TypeParameterList?.Parameters.Select(p => p.Identifier.Text).ToList() ?? [];
+            var typeInfo = new TypeInfo(fullName, ns, typeDecl.Identifier.Text, filePath, properties, baseTypes, genericParameters);
+            
+            if (Types.TryGetValue(fullName, out var existing))
+                Types[fullName] = MergeTypeInfos(existing, typeInfo);
+            else
+                Types[fullName] = typeInfo;
+        }
     }
 
     private static string GetFullTypeName(TypeDeclarationSyntax typeDecl)

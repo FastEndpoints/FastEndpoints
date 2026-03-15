@@ -56,7 +56,7 @@ partial class Program
 
         var usedTypeInfoNames = new HashSet<string>(StringComparer.Ordinal);
 
-        foreach (var type in types.OrderBy(t => t))
+        foreach (var type in types.OrderBy(t => t, StringComparer.Ordinal))
         {
             var globalStrippedType = type.StartsWith("global::", StringComparison.Ordinal) ? type[8..] : type;
             var typeInfoName = MakeTypeInfoPropertyName(type);

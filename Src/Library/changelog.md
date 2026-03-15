@@ -22,7 +22,7 @@ The STJ serializer context generator now supports endpoints defined with [fluent
 
 </details>
 
-<details><summary>Support for generating STJ serializer contexts for DTOs in referenced projects and nuget packages</summary>
+<details><summary>Referenced project + Nuget package support for the serializer context generator</summary>
 
 The serializer context will now generate `JsonSerializable` attributes for request and response DTOs from referenced source projects as well as Nuget packages. Previously the generator was only capable of generating attributes for DTOs from the current project directory.
 
@@ -30,15 +30,15 @@ The serializer context will now generate `JsonSerializable` attributes for reque
 
 ## Fixes 🪲
 
-<details><summary>Serializer context generator was skipping collection DTO types</summary>
-
-The serializer context generator tool was not creating `JsonSerializable` attributes for request and response DTO types if they were collection types such as `List<Request>`, `IEnumerable<Response>`, etc.
-
-</details>
-
 <details><summary>Stack overflow issue with .NET 8 and 9</summary>
 
 A stack overflow exception was being thrown in .NET 8/9 due to cyclical calls in TypeInfoResolver, which .NET 10 has solved. We've added a workaround to prevent this from happening.
+
+</details>
+
+<details><summary>Serializer context generator was skipping collection DTO types</summary>
+
+The serializer context generator tool was not creating `JsonSerializable` attributes for request and response DTO types if they were collection types such as `List<Request>`, `IEnumerable<Response>`, etc.
 
 </details>
 

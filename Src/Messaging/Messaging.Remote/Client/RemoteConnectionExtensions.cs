@@ -34,14 +34,19 @@ public static class RemoteConnectionExtensions
     /// <summary>
     /// register a custom event subscriber storage provider
     /// </summary>
+    /// <param name="services"></param>
     /// <typeparam name="TStorageRecord">the type of the storage record</typeparam>
     /// <typeparam name="TStorageProvider"></typeparam>
-    public static IServiceCollection AddEventSubscriberStorageProvider<TStorageRecord, TStorageProvider>(this IServiceCollection services)
+    /// <param name="expiry">optional duration after which an event record expires. defaults to 4 hours if not specified.</param>
+    public static IServiceCollection AddEventSubscriberStorageProvider<TStorageRecord, TStorageProvider>(this IServiceCollection services, TimeSpan? expiry = null)
         where TStorageRecord : IEventStorageRecord, new()
         where TStorageProvider : class, IEventSubscriberStorageProvider<TStorageRecord>
     {
         RemoteConnectionCore.StorageProviderType = typeof(TStorageProvider);
         RemoteConnectionCore.StorageRecordType = typeof(TStorageRecord);
+        if (expiry.HasValue)
+            RemoteConnectionCore.EventRecordExpiry = expiry.Value;
+
         services.AddSingleton<TStorageProvider>();
 
         return services;
@@ -56,7 +61,7 @@ public static class RemoteConnectionExtensions
         /// <param name="ct">cancellation token</param>
         /// <exception cref="InvalidOperationException">thrown if the relevant remote handler has not been registered</exception>
         public Task RemotePublishAsync(CancellationToken ct)
-            => RemotePublishAsync(evnt, new CallOptions(cancellationToken: ct));
+            => evnt.RemotePublishAsync(new CallOptions(cancellationToken: ct));
 
         /// <summary>
         /// publish the event to the relevant remote server that's running in <see cref="HubMode.EventBroker" /> mode.

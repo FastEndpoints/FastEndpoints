@@ -19,6 +19,7 @@ public class RemoteConnectionCore
 
     internal static Type StorageRecordType { private get; set; } = typeof(InMemoryEventStorageRecord);
     internal static Type StorageProviderType { private get; set; } = typeof(InMemoryEventSubscriberStorage);
+    internal static TimeSpan EventRecordExpiry { get; set; } = TimeSpan.FromHours(4);
 
     //key: tCommand
     //val: command executor

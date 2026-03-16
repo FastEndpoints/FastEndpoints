@@ -30,4 +30,10 @@ static partial class LoggingExtensions
 
     [LoggerMessage(9, LogLevel.Error, "Event storage 'mark-as-complete' error for [subscriber-id:{subscriberId}]({tEvent}): {msg}. Retrying in 5 seconds...")]
     public static partial void StorageMarkAsCompleteError(this ILogger l, string subscriberId, string tEvent, string msg);
+
+    [LoggerMessage(10, LogLevel.Critical, "Event receiver task terminated unexpectedly for [subscriber-id:{subscriberId}]({tEvent}): {msg}")]
+    public static partial void EventReceiverTaskTerminatedCritical(this ILogger l, string subscriberId, string tEvent, string msg);
+
+    [LoggerMessage(11, LogLevel.Critical, "Event executor task terminated unexpectedly for [subscriber-id:{subscriberId}]({tEvent}): {msg}")]
+    public static partial void EventExecutorTaskTerminatedCritical(this ILogger l, string subscriberId, string tEvent, string msg);
 }

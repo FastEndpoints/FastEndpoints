@@ -56,6 +56,12 @@ Due to recent changes in FastEndpoints v8, the OData library stopped producing r
 
 ## Improvements 🚀
 
+<details><summary>Improve remote event queue persistence retry handling</summary>
+
+The publisher event hub and remote event subscriber now retry only the actual event storage operations and perform their semaphore wake-up signaling separately. This avoids re-persisting already stored event records if the post-store notification step fails.
+
+</details>
+
 <details><summary>Optimize serializer context generator</summary>
 
 The serializer context generator has been improved to use less resources and do the generation in a more efficient and faster manner.

@@ -220,7 +220,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                             }
                             catch
                             {
-                                //it's either cancelled or queue is full
+                                //it's either canceled or queue is full
                                 //ignore and discard event if queue is full
                             }
                         }
@@ -228,7 +228,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                         if (_isRoundRobinMode)
                             subscriber.IsConnected = false;
 
-                        return; //stream is most likely broken/cancelled. exit the method here and let the subscriber re-connect and re-enter the method.
+                        return; //stream is most likely broken/canceled. exit the method here and let the subscriber re-connect and re-enter the method.
                     }
 
                     while (!IsInMemoryProvider)
@@ -256,13 +256,13 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
             }
             else
             {
-                //wait until either the semaphore is released or a minute has elapsed
+                //wait until either the semaphore is released or 10 seconds has elapsed
                 await Task.WhenAny(subscriber.Sem.WaitAsync(cts.Token), Task.Delay(10000));
             }
         }
 
         //mark subscriber as disconnected if the while loop is exited.
-        //which means the subscriber either cancelled or stream got broken.
+        //which means the subscriber either canceled or stream got broken.
         if (_isRoundRobinMode)
             subscriber.IsConnected = false;
     }
@@ -319,10 +319,6 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
             try
             {
                 await _storage!.StoreEventsAsync(records, _appCancellation);
-
-                foreach (var sid in subscribers)
-                    _subscribers[sid].Sem.Release();
-
                 createErrorCount = 0;
 
                 break;
@@ -348,6 +344,21 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                     break;
 
                 await Task.Delay(5000, CancellationToken.None);
+            }
+        }
+
+        foreach (var sid in subscribers)
+        {
+            if (!_subscribers.TryGetValue(sid, out var subscriber))
+                continue;
+
+            try
+            {
+                subscriber.Sem.Release();
+            }
+            catch (ObjectDisposedException)
+            {
+                //subscriber was removed after persistence completed. event will be picked up on reconnect if needed.
             }
         }
 

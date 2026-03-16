@@ -85,7 +85,6 @@ sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProv
                         try
                         {
                             await storage.StoreEventAsync(record, opts.CancellationToken);
-                            sem.Release();
                             createErrorCount = 0;
 
                             break;
@@ -102,6 +101,16 @@ sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProv
                             await Task.Delay(5000);
                         }
                     }
+
+                    try
+                    {
+                        sem.Release();
+                    }
+                    catch (SemaphoreFullException)
+                    {
+                        //executor will wake up on the next poll if it missed this signal.
+                    }
+
                     receiveErrorCount = 0;
                 }
             }

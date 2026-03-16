@@ -59,10 +59,12 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
     //key: subscriber id
     //val: subscriber object
     static readonly ConcurrentDictionary<string, Subscriber> _subscribers = new();
+    static readonly Lock _configLock = new();
     static readonly Type _tEvent = typeof(TEvent);
     static readonly TimeSpan _subscriberRetention = TimeSpan.FromHours(24);
     static bool _isRoundRobinMode;
     static TStorageProvider? _storage;
+    static HashSet<string> _knownSubscriberIDs = [];
 
     static readonly Lock _lock = new();
 
@@ -71,6 +73,33 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
     readonly ILogger _logger;
     readonly CancellationToken _appCancellation;
     readonly IEventReceiver<TEvent>? _testEventReceiver;
+
+    internal static void Configure(HubMode mode, IEnumerable<string>? knownSubscriberIDs = null)
+    {
+        HashSet<string> configuredSubscriberIDs = [..knownSubscriberIDs?.Select(SubscriberIDFactory.Normalize).Distinct(StringComparer.Ordinal) ?? []];
+
+        if (mode.HasFlag(HubMode.RoundRobin) && configuredSubscriberIDs.Count > 0)
+        {
+            throw new InvalidOperationException(
+                $"Known subscriber IDs are not supported for round-robin event hub [{_tEvent.FullName!}]. Round-robin hubs only dispatch to currently connected subscribers.");
+        }
+
+        lock (_configLock)
+        {
+            Mode = mode;
+            _isRoundRobinMode = mode.HasFlag(HubMode.RoundRobin);
+            _knownSubscriberIDs = configuredSubscriberIDs;
+
+            foreach (var subId in _knownSubscriberIDs)
+                _subscribers.AddOrUpdate(subId, _ => new() { IsConfigured = true }, (_, existing) => existing with { IsConfigured = true });
+
+            foreach (var kv in _subscribers.Where(kv => !_knownSubscriberIDs.Contains(kv.Key) && kv.Value.IsConfigured).ToArray())
+            {
+                if (_subscribers.TryGetValue(kv.Key, out var subscriber))
+                    _subscribers[kv.Key] = subscriber with { IsConfigured = false };
+            }
+        }
+    }
 
     public EventHub(IServiceProvider svcProvider)
     {
@@ -108,7 +137,12 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                                  });
 
                 foreach (var subId in subIds)
-                    _subscribers[subId] = new() { LastSeenUtc = DateTime.UtcNow };
+                {
+                    _subscribers.AddOrUpdate(
+                        subId,
+                        _ => new() { LastSeenUtc = DateTime.UtcNow, IsConfigured = _knownSubscriberIDs.Contains(subId) },
+                        (_, existing) => existing with { LastSeenUtc = DateTime.UtcNow, IsConfigured = existing.IsConfigured || _knownSubscriberIDs.Contains(subId) });
+                }
 
                 return;
             }
@@ -163,19 +197,23 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
     }
 
     //internal to allow unit testing
-    internal async Task OnSubscriberConnected(EventHub<TEvent, TStorageRecord, TStorageProvider> _,
-                                              string subscriberID,
-                                              IServerStreamWriter<TEvent> stream,
-                                              ServerCallContext ctx)
+    internal async Task OnSubscriberConnected(EventHub<TEvent, TStorageRecord, TStorageProvider> _, string subscriberID, IServerStreamWriter<TEvent> stream, ServerCallContext ctx)
     {
         _logger.SubscriberConnected(subscriberID, _tEvent.FullName!);
 
-        var subscriber = _subscribers.GetOrAdd(subscriberID, new Subscriber());
-        subscriber.IsConnected = true;
-        subscriber.LastSeenUtc = DateTime.UtcNow;
+        var cts = CancellationTokenSource.CreateLinkedTokenSource(ctx.CancellationToken, _appCancellation);
         var retrievalErrorCount = 0;
         var updateErrorCount = 0;
-        var cts = CancellationTokenSource.CreateLinkedTokenSource(ctx.CancellationToken, _appCancellation);
+        var subscriber = _subscribers.AddOrUpdate(
+            subscriberID,
+            _ => new()
+            {
+                IsConnected = true, LastSeenUtc = DateTime.UtcNow, IsConfigured = _knownSubscriberIDs.Contains(subscriberID)
+            },
+            (_, existing) => existing with
+            {
+                IsConnected = true, LastSeenUtc = DateTime.UtcNow, IsConfigured = existing.IsConfigured || _knownSubscriberIDs.Contains(subscriberID)
+            });
 
         while (!cts.Token.IsCancellationRequested)
         {
@@ -227,8 +265,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                             }
                         }
 
-                        subscriber.IsConnected = false;
-                        subscriber.LastSeenUtc = DateTime.UtcNow;
+                        UpdateSubscriber(subscriberID, s => s with { IsConnected = false, LastSeenUtc = DateTime.UtcNow });
 
                         return; //stream is most likely broken/canceled. exit the method here and let the subscriber re-connect and re-enter the method.
                     }
@@ -265,8 +302,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
 
         //mark subscriber as disconnected if the while loop is exited.
         //which means the subscriber either canceled or stream got broken.
-        subscriber.IsConnected = false;
-        subscriber.LastSeenUtc = DateTime.UtcNow;
+        UpdateSubscriber(subscriberID, s => s with { IsConnected = false, LastSeenUtc = DateTime.UtcNow });
     }
 
     //WARNING: this method is never awaited. so it should not surface any exceptions.
@@ -329,8 +365,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
             {
                 foreach (var rec in records.Cast<InMemoryEventStorageRecord>().Where(r => r.QueueOverflowed))
                 {
-                    _subscribers.Remove(rec.SubscriberID, out var sub);
-                    sub?.Sem.Dispose();
+                    RemoveSubscriber(rec.SubscriberID, allowConfiguredRemoval: false);
                     _errors?.OnInMemoryQueueOverflow<TEvent>(rec, _appCancellation);
                     _logger.QueueOverflowWarning(rec.SubscriberID, _tEvent.FullName!);
                 }
@@ -368,10 +403,12 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
         {
             var staleCutoff = DateTime.UtcNow.Subtract(_subscriberRetention);
 
-            foreach (var kv in _subscribers.Where(kv => !kv.Value.IsConnected && kv.Value.LastSeenUtc <= staleCutoff))
+            foreach (var kv in _subscribers.Where(kv => kv.Value is { IsConfigured: false, IsConnected: false } && kv.Value.LastSeenUtc <= staleCutoff).ToArray())
             {
-                if (_subscribers.TryRemove(kv.Key, out var sub))
-                    sub.Sem.Dispose();
+                //remove only if the entry is still the same stale snapshot we inspected above.
+                //this avoids pruning a subscriber that reconnected or was otherwise updated after the snapshot was taken.
+                if (_subscribers.TryRemove(new(kv.Key, kv.Value)))
+                    kv.Value.Sem.Dispose();
             }
 
             if (!_isRoundRobinMode)
@@ -405,10 +442,41 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
         return Task.FromResult(EmptyObject.Instance);
     }
 
-    class Subscriber
+    static Subscriber UpdateSubscriber(string subscriberID, Func<Subscriber, Subscriber> update)
+    {
+        while (true)
+        {
+            if (!_subscribers.TryGetValue(subscriberID, out var current))
+                return _subscribers.GetOrAdd(subscriberID, _ => update(new()));
+
+            var updated = update(current);
+
+            if (_subscribers.TryUpdate(subscriberID, updated, current))
+                return updated;
+        }
+    }
+
+    static void RemoveSubscriber(string subscriberID, bool allowConfiguredRemoval)
+    {
+        while (_subscribers.TryGetValue(subscriberID, out var current))
+        {
+            if (current.IsConfigured && !allowConfiguredRemoval)
+                return;
+
+            if (!_subscribers.TryRemove(new(subscriberID, current)))
+                continue;
+
+            current.Sem.Dispose();
+
+            return;
+        }
+    }
+
+    record Subscriber
     {
         public SemaphoreSlim Sem { get; } = new(0); //semaphorslim for waiting on record availability
         public bool IsConnected { get; set; }
         public DateTime LastSeenUtc { get; set; } = DateTime.UtcNow;
+        public bool IsConfigured { get; set; }
     }
 }

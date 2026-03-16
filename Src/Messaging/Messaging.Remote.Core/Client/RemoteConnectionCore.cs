@@ -170,7 +170,7 @@ public class RemoteConnectionCore
     public void Subscribe<TEvent, TEventHandler>(CancellationToken ct, string clientIdentifier = "default")
         where TEvent : class, IEvent
         where TEventHandler : IEventHandler<TEvent>
-        => Subscribe<TEvent, TEventHandler>(new CallOptions(cancellationToken: ct), clientIdentifier);
+        => SubscribeCore<TEvent, TEventHandler>(new(cancellationToken: ct), clientIdentifier, null);
 
     /// <summary>
     /// subscribe to a broadcast channel for a given event type (<typeparamref name="TEvent" />) on the remote host.
@@ -188,6 +188,41 @@ public class RemoteConnectionCore
     public void Subscribe<TEvent, TEventHandler>(CallOptions callOptions = default, string clientIdentifier = "default")
         where TEvent : class, IEvent
         where TEventHandler : IEventHandler<TEvent>
+        => SubscribeCore<TEvent, TEventHandler>(callOptions, clientIdentifier, null);
+
+    /// <summary>
+    /// subscribe to a broadcast channel using an explicit subscriber id instead of the default derived identity.
+    /// </summary>
+    /// <typeparam name="TEvent">the type of the events that will be received</typeparam>
+    /// <typeparam name="TEventHandler">the handler that will be handling the received events</typeparam>
+    /// <param name="subscriberID">
+    /// an explicit subscriber id to use as-is. this is useful when the hub is configured with a known list of subscriber ids
+    /// and should start queuing events for this subscriber before it first connects.
+    /// </param>
+    /// <param name="ct">cancellation token</param>
+    public void SubscribeWithExplicitId<TEvent, TEventHandler>(string subscriberID, CancellationToken ct = default)
+        where TEvent : class, IEvent
+        where TEventHandler : IEventHandler<TEvent>
+        => SubscribeCore<TEvent, TEventHandler>(new(cancellationToken: ct), clientIdentifier: "default", subscriberID);
+
+    /// <summary>
+    /// subscribe to a broadcast channel using an explicit subscriber id instead of the default derived identity.
+    /// </summary>
+    /// <typeparam name="TEvent">the type of the events that will be received</typeparam>
+    /// <typeparam name="TEventHandler">the handler that will be handling the received events</typeparam>
+    /// <param name="subscriberID">
+    /// an explicit subscriber id to use as-is. this is useful when the hub is configured with a known list of subscriber ids
+    /// and should start queuing events for this subscriber before it first connects.
+    /// </param>
+    /// <param name="callOptions">the call options</param>
+    public void SubscribeWithExplicitId<TEvent, TEventHandler>(string subscriberID, CallOptions callOptions)
+        where TEvent : class, IEvent
+        where TEventHandler : IEventHandler<TEvent>
+        => SubscribeCore<TEvent, TEventHandler>(callOptions, clientIdentifier: "default", subscriberID);
+
+    void SubscribeCore<TEvent, TEventHandler>(CallOptions callOptions, string clientIdentifier, string? subscriberID)
+        where TEvent : class, IEvent
+        where TEventHandler : IEventHandler<TEvent>
     {
         var tEventHandler = typeof(TEventHandler);
         RemoteMap[tEventHandler] = this;
@@ -196,7 +231,9 @@ public class RemoteConnectionCore
 
         var tHandler = _serviceProvider.GetService<IEventHandler<TEvent>>()?.GetType() ?? typeof(TEventHandler);
         var tEventSubscriber = typeof(EventSubscriber<,,,>).MakeGenericType(typeof(TEvent), tHandler, StorageRecordType, StorageProviderType);
-        var eventSubscriber = (ICommandExecutor)ActivatorUtilities.CreateInstance(_serviceProvider, tEventSubscriber, Channel, clientIdentifier);
+        var eventSubscriber = (ICommandExecutor)(subscriberID is null
+                                                     ? ActivatorUtilities.CreateInstance(_serviceProvider, tEventSubscriber, Channel!, clientIdentifier)
+                                                     : ActivatorUtilities.CreateInstance(_serviceProvider, tEventSubscriber, Channel!, clientIdentifier, subscriberID));
 
         ExecutorMap[tEventHandler] = eventSubscriber;
 

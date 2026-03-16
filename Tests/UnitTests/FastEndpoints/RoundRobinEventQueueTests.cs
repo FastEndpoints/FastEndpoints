@@ -148,6 +148,14 @@ public class RoundRobinEventQueueTests
         writer.Responses[2].EventID.ShouldBe(333);
     }
 
+    [Fact]
+    public void configuring_known_subscribers_for_round_robin_hub_throws()
+    {
+        var act = () => EventHub<RRKnownSubscriberEvent, InMemoryEventStorageRecord, InMemoryEventHubStorage>.Configure(HubMode.RoundRobin, ["rr-known-sub"]);
+
+        act.ShouldThrow<InvalidOperationException>();
+    }
+
     class RRTestEventOnlyOne : IEvent
     {
         public int EventID { get; set; }
@@ -159,6 +167,11 @@ public class RoundRobinEventQueueTests
     }
 
     class RRTestEventOneConnected : IEvent
+    {
+        public int EventID { get; set; }
+    }
+
+    class RRKnownSubscriberEvent : IEvent
     {
         public int EventID { get; set; }
     }

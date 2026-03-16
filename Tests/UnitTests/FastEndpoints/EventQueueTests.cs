@@ -2,6 +2,7 @@
 using FakeItEasy;
 using FastEndpoints;
 using Grpc.Core;
+using Grpc.Net.Client;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -120,11 +121,7 @@ public class EventQueueTests
     [Fact]
     public async Task event_hub_broker_mode()
     {
-        var services = new ServiceCollection();
-        services.AddSingleton<ILoggerFactory, LoggerFactory>();
-        services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
-        services.AddSingleton(A.Fake<IHostApplicationLifetime>());
-        var provider = services.BuildServiceProvider();
+        var provider = CreateServiceProvider();
         var hub = new EventHub<TestEvent, InMemoryEventStorageRecord, InMemoryEventHubStorage>(provider);
         EventHub<TestEvent, InMemoryEventStorageRecord, InMemoryEventHubStorage>.Mode = HubMode.EventBroker;
 
@@ -145,13 +142,85 @@ public class EventQueueTests
     }
 
     [Fact]
+    public void explicit_subscriber_id_overrides_derived_identifier()
+    {
+        var provider = CreateServiceProvider();
+        using var channel = GrpcChannel.ForAddress("http://localhost:5001");
+        var subscriber = new EventSubscriber<ExplicitSubscriberIdEvent, ExplicitSubscriberIdHandler, InMemoryEventStorageRecord, InMemoryEventSubscriberStorage>(
+            channel,
+            clientIdentifier: "client-a",
+            subscriberID: "known-sub-1",
+            serviceProvider: provider);
+
+        GetEventSubscriberID(subscriber).ShouldBe("known-sub-1");
+    }
+
+    [Fact]
+    public void subscriber_id_is_derived_when_explicit_id_is_not_supplied()
+    {
+        var provider = CreateServiceProvider();
+        using var channel = GrpcChannel.ForAddress("http://localhost:5002");
+        var subscriber = new EventSubscriber<DerivedSubscriberIdEvent, DerivedSubscriberIdHandler, InMemoryEventStorageRecord, InMemoryEventSubscriberStorage>(
+            channel,
+            clientIdentifier: "client-b",
+            subscriberID: null,
+            serviceProvider: provider);
+
+        var expected = SubscriberIDFactory.Create(null, "client-b", subscriber.GetType(), channel.Target);
+
+        GetEventSubscriberID(subscriber).ShouldBe(expected);
+    }
+
+    [Fact]
+    public async Task known_subscriber_receives_events_published_before_first_connection()
+    {
+        var provider = CreateServiceProvider();
+        EventHub<KnownSubscriberEvent, InMemoryEventStorageRecord, InMemoryEventHubStorage>.Configure(HubMode.EventPublisher, ["known-sub-2"]);
+        var hub = new EventHub<KnownSubscriberEvent, InMemoryEventStorageRecord, InMemoryEventHubStorage>(provider);
+
+        EventHubBase.AddToSubscriberQueues(new KnownSubscriberEvent { EventID = 777 });
+
+        var writer = new TestServerStreamWriter<KnownSubscriberEvent>();
+        using var cts = new CancellationTokenSource();
+        var task = hub.OnSubscriberConnected(hub, "known-sub-2", writer, CreateServerCallContext(cts.Token));
+
+        await WaitUntil(() => writer.Responses.Count == 1);
+
+        writer.Responses.Single().EventID.ShouldBe(777);
+
+        cts.Cancel();
+        await WaitForCompletion(task);
+    }
+
+    [Fact]
+    public async Task configured_subscriber_is_not_pruned_after_24_hours_and_receives_new_events()
+    {
+        var provider = CreateServiceProvider();
+        EventHub<ConfiguredSubscriberEvent, InMemoryEventStorageRecord, InMemoryEventHubStorage>.Configure(HubMode.EventPublisher, ["known-sub-3"]);
+        var hub = new EventHub<ConfiguredSubscriberEvent, InMemoryEventStorageRecord, InMemoryEventHubStorage>(provider);
+
+        SetSubscriberLastSeen<ConfiguredSubscriberEvent>("known-sub-3", DateTime.UtcNow.AddHours(-25));
+
+        EventHubBase.AddToSubscriberQueues(new ConfiguredSubscriberEvent { EventID = 888 });
+
+        SubscriberExists<ConfiguredSubscriberEvent>("known-sub-3").ShouldBeTrue();
+
+        var writer = new TestServerStreamWriter<ConfiguredSubscriberEvent>();
+        using var cts = new CancellationTokenSource();
+        var task = hub.OnSubscriberConnected(hub, "known-sub-3", writer, CreateServerCallContext(cts.Token));
+
+        await WaitUntil(() => writer.Responses.Count == 1);
+
+        writer.Responses.Single().EventID.ShouldBe(888);
+
+        cts.Cancel();
+        await WaitForCompletion(task);
+    }
+
+    [Fact]
     public async Task disconnected_subscriber_receives_events_when_reconnecting_within_24_hours()
     {
-        var services = new ServiceCollection();
-        services.AddSingleton<ILoggerFactory, LoggerFactory>();
-        services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
-        services.AddSingleton(A.Fake<IHostApplicationLifetime>());
-        var provider = services.BuildServiceProvider();
+        var provider = CreateServiceProvider();
         EventHub<ReconnectWindowEvent, InMemoryEventStorageRecord, InMemoryEventHubStorage>.Mode = HubMode.EventPublisher;
         var hub = new EventHub<ReconnectWindowEvent, InMemoryEventStorageRecord, InMemoryEventHubStorage>(provider);
 
@@ -182,11 +251,7 @@ public class EventQueueTests
     [Fact]
     public async Task stale_disconnected_subscriber_is_pruned_and_stops_receiving_new_events()
     {
-        var services = new ServiceCollection();
-        services.AddSingleton<ILoggerFactory, LoggerFactory>();
-        services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
-        services.AddSingleton(A.Fake<IHostApplicationLifetime>());
-        var provider = services.BuildServiceProvider();
+        var provider = CreateServiceProvider();
         EventHub<StaleSubscriberEvent, InMemoryEventStorageRecord, InMemoryEventHubStorage>.Mode = HubMode.EventPublisher;
         var hub = new EventHub<StaleSubscriberEvent, InMemoryEventStorageRecord, InMemoryEventHubStorage>(provider);
 
@@ -231,6 +296,16 @@ public class EventQueueTests
         await WaitForCompletion(activeTask);
     }
 
+    static ServiceProvider CreateServiceProvider()
+    {
+        var services = new ServiceCollection();
+        services.AddSingleton<ILoggerFactory, LoggerFactory>();
+        services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
+        services.AddSingleton(A.Fake<IHostApplicationLifetime>());
+
+        return services.BuildServiceProvider();
+    }
+
     static ServerCallContext CreateServerCallContext(CancellationToken ct)
     {
         var ctx = A.Fake<ServerCallContext>();
@@ -261,6 +336,9 @@ public class EventQueueTests
         return found;
     }
 
+    static string GetEventSubscriberID(object subscriber)
+        => (string)subscriber.GetType().GetField("_subscriberID", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(subscriber)!;
+
     static async Task WaitUntil(Func<bool> condition, int timeoutMs = 3000)
     {
         var timeoutAt = DateTime.UtcNow.AddMilliseconds(timeoutMs);
@@ -289,6 +367,32 @@ public class EventQueueTests
     }
 
     class ReconnectWindowEvent : IEvent
+    {
+        public int EventID { get; set; }
+    }
+
+    class ExplicitSubscriberIdEvent : IEvent;
+
+    class ExplicitSubscriberIdHandler : IEventHandler<ExplicitSubscriberIdEvent>
+    {
+        public Task HandleAsync(ExplicitSubscriberIdEvent evnt, CancellationToken ct)
+            => Task.CompletedTask;
+    }
+
+    class DerivedSubscriberIdEvent : IEvent;
+
+    class DerivedSubscriberIdHandler : IEventHandler<DerivedSubscriberIdEvent>
+    {
+        public Task HandleAsync(DerivedSubscriberIdEvent evnt, CancellationToken ct)
+            => Task.CompletedTask;
+    }
+
+    class KnownSubscriberEvent : IEvent
+    {
+        public int EventID { get; set; }
+    }
+
+    class ConfiguredSubscriberEvent : IEvent
     {
         public int EventID { get; set; }
     }

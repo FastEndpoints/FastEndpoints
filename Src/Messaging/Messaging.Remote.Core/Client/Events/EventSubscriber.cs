@@ -28,9 +28,12 @@ sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProv
     readonly string _subscriberID;
 
     public EventSubscriber(ChannelBase channel, string clientIdentifier, IServiceProvider serviceProvider)
+        : this(channel, clientIdentifier, null, serviceProvider) { }
+
+    public EventSubscriber(ChannelBase channel, string clientIdentifier, string? subscriberID, IServiceProvider serviceProvider)
         : base(channel: channel, methodType: MethodType.ServerStreaming, endpointName: $"{typeof(TEvent).FullName}/sub")
     {
-        _subscriberID = (Environment.MachineName + GetType().FullName + channel.Target + clientIdentifier).ToHash();
+        _subscriberID = SubscriberIDFactory.Create(subscriberID, clientIdentifier, GetType(), channel.Target);
         _serviceProvider = serviceProvider;
         _storage ??= (TStorageProvider)ActivatorUtilities.GetServiceOrCreateInstance(_serviceProvider, typeof(TStorageProvider));
         _isInMemProvider = _storage is InMemoryEventSubscriberStorage;

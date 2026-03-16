@@ -86,10 +86,27 @@ public class HandlerOptions<TStorageRecord, TStorageProvider>
     /// </summary>
     /// <param name="mode">the operation mode of this event hub</param>
     /// <typeparam name="TEvent">the type of event this hub deals with</typeparam>
-    public GrpcServiceEndpointConventionBuilder RegisterEventHub<TEvent>(HubMode mode = HubMode.EventPublisher)
-        where TEvent : class, IEvent
+    public GrpcServiceEndpointConventionBuilder RegisterEventHub<TEvent>(HubMode mode = HubMode.EventPublisher) where TEvent : class, IEvent
     {
-        EventHub<TEvent, TStorageRecord, TStorageProvider>.Mode = mode;
+        EventHub<TEvent, TStorageRecord, TStorageProvider>.Configure(mode);
+
+        return _routeBuilder.MapGrpcService<EventHub<TEvent, TStorageRecord, TStorageProvider>>();
+    }
+
+    /// <summary>
+    /// registers an "event hub" that broadcasts events of the given type to all remote subscribers in an asynchronous manner.
+    /// use <paramref name="knownSubscriberIDs" /> when the hub should start storing events for named subscribers before they first connect.
+    /// <para>
+    /// NOTE: known subscriber ids are not supported when the hub is configured in <see cref="HubMode.RoundRobin" /> mode.
+    /// </para>
+    /// </summary>
+    /// <param name="knownSubscriberIDs">the explicit subscriber ids that should start receiving queued events from app startup onward</param>
+    /// <param name="mode">the operation mode of this event hub</param>
+    /// <typeparam name="TEvent">the type of event this hub deals with</typeparam>
+    public GrpcServiceEndpointConventionBuilder RegisterEventHub<TEvent>(IEnumerable<string> knownSubscriberIDs, HubMode mode = HubMode.EventPublisher) where TEvent : class, IEvent
+    {
+        ArgumentNullException.ThrowIfNull(knownSubscriberIDs);
+        EventHub<TEvent, TStorageRecord, TStorageProvider>.Configure(mode, knownSubscriberIDs);
 
         return _routeBuilder.MapGrpcService<EventHub<TEvent, TStorageRecord, TStorageProvider>>();
     }

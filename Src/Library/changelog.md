@@ -28,6 +28,12 @@ The serializer context will now generate `JsonSerializable` attributes for reque
 
 </details>
 
+<details><summary>Ability to configure a pre-determined list of "known subscribers" for remote event queues</summary>
+
+Remote event subscribers can now supply an explicit `subscriberID` instead of relying on the auto generated client identity, and event hubs can be configured with a known list of subscriber IDs to begin queuing events for them from app startup onward. Known subscriber pre-seeding does not affect round-robin mode, which still delivers only to currently connected subscribers.
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>Stack overflow issue with .NET 8 and 9</summary>

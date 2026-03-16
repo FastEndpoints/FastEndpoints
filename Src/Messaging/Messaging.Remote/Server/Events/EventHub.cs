@@ -60,6 +60,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
     //val: subscriber object
     static readonly ConcurrentDictionary<string, Subscriber> _subscribers = new();
     static readonly Type _tEvent = typeof(TEvent);
+    static readonly TimeSpan _subscriberRetention = TimeSpan.FromHours(24);
     static bool _isRoundRobinMode;
     static TStorageProvider? _storage;
 
@@ -107,7 +108,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                                  });
 
                 foreach (var subId in subIds)
-                    _subscribers[subId] = new();
+                    _subscribers[subId] = new() { LastSeenUtc = DateTime.UtcNow };
 
                 return;
             }
@@ -171,6 +172,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
 
         var subscriber = _subscribers.GetOrAdd(subscriberID, new Subscriber());
         subscriber.IsConnected = true;
+        subscriber.LastSeenUtc = DateTime.UtcNow;
         var retrievalErrorCount = 0;
         var updateErrorCount = 0;
         var cts = CancellationTokenSource.CreateLinkedTokenSource(ctx.CancellationToken, _appCancellation);
@@ -225,8 +227,8 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                             }
                         }
 
-                        if (_isRoundRobinMode)
-                            subscriber.IsConnected = false;
+                        subscriber.IsConnected = false;
+                        subscriber.LastSeenUtc = DateTime.UtcNow;
 
                         return; //stream is most likely broken/canceled. exit the method here and let the subscriber re-connect and re-enter the method.
                     }
@@ -263,8 +265,8 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
 
         //mark subscriber as disconnected if the while loop is exited.
         //which means the subscriber either canceled or stream got broken.
-        if (_isRoundRobinMode)
-            subscriber.IsConnected = false;
+        subscriber.IsConnected = false;
+        subscriber.LastSeenUtc = DateTime.UtcNow;
     }
 
     //WARNING: this method is never awaited. so it should not surface any exceptions.
@@ -364,6 +366,14 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
 
         string[] GetReceiveCandidates()
         {
+            var staleCutoff = DateTime.UtcNow.Subtract(_subscriberRetention);
+
+            foreach (var kv in _subscribers.Where(kv => !kv.Value.IsConnected && kv.Value.LastSeenUtc <= staleCutoff))
+            {
+                if (_subscribers.TryRemove(kv.Key, out var sub))
+                    sub.Sem.Dispose();
+            }
+
             if (!_isRoundRobinMode)
                 return _subscribers.Keys.ToArray();
 
@@ -399,5 +409,6 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
     {
         public SemaphoreSlim Sem { get; } = new(0); //semaphorslim for waiting on record availability
         public bool IsConnected { get; set; }
+        public DateTime LastSeenUtc { get; set; } = DateTime.UtcNow;
     }
 }

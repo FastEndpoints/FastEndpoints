@@ -63,6 +63,49 @@ public class RoundRobinEventQueueTests
     }
 
     [Fact]
+    public async Task three_subscribers_all_receive_events()
+    {
+        var services = new ServiceCollection();
+        services.AddSingleton<ILoggerFactory, LoggerFactory>();
+        services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
+        services.AddSingleton(A.Fake<IHostApplicationLifetime>());
+        var provider = services.BuildServiceProvider();
+        EventHub<RRTestEventThreeSubs, InMemoryEventStorageRecord, InMemoryEventHubStorage>.Mode = HubMode.RoundRobin | HubMode.EventBroker;
+        var hub = new EventHub<RRTestEventThreeSubs, InMemoryEventStorageRecord, InMemoryEventHubStorage>(provider);
+
+        var writerA = new TestServerStreamWriter<RRTestEventThreeSubs>();
+        var writerB = new TestServerStreamWriter<RRTestEventThreeSubs>();
+        var writerC = new TestServerStreamWriter<RRTestEventThreeSubs>();
+
+        var ctx = A.Fake<ServerCallContext>();
+        A.CallTo(ctx).WithReturnType<CancellationToken>().Returns(default);
+
+        _ = hub.OnSubscriberConnected(hub, Guid.NewGuid().ToString(), writerA, ctx);
+        _ = hub.OnSubscriberConnected(hub, Guid.NewGuid().ToString(), writerB, ctx);
+        _ = hub.OnSubscriberConnected(hub, Guid.NewGuid().ToString(), writerC, ctx);
+
+        for (var i = 1; i <= 6; i++)
+            EventHubBase.AddToSubscriberQueues(new RRTestEventThreeSubs { EventID = i * 100 });
+
+        while (writerA.Responses.Count + writerB.Responses.Count + writerC.Responses.Count < 6)
+            await Task.Delay(100);
+
+        // each subscriber should receive exactly 2 of the 6 events
+        writerA.Responses.Count.ShouldBe(2);
+        writerB.Responses.Count.ShouldBe(2);
+        writerC.Responses.Count.ShouldBe(2);
+
+        // all 6 event IDs should be present across all subscribers (no duplicates, no losses)
+        var allIds = writerA.Responses.Select(e => e.EventID)
+                            .Concat(writerB.Responses.Select(e => e.EventID))
+                            .Concat(writerC.Responses.Select(e => e.EventID))
+                            .OrderBy(id => id)
+                            .ToArray();
+
+        allIds.ShouldBe(new[] { 100, 200, 300, 400, 500, 600 });
+    }
+
+    [Fact]
     public async Task multiple_subscribers_but_one_goes_offline()
     {
         var services = new ServiceCollection();
@@ -172,6 +215,11 @@ public class RoundRobinEventQueueTests
     }
 
     class RRKnownSubscriberEvent : IEvent
+    {
+        public int EventID { get; set; }
+    }
+
+    class RRTestEventThreeSubs : IEvent
     {
         public int EventID { get; set; }
     }

@@ -95,8 +95,11 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
 
             foreach (var kv in _subscribers.Where(kv => !_knownSubscriberIDs.Contains(kv.Key) && kv.Value.IsConfigured).ToArray())
             {
-                if (_subscribers.TryGetValue(kv.Key, out var subscriber))
-                    _subscribers[kv.Key] = subscriber with { IsConfigured = false };
+                while (_subscribers.TryGetValue(kv.Key, out var current) && current.IsConfigured)
+                {
+                    if (_subscribers.TryUpdate(kv.Key, current with { IsConfigured = false }, current))
+                        break;
+                }
             }
         }
     }
@@ -119,8 +122,9 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
     {
         ArgumentNullException.ThrowIfNull(_storage);
 
-        var timeoutToken = new CancellationTokenSource(TimeSpan.FromSeconds(30)).Token;
-        var ct = CancellationTokenSource.CreateLinkedTokenSource(timeoutToken, _appCancellation).Token;
+        using var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, _appCancellation);
+        var ct = linkedCts.Token;
         var retrievalErrorCount = 0;
 
         while (!_appCancellation.IsCancellationRequested)
@@ -148,7 +152,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
             }
             catch (Exception e)
             {
-                if (timeoutToken.IsCancellationRequested)
+                if (timeoutCts.Token.IsCancellationRequested)
                 {
                     //timeout reached. app shouldn't be allowed to start! (due to risk of losing events)
                     //https://discord.com/channels/933662816458645504/1335898618468634624/1336002378973057054
@@ -202,6 +206,9 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
         _logger.SubscriberConnected(subscriberID, _tEvent.FullName!);
 
         var cts = CancellationTokenSource.CreateLinkedTokenSource(ctx.CancellationToken, _appCancellation);
+
+        try
+        {
         var retrievalErrorCount = 0;
         var updateErrorCount = 0;
         var subscriber = _subscribers.AddOrUpdate(
@@ -217,18 +224,18 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
 
         while (!cts.Token.IsCancellationRequested)
         {
-            IEnumerable<TStorageRecord> records;
+            List<TStorageRecord> records;
 
             try
             {
-                records = await _storage!.GetNextBatchAsync(
-                              new()
-                              {
-                                  CancellationToken = cts.Token,
-                                  Limit = 25,
-                                  SubscriberID = subscriberID,
-                                  Match = e => e.SubscriberID == subscriberID && !e.IsComplete && DateTime.UtcNow <= e.ExpireOn
-                              });
+                records = (await _storage!.GetNextBatchAsync(
+                               new()
+                               {
+                                   CancellationToken = cts.Token,
+                                   Limit = 25,
+                                   SubscriberID = subscriberID,
+                                   Match = e => e.SubscriberID == subscriberID && !e.IsComplete && DateTime.UtcNow <= e.ExpireOn
+                               })).ToList();
                 retrievalErrorCount = 0;
             }
             catch (Exception ex)
@@ -242,7 +249,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                 continue;
             }
 
-            if (records.Any())
+            if (records.Count > 0)
             {
                 foreach (var record in records)
                 {
@@ -303,6 +310,11 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
         //mark subscriber as disconnected if the while loop is exited.
         //which means the subscriber either canceled or stream got broken.
         UpdateSubscriber(subscriberID, s => s with { IsConnected = false, LastSeenUtc = DateTime.UtcNow });
+        }
+        finally
+        {
+            cts.Dispose();
+        }
     }
 
     //WARNING: this method is never awaited. so it should not surface any exceptions.
@@ -311,11 +323,11 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
         _testEventReceiver?.AddEvent((TEvent)evnt);
 
         var subscribers = GetReceiveCandidates();
-        var startTime = DateTime.Now;
+        var startTime = DateTime.UtcNow;
 
         while (subscribers.Length == 0)
         {
-            if (_appCancellation.IsCancellationRequested || (DateTime.Now - startTime).TotalSeconds >= 60)
+            if (_appCancellation.IsCancellationRequested || (DateTime.UtcNow - startTime).TotalSeconds >= 60)
                 return;
 
             _logger.NoSubscribersWarning(_tEvent.FullName!);
@@ -422,15 +434,14 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
             if (connectedSubIds.Length <= 1)
                 return connectedSubIds;
 
-            string[] qualified;
-
             lock (_lock)
             {
-                qualified = connectedSubIds.SkipWhile(s => s == _lastReceivedBy).Take(1).ToArray();
-                _lastReceivedBy = qualified.Single();
+                var lastIndex = Array.IndexOf(connectedSubIds, _lastReceivedBy);
+                var nextIndex = (lastIndex + 1) % connectedSubIds.Length;
+                _lastReceivedBy = connectedSubIds[nextIndex];
             }
 
-            return qualified;
+            return [_lastReceivedBy];
         }
     }
 
@@ -475,8 +486,8 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
     record Subscriber
     {
         public SemaphoreSlim Sem { get; } = new(0); //semaphorslim for waiting on record availability
-        public bool IsConnected { get; set; }
-        public DateTime LastSeenUtc { get; set; } = DateTime.UtcNow;
-        public bool IsConfigured { get; set; }
+        public bool IsConnected { get; init; }
+        public DateTime LastSeenUtc { get; init; } = DateTime.UtcNow;
+        public bool IsConfigured { get; init; }
     }
 }

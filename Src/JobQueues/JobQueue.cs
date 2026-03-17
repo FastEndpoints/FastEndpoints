@@ -118,11 +118,14 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
     readonly IJobResultProvider? _resultStorage;
     readonly SemaphoreSlim _sem = new(0);
     readonly ILogger _log;
+    Task _executorTask = Task.CompletedTask;
     bool _activated; // when false, the executor blocks indefinitely on the semaphore (no DB polling)
     readonly bool _isDistributed;
     TimeSpan _executionTimeLimit;
     TimeSpan _semWaitLimit;
     DateTimeOffset _nextCleanupOn;
+
+    internal Task ExecutorTask => _executorTask;
 
     public JobQueue(TStorageProvider storageProvider,
                     IHostApplicationLifetime appLife,
@@ -148,7 +151,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
         _parallelOptions.MaxDegreeOfParallelism = concurrencyLimit;
         _executionTimeLimit = executionTimeLimit;
         _semWaitLimit = semWaitLimit;
-        _ = CommandExecutorTask();
+        _executorTask = CommandExecutorTask();
     }
 
     protected override TStorageRecord CreateJob(ICommandBase command, DateTime? executeAfter, DateTime? expireOn)
@@ -251,97 +254,13 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
 
     async Task CommandExecutorTask()
     {
+        var executions = new Dictionary<Task, Guid>();
+        var inFlightTrackingIds = new HashSet<Guid>();
+
         while (!_appCancellation.IsCancellationRequested)
         {
-            ICollection<TStorageRecord> records;
-            int fetchedCount;
+            ObserveCompletedExecutions();
 
-            try
-            {
-                // only becomes 'true' in non-distributed first iteration making 'ExecuteAfter <= now' in the Match filter ineffective, causing future jobs to get fetched as well.
-                // when in distributed mode, all instances must periodically poll to ensure jobs created by other instances are picked up.
-                var isProbe = !_activated;
-
-                // capture once so providers that translate predicates can parameterize it cleanly
-                var now = DateTime.UtcNow;
-
-                Expression<Func<TStorageRecord, bool>> matchExpr = _isDistributed
-                                                                       ? r => r.QueueID == QueueID &&
-                                                                              !r.IsComplete &&
-                                                                              (isProbe || r.ExecuteAfter <= now) &&
-                                                                              r.ExpireOn >= now &&
-                                                                              r.DequeueAfter <= now
-                                                                       : r => r.QueueID == QueueID &&
-                                                                              !r.IsComplete &&
-                                                                              (isProbe || r.ExecuteAfter <= now) &&
-                                                                              r.ExpireOn >= now;
-
-                records = await _storage.GetNextBatchAsync(
-                              new()
-                              {
-                                  Limit = _parallelOptions.MaxDegreeOfParallelism,
-                                  QueueID = QueueID,
-                                  CancellationToken = _appCancellation,
-                                  ExecutionTimeLimit = _executionTimeLimit,
-                                  Match = matchExpr
-                              });
-
-                fetchedCount = records.Count;
-
-                if (isProbe)
-                {
-                    if (fetchedCount > 0) // eligible + future jobs found during probe
-                        _activated = true;
-
-                    records = records.Where(r => r.ExecuteAfter <= now).ToArray(); // filter out future jobs
-                }
-            }
-            catch (OperationCanceledException) when (_appCancellation.IsCancellationRequested)
-            {
-                break; // no need to log/retry if app is being shutdown
-            }
-            catch (Exception x)
-            {
-                _log.StorageRetrieveError(QueueID, _tCommandName, x.Message);
-                await Task.Delay(5000);
-
-                continue;
-            }
-
-            try
-            {
-                if (records.Count > 0)
-                {
-                    _activated = true;
-                    await Parallel.ForEachAsync(records, _parallelOptions, ExecuteCommand);
-                }
-
-                if (fetchedCount < _parallelOptions.MaxDegreeOfParallelism)
-                {
-                    // when activated (distributed mode, or jobs have been found), wait with a timeout so we periodically re-check for future jobs
-                    // becoming due or jobs added by other distributed workers.
-                    // when not activated (non-distributed with no jobs found yet), block indefinitely to avoid pointless DB polling.
-                    // TriggerJob() sets _activated=true and releases the semaphore when the first job is queued.
-                    await _sem.WaitAsync(_activated ? _semWaitLimit : Timeout.InfiniteTimeSpan, _appCancellation);
-                }
-            }
-            catch (OperationCanceledException) when (_appCancellation.IsCancellationRequested)
-            {
-                break; // exit immediately if app is being shutdown
-            }
-            catch (Exception x)
-            {
-                // this would typically never be hit because ExecuteCommand handles exceptions internally.
-                // only here as a safety net to prevent the executor loop from crashing.
-                _log.CommandParallelExecutionWarning(_tCommandName, x.Message);
-                await Task.Delay(5000);
-
-                continue;
-            }
-
-            // else there are more records than the page size, so continue next iteration
-
-            // cleanup any cancellations that have been marked canceled in storage
             if (DateTime.UtcNow >= _nextCleanupOn)
             {
                 foreach (var kv in _cancellations)
@@ -353,13 +272,167 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 _nextCleanupOn = DateTime.UtcNow.AddMinutes(5);
             }
 
-            // ReSharper disable once MethodHasAsyncOverloadWithCancellation
-            // reset/drain _sem CurrentCount to 0 in case multiple releases happened
-            // passing app cancellation here is not needed as it's an immediate return.
-            while (_sem.Wait(0)) { }
+            if (executions.Count < _parallelOptions.MaxDegreeOfParallelism)
+            {
+                var availableSlots = _parallelOptions.MaxDegreeOfParallelism - executions.Count;
+                ICollection<TStorageRecord> records;
+
+                try
+                {
+                    // only becomes 'true' in non-distributed first iteration making 'ExecuteAfter <= now' in the Match filter ineffective, causing future jobs to get fetched as well.
+                    // when in distributed mode, all instances must periodically poll to ensure jobs created by other instances are picked up.
+                    var isProbe = !_activated;
+
+                    // capture once so providers that translate predicates can parameterize it cleanly
+                    var now = DateTime.UtcNow;
+
+                    Expression<Func<TStorageRecord, bool>> matchExpr = _isDistributed
+                                                                           ? r => r.QueueID == QueueID &&
+                                                                                  !r.IsComplete &&
+                                                                                  (isProbe || r.ExecuteAfter <= now) &&
+                                                                                  r.ExpireOn >= now &&
+                                                                                  r.DequeueAfter <= now
+                                                                           : r => r.QueueID == QueueID &&
+                                                                                  !r.IsComplete &&
+                                                                                  (isProbe || r.ExecuteAfter <= now) &&
+                                                                                  r.ExpireOn >= now;
+
+                    records = await _storage.GetNextBatchAsync(
+                                  new()
+                                  {
+                                      Limit = _isDistributed ? availableSlots : _parallelOptions.MaxDegreeOfParallelism,
+                                      QueueID = QueueID,
+                                      CancellationToken = _appCancellation,
+                                      ExecutionTimeLimit = _executionTimeLimit,
+                                      Match = matchExpr
+                                  });
+
+                    if (isProbe)
+                    {
+                        if (records.Count > 0) // eligible + future jobs found during probe
+                            _activated = true;
+
+                        records = records.Where(r => r.ExecuteAfter <= now).ToArray(); // filter out future jobs
+                    }
+
+                    if (inFlightTrackingIds.Count > 0)
+                        records = records.Where(r => !inFlightTrackingIds.Contains(r.TrackingID)).ToArray();
+                }
+                catch (OperationCanceledException) when (_appCancellation.IsCancellationRequested)
+                {
+                    break; // no need to log/retry if app is being shutdown
+                }
+                catch (Exception x)
+                {
+                    _log.StorageRetrieveError(QueueID, _tCommandName, x.Message);
+                    await Task.Delay(5000);
+
+                    continue;
+                }
+
+                if (records.Count > 0)
+                {
+                    _activated = true;
+
+                    foreach (var record in records.Take(availableSlots))
+                    {
+                        var task = ExecuteCommand(record);
+                        executions[task] = record.TrackingID;
+                        inFlightTrackingIds.Add(record.TrackingID);
+                    }
+
+                    if (executions.Count == _parallelOptions.MaxDegreeOfParallelism)
+                        continue;
+                }
+
+                await WaitForSignalAsync();
+
+                continue;
+            }
+
+            try
+            {
+                await Task.WhenAny(executions.Keys).WaitAsync(_appCancellation);
+            }
+            catch (OperationCanceledException) when (_appCancellation.IsCancellationRequested)
+            {
+                break; // exit immediately if app is being shutdown
+            }
+            catch (Exception x)
+            {
+                _log.CommandParallelExecutionWarning(_tCommandName, x.Message);
+                await Task.Delay(5000);
+            }
         }
 
-        async ValueTask ExecuteCommand(TStorageRecord record, CancellationToken _)
+        await DrainExecutionsAsync();
+
+        ObserveCompletedExecutions();
+
+        async Task WaitForSignalAsync()
+        {
+            try
+            {
+                // when activated (distributed mode, or jobs have been found), wait with a timeout so we periodically re-check for future jobs
+                // becoming due or jobs added by other distributed workers.
+                // when not activated (non-distributed with no jobs found yet), block indefinitely to avoid pointless DB polling.
+                // TriggerJob() sets _activated=true and releases the semaphore when the first job is queued.
+                if (await _sem.WaitAsync(_activated ? _semWaitLimit : Timeout.InfiniteTimeSpan, _appCancellation))
+                {
+                    // ReSharper disable once MethodHasAsyncOverloadWithCancellation
+                    // reset/drain _sem CurrentCount to 0 in case multiple releases happened
+                    // passing app cancellation here is not needed as it's an immediate return.
+                    while (_sem.Wait(0)) { }
+                }
+            }
+            catch (OperationCanceledException) when (_appCancellation.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (Exception x)
+            {
+                _log.CommandParallelExecutionWarning(_tCommandName, x.Message);
+                await Task.Delay(5000);
+            }
+        }
+
+        async Task DrainExecutionsAsync()
+        {
+            ObserveCompletedExecutions();
+
+            while (executions.Count > 0)
+            {
+                await Task.WhenAny(executions.Keys);
+                ObserveCompletedExecutions();
+            }
+        }
+
+        void ObserveCompletedExecutions()
+        {
+            if (executions.Count == 0)
+                return;
+
+            foreach (var kv in executions.Where(static kv => kv.Key.IsCompleted).ToArray())
+            {
+                executions.Remove(kv.Key);
+                inFlightTrackingIds.Remove(kv.Value);
+
+                try
+                {
+                    kv.Key.GetAwaiter().GetResult();
+                }
+                catch (OperationCanceledException x) when (!_appCancellation.IsCancellationRequested)
+                {
+                    _log.CommandParallelExecutionWarning(_tCommandName, x.Message);
+                }
+                catch (Exception x)
+                {
+                    _log.CommandParallelExecutionWarning(_tCommandName, x.Message);
+                }
+            }
+        }
+
+        async Task ExecuteCommand(TStorageRecord record)
         {
             // ReSharper disable once HeapView.CanAvoidClosure
             using var cts = _cancellations.GetOrAdd(

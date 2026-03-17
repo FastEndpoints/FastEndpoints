@@ -1047,6 +1047,39 @@ public class JobQueueTests
     }
 
     [Fact]
+    public async Task executor_drains_in_flight_jobs_when_shutdown_occurs_during_semaphore_wait()
+    {
+        // Regression test: with concurrency=2 and 1 in-flight job, the executor is in
+        // WaitForSignalAsync (not WhenAny). If the OperationCanceledException from
+        // the semaphore isn't handled correctly, DrainExecutionsAsync is skipped.
+        RefillTestCommandHandler.Reset();
+        var storage = new RefillTestStorage();
+        using var appStopping = new CancellationTokenSource();
+        var queue = CreateRefillQueue(storage, appStopping);
+        queue.SetLimits(2, Timeout.InfiniteTimeSpan, TimeSpan.FromMilliseconds(20));
+
+        // Queue only 1 job so 1 slot remains free -> executor enters WaitForSignalAsync
+        var drain = new RefillTestCommand { Name = "drain", Sequence = 0 };
+        await drain.QueueJobAsync(ct: CancellationToken.None);
+        await RefillTestCommandHandler.DrainStarted.WaitAsync(TimeSpan.FromSeconds(5));
+
+        // Give the executor time to enter WaitForSignalAsync with 1 slot occupied
+        await Task.Delay(200);
+
+        appStopping.Cancel();
+        await Task.Delay(200);
+
+        // Executor should still be alive, waiting for the in-flight job to drain
+        queue.ExecutorTask.IsCompleted.ShouldBeFalse();
+
+        RefillTestCommandHandler.ReleaseDrain();
+        await queue.ExecutorTask.WaitAsync(TimeSpan.FromSeconds(5));
+        queue.ExecutorTask.IsCompletedSuccessfully.ShouldBeTrue();
+
+        (await storage.WaitForCompletionAsync(drain.TrackingID, TimeSpan.FromSeconds(5))).ShouldBeTrue();
+    }
+
+    [Fact]
     public async Task distributed_executor_only_claims_available_slots_when_refilling()
     {
         DistributedRefillCommandHandler.Reset();

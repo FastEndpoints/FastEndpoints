@@ -86,4 +86,10 @@ v8 matches custom value parsers by the underlying type (due to native aot intric
 
 </details>
 
+<details><summary>Improve job queue executor refilling and shutdown behavior</summary>
+
+Job queue executors now refill newly freed concurrency slots immediately instead of waiting for the whole fetched batch to finish. During shutdown, the executor also drains already running jobs before exiting, and distributed storage providers only claim as many jobs as there are currently available execution slots.
+
+</details>
+
 [//]: # (## Minor Breaking Changes ⚠️)

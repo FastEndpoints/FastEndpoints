@@ -68,7 +68,7 @@ Remote event hubs now stop creating event records for disconnected subscribers t
 
 </details>
 
-<details><summary>Improve remote event queue persistence retry handling</summary>
+<details><summary>Remote event queue persistence retry handling</summary>
 
 The publisher event hub and remote event subscriber now retry only the actual event storage operations and perform their semaphore wake-up signaling separately. This avoids re-persisting already stored event records if the post-store notification step fails.
 
@@ -86,10 +86,22 @@ v8 matches custom value parsers by the underlying type (due to native aot intric
 
 </details>
 
-<details><summary>Improve job queue executor refilling and shutdown behavior</summary>
+<details><summary>Job queue executor refilling and shutdown behavior</summary>
 
 Job queue executors now refill newly freed concurrency slots immediately instead of waiting for the whole fetched batch to finish. During shutdown, the executor also drains already running jobs before exiting, and distributed storage providers only claim as many jobs as there are currently available execution slots.
 
 </details>
 
-[//]: # (## Minor Breaking Changes ⚠️)
+<details><summary>Remote event queue executor refilling with stable event record IDs</summary>
+
+Remote event storage records now carry a library generated `TrackingID`, which allows event subscribers to refill newly freed execution slots immediately without re-scheduling the same in-flight durable record. This improves concurrency utilization for persistent remote event queues, especially when a slow handler would otherwise hold up the next batch.
+
+</details>
+
+## Breaking Changes ⚠️
+
+<details><summary>Remote event storage records now require a TrackingID</summary>
+
+The `IEventStorageRecord` contract now includes a `Guid TrackingID` property. If you maintain custom persistent event storage record types for remote event hubs or subscribers, you must add this property to your record models and map/persist it in storage. The library will automatically populate the value when creating new event records. This was a necessary addition in order to maximize concurrency utilization.
+
+</details>

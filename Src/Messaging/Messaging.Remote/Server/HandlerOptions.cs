@@ -100,7 +100,10 @@ public class HandlerOptions<TStorageRecord, TStorageProvider>
     /// NOTE: known subscriber ids are not supported when the hub is configured in <see cref="HubMode.RoundRobin" /> mode.
     /// </para>
     /// </summary>
-    /// <param name="knownSubscriberIDs">the explicit subscriber ids that should start receiving queued events from app startup onward</param>
+    /// <param name="knownSubscriberIDs">
+    /// the explicit subscriber ids that should start receiving queued events from app startup onward. the same id may be
+    /// reused across different event types because pending-record lookups are scoped by both subscriber id and event type.
+    /// </param>
     /// <param name="mode">the operation mode of this event hub</param>
     /// <typeparam name="TEvent">the type of event this hub deals with</typeparam>
     public GrpcServiceEndpointConventionBuilder RegisterEventHub<TEvent>(IEnumerable<string> knownSubscriberIDs, HubMode mode = HubMode.EventPublisher) where TEvent : class, IEvent

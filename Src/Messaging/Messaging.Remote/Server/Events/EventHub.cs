@@ -58,15 +58,14 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
 
     //key: subscriber id
     //val: subscriber object
-    static readonly ConcurrentDictionary<string, Subscriber> _subscribers = new();
+    static readonly Lock _lock = new();
     static readonly Lock _configLock = new();
     static readonly Type _tEvent = typeof(TEvent);
+    static readonly ConcurrentDictionary<string, Subscriber> _subscribers = new();
     static readonly TimeSpan _subscriberRetention = TimeSpan.FromHours(24);
-    static bool _isRoundRobinMode;
-    static TStorageProvider? _storage;
     static HashSet<string> _knownSubscriberIDs = [];
-
-    static readonly Lock _lock = new();
+    static TStorageProvider? _storage;
+    static bool _isRoundRobinMode;
 
     string? _lastReceivedBy;
     readonly EventHubExceptionReceiver? _errors;
@@ -91,13 +90,15 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
             _knownSubscriberIDs = configuredSubscriberIDs;
 
             foreach (var subId in _knownSubscriberIDs)
-                _subscribers.AddOrUpdate(subId, _ => new() { IsConfigured = true }, (_, existing) => existing with { IsConfigured = true });
+                _subscribers.AddOrUpdate(subId, _ => new() { IsKnownSubscriber = true }, (_, existing) => existing with { IsKnownSubscriber = true });
 
-            foreach (var kv in _subscribers.Where(kv => !_knownSubscriberIDs.Contains(kv.Key) && kv.Value.IsConfigured).ToArray())
+            // if a subscriber was previously part of the configured set but is no longer listed, downgrade it to a
+            // normal subscriber so stale config doesn't keep it pinned in the protected configured state forever.
+            foreach (var kv in _subscribers.Where(kv => !_knownSubscriberIDs.Contains(kv.Key) && kv.Value.IsKnownSubscriber).ToArray())
             {
-                while (_subscribers.TryGetValue(kv.Key, out var current) && current.IsConfigured)
+                while (_subscribers.TryGetValue(kv.Key, out var current) && current.IsKnownSubscriber)
                 {
-                    if (_subscribers.TryUpdate(kv.Key, current with { IsConfigured = false }, current))
+                    if (_subscribers.TryUpdate(kv.Key, current with { IsKnownSubscriber = false }, current))
                         break;
                 }
             }
@@ -144,8 +145,8 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                 {
                     _subscribers.AddOrUpdate(
                         subId,
-                        _ => new() { LastSeenUtc = DateTime.UtcNow, IsConfigured = _knownSubscriberIDs.Contains(subId) },
-                        (_, existing) => existing with { LastSeenUtc = DateTime.UtcNow, IsConfigured = existing.IsConfigured || _knownSubscriberIDs.Contains(subId) });
+                        _ => new() { LastSeenUtc = DateTime.UtcNow, IsKnownSubscriber = _knownSubscriberIDs.Contains(subId) },
+                        (_, existing) => existing with { LastSeenUtc = DateTime.UtcNow, IsKnownSubscriber = existing.IsKnownSubscriber || _knownSubscriberIDs.Contains(subId) });
                 }
 
                 return;
@@ -172,6 +173,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
 
     public void Bind(ServiceMethodProviderContext<EventHub<TEvent, TStorageRecord, TStorageProvider>> ctx)
     {
+        // ReSharper disable once UseSymbolAlias
         var metadata = new List<object>();
         var eventAttributes = _tEvent.GetCustomAttributes(false);
         if (eventAttributes.Length > 0)
@@ -209,107 +211,115 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
 
         try
         {
-        var retrievalErrorCount = 0;
-        var updateErrorCount = 0;
-        var subscriber = _subscribers.AddOrUpdate(
-            subscriberID,
-            _ => new()
-            {
-                IsConnected = true, LastSeenUtc = DateTime.UtcNow, IsConfigured = _knownSubscriberIDs.Contains(subscriberID)
-            },
-            (_, existing) => existing with
-            {
-                IsConnected = true, LastSeenUtc = DateTime.UtcNow, IsConfigured = existing.IsConfigured || _knownSubscriberIDs.Contains(subscriberID)
-            });
-
-        while (!cts.Token.IsCancellationRequested)
-        {
-            List<TStorageRecord> records;
-
-            try
-            {
-                records = (await _storage!.GetNextBatchAsync(
-                               new()
-                               {
-                                   CancellationToken = cts.Token,
-                                   Limit = 25,
-                                   SubscriberID = subscriberID,
-                                   Match = e => e.SubscriberID == subscriberID && !e.IsComplete && DateTime.UtcNow <= e.ExpireOn
-                               })).ToList();
-                retrievalErrorCount = 0;
-            }
-            catch (Exception ex)
-            {
-                _errors?.OnGetNextBatchError<TEvent>(subscriberID, retrievalErrorCount++, ex, cts.Token);
-                _logger.StorageGetNextBatchError(subscriberID, _tEvent.FullName!, ex.Message);
-
-                if (!cts.Token.IsCancellationRequested)
-                    await Task.Delay(5000);
-
-                continue;
-            }
-
-            if (records.Count > 0)
-            {
-                foreach (var record in records)
+            var retrievalErrorCount = 0;
+            var updateErrorCount = 0;
+            var subscriber = _subscribers.AddOrUpdate(
+                subscriberID,
+                _ => new()
                 {
-                    try
-                    {
-                        await stream.WriteAsync(record.GetEvent<TEvent>(), cts.Token);
-                    }
-                    catch
-                    {
-                        if (IsInMemoryProvider)
-                        {
-                            try
-                            {
-                                await _storage.StoreEventsAsync([record], cts.Token);
-                            }
-                            catch
-                            {
-                                //it's either canceled or queue is full
-                                //ignore and discard event if queue is full
-                            }
-                        }
+                    IsConnected = true, LastSeenUtc = DateTime.UtcNow, IsKnownSubscriber = _knownSubscriberIDs.Contains(subscriberID)
+                },
+                (_, existing) => existing with
+                {
+                    IsConnected = true, LastSeenUtc = DateTime.UtcNow, IsKnownSubscriber = existing.IsKnownSubscriber || _knownSubscriberIDs.Contains(subscriberID)
+                });
 
-                        UpdateSubscriber(subscriberID, s => s with { IsConnected = false, LastSeenUtc = DateTime.UtcNow });
+            while (!cts.Token.IsCancellationRequested)
+            {
+                List<TStorageRecord> records;
 
-                        return; //stream is most likely broken/canceled. exit the method here and let the subscriber re-connect and re-enter the method.
-                    }
+                try
+                {
+                    records = (await _storage!.GetNextBatchAsync(
+                                   new()
+                                   {
+                                       CancellationToken = cts.Token,
+                                       EventType = _tEvent.FullName!,
+                                       Limit = 25,
+                                       SubscriberID = subscriberID,
+                                       Match = e => e.SubscriberID == subscriberID &&
+                                                    e.EventType == _tEvent.FullName! &&
+                                                    !e.IsComplete &&
+                                                    DateTime.UtcNow <= e.ExpireOn
+                                   })).ToList();
+                    retrievalErrorCount = 0;
+                }
+                catch (Exception ex)
+                {
+                    retrievalErrorCount++;
+                    _errors?.OnGetNextBatchError<TEvent>(subscriberID, retrievalErrorCount, ex, cts.Token);
+                    _logger.StorageGetNextBatchError(subscriberID, _tEvent.FullName!, ex.Message);
 
-                    while (!IsInMemoryProvider)
+                    if (!cts.Token.IsCancellationRequested)
+                        await Task.Delay(5000);
+
+                    continue;
+                }
+
+                if (records.Count > 0)
+                {
+                    foreach (var record in records)
                     {
                         try
                         {
-                            record.IsComplete = true;
-                            await _storage.MarkEventAsCompleteAsync(record, cts.Token);
-                            updateErrorCount = 0;
-
-                            break;
+                            await stream.WriteAsync(record.GetEvent<TEvent>(), cts.Token);
                         }
-                        catch (Exception ex)
+                        catch
                         {
-                            _errors?.OnMarkEventAsCompleteError<TEvent>(record, updateErrorCount++, ex, cts.Token);
-                            _logger.StorageMarkAsCompleteError(subscriberID, _tEvent.FullName!, ex.Message);
+                            if (IsInMemoryProvider)
+                            {
+                                try
+                                {
+                                    await _storage.StoreEventsAsync([record], cts.Token);
+                                }
+                                catch
+                                {
+                                    //it's either canceled or queue is full
+                                    //ignore and discard event if queue is full
+                                }
+                            }
 
-                            if (cts.Token.IsCancellationRequested)
+                            UpdateSubscriber(subscriberID, s => s with { IsConnected = false, LastSeenUtc = DateTime.UtcNow });
+
+                            return; //stream is most likely broken/canceled. exit the method here and let the subscriber re-connect and re-enter the method.
+                        }
+
+                        while (!IsInMemoryProvider)
+                        {
+                            try
+                            {
+                                record.IsComplete = true;
+
+                                // use composite cancellation token (signals client canceled or app shutdown) here so an interrupted "post write ack" leaves the record pending
+                                // for "at least once" redelivery if the client did not durably persist the event yet.
+                                await _storage.MarkEventAsCompleteAsync(record, cts.Token);
+                                updateErrorCount = 0;
+
                                 break;
+                            }
+                            catch (Exception ex)
+                            {
+                                _errors?.OnMarkEventAsCompleteError<TEvent>(record, updateErrorCount++, ex, cts.Token);
+                                _logger.StorageMarkAsCompleteError(subscriberID, _tEvent.FullName!, ex.Message);
 
-                            await Task.Delay(5000);
+                                if (cts.Token.IsCancellationRequested)
+                                    break;
+
+                                await Task.Delay(5000);
+                            }
                         }
                     }
                 }
+                else
+                {
+                    //wait until either the semaphore is released or 10 seconds has elapsed
+                    await Task.WhenAny(subscriber.Sem.WaitAsync(cts.Token), Task.Delay(10000));
+                }
             }
-            else
-            {
-                //wait until either the semaphore is released or 10 seconds has elapsed
-                await Task.WhenAny(subscriber.Sem.WaitAsync(cts.Token), Task.Delay(10000));
-            }
-        }
 
-        //mark subscriber as disconnected if the while loop is exited.
-        //which means the subscriber either canceled or stream got broken.
-        UpdateSubscriber(subscriberID, s => s with { IsConnected = false, LastSeenUtc = DateTime.UtcNow });
+            //mark subscriber as disconnected if the while loop is exited.
+            //which means the subscriber either canceled or stream got broken.
+            UpdateSubscriber(subscriberID, s => s with { IsConnected = false, LastSeenUtc = DateTime.UtcNow });
         }
         finally
         {
@@ -343,6 +353,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
             var record = new TStorageRecord
             {
                 SubscriberID = subId,
+                TrackingID = Guid.NewGuid(),
                 EventType = _tEvent.FullName!,
                 ExpireOn = DateTime.UtcNow.AddHours(4)
             };
@@ -368,7 +379,9 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
         {
             try
             {
-                await _storage!.StoreEventsAsync(records, _appCancellation);
+                // durable providers must persist the outgoing fan-out records even during shutdown so published
+                // events remain available for delivery after restart.
+                await _storage!.StoreEventsAsync(records, IsInMemoryProvider ? _appCancellation : CancellationToken.None);
                 createErrorCount = 0;
 
                 break;
@@ -415,7 +428,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
         {
             var staleCutoff = DateTime.UtcNow.Subtract(_subscriberRetention);
 
-            foreach (var kv in _subscribers.Where(kv => kv.Value is { IsConfigured: false, IsConnected: false } && kv.Value.LastSeenUtc <= staleCutoff).ToArray())
+            foreach (var kv in _subscribers.Where(kv => kv.Value is { IsKnownSubscriber: false, IsConnected: false } && kv.Value.LastSeenUtc <= staleCutoff).ToArray())
             {
                 //remove only if the entry is still the same stale snapshot we inspected above.
                 //this avoids pruning a subscriber that reconnected or was otherwise updated after the snapshot was taken.
@@ -445,6 +458,9 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
         }
     }
 
+    internal Task BroadcastEventTaskForTesting(TEvent evnt)
+        => BroadcastEventTask(evnt);
+
     //internal to allow unit testing
     internal Task<EmptyObject> OnEventReceived(EventHub<TEvent, TStorageRecord, TStorageProvider> _, TEvent evnt, ServerCallContext __)
     {
@@ -471,7 +487,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
     {
         while (_subscribers.TryGetValue(subscriberID, out var current))
         {
-            if (current.IsConfigured && !allowConfiguredRemoval)
+            if (current.IsKnownSubscriber && !allowConfiguredRemoval)
                 return;
 
             if (!_subscribers.TryRemove(new(subscriberID, current)))
@@ -488,6 +504,6 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
         public SemaphoreSlim Sem { get; } = new(0); //semaphorslim for waiting on record availability
         public bool IsConnected { get; init; }
         public DateTime LastSeenUtc { get; init; } = DateTime.UtcNow;
-        public bool IsConfigured { get; init; }
+        public bool IsKnownSubscriber { get; init; }
     }
 }

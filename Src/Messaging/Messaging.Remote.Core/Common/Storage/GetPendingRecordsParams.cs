@@ -9,14 +9,21 @@ namespace FastEndpoints;
 public struct PendingRecordSearchParams<TStorageRecord> where TStorageRecord : IEventStorageRecord
 {
     /// <summary>
-    /// the subscriber ID for fetching the next batch of records
-    /// </summary>
+     /// the subscriber ID for fetching the next batch of records
+     /// </summary>
     public string SubscriberID { get; internal set; }
+
+    /// <summary>
+    /// the event type for fetching the next batch of records. this allows explicit subscriber ids to be reused
+    /// safely across different event types when a storage provider persists multiple event types together.
+    /// </summary>
+    public string EventType { get; internal set; }
 
     /// <summary>
     /// a boolean lambda expression to match the next batch of records
     /// <code>
     ///     r => r.SubscriberID == "xxx" &amp;&amp;
+    ///          r.EventType == "yyy" &amp;&amp;
     ///          !r.IsComplete &amp;&amp;
     ///          DateTime.UtcNow &lt;= r.ExpireOn
     /// </code>

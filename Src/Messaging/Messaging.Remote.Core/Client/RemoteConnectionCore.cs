@@ -198,7 +198,8 @@ public class RemoteConnectionCore
     /// <typeparam name="TEventHandler">the handler that will be handling the received events</typeparam>
     /// <param name="subscriberID">
     /// an explicit subscriber id to use as-is. this is useful when the hub is configured with a known list of subscriber ids
-    /// and should start queuing events for this subscriber before it first connects.
+    /// and should start queuing events for this subscriber before it first connects. explicit ids can be reused across
+    /// different event types because pending-record lookups are scoped by both subscriber id and event type.
     /// </param>
     /// <param name="ct">cancellation token</param>
     public void SubscribeWithExplicitId<TEvent, TEventHandler>(string subscriberID, CancellationToken ct = default)
@@ -213,7 +214,8 @@ public class RemoteConnectionCore
     /// <typeparam name="TEventHandler">the handler that will be handling the received events</typeparam>
     /// <param name="subscriberID">
     /// an explicit subscriber id to use as-is. this is useful when the hub is configured with a known list of subscriber ids
-    /// and should start queuing events for this subscriber before it first connects.
+    /// and should start queuing events for this subscriber before it first connects. explicit ids can be reused across
+    /// different event types because pending-record lookups are scoped by both subscriber id and event type.
     /// </param>
     /// <param name="callOptions">the call options</param>
     public void SubscribeWithExplicitId<TEvent, TEventHandler>(string subscriberID, CallOptions callOptions)

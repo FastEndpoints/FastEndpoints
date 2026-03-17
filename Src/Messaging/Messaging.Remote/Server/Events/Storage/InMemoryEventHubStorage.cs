@@ -5,7 +5,7 @@ namespace FastEndpoints;
 //NOTE: this is a singleton class
 public sealed class InMemoryEventHubStorage : IEventHubStorageProvider<InMemoryEventStorageRecord>
 {
-    //key: subscriber ID (identifies a unique subscriber/client)
+    //key: subscriber ID + event type (allows explicit subscriber ids to be reused across different event types)
     //val: in memory event storage record queue
     readonly ConcurrentDictionary<string, InMemEventQueue> _subscribers = new();
 
@@ -18,7 +18,7 @@ public sealed class InMemoryEventHubStorage : IEventHubStorageProvider<InMemoryE
 
         foreach (var r in records)
         {
-            var q = _subscribers.GetOrAdd(r.SubscriberID, new InMemEventQueue());
+            var q = _subscribers.GetOrAdd(GetQueueKey(r.SubscriberID, r.EventType), new InMemEventQueue());
 
             if (!q.IsStale)
                 q.Records.Enqueue(r);
@@ -34,7 +34,7 @@ public sealed class InMemoryEventHubStorage : IEventHubStorageProvider<InMemoryE
 
     public ValueTask<IEnumerable<InMemoryEventStorageRecord>> GetNextBatchAsync(PendingRecordSearchParams<InMemoryEventStorageRecord> p)
     {
-        var q = _subscribers.GetOrAdd(p.SubscriberID, new InMemEventQueue());
+        var q = _subscribers.GetOrAdd(GetQueueKey(p.SubscriberID, p.EventType), new InMemEventQueue());
 
         q.Records.TryDequeue(out var e);
         q.LastDequeAt = DateTime.UtcNow;
@@ -61,4 +61,7 @@ public sealed class InMemoryEventHubStorage : IEventHubStorageProvider<InMemoryE
 
         return ValueTask.CompletedTask;
     }
+
+    static string GetQueueKey(string subscriberId, string eventType)
+        => subscriberId + "|" + eventType;
 }

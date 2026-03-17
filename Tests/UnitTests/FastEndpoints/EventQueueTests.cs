@@ -19,6 +19,7 @@ public class EventQueueTests
 
         var record1 = new InMemoryEventStorageRecord
         {
+            TrackingID = Guid.NewGuid(),
             Event = "test1",
             EventType = "System.String",
             ExpireOn = DateTime.UtcNow.AddMinutes(1),
@@ -27,6 +28,7 @@ public class EventQueueTests
 
         var record2 = new InMemoryEventStorageRecord
         {
+            TrackingID = Guid.NewGuid(),
             Event = "test2",
             EventType = "System.String",
             ExpireOn = DateTime.UtcNow.AddMinutes(1),
@@ -35,6 +37,7 @@ public class EventQueueTests
 
         var record3 = new InMemoryEventStorageRecord
         {
+            TrackingID = Guid.NewGuid(),
             Event = "test3",
             EventType = "System.String",
             ExpireOn = DateTime.UtcNow.AddMinutes(1),
@@ -44,23 +47,58 @@ public class EventQueueTests
         await sut.StoreEventAsync(record1, default);
         await sut.StoreEventAsync(record2, default);
 
-        var r1x = await sut.GetNextBatchAsync(new() { SubscriberID = record1.SubscriberID });
+        var r1x = await sut.GetNextBatchAsync(new() { SubscriberID = record1.SubscriberID, EventType = record1.EventType });
         r1x!.Single().Event.ShouldBe(record1.Event);
 
-        var r2x = await sut.GetNextBatchAsync(new() { SubscriberID = record1.SubscriberID });
+        var r2x = await sut.GetNextBatchAsync(new() { SubscriberID = record1.SubscriberID, EventType = record1.EventType });
         r2x!.Single().Event.ShouldBe(record2.Event);
 
         await sut.StoreEventAsync(record3, default);
         await Task.Delay(100);
 
-        var r3 = await sut.GetNextBatchAsync(new() { SubscriberID = record3.SubscriberID });
+        var r3 = await sut.GetNextBatchAsync(new() { SubscriberID = record3.SubscriberID, EventType = record3.EventType });
         r3!.Single().Event.ShouldBe(record3.Event);
 
-        var r3x = await sut.GetNextBatchAsync(new() { SubscriberID = record2.SubscriberID });
+        var r3x = await sut.GetNextBatchAsync(new() { SubscriberID = record2.SubscriberID, EventType = record2.EventType });
         r3x.Any().ShouldBeFalse();
 
-        var r4x = await sut.GetNextBatchAsync(new() { SubscriberID = record3.SubscriberID });
+        var r4x = await sut.GetNextBatchAsync(new() { SubscriberID = record3.SubscriberID, EventType = record3.EventType });
         r4x.Any().ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task subscriber_storage_separates_reused_explicit_ids_by_event_type()
+    {
+        var sut = new InMemoryEventSubscriberStorage();
+        const string subscriberId = "shared-sub";
+
+        await sut.StoreEventAsync(
+            new()
+            {
+                TrackingID = Guid.NewGuid(),
+                SubscriberID = subscriberId,
+                EventType = typeof(KnownSubscriberEvent).FullName!,
+                Event = new KnownSubscriberEvent { EventID = 111 },
+                ExpireOn = DateTime.UtcNow.AddMinutes(1)
+            },
+            default);
+
+        await sut.StoreEventAsync(
+            new()
+            {
+                TrackingID = Guid.NewGuid(),
+                SubscriberID = subscriberId,
+                EventType = typeof(ConfiguredSubscriberEvent).FullName!,
+                Event = new ConfiguredSubscriberEvent { EventID = 222 },
+                ExpireOn = DateTime.UtcNow.AddMinutes(1)
+            },
+            default);
+
+        var known = await sut.GetNextBatchAsync(new() { SubscriberID = subscriberId, EventType = typeof(KnownSubscriberEvent).FullName! });
+        var configured = await sut.GetNextBatchAsync(new() { SubscriberID = subscriberId, EventType = typeof(ConfiguredSubscriberEvent).FullName! });
+
+        ((KnownSubscriberEvent)known.Single().Event).EventID.ShouldBe(111);
+        ((ConfiguredSubscriberEvent)configured.Single().Event).EventID.ShouldBe(222);
     }
 
     [Fact]
@@ -74,6 +112,7 @@ public class EventQueueTests
         {
             var r = new InMemoryEventStorageRecord
             {
+                TrackingID = Guid.NewGuid(),
                 Event = i,
                 EventType = "System.String",
                 ExpireOn = DateTime.UtcNow.AddMinutes(1),
@@ -139,6 +178,37 @@ public class EventQueueTests
             await Task.Delay(100);
 
         writer.Responses[0].EventID.ShouldBe(321);
+    }
+
+    [Fact]
+    public async Task explicit_subscriber_id_can_be_reused_across_event_types_without_cross_delivery()
+    {
+        var provider = CreateServiceProvider();
+        const string subscriberId = "shared-known-sub";
+        EventHub<KnownSubscriberEvent, InMemoryEventStorageRecord, InMemoryEventHubStorage>.Configure(HubMode.EventPublisher, [subscriberId]);
+        EventHub<ConfiguredSubscriberEvent, InMemoryEventStorageRecord, InMemoryEventHubStorage>.Configure(HubMode.EventPublisher, [subscriberId]);
+        var knownHub = new EventHub<KnownSubscriberEvent, InMemoryEventStorageRecord, InMemoryEventHubStorage>(provider);
+        var configuredHub = new EventHub<ConfiguredSubscriberEvent, InMemoryEventStorageRecord, InMemoryEventHubStorage>(provider);
+
+        EventHubBase.AddToSubscriberQueues(new KnownSubscriberEvent { EventID = 111 });
+        EventHubBase.AddToSubscriberQueues(new ConfiguredSubscriberEvent { EventID = 222 });
+
+        var knownWriter = new TestServerStreamWriter<KnownSubscriberEvent>();
+        var configuredWriter = new TestServerStreamWriter<ConfiguredSubscriberEvent>();
+        using var knownCts = new CancellationTokenSource();
+        using var configuredCts = new CancellationTokenSource();
+        var knownTask = knownHub.OnSubscriberConnected(knownHub, subscriberId, knownWriter, CreateServerCallContext(knownCts.Token));
+        var configuredTask = configuredHub.OnSubscriberConnected(configuredHub, subscriberId, configuredWriter, CreateServerCallContext(configuredCts.Token));
+
+        await WaitUntil(() => knownWriter.Responses.Count == 1 && configuredWriter.Responses.Count == 1);
+
+        knownWriter.Responses.Single().EventID.ShouldBe(111);
+        configuredWriter.Responses.Single().EventID.ShouldBe(222);
+
+        knownCts.Cancel();
+        configuredCts.Cancel();
+        await WaitForCompletion(knownTask);
+        await WaitForCompletion(configuredTask);
     }
 
     [Fact]
@@ -296,12 +366,290 @@ public class EventQueueTests
         await WaitForCompletion(activeTask);
     }
 
-    static ServiceProvider CreateServiceProvider()
+    [Fact]
+    public async Task event_executor_refills_a_freed_slot_without_waiting_for_the_whole_batch_when_records_have_identity()
+    {
+        TestEventExecutorHandler.Reset();
+        var storage = new TestEventSubscriberStorage();
+        var handler = new TestEventExecutorHandler(storage);
+        var services = CreateServiceProvider(s => s.AddSingleton<IEventHandler<TrackedTestEvent>>(handler));
+        var logger = services.GetRequiredService<ILogger<
+            EventSubscriber<TrackedTestEvent, TestEventExecutorHandler, TestEventRecord, TestEventSubscriberStorage>>>();
+        ObjectFactory factory = static (_, _) => throw new InvalidOperationException("Handler factory should not be used in this test.");
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+        var subscriberId = "refill-sub";
+
+        await storage.StoreEventAsync(new()
+        {
+            TrackingID = Guid.NewGuid(),
+            SubscriberID = subscriberId,
+            EventType = typeof(TrackedTestEvent).FullName!,
+            Event = new TrackedTestEvent { Name = "slow" },
+            ExpireOn = DateTime.UtcNow.AddMinutes(1)
+        }, cts.Token);
+        await storage.StoreEventAsync(new()
+        {
+            TrackingID = Guid.NewGuid(),
+            SubscriberID = subscriberId,
+            EventType = typeof(TrackedTestEvent).FullName!,
+            Event = new TrackedTestEvent { Name = "fast" },
+            ExpireOn = DateTime.UtcNow.AddMinutes(1)
+        }, cts.Token);
+        await storage.StoreEventAsync(new()
+        {
+            TrackingID = Guid.NewGuid(),
+            SubscriberID = subscriberId,
+            EventType = typeof(TrackedTestEvent).FullName!,
+            Event = new TrackedTestEvent { Name = "third" },
+            ExpireOn = DateTime.UtcNow.AddMinutes(1)
+        }, cts.Token);
+
+        var executor = EventSubscriber<TrackedTestEvent, TestEventExecutorHandler, TestEventRecord, TestEventSubscriberStorage>
+                       .EventExecutorTask(
+                           storage,
+                           new SemaphoreSlim(0),
+                           new CallOptions(cancellationToken: cts.Token),
+                           maxConcurrency: 2,
+                           subscriberID: subscriberId,
+                           logger,
+                           factory,
+                           services,
+                           errorReceiver: null);
+
+        await TestEventExecutorHandler.FastStarted.Task.WaitAsync(TimeSpan.FromSeconds(5));
+
+        var thirdStartedBeforeSlowFinished = await Task.WhenAny(
+                                                 TestEventExecutorHandler.ThirdStarted.Task,
+                                                 Task.Delay(TimeSpan.FromSeconds(1), cts.Token)) ==
+                                             TestEventExecutorHandler.ThirdStarted.Task;
+
+        thirdStartedBeforeSlowFinished.ShouldBeTrue();
+        storage.MaxConcurrentExecutions.ShouldBe(2);
+        storage.GetRequestedLimitsSnapshot().ShouldContain(2);
+        storage.GetExecutionCount("slow").ShouldBe(1);
+
+        TestEventExecutorHandler.ReleaseSlow();
+        TestEventExecutorHandler.ReleaseThird();
+
+        await WaitUntil(() => storage.AllCompleted("slow", "fast", "third"), timeoutMs: 5000);
+
+        cts.Cancel();
+        await WaitForCompletion(executor, timeoutMs: 5000);
+        storage.GetExecutionCount("slow").ShouldBe(1);
+        storage.GetExecutionCount("fast").ShouldBe(1);
+        storage.GetExecutionCount("third").ShouldBe(1);
+    }
+
+    [Fact]
+    public async Task event_executor_ignores_exception_receiver_failures()
+    {
+        TestEventExecutorHandler.Reset();
+        var storage = new TestEventSubscriberStorage();
+        var handler = new TestEventExecutorHandler(storage);
+        var provider = CreateServiceProvider(
+            s =>
+            {
+                s.AddSingleton<IEventHandler<TrackedTestEvent>>(handler);
+                s.AddSingleton<SubscriberExceptionReceiver, ThrowingSubscriberExceptionReceiver>();
+            });
+        var logger = provider.GetRequiredService<ILogger<
+            EventSubscriber<TrackedTestEvent, TestEventExecutorHandler, TestEventRecord, TestEventSubscriberStorage>>>();
+        var receiver = provider.GetRequiredService<SubscriberExceptionReceiver>();
+        ObjectFactory factory = static (_, _) => throw new InvalidOperationException("Handler factory should not be used in this test.");
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(20));
+        var subscriberId = "receiver-sub";
+
+        await storage.StoreEventAsync(new()
+        {
+            TrackingID = Guid.NewGuid(),
+            SubscriberID = subscriberId,
+            EventType = typeof(TrackedTestEvent).FullName!,
+            Event = new TrackedTestEvent { Name = "retry" },
+            ExpireOn = DateTime.UtcNow.AddMinutes(1)
+        }, cts.Token);
+
+        var executor = EventSubscriber<TrackedTestEvent, TestEventExecutorHandler, TestEventRecord, TestEventSubscriberStorage>
+                       .EventExecutorTask(
+                           storage,
+                           new SemaphoreSlim(0),
+                           new CallOptions(cancellationToken: cts.Token),
+                           maxConcurrency: 1,
+                           subscriberID: subscriberId,
+                           logger,
+                           factory,
+                           provider,
+                           receiver);
+
+        await TestEventExecutorHandler.RetryObserved.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        TestEventExecutorHandler.ReleaseRetry();
+        await WaitUntil(() => storage.AllCompleted("retry"), timeoutMs: 8000);
+
+        cts.Cancel();
+        await WaitForCompletion(executor, timeoutMs: 5000);
+        storage.GetExecutionCount("retry").ShouldBe(2);
+    }
+
+    [Fact]
+    public async Task event_executor_marks_successful_durable_events_complete_during_shutdown()
+    {
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+        var storage = new CancellationAwareTestEventSubscriberStorage();
+        var handler = new ShutdownAfterHandleEventHandler(storage, cts);
+        var provider = CreateServiceProvider(s => s.AddSingleton<IEventHandler<TrackedTestEvent>>(handler));
+        var logger = provider.GetRequiredService<ILogger<
+            EventSubscriber<TrackedTestEvent, ShutdownAfterHandleEventHandler, TestEventRecord, CancellationAwareTestEventSubscriberStorage>>>();
+        ObjectFactory factory = static (_, _) => throw new InvalidOperationException("Handler factory should not be used in this test.");
+        var subscriberId = "shutdown-sub";
+
+        await storage.StoreEventAsync(new()
+        {
+            TrackingID = Guid.NewGuid(),
+            SubscriberID = subscriberId,
+            EventType = typeof(TrackedTestEvent).FullName!,
+            Event = new TrackedTestEvent { Name = "shutdown" },
+            ExpireOn = DateTime.UtcNow.AddMinutes(1)
+        }, cts.Token);
+
+        var executor = EventSubscriber<TrackedTestEvent, ShutdownAfterHandleEventHandler, TestEventRecord, CancellationAwareTestEventSubscriberStorage>
+                       .EventExecutorTask(
+                           storage,
+                           new SemaphoreSlim(0),
+                           new CallOptions(cancellationToken: cts.Token),
+                           maxConcurrency: 1,
+                           subscriberID: subscriberId,
+                           logger,
+                           factory,
+                           provider,
+                           errorReceiver: null);
+
+        await storage.MarkCompleteObserved.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        await WaitForCompletion(executor, timeoutMs: 5000);
+
+        storage.AllCompleted("shutdown").ShouldBeTrue();
+        storage.MarkCompleteTokenCanBeCanceled.ShouldBeFalse();
+        storage.GetExecutionCount("shutdown").ShouldBe(1);
+    }
+
+    [Fact]
+    public async Task event_receiver_persists_durable_events_during_shutdown()
+    {
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+        var storage = new CancellationAwareStoreEventSubscriberStorage(cts);
+        var provider = CreateServiceProvider();
+        var logger = provider.GetRequiredService<ILogger<
+            EventSubscriber<TrackedTestEvent, TestEventExecutorHandler, TestEventRecord, CancellationAwareStoreEventSubscriberStorage>>>();
+        var eventMessage = new TrackedTestEvent { Name = "shutdown" };
+
+        var receiver = EventSubscriber<TrackedTestEvent, TestEventExecutorHandler, TestEventRecord, CancellationAwareStoreEventSubscriberStorage>
+                       .EventReceiverTask(
+                           storage,
+                           new SemaphoreSlim(0),
+                           new CallOptions(cancellationToken: cts.Token),
+                           new TestCallInvoker(eventMessage),
+                           new Method<string, TrackedTestEvent>(
+                               MethodType.ServerStreaming,
+                               typeof(TrackedTestEvent).FullName!,
+                               "sub",
+                               new MessagePackMarshaller<string>(),
+                               new MessagePackMarshaller<TrackedTestEvent>()),
+                           subscriberID: "shutdown-sub",
+                           eventRecordExpiry: TimeSpan.FromMinutes(1),
+                           logger,
+                           errors: null);
+
+        await storage.StoreObserved.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        await WaitForCompletion(receiver, timeoutMs: 5000);
+
+        storage.StoredRecords.ShouldHaveSingleItem();
+        storage.StoreTokenCanBeCanceled.ShouldBeFalse();
+        storage.StoredRecords.Single().SubscriberID.ShouldBe("shutdown-sub");
+        storage.StoredRecords.Single().IsComplete.ShouldBeFalse();
+        storage.StoredRecords.Single().EventType.ShouldBe(typeof(TrackedTestEvent).FullName);
+        ((TrackedTestEvent)storage.StoredRecords.Single().Event).Name.ShouldBe("shutdown");
+    }
+
+    [Fact]
+    public async Task event_hub_persists_durable_events_during_shutdown()
+    {
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+        var observer = new EventHubStoreObserver();
+        var services = new ServiceCollection();
+        services.AddSingleton(cts);
+        services.AddSingleton(observer);
+        services.AddSingleton<IHostApplicationLifetime>(new TestHostLifetime(cts.Token));
+        services.AddSingleton<ILoggerFactory, LoggerFactory>();
+        services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
+        var provider = services.BuildServiceProvider();
+        var hub = new EventHub<TrackedTestEvent, TestEventRecord, CancellationAwareEventHubStorage>(provider);
+        EventHub<TrackedTestEvent, TestEventRecord, CancellationAwareEventHubStorage>.Configure(HubMode.EventPublisher, ["known-sub-1"]);
+
+        await hub.BroadcastEventTaskForTesting(new() { Name = "shutdown" });
+
+        observer.StoreObserved.Task.IsCompleted.ShouldBeTrue();
+        observer.StoredRecords.ShouldHaveSingleItem();
+        observer.StoreTokenCanBeCanceled.ShouldBeFalse();
+        observer.StoredRecords.Single().SubscriberID.ShouldBe("known-sub-1");
+        observer.StoredRecords.Single().EventType.ShouldBe(typeof(TrackedTestEvent).FullName);
+        ((TrackedTestEvent)observer.StoredRecords.Single().Event).Name.ShouldBe("shutdown");
+    }
+
+    [Fact]
+    public async Task event_executor_filters_pending_records_by_event_type_when_explicit_id_is_reused()
+    {
+        TestEventExecutorHandler.Reset();
+        var storage = new TestEventSubscriberStorage();
+        var handler = new TestEventExecutorHandler(storage);
+        var services = CreateServiceProvider(s => s.AddSingleton<IEventHandler<TrackedTestEvent>>(handler));
+        var logger = services.GetRequiredService<ILogger<
+            EventSubscriber<TrackedTestEvent, TestEventExecutorHandler, TestEventRecord, TestEventSubscriberStorage>>>();
+        ObjectFactory factory = static (_, _) => throw new InvalidOperationException("Handler factory should not be used in this test.");
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+        const string subscriberId = "shared-sub";
+
+        await storage.StoreEventAsync(new()
+        {
+            TrackingID = Guid.NewGuid(),
+            SubscriberID = subscriberId,
+            EventType = typeof(TestEvent).FullName!,
+            Event = new TestEvent { EventID = 999 },
+            ExpireOn = DateTime.UtcNow.AddMinutes(1)
+        }, cts.Token);
+        await storage.StoreEventAsync(new()
+        {
+            TrackingID = Guid.NewGuid(),
+            SubscriberID = subscriberId,
+            EventType = typeof(TrackedTestEvent).FullName!,
+            Event = new TrackedTestEvent { Name = "fast" },
+            ExpireOn = DateTime.UtcNow.AddMinutes(1)
+        }, cts.Token);
+
+        var executor = EventSubscriber<TrackedTestEvent, TestEventExecutorHandler, TestEventRecord, TestEventSubscriberStorage>
+                       .EventExecutorTask(
+                           storage,
+                           new SemaphoreSlim(0),
+                           new CallOptions(cancellationToken: cts.Token),
+                           maxConcurrency: 1,
+                           subscriberID: subscriberId,
+                           logger,
+                           factory,
+                           services,
+                           errorReceiver: null);
+
+        await TestEventExecutorHandler.FastStarted.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        await WaitUntil(() => storage.AllCompleted("fast"), timeoutMs: 5000);
+
+        cts.Cancel();
+        await WaitForCompletion(executor, timeoutMs: 5000);
+        storage.GetExecutionCount("fast").ShouldBe(1);
+    }
+
+    static ServiceProvider CreateServiceProvider(Action<IServiceCollection>? configure = null)
     {
         var services = new ServiceCollection();
         services.AddSingleton<ILoggerFactory, LoggerFactory>();
         services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
         services.AddSingleton(A.Fake<IHostApplicationLifetime>());
+        configure?.Invoke(services);
 
         return services.BuildServiceProvider();
     }
@@ -402,6 +750,346 @@ public class EventQueueTests
         public int EventID { get; set; }
     }
 
+    class TrackedTestEvent : IEvent
+    {
+        public string Name { get; set; } = default!;
+    }
+
+    sealed class TestEventRecord : IEventStorageRecord
+    {
+        public string SubscriberID { get; set; } = default!;
+        public Guid TrackingID { get; set; }
+        public object Event { get; set; } = default!;
+        public string EventType { get; set; } = default!;
+        public DateTime ExpireOn { get; set; }
+        public bool IsComplete { get; set; }
+    }
+
+    static readonly Dictionary<string, int> _trackedEventOrder = new(StringComparer.Ordinal)
+    {
+        ["slow"] = 0,
+        ["fast"] = 1,
+        ["third"] = 2,
+        ["retry"] = 3,
+        ["shutdown"] = 4,
+    };
+
+    static string GetTrackedEventKey(TestEventRecord record)
+        => ((TrackedTestEvent)record.Event).Name;
+
+    static int GetTrackedEventOrder(TestEventRecord record)
+        => _trackedEventOrder.TryGetValue(GetTrackedEventKey(record), out var order) ? order : int.MaxValue;
+
+    sealed class TestEventSubscriberStorage : TestEventSubscriberStorageBase<TestEventRecord>
+    {
+        public TestEventSubscriberStorage()
+            : base(GetTrackedEventKey, GetTrackedEventOrder)
+        { }
+
+        public int GetExecutionCount(string eventName)
+            => GetExecutionCountCore(eventName);
+
+        public bool AllCompleted(params string[] eventNames)
+            => AllCompletedCore(eventNames);
+    }
+
+    abstract class TestEventSubscriberStorageBase<TRecord> : IEventSubscriberStorageProvider<TRecord> where TRecord : class, IEventStorageRecord
+    {
+        readonly object _sync = new();
+        readonly List<TRecord> _records = [];
+        readonly Dictionary<string, int> _executionCounts = new(StringComparer.Ordinal);
+        readonly List<int> _requestedLimits = [];
+        readonly Func<TRecord, string> _keySelector;
+        readonly Func<TRecord, int> _orderSelector;
+        int _activeExecutions;
+
+        protected TestEventSubscriberStorageBase(Func<TRecord, string> keySelector, Func<TRecord, int> orderSelector)
+        {
+            _keySelector = keySelector;
+            _orderSelector = orderSelector;
+        }
+
+        public int MaxConcurrentExecutions { get; private set; }
+
+        public ValueTask StoreEventAsync(TRecord r, CancellationToken ct)
+        {
+            lock (_sync)
+                _records.Add(r);
+
+            return default;
+        }
+
+        public ValueTask<IEnumerable<TRecord>> GetNextBatchAsync(PendingRecordSearchParams<TRecord> parameters)
+        {
+            lock (_sync)
+            {
+                _requestedLimits.Add(parameters.Limit);
+
+                var batch = _records.Where(parameters.Match.Compile())
+                                    .OrderBy(_orderSelector)
+                                    .Take(parameters.Limit)
+                                    .ToArray();
+
+                return new(batch);
+            }
+        }
+
+        public virtual ValueTask MarkEventAsCompleteAsync(TRecord r, CancellationToken ct)
+        {
+            r.IsComplete = true;
+
+            return default;
+        }
+
+        public ValueTask PurgeStaleRecordsAsync(StaleRecordSearchParams<TRecord> parameters)
+            => default;
+
+        public IReadOnlyList<int> GetRequestedLimitsSnapshot()
+        {
+            lock (_sync)
+                return _requestedLimits.ToArray();
+        }
+
+        public void OnExecutionStarted(string key)
+        {
+            lock (_sync)
+            {
+                _activeExecutions++;
+                MaxConcurrentExecutions = Math.Max(MaxConcurrentExecutions, _activeExecutions);
+                _executionCounts.TryGetValue(key, out var count);
+                _executionCounts[key] = count + 1;
+            }
+        }
+
+        public void OnExecutionCompleted()
+        {
+            lock (_sync)
+                _activeExecutions--;
+        }
+
+        protected int GetExecutionCountCore(string key)
+        {
+            lock (_sync)
+                return _executionCounts.TryGetValue(key, out var count) ? count : 0;
+        }
+
+        protected bool AllCompletedCore(params string[] keys)
+        {
+            lock (_sync)
+            {
+                return keys.All(key =>
+                    _records.Any(r =>
+                        r.IsComplete &&
+                        string.Equals(_keySelector(r), key, StringComparison.Ordinal)));
+            }
+        }
+
+    }
+
+    sealed class CancellationAwareTestEventSubscriberStorage : TestEventSubscriberStorageBase<TestEventRecord>
+    {
+        public CancellationAwareTestEventSubscriberStorage()
+            : base(GetTrackedEventKey, GetTrackedEventOrder)
+        { }
+
+        public TaskCompletionSource MarkCompleteObserved { get; } = NewSignal();
+        public bool MarkCompleteTokenCanBeCanceled { get; private set; }
+
+        public bool AllCompleted(params string[] eventNames)
+            => AllCompletedCore(eventNames);
+
+        public int GetExecutionCount(string eventName)
+            => GetExecutionCountCore(eventName);
+
+        public override ValueTask MarkEventAsCompleteAsync(TestEventRecord record, CancellationToken ct)
+        {
+            MarkCompleteTokenCanBeCanceled = ct.CanBeCanceled;
+
+            if (ct.IsCancellationRequested)
+                return ValueTask.FromException(new OperationCanceledException(ct));
+
+            record.IsComplete = true;
+            MarkCompleteObserved.TrySetResult();
+
+            return default;
+        }
+    }
+
+    sealed class CancellationAwareStoreEventSubscriberStorage(CancellationTokenSource shutdownCts) : IEventSubscriberStorageProvider<TestEventRecord>
+    {
+        public TaskCompletionSource StoreObserved { get; } = NewSignal();
+        public bool StoreTokenCanBeCanceled { get; private set; }
+        public List<TestEventRecord> StoredRecords { get; } = [];
+
+        public ValueTask StoreEventAsync(TestEventRecord r, CancellationToken ct)
+        {
+            StoreTokenCanBeCanceled = ct.CanBeCanceled;
+
+            if (ct.IsCancellationRequested)
+                return ValueTask.FromException(new OperationCanceledException(ct));
+
+            StoredRecords.Add(r);
+            StoreObserved.TrySetResult();
+            shutdownCts.Cancel();
+
+            return default;
+        }
+
+        public ValueTask<IEnumerable<TestEventRecord>> GetNextBatchAsync(PendingRecordSearchParams<TestEventRecord> parameters)
+            => new(Array.Empty<TestEventRecord>());
+
+        public ValueTask MarkEventAsCompleteAsync(TestEventRecord r, CancellationToken ct)
+            => default;
+
+        public ValueTask PurgeStaleRecordsAsync(StaleRecordSearchParams<TestEventRecord> parameters)
+            => default;
+    }
+
+    sealed class EventHubStoreObserver
+    {
+        public TaskCompletionSource StoreObserved { get; } = NewSignal();
+        public bool StoreTokenCanBeCanceled { get; set; }
+        public List<TestEventRecord> StoredRecords { get; } = [];
+    }
+
+    sealed class CancellationAwareEventHubStorage(CancellationTokenSource shutdownCts, EventHubStoreObserver observer) : IEventHubStorageProvider<TestEventRecord>
+    {
+        public ValueTask<IEnumerable<string>> RestoreSubscriberIDsForEventTypeAsync(SubscriberIDRestorationParams<TestEventRecord> parameters)
+            => new(Array.Empty<string>());
+
+        public ValueTask StoreEventsAsync(IEnumerable<TestEventRecord> r, CancellationToken ct)
+        {
+            observer.StoreTokenCanBeCanceled = ct.CanBeCanceled;
+
+            if (ct.IsCancellationRequested)
+                return ValueTask.FromException(new OperationCanceledException(ct));
+
+            observer.StoredRecords.AddRange(r.Select(Clone));
+            observer.StoreObserved.TrySetResult();
+            shutdownCts.Cancel();
+
+            return default;
+        }
+
+        public ValueTask<IEnumerable<TestEventRecord>> GetNextBatchAsync(PendingRecordSearchParams<TestEventRecord> parameters)
+            => new(Array.Empty<TestEventRecord>());
+
+        public ValueTask MarkEventAsCompleteAsync(TestEventRecord r, CancellationToken ct)
+            => default;
+
+        public ValueTask PurgeStaleRecordsAsync(StaleRecordSearchParams<TestEventRecord> parameters)
+            => default;
+
+        static TestEventRecord Clone(TestEventRecord record)
+            => new()
+            {
+                SubscriberID = record.SubscriberID,
+                TrackingID = record.TrackingID,
+                Event = record.Event,
+                EventType = record.EventType,
+                ExpireOn = record.ExpireOn,
+                IsComplete = record.IsComplete
+            };
+    }
+
+    class TestEventExecutorHandler(TestEventSubscriberStorage storage) : IEventHandler<TrackedTestEvent>
+    {
+        internal static TaskCompletionSource FastStarted { get; private set; } = NewSignal();
+        internal static TaskCompletionSource ThirdStarted { get; private set; } = NewSignal();
+        internal static TaskCompletionSource RetryObserved { get; private set; } = NewSignal();
+        static TaskCompletionSource _slowCanFinish = NewSignal();
+        static TaskCompletionSource _thirdCanFinish = NewSignal();
+        static TaskCompletionSource _retryCanSucceed = NewSignal();
+        static int _retryAttempts;
+
+        public static void Reset()
+        {
+            FastStarted = NewSignal();
+            ThirdStarted = NewSignal();
+            RetryObserved = NewSignal();
+            _slowCanFinish = NewSignal();
+            _thirdCanFinish = NewSignal();
+            _retryCanSucceed = NewSignal();
+            _retryAttempts = 0;
+        }
+
+        public static void ReleaseSlow()
+            => _slowCanFinish.TrySetResult();
+
+        public static void ReleaseThird()
+            => _thirdCanFinish.TrySetResult();
+
+        public static void ReleaseRetry()
+            => _retryCanSucceed.TrySetResult();
+
+        public async Task HandleAsync(TrackedTestEvent evnt, CancellationToken ct)
+        {
+            storage.OnExecutionStarted(evnt.Name);
+
+            try
+            {
+                switch (evnt.Name)
+                {
+                    case "slow":
+                        await _slowCanFinish.Task.WaitAsync(ct);
+                        break;
+                    case "fast":
+                        FastStarted.TrySetResult();
+                        break;
+                    case "third":
+                        ThirdStarted.TrySetResult();
+                        await _thirdCanFinish.Task.WaitAsync(ct);
+                        break;
+                    case "retry":
+                        if (Interlocked.Increment(ref _retryAttempts) == 1)
+                        {
+                            RetryObserved.TrySetResult();
+                            throw new InvalidOperationException("boom");
+                        }
+
+                        await _retryCanSucceed.Task.WaitAsync(ct);
+                        break;
+                }
+            }
+            finally
+            {
+                storage.OnExecutionCompleted();
+            }
+        }
+    }
+
+    sealed class ShutdownAfterHandleEventHandler(CancellationAwareTestEventSubscriberStorage storage, CancellationTokenSource shutdownCts)
+        : IEventHandler<TrackedTestEvent>
+    {
+        public Task HandleAsync(TrackedTestEvent evnt, CancellationToken ct)
+        {
+            storage.OnExecutionStarted(evnt.Name);
+
+            try
+            {
+                shutdownCts.Cancel();
+
+                return Task.CompletedTask;
+            }
+            finally
+            {
+                storage.OnExecutionCompleted();
+            }
+        }
+    }
+
+    sealed class ThrowingSubscriberExceptionReceiver : SubscriberExceptionReceiver
+    {
+        public override Task OnHandlerExecutionError<TEvent, THandler>(IEventStorageRecord record,
+                                                                       int attemptCount,
+                                                                       Exception exception,
+                                                                       CancellationToken ct)
+            => throw new InvalidOperationException("receiver failure");
+    }
+
+    static TaskCompletionSource NewSignal()
+        => new(TaskCreationOptions.RunContinuationsAsynchronously);
+
     class TestServerStreamWriter<T> : IServerStreamWriter<T>
     {
         public WriteOptions? WriteOptions { get; set; }
@@ -412,5 +1100,70 @@ public class EventQueueTests
 
         public Task WriteAsync(T message, CancellationToken ct)
             => WriteAsync(message);
+    }
+
+    sealed class TestCallInvoker(TrackedTestEvent eventMessage) : CallInvoker
+    {
+        readonly AsyncServerStreamingCall<TrackedTestEvent> _call = new(
+            new SingleMessageAsyncStreamReader<TrackedTestEvent>(eventMessage),
+            Task.FromResult(new Metadata()),
+            () => Status.DefaultSuccess,
+            () => new Metadata(),
+            () => { });
+
+        public override AsyncClientStreamingCall<TRequest, TResponse> AsyncClientStreamingCall<TRequest, TResponse>(Method<TRequest, TResponse> method,
+                                                                                                                      string? host,
+                                                                                                                      CallOptions options)
+            => throw new NotSupportedException();
+
+        public override AsyncDuplexStreamingCall<TRequest, TResponse> AsyncDuplexStreamingCall<TRequest, TResponse>(Method<TRequest, TResponse> method,
+                                                                                                                      string? host,
+                                                                                                                      CallOptions options)
+            => throw new NotSupportedException();
+
+        public override AsyncServerStreamingCall<TResponse> AsyncServerStreamingCall<TRequest, TResponse>(Method<TRequest, TResponse> method,
+                                                                                                            string? host,
+                                                                                                            CallOptions options,
+                                                                                                            TRequest request)
+            => (AsyncServerStreamingCall<TResponse>)(object)_call;
+
+        public override AsyncUnaryCall<TResponse> AsyncUnaryCall<TRequest, TResponse>(Method<TRequest, TResponse> method,
+                                                                                       string? host,
+                                                                                       CallOptions options,
+                                                                                       TRequest request)
+            => throw new NotSupportedException();
+
+        public override TResponse BlockingUnaryCall<TRequest, TResponse>(Method<TRequest, TResponse> method,
+                                                                          string? host,
+                                                                          CallOptions options,
+                                                                          TRequest request)
+            => throw new NotSupportedException();
+    }
+
+    sealed class SingleMessageAsyncStreamReader<T>(T message) : IAsyncStreamReader<T>
+    {
+        bool _moved;
+
+        public T Current { get; private set; } = default!;
+
+        public Task<bool> MoveNext(CancellationToken cancellationToken)
+        {
+            if (_moved)
+                return Task.FromResult(false);
+
+            _moved = true;
+            Current = message;
+
+            return Task.FromResult(true);
+        }
+    }
+
+    sealed class TestHostLifetime(CancellationToken appStoppingToken) : IHostApplicationLifetime
+    {
+        public CancellationToken ApplicationStarted => CancellationToken.None;
+        public CancellationToken ApplicationStopping => appStoppingToken;
+        public CancellationToken ApplicationStopped => CancellationToken.None;
+
+        public void StopApplication() { }
     }
 }

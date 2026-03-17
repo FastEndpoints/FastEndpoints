@@ -36,4 +36,18 @@ static partial class LoggingExtensions
 
     [LoggerMessage(11, LogLevel.Critical, "Event executor task terminated unexpectedly for [subscriber-id:{subscriberId}]({tEvent}): {msg}")]
     public static partial void EventExecutorTaskTerminatedCritical(this ILogger l, string subscriberId, string tEvent, string msg);
+
+    [LoggerMessage(12, LogLevel.Critical, "Unexpected fault while observing event execution completion for [subscriber-id:{subscriberId}]({eventType}).")]
+    public static partial void EventExecutionCompletionObservedCritical(this ILogger l, Exception ex, string subscriberId, string eventType);
+
+    [LoggerMessage(13, LogLevel.Critical, "Unexpected fault while executing event for [subscriber-id:{subscriberId}]({eventType}).")]
+    public static partial void EventExecutionTaskCritical(this ILogger l, Exception ex, string subscriberId, string eventType);
+
+    [LoggerMessage(14, LogLevel.Warning,
+        "Event record with empty TrackingID for [subscriber-id:{subscriberId}]({tEvent}). " +
+        "Custom storage providers must persist and restore TrackingID to ensure correct concurrency behavior.")]
+    public static partial void EmptyTrackingIdWarning(this ILogger l, string subscriberId, string tEvent);
+
+    [LoggerMessage(15, LogLevel.Error, "Subscriber exception receiver fault during '{operation}' for [subscriber-id:{subscriberId}]({eventType}).")]
+    public static partial void SubscriberExceptionReceiverFault(this ILogger l, Exception ex, string operation, string subscriberId, string eventType);
 }

@@ -1,9 +1,9 @@
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
+using FastEndpoints.JobsQueues;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using FastEndpoints.JobsQueues;
 
 namespace FastEndpoints;
 
@@ -122,7 +122,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
     int _maxConcurrency = Environment.ProcessorCount;
     TimeSpan _executionTimeLimit;
     TimeSpan _semWaitLimit;
-    DateTimeOffset _nextCleanupOn;
+    DateTimeOffset? _nextCleanupOn;
 
     public JobQueue(TStorageProvider storageProvider, IHostApplicationLifetime appLife, ILogger<JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider>> logger)
     {
@@ -133,7 +133,6 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
         _activated = _isDistributed;
         _appCancellation = appLife.ApplicationStopping;
         _log = logger;
-        _nextCleanupOn = DateTime.UtcNow.AddMinutes(5);
         JobStorage<TStorageRecord, TStorageProvider>.Provider = _storage;
         JobStorage<TStorageRecord, TStorageProvider>.AppCancellation = _appCancellation;
         JobStorage<TStorageRecord, TStorageProvider>.Logger = _log;
@@ -235,8 +234,9 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
         }
         catch (ObjectDisposedException) { }
 
-        // set null as the mark for dictionary cleanup
-        _cancellations.TryUpdate(trackingId, null, cts);
+        if (_cancellations.TryUpdate(trackingId, null, cts))        // set null as the mark for dictionary cleanup
+            _nextCleanupOn ??= DateTimeOffset.UtcNow.AddMinutes(5); // if marked null, schedule next dictionary cleanup in 5 minutes
+
         await _storage.CancelJobAsync(trackingId, ct);
     }
 
@@ -249,15 +249,15 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
         {
             await ObserveCompletedExecutions();
 
-            if (DateTime.UtcNow >= _nextCleanupOn)
+            if (_nextCleanupOn.HasValue && DateTime.UtcNow >= _nextCleanupOn.Value)
             {
+                _nextCleanupOn = null;
+
                 foreach (var kv in _cancellations)
                 {
                     if (kv.Value is null)
                         _cancellations.TryRemove(kv.Key, out _);
                 }
-
-                _nextCleanupOn = DateTime.UtcNow.AddMinutes(5);
             }
 
             if (executions.Count < _maxConcurrency)

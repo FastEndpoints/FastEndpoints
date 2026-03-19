@@ -242,8 +242,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
 
     async Task CommandExecutorTask()
     {
-        var executions = new Dictionary<Task, Guid>();
-        var inFlightTrackingIds = new HashSet<Guid>();
+        var executions = new Dictionary<Guid, Task>();
 
         while (!_appCancellation.IsCancellationRequested)
         {
@@ -300,15 +299,15 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                             _activated = true;
                     }
 
-                    if (isProbe || inFlightTrackingIds.Count > 0)
+                    if (isProbe || executions.Count > 0)
                     {
                         IEnumerable<TStorageRecord> filtered = records;
 
                         if (isProbe)
                             filtered = filtered.Where(r => r.ExecuteAfter <= now); // filter out future jobs
 
-                        if (inFlightTrackingIds.Count > 0)
-                            filtered = filtered.Where(r => !inFlightTrackingIds.Contains(r.TrackingID)); // filter out in-flight jobs
+                        if (executions.Count > 0)
+                            filtered = filtered.Where(r => !executions.ContainsKey(r.TrackingID)); // filter out in-flight jobs
 
                         if (!ReferenceEquals(filtered, records))
                             records = filtered.ToArray();
@@ -333,8 +332,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                     foreach (var record in records.Take(availableSlots))
                     {
                         var task = ExecuteCommand(record);
-                        executions[task] = record.TrackingID;
-                        inFlightTrackingIds.Add(record.TrackingID);
+                        executions[record.TrackingID] = task;
                     }
 
                     if (executions.Count == _maxConcurrency)
@@ -348,7 +346,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
 
             try
             {
-                await Task.WhenAny(executions.Keys).WaitAsync(_appCancellation);
+                await Task.WhenAny(executions.Values).WaitAsync(_appCancellation);
             }
             catch (OperationCanceledException) when (_appCancellation.IsCancellationRequested)
             {
@@ -555,7 +553,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
 
             while (executions.Count > 0)
             {
-                await Task.WhenAny(executions.Keys);
+                await Task.WhenAny(executions.Values);
                 await ObserveCompletedExecutions();
             }
         }
@@ -565,14 +563,13 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
             if (executions.Count == 0)
                 return;
 
-            foreach (var kv in executions.Where(static kv => kv.Key.IsCompleted).ToArray())
+            foreach (var kv in executions.Where(static kv => kv.Value.IsCompleted).ToArray())
             {
                 executions.Remove(kv.Key);
-                inFlightTrackingIds.Remove(kv.Value);
 
                 try
                 {
-                    await kv.Key;
+                    await kv.Value;
                 }
                 catch (OperationCanceledException x) when (!_appCancellation.IsCancellationRequested)
                 {

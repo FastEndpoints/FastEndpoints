@@ -1,9 +1,9 @@
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
+using FastEndpoints.JobsQueues;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using FastEndpoints.JobsQueues;
 
 namespace FastEndpoints;
 
@@ -234,9 +234,9 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
         }
         catch (ObjectDisposedException) { }
 
-        // if marked null, schedule next dictionary cleanup in 5 minutes
-        if (_cancellations.TryUpdate(trackingId, null, cts))
-            _nextCleanupOn ??= DateTimeOffset.UtcNow.AddMinutes(5);
+        if (_cancellations.TryUpdate(trackingId, null, cts))        // set null as the mark for dictionary cleanup
+            _nextCleanupOn ??= DateTimeOffset.UtcNow.AddMinutes(5); // if marked null, schedule next dictionary cleanup in 5 minutes
+
         await _storage.CancelJobAsync(trackingId, ct);
     }
 
@@ -252,6 +252,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
             if (_nextCleanupOn.HasValue && DateTime.UtcNow >= _nextCleanupOn.Value)
             {
                 _nextCleanupOn = null;
+
                 foreach (var kv in _cancellations)
                 {
                     if (kv.Value is null)

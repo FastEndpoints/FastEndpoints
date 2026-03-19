@@ -180,8 +180,7 @@ sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProv
         maxConcurrency = Math.Max(1, maxConcurrency); //always guarantee at least 1 worker slot in case of bad config.
 
         var retrievalErrorCount = 0;
-        var executions = new Dictionary<Task, Guid>();
-        var inFlightTrackingIds = new HashSet<Guid>();
+        var executions = new Dictionary<Guid, Task>();
 
         try
         {
@@ -244,10 +243,10 @@ sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProv
                             if (record.TrackingID == Guid.Empty)
                                 logger.EmptyTrackingIdWarning(subscriberID, _eventTypeName);
 
-                            if (!inFlightTrackingIds.Add(record.TrackingID))
+                            if (executions.ContainsKey(record.TrackingID))
                                 continue;
 
-                            executions[ExecuteEvent(record)] = record.TrackingID;
+                            executions[record.TrackingID] = ExecuteEvent(record);
                             availableSlots--;
                         }
 
@@ -260,7 +259,7 @@ sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProv
                     continue;
                 }
 
-                await Task.WhenAny(executions.Keys);
+                await Task.WhenAny(executions.Values);
             }
         }
         catch (OperationCanceledException) when (opts.CancellationToken.IsCancellationRequested)
@@ -295,7 +294,7 @@ sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProv
 
             while (executions.Count > 0)
             {
-                await Task.WhenAny(executions.Keys);
+                await Task.WhenAny(executions.Values);
                 await ObserveCompletedExecutions();
             }
         }
@@ -305,14 +304,13 @@ sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProv
             if (executions.Count == 0)
                 return;
 
-            foreach (var kv in executions.Where(static kv => kv.Key.IsCompleted).ToArray())
+            foreach (var kv in executions.Where(static kv => kv.Value.IsCompleted).ToArray())
             {
                 executions.Remove(kv.Key);
-                inFlightTrackingIds.Remove(kv.Value);
 
                 try
                 {
-                    await kv.Key;
+                    await kv.Value;
                 }
                 catch (OperationCanceledException) when (opts.CancellationToken.IsCancellationRequested)
                 {

@@ -1,12 +1,19 @@
-﻿namespace TestCases.EventQueueTest;
+using System.Collections.Concurrent;
+
+namespace TestCases.EventQueueTest;
 
 public class TestEventQueueHandler : IEventHandler<TestEventQueue>
 {
-    public static List<TestEventQueue> Received { get; } = new();
+    public static ConcurrentQueue<TestEventQueue> Received { get; } = new();
+
+    public static void Reset()
+    {
+        while (Received.TryDequeue(out _)) { }
+    }
 
     public Task HandleAsync(TestEventQueue eventModel, CancellationToken ct)
     {
-        Received.Add(eventModel);
+        Received.Enqueue(eventModel);
 
         return Task.CompletedTask;
     }

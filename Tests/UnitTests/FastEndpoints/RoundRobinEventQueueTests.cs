@@ -1,4 +1,6 @@
-﻿using FakeItEasy;
+﻿using System.Collections.Concurrent;
+using System.Reflection;
+using FakeItEasy;
 using FastEndpoints;
 using Grpc.Core;
 using Microsoft.Extensions.DependencyInjection;
@@ -199,6 +201,153 @@ public class RoundRobinEventQueueTests
         act.ShouldThrow<InvalidOperationException>();
     }
 
+    [Fact]
+    public async Task concurrent_round_robin_selection_advances_atomically()
+    {
+        var services = new ServiceCollection();
+        services.AddSingleton<ILoggerFactory, LoggerFactory>();
+        services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
+        services.AddSingleton(A.Fake<IHostApplicationLifetime>());
+        var provider = services.BuildServiceProvider();
+        EventHub<RRConcurrentSelectionEvent, InMemoryEventStorageRecord, InMemoryEventHubStorage>.Mode = HubMode.RoundRobin;
+        var hub = new EventHub<RRConcurrentSelectionEvent, InMemoryEventStorageRecord, InMemoryEventHubStorage>(provider);
+        var subscriberIds = new[] { "sub-a", "sub-b" };
+        var results = new ConcurrentBag<string>();
+        using var start = new ManualResetEventSlim();
+        var workerCount = Math.Max(Environment.ProcessorCount, 2);
+        const int iterationsPerWorker = 1000;
+
+        var tasks = Enumerable.Range(0, workerCount)
+                              .Select(
+                                   _ => Task.Run(
+                                       () =>
+                                       {
+                                           start.Wait();
+
+                                           for (var i = 0; i < iterationsPerWorker; i++)
+                                           {
+                                               results.Add(hub.GetNextRoundRobinSubscriberId(subscriberIds));
+                                               Thread.Yield();
+                                           }
+                                       }))
+                              .ToArray();
+
+        start.Set();
+        await Task.WhenAll(tasks);
+
+        var expectedCountPerSubscriber = workerCount * iterationsPerWorker / subscriberIds.Length;
+
+        results.Count(id => id == "sub-a").ShouldBe(expectedCountPerSubscriber);
+        results.Count(id => id == "sub-b").ShouldBe(expectedCountPerSubscriber);
+    }
+
+    [Fact]
+    public async Task concurrent_publishes_remain_evenly_distributed_in_round_robin_mode()
+    {
+        var state = new RoundRobinRecordingStorageState();
+        var services = new ServiceCollection();
+        services.AddSingleton<ILoggerFactory, LoggerFactory>();
+        services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
+        services.AddSingleton(A.Fake<IHostApplicationLifetime>());
+        services.AddSingleton(state);
+        var provider = services.BuildServiceProvider();
+        EventHub<RRConcurrentPublishEvent, RoundRobinRecordingRecord, RoundRobinRecordingStorage>.Mode = HubMode.RoundRobin;
+        var hub = new EventHub<RRConcurrentPublishEvent, RoundRobinRecordingRecord, RoundRobinRecordingStorage>(provider);
+
+        using var ctsA = new CancellationTokenSource();
+        using var ctsB = new CancellationTokenSource();
+        var subscriberTaskA = hub.OnSubscriberConnected(hub, "sub-a", new TestServerStreamWriter<RRConcurrentPublishEvent>(), CreateServerCallContext(ctsA.Token));
+        var subscriberTaskB = hub.OnSubscriberConnected(hub, "sub-b", new TestServerStreamWriter<RRConcurrentPublishEvent>(), CreateServerCallContext(ctsB.Token));
+
+        await WaitUntil(
+            () => SubscriberExists<RRConcurrentPublishEvent, RoundRobinRecordingRecord, RoundRobinRecordingStorage>("sub-a") &&
+                  SubscriberExists<RRConcurrentPublishEvent, RoundRobinRecordingRecord, RoundRobinRecordingStorage>("sub-b"));
+
+        const int eventCount = 200;
+        var start = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        var publishTasks = Enumerable.Range(1, eventCount)
+                                     .Select(
+                                          i => Task.Run(
+                                              async () =>
+                                              {
+                                                  await start.Task;
+                                                  await hub.BroadcastEventTaskForTesting(new() { EventID = i });
+                                              }))
+                                     .ToArray();
+
+        start.TrySetResult();
+        await Task.WhenAll(publishTasks);
+
+        var stored = state.GetStoredRecords();
+
+        stored.Count.ShouldBe(eventCount);
+        stored.Select(r => ((RRConcurrentPublishEvent)r.Event).EventID).Distinct().Count().ShouldBe(eventCount);
+        stored.Count(r => r.SubscriberID == "sub-a").ShouldBe(eventCount / 2);
+        stored.Count(r => r.SubscriberID == "sub-b").ShouldBe(eventCount / 2);
+
+        ctsA.Cancel();
+        ctsB.Cancel();
+
+        await WaitForCompletion(subscriberTaskA, timeoutMs: 5000);
+        await WaitForCompletion(subscriberTaskB, timeoutMs: 5000);
+    }
+
+    static ServerCallContext CreateServerCallContext(CancellationToken ct)
+    {
+        var ctx = A.Fake<ServerCallContext>();
+        A.CallTo(ctx).WithReturnType<CancellationToken>().Returns(ct);
+
+        return ctx;
+    }
+
+    static bool SubscriberExists<TEvent>(string subscriberId) where TEvent : class, IEvent
+        => TryGetInMemorySubscriber(typeof(TEvent), subscriberId, out _);
+
+    static bool SubscriberExists<TEvent, TStorageRecord, TStorageProvider>(string subscriberId)
+        where TEvent : class, IEvent
+        where TStorageRecord : class, IEventStorageRecord, new()
+        where TStorageProvider : IEventHubStorageProvider<TStorageRecord>
+        => TryGetSubscriberByHubType(typeof(EventHub<TEvent, TStorageRecord, TStorageProvider>), subscriberId, out _);
+
+    static bool TryGetInMemorySubscriber(Type eventType, string subscriberId, out object? subscriber)
+    {
+        var hubType = typeof(EventHub<,,>).MakeGenericType(eventType, typeof(InMemoryEventStorageRecord), typeof(InMemoryEventHubStorage));
+        return TryGetSubscriberByHubType(hubType, subscriberId, out subscriber);
+    }
+
+    static bool TryGetSubscriberByHubType(Type hubType, string subscriberId, out object? subscriber)
+    {
+        var field = hubType.GetField("_subscribers", BindingFlags.NonPublic | BindingFlags.Static)!;
+        var dict = field.GetValue(null)!;
+        var args = new object?[] { subscriberId, null };
+        var found = (bool)dict.GetType().GetMethod("TryGetValue")!.Invoke(dict, args)!;
+        subscriber = args[1];
+
+        return found;
+    }
+
+    static async Task WaitUntil(Func<bool> condition, int timeoutMs = 3000)
+    {
+        var timeoutAt = DateTime.UtcNow.AddMilliseconds(timeoutMs);
+
+        while (DateTime.UtcNow < timeoutAt)
+        {
+            if (condition())
+                return;
+
+            await Task.Delay(50);
+        }
+
+        condition().ShouldBeTrue();
+    }
+
+    static async Task WaitForCompletion(Task task, int timeoutMs = 3000)
+    {
+        await Task.WhenAny(task, Task.Delay(timeoutMs));
+        task.IsCompleted.ShouldBeTrue();
+        await task;
+    }
+
     class RRTestEventOnlyOne : IEvent
     {
         public int EventID { get; set; }
@@ -219,9 +368,80 @@ public class RoundRobinEventQueueTests
         public int EventID { get; set; }
     }
 
+    class RRConcurrentSelectionEvent : IEvent
+    {
+        public int EventID { get; set; }
+    }
+
+    class RRConcurrentPublishEvent : IEvent
+    {
+        public int EventID { get; set; }
+    }
+
     class RRTestEventThreeSubs : IEvent
     {
         public int EventID { get; set; }
+    }
+
+    sealed class RoundRobinRecordingRecord : IEventStorageRecord
+    {
+        public string SubscriberID { get; set; } = default!;
+        public Guid TrackingID { get; set; }
+        public object Event { get; set; } = default!;
+        public string EventType { get; set; } = default!;
+        public DateTime ExpireOn { get; set; }
+        public bool IsComplete { get; set; }
+    }
+
+    sealed class RoundRobinRecordingStorageState
+    {
+        readonly Lock _lock = new();
+        readonly List<RoundRobinRecordingRecord> _records = [];
+
+        public void Store(IEnumerable<RoundRobinRecordingRecord> records)
+        {
+            lock (_lock)
+                _records.AddRange(records.Select(Clone));
+        }
+
+        public IReadOnlyList<RoundRobinRecordingRecord> GetStoredRecords()
+        {
+            lock (_lock)
+                return _records.ToArray();
+        }
+
+        static RoundRobinRecordingRecord Clone(RoundRobinRecordingRecord record)
+            => new()
+            {
+                SubscriberID = record.SubscriberID,
+                TrackingID = record.TrackingID,
+                Event = record.Event,
+                EventType = record.EventType,
+                ExpireOn = record.ExpireOn,
+                IsComplete = record.IsComplete
+            };
+    }
+
+    sealed class RoundRobinRecordingStorage(RoundRobinRecordingStorageState state) : IEventHubStorageProvider<RoundRobinRecordingRecord>
+    {
+        public ValueTask<IEnumerable<string>> RestoreSubscriberIDsForEventTypeAsync(SubscriberIDRestorationParams<RoundRobinRecordingRecord> parameters)
+            => new(Array.Empty<string>());
+
+        public ValueTask StoreEventsAsync(IEnumerable<RoundRobinRecordingRecord> records, CancellationToken ct)
+        {
+            state.Store(records);
+
+            return default;
+        }
+
+        public ValueTask<IEnumerable<RoundRobinRecordingRecord>> GetNextBatchAsync(PendingRecordSearchParams<RoundRobinRecordingRecord> parameters)
+            => new(Array.Empty<RoundRobinRecordingRecord>());
+
+        public ValueTask MarkEventAsCompleteAsync(RoundRobinRecordingRecord record, CancellationToken ct)
+            => default;
+
+        public ValueTask PurgeStaleRecordsAsync(StaleRecordSearchParams<RoundRobinRecordingRecord> parameters)
+            => default;
     }
 
     class TestServerStreamWriter<T> : IServerStreamWriter<T>

@@ -458,19 +458,26 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
             var connectedSubIds = _subscribers
                                   .Where(kv => kv.Value.ConnectionCount > 0)
                                   .Select(kv => kv.Key)
-                                  .ToArray(); //take a snapshot of currently connected subscriber ids
+                                  .OrderBy(id => id, StringComparer.Ordinal)
+                                  .ToArray(); //take a stable snapshot of currently connected subscriber ids
 
             if (connectedSubIds.Length <= 1)
                 return connectedSubIds;
 
-            lock (_lock)
-            {
-                var lastIndex = Array.IndexOf(connectedSubIds, _lastReceivedBy);
-                var nextIndex = (lastIndex + 1) % connectedSubIds.Length;
-                _lastReceivedBy = connectedSubIds[nextIndex];
-            }
+            return [GetNextRoundRobinSubscriberId(connectedSubIds)];
+        }
+    }
 
-            return [_lastReceivedBy];
+    internal string GetNextRoundRobinSubscriberId(string[] connectedSubIds)
+    {
+        lock (_lock)
+        {
+            var lastIndex = Array.IndexOf(connectedSubIds, _lastReceivedBy);
+            var nextIndex = (lastIndex + 1) % connectedSubIds.Length;
+            var nextSubscriberId = connectedSubIds[nextIndex];
+            _lastReceivedBy = nextSubscriberId;
+
+            return nextSubscriberId;
         }
     }
 

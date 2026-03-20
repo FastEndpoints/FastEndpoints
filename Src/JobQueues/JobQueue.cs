@@ -122,7 +122,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
     int _maxConcurrency = Environment.ProcessorCount;
     TimeSpan _executionTimeLimit;
     TimeSpan _semWaitLimit;
-    DateTimeOffset? _nextCleanupOn;
+    DateTime? _nextCleanupOn;
 
     public JobQueue(TStorageProvider storageProvider, IHostApplicationLifetime appLife, ILogger<JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider>> logger)
     {
@@ -234,8 +234,8 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
         }
         catch (ObjectDisposedException) { }
 
-        if (_cancellations.TryUpdate(trackingId, null, cts))        // set null as the mark for dictionary cleanup
-            _nextCleanupOn ??= DateTimeOffset.UtcNow.AddMinutes(5); // if marked null, schedule next dictionary cleanup in 5 minutes
+        if (_cancellations.TryUpdate(trackingId, null, cts))    // set null as the mark for dictionary cleanup
+            _nextCleanupOn ??= DateTime.UtcNow.AddMinutes(5);   // if marked null, schedule next dictionary cleanup in 5 minutes
 
         await _storage.CancelJobAsync(trackingId, ct);
     }

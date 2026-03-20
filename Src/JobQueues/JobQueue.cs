@@ -226,16 +226,22 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
         if (cts is null)
             return; // job is already marked canceled in storage
 
-        // job execution has started and cts is available
-        try
-        {
-            if (!cts.IsCancellationRequested)
-                cts.Cancel(false);
-        }
-        catch (ObjectDisposedException) { }
+        // mark manual cancellation before signaling the token so ExecuteCommand can
+        // distinguish a user initiated cancellation from timeouts/app shutdown.
+        var markedForManualCancellation = _cancellations.TryUpdate(trackingId, null, cts);
 
-        if (_cancellations.TryUpdate(trackingId, null, cts))  // set null as the mark for dictionary cleanup
+        if (markedForManualCancellation)
             _nextCleanupOn ??= DateTime.UtcNow.AddMinutes(5); // if marked null, schedule next dictionary cleanup in 5 minutes
+
+        if (markedForManualCancellation)
+        {
+            try
+            {
+                if (!cts.IsCancellationRequested)
+                    cts.Cancel(false);
+            }
+            catch (ObjectDisposedException) { }
+        }
 
         await _storage.CancelJobAsync(trackingId, ct);
     }
@@ -481,7 +487,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
             }
 
             // checks if the job was manually canceled via CancelJobAsync().
-            // CancelJobAsync sets the _cancellations entry to null after cancelling.
+            // CancelJobAsync sets the _cancellations entry to null before cancelling.
             // this is used to distinguish manual cancellation from execution time limit expiry or app shutdown.
             bool IsManuallyCancelled()
                 => !_appCancellation.IsCancellationRequested && _cancellations.TryGetValue(record.TrackingID, out var c) && c is null;

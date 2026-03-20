@@ -1,4 +1,6 @@
 using FastEndpoints;
+using System.Collections.Concurrent;
+using System.Reflection;
 using Xunit;
 
 namespace JobQueue;
@@ -130,6 +132,46 @@ public partial class JobQueueTests
             storage.WaitForCompletionAsync(fast.TrackingID, TimeSpan.FromSeconds(5)),
             storage.WaitForCompletionAsync(third.TrackingID, TimeSpan.FromSeconds(5)),
             storage.WaitForCompletionAsync(fourth.TrackingID, TimeSpan.FromSeconds(5)));
+
+        appStopping.Cancel();
+    }
+
+    [Fact]
+    public async Task manual_cancellation_marks_state_before_signaling_storage_and_token_callbacks()
+    {
+        var storage = new ManualCancelTestStorage();
+        using var appStopping = new CancellationTokenSource();
+        var queue = CreateManualCancelQueue(storage, appStopping);
+        var trackingId = Guid.NewGuid();
+        var now = DateTime.UtcNow;
+
+        await storage.StoreJobAsync(
+            new()
+            {
+                QueueID = JobQueue<ManualCancelTestCommand, FastEndpoints.Void, ManualCancelTestRecord, ManualCancelTestStorage>.QueueID,
+                TrackingID = trackingId,
+                Command = new ManualCancelTestCommand { TrackingID = trackingId },
+                ExecuteAfter = now.AddHours(1),
+                ExpireOn = now.AddHours(2)
+            },
+            CancellationToken.None);
+
+        var field = queue.GetType().GetField("_cancellations", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var cancellations = (ConcurrentDictionary<Guid, CancellationTokenSource?>)field.GetValue(queue)!;
+        using var cts = new CancellationTokenSource();
+        cancellations[trackingId] = cts;
+
+        var callbackObserved = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        using var reg = cts.Token.Register(() => callbackObserved.TrySetResult(cancellations.TryGetValue(trackingId, out var value) && value is null));
+
+        var method = queue.GetType().GetMethod("CancelJobAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        await ((Task)method.Invoke(queue, [trackingId, CancellationToken.None])!).WaitAsync(TimeSpan.FromSeconds(5));
+
+        (await callbackObserved.Task.WaitAsync(TimeSpan.FromSeconds(5))).ShouldBeTrue();
+        (cancellations.TryGetValue(trackingId, out var state) && state is null).ShouldBeTrue();
+        (await storage.WaitForCompletionAsync(trackingId, TimeSpan.FromSeconds(5))).ShouldBeTrue();
+        storage.CancelCount.ShouldBe(1);
+        storage.FailureCount.ShouldBe(0);
 
         appStopping.Cancel();
     }

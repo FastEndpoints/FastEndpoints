@@ -31,6 +31,17 @@ public partial class JobQueueTests
             NullLogger<JobQueue<DistributedRefillCommand, FastEndpoints.Void, DistributedRefillRecord, DistributedRefillStorage>>.Instance);
     }
 
+    static JobQueue<ManualCancelTestCommand, FastEndpoints.Void, ManualCancelTestRecord, ManualCancelTestStorage> CreateManualCancelQueue(ManualCancelTestStorage storage,
+                                                                                                                                    CancellationTokenSource appStopping)
+    {
+        Factory.RegisterTestServices(_ => { });
+
+        return new(
+            storage,
+            new TestHostLifetime(appStopping.Token),
+            NullLogger<JobQueue<ManualCancelTestCommand, FastEndpoints.Void, ManualCancelTestRecord, ManualCancelTestStorage>>.Instance);
+    }
+
     static async Task QueueJobsAsync(params ICommand[] commands)
     {
         foreach (var command in commands)

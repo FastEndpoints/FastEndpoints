@@ -504,6 +504,95 @@ public partial class JobQueueTests
                 timeout);
     }
 
+    sealed class ResultIgnoringTestCommand : ICommand<string>, IHasTrackingID
+    {
+        public Guid TrackingID { get; set; }
+        public string Payload { get; set; } = "";
+    }
+
+    sealed class ResultIgnoringTestRecord : IJobStorageRecord
+    {
+        public string QueueID { get; set; } = "";
+        public Guid TrackingID { get; set; }
+        public object Command { get; set; } = null!;
+        public DateTime ExecuteAfter { get; set; }
+        public DateTime ExpireOn { get; set; }
+        public bool IsComplete { get; set; }
+    }
+
+    sealed class ResultIgnoringTestStorage : IJobStorageProvider<ResultIgnoringTestRecord>
+    {
+        readonly Lock _lock = new();
+        readonly Dictionary<Guid, ResultIgnoringTestRecord> _jobs = [];
+
+        public bool DistributedJobProcessingEnabled => false;
+
+        public Task StoreJobAsync(ResultIgnoringTestRecord record, CancellationToken ct)
+        {
+            lock (_lock)
+                _jobs[record.TrackingID] = record;
+
+            return Task.CompletedTask;
+        }
+
+        public Task<ICollection<ResultIgnoringTestRecord>> GetNextBatchAsync(PendingJobSearchParams<ResultIgnoringTestRecord> parameters)
+        {
+            var match = parameters.Match.Compile();
+
+            lock (_lock)
+            {
+                return Task.FromResult<ICollection<ResultIgnoringTestRecord>>(
+                    _jobs.Values
+                         .Where(match)
+                         .Take(parameters.Limit)
+                         .ToArray());
+            }
+        }
+
+        public Task MarkJobAsCompleteAsync(ResultIgnoringTestRecord record, CancellationToken ct)
+        {
+            lock (_lock)
+                _jobs[record.TrackingID].IsComplete = true;
+
+            return Task.CompletedTask;
+        }
+
+        public Task CancelJobAsync(Guid trackingId, CancellationToken ct)
+        {
+            lock (_lock)
+                _jobs[trackingId].IsComplete = true;
+
+            return Task.CompletedTask;
+        }
+
+        public Task OnHandlerExecutionFailureAsync(ResultIgnoringTestRecord record, Exception exception, CancellationToken ct)
+            => Task.CompletedTask;
+
+        public Task PurgeStaleJobsAsync(StaleJobSearchParams<ResultIgnoringTestRecord> parameters)
+            => Task.CompletedTask;
+
+        public Task<bool> WaitForCompletionAsync(Guid trackingId, TimeSpan timeout)
+            => WaitUntilAsync(
+                () =>
+                {
+                    lock (_lock)
+                        return _jobs.TryGetValue(trackingId, out var job) && job.IsComplete;
+                },
+                timeout);
+
+        public ResultIgnoringTestRecord? GetJob(Guid trackingId)
+        {
+            lock (_lock)
+                return _jobs.GetValueOrDefault(trackingId);
+        }
+    }
+
+    sealed class ResultIgnoringTestCommandHandler : ICommandHandler<ResultIgnoringTestCommand, string>
+    {
+        public Task<string> ExecuteAsync(ResultIgnoringTestCommand command, CancellationToken ct)
+            => Task.FromResult($"handled:{command.Payload}");
+    }
+
     static DistributedJob CreateDistributedJob(DateTime now,
                                                string queueId = "test-queue",
                                                string command = "cmd",

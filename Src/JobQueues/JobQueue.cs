@@ -396,7 +396,9 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
 
                         break;
                     case ICommand<TResult> cr:
-                        ((IJobResultStorage)record).SetResult(await cr.ExecuteAsync(cts.Token));
+                        var result = await cr.ExecuteAsync(cts.Token);
+                        if (record is IJobResultStorage rec)
+                            rec.SetResult(result);
 
                         break;
                 }

@@ -32,7 +32,7 @@ public partial class JobQueueTests
     }
 
     static JobQueue<ManualCancelTestCommand, FastEndpoints.Void, ManualCancelTestRecord, ManualCancelTestStorage> CreateManualCancelQueue(ManualCancelTestStorage storage,
-                                                                                                                                    CancellationTokenSource appStopping)
+                                                                                                                                     CancellationTokenSource appStopping)
     {
         Factory.RegisterTestServices(_ => { });
 
@@ -40,6 +40,18 @@ public partial class JobQueueTests
             storage,
             new TestHostLifetime(appStopping.Token),
             NullLogger<JobQueue<ManualCancelTestCommand, FastEndpoints.Void, ManualCancelTestRecord, ManualCancelTestStorage>>.Instance);
+    }
+
+    static JobQueue<ResultIgnoringTestCommand, string, ResultIgnoringTestRecord, ResultIgnoringTestStorage> CreateResultIgnoringQueue(ResultIgnoringTestStorage storage,
+                                                                                                                                 CancellationTokenSource appStopping)
+    {
+        Factory.RegisterTestServices(_ => { });
+        new ResultIgnoringTestCommandHandler().RegisterForTesting();
+
+        return new(
+            storage,
+            new TestHostLifetime(appStopping.Token),
+            NullLogger<JobQueue<ResultIgnoringTestCommand, string, ResultIgnoringTestRecord, ResultIgnoringTestStorage>>.Instance);
     }
 
     static async Task QueueJobsAsync(params ICommand[] commands)

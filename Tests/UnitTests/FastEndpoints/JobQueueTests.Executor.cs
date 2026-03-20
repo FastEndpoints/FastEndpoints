@@ -175,4 +175,22 @@ public partial class JobQueueTests
 
         appStopping.Cancel();
     }
+
+    [Fact]
+    public async Task result_returning_commands_complete_without_result_storage()
+    {
+        var storage = new ResultIgnoringTestStorage();
+        using var appStopping = new CancellationTokenSource();
+        var queue = CreateResultIgnoringQueue(storage, appStopping);
+        queue.SetLimits(1, Timeout.InfiniteTimeSpan, TimeSpan.FromMilliseconds(20));
+
+        var command = new ResultIgnoringTestCommand { Payload = "ok" };
+        await command.QueueJobAsync(ct: CancellationToken.None);
+
+        (await storage.WaitForCompletionAsync(command.TrackingID, TimeSpan.FromSeconds(5))).ShouldBeTrue();
+        storage.GetJob(command.TrackingID).ShouldBeOfType<ResultIgnoringTestRecord>();
+
+        appStopping.Cancel();
+        await queue.ExecutorTask.WaitAsync(TimeSpan.FromSeconds(5));
+    }
 }

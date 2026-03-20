@@ -188,22 +188,33 @@ public class EventQueueTests
         var provider = CreateServiceProvider(s => s.AddSingleton(state));
         var hub = new EventHub<WaitRecoveryEvent, TestEventRecord, InstrumentedEventHubStorage>(provider);
         EventHub<WaitRecoveryEvent, TestEventRecord, InstrumentedEventHubStorage>.Mode = HubMode.EventPublisher;
+        EventHub<WaitRecoveryEvent, TestEventRecord, InstrumentedEventHubStorage>.WaitForSignalTimeout = TimeSpan.FromMilliseconds(200);
         var writer = new TestServerStreamWriter<WaitRecoveryEvent>();
         using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(25));
-        var task = hub.OnSubscriberConnected(hub, "wait-recovery-sub", writer, CreateServerCallContext(cts.Token));
+        Task? task = null;
+        try
+        {
+            task = hub.OnSubscriberConnected(hub, "wait-recovery-sub", writer, CreateServerCallContext(cts.Token));
 
-        await state.SecondFetchObserved.Task.WaitAsync(TimeSpan.FromSeconds(12));
-        await Task.Delay(100);
+            await state.SecondFetchObserved.Task.WaitAsync(TimeSpan.FromSeconds(2));
+            await Task.Delay(50);
 
-        var sw = Stopwatch.StartNew();
-        await hub.BroadcastEventTaskForTesting(new() { EventID = 42 });
-        await WaitUntil(() => writer.Responses.Count == 1, timeoutMs: 2000);
+            var sw = Stopwatch.StartNew();
+            await hub.BroadcastEventTaskForTesting(new() { EventID = 42 });
+            await WaitUntil(() => writer.Responses.Count == 1, timeoutMs: 2000);
 
-        sw.Elapsed.ShouldBeLessThan(TimeSpan.FromSeconds(2));
-        writer.Responses.Single().EventID.ShouldBe(42);
+            sw.Elapsed.ShouldBeLessThan(TimeSpan.FromMilliseconds(500));
+            writer.Responses.Single().EventID.ShouldBe(42);
+        }
+        finally
+        {
+            cts.Cancel();
 
-        cts.Cancel();
-        await WaitForCompletion(task, timeoutMs: 5000);
+            if (task is not null)
+                await WaitForCompletion(task, timeoutMs: 5000);
+
+            EventHub<WaitRecoveryEvent, TestEventRecord, InstrumentedEventHubStorage>.WaitForSignalTimeout = TimeSpan.FromSeconds(10);
+        }
     }
 
     [Fact]
@@ -610,37 +621,51 @@ public class EventQueueTests
         ObjectFactory factory = static (_, _) => throw new InvalidOperationException("Handler factory should not be used in this test.");
         using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(20));
         var subscriberId = "receiver-sub";
+        EventSubscriber<TrackedTestEvent, TestEventExecutorHandler, TestEventRecord, TestEventSubscriberStorage>.HandlerExecutionRetryDelay = TimeSpan.FromMilliseconds(100);
+        Task? executor = null;
 
-        await storage.StoreEventAsync(
-            new()
-            {
-                TrackingID = Guid.NewGuid(),
-                SubscriberID = subscriberId,
-                EventType = typeof(TrackedTestEvent).FullName!,
-                Event = new TrackedTestEvent { Name = "retry" },
-                ExpireOn = DateTime.UtcNow.AddMinutes(1)
-            },
-            cts.Token);
+        try
+        {
+            await storage.StoreEventAsync(
+                new()
+                {
+                    TrackingID = Guid.NewGuid(),
+                    SubscriberID = subscriberId,
+                    EventType = typeof(TrackedTestEvent).FullName!,
+                    Event = new TrackedTestEvent { Name = "retry" },
+                    ExpireOn = DateTime.UtcNow.AddMinutes(1)
+                },
+                cts.Token);
 
-        var executor = EventSubscriber<TrackedTestEvent, TestEventExecutorHandler, TestEventRecord, TestEventSubscriberStorage>
-            .EventExecutorTask(
-                storage,
-                new(0),
-                new(cancellationToken: cts.Token),
-                maxConcurrency: 1,
-                subscriberID: subscriberId,
-                logger,
-                factory,
-                provider,
-                receiver);
+            executor = EventSubscriber<TrackedTestEvent, TestEventExecutorHandler, TestEventRecord, TestEventSubscriberStorage>
+                .EventExecutorTask(
+                    storage,
+                    new(0),
+                    new(cancellationToken: cts.Token),
+                    maxConcurrency: 1,
+                    subscriberID: subscriberId,
+                    logger,
+                    factory,
+                    provider,
+                    receiver);
 
-        await TestEventExecutorHandler.RetryObserved.Task.WaitAsync(TimeSpan.FromSeconds(5));
-        TestEventExecutorHandler.ReleaseRetry();
-        await WaitUntil(() => storage.AllCompleted("retry"), timeoutMs: 8000);
+            await TestEventExecutorHandler.RetryObserved.Task.WaitAsync(TimeSpan.FromSeconds(2));
+            TestEventExecutorHandler.ReleaseRetry();
+            await WaitUntil(() => storage.AllCompleted("retry"), timeoutMs: 2000);
 
-        cts.Cancel();
-        await WaitForCompletion(executor, timeoutMs: 5000);
-        storage.GetExecutionCount("retry").ShouldBe(2);
+            cts.Cancel();
+            await WaitForCompletion(executor, timeoutMs: 5000);
+            storage.GetExecutionCount("retry").ShouldBe(2);
+        }
+        finally
+        {
+            cts.Cancel();
+
+            if (executor is not null)
+                await WaitForCompletion(executor, timeoutMs: 5000);
+
+            EventSubscriber<TrackedTestEvent, TestEventExecutorHandler, TestEventRecord, TestEventSubscriberStorage>.HandlerExecutionRetryDelay = TimeSpan.FromSeconds(5);
+        }
     }
 
     [Fact]

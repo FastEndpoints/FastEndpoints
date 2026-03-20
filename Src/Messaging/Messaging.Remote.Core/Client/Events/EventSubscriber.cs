@@ -17,6 +17,7 @@ sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProv
     where TStorageRecord : class, IEventStorageRecord, new()
     where TStorageProvider : IEventSubscriberStorageProvider<TStorageRecord>
 {
+    internal static TimeSpan HandlerExecutionRetryDelay = TimeSpan.FromSeconds(5);
     static readonly string _eventTypeName = typeof(TEvent).FullName!;
     static TStorageProvider? _storage;
     static bool _isInMemProvider;
@@ -74,7 +75,7 @@ sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProv
         {
             while (!opts.CancellationToken.IsCancellationRequested)
             {
-                var reconnect = false;
+                bool reconnect;
 
                 try
                 {
@@ -134,8 +135,8 @@ sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProv
                         () => errors?.OnEventReceiveError<TEvent>(subscriberID, receiveErrorCount, ex, opts.CancellationToken),
                         logger,
                         subscriberID,
-                                    _eventTypeName,
-                                    "stream-receive");
+                        _eventTypeName,
+                        "stream-receive");
                     logger.StreamReceiveTrace(subscriberID, _eventTypeName, ex.Message);
                     reconnect = true;
                 }
@@ -391,7 +392,7 @@ sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProv
                         }
 
                         //prevent instant re-execution
-                        await Task.Delay(5000, opts.CancellationToken);
+                        await Task.Delay(HandlerExecutionRetryDelay, opts.CancellationToken);
                     }
                 }
 

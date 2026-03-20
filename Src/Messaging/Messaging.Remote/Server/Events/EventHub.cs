@@ -55,6 +55,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
     where TStorageProvider : IEventHubStorageProvider<TStorageRecord>
 {
     internal static HubMode Mode = HubMode.EventPublisher;
+    internal static TimeSpan WaitForSignalTimeout = TimeSpan.FromSeconds(10);
 
     //key: subscriber id
     //val: subscriber object
@@ -208,7 +209,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
         _logger.SubscriberConnected(subscriberID, _tEvent.FullName!);
 
         var cts = CancellationTokenSource.CreateLinkedTokenSource(ctx.CancellationToken, _appCancellation);
-        SemaphoreSlim? subscriberSem = null;
+        SemaphoreSlim? subscriberSem;
         var connectionRegistered = false;
 
         try
@@ -312,9 +313,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                     }
                 }
                 else
-                {
-                    await WaitForSignalAsync();
-                }
+                    await WaitForSignalAsync(cts);
             }
         }
         finally
@@ -325,20 +324,20 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
             cts.Dispose();
         }
 
-        async Task WaitForSignalAsync()
+        async Task WaitForSignalAsync(CancellationTokenSource c)
         {
             try
             {
-                if (await subscriberSem!.WaitAsync(TimeSpan.FromSeconds(10), cts.Token)) //wait for poll interval, semaphore release, or shutdown.
-                    while (subscriberSem.Wait(0)) { }                                      //drain residual releases so the next poll only runs after new work arrives.
+                if (await subscriberSem!.WaitAsync(WaitForSignalTimeout, c.Token)) //wait for poll interval, semaphore release, or shutdown.
+                    while (subscriberSem.Wait(0)) { }                              //drain residual releases so the next poll only runs after new work arrives.
             }
-            catch (OperationCanceledException) when (cts.Token.IsCancellationRequested)
+            catch (OperationCanceledException) when (c.Token.IsCancellationRequested)
             {
                 //don't throw. let the main loop exit naturally so the disconnect state is updated.
             }
             catch (ObjectDisposedException)
             {
-                cts.Cancel();
+                c.Cancel();
             }
         }
     }
@@ -549,9 +548,10 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
 
     record Subscriber
     {
+        // ReSharper disable once UnusedMember.Local
+        public bool IsConnected => ConnectionCount > 0;
         public SemaphoreSlim Sem { get; } = new(0); //semaphorslim for waiting on record availability
         public int ConnectionCount { get; init; }
-        public bool IsConnected => ConnectionCount > 0;
         public DateTime LastSeenUtc { get; init; } = DateTime.UtcNow;
         public bool IsKnownSubscriber { get; init; }
     }

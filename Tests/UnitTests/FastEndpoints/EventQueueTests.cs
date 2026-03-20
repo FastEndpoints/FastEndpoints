@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+using System.Diagnostics;
+using System.Reflection;
 using FakeItEasy;
 using FastEndpoints;
 using Grpc.Core;
@@ -178,6 +179,58 @@ public class EventQueueTests
             await Task.Delay(100);
 
         writer.Responses[0].EventID.ShouldBe(321);
+    }
+
+    [Fact]
+    public async Task event_hub_wakes_immediately_after_poll_timeout_when_new_event_arrives()
+    {
+        var state = new InstrumentedEventHubStorageState();
+        var provider = CreateServiceProvider(s => s.AddSingleton(state));
+        var hub = new EventHub<WaitRecoveryEvent, TestEventRecord, InstrumentedEventHubStorage>(provider);
+        EventHub<WaitRecoveryEvent, TestEventRecord, InstrumentedEventHubStorage>.Mode = HubMode.EventPublisher;
+        var writer = new TestServerStreamWriter<WaitRecoveryEvent>();
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(25));
+        var task = hub.OnSubscriberConnected(hub, "wait-recovery-sub", writer, CreateServerCallContext(cts.Token));
+
+        await state.SecondFetchObserved.Task.WaitAsync(TimeSpan.FromSeconds(12));
+        await Task.Delay(100);
+
+        var sw = Stopwatch.StartNew();
+        await hub.BroadcastEventTaskForTesting(new() { EventID = 42 });
+        await WaitUntil(() => writer.Responses.Count == 1, timeoutMs: 2000);
+
+        sw.Elapsed.ShouldBeLessThan(TimeSpan.FromSeconds(2));
+        writer.Responses.Single().EventID.ShouldBe(42);
+
+        cts.Cancel();
+        await WaitForCompletion(task, timeoutMs: 5000);
+    }
+
+    [Fact]
+    public async Task event_hub_drains_residual_semaphore_releases_after_processing_backlog()
+    {
+        var state = new InstrumentedEventHubStorageState();
+        var provider = CreateServiceProvider(s => s.AddSingleton(state));
+        var hub = new EventHub<PollDrainEvent, TestEventRecord, InstrumentedEventHubStorage>(provider);
+        EventHub<PollDrainEvent, TestEventRecord, InstrumentedEventHubStorage>.Mode = HubMode.EventPublisher;
+        var writer = new GateServerStreamWriter<PollDrainEvent>();
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
+        var task = hub.OnSubscriberConnected(hub, "poll-drain-sub", writer, CreateServerCallContext(cts.Token));
+
+        const int eventCount = 100;
+
+        for (var i = 1; i <= eventCount; i++)
+            await hub.BroadcastEventTaskForTesting(new() { EventID = i });
+
+        writer.Release();
+
+        await WaitUntil(() => writer.Responses.Count == eventCount, timeoutMs: 5000);
+        await Task.Delay(250);
+
+        state.GetNextBatchCallCount.ShouldBeLessThan(12);
+
+        cts.Cancel();
+        await WaitForCompletion(task, timeoutMs: 5000);
     }
 
     [Fact]
@@ -895,6 +948,16 @@ public class EventQueueTests
         public string Name { get; set; } = default!;
     }
 
+    class WaitRecoveryEvent : IEvent
+    {
+        public int EventID { get; set; }
+    }
+
+    class PollDrainEvent : IEvent
+    {
+        public int EventID { get; set; }
+    }
+
     sealed class TestEventRecord : IEventStorageRecord
     {
         public string SubscriberID { get; set; } = default!;
@@ -1242,6 +1305,26 @@ public class EventQueueTests
             => WriteAsync(message);
     }
 
+    sealed class GateServerStreamWriter<T> : IServerStreamWriter<T>
+    {
+        readonly TaskCompletionSource _gate = NewSignal();
+
+        public WriteOptions? WriteOptions { get; set; }
+        public List<T> Responses { get; } = new();
+
+        public void Release()
+            => _gate.TrySetResult();
+
+        public async Task WriteAsync(T message)
+        {
+            await _gate.Task;
+            Responses.Add(message);
+        }
+
+        public Task WriteAsync(T message, CancellationToken ct)
+            => WriteAsync(message);
+    }
+
     sealed class TestCallInvoker(TrackedTestEvent eventMessage) : CallInvoker
     {
         readonly AsyncServerStreamingCall<TrackedTestEvent> _call = new(
@@ -1380,6 +1463,74 @@ public class EventQueueTests
             => default;
 
         public ValueTask PurgeStaleRecordsAsync(StaleRecordSearchParams<TestEventRecord> p)
+            => default;
+    }
+
+    sealed class InstrumentedEventHubStorageState
+    {
+        readonly object _sync = new();
+        readonly List<TestEventRecord> _records = [];
+
+        public TaskCompletionSource SecondFetchObserved { get; } = NewSignal();
+        public int EmptyBatchCount { get; private set; }
+        public int GetNextBatchCallCount { get; private set; }
+
+        public void Store(IEnumerable<TestEventRecord> records)
+        {
+            lock (_sync)
+                _records.AddRange(records);
+        }
+
+        public IReadOnlyList<TestEventRecord> GetNextBatch(PendingRecordSearchParams<TestEventRecord> parameters)
+        {
+            lock (_sync)
+            {
+                GetNextBatchCallCount++;
+
+                if (GetNextBatchCallCount >= 2)
+                    SecondFetchObserved.TrySetResult();
+
+                var batch = _records.Where(parameters.Match.Compile())
+                                    .Take(parameters.Limit)
+                                    .ToArray();
+
+                if (batch.Length == 0)
+                    EmptyBatchCount++;
+
+                return batch;
+            }
+        }
+
+        public void MarkComplete(TestEventRecord record)
+        {
+            lock (_sync)
+                record.IsComplete = true;
+        }
+    }
+
+    sealed class InstrumentedEventHubStorage(InstrumentedEventHubStorageState state) : IEventHubStorageProvider<TestEventRecord>
+    {
+        public ValueTask<IEnumerable<string>> RestoreSubscriberIDsForEventTypeAsync(SubscriberIDRestorationParams<TestEventRecord> parameters)
+            => new(Array.Empty<string>());
+
+        public ValueTask StoreEventsAsync(IEnumerable<TestEventRecord> records, CancellationToken ct)
+        {
+            state.Store(records);
+
+            return default;
+        }
+
+        public ValueTask<IEnumerable<TestEventRecord>> GetNextBatchAsync(PendingRecordSearchParams<TestEventRecord> parameters)
+            => new(state.GetNextBatch(parameters));
+
+        public ValueTask MarkEventAsCompleteAsync(TestEventRecord record, CancellationToken ct)
+        {
+            state.MarkComplete(record);
+
+            return default;
+        }
+
+        public ValueTask PurgeStaleRecordsAsync(StaleRecordSearchParams<TestEventRecord> parameters)
             => default;
     }
 

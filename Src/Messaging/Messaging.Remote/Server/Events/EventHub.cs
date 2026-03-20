@@ -208,6 +208,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
         _logger.SubscriberConnected(subscriberID, _tEvent.FullName!);
 
         var cts = CancellationTokenSource.CreateLinkedTokenSource(ctx.CancellationToken, _appCancellation);
+        SemaphoreSlim? subscriberSem = null;
 
         try
         {
@@ -223,6 +224,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                 {
                     IsConnected = true, LastSeenUtc = DateTime.UtcNow, IsKnownSubscriber = existing.IsKnownSubscriber || _knownSubscriberIDs.Contains(subscriberID)
                 });
+            subscriberSem = subscriber.Sem;
 
             while (!cts.Token.IsCancellationRequested)
             {
@@ -316,8 +318,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                 }
                 else
                 {
-                    //wait until either the semaphore is released or 10 seconds has elapsed
-                    await Task.WhenAny(subscriber.Sem.WaitAsync(cts.Token), Task.Delay(10000));
+                    await WaitForSignalAsync();
                 }
             }
 
@@ -328,6 +329,19 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
         finally
         {
             cts.Dispose();
+        }
+
+        async Task WaitForSignalAsync()
+        {
+            try
+            {
+                if (await subscriberSem!.WaitAsync(TimeSpan.FromSeconds(10), cts.Token)) //wait for poll interval, semaphore release, or shutdown.
+                    while (subscriberSem.Wait(0)) { }                                      //drain residual releases so the next poll only runs after new work arrives.
+            }
+            catch (OperationCanceledException) when (cts.Token.IsCancellationRequested)
+            {
+                //don't throw. let the main loop exit naturally so the disconnect state is updated.
+            }
         }
     }
 

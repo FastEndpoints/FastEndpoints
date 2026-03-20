@@ -62,8 +62,10 @@ sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProv
                                                  string subscriberID,
                                                  TimeSpan eventRecordExpiry,
                                                  ILogger logger,
-                                                 SubscriberExceptionReceiver? errors)
+                                                 SubscriberExceptionReceiver? errors,
+                                                 TimeSpan? retryDelay = null)
     {
+        var retryInterval = retryDelay ?? TimeSpan.FromSeconds(5);
         var call = invoker.AsyncServerStreamingCall(method, null, opts, subscriberID);
         var createErrorCount = 0;
         var receiveErrorCount = 0;
@@ -72,6 +74,8 @@ sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProv
         {
             while (!opts.CancellationToken.IsCancellationRequested)
             {
+                var reconnect = false;
+
                 try
                 {
                     while (await call.ResponseStream.MoveNext(opts.CancellationToken)) // actual network call happens on MoveNext()
@@ -109,13 +113,15 @@ sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProv
                                 if (opts.CancellationToken.IsCancellationRequested)
                                     break;
 
-                                await Task.Delay(5000, opts.CancellationToken);
+                                await Task.Delay(retryInterval, opts.CancellationToken);
                             }
                         }
 
                         sem.Release();
                         receiveErrorCount = 0;
                     }
+
+                    reconnect = !opts.CancellationToken.IsCancellationRequested;
                 }
                 catch (OperationCanceledException) when (opts.CancellationToken.IsCancellationRequested)
                 {
@@ -128,22 +134,26 @@ sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProv
                         () => errors?.OnEventReceiveError<TEvent>(subscriberID, receiveErrorCount, ex, opts.CancellationToken),
                         logger,
                         subscriberID,
-                        _eventTypeName,
-                        "stream-receive");
+                                    _eventTypeName,
+                                    "stream-receive");
                     logger.StreamReceiveTrace(subscriberID, _eventTypeName, ex.Message);
-
-                    try
-                    {
-                        call.Dispose();
-                    }
-                    catch
-                    {
-                        //safe to ignore.
-                    }
-
-                    await Task.Delay(5000, opts.CancellationToken);
-                    call = invoker.AsyncServerStreamingCall(method, null, opts, subscriberID);
+                    reconnect = true;
                 }
+
+                if (!reconnect)
+                    continue;
+
+                try
+                {
+                    call.Dispose();
+                }
+                catch
+                {
+                    //safe to ignore.
+                }
+
+                await Task.Delay(retryInterval, opts.CancellationToken);
+                call = invoker.AsyncServerStreamingCall(method, null, opts, subscriberID);
             }
         }
         catch (OperationCanceledException) when (opts.CancellationToken.IsCancellationRequested)

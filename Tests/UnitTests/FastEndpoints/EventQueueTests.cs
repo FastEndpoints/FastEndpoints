@@ -622,6 +622,42 @@ public class EventQueueTests
     }
 
     [Fact]
+    public async Task event_receiver_reconnects_when_stream_completes_gracefully()
+    {
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+        var storage = new TestEventSubscriberStorage();
+        var provider = CreateServiceProvider();
+        var logger = provider.GetRequiredService<ILogger<
+            EventSubscriber<TrackedTestEvent, TestEventExecutorHandler, TestEventRecord, TestEventSubscriberStorage>>>();
+        var invoker = new GracefulReconnectCallInvoker(
+            cts,
+            expectedCalls: 3);
+
+        var receiver = EventSubscriber<TrackedTestEvent, TestEventExecutorHandler, TestEventRecord, TestEventSubscriberStorage>
+                       .EventReceiverTask(
+                           storage,
+                           new SemaphoreSlim(0),
+                           new CallOptions(cancellationToken: cts.Token),
+                           invoker,
+                           new Method<string, TrackedTestEvent>(
+                               MethodType.ServerStreaming,
+                               typeof(TrackedTestEvent).FullName!,
+                               "sub",
+                               new MessagePackMarshaller<string>(),
+                               new MessagePackMarshaller<TrackedTestEvent>()),
+                           subscriberID: "graceful-sub",
+                           eventRecordExpiry: TimeSpan.FromMinutes(1),
+                           logger,
+                           errors: null,
+                           retryDelay: TimeSpan.FromMilliseconds(25));
+
+        await invoker.ExpectedCallCountReached.Task.WaitAsync(TimeSpan.FromSeconds(5));
+        await WaitForCompletion(receiver, timeoutMs: 5000);
+
+        invoker.CallCount.ShouldBe(3);
+    }
+
+    [Fact]
     public async Task event_hub_persists_durable_events_during_shutdown()
     {
         using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
@@ -1363,6 +1399,57 @@ public class EventQueueTests
             => throw new NotSupportedException();
     }
 
+    sealed class GracefulReconnectCallInvoker(CancellationTokenSource shutdownCts, int expectedCalls) : CallInvoker
+    {
+        int _callCount;
+
+        public int CallCount => Volatile.Read(ref _callCount);
+        public TaskCompletionSource ExpectedCallCountReached { get; } = NewSignal();
+
+        public override AsyncClientStreamingCall<TRequest, TResponse> AsyncClientStreamingCall<TRequest, TResponse>(Method<TRequest, TResponse> method,
+                                                                                                                      string? host,
+                                                                                                                      CallOptions options)
+            => throw new NotSupportedException();
+
+        public override AsyncDuplexStreamingCall<TRequest, TResponse> AsyncDuplexStreamingCall<TRequest, TResponse>(Method<TRequest, TResponse> method,
+                                                                                                                      string? host,
+                                                                                                                      CallOptions options)
+            => throw new NotSupportedException();
+
+        public override AsyncServerStreamingCall<TResponse> AsyncServerStreamingCall<TRequest, TResponse>(Method<TRequest, TResponse> method,
+                                                                                                            string? host,
+                                                                                                            CallOptions options,
+                                                                                                            TRequest request)
+        {
+            if (Interlocked.Increment(ref _callCount) == expectedCalls)
+            {
+                ExpectedCallCountReached.TrySetResult();
+                shutdownCts.Cancel();
+            }
+
+            var call = new AsyncServerStreamingCall<TrackedTestEvent>(
+                new EmptyAsyncStreamReader<TrackedTestEvent>(),
+                Task.FromResult(new Metadata()),
+                () => Status.DefaultSuccess,
+                () => new Metadata(),
+                () => { });
+
+            return (AsyncServerStreamingCall<TResponse>)(object)call;
+        }
+
+        public override AsyncUnaryCall<TResponse> AsyncUnaryCall<TRequest, TResponse>(Method<TRequest, TResponse> method,
+                                                                                       string? host,
+                                                                                       CallOptions options,
+                                                                                       TRequest request)
+            => throw new NotSupportedException();
+
+        public override TResponse BlockingUnaryCall<TRequest, TResponse>(Method<TRequest, TResponse> method,
+                                                                          string? host,
+                                                                          CallOptions options,
+                                                                          TRequest request)
+            => throw new NotSupportedException();
+    }
+
     sealed class SingleMessageAsyncStreamReader<T>(T message) : IAsyncStreamReader<T>
     {
         bool _moved;
@@ -1379,6 +1466,14 @@ public class EventQueueTests
 
             return Task.FromResult(true);
         }
+    }
+
+    sealed class EmptyAsyncStreamReader<T> : IAsyncStreamReader<T>
+    {
+        public T Current => default!;
+
+        public Task<bool> MoveNext(CancellationToken cancellationToken)
+            => Task.FromResult(false);
     }
 
     sealed class TestHostLifetime(CancellationToken appStoppingToken) : IHostApplicationLifetime

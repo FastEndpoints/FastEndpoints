@@ -356,6 +356,10 @@ sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProv
 
                         break; //handler succeeded, exit retry loop
                     }
+                    catch (OperationCanceledException) when (opts.CancellationToken.IsCancellationRequested)
+                    {
+                        throw;
+                    }
                     catch (Exception ex)
                     {
                         executionErrorCount++;

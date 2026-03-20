@@ -246,6 +246,10 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                                    })).ToList();
                     retrievalErrorCount = 0;
                 }
+                catch (OperationCanceledException) when (cts.Token.IsCancellationRequested)
+                {
+                    break;
+                }
                 catch (Exception ex)
                 {
                     retrievalErrorCount++;

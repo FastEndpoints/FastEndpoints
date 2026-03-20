@@ -209,21 +209,14 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
 
         var cts = CancellationTokenSource.CreateLinkedTokenSource(ctx.CancellationToken, _appCancellation);
         SemaphoreSlim? subscriberSem = null;
+        var connectionRegistered = false;
 
         try
         {
             var retrievalErrorCount = 0;
             var updateErrorCount = 0;
-            var subscriber = _subscribers.AddOrUpdate(
-                subscriberID,
-                _ => new()
-                {
-                    IsConnected = true, LastSeenUtc = DateTime.UtcNow, IsKnownSubscriber = _knownSubscriberIDs.Contains(subscriberID)
-                },
-                (_, existing) => existing with
-                {
-                    IsConnected = true, LastSeenUtc = DateTime.UtcNow, IsKnownSubscriber = existing.IsKnownSubscriber || _knownSubscriberIDs.Contains(subscriberID)
-                });
+            var subscriber = RegisterSubscriberConnection(subscriberID);
+            connectionRegistered = true;
             subscriberSem = subscriber.Sem;
 
             while (!cts.Token.IsCancellationRequested)
@@ -289,8 +282,6 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                                 }
                             }
 
-                            UpdateSubscriber(subscriberID, s => s with { IsConnected = false, LastSeenUtc = DateTime.UtcNow });
-
                             return; //stream is most likely broken/canceled. exit the method here and let the subscriber re-connect and re-enter the method.
                         }
 
@@ -325,13 +316,12 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                     await WaitForSignalAsync();
                 }
             }
-
-            //mark subscriber as disconnected if the while loop is exited.
-            //which means the subscriber either canceled or stream got broken.
-            UpdateSubscriber(subscriberID, s => s with { IsConnected = false, LastSeenUtc = DateTime.UtcNow });
         }
         finally
         {
+            if (connectionRegistered)
+                ReleaseSubscriberConnection(subscriberID);
+
             cts.Dispose();
         }
 
@@ -345,6 +335,10 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
             catch (OperationCanceledException) when (cts.Token.IsCancellationRequested)
             {
                 //don't throw. let the main loop exit naturally so the disconnect state is updated.
+            }
+            catch (ObjectDisposedException)
+            {
+                cts.Cancel();
             }
         }
     }
@@ -450,7 +444,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
         {
             var staleCutoff = DateTime.UtcNow.Subtract(_subscriberRetention);
 
-            foreach (var kv in _subscribers.Where(kv => kv.Value is { IsKnownSubscriber: false, IsConnected: false } && kv.Value.LastSeenUtc <= staleCutoff).ToArray())
+            foreach (var kv in _subscribers.Where(kv => kv.Value is { IsKnownSubscriber: false, ConnectionCount: 0 } && kv.Value.LastSeenUtc <= staleCutoff).ToArray())
             {
                 //remove only if the entry is still the same stale snapshot we inspected above.
                 //this avoids pruning a subscriber that reconnected or was otherwise updated after the snapshot was taken.
@@ -462,7 +456,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                 return _subscribers.Keys.ToArray();
 
             var connectedSubIds = _subscribers
-                                  .Where(kv => kv.Value.IsConnected)
+                                  .Where(kv => kv.Value.ConnectionCount > 0)
                                   .Select(kv => kv.Key)
                                   .ToArray(); //take a snapshot of currently connected subscriber ids
 
@@ -491,12 +485,37 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
         return Task.FromResult(EmptyObject.Instance);
     }
 
-    static Subscriber UpdateSubscriber(string subscriberID, Func<Subscriber, Subscriber> update)
+    static Subscriber RegisterSubscriberConnection(string subscriberID)
+        => _subscribers.AddOrUpdate(
+            subscriberID,
+            _ => new()
+            {
+                ConnectionCount = 1,
+                LastSeenUtc = DateTime.UtcNow,
+                IsKnownSubscriber = _knownSubscriberIDs.Contains(subscriberID)
+            },
+            (_, existing) => existing with
+            {
+                ConnectionCount = existing.ConnectionCount + 1,
+                LastSeenUtc = DateTime.UtcNow,
+                IsKnownSubscriber = existing.IsKnownSubscriber || _knownSubscriberIDs.Contains(subscriberID)
+            });
+
+    static Subscriber? ReleaseSubscriberConnection(string subscriberID)
+        => TryUpdateSubscriber(
+            subscriberID,
+            s => s with
+            {
+                ConnectionCount = Math.Max(0, s.ConnectionCount - 1),
+                LastSeenUtc = DateTime.UtcNow
+            });
+
+    static Subscriber? TryUpdateSubscriber(string subscriberID, Func<Subscriber, Subscriber> update)
     {
         while (true)
         {
             if (!_subscribers.TryGetValue(subscriberID, out var current))
-                return _subscribers.GetOrAdd(subscriberID, _ => update(new()));
+                return null;
 
             var updated = update(current);
 
@@ -524,7 +543,8 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
     record Subscriber
     {
         public SemaphoreSlim Sem { get; } = new(0); //semaphorslim for waiting on record availability
-        public bool IsConnected { get; init; }
+        public int ConnectionCount { get; init; }
+        public bool IsConnected => ConnectionCount > 0;
         public DateTime LastSeenUtc { get; init; } = DateTime.UtcNow;
         public bool IsKnownSubscriber { get; init; }
     }

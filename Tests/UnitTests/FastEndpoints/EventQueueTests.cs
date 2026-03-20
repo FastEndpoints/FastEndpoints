@@ -420,6 +420,99 @@ public class EventQueueTests
     }
 
     [Fact]
+    public async Task overlapping_round_robin_reconnect_keeps_subscriber_eligible_after_older_connection_disconnects()
+    {
+        var provider = CreateServiceProvider();
+        EventHub<RoundRobinReconnectRaceEvent, InMemoryEventStorageRecord, InMemoryEventHubStorage>.Mode = HubMode.RoundRobin;
+        var hub = new EventHub<RoundRobinReconnectRaceEvent, InMemoryEventStorageRecord, InMemoryEventHubStorage>(provider);
+
+        var sharedSubscriberId = Guid.NewGuid().ToString();
+        var otherSubscriberId = Guid.NewGuid().ToString();
+
+        var initialWriter = new TestServerStreamWriter<RoundRobinReconnectRaceEvent>();
+        using var initialCts = new CancellationTokenSource();
+        var initialTask = hub.OnSubscriberConnected(hub, sharedSubscriberId, initialWriter, CreateServerCallContext(initialCts.Token));
+
+        var otherWriter = new TestServerStreamWriter<RoundRobinReconnectRaceEvent>();
+        using var otherCts = new CancellationTokenSource();
+        var otherTask = hub.OnSubscriberConnected(hub, otherSubscriberId, otherWriter, CreateServerCallContext(otherCts.Token));
+
+        await WaitUntil(() => SubscriberExists<RoundRobinReconnectRaceEvent>(sharedSubscriberId) && SubscriberExists<RoundRobinReconnectRaceEvent>(otherSubscriberId));
+
+        var reconnectWriter = new TestServerStreamWriter<RoundRobinReconnectRaceEvent>();
+        using var reconnectCts = new CancellationTokenSource();
+        var reconnectTask = hub.OnSubscriberConnected(hub, sharedSubscriberId, reconnectWriter, CreateServerCallContext(reconnectCts.Token));
+
+        await WaitUntil(() => GetSubscriberConnectionCount<RoundRobinReconnectRaceEvent>(sharedSubscriberId) == 2);
+
+        initialCts.Cancel();
+        await WaitForCompletion(initialTask);
+
+        GetSubscriberConnectionCount<RoundRobinReconnectRaceEvent>(sharedSubscriberId).ShouldBe(1);
+        SubscriberIsConnected<RoundRobinReconnectRaceEvent>(sharedSubscriberId).ShouldBeTrue();
+
+        for (var i = 1; i <= 4; i++)
+            EventHubBase.AddToSubscriberQueues(new RoundRobinReconnectRaceEvent { EventID = i });
+
+        await WaitUntil(() => reconnectWriter.Responses.Count + otherWriter.Responses.Count == 4, timeoutMs: 5000);
+
+        reconnectWriter.Responses.Count.ShouldBe(2);
+        otherWriter.Responses.Count.ShouldBe(2);
+
+        reconnectCts.Cancel();
+        otherCts.Cancel();
+
+        await WaitForCompletion(reconnectTask);
+        await WaitForCompletion(otherTask);
+    }
+
+    [Fact]
+    public async Task active_reconnect_is_not_pruned_when_an_older_connection_marks_the_subscriber_stale()
+    {
+        var provider = CreateServiceProvider();
+        EventHub<StaleReconnectRaceEvent, InMemoryEventStorageRecord, InMemoryEventHubStorage>.Mode = HubMode.EventPublisher;
+        var hub = new EventHub<StaleReconnectRaceEvent, InMemoryEventStorageRecord, InMemoryEventHubStorage>(provider);
+
+        var sharedSubscriberId = Guid.NewGuid().ToString();
+        var otherSubscriberId = Guid.NewGuid().ToString();
+
+        var initialWriter = new TestServerStreamWriter<StaleReconnectRaceEvent>();
+        using var initialCts = new CancellationTokenSource();
+        var initialTask = hub.OnSubscriberConnected(hub, sharedSubscriberId, initialWriter, CreateServerCallContext(initialCts.Token));
+
+        var reconnectWriter = new TestServerStreamWriter<StaleReconnectRaceEvent>();
+        using var reconnectCts = new CancellationTokenSource();
+        var reconnectTask = hub.OnSubscriberConnected(hub, sharedSubscriberId, reconnectWriter, CreateServerCallContext(reconnectCts.Token));
+
+        var otherWriter = new TestServerStreamWriter<StaleReconnectRaceEvent>();
+        using var otherCts = new CancellationTokenSource();
+        var otherTask = hub.OnSubscriberConnected(hub, otherSubscriberId, otherWriter, CreateServerCallContext(otherCts.Token));
+
+        await WaitUntil(() => GetSubscriberConnectionCount<StaleReconnectRaceEvent>(sharedSubscriberId) == 2 && SubscriberExists<StaleReconnectRaceEvent>(otherSubscriberId));
+
+        initialCts.Cancel();
+        await WaitForCompletion(initialTask);
+
+        SetSubscriberLastSeen<StaleReconnectRaceEvent>(sharedSubscriberId, DateTime.UtcNow.AddHours(-25), connectionCount: 1);
+
+        EventHubBase.AddToSubscriberQueues(new StaleReconnectRaceEvent { EventID = 999 });
+
+        await WaitUntil(() => reconnectWriter.Responses.Count == 1 && otherWriter.Responses.Count == 1, timeoutMs: 5000);
+
+        reconnectWriter.Responses.Single().EventID.ShouldBe(999);
+        otherWriter.Responses.Single().EventID.ShouldBe(999);
+        SubscriberExists<StaleReconnectRaceEvent>(sharedSubscriberId).ShouldBeTrue();
+        GetSubscriberConnectionCount<StaleReconnectRaceEvent>(sharedSubscriberId).ShouldBe(1);
+        SubscriberIsConnected<StaleReconnectRaceEvent>(sharedSubscriberId).ShouldBeTrue();
+
+        reconnectCts.Cancel();
+        otherCts.Cancel();
+
+        await WaitForCompletion(reconnectTask);
+        await WaitForCompletion(otherTask);
+    }
+
+    [Fact]
     public async Task event_executor_refills_a_freed_slot_without_waiting_for_the_whole_batch_when_records_have_identity()
     {
         TestEventExecutorHandler.Reset();
@@ -884,11 +977,25 @@ public class EventQueueTests
     static bool SubscriberExists<TEvent>(string subscriberId) where TEvent : class, IEvent
         => TryGetSubscriber(typeof(TEvent), subscriberId, out _);
 
-    static void SetSubscriberLastSeen<TEvent>(string subscriberId, DateTime lastSeenUtc) where TEvent : class, IEvent
+    static int GetSubscriberConnectionCount<TEvent>(string subscriberId) where TEvent : class, IEvent
+    {
+        TryGetSubscriber(typeof(TEvent), subscriberId, out var subscriber).ShouldBeTrue();
+
+        return (int)subscriber!.GetType().GetProperty("ConnectionCount", BindingFlags.Instance | BindingFlags.Public)!.GetValue(subscriber)!;
+    }
+
+    static bool SubscriberIsConnected<TEvent>(string subscriberId) where TEvent : class, IEvent
+    {
+        TryGetSubscriber(typeof(TEvent), subscriberId, out var subscriber).ShouldBeTrue();
+
+        return (bool)subscriber!.GetType().GetProperty("IsConnected", BindingFlags.Instance | BindingFlags.Public)!.GetValue(subscriber)!;
+    }
+
+    static void SetSubscriberLastSeen<TEvent>(string subscriberId, DateTime lastSeenUtc, int connectionCount = 0) where TEvent : class, IEvent
     {
         TryGetSubscriber(typeof(TEvent), subscriberId, out var subscriber).ShouldBeTrue();
         subscriber!.GetType().GetProperty("LastSeenUtc", BindingFlags.Instance | BindingFlags.Public)!.SetValue(subscriber, lastSeenUtc);
-        subscriber.GetType().GetProperty("IsConnected", BindingFlags.Instance | BindingFlags.Public)!.SetValue(subscriber, false);
+        subscriber.GetType().GetProperty("ConnectionCount", BindingFlags.Instance | BindingFlags.Public)!.SetValue(subscriber, connectionCount);
     }
 
     static bool TryGetSubscriber(Type eventType, string subscriberId, out object? subscriber)
@@ -965,6 +1072,16 @@ public class EventQueueTests
     }
 
     class StaleSubscriberEvent : IEvent
+    {
+        public int EventID { get; set; }
+    }
+
+    class RoundRobinReconnectRaceEvent : IEvent
+    {
+        public int EventID { get; set; }
+    }
+
+    class StaleReconnectRaceEvent : IEvent
     {
         public int EventID { get; set; }
     }

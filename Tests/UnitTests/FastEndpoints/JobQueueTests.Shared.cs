@@ -1,38 +1,14 @@
 using FastEndpoints;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging.Abstractions;
+using QueueTesting;
+using static QueueTesting.QueueTestSupport;
 
 namespace JobQueue;
 
 public partial class JobQueueTests
 {
-    static TaskCompletionSource<bool> NewSignal()
-        => new(TaskCreationOptions.RunContinuationsAsynchronously);
-
-    static async Task<bool> WaitUntilAsync(Func<bool> condition, TimeSpan timeout)
-    {
-        using var cts = new CancellationTokenSource(timeout);
-
-        while (!cts.IsCancellationRequested)
-        {
-            if (condition())
-                return true;
-
-            try
-            {
-                await Task.Delay(25, cts.Token);
-            }
-            catch (OperationCanceledException)
-            {
-                break;
-            }
-        }
-
-        return condition();
-    }
-
     static JobQueue<RefillTestCommand, FastEndpoints.Void, RefillTestRecord, RefillTestStorage> CreateRefillQueue(RefillTestStorage storage,
-                                                                                                                  CancellationTokenSource appStopping)
+                                                                                                                   CancellationTokenSource appStopping)
     {
         Factory.RegisterTestServices(_ => { });
         new RefillTestCommandHandler(storage).RegisterForTesting();
@@ -55,12 +31,15 @@ public partial class JobQueueTests
             NullLogger<JobQueue<DistributedRefillCommand, FastEndpoints.Void, DistributedRefillRecord, DistributedRefillStorage>>.Instance);
     }
 
-    sealed class TestHostLifetime(CancellationToken appStoppingToken) : IHostApplicationLifetime
+    static async Task QueueJobsAsync(params ICommand[] commands)
     {
-        public CancellationToken ApplicationStarted => CancellationToken.None;
-        public CancellationToken ApplicationStopping => appStoppingToken;
-        public CancellationToken ApplicationStopped => CancellationToken.None;
+        foreach (var command in commands)
+            await command.QueueJobAsync(ct: CancellationToken.None);
+    }
 
-        public void StopApplication() { }
+    static async Task AssertJobsCompletedAsync(params Task<bool>[] completionTasks)
+    {
+        var allCompleted = await Task.WhenAll(completionTasks);
+        allCompleted.All(static completed => completed).ShouldBeTrue();
     }
 }

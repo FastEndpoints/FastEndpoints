@@ -1,0 +1,458 @@
+using System.Linq.Expressions;
+using FastEndpoints;
+using static QueueTesting.QueueTestSupport;
+
+namespace JobQueue;
+
+public partial class JobQueueTests
+{
+    sealed class BasicJob : IJobStorageRecord
+    {
+        public string QueueID { get; set; } = "";
+        public Guid TrackingID { get; set; }
+        public object Command { get; set; } = null!;
+        public DateTime ExecuteAfter { get; set; }
+        public DateTime ExpireOn { get; set; }
+        public bool IsComplete { get; set; }
+    }
+
+    sealed class DistributedJob : IJobStorageRecord
+    {
+        public string QueueID { get; set; } = "";
+        public Guid TrackingID { get; set; }
+        public object Command { get; set; } = null!;
+        public DateTime ExecuteAfter { get; set; }
+        public DateTime ExpireOn { get; set; }
+        public bool IsComplete { get; set; }
+        public DateTime DequeueAfter { get; set; }
+    }
+
+    sealed class RefillTestCommand : ICommand, IHasTrackingID
+    {
+        public required string Name { get; init; }
+        public int Sequence { get; init; }
+        public Guid TrackingID { get; set; }
+    }
+
+    sealed class RefillTestRecord : IJobStorageRecord
+    {
+        public string QueueID { get; set; } = "";
+        public Guid TrackingID { get; set; }
+        public object Command { get; set; } = null!;
+        public DateTime ExecuteAfter { get; set; }
+        public DateTime ExpireOn { get; set; }
+        public bool IsComplete { get; set; }
+    }
+
+    sealed class RefillTestStorage : IJobStorageProvider<RefillTestRecord>
+    {
+        readonly Lock _lock = new();
+        readonly Dictionary<Guid, RefillTestRecord> _jobs = [];
+        readonly List<int> _requestedLimits = [];
+        int _activeExecutions;
+        int _maxActiveExecutions;
+
+        public bool DistributedJobProcessingEnabled => false;
+        public int MaxActiveExecutions => _maxActiveExecutions;
+
+        public Task StoreJobAsync(RefillTestRecord record, CancellationToken ct)
+        {
+            lock (_lock)
+                _jobs[record.TrackingID] = record;
+
+            return Task.CompletedTask;
+        }
+
+        public Task<ICollection<RefillTestRecord>> GetNextBatchAsync(PendingJobSearchParams<RefillTestRecord> parameters)
+        {
+            var match = parameters.Match.Compile();
+
+            lock (_lock)
+            {
+                _requestedLimits.Add(parameters.Limit);
+
+                return Task.FromResult<ICollection<RefillTestRecord>>(
+                    _jobs.Values
+                         .Where(match)
+                         .OrderBy(record => ((RefillTestCommand)record.Command).Sequence)
+                         .Take(parameters.Limit)
+                         .ToArray());
+            }
+        }
+
+        public Task MarkJobAsCompleteAsync(RefillTestRecord record, CancellationToken ct)
+        {
+            lock (_lock)
+                _jobs[record.TrackingID].IsComplete = true;
+
+            return Task.CompletedTask;
+        }
+
+        public Task CancelJobAsync(Guid trackingId, CancellationToken ct)
+        {
+            lock (_lock)
+                _jobs[trackingId].IsComplete = true;
+
+            return Task.CompletedTask;
+        }
+
+        public Task OnHandlerExecutionFailureAsync(RefillTestRecord record, Exception exception, CancellationToken ct)
+            => Task.CompletedTask;
+
+        public Task PurgeStaleJobsAsync(StaleJobSearchParams<RefillTestRecord> parameters)
+            => Task.CompletedTask;
+
+        public int IncrementActiveExecutions()
+        {
+            var current = Interlocked.Increment(ref _activeExecutions);
+
+            while (true)
+            {
+                var snapshot = _maxActiveExecutions;
+
+                if (current <= snapshot)
+                    break;
+
+                if (Interlocked.CompareExchange(ref _maxActiveExecutions, current, snapshot) == snapshot)
+                    break;
+            }
+
+            return current;
+        }
+
+        public int DecrementActiveExecutions()
+            => Interlocked.Decrement(ref _activeExecutions);
+
+        public Task<bool> WaitForCompletionAsync(Guid trackingId, TimeSpan timeout)
+            => WaitUntilAsync(
+                () =>
+                {
+                    lock (_lock)
+                        return _jobs.TryGetValue(trackingId, out var job) && job.IsComplete;
+                },
+                timeout);
+
+        public int[] GetRequestedLimitsSnapshot()
+        {
+            lock (_lock)
+                return _requestedLimits.ToArray();
+        }
+    }
+
+    sealed class RefillTestCommandHandler(RefillTestStorage storage) : ICommandHandler<RefillTestCommand>
+    {
+        static TaskCompletionSource<bool> _slowCanFinish = NewSignal<bool>();
+        static TaskCompletionSource<bool> _fastStarted = NewSignal<bool>();
+        static TaskCompletionSource<bool> _thirdStarted = NewSignal<bool>();
+        static TaskCompletionSource<bool> _drainStarted = NewSignal<bool>();
+        static TaskCompletionSource<bool> _drainCanFinish = NewSignal<bool>();
+
+        public static Task FastStarted => _fastStarted.Task;
+        public static Task ThirdStarted => _thirdStarted.Task;
+        public static Task DrainStarted => _drainStarted.Task;
+
+        public static void Reset()
+        {
+            _slowCanFinish = NewSignal<bool>();
+            _fastStarted = NewSignal<bool>();
+            _thirdStarted = NewSignal<bool>();
+            _drainStarted = NewSignal<bool>();
+            _drainCanFinish = NewSignal<bool>();
+        }
+
+        public static void ReleaseSlow()
+            => _slowCanFinish.TrySetResult(true);
+
+        public static void ReleaseDrain()
+            => _drainCanFinish.TrySetResult(true);
+
+        public async Task ExecuteAsync(RefillTestCommand command, CancellationToken ct)
+        {
+            storage.IncrementActiveExecutions();
+
+            try
+            {
+                switch (command.Name)
+                {
+                    case "slow":
+                        await _slowCanFinish.Task.WaitAsync(ct);
+                        break;
+                    case "fast":
+                        _fastStarted.TrySetResult(true);
+                        break;
+                    case "third":
+                        _thirdStarted.TrySetResult(true);
+                        break;
+                    case "drain":
+                        _drainStarted.TrySetResult(true);
+                        await _drainCanFinish.Task;
+                        break;
+                }
+            }
+            finally
+            {
+                storage.DecrementActiveExecutions();
+            }
+        }
+    }
+
+    sealed class DistributedRefillCommand : ICommand, IHasTrackingID
+    {
+        public required string Name { get; init; }
+        public int Sequence { get; init; }
+        public Guid TrackingID { get; set; }
+    }
+
+    sealed class DistributedRefillRecord : IJobStorageRecord
+    {
+        public string QueueID { get; set; } = "";
+        public Guid TrackingID { get; set; }
+        public object Command { get; set; } = null!;
+        public DateTime ExecuteAfter { get; set; }
+        public DateTime ExpireOn { get; set; }
+        public bool IsComplete { get; set; }
+        public DateTime DequeueAfter { get; set; }
+    }
+
+    sealed class DistributedJobStorage : IJobStorageProvider<DistributedJob>
+    {
+        readonly Lock _lock = new();
+        readonly List<DistributedJob> _jobs = [];
+
+        public bool DistributedJobProcessingEnabled => true;
+
+        public Task StoreJobAsync(DistributedJob record, CancellationToken ct)
+        {
+            lock (_lock)
+                _jobs.Add(record);
+
+            return Task.CompletedTask;
+        }
+
+        public Task<ICollection<DistributedJob>> GetNextBatchAsync(PendingJobSearchParams<DistributedJob> parameters)
+        {
+            var match = parameters.Match.Compile();
+            var now = DateTime.UtcNow;
+            var leaseTime = parameters.ExecutionTimeLimit == Timeout.InfiniteTimeSpan
+                                ? TimeSpan.FromMinutes(5)
+                                : parameters.ExecutionTimeLimit;
+
+            lock (_lock)
+            {
+                var results = _jobs
+                              .Where(match)
+                              .OrderBy(job => job.TrackingID)
+                              .Take(parameters.Limit)
+                              .ToArray();
+
+                foreach (var job in results)
+                    job.DequeueAfter = now + leaseTime;
+
+                return Task.FromResult<ICollection<DistributedJob>>(results);
+            }
+        }
+
+        public Task MarkJobAsCompleteAsync(DistributedJob record, CancellationToken ct)
+        {
+            lock (_lock)
+                record.IsComplete = true;
+
+            return Task.CompletedTask;
+        }
+
+        public Task CancelJobAsync(Guid trackingId, CancellationToken ct)
+        {
+            lock (_lock)
+                _jobs.Single(job => job.TrackingID == trackingId).IsComplete = true;
+
+            return Task.CompletedTask;
+        }
+
+        public Task OnHandlerExecutionFailureAsync(DistributedJob record, Exception exception, CancellationToken ct)
+        {
+            lock (_lock)
+                record.DequeueAfter = DateTime.MinValue;
+
+            return Task.CompletedTask;
+        }
+
+        public Task PurgeStaleJobsAsync(StaleJobSearchParams<DistributedJob> parameters)
+            => Task.CompletedTask;
+    }
+
+    sealed class DistributedRefillStorage : IJobStorageProvider<DistributedRefillRecord>
+    {
+        readonly Lock _lock = new();
+        readonly Dictionary<Guid, DistributedRefillRecord> _jobs = [];
+        readonly List<int> _requestedLimits = [];
+
+        public bool DistributedJobProcessingEnabled => true;
+
+        public Task StoreJobAsync(DistributedRefillRecord record, CancellationToken ct)
+        {
+            lock (_lock)
+                _jobs[record.TrackingID] = record;
+
+            return Task.CompletedTask;
+        }
+
+        public Task<ICollection<DistributedRefillRecord>> GetNextBatchAsync(PendingJobSearchParams<DistributedRefillRecord> parameters)
+        {
+            var match = parameters.Match.Compile();
+            var now = DateTime.UtcNow;
+            var leaseTime = parameters.ExecutionTimeLimit == Timeout.InfiniteTimeSpan
+                                ? TimeSpan.FromMinutes(5)
+                                : parameters.ExecutionTimeLimit;
+
+            lock (_lock)
+            {
+                _requestedLimits.Add(parameters.Limit);
+
+                var results = _jobs.Values
+                                   .Where(match)
+                                   .OrderBy(record => ((DistributedRefillCommand)record.Command).Sequence)
+                                   .Take(parameters.Limit)
+                                   .ToArray();
+
+                foreach (var job in results)
+                    job.DequeueAfter = now + leaseTime;
+
+                return Task.FromResult<ICollection<DistributedRefillRecord>>(results);
+            }
+        }
+
+        public Task MarkJobAsCompleteAsync(DistributedRefillRecord record, CancellationToken ct)
+        {
+            lock (_lock)
+                _jobs[record.TrackingID].IsComplete = true;
+
+            return Task.CompletedTask;
+        }
+
+        public Task CancelJobAsync(Guid trackingId, CancellationToken ct)
+        {
+            lock (_lock)
+                _jobs[trackingId].IsComplete = true;
+
+            return Task.CompletedTask;
+        }
+
+        public Task OnHandlerExecutionFailureAsync(DistributedRefillRecord record, Exception exception, CancellationToken ct)
+        {
+            lock (_lock)
+                _jobs[record.TrackingID].DequeueAfter = DateTime.MinValue;
+
+            return Task.CompletedTask;
+        }
+
+        public Task PurgeStaleJobsAsync(StaleJobSearchParams<DistributedRefillRecord> parameters)
+            => Task.CompletedTask;
+
+        public DateTime GetDequeueAfter(Guid trackingId)
+        {
+            lock (_lock)
+                return _jobs[trackingId].DequeueAfter;
+        }
+
+        public Task<bool> WaitForCompletionAsync(Guid trackingId, TimeSpan timeout)
+            => WaitUntilAsync(
+                () =>
+                {
+                    lock (_lock)
+                        return _jobs.TryGetValue(trackingId, out var job) && job.IsComplete;
+                },
+                timeout);
+
+        public int[] GetRequestedLimitsSnapshot()
+        {
+            lock (_lock)
+                return _requestedLimits.ToArray();
+        }
+    }
+
+    sealed class DistributedRefillCommandHandler : ICommandHandler<DistributedRefillCommand>
+    {
+        static TaskCompletionSource<bool> _slowCanFinish = NewSignal<bool>();
+        static TaskCompletionSource<bool> _thirdCanFinish = NewSignal<bool>();
+        static TaskCompletionSource<bool> _fastStarted = NewSignal<bool>();
+        static TaskCompletionSource<bool> _thirdStarted = NewSignal<bool>();
+        static TaskCompletionSource<bool> _fourthStarted = NewSignal<bool>();
+
+        public static Task FastStarted => _fastStarted.Task;
+        public static Task ThirdStarted => _thirdStarted.Task;
+        public static Task FourthStarted => _fourthStarted.Task;
+
+        public static void Reset()
+        {
+            _slowCanFinish = NewSignal<bool>();
+            _thirdCanFinish = NewSignal<bool>();
+            _fastStarted = NewSignal<bool>();
+            _thirdStarted = NewSignal<bool>();
+            _fourthStarted = NewSignal<bool>();
+        }
+
+        public static void ReleaseSlow()
+            => _slowCanFinish.TrySetResult(true);
+
+        public static void ReleaseThird()
+            => _thirdCanFinish.TrySetResult(true);
+
+        public async Task ExecuteAsync(DistributedRefillCommand command, CancellationToken ct)
+        {
+            switch (command.Name)
+            {
+                case "slow":
+                    await _slowCanFinish.Task.WaitAsync(ct);
+                    break;
+                case "fast":
+                    _fastStarted.TrySetResult(true);
+                    break;
+                case "third":
+                    _thirdStarted.TrySetResult(true);
+                    await _thirdCanFinish.Task.WaitAsync(ct);
+                    break;
+                case "fourth":
+                    _fourthStarted.TrySetResult(true);
+                    break;
+            }
+        }
+    }
+
+    static DistributedJob CreateDistributedJob(DateTime now,
+                                               string queueId = "test-queue",
+                                               string command = "cmd",
+                                               DateTime? executeAfter = null,
+                                               DateTime? expireOn = null,
+                                               DateTime? dequeueAfter = null)
+        => new()
+        {
+            QueueID = queueId,
+            TrackingID = Guid.NewGuid(),
+            Command = command,
+            ExecuteAfter = executeAfter ?? now.AddMinutes(-1),
+            ExpireOn = expireOn ?? now.AddHours(1),
+            DequeueAfter = dequeueAfter ?? DateTime.MinValue
+        };
+
+    static PendingJobSearchParams<DistributedJob> CreateDistributedSearchParams(DateTime now, string queueId = "test-queue", int limit = 1)
+        => new()
+        {
+            QueueID = queueId,
+            Match = PendingDistributedJobs(queueId, now),
+            Limit = limit,
+            ExecutionTimeLimit = TimeSpan.FromMinutes(10)
+        };
+
+    static Expression<Func<DistributedJob, bool>> PendingDistributedJobs(string queueId, DateTime now)
+        => job => job.QueueID == queueId &&
+                  !job.IsComplete &&
+                  job.ExecuteAfter <= now &&
+                  job.ExpireOn >= now &&
+                  job.DequeueAfter <= now;
+
+    static async Task StoreJobsAsync(DistributedJobStorage storage, params DistributedJob[] jobs)
+    {
+        foreach (var job in jobs)
+            await storage.StoreJobAsync(job, CancellationToken.None);
+    }
+}

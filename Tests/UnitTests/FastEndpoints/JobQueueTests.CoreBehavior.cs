@@ -1,32 +1,11 @@
-using FastEndpoints;
 using System.Linq.Expressions;
+using FastEndpoints;
 using Xunit;
 
 namespace JobQueue;
 
 public partial class JobQueueTests
 {
-    sealed class BasicJob : IJobStorageRecord
-    {
-        public string QueueID { get; set; } = "";
-        public Guid TrackingID { get; set; }
-        public object Command { get; set; } = null!;
-        public DateTime ExecuteAfter { get; set; }
-        public DateTime ExpireOn { get; set; }
-        public bool IsComplete { get; set; }
-    }
-
-    sealed class DistributedJob : IJobStorageRecord
-    {
-        public string QueueID { get; set; } = "";
-        public Guid TrackingID { get; set; }
-        public object Command { get; set; } = null!;
-        public DateTime ExecuteAfter { get; set; }
-        public DateTime ExpireOn { get; set; }
-        public bool IsComplete { get; set; }
-        public DateTime DequeueAfter { get; set; }
-    }
-
     [Fact]
     public void default_dequeue_after_getter_returns_datetime_min_value()
     {

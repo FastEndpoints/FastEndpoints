@@ -24,7 +24,7 @@ The STJ serializer context generator now supports endpoints defined with [fluent
 
 <details><summary>Referenced project + Nuget package support for the serializer context generator</summary>
 
-The serializer context will now generate `JsonSerializable` attributes for request and response DTOs from referenced source projects as well as Nuget packages. Previously the generator was only capable of generating attributes for DTOs from the current project directory.
+The generated serializer context will now have `JsonSerializable` attributes for request and response DTOs from referenced source projects as well as Nuget packages. Previously the generator was only capable of generating attributes for DTOs from the current project directory.
 
 </details>
 
@@ -98,7 +98,7 @@ Remote event storage records now carry a library generated `TrackingID`, which a
 
 </details>
 
-## Breaking Changes ⚠️
+## Minor Breaking Changes ⚠️
 
 <details><summary>Remote event storage records now require a TrackingID</summary>
 

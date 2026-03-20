@@ -8,9 +8,16 @@ namespace Binding;
 public class MaxRequestBodyLimitTests : IAsyncLifetime
 {
     readonly WebApplication _app;
+    readonly IServiceResolver? _previousServiceResolver;
 
     public MaxRequestBodyLimitTests()
     {
+        // Save the current ServiceResolver.Instance before UseFastEndpoints() overwrites it.
+        // This prevents leaving a disposed IServiceProvider in the static ServiceResolver.Instance
+        // after this test's WebApplication is disposed, which would cause ObjectDisposedException
+        // in other tests that depend on ServiceResolver.Instance.
+        _previousServiceResolver = ServiceResolver.InstanceNotSet ? null : ServiceResolver.Instance;
+
         var bld = WebApplication.CreateBuilder();
         bld.WebHost.ConfigureKestrel(o => o.ListenLocalhost(1024));
         bld.Services.AddFastEndpoints(o => o.Filter = t => t == typeof(Endpoint));
@@ -72,5 +79,12 @@ public class MaxRequestBodyLimitTests : IAsyncLifetime
     }
 
     public async ValueTask DisposeAsync()
-        => await _app.DisposeAsync();
+    {
+        await _app.DisposeAsync();
+
+        // Restore the previous ServiceResolver.Instance so that other tests
+        // don't end up using a disposed IServiceProvider.
+        if (_previousServiceResolver is not null)
+            ServiceResolver.Instance = _previousServiceResolver;
+    }
 }

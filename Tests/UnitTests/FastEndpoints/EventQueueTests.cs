@@ -643,6 +643,136 @@ public class EventQueueTests
         storage.GetExecutionCount("fast").ShouldBe(1);
     }
 
+    [Fact]
+    public async Task event_hub_requeues_all_remaining_batch_records_on_stream_failure()
+    {
+        var provider = CreateServiceProvider();
+        var hub = new EventHub<StreamFailureEvent, TestEventRecord, BatchDequeueEventHubStorage>(provider);
+
+        // Force the in-memory provider flag so the re-queue path is exercised.
+        typeof(EventHubBase)
+            .GetProperty("IsInMemoryProvider", BindingFlags.NonPublic | BindingFlags.Instance)!
+            .SetValue(hub, true);
+
+        // Retrieve the static storage the constructor created.
+        var storage = (BatchDequeueEventHubStorage)typeof(EventHub<StreamFailureEvent, TestEventRecord, BatchDequeueEventHubStorage>)
+            .GetField("_storage", BindingFlags.NonPublic | BindingFlags.Static)!
+            .GetValue(null)!;
+
+        var subscriberId = "stream-failure-sub";
+
+        // Pre-load 5 events directly into the storage queue.
+        for (var i = 1; i <= 5; i++)
+        {
+            storage.Enqueue(new TestEventRecord
+            {
+                TrackingID = Guid.NewGuid(),
+                SubscriberID = subscriberId,
+                EventType = typeof(StreamFailureEvent).FullName!,
+                Event = new StreamFailureEvent { EventID = i },
+                ExpireOn = DateTime.UtcNow.AddMinutes(5)
+            });
+        }
+
+        // First connection: stream writer that throws after 2 successful writes.
+        var failingWriter = new FailingServerStreamWriter<StreamFailureEvent>(failAfter: 2);
+        using var cts1 = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+        var task1 = hub.OnSubscriberConnected(hub, subscriberId, failingWriter, CreateServerCallContext(cts1.Token));
+
+        // The method should return quickly because the stream breaks on the 3rd write.
+        await WaitForCompletion(task1, timeoutMs: 5000);
+
+        // 2 events were successfully written before the stream broke.
+        failingWriter.Responses.Count.ShouldBe(2);
+        failingWriter.Responses[0].EventID.ShouldBe(1);
+        failingWriter.Responses[1].EventID.ShouldBe(2);
+
+        // The remaining 3 events (failed write + unattempted) must still be in the queue.
+        storage.QueueCount.ShouldBe(3);
+
+        // Reconnect with a normal writer and confirm all remaining events arrive.
+        var goodWriter = new TestServerStreamWriter<StreamFailureEvent>();
+        using var cts2 = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+        var task2 = hub.OnSubscriberConnected(hub, subscriberId, goodWriter, CreateServerCallContext(cts2.Token));
+
+        await WaitUntil(() => goodWriter.Responses.Count == 3, timeoutMs: 5000);
+
+        goodWriter.Responses.Select(e => e.EventID).ShouldBe([3, 4, 5]);
+
+        cts2.Cancel();
+        await WaitForCompletion(task2, timeoutMs: 5000);
+    }
+
+    [Fact]
+    public async Task event_executor_fetches_only_available_slots_for_in_memory_provider()
+    {
+        InMemFetchLimitHandler.Reset();
+        var storage = new BatchDequeueEventSubscriberStorage();
+        var handler = new InMemFetchLimitHandler();
+        var services = CreateServiceProvider(s => s.AddSingleton<IEventHandler<InMemFetchLimitEvent>>(handler));
+        var logger = services.GetRequiredService<ILogger<
+            EventSubscriber<InMemFetchLimitEvent, InMemFetchLimitHandler, TestEventRecord, BatchDequeueEventSubscriberStorage>>>();
+        ObjectFactory factory = static (_, _) => throw new InvalidOperationException("Not used.");
+
+        // Force the in-memory provider flag so the fetch-limit logic is exercised.
+        typeof(EventSubscriber<InMemFetchLimitEvent, InMemFetchLimitHandler, TestEventRecord, BatchDequeueEventSubscriberStorage>)
+            .GetField("_isInMemProvider", BindingFlags.NonPublic | BindingFlags.Static)!
+            .SetValue(null, true);
+
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+        var subscriberId = "fetch-limit-sub";
+
+        // Store 5 events: the first blocks until released, the rest complete immediately.
+        await storage.StoreEventAsync(new()
+        {
+            TrackingID = Guid.NewGuid(),
+            SubscriberID = subscriberId,
+            EventType = typeof(InMemFetchLimitEvent).FullName!,
+            Event = new InMemFetchLimitEvent { Name = "slow" },
+            ExpireOn = DateTime.UtcNow.AddMinutes(1)
+        }, cts.Token);
+
+        for (var i = 1; i <= 4; i++)
+        {
+            await storage.StoreEventAsync(new()
+            {
+                TrackingID = Guid.NewGuid(),
+                SubscriberID = subscriberId,
+                EventType = typeof(InMemFetchLimitEvent).FullName!,
+                Event = new InMemFetchLimitEvent { Name = $"fast-{i}" },
+                ExpireOn = DateTime.UtcNow.AddMinutes(1)
+            }, cts.Token);
+        }
+
+        var executor = EventSubscriber<InMemFetchLimitEvent, InMemFetchLimitHandler, TestEventRecord, BatchDequeueEventSubscriberStorage>
+                       .EventExecutorTask(
+                           storage,
+                           new SemaphoreSlim(0),
+                           new CallOptions(cancellationToken: cts.Token),
+                           maxConcurrency: 2,
+                           subscriberID: subscriberId,
+                           logger,
+                           factory,
+                           services,
+                           errorReceiver: null);
+
+        // Wait for all fast events to be processed while the slow event blocks one slot.
+        await WaitUntil(() => InMemFetchLimitHandler.ProcessedCount >= 4, timeoutMs: 5000);
+
+        // Release the slow event so it can complete.
+        InMemFetchLimitHandler.ReleaseSlow();
+
+        // All 5 events must be processed — none lost.
+        await WaitUntil(() => InMemFetchLimitHandler.ProcessedCount == 5, timeoutMs: 5000);
+        InMemFetchLimitHandler.ProcessedCount.ShouldBe(5);
+
+        // With the fix, at least one fetch requested only the available slots (1) instead of maxConcurrency (2).
+        storage.GetRequestedLimitsSnapshot().ShouldContain(1);
+
+        cts.Cancel();
+        await WaitForCompletion(executor, timeoutMs: 5000);
+    }
+
     static ServiceProvider CreateServiceProvider(Action<IServiceCollection>? configure = null)
     {
         var services = new ServiceCollection();
@@ -751,6 +881,16 @@ public class EventQueueTests
     }
 
     class TrackedTestEvent : IEvent
+    {
+        public string Name { get; set; } = default!;
+    }
+
+    class StreamFailureEvent : IEvent
+    {
+        public int EventID { get; set; }
+    }
+
+    class InMemFetchLimitEvent : IEvent
     {
         public string Name { get; set; } = default!;
     }
@@ -1165,5 +1305,148 @@ public class EventQueueTests
         public CancellationToken ApplicationStopped => CancellationToken.None;
 
         public void StopApplication() { }
+    }
+
+    class FailingServerStreamWriter<T>(int failAfter) : IServerStreamWriter<T>
+    {
+        int _writeCount;
+
+        public WriteOptions? WriteOptions { get; set; }
+        public List<T> Responses { get; } = new();
+
+        public Task WriteAsync(T message)
+        {
+            if (_writeCount >= failAfter)
+                throw new InvalidOperationException("Simulated stream failure");
+
+            _writeCount++;
+            Responses.Add(message);
+
+            return Task.CompletedTask;
+        }
+
+        public Task WriteAsync(T message, CancellationToken ct)
+            => WriteAsync(message);
+    }
+
+    sealed class BatchDequeueEventHubStorage : IEventHubStorageProvider<TestEventRecord>
+    {
+        readonly object _sync = new();
+        readonly Queue<TestEventRecord> _queue = new();
+
+        public void Enqueue(TestEventRecord record)
+        {
+            lock (_sync)
+                _queue.Enqueue(record);
+        }
+
+        public int QueueCount
+        {
+            get
+            {
+                lock (_sync)
+                    return _queue.Count;
+            }
+        }
+
+        public ValueTask<IEnumerable<string>> RestoreSubscriberIDsForEventTypeAsync(SubscriberIDRestorationParams<TestEventRecord> p)
+            => new(Array.Empty<string>());
+
+        public ValueTask StoreEventsAsync(IEnumerable<TestEventRecord> r, CancellationToken ct)
+        {
+            lock (_sync)
+            {
+                foreach (var record in r)
+                    _queue.Enqueue(record);
+            }
+
+            return default;
+        }
+
+        public ValueTask<IEnumerable<TestEventRecord>> GetNextBatchAsync(PendingRecordSearchParams<TestEventRecord> p)
+        {
+            lock (_sync)
+            {
+                var batch = new List<TestEventRecord>();
+
+                while (batch.Count < p.Limit && _queue.Count > 0)
+                    batch.Add(_queue.Dequeue());
+
+                return new(batch);
+            }
+        }
+
+        public ValueTask MarkEventAsCompleteAsync(TestEventRecord r, CancellationToken ct)
+            => default;
+
+        public ValueTask PurgeStaleRecordsAsync(StaleRecordSearchParams<TestEventRecord> p)
+            => default;
+    }
+
+    sealed class BatchDequeueEventSubscriberStorage : IEventSubscriberStorageProvider<TestEventRecord>
+    {
+        readonly object _sync = new();
+        readonly Queue<TestEventRecord> _queue = new();
+        readonly List<int> _requestedLimits = [];
+
+        public ValueTask StoreEventAsync(TestEventRecord r, CancellationToken ct)
+        {
+            lock (_sync)
+                _queue.Enqueue(r);
+
+            return default;
+        }
+
+        public ValueTask<IEnumerable<TestEventRecord>> GetNextBatchAsync(PendingRecordSearchParams<TestEventRecord> p)
+        {
+            lock (_sync)
+            {
+                _requestedLimits.Add(p.Limit);
+
+                var batch = new List<TestEventRecord>();
+
+                while (batch.Count < p.Limit && _queue.Count > 0)
+                    batch.Add(_queue.Dequeue());
+
+                return new(batch);
+            }
+        }
+
+        public ValueTask MarkEventAsCompleteAsync(TestEventRecord r, CancellationToken ct)
+            => default;
+
+        public ValueTask PurgeStaleRecordsAsync(StaleRecordSearchParams<TestEventRecord> p)
+            => default;
+
+        public IReadOnlyList<int> GetRequestedLimitsSnapshot()
+        {
+            lock (_sync)
+                return [.. _requestedLimits];
+        }
+    }
+
+    class InMemFetchLimitHandler : IEventHandler<InMemFetchLimitEvent>
+    {
+        static int _processedCount;
+        static TaskCompletionSource _slowGate = NewSignal();
+
+        public static void Reset()
+        {
+            Interlocked.Exchange(ref _processedCount, 0);
+            _slowGate = NewSignal();
+        }
+
+        public static void ReleaseSlow()
+            => _slowGate.TrySetResult();
+
+        public static int ProcessedCount => Volatile.Read(ref _processedCount);
+
+        public async Task HandleAsync(InMemFetchLimitEvent evnt, CancellationToken ct)
+        {
+            if (evnt.Name == "slow")
+                await _slowGate.Task.WaitAsync(ct);
+
+            Interlocked.Increment(ref _processedCount);
+        }
     }
 }

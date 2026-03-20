@@ -194,15 +194,21 @@ sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProv
 
                     try
                     {
-                        // fetch a full concurrency sized window instead of just the currently open slots. durable providers
-                        // do not lease records, so a refill may need to look past the "still running" records that come back
-                        // from storage before it can find fresh work for the newly freed slot.
+                        // for in-memory providers, fetching dequeues records from the queue, so only fetch
+                        // exactly the number of available slots to prevent losing events that can't be
+                        // immediately assigned to an execution slot. durable providers do not lease records,
+                        // so a refill may need to look past "still running" records and requires a full
+                        // concurrency-sized window.
+                        var fetchLimit = _isInMemProvider
+                                             ? maxConcurrency - executions.Count
+                                             : maxConcurrency;
+
                         var fetchedRecords = await storage.GetNextBatchAsync(
                                                  new()
                                                  {
                                                      CancellationToken = opts.CancellationToken,
                                                      EventType = _eventTypeName,
-                                                     Limit = maxConcurrency,
+                                                     Limit = fetchLimit,
                                                      SubscriberID = subscriberID,
                                                      Match = e => e.SubscriberID == subscriberID &&
                                                                   e.EventType == _eventTypeName &&

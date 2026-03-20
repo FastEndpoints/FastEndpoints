@@ -258,8 +258,10 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
 
                 if (records.Count > 0)
                 {
-                    foreach (var record in records)
+                    for (var i = 0; i < records.Count; i++)
                     {
+                        var record = records[i];
+
                         try
                         {
                             await stream.WriteAsync(record.GetEvent<TEvent>(), cts.Token);
@@ -268,9 +270,11 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                         {
                             if (IsInMemoryProvider)
                             {
+                                // re-queue the current record and all remaining unattempted records in the batch
+                                // since they were already dequeued from the in-memory queue by GetNextBatchAsync.
                                 try
                                 {
-                                    await _storage.StoreEventsAsync([record], cts.Token);
+                                    await _storage.StoreEventsAsync(records[i..], cts.Token);
                                 }
                                 catch
                                 {

@@ -106,9 +106,9 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
     where TStorageProvider : class, IJobStorageProvider<TStorageRecord>
 {
     static readonly Type _tCommand = typeof(TCommand);
-    static readonly string _tCommandName = _tCommand.FullName!;
+    static readonly string _commandTypeName = _tCommand.FullName!;
 
-    public static readonly string QueueID = _tCommandName.ToHash(); //public due to: https://github.com/FastEndpoints/FastEndpoints/issues/468
+    public static readonly string QueueID = _commandTypeName.ToHash(); //public due to: https://github.com/FastEndpoints/FastEndpoints/issues/468
     internal Task ExecutorTask { get; private set; } = Task.CompletedTask;
 
     readonly ConcurrentDictionary<Guid, CancellationTokenSource?> _cancellations = new();
@@ -163,7 +163,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
         };
 
         if (job is IHasCommandType jct)
-            jct.CommandType = _tCommandName;
+            jct.CommandType = _commandTypeName;
 
         if (command is IHasTrackingID cti)
             cti.TrackingID = job.TrackingID;
@@ -234,8 +234,8 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
         }
         catch (ObjectDisposedException) { }
 
-        if (_cancellations.TryUpdate(trackingId, null, cts))    // set null as the mark for dictionary cleanup
-            _nextCleanupOn ??= DateTime.UtcNow.AddMinutes(5);   // if marked null, schedule next dictionary cleanup in 5 minutes
+        if (_cancellations.TryUpdate(trackingId, null, cts))  // set null as the mark for dictionary cleanup
+            _nextCleanupOn ??= DateTime.UtcNow.AddMinutes(5); // if marked null, schedule next dictionary cleanup in 5 minutes
 
         await _storage.CancelJobAsync(trackingId, ct);
     }
@@ -319,7 +319,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 }
                 catch (Exception x)
                 {
-                    _log.StorageRetrieveError(QueueID, _tCommandName, x.Message);
+                    _log.StorageRetrieveError(QueueID, _commandTypeName, x.Message);
                     await Task.Delay(5000);
 
                     continue;
@@ -330,10 +330,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                     _activated = true;
 
                     foreach (var record in records.Take(availableSlots))
-                    {
-                        var task = ExecuteCommand(record);
-                        executions[record.TrackingID] = task;
-                    }
+                        executions[record.TrackingID] = ExecuteCommand(record);
 
                     if (executions.Count == _maxConcurrency)
                         continue;
@@ -344,6 +341,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 continue;
             }
 
+            //no free slots available. wait for at least one slot to free up, and honor app shutdown.
             try
             {
                 await Task.WhenAny(executions.Values).WaitAsync(_appCancellation);
@@ -354,7 +352,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
             }
             catch (Exception x)
             {
-                _log.CommandParallelExecutionWarning(_tCommandName, x.Message);
+                _log.CommandParallelExecutionWarning(_commandTypeName, x.Message);
                 await Task.Delay(5000);
             }
         }
@@ -403,14 +401,14 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
             {
                 // don't treat as a handler execution failure when manually canceled mid-execution
                 _cancellations.TryRemove(record.TrackingID, out _);
-                _log.JobCancelledManually(_tCommandName, record.TrackingID);
+                _log.JobCancelledManually(_commandTypeName, record.TrackingID);
 
                 return;
             }
             catch (Exception x)
             {
                 _cancellations.TryRemove(record.TrackingID, out _); // remove entry on execution error to allow obtaining a new cts on retry/reentry
-                _log.CommandExecutionCritical(_tCommandName, x.Message);
+                _log.CommandExecutionCritical(_commandTypeName, x.Message);
 
                 while (true)
                 {
@@ -428,7 +426,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                     }
                     catch (Exception xx)
                     {
-                        _log.StorageOnExecutionFailureError(QueueID, _tCommandName, xx.Message);
+                        _log.StorageOnExecutionFailureError(QueueID, _commandTypeName, xx.Message);
 
                         if (_appCancellation.IsCancellationRequested || IsJobCancelled())
                             break;
@@ -451,7 +449,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 }
                 catch (Exception x)
                 {
-                    _log.StorageStoreJobResultError(QueueID, _tCommandName, x.Message);
+                    _log.StorageStoreJobResultError(QueueID, _commandTypeName, x.Message);
 
                     if (_appCancellation.IsCancellationRequested || IsJobCancelled())
                         break;
@@ -473,7 +471,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 }
                 catch (Exception x)
                 {
-                    _log.StorageMarkAsCompleteError(QueueID, _tCommandName, x.Message);
+                    _log.StorageMarkAsCompleteError(QueueID, _commandTypeName, x.Message);
 
                     if (_appCancellation.IsCancellationRequested || IsJobCancelled())
                         break;
@@ -538,11 +536,11 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
             }
             catch (OperationCanceledException) when (_appCancellation.IsCancellationRequested)
             {
-                // don't throw; let the main loop exit via its condition check so DrainExecutionsAsync runs
+                // don't throw. let the main loop exit via its condition check so DrainExecutionsAsync runs
             }
             catch (Exception x)
             {
-                _log.CommandParallelExecutionWarning(_tCommandName, x.Message);
+                _log.CommandParallelExecutionWarning(_commandTypeName, x.Message);
                 await Task.Delay(5000);
             }
         }
@@ -573,11 +571,11 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 }
                 catch (OperationCanceledException x) when (!_appCancellation.IsCancellationRequested)
                 {
-                    _log.CommandParallelExecutionWarning(_tCommandName, x.Message);
+                    _log.CommandParallelExecutionWarning(_commandTypeName, x.Message);
                 }
                 catch (Exception x)
                 {
-                    _log.CommandParallelExecutionWarning(_tCommandName, x.Message);
+                    _log.CommandParallelExecutionWarning(_commandTypeName, x.Message);
                 }
             }
         }

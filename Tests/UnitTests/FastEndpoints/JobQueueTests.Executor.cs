@@ -624,4 +624,42 @@ public partial class JobQueueTests
         await queue.ExecutorTask.WaitAsync(TimeSpan.FromSeconds(5));
         queue.ExecutorTask.IsCompletedSuccessfully.ShouldBeTrue();
     }
+
+    [Fact]
+    public async Task manual_cancellation_does_not_allow_reexecution_while_storage_cancel_is_still_in_flight()
+    {
+        CancelRaceTestCommandHandler.Reset();
+        var storage = new CancelRaceTestStorage();
+        using var appStopping = new CancellationTokenSource();
+        var queue = CreateCancelRaceQueue(storage, appStopping);
+        queue.SetLimits(1, Timeout.InfiniteTimeSpan, TimeSpan.FromMilliseconds(20), TimeSpan.FromMilliseconds(20));
+
+        var command = new CancelRaceTestCommand();
+        await command.QueueJobAsync(ct: CancellationToken.None);
+        await CancelRaceTestCommandHandler.Started.WaitAsync(TimeSpan.FromSeconds(5));
+
+        var cancelTask = JobTracker<CancelRaceTestCommand>.CancelJobAsync(command.TrackingID, CancellationToken.None);
+        await storage.CancelStarted.WaitAsync(TimeSpan.FromSeconds(5));
+
+        await Task.Delay(200);
+
+        CancelRaceTestCommandHandler.ExecutionCount.ShouldBe(1);
+        storage.CancelCount.ShouldBe(1);
+        CancelRaceTestCommandHandler.FirstExecutionFinished.IsCompleted.ShouldBeFalse();
+        CancelRaceTestCommandHandler.SecondExecutionStarted.IsCompleted.ShouldBeFalse();
+
+        storage.ReleaseCancel();
+        await cancelTask.WaitAsync(TimeSpan.FromSeconds(5));
+        await CancelRaceTestCommandHandler.FirstExecutionFinished.WaitAsync(TimeSpan.FromSeconds(5));
+        (await storage.WaitForCompletionAsync(command.TrackingID, TimeSpan.FromSeconds(5))).ShouldBeTrue();
+
+        await Task.Delay(200);
+
+        CancelRaceTestCommandHandler.ExecutionCount.ShouldBe(1);
+        CancelRaceTestCommandHandler.SecondExecutionStarted.IsCompleted.ShouldBeFalse();
+
+        appStopping.Cancel();
+        await queue.ExecutorTask.WaitAsync(TimeSpan.FromSeconds(5));
+        queue.ExecutorTask.IsCompletedSuccessfully.ShouldBeTrue();
+    }
 }

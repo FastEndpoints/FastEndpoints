@@ -229,7 +229,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
 
         if (cts is null)
         {
-            await _storage.CancelJobAsync(trackingId, ct); // retry persisting manual cancellation if a previous attempt failed or is still in flight
+            await _storage.CancelJobAsync(trackingId, ct); // retry persisting manual cancellation in case a previous attempt failed or the job is still in flight.
 
             return;
         }
@@ -245,33 +245,36 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
             rollbackManualMarkerOnStorageFailure = true;
         }
 
-        // mark manual cancellation before signaling the token so ExecuteCommand can
-        // distinguish a user initiated cancellation from timeouts/app shutdown.
-        var markedForManualCancellation = _cancellations.TryUpdate(trackingId, null, cts);
-
-        if (markedForManualCancellation)
-        {
-            _staleCancellations.Enqueue((trackingId, DateTime.UtcNow.AddMinutes(5)));
-
-            try
-            {
-                if (!cts.IsCancellationRequested)
-                    cts.Cancel(false);
-            }
-            catch (ObjectDisposedException) { }
-        }
-
         try
         {
+            // persist manual cancellation before signaling the token so the executor
+            // can't pick the same job again while storage still considers it pending.
             await _storage.CancelJobAsync(trackingId, ct);
         }
         catch
         {
-            if (markedForManualCancellation && rollbackManualMarkerOnStorageFailure)
+            if (rollbackManualMarkerOnStorageFailure)
                 _cancellations.TryRemove(trackingId, out _);
 
             throw;
         }
+
+        var markedForManualCancellation = _cancellations.TryUpdate(trackingId, null, cts);
+
+        // if TryUpdate returns false, another thread already handled cancellation
+        // or the job has completed and removed the tracking ID.
+        // returning early prevents duplicate work.
+        if (!markedForManualCancellation)
+            return;
+
+        _staleCancellations.Enqueue((trackingId, DateTime.UtcNow.AddMinutes(5)));
+
+        try
+        {
+            if (!cts.IsCancellationRequested)
+                cts.Cancel(false);
+        }
+        catch (ObjectDisposedException) { }
     }
 
     async Task CommandExecutorTask()

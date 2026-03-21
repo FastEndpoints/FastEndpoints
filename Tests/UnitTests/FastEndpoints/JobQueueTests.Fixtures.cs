@@ -482,6 +482,136 @@ public partial class JobQueueTests
         public bool IsComplete { get; set; }
     }
 
+    sealed class CancelRaceTestCommand : ICommand, IHasTrackingID
+    {
+        public Guid TrackingID { get; set; }
+    }
+
+    sealed class CancelRaceTestCommandHandler : ICommandHandler<CancelRaceTestCommand>
+    {
+        static int _executionCount;
+        static TaskCompletionSource<bool> _started = NewSignal<bool>();
+        static TaskCompletionSource<bool> _firstExecutionFinished = NewSignal<bool>();
+        static TaskCompletionSource<bool> _secondExecutionStarted = NewSignal<bool>();
+
+        public static Task Started => _started.Task;
+        public static Task FirstExecutionFinished => _firstExecutionFinished.Task;
+        public static Task SecondExecutionStarted => _secondExecutionStarted.Task;
+        public static int ExecutionCount => Volatile.Read(ref _executionCount);
+
+        public static void Reset()
+        {
+            Interlocked.Exchange(ref _executionCount, 0);
+            _started = NewSignal<bool>();
+            _firstExecutionFinished = NewSignal<bool>();
+            _secondExecutionStarted = NewSignal<bool>();
+        }
+
+        public async Task ExecuteAsync(CancelRaceTestCommand command, CancellationToken ct)
+        {
+            var executionNumber = Interlocked.Increment(ref _executionCount);
+
+            if (executionNumber == 1)
+            {
+                _started.TrySetResult(true);
+
+                try
+                {
+                    await Task.Delay(Timeout.InfiniteTimeSpan, ct);
+                }
+                finally
+                {
+                    _firstExecutionFinished.TrySetResult(true);
+                }
+
+                return;
+            }
+
+            _secondExecutionStarted.TrySetResult(true);
+        }
+    }
+
+    sealed class CancelRaceTestRecord : IJobStorageRecord
+    {
+        public string QueueID { get; set; } = "";
+        public Guid TrackingID { get; set; }
+        public object Command { get; set; } = null!;
+        public DateTime ExecuteAfter { get; set; }
+        public DateTime ExpireOn { get; set; }
+        public bool IsComplete { get; set; }
+    }
+
+    sealed class CancelRaceTestStorage : IJobStorageProvider<CancelRaceTestRecord>
+    {
+        readonly Lock _lock = new();
+        readonly Dictionary<Guid, CancelRaceTestRecord> _jobs = [];
+        readonly TaskCompletionSource<bool> _cancelStarted = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        readonly TaskCompletionSource<bool> _allowCancelCompletion = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        int _cancelCount;
+
+        public bool DistributedJobProcessingEnabled => false;
+        public int CancelCount => Volatile.Read(ref _cancelCount);
+        public Task CancelStarted => _cancelStarted.Task;
+
+        public void ReleaseCancel()
+            => _allowCancelCompletion.TrySetResult(true);
+
+        public Task StoreJobAsync(CancelRaceTestRecord record, CancellationToken ct)
+        {
+            lock (_lock)
+                _jobs[record.TrackingID] = record;
+
+            return Task.CompletedTask;
+        }
+
+        public Task<ICollection<CancelRaceTestRecord>> GetNextBatchAsync(PendingJobSearchParams<CancelRaceTestRecord> parameters)
+        {
+            var match = parameters.Match.Compile();
+
+            lock (_lock)
+            {
+                return Task.FromResult<ICollection<CancelRaceTestRecord>>(
+                    _jobs.Values
+                         .Where(match)
+                         .Take(parameters.Limit)
+                         .ToArray());
+            }
+        }
+
+        public Task MarkJobAsCompleteAsync(CancelRaceTestRecord record, CancellationToken ct)
+        {
+            lock (_lock)
+                _jobs[record.TrackingID].IsComplete = true;
+
+            return Task.CompletedTask;
+        }
+
+        public async Task CancelJobAsync(Guid trackingId, CancellationToken ct)
+        {
+            Interlocked.Increment(ref _cancelCount);
+            _cancelStarted.TrySetResult(true);
+            await _allowCancelCompletion.Task.WaitAsync(ct);
+
+            lock (_lock)
+                _jobs[trackingId].IsComplete = true;
+        }
+
+        public Task OnHandlerExecutionFailureAsync(CancelRaceTestRecord record, Exception exception, CancellationToken ct)
+            => Task.CompletedTask;
+
+        public Task PurgeStaleJobsAsync(StaleJobSearchParams<CancelRaceTestRecord> parameters)
+            => Task.CompletedTask;
+
+        public Task<bool> WaitForCompletionAsync(Guid trackingId, TimeSpan timeout)
+            => WaitUntilAsync(
+                () =>
+                {
+                    lock (_lock)
+                        return _jobs.TryGetValue(trackingId, out var job) && job.IsComplete;
+                },
+                timeout);
+    }
+
     sealed class BatchFailureTestCommand : ICommand { }
 
     sealed class BatchFailureTestRecord : IJobStorageRecord

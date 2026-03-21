@@ -749,6 +749,168 @@ public partial class JobQueueTests
             => Task.CompletedTask;
     }
 
+    sealed class PersistenceRetryTestCommand : ICommand<string>, IHasTrackingID
+    {
+        public Guid TrackingID { get; set; }
+        public TimeSpan ExecutionDelay { get; init; }
+        public string ResultText { get; init; } = "ok";
+    }
+
+    sealed class PersistenceRetryTestRecord : IJobStorageRecord, IJobResultStorage
+    {
+        public string QueueID { get; set; } = "";
+        public Guid TrackingID { get; set; }
+        public object Command { get; set; } = null!;
+        public DateTime ExecuteAfter { get; set; }
+        public DateTime ExpireOn { get; set; }
+        public bool IsComplete { get; set; }
+        public object? Result { get; set; }
+    }
+
+    sealed class PersistenceRetryTestStorage(int storeResultFailures = 0, int markCompleteFailures = 0)
+        : IJobStorageProvider<PersistenceRetryTestRecord>, IJobResultProvider
+    {
+        readonly Lock _lock = new();
+        readonly Dictionary<Guid, PersistenceRetryTestRecord> _jobs = [];
+        int _remainingStoreResultFailures = storeResultFailures;
+        int _remainingMarkCompleteFailures = markCompleteFailures;
+        int _executionCount;
+        int _storeResultAttempts;
+        int _markCompleteAttempts;
+
+        public bool DistributedJobProcessingEnabled => false;
+        public int ExecutionCount => Volatile.Read(ref _executionCount);
+        public int StoreResultAttempts => Volatile.Read(ref _storeResultAttempts);
+        public int MarkCompleteAttempts => Volatile.Read(ref _markCompleteAttempts);
+
+        public Task StoreJobAsync(PersistenceRetryTestRecord record, CancellationToken ct)
+        {
+            lock (_lock)
+                _jobs[record.TrackingID] = Clone(record);
+
+            return Task.CompletedTask;
+        }
+
+        public Task<ICollection<PersistenceRetryTestRecord>> GetNextBatchAsync(PendingJobSearchParams<PersistenceRetryTestRecord> parameters)
+        {
+            var match = parameters.Match.Compile();
+
+            lock (_lock)
+            {
+                return Task.FromResult<ICollection<PersistenceRetryTestRecord>>(
+                    _jobs.Values
+                         .Where(match)
+                         .Select(Clone)
+                         .Take(parameters.Limit)
+                         .ToArray());
+            }
+        }
+
+        public Task MarkJobAsCompleteAsync(PersistenceRetryTestRecord record, CancellationToken ct)
+        {
+            Interlocked.Increment(ref _markCompleteAttempts);
+
+            lock (_lock)
+            {
+                if (_remainingMarkCompleteFailures > 0)
+                {
+                    _remainingMarkCompleteFailures--;
+
+                    return Task.FromException(new InvalidOperationException("simulated completion failure"));
+                }
+
+                _jobs[record.TrackingID].IsComplete = true;
+            }
+
+            return Task.CompletedTask;
+        }
+
+        public Task CancelJobAsync(Guid trackingId, CancellationToken ct)
+        {
+            lock (_lock)
+                _jobs[trackingId].IsComplete = true;
+
+            return Task.CompletedTask;
+        }
+
+        public Task OnHandlerExecutionFailureAsync(PersistenceRetryTestRecord record, Exception exception, CancellationToken ct)
+            => Task.CompletedTask;
+
+        public Task PurgeStaleJobsAsync(StaleJobSearchParams<PersistenceRetryTestRecord> parameters)
+            => Task.CompletedTask;
+
+        public Task StoreJobResultAsync<TResult>(Guid trackingId, TResult result, CancellationToken ct)
+        {
+            Interlocked.Increment(ref _storeResultAttempts);
+
+            lock (_lock)
+            {
+                if (_remainingStoreResultFailures > 0)
+                {
+                    _remainingStoreResultFailures--;
+
+                    return Task.FromException(new InvalidOperationException("simulated result storage failure"));
+                }
+
+                ((IJobResultStorage)_jobs[trackingId]).SetResult(result);
+            }
+
+            return Task.CompletedTask;
+        }
+
+        public Task<TResult?> GetJobResultAsync<TResult>(Guid trackingId, CancellationToken ct)
+        {
+            lock (_lock)
+                return Task.FromResult(_jobs.TryGetValue(trackingId, out var job) ? ((IJobResultStorage)job).GetResult<TResult>() : default);
+        }
+
+        public void IncrementExecutionCount()
+            => Interlocked.Increment(ref _executionCount);
+
+        public Task<bool> WaitForCompletionAsync(Guid trackingId, TimeSpan timeout)
+            => WaitUntilAsync(
+                () =>
+                {
+                    lock (_lock)
+                        return _jobs.TryGetValue(trackingId, out var job) && job.IsComplete;
+                },
+                timeout);
+
+        public Task<bool> WaitForResultAsync(Guid trackingId, string expectedResult, TimeSpan timeout)
+            => WaitUntilAsync(
+                () =>
+                {
+                    lock (_lock)
+                        return _jobs.TryGetValue(trackingId, out var job) && Equals(job.Result, expectedResult);
+                },
+                timeout);
+
+        static PersistenceRetryTestRecord Clone(PersistenceRetryTestRecord record)
+            => new()
+            {
+                QueueID = record.QueueID,
+                TrackingID = record.TrackingID,
+                Command = record.Command,
+                ExecuteAfter = record.ExecuteAfter,
+                ExpireOn = record.ExpireOn,
+                IsComplete = record.IsComplete,
+                Result = record.Result
+            };
+    }
+
+    sealed class PersistenceRetryTestCommandHandler(PersistenceRetryTestStorage storage) : ICommandHandler<PersistenceRetryTestCommand, string>
+    {
+        public async Task<string> ExecuteAsync(PersistenceRetryTestCommand command, CancellationToken ct)
+        {
+            storage.IncrementExecutionCount();
+
+            if (command.ExecutionDelay > TimeSpan.Zero)
+                await Task.Delay(command.ExecutionDelay, ct);
+
+            return command.ResultText;
+        }
+    }
+
     static DistributedJob CreateDistributedJob(DateTime now,
                                                string queueId = "test-queue",
                                                string command = "cmd",

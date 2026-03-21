@@ -68,6 +68,19 @@ public partial class JobQueueTests
             NullLogger<JobQueue<ResultCapableVoidTestCommand, FastEndpoints.Void, ResultCapableVoidTestRecord, ResultCapableVoidTestStorage>>.Instance);
     }
 
+    static JobQueue<PersistenceRetryTestCommand, string, PersistenceRetryTestRecord, PersistenceRetryTestStorage> CreatePersistenceRetryQueue(
+        PersistenceRetryTestStorage storage,
+        CancellationTokenSource appStopping)
+    {
+        Factory.RegisterTestServices(_ => { });
+        new PersistenceRetryTestCommandHandler(storage).RegisterForTesting();
+
+        return new(
+            storage,
+            new TestHostLifetime(appStopping.Token),
+            NullLogger<JobQueue<PersistenceRetryTestCommand, string, PersistenceRetryTestRecord, PersistenceRetryTestStorage>>.Instance);
+    }
+
     static async Task QueueJobsAsync(params ICommand[] commands)
     {
         foreach (var command in commands)

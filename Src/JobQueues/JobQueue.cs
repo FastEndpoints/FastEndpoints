@@ -438,6 +438,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 {
                     try
                     {
+                        // fetch the last known result in case the job handler stored intermediate results before failing, so it can be passed to OnHandlerExecutionFailureAsync
                         if (_resultStorage is not null)
                             (record as IJobResultStorage)?.SetResult(await GetJobResultAsync<TResult>(record.TrackingID, CancellationToken.None));
 
@@ -475,7 +476,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 {
                     _log.StorageStoreJobResultError(QueueID, _commandTypeName, x.Message);
 
-                    if (_appCancellation.IsCancellationRequested || IsJobCancelled())
+                    if (_appCancellation.IsCancellationRequested)
                         break; // losing the result is an acceptable risk if app is shutting down. do not 'return;' here (which causes re-execution of job).
 
                     await Task.Delay(5000);
@@ -497,7 +498,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 {
                     _log.StorageMarkAsCompleteError(QueueID, _commandTypeName, x.Message);
 
-                    if (_appCancellation.IsCancellationRequested || IsJobCancelled())
+                    if (_appCancellation.IsCancellationRequested)
                         break;
 
                     await Task.Delay(5000);

@@ -327,4 +327,53 @@ public partial class JobQueueTests
         appStopping.Cancel();
         await queue.ExecutorTask.WaitAsync(TimeSpan.FromSeconds(5));
     }
+
+    [Fact]
+    public async Task successful_execution_retries_result_persistence_even_after_execution_timeout_expires()
+    {
+        var storage = new PersistenceRetryTestStorage(storeResultFailures: 1);
+        using var appStopping = new CancellationTokenSource();
+        var queue = CreatePersistenceRetryQueue(storage, appStopping);
+        queue.SetLimits(1, TimeSpan.FromMilliseconds(200), TimeSpan.FromMilliseconds(20));
+
+        var command = new PersistenceRetryTestCommand
+        {
+            ExecutionDelay = TimeSpan.FromMilliseconds(50),
+            ResultText = "persisted"
+        };
+
+        await command.QueueJobAsync(ct: CancellationToken.None);
+
+        (await storage.WaitForResultAsync(command.TrackingID, command.ResultText, TimeSpan.FromSeconds(8))).ShouldBeTrue();
+        (await storage.WaitForCompletionAsync(command.TrackingID, TimeSpan.FromSeconds(8))).ShouldBeTrue();
+        storage.ExecutionCount.ShouldBe(1);
+        storage.StoreResultAttempts.ShouldBe(2);
+
+        appStopping.Cancel();
+        await queue.ExecutorTask.WaitAsync(TimeSpan.FromSeconds(5));
+    }
+
+    [Fact]
+    public async Task successful_execution_marks_job_complete_even_after_execution_timeout_expires_during_completion_retry()
+    {
+        var storage = new PersistenceRetryTestStorage(markCompleteFailures: 1);
+        using var appStopping = new CancellationTokenSource();
+        var queue = CreatePersistenceRetryQueue(storage, appStopping);
+        queue.SetLimits(1, TimeSpan.FromMilliseconds(200), TimeSpan.FromMilliseconds(20));
+
+        var command = new PersistenceRetryTestCommand
+        {
+            ExecutionDelay = TimeSpan.FromMilliseconds(50),
+            ResultText = "complete-on-retry"
+        };
+
+        await command.QueueJobAsync(ct: CancellationToken.None);
+
+        (await storage.WaitForCompletionAsync(command.TrackingID, TimeSpan.FromSeconds(8))).ShouldBeTrue();
+        storage.ExecutionCount.ShouldBe(1);
+        storage.MarkCompleteAttempts.ShouldBe(2);
+
+        appStopping.Cancel();
+        await queue.ExecutorTask.WaitAsync(TimeSpan.FromSeconds(5));
+    }
 }

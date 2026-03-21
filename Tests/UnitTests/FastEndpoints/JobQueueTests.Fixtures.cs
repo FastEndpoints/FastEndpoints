@@ -176,16 +176,20 @@ public partial class JobQueueTests
                 {
                     case "slow":
                         await _slowCanFinish.Task.WaitAsync(ct);
+
                         break;
                     case "fast":
                         _fastStarted.TrySetResult(true);
+
                         break;
                     case "third":
                         _thirdStarted.TrySetResult(true);
+
                         break;
                     case "drain":
                         _drainStarted.TrySetResult(true);
                         await _drainCanFinish.Task;
+
                         break;
                 }
             }
@@ -403,16 +407,20 @@ public partial class JobQueueTests
             {
                 case "slow":
                     await _slowCanFinish.Task.WaitAsync(ct);
+
                     break;
                 case "fast":
                     _fastStarted.TrySetResult(true);
+
                     break;
                 case "third":
                     _thirdStarted.TrySetResult(true);
                     await _thirdCanFinish.Task.WaitAsync(ct);
+
                     break;
                 case "fourth":
                     _fourthStarted.TrySetResult(true);
+
                     break;
             }
         }
@@ -591,6 +599,100 @@ public partial class JobQueueTests
     {
         public Task<string> ExecuteAsync(ResultIgnoringTestCommand command, CancellationToken ct)
             => Task.FromResult($"handled:{command.Payload}");
+    }
+
+    sealed class ResultCapableVoidTestCommand : ICommand, IHasTrackingID
+    {
+        public Guid TrackingID { get; set; }
+    }
+
+    sealed class ResultCapableVoidTestRecord : IJobStorageRecord
+    {
+        public string QueueID { get; set; } = "";
+        public Guid TrackingID { get; set; }
+        public object Command { get; set; } = null!;
+        public DateTime ExecuteAfter { get; set; }
+        public DateTime ExpireOn { get; set; }
+        public bool IsComplete { get; set; }
+    }
+
+    sealed class ResultCapableVoidTestStorage : IJobStorageProvider<ResultCapableVoidTestRecord>, IJobResultProvider
+    {
+        readonly Lock _lock = new();
+        readonly Dictionary<Guid, ResultCapableVoidTestRecord> _jobs = [];
+        int _storeResultCalls;
+
+        public bool DistributedJobProcessingEnabled => false;
+        public int StoreResultCalls => _storeResultCalls;
+
+        public Task StoreJobAsync(ResultCapableVoidTestRecord record, CancellationToken ct)
+        {
+            lock (_lock)
+                _jobs[record.TrackingID] = record;
+
+            return Task.CompletedTask;
+        }
+
+        public Task<ICollection<ResultCapableVoidTestRecord>> GetNextBatchAsync(PendingJobSearchParams<ResultCapableVoidTestRecord> parameters)
+        {
+            var match = parameters.Match.Compile();
+
+            lock (_lock)
+            {
+                return Task.FromResult<ICollection<ResultCapableVoidTestRecord>>(
+                    _jobs.Values
+                         .Where(match)
+                         .Take(parameters.Limit)
+                         .ToArray());
+            }
+        }
+
+        public Task MarkJobAsCompleteAsync(ResultCapableVoidTestRecord record, CancellationToken ct)
+        {
+            lock (_lock)
+                _jobs[record.TrackingID].IsComplete = true;
+
+            return Task.CompletedTask;
+        }
+
+        public Task CancelJobAsync(Guid trackingId, CancellationToken ct)
+        {
+            lock (_lock)
+                _jobs[trackingId].IsComplete = true;
+
+            return Task.CompletedTask;
+        }
+
+        public Task OnHandlerExecutionFailureAsync(ResultCapableVoidTestRecord record, Exception exception, CancellationToken ct)
+            => Task.CompletedTask;
+
+        public Task PurgeStaleJobsAsync(StaleJobSearchParams<ResultCapableVoidTestRecord> parameters)
+            => Task.CompletedTask;
+
+        public Task StoreJobResultAsync<TResult>(Guid trackingId, TResult result, CancellationToken ct)
+        {
+            Interlocked.Increment(ref _storeResultCalls);
+
+            throw new InvalidOperationException("void commands must not persist results");
+        }
+
+        public Task<TResult?> GetJobResultAsync<TResult>(Guid trackingId, CancellationToken ct)
+            => Task.FromResult<TResult?>(default);
+
+        public Task<bool> WaitForCompletionAsync(Guid trackingId, TimeSpan timeout)
+            => WaitUntilAsync(
+                () =>
+                {
+                    lock (_lock)
+                        return _jobs.TryGetValue(trackingId, out var job) && job.IsComplete;
+                },
+                timeout);
+    }
+
+    sealed class ResultCapableVoidTestCommandHandler : ICommandHandler<ResultCapableVoidTestCommand>
+    {
+        public Task ExecuteAsync(ResultCapableVoidTestCommand command, CancellationToken ct)
+            => Task.CompletedTask;
     }
 
     static DistributedJob CreateDistributedJob(DateTime now,

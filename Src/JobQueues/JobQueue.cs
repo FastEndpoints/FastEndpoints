@@ -446,12 +446,12 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 return; //abort execution here
             }
 
-            while (_resultStorage is not null)
+            while (_resultStorage is not null && record is IJobResultStorage rec)
             {
                 try
                 {
                     // if _appCancellation is used here, ORMs could throw without executing the store operation during app shutdown, causing result to get lost.
-                    await _resultStorage.StoreJobResultAsync(record.TrackingID, ((IJobResultStorage)record).GetResult<TResult>(), CancellationToken.None);
+                    await _resultStorage.StoreJobResultAsync(record.TrackingID, rec.GetResult<TResult>(), CancellationToken.None);
 
                     break;
                 }

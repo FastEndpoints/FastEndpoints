@@ -193,4 +193,22 @@ public partial class JobQueueTests
         appStopping.Cancel();
         await queue.ExecutorTask.WaitAsync(TimeSpan.FromSeconds(5));
     }
+
+    [Fact]
+    public async Task void_commands_do_not_attempt_result_persistence_when_storage_provider_supports_results()
+    {
+        var storage = new ResultCapableVoidTestStorage();
+        using var appStopping = new CancellationTokenSource();
+        var queue = CreateResultCapableVoidQueue(storage, appStopping);
+        queue.SetLimits(1, Timeout.InfiniteTimeSpan, TimeSpan.FromMilliseconds(20));
+
+        var command = new ResultCapableVoidTestCommand();
+        await command.QueueJobAsync(ct: CancellationToken.None);
+
+        (await storage.WaitForCompletionAsync(command.TrackingID, TimeSpan.FromSeconds(5))).ShouldBeTrue();
+        storage.StoreResultCalls.ShouldBe(0);
+
+        appStopping.Cancel();
+        await queue.ExecutorTask.WaitAsync(TimeSpan.FromSeconds(5));
+    }
 }

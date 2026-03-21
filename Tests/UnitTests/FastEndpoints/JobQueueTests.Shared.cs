@@ -8,7 +8,7 @@ namespace JobQueue;
 public partial class JobQueueTests
 {
     static JobQueue<RefillTestCommand, FastEndpoints.Void, RefillTestRecord, RefillTestStorage> CreateRefillQueue(RefillTestStorage storage,
-                                                                                                                   CancellationTokenSource appStopping)
+                                                                                                                  CancellationTokenSource appStopping)
     {
         Factory.RegisterTestServices(_ => { });
         new RefillTestCommandHandler(storage).RegisterForTesting();
@@ -32,7 +32,7 @@ public partial class JobQueueTests
     }
 
     static JobQueue<ManualCancelTestCommand, FastEndpoints.Void, ManualCancelTestRecord, ManualCancelTestStorage> CreateManualCancelQueue(ManualCancelTestStorage storage,
-                                                                                                                                     CancellationTokenSource appStopping)
+        CancellationTokenSource appStopping)
     {
         Factory.RegisterTestServices(_ => { });
 
@@ -43,7 +43,7 @@ public partial class JobQueueTests
     }
 
     static JobQueue<ResultIgnoringTestCommand, string, ResultIgnoringTestRecord, ResultIgnoringTestStorage> CreateResultIgnoringQueue(ResultIgnoringTestStorage storage,
-                                                                                                                                 CancellationTokenSource appStopping)
+        CancellationTokenSource appStopping)
     {
         Factory.RegisterTestServices(_ => { });
         new ResultIgnoringTestCommandHandler().RegisterForTesting();
@@ -52,6 +52,19 @@ public partial class JobQueueTests
             storage,
             new TestHostLifetime(appStopping.Token),
             NullLogger<JobQueue<ResultIgnoringTestCommand, string, ResultIgnoringTestRecord, ResultIgnoringTestStorage>>.Instance);
+    }
+
+    static JobQueue<ResultCapableVoidTestCommand, FastEndpoints.Void, ResultCapableVoidTestRecord, ResultCapableVoidTestStorage> CreateResultCapableVoidQueue(
+        ResultCapableVoidTestStorage storage,
+        CancellationTokenSource appStopping)
+    {
+        Factory.RegisterTestServices(_ => { });
+        new ResultCapableVoidTestCommandHandler().RegisterForTesting();
+
+        return new(
+            storage,
+            new TestHostLifetime(appStopping.Token),
+            NullLogger<JobQueue<ResultCapableVoidTestCommand, FastEndpoints.Void, ResultCapableVoidTestRecord, ResultCapableVoidTestStorage>>.Instance);
     }
 
     static async Task QueueJobsAsync(params ICommand[] commands)

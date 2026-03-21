@@ -107,9 +107,10 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
 {
     static readonly Type _tCommand = typeof(TCommand);
     static readonly string _commandTypeName = _tCommand.FullName!;
+    static readonly CancellationTokenSource _preCancelledTokenSource = new();
 
-    public static readonly string QueueID = _commandTypeName.ToHash(); //public due to: https://github.com/FastEndpoints/FastEndpoints/issues/468
     internal Task ExecutorTask { get; private set; } = Task.CompletedTask;
+    public static readonly string QueueID = _commandTypeName.ToHash(); //public due to: https://github.com/FastEndpoints/FastEndpoints/issues/468
 
     readonly ConcurrentDictionary<Guid, CancellationTokenSource?> _cancellations = new();
     readonly ConcurrentQueue<(Guid TrackingId, DateTime ExpireAt)> _staleCancellations = new();
@@ -128,6 +129,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
     public JobQueue(TStorageProvider storageProvider, IHostApplicationLifetime appLife, ILogger<JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider>> logger)
     {
         JobQueues[_tCommand] = this;
+        _preCancelledTokenSource.Cancel();
         _storage = storageProvider;
         _resultStorage = storageProvider as IJobResultProvider;
         _isDistributed = storageProvider.DistributedJobProcessingEnabled;
@@ -223,7 +225,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
     protected override async Task CancelJobAsync(Guid trackingId, CancellationToken ct)
     {
         // if job is executing, fetch the cts added by ExecuteCommand, else store an already canceled cts
-        var cts = GetOrAddCancellation(trackingId, static () => new(0));
+        var cts = GetOrAddCancellation(trackingId, static () => _preCancelledTokenSource);
 
         if (cts is null)
         {
@@ -631,7 +633,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 return created;
             });
 
-        if (created is not null && !ReferenceEquals(created, cts))
+        if (created is not null && !ReferenceEquals(created, cts) && !ReferenceEquals(created, _preCancelledTokenSource))
             created.Dispose();
 
         return cts;

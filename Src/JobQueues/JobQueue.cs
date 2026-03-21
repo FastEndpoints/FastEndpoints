@@ -455,7 +455,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                     {
                         _log.StorageOnExecutionFailureError(QueueID, _commandTypeName, xx.Message);
 
-                        if (_appCancellation.IsCancellationRequested || IsJobCancelled())
+                        if (_appCancellation.IsCancellationRequested || IsManuallyCancelled())
                             break;
 
                         await Task.Delay(_retryDelay);
@@ -512,37 +512,6 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
             // this is used to distinguish manual cancellation from execution time limit expiry or app shutdown.
             bool IsManuallyCancelled()
                 => !_appCancellation.IsCancellationRequested && _cancellations.TryGetValue(record.TrackingID, out var c) && c is null;
-
-            bool IsJobCancelled()
-            {
-                try
-                {
-                    if (cts.IsCancellationRequested)
-                        return true;
-                }
-                catch (ObjectDisposedException)
-                {
-                    return true;
-                }
-
-                if (!_cancellations.TryGetValue(record.TrackingID, out var c))
-                    return false;
-
-                if (c is null)
-                    return true;
-
-                try
-                {
-                    if (c.IsCancellationRequested)
-                        return true;
-                }
-                catch (ObjectDisposedException)
-                {
-                    return true;
-                }
-
-                return false;
-            }
         }
 
         async Task WaitForSignalAsync()

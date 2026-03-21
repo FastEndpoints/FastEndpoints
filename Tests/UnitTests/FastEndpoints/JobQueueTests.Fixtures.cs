@@ -753,6 +753,9 @@ public partial class JobQueueTests
     {
         public Guid TrackingID { get; set; }
         public TimeSpan ExecutionDelay { get; init; }
+        public bool WaitForCancellation { get; init; }
+        public bool ShouldThrow { get; init; }
+        public string FailureMessage { get; init; } = "simulated execution failure";
         public string ResultText { get; init; } = "ok";
     }
 
@@ -767,19 +770,25 @@ public partial class JobQueueTests
         public object? Result { get; set; }
     }
 
-    sealed class PersistenceRetryTestStorage(int storeResultFailures = 0, int markCompleteFailures = 0)
+    sealed class PersistenceRetryTestStorage(int storeResultFailures = 0, int markCompleteFailures = 0, int executionFailurePersistFailures = 0)
         : IJobStorageProvider<PersistenceRetryTestRecord>, IJobResultProvider
     {
         readonly Lock _lock = new();
         readonly Dictionary<Guid, PersistenceRetryTestRecord> _jobs = [];
+        readonly Dictionary<Guid, bool> _recordedFailureCancellationStates = [];
         int _remainingStoreResultFailures = storeResultFailures;
         int _remainingMarkCompleteFailures = markCompleteFailures;
+        int _remainingExecutionFailurePersistFailures = executionFailurePersistFailures;
         int _executionCount;
+        int _executionFailureAttempts;
         int _storeResultAttempts;
         int _markCompleteAttempts;
+        int _recordedFailureCount;
 
         public bool DistributedJobProcessingEnabled => false;
         public int ExecutionCount => Volatile.Read(ref _executionCount);
+        public int ExecutionFailureAttempts => Volatile.Read(ref _executionFailureAttempts);
+        public int RecordedFailureCount => Volatile.Read(ref _recordedFailureCount);
         public int StoreResultAttempts => Volatile.Read(ref _storeResultAttempts);
         public int MarkCompleteAttempts => Volatile.Read(ref _markCompleteAttempts);
 
@@ -834,7 +843,25 @@ public partial class JobQueueTests
         }
 
         public Task OnHandlerExecutionFailureAsync(PersistenceRetryTestRecord record, Exception exception, CancellationToken ct)
-            => Task.CompletedTask;
+        {
+            Interlocked.Increment(ref _executionFailureAttempts);
+
+            lock (_lock)
+            {
+                if (_remainingExecutionFailurePersistFailures > 0)
+                {
+                    _remainingExecutionFailurePersistFailures--;
+
+                    return Task.FromException(new InvalidOperationException("simulated execution failure persistence error"));
+                }
+
+                _jobs[record.TrackingID].IsComplete = true;
+                _recordedFailureCancellationStates[record.TrackingID] = exception is OperationCanceledException;
+                Interlocked.Increment(ref _recordedFailureCount);
+            }
+
+            return Task.CompletedTask;
+        }
 
         public Task PurgeStaleJobsAsync(StaleJobSearchParams<PersistenceRetryTestRecord> parameters)
             => Task.CompletedTask;
@@ -876,6 +903,21 @@ public partial class JobQueueTests
                 },
                 timeout);
 
+        public Task<bool> WaitForFailureRecordedAsync(Guid trackingId, TimeSpan timeout)
+            => WaitUntilAsync(
+                () =>
+                {
+                    lock (_lock)
+                        return _recordedFailureCancellationStates.ContainsKey(trackingId);
+                },
+                timeout);
+
+        public bool WasRecordedFailureCancellation(Guid trackingId)
+        {
+            lock (_lock)
+                return _recordedFailureCancellationStates[trackingId];
+        }
+
         public Task<bool> WaitForResultAsync(Guid trackingId, string expectedResult, TimeSpan timeout)
             => WaitUntilAsync(
                 () =>
@@ -904,8 +946,14 @@ public partial class JobQueueTests
         {
             storage.IncrementExecutionCount();
 
+            if (command.WaitForCancellation)
+                await Task.Delay(Timeout.InfiniteTimeSpan, ct);
+
             if (command.ExecutionDelay > TimeSpan.Zero)
                 await Task.Delay(command.ExecutionDelay, ct);
+
+            if (command.ShouldThrow)
+                throw new InvalidOperationException(command.FailureMessage);
 
             return command.ResultText;
         }

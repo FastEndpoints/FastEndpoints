@@ -376,4 +376,59 @@ public partial class JobQueueTests
         appStopping.Cancel();
         await queue.ExecutorTask.WaitAsync(TimeSpan.FromSeconds(5));
     }
+
+    [Fact]
+    public async Task timed_out_execution_retries_failure_persistence_until_it_is_recorded()
+    {
+        var storage = new PersistenceRetryTestStorage(executionFailurePersistFailures: 1);
+        using var appStopping = new CancellationTokenSource();
+        var queue = CreatePersistenceRetryQueue(storage, appStopping);
+        queue.SetLimits(1, TimeSpan.FromMilliseconds(200), TimeSpan.FromMilliseconds(20), TimeSpan.FromMilliseconds(20));
+
+        var command = new PersistenceRetryTestCommand
+        {
+            WaitForCancellation = true,
+            ResultText = "timeout"
+        };
+
+        await command.QueueJobAsync(ct: CancellationToken.None);
+
+        (await storage.WaitForFailureRecordedAsync(command.TrackingID, TimeSpan.FromSeconds(8))).ShouldBeTrue();
+        (await storage.WaitForCompletionAsync(command.TrackingID, TimeSpan.FromSeconds(8))).ShouldBeTrue();
+        storage.ExecutionCount.ShouldBe(1);
+        storage.ExecutionFailureAttempts.ShouldBe(2);
+        storage.RecordedFailureCount.ShouldBe(1);
+        storage.WasRecordedFailureCancellation(command.TrackingID).ShouldBeTrue();
+
+        appStopping.Cancel();
+        await queue.ExecutorTask.WaitAsync(TimeSpan.FromSeconds(5));
+    }
+
+    [Fact]
+    public async Task non_cancellation_failure_retries_failure_persistence_even_after_execution_timeout_window_elapses()
+    {
+        var storage = new PersistenceRetryTestStorage(executionFailurePersistFailures: 15);
+        using var appStopping = new CancellationTokenSource();
+        var queue = CreatePersistenceRetryQueue(storage, appStopping);
+        queue.SetLimits(1, TimeSpan.FromMilliseconds(200), TimeSpan.FromMilliseconds(20), TimeSpan.FromMilliseconds(20));
+
+        var command = new PersistenceRetryTestCommand
+        {
+            ShouldThrow = true,
+            FailureMessage = "boom",
+            ResultText = "failed"
+        };
+
+        await command.QueueJobAsync(ct: CancellationToken.None);
+
+        (await storage.WaitForFailureRecordedAsync(command.TrackingID, TimeSpan.FromSeconds(8))).ShouldBeTrue();
+        (await storage.WaitForCompletionAsync(command.TrackingID, TimeSpan.FromSeconds(8))).ShouldBeTrue();
+        storage.ExecutionCount.ShouldBe(1);
+        storage.ExecutionFailureAttempts.ShouldBeGreaterThan(2);
+        storage.RecordedFailureCount.ShouldBe(1);
+        storage.WasRecordedFailureCancellation(command.TrackingID).ShouldBeFalse();
+
+        appStopping.Cancel();
+        await queue.ExecutorTask.WaitAsync(TimeSpan.FromSeconds(5));
+    }
 }

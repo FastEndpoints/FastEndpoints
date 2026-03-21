@@ -441,16 +441,19 @@ public partial class JobQueueTests
         public bool IsComplete { get; set; }
     }
 
-    sealed class ManualCancelTestStorage : IJobStorageProvider<ManualCancelTestRecord>
+    sealed class ManualCancelTestStorage(int cancelFailures = 0) : IJobStorageProvider<ManualCancelTestRecord>
     {
         readonly Lock _lock = new();
         readonly Dictionary<Guid, ManualCancelTestRecord> _jobs = [];
+        int _remainingCancelFailures = cancelFailures;
         int _failureCount;
         int _cancelCount;
+        int _cancelFailureCount;
 
         public bool DistributedJobProcessingEnabled => false;
         public int FailureCount => _failureCount;
         public int CancelCount => _cancelCount;
+        public int CancelFailureCount => _cancelFailureCount;
 
         public Task StoreJobAsync(ManualCancelTestRecord record, CancellationToken ct)
         {
@@ -487,7 +490,17 @@ public partial class JobQueueTests
             Interlocked.Increment(ref _cancelCount);
 
             lock (_lock)
+            {
+                if (_remainingCancelFailures > 0)
+                {
+                    _remainingCancelFailures--;
+                    Interlocked.Increment(ref _cancelFailureCount);
+
+                    return Task.FromException(new InvalidOperationException("simulated cancel failure"));
+                }
+
                 _jobs[trackingId].IsComplete = true;
+            }
 
             return Task.CompletedTask;
         }

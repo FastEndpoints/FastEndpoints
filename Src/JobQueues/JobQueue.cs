@@ -224,7 +224,22 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
         var cts = _cancellations.GetOrAdd(trackingId, static _ => new(0));
 
         if (cts is null)
-            return; // job is already marked canceled in storage
+        {
+            await _storage.CancelJobAsync(trackingId, ct); // retry persisting manual cancellation if a previous attempt failed or is still in flight
+
+            return;
+        }
+
+        bool rollbackManualMarkerOnStorageFailure;
+
+        try
+        {
+            rollbackManualMarkerOnStorageFailure = cts.IsCancellationRequested;
+        }
+        catch (ObjectDisposedException)
+        {
+            rollbackManualMarkerOnStorageFailure = true;
+        }
 
         // mark manual cancellation before signaling the token so ExecuteCommand can
         // distinguish a user initiated cancellation from timeouts/app shutdown.
@@ -243,7 +258,17 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
             catch (ObjectDisposedException) { }
         }
 
-        await _storage.CancelJobAsync(trackingId, ct);
+        try
+        {
+            await _storage.CancelJobAsync(trackingId, ct);
+        }
+        catch
+        {
+            if (markedForManualCancellation && rollbackManualMarkerOnStorageFailure)
+                _cancellations.TryRemove(trackingId, out _);
+
+            throw;
+        }
     }
 
     async Task CommandExecutorTask()

@@ -177,6 +177,78 @@ public partial class JobQueueTests
     }
 
     [Fact]
+    public async Task manual_cancellation_retries_storage_when_local_state_is_already_marked()
+    {
+        var storage = new ManualCancelTestStorage();
+        using var appStopping = new CancellationTokenSource();
+        var queue = CreateManualCancelQueue(storage, appStopping);
+        var trackingId = Guid.NewGuid();
+        var now = DateTime.UtcNow;
+
+        await storage.StoreJobAsync(
+            new()
+            {
+                QueueID = JobQueue<ManualCancelTestCommand, FastEndpoints.Void, ManualCancelTestRecord, ManualCancelTestStorage>.QueueID,
+                TrackingID = trackingId,
+                Command = new ManualCancelTestCommand { TrackingID = trackingId },
+                ExecuteAfter = now.AddHours(1),
+                ExpireOn = now.AddHours(2)
+            },
+            CancellationToken.None);
+
+        var field = queue.GetType().GetField("_cancellations", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var cancellations = (ConcurrentDictionary<Guid, CancellationTokenSource?>)field.GetValue(queue)!;
+        cancellations[trackingId] = null;
+
+        var method = queue.GetType().GetMethod("CancelJobAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        await ((Task)method.Invoke(queue, [trackingId, CancellationToken.None])!).WaitAsync(TimeSpan.FromSeconds(5));
+
+        storage.CancelCount.ShouldBe(1);
+        (await storage.WaitForCompletionAsync(trackingId, TimeSpan.FromSeconds(5))).ShouldBeTrue();
+
+        appStopping.Cancel();
+    }
+
+    [Fact]
+    public async Task manual_cancellation_rolls_back_pre_execution_marker_when_storage_cancel_fails()
+    {
+        var storage = new ManualCancelTestStorage(cancelFailures: 1);
+        using var appStopping = new CancellationTokenSource();
+        var queue = CreateManualCancelQueue(storage, appStopping);
+        var trackingId = Guid.NewGuid();
+        var now = DateTime.UtcNow;
+
+        await storage.StoreJobAsync(
+            new()
+            {
+                QueueID = JobQueue<ManualCancelTestCommand, FastEndpoints.Void, ManualCancelTestRecord, ManualCancelTestStorage>.QueueID,
+                TrackingID = trackingId,
+                Command = new ManualCancelTestCommand { TrackingID = trackingId },
+                ExecuteAfter = now.AddHours(1),
+                ExpireOn = now.AddHours(2)
+            },
+            CancellationToken.None);
+
+        var field = queue.GetType().GetField("_cancellations", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var cancellations = (ConcurrentDictionary<Guid, CancellationTokenSource?>)field.GetValue(queue)!;
+        var method = queue.GetType().GetMethod("CancelJobAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
+
+        await Should.ThrowAsync<InvalidOperationException>(
+            () => ((Task)method.Invoke(queue, [trackingId, CancellationToken.None])!).WaitAsync(TimeSpan.FromSeconds(5)));
+
+        cancellations.ContainsKey(trackingId).ShouldBeFalse();
+        storage.CancelCount.ShouldBe(1);
+        storage.CancelFailureCount.ShouldBe(1);
+
+        await ((Task)method.Invoke(queue, [trackingId, CancellationToken.None])!).WaitAsync(TimeSpan.FromSeconds(5));
+
+        storage.CancelCount.ShouldBe(2);
+        (await storage.WaitForCompletionAsync(trackingId, TimeSpan.FromSeconds(5))).ShouldBeTrue();
+
+        appStopping.Cancel();
+    }
+
+    [Fact]
     public async Task result_returning_commands_complete_without_result_storage()
     {
         var storage = new ResultIgnoringTestStorage();

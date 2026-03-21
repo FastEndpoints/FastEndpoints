@@ -35,6 +35,7 @@ public partial class JobQueueTests
         CancellationTokenSource appStopping)
     {
         Factory.RegisterTestServices(_ => { });
+        new ManualCancelTestCommandHandler().RegisterForTesting();
 
         return new(
             storage,

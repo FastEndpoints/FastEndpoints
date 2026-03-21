@@ -2,6 +2,7 @@ using FastEndpoints;
 using System.Collections.Concurrent;
 using System.Reflection;
 using Xunit;
+using static QueueTesting.QueueTestSupport;
 
 namespace JobQueue;
 
@@ -246,6 +247,49 @@ public partial class JobQueueTests
         (await storage.WaitForCompletionAsync(trackingId, TimeSpan.FromSeconds(5))).ShouldBeTrue();
 
         appStopping.Cancel();
+    }
+
+    [Fact]
+    public async Task manual_cancellation_keeps_marker_while_execution_is_still_in_flight()
+    {
+        ManualCancelTestCommandHandler.Reset();
+        var storage = new ManualCancelTestStorage();
+        using var appStopping = new CancellationTokenSource();
+        var queue = CreateManualCancelQueue(storage, appStopping);
+        queue.SetLimits(2, Timeout.InfiniteTimeSpan, TimeSpan.FromMilliseconds(20));
+
+        var command = new ManualCancelTestCommand();
+        await command.QueueJobAsync(ct: CancellationToken.None);
+        await ManualCancelTestCommandHandler.Started.WaitAsync(TimeSpan.FromSeconds(5));
+
+        await JobTracker<ManualCancelTestCommand>.CancelJobAsync(command.TrackingID, CancellationToken.None);
+        await ManualCancelTestCommandHandler.CancellationObserved.WaitAsync(TimeSpan.FromSeconds(5));
+
+        var nextCleanupOnField = queue.GetType().GetField("_nextCleanupOn", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        nextCleanupOnField.SetValue(queue, DateTime.UtcNow.AddMilliseconds(-1));
+
+        var cancellationsField = queue.GetType().GetField("_cancellations", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var cancellations = (ConcurrentDictionary<Guid, CancellationTokenSource?>)cancellationsField.GetValue(queue)!;
+
+        (await WaitUntilAsync(() => nextCleanupOnField.GetValue(queue) is null, TimeSpan.FromSeconds(5))).ShouldBeTrue();
+
+        var markerPreservedDuringCleanup = await WaitUntilAsync(
+                                         () => cancellations.TryGetValue(command.TrackingID, out var state) && state is null,
+                                         TimeSpan.FromSeconds(1));
+
+        markerPreservedDuringCleanup.ShouldBeTrue();
+
+        ManualCancelTestCommandHandler.ReleaseAfterCancellation();
+
+        await ManualCancelTestCommandHandler.Finished.WaitAsync(TimeSpan.FromSeconds(5));
+        (await storage.WaitForCompletionAsync(command.TrackingID, TimeSpan.FromSeconds(5))).ShouldBeTrue();
+        await WaitUntilAsync(() => !cancellations.ContainsKey(command.TrackingID), TimeSpan.FromSeconds(5));
+
+        storage.CancelCount.ShouldBe(1);
+        storage.FailureCount.ShouldBe(0);
+
+        appStopping.Cancel();
+        await queue.ExecutorTask.WaitAsync(TimeSpan.FromSeconds(5));
     }
 
     [Fact]

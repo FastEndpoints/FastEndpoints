@@ -431,6 +431,47 @@ public partial class JobQueueTests
         public Guid TrackingID { get; set; }
     }
 
+    sealed class ManualCancelTestCommandHandler : ICommandHandler<ManualCancelTestCommand>
+    {
+        static TaskCompletionSource<bool> _started = NewSignal<bool>();
+        static TaskCompletionSource<bool> _cancellationObserved = NewSignal<bool>();
+        static TaskCompletionSource<bool> _resumeAfterCancellation = NewSignal<bool>();
+        static TaskCompletionSource<bool> _finished = NewSignal<bool>();
+
+        public static Task Started => _started.Task;
+        public static Task CancellationObserved => _cancellationObserved.Task;
+        public static Task Finished => _finished.Task;
+
+        public static void Reset()
+        {
+            _started = NewSignal<bool>();
+            _cancellationObserved = NewSignal<bool>();
+            _resumeAfterCancellation = NewSignal<bool>();
+            _finished = NewSignal<bool>();
+        }
+
+        public static void ReleaseAfterCancellation()
+            => _resumeAfterCancellation.TrySetResult(true);
+
+        public async Task ExecuteAsync(ManualCancelTestCommand command, CancellationToken ct)
+        {
+            _started.TrySetResult(true);
+
+            using var reg = ct.Register(static state => ((TaskCompletionSource<bool>)state!).TrySetResult(true), _cancellationObserved);
+
+            try
+            {
+                await _cancellationObserved.Task;
+                await _resumeAfterCancellation.Task;
+                ct.ThrowIfCancellationRequested();
+            }
+            finally
+            {
+                _finished.TrySetResult(true);
+            }
+        }
+    }
+
     sealed class ManualCancelTestRecord : IJobStorageRecord
     {
         public string QueueID { get; set; } = "";

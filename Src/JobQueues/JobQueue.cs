@@ -279,16 +279,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
         {
             await ObserveCompletedExecutions();
 
-            if (_nextCleanupOn.HasValue && DateTime.UtcNow >= _nextCleanupOn.Value)
-            {
-                _nextCleanupOn = null;
-
-                foreach (var kv in _cancellations)
-                {
-                    if (kv.Value is null)
-                        _cancellations.TryRemove(kv.Key, out _);
-                }
-            }
+            CleanupStaleManualCancellationMarkers();
 
             if (executions.Count < _maxConcurrency)
             {
@@ -610,6 +601,21 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 {
                     _log.CommandParallelExecutionWarning(_commandTypeName, x.Message);
                 }
+            }
+        }
+
+        void CleanupStaleManualCancellationMarkers()
+        {
+            if (!_nextCleanupOn.HasValue || DateTime.UtcNow < _nextCleanupOn.Value)
+                return;
+
+            _nextCleanupOn = null;
+
+            foreach (var kv in _cancellations)
+            {
+                //only remove if stale and not currently in-flight
+                if (kv.Value is null && !(executions.TryGetValue(kv.Key, out var execution) && !execution.IsCompleted))
+                    _cancellations.TryRemove(kv.Key, out _);
             }
         }
     }

@@ -344,7 +344,9 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 catch (Exception x)
                 {
                     _log.StorageRetrieveError(QueueID, _commandTypeName, x.Message);
-                    await Task.Delay(_retryDelay);
+
+                    if (await DelayRetryAndCheckShutdown())
+                        break;
 
                     continue;
                 }
@@ -360,7 +362,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                         continue;
                 }
 
-                await WaitForSignalAsync();
+                await WaitForSignal();
 
                 continue;
             }
@@ -377,11 +379,13 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
             catch (Exception x)
             {
                 _log.CommandParallelExecutionWarning(_commandTypeName, x.Message);
-                await Task.Delay(_retryDelay);
+
+                if (await DelayRetryAndCheckShutdown())
+                    break;
             }
         }
 
-        await DrainExecutionsAsync();
+        await DrainExecutions();
 
         async Task ExecuteCommand(TStorageRecord record)
         {
@@ -434,7 +438,9 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
             catch (Exception x)
             {
                 _cancellations.TryRemove(record.TrackingID, out _); // remove entry on execution error to allow obtaining a new cts on retry/reentry
-                _log.CommandExecutionCritical(_commandTypeName, x.Message);
+
+                if (x is not OperationCanceledException || !_appCancellation.IsCancellationRequested)
+                    _log.CommandExecutionCritical(_commandTypeName, x.Message);
 
                 while (true)
                 {
@@ -458,7 +464,8 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                         if (_appCancellation.IsCancellationRequested || IsManuallyCancelled())
                             break;
 
-                        await Task.Delay(_retryDelay);
+                        if (await DelayRetryAndCheckShutdown())
+                            break;
                     }
                 }
 
@@ -481,7 +488,8 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                     if (_appCancellation.IsCancellationRequested)
                         break; // losing the result is an acceptable risk if app is shutting down. do not 'return;' here (which causes re-execution of job).
 
-                    await Task.Delay(_retryDelay);
+                    if (await DelayRetryAndCheckShutdown())
+                        break;
                 }
             }
 
@@ -503,7 +511,8 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                     if (_appCancellation.IsCancellationRequested)
                         break;
 
-                    await Task.Delay(_retryDelay);
+                    if (await DelayRetryAndCheckShutdown())
+                        break;
                 }
             }
 
@@ -514,7 +523,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 => !_appCancellation.IsCancellationRequested && _cancellations.TryGetValue(record.TrackingID, out var c) && c is null;
         }
 
-        async Task WaitForSignalAsync()
+        async Task WaitForSignal()
         {
             try
             {
@@ -524,7 +533,6 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 // TriggerJob() sets _activated=true and releases the semaphore when the first job is queued.
                 if (await _sem.WaitAsync(_activated ? _semWaitLimit : Timeout.InfiniteTimeSpan, _appCancellation))
                 {
-                    // ReSharper disable once MethodHasAsyncOverloadWithCancellation
                     // reset/drain _sem CurrentCount to 0 in case multiple releases happened
                     // passing app cancellation here is not needed as it's an immediate return.
                     while (_sem.Wait(0)) { }
@@ -537,11 +545,25 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
             catch (Exception x)
             {
                 _log.CommandParallelExecutionWarning(_commandTypeName, x.Message);
-                await Task.Delay(_retryDelay);
+                await DelayRetryAndCheckShutdown(); //prevent immediate retry.
             }
         }
 
-        async Task DrainExecutionsAsync()
+        async Task<bool> DelayRetryAndCheckShutdown()
+        {
+            try
+            {
+                await Task.Delay(_retryDelay, _appCancellation);
+
+                return false;
+            }
+            catch (OperationCanceledException) when (_appCancellation.IsCancellationRequested)
+            {
+                return true;
+            }
+        }
+
+        async Task DrainExecutions()
         {
             await ObserveCompletedExecutions();
 

@@ -482,6 +482,48 @@ public partial class JobQueueTests
         public bool IsComplete { get; set; }
     }
 
+    sealed class BatchFailureTestCommand : ICommand { }
+
+    sealed class BatchFailureTestRecord : IJobStorageRecord
+    {
+        public string QueueID { get; set; } = "";
+        public Guid TrackingID { get; set; }
+        public object Command { get; set; } = null!;
+        public DateTime ExecuteAfter { get; set; }
+        public DateTime ExpireOn { get; set; }
+        public bool IsComplete { get; set; }
+    }
+
+    sealed class BatchFailureTestStorage : IJobStorageProvider<BatchFailureTestRecord>
+    {
+        int _batchAttempts;
+
+        public bool DistributedJobProcessingEnabled => false;
+        public int BatchAttempts => Volatile.Read(ref _batchAttempts);
+
+        public Task StoreJobAsync(BatchFailureTestRecord record, CancellationToken ct)
+            => Task.CompletedTask;
+
+        public Task<ICollection<BatchFailureTestRecord>> GetNextBatchAsync(PendingJobSearchParams<BatchFailureTestRecord> parameters)
+        {
+            Interlocked.Increment(ref _batchAttempts);
+
+            return Task.FromException<ICollection<BatchFailureTestRecord>>(new InvalidOperationException("simulated batch failure"));
+        }
+
+        public Task MarkJobAsCompleteAsync(BatchFailureTestRecord record, CancellationToken ct)
+            => Task.CompletedTask;
+
+        public Task CancelJobAsync(Guid trackingId, CancellationToken ct)
+            => Task.CompletedTask;
+
+        public Task OnHandlerExecutionFailureAsync(BatchFailureTestRecord record, Exception exception, CancellationToken ct)
+            => Task.CompletedTask;
+
+        public Task PurgeStaleJobsAsync(StaleJobSearchParams<BatchFailureTestRecord> parameters)
+            => Task.CompletedTask;
+    }
+
     sealed class ManualCancelTestStorage(int cancelFailures = 0) : IJobStorageProvider<ManualCancelTestRecord>
     {
         readonly Lock _lock = new();

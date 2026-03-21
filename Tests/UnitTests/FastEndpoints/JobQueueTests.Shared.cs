@@ -1,4 +1,5 @@
 using FastEndpoints;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using QueueTesting;
 using static QueueTesting.QueueTestSupport;
@@ -70,7 +71,8 @@ public partial class JobQueueTests
 
     static JobQueue<PersistenceRetryTestCommand, string, PersistenceRetryTestRecord, PersistenceRetryTestStorage> CreatePersistenceRetryQueue(
         PersistenceRetryTestStorage storage,
-        CancellationTokenSource appStopping)
+        CancellationTokenSource appStopping,
+        ILogger<JobQueue<PersistenceRetryTestCommand, string, PersistenceRetryTestRecord, PersistenceRetryTestStorage>>? logger = null)
     {
         Factory.RegisterTestServices(_ => { });
         new PersistenceRetryTestCommandHandler(storage).RegisterForTesting();
@@ -78,8 +80,17 @@ public partial class JobQueueTests
         return new(
             storage,
             new TestHostLifetime(appStopping.Token),
-            NullLogger<JobQueue<PersistenceRetryTestCommand, string, PersistenceRetryTestRecord, PersistenceRetryTestStorage>>.Instance);
+            logger ?? NullLogger<JobQueue<PersistenceRetryTestCommand, string, PersistenceRetryTestRecord, PersistenceRetryTestStorage>>.Instance);
     }
+
+    static JobQueue<BatchFailureTestCommand, FastEndpoints.Void, BatchFailureTestRecord, BatchFailureTestStorage> CreateBatchFailureQueue(
+        BatchFailureTestStorage storage,
+        CancellationTokenSource appStopping,
+        ILogger<JobQueue<BatchFailureTestCommand, FastEndpoints.Void, BatchFailureTestRecord, BatchFailureTestStorage>>? logger = null)
+        => new(
+            storage,
+            new TestHostLifetime(appStopping.Token),
+            logger ?? NullLogger<JobQueue<BatchFailureTestCommand, FastEndpoints.Void, BatchFailureTestRecord, BatchFailureTestStorage>>.Instance);
 
     static async Task QueueJobsAsync(params ICommand[] commands)
     {

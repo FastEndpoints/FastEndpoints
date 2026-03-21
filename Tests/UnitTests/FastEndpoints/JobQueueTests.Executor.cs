@@ -1,6 +1,8 @@
 using FastEndpoints;
 using System.Collections.Concurrent;
 using System.Reflection;
+using Microsoft.Extensions.Logging;
+using QueueTesting;
 using Xunit;
 using static QueueTesting.QueueTestSupport;
 
@@ -430,6 +432,75 @@ public partial class JobQueueTests
 
         appStopping.Cancel();
         await queue.ExecutorTask.WaitAsync(TimeSpan.FromSeconds(5));
+    }
+
+    [Fact]
+    public async Task app_shutdown_cancellation_does_not_log_critical_execution_errors()
+    {
+        var storage = new PersistenceRetryTestStorage();
+        using var appStopping = new CancellationTokenSource();
+        var logger = new TestLogger<JobQueue<PersistenceRetryTestCommand, string, PersistenceRetryTestRecord, PersistenceRetryTestStorage>>();
+        var queue = CreatePersistenceRetryQueue(storage, appStopping, logger);
+        queue.SetLimits(1, Timeout.InfiniteTimeSpan, TimeSpan.FromMilliseconds(20), TimeSpan.FromMilliseconds(20));
+
+        var command = new PersistenceRetryTestCommand
+        {
+            WaitForCancellation = true,
+            ResultText = "shutdown"
+        };
+
+        await command.QueueJobAsync(ct: CancellationToken.None);
+        (await WaitUntilAsync(() => storage.ExecutionCount == 1, TimeSpan.FromSeconds(5))).ShouldBeTrue();
+
+        appStopping.Cancel();
+
+        await queue.ExecutorTask.WaitAsync(TimeSpan.FromSeconds(5));
+
+        (await storage.WaitForFailureRecordedAsync(command.TrackingID, TimeSpan.FromSeconds(5))).ShouldBeTrue();
+        storage.WasRecordedFailureCancellation(command.TrackingID).ShouldBeTrue();
+        logger.Entries.Any(e => e.Level == LogLevel.Critical).ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task shutdown_interrupts_batch_retry_delay()
+    {
+        var storage = new BatchFailureTestStorage();
+        using var appStopping = new CancellationTokenSource();
+        var queue = CreateBatchFailureQueue(storage, appStopping);
+        queue.SetLimits(1, Timeout.InfiniteTimeSpan, TimeSpan.FromMilliseconds(20), TimeSpan.FromMinutes(1));
+
+        (await WaitUntilAsync(() => storage.BatchAttempts == 1, TimeSpan.FromSeconds(5))).ShouldBeTrue();
+
+        appStopping.Cancel();
+
+        await queue.ExecutorTask.WaitAsync(TimeSpan.FromSeconds(2));
+
+        queue.ExecutorTask.IsCompletedSuccessfully.ShouldBeTrue();
+        storage.BatchAttempts.ShouldBe(1);
+    }
+
+    [Fact]
+    public async Task shutdown_interrupts_result_persistence_retry_delay()
+    {
+        var storage = new PersistenceRetryTestStorage(storeResultFailures: 1);
+        using var appStopping = new CancellationTokenSource();
+        var queue = CreatePersistenceRetryQueue(storage, appStopping);
+        queue.SetLimits(1, Timeout.InfiniteTimeSpan, TimeSpan.FromMilliseconds(20), TimeSpan.FromMinutes(1));
+
+        var command = new PersistenceRetryTestCommand { ResultText = "retry-delay-interrupted" };
+
+        await command.QueueJobAsync(ct: CancellationToken.None);
+        (await WaitUntilAsync(() => storage.StoreResultAttempts == 1, TimeSpan.FromSeconds(5))).ShouldBeTrue();
+
+        await Task.Delay(100);
+        appStopping.Cancel();
+
+        await queue.ExecutorTask.WaitAsync(TimeSpan.FromSeconds(2));
+
+        queue.ExecutorTask.IsCompletedSuccessfully.ShouldBeTrue();
+        storage.StoreResultAttempts.ShouldBe(1);
+        storage.MarkCompleteAttempts.ShouldBe(1);
+        (await storage.WaitForCompletionAsync(command.TrackingID, TimeSpan.FromSeconds(5))).ShouldBeTrue();
     }
 
     [Fact]

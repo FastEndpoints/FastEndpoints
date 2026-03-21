@@ -112,6 +112,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
     internal Task ExecutorTask { get; private set; } = Task.CompletedTask;
 
     readonly ConcurrentDictionary<Guid, CancellationTokenSource?> _cancellations = new();
+    readonly ConcurrentQueue<(Guid TrackingId, DateTime ExpireAt)> _staleCancellations = new();
     readonly CancellationToken _appCancellation;
     readonly TStorageProvider _storage;
     readonly IJobResultProvider? _resultStorage;
@@ -123,7 +124,6 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
     TimeSpan _executionTimeLimit;
     TimeSpan _semWaitLimit;
     TimeSpan _retryDelay = TimeSpan.FromSeconds(5);
-    DateTime? _nextCleanupOn;
 
     public JobQueue(TStorageProvider storageProvider, IHostApplicationLifetime appLife, ILogger<JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider>> logger)
     {
@@ -248,10 +248,9 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
         var markedForManualCancellation = _cancellations.TryUpdate(trackingId, null, cts);
 
         if (markedForManualCancellation)
-            _nextCleanupOn ??= DateTime.UtcNow.AddMinutes(5); // if marked null, schedule next dictionary cleanup in 5 minutes
-
-        if (markedForManualCancellation)
         {
+            _staleCancellations.Enqueue((trackingId, DateTime.UtcNow.AddMinutes(5)));
+
             try
             {
                 if (!cts.IsCancellationRequested)
@@ -600,16 +599,17 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
 
         void CleanupStaleManualCancellationMarkers()
         {
-            if (!_nextCleanupOn.HasValue || DateTime.UtcNow < _nextCleanupOn.Value)
-                return;
+            var now = DateTime.UtcNow;
 
-            _nextCleanupOn = null;
-
-            foreach (var kv in _cancellations)
+            while (_staleCancellations.TryPeek(out var item) && item.ExpireAt <= now)
             {
-                //only remove if stale and not currently in-flight
-                if (kv.Value is null && !(executions.TryGetValue(kv.Key, out var execution) && !execution.IsCompleted))
-                    _cancellations.TryRemove(kv.Key, out _);
+                if (!_staleCancellations.TryDequeue(out item))
+                    continue;
+
+                if (_cancellations.TryGetValue(item.TrackingId, out var cts) &&
+                    cts is null &&
+                    !(executions.TryGetValue(item.TrackingId, out var execution) && !execution.IsCompleted)) //only remove if not currently in-flight
+                    _cancellations.TryRemove(item.TrackingId, out _);
             }
         }
     }

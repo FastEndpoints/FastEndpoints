@@ -15,7 +15,7 @@ public partial class JobQueueTests
         var storage = new RefillTestStorage();
         using var appStopping = new CancellationTokenSource();
         var queue = CreateRefillQueue(storage, appStopping);
-        queue.SetLimits(2, Timeout.InfiniteTimeSpan, TimeSpan.FromMilliseconds(20));
+        queue.SetLimits(2, Timeout.InfiniteTimeSpan, TimeSpan.FromMilliseconds(20), TimeSpan.FromMilliseconds(20));
 
         var slow = new RefillTestCommand { Name = "slow", Sequence = 0 };
         var fast = new RefillTestCommand { Name = "fast", Sequence = 1 };
@@ -50,7 +50,7 @@ public partial class JobQueueTests
         var storage = new RefillTestStorage();
         using var appStopping = new CancellationTokenSource();
         var queue = CreateRefillQueue(storage, appStopping);
-        queue.SetLimits(1, Timeout.InfiniteTimeSpan, TimeSpan.FromMilliseconds(20));
+        queue.SetLimits(1, Timeout.InfiniteTimeSpan, TimeSpan.FromMilliseconds(20), TimeSpan.FromMilliseconds(20));
 
         var drain = new RefillTestCommand { Name = "drain", Sequence = 0 };
         await QueueJobsAsync(drain);
@@ -75,7 +75,7 @@ public partial class JobQueueTests
         var storage = new RefillTestStorage();
         using var appStopping = new CancellationTokenSource();
         var queue = CreateRefillQueue(storage, appStopping);
-        queue.SetLimits(2, Timeout.InfiniteTimeSpan, TimeSpan.FromMilliseconds(20));
+        queue.SetLimits(2, Timeout.InfiniteTimeSpan, TimeSpan.FromMilliseconds(20), TimeSpan.FromMilliseconds(20));
 
         var drain = new RefillTestCommand { Name = "drain", Sequence = 0 };
         await QueueJobsAsync(drain);
@@ -101,7 +101,7 @@ public partial class JobQueueTests
         var storage = new DistributedRefillStorage();
         using var appStopping = new CancellationTokenSource();
         var queue = CreateDistributedRefillQueue(storage, appStopping);
-        queue.SetLimits(2, TimeSpan.FromMinutes(2), TimeSpan.FromMilliseconds(20));
+        queue.SetLimits(2, TimeSpan.FromMinutes(2), TimeSpan.FromMilliseconds(20), TimeSpan.FromMilliseconds(20));
 
         var slow = new DistributedRefillCommand { Name = "slow", Sequence = 0 };
         var fast = new DistributedRefillCommand { Name = "fast", Sequence = 1 };
@@ -256,7 +256,7 @@ public partial class JobQueueTests
         var storage = new ManualCancelTestStorage();
         using var appStopping = new CancellationTokenSource();
         var queue = CreateManualCancelQueue(storage, appStopping);
-        queue.SetLimits(2, Timeout.InfiniteTimeSpan, TimeSpan.FromMilliseconds(20));
+        queue.SetLimits(2, Timeout.InfiniteTimeSpan, TimeSpan.FromMilliseconds(20), TimeSpan.FromMilliseconds(20));
 
         var command = new ManualCancelTestCommand();
         await command.QueueJobAsync(ct: CancellationToken.None);
@@ -298,7 +298,7 @@ public partial class JobQueueTests
         var storage = new ResultIgnoringTestStorage();
         using var appStopping = new CancellationTokenSource();
         var queue = CreateResultIgnoringQueue(storage, appStopping);
-        queue.SetLimits(1, Timeout.InfiniteTimeSpan, TimeSpan.FromMilliseconds(20));
+        queue.SetLimits(1, Timeout.InfiniteTimeSpan, TimeSpan.FromMilliseconds(20), TimeSpan.FromMilliseconds(20));
 
         var command = new ResultIgnoringTestCommand { Payload = "ok" };
         await command.QueueJobAsync(ct: CancellationToken.None);
@@ -316,7 +316,7 @@ public partial class JobQueueTests
         var storage = new ResultCapableVoidTestStorage();
         using var appStopping = new CancellationTokenSource();
         var queue = CreateResultCapableVoidQueue(storage, appStopping);
-        queue.SetLimits(1, Timeout.InfiniteTimeSpan, TimeSpan.FromMilliseconds(20));
+        queue.SetLimits(1, Timeout.InfiniteTimeSpan, TimeSpan.FromMilliseconds(20), TimeSpan.FromMilliseconds(20));
 
         var command = new ResultCapableVoidTestCommand();
         await command.QueueJobAsync(ct: CancellationToken.None);
@@ -334,7 +334,7 @@ public partial class JobQueueTests
         var storage = new PersistenceRetryTestStorage(storeResultFailures: 1);
         using var appStopping = new CancellationTokenSource();
         var queue = CreatePersistenceRetryQueue(storage, appStopping);
-        queue.SetLimits(1, TimeSpan.FromMilliseconds(200), TimeSpan.FromMilliseconds(20));
+        queue.SetLimits(1, TimeSpan.FromMilliseconds(200), TimeSpan.FromMilliseconds(20), TimeSpan.FromMilliseconds(20));
 
         var command = new PersistenceRetryTestCommand
         {
@@ -359,7 +359,7 @@ public partial class JobQueueTests
         var storage = new PersistenceRetryTestStorage(markCompleteFailures: 1);
         using var appStopping = new CancellationTokenSource();
         var queue = CreatePersistenceRetryQueue(storage, appStopping);
-        queue.SetLimits(1, TimeSpan.FromMilliseconds(200), TimeSpan.FromMilliseconds(20));
+        queue.SetLimits(1, TimeSpan.FromMilliseconds(200), TimeSpan.FromMilliseconds(20), TimeSpan.FromMilliseconds(20));
 
         var command = new PersistenceRetryTestCommand
         {

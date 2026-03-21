@@ -28,7 +28,7 @@ abstract class JobQueueBase
 
     protected abstract Task StoreJobResultAsync<TResult>(Guid trackingId, TResult result, CancellationToken ct);
 
-    internal abstract void SetLimits(int concurrencyLimit, TimeSpan executionTimeLimit, TimeSpan semWaitLimit);
+    internal abstract void SetLimits(int concurrencyLimit, TimeSpan executionTimeLimit, TimeSpan semWaitLimit, TimeSpan? retryDelay = null);
 
     internal static TStorageRecord CreateJob<TStorageRecord>(ICommandBase command, DateTime? executeAfter, DateTime? expireOn)
         where TStorageRecord : class, IJobStorageRecord, new()
@@ -122,6 +122,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
     int _maxConcurrency = Environment.ProcessorCount;
     TimeSpan _executionTimeLimit;
     TimeSpan _semWaitLimit;
+    TimeSpan _retryDelay = TimeSpan.FromSeconds(5);
     DateTime? _nextCleanupOn;
 
     public JobQueue(TStorageProvider storageProvider, IHostApplicationLifetime appLife, ILogger<JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider>> logger)
@@ -139,11 +140,12 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
         JobStorage<TStorageRecord, TStorageProvider>.StartStaleJobPurging();
     }
 
-    internal override void SetLimits(int concurrencyLimit, TimeSpan executionTimeLimit, TimeSpan semWaitLimit)
+    internal override void SetLimits(int concurrencyLimit, TimeSpan executionTimeLimit, TimeSpan semWaitLimit, TimeSpan? retryDelay = null)
     {
         _maxConcurrency = concurrencyLimit;
         _executionTimeLimit = executionTimeLimit;
         _semWaitLimit = semWaitLimit;
+        _retryDelay = retryDelay ?? TimeSpan.FromSeconds(5);
         ExecutorTask = CommandExecutorTask();
     }
 
@@ -342,7 +344,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 catch (Exception x)
                 {
                     _log.StorageRetrieveError(QueueID, _commandTypeName, x.Message);
-                    await Task.Delay(5000);
+                    await Task.Delay(_retryDelay);
 
                     continue;
                 }
@@ -375,7 +377,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
             catch (Exception x)
             {
                 _log.CommandParallelExecutionWarning(_commandTypeName, x.Message);
-                await Task.Delay(5000);
+                await Task.Delay(_retryDelay);
             }
         }
 
@@ -456,7 +458,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                         if (_appCancellation.IsCancellationRequested || IsJobCancelled())
                             break;
 
-                        await Task.Delay(5000);
+                        await Task.Delay(_retryDelay);
                     }
                 }
 
@@ -479,7 +481,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                     if (_appCancellation.IsCancellationRequested)
                         break; // losing the result is an acceptable risk if app is shutting down. do not 'return;' here (which causes re-execution of job).
 
-                    await Task.Delay(5000);
+                    await Task.Delay(_retryDelay);
                 }
             }
 
@@ -501,7 +503,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                     if (_appCancellation.IsCancellationRequested)
                         break;
 
-                    await Task.Delay(5000);
+                    await Task.Delay(_retryDelay);
                 }
             }
 
@@ -566,7 +568,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
             catch (Exception x)
             {
                 _log.CommandParallelExecutionWarning(_commandTypeName, x.Message);
-                await Task.Delay(5000);
+                await Task.Delay(_retryDelay);
             }
         }
 

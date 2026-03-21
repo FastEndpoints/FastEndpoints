@@ -23,6 +23,12 @@ public class JobQueueOptions
     public TimeSpan StorageProbeDelay { get; set; } = TimeSpan.FromSeconds(60);
 
     /// <summary>
+    /// specifies the delay between retries when transient storage operations fail while polling, persisting results, or marking completion.
+    /// the default is 5 seconds. lower values reduce recovery latency but increase pressure on the backing store.
+    /// </summary>
+    public TimeSpan RetryDelay { get; set; } = TimeSpan.FromSeconds(5);
+
+    /// <summary>
     /// the per job type max execution time limit for handler executions unless otherwise overridden using <see cref="LimitsFor{TCommand}(int, TimeSpan)" />
     /// defaults to <see cref="Timeout.Infinite" />.
     /// </summary>
@@ -47,8 +53,8 @@ public class JobQueueOptions
     internal void SetLimits(Type tCommand, JobQueueBase jobQueue)
     {
         if (_limitOverrides.TryGetValue(tCommand, out var limits))
-            jobQueue.SetLimits(limits.concurrency, limits.timeLimit, StorageProbeDelay);
+            jobQueue.SetLimits(limits.concurrency, limits.timeLimit, StorageProbeDelay, RetryDelay);
         else
-            jobQueue.SetLimits(MaxConcurrency, ExecutionTimeLimit, StorageProbeDelay);
+            jobQueue.SetLimits(MaxConcurrency, ExecutionTimeLimit, StorageProbeDelay, RetryDelay);
     }
 }

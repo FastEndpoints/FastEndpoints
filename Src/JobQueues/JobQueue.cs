@@ -476,7 +476,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                     _log.StorageStoreJobResultError(QueueID, _commandTypeName, x.Message);
 
                     if (_appCancellation.IsCancellationRequested || IsJobCancelled())
-                        break;
+                        break; // losing the result is an acceptable risk if app is shutting down. do not 'return;' here (which causes re-execution of job).
 
                     await Task.Delay(5000);
                 }

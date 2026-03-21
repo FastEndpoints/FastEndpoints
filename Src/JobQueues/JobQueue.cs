@@ -223,7 +223,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
     protected override async Task CancelJobAsync(Guid trackingId, CancellationToken ct)
     {
         // if job is executing, fetch the cts added by ExecuteCommand, else store an already canceled cts
-        var cts = _cancellations.GetOrAdd(trackingId, static _ => new(0));
+        var cts = GetOrAddCancellation(trackingId, static () => new(0));
 
         if (cts is null)
         {
@@ -386,9 +386,9 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
         async Task ExecuteCommand(TStorageRecord record)
         {
             // ReSharper disable once HeapView.CanAvoidClosure
-            using var cts = _cancellations.GetOrAdd(
+            using var cts = GetOrAddCancellation(
                 record.TrackingID,
-                _ =>
+                () =>
                 {
                     var s = CancellationTokenSource.CreateLinkedTokenSource(_appCancellation);
                     s.CancelAfter(_executionTimeLimit);
@@ -590,5 +590,28 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                     _cancellations.TryRemove(kv.Key, out _);
             }
         }
+    }
+
+    CancellationTokenSource? GetOrAddCancellation(Guid trackingId, Func<CancellationTokenSource> factory)
+    {
+        // ConcurrentDictionary.GetOrAdd may invoke the factory on multiple threads but only store one result.
+        // discarded CancellationTokenSource instances (e.g. linked sources with callbacks on long-lived tokens)
+        // must be disposed to prevent permanent resource leaks.
+
+        CancellationTokenSource? created = null;
+
+        var cts = _cancellations.GetOrAdd(
+            trackingId,
+            _ =>
+            {
+                created = factory();
+
+                return created;
+            });
+
+        if (created is not null && !ReferenceEquals(created, cts))
+            created.Dispose();
+
+        return cts;
     }
 }

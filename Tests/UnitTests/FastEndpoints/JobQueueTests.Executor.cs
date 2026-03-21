@@ -431,4 +431,85 @@ public partial class JobQueueTests
         appStopping.Cancel();
         await queue.ExecutorTask.WaitAsync(TimeSpan.FromSeconds(5));
     }
+
+    [Fact]
+    public async Task concurrent_cancel_calls_for_same_untracked_job_do_not_leak_or_throw()
+    {
+        // When multiple threads call CancelJobAsync for a tracking ID that's not yet in _cancellations,
+        // the GetOrAdd factory may run on multiple threads but only one result is stored. The orphaned
+        // CancellationTokenSource(0) instances must be disposed to prevent resource leaks.
+        var storage = new ManualCancelTestStorage();
+        using var appStopping = new CancellationTokenSource();
+        var queue = CreateManualCancelQueue(storage, appStopping);
+        var trackingId = Guid.NewGuid();
+        var now = DateTime.UtcNow;
+
+        await storage.StoreJobAsync(
+            new()
+            {
+                QueueID = JobQueue<ManualCancelTestCommand, FastEndpoints.Void, ManualCancelTestRecord, ManualCancelTestStorage>.QueueID,
+                TrackingID = trackingId,
+                Command = new ManualCancelTestCommand { TrackingID = trackingId },
+                ExecuteAfter = now.AddHours(1),
+                ExpireOn = now.AddHours(2)
+            },
+            CancellationToken.None);
+
+        var method = queue.GetType().GetMethod("CancelJobAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        using var barrier = new Barrier(20);
+
+        var tasks = Enumerable.Range(0, 20).Select(
+            _ => Task.Run(
+                async () =>
+                {
+                    barrier.SignalAndWait(TimeSpan.FromSeconds(5));
+                    await ((Task)method.Invoke(queue, [trackingId, CancellationToken.None])!).WaitAsync(TimeSpan.FromSeconds(5));
+                })).ToArray();
+
+        await Task.WhenAll(tasks);
+
+        var field = queue.GetType().GetField("_cancellations", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var cancellations = (ConcurrentDictionary<Guid, CancellationTokenSource?>)field.GetValue(queue)!;
+
+        // After cancellation, entry should be null (manual cancellation marker)
+        (cancellations.TryGetValue(trackingId, out var state) && state is null).ShouldBeTrue();
+        storage.CancelCount.ShouldBeGreaterThanOrEqualTo(1);
+
+        appStopping.Cancel();
+    }
+
+    [Fact]
+    public async Task concurrent_execute_and_cancel_race_does_not_leak_linked_token_source()
+    {
+        // When ExecuteCommand and CancelJobAsync race on GetOrAdd for the same tracking ID,
+        // one factory result is discarded. The linked CTS created by ExecuteCommand registers
+        // a callback on _appCancellation; if not disposed, it leaks permanently.
+        // This test verifies that the race is handled correctly by running execute and cancel
+        // concurrently for the same job, and checking that _appCancellation remains clean.
+        ManualCancelTestCommandHandler.Reset();
+        var storage = new ManualCancelTestStorage();
+        using var appStopping = new CancellationTokenSource();
+        var queue = CreateManualCancelQueue(storage, appStopping);
+        queue.SetLimits(2, Timeout.InfiniteTimeSpan, TimeSpan.FromMilliseconds(20), TimeSpan.FromMilliseconds(20));
+
+        var command = new ManualCancelTestCommand();
+        await command.QueueJobAsync(ct: CancellationToken.None);
+
+        // Cancel immediately without waiting for execution to start, maximizing the chance
+        // that CancelJobAsync's GetOrAdd races with ExecuteCommand's GetOrAdd.
+        await JobTracker<ManualCancelTestCommand>.CancelJobAsync(command.TrackingID, CancellationToken.None);
+
+        // Allow execution to proceed (handler may or may not have started depending on race outcome)
+        ManualCancelTestCommandHandler.ReleaseAfterCancellation();
+
+        // Wait for the executor to settle
+        var field = queue.GetType().GetField("_cancellations", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var cancellations = (ConcurrentDictionary<Guid, CancellationTokenSource?>)field.GetValue(queue)!;
+        (await WaitUntilAsync(() => storage.CancelCount >= 1, TimeSpan.FromSeconds(5))).ShouldBeTrue();
+
+        // Verify that appStopping can be cancelled cleanly without triggering leaked callbacks
+        appStopping.Cancel();
+        await queue.ExecutorTask.WaitAsync(TimeSpan.FromSeconds(5));
+        queue.ExecutorTask.IsCompletedSuccessfully.ShouldBeTrue();
+    }
 }

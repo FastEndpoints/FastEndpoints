@@ -626,6 +626,41 @@ public partial class JobQueueTests
     }
 
     [Fact]
+    public async Task pre_cancelled_marker_is_not_disposed_when_executor_bails_out_early()
+    {
+        var storage = new PreCancelledExecutionRaceTestStorage();
+        using var appStopping = new CancellationTokenSource();
+        var queue = CreatePreCancelledExecutionRaceQueue(storage, appStopping);
+        queue.SetLimits(1, Timeout.InfiniteTimeSpan, TimeSpan.FromMilliseconds(20), TimeSpan.FromMilliseconds(20));
+
+        var command = new ManualCancelTestCommand();
+        await command.QueueJobAsync(ct: CancellationToken.None);
+        await storage.BatchFetchStarted.WaitAsync(TimeSpan.FromSeconds(5));
+
+        var cancelTask = JobTracker<ManualCancelTestCommand>.CancelJobAsync(command.TrackingID, CancellationToken.None);
+        await storage.CancelStarted.WaitAsync(TimeSpan.FromSeconds(5));
+
+        storage.ReleaseBatchFetch();
+        await storage.BatchReturned.WaitAsync(TimeSpan.FromSeconds(5));
+
+        storage.ReleaseCancel();
+        await cancelTask.WaitAsync(TimeSpan.FromSeconds(5));
+        (await storage.WaitForCompletionAsync(command.TrackingID, TimeSpan.FromSeconds(5))).ShouldBeTrue();
+
+        var field = typeof(JobQueue<ManualCancelTestCommand, FastEndpoints.Void, ManualCancelTestRecord, PreCancelledExecutionRaceTestStorage>)
+                    .GetField("_preCancelledTokenSource", BindingFlags.Static | BindingFlags.NonPublic)!;
+        var sharedMarker = (CancellationTokenSource)field.GetValue(null)!;
+
+        sharedMarker.IsCancellationRequested.ShouldBeTrue();
+        await sharedMarker.CancelAsync().ShouldNotThrowAsync();
+        storage.CancelCount.ShouldBe(1);
+
+        appStopping.Cancel();
+        await queue.ExecutorTask.WaitAsync(TimeSpan.FromSeconds(5));
+        queue.ExecutorTask.IsCompletedSuccessfully.ShouldBeTrue();
+    }
+
+    [Fact]
     public async Task manual_cancellation_does_not_allow_reexecution_while_storage_cancel_is_still_in_flight()
     {
         CancelRaceTestCommandHandler.Reset();

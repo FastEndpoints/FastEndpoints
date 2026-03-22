@@ -738,6 +738,95 @@ public partial class JobQueueTests
                 timeout);
     }
 
+    sealed class PreCancelledExecutionRaceTestStorage : IJobStorageProvider<ManualCancelTestRecord>
+    {
+        readonly Lock _lock = new();
+        readonly Dictionary<Guid, ManualCancelTestRecord> _jobs = [];
+        readonly TaskCompletionSource<bool> _batchFetchStarted = NewSignal<bool>();
+        readonly TaskCompletionSource<bool> _allowBatchFetch = NewSignal<bool>();
+        readonly TaskCompletionSource<bool> _batchReturned = NewSignal<bool>();
+        readonly TaskCompletionSource<bool> _cancelStarted = NewSignal<bool>();
+        readonly TaskCompletionSource<bool> _allowCancelCompletion = NewSignal<bool>();
+        int _batchReturnCount;
+        int _cancelCount;
+
+        public bool DistributedJobProcessingEnabled => false;
+        public Task BatchFetchStarted => _batchFetchStarted.Task;
+        public Task BatchReturned => _batchReturned.Task;
+        public Task CancelStarted => _cancelStarted.Task;
+        public int BatchReturnCount => Volatile.Read(ref _batchReturnCount);
+        public int CancelCount => Volatile.Read(ref _cancelCount);
+
+        public void ReleaseBatchFetch()
+            => _allowBatchFetch.TrySetResult(true);
+
+        public void ReleaseCancel()
+            => _allowCancelCompletion.TrySetResult(true);
+
+        public Task StoreJobAsync(ManualCancelTestRecord record, CancellationToken ct)
+        {
+            lock (_lock)
+                _jobs[record.TrackingID] = record;
+
+            return Task.CompletedTask;
+        }
+
+        public async Task<ICollection<ManualCancelTestRecord>> GetNextBatchAsync(PendingJobSearchParams<ManualCancelTestRecord> parameters)
+        {
+            _batchFetchStarted.TrySetResult(true);
+            await _allowBatchFetch.Task.WaitAsync(parameters.CancellationToken);
+
+            var match = parameters.Match.Compile();
+            ManualCancelTestRecord[] jobs;
+
+            lock (_lock)
+            {
+                jobs = _jobs.Values
+                            .Where(match)
+                            .Take(parameters.Limit)
+                            .ToArray();
+            }
+
+            Interlocked.Increment(ref _batchReturnCount);
+            _batchReturned.TrySetResult(true);
+
+            return jobs;
+        }
+
+        public Task MarkJobAsCompleteAsync(ManualCancelTestRecord record, CancellationToken ct)
+        {
+            lock (_lock)
+                _jobs[record.TrackingID].IsComplete = true;
+
+            return Task.CompletedTask;
+        }
+
+        public async Task CancelJobAsync(Guid trackingId, CancellationToken ct)
+        {
+            Interlocked.Increment(ref _cancelCount);
+            _cancelStarted.TrySetResult(true);
+            await _allowCancelCompletion.Task.WaitAsync(ct);
+
+            lock (_lock)
+                _jobs[trackingId].IsComplete = true;
+        }
+
+        public Task OnHandlerExecutionFailureAsync(ManualCancelTestRecord record, Exception exception, CancellationToken ct)
+            => Task.CompletedTask;
+
+        public Task PurgeStaleJobsAsync(StaleJobSearchParams<ManualCancelTestRecord> parameters)
+            => Task.CompletedTask;
+
+        public Task<bool> WaitForCompletionAsync(Guid trackingId, TimeSpan timeout)
+            => WaitUntilAsync(
+                () =>
+                {
+                    lock (_lock)
+                        return _jobs.TryGetValue(trackingId, out var job) && job.IsComplete;
+                },
+                timeout);
+    }
+
     sealed class ResultIgnoringTestCommand : ICommand<string>, IHasTrackingID
     {
         public Guid TrackingID { get; set; }

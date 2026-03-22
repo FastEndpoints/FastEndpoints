@@ -56,6 +56,19 @@ public partial class JobQueueTests
             NullLogger<JobQueue<CancelRaceTestCommand, FastEndpoints.Void, CancelRaceTestRecord, CancelRaceTestStorage>>.Instance);
     }
 
+    static JobQueue<ManualCancelTestCommand, FastEndpoints.Void, ManualCancelTestRecord, PreCancelledExecutionRaceTestStorage> CreatePreCancelledExecutionRaceQueue(
+        PreCancelledExecutionRaceTestStorage storage,
+        CancellationTokenSource appStopping)
+    {
+        Factory.RegisterTestServices(_ => { });
+        new ManualCancelTestCommandHandler().RegisterForTesting();
+
+        return new(
+            storage,
+            new TestHostLifetime(appStopping.Token),
+            NullLogger<JobQueue<ManualCancelTestCommand, FastEndpoints.Void, ManualCancelTestRecord, PreCancelledExecutionRaceTestStorage>>.Instance);
+    }
+
     static JobQueue<ResultIgnoringTestCommand, string, ResultIgnoringTestRecord, ResultIgnoringTestStorage> CreateResultIgnoringQueue(ResultIgnoringTestStorage storage,
         CancellationTokenSource appStopping)
     {

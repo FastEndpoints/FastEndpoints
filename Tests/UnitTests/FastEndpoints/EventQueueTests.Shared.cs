@@ -71,15 +71,6 @@ public partial class EventQueueTests
                              .GetField("_storage", BindingFlags.NonPublic | BindingFlags.Static)!
                              .GetValue(null)!;
 
-    static void SetIsInMemorySubscriberProvider<TEvent, THandler, TStorageRecord, TStorageProvider>(bool value = true)
-        where TEvent : class, IEvent
-        where THandler : class, IEventHandler<TEvent>
-        where TStorageRecord : class, IEventStorageRecord, new()
-        where TStorageProvider : class, IEventSubscriberStorageProvider<TStorageRecord>
-        => typeof(EventSubscriber<TEvent, THandler, TStorageRecord, TStorageProvider>)
-           .GetField("_isInMemProvider", BindingFlags.NonPublic | BindingFlags.Static)!
-           .SetValue(null, value);
-
     static bool SubscriberExists<TEvent>(string subscriberId) where TEvent : class, IEvent
         => TryGetInMemorySubscriber(typeof(TEvent), subscriberId, out _);
 

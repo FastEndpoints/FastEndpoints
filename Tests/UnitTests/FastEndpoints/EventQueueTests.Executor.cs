@@ -25,13 +25,14 @@ public partial class EventQueueTests
         await StoreTestEventAsync(storage, subscriberId, new TrackedTestEvent { Name = "fast" }, cts.Token);
         await StoreTestEventAsync(storage, subscriberId, new TrackedTestEvent { Name = "third" }, cts.Token);
 
-        var executor = EventSubscriber<TrackedTestEvent, TestEventExecutorHandler, TestEventRecord, TestEventSubscriberStorage>
-            .EventExecutorTask(
+        var executor = EventExecutorWorker.RunAsync<TrackedTestEvent, TestEventExecutorHandler, TestEventRecord, TestEventSubscriberStorage>(
                 storage,
+                SubscriberStorageBehavior.Durable,
                 new(0),
                 new(cancellationToken: cts.Token),
                 maxConcurrency: 2,
                 subscriberID: subscriberId,
+                eventTypeName: typeof(TrackedTestEvent).FullName!,
                 logger,
                 _unusedHandlerFactory,
                 provider,
@@ -81,19 +82,20 @@ public partial class EventQueueTests
         using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(20));
         Task? executor = null;
 
-        EventSubscriber<TrackedTestEvent, TestEventExecutorHandler, TestEventRecord, TestEventSubscriberStorage>.HandlerExecutionRetryDelay = TimeSpan.FromMilliseconds(100);
+        SubscriberTimings.HandlerExecutionRetryDelay = TimeSpan.FromMilliseconds(100);
 
         try
         {
             await StoreTestEventAsync(storage, subscriberId, new TrackedTestEvent { Name = "retry" }, cts.Token);
 
-            executor = EventSubscriber<TrackedTestEvent, TestEventExecutorHandler, TestEventRecord, TestEventSubscriberStorage>
-                .EventExecutorTask(
+            executor = EventExecutorWorker.RunAsync<TrackedTestEvent, TestEventExecutorHandler, TestEventRecord, TestEventSubscriberStorage>(
                     storage,
+                    SubscriberStorageBehavior.Durable,
                     new(0),
                     new(cancellationToken: cts.Token),
                     maxConcurrency: 1,
                     subscriberID: subscriberId,
+                    eventTypeName: typeof(TrackedTestEvent).FullName!,
                     logger,
                     _unusedHandlerFactory,
                     provider,
@@ -114,7 +116,7 @@ public partial class EventQueueTests
             if (executor is not null)
                 await WaitForCompletion(executor, timeoutMs: 5000);
 
-            EventSubscriber<TrackedTestEvent, TestEventExecutorHandler, TestEventRecord, TestEventSubscriberStorage>.HandlerExecutionRetryDelay = TimeSpan.FromSeconds(5);
+            SubscriberTimings.HandlerExecutionRetryDelay = TimeSpan.FromSeconds(5);
         }
     }
 
@@ -131,13 +133,14 @@ public partial class EventQueueTests
 
         await StoreTestEventAsync(storage, subscriberId, new TrackedTestEvent { Name = "shutdown" }, cts.Token);
 
-        var executor = EventSubscriber<TrackedTestEvent, ShutdownAfterHandleEventHandler, TestEventRecord, CancellationAwareTestEventSubscriberStorage>
-            .EventExecutorTask(
+        var executor = EventExecutorWorker.RunAsync<TrackedTestEvent, ShutdownAfterHandleEventHandler, TestEventRecord, CancellationAwareTestEventSubscriberStorage>(
                 storage,
+                SubscriberStorageBehavior.Durable,
                 new(0),
                 new(cancellationToken: cts.Token),
                 maxConcurrency: 1,
                 subscriberID: subscriberId,
+                eventTypeName: typeof(TrackedTestEvent).FullName!,
                 logger,
                 _unusedHandlerFactory,
                 provider,
@@ -159,14 +162,15 @@ public partial class EventQueueTests
         var storage = new CancellationAwareStoreEventSubscriberStorage(cts);
         var provider = CreateServiceProvider();
         var logger = GetSubscriberLogger<TrackedTestEvent, TestEventExecutorHandler, TestEventRecord, CancellationAwareStoreEventSubscriberStorage>(provider);
-        var receiver = EventSubscriber<TrackedTestEvent, TestEventExecutorHandler, TestEventRecord, CancellationAwareStoreEventSubscriberStorage>
-            .EventReceiverTask(
+        var receiver = EventReceiverWorker.RunAsync<TrackedTestEvent, TestEventRecord, CancellationAwareStoreEventSubscriberStorage>(
                 storage,
+                SubscriberStorageBehavior.Durable,
                 new(0),
                 new(cancellationToken: cts.Token),
                 new TestCallInvoker(new() { Name = "shutdown" }),
                 CreateSubscriptionMethod<TrackedTestEvent>(),
                 subscriberID: "shutdown-sub",
+                eventTypeName: typeof(TrackedTestEvent).FullName!,
                 eventRecordExpiry: TimeSpan.FromMinutes(1),
                 logger,
                 errors: null);
@@ -191,14 +195,15 @@ public partial class EventQueueTests
         var provider = CreateServiceProvider();
         var logger = GetSubscriberLogger<TrackedTestEvent, TestEventExecutorHandler, TestEventRecord, TestEventSubscriberStorage>(provider);
         var invoker = new GracefulReconnectCallInvoker(cts, expectedCalls: 3);
-        var receiver = EventSubscriber<TrackedTestEvent, TestEventExecutorHandler, TestEventRecord, TestEventSubscriberStorage>
-            .EventReceiverTask(
+        var receiver = EventReceiverWorker.RunAsync<TrackedTestEvent, TestEventRecord, TestEventSubscriberStorage>(
                 storage,
+                SubscriberStorageBehavior.Durable,
                 new(0),
                 new(cancellationToken: cts.Token),
                 invoker,
                 CreateSubscriptionMethod<TrackedTestEvent>(),
                 subscriberID: "graceful-sub",
+                eventTypeName: typeof(TrackedTestEvent).FullName!,
                 eventRecordExpiry: TimeSpan.FromMinutes(1),
                 logger,
                 errors: null,
@@ -252,13 +257,14 @@ public partial class EventQueueTests
         await storage.StoreEventAsync(CreateTestRecord(subscriberId, new TestEvent { EventID = 999 }), cts.Token);
         await StoreTestEventAsync(storage, subscriberId, new TrackedTestEvent { Name = "fast" }, cts.Token);
 
-        var executor = EventSubscriber<TrackedTestEvent, TestEventExecutorHandler, TestEventRecord, TestEventSubscriberStorage>
-            .EventExecutorTask(
+        var executor = EventExecutorWorker.RunAsync<TrackedTestEvent, TestEventExecutorHandler, TestEventRecord, TestEventSubscriberStorage>(
                 storage,
+                SubscriberStorageBehavior.Durable,
                 new(0),
                 new(cancellationToken: cts.Token),
                 maxConcurrency: 1,
                 subscriberID: subscriberId,
+                eventTypeName: typeof(TrackedTestEvent).FullName!,
                 logger,
                 _unusedHandlerFactory,
                 provider,
@@ -284,20 +290,19 @@ public partial class EventQueueTests
         var logger = GetSubscriberLogger<InMemFetchLimitEvent, InMemFetchLimitHandler, TestEventRecord, BatchDequeueEventSubscriberStorage>(provider);
         using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
 
-        SetIsInMemorySubscriberProvider<InMemFetchLimitEvent, InMemFetchLimitHandler, TestEventRecord, BatchDequeueEventSubscriberStorage>();
-
         await storage.StoreEventAsync(CreateTestRecord(subscriberId, new InMemFetchLimitEvent { Name = "slow" }), cts.Token);
 
         for (var index = 1; index <= 4; index++)
             await storage.StoreEventAsync(CreateTestRecord(subscriberId, new InMemFetchLimitEvent { Name = $"fast-{index}" }), cts.Token);
 
-        var executor = EventSubscriber<InMemFetchLimitEvent, InMemFetchLimitHandler, TestEventRecord, BatchDequeueEventSubscriberStorage>
-            .EventExecutorTask(
+        var executor = EventExecutorWorker.RunAsync<InMemFetchLimitEvent, InMemFetchLimitHandler, TestEventRecord, BatchDequeueEventSubscriberStorage>(
                 storage,
+                SubscriberStorageBehavior.InMemory,
                 new(0),
                 new(cancellationToken: cts.Token),
                 maxConcurrency: 2,
                 subscriberID: subscriberId,
+                eventTypeName: typeof(InMemFetchLimitEvent).FullName!,
                 logger,
                 _unusedHandlerFactory,
                 provider,

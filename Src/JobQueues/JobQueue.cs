@@ -359,7 +359,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 {
                     _activated = true;
 
-                    foreach (var record in records.Take(availableSlots))
+                    foreach (var record in records.DistinctBy(r => r.TrackingID).Take(availableSlots)) //dedupe by TrackingID prevents ghost executions
                         executions[record.TrackingID] = ExecuteCommand(record);
 
                     if (executions.Count == _maxConcurrency)

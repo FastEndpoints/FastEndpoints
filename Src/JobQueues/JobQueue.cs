@@ -415,20 +415,24 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                 try
                 {
                     var cmd = record.GetCommand<TCommand>();
-                    record.Command = cmd; //needed in case user does whole record (non-partial) updates via storage provider.
 
                     switch (cmd)
                     {
                         case ICommand c:
+                            record.Command = cmd; //needed in case user does whole record (non-partial) updates via storage provider.
                             await c.ExecuteAsync(cts.Token);
 
                             break;
                         case ICommand<TResult> cr:
+                            record.Command = cmd; //needed in case user does whole record (non-partial) updates via storage provider.
                             var result = await cr.ExecuteAsync(cts.Token);
                             if (record is IJobResultStorage rec)
                                 rec.SetResult(result);
 
                             break;
+                        default:
+                            throw new InvalidOperationException(
+                                $"Job [{record.TrackingID}] in queue [{QueueID}] could not be deserialized into an executable [{_commandTypeName}] command.");
                     }
 
                     _cancellations.TryRemove(record.TrackingID, out _); // remove entry on completion. cancellations are not possible/valid after this point.

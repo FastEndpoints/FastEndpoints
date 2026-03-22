@@ -476,6 +476,41 @@ public partial class JobQueueTests
     }
 
     [Fact]
+    public async Task null_command_deserialization_is_recorded_as_handler_failure()
+    {
+        var storage = new PersistenceRetryTestStorage();
+        using var appStopping = new CancellationTokenSource();
+        var queue = CreatePersistenceRetryQueue(storage, appStopping);
+        var trackingId = Guid.NewGuid();
+        var now = DateTime.UtcNow;
+
+        await storage.StoreJobAsync(
+            new()
+            {
+                QueueID = JobQueue<PersistenceRetryTestCommand, string, PersistenceRetryTestRecord, PersistenceRetryTestStorage>.QueueID,
+                TrackingID = trackingId,
+                Command = "corrupted-payload",
+                ReturnNullCommandOnGet = true,
+                ExecuteAfter = now.AddMinutes(-1),
+                ExpireOn = now.AddHours(1)
+            },
+            CancellationToken.None);
+
+        queue.SetLimits(1, Timeout.InfiniteTimeSpan, TimeSpan.FromMilliseconds(20), TimeSpan.FromMilliseconds(20));
+
+        (await storage.WaitForFailureRecordedAsync(trackingId, TimeSpan.FromSeconds(5))).ShouldBeTrue();
+        (await storage.WaitForCompletionAsync(trackingId, TimeSpan.FromSeconds(5))).ShouldBeTrue();
+        storage.ExecutionCount.ShouldBe(0);
+        storage.ExecutionFailureAttempts.ShouldBe(1);
+        storage.RecordedFailureCount.ShouldBe(1);
+        storage.MarkCompleteAttempts.ShouldBe(0);
+        storage.WasRecordedFailureCancellation(trackingId).ShouldBeFalse();
+
+        appStopping.Cancel();
+        await queue.ExecutorTask.WaitAsync(TimeSpan.FromSeconds(5));
+    }
+
+    [Fact]
     public async Task handler_failure_still_gets_recorded_when_intermediate_result_retrieval_fails()
     {
         var storage = new PersistenceRetryTestStorage(getResultFailures: 1);

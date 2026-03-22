@@ -1025,10 +1025,14 @@ public partial class JobQueueTests
         public string QueueID { get; set; } = "";
         public Guid TrackingID { get; set; }
         public object Command { get; set; } = null!;
+        public bool ReturnNullCommandOnGet { get; set; }
         public DateTime ExecuteAfter { get; set; }
         public DateTime ExpireOn { get; set; }
         public bool IsComplete { get; set; }
         public object? Result { get; set; }
+
+        public TCommand GetCommand<TCommand>() where TCommand : class, ICommandBase
+            => ReturnNullCommandOnGet ? null! : (TCommand)Command;
     }
 
     sealed class PersistenceRetryTestStorage(int storeResultFailures = 0,
@@ -1211,6 +1215,7 @@ public partial class JobQueueTests
                 QueueID = record.QueueID,
                 TrackingID = record.TrackingID,
                 Command = record.Command,
+                ReturnNullCommandOnGet = record.ReturnNullCommandOnGet,
                 ExecuteAfter = record.ExecuteAfter,
                 ExpireOn = record.ExpireOn,
                 IsComplete = record.IsComplete,

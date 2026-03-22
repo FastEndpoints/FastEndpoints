@@ -1,5 +1,3 @@
-// ReSharper disable MethodSupportsCancellation
-
 using FastEndpoints.Messaging.Remote.Core;
 using Grpc.Core;
 
@@ -43,7 +41,7 @@ static class EventDispatcherWorker
                                    {
                                        CancellationToken = cts.Token,
                                        EventType = ctx.EventTypeName,
-                                       Limit = EventHubTimings.BatchSize,
+                                       Limit = EventHubSettings.BatchSize,
                                        SubscriberID = subscriberID,
                                        Match = e => e.SubscriberID == subscriberID &&
                                                     e.EventType == ctx.EventTypeName &&
@@ -63,7 +61,7 @@ static class EventDispatcherWorker
                     ctx.Logger.StorageGetNextBatchError(subscriberID, ctx.EventTypeName, ex.Message);
 
                     if (!cts.Token.IsCancellationRequested)
-                        await Task.Delay(EventHubTimings.StorageRetryDelay);
+                        await Task.Delay(EventHubSettings.StorageRetryDelay);
 
                     continue;
                 }
@@ -137,7 +135,7 @@ static class EventDispatcherWorker
             operation: () => storage.MarkEventAsCompleteAsync(record, cts.Token),
             onError: (count, ex) => ctx.Errors?.OnMarkEventAsCompleteError<TEvent>(record, count, ex, cts.Token),
             logError: msg => ctx.Logger.StorageMarkAsCompleteError(subscriberID, ctx.EventTypeName, msg),
-            retryDelay: EventHubTimings.StorageRetryDelay,
+            retryDelay: EventHubSettings.StorageRetryDelay,
             ct: cts.Token);
     }
 
@@ -145,7 +143,7 @@ static class EventDispatcherWorker
     {
         try
         {
-            if (await subscriberSem.WaitAsync(EventHubTimings.WaitForSignalTimeout, cts.Token)) //wait for poll interval, semaphore release, or shutdown.
+            if (await subscriberSem.WaitAsync(EventHubSettings.WaitForSignalTimeout, cts.Token)) //wait for poll interval, semaphore release, or shutdown.
                 while (subscriberSem.Wait(0)) { }                                                //drain residual releases so the next poll only runs after new work arrives.
         }
         catch (OperationCanceledException) when (cts.Token.IsCancellationRequested)

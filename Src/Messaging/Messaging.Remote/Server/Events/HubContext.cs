@@ -28,11 +28,7 @@ readonly struct HubContext
     /// on each failure the error callback is invoked safely (exceptions from user code are caught),
     /// the error is logged, and execution is delayed before the next attempt.
     /// </summary>
-    internal async Task RetryUntilSuccess(Func<ValueTask> operation,
-                                          Func<int, Exception, Task?>? onError,
-                                          Action<string> logError,
-                                          TimeSpan retryDelay,
-                                          CancellationToken ct)
+    internal async Task RetryUntilSuccess(Func<ValueTask> operation, Func<int, Exception, Task?>? onError, Action<string> logError, TimeSpan retryDelay, CancellationToken ct)
     {
         var errorCount = 0;
 

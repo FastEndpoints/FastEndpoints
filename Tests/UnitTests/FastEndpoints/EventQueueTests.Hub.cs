@@ -38,7 +38,7 @@ public partial class EventQueueTests
         var context = CreateServerCallContext(CancellationToken.None);
 
         _ = hub.OnSubscriberConnected(hub, Guid.NewGuid().ToString(), writer, context);
-        _ = hub.OnEventReceived(hub, new TestEvent { EventID = 321 }, context);
+        _ = hub.OnEventReceived(hub, new() { EventID = 321 }, context);
 
         await WaitUntil(() => writer.Responses.Count == 1);
         writer.Responses.Single().EventID.ShouldBe(321);
@@ -51,7 +51,7 @@ public partial class EventQueueTests
         var provider = CreateServiceProvider(services => services.AddSingleton(state));
 
         EventHub<WaitRecoveryEvent, TestEventRecord, InstrumentedEventHubStorage>.Mode = HubMode.EventPublisher;
-        EventHubTimings.WaitForSignalTimeout = TimeSpan.FromMilliseconds(200);
+        EventHubSettings.WaitForSignalTimeout = TimeSpan.FromMilliseconds(200);
 
         var hub = new EventHub<WaitRecoveryEvent, TestEventRecord, InstrumentedEventHubStorage>(provider);
         var writer = new TestServerStreamWriter<WaitRecoveryEvent>();
@@ -66,7 +66,7 @@ public partial class EventQueueTests
             await Task.Delay(50);
 
             var stopwatch = Stopwatch.StartNew();
-            await hub.BroadcastEventTaskForTesting(new WaitRecoveryEvent { EventID = 42 });
+            await hub.BroadcastEventTaskForTesting(new() { EventID = 42 });
             await WaitUntil(() => writer.Responses.Count == 1, timeoutMs: 2000);
 
             stopwatch.Elapsed.ShouldBeLessThan(TimeSpan.FromMilliseconds(500));
@@ -79,7 +79,7 @@ public partial class EventQueueTests
             if (subscriberTask is not null)
                 await WaitForCompletion(subscriberTask, timeoutMs: 5000);
 
-            EventHubTimings.WaitForSignalTimeout = TimeSpan.FromSeconds(10);
+            EventHubSettings.WaitForSignalTimeout = TimeSpan.FromSeconds(10);
         }
     }
 
@@ -99,7 +99,7 @@ public partial class EventQueueTests
         var subscriberTask = hub.OnSubscriberConnected(hub, "poll-drain-sub", writer, CreateServerCallContext(cts.Token));
 
         for (var eventId = 1; eventId <= eventCount; eventId++)
-            await hub.BroadcastEventTaskForTesting(new PollDrainEvent { EventID = eventId });
+            await hub.BroadcastEventTaskForTesting(new() { EventID = eventId });
 
         writer.Release();
 

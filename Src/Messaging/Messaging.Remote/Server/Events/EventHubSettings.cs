@@ -4,7 +4,7 @@ namespace FastEndpoints;
 /// centralizes all timing constants and sizing defaults used by the event hub dispatcher and broadcast tasks.
 /// having them in one place makes them easy to find, tune, and override in tests.
 /// </summary>
-static class EventHubTimings
+static class EventHubSettings
 {
     /// <summary>
     /// delay between retries when a storage operation fails (get-next-batch, store-events, mark-complete, restore-subscriber-ids).

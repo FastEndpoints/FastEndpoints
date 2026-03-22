@@ -50,10 +50,11 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
         IsInMemoryProvider = _storageBehavior == HubStorageBehavior.InMemory;
         EventHubStorage<TStorageRecord, TStorageProvider>.Provider = _storage; //for stale record purging task setup
         EventHubStorage<TStorageRecord, TStorageProvider>.IsInMemProvider = IsInMemoryProvider;
-        var errors = svcProvider.GetService<EventHubExceptionReceiver>();
-        var logger = svcProvider.GetRequiredService<ILogger<EventHub<TEvent, TStorageRecord, TStorageProvider>>>();
-        var appCancellation = svcProvider.GetRequiredService<IHostApplicationLifetime>().ApplicationStopping;
-        _ctx = new(logger, errors, _tEvent.FullName!, appCancellation);
+        _ctx = new(
+            svcProvider.GetRequiredService<ILogger<EventHub<TEvent, TStorageRecord, TStorageProvider>>>(),
+            svcProvider.GetService<EventHubExceptionReceiver>(),
+            _tEvent.FullName!,
+            svcProvider.GetRequiredService<IHostApplicationLifetime>().ApplicationStopping);
         _testEventReceiver = svcProvider.GetService<IEventReceiver<TEvent>>();
     }
 
@@ -61,7 +62,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
     {
         ArgumentNullException.ThrowIfNull(_storage);
 
-        using var timeoutCts = new CancellationTokenSource(EventHubTimings.InitializationTimeout);
+        using var timeoutCts = new CancellationTokenSource(EventHubSettings.InitializationTimeout);
         using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, _ctx.AppCancellation);
         var ct = linkedCts.Token;
         var retrievalErrorCount = 0;
@@ -97,7 +98,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                 _ctx.Logger.RestoreSubscriberIDsError(_tEvent.FullName!);
 
                 if (!_ctx.AppCancellation.IsCancellationRequested)
-                    await Task.Delay(EventHubTimings.StorageRetryDelay, CancellationToken.None);
+                    await Task.Delay(EventHubSettings.StorageRetryDelay, CancellationToken.None);
             }
         }
     }
@@ -160,11 +161,11 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
 
         while (subscribers.Length == 0)
         {
-            if (_ctx.AppCancellation.IsCancellationRequested || (DateTime.UtcNow - startTime) >= EventHubTimings.NoSubscriberTimeout)
+            if (_ctx.AppCancellation.IsCancellationRequested || DateTime.UtcNow - startTime >= EventHubSettings.NoSubscriberTimeout)
                 return;
 
             _ctx.Logger.NoSubscribersWarning(_tEvent.FullName!);
-            await Task.Delay(EventHubTimings.NoSubscriberRetryDelay, CancellationToken.None);
+            await Task.Delay(EventHubSettings.NoSubscriberRetryDelay, CancellationToken.None);
 
             subscribers = _selector.SelectRecipients(_registry);
         }
@@ -189,7 +190,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                 SubscriberID = subId,
                 TrackingID = Guid.NewGuid(),
                 EventType = _tEvent.FullName!,
-                ExpireOn = DateTime.UtcNow.Add(EventHubTimings.EventExpiry)
+                ExpireOn = DateTime.UtcNow.Add(EventHubSettings.EventExpiry)
             };
 
             try
@@ -244,7 +245,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                 if (_ctx.AppCancellation.IsCancellationRequested)
                     break;
 
-                await Task.Delay(EventHubTimings.StorageRetryDelay, CancellationToken.None);
+                await Task.Delay(EventHubSettings.StorageRetryDelay, CancellationToken.None);
             }
         }
     }

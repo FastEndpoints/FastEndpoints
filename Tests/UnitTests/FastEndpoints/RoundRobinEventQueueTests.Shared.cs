@@ -66,8 +66,10 @@ public partial class RoundRobinEventQueueTests
 
     static bool TryGetSubscriberByHubType(Type hubType, string subscriberId, out object? subscriber)
     {
-        var field = hubType.GetField("_subscribers", BindingFlags.NonPublic | BindingFlags.Static)!;
-        var dictionary = field.GetValue(null)!;
+        var registryField = hubType.GetField("_registry", BindingFlags.NonPublic | BindingFlags.Static)!;
+        var registry = registryField.GetValue(null)!;
+        var subscribersField = registry.GetType().GetField("Subscribers", BindingFlags.NonPublic | BindingFlags.Instance)!;
+        var dictionary = subscribersField.GetValue(registry)!;
         var args = new object?[] { subscriberId, null };
         var found = (bool)dictionary.GetType().GetMethod("TryGetValue")!.Invoke(dictionary, args)!;
         subscriber = args[1];

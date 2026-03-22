@@ -476,6 +476,41 @@ public partial class JobQueueTests
     }
 
     [Fact]
+    public async Task handler_failure_still_gets_recorded_when_intermediate_result_retrieval_fails()
+    {
+        var storage = new PersistenceRetryTestStorage(getResultFailures: 1);
+        using var appStopping = new CancellationTokenSource();
+        var queue = CreatePersistenceRetryQueue(storage, appStopping);
+        queue.SetLimits(1, Timeout.InfiniteTimeSpan, TimeSpan.FromMilliseconds(20), TimeSpan.FromMilliseconds(20));
+
+        var failing = new PersistenceRetryTestCommand
+        {
+            ShouldThrow = true,
+            FailureMessage = "boom",
+            ResultText = "failed"
+        };
+        var succeeding = new PersistenceRetryTestCommand
+        {
+            ExecutionDelay = TimeSpan.FromMilliseconds(10),
+            ResultText = "after-failure"
+        };
+
+        await failing.QueueJobAsync(ct: CancellationToken.None);
+        await succeeding.QueueJobAsync(ct: CancellationToken.None);
+
+        (await storage.WaitForFailureRecordedAsync(failing.TrackingID, TimeSpan.FromSeconds(5))).ShouldBeTrue();
+        (await storage.WaitForCompletionAsync(failing.TrackingID, TimeSpan.FromSeconds(5))).ShouldBeTrue();
+        (await storage.WaitForCompletionAsync(succeeding.TrackingID, TimeSpan.FromSeconds(5))).ShouldBeTrue();
+        storage.ExecutionCount.ShouldBe(2);
+        storage.ExecutionFailureAttempts.ShouldBe(1);
+        storage.RecordedFailureCount.ShouldBe(1);
+        storage.GetResultAttempts.ShouldBe(1);
+
+        appStopping.Cancel();
+        await queue.ExecutorTask.WaitAsync(TimeSpan.FromSeconds(5));
+    }
+
+    [Fact]
     public async Task app_shutdown_cancellation_does_not_log_critical_execution_errors()
     {
         var storage = new PersistenceRetryTestStorage();

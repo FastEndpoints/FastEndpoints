@@ -448,20 +448,27 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                     if (x is not OperationCanceledException || !_appCancellation.IsCancellationRequested)
                         _log.CommandExecutionCritical(_commandTypeName, x.Message);
 
+                    if (_resultStorage is not null && record is IJobResultStorage rec)
+                    {
+                        try
+                        {
+                            // fetch the last known result in case the job handler stored intermediate results before failing,
+                            // so it can be passed to OnHandlerExecutionFailureAsync
+                            rec.SetResult(await GetJobResultAsync<TResult>(record.TrackingID, CancellationToken.None)); //don't allow canceling.
+                        }
+                        catch (Exception xx)
+                        {
+                            _log.StorageGetJobResultError(QueueID, _commandTypeName, xx.Message);
+                        }
+                    }
+
                     while (true)
                     {
                         try
                         {
-                            // fetch the last known result in case the job handler stored intermediate results before failing, so it can be passed to OnHandlerExecutionFailureAsync
-                            if (_resultStorage is not null)
-                                (record as IJobResultStorage)?.SetResult(await GetJobResultAsync<TResult>(record.TrackingID, CancellationToken.None));
-
-                            await _storage.OnHandlerExecutionFailureAsync(record, x, CancellationToken.None);
+                            await _storage.OnHandlerExecutionFailureAsync(record, x, CancellationToken.None); //don't allow canceling.
 
                             break;
-
-                            // WARNING: if _appCancellation is used above (instead of CancellationToken.None),
-                            //          ORMs could throw OperationCanceledException without actually executing DB operations during app shutdown.
                         }
                         catch (Exception xx)
                         {

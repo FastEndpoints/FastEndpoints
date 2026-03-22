@@ -1031,7 +1031,10 @@ public partial class JobQueueTests
         public object? Result { get; set; }
     }
 
-    sealed class PersistenceRetryTestStorage(int storeResultFailures = 0, int markCompleteFailures = 0, int executionFailurePersistFailures = 0)
+    sealed class PersistenceRetryTestStorage(int storeResultFailures = 0,
+                                            int markCompleteFailures = 0,
+                                            int executionFailurePersistFailures = 0,
+                                            int getResultFailures = 0)
         : IJobStorageProvider<PersistenceRetryTestRecord>, IJobResultProvider
     {
         readonly Lock _lock = new();
@@ -1040,10 +1043,12 @@ public partial class JobQueueTests
         int _remainingStoreResultFailures = storeResultFailures;
         int _remainingMarkCompleteFailures = markCompleteFailures;
         int _remainingExecutionFailurePersistFailures = executionFailurePersistFailures;
+        int _remainingGetResultFailures = getResultFailures;
         int _executionCount;
         int _executionFailureAttempts;
         int _storeResultAttempts;
         int _markCompleteAttempts;
+        int _getResultAttempts;
         int _recordedFailureCount;
 
         public bool DistributedJobProcessingEnabled => false;
@@ -1052,6 +1057,7 @@ public partial class JobQueueTests
         public int RecordedFailureCount => Volatile.Read(ref _recordedFailureCount);
         public int StoreResultAttempts => Volatile.Read(ref _storeResultAttempts);
         public int MarkCompleteAttempts => Volatile.Read(ref _markCompleteAttempts);
+        public int GetResultAttempts => Volatile.Read(ref _getResultAttempts);
 
         public Task StoreJobAsync(PersistenceRetryTestRecord record, CancellationToken ct)
         {
@@ -1148,8 +1154,19 @@ public partial class JobQueueTests
 
         public Task<TResult?> GetJobResultAsync<TResult>(Guid trackingId, CancellationToken ct)
         {
+            Interlocked.Increment(ref _getResultAttempts);
+
             lock (_lock)
+            {
+                if (_remainingGetResultFailures > 0)
+                {
+                    _remainingGetResultFailures--;
+
+                    return Task.FromException<TResult?>(new InvalidOperationException("simulated result retrieval failure"));
+                }
+
                 return Task.FromResult(_jobs.TryGetValue(trackingId, out var job) ? ((IJobResultStorage)job).GetResult<TResult>() : default);
+            }
         }
 
         public void IncrementExecutionCount()

@@ -59,9 +59,15 @@ public partial class EventQueueTests
             new MessagePackMarshaller<TEvent>());
 
     static void SetIsInMemoryProvider(EventHubBase hub, bool value = true)
-        => typeof(EventHubBase)
-           .GetProperty("IsInMemoryProvider", BindingFlags.NonPublic | BindingFlags.Instance)!
-           .SetValue(hub, value);
+    {
+        typeof(EventHubBase)
+            .GetProperty("IsInMemoryProvider", BindingFlags.NonPublic | BindingFlags.Instance)!
+            .SetValue(hub, value);
+
+        var hubType = hub.GetType();
+        var behaviorField = hubType.GetField("_storageBehavior", BindingFlags.NonPublic | BindingFlags.Static)!;
+        behaviorField.SetValue(null, value ? HubStorageBehavior.InMemory : HubStorageBehavior.Durable);
+    }
 
     static TStorageProvider GetStaticHubStorage<TEvent, TStorageRecord, TStorageProvider>()
         where TEvent : class, IEvent

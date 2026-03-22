@@ -51,7 +51,7 @@ public partial class EventQueueTests
         var provider = CreateServiceProvider(services => services.AddSingleton(state));
 
         EventHub<WaitRecoveryEvent, TestEventRecord, InstrumentedEventHubStorage>.Mode = HubMode.EventPublisher;
-        EventHub<WaitRecoveryEvent, TestEventRecord, InstrumentedEventHubStorage>.WaitForSignalTimeout = TimeSpan.FromMilliseconds(200);
+        EventHubTimings.WaitForSignalTimeout = TimeSpan.FromMilliseconds(200);
 
         var hub = new EventHub<WaitRecoveryEvent, TestEventRecord, InstrumentedEventHubStorage>(provider);
         var writer = new TestServerStreamWriter<WaitRecoveryEvent>();
@@ -79,7 +79,7 @@ public partial class EventQueueTests
             if (subscriberTask is not null)
                 await WaitForCompletion(subscriberTask, timeoutMs: 5000);
 
-            EventHub<WaitRecoveryEvent, TestEventRecord, InstrumentedEventHubStorage>.WaitForSignalTimeout = TimeSpan.FromSeconds(10);
+            EventHubTimings.WaitForSignalTimeout = TimeSpan.FromSeconds(10);
         }
     }
 

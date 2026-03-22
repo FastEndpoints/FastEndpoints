@@ -17,16 +17,15 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
     where TStorageProvider : IEventHubStorageProvider<TStorageRecord>
 {
     internal static HubMode Mode = HubMode.EventPublisher;
-    internal static TimeSpan WaitForSignalTimeout = TimeSpan.FromSeconds(10);
 
     static readonly Type _tEvent = typeof(TEvent);
     static readonly SubscriberRegistry _registry = new();
     static ISubscriberSelector _selector = new FanOutSelector();
     static TStorageProvider? _storage;
 
-    readonly EventHubExceptionReceiver? _errors;
-    readonly ILogger _logger;
-    readonly CancellationToken _appCancellation;
+    static HubStorageBehavior _storageBehavior = HubStorageBehavior.InMemory;
+
+    readonly HubContext _ctx;
     readonly IEventReceiver<TEvent>? _testEventReceiver;
 
     internal static void Configure(HubMode mode, IEnumerable<string>? knownSubscriberIDs = null)
@@ -47,12 +46,14 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
         AllHubs[_tEvent] = this;
         _selector = Mode.HasFlag(HubMode.RoundRobin) ? new RoundRobinSelector() : new FanOutSelector(); // for cases where Mode is set directly (tests) without calling Configure
         _storage ??= (TStorageProvider)ActivatorUtilities.CreateInstance(svcProvider, typeof(TStorageProvider));
-        IsInMemoryProvider = _storage is InMemoryEventHubStorage;
+        _storageBehavior = HubStorageBehavior.For(_storage);
+        IsInMemoryProvider = _storageBehavior == HubStorageBehavior.InMemory;
         EventHubStorage<TStorageRecord, TStorageProvider>.Provider = _storage; //for stale record purging task setup
         EventHubStorage<TStorageRecord, TStorageProvider>.IsInMemProvider = IsInMemoryProvider;
-        _errors = svcProvider.GetService<EventHubExceptionReceiver>();
-        _logger = svcProvider.GetRequiredService<ILogger<EventHub<TEvent, TStorageRecord, TStorageProvider>>>();
-        _appCancellation = svcProvider.GetRequiredService<IHostApplicationLifetime>().ApplicationStopping;
+        var errors = svcProvider.GetService<EventHubExceptionReceiver>();
+        var logger = svcProvider.GetRequiredService<ILogger<EventHub<TEvent, TStorageRecord, TStorageProvider>>>();
+        var appCancellation = svcProvider.GetRequiredService<IHostApplicationLifetime>().ApplicationStopping;
+        _ctx = new(logger, errors, _tEvent.FullName!, appCancellation);
         _testEventReceiver = svcProvider.GetService<IEventReceiver<TEvent>>();
     }
 
@@ -60,12 +61,12 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
     {
         ArgumentNullException.ThrowIfNull(_storage);
 
-        using var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
-        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, _appCancellation);
+        using var timeoutCts = new CancellationTokenSource(EventHubTimings.InitializationTimeout);
+        using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, _ctx.AppCancellation);
         var ct = linkedCts.Token;
         var retrievalErrorCount = 0;
 
-        while (!_appCancellation.IsCancellationRequested)
+        while (!_ctx.AppCancellation.IsCancellationRequested)
         {
             try
             {
@@ -92,11 +93,11 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                     throw new ApplicationException($"Unable to restore subscribers for event type [{_tEvent.FullName!}] via storage provider in a timely manner!");
                 }
 
-                _errors?.OnRestoreSubscriberIDsError(_tEvent, retrievalErrorCount++, e, ct);
-                _logger.RestoreSubscriberIDsError(_tEvent.FullName!);
+                await _ctx.InvokeExceptionReceiverSafely(() => _ctx.Errors?.OnRestoreSubscriberIDsError(_tEvent, retrievalErrorCount++, e, ct));
+                _ctx.Logger.RestoreSubscriberIDsError(_tEvent.FullName!);
 
-                if (!_appCancellation.IsCancellationRequested)
-                    await Task.Delay(5000, CancellationToken.None);
+                if (!_ctx.AppCancellation.IsCancellationRequested)
+                    await Task.Delay(EventHubTimings.StorageRetryDelay, CancellationToken.None);
             }
         }
     }
@@ -135,151 +136,18 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
     }
 
     //internal to allow unit testing
-    internal async Task OnSubscriberConnected(EventHub<TEvent, TStorageRecord, TStorageProvider> _, string subscriberID, IServerStreamWriter<TEvent> stream, ServerCallContext ctx)
+    internal Task OnSubscriberConnected(EventHub<TEvent, TStorageRecord, TStorageProvider> _, string subscriberID, IServerStreamWriter<TEvent> stream, ServerCallContext ctx)
     {
-        _logger.SubscriberConnected(subscriberID, _tEvent.FullName!);
+        _ctx.Logger.SubscriberConnected(subscriberID, _tEvent.FullName!);
 
-        var cts = CancellationTokenSource.CreateLinkedTokenSource(ctx.CancellationToken, _appCancellation);
-        var connectionRegistered = false;
-
-        try
-        {
-            var retrievalErrorCount = 0;
-            var subscriber = _registry.RegisterConnection(subscriberID);
-            connectionRegistered = true;
-            var subscriberSem = subscriber.Sem;
-
-            while (!cts.Token.IsCancellationRequested)
-            {
-                List<TStorageRecord> records;
-
-                try
-                {
-                    records = (await _storage!.GetNextBatchAsync(
-                                   new()
-                                   {
-                                       CancellationToken = cts.Token,
-                                       EventType = _tEvent.FullName!,
-                                       Limit = 25,
-                                       SubscriberID = subscriberID,
-                                       Match = e => e.SubscriberID == subscriberID &&
-                                                    e.EventType == _tEvent.FullName! &&
-                                                    !e.IsComplete &&
-                                                    DateTime.UtcNow <= e.ExpireOn
-                                   })).ToList();
-                    retrievalErrorCount = 0;
-                }
-                catch (OperationCanceledException) when (cts.Token.IsCancellationRequested)
-                {
-                    break;
-                }
-                catch (Exception ex)
-                {
-                    retrievalErrorCount++;
-                    _errors?.OnGetNextBatchError<TEvent>(subscriberID, retrievalErrorCount, ex, cts.Token);
-                    _logger.StorageGetNextBatchError(subscriberID, _tEvent.FullName!, ex.Message);
-
-                    if (!cts.Token.IsCancellationRequested)
-                        await Task.Delay(5000);
-
-                    continue;
-                }
-
-                if (records.Count == 0)
-                {
-                    await WaitForSignal(subscriberSem, cts);
-
-                    continue;
-                }
-
-                for (var i = 0; i < records.Count; i++)
-                {
-                    var record = records[i];
-
-                    try
-                    {
-                        await stream.WriteAsync(record.GetEvent<TEvent>(), cts.Token);
-                    }
-                    catch
-                    {
-                        if (IsInMemoryProvider)
-                        {
-                            // re-queue the current record and all remaining unattempted records in the batch
-                            // since they were already dequeued from the in-memory queue by GetNextBatchAsync.
-                            try
-                            {
-                                await _storage.StoreEventsAsync(records[i..], cts.Token);
-                            }
-                            catch
-                            {
-                                //it's either canceled or queue is full
-                                //ignore and discard event if queue is full
-                            }
-                        }
-
-                        return; //stream is most likely broken/canceled. exit the method here and let the subscriber re-connect and re-enter the method.
-                    }
-
-                    await MarkEventComplete(record, subscriberID, cts);
-                }
-            }
-        }
-        finally
-        {
-            if (connectionRegistered)
-                _registry.ReleaseConnection(subscriberID);
-
-            cts.Dispose();
-        }
-    }
-
-    async Task MarkEventComplete(TStorageRecord record, string subscriberID, CancellationTokenSource cts)
-    {
-        if (IsInMemoryProvider)
-            return;
-
-        var updateErrorCount = 0;
-
-        while (true)
-        {
-            try
-            {
-                record.IsComplete = true;
-
-                // use composite cancellation token (signals client canceled or app shutdown) here so an interrupted "post write ack" leaves the record pending
-                // for "at least once" redelivery if the client did not durably persist the event yet.
-                await _storage!.MarkEventAsCompleteAsync(record, cts.Token);
-
-                break;
-            }
-            catch (Exception ex)
-            {
-                _errors?.OnMarkEventAsCompleteError<TEvent>(record, updateErrorCount++, ex, cts.Token);
-                _logger.StorageMarkAsCompleteError(subscriberID, _tEvent.FullName!, ex.Message);
-
-                if (cts.Token.IsCancellationRequested)
-                    break;
-
-                await Task.Delay(5000);
-            }
-        }
-    }
-
-    static async Task WaitForSignal(SemaphoreSlim subscriberSem, CancellationTokenSource cts)
-    {
-        try
-        {
-            if (await subscriberSem.WaitAsync(WaitForSignalTimeout, cts.Token)) //wait for poll interval, semaphore release, or shutdown.
-                while (subscriberSem.Wait(0)) { }                               //drain residual releases so the next poll only runs after new work arrives.
-        }
-        catch (OperationCanceledException) when (cts.Token.IsCancellationRequested)
-        {
-            //don't throw. let the main loop exit naturally so the disconnect state is updated.
-        }
-        catch (ObjectDisposedException)
-        {
-            cts.Cancel();
-        }
+        return EventDispatcherWorker.RunAsync<TEvent, TStorageRecord, TStorageProvider>(
+            _storage!,
+            _storageBehavior,
+            _registry,
+            _ctx,
+            subscriberID,
+            stream,
+            ctx.CancellationToken);
     }
 
     //WARNING: this method is never awaited. so it should not surface any exceptions.
@@ -292,11 +160,11 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
 
         while (subscribers.Length == 0)
         {
-            if (_appCancellation.IsCancellationRequested || (DateTime.UtcNow - startTime).TotalSeconds >= 60)
+            if (_ctx.AppCancellation.IsCancellationRequested || (DateTime.UtcNow - startTime) >= EventHubTimings.NoSubscriberTimeout)
                 return;
 
-            _logger.NoSubscribersWarning(_tEvent.FullName!);
-            await Task.Delay(5000, CancellationToken.None);
+            _ctx.Logger.NoSubscribersWarning(_tEvent.FullName!);
+            await Task.Delay(EventHubTimings.NoSubscriberRetryDelay, CancellationToken.None);
 
             subscribers = _selector.SelectRecipients(_registry);
         }
@@ -321,7 +189,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                 SubscriberID = subId,
                 TrackingID = Guid.NewGuid(),
                 EventType = _tEvent.FullName!,
-                ExpireOn = DateTime.UtcNow.AddHours(4)
+                ExpireOn = DateTime.UtcNow.Add(EventHubTimings.EventExpiry)
             };
 
             try
@@ -330,8 +198,8 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
             }
             catch (Exception ex)
             {
-                _errors?.OnSerializeEventError(evnt, ex, _appCancellation);
-                _logger.SetEventCritical(_tEvent.FullName!, ex.Message);
+                _ = _ctx.InvokeExceptionReceiverSafely(() => _ctx.Errors?.OnSerializeEventError(evnt, ex, _ctx.AppCancellation));
+                _ctx.Logger.SetEventCritical(_tEvent.FullName!, ex.Message);
 
                 return null; //no point in continuing for other subscribers.
             }
@@ -352,7 +220,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
             {
                 // durable providers must persist the outgoing fan-out records even during shutdown so published
                 // events remain available for delivery after restart.
-                await _storage!.StoreEventsAsync(records, IsInMemoryProvider ? _appCancellation : CancellationToken.None);
+                await _storage!.StoreEventsAsync(records, _storageBehavior.GetStoreEventsToken(_ctx.AppCancellation));
                 createErrorCount = 0;
 
                 break;
@@ -362,21 +230,21 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                 foreach (var rec in records.Cast<InMemoryEventStorageRecord>().Where(r => r.QueueOverflowed))
                 {
                     _registry.Remove(rec.SubscriberID, allowConfiguredRemoval: false);
-                    _errors?.OnInMemoryQueueOverflow<TEvent>(rec, _appCancellation);
-                    _logger.QueueOverflowWarning(rec.SubscriberID, _tEvent.FullName!);
+                    _ = _ctx.InvokeExceptionReceiverSafely(() => _ctx.Errors?.OnInMemoryQueueOverflow<TEvent>(rec, _ctx.AppCancellation));
+                    _ctx.Logger.QueueOverflowWarning(rec.SubscriberID, _tEvent.FullName!);
                 }
 
                 break;
             }
             catch (Exception ex)
             {
-                _errors?.OnStoreEventRecordsError<TEvent>(records, createErrorCount++, ex, _appCancellation);
-                _logger.StoreEventsError(_tEvent.FullName!, ex.Message);
+                await _ctx.InvokeExceptionReceiverSafely(() => _ctx.Errors?.OnStoreEventRecordsError<TEvent>(records, createErrorCount++, ex, _ctx.AppCancellation));
+                _ctx.Logger.StoreEventsError(_tEvent.FullName!, ex.Message);
 
-                if (_appCancellation.IsCancellationRequested)
+                if (_ctx.AppCancellation.IsCancellationRequested)
                     break;
 
-                await Task.Delay(5000, CancellationToken.None);
+                await Task.Delay(EventHubTimings.StorageRetryDelay, CancellationToken.None);
             }
         }
     }

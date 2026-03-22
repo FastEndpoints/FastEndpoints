@@ -18,4 +18,7 @@ static partial class LoggingExtensions
         LogLevel.Warning,
         "Event queue for [subscriber-id:{subscriberId}]({tEvent}) is full! The subscriber has been removed from the broadcast list.")]
     public static partial void QueueOverflowWarning(this ILogger l, string subscriberId, string tEvent);
+
+    [LoggerMessage(5, LogLevel.Error, "Event hub exception receiver fault during operation for ({tEvent}).")]
+    public static partial void EventHubExceptionReceiverFault(this ILogger l, Exception ex, string tEvent);
 }

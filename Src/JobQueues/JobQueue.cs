@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using FastEndpoints.JobsQueues;
@@ -6,95 +5,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace FastEndpoints;
-
-[UnconditionalSuppressMessage("aot", "IL2090")]
-abstract class JobQueueBase
-{
-    //key: tCommand
-    //val: job queue for the command type
-    //values get created when the DI container resolves each job queue type and the ctor is run.
-    //see ctor in JobQueue<TCommand, TStorageRecord, TStorageProvider>
-    protected static readonly ConcurrentDictionary<Type, JobQueueBase> JobQueues = new();
-
-    protected abstract IJobStorageRecord CreateJob(ICommandBase command, DateTime? executeAfter, DateTime? expireOn);
-
-    protected abstract void TriggerJob();
-
-    protected abstract Task<Guid> StoreJobAsync(ICommandBase command, DateTime? executeAfter, DateTime? expireOn, CancellationToken ct);
-
-    protected abstract Task CancelJobAsync(Guid trackingId, CancellationToken ct);
-
-    protected abstract Task<TResult?> GetJobResultAsync<TResult>(Guid trackingId, CancellationToken ct);
-
-    protected abstract Task StoreJobResultAsync<TResult>(Guid trackingId, TResult result, CancellationToken ct);
-
-    internal abstract void SetLimits(int concurrencyLimit, TimeSpan executionTimeLimit, TimeSpan semWaitLimit, TimeSpan? retryDelay = null);
-
-    internal static TStorageRecord CreateJob<TStorageRecord>(ICommandBase command, DateTime? executeAfter, DateTime? expireOn)
-        where TStorageRecord : class, IJobStorageRecord, new()
-    {
-        var tCommand = command.GetType();
-
-        return !JobQueues.TryGetValue(tCommand, out var queue)
-                   ? throw new InvalidOperationException($"A job queue has not been registered for [{tCommand.FullName}]")
-                   : (TStorageRecord)queue.CreateJob(command, executeAfter, expireOn);
-    }
-
-    internal static void TriggerJobExecution(Type commandType)
-    {
-        if (!JobQueues.TryGetValue(commandType, out var queue))
-            throw new InvalidOperationException($"A job queue has not been registered for [{commandType.FullName}]");
-
-        queue.TriggerJob();
-    }
-
-    internal static Task<Guid> AddToQueueAsync(ICommandBase command, DateTime? executeAfter, DateTime? expireOn, CancellationToken ct)
-    {
-        var tCommand = command.GetType();
-
-        return !JobQueues.TryGetValue(tCommand, out var queue)
-                   ? throw new InvalidOperationException($"A job queue has not been registered for [{tCommand.FullName}]")
-                   : queue.StoreJobAsync(command, executeAfter, expireOn, ct);
-    }
-
-    internal static Task CancelJobAsync<TCommand>(Guid trackingId, CancellationToken ct) where TCommand : ICommandBase
-    {
-        var tCommand = typeof(TCommand);
-
-        return !JobQueues.TryGetValue(tCommand, out var queue)
-                   ? throw new InvalidOperationException($"A job queue has not been registered for [{tCommand.FullName}]")
-                   : queue.CancelJobAsync(trackingId, ct);
-    }
-
-    internal static Task<TResult?> GetJobResultAsync<TCommand, TResult>(Guid trackingId, CancellationToken ct) where TCommand : ICommandBase
-    {
-        var tCommand = typeof(TCommand);
-        var tResult = tCommand.GetInterface(typeof(ICommand<>).Name)?.GetGenericArguments()[0];
-
-        if (tResult == Types.VoidResult)
-            throw new InvalidOperationException($"Job results are not supported with commands that don't return a result! Offending command: [{tCommand.FullName}]");
-
-        return !JobQueues.TryGetValue(tCommand, out var queue)
-                   ? throw new InvalidOperationException($"A job queue has not been registered for [{tCommand.FullName}]")
-                   : queue.GetJobResultAsync<TResult>(trackingId, ct);
-    }
-
-    internal static Task StoreJobResultAsync<TCommand, TResult>(Guid trackingId, TResult result, CancellationToken ct)
-        where TCommand : ICommandBase
-        where TResult : IJobResult
-    {
-        var tCommand = typeof(TCommand);
-        var tResult = tCommand.GetInterface(typeof(ICommand<>).Name)?.GetGenericArguments()[0];
-
-        if (tResult == Types.VoidResult)
-            throw new InvalidOperationException($"Job results are not supported with commands that don't return a result! Offending command: [{tCommand.FullName}]");
-
-        return
-            !JobQueues.TryGetValue(tCommand, out var queue)
-                ? throw new InvalidOperationException($"A job queue has not been registered for [{tCommand.FullName}]")
-                : queue.StoreJobResultAsync(trackingId, result, ct);
-    }
-}
 
 // instantiated by DI as singleton
 [SuppressMessage("Reliability", "CA2016:Forward the \'CancellationToken\' parameter to methods"),
@@ -105,22 +15,34 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
     where TStorageRecord : class, IJobStorageRecord, new()
     where TStorageProvider : class, IJobStorageProvider<TStorageRecord>
 {
+    enum QueueState
+    {
+        /// <summary>
+        /// Non-distributed queue that hasn't seen any jobs yet. Blocks indefinitely on the semaphore (no DB polling).
+        /// Initial probe fetch skips ExecuteAfter filtering to discover any existing jobs.
+        /// </summary>
+        Dormant,
+
+        /// <summary>
+        /// Queue has discovered or received jobs. Polls the DB periodically with <see cref="_semWaitLimit" /> timeout.
+        /// </summary>
+        Active
+    }
+
     static readonly Type _tCommand = typeof(TCommand);
     static readonly string _commandTypeName = _tCommand.FullName!;
-    static readonly CancellationTokenSource _preCancelledTokenSource = new();
 
     internal Task ExecutorTask { get; private set; } = Task.CompletedTask;
     public static readonly string QueueID = _commandTypeName.ToHash(); //public due to: https://github.com/FastEndpoints/FastEndpoints/issues/468
 
-    readonly ConcurrentDictionary<Guid, CancellationTokenSource?> _cancellations = new();
-    readonly ConcurrentQueue<(Guid TrackingId, DateTime ExpireAt)> _staleCancellations = new();
+    readonly JobCancellationTracker _cancellation = new();
     readonly CancellationToken _appCancellation;
     readonly TStorageProvider _storage;
     readonly IJobResultProvider? _resultStorage;
     readonly SemaphoreSlim _sem = new(0);
     readonly ILogger _log;
     readonly bool _isDistributed;
-    bool _activated; // when false, the executor blocks indefinitely on the semaphore (no DB polling)
+    QueueState _state; // transitions from Dormant -> Active (never back)
     int _maxConcurrency = Environment.ProcessorCount;
     TimeSpan _executionTimeLimit;
     TimeSpan _semWaitLimit;
@@ -129,17 +51,13 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
     public JobQueue(TStorageProvider storageProvider, IHostApplicationLifetime appLife, ILogger<JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider>> logger)
     {
         JobQueues[_tCommand] = this;
-        _preCancelledTokenSource.Cancel();
         _storage = storageProvider;
         _resultStorage = storageProvider as IJobResultProvider;
         _isDistributed = storageProvider.DistributedJobProcessingEnabled;
-        _activated = _isDistributed;
+        _state = _isDistributed ? QueueState.Active : QueueState.Dormant;
         _appCancellation = appLife.ApplicationStopping;
         _log = logger;
-        JobStorage<TStorageRecord, TStorageProvider>.Provider = _storage;
-        JobStorage<TStorageRecord, TStorageProvider>.AppCancellation = _appCancellation;
-        JobStorage<TStorageRecord, TStorageProvider>.Logger = _log;
-        JobStorage<TStorageRecord, TStorageProvider>.StartStaleJobPurging();
+        JobStorage<TStorageRecord, TStorageProvider>.Initialize(_storage, _appCancellation, _log);
     }
 
     internal override void SetLimits(int concurrencyLimit, TimeSpan executionTimeLimit, TimeSpan semWaitLimit, TimeSpan? retryDelay = null)
@@ -179,7 +97,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
 
     protected override void TriggerJob()
     {
-        _activated = true;
+        _state = QueueState.Active;
         _sem.Release();
     }
 
@@ -201,10 +119,9 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
         var tResult = typeof(TResult);
         var cmdName = typeof(TCommand).FullName;
 
-        if (tRes != tResult)
-            throw new InvalidOperationException($"The correct result type for the command [{cmdName}] should be: [{tResult.FullName}]! You specified: [{tRes.FullName}]!");
-
-        return s.GetJobResultAsync<TRes>(trackingId, ct);
+        return tRes != tResult
+                   ? throw new InvalidOperationException($"The correct result type for the command [{cmdName}] should be: [{tResult.FullName}]! You specified: [{tRes.FullName}]!")
+                   : s.GetJobResultAsync<TRes>(trackingId, ct);
     }
 
     protected override Task StoreJobResultAsync<TRes>(Guid trackingId, TRes result, CancellationToken ct) where TRes : default
@@ -216,16 +133,15 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
         var tResult = typeof(TResult);
         var cmdName = typeof(TCommand).FullName;
 
-        if (tRes != tResult)
-            throw new InvalidOperationException($"The correct result type for the command [{cmdName}] should be: [{tResult.FullName}]! You specified: [{tRes.FullName}]!");
-
-        return s.StoreJobResultAsync(trackingId, result, ct);
+        return tRes != tResult
+                   ? throw new InvalidOperationException($"The correct result type for the command [{cmdName}] should be: [{tResult.FullName}]! You specified: [{tRes.FullName}]!")
+                   : s.StoreJobResultAsync(trackingId, result, ct);
     }
 
     protected override async Task CancelJobAsync(Guid trackingId, CancellationToken ct)
     {
-        // if job is executing, fetch the cts added by ExecuteCommand, else store an already canceled cts
-        var cts = GetOrAddCancellation(trackingId, static () => _preCancelledTokenSource);
+        // if job is executing, fetch the null marker added by ExecuteCommand, or the pre-canceled cts
+        var cts = _cancellation.GetCancellationOrMarker(trackingId);
 
         if (cts is null)
         {
@@ -254,20 +170,13 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
         catch
         {
             if (rollbackManualMarkerOnStorageFailure)
-                _cancellations.TryRemove(trackingId, out _);
+                _cancellation.Remove(trackingId);
 
             throw;
         }
 
-        var markedForManualCancellation = _cancellations.TryUpdate(trackingId, null, cts);
-
-        // if TryUpdate returns false, another thread already handled cancellation
-        // or the job has completed and removed the tracking ID.
-        // returning early prevents duplicate work.
-        if (!markedForManualCancellation)
+        if (!_cancellation.TryMarkForManualCancel(trackingId, cts))
             return;
-
-        _staleCancellations.Enqueue((trackingId, DateTime.UtcNow.AddMinutes(5)));
 
         try
         {
@@ -283,9 +192,9 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
 
         while (!_appCancellation.IsCancellationRequested)
         {
-            await ObserveCompletedExecutions();
+            await ObserveCompletedExecutions(executions);
 
-            CleanupStaleManualCancellationMarkers();
+            _cancellation.CleanupStaleMarkers(id => executions.TryGetValue(id, out var exec) && !exec.IsCompleted);
 
             if (executions.Count < _maxConcurrency)
             {
@@ -294,9 +203,9 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
 
                 try
                 {
-                    // only becomes 'true' in non-distributed first iteration making 'ExecuteAfter <= now' in the Match filter ineffective, causing future jobs to get fetched as well.
-                    // when in distributed mode, all instances must periodically poll to ensure jobs created by other instances are picked up.
-                    var isProbe = !_activated;
+                    // only true in non-distributed mode on the first iteration, making 'ExecuteAfter <= now' in the Match filter ineffective,
+                    // causing future jobs to get fetched as well. in distributed mode, all instances must periodically poll.
+                    var isDormant = _state == QueueState.Dormant;
 
                     // capture once so providers that translate predicates can parameterize it cleanly
                     var now = DateTime.UtcNow;
@@ -304,12 +213,12 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                     Expression<Func<TStorageRecord, bool>> matchExpr = _isDistributed
                                                                            ? r => r.QueueID == QueueID &&
                                                                                   !r.IsComplete &&
-                                                                                  (isProbe || r.ExecuteAfter <= now) &&
+                                                                                  (isDormant || r.ExecuteAfter <= now) &&
                                                                                   r.ExpireOn >= now &&
                                                                                   r.DequeueAfter <= now
                                                                            : r => r.QueueID == QueueID &&
                                                                                   !r.IsComplete &&
-                                                                                  (isProbe || r.ExecuteAfter <= now) &&
+                                                                                  (isDormant || r.ExecuteAfter <= now) &&
                                                                                   r.ExpireOn >= now;
                     records = await _storage.GetNextBatchAsync(
                                   new()
@@ -321,17 +230,14 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                                       Match = matchExpr
                                   });
 
-                    if (isProbe)
-                    {
-                        if (records.Count > 0) // eligible + future jobs found during probe
-                            _activated = true;
-                    }
+                    if (isDormant && records.Count > 0) // eligible + future jobs found during probe
+                        _state = QueueState.Active;
 
-                    if (isProbe || executions.Count > 0)
+                    if (isDormant || executions.Count > 0)
                     {
                         IEnumerable<TStorageRecord> filtered = records;
 
-                        if (isProbe)
+                        if (isDormant)
                             filtered = filtered.Where(r => r.ExecuteAfter <= now); // filter out future jobs
 
                         if (executions.Count > 0)
@@ -357,7 +263,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
 
                 if (records.Count > 0)
                 {
-                    _activated = true;
+                    _state = QueueState.Active;
 
                     foreach (var record in records.DistinctBy(r => r.TrackingID).Take(availableSlots)) //dedupe by TrackingID prevents ghost executions
                         executions[record.TrackingID] = ExecuteCommand(record);
@@ -389,280 +295,209 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
             }
         }
 
-        await DrainExecutions();
+        await DrainExecutions(executions);
+    }
 
-        async Task ExecuteCommand(TStorageRecord record)
+    async Task ExecuteCommand(TStorageRecord record)
+    {
+        // don't do 'using' on the result here since it could be the pre-canceled static TCS which shouldn't be disposed.
+        var cts = _cancellation.GetOrAdd(
+            record.TrackingID,
+            () =>
+            {
+                var s = CancellationTokenSource.CreateLinkedTokenSource(_appCancellation);
+                s.CancelAfter(_executionTimeLimit);
+
+                return s;
+            });
+
+        try
         {
-            // don't use 'using' on the result here since it could be the pre-canceled static TCS which shouldn't be disposed.
-            var cts = GetOrAddCancellation(
-                record.TrackingID,
-                () =>
-                {
-                    var s = CancellationTokenSource.CreateLinkedTokenSource(_appCancellation);
-                    s.CancelAfter(_executionTimeLimit);
+            // don't execute this job because cancellation has been requested already
+            // the cts will be null or already canceled if the entry was created by a call to CancelJobAsync() before the job was picked up for execution
+            if (cts is null || cts.IsCancellationRequested)
+                return;
 
-                    return s;
-                });
-
+            //if cts is not null/canceled, proceed with job execution as cancellation has not been requested yet.
             try
             {
-                // don't execute this job because cancellation has been requested already
-                // the cts will be null or already canceled if the entry was created by a call to CancelJobAsync() before the job was picked up for execution
-                if (cts is null || cts.IsCancellationRequested)
-                    return;
+                var cmd = record.GetCommand<TCommand>();
 
-                //if cts is not null/canceled, proceed with job execution as cancellation has not been requested yet.
-                try
+                switch (cmd)
                 {
-                    var cmd = record.GetCommand<TCommand>();
-
-                    switch (cmd)
-                    {
-                        case ICommand c:
-                            record.Command = cmd; //needed in case user does whole record (non-partial) updates via storage provider.
-                            await c.ExecuteAsync(cts.Token);
-
-                            break;
-                        case ICommand<TResult> cr:
-                            record.Command = cmd; //needed in case user does whole record (non-partial) updates via storage provider.
-                            var result = await cr.ExecuteAsync(cts.Token);
-                            if (record is IJobResultStorage rec)
-                                rec.SetResult(result);
-
-                            break;
-                        default:
-                            throw new InvalidOperationException(
-                                $"Job [{record.TrackingID}] in queue [{QueueID}] could not be deserialized into an executable [{_commandTypeName}] command.");
-                    }
-
-                    _cancellations.TryRemove(record.TrackingID, out _); // remove entry on completion. cancellations are not possible/valid after this point.
-                }
-                catch (Exception x) when (x is OperationCanceledException && IsManuallyCancelled())
-                {
-                    // don't treat as a handler execution failure when manually canceled mid-execution
-                    _cancellations.TryRemove(record.TrackingID, out _);
-                    _log.JobCancelledManually(_commandTypeName, record.TrackingID);
-
-                    return;
-                }
-                catch (Exception x)
-                {
-                    _cancellations.TryRemove(record.TrackingID, out _); // remove entry on execution error to allow obtaining a new cts on retry/reentry
-
-                    if (x is not OperationCanceledException || !_appCancellation.IsCancellationRequested)
-                        _log.CommandExecutionCritical(_commandTypeName, x.Message);
-
-                    if (_resultStorage is not null && record is IJobResultStorage rec)
-                    {
-                        try
-                        {
-                            // fetch the last known result in case the job handler stored intermediate results before failing,
-                            // so it can be passed to OnHandlerExecutionFailureAsync
-                            rec.SetResult(await GetJobResultAsync<TResult>(record.TrackingID, CancellationToken.None)); //don't allow canceling.
-                        }
-                        catch (Exception xx)
-                        {
-                            _log.StorageGetJobResultError(QueueID, _commandTypeName, xx.Message);
-                        }
-                    }
-
-                    while (true)
-                    {
-                        try
-                        {
-                            await _storage.OnHandlerExecutionFailureAsync(record, x, CancellationToken.None); //don't allow canceling.
-
-                            break;
-                        }
-                        catch (Exception xx)
-                        {
-                            _log.StorageOnExecutionFailureError(QueueID, _commandTypeName, xx.Message);
-
-                            if (_appCancellation.IsCancellationRequested || IsManuallyCancelled())
-                                break;
-
-                            if (await DelayRetryAndCheckShutdown())
-                                break;
-                        }
-                    }
-
-                    return; //abort execution here
-                }
-
-                while (_resultStorage is not null && record is IJobResultStorage rec)
-                {
-                    try
-                    {
-                        // if _appCancellation is used here, ORMs could throw without executing the store operation during app shutdown, causing result to get lost.
-                        await _resultStorage.StoreJobResultAsync(record.TrackingID, rec.GetResult<TResult>(), CancellationToken.None);
+                    case ICommand c:
+                        record.Command = cmd; //needed in case user does whole record (non-partial) updates via storage provider.
+                        await c.ExecuteAsync(cts.Token);
 
                         break;
-                    }
-                    catch (Exception x)
-                    {
-                        _log.StorageStoreJobResultError(QueueID, _commandTypeName, x.Message);
-
-                        if (_appCancellation.IsCancellationRequested)
-                            break; // losing the result is an acceptable risk if app is shutting down. do not 'return;' here (which causes re-execution of job).
-
-                        if (await DelayRetryAndCheckShutdown())
-                            break;
-                    }
-                }
-
-                while (true)
-                {
-                    try
-                    {
-                        record.IsComplete = true;
-
-                        // if _appCancellation is used, ORMs could throw OperationCanceledException without actually executing DB operations during app shutdown.
-                        await _storage.MarkJobAsCompleteAsync(record, CancellationToken.None);
+                    case ICommand<TResult> cr:
+                        record.Command = cmd; //needed in case user does whole record (non-partial) updates via storage provider.
+                        var result = await cr.ExecuteAsync(cts.Token);
+                        if (record is IJobResultStorage rec)
+                            rec.SetResult(result);
 
                         break;
-                    }
-                    catch (Exception x)
-                    {
-                        _log.StorageMarkAsCompleteError(QueueID, _commandTypeName, x.Message);
-
-                        if (_appCancellation.IsCancellationRequested)
-                            break;
-
-                        if (await DelayRetryAndCheckShutdown())
-                            break;
-                    }
+                    default:
+                        throw new InvalidOperationException(
+                            $"Job [{record.TrackingID}] in queue [{QueueID}] could not be deserialized into an executable [{_commandTypeName}] command.");
                 }
 
-                // checks if the job was manually canceled via CancelJobAsync().
-                // CancelJobAsync sets the _cancellations entry to null before cancelling.
-                // this is used to distinguish manual cancellation from execution time limit expiry or app shutdown.
-                bool IsManuallyCancelled()
-                    => !_appCancellation.IsCancellationRequested && _cancellations.TryGetValue(record.TrackingID, out var c) && c is null;
+                _cancellation.Remove(record.TrackingID); // remove entry on completion. cancellations are not possible/valid after this point.
             }
-            finally
+            catch (Exception x) when (x is OperationCanceledException && !_appCancellation.IsCancellationRequested && _cancellation.IsManuallyCancelled(record.TrackingID))
             {
-                DisposeCancellationSource(cts);
+                // don't treat as a handler execution failure when manually canceled mid-execution
+                _cancellation.Remove(record.TrackingID);
+                _log.JobCancelledManually(_commandTypeName, record.TrackingID);
+
+                return;
+            }
+            catch (Exception x)
+            {
+                _cancellation.Remove(record.TrackingID); // remove entry on execution error to allow obtaining a new cts on retry/reentry
+
+                if (x is not OperationCanceledException || !_appCancellation.IsCancellationRequested)
+                    _log.CommandExecutionCritical(_commandTypeName, x.Message);
+
+                if (_resultStorage is not null && record is IJobResultStorage failedRec)
+                {
+                    try
+                    {
+                        // fetch the last known result in case the job handler stored intermediate results before failing,
+                        // so it can be passed to OnHandlerExecutionFailureAsync
+                        failedRec.SetResult(await GetJobResultAsync<TResult>(record.TrackingID, CancellationToken.None)); //don't allow canceling.
+                    }
+                    catch (Exception xx)
+                    {
+                        _log.StorageGetJobResultError(QueueID, _commandTypeName, xx.Message);
+                    }
+                }
+
+                // if _appCancellation is used, ORMs could throw OperationCanceledException without actually executing DB operations during app shutdown.
+                await RetryUntilSuccessOrShutdownAsync(
+                    operation: () => _storage.OnHandlerExecutionFailureAsync(record, x, CancellationToken.None),
+                    logError: msg => _log.StorageOnExecutionFailureError(QueueID, _commandTypeName, msg),
+                    earlyBreak: () => _cancellation.IsManuallyCancelled(record.TrackingID));
+
+                return; //abort execution here
+            }
+
+            if (_resultStorage is not null && record is IJobResultStorage resultRec)
+            {
+                // if _appCancellation is used here, ORMs could throw without executing the store operation during app shutdown, causing result to get lost.
+                await RetryUntilSuccessOrShutdownAsync(
+                    operation: () => _resultStorage.StoreJobResultAsync(record.TrackingID, resultRec.GetResult<TResult>(), CancellationToken.None),
+                    logError: msg => _log.StorageStoreJobResultError(QueueID, _commandTypeName, msg));
+            }
+
+            record.IsComplete = true;
+
+            // if _appCancellation is used, ORMs could throw OperationCanceledException without actually executing DB operations during app shutdown.
+            await RetryUntilSuccessOrShutdownAsync(
+                operation: () => _storage.MarkJobAsCompleteAsync(record, CancellationToken.None),
+                logError: msg => _log.StorageMarkAsCompleteError(QueueID, _commandTypeName, msg));
+        }
+        finally
+        {
+            JobCancellationTracker.SafeDispose(cts);
+        }
+    }
+
+    async Task WaitForSignal()
+    {
+        try
+        {
+            // when active (distributed mode, or jobs have been found), wait with a timeout so we periodically re-check
+            // for future jobs becoming due or jobs added by other distributed workers.
+            // when dormant (non-distributed with no jobs found yet), block indefinitely to avoid pointless DB polling.
+            // TriggerJob() transitions to Active and releases the semaphore when the first job is queued.
+            if (await _sem.WaitAsync(_state == QueueState.Active ? _semWaitLimit : Timeout.InfiniteTimeSpan, _appCancellation))
+            {
+                // reset/drain _sem CurrentCount to 0 in case multiple releases happened
+                // passing app cancellation here is not needed as it's an immediate return.
+                while (_sem.Wait(0)) { }
             }
         }
-
-        async Task WaitForSignal()
+        catch (OperationCanceledException) when (_appCancellation.IsCancellationRequested)
         {
+            // don't throw. let the main loop exit via its condition check so DrainExecutionsAsync runs
+        }
+        catch (Exception x)
+        {
+            _log.CommandParallelExecutionWarning(_commandTypeName, x.Message);
+            await DelayRetryAndCheckShutdown(); //prevent immediate retry.
+        }
+    }
+
+    async Task DrainExecutions(Dictionary<Guid, Task> executions)
+    {
+        await ObserveCompletedExecutions(executions);
+
+        while (executions.Count > 0)
+        {
+            await Task.WhenAny(executions.Values);
+            await ObserveCompletedExecutions(executions);
+        }
+    }
+
+    async Task ObserveCompletedExecutions(Dictionary<Guid, Task> executions)
+    {
+        if (executions.Count == 0)
+            return;
+
+        foreach (var kv in executions.Where(static kv => kv.Value.IsCompleted).ToArray())
+        {
+            executions.Remove(kv.Key);
+
             try
             {
-                // when activated (distributed mode, or jobs have been found), wait with a timeout so we periodically re-check for future jobs
-                // becoming due or jobs added by other distributed workers.
-                // when not activated (non-distributed with no jobs found yet), block indefinitely to avoid pointless DB polling.
-                // TriggerJob() sets _activated=true and releases the semaphore when the first job is queued.
-                if (await _sem.WaitAsync(_activated ? _semWaitLimit : Timeout.InfiniteTimeSpan, _appCancellation))
-                {
-                    // reset/drain _sem CurrentCount to 0 in case multiple releases happened
-                    // passing app cancellation here is not needed as it's an immediate return.
-                    while (_sem.Wait(0)) { }
-                }
+                await kv.Value;
             }
-            catch (OperationCanceledException) when (_appCancellation.IsCancellationRequested)
+            catch (OperationCanceledException x) when (!_appCancellation.IsCancellationRequested)
             {
-                // don't throw. let the main loop exit via its condition check so DrainExecutionsAsync runs
+                _log.CommandParallelExecutionWarning(_commandTypeName, x.Message);
             }
             catch (Exception x)
             {
                 _log.CommandParallelExecutionWarning(_commandTypeName, x.Message);
-                await DelayRetryAndCheckShutdown(); //prevent immediate retry.
             }
         }
+    }
 
-        async Task<bool> DelayRetryAndCheckShutdown()
+    async Task<bool> DelayRetryAndCheckShutdown()
+    {
+        try
+        {
+            await Task.Delay(_retryDelay, _appCancellation);
+
+            return false;
+        }
+        catch (OperationCanceledException) when (_appCancellation.IsCancellationRequested)
+        {
+            return true;
+        }
+    }
+
+    async Task RetryUntilSuccessOrShutdownAsync(Func<Task> operation, Action<string> logError, Func<bool>? earlyBreak = null)
+    {
+        while (true)
         {
             try
             {
-                await Task.Delay(_retryDelay, _appCancellation);
+                await operation();
 
-                return false;
-            }
-            catch (OperationCanceledException) when (_appCancellation.IsCancellationRequested)
-            {
-                return true;
-            }
-        }
-
-        async Task DrainExecutions()
-        {
-            await ObserveCompletedExecutions();
-
-            while (executions.Count > 0)
-            {
-                await Task.WhenAny(executions.Values);
-                await ObserveCompletedExecutions();
-            }
-        }
-
-        async Task ObserveCompletedExecutions()
-        {
-            if (executions.Count == 0)
                 return;
-
-            foreach (var kv in executions.Where(static kv => kv.Value.IsCompleted).ToArray())
+            }
+            catch (Exception x)
             {
-                executions.Remove(kv.Key);
+                logError(x.Message);
 
-                try
-                {
-                    await kv.Value;
-                }
-                catch (OperationCanceledException x) when (!_appCancellation.IsCancellationRequested)
-                {
-                    _log.CommandParallelExecutionWarning(_commandTypeName, x.Message);
-                }
-                catch (Exception x)
-                {
-                    _log.CommandParallelExecutionWarning(_commandTypeName, x.Message);
-                }
+                if (_appCancellation.IsCancellationRequested || earlyBreak?.Invoke() == true)
+                    return;
+
+                if (await DelayRetryAndCheckShutdown())
+                    return;
             }
         }
-
-        void CleanupStaleManualCancellationMarkers()
-        {
-            var now = DateTime.UtcNow;
-
-            while (_staleCancellations.TryPeek(out var item) && item.ExpireAt <= now)
-            {
-                if (!_staleCancellations.TryDequeue(out item))
-                    continue;
-
-                if (_cancellations.TryGetValue(item.TrackingId, out var cts) &&
-                    cts is null &&
-                    !(executions.TryGetValue(item.TrackingId, out var execution) && !execution.IsCompleted)) //only remove if not currently in-flight
-                    _cancellations.TryRemove(item.TrackingId, out _);
-            }
-        }
-    }
-
-    CancellationTokenSource? GetOrAddCancellation(Guid trackingId, Func<CancellationTokenSource> factory)
-    {
-        // ConcurrentDictionary.GetOrAdd may invoke the factory on multiple threads but only store one result.
-        // discarded CancellationTokenSource instances (e.g. linked sources with callbacks on long-lived tokens)
-        // must be disposed to prevent permanent resource leaks.
-
-        CancellationTokenSource? created = null;
-
-        var cts = _cancellations.GetOrAdd(
-            trackingId,
-            _ =>
-            {
-                created = factory();
-
-                return created;
-            });
-
-        if (created is not null && !ReferenceEquals(created, cts))
-            DisposeCancellationSource(created);
-
-        return cts;
-    }
-
-    static void DisposeCancellationSource(CancellationTokenSource? cts)
-    {
-        if (cts is not null && !ReferenceEquals(cts, _preCancelledTokenSource))
-            cts.Dispose();
     }
 }

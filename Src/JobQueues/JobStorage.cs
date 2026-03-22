@@ -3,31 +3,38 @@ using FastEndpoints.JobsQueues;
 
 namespace FastEndpoints;
 
-#pragma warning disable CS8618
-
 class JobStorage<TStorageRecord, TStorageProvider>
     where TStorageRecord : IJobStorageRecord, new()
     where TStorageProvider : IJobStorageProvider<TStorageRecord>
 {
-    internal static TStorageProvider Provider { private get; set; }
-    internal static CancellationToken AppCancellation { private get; set; }
-    internal static ILogger Logger { private get; set; }
+    static TStorageProvider? _provider;
+    static CancellationToken _appCancellation;
+    static ILogger? _logger;
+    static int _initialized;
 
-    static int _purgeTaskStarted;
-
-    internal static void StartStaleJobPurging()
+    /// <summary>
+    /// Initializes the storage coordinator and starts the stale job purging background task (once per storage type).
+    /// Subsequent calls are no-ops.
+    /// </summary>
+    internal static void Initialize(TStorageProvider provider, CancellationToken appCancellation, ILogger logger)
     {
-        if (Interlocked.CompareExchange(ref _purgeTaskStarted, 1, 0) == 0)
-            _ = StaleJobPurgingTask();
+        if (Interlocked.CompareExchange(ref _initialized, 1, 0) != 0)
+            return;
+
+        _provider = provider;
+        _appCancellation = appCancellation;
+        _logger = logger;
+
+        _ = StaleJobPurgingTask();
     }
 
     static async Task StaleJobPurgingTask()
     {
-        while (!AppCancellation.IsCancellationRequested)
+        while (!_appCancellation.IsCancellationRequested)
         {
             try
             {
-                await Task.Delay(TimeSpan.FromHours(1), AppCancellation);
+                await Task.Delay(TimeSpan.FromHours(1), _appCancellation);
             }
             catch (OperationCanceledException)
             {
@@ -36,11 +43,11 @@ class JobStorage<TStorageRecord, TStorageProvider>
 
             try
             {
-                await Provider.PurgeStaleJobsAsync(
+                await _provider!.PurgeStaleJobsAsync(
                     new()
                     {
                         Match = r => r.IsComplete || r.ExpireOn <= DateTime.UtcNow,
-                        CancellationToken = AppCancellation
+                        CancellationToken = _appCancellation
                     });
             }
             catch (OperationCanceledException)
@@ -49,7 +56,7 @@ class JobStorage<TStorageRecord, TStorageProvider>
             }
             catch (Exception x)
             {
-                Logger?.StoragePurgeStaleJobsError(x.Message);
+                _logger?.StoragePurgeStaleJobsError(x.Message);
             }
         }
     }

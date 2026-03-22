@@ -159,8 +159,7 @@ public partial class JobQueueTests
             },
             CancellationToken.None);
 
-        var field = queue.GetType().GetField("_cancellations", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        var cancellations = (ConcurrentDictionary<Guid, CancellationTokenSource?>)field.GetValue(queue)!;
+        var cancellations = GetCancellations(queue);
         using var cts = new CancellationTokenSource();
         cancellations[trackingId] = cts;
 
@@ -199,8 +198,7 @@ public partial class JobQueueTests
             },
             CancellationToken.None);
 
-        var field = queue.GetType().GetField("_cancellations", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        var cancellations = (ConcurrentDictionary<Guid, CancellationTokenSource?>)field.GetValue(queue)!;
+        var cancellations = GetCancellations(queue);
         cancellations[trackingId] = null;
 
         var method = queue.GetType().GetMethod("CancelJobAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
@@ -232,8 +230,7 @@ public partial class JobQueueTests
             },
             CancellationToken.None);
 
-        var field = queue.GetType().GetField("_cancellations", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        var cancellations = (ConcurrentDictionary<Guid, CancellationTokenSource?>)field.GetValue(queue)!;
+        var cancellations = GetCancellations(queue);
         var method = queue.GetType().GetMethod("CancelJobAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
 
         await Should.ThrowAsync<InvalidOperationException>(
@@ -267,15 +264,13 @@ public partial class JobQueueTests
         await JobTracker<ManualCancelTestCommand>.CancelJobAsync(command.TrackingID, CancellationToken.None);
         await ManualCancelTestCommandHandler.CancellationObserved.WaitAsync(TimeSpan.FromSeconds(5));
 
-        var cancellationsField = queue.GetType().GetField("_cancellations", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        var cancellations = (ConcurrentDictionary<Guid, CancellationTokenSource?>)cancellationsField.GetValue(queue)!;
-        var staleCancellationsField = queue.GetType().GetField("_staleCancellations", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        var staleCancellations = (ConcurrentQueue<(Guid TrackingId, DateTime ExpireAt)>)staleCancellationsField.GetValue(queue)!;
+        var cancellations = GetCancellations(queue);
+        var staleMarkers = GetStaleMarkers(queue);
 
-        staleCancellations.Clear();
-        staleCancellations.Enqueue((command.TrackingID, DateTime.UtcNow.AddMilliseconds(-1)));
+        staleMarkers.Clear();
+        staleMarkers.Enqueue((command.TrackingID, DateTime.UtcNow.AddMilliseconds(-1)));
 
-        (await WaitUntilAsync(() => staleCancellations.IsEmpty, TimeSpan.FromSeconds(5))).ShouldBeTrue();
+        (await WaitUntilAsync(() => staleMarkers.IsEmpty, TimeSpan.FromSeconds(5))).ShouldBeTrue();
 
         var markerPreservedDuringCleanup = await WaitUntilAsync(
                                          () => cancellations.TryGetValue(command.TrackingID, out var state) && state is null,
@@ -314,17 +309,15 @@ public partial class JobQueueTests
         await JobTracker<ManualCancelTestCommand>.CancelJobAsync(first.TrackingID, CancellationToken.None);
         await JobTracker<ManualCancelTestCommand>.CancelJobAsync(second.TrackingID, CancellationToken.None);
 
-        var cancellationsField = queue.GetType().GetField("_cancellations", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        var cancellations = (ConcurrentDictionary<Guid, CancellationTokenSource?>)cancellationsField.GetValue(queue)!;
-        var staleCancellationsField = queue.GetType().GetField("_staleCancellations", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        var staleCancellations = (ConcurrentQueue<(Guid TrackingId, DateTime ExpireAt)>)staleCancellationsField.GetValue(queue)!;
+        var cancellations = GetCancellations(queue);
+        var staleMarkers = GetStaleMarkers(queue);
 
-        staleCancellations.Clear();
-        staleCancellations.Enqueue((first.TrackingID, DateTime.UtcNow.AddMilliseconds(-1)));
-        staleCancellations.Enqueue((second.TrackingID, DateTime.UtcNow.AddMinutes(5)));
+        staleMarkers.Clear();
+        staleMarkers.Enqueue((first.TrackingID, DateTime.UtcNow.AddMilliseconds(-1)));
+        staleMarkers.Enqueue((second.TrackingID, DateTime.UtcNow.AddMinutes(5)));
 
         (await WaitUntilAsync(
-             () => staleCancellations.TryPeek(out var item) && item.TrackingId == second.TrackingID,
+             () => staleMarkers.TryPeek(out var item) && item.TrackingId == second.TrackingID,
              TimeSpan.FromSeconds(5))).ShouldBeTrue();
 
         cancellations.ContainsKey(first.TrackingID).ShouldBeFalse();
@@ -650,8 +643,7 @@ public partial class JobQueueTests
 
         await Task.WhenAll(tasks);
 
-        var field = queue.GetType().GetField("_cancellations", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        var cancellations = (ConcurrentDictionary<Guid, CancellationTokenSource?>)field.GetValue(queue)!;
+        var cancellations = GetCancellations(queue);
 
         // After cancellation, entry should be null (manual cancellation marker)
         (cancellations.TryGetValue(trackingId, out var state) && state is null).ShouldBeTrue();
@@ -685,8 +677,7 @@ public partial class JobQueueTests
         ManualCancelTestCommandHandler.ReleaseAfterCancellation();
 
         // Wait for the executor to settle
-        var field = queue.GetType().GetField("_cancellations", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        var cancellations = (ConcurrentDictionary<Guid, CancellationTokenSource?>)field.GetValue(queue)!;
+        var cancellations = GetCancellations(queue);
         (await WaitUntilAsync(() => storage.CancelCount >= 1, TimeSpan.FromSeconds(5))).ShouldBeTrue();
 
         // Verify that appStopping can be cancelled cleanly without triggering leaked callbacks
@@ -717,7 +708,7 @@ public partial class JobQueueTests
         await cancelTask.WaitAsync(TimeSpan.FromSeconds(5));
         (await storage.WaitForCompletionAsync(command.TrackingID, TimeSpan.FromSeconds(5))).ShouldBeTrue();
 
-        var field = typeof(JobQueue<ManualCancelTestCommand, FastEndpoints.Void, ManualCancelTestRecord, PreCancelledExecutionRaceTestStorage>)
+        var field = typeof(JobCancellationTracker)
                     .GetField("_preCancelledTokenSource", BindingFlags.Static | BindingFlags.NonPublic)!;
         var sharedMarker = (CancellationTokenSource)field.GetValue(null)!;
 

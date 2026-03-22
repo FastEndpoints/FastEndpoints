@@ -1,4 +1,6 @@
 using FastEndpoints;
+using System.Collections.Concurrent;
+using System.Reflection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using QueueTesting;
@@ -94,8 +96,7 @@ public partial class JobQueueTests
             NullLogger<JobQueue<ResultCapableVoidTestCommand, FastEndpoints.Void, ResultCapableVoidTestRecord, ResultCapableVoidTestStorage>>.Instance);
     }
 
-    static JobQueue<PersistenceRetryTestCommand, string, PersistenceRetryTestRecord, PersistenceRetryTestStorage> CreatePersistenceRetryQueue(
-        PersistenceRetryTestStorage storage,
+    static JobQueue<PersistenceRetryTestCommand, string, PersistenceRetryTestRecord, PersistenceRetryTestStorage> CreatePersistenceRetryQueue(PersistenceRetryTestStorage storage,
         CancellationTokenSource appStopping,
         ILogger<JobQueue<PersistenceRetryTestCommand, string, PersistenceRetryTestRecord, PersistenceRetryTestStorage>>? logger = null)
     {
@@ -108,8 +109,7 @@ public partial class JobQueueTests
             logger ?? NullLogger<JobQueue<PersistenceRetryTestCommand, string, PersistenceRetryTestRecord, PersistenceRetryTestStorage>>.Instance);
     }
 
-    static JobQueue<BatchFailureTestCommand, FastEndpoints.Void, BatchFailureTestRecord, BatchFailureTestStorage> CreateBatchFailureQueue(
-        BatchFailureTestStorage storage,
+    static JobQueue<BatchFailureTestCommand, FastEndpoints.Void, BatchFailureTestRecord, BatchFailureTestStorage> CreateBatchFailureQueue(BatchFailureTestStorage storage,
         CancellationTokenSource appStopping,
         ILogger<JobQueue<BatchFailureTestCommand, FastEndpoints.Void, BatchFailureTestRecord, BatchFailureTestStorage>>? logger = null)
         => new(
@@ -127,5 +127,23 @@ public partial class JobQueueTests
     {
         var allCompleted = await Task.WhenAll(completionTasks);
         allCompleted.All(static completed => completed).ShouldBeTrue();
+    }
+
+    static ConcurrentDictionary<Guid, CancellationTokenSource?> GetCancellations(object queue)
+    {
+        var ctsField = queue.GetType().GetField("_cancellation", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var tracker = ctsField.GetValue(queue)!;
+        var cancellationsField = tracker.GetType().GetField("_cancellations", BindingFlags.Instance | BindingFlags.NonPublic)!;
+
+        return (ConcurrentDictionary<Guid, CancellationTokenSource?>)cancellationsField.GetValue(tracker)!;
+    }
+
+    static ConcurrentQueue<(Guid TrackingId, DateTime ExpireAt)> GetStaleMarkers(object queue)
+    {
+        var ctsField = queue.GetType().GetField("_cancellation", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var tracker = ctsField.GetValue(queue)!;
+        var staleField = tracker.GetType().GetField("_staleMarkers", BindingFlags.Instance | BindingFlags.NonPublic)!;
+
+        return (ConcurrentQueue<(Guid TrackingId, DateTime ExpireAt)>)staleField.GetValue(tracker)!;
     }
 }

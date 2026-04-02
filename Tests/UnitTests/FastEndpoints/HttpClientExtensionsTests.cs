@@ -62,7 +62,7 @@ public class HttpClientExtensionsTests
         };
 
         // Act
-        var testUrl = HttpClientExtensions.GetTestUrlFor<NullQueryParamEndpoint, NullParamRequest>(req, http);
+        var testUrl = http.GetTestUrlFor<NullQueryParamEndpoint>(req);
 
         // Assert
         testUrl.ShouldBe(NullParamRoute);
@@ -84,7 +84,7 @@ public class HttpClientExtensionsTests
         };
 
         // Act
-        var testUrl = HttpClientExtensions.GetTestUrlFor<NullQueryParamEndpoint, NullParamRequest>(req, http);
+        var testUrl = http.GetTestUrlFor<NullQueryParamEndpoint>(req);
 
         // Assert
         testUrl.ShouldBe($"{NullParamRoute}?{nameof(NullParamRequest.QueryParam)}={NullParamRequest.Guid}");
@@ -106,9 +106,36 @@ public class HttpClientExtensionsTests
             QueryParam = DateTimeParamRequest.DateTime
         };
 
-        var testUrl = HttpClientExtensions.GetTestUrlFor<DateTimeQueryParamEndpoint, DateTimeParamRequest>(req, http);
+        var testUrl = http.GetTestUrlFor<DateTimeQueryParamEndpoint>(req);
 
         testUrl.ShouldBe($"{DateTimeParamRoute}?{nameof(DateTimeParamRequest.QueryParam)}={DateTimeParamRequest.DateTime:o}");
+    }
+
+    [Fact]
+    public void GetTestUrlForLoadsTestUrlCacheViaHttpWhenEndpointTestUrlIsUnavailable()
+    {
+        MockHttpMessageHandler mockHttp = new();
+        mockHttp.Expect(HttpMethod.Get, "http://localhost/_test_url_cache_")
+                .Respond("application/json", $"[\"{typeof(HttpFallbackEndpoint).FullName}|http-fallback/test-route\"]");
+
+        var http = mockHttp.ToHttpClient();
+        http.BaseAddress = new("http://localhost");
+
+        var testUrl = http.GetTestUrlFor<HttpFallbackEndpoint>(EmptyRequest.Instance);
+
+        testUrl.ShouldBe("http-fallback/test-route");
+        mockHttp.VerifyNoOutstandingExpectation();
+    }
+
+    [Fact]
+    public void GetTestUrlForThrowsWhenRequestDtoTypeDoesNotMatchEndpoint()
+    {
+        MockHttpMessageHandler mockHttp = new();
+        var http = mockHttp.ToHttpClient();
+        http.BaseAddress = new("http://localhost");
+
+        Should.Throw<ArgumentException>(() => http.GetTestUrlFor<DateTimeQueryParamEndpoint>(new NullParamRequest()))
+              .Message.ShouldBe("The request object is not the correct DTO type for the endpoint!");
     }
 }
 
@@ -158,3 +185,5 @@ file class DateTimeParamRequest
     [QueryParam]
     public DateTime? QueryParam { get; set; }
 }
+
+file class HttpFallbackEndpoint : Endpoint<EmptyRequest>;

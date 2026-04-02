@@ -743,16 +743,17 @@ public class BindingTests(Sut App) : TestBase<Sut>
     [Fact]
     public async Task CustomRequestBinder()
     {
-        var (rsp, res) = await App.CustomerClient.POSTAsync<
-                             TestCases.CustomRequestBinder.Endpoint,
-                             Product,
-                             TestCases.CustomRequestBinder.Response>(
-                             new()
-                             {
-                                 Id = 202,
-                                 Name = "test product",
-                                 Price = 10.10m
-                             });
+        var req = new Product
+        {
+            Id = 202,
+            Name = "test product",
+            Price = 10.10m
+        };
+
+        var (rsp, res) = await App.CustomerClient.SENDAsync<Product, TestCases.CustomRequestBinder.Response>(
+                             method: HttpMethod.Post,
+                             requestUri: App.CustomerClient.GetTestUrlFor<TestCases.CustomRequestBinder.Endpoint>(req, true),
+                             request: req);
 
         rsp.StatusCode.ShouldBe(HttpStatusCode.OK);
         res.Product!.Name.ShouldBe("test product");

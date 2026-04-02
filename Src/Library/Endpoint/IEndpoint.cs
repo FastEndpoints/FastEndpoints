@@ -26,7 +26,7 @@ public interface IEndpoint : IResponseSender
         => TestUrlCache[endpointType] = url;
 
     //don't change to internal. this is unofficially exposed to public.
-    public static string TestURLFor<TEndpoint>()
+    public static string TestURLFor<TEndpoint>() where TEndpoint : IEndpoint
         => TestUrlCache[typeof(TEndpoint)];
 
     internal static IEnumerable<string> GetTestUrlCache()

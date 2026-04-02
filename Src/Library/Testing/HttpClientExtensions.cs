@@ -22,6 +22,8 @@ namespace FastEndpoints;
 [UnconditionalSuppressMessage("aot", "IL2026"), UnconditionalSuppressMessage("aot", "IL3050"), UnconditionalSuppressMessage("aot", "IL2075")]
 public static class HttpClientExtensions
 {
+    static readonly ConcurrentDictionary<string, string> _testUrlCache = new();
+
     static readonly JsonSerializerOptions _errSerOpts = new(SerOpts.Options)
     {
         UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow
@@ -76,7 +78,7 @@ public static class HttpClientExtensions
                                                                                      bool populateCookies = true)
             where TEndpoint : IEndpoint where TRequest : notnull
             => client.POSTAsync<TRequest, TResponse>(
-                GetTestUrlFor<TEndpoint, TRequest>(request, client),
+                client.GetTestUrlFor<TEndpoint>(request),
                 request,
                 sendAsFormData,
                 populateHeaders,
@@ -159,7 +161,7 @@ public static class HttpClientExtensions
                                                                                       bool populateCookies = true)
             where TEndpoint : IEndpoint where TRequest : notnull
             => client.PATCHAsync<TRequest, TResponse>(
-                GetTestUrlFor<TEndpoint, TRequest>(request, client),
+                client.GetTestUrlFor<TEndpoint>(request),
                 request,
                 sendAsFormData,
                 populateHeaders,
@@ -246,7 +248,7 @@ public static class HttpClientExtensions
                                                                                     bool populateHeaders = true,
                                                                                     bool populateCookies = true)
             where TEndpoint : IEndpoint where TRequest : notnull
-            => client.PUTAsync<TRequest, TResponse>(GetTestUrlFor<TEndpoint, TRequest>(request, client), request, sendAsFormData, populateHeaders, populateCookies);
+            => client.PUTAsync<TRequest, TResponse>(client.GetTestUrlFor<TEndpoint>(request), request, sendAsFormData, populateHeaders, populateCookies);
 
         /// <summary>
         /// make a PUT request to an endpoint using auto route discovery using a request dto that does not send back a response dto.
@@ -325,7 +327,7 @@ public static class HttpClientExtensions
                                                                                     bool populateHeaders = true,
                                                                                     bool populateCookies = true)
             where TEndpoint : IEndpoint where TRequest : notnull
-            => client.GETAsync<TRequest, TResponse>(GetTestUrlFor<TEndpoint, TRequest>(request, client), request, populateHeaders, populateCookies);
+            => client.GETAsync<TRequest, TResponse>(client.GetTestUrlFor<TEndpoint>(request), request, populateHeaders, populateCookies);
 
         /// <summary>
         /// make a GET request to an endpoint using auto route discovery using a request dto that does not send back a response dto.
@@ -402,7 +404,7 @@ public static class HttpClientExtensions
                                                                                        bool populateHeaders = true,
                                                                                        bool populateCookies = true)
             where TEndpoint : IEndpoint where TRequest : notnull
-            => client.DELETEAsync<TRequest, TResponse>(GetTestUrlFor<TEndpoint, TRequest>(request, client), request, populateHeaders, populateCookies);
+            => client.DELETEAsync<TRequest, TResponse>(client.GetTestUrlFor<TEndpoint>(request), request, populateHeaders, populateCookies);
 
         /// <summary>
         /// make a DELETE request to an endpoint using auto route discovery using a request dto that does not send back a response dto.
@@ -516,6 +518,140 @@ public static class HttpClientExtensions
                 stream.Position = 0;
             }
         }
+
+        /// <summary>
+        /// obtains a url for a given endpoint type for testing purposes.
+        /// </summary>
+        /// <param name="request">a populated request dto. route/query params values will be taken from this dto instance when constructing the final test url.</param>
+        /// <param name="skipDtoTypeValidation">skips request dto type validation which checks if the supplied dto type is the correct one for the endpoint.</param>
+        /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
+        public string GetTestUrlFor<TEndpoint>(object request, bool skipDtoTypeValidation = false) where TEndpoint : IEndpoint
+        {
+            var tEndpoint = typeof(TEndpoint);
+            var epTypeName = tEndpoint.FullName ?? throw new InvalidOperationException("Unable to determine endpoint type name!");
+            var tRequest = tEndpoint.GetGenericArgumentsOfType(Types.EndpointOf2)?[0] ?? Types.EmptyRequest;
+
+            if (request.GetType() != tRequest && !skipDtoTypeValidation)
+                throw new ArgumentException("The request object is not the correct DTO type for the endpoint!");
+
+            if (!_testUrlCache.ContainsKey(epTypeName))
+            {
+                bool shouldGetViaHttp;
+                string? url = null;
+
+                try
+                {
+                    url = IEndpoint.TestURLFor<TEndpoint>();
+                    shouldGetViaHttp = false;
+                }
+                catch (KeyNotFoundException) //will be thrown when running with aspire tests (due to aspire black-boxing)
+                {
+                    shouldGetViaHttp = true;
+                }
+
+                if (shouldGetViaHttp)
+                {
+                    var res = client.GetFromJsonAsync<string[]>("_test_url_cache_").GetAwaiter().GetResult();
+
+                    foreach (var line in res ?? [])
+                    {
+                        var parts = line.Split('|');
+                        _testUrlCache.TryAdd(parts[0], parts[1]);
+                    }
+                }
+                else
+                    _testUrlCache.TryAdd(epTypeName, url!);
+            }
+
+            // request with multiple repeating dtos, most likely not populated from route values.
+            // we don't know which one to populate from anyway.
+            if (request is IEnumerable)
+                return _testUrlCache[epTypeName];
+
+            //get props and stick em in a dictionary for easy lookup
+            //ignore props annotated with security/header/cookie attributes that has IsRequired set to true.
+            var reqProps = request.GetType()
+                                  .BindableProps()
+                                  .Where(
+                                      p => p.GetCustomAttribute<FromClaimAttribute>()?.IsRequired is not true &&
+                                           p.GetCustomAttribute<FromHeaderAttribute>()?.IsRequired is not true &&
+                                           p.GetCustomAttribute<HasPermissionAttribute>()?.IsRequired is not true &&
+                                           p.GetCustomAttribute<FromCookieAttribute>()?.IsRequired is not true)
+                                  .ToDictionary(p => p.FieldName(), StringComparer.OrdinalIgnoreCase);
+
+            //split url into route segments, iterate and replace param names with values from matching dto props
+            //while rebuilding the url back up again into a string builder
+            StringBuilder sb = new();
+            var routeSegments = _testUrlCache[epTypeName].Split('/', StringSplitOptions.RemoveEmptyEntries); // group root endpoints are allowed to set string.empty #988
+
+            if (routeSegments.Length > 0)
+            {
+                foreach (var segment in routeSegments)
+                {
+                    if (!segment.StartsWith('{') && !segment.EndsWith('}'))
+                    {
+                        sb.Append(segment).Append('/');
+
+                        continue;
+                    }
+
+                    //examples: {id}, {id?}, {id:int}, {ssn:regex(^\\d{{3}}-\\d{{2}}-\\d{{4}}$)}
+
+                    var segmentParts = segment.Split(':', StringSplitOptions.RemoveEmptyEntries);
+                    var isLastSegment = routeSegments.Last() == segment;
+                    var isOptional = segment.Contains('?');
+                    var propName = (segmentParts.Length == 1
+                                        ? segmentParts[0][1..^1]
+                                        : segmentParts[0][1..]).TrimEnd('?');
+
+                    var propVal = reqProps.TryGetValue(propName, out var prop)
+                                      ? prop.GetValueAsString(request)
+                                      : segment;
+
+                    if (propVal is null)
+                    {
+                        switch (isOptional)
+                        {
+                            case true when isLastSegment:
+                                continue;
+                            case true when !isLastSegment:
+                                throw new InvalidOperationException($"Optional route parameter [{segment}] must be the last route segment.");
+                            case false:
+                                throw new InvalidOperationException($"Route param value missing for required param [{segment}].");
+                        }
+                    }
+
+                    sb.Append(propVal);
+                    sb.Append('/');
+                }
+                sb.Length--; //remove the last '/'
+            }
+
+            //append query parameters if there's any props decorated with [QueryParam]
+            var queryParamProps = reqProps.Where(p => p.Value.GetCustomAttribute<DontBindAttribute>()?.BindingSources.HasFlag(Source.QueryParam) is false).ToArray();
+
+            if (queryParamProps.Length > 0)
+            {
+                var hasAny = false;
+
+                foreach (var qp in queryParamProps)
+                {
+                    var value = qp.Value.GetValueAsString(request);
+
+                    if (value is null)
+                        continue;
+
+                    sb.Append(hasAny ? '&' : '?')
+                      .Append(qp.Key)
+                      .Append('=')
+                      .Append(value);
+
+                    hasAny = true;
+                }
+            }
+
+            return sb.ToString();
+        }
     }
 
     static StringContent? ToContent<TRequest>(this TRequest request) where TRequest : notnull
@@ -600,131 +736,6 @@ public static class HttpClientExtensions
         reqMsg.Headers.Add("Cookie", cookieJar.GetCookieHeader(reqMsg.RequestUri));
     }
 
-    static readonly ConcurrentDictionary<string, string> _testUrlCache = new();
-
-    internal static string GetTestUrlFor<TEndpoint, TRequest>(TRequest req, HttpClient client) where TRequest : notnull
-    {
-        var epTypeName = typeof(TEndpoint).FullName ?? throw new InvalidOperationException("Unable to determine endpoint type name!");
-
-        if (!_testUrlCache.ContainsKey(epTypeName))
-        {
-            bool shouldGetViaHttp;
-            string? url = null;
-
-            try
-            {
-                url = IEndpoint.TestURLFor<TEndpoint>();
-                shouldGetViaHttp = false;
-            }
-            catch (KeyNotFoundException) //will be thrown when running with aspire tests (due to aspire black-boxing)
-            {
-                shouldGetViaHttp = true;
-            }
-
-            if (shouldGetViaHttp)
-            {
-                var res = client.GetFromJsonAsync<string[]>("_test_url_cache_").GetAwaiter().GetResult();
-
-                foreach (var line in res ?? [])
-                {
-                    var parts = line.Split('|');
-                    _testUrlCache.TryAdd(parts[0], parts[1]);
-                }
-            }
-            else
-                _testUrlCache.TryAdd(epTypeName, url!);
-        }
-
-        // request with multiple repeating dtos, most likely not populated from route values.
-        // we don't know which one to populate from anyway.
-        if (req is IEnumerable)
-            return _testUrlCache[epTypeName];
-
-        //get props and stick em in a dictionary for easy lookup
-        //ignore props annotated with security/header/cookie attributes that has IsRequired set to true.
-        var reqProps = req.GetType()
-                          .BindableProps()
-                          .Where(
-                              p => p.GetCustomAttribute<FromClaimAttribute>()?.IsRequired is not true &&
-                                   p.GetCustomAttribute<FromHeaderAttribute>()?.IsRequired is not true &&
-                                   p.GetCustomAttribute<HasPermissionAttribute>()?.IsRequired is not true &&
-                                   p.GetCustomAttribute<FromCookieAttribute>()?.IsRequired is not true)
-                          .ToDictionary(p => p.FieldName(), StringComparer.OrdinalIgnoreCase);
-
-        //split url into route segments, iterate and replace param names with values from matching dto props
-        //while rebuilding the url back up again into a string builder
-        StringBuilder sb = new();
-        var routeSegments = _testUrlCache[epTypeName].Split('/', StringSplitOptions.RemoveEmptyEntries); // group root endpoints are allowed to set string.empty #988
-
-        if (routeSegments.Length > 0)
-        {
-            foreach (var segment in routeSegments)
-            {
-                if (!segment.StartsWith('{') && !segment.EndsWith('}'))
-                {
-                    sb.Append(segment).Append('/');
-
-                    continue;
-                }
-
-                //examples: {id}, {id?}, {id:int}, {ssn:regex(^\\d{{3}}-\\d{{2}}-\\d{{4}}$)}
-
-                var segmentParts = segment.Split(':', StringSplitOptions.RemoveEmptyEntries);
-                var isLastSegment = routeSegments.Last() == segment;
-                var isOptional = segment.Contains('?');
-                var propName = (segmentParts.Length == 1
-                                    ? segmentParts[0][1..^1]
-                                    : segmentParts[0][1..]).TrimEnd('?');
-
-                var propVal = reqProps.TryGetValue(propName, out var prop)
-                                  ? prop.GetValueAsString(req)
-                                  : segment;
-
-                if (propVal is null)
-                {
-                    switch (isOptional)
-                    {
-                        case true when isLastSegment:
-                            continue;
-                        case true when !isLastSegment:
-                            throw new InvalidOperationException($"Optional route parameter [{segment}] must be the last route segment.");
-                        case false:
-                            throw new InvalidOperationException($"Route param value missing for required param [{segment}].");
-                    }
-                }
-
-                sb.Append(propVal);
-                sb.Append('/');
-            }
-            sb.Length--; //remove the last '/'
-        }
-
-        //append query parameters if there's any props decorated with [QueryParam]
-        var queryParamProps = reqProps.Where(p => p.Value.GetCustomAttribute<DontBindAttribute>()?.BindingSources.HasFlag(Source.QueryParam) is false).ToArray();
-
-        if (queryParamProps.Length > 0)
-        {
-            var hasAny = false;
-
-            foreach (var qp in queryParamProps)
-            {
-                var value = qp.Value.GetValueAsString(req);
-
-                if (value is null)
-                    continue;
-
-                sb.Append(hasAny ? '&' : '?')
-                  .Append(qp.Key)
-                  .Append('=')
-                  .Append(value);
-
-                hasAny = true;
-            }
-        }
-
-        return sb.ToString();
-    }
-
     static MultipartFormDataContent ToForm<TRequest>(this TRequest req)
     {
         var form = new MultipartFormDataContent();
@@ -801,9 +812,7 @@ public static class HttpClientExtensions
         catch
         {
             if (p.IsDefined(Types.FromFormAttribute))
-            {
                 throw new NotSupportedException("Automatically constructing MultiPartFormData requests for properties annotated with [FromForm] is not yet supported!");
-            }
 
             throw;
         }

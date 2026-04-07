@@ -226,4 +226,17 @@ public class BindingTests(App app) : TestBase<App>
         res.Value.ShouldBe(99.99);
         res.IsValid.ShouldBeTrue();
     }
+
+    [Fact]
+    public async Task Undefined_Enum_Query_Value_Fails()
+    {
+        var (rsp, res, err) = await app.Client.GETAsync<EnumQueryBindingRequest, ErrorResponse>(
+                                  "/enum-query-binding?Category=99",
+                                  new());
+
+        if (rsp.StatusCode != HttpStatusCode.BadRequest)
+            Assert.Fail(err);
+
+        res.Errors.Keys.ShouldContain("category");
+    }
 }

@@ -102,6 +102,17 @@ public sealed class BindingOptions
     public Action<object, Type, BinderContext, CancellationToken>? Modifier { internal get; set; }
 
     /// <summary>
+    /// specify whether non-STJ model binding should allow enum values that are not explicitly defined by the target enum type.
+    /// when set to <c>false</c> (default), route/query/form/header/cookie/claim binding will reject undefined enum values even if
+    /// <see cref="Enum.TryParse(Type,string,bool,out object?)" /> can parse the input successfully.
+    /// set this to <c>true</c> to restore the previous behavior and allow numeric enum values that are not defined by the enum.
+    /// <para>
+    /// NOTE: this setting only affects non-STJ binding paths. JSON request body deserialization continues to be controlled by your STJ converters/options.
+    /// </para>
+    /// </summary>
+    public bool AllowUndefinedEnumValues { internal get; set; }
+
+    /// <summary>
     /// add a custom value parser function for any given type which the default model binder will use to parse values when model binding request dto
     /// properties from query/route/forms/headers/claims.
     /// this is an alternative approach to adding a `TryParse()` function to your types that need model binding support from the abovementioned binding

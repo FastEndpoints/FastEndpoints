@@ -34,4 +34,36 @@ url.ShouldBe("api/invoices/123?IncludeLines=true");
 
 ## Improvements 🚀
 
-## Breaking Changes ⚠️
+<details><summary>Undefined enum values are now rejected by default during non-JSON model binding</summary>
+
+Route/query/form/header/cookie/claim binding now rejects enum values that are not explicitly defined by the target enum type. This closes a gap where numeric inputs such as `99` could be parsed into an enum even when that numeric value was not a declared member.
+
+If you need to disable the new behavior and allow undefined enum values again, enable `AllowUndefinedEnumValues` explicitly:
+
+```csharp
+app.UseFastEndpoints(c =>
+{
+    c.Binding.AllowUndefinedEnumValues = true;
+});
+```
+
+</details>
+
+## Minor Breaking Changes ⚠️
+
+<details><summary>Undefined enum values are no longer accepted by default for non-STJ model binding</summary>
+
+The default behavior for non-JSON model binding has changed. Previously, enum values were accepted as long as `Enum.TryParse()` succeeded, which meant undefined numeric values such as `99` could still bind successfully. The new default rejects enum values unless they are explicitly defined by the target enum type.
+
+This may break existing endpoints that rely on accepting undefined numeric enum values from route/query/form/header/cookie/claim inputs.
+
+Do the following to revert to the previous behavior:
+
+```csharp
+app.UseFastEndpoints(c =>
+{
+    c.Binding.AllowUndefinedEnumValues = true;
+});
+```
+
+</details>

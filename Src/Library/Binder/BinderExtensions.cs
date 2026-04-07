@@ -100,7 +100,7 @@ static class BinderExtensions
                     return input => new(true, input.ToString());
 
                 if (type.IsEnum)
-                    return input => new(Enum.TryParse(type, input, true, out var res), res);
+                    return input => new(Enum.TryParse(type, input, true, out var res) && (Cfg.BndOpts.AllowUndefinedEnumValues || Enum.IsDefined(type, res)), res);
 
                 if (type == Types.Uri)
                     return input => new(Uri.TryCreate(input, UriKind.Absolute, out var res), res);

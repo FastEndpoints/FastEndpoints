@@ -335,8 +335,29 @@ public class BindingTests(Sut App) : TestBase<Sut>
                         IsHidden = true
                     },
                     Numbers = [0, 1, -222, 1000, 22]
-                }
-            });
+                 }
+             });
+    }
+
+    [Fact]
+    public async Task BindingUndefinedEnumValueFromQueryFails()
+    {
+        var (rsp, res) = await App.Client
+                                  .GETAsync<TestCases.QueryObjectBindingTest.Request, ErrorResponse>(
+                                      "api/test-cases/query-object-binding-test" +
+                                      "?BoOl=TRUE&String=everything&iNt=99&long=483752874564876&DOUBLE=2232.12&Enum=99" +
+                                      "&age=45&name=john&id=10c225a6-9195-4596-92f5-c1234cee4de7" +
+                                      "&numbers=0&numbers=1&numbers=-222&numbers=1000&numbers=22" +
+                                      "&favoriteDay=Friday&IsHidden=FALSE&ByteEnum=2" +
+                                      "&child.id=8bedccb3-ff93-47a2-9fc4-b558cae41a06" +
+                                      "&child.name=child name&child.age=-22" +
+                                      "&CHILD.FavoriteDays=1&ChiLD.FavoriteDays=Saturday&CHILD.ISHiddeN=TruE" +
+                                      "&child.strings=string1&child.strings=string2&child.strings=&child.strings=strangeString",
+                                      new());
+
+        rsp.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        res.Errors.ShouldNotBeNull();
+        res.Errors.ShouldContainKey("enum");
     }
 
     [Fact]

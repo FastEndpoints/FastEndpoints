@@ -15,7 +15,6 @@
         <PackageVersion Include="Grpc.Net.Client" Version="2.76.0"/>
         <PackageVersion Include="Grpc.Net.Client.Web" Version="2.76.0"/>
         <PackageVersion Include="MessagePack" Version="3.1.4"/>
-        <PackageVersion Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.9"/>
         <PackageVersion Include="Microsoft.AspNetCore.OData" Version="9.4.1"/>
         <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="4.14.0"/>
         <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="[4.11.0]"/><!-- not upgradeable for net8 compatibility -->
@@ -34,6 +33,9 @@
         <PackageVersion Include="xunit.v3" Version="3.2.2"/>
         <PackageVersion Include="xunit.v3.extensibility.core" Version="3.2.2"/>
         <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.5" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive"/>
+    </ItemGroup>
+    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.1'">
+        <PackageVersion Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.9"/>
     </ItemGroup>
     <ItemGroup Condition="'$(TargetFramework)' == 'net8.0' or '$(TargetFramework)' == 'netstandard2.0' or '$(TargetFramework)' == 'netstandard2.1'">
         <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.25"/>

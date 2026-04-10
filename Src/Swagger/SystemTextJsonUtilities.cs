@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // <copyright file="SystemTextJsonUtilities.cs" company="NJsonSchema">
 //     Copyright (c) Rico Suter. All rights reserved.
 // </copyright>
@@ -6,11 +6,9 @@
 // <author>Rico Suter, mail@rsuter.com</author>
 //-----------------------------------------------------------------------
 
-using Namotion.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
-using System.Collections;
 using System.Reflection;
 
 namespace NJsonSchema.Generation;
@@ -25,18 +23,14 @@ public static class SystemTextJsonUtilities
     /// </summary>
     /// <param name="serializerOptions">The options.</param>
     /// <returns>The settings.</returns>
-    public static JsonSerializerSettings ConvertJsonOptionsToNewtonsoftSettings(dynamic serializerOptions)
+    public static JsonSerializerSettings ConvertJsonOptionsToNewtonsoftSettings(System.Text.Json.JsonSerializerOptions serializerOptions)
     {
         var settings = new JsonSerializerSettings
         {
             ContractResolver = new SystemTextJsonContractResolver(serializerOptions)
         };
 
-        var jsonStringEnumConverter = ((IEnumerable)serializerOptions.Converters)
-                                      .OfType<object>()
-                                      .FirstOrDefault(
-                                          c => c.GetType()
-                                                .IsAssignableToTypeName("System.Text.Json.Serialization.JsonStringEnumConverter", TypeNameStyle.FullName));
+        var jsonStringEnumConverter = serializerOptions.Converters.OfType<System.Text.Json.Serialization.JsonStringEnumConverter>().FirstOrDefault();
 
         if (jsonStringEnumConverter == null)
             return settings;
@@ -47,16 +41,17 @@ public static class SystemTextJsonUtilities
         return settings;
     }
 
-    static bool IsCamelCaseEnumNamingPolicy(object jsonStringEnumConverter)
+    static bool IsCamelCaseEnumNamingPolicy(System.Text.Json.Serialization.JsonStringEnumConverter jsonStringEnumConverter)
     {
         try
         {
-            var enumNamingPolicy = jsonStringEnumConverter
+            var enumNamingPolicy = (System.Text.Json.JsonNamingPolicy?)(jsonStringEnumConverter
                                    .GetType().GetRuntimeFields()
                                    .FirstOrDefault(x => x.FieldType.FullName == "System.Text.Json.JsonNamingPolicy")?
-                                   .GetValue(jsonStringEnumConverter);
+                                   .GetValue(jsonStringEnumConverter));
 
-            return enumNamingPolicy is not null && enumNamingPolicy.GetType().FullName == "System.Text.Json.JsonCamelCaseNamingPolicy";
+            return enumNamingPolicy is not null && enumNamingPolicy == System.Text.Json.JsonNamingPolicy.CamelCase;
+
         }
         catch
         {
@@ -64,33 +59,24 @@ public static class SystemTextJsonUtilities
         }
     }
 
-    sealed class SystemTextJsonContractResolver(dynamic serializerOptions) : DefaultContractResolver
+    sealed class SystemTextJsonContractResolver(System.Text.Json.JsonSerializerOptions serializerOptions) : DefaultContractResolver
     {
         protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
         {
-            var attributes = member.GetCustomAttributes(true);
+            var attributes = member.GetCustomAttributes<System.Text.Json.Serialization.JsonIgnoreAttribute>(true);
+
+            var propertyIgnored = attributes.Any(att => att.Condition == System.Text.Json.Serialization.JsonIgnoreCondition.Always);
+            var hasToHeaderAttribute = member.GetCustomAttributes<FastEndpoints.ToHeaderAttribute>(true).Any();
+            var hasJsonExtensionDataAttribute = member.GetCustomAttributes<System.Text.Json.Serialization.JsonExtensionDataAttribute>().Any();
 
             var property = base.CreateProperty(member, memberSerialization);
-
-            var propertyIgnored = false;
-            var jsonIgnoreAttribute = attributes.FirstAssignableToTypeNameOrDefault("System.Text.Json.Serialization.JsonIgnoreAttribute");
-
-            if (jsonIgnoreAttribute != null)
-            {
-                var condition = jsonIgnoreAttribute.TryGetPropertyValue<object>("Condition");
-                if (condition is null || condition.ToString() == "Always")
-                    propertyIgnored = true;
-            }
-
-            var hasToHeaderAttribute = attributes.FirstAssignableToTypeNameOrDefault("FastEndpoints.ToHeaderAttribute") is not null;
-            var hasJsonExtensionDataAttribute = attributes.FirstAssignableToTypeNameOrDefault("System.Text.Json.Serialization.JsonExtensionDataAttribute") is not null;
 
             property.Ignored = propertyIgnored || hasJsonExtensionDataAttribute || hasToHeaderAttribute;
 
             if (serializerOptions.PropertyNamingPolicy != null)
                 property.PropertyName = serializerOptions.PropertyNamingPolicy.ConvertName(member.Name);
 
-            dynamic? jsonPropertyNameAttribute = attributes.FirstAssignableToTypeNameOrDefault("System.Text.Json.Serialization.JsonPropertyNameAttribute");
+            var jsonPropertyNameAttribute = member.GetCustomAttributes<System.Text.Json.Serialization.JsonPropertyNameAttribute>(true).FirstOrDefault();
 
             if (jsonPropertyNameAttribute is not null && !string.IsNullOrEmpty(jsonPropertyNameAttribute.Name))
                 property.PropertyName = jsonPropertyNameAttribute?.Name;

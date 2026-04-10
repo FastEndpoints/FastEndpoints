@@ -16,7 +16,7 @@ namespace NJsonSchema.Generation;
 /// <summary>
 /// Utility methods for dealing with System.Text.Json.
 /// </summary>
-public static class SystemTextJsonUtilities
+static class SystemTextJsonUtilities
 {
     /// <summary>
     /// Converts System.Text.Json serializer options to Newtonsoft JSON settings.
@@ -25,11 +25,7 @@ public static class SystemTextJsonUtilities
     /// <returns>The settings.</returns>
     public static JsonSerializerSettings ConvertJsonOptionsToNewtonsoftSettings(System.Text.Json.JsonSerializerOptions serializerOptions)
     {
-        var settings = new JsonSerializerSettings
-        {
-            ContractResolver = new SystemTextJsonContractResolver(serializerOptions)
-        };
-
+        var settings = new JsonSerializerSettings { ContractResolver = new SystemTextJsonContractResolver(serializerOptions) };
         var jsonStringEnumConverter = serializerOptions.Converters.OfType<System.Text.Json.Serialization.JsonStringEnumConverter>().FirstOrDefault();
 
         if (jsonStringEnumConverter == null)
@@ -45,13 +41,12 @@ public static class SystemTextJsonUtilities
     {
         try
         {
-            var enumNamingPolicy = (System.Text.Json.JsonNamingPolicy?)(jsonStringEnumConverter
-                                   .GetType().GetRuntimeFields()
-                                   .FirstOrDefault(x => x.FieldType.FullName == "System.Text.Json.JsonNamingPolicy")?
-                                   .GetValue(jsonStringEnumConverter));
+            var enumNamingPolicy = jsonStringEnumConverter.GetType()
+                                                          .GetRuntimeFields()
+                                                          .FirstOrDefault(x => x.FieldType == typeof(System.Text.Json.JsonNamingPolicy))?
+                                                          .GetValue(jsonStringEnumConverter) as System.Text.Json.JsonNamingPolicy;
 
-            return enumNamingPolicy is not null && enumNamingPolicy == System.Text.Json.JsonNamingPolicy.CamelCase;
-
+            return enumNamingPolicy == System.Text.Json.JsonNamingPolicy.CamelCase;
         }
         catch
         {
@@ -63,23 +58,18 @@ public static class SystemTextJsonUtilities
     {
         protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
         {
-            var attributes = member.GetCustomAttributes<System.Text.Json.Serialization.JsonIgnoreAttribute>(true);
-
-            var propertyIgnored = attributes.Any(att => att.Condition == System.Text.Json.Serialization.JsonIgnoreCondition.Always);
-            var hasToHeaderAttribute = member.GetCustomAttributes<FastEndpoints.ToHeaderAttribute>(true).Any();
-            var hasJsonExtensionDataAttribute = member.GetCustomAttributes<System.Text.Json.Serialization.JsonExtensionDataAttribute>().Any();
-
             var property = base.CreateProperty(member, memberSerialization);
 
-            property.Ignored = propertyIgnored || hasJsonExtensionDataAttribute || hasToHeaderAttribute;
+            property.Ignored |=
+                member.GetCustomAttribute<System.Text.Json.Serialization.JsonIgnoreAttribute>(true)?.Condition == System.Text.Json.Serialization.JsonIgnoreCondition.Always ||
+                member.IsDefined(typeof(System.Text.Json.Serialization.JsonExtensionDataAttribute), true) ||
+                member.IsDefined(typeof(FastEndpoints.ToHeaderAttribute), true);
 
             if (serializerOptions.PropertyNamingPolicy != null)
                 property.PropertyName = serializerOptions.PropertyNamingPolicy.ConvertName(member.Name);
 
-            var jsonPropertyNameAttribute = member.GetCustomAttributes<System.Text.Json.Serialization.JsonPropertyNameAttribute>(true).FirstOrDefault();
-
-            if (jsonPropertyNameAttribute is not null && !string.IsNullOrEmpty(jsonPropertyNameAttribute.Name))
-                property.PropertyName = jsonPropertyNameAttribute?.Name;
+            if (member.GetCustomAttribute<System.Text.Json.Serialization.JsonPropertyNameAttribute>(true) is { Name: { Length: > 0 } name })
+                property.PropertyName = name;
 
             return property;
         }

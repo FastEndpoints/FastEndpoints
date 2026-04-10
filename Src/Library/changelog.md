@@ -51,6 +51,14 @@ app.UseFastEndpoints(c =>
 
 ## Minor Breaking Changes ⚠️
 
+<details><summary>Dropped support for netstandard2.1</summary>
+
+`FastEndpoints.Core`, `FastEndpoints.Messaging.Core`, and `FastEndpoints.Messaging.Remote.Core` no longer target `netstandard2.1` and now support `net8.0+` only.
+
+If you consume these packages from shared libraries or older applications, retarget those projects to `net8.0` or newer before upgrading.
+
+</details>
+
 <details><summary>Undefined enum values are no longer accepted by default for non-STJ model binding</summary>
 
 The default behavior for non-JSON model binding has changed. Previously, enum values were accepted as long as `Enum.TryParse()` succeeded, which meant undefined numeric values such as `99` could still bind successfully. The new default rejects enum values unless they are explicitly defined by the target enum type.

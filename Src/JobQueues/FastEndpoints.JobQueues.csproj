@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <Description>Command based background job queueing with scheduling and tracking for any .NET application</Description>
+        <Description>Command based background job queueing with scheduling and tracking for .NET 8 and newer</Description>
         <PackageIcon>icon.png</PackageIcon>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
         <IncludeSymbols>true</IncludeSymbols>

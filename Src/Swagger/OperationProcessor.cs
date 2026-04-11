@@ -588,6 +588,10 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
                 bodyParam.Example = null;
 
                 op.RequestBody.Content.FirstOrDefault().Value.Schema = bodyParam.Schema;
+
+                if (op.RequestBody.Content.TryGetValue("application/json-patch+json", out var patchContent))
+                    patchContent.Schema = TryGetJsonPatchArraySchema(bodyParam.Schema) ?? TryGetJsonPatchArraySchema(patchContent.Schema) ?? bodyParam.Schema;
+
                 op.RequestBody.IsRequired = bodyParam.IsRequired;
                 op.RequestBody.Description = bodyParam.Description;
                 op.RequestBody.Name = bodyParam.Name;
@@ -700,6 +704,23 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
         }
 
         return true;
+    }
+
+    static JsonSchema? TryGetJsonPatchArraySchema(JsonSchema? schema)
+    {
+        if (schema?.ActualSchema.IsObject is not true)
+            return null;
+
+        var props = schema.ActualSchema.ActualProperties;
+
+        if (props.Count != 1)
+            return null;
+
+        var operationsProp = props.FirstOrDefault(p => string.Equals(p.Key, "operations", StringComparison.OrdinalIgnoreCase)).Value;
+
+        return operationsProp?.ActualSchema.IsArray is true
+                   ? operationsProp.ActualSchema
+                   : null;
     }
 
     static bool ShouldAddQueryParam(PropertyInfo prop, List<OpenApiParameter> reqParams, bool isGetRequest, DocumentOptions docOpts)

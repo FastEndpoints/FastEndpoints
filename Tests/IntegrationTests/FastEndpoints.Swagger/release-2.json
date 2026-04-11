@@ -4605,6 +4605,52 @@
         }
       }
     },
+    "/api/json-patch-test/{id}": {
+      "patch": {
+        "tags": [
+          "JsonPatchTest"
+        ],
+        "operationId": "TestCasesSwaggerJsonPatchRequestBodyTestEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "x-name": "patches",
+          "content": {
+            "application/json-patch+json": {
+              "schema": {
+                "type": "array",
+                "nullable": true,
+                "items": {
+                  "$ref": "#/components/schemas/MicrosoftAspNetCoreJsonPatchSystemTextJsonOperationsOperationOfPerson"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesSwaggerJsonPatchRequestBodyTestPerson"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/test-cases/typed-header-binding-test": {
       "post": {
         "tags": [
@@ -6889,6 +6935,85 @@
       "TestCasesStronglyTypedRouteParamTestRequest": {
         "type": "object",
         "additionalProperties": false
+      },
+      "TestCasesSwaggerJsonPatchRequestBodyTestPerson": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "firstName": {
+            "type": "string"
+          },
+          "lastName": {
+            "type": "string"
+          }
+        }
+      },
+      "TestCasesSwaggerJsonPatchRequestBodyTestRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "patches": {
+            "$ref": "#/components/schemas/MicrosoftAspNetCoreJsonPatchSystemTextJsonJsonPatchDocumentOfPerson"
+          }
+        }
+      },
+      "MicrosoftAspNetCoreJsonPatchSystemTextJsonJsonPatchDocumentOfPerson": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "operations": {
+            "type": "array",
+            "nullable": true,
+            "items": {
+              "$ref": "#/components/schemas/MicrosoftAspNetCoreJsonPatchSystemTextJsonOperationsOperationOfPerson"
+            }
+          }
+        }
+      },
+      "MicrosoftAspNetCoreJsonPatchSystemTextJsonOperationsOperationOfPerson": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/MicrosoftAspNetCoreJsonPatchSystemTextJsonOperationsOperation"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false
+          }
+        ]
+      },
+      "MicrosoftAspNetCoreJsonPatchSystemTextJsonOperationsOperation": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/MicrosoftAspNetCoreJsonPatchSystemTextJsonOperationsOperationBase"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "value": {
+                "nullable": true
+              }
+            }
+          }
+        ]
+      },
+      "MicrosoftAspNetCoreJsonPatchSystemTextJsonOperationsOperationBase": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "path": {
+            "type": "string",
+            "nullable": true
+          },
+          "op": {
+            "type": "string",
+            "nullable": true
+          },
+          "from": {
+            "type": "string",
+            "nullable": true
+          }
+        }
       },
       "TestCasesTypedHeaderBindingTestMyRequest": {
         "allOf": [

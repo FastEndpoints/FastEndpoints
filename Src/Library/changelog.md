@@ -34,6 +34,40 @@ url.ShouldBe("api/invoices/123?IncludeLines=true");
 
 ## Improvements 🚀
 
+<details><summary>Swagger now emits wrapped JSON Patch request bodies as top-level patch operation arrays</summary>
+
+When a request DTO contains a `[FromBody]` property accepted as `application/json-patch+json`, the generated OpenAPI request body schema is now promoted from the wrapper object shape to the top-level JSON Patch array shape expected by Swagger UI.
+
+This improves the generated example payload from:
+
+```json
+{
+  "operations": [
+    {
+      "path": "string",
+      "op": "string",
+      "from": "string",
+      "value": "string"
+    }
+  ]
+}
+```
+
+to:
+
+```json
+[
+  {
+    "path": "string",
+    "op": "string",
+    "from": "string",
+    "value": "string"
+  }
+]
+```
+
+</details>
+
 <details><summary>Undefined enum values are now rejected by default during non-JSON model binding</summary>
 
 Route/query/form/header/cookie/claim binding now rejects enum values that are not explicitly defined by the target enum type. This closes a gap where numeric inputs such as `99` could be parsed into an enum even when that numeric value was not a declared member.

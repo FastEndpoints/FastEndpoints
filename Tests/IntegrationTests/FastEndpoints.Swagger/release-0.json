@@ -4743,6 +4743,86 @@
         ]
       }
     },
+    "/api/test-cases/x402/failure": {
+      "get": {
+        "tags": [
+          "TestCases"
+        ],
+        "operationId": "TestCasesX402FailureEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesX402Response"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/test-cases/x402/override": {
+      "get": {
+        "tags": [
+          "TestCases"
+        ],
+        "operationId": "TestCasesX402OverrideEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesX402Response"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/test-cases/x402/pre-settled": {
+      "get": {
+        "tags": [
+          "TestCases"
+        ],
+        "operationId": "TestCasesX402PreSettledEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesX402Response"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/test-cases/x402/success": {
+      "get": {
+        "tags": [
+          "TestCases"
+        ],
+        "operationId": "TestCasesX402SuccessEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesX402Response"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/uploads/image/save": {
       "post": {
         "tags": [
@@ -6977,6 +7057,15 @@
         "additionalProperties": false,
         "properties": {
           "test": {
+            "type": "string"
+          }
+        }
+      },
+      "TestCasesX402Response": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "message": {
             "type": "string"
           }
         }

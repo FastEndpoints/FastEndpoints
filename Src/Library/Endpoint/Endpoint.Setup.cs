@@ -548,6 +548,15 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     }
 
     /// <summary>
+    /// requires a x402 payment before this endpoint can execute.
+    /// </summary>
+    /// <param name="price">payment amount/price string</param>
+    /// <param name="description">resource description shown to buyers</param>
+    /// <param name="configure">optional endpoint overrides</param>
+    protected void RequirePayment(string price, string description, Action<X402EndpointOptions>? configure = null)
+        => Definition.RequirePayment(price, description, configure);
+
+    /// <summary>
     /// specify response caching settings for this endpoint
     /// </summary>
     /// <param name="durationSeconds">the duration in seconds for which the response is cached</param>

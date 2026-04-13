@@ -30,6 +30,14 @@ url.ShouldBe("api/invoices/123?IncludeLines=true");
 
 </details>
 
+<details><summary>x402 Payment support for endpoints</summary>
+
+Endpoints can now require x402 payments by calling `RequirePayment(...)` inside `Configure()`.
+
+Global x402 defaults are configured with `builder.AddX402()` and `app.UseX402(...)`, and the middleware only runs for endpoints that opt in. The initial release supports the `exact` scheme with a single accepted payment option per endpoint and uses the safer default flow of verifying first, executing the handler, and settling only after a successful response.
+
+</details>
+
 ## Fixes 🪲
 
 ## Improvements 🚀

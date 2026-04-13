@@ -57,6 +57,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     public List<string>? PreBuiltUserPolicies { get; private set; }
     public Action<AuthorizationPolicyBuilder>? PolicyBuilder { get; private set; }
     public bool ThrowIfValidationFails { get; private set; } = true;
+    public X402PaymentMetadata? X402PaymentMetadata { get; private set; }
 
     //only accessible to internal code
     internal bool AcceptsAnyContentType;
@@ -345,7 +346,10 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     public void Metadata(params object[] metadata)
     {
         ThrowIfLocked();
-        EndpointMetadata = metadata;
+
+        EndpointMetadata = EndpointMetadata is null
+                               ? metadata
+                               : [.. EndpointMetadata, .. metadata];
     }
 
     /// <summary>
@@ -570,6 +574,30 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     }
 
     /// <summary>
+    /// requires a x402 payment before this endpoint can execute.
+    /// </summary>
+    /// <param name="price">payment amount/price string</param>
+    /// <param name="description">resource description shown to buyers</param>
+    /// <param name="configure">optional endpoint overrides</param>
+    public void RequirePayment(string price, string description, Action<X402EndpointOptions>? configure = null)
+    {
+        ThrowIfLocked();
+
+        if (ResponseCacheSettings is not null)
+            throw new InvalidOperationException("x402 payment protected endpoints cannot enable response caching!");
+
+        var opts = new X402EndpointOptions
+        {
+            Price = price,
+            Description = description
+        };
+
+        configure?.Invoke(opts);
+
+        X402PaymentMetadata = opts.ToMetadata();
+    }
+
+    /// <summary>
     /// sets an open-generic request binder for the endpoint.
     /// </summary>
     /// <param name="binderType">the open generic type of the request binder</param>
@@ -608,6 +636,10 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
                               string[]? varyByQueryKeys = null)
     {
         ThrowIfLocked();
+
+        if (X402PaymentMetadata is not null)
+            throw new InvalidOperationException("x402 payment protected endpoints cannot enable response caching!");
+
         ResponseCacheSettings = new()
         {
             Duration = durationSeconds,

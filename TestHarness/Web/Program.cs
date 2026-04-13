@@ -13,11 +13,13 @@ using TestCases.KeyedServicesTests;
 using TestCases.ProcessorStateTest;
 using TestCases.ServerStreamingTest;
 using TestCases.UnitTestConcurrencyTest;
+using TestCases.X402;
 using Web;
 using Web.PipelineBehaviors.PreProcessors;
 using Web.Services;
 
 var bld = WebApplication.CreateBuilder(args);
+var isTesting = string.Equals(bld.Environment.EnvironmentName, "Testing", StringComparison.OrdinalIgnoreCase);
 bld.AddHandlerServer();
 bld.Services
    .AddCors()
@@ -25,6 +27,7 @@ bld.Services
    .AddIdempotency()
    .AddResponseCaching()
    .AddFastEndpoints(o => o.SourceGeneratorDiscoveredTypes = DiscoveredTypes.All)
+   .AddX402()
    .AddAuthenticationJwtBearer(s => s.SigningKey = bld.Configuration["TokenKey"]!)
    .AddAuthorization(o => o.AddPolicy("AdminOnly", b => b.RequireRole(Role.Admin)))
    .AddKeyedTransient<IKeyedService>("AAA", (_, _) => new MyKeyedService("AAA"))
@@ -159,6 +162,9 @@ bld.Services
            o.ShowDeprecatedOps = true;
        });
 
+if (isTesting)
+    bld.Services.AddSingleton<IX402FacilitatorClient, FakeFacilitatorClient>();
+
 var supportedCultures = new[] { new CultureInfo("en-US") };
 
 var app = bld.Build();
@@ -176,6 +182,15 @@ app.UseRequestLocalization(
    .UseJwtRevocation<JwtBlacklistChecker>()
    .UseAuthentication()
    .UseAuthorization()
+   .UseX402(
+       o =>
+       {
+           o.FacilitatorUrl = "https://fake-facilitator.test/";
+           o.Defaults.Network = "eip155:84532";
+           o.Defaults.PayTo = "0xdefault";
+           o.Defaults.Asset = "0xasset";
+           o.Defaults.MimeType = "application/json";
+       })
    .UseAntiforgeryFE(additionalContentTypes: ["application/json"])
    .UseOutputCache()
    .UseFastEndpoints(

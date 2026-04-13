@@ -18,6 +18,7 @@ public sealed class Config
     internal static readonly ThrottleOptions ThrOpts = new();
     internal static readonly VersioningOptions VerOpts = new();
     internal static readonly ValidationOptions ValOpts = new();
+    internal static readonly X402Options X402Opts = new();
 
     /// <summary>
     /// request binding settings
@@ -58,4 +59,9 @@ public sealed class Config
     /// endpoint validation settings
     /// </summary>
     public ValidationOptions Validation => ValOpts;
+
+    /// <summary>
+    /// x402 payment settings
+    /// </summary>
+    public X402Options X402 => X402Opts;
 }

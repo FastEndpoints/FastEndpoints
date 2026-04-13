@@ -4,6 +4,9 @@ sealed class FakeFacilitatorClient : IX402FacilitatorClient
 {
     public Task<VerificationResponse> VerifyAsync(VerificationRequest request, CancellationToken ct)
     {
+        if (request.X402Version != 2)
+            return Task.FromResult(new VerificationResponse { IsValid = false, InvalidReason = "invalid_x402_version" });
+
         var payToken = request.PaymentPayload.Payload?["testToken"]?.GetValue<string>();
 
         return Task.FromResult(
@@ -14,6 +17,9 @@ sealed class FakeFacilitatorClient : IX402FacilitatorClient
 
     public Task<SettlementResponse> SettleAsync(SettlementRequest request, CancellationToken ct)
     {
+        if (request.X402Version != 2)
+            return Task.FromResult(new SettlementResponse { Success = false, ErrorReason = "invalid_x402_version" });
+
         var payToken = request.PaymentPayload.Payload?["testToken"]?.GetValue<string>();
 
         return Task.FromResult(
@@ -25,6 +31,6 @@ sealed class FakeFacilitatorClient : IX402FacilitatorClient
                     Network = request.PaymentRequirements.Network,
                     Payer = "0xpayer"
                 }
-                : new SettlementResponse { Success = false, Error = "settlement_failed" });
+                : new SettlementResponse { Success = false, ErrorReason = "settlement_failed" });
     }
 }

@@ -34,7 +34,7 @@ sealed class X402FacilitatorClient(HttpClient client) : IX402FacilitatorClient
 
     async Task<TResponse> PostAsync<TRequest, TResponse>(string path, TRequest request, CancellationToken ct)
     {
-        using var res = await client.PostAsJsonAsync(path, request, X402Serializer.Options, ct);
+        using var res = await client.PostAsJsonAsync(BuildUri(path), request, X402Serializer.Options, ct);
         var body = await res.Content.ReadAsStringAsync(ct);
 
         if (res.IsSuccessStatusCode)
@@ -72,5 +72,15 @@ sealed class X402FacilitatorClient(HttpClient client) : IX402FacilitatorClient
         }
 
         throw new InvalidOperationException($"facilitator call [{path}] failed with status [{(int)res.StatusCode}]: {body}");
+    }
+
+    string BuildUri(string path)
+    {
+        if (client.BaseAddress is null)
+            return path;
+
+        var baseUrl = client.BaseAddress.AbsoluteUri.TrimEnd('/');
+
+        return $"{baseUrl}/{path}";
     }
 }

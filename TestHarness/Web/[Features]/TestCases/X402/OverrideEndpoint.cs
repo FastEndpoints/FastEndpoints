@@ -1,3 +1,5 @@
+using System.Text.Json.Nodes;
+
 namespace TestCases.X402;
 
 sealed class OverrideEndpoint : EndpointWithoutRequest<Response>
@@ -15,6 +17,13 @@ sealed class OverrideEndpoint : EndpointWithoutRequest<Response>
                 o.PayTo = "0xoverride";
                 o.Asset = "0xoverride-asset";
                 o.MimeType = "application/custom+json";
+                o.Extensions = new()
+                {
+                    ["bazaar"] = new JsonObject
+                    {
+                        ["discoverable"] = true
+                    }
+                };
             });
     }
 

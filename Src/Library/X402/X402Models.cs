@@ -1,7 +1,6 @@
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
 
 namespace FastEndpoints;
 
@@ -17,6 +16,7 @@ public sealed class X402PaymentMetadata
     public int? MaxTimeoutSeconds { get; init; }
     public Settle? SettlementMode { get; init; }
     public JsonObject? Extra { get; init; }
+    public JsonObject? Extensions { get; init; }
 }
 
 public sealed class X402ResolvedPaymentConfig
@@ -30,12 +30,10 @@ public sealed class X402ResolvedPaymentConfig
     public required int MaxTimeoutSeconds { get; init; }
     public string? MimeType { get; init; }
     public JsonObject? Extra { get; init; }
+    public JsonObject? Extensions { get; init; }
 
-    internal PaymentRequirements ToPaymentRequirements(HttpContext ctx)
+    internal PaymentRequirements ToPaymentRequirements(HttpContext _)
     {
-        var extra = Extra?.DeepClone().AsObject() ?? [];
-        extra["resourceUrl"] ??= ctx.Request.GetDisplayUrl();
-
         return new()
         {
             Scheme = Scheme,
@@ -44,7 +42,7 @@ public sealed class X402ResolvedPaymentConfig
             Asset = Asset,
             PayTo = PayTo,
             MaxTimeoutSeconds = MaxTimeoutSeconds,
-            Extra = extra
+            Extra = Extra?.DeepClone().AsObject()
         };
     }
 }
@@ -62,6 +60,9 @@ public sealed class PaymentRequiredResponse
 
     [JsonPropertyName("accepts")]
     public required List<PaymentRequirements> Accepts { get; init; }
+
+    [JsonPropertyName("extensions")]
+    public JsonObject? Extensions { get; init; }
 }
 
 public sealed class X402Resource
@@ -70,7 +71,7 @@ public sealed class X402Resource
     public required string Url { get; init; }
 
     [JsonPropertyName("description")]
-    public required string Description { get; init; }
+    public string? Description { get; init; }
 
     [JsonPropertyName("mimeType")]
     public string? MimeType { get; init; }
@@ -103,20 +104,26 @@ public sealed class PaymentRequirements
 public sealed class PaymentPayload
 {
     [JsonPropertyName("x402Version")]
-    public int X402Version { get; init; }
+    public int X402Version { get; init; } = X402Constants.Version;
 
     [JsonPropertyName("resource")]
-    public required X402Resource Resource { get; init; }
+    public X402Resource? Resource { get; init; }
 
     [JsonPropertyName("accepted")]
     public required PaymentRequirements Accepted { get; init; }
 
     [JsonPropertyName("payload")]
     public JsonObject? Payload { get; init; }
+
+    [JsonPropertyName("extensions")]
+    public JsonObject? Extensions { get; init; }
 }
 
 public sealed class VerificationRequest
 {
+    [JsonPropertyName("x402Version")]
+    public int X402Version { get; init; } = X402Constants.Version;
+
     [JsonPropertyName("paymentPayload")]
     public required PaymentPayload PaymentPayload { get; init; }
 
@@ -134,13 +141,13 @@ public sealed class VerificationResponse
 
     [JsonPropertyName("payer")]
     public string? Payer { get; init; }
-
-    [JsonPropertyName("paymentResponse")]
-    public SettlementResponse? PaymentResponse { get; init; }
 }
 
 public sealed class SettlementRequest
 {
+    [JsonPropertyName("x402Version")]
+    public int X402Version { get; init; } = X402Constants.Version;
+
     [JsonPropertyName("paymentPayload")]
     public required PaymentPayload PaymentPayload { get; init; }
 
@@ -162,11 +169,14 @@ public sealed class SettlementResponse
     [JsonPropertyName("payer")]
     public string? Payer { get; init; }
 
-    [JsonPropertyName("error")]
-    public string? Error { get; init; }
+    [JsonPropertyName("errorReason")]
+    public string? ErrorReason { get; init; }
 
-    [JsonPropertyName("requirements")]
-    public PaymentRequirements? Requirements { get; init; }
+    [JsonPropertyName("amount")]
+    public string? Amount { get; init; }
+
+    [JsonPropertyName("extensions")]
+    public JsonObject? Extensions { get; init; }
 }
 
 sealed class X402RequestContext

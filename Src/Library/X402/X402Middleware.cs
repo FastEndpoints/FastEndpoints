@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.DependencyInjection;
@@ -42,14 +43,19 @@ sealed class X402Middleware(RequestDelegate next)
         }
 
         var facilitator = ctx.RequestServices.GetRequiredService<IX402FacilitatorClient>();
+
+        if (TryValidatePayload(payload, requirements, out var validationError))
+        {
+            await SendPaymentRequiredAsync(ctx, resolved, requirements, validationError, ctx.RequestAborted);
+
+            return;
+        }
+
         var verifyRequest = new VerificationRequest { PaymentPayload = payload, PaymentRequirements = requirements };
         var verification = await facilitator.VerifyAsync(verifyRequest, ctx.RequestAborted);
 
         if (!verification.IsValid)
         {
-            if (verification.PaymentResponse is not null)
-                ctx.Response.Headers[X402Constants.PaymentResponseHeader] = X402Serializer.ToBase64(verification.PaymentResponse);
-
             await SendPaymentRequiredAsync(ctx, resolved, requirements, verification.InvalidReason, ctx.RequestAborted);
 
             return;
@@ -71,12 +77,12 @@ sealed class X402Middleware(RequestDelegate next)
             if (!settlement.Success)
             {
                 ctx.Response.Headers[X402Constants.PaymentResponseHeader] = X402Serializer.ToBase64(settlement);
-                await SendPaymentRequiredAsync(ctx, resolved, requirements, settlement.Error, ctx.RequestAborted);
+                await SendPaymentRequiredAsync(ctx, resolved, requirements, settlement.ErrorReason, ctx.RequestAborted);
 
                 return;
             }
 
-            ctx.Response.Headers[X402Constants.PaymentResponseHeader] = X402Serializer.ToBase64(AttachRequirements(settlement, requirements));
+            ctx.Response.Headers[X402Constants.PaymentResponseHeader] = X402Serializer.ToBase64(settlement);
             await next(ctx);
 
             return;
@@ -106,12 +112,12 @@ sealed class X402Middleware(RequestDelegate next)
             {
                 ctx.Response.Clear();
                 ctx.Response.Headers[X402Constants.PaymentResponseHeader] = X402Serializer.ToBase64(settlement);
-                await SendPaymentRequiredAsync(ctx, resolved, requirements, settlement.Error, ctx.RequestAborted);
+                await SendPaymentRequiredAsync(ctx, resolved, requirements, settlement.ErrorReason, ctx.RequestAborted);
 
                 return;
             }
 
-            ctx.Response.Headers[X402Constants.PaymentResponseHeader] = X402Serializer.ToBase64(AttachRequirements(settlement, requirements));
+            ctx.Response.Headers[X402Constants.PaymentResponseHeader] = X402Serializer.ToBase64(settlement);
             await bufferedBody.CopyToInnerAsync(ctx.RequestAborted);
         }
         finally
@@ -140,7 +146,8 @@ sealed class X402Middleware(RequestDelegate next)
             Asset = metadata.Asset ?? defaults.Asset!,
             MimeType = metadata.MimeType ?? defaults.MimeType,
             MaxTimeoutSeconds = metadata.MaxTimeoutSeconds ?? defaults.MaxTimeoutSeconds,
-            Extra = Merge(defaults.Extra, metadata.Extra)
+            Extra = Merge(defaults.Extra, metadata.Extra),
+            Extensions = Merge(defaults.Extensions, metadata.Extensions)
         };
     }
 
@@ -163,18 +170,92 @@ sealed class X402Middleware(RequestDelegate next)
         return merged;
     }
 
-    static SettlementResponse AttachRequirements(SettlementResponse response, PaymentRequirements requirements)
-        => response.Requirements is null
-               ? new()
-               {
-                   Success = response.Success,
-                   Transaction = response.Transaction,
-                   Network = response.Network,
-                   Payer = response.Payer,
-                   Error = response.Error,
-                   Requirements = requirements
-               }
-               : response;
+    static bool TryValidatePayload(PaymentPayload payload, PaymentRequirements requirements, out string? error)
+    {
+        error = null;
+
+        if (payload.X402Version != X402Constants.Version)
+        {
+            error = "invalid_x402_version";
+
+            return true;
+        }
+
+        if (!MatchesRequirements(payload.Accepted, requirements))
+        {
+            error = "invalid_payment_requirements";
+
+            return true;
+        }
+
+        if (payload.Payload is null || !payload.Payload.TryGetPropertyValue("authorization", out var authorizationNode) || authorizationNode is null)
+            return false;
+
+        if (authorizationNode is not JsonObject authorization ||
+            !TryGetString(authorization, "to", out var to) ||
+            !TryGetString(authorization, "value", out var value) ||
+            !TryGetString(authorization, "validAfter", out var validAfterRaw) ||
+            !TryGetString(authorization, "validBefore", out var validBeforeRaw) ||
+            !long.TryParse(validAfterRaw, NumberStyles.None, CultureInfo.InvariantCulture, out var validAfter) ||
+            !long.TryParse(validBeforeRaw, NumberStyles.None, CultureInfo.InvariantCulture, out var validBefore))
+        {
+            error = "invalid_payload";
+
+            return true;
+        }
+
+        if (!string.Equals(to, requirements.PayTo, StringComparison.Ordinal))
+        {
+            error = "invalid_exact_evm_payload_recipient_mismatch";
+
+            return true;
+        }
+
+        if (!string.Equals(value, requirements.Amount, StringComparison.Ordinal))
+        {
+            error = "invalid_exact_evm_payload_authorization_value_mismatch";
+
+            return true;
+        }
+
+        var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+        if (now < validAfter)
+        {
+            error = "invalid_exact_evm_payload_authorization_valid_after";
+
+            return true;
+        }
+
+        if (now > validBefore)
+        {
+            error = "invalid_exact_evm_payload_authorization_valid_before";
+
+            return true;
+        }
+
+        return false;
+    }
+
+    static bool MatchesRequirements(PaymentRequirements accepted, PaymentRequirements required)
+        => string.Equals(accepted.Scheme, required.Scheme, StringComparison.Ordinal) &&
+           string.Equals(accepted.Network, required.Network, StringComparison.Ordinal) &&
+           string.Equals(accepted.Amount, required.Amount, StringComparison.Ordinal) &&
+           string.Equals(accepted.Asset, required.Asset, StringComparison.Ordinal) &&
+           string.Equals(accepted.PayTo, required.PayTo, StringComparison.Ordinal) &&
+           accepted.MaxTimeoutSeconds == required.MaxTimeoutSeconds;
+
+    static bool TryGetString(JsonObject obj, string propertyName, out string? value)
+    {
+        value = null;
+
+        if (!obj.TryGetPropertyValue(propertyName, out var node) || node is null)
+            return false;
+
+        value = node.GetValue<string>();
+
+        return true;
+    }
 
     static async Task SendPaymentRequiredAsync(HttpContext ctx,
                                                X402ResolvedPaymentConfig config,
@@ -191,7 +272,8 @@ sealed class X402Middleware(RequestDelegate next)
                 Description = config.Description,
                 MimeType = config.MimeType
             },
-            Accepts = [requirements]
+            Accepts = [requirements],
+            Extensions = config.Extensions?.DeepClone().AsObject()
         };
 
         ctx.Response.StatusCode = 402;

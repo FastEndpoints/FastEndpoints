@@ -8,16 +8,18 @@ public static class X402RegistrationExtensions
     /// <summary>
     /// adds x402 payment services
     /// </summary>
-    public static IServiceCollection AddX402(this IServiceCollection services)
+    public static IServiceCollection AddX402(this IServiceCollection services, Action<IHttpClientBuilder>? configureFacilitatorClient = null)
     {
-        services.AddHttpClient<IX402FacilitatorClient, X402FacilitatorClient>(
+        var builder = services.AddHttpClient<IX402FacilitatorClient, X402FacilitatorClient>(
             c =>
             {
                 if (!string.IsNullOrWhiteSpace(Cfg.X402Opts.FacilitatorUrl))
-                    c.BaseAddress = new(Cfg.X402Opts.FacilitatorUrl, UriKind.Absolute);
+                    c.BaseAddress = new(EnsureTrailingSlash(Cfg.X402Opts.FacilitatorUrl), UriKind.Absolute);
 
                 c.Timeout = Cfg.X402Opts.Timeout;
             });
+
+        configureFacilitatorClient?.Invoke(builder);
 
         return services;
     }
@@ -33,4 +35,7 @@ public static class X402RegistrationExtensions
 
         return app.UseMiddleware<X402Middleware>();
     }
+
+    static string EnsureTrailingSlash(string url)
+        => url.EndsWith("/", StringComparison.Ordinal) ? url : url + "/";
 }

@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace SecurityTests;
 
@@ -37,7 +38,7 @@ public class X402Tests(Sut app) : TestBase<Sut>
         var paymentResponse = Decode(values!.Single());
         paymentResponse.GetProperty("success").GetBoolean().ShouldBeTrue();
         paymentResponse.GetProperty("transaction").GetString().ShouldBe("0xtx");
-        paymentResponse.GetProperty("requirements").GetProperty("amount").GetString().ShouldBe("1000");
+        paymentResponse.GetProperty("network").GetString().ShouldBe("eip155:84532");
     }
 
     [Fact]
@@ -68,6 +69,7 @@ public class X402Tests(Sut app) : TestBase<Sut>
         accept.GetProperty("payTo").GetString().ShouldBe("0xoverride");
         accept.GetProperty("asset").GetString().ShouldBe("0xoverride-asset");
         paymentRequired.GetProperty("resource").GetProperty("mimeType").GetString().ShouldBe("application/custom+json");
+        paymentRequired.GetProperty("extensions").GetProperty("bazaar").GetProperty("discoverable").GetBoolean().ShouldBeTrue();
     }
 
     [Fact]
@@ -95,30 +97,149 @@ public class X402Tests(Sut app) : TestBase<Sut>
         var paymentRequired = Decode(rsp.Headers.GetValues("PAYMENT-REQUIRED").Single());
         var accept = paymentRequired.GetProperty("accepts")[0];
 
-        accept.TryGetProperty("extra", out var extra).ShouldBeTrue();
-        extra.TryGetProperty("settlementMode", out _).ShouldBeFalse();
+        if (accept.TryGetProperty("extra", out var extra))
+            extra.TryGetProperty("settlementMode", out _).ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task InvalidPaymentPayloadDoesNotSetPaymentResponseHeader()
+    {
+        using var req = new HttpRequestMessage(HttpMethod.Get, "/api/test-cases/x402/success");
+        req.Headers.Add("PAYMENT-SIGNATURE", PaymentSignature("invalid", "1000", "eip155:84532", "0xdefault", "0xasset"));
+
+        using var rsp = await app.GuestClient.SendAsync(req);
+
+        rsp.StatusCode.ShouldBe((HttpStatusCode)402);
+        rsp.Headers.Contains("PAYMENT-RESPONSE").ShouldBeFalse();
+
+        var paymentRequired = Decode(rsp.Headers.GetValues("PAYMENT-REQUIRED").Single());
+        paymentRequired.GetProperty("error").GetString().ShouldBe("invalid_test_payment");
+    }
+
+    [Fact]
+    public async Task PaymentPayloadResourceIsOptional()
+    {
+        using var req = new HttpRequestMessage(HttpMethod.Get, "/api/test-cases/x402/success");
+        req.Headers.Add("PAYMENT-SIGNATURE", PaymentSignature("valid", "1000", "eip155:84532", "0xdefault", "0xasset", includeResource: false));
+
+        using var rsp = await app.GuestClient.SendAsync(req);
+
+        rsp.IsSuccessStatusCode.ShouldBeTrue();
+        rsp.Headers.Contains("PAYMENT-RESPONSE").ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task MismatchedAcceptedRequirementIsRejectedBeforeSettlement()
+    {
+        using var req = new HttpRequestMessage(HttpMethod.Get, "/api/test-cases/x402/success");
+        req.Headers.Add("PAYMENT-SIGNATURE", PaymentSignature("valid", "999", "eip155:84532", "0xdefault", "0xasset"));
+
+        using var rsp = await app.GuestClient.SendAsync(req);
+
+        rsp.StatusCode.ShouldBe((HttpStatusCode)402);
+        rsp.Headers.Contains("PAYMENT-RESPONSE").ShouldBeFalse();
+
+        var paymentRequired = Decode(rsp.Headers.GetValues("PAYMENT-REQUIRED").Single());
+        paymentRequired.GetProperty("error").GetString().ShouldBe("invalid_payment_requirements");
+    }
+
+    [Fact]
+    public async Task FutureAuthorizationWindowIsRejectedBeforeSettlement()
+    {
+        using var req = new HttpRequestMessage(HttpMethod.Get, "/api/test-cases/x402/success");
+        req.Headers.Add(
+            "PAYMENT-SIGNATURE",
+            PaymentSignature(
+                "valid",
+                "1000",
+                "eip155:84532",
+                "0xdefault",
+                "0xasset",
+                validAfter: DateTimeOffset.UtcNow.AddMinutes(5).ToUnixTimeSeconds(),
+                validBefore: DateTimeOffset.UtcNow.AddMinutes(10).ToUnixTimeSeconds()));
+
+        using var rsp = await app.GuestClient.SendAsync(req);
+
+        rsp.StatusCode.ShouldBe((HttpStatusCode)402);
+
+        var paymentRequired = Decode(rsp.Headers.GetValues("PAYMENT-REQUIRED").Single());
+        paymentRequired.GetProperty("error").GetString().ShouldBe("invalid_exact_evm_payload_authorization_valid_after");
+    }
+
+    [Fact]
+    public async Task ExpiredAuthorizationWindowIsRejectedBeforeSettlement()
+    {
+        using var req = new HttpRequestMessage(HttpMethod.Get, "/api/test-cases/x402/success");
+        req.Headers.Add(
+            "PAYMENT-SIGNATURE",
+            PaymentSignature(
+                "valid",
+                "1000",
+                "eip155:84532",
+                "0xdefault",
+                "0xasset",
+                validAfter: DateTimeOffset.UtcNow.AddMinutes(-10).ToUnixTimeSeconds(),
+                validBefore: DateTimeOffset.UtcNow.AddMinutes(-5).ToUnixTimeSeconds()));
+
+        using var rsp = await app.GuestClient.SendAsync(req);
+
+        rsp.StatusCode.ShouldBe((HttpStatusCode)402);
+
+        var paymentRequired = Decode(rsp.Headers.GetValues("PAYMENT-REQUIRED").Single());
+        paymentRequired.GetProperty("error").GetString().ShouldBe("invalid_exact_evm_payload_authorization_valid_before");
     }
 
     static JsonElement Decode(string value)
         => JsonDocument.Parse(Convert.FromBase64String(value)).RootElement.Clone();
 
-    static string PaymentSignature(string token, string amount, string network, string payTo, string asset)
+    static string PaymentSignature(string token,
+                                   string amount,
+                                   string network,
+                                   string payTo,
+                                   string asset,
+                                   bool includeResource = true,
+                                   long? validAfter = null,
+                                   long? validBefore = null)
     {
-        var payload = new
+        validAfter ??= DateTimeOffset.UtcNow.AddMinutes(-1).ToUnixTimeSeconds();
+        validBefore ??= DateTimeOffset.UtcNow.AddMinutes(4).ToUnixTimeSeconds();
+
+        var payload = new JsonObject
         {
-            x402Version = 2,
-            resource = new { url = "https://test.local/resource", description = "test", mimeType = "application/json" },
-            accepted = new
+            ["x402Version"] = 2,
+            ["accepted"] = new JsonObject
             {
-                scheme = "exact",
-                network,
-                amount,
-                asset,
-                payTo,
-                maxTimeoutSeconds = 300
+                ["scheme"] = "exact",
+                ["network"] = network,
+                ["amount"] = amount,
+                ["asset"] = asset,
+                ["payTo"] = payTo,
+                ["maxTimeoutSeconds"] = 300
             },
-            payload = new { testToken = token }
+            ["payload"] = new JsonObject
+            {
+                ["testToken"] = token,
+                ["authorization"] = new JsonObject
+                {
+                    ["from"] = "0xpayer",
+                    ["to"] = payTo,
+                    ["value"] = amount,
+                    ["validAfter"] = validAfter.Value.ToString(),
+                    ["validBefore"] = validBefore.Value.ToString(),
+                    ["nonce"] = "0xnonce"
+                }
+            }
         };
+
+        if (includeResource)
+        {
+            payload["resource"] = new JsonObject
+            {
+                ["url"] = "https://test.local/resource",
+                ["description"] = "test",
+                ["mimeType"] = "application/json"
+            };
+        }
 
         return Convert.ToBase64String(JsonSerializer.SerializeToUtf8Bytes(payload));
     }

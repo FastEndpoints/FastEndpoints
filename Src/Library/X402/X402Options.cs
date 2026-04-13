@@ -84,6 +84,11 @@ public sealed class X402Defaults
     /// </summary>
     public JsonObject? Extra { get; set; }
 
+    /// <summary>
+    /// optional x402 extensions included in payment required responses
+    /// </summary>
+    public JsonObject? Extensions { get; set; }
+
     internal void ThrowIfIncomplete()
     {
         if (!string.Equals(Scheme, X402Constants.ExactScheme, StringComparison.OrdinalIgnoreCase))
@@ -155,6 +160,11 @@ public sealed class X402EndpointOptions
     /// </summary>
     public JsonObject? Extra { get; set; }
 
+    /// <summary>
+    /// optional x402 extensions for this endpoint
+    /// </summary>
+    public JsonObject? Extensions { get; set; }
+
     internal X402PaymentMetadata ToMetadata()
     {
         if (string.IsNullOrWhiteSpace(Price))
@@ -174,7 +184,8 @@ public sealed class X402EndpointOptions
             MimeType = MimeType,
             MaxTimeoutSeconds = MaxTimeoutSeconds,
             SettlementMode = SettlementMode,
-            Extra = Extra?.DeepClone().AsObject()
+            Extra = Extra?.DeepClone().AsObject(),
+            Extensions = Extensions?.DeepClone().AsObject()
         };
     }
 }

@@ -1,3 +1,4 @@
+using NSwag;
 using NSwag.Generation.Processors;
 using NSwag.Generation.Processors.Contexts;
 
@@ -41,19 +42,17 @@ sealed class DocumentProcessor : IDocumentProcessor
         var pathItems = ctx.Document.Paths
                            .SelectMany(p => p.Value.Values)
                            .Select(
-                               o =>
+                               op =>
                                {
-                                   var tagSegments = o.Tags.SingleOrDefault(t => t.StartsWith("|"))?.Split("|");
-
                                    return new
                                    {
-                                       isFastEp = tagSegments?.Length > 0,
-                                       route = tagSegments?[1],
-                                       epVer = Convert.ToInt32(tagSegments?[2]),
-                                       startingRelVer = Convert.ToInt32(tagSegments?[3]),
-                                       depVer = Convert.ToInt32(tagSegments?[4]),
-                                       pathItm = o.Parent,
-                                       op = o
+                                       isFastEp = IsFastEndpoint(op),
+                                       route = GetEndpointRoute(op),
+                                       epVer = GetEpVerData(op, OperationProcessor.FEVersionKey),
+                                       startingRelVer = GetEpVerData(op, OperationProcessor.FEStartingReleaseKey),
+                                       depVer = GetEpVerData(op, OperationProcessor.FEDeprecatedAtKey),
+                                       pathItm = op.Parent,
+                                       op
                                    };
                                })
                            .GroupBy(x => x.route)
@@ -88,7 +87,7 @@ sealed class DocumentProcessor : IDocumentProcessor
 
         foreach (var p in ctx.Document.Paths)
         {
-            var isFastEp = p.Value.SelectMany(o => o.Value.Tags).Any(t => t.StartsWith('|'));
+            var isFastEp = p.Value.Any(o => IsFastEndpoint(o.Value));
 
             if (!isFastEp)
                 continue; //this isn't a fastendpoint. so don't remove it from the paths
@@ -98,8 +97,7 @@ sealed class DocumentProcessor : IDocumentProcessor
 
             foreach (var op in p.Value)
             {
-                var tagSegments = op.Value.Tags.SingleOrDefault(t => t.StartsWith('|'))?.Split('|');
-                var depVer = Convert.ToInt32(tagSegments?[4]);
+                var depVer = GetEpVerData(op.Value, OperationProcessor.FEDeprecatedAtKey);
 
                 // var epVer = Convert.ToInt32(tagSegments?[2]);
                 // var startingRelVer = Convert.ToInt32(tagSegments?[3]);
@@ -117,7 +115,7 @@ sealed class DocumentProcessor : IDocumentProcessor
                 if (isDeprecated && !_showDeprecated)
                     p.Value.Remove(op.Key);
 
-                op.Value.Tags.Remove(op.Value.Tags.SingleOrDefault(t => t.StartsWith('|')));
+                RemoveFeMetadata(op.Value);
             }
         }
 
@@ -136,5 +134,32 @@ sealed class DocumentProcessor : IDocumentProcessor
             if (headerRemoved && schemas.ContainsKey(StringSegmentKey))
                 schemas.Remove(StringSegmentKey);
         }
+    }
+
+    static bool IsFastEndpoint(OpenApiOperation operation)
+        => operation.ExtensionData?.ContainsKey(OperationProcessor.FERouteKey) is true;
+
+    static string? GetEndpointRoute(OpenApiOperation operation)
+    {
+        if (operation.ExtensionData?.TryGetValue(OperationProcessor.FERouteKey, out var route) is true)
+            return route?.ToString();
+
+        return null;
+    }
+
+    static int GetEpVerData(OpenApiOperation operation, string key)
+    {
+        if (operation.ExtensionData?.TryGetValue(key, out var value) is true)
+            return Convert.ToInt32(value);
+
+        return 0;
+    }
+
+    static void RemoveFeMetadata(OpenApiOperation operation)
+    {
+        operation.ExtensionData?.Remove(OperationProcessor.FERouteKey);
+        operation.ExtensionData?.Remove(OperationProcessor.FEVersionKey);
+        operation.ExtensionData?.Remove(OperationProcessor.FEStartingReleaseKey);
+        operation.ExtensionData?.Remove(OperationProcessor.FEDeprecatedAtKey);
     }
 }

@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http.Metadata;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Routing;
 using Namotion.Reflection;
 using Newtonsoft.Json;
@@ -22,6 +23,11 @@ namespace FastEndpoints.Swagger;
 
 sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationProcessor
 {
+    internal const string FERouteKey = "__fastEndpointsRoute";
+    internal const string FEVersionKey = "__fastEndpointsVersion";
+    internal const string FEStartingReleaseKey = "__fastEndpointsStartingRelease";
+    internal const string FEDeprecatedAtKey = "__fastEndpointsDeprecatedAt";
+
     static readonly TextInfo _textInfo = CultureInfo.InvariantCulture.TextInfo;
     static readonly string[] _illegalHeaderNames = ["Accept", "Content-Type", "Authorization"];
     static readonly JsonSchema _x402HeaderSchema = JsonSchema.FromType<string>();
@@ -95,8 +101,12 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
                 op.Tags.Add(tag);
         }
 
-        //this will be later removed from document processor. this info is needed by the document processor.
-        op.Tags.Add($"|{ctx.OperationDescription.Method}:{bareRoute}|{epVer}|{startingRelVer}|{epDef.Version.DeprecatedAt}");
+        //this metadata is consumed and later removed by the document processor.
+        var extData = op.ExtensionData ??= new Dictionary<string, object?>();
+        extData[FERouteKey] = $"{ctx.OperationDescription.Method}:{bareRoute}";
+        extData[FEVersionKey] = epVer;
+        extData[FEStartingReleaseKey] = startingRelVer;
+        extData[FEDeprecatedAtKey] = epDef.Version.DeprecatedAt;
 
         //fix request content-types not displaying correctly
         if (reqContent?.Count > 0)
@@ -110,154 +120,7 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
                 reqContent.Add(c);
         }
 
-        if (op.Responses.Count > 0)
-        {
-            var metas = metaData
-                        .OfType<IProducesResponseTypeMetadata>()
-                        .GroupBy(
-                            m => m.StatusCode,
-                            (k, g) =>
-                            {
-                                var meta = g.Last();
-                                object? example = null;
-                                _ = epDef.EndpointSummary?.ResponseExamples.TryGetValue(k, out example);
-                                example = meta.GetExampleFromMetaData() ?? example;
-                                example = example is not null ? JToken.FromObject(example, serializer) : null;
-
-                                if (ctx.IsSwagger2() && example is JToken { Type: JTokenType.Array } token)
-                                    example = token.ToString();
-
-                                return new
-                                {
-                                    key = k.ToString(),
-                                    cTypes = meta.ContentTypes,
-                                    example,
-                                    usrHeaders = epDef.EndpointSummary?.ResponseHeaders.Where(h => h.StatusCode == k).ToArray(),
-                                    tDto = meta.Type,
-                                    isIResult = Types.IResult.IsAssignableFrom(meta.Type) //todo: remove when .net 9 sdk bug is fixed
-                                };
-                            })
-                        .ToDictionary(x => x.key);
-
-            if (metas.Count > 0)
-            {
-            #if NET9_0_OR_GREATER
-                //remove this workaround when sdk bug is fixed: https://github.com/dotnet/aspnetcore/issues/57801#issuecomment-2439578287
-                foreach (var meta in metas.Where(m => m.Value.isIResult))
-                {
-                    var res = new OpenApiResponse { Content = { [meta.Value.cTypes.First()] = new() { Schema = new() } } };
-
-                    if (!ctx.SchemaResolver.HasSchema(meta.Value.tDto!, false))
-                    {
-                        var schema = ctx.SchemaGenerator.Generate(meta.Value.tDto!, ctx.SchemaResolver);
-                        ctx.SchemaResolver.AppendSchema(schema, schema.Title);
-                        res.Schema.Reference = schema;
-                    }
-                    else
-                        res.Schema.Reference = ctx.SchemaResolver.GetSchema(meta.Value.tDto!, false);
-
-                    op.Responses[meta.Key] = res;
-                    var orderedResponses = op.Responses.OrderBy(kvp => kvp.Key).ToArray();
-                    op.Responses.Clear();
-
-                    foreach (var rsp in orderedResponses)
-                        op.Responses.Add(rsp);
-                }
-            #endif
-
-                foreach (var rsp in op.Responses)
-                {
-                    var cTypes = metas[rsp.Key].cTypes;
-                    var mediaType = rsp.Value.Content.FirstOrDefault().Value;
-
-                    if (metas.TryGetValue(rsp.Key, out var x))
-                    {
-                        //set user provided response examples
-                        if (mediaType is not null && x.example is not null)
-                            mediaType.Example = x.example;
-
-                        //set user provided response headers
-                        foreach (var p in x.tDto!
-                                           .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
-                                           .Where(p => p.IsDefined(Types.ToHeaderAttribute)))
-                        {
-                            var headerName = p.GetCustomAttribute<ToHeaderAttribute>()?.HeaderName ?? p.Name.ApplyPropNamingPolicy(docOpts);
-                            var summaryTag = p.GetXmlDocsSummary();
-                            var schema = ctx.SchemaGenerator.Generate(p.PropertyType);
-                            rsp.Value.Headers[headerName] = new()
-                            {
-                                Description = summaryTag,
-                                Example = p.GetExampleJToken(serializer) ?? schema.ToSampleJson(),
-                                Schema = schema
-                            };
-                        }
-
-                        if (x.usrHeaders?.Length > 0)
-                        {
-                            foreach (var hdr in x.usrHeaders)
-                            {
-                                rsp.Value.Headers[hdr.HeaderName] = new()
-                                {
-                                    Description = hdr.Description,
-                                    Example = hdr.Example is not null ? JToken.FromObject(hdr.Example, serializer) : null,
-                                    Schema = hdr.Example is not null ? ctx.SchemaGenerator.Generate(hdr.Example.GetType()) : null
-                                };
-                            }
-                        }
-                    }
-
-                    //fix response content-types not displaying correctly
-                    if (mediaType is not null)
-                    {
-                        rsp.Value.Content.Clear();
-                        foreach (var ct in cTypes)
-                            rsp.Value.Content.Add(new(ct, mediaType));
-                    }
-
-                    //fix polymorphism for responses when using oneOf
-                    if (docOpts.UseOneOfForPolymorphism)
-                    {
-                        foreach (var mt in rsp.Value.Content)
-                        {
-                            if (mt.Value.Schema.ActualSchema.DiscriminatorObject?.Mapping.Count > 0 &&
-                                mt.Value.Schema.ActualSchema.OneOf.Count > 0)
-                            {
-                                foreach (var derived in mt.Value.Schema.ActualSchema.OneOf)
-                                    mt.Value.Schema.OneOf.Add(derived);
-
-                                mt.Value.Schema.Reference = null;
-                            }
-                        }
-                    }
-
-                    //fix nswag byte[] quirk
-                    foreach (var content in rsp.Value.Content.Values)
-                    {
-                        if (content.Schema is { Type: JsonObjectType.String, Format: "byte" })
-                            content.Schema.Format = "binary";
-                    }
-
-                    //document x402 headers
-                    if (epDef.X402PaymentMetadata is not null)
-                    {
-                        if (rsp.Key == "402")
-                        {
-                            rsp.Value.Headers[X402Constants.PaymentRequiredHeader] = new()
-                            {
-                                Description = "Base64-encoded x402 payment challenge payload.",
-                                Schema = _x402HeaderSchema
-                            };
-                        }
-
-                        rsp.Value.Headers[X402Constants.PaymentResponseHeader] = new()
-                        {
-                            Description = "Base64-encoded x402 settlement result. Present when the middleware attempts settlement.",
-                            Schema = _x402HeaderSchema
-                        };
-                    }
-                }
-            }
-        }
+        ApplyResponseMetadata(ctx, metaData, epDef, op, serializer);
 
         //set endpoint summary & description
         op.Summary = epDef.EndpointSummary?.Summary ?? epDef.EndpointType.GetSummary();
@@ -268,52 +131,7 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
         if (isObsolete)
             op.IsDeprecated = true;
 
-        //set response descriptions
-        op.Responses
-          .Where(r => string.IsNullOrWhiteSpace(r.Value.Description))
-          .ToList()
-          .ForEach(
-              oaResp =>
-              {
-                  //first set the default descriptions
-                  if (_defaultDescriptions.TryGetValue(oaResp.Key, out var description))
-                      oaResp.Value.Description = description;
-
-                  var statusCode = Convert.ToInt32(oaResp.Key);
-
-                  //then override with user supplied values from EndpointSummary.Responses
-                  if (epDef.EndpointSummary?.Responses.ContainsKey(statusCode) is true)
-                      oaResp.Value.Description = epDef.EndpointSummary.Responses[statusCode];
-
-                  //set response dto property descriptions
-                  if (epDef.EndpointSummary?.ResponseParams.ContainsKey(statusCode) is true && oaResp.Value.Schema is not null)
-                  {
-                      var propDescriptions = epDef.EndpointSummary.ResponseParams[statusCode];
-                      var respDtoProps = apiDescription
-                                         .SupportedResponseTypes
-                                         .SingleOrDefault(x => x.StatusCode == statusCode)?
-                                         .Type?
-                                         .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
-                                         .Select(
-                                             p => new
-                                             {
-                                                 key = p.GetCustomAttribute<JsonPropertyNameAttribute>()?.Name,
-                                                 val = p.Name
-                                             })
-                                         .Where(x => x.key is not null)
-                                         .ToDictionary(x => x.key!, x => x.val);
-
-                      foreach (var prop in oaResp.GetAllProperties())
-                      {
-                          string? propName = null;
-                          respDtoProps?.TryGetValue(prop.Key, out propName);
-                          propName ??= prop.Key;
-
-                          if (propDescriptions.TryGetValue(propName, out var responseDescription))
-                              prop.Value.Description = responseDescription;
-                      }
-                  }
-              });
+        ApplyResponseDescriptions(epDef, apiDescription, op);
 
         if (GlobalConfig.IsUsingAspVersioning)
         {
@@ -342,60 +160,8 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
 
         //store unique request param description + example (from each consumes/content type) for later use.
         //todo: this is not ideal in case two consumes dtos has a prop with the same name.
-        var reqParamDescriptions = new Dictionary<string, ParamDescription>(StringComparer.OrdinalIgnoreCase); //key: property name
-
-        if (reqContent is not null)
-        {
-            foreach (var c in reqContent)
-            {
-                foreach (var prop in c.GetAllProperties())
-                {
-                    reqParamDescriptions[prop.Key] = new(
-                        prop.Value.Description,
-                        prop.Value.Example != null ? JToken.FromObject(prop.Value.Example, serializer) : null);
-                }
-            }
-        }
-
-        //collect descriptions from user supplied summary request params overriding the above
-        if (epDef.EndpointSummary is not null)
-        {
-            foreach (var param in epDef.EndpointSummary.Params)
-                reqParamDescriptions.GetOrAdd(param.Key, new()).Description = param.Value;
-        }
-
-        //collect examples from endpoint summary request example properties
-        if (epDef.EndpointSummary?.RequestExamples.Count is > 0)
-        {
-            var example = epDef.EndpointSummary.RequestExamples.First().Value;
-
-            if (example is not IEnumerable)
-            {
-                var jToken = JToken.FromObject(example, serializer);
-
-                foreach (var prop in jToken)
-                {
-                    var p = (JProperty)prop;
-                    reqParamDescriptions.GetOrAdd(p.Name, new()).Example = p.Value;
-                }
-            }
-        }
-
-        //override req param descriptions + examples for each consumes/content type from collected data
-        if (reqContent is not null)
-        {
-            foreach (var c in reqContent)
-            {
-                foreach (var prop in c.GetAllRequestProperties())
-                {
-                    if (!reqParamDescriptions.TryGetValue(prop.Key, out var x))
-                        continue;
-
-                    prop.Value.Description = x.Description;
-                    prop.Value.Example = x.Example;
-                }
-            }
-        }
+        var reqParamDescriptions = BuildRequestParamDescriptions(reqContent, epDef, serializer);
+        ApplyRequestParamDescriptions(reqContent, reqParamDescriptions);
 
         var propsToRemoveFromExample = new List<string>();
 
@@ -590,147 +356,13 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
         }
 
         if (docOpts.RemoveEmptyRequestSchema)
-        {
-            //remove all empty schemas that has no props left
-            //these schemas have been flattened so no need to worry about inheritance
-            foreach (var s in ctx.Document.Components.Schemas)
-            {
-                if (s.Value.ActualProperties.Count == 0 && s.Value.IsObject)
-                    ctx.Document.Components.Schemas.Remove(s.Key);
-            }
-        }
+            RemoveEmptyRequestSchemas(ctx.Document.Components.Schemas);
 
-        //replace body parameter if a dto property is marked with [FromBody]
         var fromBodyProp = reqDtoProps?.Where(p => p.IsDefined(Types.FromBodyAttribute, false)).FirstOrDefault();
-
-        if (fromBodyProp is not null)
-        {
-            var body = op.Parameters.FirstOrDefault(x => x.Kind == OpenApiParameterKind.Body);
-
-            if (body is not null && op.RequestBody is not null)
-            {
-                var oldBodyName = op.RequestBody.Name;
-                var bodyParam = CreateParam(paramCtx, OpenApiParameterKind.Body, fromBodyProp, fromBodyProp.Name, true);
-
-                //otherwise xml docs from properties won't be considered due to existence of a schema level example generated from
-                //prm.ActualSchema.ToSampleJson()
-                bodyParam.Example = null;
-
-                op.RequestBody.Content.FirstOrDefault().Value.Schema = bodyParam.Schema;
-
-                if (op.RequestBody.Content.TryGetValue("application/json-patch+json", out var patchContent))
-                    patchContent.Schema = TryGetJsonPatchArraySchema(bodyParam.Schema) ?? TryGetJsonPatchArraySchema(patchContent.Schema) ?? bodyParam.Schema;
-
-                op.RequestBody.IsRequired = bodyParam.IsRequired;
-                op.RequestBody.Description = bodyParam.Description;
-                op.RequestBody.Name = bodyParam.Name;
-                op.RequestBody.Position = null;
-                ctx.Document.Components.Schemas.Remove(oldBodyName);
-            }
-        }
-
-        //replace body parameter if a dto property is marked with [FromForm]
         var fromFormProp = reqDtoProps?.Where(p => p.IsDefined(Types.FromFormAttribute, false)).FirstOrDefault();
-
-        if (fromFormProp is not null)
-        {
-            var body = op.Parameters.FirstOrDefault(x => x.Kind == OpenApiParameterKind.Body);
-
-            if (body is not null && op.RequestBody is not null)
-            {
-                var oldBodyName = op.RequestBody.Name;
-                var bodyParam = CreateParam(paramCtx, OpenApiParameterKind.Body, fromFormProp, fromFormProp.Name, true);
-
-                //otherwise xml docs from properties won't be considered due to existence of a schema level example generated from
-                //prm.ActualSchema.ToSampleJson()
-                bodyParam.Example = null;
-
-                op.RequestBody.Content.FirstOrDefault().Value.Schema = bodyParam.Schema;
-                op.RequestBody.IsRequired = bodyParam.IsRequired;
-                op.RequestBody.Description = bodyParam.Description;
-                op.RequestBody.Name = bodyParam.Name;
-                op.RequestBody.Position = null;
-                ctx.Document.Components.Schemas.Remove(oldBodyName);
-            }
-        }
-
-        //set request examples if provided by user
-        if (epDef.EndpointSummary?.RequestExamples.Count > 0)
-        {
-            foreach (var requestBody in op.Parameters.Where(x => x.Kind == OpenApiParameterKind.Body))
-            {
-                var exCount = epDef.EndpointSummary!.RequestExamples.Count;
-
-                if (exCount == 1)
-                    requestBody.ActualSchema.Example = GetExampleObjectFrom(epDef.EndpointSummary?.RequestExamples.First());
-                else
-                {
-                    //add an index to any duplicate labels
-                    foreach (var group in epDef.EndpointSummary.RequestExamples.GroupBy(e => e.Label).Where(g => g.Count() > 1))
-                    {
-                        var i = 1;
-
-                        foreach (var ex in group)
-                        {
-                            ex.Label += $" {i}";
-                            i++;
-                        }
-                    }
-
-                    foreach (var example in epDef.EndpointSummary.RequestExamples)
-                    {
-                        reqContent?.First().Value.Examples.Add(
-                            key: example.Label,
-                            value: new()
-                            {
-                                Summary = example.Summary,
-                                Description = example.Description,
-                                Value = GetExampleObjectFrom(example)
-                            });
-                    }
-                }
-            }
-
-            object? GetExampleObjectFrom(RequestExample? requestExample)
-            {
-                if (requestExample is null)
-                    return null;
-
-                var input = requestExample.Value;
-                var tInput = input.GetType();
-
-                if (fromBodyProp is not null)
-                {
-                    var pFromBody = tInput.GetProperty(fromBodyProp.Name);
-                    input = pFromBody?.GetValue(input) ?? input;
-                    tInput = input.GetType();
-                }
-
-                if (fromFormProp is not null)
-                {
-                    var pFromForm = tInput.GetProperty(fromFormProp.Name);
-                    input = pFromForm?.GetValue(input) ?? input;
-                    tInput = input.GetType();
-                }
-
-                object example;
-
-                if (tInput.IsAssignableTo(typeof(IEnumerable)))
-                    example = JToken.FromObject(input, serializer);
-                else
-                {
-                    example = JObject.FromObject(input, serializer);
-
-                    foreach (var p in ((JObject)example).Properties().ToArray())
-                    {
-                        if (propsToRemoveFromExample.Contains(p.Name, StringComparer.OrdinalIgnoreCase))
-                            p.Remove();
-                    }
-                }
-
-                return example;
-            }
-        }
+        ReplaceRequestBodyFromProperty(op, ctx.Document.Components.Schemas, paramCtx, fromBodyProp, true);
+        ReplaceRequestBodyFromProperty(op, ctx.Document.Components.Schemas, paramCtx, fromFormProp, false);
+        ApplyRequestExamples(epDef, op, reqContent, serializer, propsToRemoveFromExample, fromBodyProp, fromFormProp);
 
         return true;
     }
@@ -932,6 +564,418 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
         return prm;
     }
 
+    void ApplyResponseMetadata(OperationProcessorContext ctx, IEnumerable<object> metaData, EndpointDefinition epDef, OpenApiOperation op, JsonSerializer serializer)
+    {
+        if (op.Responses.Count == 0)
+            return;
+
+        var responseMetas = BuildResponseMetadata(ctx, metaData, epDef, serializer);
+
+        if (responseMetas.Count == 0)
+            return;
+
+        ApplyIResultResponseWorkaround(ctx, op, responseMetas);
+
+        foreach (var rsp in op.Responses)
+        {
+            var mediaType = rsp.Value.Content.FirstOrDefault().Value;
+
+            if (responseMetas.TryGetValue(rsp.Key, out var meta))
+            {
+                if (mediaType is not null && meta.Example is not null)
+                    mediaType.Example = meta.Example;
+
+                AddResponseHeaders(ctx, serializer, rsp.Value, meta);
+
+                if (mediaType is not null)
+                    ReplaceResponseContentTypes(rsp.Value, mediaType, meta.ContentTypes);
+            }
+
+            if (docOpts.UseOneOfForPolymorphism)
+                FixResponsePolymorphism(rsp.Value);
+
+            FixBinaryResponseSchemas(rsp.Value);
+            AddX402ResponseHeaders(epDef, rsp.Key, rsp.Value);
+        }
+    }
+
+    static Dictionary<string, ResponseMeta> BuildResponseMetadata(OperationProcessorContext ctx, IEnumerable<object> metaData, EndpointDefinition epDef, JsonSerializer serializer)
+    {
+        return metaData
+               .OfType<IProducesResponseTypeMetadata>()
+               .GroupBy(
+                   m => m.StatusCode,
+                   (k, g) =>
+                   {
+                       var meta = g.Last();
+                       object? example = null;
+                       _ = epDef.EndpointSummary?.ResponseExamples.TryGetValue(k, out example);
+                       example = meta.GetExampleFromMetaData() ?? example;
+                       example = example is not null ? JToken.FromObject(example, serializer) : null;
+
+                       if (ctx.IsSwagger2() && example is JToken { Type: JTokenType.Array } token)
+                           example = token.ToString();
+
+                       return new ResponseMeta(
+                           k.ToString(),
+                           [..meta.ContentTypes],
+                           example,
+                           epDef.EndpointSummary?.ResponseHeaders.Where(h => h.StatusCode == k).ToArray(),
+                           meta.Type,
+                           meta.Type is not null && Types.IResult.IsAssignableFrom(meta.Type)); //todo: remove when .net 9 sdk bug is fixed
+                   })
+               .ToDictionary(x => x.Key);
+    }
+
+    static void ApplyIResultResponseWorkaround(OperationProcessorContext ctx, OpenApiOperation op, Dictionary<string, ResponseMeta> responseMetas)
+    {
+    #if NET9_0_OR_GREATER
+
+        //remove this workaround when sdk bug is fixed: https://github.com/dotnet/aspnetcore/issues/57801#issuecomment-2439578287
+        foreach (var meta in responseMetas.Values.Where(m => m.IsIResult && m.DtoType is not null))
+        {
+            var contentType = meta.ContentTypes.FirstOrDefault();
+
+            if (contentType is null)
+                continue;
+
+            var res = new OpenApiResponse { Content = { [contentType] = new() { Schema = new() } } };
+
+            if (!ctx.SchemaResolver.HasSchema(meta.DtoType!, false))
+            {
+                var schema = ctx.SchemaGenerator.Generate(meta.DtoType!, ctx.SchemaResolver);
+                ctx.SchemaResolver.AppendSchema(schema, schema.Title);
+                res.Schema.Reference = schema;
+            }
+            else
+                res.Schema.Reference = ctx.SchemaResolver.GetSchema(meta.DtoType!, false);
+
+            op.Responses[meta.Key] = res;
+            var orderedResponses = op.Responses.OrderBy(kvp => kvp.Key).ToArray();
+            op.Responses.Clear();
+
+            foreach (var rsp in orderedResponses)
+                op.Responses.Add(rsp);
+        }
+    #endif
+    }
+
+    void AddResponseHeaders(OperationProcessorContext ctx, JsonSerializer serializer, OpenApiResponse response, ResponseMeta meta)
+    {
+        if (meta.DtoType is not null)
+        {
+            foreach (var p in meta.DtoType.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
+                                  .Where(p => p.IsDefined(Types.ToHeaderAttribute)))
+            {
+                var headerName = p.GetCustomAttribute<ToHeaderAttribute>()?.HeaderName ?? p.Name.ApplyPropNamingPolicy(docOpts);
+                var summaryTag = p.GetXmlDocsSummary();
+                var schema = ctx.SchemaGenerator.Generate(p.PropertyType);
+                response.Headers[headerName] = new()
+                {
+                    Description = summaryTag,
+                    Example = p.GetExampleJToken(serializer) ?? schema.ToSampleJson(),
+                    Schema = schema
+                };
+            }
+        }
+
+        if (meta.UserHeaders?.Length > 0)
+        {
+            foreach (var hdr in meta.UserHeaders)
+            {
+                response.Headers[hdr.HeaderName] = new()
+                {
+                    Description = hdr.Description,
+                    Example = hdr.Example is not null ? JToken.FromObject(hdr.Example, serializer) : null,
+                    Schema = hdr.Example is not null ? ctx.SchemaGenerator.Generate(hdr.Example.GetType()) : null
+                };
+            }
+        }
+    }
+
+    static void ReplaceResponseContentTypes(OpenApiResponse response, OpenApiMediaType mediaType, IReadOnlyCollection<string> contentTypes)
+    {
+        response.Content.Clear();
+
+        foreach (var ct in contentTypes)
+            response.Content.Add(new(ct, mediaType));
+    }
+
+    static void FixResponsePolymorphism(OpenApiResponse response)
+    {
+        foreach (var mt in response.Content)
+        {
+            if (mt.Value.Schema.ActualSchema.DiscriminatorObject?.Mapping.Count > 0 &&
+                mt.Value.Schema.ActualSchema.OneOf.Count > 0)
+            {
+                foreach (var derived in mt.Value.Schema.ActualSchema.OneOf)
+                    mt.Value.Schema.OneOf.Add(derived);
+
+                mt.Value.Schema.Reference = null;
+            }
+        }
+    }
+
+    static void FixBinaryResponseSchemas(OpenApiResponse response)
+    {
+        foreach (var content in response.Content.Values)
+        {
+            if (content.Schema is { Type: JsonObjectType.String, Format: "byte" })
+                content.Schema.Format = "binary";
+        }
+    }
+
+    static void AddX402ResponseHeaders(EndpointDefinition epDef, string responseKey, OpenApiResponse response)
+    {
+        if (epDef.X402PaymentMetadata is null)
+            return;
+
+        if (responseKey == "402")
+        {
+            response.Headers[X402Constants.PaymentRequiredHeader] = new()
+            {
+                Description = "Base64-encoded x402 payment challenge payload.",
+                Schema = _x402HeaderSchema
+            };
+        }
+
+        response.Headers[X402Constants.PaymentResponseHeader] = new()
+        {
+            Description = "Base64-encoded x402 settlement result. Present when the middleware attempts settlement.",
+            Schema = _x402HeaderSchema
+        };
+    }
+
+    static void ApplyResponseDescriptions(EndpointDefinition epDef, ApiDescription apiDescription, OpenApiOperation op)
+    {
+        foreach (var oaResp in op.Responses.Where(r => string.IsNullOrWhiteSpace(r.Value.Description)).ToArray())
+        {
+            if (_defaultDescriptions.TryGetValue(oaResp.Key, out var description))
+                oaResp.Value.Description = description;
+
+            var statusCode = Convert.ToInt32(oaResp.Key);
+
+            if (epDef.EndpointSummary?.Responses.ContainsKey(statusCode) is true)
+                oaResp.Value.Description = epDef.EndpointSummary.Responses[statusCode];
+
+            if (epDef.EndpointSummary?.ResponseParams.ContainsKey(statusCode) is not true || oaResp.Value.Schema is null)
+                continue;
+
+            var propDescriptions = epDef.EndpointSummary.ResponseParams[statusCode];
+            var respDtoProps = apiDescription
+                               .SupportedResponseTypes
+                               .SingleOrDefault(x => x.StatusCode == statusCode)?
+                               .Type?
+                               .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
+                               .Select(
+                                   p => new
+                                   {
+                                       key = p.GetCustomAttribute<JsonPropertyNameAttribute>()?.Name,
+                                       val = p.Name
+                                   })
+                               .Where(x => x.key is not null)
+                               .ToDictionary(x => x.key!, x => x.val);
+
+            foreach (var prop in oaResp.GetAllProperties())
+            {
+                string? propName = null;
+                respDtoProps?.TryGetValue(prop.Key, out propName);
+                propName ??= prop.Key;
+
+                if (propDescriptions.TryGetValue(propName, out var responseDescription))
+                    prop.Value.Description = responseDescription;
+            }
+        }
+    }
+
+    static void RemoveEmptyRequestSchemas(IDictionary<string, JsonSchema> schemas)
+    {
+        foreach (var key in schemas.Where(s => s.Value.ActualProperties.Count == 0 && s.Value.IsObject).Select(s => s.Key).ToArray())
+            schemas.Remove(key);
+    }
+
+    static Dictionary<string, ParamDescription> BuildRequestParamDescriptions(IDictionary<string, OpenApiMediaType>? reqContent,
+                                                                              EndpointDefinition epDef,
+                                                                              JsonSerializer serializer)
+    {
+        var descriptions = new Dictionary<string, ParamDescription>(StringComparer.OrdinalIgnoreCase);
+
+        if (reqContent is not null)
+        {
+            foreach (var c in reqContent)
+            {
+                foreach (var prop in c.GetAllProperties())
+                {
+                    descriptions[prop.Key] = new(
+                        prop.Value.Description,
+                        prop.Value.Example != null ? JToken.FromObject(prop.Value.Example, serializer) : null);
+                }
+            }
+        }
+
+        if (epDef.EndpointSummary is not null)
+        {
+            foreach (var param in epDef.EndpointSummary.Params)
+                descriptions.GetOrAdd(param.Key, new()).Description = param.Value;
+        }
+
+        if (epDef.EndpointSummary?.RequestExamples.Count is > 0)
+        {
+            var example = epDef.EndpointSummary.RequestExamples.First().Value;
+
+            if (example is not IEnumerable)
+            {
+                var jToken = JToken.FromObject(example, serializer);
+
+                foreach (var prop in jToken)
+                {
+                    var p = (JProperty)prop;
+                    descriptions.GetOrAdd(p.Name, new()).Example = p.Value;
+                }
+            }
+        }
+
+        return descriptions;
+    }
+
+    static void ApplyRequestParamDescriptions(IDictionary<string, OpenApiMediaType>? reqContent,
+                                              Dictionary<string, ParamDescription> reqParamDescriptions)
+    {
+        if (reqContent is null)
+            return;
+
+        foreach (var c in reqContent)
+        {
+            foreach (var prop in c.GetAllRequestProperties())
+            {
+                if (!reqParamDescriptions.TryGetValue(prop.Key, out var x))
+                    continue;
+
+                prop.Value.Description = x.Description;
+                prop.Value.Example = x.Example;
+            }
+        }
+    }
+
+    static void ReplaceRequestBodyFromProperty(OpenApiOperation op,
+                                               IDictionary<string, JsonSchema> schemas,
+                                               ParamCreationContext paramCtx,
+                                               PropertyInfo? bodyProp,
+                                               bool isJsonPatchAware)
+    {
+        var body = op.Parameters.FirstOrDefault(x => x.Kind == OpenApiParameterKind.Body);
+
+        if (bodyProp is null || body is null || op.RequestBody is null)
+            return;
+
+        var oldBodyName = op.RequestBody.Name;
+        var bodyParam = CreateParam(paramCtx, OpenApiParameterKind.Body, bodyProp, bodyProp.Name, true);
+
+        //otherwise xml docs from properties won't be considered due to existence of a schema level example generated from prm.ActualSchema.ToSampleJson()
+        bodyParam.Example = null;
+
+        op.RequestBody.Content.FirstOrDefault().Value.Schema = bodyParam.Schema;
+
+        if (isJsonPatchAware && op.RequestBody.Content.TryGetValue("application/json-patch+json", out var patchContent))
+            patchContent.Schema = TryGetJsonPatchArraySchema(bodyParam.Schema) ?? TryGetJsonPatchArraySchema(patchContent.Schema) ?? bodyParam.Schema;
+
+        op.RequestBody.IsRequired = bodyParam.IsRequired;
+        op.RequestBody.Description = bodyParam.Description;
+        op.RequestBody.Name = bodyParam.Name;
+        op.RequestBody.Position = null;
+        schemas.Remove(oldBodyName);
+    }
+
+    static void ApplyRequestExamples(EndpointDefinition epDef,
+                                     OpenApiOperation op,
+                                     IDictionary<string, OpenApiMediaType>? reqContent,
+                                     JsonSerializer serializer,
+                                     List<string> propsToRemoveFromExample,
+                                     PropertyInfo? fromBodyProp,
+                                     PropertyInfo? fromFormProp)
+    {
+        var summary = epDef.EndpointSummary;
+
+        if (summary?.RequestExamples.Count is not > 0)
+            return;
+
+        foreach (var requestBody in op.Parameters.Where(x => x.Kind == OpenApiParameterKind.Body))
+        {
+            var exCount = summary.RequestExamples.Count;
+
+            if (exCount == 1)
+            {
+                requestBody.ActualSchema.Example = GetExampleObjectFrom(summary.RequestExamples.First());
+
+                continue;
+            }
+
+            foreach (var group in summary.RequestExamples.GroupBy(e => e.Label).Where(g => g.Count() > 1))
+            {
+                var i = 1;
+
+                foreach (var ex in group)
+                {
+                    ex.Label += $" {i}";
+                    i++;
+                }
+            }
+
+            foreach (var example in summary.RequestExamples)
+            {
+                var firstContent = reqContent?.FirstOrDefault().Value;
+
+                if (firstContent is null)
+                    continue;
+
+                firstContent.Examples.Add(
+                    key: example.Label,
+                    value: new()
+                    {
+                        Summary = example.Summary,
+                        Description = example.Description,
+                        Value = GetExampleObjectFrom(example)
+                    });
+            }
+        }
+
+        object? GetExampleObjectFrom(RequestExample? requestExample)
+        {
+            if (requestExample is null)
+                return null;
+
+            var input = requestExample.Value;
+            var tInput = input.GetType();
+
+            if (fromBodyProp is not null)
+            {
+                var pFromBody = tInput.GetProperty(fromBodyProp.Name);
+                input = pFromBody?.GetValue(input) ?? input;
+                tInput = input.GetType();
+            }
+
+            if (fromFormProp is not null)
+            {
+                var pFromForm = tInput.GetProperty(fromFormProp.Name);
+                input = pFromForm?.GetValue(input) ?? input;
+                tInput = input.GetType();
+            }
+
+            if (tInput.IsAssignableTo(typeof(IEnumerable)))
+                return JToken.FromObject(input, serializer);
+
+            var example = JObject.FromObject(input, serializer);
+
+            foreach (var p in example.Properties().ToArray())
+            {
+                if (propsToRemoveFromExample.Contains(p.Name, StringComparer.OrdinalIgnoreCase))
+                    p.Remove();
+            }
+
+            return example;
+        }
+    }
+
     // ReSharper disable once ArrangeTypeMemberModifiers
     internal readonly partial struct ParamCreationContext
     {
@@ -978,6 +1022,21 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
         [GeneratedRegex(@"\{[^{}]*:[^{}]*\}")]
         private static partial Regex MyRegex();
     }
+}
+
+sealed class ResponseMeta(string key,
+                          IReadOnlyCollection<string> contentTypes,
+                          object? example,
+                          ResponseHeader[]? userHeaders,
+                          Type? dtoType,
+                          bool isIResult)
+{
+    public string Key { get; } = key;
+    public IReadOnlyCollection<string> ContentTypes { get; } = contentTypes;
+    public object? Example { get; } = example;
+    public ResponseHeader[]? UserHeaders { get; } = userHeaders;
+    public Type? DtoType { get; } = dtoType;
+    public bool IsIResult { get; } = isIResult;
 }
 
 sealed class ParamDescription(string? description = null, JToken? example = null)

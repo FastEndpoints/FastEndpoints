@@ -19,7 +19,13 @@ using Web.PipelineBehaviors.PreProcessors;
 using Web.Services;
 
 var bld = WebApplication.CreateBuilder(args);
+
 var isTesting = string.Equals(bld.Environment.EnvironmentName, "Testing", StringComparison.OrdinalIgnoreCase);
+Func<EndpointDefinition, bool> excludeReviewAndReleaseVersioning =
+    ep => ep.EndpointTags?.Contains("release_versioning") is not true && ep.EndpointTags?.Contains("swagger_review") is not true;
+Func<EndpointDefinition, bool> includeSwaggerReview =
+    ep => ep.EndpointTags?.Contains("swagger_review") is true;
+
 bld.AddHandlerServer();
 bld.Services
    .AddCors()
@@ -40,7 +46,7 @@ bld.Services
    .SwaggerDocument(
        o =>
        {
-           o.EndpointFilter = ep => ep.EndpointTags?.Contains("release_versioning") is not true;
+           o.EndpointFilter = excludeReviewAndReleaseVersioning;
            o.DocumentSettings =
                s =>
                {
@@ -56,7 +62,7 @@ bld.Services
    .SwaggerDocument(
        o =>
        {
-           o.EndpointFilter = ep => ep.EndpointTags?.Contains("release_versioning") is not true;
+           o.EndpointFilter = excludeReviewAndReleaseVersioning;
            o.DocumentSettings =
                s =>
                {
@@ -79,7 +85,7 @@ bld.Services
    .SwaggerDocument(
        o =>
        {
-           o.EndpointFilter = ep => ep.EndpointTags?.Contains("release_versioning") is not true;
+           o.EndpointFilter = excludeReviewAndReleaseVersioning;
            o.DocumentSettings =
                s =>
                {
@@ -95,7 +101,7 @@ bld.Services
    .SwaggerDocument(
        o => //only ver3 & only FastEndpoints
        {
-           o.EndpointFilter = ep => ep.EndpointTags?.Contains("release_versioning") is not true;
+           o.EndpointFilter = excludeReviewAndReleaseVersioning;
            o.DocumentSettings =
                s =>
                {
@@ -160,6 +166,31 @@ bld.Services
                                 };
            o.ReleaseVersion = 3;
            o.ShowDeprecatedOps = true;
+       })
+   .SwaggerDocument(
+       o =>
+       {
+           o.ExcludeNonFastEndpoints = true;
+           o.EndpointFilter = includeSwaggerReview;
+           o.DocumentSettings = d =>
+                                {
+                                    d.Title = "Web API";
+                                    d.DocumentName = "Swagger Review";
+                                };
+           o.TagStripSymbols = true;
+       })
+   .SwaggerDocument(
+       o =>
+       {
+           o.ExcludeNonFastEndpoints = true;
+           o.EndpointFilter = includeSwaggerReview;
+           o.DocumentSettings = d =>
+                                {
+                                    d.Title = "Web API";
+                                    d.DocumentName = "Swagger Review Empty Schema";
+                                };
+           o.RemoveEmptyRequestSchema = true;
+           o.TagStripSymbols = true;
        });
 
 if (isTesting)

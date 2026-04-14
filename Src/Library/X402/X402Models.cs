@@ -1,6 +1,5 @@
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Http;
 
 namespace FastEndpoints;
 
@@ -32,9 +31,8 @@ public sealed class X402ResolvedPaymentConfig
     public JsonObject? Extra { get; init; }
     public JsonObject? Extensions { get; init; }
 
-    internal PaymentRequirements ToPaymentRequirements(HttpContext _)
-    {
-        return new()
+    internal PaymentRequirements ToPaymentRequirements()
+        => new()
         {
             Scheme = Scheme,
             Network = Network,
@@ -44,7 +42,6 @@ public sealed class X402ResolvedPaymentConfig
             MaxTimeoutSeconds = MaxTimeoutSeconds,
             Extra = Extra?.DeepClone().AsObject()
         };
-    }
 }
 
 public sealed class PaymentRequiredResponse

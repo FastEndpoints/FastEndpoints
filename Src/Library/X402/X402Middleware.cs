@@ -20,11 +20,11 @@ sealed class X402Middleware(RequestDelegate next)
         }
 
         var resolved = Resolve(metadata);
-        var requirements = resolved.ToPaymentRequirements(ctx);
+        var requirements = resolved.ToPaymentRequirements();
 
         if (!ctx.Request.Headers.TryGetValue(X402Constants.PaymentSignatureHeader, out var signature) || string.IsNullOrWhiteSpace(signature))
         {
-            await SendPaymentRequiredAsync(ctx, resolved, requirements, cancellation: ctx.RequestAborted);
+            await SendPaymentRequiredAsync(ctx, resolved, requirements);
 
             return;
         }
@@ -37,7 +37,7 @@ sealed class X402Middleware(RequestDelegate next)
         }
         catch
         {
-            await SendPaymentRequiredAsync(ctx, resolved, requirements, "Invalid payment payload", ctx.RequestAborted);
+            await SendPaymentRequiredAsync(ctx, resolved, requirements, "Invalid payment payload!");
 
             return;
         }
@@ -46,7 +46,7 @@ sealed class X402Middleware(RequestDelegate next)
 
         if (TryValidatePayload(payload, requirements, out var validationError))
         {
-            await SendPaymentRequiredAsync(ctx, resolved, requirements, validationError, ctx.RequestAborted);
+            await SendPaymentRequiredAsync(ctx, resolved, requirements, validationError);
 
             return;
         }
@@ -56,7 +56,7 @@ sealed class X402Middleware(RequestDelegate next)
 
         if (!verification.IsValid)
         {
-            await SendPaymentRequiredAsync(ctx, resolved, requirements, verification.InvalidReason, ctx.RequestAborted);
+            await SendPaymentRequiredAsync(ctx, resolved, requirements, verification.InvalidReason);
 
             return;
         }
@@ -77,7 +77,7 @@ sealed class X402Middleware(RequestDelegate next)
             if (!settlement.Success)
             {
                 ctx.Response.Headers[X402Constants.PaymentResponseHeader] = X402Serializer.ToBase64(settlement);
-                await SendPaymentRequiredAsync(ctx, resolved, requirements, settlement.ErrorReason, ctx.RequestAborted);
+                await SendPaymentRequiredAsync(ctx, resolved, requirements, settlement.ErrorReason);
 
                 return;
             }
@@ -112,7 +112,7 @@ sealed class X402Middleware(RequestDelegate next)
             {
                 ctx.Response.Clear();
                 ctx.Response.Headers[X402Constants.PaymentResponseHeader] = X402Serializer.ToBase64(settlement);
-                await SendPaymentRequiredAsync(ctx, resolved, requirements, settlement.ErrorReason, ctx.RequestAborted);
+                await SendPaymentRequiredAsync(ctx, resolved, requirements, settlement.ErrorReason);
 
                 return;
             }
@@ -134,7 +134,7 @@ sealed class X402Middleware(RequestDelegate next)
         var scheme = metadata.Scheme ?? defaults.Scheme;
 
         if (!string.Equals(scheme, X402Constants.ExactScheme, StringComparison.OrdinalIgnoreCase))
-            throw new InvalidOperationException("only the 'exact' x402 scheme is currently supported!");
+            throw new InvalidOperationException("Only the 'exact' x402 scheme is currently supported!");
 
         return new()
         {
@@ -257,15 +257,11 @@ sealed class X402Middleware(RequestDelegate next)
         return true;
     }
 
-    static async Task SendPaymentRequiredAsync(HttpContext ctx,
-                                               X402ResolvedPaymentConfig config,
-                                               PaymentRequirements requirements,
-                                               string? error = null,
-                                               CancellationToken cancellation = default)
+    static async Task SendPaymentRequiredAsync(HttpContext ctx, X402ResolvedPaymentConfig config, PaymentRequirements requirements, string? error = null)
     {
         var paymentRequired = new PaymentRequiredResponse
         {
-            Error = string.IsNullOrWhiteSpace(error) ? "Payment required" : error,
+            Error = string.IsNullOrWhiteSpace(error) ? "Payment required!" : error,
             Resource = new()
             {
                 Url = ctx.Request.GetDisplayUrl(),
@@ -279,6 +275,6 @@ sealed class X402Middleware(RequestDelegate next)
         ctx.Response.StatusCode = 402;
         ctx.Response.Headers.CacheControl = "no-store";
         ctx.Response.Headers[X402Constants.PaymentRequiredHeader] = X402Serializer.ToBase64(paymentRequired);
-        await ctx.Response.StartAsync(cancellation);
+        await ctx.Response.StartAsync(ctx.RequestAborted);
     }
 }

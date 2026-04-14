@@ -686,8 +686,9 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
     static void ApplyIResultResponseWorkaround(OperationProcessorContext ctx, OpenApiOperation op, Dictionary<string, ResponseMeta> responseMetas)
     {
     #if NET9_0_OR_GREATER
+
         //remove this workaround when sdk bug is fixed: https://github.com/dotnet/aspnetcore/issues/57801#issuecomment-2439578287
-        foreach (var meta in responseMetas.Values.Where(m => m.IsIResult && m.DtoType is not null))
+        foreach (var meta in responseMetas.Values.Where(m => m is { IsIResult: true, DtoType: not null }))
         {
             var contentType = meta.ContentTypes.FirstOrDefault();
 
@@ -1012,7 +1013,7 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
         {
             var result = examples.ToList();
 
-            foreach (var group in result.GroupBy(e => e.Label).Where(g => g.Count() > 1))
+            foreach (var group in result.GroupBy(e => e.Label).Where(g => g.Count() > 1).ToList())
             {
                 var i = 1;
 

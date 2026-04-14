@@ -4868,13 +4868,52 @@
           "TestCases"
         ],
         "operationId": "TestCasesX402FailureEndpoint",
+        "parameters": [
+          {
+            "name": "PAYMENT-SIGNATURE",
+            "in": "header",
+            "description": "Base64-encoded x402 payment payload.",
+            "schema": {
+              "title": "String",
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success",
+            "headers": {
+              "PAYMENT-RESPONSE": {
+                "description": "Base64-encoded x402 settlement result. Present when the middleware attempts settlement.",
+                "schema": {
+                  "title": "String",
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/TestCasesX402Response"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required",
+            "headers": {
+              "PAYMENT-REQUIRED": {
+                "description": "Base64-encoded x402 payment challenge payload.",
+                "schema": {
+                  "title": "String",
+                  "type": "string"
+                }
+              },
+              "PAYMENT-RESPONSE": {
+                "description": "Base64-encoded x402 settlement result. Present when the middleware attempts settlement.",
+                "schema": {
+                  "title": "String",
+                  "type": "string"
                 }
               }
             }
@@ -4888,13 +4927,52 @@
           "TestCases"
         ],
         "operationId": "TestCasesX402OverrideEndpoint",
+        "parameters": [
+          {
+            "name": "PAYMENT-SIGNATURE",
+            "in": "header",
+            "description": "Base64-encoded x402 payment payload.",
+            "schema": {
+              "title": "String",
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success",
+            "headers": {
+              "PAYMENT-RESPONSE": {
+                "description": "Base64-encoded x402 settlement result. Present when the middleware attempts settlement.",
+                "schema": {
+                  "title": "String",
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/TestCasesX402Response"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required",
+            "headers": {
+              "PAYMENT-REQUIRED": {
+                "description": "Base64-encoded x402 payment challenge payload.",
+                "schema": {
+                  "title": "String",
+                  "type": "string"
+                }
+              },
+              "PAYMENT-RESPONSE": {
+                "description": "Base64-encoded x402 settlement result. Present when the middleware attempts settlement.",
+                "schema": {
+                  "title": "String",
+                  "type": "string"
                 }
               }
             }
@@ -4908,13 +4986,52 @@
           "TestCases"
         ],
         "operationId": "TestCasesX402PreSettledEndpoint",
+        "parameters": [
+          {
+            "name": "PAYMENT-SIGNATURE",
+            "in": "header",
+            "description": "Base64-encoded x402 payment payload.",
+            "schema": {
+              "title": "String",
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success",
+            "headers": {
+              "PAYMENT-RESPONSE": {
+                "description": "Base64-encoded x402 settlement result. Present when the middleware attempts settlement.",
+                "schema": {
+                  "title": "String",
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/TestCasesX402Response"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required",
+            "headers": {
+              "PAYMENT-REQUIRED": {
+                "description": "Base64-encoded x402 payment challenge payload.",
+                "schema": {
+                  "title": "String",
+                  "type": "string"
+                }
+              },
+              "PAYMENT-RESPONSE": {
+                "description": "Base64-encoded x402 settlement result. Present when the middleware attempts settlement.",
+                "schema": {
+                  "title": "String",
+                  "type": "string"
                 }
               }
             }
@@ -4928,13 +5045,52 @@
           "TestCases"
         ],
         "operationId": "TestCasesX402SuccessEndpoint",
+        "parameters": [
+          {
+            "name": "PAYMENT-SIGNATURE",
+            "in": "header",
+            "description": "Base64-encoded x402 payment payload.",
+            "schema": {
+              "title": "String",
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "Success",
+            "headers": {
+              "PAYMENT-RESPONSE": {
+                "description": "Base64-encoded x402 settlement result. Present when the middleware attempts settlement.",
+                "schema": {
+                  "title": "String",
+                  "type": "string"
+                }
+              }
+            },
             "content": {
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/TestCasesX402Response"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required",
+            "headers": {
+              "PAYMENT-REQUIRED": {
+                "description": "Base64-encoded x402 payment challenge payload.",
+                "schema": {
+                  "title": "String",
+                  "type": "string"
+                }
+              },
+              "PAYMENT-RESPONSE": {
+                "description": "Base64-encoded x402 settlement result. Present when the middleware attempts settlement.",
+                "schema": {
+                  "title": "String",
+                  "type": "string"
                 }
               }
             }

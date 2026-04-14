@@ -24,6 +24,7 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
 {
     static readonly TextInfo _textInfo = CultureInfo.InvariantCulture.TextInfo;
     static readonly string[] _illegalHeaderNames = ["Accept", "Content-Type", "Authorization"];
+    static readonly JsonSchema _x402HeaderSchema = JsonSchema.FromType<string>();
 
     [GeneratedRegex("(?<={)(?:.*?)*(?=})")]
     private static partial Regex RouteParamsRegex();
@@ -39,6 +40,7 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
         { "204", "No Content" },
         { "400", "Bad Request" },
         { "401", "Unauthorized" },
+        { "402", "Payment Required" },
         { "403", "Forbidden" },
         { "404", "Not Found" },
         { "405", "Method Not Allowed" },
@@ -140,7 +142,6 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
             if (metas.Count > 0)
             {
             #if NET9_0_OR_GREATER
-
                 //remove this workaround when sdk bug is fixed: https://github.com/dotnet/aspnetcore/issues/57801#issuecomment-2439578287
                 foreach (var meta in metas.Where(m => m.Value.isIResult))
                 {
@@ -234,6 +235,25 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
                     {
                         if (content.Schema is { Type: JsonObjectType.String, Format: "byte" })
                             content.Schema.Format = "binary";
+                    }
+
+                    //document x402 headers
+                    if (epDef.X402PaymentMetadata is not null)
+                    {
+                        if (rsp.Key == "402")
+                        {
+                            rsp.Value.Headers[X402Constants.PaymentRequiredHeader] = new()
+                            {
+                                Description = "Base64-encoded x402 payment challenge payload.",
+                                Schema = _x402HeaderSchema
+                            };
+                        }
+
+                        rsp.Value.Headers[X402Constants.PaymentResponseHeader] = new()
+                        {
+                            Description = "Base64-encoded x402 settlement result. Present when the middleware attempts settlement.",
+                            Schema = _x402HeaderSchema
+                        };
                     }
                 }
             }
@@ -523,6 +543,15 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
             prm.Description = epDef.IdempotencyOptions.SwaggerHeaderDescription;
             if (epDef.IdempotencyOptions.SwaggerHeaderType is not null)
                 prm.Schema = JsonSchema.FromType(epDef.IdempotencyOptions.SwaggerHeaderType);
+            reqParams.Add(prm);
+        }
+
+        if (epDef.X402PaymentMetadata is not null)
+        {
+            var prm = CreateParam(paramCtx, OpenApiParameterKind.Header, null, X402Constants.PaymentSignatureHeader, false);
+            prm.Name = X402Constants.PaymentSignatureHeader;
+            prm.Description = "Base64-encoded x402 payment payload.";
+            prm.Schema = _x402HeaderSchema;
             reqParams.Add(prm);
         }
 

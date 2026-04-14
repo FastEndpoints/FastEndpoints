@@ -439,6 +439,9 @@ public static class MainExtensions
 
             if (Cfg.ErrOpts.ProducesMetadataType is not null && ep.ValidatorType is not null)
                 b.ProducesDeDuped(Cfg.ErrOpts.StatusCode, Cfg.ErrOpts.ProducesMetadataType, [Cfg.ErrOpts.ContentType]);
+
+            if (ep.X402PaymentMetadata is not null)
+                b.ProducesDeDuped(402, Types.Void, []);
         }
 
         void ProducesDeDuped(int statusCode, Type type, string[] contentTypes)

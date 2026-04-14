@@ -57,314 +57,373 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
 
     public bool Process(OperationProcessorContext ctx)
     {
-        var metaData = ((AspNetCoreOperationProcessorContext)ctx).ApiDescription.ActionDescriptor.EndpointMetadata;
-        var epDef = metaData.OfType<EndpointDefinition>().SingleOrDefault(); //use shortcut `ctx.GetEndpointDefinition()` for your own processors
+        var state = CreateProcessingState(ctx);
 
-        if (epDef is null)
+        if (state is null)
             return true; //this is not a fastendpoint
 
-        var apiDescription = ((AspNetCoreOperationProcessorContext)ctx).ApiDescription;
+        ApplyOperationMetadata(state);
+        ApplyResponseMetadata(state);
+        ApplyOperationDescriptions(state);
+        InitializeRequestProcessing(state);
+        AddRequestParameters(state, BuildRequestParameters(state));
+        FinalizeRequestBody(state);
+        ApplyRequestBodyOverrides(state);
 
-        //fix missing path parameters
-        var opPath = ctx.OperationDescription.Path = $"/{StripRouteConstraints(apiDescription.RelativePath!.TrimStart('~').TrimEnd('/'))}";
+        return true;
+    }
 
-        var epVer = epDef.Version.Current;
-        var startingRelVer = epDef.Version.StartingReleaseVersion;
-        var version = $"/{GlobalConfig.VersioningPrefix ?? "v"}{epVer}";
-        var routePrefix = "/" + (GlobalConfig.EndpointRoutePrefix ?? "_");
-        var bareRoute = opPath.Remove(routePrefix).Remove(version);
-        var nameMetaData = metaData.OfType<EndpointNameMetadata>().LastOrDefault();
-        var op = ctx.OperationDescription.Operation;
-        var reqContent = op.RequestBody?.Content;
-        var serializerSettings = ((NewtonsoftJsonSchemaGeneratorSettings)ctx.SchemaGenerator.Settings).SerializerSettings;
-        var serializer = JsonSerializer.Create(serializerSettings);
+    static ProcessingState? CreateProcessingState(OperationProcessorContext ctx)
+    {
+        var aspCtx = (AspNetCoreOperationProcessorContext)ctx;
+        var metadata = aspCtx.ApiDescription.ActionDescriptor.EndpointMetadata;
+        var epDef = metadata.OfType<EndpointDefinition>().SingleOrDefault(); //use shortcut `ctx.GetEndpointDefinition()` for your own processors
 
-        //set operation id if user has specified
-        if (nameMetaData is not null)
-            op.OperationId = nameMetaData.EndpointName;
+        return epDef is null ? null : new(ctx, aspCtx, metadata, epDef);
+    }
 
-        //set operation tag
-        if (docOpts.AutoTagPathSegmentIndex > 0 && !epDef.DontAutoTagEndpoints)
+    void ApplyOperationMetadata(ProcessingState state)
+    {
+        var nameMetadata = state.Metadata.OfType<EndpointNameMetadata>().LastOrDefault();
+
+        if (nameMetadata is not null)
+            state.Operation.OperationId = nameMetadata.EndpointName;
+
+        ApplyAutoTag(state);
+        ApplyFastEndpointMetadata(state);
+        NormalizeRequestContentTypes(state);
+    }
+
+    void ApplyAutoTag(ProcessingState state)
+    {
+        if (docOpts.AutoTagPathSegmentIndex <= 0 || state.EndpointDefinition.DontAutoTagEndpoints)
+            return;
+
+        var overrideVal = state.Metadata.OfType<AutoTagOverride>().SingleOrDefault()?.TagName;
+        string? tag = null;
+
+        if (overrideVal is not null)
+            tag = TagName(overrideVal, docOpts.TagCase, docOpts.TagStripSymbols);
+        else
         {
-            var overrideVal = metaData.OfType<AutoTagOverride>().SingleOrDefault()?.TagName;
-            string? tag = null;
-
-            if (overrideVal is not null)
-                tag = TagName(overrideVal, docOpts.TagCase, docOpts.TagStripSymbols);
-            else
-            {
-                var segments = bareRoute.Split('/').Where(s => s != string.Empty).ToArray();
-                if (segments.Length >= docOpts.AutoTagPathSegmentIndex)
-                    tag = TagName(segments[docOpts.AutoTagPathSegmentIndex - 1], docOpts.TagCase, docOpts.TagStripSymbols);
-            }
-            if (tag is not null)
-                op.Tags.Add(tag);
+            var segments = state.BareRoute.Split('/').Where(s => s != string.Empty).ToArray();
+            if (segments.Length >= docOpts.AutoTagPathSegmentIndex)
+                tag = TagName(segments[docOpts.AutoTagPathSegmentIndex - 1], docOpts.TagCase, docOpts.TagStripSymbols);
         }
 
+        if (tag is not null)
+            state.Operation.Tags.Add(tag);
+    }
+
+    static void ApplyFastEndpointMetadata(ProcessingState state)
+    {
         //this metadata is consumed and later removed by the document processor.
-        var extData = op.ExtensionData ??= new Dictionary<string, object?>();
-        extData[FERouteKey] = $"{ctx.OperationDescription.Method}:{bareRoute}";
-        extData[FEVersionKey] = epVer;
-        extData[FEStartingReleaseKey] = startingRelVer;
-        extData[FEDeprecatedAtKey] = epDef.Version.DeprecatedAt;
+        var extData = state.Operation.ExtensionData ??= new Dictionary<string, object?>();
+        extData[FERouteKey] = $"{state.OpCtx.OperationDescription.Method}:{state.BareRoute}";
+        extData[FEVersionKey] = state.EndpointDefinition.Version.Current;
+        extData[FEStartingReleaseKey] = state.EndpointDefinition.Version.StartingReleaseVersion;
+        extData[FEDeprecatedAtKey] = state.EndpointDefinition.Version.DeprecatedAt;
+    }
 
-        //fix request content-types not displaying correctly
-        if (reqContent?.Count > 0)
+    static void NormalizeRequestContentTypes(ProcessingState state)
+    {
+        if (state.RequestContent?.Count > 0)
         {
-            var contentVal = reqContent.FirstOrDefault().Value;
-            var list = new List<KeyValuePair<string, OpenApiMediaType>>(op.Consumes.Count);
-            for (var i = 0; i < op.Consumes.Count; i++)
-                list.Add(new(op.Consumes[i], contentVal));
-            reqContent.Clear();
+            var contentVal = state.RequestContent.FirstOrDefault().Value;
+            var list = new List<KeyValuePair<string, OpenApiMediaType>>(state.Operation.Consumes.Count);
+            for (var i = 0; i < state.Operation.Consumes.Count; i++)
+                list.Add(new(state.Operation.Consumes[i], contentVal));
+            state.RequestContent.Clear();
             foreach (var c in list)
-                reqContent.Add(c);
+                state.RequestContent.Add(c);
         }
+    }
 
-        ApplyResponseMetadata(ctx, metaData, epDef, op, serializer);
+    static void ApplyOperationDescriptions(ProcessingState state)
+    {
+        state.Operation.Summary = state.EndpointDefinition.EndpointSummary?.Summary ?? state.EndpointDefinition.EndpointType.GetSummary();
+        state.Operation.Description = state.EndpointDefinition.EndpointSummary?.Description ?? state.EndpointDefinition.EndpointType.GetDescription();
 
-        //set endpoint summary & description
-        op.Summary = epDef.EndpointSummary?.Summary ?? epDef.EndpointType.GetSummary();
-        op.Description = epDef.EndpointSummary?.Description ?? epDef.EndpointType.GetDescription();
+        if (state.EndpointDefinition.EndpointType.GetCustomAttribute<ObsoleteAttribute>() is not null)
+            state.Operation.IsDeprecated = true;
 
-        //set endpoint deprecated status when marked with [Obsolete] attribute
-        var isObsolete = epDef.EndpointType.GetCustomAttribute<ObsoleteAttribute>() is not null;
-        if (isObsolete)
-            op.IsDeprecated = true;
+        ApplyResponseDescriptions(state);
+    }
 
-        ApplyResponseDescriptions(epDef, apiDescription, op);
+    void InitializeRequestProcessing(ProcessingState state)
+    {
+        ApplyAspVersioningRequestParameterWorkaround(state);
 
-        if (GlobalConfig.IsUsingAspVersioning)
-        {
-            //because asp-versioning adds the version route segment as a path parameter
-            for (var i = apiDescription.ParameterDescriptions.Count - 1; i >= 0; i--)
-            {
-                if (apiDescription.ParameterDescriptions[i].Source != Microsoft.AspNetCore.Mvc.ModelBinding.BindingSource.Body)
-                    apiDescription.ParameterDescriptions.RemoveAt(i);
-            }
-        }
+        state.RequestDtoType = state.ApiDescription.ParameterDescriptions.FirstOrDefault()?.Type;
+        state.RequestDtoIsList = state.RequestDtoType?.GetInterfaces().Contains(Types.IEnumerable) is true;
+        state.IsGetRequest = state.ApiDescription.HttpMethod == "GET";
+        state.RequestDtoProps =
+            state.RequestDtoIsList
+                ? null
+                : state.RequestDtoType?.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy).ToList();
 
-        var reqDtoType = apiDescription.ParameterDescriptions.FirstOrDefault()?.Type;
-        var reqDtoIsList = reqDtoType?.GetInterfaces().Contains(Types.IEnumerable);
-        var isGetRequest = apiDescription.HttpMethod == "GET";
-        var reqDtoProps = reqDtoIsList is true
-                              ? null
-                              : reqDtoType?.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy).ToList();
-
-        if (reqDtoType != Types.EmptyRequest && reqDtoProps?.Count == 0 && !GlobalConfig.AllowEmptyRequestDtos) //see: RequestBinder.cs > static ctor
-        {
-            throw new NotSupportedException(
-                "Request DTOs without any publicly accessible properties are not supported. " +
-                $"Offending Endpoint: [{epDef.EndpointType.FullName}] " +
-                $"Offending DTO type: [{reqDtoType!.FullName}]");
-        }
+        ValidateRequestDto(state);
 
         //store unique request param description + example (from each consumes/content type) for later use.
         //todo: this is not ideal in case two consumes dtos has a prop with the same name.
-        var reqParamDescriptions = BuildRequestParamDescriptions(reqContent, epDef, serializer);
-        ApplyRequestParamDescriptions(reqContent, reqParamDescriptions);
+        state.RequestParamDescriptions = BuildRequestParamDescriptions(state);
+        ApplyRequestParamDescriptions(state);
+        RemoveHiddenRequestProperties(state);
+        state.ParamCtx = new(state.OpCtx, docOpts, state.Serializer, state.RequestParamDescriptions, state.ApiDescription.RelativePath!);
+    }
 
-        var propsToRemoveFromExample = new List<string>();
+    static void ApplyAspVersioningRequestParameterWorkaround(ProcessingState state)
+    {
+        if (!GlobalConfig.IsUsingAspVersioning)
+            return;
 
-        //remove dto props that are either marked with [JsonIgnore]/[HideFromDocs] or not publicly settable
-        if (reqDtoProps != null)
+        //because asp-versioning adds the version route segment as a path parameter
+        for (var i = state.ApiDescription.ParameterDescriptions.Count - 1; i >= 0; i--)
         {
-            foreach (var p in reqDtoProps.Where(
-                                             p => p.GetCustomAttribute<JsonIgnoreAttribute>()?.Condition == JsonIgnoreCondition.Always ||
-                                                  p.IsDefined(Types.HideFromDocsAttribute) ||
-                                                  p.GetSetMethod()?.IsPublic is not true)
-                                         .ToArray())
-            {
-                RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample, docOpts);
-                reqDtoProps.Remove(p);
-            }
+            if (state.ApiDescription.ParameterDescriptions[i].Source != Microsoft.AspNetCore.Mvc.ModelBinding.BindingSource.Body)
+                state.ApiDescription.ParameterDescriptions.RemoveAt(i);
         }
+    }
 
-        var paramCtx = new ParamCreationContext(ctx, docOpts, serializer, reqParamDescriptions, apiDescription.RelativePath!);
-
-        //add a path param for each route param such as /{xxx}/{yyy}/{zzz}
-        var reqParams = RouteParamsRegex()
-                        .Matches(opPath)
-                        .Select(
-                            m =>
-                            {
-                                var pInfo = reqDtoProps?.SingleOrDefault(
-                                    p =>
-                                    {
-                                        var pName = p.GetCustomAttribute<BindFromAttribute>()?.Name ?? p.Name;
-
-                                        if (!string.Equals(pName, m.Value, StringComparison.OrdinalIgnoreCase))
-                                            return false;
-
-                                        //need to match complete segments including parenthesis:
-                                        //https://github.com/FastEndpoints/FastEndpoints/issues/709
-                                        ctx.OperationDescription.Path = opPath = opPath.Replace(
-                                                                            $"{{{m.Value}}}",
-                                                                            $"{{{m.Value.ApplyPropNamingPolicy(docOpts)}}}");
-
-                                        RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample, docOpts);
-
-                                        return true;
-                                    });
-
-                                return CreateParam(paramCtx, OpenApiParameterKind.Path, pInfo, m.Value, true);
-                            })
-                        .ToList();
-
-        //add query params for properties marked with [QueryParam] or for all props if it's a GET request
-        if (reqDtoType is not null)
+    static void ValidateRequestDto(ProcessingState state)
+    {
+        if (state.RequestDtoType != Types.EmptyRequest && state.RequestDtoProps?.Count == 0 && !GlobalConfig.AllowEmptyRequestDtos) //see: RequestBinder.cs > static ctor
         {
-            var qParams = reqDtoProps?
-                          .Where(
-                              p => ShouldAddQueryParam(
-                                  p,
-                                  reqParams,
-                                  isGetRequest && !docOpts.EnableGetRequestsWithBody,
-                                  docOpts)) //user wants body in GET requests
-                          .Select(
-                              p =>
-                              {
-                                  RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample, docOpts);
-
-                                  return CreateParam(paramCtx, OpenApiParameterKind.Query, p);
-                              })
-                          .ToList();
-
-            if (qParams?.Count > 0)
-                reqParams.AddRange(qParams);
+            throw new NotSupportedException(
+                "Request DTOs without any publicly accessible properties are not supported. " +
+                $"Offending Endpoint: [{state.EndpointDefinition.EndpointType.FullName}] " +
+                $"Offending DTO type: [{state.RequestDtoType!.FullName}]");
         }
+    }
 
-        //add request params depending on [From*] attribute annotations on dto props
-        if (reqDtoProps is not null)
+    void RemoveHiddenRequestProperties(ProcessingState state)
+    {
+        if (state.RequestDtoProps is null)
+            return;
+
+        foreach (var p in state.RequestDtoProps.Where(
+                                   p => p.GetCustomAttribute<JsonIgnoreAttribute>()?.Condition == JsonIgnoreCondition.Always ||
+                                        p.IsDefined(Types.HideFromDocsAttribute) ||
+                                        p.GetSetMethod()?.IsPublic is not true)
+                               .ToArray())
         {
-            foreach (var p in reqDtoProps)
+            RemovePropFromRequestBodyContent(p.Name, state, docOpts);
+            state.RequestDtoProps.Remove(p);
+        }
+    }
+
+    List<OpenApiParameter> BuildRequestParameters(ProcessingState state)
+    {
+        var requestParams = CreateRouteParameters(state);
+
+        AddQueryParameters(state, requestParams);
+        AddAttributeBasedParameters(state, requestParams);
+        AddSwagger2FileParameters(state, requestParams);
+        AddIdempotencyHeader(state, requestParams);
+        AddX402Header(state, requestParams);
+
+        return requestParams;
+    }
+
+    List<OpenApiParameter> CreateRouteParameters(ProcessingState state)
+    {
+        return RouteParamsRegex()
+               .Matches(state.OperationPath)
+               .Select(
+                   m =>
+                   {
+                       var pInfo = state.RequestDtoProps?.SingleOrDefault(
+                           p =>
+                           {
+                               var pName = p.GetCustomAttribute<BindFromAttribute>()?.Name ?? p.Name;
+
+                               if (!string.Equals(pName, m.Value, StringComparison.OrdinalIgnoreCase))
+                                   return false;
+
+                               //need to match complete segments including parenthesis:
+                               //https://github.com/FastEndpoints/FastEndpoints/issues/709
+                               state.OperationPath = state.OperationPath.Replace(
+                                   $"{{{m.Value}}}",
+                                   $"{{{m.Value.ApplyPropNamingPolicy(docOpts)}}}");
+
+                               RemovePropFromRequestBodyContent(p.Name, state, docOpts);
+
+                               return true;
+                           });
+
+                       return CreateParam(state.ParamCtx, OpenApiParameterKind.Path, pInfo, m.Value, true);
+                   })
+               .ToList();
+    }
+
+    void AddQueryParameters(ProcessingState state, List<OpenApiParameter> requestParams)
+    {
+        if (state.RequestDtoType is null)
+            return;
+
+        var queryParams = state.RequestDtoProps?
+                               .Where(
+                                   p => ShouldAddQueryParam(
+                                       p,
+                                       requestParams,
+                                       state.IsGetRequest && !docOpts.EnableGetRequestsWithBody,
+                                       docOpts)) //user wants body in GET requests
+                               .Select(
+                                   p =>
+                                   {
+                                       RemovePropFromRequestBodyContent(p.Name, state, docOpts);
+
+                                       return CreateParam(state.ParamCtx, OpenApiParameterKind.Query, p);
+                                   })
+                               .ToList();
+
+        if (queryParams?.Count > 0)
+            requestParams.AddRange(queryParams);
+    }
+
+    void AddAttributeBasedParameters(ProcessingState state, List<OpenApiParameter> requestParams)
+    {
+        if (state.RequestDtoProps is null)
+            return;
+
+        foreach (var p in state.RequestDtoProps)
+        {
+            foreach (var attribute in p.GetCustomAttributes())
             {
-                foreach (var attribute in p.GetCustomAttributes())
+                switch (attribute)
                 {
-                    switch (attribute)
+                    case FromHeaderAttribute hAttrib:
                     {
-                        case FromHeaderAttribute hAttrib: //add header params if there are any props marked with [FromHeader] attribute
+                        var pName = hAttrib.HeaderName ?? p.Name;
+
+                        if (_illegalHeaderNames.Any(n => n.Equals(pName, StringComparison.OrdinalIgnoreCase)))
                         {
-                            var pName = hAttrib.HeaderName ?? p.Name;
+                            RemovePropFromRequestBodyContent(p.Name, state, docOpts);
 
-                            if (_illegalHeaderNames.Any(n => n.Equals(pName, StringComparison.OrdinalIgnoreCase)))
-                            {
-                                RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample, docOpts);
-
-                                continue;
-                            }
-
-                            reqParams.Add(CreateParam(paramCtx, OpenApiParameterKind.Header, p, pName, hAttrib.IsRequired));
-
-                            //remove corresponding json body field if it's required. allow binding only from header.
-                            if (hAttrib.IsRequired || hAttrib.RemoveFromSchema)
-                                RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample, docOpts);
-
-                            break;
+                            continue;
                         }
 
-                        case FromCookieAttribute cAttrib: //add header params if there are any props marked with [FromHeader] attribute
-                        {
-                            var pName = cAttrib.CookieName ?? p.Name;
+                        requestParams.Add(CreateParam(state.ParamCtx, OpenApiParameterKind.Header, p, pName, hAttrib.IsRequired));
 
-                            reqParams.Add(CreateParam(paramCtx, OpenApiParameterKind.Cookie, p, pName, cAttrib.IsRequired));
+                        if (hAttrib.IsRequired || hAttrib.RemoveFromSchema)
+                            RemovePropFromRequestBodyContent(p.Name, state, docOpts);
 
-                            //remove corresponding json body field if it's required. allow binding only from cookie.
-                            if (cAttrib.IsRequired || cAttrib.RemoveFromSchema)
-                                RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample, docOpts);
-
-                            break;
-                        }
-
-                        //can only be bound from claim since it's required. so remove prop from body.
-                        //can only be bound from permission since it's required. so remove prop from body.
-                        case FromClaimAttribute cAttrib when cAttrib.IsRequired || cAttrib.RemoveFromSchema:
-                        case HasPermissionAttribute pAttrib when pAttrib.IsRequired || pAttrib.RemoveFromSchema:
-                            RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample, docOpts);
-
-                            break;
+                        break;
                     }
+
+                    case FromCookieAttribute cAttrib:
+                    {
+                        var pName = cAttrib.CookieName ?? p.Name;
+
+                        requestParams.Add(CreateParam(state.ParamCtx, OpenApiParameterKind.Cookie, p, pName, cAttrib.IsRequired));
+
+                        if (cAttrib.IsRequired || cAttrib.RemoveFromSchema)
+                            RemovePropFromRequestBodyContent(p.Name, state, docOpts);
+
+                        break;
+                    }
+
+                    case FromClaimAttribute cAttrib when cAttrib.IsRequired || cAttrib.RemoveFromSchema:
+                    case HasPermissionAttribute pAttrib when pAttrib.IsRequired || pAttrib.RemoveFromSchema:
+                        RemovePropFromRequestBodyContent(p.Name, state, docOpts);
+
+                        break;
                 }
             }
         }
+    }
 
-        //fix IFormFile props in OAS2 - remove from request body and add as a request param
-        if (ctx.IsSwagger2() && reqDtoProps is not null)
+    void AddSwagger2FileParameters(ProcessingState state, List<OpenApiParameter> requestParams)
+    {
+        if (!state.OpCtx.IsSwagger2() || state.RequestDtoProps is null)
+            return;
+
+        foreach (var p in state.RequestDtoProps.ToArray())
         {
-            foreach (var p in reqDtoProps.ToArray())
-            {
-                if (p.PropertyType != Types.IFormFile)
-                    continue;
+            if (p.PropertyType != Types.IFormFile)
+                continue;
 
-                RemovePropFromRequestBodyContent(p.Name, reqContent, propsToRemoveFromExample, docOpts);
-                reqDtoProps.Remove(p);
-                reqParams.Add(CreateParam(paramCtx, OpenApiParameterKind.FormData, p));
-            }
+            RemovePropFromRequestBodyContent(p.Name, state, docOpts);
+            state.RequestDtoProps.Remove(p);
+            requestParams.Add(CreateParam(state.ParamCtx, OpenApiParameterKind.FormData, p));
         }
+    }
 
-        //add idempotency header param if applicable
-        if (epDef.IdempotencyOptions is not null)
-        {
-            var prm = CreateParam(paramCtx, OpenApiParameterKind.Header, null, epDef.IdempotencyOptions.HeaderName, true);
-            prm.Example = epDef.IdempotencyOptions.SwaggerExampleGenerator?.Invoke();
-            prm.Description = epDef.IdempotencyOptions.SwaggerHeaderDescription;
-            if (epDef.IdempotencyOptions.SwaggerHeaderType is not null)
-                prm.Schema = JsonSchema.FromType(epDef.IdempotencyOptions.SwaggerHeaderType);
-            reqParams.Add(prm);
-        }
+    static void AddIdempotencyHeader(ProcessingState state, List<OpenApiParameter> requestParams)
+    {
+        if (state.EndpointDefinition.IdempotencyOptions is null)
+            return;
 
-        if (epDef.X402PaymentMetadata is not null)
-        {
-            var prm = CreateParam(paramCtx, OpenApiParameterKind.Header, null, X402Constants.PaymentSignatureHeader, false);
-            prm.Name = X402Constants.PaymentSignatureHeader;
-            prm.Description = "Base64-encoded x402 payment payload.";
-            prm.Schema = _x402HeaderSchema;
-            reqParams.Add(prm);
-        }
+        var prm = CreateParam(state.ParamCtx, OpenApiParameterKind.Header, null, state.EndpointDefinition.IdempotencyOptions.HeaderName, true);
+        prm.Example = state.EndpointDefinition.IdempotencyOptions.SwaggerExampleGenerator?.Invoke();
+        prm.Description = state.EndpointDefinition.IdempotencyOptions.SwaggerHeaderDescription;
+        if (state.EndpointDefinition.IdempotencyOptions.SwaggerHeaderType is not null)
+            prm.Schema = JsonSchema.FromType(state.EndpointDefinition.IdempotencyOptions.SwaggerHeaderType);
+        requestParams.Add(prm);
+    }
 
-        foreach (var p in reqParams)
+    static void AddX402Header(ProcessingState state, List<OpenApiParameter> requestParams)
+    {
+        if (state.EndpointDefinition.X402PaymentMetadata is null)
+            return;
+
+        var prm = CreateParam(state.ParamCtx, OpenApiParameterKind.Header, null, X402Constants.PaymentSignatureHeader, false);
+        prm.Name = X402Constants.PaymentSignatureHeader;
+        prm.Description = "Base64-encoded x402 payment payload.";
+        prm.Schema = _x402HeaderSchema;
+        requestParams.Add(prm);
+    }
+
+    static void AddRequestParameters(ProcessingState state, List<OpenApiParameter> requestParams)
+    {
+        foreach (var p in requestParams)
         {
             if (GlobalConfig.IsUsingAspVersioning)
             {
                 //remove any duplicate params - ref: https://github.com/FastEndpoints/FastEndpoints/issues/560
-                for (var i = op.Parameters.Count - 1; i >= 0; i--)
+                for (var i = state.Operation.Parameters.Count - 1; i >= 0; i--)
                 {
-                    var prm = op.Parameters[i];
+                    var prm = state.Operation.Parameters[i];
                     if (prm.Name == p.Name && prm.Kind == p.Kind)
-                        op.Parameters.RemoveAt(i);
+                        state.Operation.Parameters.RemoveAt(i);
                 }
             }
 
-            op.Parameters.Add(p);
+            state.Operation.Parameters.Add(p);
         }
+    }
 
+    void FinalizeRequestBody(ProcessingState state)
+    {
         //remove request body if this is a GET request (swagger ui/fetch client doesn't support GET with body).
         //note: user can decide to allow GET requests with body via EnableGetRequestsWithBody setting.
         //or if there are no properties left on the request dto after above operations.
         //only if the request dto is not a list.
-        if ((isGetRequest && !docOpts.EnableGetRequestsWithBody) || reqContent?.HasNoProperties() is true)
+        if ((state.IsGetRequest && !docOpts.EnableGetRequestsWithBody) || state.RequestContent?.HasNoProperties() is true)
         {
-            if (reqDtoIsList is false)
+            if (!state.RequestDtoIsList)
             {
-                op.RequestBody = null;
+                state.Operation.RequestBody = null;
 
-                for (var i = op.Parameters.Count - 1; i >= 0; i--)
+                for (var i = state.Operation.Parameters.Count - 1; i >= 0; i--)
                 {
-                    if (op.Parameters[i].Kind == OpenApiParameterKind.Body)
-                        op.Parameters.RemoveAt(i);
+                    if (state.Operation.Parameters[i].Kind == OpenApiParameterKind.Body)
+                        state.Operation.Parameters.RemoveAt(i);
                 }
             }
         }
 
         if (docOpts.RemoveEmptyRequestSchema)
-            RemoveEmptyRequestSchemas(ctx.Document.Components.Schemas);
+            RemoveEmptyRequestSchemas(state.OpCtx.Document.Components.Schemas);
+    }
 
-        var fromBodyProp = reqDtoProps?.Where(p => p.IsDefined(Types.FromBodyAttribute, false)).FirstOrDefault();
-        var fromFormProp = reqDtoProps?.Where(p => p.IsDefined(Types.FromFormAttribute, false)).FirstOrDefault();
-        ReplaceRequestBodyFromProperty(op, ctx.Document.Components.Schemas, paramCtx, fromBodyProp, true);
-        ReplaceRequestBodyFromProperty(op, ctx.Document.Components.Schemas, paramCtx, fromFormProp, false);
-        ApplyRequestExamples(epDef, op, reqContent, serializer, propsToRemoveFromExample, fromBodyProp, fromFormProp);
-
-        return true;
+    static void ApplyRequestBodyOverrides(ProcessingState state)
+    {
+        var fromBodyProp = state.RequestDtoProps?.FirstOrDefault(p => p.IsDefined(Types.FromBodyAttribute, false));
+        var fromFormProp = state.RequestDtoProps?.FirstOrDefault(p => p.IsDefined(Types.FromFormAttribute, false));
+        ReplaceRequestBodyFromProperty(state, fromBodyProp, true);
+        ReplaceRequestBodyFromProperty(state, fromFormProp, false);
+        ApplyRequestExamples(state, fromBodyProp, fromFormProp);
     }
 
     static JsonSchema? TryGetJsonPatchArraySchema(JsonSchema? schema)
@@ -414,19 +473,16 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
             prop.IsDefined(Types.QueryParamAttribute);
     }
 
-    static void RemovePropFromRequestBodyContent(string propName,
-                                                 IDictionary<string, OpenApiMediaType>? content,
-                                                 List<string> propsToRemoveFromExample,
-                                                 DocumentOptions docOpts)
+    static void RemovePropFromRequestBodyContent(string propName, ProcessingState state, DocumentOptions docOpts)
     {
-        if (content is null)
+        if (state.RequestContent is null)
             return;
 
         propName = propName.ApplyPropNamingPolicy(docOpts);
 
-        propsToRemoveFromExample.Add(propName);
+        state.PropsToRemoveFromExample.Add(propName);
 
-        foreach (var c in content)
+        foreach (var c in state.RequestContent)
         {
             var key = c.GetAllProperties()
                        .FirstOrDefault(p => string.Equals(p.Key, propName, StringComparison.OrdinalIgnoreCase))
@@ -564,19 +620,19 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
         return prm;
     }
 
-    void ApplyResponseMetadata(OperationProcessorContext ctx, IEnumerable<object> metaData, EndpointDefinition epDef, OpenApiOperation op, JsonSerializer serializer)
+    void ApplyResponseMetadata(ProcessingState state)
     {
-        if (op.Responses.Count == 0)
+        if (state.Operation.Responses.Count == 0)
             return;
 
-        var responseMetas = BuildResponseMetadata(ctx, metaData, epDef, serializer);
+        var responseMetas = BuildResponseMetadata(state);
 
         if (responseMetas.Count == 0)
             return;
 
-        ApplyIResultResponseWorkaround(ctx, op, responseMetas);
+        ApplyIResultResponseWorkaround(state.OpCtx, state.Operation, responseMetas);
 
-        foreach (var rsp in op.Responses)
+        foreach (var rsp in state.Operation.Responses)
         {
             var mediaType = rsp.Value.Content.FirstOrDefault().Value;
 
@@ -585,7 +641,7 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
                 if (mediaType is not null && meta.Example is not null)
                     mediaType.Example = meta.Example;
 
-                AddResponseHeaders(ctx, serializer, rsp.Value, meta);
+                AddResponseHeaders(state, rsp.Value, meta);
 
                 if (mediaType is not null)
                     ReplaceResponseContentTypes(rsp.Value, mediaType, meta.ContentTypes);
@@ -595,42 +651,41 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
                 FixResponsePolymorphism(rsp.Value);
 
             FixBinaryResponseSchemas(rsp.Value);
-            AddX402ResponseHeaders(epDef, rsp.Key, rsp.Value);
+            AddX402ResponseHeaders(state.EndpointDefinition, rsp.Key, rsp.Value);
         }
     }
 
-    static Dictionary<string, ResponseMeta> BuildResponseMetadata(OperationProcessorContext ctx, IEnumerable<object> metaData, EndpointDefinition epDef, JsonSerializer serializer)
+    static Dictionary<string, ResponseMeta> BuildResponseMetadata(ProcessingState state)
     {
-        return metaData
-               .OfType<IProducesResponseTypeMetadata>()
-               .GroupBy(
-                   m => m.StatusCode,
-                   (k, g) =>
-                   {
-                       var meta = g.Last();
-                       object? example = null;
-                       _ = epDef.EndpointSummary?.ResponseExamples.TryGetValue(k, out example);
-                       example = meta.GetExampleFromMetaData() ?? example;
-                       example = example is not null ? JToken.FromObject(example, serializer) : null;
+        return state.Metadata
+                    .OfType<IProducesResponseTypeMetadata>()
+                    .GroupBy(
+                        m => m.StatusCode,
+                        (k, g) =>
+                        {
+                            var meta = g.Last();
+                            object? example = null;
+                            _ = state.EndpointDefinition.EndpointSummary?.ResponseExamples.TryGetValue(k, out example);
+                            example = meta.GetExampleFromMetaData() ?? example;
+                            example = example is not null ? JToken.FromObject(example, state.Serializer) : null;
 
-                       if (ctx.IsSwagger2() && example is JToken { Type: JTokenType.Array } token)
-                           example = token.ToString();
+                            if (state.OpCtx.IsSwagger2() && example is JToken { Type: JTokenType.Array } token)
+                                example = token.ToString();
 
-                       return new ResponseMeta(
-                           k.ToString(),
-                           [..meta.ContentTypes],
-                           example,
-                           epDef.EndpointSummary?.ResponseHeaders.Where(h => h.StatusCode == k).ToArray(),
-                           meta.Type,
-                           meta.Type is not null && Types.IResult.IsAssignableFrom(meta.Type)); //todo: remove when .net 9 sdk bug is fixed
-                   })
-               .ToDictionary(x => x.Key);
+                            return new ResponseMeta(
+                                k.ToString(),
+                                [..meta.ContentTypes],
+                                example,
+                                state.EndpointDefinition.EndpointSummary?.ResponseHeaders.Where(h => h.StatusCode == k).ToArray(),
+                                meta.Type,
+                                meta.Type is not null && Types.IResult.IsAssignableFrom(meta.Type)); //todo: remove when .net 9 sdk bug is fixed
+                        })
+                    .ToDictionary(x => x.Key);
     }
 
     static void ApplyIResultResponseWorkaround(OperationProcessorContext ctx, OpenApiOperation op, Dictionary<string, ResponseMeta> responseMetas)
     {
     #if NET9_0_OR_GREATER
-
         //remove this workaround when sdk bug is fixed: https://github.com/dotnet/aspnetcore/issues/57801#issuecomment-2439578287
         foreach (var meta in responseMetas.Values.Where(m => m.IsIResult && m.DtoType is not null))
         {
@@ -660,7 +715,7 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
     #endif
     }
 
-    void AddResponseHeaders(OperationProcessorContext ctx, JsonSerializer serializer, OpenApiResponse response, ResponseMeta meta)
+    void AddResponseHeaders(ProcessingState state, OpenApiResponse response, ResponseMeta meta)
     {
         if (meta.DtoType is not null)
         {
@@ -669,11 +724,11 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
             {
                 var headerName = p.GetCustomAttribute<ToHeaderAttribute>()?.HeaderName ?? p.Name.ApplyPropNamingPolicy(docOpts);
                 var summaryTag = p.GetXmlDocsSummary();
-                var schema = ctx.SchemaGenerator.Generate(p.PropertyType);
+                var schema = state.OpCtx.SchemaGenerator.Generate(p.PropertyType);
                 response.Headers[headerName] = new()
                 {
                     Description = summaryTag,
-                    Example = p.GetExampleJToken(serializer) ?? schema.ToSampleJson(),
+                    Example = p.GetExampleJToken(state.Serializer) ?? schema.ToSampleJson(),
                     Schema = schema
                 };
             }
@@ -686,8 +741,8 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
                 response.Headers[hdr.HeaderName] = new()
                 {
                     Description = hdr.Description,
-                    Example = hdr.Example is not null ? JToken.FromObject(hdr.Example, serializer) : null,
-                    Schema = hdr.Example is not null ? ctx.SchemaGenerator.Generate(hdr.Example.GetType()) : null
+                    Example = hdr.Example is not null ? JToken.FromObject(hdr.Example, state.Serializer) : null,
+                    Schema = hdr.Example is not null ? state.OpCtx.SchemaGenerator.Generate(hdr.Example.GetType()) : null
                 };
             }
         }
@@ -746,35 +801,35 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
         };
     }
 
-    static void ApplyResponseDescriptions(EndpointDefinition epDef, ApiDescription apiDescription, OpenApiOperation op)
+    static void ApplyResponseDescriptions(ProcessingState state)
     {
-        foreach (var oaResp in op.Responses.Where(r => string.IsNullOrWhiteSpace(r.Value.Description)).ToArray())
+        foreach (var oaResp in state.Operation.Responses.Where(r => string.IsNullOrWhiteSpace(r.Value.Description)).ToArray())
         {
             if (_defaultDescriptions.TryGetValue(oaResp.Key, out var description))
                 oaResp.Value.Description = description;
 
             var statusCode = Convert.ToInt32(oaResp.Key);
 
-            if (epDef.EndpointSummary?.Responses.ContainsKey(statusCode) is true)
-                oaResp.Value.Description = epDef.EndpointSummary.Responses[statusCode];
+            if (state.EndpointDefinition.EndpointSummary?.Responses.ContainsKey(statusCode) is true)
+                oaResp.Value.Description = state.EndpointDefinition.EndpointSummary.Responses[statusCode];
 
-            if (epDef.EndpointSummary?.ResponseParams.ContainsKey(statusCode) is not true || oaResp.Value.Schema is null)
+            if (state.EndpointDefinition.EndpointSummary?.ResponseParams.ContainsKey(statusCode) is not true || oaResp.Value.Schema is null)
                 continue;
 
-            var propDescriptions = epDef.EndpointSummary.ResponseParams[statusCode];
-            var respDtoProps = apiDescription
-                               .SupportedResponseTypes
-                               .SingleOrDefault(x => x.StatusCode == statusCode)?
-                               .Type?
-                               .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
-                               .Select(
-                                   p => new
-                                   {
-                                       key = p.GetCustomAttribute<JsonPropertyNameAttribute>()?.Name,
-                                       val = p.Name
-                                   })
-                               .Where(x => x.key is not null)
-                               .ToDictionary(x => x.key!, x => x.val);
+            var propDescriptions = state.EndpointDefinition.EndpointSummary.ResponseParams[statusCode];
+            var respDtoProps = state.ApiDescription
+                                    .SupportedResponseTypes
+                                    .SingleOrDefault(x => x.StatusCode == statusCode)?
+                                    .Type?
+                                    .GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
+                                    .Select(
+                                        p => new
+                                        {
+                                            key = p.GetCustomAttribute<JsonPropertyNameAttribute>()?.Name,
+                                            val = p.Name
+                                        })
+                                    .Where(x => x.key is not null)
+                                    .ToDictionary(x => x.key!, x => x.val);
 
             foreach (var prop in oaResp.GetAllProperties())
             {
@@ -794,38 +849,36 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
             schemas.Remove(key);
     }
 
-    static Dictionary<string, ParamDescription> BuildRequestParamDescriptions(IDictionary<string, OpenApiMediaType>? reqContent,
-                                                                              EndpointDefinition epDef,
-                                                                              JsonSerializer serializer)
+    static Dictionary<string, ParamDescription> BuildRequestParamDescriptions(ProcessingState state)
     {
         var descriptions = new Dictionary<string, ParamDescription>(StringComparer.OrdinalIgnoreCase);
 
-        if (reqContent is not null)
+        if (state.RequestContent is not null)
         {
-            foreach (var c in reqContent)
+            foreach (var c in state.RequestContent)
             {
                 foreach (var prop in c.GetAllProperties())
                 {
                     descriptions[prop.Key] = new(
                         prop.Value.Description,
-                        prop.Value.Example != null ? JToken.FromObject(prop.Value.Example, serializer) : null);
+                        prop.Value.Example != null ? JToken.FromObject(prop.Value.Example, state.Serializer) : null);
                 }
             }
         }
 
-        if (epDef.EndpointSummary is not null)
+        if (state.EndpointDefinition.EndpointSummary is not null)
         {
-            foreach (var param in epDef.EndpointSummary.Params)
+            foreach (var param in state.EndpointDefinition.EndpointSummary.Params)
                 descriptions.GetOrAdd(param.Key, new()).Description = param.Value;
         }
 
-        if (epDef.EndpointSummary?.RequestExamples.Count is > 0)
+        if (state.EndpointDefinition.EndpointSummary?.RequestExamples.Count is > 0)
         {
-            var example = epDef.EndpointSummary.RequestExamples.First().Value;
+            var example = state.EndpointDefinition.EndpointSummary.RequestExamples.First().Value;
 
             if (example is not IEnumerable)
             {
-                var jToken = JToken.FromObject(example, serializer);
+                var jToken = JToken.FromObject(example, state.Serializer);
 
                 foreach (var prop in jToken)
                 {
@@ -838,17 +891,16 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
         return descriptions;
     }
 
-    static void ApplyRequestParamDescriptions(IDictionary<string, OpenApiMediaType>? reqContent,
-                                              Dictionary<string, ParamDescription> reqParamDescriptions)
+    static void ApplyRequestParamDescriptions(ProcessingState state)
     {
-        if (reqContent is null)
+        if (state.RequestContent is null)
             return;
 
-        foreach (var c in reqContent)
+        foreach (var c in state.RequestContent)
         {
             foreach (var prop in c.GetAllRequestProperties())
             {
-                if (!reqParamDescriptions.TryGetValue(prop.Key, out var x))
+                if (!state.RequestParamDescriptions.TryGetValue(prop.Key, out var x))
                     continue;
 
                 prop.Value.Description = x.Description;
@@ -857,73 +909,54 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
         }
     }
 
-    static void ReplaceRequestBodyFromProperty(OpenApiOperation op,
-                                               IDictionary<string, JsonSchema> schemas,
-                                               ParamCreationContext paramCtx,
-                                               PropertyInfo? bodyProp,
-                                               bool isJsonPatchAware)
+    static void ReplaceRequestBodyFromProperty(ProcessingState state, PropertyInfo? bodyProp, bool isJsonPatchAware)
     {
-        var body = op.Parameters.FirstOrDefault(x => x.Kind == OpenApiParameterKind.Body);
+        var body = state.Operation.Parameters.FirstOrDefault(x => x.Kind == OpenApiParameterKind.Body);
 
-        if (bodyProp is null || body is null || op.RequestBody is null)
+        if (bodyProp is null || body is null || state.Operation.RequestBody is null)
             return;
 
-        var oldBodyName = op.RequestBody.Name;
-        var bodyParam = CreateParam(paramCtx, OpenApiParameterKind.Body, bodyProp, bodyProp.Name, true);
+        var oldBodyName = state.Operation.RequestBody.Name;
+        var bodyParam = CreateParam(state.ParamCtx, OpenApiParameterKind.Body, bodyProp, bodyProp.Name, true);
 
         //otherwise xml docs from properties won't be considered due to existence of a schema level example generated from prm.ActualSchema.ToSampleJson()
         bodyParam.Example = null;
 
-        op.RequestBody.Content.FirstOrDefault().Value.Schema = bodyParam.Schema;
+        state.Operation.RequestBody.Content.FirstOrDefault().Value.Schema = bodyParam.Schema;
 
-        if (isJsonPatchAware && op.RequestBody.Content.TryGetValue("application/json-patch+json", out var patchContent))
+        if (isJsonPatchAware && state.Operation.RequestBody.Content.TryGetValue("application/json-patch+json", out var patchContent))
             patchContent.Schema = TryGetJsonPatchArraySchema(bodyParam.Schema) ?? TryGetJsonPatchArraySchema(patchContent.Schema) ?? bodyParam.Schema;
 
-        op.RequestBody.IsRequired = bodyParam.IsRequired;
-        op.RequestBody.Description = bodyParam.Description;
-        op.RequestBody.Name = bodyParam.Name;
-        op.RequestBody.Position = null;
-        schemas.Remove(oldBodyName);
+        state.Operation.RequestBody.IsRequired = bodyParam.IsRequired;
+        state.Operation.RequestBody.Description = bodyParam.Description;
+        state.Operation.RequestBody.Name = bodyParam.Name;
+        state.Operation.RequestBody.Position = null;
+        state.OpCtx.Document.Components.Schemas.Remove(oldBodyName);
     }
 
-    static void ApplyRequestExamples(EndpointDefinition epDef,
-                                     OpenApiOperation op,
-                                     IDictionary<string, OpenApiMediaType>? reqContent,
-                                     JsonSerializer serializer,
-                                     List<string> propsToRemoveFromExample,
-                                     PropertyInfo? fromBodyProp,
-                                     PropertyInfo? fromFormProp)
+    static void ApplyRequestExamples(ProcessingState state, PropertyInfo? fromBodyProp, PropertyInfo? fromFormProp)
     {
-        var summary = epDef.EndpointSummary;
+        var summary = state.EndpointDefinition.EndpointSummary;
 
         if (summary?.RequestExamples.Count is not > 0)
             return;
 
-        foreach (var requestBody in op.Parameters.Where(x => x.Kind == OpenApiParameterKind.Body))
+        var requestExamples = BuildUniqueRequestExamples(summary.RequestExamples);
+
+        foreach (var requestBody in state.Operation.Parameters.Where(x => x.Kind == OpenApiParameterKind.Body))
         {
-            var exCount = summary.RequestExamples.Count;
+            var exCount = requestExamples.Count;
 
             if (exCount == 1)
             {
-                requestBody.ActualSchema.Example = GetExampleObjectFrom(summary.RequestExamples.First());
+                requestBody.ActualSchema.Example = GetExampleObjectFrom(requestExamples[0]);
 
                 continue;
             }
 
-            foreach (var group in summary.RequestExamples.GroupBy(e => e.Label).Where(g => g.Count() > 1))
+            foreach (var example in requestExamples)
             {
-                var i = 1;
-
-                foreach (var ex in group)
-                {
-                    ex.Label += $" {i}";
-                    i++;
-                }
-            }
-
-            foreach (var example in summary.RequestExamples)
-            {
-                var firstContent = reqContent?.FirstOrDefault().Value;
+                var firstContent = state.RequestContent?.FirstOrDefault().Value;
 
                 if (firstContent is null)
                     continue;
@@ -962,17 +995,82 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
             }
 
             if (tInput.IsAssignableTo(typeof(IEnumerable)))
-                return JToken.FromObject(input, serializer);
+                return JToken.FromObject(input, state.Serializer);
 
-            var example = JObject.FromObject(input, serializer);
+            var example = JObject.FromObject(input, state.Serializer);
 
             foreach (var p in example.Properties().ToArray())
             {
-                if (propsToRemoveFromExample.Contains(p.Name, StringComparer.OrdinalIgnoreCase))
+                if (state.PropsToRemoveFromExample.Contains(p.Name, StringComparer.OrdinalIgnoreCase))
                     p.Remove();
             }
 
             return example;
+        }
+
+        static List<RequestExample> BuildUniqueRequestExamples(ICollection<RequestExample> examples)
+        {
+            var result = examples.ToList();
+
+            foreach (var group in result.GroupBy(e => e.Label).Where(g => g.Count() > 1))
+            {
+                var i = 1;
+
+                foreach (var ex in group)
+                {
+                    result[result.IndexOf(ex)] = new(ex.Value, $"{ex.Label} {i}", ex.Summary, ex.Description);
+                    i++;
+                }
+            }
+
+            return result;
+        }
+    }
+
+    sealed class ProcessingState
+    {
+        public OperationProcessorContext OpCtx { get; }
+        public IEnumerable<object> Metadata { get; }
+        public EndpointDefinition EndpointDefinition { get; }
+        public ApiDescription ApiDescription { get; }
+        public OpenApiOperation Operation { get; }
+        public JsonSerializer Serializer { get; }
+        public IDictionary<string, OpenApiMediaType>? RequestContent { get; }
+        public string BareRoute { get; }
+
+        public string OperationPath
+        {
+            get => OpCtx.OperationDescription.Path;
+            set => OpCtx.OperationDescription.Path = value;
+        }
+
+        public Type? RequestDtoType { get; set; }
+        public bool RequestDtoIsList { get; set; }
+        public bool IsGetRequest { get; set; }
+        public List<PropertyInfo>? RequestDtoProps { get; set; }
+        public Dictionary<string, ParamDescription> RequestParamDescriptions { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+        public ParamCreationContext ParamCtx { get; set; }
+        public List<string> PropsToRemoveFromExample { get; } = [];
+
+        public ProcessingState(OperationProcessorContext opCtx,
+                               AspNetCoreOperationProcessorContext aspNetCoreCtx,
+                               IEnumerable<object> metadata,
+                               EndpointDefinition endpointDefinition)
+        {
+            OpCtx = opCtx;
+            Metadata = metadata;
+            EndpointDefinition = endpointDefinition;
+            ApiDescription = aspNetCoreCtx.ApiDescription;
+            Operation = opCtx.OperationDescription.Operation;
+            OperationPath = $"/{StripRouteConstraints(ApiDescription.RelativePath!.TrimStart('~').TrimEnd('/'))}";
+
+            var version = $"/{GlobalConfig.VersioningPrefix ?? "v"}{EndpointDefinition.Version.Current}";
+            var routePrefix = "/" + (GlobalConfig.EndpointRoutePrefix ?? "_");
+            BareRoute = OperationPath.Remove(routePrefix).Remove(version);
+            RequestContent = Operation.RequestBody?.Content;
+
+            var serializerSettings = ((NewtonsoftJsonSchemaGeneratorSettings)opCtx.SchemaGenerator.Settings).SerializerSettings;
+            Serializer = JsonSerializer.Create(serializerSettings);
         }
     }
 
@@ -1022,21 +1120,16 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
         [GeneratedRegex(@"\{[^{}]*:[^{}]*\}")]
         private static partial Regex MyRegex();
     }
-}
 
-sealed class ResponseMeta(string key,
-                          IReadOnlyCollection<string> contentTypes,
-                          object? example,
-                          ResponseHeader[]? userHeaders,
-                          Type? dtoType,
-                          bool isIResult)
-{
-    public string Key { get; } = key;
-    public IReadOnlyCollection<string> ContentTypes { get; } = contentTypes;
-    public object? Example { get; } = example;
-    public ResponseHeader[]? UserHeaders { get; } = userHeaders;
-    public Type? DtoType { get; } = dtoType;
-    public bool IsIResult { get; } = isIResult;
+    sealed class ResponseMeta(string key, IReadOnlyCollection<string> contentTypes, object? example, ResponseHeader[]? userHeaders, Type? dtoType, bool isIResult)
+    {
+        public string Key { get; } = key;
+        public IReadOnlyCollection<string> ContentTypes { get; } = contentTypes;
+        public object? Example { get; } = example;
+        public ResponseHeader[]? UserHeaders { get; } = userHeaders;
+        public Type? DtoType { get; } = dtoType;
+        public bool IsIResult { get; } = isIResult;
+    }
 }
 
 sealed class ParamDescription(string? description = null, JToken? example = null)

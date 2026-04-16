@@ -25,6 +25,7 @@
         <PackageVersion Include="Microsoft.OpenApi.Kiota.Builder" Version="1.30.0"/>
         <PackageVersion Include="Microsoft.Extensions.Primitives" Version="10.0.5"/>
         <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.201"/>
+        <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.6"/>
         <PackageVersion Include="NSwag.AspNetCore" Version="14.6.3"/>
         <PackageVersion Include="NSwag.CodeGeneration.CSharp" Version="14.6.3"/>
         <PackageVersion Include="NSwag.CodeGeneration.TypeScript" Version="14.6.3"/>

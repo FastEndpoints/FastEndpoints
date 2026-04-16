@@ -1,7 +1,6 @@
 using System.Globalization;
-using FastEndpoints.Swagger;
-using NJsonSchema;
-using NSwag;
+using FastEndpoints.OpenApi;
+using Microsoft.OpenApi;
 using TestCases.ClientStreamingTest;
 using TestCases.CommandBusTest;
 using TestCases.CommandHandlerTest;
@@ -43,7 +42,7 @@ bld.Services
    .AddJobQueues<Job, JobStorage>()
    .RegisterServicesFromWeb()
    .AddAntiforgery()
-   .SwaggerDocument(
+   .OpenApiDocument(
        o =>
        {
            o.EndpointFilter = excludeReviewAndReleaseVersioning;
@@ -53,13 +52,12 @@ bld.Services
                    s.DocumentName = "Initial Release";
                    s.Title = "Web API";
                    s.Version = "v0.0";
-                   s.SchemaSettings.SchemaType = SchemaType.OpenApi3;
                };
            o.TagCase = TagCase.TitleCase;
            o.TagStripSymbols = true;
            o.RemoveEmptyRequestSchema = false;
        })
-   .SwaggerDocument(
+   .OpenApiDocument(
        o =>
        {
            o.EndpointFilter = excludeReviewAndReleaseVersioning;
@@ -74,15 +72,15 @@ bld.Services
                        new()
                        {
                            Name = "api_key",
-                           In = OpenApiSecurityApiKeyLocation.Header,
-                           Type = OpenApiSecuritySchemeType.ApiKey
+                           In = ParameterLocation.Header,
+                           Type = SecuritySchemeType.ApiKey
                        });
                };
            o.MaxEndpointVersion = 1;
            o.RemoveEmptyRequestSchema = false;
            o.TagStripSymbols = true;
        })
-   .SwaggerDocument(
+   .OpenApiDocument(
        o =>
        {
            o.EndpointFilter = excludeReviewAndReleaseVersioning;
@@ -98,7 +96,7 @@ bld.Services
            o.RemoveEmptyRequestSchema = false;
            o.TagStripSymbols = true;
        })
-   .SwaggerDocument(
+   .OpenApiDocument(
        o => //only ver3 & only FastEndpoints
        {
            o.EndpointFilter = excludeReviewAndReleaseVersioning;
@@ -115,7 +113,7 @@ bld.Services
        })
 
    //used for release versioning tests
-   .SwaggerDocument(
+   .OpenApiDocument(
        o =>
        {
            o.ExcludeNonFastEndpoints = true;
@@ -128,7 +126,7 @@ bld.Services
            o.ReleaseVersion = 0;
            o.ShowDeprecatedOps = true;
        })
-   .SwaggerDocument(
+   .OpenApiDocument(
        o =>
        {
            o.ExcludeNonFastEndpoints = true;
@@ -141,7 +139,7 @@ bld.Services
            o.ReleaseVersion = 1;
            o.ShowDeprecatedOps = true;
        })
-   .SwaggerDocument(
+   .OpenApiDocument(
        o =>
        {
            o.ExcludeNonFastEndpoints = true;
@@ -154,7 +152,7 @@ bld.Services
            o.ReleaseVersion = 2;
            o.ShowDeprecatedOps = true;
        })
-   .SwaggerDocument(
+   .OpenApiDocument(
        o =>
        {
            o.ExcludeNonFastEndpoints = true;
@@ -167,7 +165,7 @@ bld.Services
            o.ReleaseVersion = 3;
            o.ShowDeprecatedOps = true;
        })
-   .SwaggerDocument(
+   .OpenApiDocument(
        o =>
        {
            o.ExcludeNonFastEndpoints = true;
@@ -179,7 +177,7 @@ bld.Services
                                 };
            o.TagStripSymbols = true;
        })
-   .SwaggerDocument(
+   .OpenApiDocument(
        o =>
        {
            o.ExcludeNonFastEndpoints = true;
@@ -263,7 +261,7 @@ app.UseRequestLocalization(
        });
 
 if (!app.Environment.IsProduction())
-    app.UseSwaggerGen();
+    app.MapOpenApi();
 
 app.Services.RegisterGenericCommand(typeof(GenericCommand<>), typeof(GenericCommandHandler<>));
 app.Services.RegisterGenericCommand(typeof(GenericNoResultCommand<>), typeof(GenericNoResultCommandHandler<>));

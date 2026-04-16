@@ -1,4 +1,4 @@
-using FastEndpoints.Swagger;
+using FastEndpoints.OpenApi;
 
 namespace TestCases.Swagger.Review;
 

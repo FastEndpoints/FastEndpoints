@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0;</TargetFrameworks>
@@ -15,12 +15,14 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all"/>
         <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" PrivateAssets="all"/>
-        <ProjectReference Include="..\Attributes\FastEndpoints.Attributes.csproj"/>
+        <ProjectReference Include="..\Attributes\FastEndpoints.Attributes.csproj" PrivateAssets="All"/>
     </ItemGroup>
 
     <ItemGroup>
         <None Include="..\icon.png" Pack="true" PackagePath="\" Link="Content\Icon" Visible="false"/>
         <None Include="$(OutputPath)\netstandard2.0\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false"/>
+        <None Include="$(OutputPath)\\netstandard2.0\FastEndpoints.Attributes.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+        <None Include="$(OutputPath)\netstandard2.0\FastEndpoints.Attributes.dll" Pack="true" PackagePath="lib\netstandard2.0" Visible="true" />
         <None Include="FastEndpoints.Generator.targets" Pack="true" PackagePath="build/FastEndpoints.Generator.targets" Visible="true"/>
     </ItemGroup>
 

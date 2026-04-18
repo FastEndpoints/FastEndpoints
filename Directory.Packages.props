@@ -32,6 +32,7 @@
         <PackageVersion Include="NSwag.Generation" Version="14.6.3"/>
         <PackageVersion Include="NSwag.Generation.AspNetCore" Version="14.6.3"/>
         <PackageVersion Include="RichardSzalay.MockHttp" Version="7.0.0"/>
+        <PackageVersion Include="Scalar.AspNetCore" Version="2.14.1"/>
         <PackageVersion Include="Shouldly" Version="4.3.0"/>
         <PackageVersion Include="xunit.v3" Version="3.2.2"/>
         <PackageVersion Include="xunit.v3.extensibility.core" Version="3.2.2"/>

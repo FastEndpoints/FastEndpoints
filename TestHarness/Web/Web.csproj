@@ -10,6 +10,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Scalar.AspNetCore"/>
         <PackageReference Include="Microsoft.AspNetCore.JsonPatch.SystemTextJson"/>
         <ProjectReference Include="..\..\Src\Library\FastEndpoints.csproj"/>
         <ProjectReference Include="..\..\Src\Messaging\Messaging.Remote\FastEndpoints.Messaging.Remote.csproj"/>

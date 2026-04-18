@@ -16,6 +16,7 @@ using TestCases.X402;
 using Web;
 using Web.PipelineBehaviors.PreProcessors;
 using Web.Services;
+using Scalar.AspNetCore;
 
 var bld = WebApplication.CreateBuilder(args);
 
@@ -261,7 +262,15 @@ app.UseRequestLocalization(
        });
 
 if (!app.Environment.IsProduction())
+{
     app.MapOpenApi();
+    app.MapScalarApiReference(
+        o =>
+        {
+            o.AddDocuments("Initial Release", "Release 1.0", "Release 2.0", "Release 3.0");
+            o.OperationTitleSource = OperationTitleSource.Path;
+        });
+}
 
 app.Services.RegisterGenericCommand(typeof(GenericCommand<>), typeof(GenericCommandHandler<>));
 app.Services.RegisterGenericCommand(typeof(GenericNoResultCommand<>), typeof(GenericNoResultCommandHandler<>));

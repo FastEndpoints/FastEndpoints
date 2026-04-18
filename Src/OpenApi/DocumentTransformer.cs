@@ -42,50 +42,27 @@ sealed partial class DocumentTransformer : IOpenApiDocumentTransformer
 
     public Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
     {
-        // ensure DocumentOptions.Services is populated even for documents with no operations
         _opts.Services ??= context.ApplicationServices;
 
-        // set document info
-        document.Info ??= new();
         if (_docSettings.Title is not null)
             document.Info.Title = _docSettings.Title;
+
         if (_docSettings.Version is not null)
             document.Info.Version = _docSettings.Version;
 
-        // remove auto-generated servers block (NSwag didn't emit one)
-        document.Servers?.Clear();
-
-        // remove filtered paths
         RemoveFilteredPaths(document);
-
-        // apply version filtering
         ApplyVersionFiltering(document);
-
-        // add security scheme definitions
         AddSecuritySchemes(document);
-
-        // fix security requirements on operations (needs document reference for proper serialization)
         FixOperationSecurity(document);
-
-        // add tag descriptions
         AddTagDescriptions(document);
-
-        // remove HeaderValue schemas
         RemoveHeaderValueSchemas(document);
-
-        // remove IFormFile-related component schemas (they should be inlined, not referenced)
         document.RemoveFormFileSchemas();
-
-        // apply naming policy to path template variables
         ApplyPathNamingPolicy(document);
-
         NormalizeSchemas(document);
 
-        // remove auto-generated document-level tags (only keep explicitly configured tag descriptions)
         if (_opts.TagDescriptions is null)
             document.Tags?.Clear();
 
-        // sort paths, schemas, and responses for deterministic output
         document.SortPaths();
         document.SortSchemas();
         document.SortResponses();
@@ -274,7 +251,7 @@ sealed partial class DocumentTransformer : IOpenApiDocumentTransformer
             }
         }
 
-        if (headerRemoved && document.Components.Schemas.ContainsKey(stringSegmentKey))
+        if (headerRemoved)
             document.Components.Schemas.Remove(stringSegmentKey);
 
         static bool IsHeaderValueSchema(string schemaKey)

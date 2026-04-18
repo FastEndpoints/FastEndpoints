@@ -1,7 +1,10 @@
+using System.Collections;
 using System.Globalization;
 using System.Reflection;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.AspNetCore.Routing;
@@ -101,7 +104,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
         if (nameMetadata is not null)
             operation.OperationId = nameMetadata.EndpointName;
 
-        // auto-tag
+        // auto-tagging
         ApplyAutoTag(operation, epDef, bareRoute, metadata);
 
         // summary / description
@@ -113,13 +116,13 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
             operation.Deprecated = true;
 
         // handle request parameters
-        var propsRemovedFromBody = HandleRequestParameters(operation, epDef, context, documentPath);
+        var propsRemovedFromBody = HandleRequestParameters(operation, context, documentPath);
 
         // handle [FromBody]/[FromForm] request body replacement + JSON Patch unwrap
         ApplyRequestBodyOverrides(operation, epDef);
 
         // apply parameter descriptions from EndpointSummary.Params and defaults from [DefaultValue]
-        ApplyParameterMetadata(operation, epDef, context);
+        ApplyParameterMetadata(operation, epDef);
 
         // add missing responses from IProducesResponseTypeMetadata that ApiExplorer may have skipped
         // (e.g., 400 ErrorResponse with application/problem+json content type)
@@ -162,7 +165,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
         if (GlobalConfig.IsUsingAspVersioning)
             RemoveDuplicateParameters(operation);
 
-        // sort parameters: path, query, header, cookie (matches NSwag ordering)
+        // sort parameters: path, query, header, cookie
         SortParameters(operation);
 
         return Task.CompletedTask;
@@ -209,7 +212,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
         }
     }
 
-    HashSet<string> HandleRequestParameters(OpenApiOperation operation, EndpointDefinition epDef, OpenApiOperationTransformerContext context, string documentPath)
+    HashSet<string> HandleRequestParameters(OpenApiOperation operation, OpenApiOperationTransformerContext context, string documentPath)
     {
         var propsRemovedFromBody = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
@@ -230,7 +233,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
         if (requestDtoType is not null)
         {
             var isGetRequest = context.Description.HttpMethod == "GET";
-            var requestDtoIsList = typeof(System.Collections.IEnumerable).IsAssignableFrom(requestDtoType) && requestDtoType != typeof(string);
+            var requestDtoIsList = typeof(IEnumerable).IsAssignableFrom(requestDtoType) && requestDtoType != typeof(string);
             var requestDtoProps = requestDtoIsList
                                       ? null
                                       : GetPublicInstanceProperties(requestDtoType).ToList();
@@ -350,7 +353,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
         {
             foreach (var param in operation.Parameters)
             {
-                if (param is OpenApiParameter concreteParam && concreteParam.In == ParameterLocation.Path && concreteParam.Name is not null)
+                if (param is OpenApiParameter { In: ParameterLocation.Path, Name: not null } concreteParam)
                 {
                     var renamed = concreteParam.Name.ApplyPropNamingPolicy(docOpts);
                     if (renamed != concreteParam.Name)
@@ -417,7 +420,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
         // set parameter example: XML doc <example> tag takes priority, then auto-generated sample
         if (required && prop?.PropertyType is not null)
         {
-            System.Text.Json.Nodes.JsonNode? example = null;
+            JsonNode? example = null;
 
             // XML doc <example> tag gets first priority
             var xmlExample = XmlDocSchemaTransformer.GetPropertyExample(prop);
@@ -426,7 +429,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
             {
                 try
                 {
-                    example = System.Text.Json.Nodes.JsonNode.Parse(xmlExample);
+                    example = JsonNode.Parse(xmlExample);
                 }
                 catch
                 {
@@ -558,9 +561,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
                 if (contentType.Contains("json", StringComparison.OrdinalIgnoreCase))
                     continue;
 
-                if (mediaType.Schema is OpenApiSchema schema &&
-                    schema.Type == JsonSchemaType.String &&
-                    schema.Format == "byte")
+                if (mediaType.Schema is OpenApiSchema { Type: JsonSchemaType.String, Format: "byte" } schema)
                     schema.Format = "binary";
             }
         }
@@ -611,7 +612,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
                .ToDictionary(x => x.JsonName!, x => x.ClrName);
     }
 
-    void ApplyParameterMetadata(OpenApiOperation operation, EndpointDefinition epDef, OpenApiOperationTransformerContext context)
+    void ApplyParameterMetadata(OpenApiOperation operation, EndpointDefinition epDef)
     {
         if (operation.Parameters is not { Count: > 0 })
             return;
@@ -770,9 +771,9 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
             }
         }
 
-        static System.Text.Json.Nodes.JsonNode? StripRemovedProps(System.Text.Json.Nodes.JsonNode? node, HashSet<string> removedProps)
+        static JsonNode? StripRemovedProps(JsonNode? node, HashSet<string> removedProps)
         {
-            if (removedProps.Count == 0 || node is not System.Text.Json.Nodes.JsonObject obj)
+            if (removedProps.Count == 0 || node is not JsonObject obj)
                 return node;
 
             obj.RemoveCaseInsensitiveProperties(removedProps);
@@ -998,7 +999,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
                                           SharedContext sharedCtx,
                                           string operationKey)
     {
-        var authorizeAttributes = metadata.OfType<Microsoft.AspNetCore.Authorization.AuthorizeAttribute>().ToList();
+        var authorizeAttributes = metadata.OfType<AuthorizeAttribute>().ToList();
 
         if (IsAnonymousOperation(metadata, authorizeAttributes))
         {
@@ -1014,8 +1015,8 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
             sharedCtx.SecurityRequirements[operationKey] = securityEntries;
     }
 
-    static bool IsAnonymousOperation(IList<object> metadata, List<Microsoft.AspNetCore.Authorization.AuthorizeAttribute> authorizeAttributes)
-        => metadata.OfType<Microsoft.AspNetCore.Authorization.AllowAnonymousAttribute>().Any() || authorizeAttributes.Count == 0;
+    static bool IsAnonymousOperation(IList<object> metadata, List<AuthorizeAttribute> authorizeAttributes)
+        => metadata.OfType<AllowAnonymousAttribute>().Any() || authorizeAttributes.Count == 0;
 
     static List<(string SchemeName, List<string> Scopes)> BuildSecurityEntries(EndpointDefinition epDef,
                                                                                DocumentSettings docSettings,
@@ -1036,7 +1037,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
         return securityEntries;
     }
 
-    static IEnumerable<string> BuildScopes(IEnumerable<Microsoft.AspNetCore.Authorization.AuthorizeAttribute> authorizeAttributes)
+    static IEnumerable<string> BuildScopes(IEnumerable<AuthorizeAttribute> authorizeAttributes)
         => authorizeAttributes
            .Where(a => a.Roles != null)
            .SelectMany(a => a.Roles!.Split(','))
@@ -1079,9 +1080,9 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
             return;
 
         // serialize example object properties for per-property examples
-        Dictionary<string, System.Text.Json.Nodes.JsonNode>? propExamples = null;
+        Dictionary<string, JsonNode>? propExamples = null;
 
-        if (exampleObj is not null and not System.Collections.IEnumerable &&
+        if (exampleObj is not null and not IEnumerable &&
             exampleObj.JsonObjectFromObject() is { } obj)
         {
             propExamples = [];
@@ -1108,7 +1109,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
                 if (exNode is not null)
                 {
                     // strip properties that were removed from the request body (claim-bound, route-bound, etc.)
-                    if (propsRemovedFromBody.Count > 0 && exNode is System.Text.Json.Nodes.JsonObject exObj)
+                    if (propsRemovedFromBody.Count > 0 && exNode is JsonObject exObj)
                         exObj.RemoveCaseInsensitiveProperties(propsRemovedFromBody);
 
                     schema.Example = exNode;
@@ -1125,9 +1126,12 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
 
                 if (hasParams)
                 {
-                    var description = FindParamDescription(epDef.EndpointSummary!.Params, propName);
-                    if (description is not null)
-                        concreteProp.Description = description;
+                    if (epDef.EndpointSummary?.Params != null)
+                    {
+                        var description = FindParamDescription(epDef.EndpointSummary.Params, propName);
+                        if (description is not null)
+                            concreteProp.Description = description;
+                    }
                 }
 
                 if (propExamples is not null &&

@@ -23,7 +23,7 @@ public static class Extensions
     internal static JsonNamingPolicy? NamingPolicy => SelectedJsonNamingPolicy ?? Cfg.SerOpts.Options.PropertyNamingPolicy;
 
     /// <summary>
-    /// enable support for FastEndpoints and create a open-api document.
+    /// enable support for FastEndpoints and create an open-api document.
     /// </summary>
     /// <param name="services">the service collection</param>
     /// <param name="options">swagger document configuration options</param>

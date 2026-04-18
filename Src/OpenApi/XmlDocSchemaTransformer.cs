@@ -101,17 +101,24 @@ sealed class XmlDocSchemaTransformer : IOpenApiSchemaTransformer
 
         foreach (var node in element.Nodes())
         {
-            if (node is XText text)
-                sb.Append(text.Value);
-            else if (node is XElement el && el.Name.LocalName == "see")
+            switch (node)
             {
-                var cref = el.Attribute("cref")?.Value;
+                case XText text:
+                    sb.Append(text.Value);
 
-                if (cref is not null)
+                    break;
+                case XElement { Name.LocalName: "see" } el:
                 {
-                    // extract the short member name from cref (e.g. "P:Namespace.Type.Member" → "Member")
-                    var lastDot = cref.LastIndexOf('.');
-                    sb.Append(lastDot >= 0 ? cref[(lastDot + 1)..] : cref);
+                    var cref = el.Attribute("cref")?.Value;
+
+                    if (cref is not null)
+                    {
+                        // extract the short member name from cref (e.g. "P:Namespace.Type.Member" → "Member")
+                        var lastDot = cref.LastIndexOf('.');
+                        sb.Append(lastDot >= 0 ? cref[(lastDot + 1)..] : cref);
+                    }
+
+                    break;
                 }
             }
         }

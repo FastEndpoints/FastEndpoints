@@ -1,4 +1,6 @@
 using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using Microsoft.OpenApi;
 
 namespace FastEndpoints.OpenApi;
@@ -83,7 +85,7 @@ static class OperationSchemaHelpers
             };
         }
 
-        internal System.Text.Json.Nodes.JsonNode? GenerateSampleJsonNode(HashSet<Type>? visited = null)
+        internal JsonNode? GenerateSampleJsonNode(HashSet<Type>? visited = null)
         {
             var underlying = Nullable.GetUnderlyingType(type) ?? type;
 
@@ -96,12 +98,12 @@ static class OperationSchemaHelpers
                     var itemSample = elementType.GenerateSampleJsonNode(visited);
 
                     if (itemSample is not null)
-                        return new System.Text.Json.Nodes.JsonArray(itemSample);
+                        return new JsonArray(itemSample);
 
                     var elemSample = elementType.GetSampleValue();
 
                     if (elemSample is not null)
-                        return new System.Text.Json.Nodes.JsonArray(elemSample.JsonNodeFromObject());
+                        return new JsonArray(elemSample.JsonNodeFromObject());
 
                     return null;
                 }
@@ -123,7 +125,7 @@ static class OperationSchemaHelpers
             if (!visited.Add(underlying))
                 return null;
 
-            var obj = new System.Text.Json.Nodes.JsonObject();
+            var obj = new JsonObject();
             var policy = Extensions.NamingPolicy;
 
             foreach (var prop in underlying.GetProperties(PublicInstanceHierarchy))
@@ -196,7 +198,7 @@ static class OperationSchemaHelpers
 
         constraintName = constraintName.TrimEnd('?');
 
-        return GlobalConfig.RouteConstraintMap.TryGetValue(constraintName, out var t) ? t : null;
+        return GlobalConfig.RouteConstraintMap.GetValueOrDefault(constraintName);
     }
 
     internal static bool IsRequestBodyEmpty(this OpenApiOperation operation)
@@ -236,14 +238,14 @@ static class OperationSchemaHelpers
 
     extension(object? value)
     {
-        internal System.Text.Json.Nodes.JsonNode? JsonNodeFromObject()
+        internal JsonNode? JsonNodeFromObject()
         {
             if (value is null)
                 return null;
 
             try
             {
-                return System.Text.Json.JsonSerializer.SerializeToNode(value, Cfg.SerOpts.Options);
+                return JsonSerializer.SerializeToNode(value, Cfg.SerOpts.Options);
             }
             catch
             {
@@ -251,7 +253,7 @@ static class OperationSchemaHelpers
             }
         }
 
-        internal System.Text.Json.Nodes.JsonObject? JsonObjectFromObject(Type? valueType = null)
+        internal JsonObject? JsonObjectFromObject(Type? valueType = null)
         {
             if (value is null)
                 return null;
@@ -259,9 +261,9 @@ static class OperationSchemaHelpers
             try
             {
                 return valueType is null
-                           ? System.Text.Json.JsonSerializer.SerializeToNode(value, Cfg.SerOpts.Options) as System.Text.Json.Nodes.JsonObject
-                           : System.Text.Json.Nodes.JsonNode.Parse(System.Text.Json.JsonSerializer.Serialize(value, valueType, Cfg.SerOpts.Options)) as
-                                 System.Text.Json.Nodes.JsonObject;
+                           ? JsonSerializer.SerializeToNode(value, Cfg.SerOpts.Options) as JsonObject
+                           : JsonNode.Parse(JsonSerializer.Serialize(value, valueType, Cfg.SerOpts.Options)) as
+                                 JsonObject;
             }
             catch
             {
@@ -270,7 +272,7 @@ static class OperationSchemaHelpers
         }
     }
 
-    internal static void RemoveCaseInsensitiveProperties(this System.Text.Json.Nodes.JsonObject obj, IEnumerable<string> propertyNames)
+    internal static void RemoveCaseInsensitiveProperties(this JsonObject obj, IEnumerable<string> propertyNames)
     {
         foreach (var propertyName in propertyNames)
         {

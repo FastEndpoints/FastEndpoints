@@ -4,6 +4,11 @@
     "title": "Web API",
     "version": "v1.0"
   },
+  "servers": [
+    {
+      "url": "http://localhost/"
+    }
+  ],
   "paths": {
     "/api/admin/login/ver1": {
       "post": {

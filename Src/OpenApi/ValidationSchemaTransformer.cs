@@ -4,6 +4,7 @@
 
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using FastEndpoints.OpenApi.ValidationProcessor;
 using FastEndpoints.OpenApi.ValidationProcessor.Extensions;
 using FluentValidation;
@@ -14,13 +15,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi;
 
-// ReSharper disable ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-
 namespace FastEndpoints.OpenApi;
 
 sealed class ValidationSchemaTransformer : IOpenApiSchemaTransformer
 {
-    const System.Reflection.BindingFlags PublicInstance = System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance;
+    const BindingFlags PublicInstance = BindingFlags.Public | BindingFlags.Instance;
 
     IServiceResolver? _serviceResolver;
     ILogger<ValidationSchemaTransformer>? _logger;
@@ -321,8 +320,7 @@ sealed class ValidationSchemaTransformer : IOpenApiSchemaTransformer
 
                             var schema = context.Schema;
                             if (schema.Properties?.TryGetValue(context.PropertyKey, out var p) == true &&
-                                p is OpenApiSchema prop &&
-                                prop.Type.HasValue &&
+                                p is OpenApiSchema { Type: not null } prop &&
                                 prop.Type.Value.HasFlag(JsonSchemaType.Null))
                                 prop.Type = prop.Type.Value & ~JsonSchemaType.Null;
                         }

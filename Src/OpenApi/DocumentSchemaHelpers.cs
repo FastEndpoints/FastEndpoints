@@ -1,4 +1,7 @@
 using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 using Microsoft.OpenApi;
 
 namespace FastEndpoints.OpenApi;
@@ -65,7 +68,7 @@ static class DocumentSchemaHelpers
                         {
                             foreach (var resp in op.Responses.Values)
                             {
-                                if (resp is OpenApiResponse concreteResp && concreteResp.Content is { Count: > 0 })
+                                if (resp is OpenApiResponse { Content.Count: > 0 } concreteResp)
                                 {
                                     foreach (var content in concreteResp.Content.Values)
                                         RewriteFormFileMediaType(content);
@@ -126,10 +129,7 @@ static class DocumentSchemaHelpers
                     document.Components.Schemas[refId] = schema;
 
                 foreach (var (extraRefId, extraSchema) in extraSchemas)
-                {
-                    if (!document.Components.Schemas.ContainsKey(extraRefId))
-                        document.Components.Schemas[extraRefId] = extraSchema;
-                }
+                    document.Components.Schemas.TryAdd(extraRefId, extraSchema);
             }
         }
 
@@ -278,7 +278,7 @@ static class DocumentSchemaHelpers
 
                 foreach (var resp in op.Responses.Values)
                 {
-                    if (resp is OpenApiResponse concreteResp && concreteResp.Content is { Count: > 0 })
+                    if (resp is OpenApiResponse { Content.Count: > 0 } concreteResp)
                         CollectSchemaRefs(concreteResp.Content.Values.Select(content => content.Schema), refs);
                 }
             }
@@ -381,7 +381,7 @@ static class DocumentSchemaHelpers
             refId.Contains("IFormFile", StringComparison.Ordinal));
 
     static string? GetReferenceId(OpenApiSchemaReference schemaRef)
-        => schemaRef.Reference?.Id ?? schemaRef.Id;
+        => schemaRef.Reference.Id ?? schemaRef.Id;
 
     static OpenApiSchema FormFileBinarySchema()
         => new() { Type = JsonSchemaType.String, Format = "binary" };
@@ -400,14 +400,14 @@ static class DocumentSchemaHelpers
 
         foreach (var prop in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
         {
-            if (prop.GetCustomAttribute<System.Text.Json.Serialization.JsonIgnoreAttribute>()?.Condition ==
-                System.Text.Json.Serialization.JsonIgnoreCondition.Always)
+            if (prop.GetCustomAttribute<JsonIgnoreAttribute>()?.Condition ==
+                JsonIgnoreCondition.Always)
                 continue;
 
             if (prop.IsDefined(Types.HideFromDocsAttribute))
                 continue;
 
-            var jsonNameAttr = prop.GetCustomAttribute<System.Text.Json.Serialization.JsonPropertyNameAttribute>();
+            var jsonNameAttr = prop.GetCustomAttribute<JsonPropertyNameAttribute>();
             var propName = jsonNameAttr?.Name ?? namingPolicy?.ConvertName(prop.Name) ?? prop.Name;
             var propSchema = GetJsonSchemaForType(prop.PropertyType, extraSchemas);
 
@@ -421,7 +421,7 @@ static class DocumentSchemaHelpers
                 {
                     try
                     {
-                        concrete.Default = System.Text.Json.Nodes.JsonNode.Parse(System.Text.Json.JsonSerializer.Serialize(defaultAttr.Value));
+                        concrete.Default = JsonNode.Parse(JsonSerializer.Serialize(defaultAttr.Value));
                     }
                     catch
                     {

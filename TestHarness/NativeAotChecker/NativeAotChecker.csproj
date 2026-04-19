@@ -13,12 +13,6 @@
         <SerializerContextOutputPath>Generated/SerializerCtx</SerializerContextOutputPath>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-        <ExportSwaggerDocs>true</ExportSwaggerDocs>
-        <SwaggerExportPath>wwwroot/openapi</SwaggerExportPath>
-    </PropertyGroup>
-
-    <Import Project="..\..\Src\Swagger\FastEndpoints.Swagger.targets"/><!-- only needed for project references -->
     <Import Project="..\..\Src\Generator\FastEndpoints.Generator.targets"/><!-- only needed for project references -->
 
     <ItemGroup>
@@ -28,17 +22,15 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Scalar.AspNetCore" VersionOverride="2.12.30"/>
-
         <!-- <PackageReference Include="FastEndpoints" VersionOverride="7.3.0-beta.13"/> -->
         <!-- <PackageReference Include="FastEndpoints.Generator" VersionOverride="7.3.0-beta.13" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive"/> -->
         <!-- <PackageReference Include="FastEndpoints.Security" VersionOverride="7.3.0-beta.13"/> -->
-        <!-- <PackageReference Include="FastEndpoints.Swagger" VersionOverride="7.3.0-beta.13"/> -->
+        <PackageReference Include="Scalar.AspNetCore"/>
 
         <ProjectReference Include="..\..\Src\Generator\FastEndpoints.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
         <ProjectReference Include="..\..\Src\Library\FastEndpoints.csproj"/>
         <ProjectReference Include="..\..\Src\Security\FastEndpoints.Security.csproj"/>
-        <ProjectReference Include="..\..\Src\Swagger\FastEndpoints.Swagger.csproj"/>
+        <ProjectReference Include="..\..\Src\OpenApi\FastEndpoints.OpenApi.csproj"/>
         <ProjectReference Include="..\Sandbox\Contracts\Contracts.csproj"/>
     </ItemGroup>
 

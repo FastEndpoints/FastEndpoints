@@ -8,8 +8,8 @@
     <Project Path="Src/Library/FastEndpoints.csproj" />
     <Project Path="Src/Messaging/Messaging.Core/FastEndpoints.Messaging.Core.csproj" />
     <Project Path="Src/Messaging/Messaging/FastEndpoints.Messaging.csproj" />
+    <Project Path="Src/OpenApi/FastEndpoints.OpenApi.csproj" />
     <Project Path="Src/Security/FastEndpoints.Security.csproj" />
-    <Project Path="Src/Swagger/FastEndpoints.Swagger.csproj" />
     <Project Path="Src/Testing/FastEndpoints.Testing.csproj" />
     <Project Path="TestHarness/Sandbox/Contracts/Contracts.csproj" />
   </Folder>

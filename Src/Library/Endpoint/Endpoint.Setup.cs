@@ -638,9 +638,6 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
         {
             if (!Cfg.SerOpts.Options.IsReadOnly)
                 Cfg.SerOpts.Options.TypeInfoResolverChain.Insert(0, Definition.SerializerContext);
-
-            if (Cfg.SerOpts.AspNetCoreOptions is { IsReadOnly: false })
-                Cfg.SerOpts.AspNetCoreOptions.TypeInfoResolverChain.Insert(0, Definition.SerializerContext);
         }
     }
 

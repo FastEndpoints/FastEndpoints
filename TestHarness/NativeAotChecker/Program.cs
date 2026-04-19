@@ -1,7 +1,7 @@
 using System.Text.Json;
+using FastEndpoints.OpenApi;
 using FastEndpoints.Security;
 using NativeAotChecker;
-using FastEndpoints.Swagger;
 using NativeAotChecker.Endpoints.Commands;
 using NativeAotChecker.Endpoints.Jobs;
 using NativeAotChecker.Endpoints.Processors;
@@ -20,10 +20,9 @@ bld.Services
            c.Register<MiddlewareTestCmd, MiddlewareTestResult, SecondMiddleware<MiddlewareTestCmd, MiddlewareTestResult>>();
            c.Register<MiddlewareTestCmd, MiddlewareTestResult, ThirdMiddleware<MiddlewareTestCmd, MiddlewareTestResult>>();
        })
-   .SwaggerDocument(o => o.DocumentSettings = s => s.DocumentName = "v1");
+   .OpenApiDocument(o => o.DocumentSettings = s => s.DocumentName = "v1");
 
 var app = bld.Build();
-app.UseStaticFiles();
 app.MapGet("healthy", () => Results.Ok());
 app.UseAuthentication()
    .UseAuthorization()
@@ -35,12 +34,8 @@ app.UseAuthentication()
            c.Binding.ReflectionCache.AddFromNativeAotChecker();
            c.Endpoints.Configurator = ep => { ep.PreProcessors(Order.Before, typeof(OpenGenericGlobalPreProcessor<>)); };
        });
-
-await app.ExportSwaggerDocsAndExitAsync("v1");
-
-app.UseOpenApi(c => c.Path = "/openapi/{documentName}.json");
+app.MapOpenApi();
 app.MapScalarApiReference(o => o.AddDocument("v1"));
-
 app.UseJobQueues(o => o.StorageProbeDelay = TimeSpan.FromMilliseconds(50));
 app.Services.RegisterGenericCommand<AotGenericCommand<ProductData>, AotGenericResult<ProductData>, AotGenericCommandHandler<ProductData>>();
 app.Run();

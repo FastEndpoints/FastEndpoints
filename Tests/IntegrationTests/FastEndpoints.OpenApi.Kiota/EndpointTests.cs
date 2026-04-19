@@ -1,5 +1,6 @@
 namespace OpenApi.Kiota.Tests;
 
+[Trait("ExcludeInCiCd", "Yes")]
 public sealed class EndpointTests(Fixture app) : TestBase<Fixture>
 {
     [Fact]

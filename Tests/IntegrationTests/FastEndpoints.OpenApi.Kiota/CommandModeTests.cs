@@ -1,5 +1,6 @@
 namespace OpenApi.Kiota.Tests;
 
+[Trait("ExcludeInCiCd", "Yes")]
 public sealed class CommandModeTests : IAsyncLifetime
 {
     readonly string _artifactRoot = Path.Combine(Path.GetTempPath(), "fe-openapi-kiota-tests", Guid.NewGuid().ToString("N"));

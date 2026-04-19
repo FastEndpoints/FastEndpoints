@@ -3,13 +3,12 @@
     <PropertyGroup>
         <TargetFrameworks>net10.0;</TargetFrameworks> <!-- disable multi targeting from Directory.Build.Props -->
         <NoWarn>1701;1702;CS1591;CS1573</NoWarn>
-        <Description>OpenAPI support for FastEndpoints using Microsoft.AspNetCore.OpenApi</Description>
+        <Description>Kiota client generation for FastEndpoints.OpenApi.</Description>
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Library\FastEndpoints.csproj"/>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi"/>
-        <PackageReference Include="FluentValidation"/>
+        <PackageReference Include="Microsoft.OpenApi.Kiota.Builder"/>
         <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
     </ItemGroup>
 

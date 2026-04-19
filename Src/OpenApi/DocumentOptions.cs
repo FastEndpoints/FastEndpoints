@@ -6,8 +6,8 @@ namespace FastEndpoints.OpenApi;
 public class DocumentOptions
 {
     /// <summary>
-    /// the index of the route path segment to use for tagging/grouping endpoints. set 0 to disable auto tagging.
-    /// </summary>
+     /// the index of the route path segment to use for tagging/grouping endpoints. set 0 to disable auto tagging.
+     /// </summary>
     public int AutoTagPathSegmentIndex { get; set; } = 1;
 
     /// <summary>

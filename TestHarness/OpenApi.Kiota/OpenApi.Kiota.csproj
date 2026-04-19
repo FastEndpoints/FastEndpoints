@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <NoWarn>CS1591;1701;1702;CA2016;ASP0014</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\Src\Library\FastEndpoints.csproj"/>
+        <ProjectReference Include="..\..\Src\OpenApi\FastEndpoints.OpenApi.csproj"/>
+        <ProjectReference Include="..\..\Src\OpenApi.Kiota\FastEndpoints.OpenApi.Kiota.csproj"/>
+    </ItemGroup>
+
+</Project>

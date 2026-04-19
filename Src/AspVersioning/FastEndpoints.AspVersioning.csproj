@@ -10,7 +10,7 @@
 
         <PackageReference Include="Asp.Versioning.Http"/>
         <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer"/>
-        <PackageReference Include="NSwag.Generation.AspNetCore"/>
+        <PackageReference Include="NSwag.Generation.AspNetCore"/> <!-- todo: remove when swagger support no longer needed -->
         <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
     </ItemGroup>
 

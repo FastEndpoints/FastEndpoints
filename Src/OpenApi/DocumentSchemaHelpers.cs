@@ -392,7 +392,7 @@ static class DocumentSchemaHelpers
         {
             Type = JsonSchemaType.Object,
             Properties = new Dictionary<string, IOpenApiSchema>(),
-            Description = XmlDocSchemaTransformer.GetTypeSummary(type)
+            Description = XmlDocLookup.GetTypeSummary(type)
         };
 
         var namingPolicy = Extensions.NamingPolicy;
@@ -413,7 +413,7 @@ static class DocumentSchemaHelpers
 
             if (propSchema is OpenApiSchema concrete)
             {
-                concrete.Description ??= XmlDocSchemaTransformer.GetPropertySummary(prop);
+                concrete.Description ??= XmlDocLookup.GetPropertySummary(prop);
 
                 var defaultAttr = prop.GetCustomAttribute<System.ComponentModel.DefaultValueAttribute>();
 

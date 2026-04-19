@@ -423,7 +423,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
             JsonNode? example = null;
 
             // XML doc <example> tag gets first priority
-            var xmlExample = XmlDocSchemaTransformer.GetPropertyExample(prop);
+            var xmlExample = XmlDocLookup.GetPropertyExample(prop);
 
             if (xmlExample is not null)
             {
@@ -640,7 +640,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
             }
 
             if (string.IsNullOrWhiteSpace(concreteParam.Description) && prop is not null)
-                concreteParam.Description = XmlDocSchemaTransformer.GetPropertySummary(prop);
+                concreteParam.Description = XmlDocLookup.GetPropertySummary(prop);
 
             if (prop is not null)
             {

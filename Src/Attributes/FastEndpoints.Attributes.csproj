@@ -2,12 +2,7 @@
 
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0;net8.0;net9.0;net10.0</TargetFrameworks>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <Description>Attributes used by FastEndpoints.</Description>
-        <PackageIcon>icon.png</PackageIcon>
-        <EmbedUntrackedSources>true</EmbedUntrackedSources>
-        <IncludeSymbols>true</IncludeSymbols>
-        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>
 
     <ItemGroup>

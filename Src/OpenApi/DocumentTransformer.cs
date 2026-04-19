@@ -1,0 +1,297 @@
+using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.OpenApi;
+using Microsoft.OpenApi;
+
+namespace FastEndpoints.OpenApi;
+
+sealed partial class DocumentTransformer : IOpenApiDocumentTransformer
+{
+    readonly DocumentOptions _opts;
+    readonly DocumentSettings _docSettings;
+    readonly SharedContext _sharedCtx;
+    readonly int _maxEpVer;
+    readonly int _minEpVer;
+    readonly int _docRelVer;
+    readonly bool _showDeprecated;
+
+    public DocumentTransformer(DocumentOptions opts, DocumentSettings docSettings, SharedContext sharedCtx)
+    {
+        _opts = opts;
+        _docSettings = docSettings;
+        _sharedCtx = sharedCtx;
+        _minEpVer = opts.MinEndpointVersion;
+        _maxEpVer = opts.MaxEndpointVersion;
+        _docRelVer = opts.ReleaseVersion;
+        _showDeprecated = opts.ShowDeprecatedOps;
+
+        switch (_docRelVer)
+        {
+            case > 0 when _minEpVer > 0:
+                throw new NotSupportedException(
+                    $"'{nameof(DocumentOptions.MinEndpointVersion)}' cannot be used together with '{nameof(DocumentOptions.ReleaseVersion)}'." +
+                    $" Please choose a single strategy when defining a swagger document!");
+            case > 0 when _maxEpVer > 0:
+                throw new NotSupportedException(
+                    $"'{nameof(DocumentOptions.MaxEndpointVersion)}' cannot be used together with '{nameof(DocumentOptions.ReleaseVersion)}'. " +
+                    $"Please choose a single strategy when defining a swagger document");
+        }
+
+        if (_maxEpVer < _minEpVer)
+            throw new ArgumentException("MaxEndpointVersion must be greater than or equal to MinEndpointVersion");
+    }
+
+    public Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
+    {
+        _opts.Services ??= context.ApplicationServices;
+
+        if (_docSettings.Title is not null)
+            document.Info.Title = _docSettings.Title;
+
+        if (_docSettings.Version is not null)
+            document.Info.Version = _docSettings.Version;
+
+        RemoveFilteredPaths(document);
+        ApplyVersionFiltering(document);
+        AddSecuritySchemes(document);
+        FixOperationSecurity(document);
+        AddTagDescriptions(document);
+        RemoveHeaderValueSchemas(document);
+        document.RemoveFormFileSchemas();
+        ApplyPathNamingPolicy(document);
+        NormalizeSchemas(document);
+
+        if (_opts.TagDescriptions is null)
+            document.Tags?.Clear();
+
+        document.SortPaths();
+        document.SortSchemas();
+        document.SortResponses();
+
+        return Task.CompletedTask;
+    }
+
+    void NormalizeSchemas(OpenApiDocument document)
+    {
+        document.AddMissingSchemas(_sharedCtx);
+
+        if (_opts.FlattenSchema)
+            document.FlattenAllOfSchemas();
+
+        if (_opts.RemoveEmptyRequestSchema)
+            document.RemoveEmptyRequestSchemas();
+
+        document.AddAdditionalPropertiesFalse();
+        document.RemoveUnreferencedSchemas();
+    }
+
+    void RemoveFilteredPaths(OpenApiDocument document)
+    {
+        if (_sharedCtx.PathsToRemove.IsEmpty)
+            return;
+
+        var pathsToRemove = _sharedCtx.PathsToRemove.ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var path in document.Paths.Keys.ToArray())
+        {
+            if (pathsToRemove.Contains(path))
+                document.Paths.Remove(path);
+        }
+    }
+
+    void ApplyVersionFiltering(OpenApiDocument document)
+    {
+        var operationsByBareRoute = _sharedCtx.Operations.Values
+                                              .Where(op => op.IsFastEndpoint)
+                                              .GroupBy(op => op.OperationKey)
+                                              .ToList();
+
+        var opsToKeep = new HashSet<(string Path, string Method)>();
+        var opsToDeprecate = new HashSet<(string Path, string Method)>();
+
+        foreach (var group in operationsByBareRoute)
+        {
+            var sortedGroup = group.OrderByDescending(x => x.Version).ToList();
+            var latestVersion = sortedGroup.FirstOrDefault(x => x.StartingReleaseVersion <= _docRelVer)?.Version ?? 0;
+
+            var taken = (_showDeprecated
+                             ? sortedGroup.Where(IsInRequestedRange)
+                             : sortedGroup.Where(IsInRequestedRange).Take(1)).ToList();
+
+            foreach (var op in taken)
+            {
+                var isDeprecated = IsDeprecated(op, latestVersion);
+
+                if (isDeprecated && !_showDeprecated)
+                    continue;
+
+                opsToKeep.Add((op.DocumentPath, op.HttpMethod));
+
+                if (isDeprecated && _showDeprecated)
+                    opsToDeprecate.Add((op.DocumentPath, op.HttpMethod));
+            }
+        }
+
+        // non-FastEndpoint operations aren't version-filtered - keep them unconditionally
+        foreach (var op in _sharedCtx.Operations.Values.Where(op => !op.IsFastEndpoint))
+            opsToKeep.Add((op.DocumentPath, op.HttpMethod));
+
+        foreach (var path in document.Paths.Keys.ToArray())
+        {
+            if (!document.Paths.TryGetValue(path, out var pathItem) || pathItem.Operations is null)
+                continue;
+
+            foreach (var method in pathItem.Operations.Keys.ToArray())
+            {
+                var methodName = method.ToString().ToUpperInvariant();
+
+                if (!opsToKeep.Contains((path, methodName)))
+                {
+                    pathItem.Operations.Remove(method);
+
+                    continue;
+                }
+
+                if (opsToDeprecate.Contains((path, methodName)))
+                    pathItem.Operations[method].Deprecated = true;
+            }
+
+            if (pathItem.Operations.Count == 0)
+                document.Paths.Remove(path);
+        }
+
+        bool IsInRequestedRange(OperationMeta op)
+            => _docRelVer > 0
+                   ? op.StartingReleaseVersion <= _docRelVer
+                   : op.Version >= _minEpVer && op.Version <= _maxEpVer;
+
+        bool IsDeprecated(OperationMeta op, int latestVersion)
+            => _docRelVer > 0
+                   ? (op.DeprecatedAt > 0 && _docRelVer >= op.DeprecatedAt) || op.Version != latestVersion
+                   : _maxEpVer >= op.DeprecatedAt && op.DeprecatedAt != 0;
+    }
+
+    void AddSecuritySchemes(OpenApiDocument document)
+    {
+        if (_docSettings.AuthSchemes.Count == 0)
+            return;
+
+        document.Components ??= new();
+        document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+
+        foreach (var auth in _docSettings.AuthSchemes)
+            document.Components.SecuritySchemes[auth.Name] = auth.Scheme;
+    }
+
+    void FixOperationSecurity(OpenApiDocument document)
+    {
+        if (_sharedCtx.SecurityRequirements.IsEmpty)
+            return;
+
+        foreach (var (path, pathItem) in document.Paths)
+        {
+            if (pathItem.Operations is null)
+                continue;
+
+            foreach (var (method, operation) in pathItem.Operations)
+            {
+                var opKey = $"{method.ToString().ToUpperInvariant()}:{path}";
+
+                if (!_sharedCtx.SecurityRequirements.TryGetValue(opKey, out var securityEntries))
+                    continue;
+
+                // replace any framework-generated empty security with properly referenced requirements
+                operation.Security = [];
+
+                foreach (var (schemeName, scopes) in securityEntries)
+                {
+                    var requirement = new OpenApiSecurityRequirement
+                    {
+                        [new(schemeName, document)] = scopes
+                    };
+                    operation.Security.Add(requirement);
+                }
+            }
+        }
+    }
+
+    void AddTagDescriptions(OpenApiDocument document)
+    {
+        if (_opts.TagDescriptions is null)
+            return;
+
+        var dict = new Dictionary<string, string>();
+        _opts.TagDescriptions(dict);
+
+        document.Tags ??= new HashSet<OpenApiTag>();
+
+        foreach (var kvp in dict)
+        {
+            var existing = document.Tags.FirstOrDefault(t => t.Name == kvp.Key);
+            if (existing is not null)
+                existing.Description = kvp.Value;
+            else
+                document.Tags.Add(new() { Name = kvp.Key, Description = kvp.Value });
+        }
+    }
+
+    static void RemoveHeaderValueSchemas(OpenApiDocument document)
+    {
+        if (document.Components?.Schemas is null)
+            return;
+
+        const string stringSegmentKey = "MicrosoftExtensionsPrimitivesStringSegment";
+        var headerRemoved = false;
+
+        foreach (var s in document.Components.Schemas.Keys.ToArray())
+        {
+            if (IsHeaderValueSchema(s))
+            {
+                document.Components.Schemas.Remove(s);
+                headerRemoved = true;
+            }
+        }
+
+        if (headerRemoved)
+            document.Components.Schemas.Remove(stringSegmentKey);
+
+        static bool IsHeaderValueSchema(string schemaKey)
+            => schemaKey.EndsWith("HeaderValue", StringComparison.Ordinal);
+    }
+
+    void ApplyPathNamingPolicy(OpenApiDocument document)
+    {
+        if (!_opts.UsePropertyNamingPolicy)
+            return;
+
+        var policy = Extensions.NamingPolicy;
+
+        if (policy is null)
+            return;
+
+        var renames = new List<(string OldPath, string NewPath)>();
+
+        foreach (var path in document.Paths.Keys)
+        {
+            var newPath = Regex().Replace(
+                path,
+                m =>
+                {
+                    var paramName = m.Groups[1].Value;
+
+                    return $"{{{policy.ConvertName(paramName)}}}";
+                });
+
+            if (newPath != path)
+                renames.Add((path, newPath));
+        }
+
+        foreach (var (oldPath, newPath) in renames)
+        {
+            if (document.Paths.Remove(oldPath, out var pathItem))
+                document.Paths[newPath] = pathItem;
+        }
+    }
+
+    [GeneratedRegex(@"\{([^}]+)\}")]
+    private static partial Regex Regex();
+}

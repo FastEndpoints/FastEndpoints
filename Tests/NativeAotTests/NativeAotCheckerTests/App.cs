@@ -4,18 +4,15 @@ namespace NativeAotCheckerTests;
 
 public class App : AppFixture<Program>
 {
+    public App()
+    {
+        // keep test-helper serialization aligned with the app before the shared serializer options become read-only
+        new Config().Serializer.Options.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
+    }
+
     protected override async ValueTask ConfigureAotTargetAsync(AotTargetOptions options)
     {
         options.BuildTimeoutMinutes = 15;
         options.ReadyTimeoutSeconds = 60;
-    }
-
-    protected override ValueTask SetupAsync()
-    {
-        //make the aot app and the test helpers use the same serializer settings
-        var cfg = new Config();
-        cfg.Serializer.Options.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
-
-        return ValueTask.CompletedTask;
     }
 }

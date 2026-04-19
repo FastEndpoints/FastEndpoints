@@ -3,10 +3,6 @@
     <PropertyGroup>
         <NoWarn>1701;1702;CS1591;CS1573</NoWarn>
         <Description>Asp.Versioning.Http package integration for FastEndpoints.</Description>
-        <PackageIcon>icon.png</PackageIcon>
-        <EmbedUntrackedSources>true</EmbedUntrackedSources>
-        <IncludeSymbols>true</IncludeSymbols>
-        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>
 
     <ItemGroup>
@@ -14,7 +10,7 @@
 
         <PackageReference Include="Asp.Versioning.Http"/>
         <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer"/>
-        <PackageReference Include="NSwag.Generation.AspNetCore"/>
+        <PackageReference Include="NSwag.Generation.AspNetCore"/> <!-- todo: remove when swagger support no longer needed -->
         <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
     </ItemGroup>
 

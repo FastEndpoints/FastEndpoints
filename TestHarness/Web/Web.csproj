@@ -10,11 +10,12 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Scalar.AspNetCore"/>
         <PackageReference Include="Microsoft.AspNetCore.JsonPatch.SystemTextJson"/>
         <ProjectReference Include="..\..\Src\Library\FastEndpoints.csproj"/>
         <ProjectReference Include="..\..\Src\Messaging\Messaging.Remote\FastEndpoints.Messaging.Remote.csproj"/>
         <ProjectReference Include="..\..\Src\Security\FastEndpoints.Security.csproj"/>
-        <ProjectReference Include="..\..\Src\Swagger\FastEndpoints.Swagger.csproj"/>
+        <ProjectReference Include="..\..\Src\OpenApi\FastEndpoints.OpenApi.csproj"/>
     </ItemGroup>
 
     <!--<PropertyGroup>

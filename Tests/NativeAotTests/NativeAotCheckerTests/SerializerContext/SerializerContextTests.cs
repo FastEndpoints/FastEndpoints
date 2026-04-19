@@ -1,11 +1,22 @@
 using NativeAotChecker.Endpoints.SerializerCtxGen;
 using Contracts.Dtos;
 using Scalar.AspNetCore;
+using System.Net;
 
 namespace NativeAotCheckerTests;
 
 public class SerializerContextTests(App app) : TestBase<App>
 {
+    [Fact]
+    public async Task OpenApi_Document_Generates_With_Generated_Response_Metadata()
+    {
+        using var rsp = await app.Client.GetAsync("/openapi/v1.json");
+        var body = await rsp.Content.ReadAsStringAsync();
+
+        rsp.StatusCode.ShouldBe(HttpStatusCode.OK, body);
+        body.ShouldContain("BindFromResponse");
+    }
+
     [Fact]
     public async Task Collection_Dto_Serialization()
     {
@@ -211,7 +222,7 @@ public class SerializerContextTests(App app) : TestBase<App>
     {
         var req = new PackageDtoEnvelope
         {
-            Document = new("nested-doc", "scalar-nested", "/scalar/nested", false)
+            Document = new("nested-doc", "scalar-nested", "/scalar/nested")
         };
 
         var (rsp, res, err) = await app.Client.POSTAsync<PackageDtoNestedEndpoint, PackageDtoEnvelope, PackageDtoEnvelopeResponse>(req);

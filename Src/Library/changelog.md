@@ -10,6 +10,22 @@ Due to low financial backing by the community, FastEndpoints will soon be going 
 
 ## New 🎉
 
+<details><summary>New 'FastEndpoints.OpenApi' package that uses 'Microsoft.AspNetCore.OpenApi'</summary>
+
+Starting with `v8.2`, the FastEndpoints ecosystem has switched from `NSwag/Newtonsoft` based Swagger/OpenAPI document generation to the more modern and Native AOT friendly `Microsoft.AspNetCore.OpenApi` based document generation library. Integration is provided via our own `FastEndpoints.OpenApi` package which corrects a few issues with the MS package as well as doing a lot of post-processing on the document model to bring feature parity with the `FastEndpoints.Swagger` package.
+
+There's no immediate need for you to switch to the new package if your projects are heavily invested in `NSwag` based generation. See EOL notice below for more info.
+
+</details>
+
+<details><summary>x402 Payment support for endpoints</summary>
+
+Endpoints can now require x402 payments by calling `RequirePayment(...)` inside `Configure()`.
+
+Global x402 defaults are configured with `builder.AddX402()` and `app.UseX402(...)`, and the middleware only runs for endpoints that opt in. The initial release supports the `exact` scheme with a single accepted payment option per endpoint and uses the safer default flow of verifying first, executing the handler, and settling only after a successful response.
+
+</details>
+
 <details><summary>Generate a hydrated test URL from an endpoint type and request DTO</summary>
 
 Testing extensions now expose `GetTestUrlFor<TEndpoint>(object request)` publicly. This lets you resolve the final routeless test URL for an endpoint without actually sending the request. Route parameters are populated from the supplied DTO instance, query string values are appended automatically, and the method also works in Aspire-style black-box tests by loading the endpoint URL cache over HTTP when necessary.
@@ -30,19 +46,11 @@ url.ShouldBe("api/invoices/123?IncludeLines=true");
 
 </details>
 
-<details><summary>x402 Payment support for endpoints</summary>
-
-Endpoints can now require x402 payments by calling `RequirePayment(...)` inside `Configure()`.
-
-Global x402 defaults are configured with `builder.AddX402()` and `app.UseX402(...)`, and the middleware only runs for endpoints that opt in. The initial release supports the `exact` scheme with a single accepted payment option per endpoint and uses the safer default flow of verifying first, executing the handler, and settling only after a successful response.
-
-</details>
-
 ## Fixes 🪲
 
 ## Improvements 🚀
 
-<details><summary>Swagger now emits wrapped JSON Patch request bodies as top-level patch operation arrays</summary>
+<details><summary>OpenApi generation now emits wrapped JSON Patch request bodies as top-level patch operation arrays</summary>
 
 When a request DTO contains a `[FromBody]` property accepted as `application/json-patch+json`, the generated OpenAPI request body schema is now promoted from the wrapper object shape to the top-level JSON Patch array shape expected by Swagger UI.
 
@@ -88,6 +96,20 @@ app.UseFastEndpoints(c =>
     c.Binding.AllowUndefinedEnumValues = true;
 });
 ```
+
+</details>
+
+## End-Of-Life Packages 🪦
+
+<details><summary>NSwag based Swagger packages are being discontinued</summary>
+
+The following `NSwag` based packages will no longer be receiving new features:
+
+- `FastEndpoints.Swagger` (main swagger doc generation library)
+- `FastEndpoints.ClientGen` (NSwag based api client generation)
+- `FastEndpoints.ClientGen.Kiota` (NSwag+Kiota based api client generation)
+
+There is no immediate need for you to migrate away from these package to the `Microsoft.AspNetCore.OpenApi` based new ones, as they will continue to receive bug fixes as `patch` versions to `v8.1.x`. Migration is not that difficult either, as the new packages purposefully contain extremely close API surfaces. If you have no deep customization with stuff like custom newtonsoft converters, operation/schema processors, etc; migration should be not too difficult.
 
 </details>
 

@@ -631,13 +631,13 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
 
     void AddCtxToGlobalChain()
     {
-        if (Definition.SerializerContext is not null)
+        if (Definition.SerializerContext is null)
+            return;
+
+        lock (Cfg.SerOpts)
         {
             if (!Cfg.SerOpts.Options.IsReadOnly)
                 Cfg.SerOpts.Options.TypeInfoResolverChain.Insert(0, Definition.SerializerContext);
-
-            if (Cfg.SerOpts.AspNetCoreOptions is { IsReadOnly: false })
-                Cfg.SerOpts.AspNetCoreOptions.TypeInfoResolverChain.Insert(0, Definition.SerializerContext);
         }
     }
 

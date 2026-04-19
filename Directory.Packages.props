@@ -17,20 +17,18 @@
         <PackageVersion Include="MessagePack" Version="3.1.4"/>
         <PackageVersion Include="Microsoft.AspNetCore.JsonPatch.SystemTextJson" Version="10.0.5"/>
         <PackageVersion Include="Microsoft.AspNetCore.OData" Version="9.4.1"/>
+        <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.6"/>
         <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="4.14.0"/>
         <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="[4.11.0]"/><!-- not upgradeable for net8 compatibility -->
         <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.5"/>
         <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.5"/>
-        <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.3.0"/>
-        <PackageVersion Include="Microsoft.OpenApi.Kiota.Builder" Version="1.30.0"/>
         <PackageVersion Include="Microsoft.Extensions.Primitives" Version="10.0.5"/>
+        <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.3.0"/>
+        <PackageVersion Include="Microsoft.OpenApi.Kiota.Builder" Version="[1.29.0]"/><!-- latest kiota uses Microsoft.OpenApi 3.x but Microsoft.AspNetCore.OpenApi still uses 2.x -->
         <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.201"/>
-        <PackageVersion Include="NSwag.AspNetCore" Version="14.6.3"/>
-        <PackageVersion Include="NSwag.CodeGeneration.CSharp" Version="14.6.3"/>
-        <PackageVersion Include="NSwag.CodeGeneration.TypeScript" Version="14.6.3"/>
-        <PackageVersion Include="NSwag.Generation" Version="14.6.3"/>
         <PackageVersion Include="NSwag.Generation.AspNetCore" Version="14.6.3"/>
         <PackageVersion Include="RichardSzalay.MockHttp" Version="7.0.0"/>
+        <PackageVersion Include="Scalar.AspNetCore" Version="2.14.1"/>
         <PackageVersion Include="Shouldly" Version="4.3.0"/>
         <PackageVersion Include="xunit.v3" Version="3.2.2"/>
         <PackageVersion Include="xunit.v3.extensibility.core" Version="3.2.2"/>

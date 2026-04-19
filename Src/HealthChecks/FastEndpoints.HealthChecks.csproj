@@ -1,12 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <Description>Health checks extension for FastEndpoints. Provides liveness and readiness probe endpoints for orchestrators like Kubernetes and .NET Aspire.</Description>
-        <PackageIcon>icon.png</PackageIcon>
-        <EmbedUntrackedSources>true</EmbedUntrackedSources>
-        <IncludeSymbols>true</IncludeSymbols>
-        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>
 
     <ItemGroup>

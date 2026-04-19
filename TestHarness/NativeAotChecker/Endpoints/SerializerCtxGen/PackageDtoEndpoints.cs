@@ -31,7 +31,7 @@ sealed class PackageDtoDirectEndpoint : Endpoint<ScalarDocument, ScalarDocument>
 
 sealed class PackageDtoNestedEndpoint : Endpoint<PackageDtoEnvelope, PackageDtoEnvelopeResponse>
 {
-    private static readonly ScalarDocument _defaultDocument = new("default-doc", "default-title", "/scalar/default", false);
+    private static readonly ScalarDocument _defaultDocument = new("default-doc", "default-title", "/scalar/default");
 
     public override void Configure()
     {

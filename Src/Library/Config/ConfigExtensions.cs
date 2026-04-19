@@ -5,7 +5,7 @@ namespace FastEndpoints;
 
 static class ConfigExtensions
 {
-    internal static void ConfigureSerializer(this JsonSerializerOptions opts)
+    internal static void ConfigureSerializer(this JsonSerializerOptions opts, Cfg cfg, Action<Cfg>? configAction)
     {
         opts.TypeInfoResolver = opts.TypeInfoResolver?.WithAddedModifier(
             ti =>
@@ -30,5 +30,7 @@ static class ConfigExtensions
                         ti.Properties.RemoveAt(i);
                 }
             });
+        configAction?.Invoke(cfg);
+        opts.TypeInfoResolverChain.Insert(0, new FastEndpointsSerializerContext(new(opts)));
     }
 }

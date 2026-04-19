@@ -1,0 +1,88 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "Web API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost/"
+    }
+  ],
+  "paths": {
+    "/api/release-versioning/endpoint-a": {
+      "get": {
+        "tags": [
+          "Release-Versioning"
+        ],
+        "operationId": "release_versioning_TestCasesSwaggerReleaseVersioningEndpointA",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "deprecated": true,
+        "security": [
+          {
+            "JWTBearerAuth": [ ]
+          }
+        ]
+      }
+    },
+    "/api/release-versioning/endpoint-a/ver1": {
+      "get": {
+        "tags": [
+          "Release-Versioning"
+        ],
+        "operationId": "release_versioning_TestCasesSwaggerReleaseVersioningEndpointA_V1",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": [ ]
+          }
+        ]
+      }
+    },
+    "/api/release-versioning/endpoint-b": {
+      "get": {
+        "tags": [
+          "Release-Versioning"
+        ],
+        "operationId": "release_versioning_TestCasesSwaggerReleaseVersioningEndpointB",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": [ ]
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "JWTBearerAuth": {
+        "type": "http",
+        "description": "Enter a JWT token to authorize the requests...",
+        "scheme": "Bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

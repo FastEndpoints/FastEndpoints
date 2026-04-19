@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using FluentValidation;
 using FluentValidation.Internal;
@@ -70,16 +71,9 @@ public static class MainExtensions
     {
         ServiceResolver.Instance = app.ServiceProvider.GetRequiredService<IServiceResolver>();
 
-        var jsonOpts = app.ServiceProvider.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions;
-        Cfg.SerOpts.AspNetCoreOptions = jsonOpts; // store reference to original for IResult types
-        Cfg.SerOpts.Options = jsonOpts is not null
-                                  ? new(jsonOpts) //make a copy to avoid configAction modifying the original/global JsonOptions
-                                  : Cfg.SerOpts.Options;
-        Cfg.SerOpts.Options.ConfigureSerializer();
-        configAction?.Invoke(app.ServiceProvider.GetRequiredService<Cfg>()); //allow use to modify serializer options before it's captured by FE ctx below
-        var feSerializerCtx = new FastEndpointsSerializerContext(new(Cfg.SerOpts.Options));
-        Cfg.SerOpts.Options.TypeInfoResolverChain.Insert(0, feSerializerCtx);
-        Cfg.SerOpts.AspNetCoreOptions?.TypeInfoResolverChain.Insert(0, feSerializerCtx); // to make IResults serialization use FE ctx
+        Cfg.SerOpts.Options = app.ServiceProvider.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions ?? Cfg.SerOpts.Options;
+        Cfg.SerOpts.Options.ConfigureSerializer(app.ServiceProvider.GetRequiredService<Cfg>(), configAction);
+        Cfg.BndOpts.AddTypedHeaderValueParsers();
 
         if (Cfg.ValOpts.UsePropertyNamingPolicy && Cfg.SerOpts.Options.PropertyNamingPolicy is not null)
         {
@@ -97,7 +91,6 @@ public static class MainExtensions
                     return Cfg.SerOpts.Options.PropertyNamingPolicy.ConvertName(chain.Count > 0 ? chain.ToString() : memberInfo.Name);
                 };
         }
-        Cfg.BndOpts.AddTypedHeaderValueParsers();
 
         var endpoints = app.ServiceProvider.GetRequiredService<EndpointData>();
         var epFactory = app.ServiceProvider.GetRequiredService<IEndpointFactory>();

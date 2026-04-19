@@ -30,17 +30,17 @@
         <!-- <Project Path="Tests/IntegrationTests/FastEndpoints.Swagger/Int.Swagger.csproj" /> -->
         <Project Path="Tests/IntegrationTests/FastEndpoints.OpenApi/Int.OpenApi.csproj"/>
         <Project Path="Tests/IntegrationTests/FastEndpoints/Int.FastEndpoints.csproj"/>
-        <Project Path="Tests\IntegrationTests\FastEndpoints.OData\Int.OData.csproj"/>
+        <Project Path="Tests/IntegrationTests/FastEndpoints.OData/Int.OData.csproj"/>
     </Folder>
     <Folder Name="/Tests/UnitTests/">
         <!-- <Project Path="Tests/UnitTests/FastEndpoints.Swagger/Unit.Swagger.csproj"/> -->
         <Project Path="Tests/UnitTests/FastEndpoints/Unit.FastEndpoints.csproj"/>
-        <Project Path="Tests\UnitTests\FastEndpoints.Testing\Unit.Testing.csproj"/>
+        <Project Path="Tests/UnitTests/FastEndpoints.Testing/Unit.Testing.csproj"/>
     </Folder>
     <Project Path="Src/AspVersioning/FastEndpoints.AspVersioning.csproj"/>
     <Project Path="Src/Attributes/FastEndpoints.Attributes.csproj"/>
-    <Project Path="Src/ClientGen.Kiota/FastEndpoints.ClientGen.Kiota.csproj"/>
-    <Project Path="Src/ClientGen/FastEndpoints.ClientGen.csproj"/>
+    <!-- <Project Path="Src/ClientGen.Kiota/FastEndpoints.ClientGen.Kiota.csproj"/> -->
+    <!-- <Project Path="Src/ClientGen/FastEndpoints.ClientGen.csproj"/> -->
     <Project Path="Src/Core/FastEndpoints.Core.csproj"/>
     <Project Path="Src/Generator.Cli/FastEndpoints.Generator.Cli.csproj"/>
     <Project Path="Src/Generator/FastEndpoints.Generator.csproj"/>
@@ -54,7 +54,7 @@
     <Project Path="Src/Messaging/Messaging/FastEndpoints.Messaging.csproj"/>
     <Project Path="Src/OData/FastEndpoints.OData.csproj"/>
     <Project Path="Src/Security/FastEndpoints.Security.csproj"/>
-    <Project Path="Src/Swagger/FastEndpoints.Swagger.csproj"/>
+    <!-- <Project Path="Src/Swagger/FastEndpoints.Swagger.csproj"/> -->
     <Project Path="Src/OpenApi/FastEndpoints.OpenApi.csproj"/>
     <Project Path="Src/Testing/FastEndpoints.Testing.csproj"/>
 </Solution>

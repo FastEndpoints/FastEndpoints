@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Xml.Linq;
 
@@ -106,6 +107,7 @@ static class XmlDocLookup
     static Dictionary<string, XElement> GetXmlDoc(Assembly assembly)
         => _xmlDocCache.GetValue(assembly, LoadXmlDoc);
 
+    [UnconditionalSuppressMessage("SingleFile", "IL3000", Justification = "XML doc lookup is optional when assembly paths are unavailable.")]
     static Dictionary<string, XElement> LoadXmlDoc(Assembly assembly)
     {
         var location = assembly.Location;

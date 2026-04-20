@@ -6,6 +6,11 @@ namespace FastEndpoints.OpenApi;
 public class DocumentOptions
 {
     /// <summary>
+    /// the path where openapi documents will be exported. set via OpenApiExportPath MSBuild property (default: wwwroot/openapi).
+    /// </summary>
+    public static string OpenApiExportPath { get; set; } = "wwwroot/openapi";
+
+    /// <summary>
      /// the index of the route path segment to use for tagging/grouping endpoints. set 0 to disable auto tagging.
      /// </summary>
     public int AutoTagPathSegmentIndex { get; set; } = 1;

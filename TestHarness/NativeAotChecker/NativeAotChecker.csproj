@@ -11,9 +11,13 @@
 
         <GenerateSerializerContexts>true</GenerateSerializerContexts>
         <SerializerContextOutputPath>Generated/SerializerCtx</SerializerContextOutputPath>
+
+        <ExportOpenApiDocs>true</ExportOpenApiDocs>
+        <OpenApiExportPath>wwwroot/openapi</OpenApiExportPath>
     </PropertyGroup>
 
     <Import Project="..\..\Src\Generator\FastEndpoints.Generator.targets"/><!-- only needed for project references -->
+    <Import Project="..\..\Src\OpenApi\FastEndpoints.OpenApi.targets"/><!-- only needed for project references -->
 
     <ItemGroup>
         <None Remove="NativeAotChecker.csproj.DotSettings"/>
@@ -32,14 +36,6 @@
         <ProjectReference Include="..\..\Src\Security\FastEndpoints.Security.csproj"/>
         <ProjectReference Include="..\..\Src\OpenApi\FastEndpoints.OpenApi.csproj"/>
         <ProjectReference Include="..\Sandbox\Contracts\Contracts.csproj"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <Folder Include="wwwroot\"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <_ContentIncludedByDefault Remove="wwwroot\openapi\v1.json"/>
     </ItemGroup>
 
 </Project>

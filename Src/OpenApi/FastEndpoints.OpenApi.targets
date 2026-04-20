@@ -1,0 +1,70 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <PropertyGroup>
+        <SuppressTrimAnalysisWarnings>true</SuppressTrimAnalysisWarnings>
+        <SuppressAotAnalysisWarnings>true</SuppressAotAnalysisWarnings>
+        <OpenApiExportPath Condition="'$(OpenApiExportPath)' == ''">wwwroot/openapi</OpenApiExportPath>
+    </PropertyGroup>
+
+    <!-- Generate module initializer to set OpenApiExportPath at runtime -->
+    <Target Name="GenerateOpenApiExportPathInitializer"
+            BeforeTargets="CoreCompile"
+            Condition="'$(MSBuildProjectName)' != 'FastEndpoints.OpenApi'">
+        <PropertyGroup>
+            <_OpenApiInitFile>$(IntermediateOutputPath)OpenApiExportPathInitializer.g.cs</_OpenApiInitFile>
+            <_OpenApiInitFileContent>
+using System.Runtime.CompilerServices%3b
+namespace FastEndpoints.OpenApi%3b
+internal static class OpenApiExportPathInitializer
+{
+    [ModuleInitializer]
+    internal static void Initialize() => DocumentOptions.OpenApiExportPath = "$(OpenApiExportPath)"%3b
+}
+            </_OpenApiInitFileContent>
+        </PropertyGroup>
+        <WriteLinesToFile File="$(_OpenApiInitFile)" Lines="$(_OpenApiInitFileContent)" Overwrite="true"/>
+        <ItemGroup>
+            <Compile Include="$(_OpenApiInitFile)"/>
+        </ItemGroup>
+    </Target>
+
+    <!-- Export OpenAPI docs via JIT build before AOT publish -->
+    <Target Name="ExportOpenApiDocsBeforeAotPublish"
+            BeforeTargets="PrepareForILLink"
+            Condition="'$(ExportOpenApiDocs)' == 'true' AND '$(PublishAot)' == 'true' AND '$(_OpenApiDocsExporting)' != 'true'">
+
+        <PropertyGroup>
+            <_OpenApiExportDir>$(IntermediateOutputPath)openapi_export\</_OpenApiExportDir>
+        </PropertyGroup>
+
+        <Message Text="Exporting OpenAPI documents before Native AOT compilation..." Importance="high"/>
+        <Message Text="OpenAPI export path: $(OpenApiExportPath)" Importance="high"/>
+
+        <!-- Build JIT version (non-AOT) with OpenApiExportPath explicitly passed -->
+        <MSBuild Projects="$(MSBuildProjectFullPath)"
+                 Targets="Build"
+                 Properties="PublishAot=false;_OpenApiDocsExporting=true;OpenApiExportPath=$(OpenApiExportPath);OutputPath=$(_OpenApiExportDir)"/>
+
+        <!-- Run the JIT build to export openapi docs -->
+        <Exec Command="dotnet exec $(_OpenApiExportDir)$(AssemblyName).dll --export-openapi-docs true"
+              WorkingDirectory="$(MSBuildProjectDirectory)"
+              IgnoreExitCode="true">
+            <Output TaskParameter="ExitCode" PropertyName="_OpenApiExportExitCode"/>
+        </Exec>
+
+        <Warning Text="OpenAPI document export failed with exit code $(_OpenApiExportExitCode)"
+                 Condition="'$(_OpenApiExportExitCode)' != '0'"/>
+        <Message Text="OpenAPI documents exported successfully" Importance="high"
+                 Condition="'$(_OpenApiExportExitCode)' == '0'"/>
+
+        <!-- Copy exported files to publish directory -->
+        <ItemGroup Condition="'$(_OpenApiExportExitCode)' == '0' AND '$(PublishDir)' != ''">
+            <_OpenApiFiles Include="$(MSBuildProjectDirectory)\$(OpenApiExportPath)\**\*"/>
+        </ItemGroup>
+        <Copy SourceFiles="@(_OpenApiFiles)"
+              DestinationFolder="$(PublishDir)$(OpenApiExportPath)\%(RecursiveDir)"
+              Condition="'@(_OpenApiFiles)' != ''"
+              SkipUnchangedFiles="true"/>
+    </Target>
+
+</Project>

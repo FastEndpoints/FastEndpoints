@@ -35,12 +35,11 @@ public static class Extensions
         var opts = new DocumentOptions();
         options?.Invoke(opts);
 
-        var docSettings = new DocumentSettings();
-
         // add JWT bearer auth if enabled (before user-defined schemes so it appears first)
         if (opts.EnableJWTBearerAuth)
         {
-            docSettings.AuthSchemes.Add(
+            opts.AuthSchemes.Insert(
+                0,
                 new(
                     "JWTBearerAuth",
                     new()
@@ -53,23 +52,21 @@ public static class Extensions
                     null));
         }
 
-        opts.DocumentSettings?.Invoke(docSettings);
-
         var stjOpts = new JsonSerializerOptions(Cfg.SerOpts.Options);
         SelectedJsonNamingPolicy = stjOpts.PropertyNamingPolicy;
 
         var sharedCtx = new SharedContext();
 
         services.AddOpenApi(
-            docSettings.DocumentName,
+            opts.DocumentName,
             apiOptions =>
             {
                 // schema naming
                 apiOptions.CreateSchemaReferenceId = SchemaNameGenerator.Create(opts.ShortSchemaNames);
 
                 // add transformers
-                apiOptions.AddOperationTransformer(new OperationTransformer(opts, docSettings, sharedCtx));
-                apiOptions.AddDocumentTransformer(new DocumentTransformer(opts, docSettings, sharedCtx));
+                apiOptions.AddOperationTransformer(new OperationTransformer(opts, sharedCtx));
+                apiOptions.AddDocumentTransformer(new DocumentTransformer(opts, sharedCtx));
                 apiOptions.AddSchemaTransformer<ValidationSchemaTransformer>();
                 apiOptions.AddSchemaTransformer<XmlDocSchemaTransformer>();
                 apiOptions.AddSchemaTransformer<NumericTypeCleanupSchemaTransformer>();

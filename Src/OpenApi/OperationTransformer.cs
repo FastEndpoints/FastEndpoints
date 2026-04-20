@@ -13,7 +13,7 @@ using Microsoft.OpenApi;
 
 namespace FastEndpoints.OpenApi;
 
-sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSettings docSettings, SharedContext sharedCtx) : IOpenApiOperationTransformer
+sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext sharedCtx) : IOpenApiOperationTransformer
 {
     const BindingFlags PublicInstanceHierarchy = BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy;
     static readonly TextInfo _textInfo = CultureInfo.InvariantCulture.TextInfo;
@@ -158,7 +158,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
         AddX402Headers(operation, epDef);
 
         // handle security requirements
-        ApplySecurityRequirements(operation, epDef, metadata, docSettings, sharedCtx, operationKey);
+        ApplySecurityRequirements(operation, epDef, metadata, docOpts, sharedCtx, operationKey);
 
         // drop duplicate parameters introduced by Asp.Versioning (it adds the version route
         // segment as an extra path parameter alongside the one we derive from the endpoint).
@@ -1099,7 +1099,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
     static void ApplySecurityRequirements(OpenApiOperation operation,
                                           EndpointDefinition epDef,
                                           IList<object> metadata,
-                                          DocumentSettings docSettings,
+                                          DocumentOptions docOpts,
                                           SharedContext sharedCtx,
                                           string operationKey)
     {
@@ -1113,7 +1113,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
         }
 
         var scopes = BuildScopes(authorizeAttributes).ToList();
-        var securityEntries = BuildSecurityEntries(epDef, docSettings, scopes);
+        var securityEntries = BuildSecurityEntries(epDef, docOpts, scopes);
 
         if (securityEntries.Count > 0)
             sharedCtx.SecurityRequirements[operationKey] = securityEntries;
@@ -1123,12 +1123,12 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
         => metadata.OfType<AllowAnonymousAttribute>().Any() || authorizeAttributes.Count == 0;
 
     static List<(string SchemeName, List<string> Scopes)> BuildSecurityEntries(EndpointDefinition epDef,
-                                                                               DocumentSettings docSettings,
-                                                                               List<string> scopes)
+                                                                                DocumentOptions docOpts,
+                                                                                List<string> scopes)
     {
         var securityEntries = new List<(string SchemeName, List<string> Scopes)>();
 
-        foreach (var authConfig in docSettings.AuthSchemes)
+        foreach (var authConfig in docOpts.AuthSchemes)
         {
             var epSchemes = epDef.AuthSchemeNames;
 

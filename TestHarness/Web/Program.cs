@@ -44,153 +44,119 @@ bld.Services
    .RegisterServicesFromWeb()
    .AddAntiforgery()
    .OpenApiDocument(
-       o =>
-       {
-           o.EndpointFilter = excludeReviewAndReleaseVersioning;
-           o.DocumentSettings =
-               s =>
-               {
-                   s.DocumentName = "Initial Release";
-                   s.Title = "Web API";
-                   s.Version = "v0.0";
-               };
-           o.TagCase = TagCase.TitleCase;
-           o.TagStripSymbols = true;
-           o.RemoveEmptyRequestSchema = false;
+        o =>
+        {
+            o.EndpointFilter = excludeReviewAndReleaseVersioning;
+            o.DocumentName = "Initial Release";
+            o.Title = "Web API";
+            o.Version = "v0.0";
+            o.TagCase = TagCase.TitleCase;
+            o.TagStripSymbols = true;
+            o.RemoveEmptyRequestSchema = false;
        })
    .OpenApiDocument(
-       o =>
-       {
-           o.EndpointFilter = excludeReviewAndReleaseVersioning;
-           o.DocumentSettings =
-               s =>
-               {
-                   s.DocumentName = "Release 1.0";
-                   s.Title = "Web API";
-                   s.Version = "v1.0";
-                   s.AddAuth(
-                       "ApiKey",
-                       new()
-                       {
-                           Name = "api_key",
-                           In = ParameterLocation.Header,
-                           Type = SecuritySchemeType.ApiKey
-                       });
-               };
-           o.MaxEndpointVersion = 1;
-           o.RemoveEmptyRequestSchema = false;
-           o.TagStripSymbols = true;
+        o =>
+        {
+            o.EndpointFilter = excludeReviewAndReleaseVersioning;
+            o.DocumentName = "Release 1.0";
+            o.Title = "Web API";
+            o.Version = "v1.0";
+            o.AddAuth(
+                "ApiKey",
+                new()
+                {
+                    Name = "api_key",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey
+                });
+            o.MaxEndpointVersion = 1;
+            o.RemoveEmptyRequestSchema = false;
+            o.TagStripSymbols = true;
        })
    .OpenApiDocument(
-       o =>
-       {
-           o.EndpointFilter = excludeReviewAndReleaseVersioning;
-           o.DocumentSettings =
-               s =>
-               {
-                   s.DocumentName = "Release 2.0";
-                   s.Title = "FastEndpoints Sandbox";
-                   s.Version = "v2.0";
-               };
-           o.MaxEndpointVersion = 2;
-           o.ShowDeprecatedOps = true;
-           o.RemoveEmptyRequestSchema = false;
+        o =>
+        {
+            o.EndpointFilter = excludeReviewAndReleaseVersioning;
+            o.DocumentName = "Release 2.0";
+            o.Title = "FastEndpoints Sandbox";
+            o.Version = "v2.0";
+            o.MaxEndpointVersion = 2;
+            o.ShowDeprecatedOps = true;
+            o.RemoveEmptyRequestSchema = false;
            o.TagStripSymbols = true;
        })
    .OpenApiDocument(
-       o => //only ver3 & only FastEndpoints
-       {
-           o.EndpointFilter = excludeReviewAndReleaseVersioning;
-           o.DocumentSettings =
-               s =>
-               {
-                   s.DocumentName = "Release 3.0";
-                   s.Title = "FastEndpoints Sandbox ver3 only";
-                   s.Version = "v3.0";
-               };
-           o.MinEndpointVersion = 3;
-           o.MaxEndpointVersion = 3;
-           o.ExcludeNonFastEndpoints = true;
+        o => //only ver3 & only FastEndpoints
+        {
+            o.EndpointFilter = excludeReviewAndReleaseVersioning;
+            o.DocumentName = "Release 3.0";
+            o.Title = "FastEndpoints Sandbox ver3 only";
+            o.Version = "v3.0";
+            o.MinEndpointVersion = 3;
+            o.MaxEndpointVersion = 3;
+            o.ExcludeNonFastEndpoints = true;
        })
 
    //used for release versioning tests
    .OpenApiDocument(
        o =>
-       {
-           o.ExcludeNonFastEndpoints = true;
-           o.EndpointFilter = ep => ep.EndpointTags?.Contains("release_versioning") is true;
-           o.DocumentSettings = d =>
-                                {
-                                    d.Title = "Web API";
-                                    d.DocumentName = "ReleaseVersioning - v0";
-                                };
-           o.ReleaseVersion = 0;
-           o.ShowDeprecatedOps = true;
-       })
+        {
+            o.ExcludeNonFastEndpoints = true;
+            o.EndpointFilter = ep => ep.EndpointTags?.Contains("release_versioning") is true;
+            o.Title = "Web API";
+            o.DocumentName = "ReleaseVersioning - v0";
+            o.ReleaseVersion = 0;
+            o.ShowDeprecatedOps = true;
+        })
    .OpenApiDocument(
        o =>
-       {
-           o.ExcludeNonFastEndpoints = true;
-           o.EndpointFilter = ep => ep.EndpointTags?.Contains("release_versioning") is true;
-           o.DocumentSettings = d =>
-                                {
-                                    d.Title = "Web API";
-                                    d.DocumentName = "ReleaseVersioning - v1";
-                                };
-           o.ReleaseVersion = 1;
-           o.ShowDeprecatedOps = true;
-       })
+        {
+            o.ExcludeNonFastEndpoints = true;
+            o.EndpointFilter = ep => ep.EndpointTags?.Contains("release_versioning") is true;
+            o.Title = "Web API";
+            o.DocumentName = "ReleaseVersioning - v1";
+            o.ReleaseVersion = 1;
+            o.ShowDeprecatedOps = true;
+        })
    .OpenApiDocument(
        o =>
-       {
-           o.ExcludeNonFastEndpoints = true;
-           o.EndpointFilter = ep => ep.EndpointTags?.Contains("release_versioning") is true;
-           o.DocumentSettings = d =>
-                                {
-                                    d.Title = "Web API";
-                                    d.DocumentName = "ReleaseVersioning - v2";
-                                };
-           o.ReleaseVersion = 2;
-           o.ShowDeprecatedOps = true;
-       })
+        {
+            o.ExcludeNonFastEndpoints = true;
+            o.EndpointFilter = ep => ep.EndpointTags?.Contains("release_versioning") is true;
+            o.Title = "Web API";
+            o.DocumentName = "ReleaseVersioning - v2";
+            o.ReleaseVersion = 2;
+            o.ShowDeprecatedOps = true;
+        })
    .OpenApiDocument(
        o =>
-       {
-           o.ExcludeNonFastEndpoints = true;
-           o.EndpointFilter = ep => ep.EndpointTags?.Contains("release_versioning") is true;
-           o.DocumentSettings = d =>
-                                {
-                                    d.Title = "Web API";
-                                    d.DocumentName = "ReleaseVersioning - v3";
-                                };
-           o.ReleaseVersion = 3;
-           o.ShowDeprecatedOps = true;
-       })
+        {
+            o.ExcludeNonFastEndpoints = true;
+            o.EndpointFilter = ep => ep.EndpointTags?.Contains("release_versioning") is true;
+            o.Title = "Web API";
+            o.DocumentName = "ReleaseVersioning - v3";
+            o.ReleaseVersion = 3;
+            o.ShowDeprecatedOps = true;
+        })
    .OpenApiDocument(
        o =>
-       {
-           o.ExcludeNonFastEndpoints = true;
-           o.EndpointFilter = includeSwaggerReview;
-           o.DocumentSettings = d =>
-                                {
-                                    d.Title = "Web API";
-                                    d.DocumentName = "Swagger Review";
-                                };
-           o.TagStripSymbols = true;
-       })
+        {
+            o.ExcludeNonFastEndpoints = true;
+            o.EndpointFilter = includeSwaggerReview;
+            o.Title = "Web API";
+            o.DocumentName = "Swagger Review";
+            o.TagStripSymbols = true;
+        })
    .OpenApiDocument(
        o =>
-       {
-           o.ExcludeNonFastEndpoints = true;
-           o.EndpointFilter = includeSwaggerReview;
-           o.DocumentSettings = d =>
-                                {
-                                    d.Title = "Web API";
-                                    d.DocumentName = "Swagger Review Empty Schema";
-                                };
-           o.RemoveEmptyRequestSchema = true;
-           o.TagStripSymbols = true;
-       });
+        {
+            o.ExcludeNonFastEndpoints = true;
+            o.EndpointFilter = includeSwaggerReview;
+            o.Title = "Web API";
+            o.DocumentName = "Swagger Review Empty Schema";
+            o.RemoveEmptyRequestSchema = true;
+            o.TagStripSymbols = true;
+        });
 
 if (isTesting)
     bld.Services.AddSingleton<IX402FacilitatorClient, FakeFacilitatorClient>();

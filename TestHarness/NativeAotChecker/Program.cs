@@ -20,7 +20,7 @@ bld.Services
            c.Register<MiddlewareTestCmd, MiddlewareTestResult, SecondMiddleware<MiddlewareTestCmd, MiddlewareTestResult>>();
            c.Register<MiddlewareTestCmd, MiddlewareTestResult, ThirdMiddleware<MiddlewareTestCmd, MiddlewareTestResult>>();
        })
-   .OpenApiDocument(o => o.DocumentSettings = s => s.DocumentName = "v1");
+   .OpenApiDocument(o => o.DocumentName = "v1");
 
 var app = bld.Build();
 app.MapGet("healthy", () => Results.Ok());

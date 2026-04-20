@@ -7,17 +7,15 @@ namespace FastEndpoints.OpenApi;
 sealed partial class DocumentTransformer : IOpenApiDocumentTransformer
 {
     readonly DocumentOptions _opts;
-    readonly DocumentSettings _docSettings;
     readonly SharedContext _sharedCtx;
     readonly int _maxEpVer;
     readonly int _minEpVer;
     readonly int _docRelVer;
     readonly bool _showDeprecated;
 
-    public DocumentTransformer(DocumentOptions opts, DocumentSettings docSettings, SharedContext sharedCtx)
+    public DocumentTransformer(DocumentOptions opts, SharedContext sharedCtx)
     {
         _opts = opts;
-        _docSettings = docSettings;
         _sharedCtx = sharedCtx;
         _minEpVer = opts.MinEndpointVersion;
         _maxEpVer = opts.MaxEndpointVersion;
@@ -44,11 +42,11 @@ sealed partial class DocumentTransformer : IOpenApiDocumentTransformer
     {
         _opts.Services ??= context.ApplicationServices;
 
-        if (_docSettings.Title is not null)
-            document.Info.Title = _docSettings.Title;
+        if (_opts.Title is not null)
+            document.Info.Title = _opts.Title;
 
-        if (_docSettings.Version is not null)
-            document.Info.Version = _docSettings.Version;
+        if (_opts.Version is not null)
+            document.Info.Version = _opts.Version;
 
         RemoveFilteredPaths(document);
         ApplyVersionFiltering(document);
@@ -172,13 +170,13 @@ sealed partial class DocumentTransformer : IOpenApiDocumentTransformer
 
     void AddSecuritySchemes(OpenApiDocument document)
     {
-        if (_docSettings.AuthSchemes.Count == 0)
+        if (_opts.AuthSchemes.Count == 0)
             return;
 
         document.Components ??= new();
         document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
 
-        foreach (var auth in _docSettings.AuthSchemes)
+        foreach (var auth in _opts.AuthSchemes)
             document.Components.SecuritySchemes[auth.Name] = auth.Scheme;
     }
 

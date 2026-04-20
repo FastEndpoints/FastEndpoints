@@ -8,16 +8,13 @@ var artifactRoot = Environment.GetEnvironmentVariable("FE_KIOTA_ARTIFACT_ROOT") 
 var bld = WebApplication.CreateBuilder(args);
 bld.Services
    .AddFastEndpoints()
-   .OpenApiDocument(
-       o =>
-       {
-           o.DocumentSettings = s =>
-                                {
-                                    s.DocumentName = "Kiota Release";
-                                    s.Title = "Kiota Harness";
-                                    s.Version = "v1";
-                                };
-       });
+    .OpenApiDocument(
+        o =>
+        {
+            o.DocumentName = "Kiota Release";
+            o.Title = "Kiota Harness";
+            o.Version = "v1";
+        });
 
 var app = bld.Build();
 app.UseFastEndpoints();

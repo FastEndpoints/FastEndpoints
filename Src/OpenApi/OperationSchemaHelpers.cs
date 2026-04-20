@@ -272,7 +272,7 @@ static class OperationSchemaHelpers
         }
     }
 
-    internal static void RemoveCaseInsensitiveProperties(this JsonObject obj, IEnumerable<string> propertyNames)
+    internal static void RemoveProperties(this JsonObject obj, IEnumerable<string> propertyNames)
     {
         foreach (var propertyName in propertyNames)
         {

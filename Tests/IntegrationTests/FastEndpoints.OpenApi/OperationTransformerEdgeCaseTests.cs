@@ -141,4 +141,14 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         header["schema"]!["properties"]!["prop1"]!["type"]!.Value<string>().ShouldBe("string");
         header["example"]!["prop1"]!.Value<string>().ShouldBe("prop1 val");
     }
+
+    [Fact]
+    public async Task request_examples_do_not_keep_null_for_non_nullable_schema_properties()
+    {
+        var json = await App.GetDocumentJsonAsync("Initial Release");
+        var examples = JToken.Parse(json)["paths"]!["/api/inventory/manage/create"]!["post"]!["requestBody"]!["content"]!["application/json"]!["examples"]!;
+
+        examples["Example 1"]!["value"]!["modifiedBy"]!.Value<string>().ShouldBe("modifiedBy");
+        examples["Example 2"]!["value"]!["modifiedBy"]!.Value<string>().ShouldBe("modifiedBy");
+    }
 }

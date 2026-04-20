@@ -747,12 +747,15 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
             return;
 
         var examples = BuildUniqueRequestExamples(epDef.EndpointSummary.RequestExamples);
+        var fallbackExample = BuildRequestExampleFallback(epDef, propsRemovedFromBody);
 
         foreach (var content in operation.RequestBody.Content.Values)
         {
+            var schema = content.Schema.ResolveSchema();
+
             if (examples.Count == 1)
             {
-                content.Example = StripRemovedProps(examples[0].Value.JsonNodeFromObject(), propsRemovedFromBody);
+                content.Example = NormalizeExampleNode(StripRemovedProps(examples[0].Value.JsonNodeFromObject(), propsRemovedFromBody), schema, fallbackExample);
                 content.Examples?.Clear();
             }
             else
@@ -766,7 +769,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
                     {
                         Summary = example.Summary,
                         Description = example.Description,
-                        Value = StripRemovedProps(example.Value.JsonNodeFromObject(), propsRemovedFromBody)
+                        Value = NormalizeExampleNode(StripRemovedProps(example.Value.JsonNodeFromObject(), propsRemovedFromBody), schema, fallbackExample)
                     };
                 }
             }
@@ -777,7 +780,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
             if (removedProps.Count == 0 || node is not JsonObject obj)
                 return node;
 
-            obj.RemoveCaseInsensitiveProperties(removedProps);
+            obj.RemoveProperties(removedProps);
 
             return obj;
         }
@@ -799,6 +802,16 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
 
             return result;
         }
+    }
+
+    static JsonNode? BuildRequestExampleFallback(EndpointDefinition epDef, HashSet<string> propsRemovedFromBody)
+    {
+        var fallback = GetRequestDtoType(epDef)?.GenerateSampleJsonNode();
+
+        if (fallback is JsonObject fallbackObj && propsRemovedFromBody.Count > 0)
+            fallbackObj.RemoveProperties(propsRemovedFromBody);
+
+        return fallback;
     }
 
     void AddResponseHeaders(OpenApiOperation operation, EndpointDefinition epDef, IList<object> metadata)
@@ -1141,6 +1154,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
 
         var hasParams = epDef.EndpointSummary?.Params is { Count: > 0 };
         var exampleObj = epDef.EndpointSummary?.ExampleRequest;
+        var fallbackExample = BuildRequestExampleFallback(epDef, propsRemovedFromBody);
 
         if (!hasParams && exampleObj is null)
             return;
@@ -1176,9 +1190,9 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
                 {
                     // strip properties that were removed from the request body (claim-bound, route-bound, etc.)
                     if (propsRemovedFromBody.Count > 0 && exNode is JsonObject exObj)
-                        exObj.RemoveCaseInsensitiveProperties(propsRemovedFromBody);
+                        exObj.RemoveProperties(propsRemovedFromBody);
 
-                    schema.Example = exNode;
+                    schema.Example = NormalizeExampleNode(exNode, schema, fallbackExample);
                 }
             }
 
@@ -1205,6 +1219,128 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
                     concreteProp.Example = exVal;
             }
         }
+    }
+
+    static JsonNode? NormalizeExampleNode(JsonNode? example, OpenApiSchema? schema, JsonNode? fallback)
+    {
+        if (example is null)
+            return AllowsNull(schema) ? null : fallback?.DeepClone() ?? CreateSampleFromSchema(schema);
+
+        return example switch
+        {
+            JsonObject obj => NormalizeObjectExample(obj, schema, fallback as JsonObject),
+            JsonArray arr => NormalizeArrayExample(arr, schema, fallback as JsonArray),
+            _ => example
+        };
+    }
+
+    static JsonObject NormalizeObjectExample(JsonObject example, OpenApiSchema? schema, JsonObject? fallback)
+    {
+        if (schema?.Properties is not { Count: > 0 } properties)
+            return example;
+
+        foreach (var key in example.Select(kvp => kvp.Key).ToArray())
+        {
+            var schemaKey = properties.Keys.FindCaseInsensitiveKey(key);
+
+            if (schemaKey is null || properties[schemaKey].ResolveSchema() is not { } propertySchema)
+                continue;
+
+            var fallbackKey = fallback?.Select(kvp => kvp.Key).FindCaseInsensitiveKey(key);
+            var fallbackNode = fallbackKey is not null ? fallback![fallbackKey] : null;
+
+            example[key] = NormalizeExampleNode(example[key], propertySchema, fallbackNode);
+        }
+
+        return example;
+    }
+
+    static JsonArray NormalizeArrayExample(JsonArray example, OpenApiSchema? schema, JsonArray? fallback)
+    {
+        var itemSchema = schema?.Items.ResolveSchema();
+
+        if (itemSchema is null)
+            return example;
+
+        var fallbackNode = fallback is { Count: > 0 } ? fallback[0] : null;
+
+        for (var i = 0; i < example.Count; i++)
+            example[i] = NormalizeExampleNode(example[i], itemSchema, fallbackNode);
+
+        return example;
+    }
+
+    static bool AllowsNull(OpenApiSchema? schema)
+    {
+        if (schema is null)
+            return true;
+
+        if (schema.Type.HasValue && schema.Type.Value.HasFlag(JsonSchemaType.Null))
+            return true;
+
+        if (schema.OneOf?.Any(s => AllowsNull(s.ResolveSchema())) == true)
+            return true;
+
+        return schema.AnyOf?.Any(s => AllowsNull(s.ResolveSchema())) == true;
+    }
+
+    static JsonNode? CreateSampleFromSchema(OpenApiSchema? schema, string? propertyName = null)
+    {
+        if (schema is null)
+            return null;
+
+        if (schema.OneOf is { Count: > 0 })
+        {
+            foreach (var option in schema.OneOf)
+            {
+                var resolved = option.ResolveSchema();
+
+                if (resolved is not null && !AllowsNull(resolved))
+                    return CreateSampleFromSchema(resolved, propertyName);
+            }
+        }
+
+        if (schema.AnyOf is { Count: > 0 })
+        {
+            foreach (var option in schema.AnyOf)
+            {
+                var resolved = option.ResolveSchema();
+
+                if (resolved is not null && !AllowsNull(resolved))
+                    return CreateSampleFromSchema(resolved, propertyName);
+            }
+        }
+
+        if (schema.Properties is { Count: > 0 })
+        {
+            var obj = new JsonObject();
+
+            foreach (var (key, propertySchema) in schema.Properties)
+            {
+                var sample = CreateSampleFromSchema(propertySchema.ResolveSchema(), key);
+
+                if (sample is not null)
+                    obj[key] = sample;
+            }
+
+            return obj.Count > 0 ? obj : null;
+        }
+
+        if (schema.Type == JsonSchemaType.Array)
+        {
+            var itemSample = CreateSampleFromSchema(schema.Items.ResolveSchema(), propertyName);
+
+            return itemSample is not null ? new JsonArray(itemSample) : new JsonArray();
+        }
+
+        return schema.Type switch
+        {
+            JsonSchemaType.String => (propertyName ?? string.Empty).JsonNodeFromObject(),
+            JsonSchemaType.Integer => 0.JsonNodeFromObject(),
+            JsonSchemaType.Number => 0m.JsonNodeFromObject(),
+            JsonSchemaType.Boolean => false.JsonNodeFromObject(),
+            _ => null
+        };
     }
 
     static void FixResponsePolymorphism(OpenApiOperation operation)

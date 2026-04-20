@@ -1107,7 +1107,7 @@
                     "description": "first description",
                     "price": 10,
                     "qtyOnHand": 10,
-                    "modifiedBy": null,
+                    "modifiedBy": "modifiedBy",
                     "generateFullUrl": false
                   }
                 },
@@ -1118,7 +1118,7 @@
                     "description": "description two",
                     "price": 209,
                     "qtyOnHand": 290,
-                    "modifiedBy": null,
+                    "modifiedBy": "modifiedBy",
                     "generateFullUrl": false
                   }
                 }
@@ -5497,7 +5497,7 @@
           "description": "first description",
           "price": 10,
           "qtyOnHand": 10,
-          "modifiedBy": null,
+          "modifiedBy": "modifiedBy",
           "generateFullUrl": false
         }
       },

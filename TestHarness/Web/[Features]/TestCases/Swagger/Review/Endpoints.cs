@@ -88,3 +88,22 @@ sealed class IllegalHeadersEndpoint : Endpoint<IllegalHeadersRequest, string>
     public override Task HandleAsync(IllegalHeadersRequest req, CancellationToken ct)
         => Send.OkAsync(req.BodyValue, ct);
 }
+
+sealed class IdempotencyAnonymousExampleEndpoint : EndpointWithoutRequest<string>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/idempotency-anonymous-example");
+        Tags("swagger_review");
+        AllowAnonymous();
+        Idempotency(
+            o =>
+            {
+                o.SwaggerHeaderDescription = "custom idempotency header";
+                o.SwaggerExampleGenerator = () => new { key = "demo-key", scope = "tenant-a" };
+            });
+    }
+
+    public override Task HandleAsync(CancellationToken ct)
+        => Send.OkAsync("ok", ct);
+}

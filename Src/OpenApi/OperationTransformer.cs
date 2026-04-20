@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Globalization;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
@@ -850,7 +851,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
     {
         foreach (var header in headers.Where(h => h.StatusCode == statusCode))
         {
-            var hasExample = header.Example is not null;
+            var example = header.Example.JsonNodeFromObject();
 
             AddResponseHeader(
                 response,
@@ -858,10 +859,74 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
                 new()
                 {
                     Description = header.Description,
-                    Example = hasExample ? header.Example.JsonNodeFromObject() : null,
-                    Schema = hasExample ? header.Example!.GetType().GetSchemaForType(docOpts.ShortSchemaNames) : null
+                    Example = example,
+                    Schema = CreateConfiguredResponseHeaderSchema(header.Example, example)
                 });
         }
+    }
+
+    IOpenApiSchema? CreateConfiguredResponseHeaderSchema(object? exampleValue, JsonNode? exampleNode)
+    {
+        if (exampleValue is null)
+            return null;
+
+        var exampleType = exampleValue.GetType();
+
+        if (!IsAnonymousType(exampleType))
+            return exampleType.GetSchemaForType(docOpts.ShortSchemaNames);
+
+        return CreateSchemaFromExampleNode(exampleNode);
+    }
+
+    static OpenApiSchema? CreateSchemaFromExampleNode(JsonNode? node)
+        => node switch
+        {
+            JsonObject obj => new()
+            {
+                Type = JsonSchemaType.Object,
+                Properties = obj.ToDictionary(
+                    kvp => kvp.Key,
+                    IOpenApiSchema (kvp) => CreateSchemaFromExampleNode(kvp.Value) ?? OperationSchemaHelpers.StringSchema())
+            },
+            JsonArray arr => new()
+            {
+                Type = JsonSchemaType.Array,
+                Items = CreateSchemaFromExampleNode(arr.FirstOrDefault()) ?? OperationSchemaHelpers.StringSchema()
+            },
+            JsonValue value => CreatePrimitiveSchemaFromValue(value),
+            _ => null
+        };
+
+    static OpenApiSchema CreatePrimitiveSchemaFromValue(JsonValue value)
+    {
+        if (value.TryGetValue<bool>(out _))
+            return new() { Type = JsonSchemaType.Boolean };
+
+        if (value.TryGetValue<int>(out _))
+            return new() { Type = JsonSchemaType.Integer, Format = "int32" };
+
+        if (value.TryGetValue<long>(out _))
+            return new() { Type = JsonSchemaType.Integer, Format = "int64" };
+
+        if (value.TryGetValue<decimal>(out _))
+            return new() { Type = JsonSchemaType.Number };
+
+        return OperationSchemaHelpers.StringSchema();
+    }
+
+    static bool IsAnonymousType(Type type)
+    {
+        if (!Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), inherit: false))
+            return false;
+
+        if (!type.IsGenericType)
+            return false;
+
+        var name = type.Name;
+
+        return name.Contains("AnonymousType", StringComparison.Ordinal) &&
+               (name.StartsWith("<>", StringComparison.Ordinal) || name.StartsWith("VB$", StringComparison.Ordinal)) &&
+               !type.IsPublic;
     }
 
     static void AddResponseHeader(OpenApiResponse response, string headerName, OpenApiHeader header)
@@ -930,6 +995,9 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
             return;
 
         operation.Parameters ??= [];
+        var exampleValue = epDef.IdempotencyOptions.SwaggerExampleGenerator?.Invoke();
+        var exampleNode = exampleValue.JsonNodeFromObject();
+
         var param = new OpenApiParameter
         {
             Name = epDef.IdempotencyOptions.HeaderName,
@@ -938,11 +1006,9 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
             Description = epDef.IdempotencyOptions.SwaggerHeaderDescription,
             Schema = epDef.IdempotencyOptions.SwaggerHeaderType is not null
                          ? epDef.IdempotencyOptions.SwaggerHeaderType.GetSchemaForType(docOpts.ShortSchemaNames)
-                         : OperationSchemaHelpers.StringSchema()
+                         : CreateSchemaFromExampleNode(exampleNode) ?? OperationSchemaHelpers.StringSchema(),
+            Example = exampleNode
         };
-
-        if (epDef.IdempotencyOptions.SwaggerExampleGenerator is not null)
-            param.Example = epDef.IdempotencyOptions.SwaggerExampleGenerator().JsonNodeFromObject();
 
         operation.Parameters.Add(param);
     }

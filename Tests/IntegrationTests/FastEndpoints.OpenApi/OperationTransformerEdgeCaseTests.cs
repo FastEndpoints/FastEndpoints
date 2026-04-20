@@ -104,6 +104,22 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     }
 
     [Fact]
+    public async Task idempotency_header_without_explicit_type_uses_example_shape()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var header = JToken.Parse(json)["paths"]!["/api/swagger-review/idempotency-anonymous-example"]!["post"]!["parameters"]!
+                           .First(p => p["name"]!.Value<string>() == "Idempotency-Key");
+
+        header["description"]!.Value<string>().ShouldBe("custom idempotency header");
+        header["schema"]!["$ref"].ShouldBeNull();
+        header["schema"]!["type"]!.Value<string>().ShouldBe("object");
+        header["schema"]!["properties"]!["key"]!["type"]!.Value<string>().ShouldBe("string");
+        header["schema"]!["properties"]!["scope"]!["type"]!.Value<string>().ShouldBe("string");
+        header["example"]!["key"]!.Value<string>().ShouldBe("demo-key");
+        header["example"]!["scope"]!.Value<string>().ShouldBe("tenant-a");
+    }
+
+    [Fact]
     public async Task x402_headers_are_added_to_request_and_responses()
     {
         var json = await App.GetDocumentJsonAsync("Release 2.0");
@@ -112,5 +128,17 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         operation["parameters"]!.SelectToken("$[?(@.name=='PAYMENT-SIGNATURE')].in")!.Value<string>().ShouldBe("header");
         operation["responses"]!["200"]!["headers"]!["PAYMENT-RESPONSE"]!["schema"]!["type"]!.Value<string>().ShouldBe("string");
         operation["responses"]!["402"]!["headers"]!["PAYMENT-REQUIRED"]!["schema"]!["type"]!.Value<string>().ShouldBe("string");
+    }
+
+    [Fact]
+    public async Task configured_response_header_with_anonymous_example_uses_inline_schema()
+    {
+        var json = await App.GetDocumentJsonAsync("Initial Release");
+        var header = JToken.Parse(json)["paths"]!["/api/admin/login"]!["post"]!["responses"]!["200"]!["headers"]!["x-some-custom-header"]!;
+
+        header["schema"]!["$ref"].ShouldBeNull();
+        header["schema"]!["type"]!.Value<string>().ShouldBe("object");
+        header["schema"]!["properties"]!["prop1"]!["type"]!.Value<string>().ShouldBe("string");
+        header["example"]!["prop1"]!.Value<string>().ShouldBe("prop1 val");
     }
 }

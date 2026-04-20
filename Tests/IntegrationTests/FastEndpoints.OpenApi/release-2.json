@@ -36,7 +36,20 @@
           "200": {
             "description": "all good",
             "headers": {
-              "x-some-custom-header": { }
+              "x-some-custom-header": {
+                "description": "my custom header",
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "prop1": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "prop1": "prop1 val"
+                }
+              }
             },
             "content": {
               "application/json": {
@@ -80,7 +93,20 @@
           "200": {
             "description": "all good",
             "headers": {
-              "x-some-custom-header": { }
+              "x-some-custom-header": {
+                "description": "my custom header",
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "prop1": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "prop1": "prop1 val"
+                }
+              }
             },
             "content": {
               "application/json": {
@@ -124,7 +150,20 @@
           "200": {
             "description": "all good",
             "headers": {
-              "x-some-custom-header": { }
+              "x-some-custom-header": {
+                "description": "my custom header",
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "prop1": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "prop1": "prop1 val"
+                }
+              }
             },
             "content": {
               "application/json": {
@@ -170,7 +209,20 @@
           "200": {
             "description": "all good",
             "headers": {
-              "x-some-custom-header": { }
+              "x-some-custom-header": {
+                "description": "my custom header",
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "prop1": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "prop1": "prop1 val"
+                }
+              }
             },
             "content": {
               "application/json": {
@@ -214,7 +266,20 @@
           "200": {
             "description": "all good",
             "headers": {
-              "x-some-custom-header": { }
+              "x-some-custom-header": {
+                "description": "my custom header",
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "prop1": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "prop1": "prop1 val"
+                }
+              }
             },
             "content": {
               "application/json": {
@@ -258,7 +323,20 @@
           "200": {
             "description": "all good",
             "headers": {
-              "x-some-custom-header": { }
+              "x-some-custom-header": {
+                "description": "my custom header",
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "prop1": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "prop1": "prop1 val"
+                }
+              }
             },
             "content": {
               "application/json": {

@@ -151,4 +151,36 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         examples["Example 1"]!["value"]!["modifiedBy"]!.Value<string>().ShouldBe("modifiedBy");
         examples["Example 2"]!["value"]!["modifiedBy"]!.Value<string>().ShouldBe("modifiedBy");
     }
+
+    [Fact]
+    public async Task dictionary_query_parameter_uses_object_schema_not_missing_keyvaluepair_ref()
+    {
+        var json = await App.GetDocumentJsonAsync("Initial Release");
+        var operation = JToken.Parse(json)["paths"]!["/api/test-cases/json-array-binding-for-ienumerable-props"]!["get"]!;
+        var dictParam = operation["parameters"]!.First(p => p["name"]!.Value<string>() == "dict");
+
+        dictParam["schema"].ShouldBeNull();
+        dictParam["content"]!["application/json"]!["schema"]!["$ref"].ShouldBeNull();
+        dictParam["content"]!["application/json"]!["schema"]!["type"]!.Value<string>().ShouldBe("object");
+        dictParam["content"]!["application/json"]!["schema"]!["additionalProperties"]!["type"]!.Value<string>().ShouldBe("string");
+        var responseSchema = operation["responses"]!["200"]!["content"]!["application/json"]!["schema"]!;
+
+        responseSchema["$ref"]!.Value<string>().ShouldBe("#/components/schemas/TestCasesJsonArrayBindingForIEnumerablePropsResponse");
+        responseSchema.ToString().ShouldNotContain("SystemCollectionsGenericKeyValuePairOfStringAndString");
+    }
+
+    [Fact]
+    public async Task complex_query_object_parameter_uses_json_content()
+    {
+        var json = await App.GetDocumentJsonAsync("Initial Release");
+        var doc = JToken.Parse(json);
+        var operation = doc["paths"]!["/api/test-cases/json-array-binding-for-ienumerable-props"]!["get"]!;
+        var stevenParam = operation["parameters"]!.First(p => p["name"]!.Value<string>() == "steven");
+
+        stevenParam["schema"].ShouldBeNull();
+        stevenParam["content"]!["application/json"]!["schema"]!["$ref"]!.Value<string>()
+                  .ShouldBe("#/components/schemas/TestCasesJsonArrayBindingForIEnumerablePropsRequest_Person");
+
+        doc["components"]!["schemas"]!["TestCasesHydratedQueryParamGeneratorTestRequest_NestedClass"].ShouldNotBeNull();
+    }
 }

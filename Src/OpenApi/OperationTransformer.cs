@@ -418,6 +418,15 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
             Schema = schema
         };
 
+        if (ShouldUseJsonParameterContent(location, propType))
+        {
+            param.Schema = null;
+            param.Content = new Dictionary<string, OpenApiMediaType>
+            {
+                ["application/json"] = new() { Schema = schema }
+            };
+        }
+
         // set parameter example: XML doc <example> tag takes priority, then auto-generated sample
         if (required && prop?.PropertyType is not null)
         {
@@ -442,10 +451,26 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
             example ??= propType.GenerateSampleJsonNode();
 
             if (example is not null)
-                param.Example = example;
+            {
+                if (param.Content is not null)
+                    param.Content["application/json"].Example = example;
+                else
+                    param.Example = example;
+            }
         }
 
         operation.Parameters.Add(param);
+    }
+
+    static bool ShouldUseJsonParameterContent(ParameterLocation location, Type type)
+    {
+        if (location != ParameterLocation.Query)
+            return false;
+
+        type = Nullable.GetUnderlyingType(type) ?? type;
+
+        return type.IsComplexType() && !type.IsCollection() ||
+               typeof(System.Collections.IDictionary).IsAssignableFrom(type);
     }
 
     static void ApplyRequestBodyOverrides(OpenApiOperation operation, EndpointDefinition epDef)

@@ -268,7 +268,15 @@ static class DocumentSchemaHelpers
             foreach (var op in pathItem.Operations.Values)
             {
                 if (op.Parameters is { Count: > 0 })
+                {
                     CollectSchemaRefs(op.Parameters.Select(p => p.Schema), refs);
+
+                    foreach (var param in op.Parameters)
+                    {
+                        if (param.Content is { Count: > 0 })
+                            CollectSchemaRefs(param.Content.Values.Select(content => content.Schema), refs);
+                    }
+                }
 
                 if (op.RequestBody?.Content is { Count: > 0 })
                     CollectSchemaRefs(op.RequestBody.Content.Values.Select(content => content.Schema), refs);

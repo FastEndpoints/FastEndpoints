@@ -37,6 +37,15 @@ static class OperationSchemaHelpers
         {
             var actualType = Nullable.GetUnderlyingType(type) ?? type;
 
+            if (TryGetDictionaryValueType(actualType) is { } dictionaryValueType)
+            {
+                return new OpenApiSchema
+                {
+                    Type = JsonSchemaType.Object,
+                    AdditionalProperties = dictionaryValueType.GetSchemaForType(shortSchemaNames)
+                };
+            }
+
             if (actualType != typeof(string))
             {
                 var elementType = GetCollectionElementType(actualType);
@@ -272,7 +281,7 @@ static class OperationSchemaHelpers
         }
     }
 
-    internal static void RemoveCaseInsensitiveProperties(this JsonObject obj, IEnumerable<string> propertyNames)
+    internal static void RemoveProperties(this JsonObject obj, IEnumerable<string> propertyNames)
     {
         foreach (var propertyName in propertyNames)
         {
@@ -329,5 +338,15 @@ static class OperationSchemaHelpers
         }
 
         return null;
+    }
+
+    static Type? TryGetDictionaryValueType(Type type)
+    {
+        if (!type.IsGenericType || type.GetGenericTypeDefinition() != typeof(Dictionary<,>))
+            return null;
+
+        var args = type.GetGenericArguments();
+
+        return args[0] == typeof(string) ? args[1] : null;
     }
 }

@@ -36,7 +36,20 @@
           "200": {
             "description": "all good",
             "headers": {
-              "x-some-custom-header": { }
+              "x-some-custom-header": {
+                "description": "my custom header",
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "prop1": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "prop1": "prop1 val"
+                }
+              }
             },
             "content": {
               "application/json": {
@@ -79,7 +92,20 @@
           "200": {
             "description": "all good",
             "headers": {
-              "x-some-custom-header": { }
+              "x-some-custom-header": {
+                "description": "my custom header",
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "prop1": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "prop1": "prop1 val"
+                }
+              }
             },
             "content": {
               "application/json": {
@@ -122,7 +148,20 @@
           "200": {
             "description": "all good",
             "headers": {
-              "x-some-custom-header": { }
+              "x-some-custom-header": {
+                "description": "my custom header",
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "prop1": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "example": {
+                  "prop1": "prop1 val"
+                }
+              }
             },
             "content": {
               "application/json": {
@@ -1023,7 +1062,7 @@
                     "description": "first description",
                     "price": 10,
                     "qtyOnHand": 10,
-                    "modifiedBy": null,
+                    "modifiedBy": "modifiedBy",
                     "generateFullUrl": false
                   }
                 },
@@ -1034,7 +1073,7 @@
                     "description": "description two",
                     "price": 209,
                     "qtyOnHand": 290,
-                    "modifiedBy": null,
+                    "modifiedBy": "modifiedBy",
                     "generateFullUrl": false
                   }
                 }
@@ -2282,22 +2321,30 @@
             "name": "steven",
             "in": "query",
             "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/TestCasesJsonArrayBindingForIEnumerablePropsRequest_Person"
-            },
-            "example": {
-              "age": 0,
-              "name": "name"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesJsonArrayBindingForIEnumerablePropsRequest_Person"
+                },
+                "example": {
+                  "age": 0,
+                  "name": "name"
+                }
+              }
             }
           },
           {
             "name": "dict",
             "in": "query",
             "required": true,
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/components/schemas/SystemCollectionsGenericKeyValuePairOfStringAndString"
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
               }
             }
           }
@@ -2851,32 +2898,36 @@
             "name": "person",
             "in": "query",
             "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/TestCasesQueryObjectWithObjectsArrayBindingTestPerson"
-            },
-            "example": {
-              "child": {
-                "objects": [
-                  {
-                    "string": "string",
-                    "bool": false,
-                    "int": 0,
-                    "long": 0,
-                    "double": 0,
-                    "enum": 0
-                  }
-                ]
-              },
-              "objects": [
-                {
-                  "string": "string",
-                  "bool": false,
-                  "int": 0,
-                  "long": 0,
-                  "double": 0,
-                  "enum": 0
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesQueryObjectWithObjectsArrayBindingTestPerson"
+                },
+                "example": {
+                  "child": {
+                    "objects": [
+                      {
+                        "string": "string",
+                        "bool": false,
+                        "int": 0,
+                        "long": 0,
+                        "double": 0,
+                        "enum": 0
+                      }
+                    ]
+                  },
+                  "objects": [
+                    {
+                      "string": "string",
+                      "bool": false,
+                      "int": 0,
+                      "long": 0,
+                      "double": 0,
+                      "enum": 0
+                    }
+                  ]
                 }
-              ]
+              }
             }
           }
         ],
@@ -2958,31 +3009,35 @@
             "name": "person",
             "in": "query",
             "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/TestCasesQueryObjectBindingTestPerson"
-            },
-            "example": {
-              "id": "00000000-0000-0000-0000-000000000000",
-              "name": "name",
-              "age": 0,
-              "child": {
-                "id": "00000000-0000-0000-0000-000000000000",
-                "name": "name",
-                "age": 0,
-                "strings": [
-                  ""
-                ],
-                "favoriteDays": [
-                  0
-                ],
-                "isHidden": false
-              },
-              "numbers": [
-                0
-              ],
-              "favoriteDay": 0,
-              "byteEnum": 0,
-              "isHidden": false
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesQueryObjectBindingTestPerson"
+                },
+                "example": {
+                  "id": "00000000-0000-0000-0000-000000000000",
+                  "name": "name",
+                  "age": 0,
+                  "child": {
+                    "id": "00000000-0000-0000-0000-000000000000",
+                    "name": "name",
+                    "age": 0,
+                    "strings": [
+                      ""
+                    ],
+                    "favoriteDays": [
+                      0
+                    ],
+                    "isHidden": false
+                  },
+                  "numbers": [
+                    0
+                  ],
+                  "favoriteDay": 0,
+                  "byteEnum": 0,
+                  "isHidden": false
+                }
+              }
             }
           }
         ],
@@ -3035,12 +3090,16 @@
             "name": "nested",
             "in": "query",
             "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/TestCasesHydratedQueryParamGeneratorTestRequest_NestedClass"
-            },
-            "example": {
-              "first": "first",
-              "last": 0
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesHydratedQueryParamGeneratorTestRequest_NestedClass"
+                },
+                "example": {
+                  "first": "first",
+                  "last": 0
+                }
+              }
             }
           },
           {
@@ -3198,24 +3257,28 @@
             "name": "person",
             "in": "query",
             "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/TestCasesRouteBindingTestPerson"
-            },
-            "example": {
-              "id": "00000000-0000-0000-0000-000000000000",
-              "name": "name",
-              "age": 0,
-              "child": {
-                "id": "00000000-0000-0000-0000-000000000000",
-                "name": "name",
-                "age": 0,
-                "strings": [
-                  ""
-                ]
-              },
-              "numbers": [
-                0
-              ]
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesRouteBindingTestPerson"
+                },
+                "example": {
+                  "id": "00000000-0000-0000-0000-000000000000",
+                  "name": "name",
+                  "age": 0,
+                  "child": {
+                    "id": "00000000-0000-0000-0000-000000000000",
+                    "name": "name",
+                    "age": 0,
+                    "strings": [
+                      ""
+                    ]
+                  },
+                  "numbers": [
+                    0
+                  ]
+                }
+              }
             }
           }
         ],
@@ -5333,7 +5396,7 @@
           "description": "first description",
           "price": 10,
           "qtyOnHand": 10,
-          "modifiedBy": null,
+          "modifiedBy": "modifiedBy",
           "generateFullUrl": false
         }
       },

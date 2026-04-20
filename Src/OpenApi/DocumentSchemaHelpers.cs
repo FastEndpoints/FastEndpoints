@@ -268,7 +268,15 @@ static class DocumentSchemaHelpers
             foreach (var op in pathItem.Operations.Values)
             {
                 if (op.Parameters is { Count: > 0 })
+                {
                     CollectSchemaRefs(op.Parameters.Select(p => p.Schema), refs);
+
+                    foreach (var param in op.Parameters)
+                    {
+                        if (param.Content is { Count: > 0 })
+                            CollectSchemaRefs(param.Content.Values.Select(content => content.Schema), refs);
+                    }
+                }
 
                 if (op.RequestBody?.Content is { Count: > 0 })
                     CollectSchemaRefs(op.RequestBody.Content.Values.Select(content => content.Schema), refs);
@@ -392,7 +400,7 @@ static class DocumentSchemaHelpers
         {
             Type = JsonSchemaType.Object,
             Properties = new Dictionary<string, IOpenApiSchema>(),
-            Description = XmlDocSchemaTransformer.GetTypeSummary(type)
+            Description = XmlDocLookup.GetTypeSummary(type)
         };
 
         var namingPolicy = Extensions.NamingPolicy;
@@ -413,7 +421,7 @@ static class DocumentSchemaHelpers
 
             if (propSchema is OpenApiSchema concrete)
             {
-                concrete.Description ??= XmlDocSchemaTransformer.GetPropertySummary(prop);
+                concrete.Description ??= XmlDocLookup.GetPropertySummary(prop);
 
                 var defaultAttr = prop.GetCustomAttribute<System.ComponentModel.DefaultValueAttribute>();
 

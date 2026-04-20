@@ -255,7 +255,7 @@ public static class Extensions
         if (File.Exists(c.ZipOutputFile))
             File.Delete(c.ZipOutputFile);
 
-        ZipFile.CreateFromDirectory(c.OutputPath, c.ZipOutputFile, CompressionLevel.SmallestSize, false, Encoding.UTF8);
+        await ZipFile.CreateFromDirectoryAsync(c.OutputPath, c.ZipOutputFile, CompressionLevel.SmallestSize, false, Encoding.UTF8, ct);
 
         logger.ClientArchiveCreationSuccessful();
     }
@@ -281,19 +281,6 @@ public static class Extensions
     {
         ArgumentException.ThrowIfNullOrEmpty(documentName);
         ArgumentException.ThrowIfNullOrEmpty(destinationPath);
-    }
-
-    static void SafeDeleteFile(string path)
-    {
-        try
-        {
-            if (File.Exists(path))
-                File.Delete(path);
-        }
-        catch
-        {
-            // best effort cleanup after the response is already being sent
-        }
     }
 
     static void SafeDeleteDirectory(string path)

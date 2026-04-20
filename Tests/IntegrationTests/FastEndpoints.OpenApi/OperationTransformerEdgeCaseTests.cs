@@ -104,6 +104,22 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     }
 
     [Fact]
+    public async Task idempotency_header_without_explicit_type_uses_example_shape()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var header = JToken.Parse(json)["paths"]!["/api/swagger-review/idempotency-anonymous-example"]!["post"]!["parameters"]!
+                           .First(p => p["name"]!.Value<string>() == "Idempotency-Key");
+
+        header["description"]!.Value<string>().ShouldBe("custom idempotency header");
+        header["schema"]!["$ref"].ShouldBeNull();
+        header["schema"]!["type"]!.Value<string>().ShouldBe("object");
+        header["schema"]!["properties"]!["key"]!["type"]!.Value<string>().ShouldBe("string");
+        header["schema"]!["properties"]!["scope"]!["type"]!.Value<string>().ShouldBe("string");
+        header["example"]!["key"]!.Value<string>().ShouldBe("demo-key");
+        header["example"]!["scope"]!.Value<string>().ShouldBe("tenant-a");
+    }
+
+    [Fact]
     public async Task x402_headers_are_added_to_request_and_responses()
     {
         var json = await App.GetDocumentJsonAsync("Release 2.0");
@@ -112,5 +128,59 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         operation["parameters"]!.SelectToken("$[?(@.name=='PAYMENT-SIGNATURE')].in")!.Value<string>().ShouldBe("header");
         operation["responses"]!["200"]!["headers"]!["PAYMENT-RESPONSE"]!["schema"]!["type"]!.Value<string>().ShouldBe("string");
         operation["responses"]!["402"]!["headers"]!["PAYMENT-REQUIRED"]!["schema"]!["type"]!.Value<string>().ShouldBe("string");
+    }
+
+    [Fact]
+    public async Task configured_response_header_with_anonymous_example_uses_inline_schema()
+    {
+        var json = await App.GetDocumentJsonAsync("Initial Release");
+        var header = JToken.Parse(json)["paths"]!["/api/admin/login"]!["post"]!["responses"]!["200"]!["headers"]!["x-some-custom-header"]!;
+
+        header["schema"]!["$ref"].ShouldBeNull();
+        header["schema"]!["type"]!.Value<string>().ShouldBe("object");
+        header["schema"]!["properties"]!["prop1"]!["type"]!.Value<string>().ShouldBe("string");
+        header["example"]!["prop1"]!.Value<string>().ShouldBe("prop1 val");
+    }
+
+    [Fact]
+    public async Task request_examples_do_not_keep_null_for_non_nullable_schema_properties()
+    {
+        var json = await App.GetDocumentJsonAsync("Initial Release");
+        var examples = JToken.Parse(json)["paths"]!["/api/inventory/manage/create"]!["post"]!["requestBody"]!["content"]!["application/json"]!["examples"]!;
+
+        examples["Example 1"]!["value"]!["modifiedBy"]!.Value<string>().ShouldBe("modifiedBy");
+        examples["Example 2"]!["value"]!["modifiedBy"]!.Value<string>().ShouldBe("modifiedBy");
+    }
+
+    [Fact]
+    public async Task dictionary_query_parameter_uses_object_schema_not_missing_keyvaluepair_ref()
+    {
+        var json = await App.GetDocumentJsonAsync("Initial Release");
+        var operation = JToken.Parse(json)["paths"]!["/api/test-cases/json-array-binding-for-ienumerable-props"]!["get"]!;
+        var dictParam = operation["parameters"]!.First(p => p["name"]!.Value<string>() == "dict");
+
+        dictParam["schema"].ShouldBeNull();
+        dictParam["content"]!["application/json"]!["schema"]!["$ref"].ShouldBeNull();
+        dictParam["content"]!["application/json"]!["schema"]!["type"]!.Value<string>().ShouldBe("object");
+        dictParam["content"]!["application/json"]!["schema"]!["additionalProperties"]!["type"]!.Value<string>().ShouldBe("string");
+        var responseSchema = operation["responses"]!["200"]!["content"]!["application/json"]!["schema"]!;
+
+        responseSchema["$ref"]!.Value<string>().ShouldBe("#/components/schemas/TestCasesJsonArrayBindingForIEnumerablePropsResponse");
+        responseSchema.ToString().ShouldNotContain("SystemCollectionsGenericKeyValuePairOfStringAndString");
+    }
+
+    [Fact]
+    public async Task complex_query_object_parameter_uses_json_content()
+    {
+        var json = await App.GetDocumentJsonAsync("Initial Release");
+        var doc = JToken.Parse(json);
+        var operation = doc["paths"]!["/api/test-cases/json-array-binding-for-ienumerable-props"]!["get"]!;
+        var stevenParam = operation["parameters"]!.First(p => p["name"]!.Value<string>() == "steven");
+
+        stevenParam["schema"].ShouldBeNull();
+        stevenParam["content"]!["application/json"]!["schema"]!["$ref"]!.Value<string>()
+                  .ShouldBe("#/components/schemas/TestCasesJsonArrayBindingForIEnumerablePropsRequest_Person");
+
+        doc["components"]!["schemas"]!["TestCasesHydratedQueryParamGeneratorTestRequest_NestedClass"].ShouldNotBeNull();
     }
 }

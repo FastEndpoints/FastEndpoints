@@ -2,7 +2,9 @@ using System.Text.Json;
 using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.OpenApi;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
@@ -104,6 +106,38 @@ public static class Extensions
         return rule.When(_ => true, applyConditionTo);
     }
 
+    const string OpenApiJsonExportKey = "export-openapi-docs";
+
+    extension(IHost app)
+    {
+        /// <summary>
+        /// returns true if the app is being launched just to export openapi json files.
+        /// </summary>
+        public bool IsJsonExportMode()
+            => string.Equals(app.Services.GetRequiredService<IConfiguration>()[OpenApiJsonExportKey], "true", StringComparison.Ordinal);
+
+        /// <summary>
+        /// returns true if the app is running normally and not launched for the purpose of exporting openapi json files.
+        /// </summary>
+        public bool IsNotJsonExportMode()
+            => !app.IsJsonExportMode();
+    }
+
+    extension(IHostApplicationBuilder bld)
+    {
+        /// <summary>
+        /// returns true if the app is being launched just to export openapi json files.
+        /// </summary>
+        public bool IsJsonExportMode()
+            => string.Equals(bld.Configuration[OpenApiJsonExportKey], "true", StringComparison.Ordinal);
+
+        /// <summary>
+        /// returns true if the app is running normally and not launched for the purpose of exporting openapi json files.
+        /// </summary>
+        public bool IsNotJsonExportMode()
+            => !bld.IsJsonExportMode();
+    }
+
     /// <summary>
     /// exports openapi .json files to disk and exits the program.
     /// <para>HINT: make sure to place the call straight after <c>app.UseFastEndpoints()</c></para>
@@ -133,7 +167,7 @@ public static class Extensions
     /// <param name="documentNames">the openapi document names to export. these must match the names used in <c>.OpenApiDocument()</c> configuration.</param>
     public static async Task ExportOpenApiDocsAndExitAsync(this WebApplication app, params string[] documentNames)
     {
-        if (app.Configuration["export-openapi-docs"] != "true")
+        if (app.IsNotJsonExportMode())
             return;
 
         if (documentNames.Length == 0)

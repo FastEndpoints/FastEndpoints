@@ -229,6 +229,20 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     }
 
     [Fact]
+    public async Task missing_schema_generation_uses_primitive_formats_for_primitive_like_properties()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var doc = JToken.Parse(json);
+        var responseSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewMissingSchemaPrimitiveResponse"]!;
+
+        responseSchema["properties"]!["correlationId"]!["type"]!.Value<string>().ShouldBe("string");
+        responseSchema["properties"]!["correlationId"]!["format"]!.Value<string>().ShouldBe("uuid");
+        responseSchema["properties"]!["effectiveOn"]!["$ref"]!.Value<string>().ShouldBe("#/components/schemas/SystemDateOnly");
+        doc["components"]!["schemas"]!["SystemDateOnly"]!["type"]!.Value<string>().ShouldBe("string");
+        doc["components"]!["schemas"]!["SystemDateOnly"]!["format"]!.Value<string>().ShouldBe("date");
+    }
+
+    [Fact]
     public async Task orphan_constrained_route_param_uses_constraint_type()
     {
         var json = await App.GetDocumentJsonAsync("Release 2.0");

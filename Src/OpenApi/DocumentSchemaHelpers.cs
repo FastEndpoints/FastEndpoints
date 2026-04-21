@@ -477,10 +477,18 @@ static class DocumentSchemaHelpers
         => type switch
         {
             _ when type == typeof(string) => new() { Type = JsonSchemaType.String },
-            _ when type == typeof(int) || type == typeof(short) || type == typeof(long) => new() { Type = JsonSchemaType.Integer, Format = "int32" },
-            _ when type == typeof(float) || type == typeof(double) => new() { Type = JsonSchemaType.Number, Format = "double" },
+            _ when type == typeof(int) || type == typeof(short) => new() { Type = JsonSchemaType.Integer, Format = "int32" },
+            _ when type == typeof(long) => new() { Type = JsonSchemaType.Integer, Format = "int64" },
+            _ when type == typeof(float) => new() { Type = JsonSchemaType.Number, Format = "float" },
+            _ when type == typeof(double) => new() { Type = JsonSchemaType.Number, Format = "double" },
             _ when type == typeof(decimal) => new() { Type = JsonSchemaType.Number, Format = "decimal" },
             _ when type == typeof(bool) => new() { Type = JsonSchemaType.Boolean },
+            _ when type == typeof(Guid) => new() { Type = JsonSchemaType.String, Format = "uuid" },
+            _ when type == typeof(DateTime) || type == typeof(DateTimeOffset) => new() { Type = JsonSchemaType.String, Format = "date-time" },
+            _ when type == typeof(DateOnly) => new() { Type = JsonSchemaType.String, Format = "date" },
+            _ when type == typeof(TimeOnly) => new() { Type = JsonSchemaType.String, Format = "time" },
+            _ when type == typeof(TimeSpan) => new() { Type = JsonSchemaType.String, Format = "duration" },
+            _ when SchemaNameGenerator.IsFormFileType(type) => new() { Type = JsonSchemaType.String, Format = "binary" },
             _ => null
         };
 

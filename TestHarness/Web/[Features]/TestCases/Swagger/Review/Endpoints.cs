@@ -228,3 +228,23 @@ sealed class GenericXmlDocReviewEndpoint : Endpoint<GenericXmlDocReviewRequest, 
     public override Task HandleAsync(GenericXmlDocReviewRequest req, CancellationToken ct)
         => Send.OkAsync(new() { Value = req.Value }, ct);
 }
+
+sealed class MissingSchemaPrimitiveResponse
+{
+    public Guid CorrelationId { get; set; }
+    public DateOnly EffectiveOn { get; set; }
+}
+
+sealed class MissingSchemaPrimitiveEndpoint : EndpointWithoutRequest
+{
+    public override void Configure()
+    {
+        Get("/swagger-review/missing-schema-primitives");
+        Tags("swagger_review");
+        AllowAnonymous();
+        Description(b => b.Produces<MissingSchemaPrimitiveResponse>(200, "application/json"));
+    }
+
+    public override Task HandleAsync(CancellationToken ct)
+        => Send.OkAsync(ct);
+}

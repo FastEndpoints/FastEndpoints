@@ -98,9 +98,13 @@ static class XmlDocLookup
         if (type is null)
             return string.Empty;
 
-        // for nested types: Namespace.Outer+Inner → Namespace.Outer.Inner
         var fullName = type.FullName ?? type.Name;
 
+        var genericArgsIdx = fullName.IndexOf('[');
+        if (genericArgsIdx >= 0)
+            fullName = fullName[..genericArgsIdx];
+
+        // for nested types: Namespace.Outer+Inner → Namespace.Outer.Inner
         return fullName.Replace('+', '.');
     }
 

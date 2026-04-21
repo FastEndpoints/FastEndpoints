@@ -162,3 +162,35 @@ sealed class InterfaceDictionaryReviewEndpoint : Endpoint<InterfaceDictionaryRev
     public override Task HandleAsync(InterfaceDictionaryReviewRequest req, CancellationToken ct)
         => Send.OkAsync(req.Metadata.Count.ToString(), ct);
 }
+
+/// <summary>
+/// generic wrapper summary
+/// </summary>
+class GenericXmlDocWrapper<T>
+{
+    /// <summary>
+    /// wrapped value summary
+    /// </summary>
+    /// <example>wrapped example</example>
+    public T Value { get; set; } = default!;
+}
+
+sealed class GenericXmlDocReviewRequest : GenericXmlDocWrapper<string>;
+
+/// <summary>
+/// generic review response summary
+/// </summary>
+sealed class GenericXmlDocReviewResponse : GenericXmlDocWrapper<string>;
+
+sealed class GenericXmlDocReviewEndpoint : Endpoint<GenericXmlDocReviewRequest, GenericXmlDocReviewResponse>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/generic-xml-doc");
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(GenericXmlDocReviewRequest req, CancellationToken ct)
+        => Send.OkAsync(new() { Value = req.Value }, ct);
+}

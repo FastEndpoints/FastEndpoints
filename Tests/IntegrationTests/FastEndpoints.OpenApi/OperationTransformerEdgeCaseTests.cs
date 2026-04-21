@@ -206,6 +206,20 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     }
 
     [Fact]
+    public async Task xml_docs_are_applied_for_properties_on_generic_types()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var doc = JToken.Parse(json);
+        var requestSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewGenericXmlDocReviewRequest"]!;
+        var responseSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewGenericXmlDocReviewResponse"]!;
+
+        requestSchema["properties"]!["value"]!["description"]!.Value<string>().ShouldBe("wrapped value summary");
+        requestSchema["properties"]!["value"]!["example"]!.Value<string>().ShouldBe("wrapped example");
+        responseSchema["description"]!.Value<string>().ShouldBe("generic review response summary");
+        responseSchema["properties"]!["value"]!["description"]!.Value<string>().ShouldBe("wrapped value summary");
+    }
+
+    [Fact]
     public async Task orphan_constrained_route_param_uses_constraint_type()
     {
         var json = await App.GetDocumentJsonAsync("Release 2.0");

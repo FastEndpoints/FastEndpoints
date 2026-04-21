@@ -145,6 +145,40 @@ sealed class ChildValidatorReviewEndpoint : Endpoint<ChildValidatorReviewRequest
         => Send.OkAsync(req.Child.Score.ToString(), ct);
 }
 
+sealed class DeepNestedValidatorReviewRequest
+{
+    public DeepNestedValidatorReviewChild Child { get; set; } = new();
+}
+
+sealed class DeepNestedValidatorReviewChild
+{
+    public DeepNestedValidatorReviewGrandChild SubChild { get; set; } = new();
+}
+
+sealed class DeepNestedValidatorReviewGrandChild
+{
+    public string Field { get; set; } = string.Empty;
+}
+
+sealed class DeepNestedValidatorReviewValidator : Validator<DeepNestedValidatorReviewRequest>
+{
+    public DeepNestedValidatorReviewValidator()
+        => RuleFor(x => x.Child.SubChild.Field).MinimumLength(5);
+}
+
+sealed class DeepNestedValidatorReviewEndpoint : Endpoint<DeepNestedValidatorReviewRequest, string>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/deep-nested-validator");
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(DeepNestedValidatorReviewRequest req, CancellationToken ct)
+        => Send.OkAsync(req.Child.SubChild.Field, ct);
+}
+
 sealed class InterfaceDictionaryReviewRequest
 {
     public IDictionary<string, string> Metadata { get; set; } = new Dictionary<string, string>();

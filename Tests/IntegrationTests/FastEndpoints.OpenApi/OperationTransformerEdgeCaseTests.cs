@@ -194,6 +194,15 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     }
 
     [Fact]
+    public async Task deep_nested_validator_rules_are_applied_to_nested_schema_properties()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var grandChildSchema = JToken.Parse(json)["components"]!["schemas"]!["TestCasesSwaggerReviewDeepNestedValidatorReviewGrandChild"]!;
+
+        grandChildSchema["properties"]!["field"]!["minLength"]!.Value<int>().ShouldBe(5);
+    }
+
+    [Fact]
     public async Task interface_dictionary_query_parameter_uses_object_schema()
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review");

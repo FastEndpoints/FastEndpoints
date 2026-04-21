@@ -52,8 +52,7 @@ bld.Services
             o.Version = "v0.0";
             o.TagCase = TagCase.TitleCase;
             o.TagStripSymbols = true;
-            o.RemoveEmptyRequestSchema = false;
-       })
+        })
    .OpenApiDocument(
         o =>
         {
@@ -70,9 +69,8 @@ bld.Services
                     Type = SecuritySchemeType.ApiKey
                 });
             o.MaxEndpointVersion = 1;
-            o.RemoveEmptyRequestSchema = false;
             o.TagStripSymbols = true;
-       })
+        })
    .OpenApiDocument(
         o =>
         {
@@ -82,9 +80,8 @@ bld.Services
             o.Version = "v2.0";
             o.MaxEndpointVersion = 2;
             o.ShowDeprecatedOps = true;
-            o.RemoveEmptyRequestSchema = false;
-           o.TagStripSymbols = true;
-       })
+            o.TagStripSymbols = true;
+        })
    .OpenApiDocument(
         o => //only ver3 & only FastEndpoints
         {
@@ -154,7 +151,6 @@ bld.Services
             o.EndpointFilter = includeSwaggerReview;
             o.Title = "Web API";
             o.DocumentName = "Swagger Review Empty Schema";
-            o.RemoveEmptyRequestSchema = true;
             o.TagStripSymbols = true;
         });
 

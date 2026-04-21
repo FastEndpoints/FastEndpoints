@@ -79,11 +79,6 @@ public class DocumentOptions
     public bool ShowDeprecatedOps { get; set; }
 
     /// <summary>
-    /// set to true for removing empty request dto schema from the openapi document.
-    /// </summary>
-    public bool RemoveEmptyRequestSchema { get; set; }
-
-    /// <summary>
     /// set to true if you'd like schema names to be just the class name instead of the full name.
     /// </summary>
     public bool ShortSchemaNames { get; set; }

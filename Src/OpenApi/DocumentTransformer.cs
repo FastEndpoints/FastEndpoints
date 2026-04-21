@@ -75,9 +75,6 @@ sealed partial class DocumentTransformer : IOpenApiDocumentTransformer
         if (_opts.FlattenSchema)
             document.FlattenAllOfSchemas();
 
-        if (_opts.RemoveEmptyRequestSchema)
-            document.RemoveEmptyRequestSchemas();
-
         document.AddAdditionalPropertiesFalse();
         document.RemoveUnreferencedSchemas();
     }

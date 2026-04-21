@@ -205,18 +205,6 @@ static class DocumentSchemaHelpers
             target.Required.Add(req);
     }
 
-    internal static void RemoveEmptyRequestSchemas(this OpenApiDocument document)
-    {
-        if (document.Components?.Schemas is null)
-            return;
-
-        foreach (var key in document.Components.Schemas
-                                    .Where(s => s.Value.Properties?.Count == 0 && s.Value.Type == JsonSchemaType.Object)
-                                    .Select(s => s.Key)
-                                    .ToArray())
-            document.Components.Schemas.Remove(key);
-    }
-
     internal static void SortPaths(this OpenApiDocument document)
     {
         var sorted = document.Paths.OrderBy(p => p.Key, StringComparer.Ordinal).ToList();

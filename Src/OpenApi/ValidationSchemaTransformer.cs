@@ -3,8 +3,10 @@
 // Copyright (c) 2019 Zym Labs LLC
 
 using System.Collections.ObjectModel;
+using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using FastEndpoints.OpenApi.ValidationProcessor;
 using FastEndpoints.OpenApi.ValidationProcessor.Extensions;
 using FluentValidation;
@@ -20,98 +22,92 @@ namespace FastEndpoints.OpenApi;
 sealed class ValidationSchemaTransformer : IOpenApiSchemaTransformer
 {
     const BindingFlags PublicInstance = BindingFlags.Public | BindingFlags.Instance;
+    static readonly ConditionalWeakTable<EndpointData, Dictionary<Type, ValidatorBinding[]>> _validatorBindingCache = new();
+    static readonly ConcurrentDictionary<Type, PropertyInfo[]> _propertyCache = new();
+
+    sealed class ValidatorBinding
+    {
+        public required Type ValidatorType { get; init; }
+        public string? PropertyPrefix { get; init; }
+    }
 
     IServiceResolver? _serviceResolver;
     ILogger<ValidationSchemaTransformer>? _logger;
-    Type[]? _validatorTypes;
     FluentValidationRule[]? _rules;
-    readonly Dictionary<string, IValidator> _childAdaptorValidators = new();
-    bool _initialized;
+    Dictionary<Type, ValidatorBinding[]>? _validatorBindings;
+    readonly object _initializeLock = new();
+    volatile bool _initialized;
 
     void Initialize(IServiceProvider services)
     {
         if (_initialized)
             return;
 
-        _initialized = true;
+        lock (_initializeLock)
+        {
+            if (_initialized)
+                return;
 
-        _serviceResolver = services.GetRequiredService<IServiceResolver>();
-        _logger = services.GetRequiredService<ILogger<ValidationSchemaTransformer>>();
-        _rules = CreateDefaultRules();
-        _validatorTypes = _serviceResolver.Resolve<EndpointData>().Found
-                                          .Where(e => e.ValidatorType != null)
-                                          .Select(e => e.ValidatorType!)
-                                          .Distinct()
-                                          .ToArray();
+            _serviceResolver = services.GetRequiredService<IServiceResolver>();
+            _logger = services.GetRequiredService<ILogger<ValidationSchemaTransformer>>();
+            _rules = CreateDefaultRules();
+            var endpointData = _serviceResolver.Resolve<EndpointData>();
+            _validatorBindings = _validatorBindingCache.GetValue(endpointData, static data => BuildValidatorBindings(data));
 
-        if (_validatorTypes.Length == 0)
-            _logger.NoValidatorsFound();
+            if (_validatorBindings.Count == 0)
+                _logger.NoValidatorsFound();
+
+            _initialized = true;
+        }
     }
 
     public Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context, CancellationToken cancellationToken)
     {
         Initialize(context.ApplicationServices);
 
-        if (_serviceResolver is null || _validatorTypes is not { Length: > 0 } || _rules is null)
+        if (_serviceResolver is null || _validatorBindings is not { Count: > 0 } || _rules is null)
             return Task.CompletedTask;
 
         var tRequest = context.JsonTypeInfo.Type;
-        using var scope = _serviceResolver.CreateScope();
-        var namingPolicy = Extensions.NamingPolicy;
-        var supportsNestedPropertyWalk = IsComplexType(tRequest);
 
-        foreach (var tValidator in _validatorTypes)
+        if (!_validatorBindings.TryGetValue(tRequest, out var bindings) || bindings.Length == 0)
+            return Task.CompletedTask;
+
+        using var scope = _serviceResolver.CreateScope();
+
+        foreach (var binding in bindings)
         {
             try
             {
-                var validatorTargetType = tValidator.BaseType?.GenericTypeArguments.FirstOrDefault();
-
-                if (validatorTargetType == tRequest)
-                {
-                    var validator = _serviceResolver.CreateInstance(tValidator, scope.ServiceProvider) ??
-                                    throw new InvalidOperationException($"Unable to instantiate validator {tValidator.Name}!");
-                    ApplyValidator(schema, (IValidator)validator, "", scope.ServiceProvider);
-
-                    break;
-                }
-
-                // handle nested properties: if the validator's target type has a property of the current schema type,
-                // apply the validator's rules using the property name as prefix so that nested rules like
-                // RuleFor(x => x.Product.Price) are applied to the Product schema.
-                if (validatorTargetType is null || !supportsNestedPropertyWalk)
-                    continue;
-
-                foreach (var prop in validatorTargetType.GetProperties(PublicInstance))
-                {
-                    if (prop.PropertyType != tRequest)
-                        continue;
-
-                    var validator = _serviceResolver.CreateInstance(tValidator, scope.ServiceProvider) ??
-                                    throw new InvalidOperationException($"Unable to instantiate validator {tValidator.Name}!");
-                    var prefix = namingPolicy?.ConvertName(prop.Name) ?? prop.Name;
-                    ApplyValidator(schema, (IValidator)validator, prefix + ".", scope.ServiceProvider);
-                }
+                var validator = _serviceResolver.CreateInstance(binding.ValidatorType, scope.ServiceProvider) ??
+                                throw new InvalidOperationException($"Unable to instantiate validator {binding.ValidatorType.Name}!");
+                ApplyValidator(schema, (IValidator)validator, binding.PropertyPrefix ?? string.Empty, scope.ServiceProvider, []);
             }
             catch (Exception ex)
             {
-                _logger?.ExceptionProcessingValidator(ex, tValidator.Name);
+                _logger?.ExceptionProcessingValidator(ex, binding.ValidatorType.Name);
             }
         }
 
         return Task.CompletedTask;
     }
 
-    void ApplyValidator(OpenApiSchema schema, IValidator validator, string propertyPrefix, IServiceProvider services)
+    void ApplyValidator(OpenApiSchema schema,
+                        IValidator validator,
+                        string propertyPrefix,
+                        IServiceProvider services,
+                        HashSet<Type> activeChildValidators)
     {
         var rulesDict = validator.GetDictionaryOfRules();
-        ApplyRulesToSchema(schema, rulesDict, propertyPrefix, services);
-        ApplyRulesFromIncludedValidators(schema, validator, services);
+        ApplyRulesToSchema(schema, rulesDict, propertyPrefix, services, activeChildValidators);
+        ApplyRulesFromIncludedValidators(schema, validator, services, activeChildValidators);
     }
 
     void ApplyRulesToSchema(OpenApiSchema? schema,
                             ReadOnlyDictionary<string, List<IValidationRule>> rulesDict,
                             string propertyPrefix,
-                            IServiceProvider services)
+                            IServiceProvider services,
+                            HashSet<Type> activeChildValidators)
     {
         if (schema is null)
             return;
@@ -119,19 +115,20 @@ sealed class ValidationSchemaTransformer : IOpenApiSchemaTransformer
         if (schema.Properties is not null)
         {
             foreach (var schemaProperty in schema.Properties.Keys.ToArray())
-                TryApplyValidation(schema, rulesDict, schemaProperty, propertyPrefix, services);
+                TryApplyValidation(schema, rulesDict, schemaProperty, propertyPrefix, services, activeChildValidators);
         }
 
         // recurse into polymorphism/union composites: allOf (inheritance), oneOf/anyOf (derived/union)
-        RecurseComposite(schema.AllOf, rulesDict, propertyPrefix, services);
-        RecurseComposite(schema.OneOf, rulesDict, propertyPrefix, services);
-        RecurseComposite(schema.AnyOf, rulesDict, propertyPrefix, services);
+        RecurseComposite(schema.AllOf, rulesDict, propertyPrefix, services, activeChildValidators);
+        RecurseComposite(schema.OneOf, rulesDict, propertyPrefix, services, activeChildValidators);
+        RecurseComposite(schema.AnyOf, rulesDict, propertyPrefix, services, activeChildValidators);
     }
 
     void RecurseComposite(IList<IOpenApiSchema>? composite,
                           ReadOnlyDictionary<string, List<IValidationRule>> rulesDict,
                           string propertyPrefix,
-                          IServiceProvider services)
+                          IServiceProvider services,
+                          HashSet<Type> activeChildValidators)
     {
         if (composite is null)
             return;
@@ -141,12 +138,15 @@ sealed class ValidationSchemaTransformer : IOpenApiSchemaTransformer
             var resolved = entry.ResolveSchema();
 
             if (resolved is not null && resolved.Properties is { Count: > 0 })
-                ApplyRulesToSchema(resolved, rulesDict, propertyPrefix, services);
+                ApplyRulesToSchema(resolved, rulesDict, propertyPrefix, services, activeChildValidators);
         }
     }
 
     [DynamicDependency(DynamicallyAccessedMemberTypes.PublicMethods, typeof(ChildValidatorAdaptor<,>))]
-    void ApplyRulesFromIncludedValidators(OpenApiSchema schema, IValidator validator, IServiceProvider services)
+    void ApplyRulesFromIncludedValidators(OpenApiSchema schema,
+                                          IValidator validator,
+                                          IServiceProvider services,
+                                          HashSet<Type> activeChildValidators)
     {
         if (validator is not IEnumerable<IValidationRule> rules)
             return;
@@ -171,8 +171,8 @@ sealed class ValidationSchemaTransformer : IOpenApiSchemaTransformer
             if (adapterMethod.Invoke(adapter, [validationContext, null!]) is not IValidator includeValidator)
                 break;
 
-            ApplyRulesToSchema(schema, includeValidator.GetDictionaryOfRules(), string.Empty, services);
-            ApplyRulesFromIncludedValidators(schema, includeValidator, services);
+            ApplyRulesToSchema(schema, includeValidator.GetDictionaryOfRules(), string.Empty, services, activeChildValidators);
+            ApplyRulesFromIncludedValidators(schema, includeValidator, services, activeChildValidators);
         }
     }
 
@@ -180,14 +180,15 @@ sealed class ValidationSchemaTransformer : IOpenApiSchemaTransformer
                             ReadOnlyDictionary<string, List<IValidationRule>> rulesDict,
                             string propertyName,
                             string parameterPrefix,
-                            IServiceProvider services)
+                            IServiceProvider services,
+                            HashSet<Type> activeChildValidators)
     {
         var fullPropertyName = $"{parameterPrefix}{propertyName}";
 
         if (rulesDict.TryGetValue(fullPropertyName, out var validationRules))
         {
             foreach (var validationRule in validationRules)
-                ApplyValidationRule(schema, validationRule, propertyName, services);
+                ApplyValidationRule(schema, validationRule, propertyName, services, activeChildValidators);
         }
 
         if (schema.Properties?.TryGetValue(propertyName, out var property) != true)
@@ -198,10 +199,14 @@ sealed class ValidationSchemaTransformer : IOpenApiSchemaTransformer
         if (propertySchema is not null &&
             propertySchema.Properties is { Count: > 0 } &&
             propertySchema != schema)
-            ApplyRulesToSchema(propertySchema, rulesDict, $"{fullPropertyName}.", services);
+            ApplyRulesToSchema(propertySchema, rulesDict, $"{fullPropertyName}.", services, activeChildValidators);
     }
 
-    void ApplyValidationRule(OpenApiSchema schema, IValidationRule validationRule, string propertyName, IServiceProvider services)
+    void ApplyValidationRule(OpenApiSchema schema,
+                             IValidationRule validationRule,
+                             string propertyName,
+                             IServiceProvider services,
+                             HashSet<Type> activeChildValidators)
     {
         foreach (var ruleComponent in validationRule.Components)
         {
@@ -221,31 +226,32 @@ sealed class ValidationSchemaTransformer : IOpenApiSchemaTransformer
                 if (validatorTypeObj is not Type validatorType)
                     throw new InvalidOperationException("ChildValidatorAdaptor.ValidatorType is null");
 
-                if (!validatorType.IsInterface &&
-                    !_childAdaptorValidators.TryGetValue(validatorType.FullName!, out var childValidator))
+                if (validatorType.IsInterface || !activeChildValidators.Add(validatorType))
                 {
-                    childValidator = _childAdaptorValidators[validatorType.FullName!] =
-                                         (IValidator)_serviceResolver!.CreateInstance(validatorType, services);
-                }
-                else
-                {
-                    // interface validators can't be instantiated; already-cached validators are skipped
-                    // to prevent infinite recursion for circular validator references
                     continue;
                 }
 
-                if (schema.Properties?.TryGetValue(propertyName, out var childPropSchema) == true)
+                try
                 {
-                    var childSchema = childPropSchema.ResolveSchema();
+                    var childValidator = (IValidator)_serviceResolver!.CreateInstance(validatorType, services);
 
-                    if (childSchema is not null)
+                    if (schema.Properties?.TryGetValue(propertyName, out var childPropSchema) == true)
                     {
-                        // check if array (RuleForEach)
-                        if (childSchema.Type == JsonSchemaType.Array && childSchema.Items.ResolveSchema() is { } itemsSchema)
-                            ApplyValidator(itemsSchema, childValidator, string.Empty, services);
-                        else
-                            ApplyValidator(childSchema, childValidator, string.Empty, services);
+                        var childSchema = childPropSchema.ResolveSchema();
+
+                        if (childSchema is not null)
+                        {
+                            // check if array (RuleForEach)
+                            if (childSchema.Type == JsonSchemaType.Array && childSchema.Items.ResolveSchema() is { } itemsSchema)
+                                ApplyValidator(itemsSchema, childValidator, string.Empty, services, activeChildValidators);
+                            else
+                                ApplyValidator(childSchema, childValidator, string.Empty, services, activeChildValidators);
+                        }
                     }
+                }
+                finally
+                {
+                    activeChildValidators.Remove(validatorType);
                 }
 
                 continue;
@@ -260,15 +266,67 @@ sealed class ValidationSchemaTransformer : IOpenApiSchemaTransformer
                 {
                     rule.Apply(new(schema, propertyName, propertyValidator, ruleComponent.HasCondition()));
                 }
-                catch
+                catch (Exception ex)
                 {
-                    //do nothing
+                    _logger?.FailedToApplyValidationRule(ex, propertyName, propertyValidator.Name);
                 }
             }
         }
     }
 
-    static bool IsComplexType(Type type)
+    static Dictionary<Type, ValidatorBinding[]> BuildValidatorBindings(EndpointData endpointData)
+    {
+        var bindings = new Dictionary<Type, List<ValidatorBinding>>();
+        var namingPolicy = Extensions.NamingPolicy;
+
+        foreach (var validatorType in endpointData.Found
+                                                .Where(e => e.ValidatorType != null)
+                                                .Select(e => e.ValidatorType!)
+                                                .Distinct())
+        {
+            var validatorTargetType = validatorType.BaseType?.GenericTypeArguments.FirstOrDefault();
+
+            if (validatorTargetType is null)
+                continue;
+
+            AddBinding(validatorTargetType, validatorType, null);
+
+            if (!SupportsNestedPropertyWalk(validatorTargetType))
+                continue;
+
+            foreach (var prop in GetPublicInstanceProperties(validatorTargetType))
+            {
+                if (!SupportsNestedPropertyTarget(prop.PropertyType))
+                    continue;
+
+                var prefix = namingPolicy?.ConvertName(prop.Name) ?? prop.Name;
+                AddBinding(prop.PropertyType, validatorType, prefix + ".");
+            }
+        }
+
+        return bindings.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToArray());
+
+        void AddBinding(Type targetType, Type validatorType, string? propertyPrefix)
+        {
+            targetType = Nullable.GetUnderlyingType(targetType) ?? targetType;
+
+            if (!bindings.TryGetValue(targetType, out var targetBindings))
+                bindings[targetType] = targetBindings = [];
+
+            if (targetBindings.Any(b => b.ValidatorType == validatorType && b.PropertyPrefix == propertyPrefix))
+                return;
+
+            targetBindings.Add(new() { ValidatorType = validatorType, PropertyPrefix = propertyPrefix });
+        }
+    }
+
+    static PropertyInfo[] GetPublicInstanceProperties(Type type)
+    {
+        type = Nullable.GetUnderlyingType(type) ?? type;
+        return _propertyCache.GetOrAdd(type, static t => t.GetProperties(PublicInstance));
+    }
+
+    static bool SupportsNestedPropertyWalk(Type type)
     {
         type = Nullable.GetUnderlyingType(type) ?? type;
 
@@ -285,16 +343,15 @@ sealed class ValidationSchemaTransformer : IOpenApiSchemaTransformer
             type == typeof(Guid) ||
             type == typeof(Uri) ||
             type == typeof(byte[]) ||
-            type == typeof(object))
+            type == typeof(object) ||
+            type == typeof(Version))
             return false;
 
-        // treat all collections/dictionaries as non-complex at the validator-target level; their
-        // element/value types will be visited via property walks instead.
-        if (typeof(System.Collections.IEnumerable).IsAssignableFrom(type))
-            return false;
-
-        return true;
+        return !typeof(System.Collections.IEnumerable).IsAssignableFrom(type);
     }
+
+    static bool SupportsNestedPropertyTarget(Type type)
+        => SupportsNestedPropertyWalk(type);
 
     static FluentValidationRule[] CreateDefaultRules()
         =>

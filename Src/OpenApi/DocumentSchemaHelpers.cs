@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Collections.Concurrent;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
@@ -497,12 +498,36 @@ static class DocumentSchemaHelpers
 
     static Type? TryGetDictionaryValueType(Type type)
     {
-        if (!type.IsGenericType || type.GetGenericTypeDefinition() != typeof(Dictionary<,>))
-            return null;
+        type = Nullable.GetUnderlyingType(type) ?? type;
 
-        var args = type.GetGenericArguments();
+        if (TryMatchDictionary(type) is { } directMatch)
+            return directMatch;
 
-        return args[0] == typeof(string) ? args[1] : null;
+        foreach (var iface in type.GetInterfaces())
+        {
+            if (TryMatchDictionary(iface) is { } interfaceMatch)
+                return interfaceMatch;
+        }
+
+        return null;
+
+        static Type? TryMatchDictionary(Type candidate)
+        {
+            if (!candidate.IsGenericType)
+                return null;
+
+            var genDef = candidate.GetGenericTypeDefinition();
+
+            if (genDef != typeof(Dictionary<,>) &&
+                genDef != typeof(IDictionary<,>) &&
+                genDef != typeof(IReadOnlyDictionary<,>) &&
+                genDef != typeof(ConcurrentDictionary<,>))
+                return null;
+
+            var args = candidate.GetGenericArguments();
+
+            return args[0] == typeof(string) ? args[1] : null;
+        }
     }
 
     static Type? TryGetCollectionElementType(Type type)

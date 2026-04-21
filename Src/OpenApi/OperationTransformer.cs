@@ -2,6 +2,7 @@ using System.Collections;
 using System.Globalization;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
@@ -24,6 +25,12 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
 
     [GeneratedRegex("(?<={)([^?:}]+)[^}]*(?=})")]
     private static partial Regex RouteConstraintsRegex();
+
+    sealed class RouteParameterInfo
+    {
+        public required string Name { get; init; }
+        public Type? ConstraintType { get; init; }
+    }
 
     static readonly Dictionary<string, string> _defaultDescriptions = new()
     {
@@ -117,7 +124,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
             operation.Deprecated = true;
 
         // handle request parameters
-        var propsRemovedFromBody = HandleRequestParameters(operation, context, documentPath);
+        var propsRemovedFromBody = HandleRequestParameters(operation, context, epDef, documentPath);
 
         // handle [FromBody]/[FromForm] request body replacement + JSON Patch unwrap
         ApplyRequestBodyOverrides(operation, epDef);
@@ -213,21 +220,15 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
         }
     }
 
-    HashSet<string> HandleRequestParameters(OpenApiOperation operation, OpenApiOperationTransformerContext context, string documentPath)
+    HashSet<string> HandleRequestParameters(OpenApiOperation operation,
+                                            OpenApiOperationTransformerContext context,
+                                            EndpointDefinition epDef,
+                                            string documentPath)
     {
         var propsRemovedFromBody = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-
-        // collect route param names from operation path (needed for all endpoints, not just those with DTOs).
-        // raw segments preserve any :constraints so we can resolve CLR types via GlobalConfig.RouteConstraintMap
-        // when a route param has no matching DTO property.
-        var routeParamSegments = RouteParamsRegex()
-                                 .Matches(documentPath)
-                                 .Select(m => m.Value)
-                                 .ToList();
-
-        var routeParamNames = routeParamSegments
-                              .Select(s => RouteConstraintsRegex().Replace(s, "$1"))
-                              .ToList();
+        var endpointRouteTemplate = FindEndpointRouteTemplate(epDef, documentPath);
+        var routeParameters = GetRouteParameters(endpointRouteTemplate ?? context.Description.RelativePath ?? documentPath);
+        var routeParamNames = routeParameters.Select(p => p.Name).ToList();
 
         var requestDtoType = context.Description.ParameterDescriptions.FirstOrDefault()?.Type;
 
@@ -313,6 +314,8 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
 
                         if (!HasParameter(operation, ParameterLocation.Path, appliedName))
                             AddParameter(operation, appliedName, ParameterLocation.Path, p, true, docOpts.ShortSchemaNames);
+                        else
+                            UpdateParameterSchema(operation, ParameterLocation.Path, appliedName, p.PropertyType, docOpts.ShortSchemaNames);
                     }
 
                     // handle query params
@@ -338,14 +341,18 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
         {
             var routeParam = routeParamNames[i];
             var appliedName = routeParam.ApplyPropNamingPolicy(docOpts);
+            var resolvedType = routeParameters[i].ConstraintType;
 
             if (HasParameter(operation, ParameterLocation.Path, appliedName))
+            {
+                if (resolvedType is not null)
+                    UpdateParameterSchema(operation, ParameterLocation.Path, appliedName, resolvedType, docOpts.ShortSchemaNames);
+
                 continue;
+            }
 
             // resolve the route constraint (e.g. "{id:int}") via GlobalConfig.RouteConstraintMap so
             // orphan route params get a typed schema instead of defaulting to string
-            var resolvedType = routeParamSegments[i].TryResolveRouteConstraintType();
-
             AddParameter(operation, appliedName, ParameterLocation.Path, null, true, docOpts.ShortSchemaNames, resolvedType);
         }
 
@@ -470,7 +477,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
         type = Nullable.GetUnderlyingType(type) ?? type;
 
         return type.IsComplexType() && !type.IsCollection() ||
-               typeof(System.Collections.IDictionary).IsAssignableFrom(type);
+               OperationSchemaHelpers.TryGetDictionaryValueType(type) is not null;
     }
 
     static void ApplyRequestBodyOverrides(OpenApiOperation operation, EndpointDefinition epDef)
@@ -713,6 +720,23 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
                p => p.In == location &&
                     string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase)) ==
            true;
+
+    static void UpdateParameterSchema(OpenApiOperation operation, ParameterLocation location, string name, Type type, bool shortSchemaNames)
+    {
+        if (operation.Parameters is not { Count: > 0 })
+            return;
+
+        foreach (var param in operation.Parameters)
+        {
+            if (param.In != location || !string.Equals(param.Name, name, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            if (param is OpenApiParameter concreteParam)
+                concreteParam.Schema = type.GetSchemaForType(shortSchemaNames);
+
+            return;
+        }
+    }
 
     static void ApplyExampleRequestToParams(OpenApiOperation operation, EndpointDefinition epDef)
     {
@@ -1155,6 +1179,55 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
             parts[i] = RouteConstraintsRegex().Replace(parts[i], "$1");
 
         return string.Join("/", parts);
+    }
+
+    static string? FindEndpointRouteTemplate(EndpointDefinition epDef, string documentPath)
+    {
+        if (epDef.Routes.Length == 0)
+            return null;
+
+        if (epDef.Routes.Length == 1)
+            return epDef.Routes[0];
+
+        foreach (var route in epDef.Routes)
+        {
+            var finalRoute = FastEndpoints.MainExtensions.BuildRoute(new StringBuilder(), epDef.Version.Current, route, epDef.OverriddenRoutePrefix);
+
+            if (string.Equals(NormalizeRoutePath(finalRoute), documentPath, StringComparison.OrdinalIgnoreCase))
+                return route;
+        }
+
+        return null;
+    }
+
+    static string NormalizeRoutePath(string route)
+    {
+        route = StripRouteConstraints(route.TrimStart('~').TrimEnd('/'));
+
+        return route.StartsWith('/') ? route : "/" + route;
+    }
+
+    static List<RouteParameterInfo> GetRouteParameters(string? relativePath)
+    {
+        var rawSegments = RouteParamsRegex()
+                          .Matches(relativePath ?? string.Empty)
+                          .Select(m => m.Value)
+                          .ToList();
+
+        return rawSegments.Select(
+                              segment => new RouteParameterInfo
+                              {
+                                  Name = GetRouteParameterName(segment),
+                                  ConstraintType = segment.TryResolveRouteConstraintType()
+                              })
+                          .ToList();
+
+        static string GetRouteParameterName(string segment)
+        {
+            var colonIdx = segment.IndexOf(':');
+            var name = colonIdx >= 0 ? segment[..colonIdx] : segment;
+            return name.TrimStart('*').TrimEnd('?');
+        }
     }
 
     static string TagName(string input, TagCase tagCase, bool stripSymbols)

@@ -183,4 +183,62 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
 
         doc["components"]!["schemas"]!["TestCasesHydratedQueryParamGeneratorTestRequest_NestedClass"].ShouldNotBeNull();
     }
+
+    [Fact]
+    public async Task child_validator_rules_are_applied_to_nested_schema_properties()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var childSchema = JToken.Parse(json)["components"]!["schemas"]!["TestCasesSwaggerReviewChildValidatorReviewChild"]!;
+
+        childSchema["properties"]!["score"]!["exclusiveMinimum"]!.Value<string>().ShouldBe("10");
+    }
+
+    [Fact]
+    public async Task interface_dictionary_query_parameter_uses_object_schema()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var operation = JToken.Parse(json)["paths"]!["/api/swagger-review/interface-dictionary"]!["get"]!;
+        var dictParam = operation["parameters"]!.First(p => p["name"]!.Value<string>() == "metadata");
+
+        dictParam["schema"].ShouldBeNull();
+        dictParam["content"]!["application/json"]!["schema"]!["type"]!.Value<string>().ShouldBe("object");
+        dictParam["content"]!["application/json"]!["schema"]!["additionalProperties"]!["type"]!.Value<string>().ShouldBe("string");
+    }
+
+    [Fact]
+    public async Task orphan_constrained_route_param_uses_constraint_type()
+    {
+        var json = await App.GetDocumentJsonAsync("Release 2.0");
+        var operation = JToken.Parse(json)["paths"]!["/api/test-cases/ep-witout-req-route-binding-test/{customerID}/{otherID}"]!["get"]!;
+        var customerId = operation["parameters"]!.First(p => p["name"]!.Value<string>() == "customerID");
+
+        customerId["schema"]!["type"]!.Value<string>().ShouldBe("integer");
+        customerId["schema"]!["format"]!.Value<string>().ShouldBe("int32");
+    }
+
+    [Fact]
+    public async Task multi_route_endpoint_uses_path_parameters_from_matching_route_only()
+    {
+        var json = await App.GetDocumentJsonAsync("Initial Release");
+        var doc = JToken.Parse(json);
+        var saveOperation = doc["paths"]!["/api/customer/save"]!["get"]!;
+        var pathParams = saveOperation["parameters"]!
+                                      .Where(p => p["in"]!.Value<string>() == "path")
+                                      .Select(p => p["name"]!.Value<string>())
+                                      .ToArray();
+        var routedOperation = doc["paths"]!["/api/customer/{cID}/new/{sourceID}"]!["get"]!;
+        var routedParams = routedOperation["parameters"]!
+                                          .Select(p => new
+                                          {
+                                              Name = p["name"]!.Value<string>(),
+                                              Location = p["in"]!.Value<string>()
+                                          })
+                                          .ToArray();
+
+        pathParams.ShouldBeEmpty();
+        routedParams.ShouldContain(p => p.Name == "cID" && p.Location == "path");
+        routedParams.ShouldContain(p => p.Name == "sourceID" && p.Location == "path");
+        routedParams.ShouldNotContain(p => p.Name == "refererID");
+    }
+
 }

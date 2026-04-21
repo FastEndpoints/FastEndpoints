@@ -21,6 +21,9 @@ static partial class LoggingExtensions
 
     [LoggerMessage(6, LogLevel.Warning, "Failed to export OpenAPI document '{documentName}': {errorMessage}")]
     public static partial void OpenApiDocExportFailed(this ILogger l, string documentName, string errorMessage);
+
+    [LoggerMessage(7, LogLevel.Warning, "Failed to apply FluentValidation rule for property '{propertyName}' using validator '{validatorName}'")]
+    public static partial void FailedToApplyValidationRule(this ILogger l, Exception ex, string propertyName, string validatorName);
 }
 
 /// <summary>

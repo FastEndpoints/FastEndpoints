@@ -1,4 +1,6 @@
+using FluentValidation;
 using FastEndpoints.OpenApi;
+using System.Collections.Generic;
 
 namespace TestCases.Swagger.Review;
 
@@ -106,4 +108,57 @@ sealed class IdempotencyAnonymousExampleEndpoint : EndpointWithoutRequest<string
 
     public override Task HandleAsync(CancellationToken ct)
         => Send.OkAsync("ok", ct);
+}
+
+sealed class ChildValidatorReviewRequest
+{
+    public ChildValidatorReviewChild Child { get; set; } = new();
+}
+
+sealed class ChildValidatorReviewChild
+{
+    public int Score { get; set; }
+}
+
+sealed class ChildValidatorReviewChildValidator : Validator<ChildValidatorReviewChild>
+{
+    public ChildValidatorReviewChildValidator()
+        => RuleFor(x => x.Score).GreaterThan(10);
+}
+
+sealed class ChildValidatorReviewValidator : Validator<ChildValidatorReviewRequest>
+{
+    public ChildValidatorReviewValidator()
+        => RuleFor(x => x.Child).SetValidator(new ChildValidatorReviewChildValidator());
+}
+
+sealed class ChildValidatorReviewEndpoint : Endpoint<ChildValidatorReviewRequest, string>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/child-validator");
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(ChildValidatorReviewRequest req, CancellationToken ct)
+        => Send.OkAsync(req.Child.Score.ToString(), ct);
+}
+
+sealed class InterfaceDictionaryReviewRequest
+{
+    public IDictionary<string, string> Metadata { get; set; } = new Dictionary<string, string>();
+}
+
+sealed class InterfaceDictionaryReviewEndpoint : Endpoint<InterfaceDictionaryReviewRequest, string>
+{
+    public override void Configure()
+    {
+        Get("/swagger-review/interface-dictionary");
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(InterfaceDictionaryReviewRequest req, CancellationToken ct)
+        => Send.OkAsync(req.Metadata.Count.ToString(), ct);
 }

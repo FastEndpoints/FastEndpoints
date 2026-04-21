@@ -4914,6 +4914,42 @@
         ]
       }
     },
+    "/filtered-shared-path": {
+      "get": {
+        "tags": [
+          "exclude"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "shared-path"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/mobile/api/test-cases/global-prefix-override/{id}": {
       "post": {
         "tags": [

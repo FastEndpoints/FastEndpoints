@@ -48,7 +48,6 @@ sealed partial class DocumentTransformer : IOpenApiDocumentTransformer
         if (_opts.Version is not null)
             document.Info.Version = _opts.Version;
 
-        RemoveFilteredPaths(document);
         ApplyVersionFiltering(document);
         AddSecuritySchemes(document);
         FixOperationSecurity(document);
@@ -77,20 +76,6 @@ sealed partial class DocumentTransformer : IOpenApiDocumentTransformer
 
         document.AddAdditionalPropertiesFalse();
         document.RemoveUnreferencedSchemas();
-    }
-
-    void RemoveFilteredPaths(OpenApiDocument document)
-    {
-        if (_sharedCtx.PathsToRemove.IsEmpty)
-            return;
-
-        var pathsToRemove = _sharedCtx.PathsToRemove.ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-        foreach (var path in document.Paths.Keys.ToArray())
-        {
-            if (pathsToRemove.Contains(path))
-                document.Paths.Remove(path);
-        }
     }
 
     void ApplyVersionFiltering(OpenApiDocument document)

@@ -13,11 +13,6 @@ internal class SharedContext
     internal ConcurrentDictionary<string, OperationMeta> Operations { get; } = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
-    /// paths to remove from the document (filtered by EndpointFilter or ExcludeNonFastEndpoints)
-    /// </summary>
-    internal ConcurrentBag<string> PathsToRemove { get; } = [];
-
-    /// <summary>
     /// key: "METHOD:/path", value: list of (schemeName, scopes) tuples for security requirements
     /// </summary>
     internal ConcurrentDictionary<string, List<(string SchemeName, List<string> Scopes)>> SecurityRequirements { get; } = new(StringComparer.OrdinalIgnoreCase);

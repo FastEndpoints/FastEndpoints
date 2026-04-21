@@ -91,6 +91,19 @@ sealed class IllegalHeadersEndpoint : Endpoint<IllegalHeadersRequest, string>
         => Send.OkAsync(req.BodyValue, ct);
 }
 
+sealed class SharedPathFastEndpoint : EndpointWithoutRequest<string>
+{
+    public override void Configure()
+    {
+        Post("/filtered-shared-path");
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(CancellationToken ct)
+        => Send.OkAsync("fast-endpoint-post", ct);
+}
+
 sealed class IdempotencyAnonymousExampleEndpoint : EndpointWithoutRequest<string>
 {
     public override void Configure()

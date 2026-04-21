@@ -42,6 +42,16 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     }
 
     [Fact]
+    public async Task filtered_operation_does_not_remove_other_methods_on_same_path()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var pathItem = JToken.Parse(json)["paths"]!["/api/filtered-shared-path"]!;
+
+        pathItem["get"].ShouldBeNull();
+        pathItem["post"].ShouldNotBeNull();
+    }
+
+    [Fact]
     public async Task empty_request_schemas_are_removed_when_option_is_enabled()
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review Empty Schema");

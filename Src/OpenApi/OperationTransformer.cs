@@ -64,6 +64,9 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
 
         if (epDef is null)
         {
+            if (docOpts.ExcludeNonFastEndpoints)
+                return Task.CompletedTask;
+
             // not a FastEndpoint
             sharedCtx.Operations[operationKey] = new()
             {
@@ -76,19 +79,12 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
                 IsFastEndpoint = false
             };
 
-            if (docOpts.ExcludeNonFastEndpoints)
-                sharedCtx.PathsToRemove.Add(documentPath);
-
             return Task.CompletedTask;
         }
 
         // apply endpoint filter
         if (docOpts.EndpointFilter?.Invoke(epDef) == false)
-        {
-            sharedCtx.PathsToRemove.Add(documentPath);
-
             return Task.CompletedTask;
-        }
 
         // store version metadata for document transformer
         var version = $"/{GlobalConfig.VersioningPrefix ?? "v"}{epDef.Version.Current}";

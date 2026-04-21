@@ -218,10 +218,12 @@ app.UseRequestLocalization(
        })
    .UseEndpoints(
        c => //this must go after usefastendpoints (only if using endpoints)
-       {
-           c.MapGet("test", () => "hello world!").WithTags("map-get");
-           c.MapGet("test/{testId:int?}", (int? testId) => $"hello {testId}").WithTags("map-get");
-       });
+        {
+            c.MapGet("test", () => "hello world!").WithTags("map-get");
+            c.MapGet("test/{testId:int?}", (int? testId) => $"hello {testId}").WithTags("map-get");
+            c.MapGet("filtered-shared-path", () => "get").WithTags("exclude");
+            c.MapPost("filtered-shared-path", () => TypedResults.Ok("post")).WithTags("shared-path");
+        });
 
 if (!app.Environment.IsProduction())
 {

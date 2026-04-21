@@ -1173,12 +1173,10 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
 
     static string StripRouteConstraints(string relativePath)
     {
-        var parts = relativePath.Split('/');
+        if (!relativePath.Contains('{'))
+            return relativePath;
 
-        for (var i = 0; i < parts.Length; i++)
-            parts[i] = RouteConstraintsRegex().Replace(parts[i], "$1");
-
-        return string.Join("/", parts);
+        return RouteConstraintsRegex().Replace(relativePath, "$1");
     }
 
     static string? FindEndpointRouteTemplate(EndpointDefinition epDef, string documentPath)
@@ -1209,18 +1207,15 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
 
     static List<RouteParameterInfo> GetRouteParameters(string? relativePath)
     {
-        var rawSegments = RouteParamsRegex()
-                          .Matches(relativePath ?? string.Empty)
-                          .Select(m => m.Value)
-                          .ToList();
-
-        return rawSegments.Select(
-                              segment => new RouteParameterInfo
-                              {
-                                  Name = GetRouteParameterName(segment),
-                                  ConstraintType = segment.TryResolveRouteConstraintType()
-                              })
-                          .ToList();
+        return RouteParamsRegex()
+              .Matches(relativePath ?? string.Empty)
+              .Select(
+                  m => new RouteParameterInfo
+                  {
+                      Name = GetRouteParameterName(m.Value),
+                      ConstraintType = m.Value.TryResolveRouteConstraintType()
+                  })
+              .ToList();
 
         static string GetRouteParameterName(string segment)
         {

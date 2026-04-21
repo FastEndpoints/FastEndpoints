@@ -9,6 +9,7 @@ namespace FastEndpoints.OpenApi;
 static class OperationSchemaHelpers
 {
     const BindingFlags PublicInstanceHierarchy = BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy;
+    static readonly ConcurrentDictionary<Type, PropertyInfo[]> _sampleJsonPropertyCache = new();
 
     internal static OpenApiSchema StringSchema()
         => new() { Type = JsonSchemaType.String };
@@ -138,11 +139,8 @@ static class OperationSchemaHelpers
             var obj = new JsonObject();
             var policy = Extensions.NamingPolicy;
 
-            foreach (var prop in underlying.GetProperties(PublicInstanceHierarchy))
+            foreach (var prop in GetSampleJsonProperties(underlying))
             {
-                if (prop.GetSetMethod() is null)
-                    continue;
-
                 var propName = policy?.ConvertName(prop.Name) ?? prop.Name;
                 var sample = prop.PropertyType.GetSampleValue(propName);
 
@@ -294,6 +292,17 @@ static class OperationSchemaHelpers
 
     internal static string? FindCaseInsensitiveKey(this IEnumerable<string> keys, string match)
         => keys.FirstOrDefault(k => string.Equals(k, match, StringComparison.OrdinalIgnoreCase));
+
+    static PropertyInfo[] GetSampleJsonProperties(Type type)
+    {
+        type = Nullable.GetUnderlyingType(type) ?? type;
+
+        return _sampleJsonPropertyCache.GetOrAdd(
+            type,
+            static t => t.GetProperties(PublicInstanceHierarchy)
+                         .Where(p => p.GetSetMethod() is not null)
+                         .ToArray());
+    }
 
     static OpenApiSchema? TryCreatePrimitiveSchema(Type type)
         => type switch

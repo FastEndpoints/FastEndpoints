@@ -10,10 +10,12 @@ static class XmlDocLookup
 {
     // cache keyed by assembly instance (not assembly.Location) to avoid clashes between
     // dynamic/in-memory assemblies that share an empty Location string.
-    // the value is a pre-indexed dictionary of xml member entries keyed by member id (e.g. "P:Namespace.Type.Prop")
-    // so per-property lookup is O(1) instead of an O(N) Descendants scan.
-    static readonly ConditionalWeakTable<Assembly, Dictionary<string, XElement>> _xmlDocCache = new();
-    static readonly Dictionary<string, XElement> _emptyMembers = new();
+    // the value is a pre-indexed dictionary of extracted xml member text keyed by member id
+    // (e.g. "P:Namespace.Type.Prop") so per-property lookup is O(1) without retaining the xml DOM.
+    static readonly ConditionalWeakTable<Assembly, Dictionary<string, XmlMemberInfo>> _xmlDocCache = new();
+    static readonly Dictionary<string, XmlMemberInfo> _emptyMembers = new(StringComparer.Ordinal);
+
+    readonly record struct XmlMemberInfo(string? Summary, string? Example);
 
     internal static string? GetPropertySummary(PropertyInfo prop)
         => GetMemberSummary(prop.DeclaringType?.Assembly, PropertyMemberId(prop));
@@ -34,17 +36,9 @@ static class XmlDocLookup
 
         var members = GetXmlDoc(assembly);
 
-        if (!members.TryGetValue(memberId, out var member))
-            return null;
-
-        var summaryEl = member.Element("summary");
-
-        if (summaryEl is null)
-            return null;
-
-        var summary = GetTextWithSeeRefs(summaryEl).Trim();
-
-        return string.IsNullOrWhiteSpace(summary) ? null : summary;
+        return members.TryGetValue(memberId, out var member)
+                   ? member.Summary
+                   : null;
     }
 
     static string GetTextWithSeeRefs(XElement element)
@@ -93,12 +87,9 @@ static class XmlDocLookup
 
         var members = GetXmlDoc(assembly);
 
-        if (!members.TryGetValue(memberId, out var member))
-            return null;
-
-        var example = member.Element("example")?.Value.Trim();
-
-        return string.IsNullOrWhiteSpace(example) ? null : example;
+        return members.TryGetValue(memberId, out var member)
+                   ? member.Example
+                   : null;
     }
 
     static string GetTypeId(Type? type)
@@ -116,11 +107,11 @@ static class XmlDocLookup
         return fullName.Replace('+', '.');
     }
 
-    static Dictionary<string, XElement> GetXmlDoc(Assembly assembly)
+    static Dictionary<string, XmlMemberInfo> GetXmlDoc(Assembly assembly)
         => _xmlDocCache.GetValue(assembly, LoadXmlDoc);
 
     [UnconditionalSuppressMessage("SingleFile", "IL3000", Justification = "XML doc lookup is optional when assembly paths are unavailable.")]
-    static Dictionary<string, XElement> LoadXmlDoc(Assembly assembly)
+    static Dictionary<string, XmlMemberInfo> LoadXmlDoc(Assembly assembly)
     {
         var location = assembly.Location;
 
@@ -144,16 +135,43 @@ static class XmlDocLookup
             return _emptyMembers;
         }
 
-        var index = new Dictionary<string, XElement>(StringComparer.Ordinal);
+        var index = new Dictionary<string, XmlMemberInfo>(StringComparer.Ordinal);
 
         foreach (var member in doc.Descendants("member"))
         {
             var name = member.Attribute("name")?.Value;
 
-            if (!string.IsNullOrEmpty(name))
-                index[name] = member;
+            if (string.IsNullOrEmpty(name))
+                continue;
+
+            var summary = GetSummary(member);
+            var example = GetExample(member);
+
+            if (summary is null && example is null)
+                continue;
+
+            index[name] = new(summary, example);
         }
 
         return index;
+
+        static string? GetSummary(XElement member)
+        {
+            var summaryEl = member.Element("summary");
+
+            if (summaryEl is null)
+                return null;
+
+            var summary = GetTextWithSeeRefs(summaryEl).Trim();
+
+            return string.IsNullOrWhiteSpace(summary) ? null : summary;
+        }
+
+        static string? GetExample(XElement member)
+        {
+            var example = member.Element("example")?.Value.Trim();
+
+            return string.IsNullOrWhiteSpace(example) ? null : example;
+        }
     }
 }

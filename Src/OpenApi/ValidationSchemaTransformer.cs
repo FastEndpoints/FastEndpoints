@@ -22,8 +22,15 @@ namespace FastEndpoints.OpenApi;
 sealed class ValidationSchemaTransformer : IOpenApiSchemaTransformer
 {
     const BindingFlags PublicInstance = BindingFlags.Public | BindingFlags.Instance;
-    static readonly ConditionalWeakTable<EndpointData, Dictionary<Type, ValidatorBinding[]>> _validatorBindingCache = new();
+    static readonly ConditionalWeakTable<EndpointData, ValidatorBindingCacheEntry> _validatorBindingCache = new();
     static readonly ConcurrentDictionary<Type, PropertyInfo[]> _propertyCache = new();
+    static readonly FluentValidationRule[] _rules = CreateDefaultRules();
+
+    sealed class ValidatorBindingCacheEntry
+    {
+        public required Dictionary<Type, ValidatorBinding[]> Bindings { get; init; }
+        public int NoValidatorsLogged;
+    }
 
     sealed class ValidatorBinding
     {
@@ -33,7 +40,6 @@ sealed class ValidationSchemaTransformer : IOpenApiSchemaTransformer
 
     IServiceResolver? _serviceResolver;
     ILogger<ValidationSchemaTransformer>? _logger;
-    FluentValidationRule[]? _rules;
     Dictionary<Type, ValidatorBinding[]>? _validatorBindings;
     readonly object _initializeLock = new();
     volatile bool _initialized;
@@ -50,11 +56,17 @@ sealed class ValidationSchemaTransformer : IOpenApiSchemaTransformer
 
             _serviceResolver = services.GetRequiredService<IServiceResolver>();
             _logger = services.GetRequiredService<ILogger<ValidationSchemaTransformer>>();
-            _rules = CreateDefaultRules();
             var endpointData = _serviceResolver.Resolve<EndpointData>();
-            _validatorBindings = _validatorBindingCache.GetValue(endpointData, static data => BuildValidatorBindings(data));
+            var bindingCache = _validatorBindingCache.GetValue(
+                endpointData,
+                static data => new()
+                {
+                    Bindings = BuildValidatorBindings(data)
+                });
 
-            if (_validatorBindings.Count == 0)
+            _validatorBindings = bindingCache.Bindings;
+
+            if (_validatorBindings.Count == 0 && Interlocked.Exchange(ref bindingCache.NoValidatorsLogged, 1) == 0)
                 _logger.NoValidatorsFound();
 
             _initialized = true;
@@ -65,7 +77,7 @@ sealed class ValidationSchemaTransformer : IOpenApiSchemaTransformer
     {
         Initialize(context.ApplicationServices);
 
-        if (_serviceResolver is null || _validatorBindings is not { Count: > 0 } || _rules is null)
+        if (_serviceResolver is null || _validatorBindings is not { Count: > 0 })
             return Task.CompletedTask;
 
         var tRequest = context.JsonTypeInfo.Type;
@@ -259,7 +271,7 @@ sealed class ValidationSchemaTransformer : IOpenApiSchemaTransformer
                 continue;
             }
 
-            foreach (var rule in _rules!)
+            foreach (var rule in _rules)
             {
                 if (!rule.Matches(propertyValidator))
                     continue;

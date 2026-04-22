@@ -239,7 +239,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
         if (requestDtoType is not null)
         {
             var isGetRequest = context.Description.HttpMethod == "GET";
-            var requestDtoIsList = typeof(IEnumerable).IsAssignableFrom(requestDtoType) && requestDtoType != typeof(string);
+            var requestDtoIsList = requestDtoType.IsCollection();
             var requestDtoProps = requestDtoIsList
                                       ? null
                                       : GetPublicInstanceProperties(requestDtoType).ToList();

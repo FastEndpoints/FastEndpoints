@@ -43,6 +43,49 @@ sealed class DuplicateRequestExamplesEndpoint : Endpoint<DuplicateRequestExample
         => Send.OkAsync(req.Name, ct);
 }
 
+sealed class SharedRequestMetadataReviewRequest
+{
+    public string Name { get; set; } = string.Empty;
+}
+
+sealed class SharedRequestMetadataAlphaEndpoint : Endpoint<SharedRequestMetadataReviewRequest, string>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/shared-request-metadata-alpha");
+        Tags("swagger_review");
+        AllowAnonymous();
+        Summary(
+            s =>
+            {
+                s.Params[nameof(SharedRequestMetadataReviewRequest.Name)] = "alpha description";
+                s.ExampleRequest = new SharedRequestMetadataReviewRequest { Name = "alpha example" };
+            });
+    }
+
+    public override Task HandleAsync(SharedRequestMetadataReviewRequest req, CancellationToken ct)
+        => Send.OkAsync(req.Name, ct);
+}
+
+sealed class SharedRequestMetadataBetaEndpoint : Endpoint<SharedRequestMetadataReviewRequest, string>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/shared-request-metadata-beta");
+        Tags("swagger_review");
+        AllowAnonymous();
+        Summary(
+            s =>
+            {
+                s.Params[nameof(SharedRequestMetadataReviewRequest.Name)] = "beta description";
+                s.ExampleRequest = new SharedRequestMetadataReviewRequest { Name = "beta example" };
+            });
+    }
+
+    public override Task HandleAsync(SharedRequestMetadataReviewRequest req, CancellationToken ct)
+        => Send.OkAsync(req.Name, ct);
+}
+
 sealed class EmptySchemaCleanupRequest
 {
     [FromHeader("x-review-header")]

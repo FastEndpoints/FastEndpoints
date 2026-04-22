@@ -192,9 +192,8 @@ public static class Extensions
 
     static async Task<string> ExportOpenApiDocument(WebApplication app, string documentName, string destinationPath, CancellationToken ct)
     {
-        var documentKey = documentName.ToLowerInvariant();
-        var provider = app.Services.GetRequiredKeyedService<IOpenApiDocumentProvider>(documentKey);
-        var openApiVersion = app.Services.GetRequiredService<IOptionsMonitor<OpenApiOptions>>().Get(documentKey).OpenApiVersion;
+        var provider = app.Services.GetRequiredKeyedService<IOpenApiDocumentProvider>(documentName);
+        var openApiVersion = app.Services.GetRequiredService<IOptionsMonitor<OpenApiOptions>>().Get(documentName).OpenApiVersion;
         var doc = await provider.GetOpenApiDocumentAsync(ct);
         var json = await doc.SerializeAsJsonAsync(openApiVersion, ct);
         var filePath = Path.Combine(destinationPath, $"{documentName}.json");

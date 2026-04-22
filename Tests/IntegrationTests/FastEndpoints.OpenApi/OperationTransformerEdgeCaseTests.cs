@@ -33,6 +33,26 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     }
 
     [Fact]
+    public async Task endpoint_specific_request_metadata_does_not_mutate_shared_component_schema()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var doc = JToken.Parse(json);
+        var alphaSchema = doc["paths"]!["/api/swagger-review/shared-request-metadata-alpha"]!["post"]!
+                             ["requestBody"]!["content"]!["application/json"]!["schema"]!;
+        var betaSchema = doc["paths"]!["/api/swagger-review/shared-request-metadata-beta"]!["post"]!
+                            ["requestBody"]!["content"]!["application/json"]!["schema"]!;
+        var componentSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewSharedRequestMetadataReviewRequest"];
+
+        alphaSchema["$ref"].ShouldBeNull();
+        betaSchema["$ref"].ShouldBeNull();
+        alphaSchema["example"]!["name"]!.Value<string>().ShouldBe("alpha example");
+        betaSchema["example"]!["name"]!.Value<string>().ShouldBe("beta example");
+        alphaSchema["properties"]!["name"]!["description"]!.Value<string>().ShouldBe("alpha description");
+        betaSchema["properties"]!["name"]!["description"]!.Value<string>().ShouldBe("beta description");
+        componentSchema.ShouldBeNull();
+    }
+
+    [Fact]
     public async Task illegal_header_names_are_not_added_as_parameters()
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review");

@@ -53,11 +53,6 @@ public class DocumentOptions
     public bool ExcludeNonFastEndpoints { get; set; }
 
     /// <summary>
-    /// enabling this flattens the inheritance hierarchy of all the schema.
-    /// </summary>
-    public bool FlattenSchema { get; set; }
-
-    /// <summary>
     /// endpoints greater than this version will not be included in this openapi doc.
     /// </summary>
     public int MaxEndpointVersion { get; set; }

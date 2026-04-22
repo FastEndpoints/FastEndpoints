@@ -22,7 +22,32 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AdminLoginRequest"
+                "required": [
+                  "userName",
+                  "password"
+                ],
+                "type": "object",
+                "properties": {
+                  "userName": {
+                    "maxLength": 50,
+                    "minLength": 3,
+                    "type": "string",
+                    "description": "overriden username text",
+                    "default": "admin",
+                    "example": "custom example user name from summary"
+                  },
+                  "password": {
+                    "minLength": 3,
+                    "type": "string",
+                    "description": "the admin password",
+                    "example": "custom example password from summary"
+                  }
+                },
+                "description": "the admin login request",
+                "example": {
+                  "userName": "custom example user name from summary",
+                  "password": "custom example password from summary"
+                }
               },
               "example": {
                 "userName": "custom example user name from summary",
@@ -78,7 +103,32 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AdminLoginRequest"
+                "required": [
+                  "userName",
+                  "password"
+                ],
+                "type": "object",
+                "properties": {
+                  "userName": {
+                    "maxLength": 50,
+                    "minLength": 3,
+                    "type": "string",
+                    "description": "overriden username text",
+                    "default": "admin",
+                    "example": "custom example user name from summary"
+                  },
+                  "password": {
+                    "minLength": 3,
+                    "type": "string",
+                    "description": "the admin password",
+                    "example": "custom example password from summary"
+                  }
+                },
+                "description": "the admin login request",
+                "example": {
+                  "userName": "custom example user name from summary",
+                  "password": "custom example password from summary"
+                }
               },
               "example": {
                 "userName": "custom example user name from summary",
@@ -134,7 +184,32 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AdminLoginRequest"
+                "required": [
+                  "userName",
+                  "password"
+                ],
+                "type": "object",
+                "properties": {
+                  "userName": {
+                    "maxLength": 50,
+                    "minLength": 3,
+                    "type": "string",
+                    "description": "overriden username text",
+                    "default": "admin",
+                    "example": "custom example user name from summary"
+                  },
+                  "password": {
+                    "minLength": 3,
+                    "type": "string",
+                    "description": "the admin password",
+                    "example": "custom example password from summary"
+                  }
+                },
+                "description": "the admin login request",
+                "example": {
+                  "userName": "custom example user name from summary",
+                  "password": "custom example password from summary"
+                }
               },
               "example": {
                 "userName": "custom example user name from summary",
@@ -2030,6 +2105,92 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/TestCasesSwaggerReviewNoRequestMetadataLeakResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/shared-request-metadata-alpha": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewSharedRequestMetadataAlphaEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "alpha description",
+                    "example": "alpha example"
+                  }
+                },
+                "example": {
+                  "name": "alpha example"
+                }
+              },
+              "example": {
+                "name": "alpha example"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/shared-request-metadata-beta": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewSharedRequestMetadataBetaEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "beta description",
+                    "example": "beta example"
+                  }
+                },
+                "example": {
+                  "name": "beta example"
+                }
+              },
+              "example": {
+                "name": "beta example"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
                 }
               }
             }
@@ -5739,35 +5900,6 @@
   },
   "components": {
     "schemas": {
-      "AdminLoginRequest": {
-        "required": [
-          "userName",
-          "password"
-        ],
-        "type": "object",
-        "properties": {
-          "userName": {
-            "maxLength": 50,
-            "minLength": 3,
-            "type": "string",
-            "description": "overriden username text",
-            "default": "admin",
-            "example": "custom example user name from summary"
-          },
-          "password": {
-            "minLength": 3,
-            "type": "string",
-            "description": "the admin password",
-            "example": "custom example password from summary"
-          }
-        },
-        "additionalProperties": false,
-        "description": "the admin login request",
-        "example": {
-          "userName": "custom example user name from summary",
-          "password": "custom example password from summary"
-        }
-      },
       "AdminLoginResponse": {
         "type": "object",
         "properties": {
@@ -5783,16 +5915,13 @@
           "permissions": {
             "$ref": "#/components/schemas/SystemCollectionsGenericIEnumerableOfString"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "CustomersCreateRequest": {
-        "type": "object",
-        "additionalProperties": false
+        "type": "object"
       },
       "CustomersCreateWithPropertiesDIRequest": {
-        "type": "object",
-        "additionalProperties": false
+        "type": "object"
       },
       "CustomersListRecentResponse": {
         "type": "object",
@@ -5807,8 +5936,7 @@
               }
             ]
           }
-        },
-        "additionalProperties": false
+        }
       },
       "CustomersUpdateRequest": {
         "type": "object",
@@ -5820,8 +5948,7 @@
           "address": {
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "CustomersUpdateWithHeaderRequest": {
         "required": [
@@ -5841,8 +5968,7 @@
           "address": {
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "FastEndpointsErrorResponse": {
         "type": "object",
@@ -5869,7 +5995,6 @@
             "description": "the collection of errors for the current context"
           }
         },
-        "additionalProperties": false,
         "description": "the dto used to send an error response to the client"
       },
       "FastEndpointsHttp": {
@@ -5958,7 +6083,6 @@
             }
           }
         },
-        "additionalProperties": false,
         "description": "RFC7807 compatible problem details/ error response class. this can be used by configuring startup like so:\n```app.UseFastEndpoints(c =&gt; c.Errors.UseProblemDetails())```"
       },
       "FastEndpointsSecurityTokenRequest": {
@@ -5973,7 +6097,6 @@
             "description": "a single-use refresh token which will be valid for the duration specified by RefreshExpiry"
           }
         },
-        "additionalProperties": false,
         "description": "base dto for access/refresh token renewal requests"
       },
       "FastEndpointsSecurityTokenResponse": {
@@ -5992,7 +6115,6 @@
             "description": "a single-use refresh token which will be valid for the duration specified by RefreshExpiry"
           }
         },
-        "additionalProperties": false,
         "description": "base dto for access/refresh token responses"
       },
       "InventoryGetProductResponse": {
@@ -6009,8 +6131,7 @@
             "description": "blah blah blah",
             "format": "int64"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "InventoryListRecentResponse": {
         "type": "object",
@@ -6021,8 +6142,7 @@
               "string"
             ]
           }
-        },
-        "additionalProperties": false
+        }
       },
       "InventoryManageCreateRequest": {
         "required": [
@@ -6068,7 +6188,6 @@
             "example": false
           }
         },
-        "additionalProperties": false,
         "example": {
           "id": 1,
           "name": "first name",
@@ -6115,8 +6234,7 @@
             "minLength": 1,
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "MicrosoftAspNetCoreJsonPatchSystemTextJsonJsonPatchDocumentOfPerson": {
         "type": "array",
@@ -6207,8 +6325,7 @@
             "type": "integer",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "SalesOrdersCreateResponse": {
         "type": "object",
@@ -6236,8 +6353,7 @@
           "event": {
             "$ref": "#/components/schemas/TestCasesEventHandlingTestSomeEvent"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "SalesOrdersRetrieveResponse": {
         "type": "object",
@@ -6248,8 +6364,7 @@
               "string"
             ]
           }
-        },
-        "additionalProperties": false
+        }
       },
       "SystemCollectionsGenericDictionaryOfStringAndString": {
         "type": "object",
@@ -6316,8 +6431,7 @@
             "type": "integer",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "SystemCollectionsGenericListOfAddress": {
         "type": "array",
@@ -6428,8 +6542,7 @@
               "string"
             ]
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesAntiforgeryTestVerificationRequest": {
         "type": "object",
@@ -6441,8 +6554,7 @@
           "tokenResponse": {
             "$ref": "#/components/schemas/TestCasesAntiforgeryTestTokenResponse"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesCustomRequestBinderProduct": {
         "type": "object",
@@ -6458,8 +6570,7 @@
             "type": "number",
             "format": "double"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesCustomRequestBinderRequest": {
         "type": "object",
@@ -6480,8 +6591,7 @@
           "customerID": {
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesCustomRequestBinderResponse": {
         "type": "object",
@@ -6502,8 +6612,7 @@
           "customerID": {
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesDataAnnotationCompliantChildRequest": {
         "required": [
@@ -6528,8 +6637,7 @@
             "minLength": 1,
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesDataAnnotationCompliantNestedRequest": {
         "required": [
@@ -6548,8 +6656,7 @@
             "type": "integer",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesDataAnnotationCompliantRequest": {
         "required": [
@@ -6574,8 +6681,7 @@
           "children": {
             "$ref": "#/components/schemas/SystemCollectionsGenericListOfChildRequest"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesDontBindAttributeTestRequest": {
         "type": "object",
@@ -6584,8 +6690,7 @@
             "type": "integer",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesDupeParamBindingForIEnumerablePropsRequest_Person": {
         "type": "object",
@@ -6597,8 +6702,7 @@
             "type": "integer",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesDupeParamBindingForIEnumerablePropsResponse": {
         "type": "object",
@@ -6624,8 +6728,7 @@
           "persons": {
             "$ref": "#/components/schemas/SystemCollectionsGenericIEnumerableOfPerson"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesEventHandlingTestSomeEvent": {
         "type": "object",
@@ -6638,8 +6741,7 @@
             "type": "integer",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesEventStreamTestRequest": {
         "required": [
@@ -6654,8 +6756,7 @@
           "notifications": {
             "$ref": "#/components/schemas/TestCasesEventStreamTestSomeNotification[]"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesEventStreamTestSomeNotification": {
         "required": [
@@ -6666,8 +6767,7 @@
           "name": {
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesEventStreamTestSomeNotification[]": {
         "type": "array",
@@ -6692,8 +6792,7 @@
               "format": "binary"
             }
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesFormBindingComplexDtosAuthor": {
         "type": "object",
@@ -6718,8 +6817,7 @@
           "otherAddresses": {
             "$ref": "#/components/schemas/SystemCollectionsGenericListOfAddress"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesFormBindingComplexDtosBook": {
         "type": "object",
@@ -6747,8 +6845,7 @@
           "barCodes": {
             "$ref": "#/components/schemas/SystemCollectionsGenericIEnumerableOfInt32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesFormFileBindingTestRequest": {
         "type": "object",
@@ -6786,8 +6883,7 @@
               "format": "binary"
             }
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesFormFileBindingTestResponse": {
         "type": "object",
@@ -6804,8 +6900,7 @@
           "jetNames": {
             "$ref": "#/components/schemas/SystemCollectionsGenericListOfString"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesFromBodyJsonBindingProduct": {
         "type": "object",
@@ -6829,7 +6924,6 @@
             "example": 200.22
           }
         },
-        "additionalProperties": false,
         "example": {
           "name": "test product name",
           "price": 200.22
@@ -6849,8 +6943,7 @@
             "type": "integer",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesFromCookieRequestBindingTestResponse": {
         "type": "object",
@@ -6862,8 +6955,7 @@
           "cookieValue": {
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesGlobalGenericProcessorTestRequest": {
         "type": "object",
@@ -6874,8 +6966,7 @@
           "postProcRan": {
             "type": "boolean"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesGlobalRoutePrefixOverrideTestRequest": {
         "type": "object",
@@ -6884,8 +6975,7 @@
             "type": "string",
             "description": "overriden content text"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesGlobalRoutePrefixOverrideTestResponse": {
         "type": "object",
@@ -6897,8 +6987,7 @@
           "bodyContent": {
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesHydratedQueryParamGeneratorTestRequest_ComplexIdClass": {
         "type": "object",
@@ -6911,8 +7000,7 @@
             "type": "integer",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesHydratedQueryParamGeneratorTestRequest_ComplexIdClassWithToString": {
         "type": "object",
@@ -6925,8 +7013,7 @@
             "type": "integer",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesHydratedQueryParamGeneratorTestRequest_NestedClass": {
         "required": [
@@ -6945,8 +7032,7 @@
             "type": "integer",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesHydratedQueryParamGeneratorTestResponse": {
         "type": "object",
@@ -6966,8 +7052,7 @@
           "complexIdString": {
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesIdempotencyResponse": {
         "type": "object",
@@ -6979,8 +7064,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesIncludedValidatorTestRequest": {
         "required": [
@@ -6999,8 +7083,7 @@
             "type": "integer",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesJsonArrayBindingForIEnumerablePropsRequest_Person": {
         "type": "object",
@@ -7012,8 +7095,7 @@
           "name": {
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesJsonArrayBindingForIEnumerablePropsResponse": {
         "type": "object",
@@ -7036,8 +7118,7 @@
           "dict": {
             "$ref": "#/components/schemas/SystemCollectionsGenericDictionaryOfStringAndString"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesJsonArrayBindingToIEnumerableDtoItem": {
         "type": "object",
@@ -7049,8 +7130,7 @@
           "name": {
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesJsonArrayBindingToIEnumerableDtoRequest": {
         "type": "array",
@@ -7068,8 +7148,7 @@
           "name": {
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesJsonArrayBindingToListOfModelsRequest": {
         "type": "object",
@@ -7077,8 +7156,7 @@
           "name": {
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesMapperTestRequest": {
         "type": "object",
@@ -7093,8 +7171,7 @@
             "type": "integer",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesMapperTestResponse": {
         "type": "object",
@@ -7106,8 +7183,7 @@
             "type": "integer",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesMissingHeaderTestDontThrowIfMissingRequest": {
         "type": "object",
@@ -7118,8 +7194,7 @@
               "string"
             ]
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesOnBeforeAfterValidationTestRequest": {
         "type": "object",
@@ -7133,8 +7208,7 @@
               "string"
             ]
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesOnBeforeAfterValidationTestResponse": {
         "type": "object",
@@ -7145,8 +7219,7 @@
               "string"
             ]
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesPlainTextRequestTestRequest": {
         "type": "object",
@@ -7155,8 +7228,7 @@
             "type": "string",
             "description": "overriden content text"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesPlainTextRequestTestResponse": {
         "type": "object",
@@ -7168,8 +7240,7 @@
           "bodyContent": {
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesPostProcessorTestExceptionDetailsResponse": {
         "type": "object",
@@ -7177,8 +7248,7 @@
           "type": {
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesPreProcessorIsRunOnValidationFailureRequest": {
         "required": [
@@ -7194,8 +7264,7 @@
             "type": "integer",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesPreProcessorIsRunOnValidationFailureResponse": {
         "type": "object",
@@ -7206,8 +7275,7 @@
               "string"
             ]
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesProcessorAttributesTestRequest": {
         "type": "object",
@@ -7215,8 +7283,7 @@
           "values": {
             "$ref": "#/components/schemas/SystemCollectionsGenericListOfString"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesQueryObjectBindingTestByteEnum": {
         "enum": [
@@ -7249,8 +7316,7 @@
           "isHidden": {
             "type": "boolean"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesQueryObjectBindingTestPerson": {
         "type": "object",
@@ -7281,8 +7347,7 @@
           "isHidden": {
             "type": "boolean"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesQueryObjectBindingTestResponse": {
         "type": "object",
@@ -7316,8 +7381,7 @@
           "person": {
             "$ref": "#/components/schemas/TestCasesQueryObjectBindingTestPerson"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesQueryObjectWithObjectsArrayBindingTestNestedPerson": {
         "type": "object",
@@ -7325,8 +7389,7 @@
           "objects": {
             "$ref": "#/components/schemas/SystemCollectionsGenericListOfObjectInArray"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesQueryObjectWithObjectsArrayBindingTestObjectInArray": {
         "type": "object",
@@ -7355,8 +7418,7 @@
           "enum": {
             "$ref": "#/components/schemas/SystemDayOfWeek"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesQueryObjectWithObjectsArrayBindingTestPerson": {
         "type": "object",
@@ -7367,8 +7429,7 @@
           "objects": {
             "$ref": "#/components/schemas/SystemCollectionsGenericListOfObjectInArray"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesQueryObjectWithObjectsArrayBindingTestResponse": {
         "type": "object",
@@ -7376,8 +7437,7 @@
           "person": {
             "$ref": "#/components/schemas/TestCasesQueryObjectWithObjectsArrayBindingTestPerson"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesQueryParamBindingInEpWithoutReqResponse": {
         "type": "object",
@@ -7407,8 +7467,7 @@
             "type": "number",
             "format": "float"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesRateLimitTestsResponse": {
         "type": "object",
@@ -7425,8 +7484,7 @@
             "description": "optional other id",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesRouteBindingInEpWithoutReqResponse": {
         "type": "object",
@@ -7443,8 +7501,7 @@
             "description": "optional other id",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesRouteBindingTestCustom": {
         "type": "object",
@@ -7453,8 +7510,7 @@
             "type": "integer",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesRouteBindingTestCustomList": {
         "type": "array",
@@ -7480,8 +7536,7 @@
           "strings": {
             "$ref": "#/components/schemas/SystemCollectionsGenericListOfString"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesRouteBindingTestPerson": {
         "type": "object",
@@ -7503,8 +7558,7 @@
           "numbers": {
             "$ref": "#/components/schemas/SystemCollectionsGenericListOfInt32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesRouteBindingTestRequest": {
         "type": "object",
@@ -7541,8 +7595,7 @@
             "type": "string",
             "description": "overriden from body comment"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesRouteBindingTestResponse": {
         "type": "object",
@@ -7594,8 +7647,7 @@
           "person": {
             "$ref": "#/components/schemas/TestCasesRouteBindingTestPerson"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesSTJInfiniteRecursionTestResponse": {
         "type": "object",
@@ -7614,8 +7666,7 @@
               }
             ]
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesSwaggerJsonPatchRequestBodyTestPerson": {
         "type": "object",
@@ -7626,8 +7677,7 @@
           "lastName": {
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesSwaggerReviewChildValidatorReviewChild": {
         "type": "object",
@@ -7637,8 +7687,7 @@
             "type": "integer",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesSwaggerReviewChildValidatorReviewRequest": {
         "type": "object",
@@ -7646,8 +7695,7 @@
           "child": {
             "$ref": "#/components/schemas/TestCasesSwaggerReviewChildValidatorReviewChild"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesSwaggerReviewCollectionLengthReviewRequest": {
         "required": [
@@ -7658,8 +7706,7 @@
           "tags": {
             "$ref": "#/components/schemas/SystemString[]"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesSwaggerReviewDeepNestedValidatorReviewChild": {
         "type": "object",
@@ -7667,8 +7714,7 @@
           "subChild": {
             "$ref": "#/components/schemas/TestCasesSwaggerReviewDeepNestedValidatorReviewGrandChild"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesSwaggerReviewDeepNestedValidatorReviewGrandChild": {
         "type": "object",
@@ -7677,8 +7723,7 @@
             "minLength": 5,
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesSwaggerReviewDeepNestedValidatorReviewRequest": {
         "type": "object",
@@ -7686,8 +7731,7 @@
           "child": {
             "$ref": "#/components/schemas/TestCasesSwaggerReviewDeepNestedValidatorReviewChild"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesSwaggerReviewDuplicateRequestExamplesRequest": {
         "type": "object",
@@ -7697,7 +7741,6 @@
             "example": "first"
           }
         },
-        "additionalProperties": false,
         "example": {
           "name": "first"
         }
@@ -7713,8 +7756,7 @@
             "description": "wrapped value summary",
             "example": "wrapped example"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesSwaggerReviewGenericXmlDocReviewResponse": {
         "type": "object",
@@ -7728,7 +7770,6 @@
             "example": "wrapped example"
           }
         },
-        "additionalProperties": false,
         "description": "generic review response summary"
       },
       "TestCasesSwaggerReviewIllegalHeadersRequest": {
@@ -7737,8 +7778,7 @@
           "bodyValue": {
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesSwaggerReviewInlineMarkupXmlDocReviewRequest": {
         "type": "object",
@@ -7748,7 +7788,6 @@
             "description": "filter by UserId value."
           }
         },
-        "additionalProperties": false,
         "description": "returns the User record."
       },
       "TestCasesSwaggerReviewIntermediateBaseValidatorReviewRequest": {
@@ -7758,8 +7797,7 @@
             "minLength": 3,
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesSwaggerReviewJsonPropertyNameTransformerReviewRequest": {
         "type": "object",
@@ -7768,8 +7806,7 @@
             "type": "integer",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesSwaggerReviewJsonPropertyNameTransformerReviewResponse": {
         "type": "object",
@@ -7777,8 +7814,7 @@
           "bodyValue": {
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesSwaggerReviewMissingSchemaEnumResponse": {
         "type": "object",
@@ -7786,8 +7822,7 @@
           "status": {
             "$ref": "#/components/schemas/TestCasesSwaggerReviewUlongEnumReviewStatus"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesSwaggerReviewMissingSchemaPrimitiveResponse": {
         "type": "object",
@@ -7799,8 +7834,7 @@
           "effectiveOn": {
             "$ref": "#/components/schemas/SystemDateOnly"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesSwaggerReviewNoRequestMetadataLeakResponse": {
         "type": "object",
@@ -7809,8 +7843,7 @@
             "type": "string",
             "description": "response leak id"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesSwaggerReviewUlongEnumReviewResponse": {
         "type": "object",
@@ -7818,8 +7851,7 @@
           "status": {
             "$ref": "#/components/schemas/TestCasesSwaggerReviewUlongEnumReviewStatus"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesSwaggerReviewUlongEnumReviewStatus": {
         "enum": [
@@ -7834,8 +7866,7 @@
             "type": "string",
             "description": "the body content of the incoming request"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesTypedResultTestRequest": {
         "type": "object",
@@ -7844,8 +7875,7 @@
             "type": "integer",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesTypedResultTestResponse": {
         "type": "object",
@@ -7854,8 +7884,7 @@
             "type": "integer",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesValidationErrorTestArrayRequest": {
         "type": "object",
@@ -7863,8 +7892,7 @@
           "stringArray": {
             "$ref": "#/components/schemas/SystemString[]"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesValidationErrorTestDictionaryRequest": {
         "type": "object",
@@ -7872,8 +7900,7 @@
           "stringDictionary": {
             "$ref": "#/components/schemas/SystemCollectionsGenericDictionaryOfStringAndString"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesValidationErrorTestListInListRequest": {
         "type": "object",
@@ -7881,8 +7908,7 @@
           "numbersList": {
             "$ref": "#/components/schemas/SystemCollectionsGenericListOfListOfInt32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesValidationErrorTestListRequest": {
         "type": "object",
@@ -7890,8 +7916,7 @@
           "numbersList": {
             "$ref": "#/components/schemas/SystemCollectionsGenericListOfInt32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesValidationErrorTestObjectArrayRequest": {
         "type": "object",
@@ -7899,8 +7924,7 @@
           "objectArray": {
             "$ref": "#/components/schemas/TestCasesValidationErrorTestTObject[]"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesValidationErrorTestTObject": {
         "type": "object",
@@ -7908,8 +7932,7 @@
           "test": {
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesValidationErrorTestTObject[]": {
         "type": "array",
@@ -7923,8 +7946,7 @@
           "message": {
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "UploadsImageSaveRequest": {
         "type": "object",
@@ -7944,8 +7966,7 @@
             "type": "integer",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "UploadsImageSaveTypedRequest": {
         "type": "object",
@@ -8013,8 +8034,7 @@
               "format": "binary"
             }
           }
-        },
-        "additionalProperties": false
+        }
       }
     },
     "securitySchemes": {

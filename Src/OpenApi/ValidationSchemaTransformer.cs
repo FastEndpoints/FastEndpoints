@@ -172,7 +172,7 @@ sealed class ValidationSchemaTransformer : IOpenApiSchemaTransformer
             var validationContext = Activator.CreateInstance(adapterMethod.GetParameters().First().ParameterType, [null!]);
 
             if (adapterMethod.Invoke(adapter, [validationContext, null!]) is not IValidator includeValidator)
-                break;
+                continue;
 
             ApplyRulesToSchema(schema, includeValidator.GetDictionaryOfRules(_sharedCtx.NamingPolicy, GetValidatorTargetType(includeValidator)), string.Empty, services, activeChildValidators);
             ApplyRulesFromIncludedValidators(schema, includeValidator, services, activeChildValidators);

@@ -8,6 +8,20 @@ namespace FastEndpoints.OpenApi;
 
 sealed partial class DocumentTransformer : IOpenApiDocumentTransformer
 {
+    static readonly HashSet<string> _frameworkHeaderValueSchemaKeys =
+    [
+        "MicrosoftNetHttpHeadersCacheControlHeaderValue",
+        "MicrosoftNetHttpHeadersContentDispositionHeaderValue",
+        "MicrosoftNetHttpHeadersContentRangeHeaderValue",
+        "MicrosoftNetHttpHeadersMediaTypeHeaderValue",
+        "MicrosoftNetHttpHeadersRangeConditionHeaderValue",
+        "MicrosoftNetHttpHeadersRangeHeaderValue",
+        "MicrosoftNetHttpHeadersEntityTagHeaderValue",
+        "SystemCollectionsGenericIListOfMicrosoftNetHttpHeadersMediaTypeHeaderValue",
+        "SystemCollectionsGenericIListOfMicrosoftNetHttpHeadersEntityTagHeaderValue",
+        "SystemCollectionsGenericIListOfMicrosoftNetHttpHeadersSetCookieHeaderValue"
+    ];
+
     readonly DocumentOptions _opts;
     readonly SharedContext _sharedCtx;
     readonly int _maxEpVer;
@@ -72,11 +86,6 @@ sealed partial class DocumentTransformer : IOpenApiDocumentTransformer
     async Task NormalizeSchemas(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
     {
         await document.AddMissingSchemas(_sharedCtx, context, cancellationToken);
-
-        if (_opts.FlattenSchema)
-            document.FlattenAllOfSchemas();
-
-        document.AddAdditionalPropertiesFalse();
         document.RemoveUnreferencedSchemas();
     }
 
@@ -265,7 +274,7 @@ sealed partial class DocumentTransformer : IOpenApiDocumentTransformer
             document.Components.Schemas.Remove(stringSegmentKey);
 
         static bool IsHeaderValueSchema(string schemaKey)
-            => schemaKey.EndsWith("HeaderValue", StringComparison.Ordinal);
+            => _frameworkHeaderValueSchemaKeys.Contains(schemaKey);
     }
 
     void ApplyPathNamingPolicy(OpenApiDocument document)

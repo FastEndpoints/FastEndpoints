@@ -8,7 +8,7 @@ static class PropertyNameResolver
 {
     internal static string GetSchemaPropertyName(PropertyInfo property, JsonNamingPolicy? namingPolicy = null)
         => property.GetCustomAttribute<JsonPropertyNameAttribute>()?.Name ??
-           (namingPolicy ?? Extensions.NamingPolicy)?.ConvertName(property.Name) ??
+           namingPolicy?.ConvertName(property.Name) ??
            property.Name;
 
     internal static string ConvertPropertyPath(Type declaringType, string propertyPath, JsonNamingPolicy? namingPolicy = null)
@@ -16,7 +16,6 @@ static class PropertyNameResolver
         if (string.IsNullOrWhiteSpace(propertyPath))
             return propertyPath;
 
-        namingPolicy ??= Extensions.NamingPolicy;
         var segments = propertyPath.Split('.');
         var currentType = declaringType;
 

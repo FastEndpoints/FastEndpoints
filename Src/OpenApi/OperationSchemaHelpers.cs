@@ -96,7 +96,7 @@ static class OperationSchemaHelpers
             };
         }
 
-        internal JsonNode? GenerateSampleJsonNode(HashSet<Type>? visited = null)
+        internal JsonNode? GenerateSampleJsonNode(JsonNamingPolicy? namingPolicy = null, HashSet<Type>? visited = null)
         {
             var underlying = Nullable.GetUnderlyingType(type) ?? type;
 
@@ -106,7 +106,7 @@ static class OperationSchemaHelpers
 
                 if (elementType is not null)
                 {
-                    var itemSample = elementType.GenerateSampleJsonNode(visited);
+                    var itemSample = elementType.GenerateSampleJsonNode(namingPolicy, visited);
 
                     if (itemSample is not null)
                         return new JsonArray(itemSample);
@@ -137,18 +137,17 @@ static class OperationSchemaHelpers
                 return null;
 
             var obj = new JsonObject();
-            var policy = Extensions.NamingPolicy;
 
             foreach (var prop in GetSampleJsonProperties(underlying))
             {
-                var propName = PropertyNameResolver.GetSchemaPropertyName(prop, policy);
+                var propName = PropertyNameResolver.GetSchemaPropertyName(prop, namingPolicy);
                 var sample = prop.PropertyType.GetSampleValue(propName);
 
                 if (sample is not null)
                     obj[propName] = sample.JsonNodeFromObject();
                 else
                 {
-                    var nested = prop.PropertyType.GenerateSampleJsonNode(visited);
+                    var nested = prop.PropertyType.GenerateSampleJsonNode(namingPolicy, visited);
 
                     if (nested is not null)
                         obj[propName] = nested;
@@ -161,13 +160,15 @@ static class OperationSchemaHelpers
         }
     }
 
-    internal static void RemovePropFromRequestBody(this OpenApiOperation operation, string propName, HashSet<string>? removedProps = null)
+    internal static void RemovePropFromRequestBody(this OpenApiOperation operation,
+                                                   string propName,
+                                                   JsonNamingPolicy? namingPolicy,
+                                                   HashSet<string>? removedProps = null)
     {
         if (operation.RequestBody?.Content is null)
             return;
 
-        var policy = Extensions.SelectedJsonNamingPolicy;
-        var schemaName = policy?.ConvertName(propName) ?? propName;
+        var schemaName = namingPolicy?.ConvertName(propName) ?? propName;
 
         removedProps?.Add(schemaName);
 

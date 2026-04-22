@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
@@ -21,6 +22,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
     static readonly TextInfo _textInfo = CultureInfo.InvariantCulture.TextInfo;
     static readonly string[] _illegalHeaderNames = ["Accept", "Content-Type", "Authorization"];
     static readonly ConcurrentDictionary<Type, TypeMetadata> _typeMetadataCache = new();
+    JsonNamingPolicy? NamingPolicy => sharedCtx.NamingPolicy;
 
     sealed class TypeMetadata
     {
@@ -63,6 +65,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
         var epDef = metadata.OfType<EndpointDefinition>().SingleOrDefault();
 
         docOpts.Services ??= context.ApplicationServices;
+        _ = sharedCtx.ResolveNamingPolicy(context.ApplicationServices);
 
         // compute the document path for this operation
         var relativePath = context.Description.RelativePath?.TrimStart('~').TrimEnd('/') ?? "";
@@ -275,7 +278,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
                         continue;
 
                     requestDtoProps.RemoveAt(i);
-                    operation.RemovePropFromRequestBody(p.Name, propsRemovedFromBody);
+                    operation.RemovePropFromRequestBody(p.Name, NamingPolicy, propsRemovedFromBody);
                 }
 
                 // handle attribute-based parameters
@@ -289,7 +292,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
                         {
                             case FromHeaderAttribute hAttrib:
                             {
-                                var pName = hAttrib.HeaderName ?? p.Name.ApplyPropNamingPolicy(docOpts);
+                                var pName = hAttrib.HeaderName ?? p.Name.ApplyPropNamingPolicy(docOpts, NamingPolicy);
 
                                 var isIllegalHeaderName = false;
 
@@ -305,7 +308,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
 
                                 if (isIllegalHeaderName)
                                 {
-                                    operation.RemovePropFromRequestBody(p.Name, propsRemovedFromBody);
+                                    operation.RemovePropFromRequestBody(p.Name, NamingPolicy, propsRemovedFromBody);
 
                                     continue;
                                 }
@@ -313,25 +316,25 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
                                 AddParameter(operation, pName, ParameterLocation.Header, p, hAttrib.IsRequired, docOpts.ShortSchemaNames);
 
                                 if (hAttrib.IsRequired || hAttrib.RemoveFromSchema)
-                                    operation.RemovePropFromRequestBody(p.Name, propsRemovedFromBody);
+                                    operation.RemovePropFromRequestBody(p.Name, NamingPolicy, propsRemovedFromBody);
 
                                 break;
                             }
 
                             case FromCookieAttribute cAttrib:
                             {
-                                var pName = cAttrib.CookieName ?? p.Name.ApplyPropNamingPolicy(docOpts);
+                                var pName = cAttrib.CookieName ?? p.Name.ApplyPropNamingPolicy(docOpts, NamingPolicy);
                                 AddParameter(operation, pName, ParameterLocation.Cookie, p, cAttrib.IsRequired, docOpts.ShortSchemaNames);
 
                                 if (cAttrib.IsRequired || cAttrib.RemoveFromSchema)
-                                    operation.RemovePropFromRequestBody(p.Name, propsRemovedFromBody);
+                                    operation.RemovePropFromRequestBody(p.Name, NamingPolicy, propsRemovedFromBody);
 
                                 break;
                             }
 
                             case FromClaimAttribute cAttrib when cAttrib.IsRequired || cAttrib.RemoveFromSchema:
                             case HasPermissionAttribute pAttrib when pAttrib.IsRequired || pAttrib.RemoveFromSchema:
-                                operation.RemovePropFromRequestBody(p.Name, propsRemovedFromBody);
+                                operation.RemovePropFromRequestBody(p.Name, NamingPolicy, propsRemovedFromBody);
 
                                 break;
                         }
@@ -343,10 +346,10 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
 
                     if (matchingRouteParam is not null)
                     {
-                        operation.RemovePropFromRequestBody(p.Name, propsRemovedFromBody);
+                        operation.RemovePropFromRequestBody(p.Name, NamingPolicy, propsRemovedFromBody);
 
                         // add as path parameter using the route template variable name with naming policy applied
-                        var appliedName = matchingRouteParam.ApplyPropNamingPolicy(docOpts);
+                        var appliedName = matchingRouteParam.ApplyPropNamingPolicy(docOpts, NamingPolicy);
 
                         if (!HasParameter(operation, ParameterLocation.Path, appliedName))
                             AddParameter(operation, appliedName, ParameterLocation.Path, p, true, docOpts.ShortSchemaNames);
@@ -357,8 +360,8 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
                     // handle query params
                     if (ShouldAddQueryParam(p, operation, isGetRequest && !docOpts.EnableGetRequestsWithBody))
                     {
-                        operation.RemovePropFromRequestBody(p.Name, propsRemovedFromBody);
-                        AddParameter(operation, p.Name.ApplyPropNamingPolicy(docOpts), ParameterLocation.Query, p, shortSchemaNames: docOpts.ShortSchemaNames);
+                        operation.RemovePropFromRequestBody(p.Name, NamingPolicy, propsRemovedFromBody);
+                        AddParameter(operation, p.Name.ApplyPropNamingPolicy(docOpts, NamingPolicy), ParameterLocation.Query, p, shortSchemaNames: docOpts.ShortSchemaNames);
                     }
                 }
             }
@@ -376,7 +379,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
         for (var i = 0; i < routeParamNames.Count; i++)
         {
             var routeParam = routeParamNames[i];
-            var appliedName = routeParam.ApplyPropNamingPolicy(docOpts);
+            var appliedName = routeParam.ApplyPropNamingPolicy(docOpts, NamingPolicy);
             var resolvedType = routeParameters[i].ConstraintType;
 
             if (HasParameter(operation, ParameterLocation.Path, appliedName))
@@ -399,7 +402,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
             {
                 if (param is OpenApiParameter { In: ParameterLocation.Path, Name: not null } concreteParam)
                 {
-                    var renamed = concreteParam.Name.ApplyPropNamingPolicy(docOpts);
+                    var renamed = concreteParam.Name.ApplyPropNamingPolicy(docOpts, NamingPolicy);
                     if (renamed != concreteParam.Name)
                         concreteParam.Name = renamed;
                 }
@@ -433,13 +436,13 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
         return isGetRequest || prop.IsDefined(Types.QueryParamAttribute);
     }
 
-    static void AddParameter(OpenApiOperation operation,
-                             string name,
-                             ParameterLocation location,
-                             PropertyInfo? prop,
-                             bool? isRequired = null,
-                             bool shortSchemaNames = false,
-                             Type? explicitType = null)
+    void AddParameter(OpenApiOperation operation,
+                      string name,
+                      ParameterLocation location,
+                      PropertyInfo? prop,
+                      bool? isRequired = null,
+                      bool shortSchemaNames = false,
+                      Type? explicitType = null)
     {
         operation.Parameters ??= [];
 
@@ -491,7 +494,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
             }
 
             // fall back to auto-generated sample (use coerced propType, not original PropertyType)
-            example ??= propType.GenerateSampleJsonNode();
+            example ??= propType.GenerateSampleJsonNode(NamingPolicy);
 
             if (example is not null)
             {
@@ -516,7 +519,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
                OperationSchemaHelpers.TryGetDictionaryValueType(type) is not null;
     }
 
-    static void ApplyRequestBodyOverrides(OpenApiOperation operation, EndpointDefinition epDef)
+    void ApplyRequestBodyOverrides(OpenApiOperation operation, EndpointDefinition epDef)
     {
         if (operation.RequestBody?.Content is null)
             return;
@@ -549,8 +552,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
 
             // find the promoted property in the schema
             var propName = promoteProp.Name;
-            var policy = Extensions.NamingPolicy;
-            var schemaKey = policy?.ConvertName(propName) ?? propName;
+            var schemaKey = NamingPolicy?.ConvertName(propName) ?? propName;
 
             var matchingKey = resolvedSchema.Properties?.Keys
                                             .FirstOrDefault(k => string.Equals(k, schemaKey, StringComparison.OrdinalIgnoreCase));
@@ -842,7 +844,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
         }
     }
 
-    static void ApplyRequestExamples(OpenApiOperation operation, EndpointDefinition epDef, HashSet<string> propsRemovedFromBody)
+    void ApplyRequestExamples(OpenApiOperation operation, EndpointDefinition epDef, HashSet<string> propsRemovedFromBody)
     {
         if (epDef.EndpointSummary?.RequestExamples.Count is not > 0)
             return;
@@ -908,9 +910,9 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
         }
     }
 
-    static JsonNode? BuildRequestExampleFallback(EndpointDefinition epDef, HashSet<string> propsRemovedFromBody)
+    JsonNode? BuildRequestExampleFallback(EndpointDefinition epDef, HashSet<string> propsRemovedFromBody)
     {
-        var fallback = GetRequestDtoType(epDef)?.GenerateSampleJsonNode();
+        var fallback = GetRequestDtoType(epDef)?.GenerateSampleJsonNode(NamingPolicy);
 
         if (fallback is JsonObject fallbackObj && propsRemovedFromBody.Count > 0)
             fallbackObj.RemoveProperties(propsRemovedFromBody);
@@ -951,7 +953,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
             if (toHeaderAttr is null)
                 continue;
 
-            var headerName = toHeaderAttr.HeaderName ?? prop.Name.ApplyPropNamingPolicy(docOpts);
+            var headerName = toHeaderAttr.HeaderName ?? prop.Name.ApplyPropNamingPolicy(docOpts, NamingPolicy);
 
             AddResponseHeader(
                 response,
@@ -1354,7 +1356,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
             => stripSymbols ? Regex.Replace(val, "[^a-zA-Z0-9]", "") : val;
     }
 
-    static void ApplyParamDescriptionsToRequestBodySchema(OpenApiOperation operation, EndpointDefinition epDef, HashSet<string> propsRemovedFromBody)
+    void ApplyParamDescriptionsToRequestBodySchema(OpenApiOperation operation, EndpointDefinition epDef, HashSet<string> propsRemovedFromBody)
     {
         if (operation.RequestBody?.Content is null)
             return;
@@ -1623,14 +1625,12 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
 
 file static class OperationTransformerExtensions
 {
-    internal static string ApplyPropNamingPolicy(this string paramName, DocumentOptions documentOptions)
+    internal static string ApplyPropNamingPolicy(this string paramName, DocumentOptions documentOptions, JsonNamingPolicy? namingPolicy)
     {
         if (!documentOptions.UsePropertyNamingPolicy)
             return paramName;
 
-        var policy = Extensions.NamingPolicy;
-
-        return policy?.ConvertName(paramName) ?? paramName;
+        return namingPolicy?.ConvertName(paramName) ?? paramName;
     }
 
     internal static bool IsNullable(this PropertyInfo prop)

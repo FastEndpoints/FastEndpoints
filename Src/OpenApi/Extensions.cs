@@ -17,17 +17,6 @@ namespace FastEndpoints.OpenApi;
 public static class Extensions
 {
     /// <summary>
-    /// JsonNamingPolicy chosen for swagger
-    /// </summary>
-    public static JsonNamingPolicy? SelectedJsonNamingPolicy { get; private set; }
-
-    /// <summary>
-    /// resolved naming policy: the swagger-selected policy, falling back to the serializer options policy.
-    /// use this instead of repeating <c>SelectedJsonNamingPolicy ?? Cfg.SerOpts.Options.PropertyNamingPolicy</c>.
-    /// </summary>
-    internal static JsonNamingPolicy? NamingPolicy => SelectedJsonNamingPolicy ?? Cfg.SerOpts.Options.PropertyNamingPolicy;
-
-    /// <summary>
     /// enable support for FastEndpoints and create an open-api document.
     /// </summary>
     /// <param name="services">the service collection</param>
@@ -54,9 +43,6 @@ public static class Extensions
                     null));
         }
 
-        var stjOpts = new JsonSerializerOptions(Cfg.SerOpts.Options);
-        SelectedJsonNamingPolicy = stjOpts.PropertyNamingPolicy;
-
         var sharedCtx = new SharedContext();
 
         services.AddOpenApi(
@@ -69,10 +55,10 @@ public static class Extensions
                 // add transformers
                 apiOptions.AddOperationTransformer(new OperationTransformer(opts, sharedCtx));
                 apiOptions.AddDocumentTransformer(new DocumentTransformer(opts, sharedCtx));
-                apiOptions.AddSchemaTransformer<ValidationSchemaTransformer>();
+                apiOptions.AddSchemaTransformer(new ValidationSchemaTransformer(sharedCtx));
                 apiOptions.AddSchemaTransformer<XmlDocSchemaTransformer>();
                 apiOptions.AddSchemaTransformer<NumericTypeCleanupSchemaTransformer>();
-                apiOptions.AddSchemaTransformer<ToHeaderPropertySchemaTransformer>();
+                apiOptions.AddSchemaTransformer(new ToHeaderPropertySchemaTransformer(sharedCtx));
                 apiOptions.AddSchemaTransformer<EnumSchemaTransformer>();
 
                 if (opts.UseOneOfForPolymorphism)

@@ -1,4 +1,8 @@
 using System.Collections.Concurrent;
+using System.Text.Json;
+using Microsoft.AspNetCore.Http.Json;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace FastEndpoints.OpenApi;
 
@@ -7,6 +11,11 @@ namespace FastEndpoints.OpenApi;
 /// </summary>
 internal class SharedContext
 {
+    internal JsonNamingPolicy? NamingPolicy;
+
+    internal JsonNamingPolicy? ResolveNamingPolicy(IServiceProvider services)
+        => NamingPolicy ??= services.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions.PropertyNamingPolicy;
+
     /// <summary>
     /// key: "METHOD:/path", value: metadata about the operation
     /// </summary>

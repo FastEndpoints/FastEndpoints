@@ -24,9 +24,13 @@ static class ValidationExtensions
     /// Creates a dictionary with the validation rules.
     /// </summary>
     internal static ReadOnlyDictionary<string, List<IValidationRule>> GetDictionaryOfRules(this IValidator validator, Type? validatorTargetType = null)
+        => validator.GetDictionaryOfRules(null, validatorTargetType);
+
+    internal static ReadOnlyDictionary<string, List<IValidationRule>> GetDictionaryOfRules(this IValidator validator,
+                                                                                           JsonNamingPolicy? namingPolicy,
+                                                                                           Type? validatorTargetType = null)
     {
         var rulesDict = new Dictionary<string, List<IValidationRule>>();
-        var namingPolicy = OpenApi.Extensions.NamingPolicy;
         validatorTargetType ??= validator.GetType().GetGenericArgumentsOfType(Types.ValidatorOf1)?[0];
 
         if (validator is IEnumerable<IValidationRule> rules)

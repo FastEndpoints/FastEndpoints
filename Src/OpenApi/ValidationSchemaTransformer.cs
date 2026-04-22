@@ -22,15 +22,8 @@ namespace FastEndpoints.OpenApi;
 sealed class ValidationSchemaTransformer : IOpenApiSchemaTransformer
 {
     const BindingFlags PublicInstance = BindingFlags.Public | BindingFlags.Instance;
-    static readonly ConditionalWeakTable<EndpointData, ValidatorBindingCacheEntry> _validatorBindingCache = new();
     static readonly ConcurrentDictionary<Type, PropertyInfo[]> _propertyCache = new();
     static readonly FluentValidationRule[] _rules = CreateDefaultRules();
-
-    sealed class ValidatorBindingCacheEntry
-    {
-        public required Dictionary<Type, ValidatorBinding[]> Bindings { get; init; }
-        public int NoValidatorsLogged;
-    }
 
     sealed class ValidatorBinding
     {
@@ -42,7 +35,11 @@ sealed class ValidationSchemaTransformer : IOpenApiSchemaTransformer
     ILogger<ValidationSchemaTransformer>? _logger;
     Dictionary<Type, ValidatorBinding[]>? _validatorBindings;
     readonly object _initializeLock = new();
+    readonly SharedContext _sharedCtx;
     volatile bool _initialized;
+
+    public ValidationSchemaTransformer(SharedContext sharedCtx)
+        => _sharedCtx = sharedCtx;
 
     void Initialize(IServiceProvider services)
     {
@@ -57,16 +54,9 @@ sealed class ValidationSchemaTransformer : IOpenApiSchemaTransformer
             _serviceResolver = services.GetRequiredService<IServiceResolver>();
             _logger = services.GetRequiredService<ILogger<ValidationSchemaTransformer>>();
             var endpointData = _serviceResolver.Resolve<EndpointData>();
-            var bindingCache = _validatorBindingCache.GetValue(
-                endpointData,
-                static data => new()
-                {
-                    Bindings = BuildValidatorBindings(data)
-                });
+            _validatorBindings = BuildValidatorBindings(endpointData);
 
-            _validatorBindings = bindingCache.Bindings;
-
-            if (_validatorBindings.Count == 0 && Interlocked.Exchange(ref bindingCache.NoValidatorsLogged, 1) == 0)
+            if (_validatorBindings.Count == 0)
                 _logger.NoValidatorsFound();
 
             _initialized = true;
@@ -75,6 +65,7 @@ sealed class ValidationSchemaTransformer : IOpenApiSchemaTransformer
 
     public Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context, CancellationToken cancellationToken)
     {
+        _sharedCtx.ResolveNamingPolicy(context.ApplicationServices);
         Initialize(context.ApplicationServices);
 
         if (_serviceResolver is null || _validatorBindings is not { Count: > 0 })
@@ -110,7 +101,7 @@ sealed class ValidationSchemaTransformer : IOpenApiSchemaTransformer
                         IServiceProvider services,
                         HashSet<Type> activeChildValidators)
     {
-        var rulesDict = validator.GetDictionaryOfRules(GetValidatorTargetType(validator));
+        var rulesDict = validator.GetDictionaryOfRules(_sharedCtx.NamingPolicy, GetValidatorTargetType(validator));
         ApplyRulesToSchema(schema, rulesDict, propertyPrefix, services, activeChildValidators);
         ApplyRulesFromIncludedValidators(schema, validator, services, activeChildValidators);
     }
@@ -183,7 +174,7 @@ sealed class ValidationSchemaTransformer : IOpenApiSchemaTransformer
             if (adapterMethod.Invoke(adapter, [validationContext, null!]) is not IValidator includeValidator)
                 break;
 
-            ApplyRulesToSchema(schema, includeValidator.GetDictionaryOfRules(GetValidatorTargetType(includeValidator)), string.Empty, services, activeChildValidators);
+            ApplyRulesToSchema(schema, includeValidator.GetDictionaryOfRules(_sharedCtx.NamingPolicy, GetValidatorTargetType(includeValidator)), string.Empty, services, activeChildValidators);
             ApplyRulesFromIncludedValidators(schema, includeValidator, services, activeChildValidators);
         }
     }
@@ -288,7 +279,7 @@ sealed class ValidationSchemaTransformer : IOpenApiSchemaTransformer
         }
     }
 
-    static Dictionary<Type, ValidatorBinding[]> BuildValidatorBindings(EndpointData endpointData)
+    Dictionary<Type, ValidatorBinding[]> BuildValidatorBindings(EndpointData endpointData)
     {
         var bindings = new Dictionary<Type, List<ValidatorBinding>>();
 
@@ -312,7 +303,7 @@ sealed class ValidationSchemaTransformer : IOpenApiSchemaTransformer
                 if (!SupportsNestedPropertyTarget(prop.PropertyType))
                     continue;
 
-                var prefix = PropertyNameResolver.GetSchemaPropertyName(prop);
+                var prefix = PropertyNameResolver.GetSchemaPropertyName(prop, _sharedCtx.NamingPolicy);
                 AddBinding(prop.PropertyType, validatorType, prefix + ".");
             }
         }

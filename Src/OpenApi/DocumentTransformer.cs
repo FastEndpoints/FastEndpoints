@@ -1,5 +1,7 @@
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.OpenApi;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
 
 namespace FastEndpoints.OpenApi;
@@ -41,6 +43,7 @@ sealed partial class DocumentTransformer : IOpenApiDocumentTransformer
     public async Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
     {
         _opts.Services ??= context.ApplicationServices;
+        _sharedCtx.ResolveNamingPolicy(context.ApplicationServices);
 
         if (_opts.Title is not null)
             document.Info.Title = _opts.Title;
@@ -270,7 +273,7 @@ sealed partial class DocumentTransformer : IOpenApiDocumentTransformer
         if (!_opts.UsePropertyNamingPolicy)
             return;
 
-        var policy = Extensions.NamingPolicy;
+        var policy = _sharedCtx.NamingPolicy;
 
         if (policy is null)
             return;

@@ -1,8 +1,4 @@
-using System.Reflection;
-using System.Collections.Concurrent;
-using System.Text.Json;
-using System.Text.Json.Nodes;
-using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
 
 namespace FastEndpoints.OpenApi;
@@ -106,7 +102,7 @@ static class DocumentSchemaHelpers
             }
         }
 
-        internal void AddMissingSchemas(SharedContext sharedCtx)
+        internal async Task AddMissingSchemas(SharedContext sharedCtx, OpenApiDocumentTransformerContext context, CancellationToken ct)
         {
             if (sharedCtx.MissingSchemaTypes.IsEmpty)
                 return;
@@ -119,14 +115,10 @@ static class DocumentSchemaHelpers
                 if (document.Components.Schemas.ContainsKey(refId))
                     continue;
 
-                var extraSchemas = new Dictionary<string, IOpenApiSchema>();
-                var schema = BuildSchemaForType(type, extraSchemas);
+                var schema = await context.GetOrCreateSchemaAsync(type, parameterDescription: null, ct);
 
                 if (schema is not null)
-                    document.Components.Schemas[refId] = schema;
-
-                foreach (var (extraRefId, extraSchema) in extraSchemas)
-                    document.Components.Schemas.TryAdd(extraRefId, extraSchema);
+                    document.Components.Schemas.TryAdd(refId, schema);
             }
         }
 
@@ -379,165 +371,4 @@ static class DocumentSchemaHelpers
     static OpenApiSchema FormFileBinarySchema()
         => new() { Type = JsonSchemaType.String, Format = "binary" };
 
-    static OpenApiSchema? BuildSchemaForType(Type type, Dictionary<string, IOpenApiSchema>? extraSchemas = null)
-    {
-        var schema = new OpenApiSchema
-        {
-            Type = JsonSchemaType.Object,
-            Properties = new Dictionary<string, IOpenApiSchema>(),
-            Description = XmlDocLookup.GetTypeSummary(type)
-        };
-
-        var namingPolicy = Extensions.NamingPolicy;
-        extraSchemas ??= new();
-
-        foreach (var prop in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
-        {
-            if (prop.GetCustomAttribute<JsonIgnoreAttribute>()?.Condition ==
-                JsonIgnoreCondition.Always)
-                continue;
-
-            if (prop.IsDefined(Types.HideFromDocsAttribute))
-                continue;
-
-            var propName = PropertyNameResolver.GetSchemaPropertyName(prop, namingPolicy);
-            var propSchema = GetJsonSchemaForType(prop.PropertyType, extraSchemas);
-
-            if (propSchema is OpenApiSchema concrete)
-            {
-                concrete.Description ??= XmlDocLookup.GetPropertySummary(prop);
-
-                var defaultAttr = prop.GetCustomAttribute<System.ComponentModel.DefaultValueAttribute>();
-
-                if (defaultAttr?.Value is not null)
-                {
-                    try
-                    {
-                        concrete.Default = JsonNode.Parse(JsonSerializer.Serialize(defaultAttr.Value));
-                    }
-                    catch
-                    {
-                        // invalid JSON — ignore
-                    }
-                }
-            }
-
-            schema.Properties[propName] = propSchema;
-        }
-
-        return schema.Properties.Count > 0 ? schema : null;
-    }
-
-    static IOpenApiSchema GetJsonSchemaForType(Type type, Dictionary<string, IOpenApiSchema> extraSchemas)
-    {
-        var actualType = Nullable.GetUnderlyingType(type) ?? type;
-
-        if (TryCreatePrimitiveSchema(actualType) is { } primitiveSchema)
-            return primitiveSchema;
-
-        if (TryGetDictionaryValueType(actualType) is { } dictionaryValueType)
-        {
-            return new OpenApiSchema
-            {
-                Type = JsonSchemaType.Object,
-                AdditionalProperties = GetJsonSchemaForType(dictionaryValueType, extraSchemas)
-            };
-        }
-
-        if (TryGetCollectionElementType(actualType) is { } elementType)
-        {
-            return new OpenApiSchema
-            {
-                Type = JsonSchemaType.Array,
-                Items = GetJsonSchemaForType(elementType, extraSchemas)
-            };
-        }
-
-        var refId = SchemaNameGenerator.GetReferenceId(actualType, false);
-
-        if (refId is not null && !extraSchemas.ContainsKey(refId))
-        {
-            extraSchemas[refId] = new OpenApiSchema { Type = JsonSchemaType.Object };
-            var built = BuildSchemaForType(actualType, extraSchemas);
-            if (built is not null)
-                extraSchemas[refId] = built;
-        }
-
-        return refId is not null
-                   ? new OpenApiSchemaReference(refId)
-                   : new OpenApiSchema { Type = JsonSchemaType.Object };
-    }
-
-    static OpenApiSchema? TryCreatePrimitiveSchema(Type type)
-        => type switch
-        {
-            _ when type == typeof(string) => new() { Type = JsonSchemaType.String },
-            _ when type == typeof(int) || type == typeof(short) => new() { Type = JsonSchemaType.Integer, Format = "int32" },
-            _ when type == typeof(long) => new() { Type = JsonSchemaType.Integer, Format = "int64" },
-            _ when type == typeof(float) => new() { Type = JsonSchemaType.Number, Format = "float" },
-            _ when type == typeof(double) => new() { Type = JsonSchemaType.Number, Format = "double" },
-            _ when type == typeof(decimal) => new() { Type = JsonSchemaType.Number, Format = "decimal" },
-            _ when type == typeof(bool) => new() { Type = JsonSchemaType.Boolean },
-            _ when type == typeof(Guid) => new() { Type = JsonSchemaType.String, Format = "uuid" },
-            _ when type == typeof(DateTime) || type == typeof(DateTimeOffset) => new() { Type = JsonSchemaType.String, Format = "date-time" },
-            _ when type == typeof(DateOnly) => new() { Type = JsonSchemaType.String, Format = "date" },
-            _ when type == typeof(TimeOnly) => new() { Type = JsonSchemaType.String, Format = "time" },
-            _ when type == typeof(TimeSpan) => new() { Type = JsonSchemaType.String, Format = "duration" },
-            _ when SchemaNameGenerator.IsFormFileType(type) => new() { Type = JsonSchemaType.String, Format = "binary" },
-            _ => null
-        };
-
-    static Type? TryGetDictionaryValueType(Type type)
-    {
-        type = Nullable.GetUnderlyingType(type) ?? type;
-
-        if (TryMatchDictionary(type) is { } directMatch)
-            return directMatch;
-
-        foreach (var iface in type.GetInterfaces())
-        {
-            if (TryMatchDictionary(iface) is { } interfaceMatch)
-                return interfaceMatch;
-        }
-
-        return null;
-
-        static Type? TryMatchDictionary(Type candidate)
-        {
-            if (!candidate.IsGenericType)
-                return null;
-
-            var genDef = candidate.GetGenericTypeDefinition();
-
-            if (genDef != typeof(Dictionary<,>) &&
-                genDef != typeof(IDictionary<,>) &&
-                genDef != typeof(IReadOnlyDictionary<,>) &&
-                genDef != typeof(ConcurrentDictionary<,>))
-                return null;
-
-            var args = candidate.GetGenericArguments();
-
-            return args[0] == typeof(string) ? args[1] : null;
-        }
-    }
-
-    static Type? TryGetCollectionElementType(Type type)
-    {
-        if (type.IsArray)
-            return type.GetElementType();
-
-        if (!type.IsGenericType)
-            return null;
-
-        var genDef = type.GetGenericTypeDefinition();
-
-        return genDef == typeof(List<>) ||
-               genDef == typeof(IList<>) ||
-               genDef == typeof(IEnumerable<>) ||
-               genDef == typeof(ICollection<>) ||
-               genDef == typeof(IReadOnlyList<>) ||
-               genDef == typeof(IReadOnlyCollection<>)
-                   ? type.GetGenericArguments()[0]
-                   : null;
-    }
 }

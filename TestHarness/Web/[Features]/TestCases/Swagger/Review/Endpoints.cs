@@ -137,13 +137,17 @@ sealed class ChildValidatorReviewChild
 sealed class ChildValidatorReviewChildValidator : Validator<ChildValidatorReviewChild>
 {
     public ChildValidatorReviewChildValidator()
-        => RuleFor(x => x.Score).GreaterThan(10);
+    {
+        RuleFor(x => x.Score).GreaterThan(10);
+    }
 }
 
 sealed class ChildValidatorReviewValidator : Validator<ChildValidatorReviewRequest>
 {
     public ChildValidatorReviewValidator()
-        => RuleFor(x => x.Child).SetValidator(new ChildValidatorReviewChildValidator());
+    {
+        RuleFor(x => x.Child).SetValidator(new ChildValidatorReviewChildValidator());
+    }
 }
 
 sealed class ChildValidatorReviewEndpoint : Endpoint<ChildValidatorReviewRequest, string>
@@ -177,7 +181,9 @@ sealed class DeepNestedValidatorReviewGrandChild
 sealed class DeepNestedValidatorReviewValidator : Validator<DeepNestedValidatorReviewRequest>
 {
     public DeepNestedValidatorReviewValidator()
-        => RuleFor(x => x.Child.SubChild.Field).MinimumLength(5);
+    {
+        RuleFor(x => x.Child.SubChild.Field).MinimumLength(5);
+    }
 }
 
 sealed class DeepNestedValidatorReviewEndpoint : Endpoint<DeepNestedValidatorReviewRequest, string>
@@ -201,8 +207,7 @@ sealed class JsonPropertyNameTransformerReviewRequest
 
 sealed class JsonPropertyNameTransformerReviewResponse
 {
-    [JsonPropertyName("x_secret")]
-    [ToHeader("x-secret")]
+    [JsonPropertyName("x_secret"), ToHeader("x-secret")]
     public string Secret { get; set; } = string.Empty;
 
     public string BodyValue { get; set; } = string.Empty;
@@ -211,7 +216,9 @@ sealed class JsonPropertyNameTransformerReviewResponse
 sealed class JsonPropertyNameTransformerReviewValidator : Validator<JsonPropertyNameTransformerReviewRequest>
 {
     public JsonPropertyNameTransformerReviewValidator()
-        => RuleFor(x => x.XCoord).GreaterThan(0);
+    {
+        RuleFor(x => x.XCoord).GreaterThan(0);
+    }
 }
 
 sealed class JsonPropertyNameTransformerReviewEndpoint : Endpoint<JsonPropertyNameTransformerReviewRequest, JsonPropertyNameTransformerReviewResponse>
@@ -241,7 +248,9 @@ sealed class CollectionLengthReviewRequest
 sealed class CollectionLengthReviewValidator : Validator<CollectionLengthReviewRequest>
 {
     public CollectionLengthReviewValidator()
-        => RuleFor(x => x.Tags).NotEmpty();
+    {
+        RuleFor(x => x.Tags).NotEmpty();
+    }
 }
 
 sealed class CollectionLengthReviewEndpoint : Endpoint<CollectionLengthReviewRequest, string>
@@ -322,9 +331,11 @@ sealed class GenericXmlDocReviewResponse : GenericXmlDocWrapper<string>;
 /// </summary>
 sealed class InlineMarkupXmlDocReviewRequest
 {
+#pragma warning disable CS1574, CS1584, CS1581, CS1580
     /// <summary>
-    /// filter by <paramref name="UserId"/> value.
+    /// filter by <paramref name="UserId" /> value.
     /// </summary>
+#pragma warning restore CS1574, CS1584, CS1581, CS1580
     public string UserId { get; set; } = string.Empty;
 }
 
@@ -358,6 +369,11 @@ sealed class MissingSchemaPrimitiveResponse
 {
     public Guid CorrelationId { get; set; }
     public DateOnly EffectiveOn { get; set; }
+}
+
+sealed class MissingSchemaEnumResponse
+{
+    public UlongEnumReviewStatus Status { get; set; }
 }
 
 sealed class NoRequestMetadataLeakResponse
@@ -410,6 +426,20 @@ sealed class MissingSchemaPrimitiveEndpoint : EndpointWithoutRequest
         Tags("swagger_review");
         AllowAnonymous();
         Description(b => b.Produces<MissingSchemaPrimitiveResponse>(200, "application/json"));
+    }
+
+    public override Task HandleAsync(CancellationToken ct)
+        => Send.OkAsync(ct);
+}
+
+sealed class MissingSchemaEnumEndpoint : EndpointWithoutRequest
+{
+    public override void Configure()
+    {
+        Get("/swagger-review/missing-schema-enum");
+        Tags("swagger_review");
+        AllowAnonymous();
+        Description(b => b.Produces<MissingSchemaEnumResponse>(200, "application/json"));
     }
 
     public override Task HandleAsync(CancellationToken ct)

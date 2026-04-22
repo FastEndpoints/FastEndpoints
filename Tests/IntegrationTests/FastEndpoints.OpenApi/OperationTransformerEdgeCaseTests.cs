@@ -284,6 +284,18 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     }
 
     [Fact]
+    public async Task missing_schema_generation_runs_schema_transformers()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var doc = JToken.Parse(json);
+        var responseSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewMissingSchemaEnumResponse"]!;
+        var enumSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewUlongEnumReviewStatus"]!;
+
+        responseSchema["properties"]!["status"]!["$ref"]!.Value<string>().ShouldBe("#/components/schemas/TestCasesSwaggerReviewUlongEnumReviewStatus");
+        enumSchema["enum"]![0]!.ToString().ShouldBe("18446744073709551615");
+    }
+
+    [Fact]
     public async Task orphan_constrained_route_param_uses_constraint_type()
     {
         var json = await App.GetDocumentJsonAsync("Release 2.0");

@@ -38,7 +38,7 @@ sealed partial class DocumentTransformer : IOpenApiDocumentTransformer
             throw new ArgumentException("MaxEndpointVersion must be greater than or equal to MinEndpointVersion");
     }
 
-    public Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
+    public async Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
     {
         _opts.Services ??= context.ApplicationServices;
 
@@ -55,7 +55,7 @@ sealed partial class DocumentTransformer : IOpenApiDocumentTransformer
         RemoveHeaderValueSchemas(document);
         document.RemoveFormFileSchemas();
         ApplyPathNamingPolicy(document);
-        NormalizeSchemas(document);
+        await NormalizeSchemas(document, context, cancellationToken);
 
         if (_opts.TagDescriptions is null)
             document.Tags?.Clear();
@@ -64,12 +64,11 @@ sealed partial class DocumentTransformer : IOpenApiDocumentTransformer
         document.SortSchemas();
         document.SortResponses();
 
-        return Task.CompletedTask;
     }
 
-    void NormalizeSchemas(OpenApiDocument document)
+    async Task NormalizeSchemas(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
     {
-        document.AddMissingSchemas(_sharedCtx);
+        await document.AddMissingSchemas(_sharedCtx, context, cancellationToken);
 
         if (_opts.FlattenSchema)
             document.FlattenAllOfSchemas();

@@ -213,6 +213,17 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     }
 
     [Fact]
+    public async Task json_property_name_attributes_are_used_by_to_header_transformer()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var doc = JToken.Parse(json);
+        var responseSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewJsonPropertyNameTransformerReviewResponse"]!;
+
+        responseSchema["properties"]!["x_secret"].ShouldBeNull();
+        responseSchema["properties"]!["bodyValue"].ShouldNotBeNull();
+    }
+
+    [Fact]
     public async Task interface_dictionary_query_parameter_uses_object_schema()
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review");

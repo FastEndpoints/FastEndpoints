@@ -141,7 +141,7 @@ static class OperationSchemaHelpers
 
             foreach (var prop in GetSampleJsonProperties(underlying))
             {
-                var propName = policy?.ConvertName(prop.Name) ?? prop.Name;
+                var propName = PropertyNameResolver.GetSchemaPropertyName(prop, policy);
                 var sample = prop.PropertyType.GetSampleValue(propName);
 
                 if (sample is not null)

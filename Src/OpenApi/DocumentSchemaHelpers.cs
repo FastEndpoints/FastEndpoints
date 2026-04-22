@@ -400,8 +400,7 @@ static class DocumentSchemaHelpers
             if (prop.IsDefined(Types.HideFromDocsAttribute))
                 continue;
 
-            var jsonNameAttr = prop.GetCustomAttribute<JsonPropertyNameAttribute>();
-            var propName = jsonNameAttr?.Name ?? namingPolicy?.ConvertName(prop.Name) ?? prop.Name;
+            var propName = PropertyNameResolver.GetSchemaPropertyName(prop, namingPolicy);
             var propSchema = GetJsonSchemaForType(prop.PropertyType, extraSchemas);
 
             if (propSchema is OpenApiSchema concrete)

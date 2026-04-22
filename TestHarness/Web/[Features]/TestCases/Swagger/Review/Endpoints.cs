@@ -1,6 +1,7 @@
 using FluentValidation;
 using FastEndpoints.OpenApi;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace TestCases.Swagger.Review;
 
@@ -190,6 +191,46 @@ sealed class DeepNestedValidatorReviewEndpoint : Endpoint<DeepNestedValidatorRev
 
     public override Task HandleAsync(DeepNestedValidatorReviewRequest req, CancellationToken ct)
         => Send.OkAsync(req.Child.SubChild.Field, ct);
+}
+
+sealed class JsonPropertyNameTransformerReviewRequest
+{
+    [JsonPropertyName("x_coord")]
+    public int XCoord { get; set; }
+}
+
+sealed class JsonPropertyNameTransformerReviewResponse
+{
+    [JsonPropertyName("x_secret")]
+    [ToHeader("x-secret")]
+    public string Secret { get; set; } = string.Empty;
+
+    public string BodyValue { get; set; } = string.Empty;
+}
+
+sealed class JsonPropertyNameTransformerReviewValidator : Validator<JsonPropertyNameTransformerReviewRequest>
+{
+    public JsonPropertyNameTransformerReviewValidator()
+        => RuleFor(x => x.XCoord).GreaterThan(0);
+}
+
+sealed class JsonPropertyNameTransformerReviewEndpoint : Endpoint<JsonPropertyNameTransformerReviewRequest, JsonPropertyNameTransformerReviewResponse>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/json-property-name-transformers");
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(JsonPropertyNameTransformerReviewRequest req, CancellationToken ct)
+        => Send.OkAsync(
+            new()
+            {
+                Secret = req.XCoord.ToString(),
+                BodyValue = "ok"
+            },
+            ct);
 }
 
 sealed class InterfaceDictionaryReviewRequest

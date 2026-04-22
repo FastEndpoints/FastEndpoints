@@ -98,7 +98,7 @@ sealed class ValidationSchemaTransformer : IOpenApiSchemaTransformer
                         IServiceProvider services,
                         HashSet<Type> activeChildValidators)
     {
-        var rulesDict = validator.GetDictionaryOfRules();
+        var rulesDict = validator.GetDictionaryOfRules(GetValidatorTargetType(validator));
         ApplyRulesToSchema(schema, rulesDict, propertyPrefix, services, activeChildValidators);
         ApplyRulesFromIncludedValidators(schema, validator, services, activeChildValidators);
     }
@@ -171,7 +171,7 @@ sealed class ValidationSchemaTransformer : IOpenApiSchemaTransformer
             if (adapterMethod.Invoke(adapter, [validationContext, null!]) is not IValidator includeValidator)
                 break;
 
-            ApplyRulesToSchema(schema, includeValidator.GetDictionaryOfRules(), string.Empty, services, activeChildValidators);
+            ApplyRulesToSchema(schema, includeValidator.GetDictionaryOfRules(GetValidatorTargetType(includeValidator)), string.Empty, services, activeChildValidators);
             ApplyRulesFromIncludedValidators(schema, includeValidator, services, activeChildValidators);
         }
     }
@@ -277,7 +277,6 @@ sealed class ValidationSchemaTransformer : IOpenApiSchemaTransformer
     static Dictionary<Type, ValidatorBinding[]> BuildValidatorBindings(EndpointData endpointData)
     {
         var bindings = new Dictionary<Type, List<ValidatorBinding>>();
-        var namingPolicy = Extensions.NamingPolicy;
 
         foreach (var validatorType in endpointData.Found
                                                 .Where(e => e.ValidatorType != null)
@@ -299,7 +298,7 @@ sealed class ValidationSchemaTransformer : IOpenApiSchemaTransformer
                 if (!SupportsNestedPropertyTarget(prop.PropertyType))
                     continue;
 
-                var prefix = namingPolicy?.ConvertName(prop.Name) ?? prop.Name;
+                var prefix = PropertyNameResolver.GetSchemaPropertyName(prop);
                 AddBinding(prop.PropertyType, validatorType, prefix + ".");
             }
         }
@@ -325,6 +324,9 @@ sealed class ValidationSchemaTransformer : IOpenApiSchemaTransformer
         type = Nullable.GetUnderlyingType(type) ?? type;
         return _propertyCache.GetOrAdd(type, static t => t.GetProperties(PublicInstance));
     }
+
+    static Type GetValidatorTargetType(IValidator validator)
+        => validator.GetType().GetGenericArgumentsOfType(Types.ValidatorOf1)?[0] ?? validator.GetType();
 
     static bool SupportsNestedPropertyWalk(Type type)
     {

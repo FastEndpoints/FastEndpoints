@@ -25,7 +25,7 @@ sealed class ToHeaderPropertySchemaTransformer : IOpenApiSchemaTransformer
             if (!prop.IsDefined(typeof(ToHeaderAttribute), true))
                 continue;
 
-            var jsonName = namingPolicy?.ConvertName(prop.Name) ?? prop.Name;
+            var jsonName = PropertyNameResolver.GetSchemaPropertyName(prop, namingPolicy);
 
             schema.Properties.Remove(jsonName);
             schema.Required?.Remove(jsonName);

@@ -736,7 +736,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
     }
 
     static Type? GetRequestDtoType(EndpointDefinition epDef)
-        => epDef.EndpointType.BaseType?.GetGenericArguments().FirstOrDefault();
+        => epDef.ReqDtoType;
 
     static bool HasParameter(OpenApiOperation operation, ParameterLocation location, string name)
         => operation.Parameters?.Any(

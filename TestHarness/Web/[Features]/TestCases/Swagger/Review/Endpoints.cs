@@ -289,6 +289,27 @@ sealed class MissingSchemaPrimitiveResponse
     public DateOnly EffectiveOn { get; set; }
 }
 
+sealed class NoRequestMetadataLeakResponse
+{
+    /// <summary>
+    /// response leak id
+    /// </summary>
+    public string LeakId { get; set; } = string.Empty;
+}
+
+sealed class NoRequestMetadataLeakEndpoint : EndpointWithoutRequest<NoRequestMetadataLeakResponse>
+{
+    public override void Configure()
+    {
+        Get("/swagger-review/no-request-metadata-leak/{leakId}");
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(CancellationToken ct)
+        => Send.OkAsync(new() { LeakId = Route<string>("leakId")! }, ct);
+}
+
 sealed class MissingSchemaPrimitiveEndpoint : EndpointWithoutRequest
 {
     public override void Configure()

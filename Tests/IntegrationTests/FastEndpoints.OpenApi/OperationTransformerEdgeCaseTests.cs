@@ -275,6 +275,16 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     }
 
     [Fact]
+    public async Task endpoint_without_request_does_not_use_response_metadata_for_request_parameters()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var operation = JToken.Parse(json)["paths"]!["/api/swagger-review/no-request-metadata-leak/{leakId}"]!["get"]!;
+        var leakId = operation["parameters"]!.First(p => p["name"]!.Value<string>() == "leakId");
+
+        leakId["description"].ShouldBeNull();
+    }
+
+    [Fact]
     public async Task multi_route_endpoint_uses_path_parameters_from_matching_route_only()
     {
         var json = await App.GetDocumentJsonAsync("Initial Release");

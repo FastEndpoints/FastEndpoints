@@ -79,25 +79,54 @@ sealed partial class DocumentTransformer : IOpenApiDocumentTransformer
 
     void ApplyVersionFiltering(OpenApiDocument document)
     {
-        var operationsByBareRoute = _sharedCtx.Operations.Values
-                                              .Where(op => op.IsFastEndpoint)
-                                              .GroupBy(op => op.OperationKey)
-                                              .ToList();
+        var operationsByBareRoute = new Dictionary<string, List<OperationMeta>>(StringComparer.Ordinal);
 
         var opsToKeep = new HashSet<(string Path, string Method)>();
         var opsToDeprecate = new HashSet<(string Path, string Method)>();
 
-        foreach (var group in operationsByBareRoute)
+        foreach (var op in _sharedCtx.Operations.Values)
         {
-            var sortedGroup = group.OrderByDescending(x => x.Version).ToList();
-            var latestVersion = sortedGroup.FirstOrDefault(x => x.StartingReleaseVersion <= _docRelVer)?.Version ?? 0;
-
-            var taken = (_showDeprecated
-                             ? sortedGroup.Where(IsInRequestedRange)
-                             : sortedGroup.Where(IsInRequestedRange).Take(1)).ToList();
-
-            foreach (var op in taken)
+            if (!op.IsFastEndpoint)
             {
+                opsToKeep.Add((op.DocumentPath, op.HttpMethod));
+
+                continue;
+            }
+
+            if (!operationsByBareRoute.TryGetValue(op.OperationKey, out var operations))
+            {
+                operations = [];
+                operationsByBareRoute[op.OperationKey] = operations;
+            }
+
+            operations.Add(op);
+        }
+
+        foreach (var group in operationsByBareRoute.Values)
+        {
+            group.Sort(static (x, y) => y.Version.CompareTo(x.Version));
+
+            var latestVersion = 0;
+
+            for (var i = 0; i < group.Count; i++)
+            {
+                var candidate = group[i];
+
+                if (candidate.StartingReleaseVersion > _docRelVer)
+                    continue;
+
+                latestVersion = candidate.Version;
+
+                break;
+            }
+
+            for (var i = 0; i < group.Count; i++)
+            {
+                var op = group[i];
+
+                if (!IsInRequestedRange(op))
+                    continue;
+
                 var isDeprecated = IsDeprecated(op, latestVersion);
 
                 if (isDeprecated && !_showDeprecated)
@@ -107,12 +136,11 @@ sealed partial class DocumentTransformer : IOpenApiDocumentTransformer
 
                 if (isDeprecated && _showDeprecated)
                     opsToDeprecate.Add((op.DocumentPath, op.HttpMethod));
+
+                if (!_showDeprecated)
+                    break;
             }
         }
-
-        // non-FastEndpoint operations aren't version-filtered - keep them unconditionally
-        foreach (var op in _sharedCtx.Operations.Values.Where(op => !op.IsFastEndpoint))
-            opsToKeep.Add((op.DocumentPath, op.HttpMethod));
 
         foreach (var path in document.Paths.Keys.ToArray())
         {

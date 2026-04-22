@@ -186,9 +186,27 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
     void ApplyAutoTag(OpenApiOperation operation, EndpointDefinition epDef, string bareRoute, IList<object> metadata)
     {
         // collect the tag values that came from explicit .WithTags(...) metadata so we never drop them
-        var explicitTags = metadata.OfType<ITagsMetadata>()
-                                   .SelectMany(t => t.Tags)
-                                   .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        HashSet<string>? explicitTags = null;
+        string? overrideVal = null;
+
+        for (var i = 0; i < metadata.Count; i++)
+        {
+            switch (metadata[i])
+            {
+                case ITagsMetadata tagsMetadata:
+                {
+                    explicitTags ??= new(StringComparer.OrdinalIgnoreCase);
+
+                    foreach (var tagName in tagsMetadata.Tags)
+                        explicitTags.Add(tagName);
+
+                    break;
+                }
+                case AutoTagOverride autoTagOverride:
+                    overrideVal = autoTagOverride.TagName;
+                    break;
+            }
+        }
 
         // always strip framework-generated tags (controller/assembly name) that weren't set via WithTags,
         // regardless of whether auto-tagging is enabled. old NSwag integration never emitted them and
@@ -197,7 +215,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
         {
             foreach (var t in operation.Tags.ToArray())
             {
-                if (t.Name is null || !explicitTags.Contains(t.Name))
+                if (t.Name is null || explicitTags?.Contains(t.Name) is not true)
                     operation.Tags.Remove(t);
             }
         }
@@ -205,7 +223,6 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
         if (docOpts.AutoTagPathSegmentIndex <= 0 || epDef.DontAutoTagEndpoints)
             return;
 
-        var overrideVal = metadata.OfType<AutoTagOverride>().SingleOrDefault()?.TagName;
         string? tag = null;
 
         if (overrideVal is not null)
@@ -232,7 +249,10 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
         var propsRemovedFromBody = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var endpointRouteTemplate = FindEndpointRouteTemplate(epDef, documentPath);
         var routeParameters = GetRouteParameters(endpointRouteTemplate ?? context.Description.RelativePath ?? documentPath);
-        var routeParamNames = routeParameters.Select(p => p.Name).ToList();
+        var routeParamNames = new List<string>(routeParameters.Count);
+
+        for (var i = 0; i < routeParameters.Count; i++)
+            routeParamNames.Add(routeParameters[i].Name);
 
         var requestDtoType = context.Description.ParameterDescriptions.FirstOrDefault()?.Type;
 
@@ -247,22 +267,24 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
             if (requestDtoProps is not null)
             {
                 // remove hidden properties
-                var propsToRemove = requestDtoProps
-                                    .Where(
-                                        p => p.GetCustomAttribute<JsonIgnoreAttribute>()?.Condition == JsonIgnoreCondition.Always ||
-                                             p.IsDefined(Types.HideFromDocsAttribute) ||
-                                             p.GetSetMethod()?.IsPublic is not true)
-                                    .ToArray();
-
-                foreach (var p in propsToRemove)
+                for (var i = requestDtoProps.Count - 1; i >= 0; i--)
                 {
-                    requestDtoProps.Remove(p);
+                    var p = requestDtoProps[i];
+
+                    if (p.GetCustomAttribute<JsonIgnoreAttribute>()?.Condition != JsonIgnoreCondition.Always &&
+                        !p.IsDefined(Types.HideFromDocsAttribute) &&
+                        p.GetSetMethod()?.IsPublic is true)
+                        continue;
+
+                    requestDtoProps.RemoveAt(i);
                     operation.RemovePropFromRequestBody(p.Name, propsRemovedFromBody);
                 }
 
                 // handle attribute-based parameters
-                foreach (var p in requestDtoProps.ToArray())
+                for (var i = 0; i < requestDtoProps.Count; i++)
                 {
+                    var p = requestDtoProps[i];
+
                     foreach (var attribute in p.GetCustomAttributes())
                     {
                         switch (attribute)
@@ -271,7 +293,19 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
                             {
                                 var pName = hAttrib.HeaderName ?? p.Name.ApplyPropNamingPolicy(docOpts);
 
-                                if (_illegalHeaderNames.Any(n => n.Equals(pName, StringComparison.OrdinalIgnoreCase)))
+                                var isIllegalHeaderName = false;
+
+                                for (var j = 0; j < _illegalHeaderNames.Length; j++)
+                                {
+                                    if (!_illegalHeaderNames[j].Equals(pName, StringComparison.OrdinalIgnoreCase))
+                                        continue;
+
+                                    isIllegalHeaderName = true;
+
+                                    break;
+                                }
+
+                                if (isIllegalHeaderName)
                                 {
                                     operation.RemovePropFromRequestBody(p.Name, propsRemovedFromBody);
 
@@ -1150,9 +1184,23 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
                                           SharedContext sharedCtx,
                                           string operationKey)
     {
-        var authorizeAttributes = metadata.OfType<AuthorizeAttribute>().ToList();
+        var authorizeAttributes = new List<AuthorizeAttribute>();
+        var hasAllowAnonymous = false;
 
-        if (IsAnonymousOperation(metadata, authorizeAttributes))
+        for (var i = 0; i < metadata.Count; i++)
+        {
+            switch (metadata[i])
+            {
+                case AllowAnonymousAttribute:
+                    hasAllowAnonymous = true;
+                    break;
+                case AuthorizeAttribute authorizeAttribute:
+                    authorizeAttributes.Add(authorizeAttribute);
+                    break;
+            }
+        }
+
+        if (hasAllowAnonymous || authorizeAttributes.Count == 0)
         {
             operation.Security?.Clear();
 
@@ -1165,9 +1213,6 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
         if (securityEntries.Count > 0)
             sharedCtx.SecurityRequirements[operationKey] = securityEntries;
     }
-
-    static bool IsAnonymousOperation(IList<object> metadata, List<AuthorizeAttribute> authorizeAttributes)
-        => metadata.OfType<AllowAnonymousAttribute>().Any() || authorizeAttributes.Count == 0;
 
     static List<(string SchemeName, List<string> Scopes)> BuildSecurityEntries(EndpointDefinition epDef,
                                                                                 DocumentOptions docOpts,
@@ -1189,10 +1234,20 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
     }
 
     static IEnumerable<string> BuildScopes(IEnumerable<AuthorizeAttribute> authorizeAttributes)
-        => authorizeAttributes
-           .Where(a => a.Roles != null)
-           .SelectMany(a => a.Roles!.Split(','))
-           .Distinct();
+    {
+        var scopes = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var authorizeAttribute in authorizeAttributes)
+        {
+            if (authorizeAttribute.Roles is not { Length: > 0 } roles)
+                continue;
+
+            foreach (var role in roles.Split(','))
+                scopes.Add(role);
+        }
+
+        return scopes;
+    }
 
     static string StripRouteConstraints(string relativePath)
     {
@@ -1230,15 +1285,21 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
 
     static List<RouteParameterInfo> GetRouteParameters(string? relativePath)
     {
-        return RouteParamsRegex()
-              .Matches(relativePath ?? string.Empty)
-              .Select(
-                  m => new RouteParameterInfo
-                  {
-                      Name = GetRouteParameterName(m.Value),
-                      ConstraintType = m.Value.TryResolveRouteConstraintType()
-                  })
-              .ToList();
+        var matches = RouteParamsRegex().Matches(relativePath ?? string.Empty);
+        var parameters = new List<RouteParameterInfo>(matches.Count);
+
+        for (var i = 0; i < matches.Count; i++)
+        {
+            var segment = matches[i].Value;
+            parameters.Add(
+                new()
+                {
+                    Name = GetRouteParameterName(segment),
+                    ConstraintType = segment.TryResolveRouteConstraintType()
+                });
+        }
+
+        return parameters;
 
         static string GetRouteParameterName(string segment)
         {

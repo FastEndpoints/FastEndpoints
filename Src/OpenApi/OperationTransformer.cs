@@ -95,9 +95,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
             return Task.CompletedTask;
 
         // store version metadata for document transformer
-        var version = $"/{GlobalConfig.VersioningPrefix ?? "v"}{epDef.Version.Current}";
-        var routePrefix = "/" + (GlobalConfig.EndpointRoutePrefix ?? "_");
-        var bareRoute = documentPath.Remove(routePrefix).Remove(version);
+        var bareRoute = BuildBareRoute(documentPath, GlobalConfig.EndpointRoutePrefix, epDef.Version.Current);
         var bareKey = $"{httpMethod}:{bareRoute}";
 
         sharedCtx.Operations[operationKey] = new()
@@ -1255,6 +1253,34 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
             return relativePath;
 
         return RouteConstraintsRegex().Replace(relativePath, "$1");
+    }
+
+    static string BuildBareRoute(string documentPath, string? routePrefix, int endpointVersion)
+    {
+        var segments = documentPath.Split('/', StringSplitOptions.RemoveEmptyEntries).ToList();
+
+        if (!string.IsNullOrWhiteSpace(routePrefix))
+        {
+            var prefixSegments = routePrefix.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            var hasPrefix = segments.Count >= prefixSegments.Length;
+
+            for (var i = 0; hasPrefix && i < prefixSegments.Length; i++)
+                hasPrefix = string.Equals(segments[i], prefixSegments[i], StringComparison.Ordinal);
+
+            if (hasPrefix)
+                segments.RemoveRange(0, prefixSegments.Length);
+        }
+
+        if (endpointVersion > 0)
+        {
+            var versionSegment = $"{GlobalConfig.VersioningPrefix ?? "v"}{endpointVersion}";
+            var versionIndex = segments.IndexOf(versionSegment);
+
+            if (versionIndex >= 0)
+                segments.RemoveAt(versionIndex);
+        }
+
+        return "/" + string.Join('/', segments);
     }
 
     static string? FindEndpointRouteTemplate(EndpointDefinition epDef, string documentPath)

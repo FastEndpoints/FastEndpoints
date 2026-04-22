@@ -105,6 +105,20 @@ sealed class SharedPathFastEndpoint : EndpointWithoutRequest<string>
         => Send.OkAsync("fast-endpoint-post", ct);
 }
 
+sealed class BareRouteSubstringReviewEndpoint : EndpointWithoutRequest<string>
+{
+    public override void Configure()
+    {
+        Get("/apiary/ver0/status");
+        RoutePrefixOverride(string.Empty);
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(CancellationToken ct)
+        => Send.OkAsync("ok", ct);
+}
+
 sealed class IdempotencyAnonymousExampleEndpoint : EndpointWithoutRequest<string>
 {
     public override void Configure()

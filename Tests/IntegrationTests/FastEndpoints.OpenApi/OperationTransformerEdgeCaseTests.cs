@@ -61,6 +61,17 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     }
 
     [Fact]
+    public async Task bare_route_stripping_only_removes_structural_segments()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var tags = JToken.Parse(json)["paths"]!["/apiary/ver0/status"]!["get"]!["tags"]!
+                         .Values<string>()
+                         .ToArray();
+
+        tags.ShouldBe(["Apiary"]);
+    }
+
+    [Fact]
     public async Task empty_request_schemas_are_removed_when_option_is_enabled()
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review Empty Schema");

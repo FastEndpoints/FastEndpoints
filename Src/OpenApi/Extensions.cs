@@ -204,13 +204,6 @@ public static class Extensions
         Environment.Exit(0);
     }
 
-    internal static string Remove(this string value, string removeString)
-    {
-        var index = value.IndexOf(removeString, StringComparison.Ordinal);
-
-        return index < 0 ? value : value.Remove(index, removeString.Length);
-    }
-
     static async Task<string> ExportOpenApiDocument(WebApplication app, string documentName, string destinationPath, CancellationToken ct)
     {
         var documentKey = documentName.ToLowerInvariant();

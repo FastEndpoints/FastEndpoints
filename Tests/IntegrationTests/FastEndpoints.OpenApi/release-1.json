@@ -1017,6 +1017,26 @@
         ]
       }
     },
+    "/api/filtered-shared-path": {
+      "post": {
+        "tags": [
+          "FilteredSharedPath"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewSharedPathFastEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/inventory/get-product/{productID}": {
       "get": {
         "tags": [
@@ -1496,6 +1516,597 @@
               "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/FastEndpointsErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/auto-tag-override": {
+      "get": {
+        "tags": [
+          "ReviewTag"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewAutoTagOverrideEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/child-validator": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewChildValidatorReviewEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSwaggerReviewChildValidatorReviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/collection-length": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewCollectionLengthReviewEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSwaggerReviewCollectionLengthReviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/deep-nested-validator": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewDeepNestedValidatorReviewEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSwaggerReviewDeepNestedValidatorReviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/default-route-value/{id}": {
+      "get": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewDefaultRouteValueReviewEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "route param summary",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/duplicate-examples": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewDuplicateRequestExamplesEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSwaggerReviewDuplicateRequestExamplesRequest"
+              },
+              "examples": {
+                "Example 1": {
+                  "value": {
+                    "name": "first"
+                  }
+                },
+                "Example 2": {
+                  "value": {
+                    "name": "second"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/empty-schema-cleanup": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewEmptySchemaCleanupEndpoint",
+        "parameters": [
+          {
+            "name": "x-review-header",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/generic-xml-doc": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewGenericXmlDocReviewEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSwaggerReviewGenericXmlDocReviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesSwaggerReviewGenericXmlDocReviewResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/idempotency-anonymous-example": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewIdempotencyAnonymousExampleEndpoint",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "custom idempotency header",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "scope": {
+                  "type": "string"
+                }
+              }
+            },
+            "example": {
+              "key": "demo-key",
+              "scope": "tenant-a"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/illegal-headers": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewIllegalHeadersEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSwaggerReviewIllegalHeadersRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/inline-markup-xml-doc": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewInlineMarkupXmlDocReviewEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSwaggerReviewInlineMarkupXmlDocReviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/interface-dictionary": {
+      "get": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewInterfaceDictionaryReviewEndpoint",
+        "parameters": [
+          {
+            "name": "metadata",
+            "in": "query",
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/intermediate-base-validator": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewIntermediateBaseValidatorReviewEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSwaggerReviewIntermediateBaseValidatorReviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/json-property-name-transformers": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewJsonPropertyNameTransformerReviewEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSwaggerReviewJsonPropertyNameTransformerReviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "x-secret": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": ""
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesSwaggerReviewJsonPropertyNameTransformerReviewResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/missing-schema-enum": {
+      "get": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewMissingSchemaEnumEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesSwaggerReviewMissingSchemaEnumResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/missing-schema-primitives": {
+      "get": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewMissingSchemaPrimitiveEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesSwaggerReviewMissingSchemaPrimitiveResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/no-request-metadata-leak/{leakId}": {
+      "get": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewNoRequestMetadataLeakEndpoint",
+        "parameters": [
+          {
+            "name": "leakId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesSwaggerReviewNoRequestMetadataLeakResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/ulong-enum": {
+      "get": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewUlongEnumReviewEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesSwaggerReviewUlongEnumReviewResponse"
                 }
               }
             }
@@ -5039,6 +5650,26 @@
         ]
       }
     },
+    "/apiary/ver0/status": {
+      "get": {
+        "tags": [
+          "Apiary"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewBareRouteSubstringReviewEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/filtered-shared-path": {
       "get": {
         "tags": [
@@ -5880,6 +6511,10 @@
         "items": {
           "type": "string"
         }
+      },
+      "SystemDateOnly": {
+        "type": "string",
+        "format": "date"
       },
       "SystemDayOfWeek": {
         "enum": [
@@ -7118,6 +7753,204 @@
           }
         },
         "additionalProperties": false
+      },
+      "TestCasesSwaggerReviewChildValidatorReviewChild": {
+        "type": "object",
+        "properties": {
+          "score": {
+            "exclusiveMinimum": 10,
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TestCasesSwaggerReviewChildValidatorReviewRequest": {
+        "type": "object",
+        "properties": {
+          "child": {
+            "$ref": "#/components/schemas/TestCasesSwaggerReviewChildValidatorReviewChild"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TestCasesSwaggerReviewCollectionLengthReviewRequest": {
+        "required": [
+          "tags"
+        ],
+        "type": "object",
+        "properties": {
+          "tags": {
+            "$ref": "#/components/schemas/SystemString[]"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TestCasesSwaggerReviewDeepNestedValidatorReviewChild": {
+        "type": "object",
+        "properties": {
+          "subChild": {
+            "$ref": "#/components/schemas/TestCasesSwaggerReviewDeepNestedValidatorReviewGrandChild"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TestCasesSwaggerReviewDeepNestedValidatorReviewGrandChild": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "minLength": 5,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TestCasesSwaggerReviewDeepNestedValidatorReviewRequest": {
+        "type": "object",
+        "properties": {
+          "child": {
+            "$ref": "#/components/schemas/TestCasesSwaggerReviewDeepNestedValidatorReviewChild"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TestCasesSwaggerReviewDuplicateRequestExamplesRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "first"
+          }
+        },
+        "additionalProperties": false,
+        "example": {
+          "name": "first"
+        }
+      },
+      "TestCasesSwaggerReviewGenericXmlDocReviewRequest": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "wrapped value summary",
+            "example": "wrapped example"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TestCasesSwaggerReviewGenericXmlDocReviewResponse": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "wrapped value summary",
+            "example": "wrapped example"
+          }
+        },
+        "additionalProperties": false,
+        "description": "generic review response summary"
+      },
+      "TestCasesSwaggerReviewIllegalHeadersRequest": {
+        "type": "object",
+        "properties": {
+          "bodyValue": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TestCasesSwaggerReviewInlineMarkupXmlDocReviewRequest": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "description": "filter by UserId value."
+          }
+        },
+        "additionalProperties": false,
+        "description": "returns the User record."
+      },
+      "TestCasesSwaggerReviewIntermediateBaseValidatorReviewRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "minLength": 3,
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TestCasesSwaggerReviewJsonPropertyNameTransformerReviewRequest": {
+        "type": "object",
+        "properties": {
+          "x_coord": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TestCasesSwaggerReviewJsonPropertyNameTransformerReviewResponse": {
+        "type": "object",
+        "properties": {
+          "bodyValue": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TestCasesSwaggerReviewMissingSchemaEnumResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/TestCasesSwaggerReviewUlongEnumReviewStatus"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TestCasesSwaggerReviewMissingSchemaPrimitiveResponse": {
+        "type": "object",
+        "properties": {
+          "correlationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "effectiveOn": {
+            "$ref": "#/components/schemas/SystemDateOnly"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TestCasesSwaggerReviewNoRequestMetadataLeakResponse": {
+        "type": "object",
+        "properties": {
+          "leakId": {
+            "type": "string",
+            "description": "response leak id"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TestCasesSwaggerReviewUlongEnumReviewResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/TestCasesSwaggerReviewUlongEnumReviewStatus"
+          }
+        },
+        "additionalProperties": false
+      },
+      "TestCasesSwaggerReviewUlongEnumReviewStatus": {
+        "enum": [
+          18446744073709551615
+        ],
+        "type": "integer"
       },
       "TestCasesTypedHeaderBindingTestMyRequest": {
         "type": "object",

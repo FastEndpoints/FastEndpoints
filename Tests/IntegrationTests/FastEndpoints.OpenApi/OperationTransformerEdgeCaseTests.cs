@@ -285,6 +285,16 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     }
 
     [Fact]
+    public async Task inline_default_route_values_are_removed_from_openapi_paths_and_parameter_names()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var operation = JToken.Parse(json)["paths"]!["/api/swagger-review/default-route-value/{id}"]!["get"]!;
+        var id = operation["parameters"]!.First(p => p["name"]!.Value<string>() == "id");
+
+        id["description"]!.Value<string>().ShouldBe("route param summary");
+    }
+
+    [Fact]
     public async Task multi_route_endpoint_uses_path_parameters_from_matching_route_only()
     {
         var json = await App.GetDocumentJsonAsync("Initial Release");

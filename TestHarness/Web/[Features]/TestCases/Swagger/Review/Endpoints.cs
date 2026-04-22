@@ -310,6 +310,27 @@ sealed class NoRequestMetadataLeakEndpoint : EndpointWithoutRequest<NoRequestMet
         => Send.OkAsync(new() { LeakId = Route<string>("leakId")! }, ct);
 }
 
+sealed class DefaultRouteValueReviewRequest
+{
+    /// <summary>
+    /// route param summary
+    /// </summary>
+    public string Id { get; set; } = string.Empty;
+}
+
+sealed class DefaultRouteValueReviewEndpoint : Endpoint<DefaultRouteValueReviewRequest, string>
+{
+    public override void Configure()
+    {
+        Get("/swagger-review/default-route-value/{id=5}");
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(DefaultRouteValueReviewRequest req, CancellationToken ct)
+        => Send.OkAsync(req.Id, ct);
+}
+
 sealed class MissingSchemaPrimitiveEndpoint : EndpointWithoutRequest
 {
     public override void Configure()

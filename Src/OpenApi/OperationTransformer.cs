@@ -31,7 +31,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
     [GeneratedRegex(@"(?<=\{)[^}]+(?=\})")]
     private static partial Regex RouteParamsRegex();
 
-    [GeneratedRegex("(?<={)([^?:}]+)[^}]*(?=})")]
+    [GeneratedRegex("(?<={)([^?:=}]+)[^}]*(?=})")]
     private static partial Regex RouteConstraintsRegex();
 
     sealed class RouteParameterInfo
@@ -1243,7 +1243,11 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
         static string GetRouteParameterName(string segment)
         {
             var colonIdx = segment.IndexOf(':');
-            var name = colonIdx >= 0 ? segment[..colonIdx] : segment;
+            var equalsIdx = segment.IndexOf('=');
+            var splitIdx = colonIdx >= 0 && equalsIdx >= 0
+                               ? Math.Min(colonIdx, equalsIdx)
+                               : Math.Max(colonIdx, equalsIdx);
+            var name = splitIdx >= 0 ? segment[..splitIdx] : segment;
             return name.TrimStart('*').TrimEnd('?');
         }
     }

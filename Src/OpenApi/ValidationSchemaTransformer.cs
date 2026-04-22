@@ -242,7 +242,9 @@ sealed class ValidationSchemaTransformer : IOpenApiSchemaTransformer
                         if (childSchema is not null)
                         {
                             // check if array (RuleForEach)
-                            if (childSchema.Type == JsonSchemaType.Array && childSchema.Items.ResolveSchema() is { } itemsSchema)
+                            if (childSchema.Type.HasValue &&
+                                childSchema.Type.Value.HasFlag(JsonSchemaType.Array) &&
+                                childSchema.Items.ResolveSchema() is { } itemsSchema)
                                 ApplyValidator(itemsSchema, childValidator, string.Empty, services, activeChildValidators);
                             else
                                 ApplyValidator(childSchema, childValidator, string.Empty, services, activeChildValidators);

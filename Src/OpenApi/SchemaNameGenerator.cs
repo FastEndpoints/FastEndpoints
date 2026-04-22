@@ -85,7 +85,7 @@ static class SchemaNameGenerator
         {
             var index = fullNameWithoutGenericArgs.LastIndexOf('.');
             index = index == -1 ? 0 : index + 1;
-            var shortName = fullNameWithoutGenericArgs[index..];
+            var shortName = fullNameWithoutGenericArgs[index..].Replace("+", "_");
 
             return isGeneric
                        ? shortName + GenericArgString(type)

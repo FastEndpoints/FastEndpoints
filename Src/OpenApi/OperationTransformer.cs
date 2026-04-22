@@ -1574,8 +1574,17 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
                     actualSchema.OneOf is not { Count: > 0 })
                     continue;
 
-                // copy oneOf entries from the referenced schema to the response schema level
-                mediaType.Schema = new OpenApiSchema { OneOf = [..actualSchema.OneOf] };
+                // preserve existing schema metadata and only surface oneOf at the response schema level
+                if (mediaType.Schema.OneOf is { Count: > 0 })
+                    continue;
+
+                if (mediaType.Schema is not OpenApiSchema responseSchema)
+                    continue;
+
+                responseSchema.OneOf ??= [];
+
+                foreach (var schemaOption in actualSchema.OneOf)
+                    responseSchema.OneOf.Add(schemaOption);
             }
         }
     }

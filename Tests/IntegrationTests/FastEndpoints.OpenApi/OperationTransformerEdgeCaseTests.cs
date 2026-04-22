@@ -42,6 +42,15 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     }
 
     [Fact]
+    public async Task ulong_enum_schema_keeps_values_above_long_max()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var enumValue = JToken.Parse(json)["components"]!["schemas"]!["TestCasesSwaggerReviewUlongEnumReviewStatus"]!["enum"]![0]!;
+
+        enumValue.ToString().ShouldBe("18446744073709551615");
+    }
+
+    [Fact]
     public async Task filtered_operation_does_not_remove_other_methods_on_same_path()
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review");

@@ -262,6 +262,29 @@ sealed class InterfaceDictionaryReviewRequest
     public IDictionary<string, string> Metadata { get; set; } = new Dictionary<string, string>();
 }
 
+enum UlongEnumReviewStatus : ulong
+{
+    Max = ulong.MaxValue
+}
+
+sealed class UlongEnumReviewResponse
+{
+    public UlongEnumReviewStatus Status { get; set; }
+}
+
+sealed class UlongEnumReviewEndpoint : EndpointWithoutRequest<UlongEnumReviewResponse>
+{
+    public override void Configure()
+    {
+        Get("/swagger-review/ulong-enum");
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(CancellationToken ct)
+        => Send.OkAsync(new() { Status = UlongEnumReviewStatus.Max }, ct);
+}
+
 sealed class InterfaceDictionaryReviewEndpoint : Endpoint<InterfaceDictionaryReviewRequest, string>
 {
     public override void Configure()

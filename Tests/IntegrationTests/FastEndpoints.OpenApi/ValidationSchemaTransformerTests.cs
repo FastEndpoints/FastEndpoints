@@ -44,4 +44,5 @@ public class ValidationSchemaTransformerTests
         public JsonPropertyNameRulePathValidator()
             => RuleFor(x => x.PointData.XCoord).GreaterThan(0);
     }
+
 }

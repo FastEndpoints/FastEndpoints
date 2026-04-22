@@ -285,7 +285,7 @@ sealed class ValidationSchemaTransformer : IOpenApiSchemaTransformer
                                                 .Select(e => e.ValidatorType!)
                                                 .Distinct())
         {
-            var validatorTargetType = validatorType.BaseType?.GenericTypeArguments.FirstOrDefault();
+            var validatorTargetType = validatorType.GetGenericArgumentsOfType(Types.ValidatorOf1)?[0];
 
             if (validatorTargetType is null)
                 continue;

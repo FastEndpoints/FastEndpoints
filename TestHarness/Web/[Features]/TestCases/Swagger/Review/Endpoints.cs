@@ -245,6 +245,34 @@ sealed class CollectionLengthReviewRequest
     public string[] Tags { get; set; } = [];
 }
 
+sealed class IntermediateBaseValidatorReviewRequest
+{
+    public string Name { get; set; } = string.Empty;
+}
+
+abstract class IntermediateBaseValidatorReviewValidatorBase : Validator<IntermediateBaseValidatorReviewRequest>;
+
+sealed class IntermediateBaseValidatorReviewValidator : IntermediateBaseValidatorReviewValidatorBase
+{
+    public IntermediateBaseValidatorReviewValidator()
+    {
+        RuleFor(x => x.Name).MinimumLength(3);
+    }
+}
+
+sealed class IntermediateBaseValidatorReviewEndpoint : Endpoint<IntermediateBaseValidatorReviewRequest, string>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/intermediate-base-validator");
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(IntermediateBaseValidatorReviewRequest req, CancellationToken ct)
+        => Send.OkAsync(req.Name, ct);
+}
+
 sealed class CollectionLengthReviewValidator : Validator<CollectionLengthReviewRequest>
 {
     public CollectionLengthReviewValidator()

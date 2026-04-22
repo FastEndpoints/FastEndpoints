@@ -14,7 +14,7 @@ Due to low financial backing by the community, FastEndpoints will soon be going 
 
 Starting with `v8.2`, the FastEndpoints ecosystem has switched from `NSwag/Newtonsoft` based Swagger/OpenAPI document generation to the more modern and Native AOT friendly `Microsoft.AspNetCore.OpenApi` based document generation library. Integration is provided via our own `FastEndpoints.OpenApi` package which corrects a few issues with the MS package as well as doing a lot of post-processing on the document model to bring feature parity with the `FastEndpoints.Swagger` package.
 
-There's no immediate need for you to switch to the new package if your projects are heavily invested in `NSwag` based generation. See EOL notice below for more info.
+There's no immediate need for you to switch to the new package if your projects are heavily invested in `NSwag` based generation. Especially if you're not yet on .NET10. The new package only supports .NET10+ projects. See EOL notice below for more info.
 
 </details>
 
@@ -109,7 +109,9 @@ The following `NSwag` based packages will no longer be receiving new features:
 - `FastEndpoints.ClientGen` (NSwag based api client generation)
 - `FastEndpoints.ClientGen.Kiota` (NSwag+Kiota based api client generation)
 
-There is no immediate need for you to migrate away from these package to the `Microsoft.AspNetCore.OpenApi` based new ones, as they will continue to receive bug fixes as `patch` versions to `v8.1.x`. Migration is not that difficult either, as the new packages purposefully contain extremely close API surfaces. If you have no deep customization with stuff like custom newtonsoft converters, operation/schema processors, etc; migration should be not too difficult.
+There is no immediate need for you to migrate away from these packages to the `Microsoft.AspNetCore.OpenApi` based new ones, as they will continue to receive bug fixes as `patch` versions to `v8.1.x`. Migration is not that difficult either, as the new packages purposefully contain extremely close API surfaces. If you have no deep customization with stuff like custom newtonsoft converters, operation/schema processors, etc; migration should be not too difficult.
+
+The new `FastEndpoints.OpenApi*` packages are however .NET10+ only. If you'd like to migrate to the new packages, you'd have to migrate your projects to .NET10 first.
 
 </details>
 

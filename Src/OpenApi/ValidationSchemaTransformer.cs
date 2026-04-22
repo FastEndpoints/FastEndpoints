@@ -392,14 +392,16 @@ sealed class ValidationSchemaTransformer : IOpenApiSchemaTransformer
                             if (context.HasCondition)
                                 return;
 
-                            var schema = context.Schema;
+                            if (!context.TryGetPropertySchema(out var prop))
+                                return;
 
-                            if (schema.Properties?.TryGetValue(context.PropertyKey, out var p) == true && p is OpenApiSchema prop)
-                            {
-                                if (prop.Type.HasValue && prop.Type.Value.HasFlag(JsonSchemaType.Null))
-                                    prop.Type = prop.Type.Value & ~JsonSchemaType.Null;
+                            if (prop.Type.HasValue && prop.Type.Value.HasFlag(JsonSchemaType.Null))
+                                prop.Type = prop.Type.Value & ~JsonSchemaType.Null;
+
+                            if (prop.Type == JsonSchemaType.Array)
+                                prop.MinItems = 1;
+                            else
                                 prop.MinLength = 1;
-                            }
                         }
             },
             new("Length")
@@ -411,12 +413,26 @@ sealed class ValidationSchemaTransformer : IOpenApiSchemaTransformer
                                 return;
 
                             var lengthValidator = (ILengthValidator)context.PropertyValidator;
+                            var target = prop;
+
+                            if (target.Type == JsonSchemaType.Array)
+                            {
+                                if (lengthValidator.Max > 0)
+                                    target.MaxItems = lengthValidator.Max;
+                                if (lengthValidator.GetType() == typeof(MinimumLengthValidator<>) ||
+                                    lengthValidator.GetType() == typeof(ExactLengthValidator<>) ||
+                                    target.MinItems is null or 1)
+                                    target.MinItems = lengthValidator.Min;
+
+                                return;
+                            }
+
                             if (lengthValidator.Max > 0)
-                                prop.MaxLength = lengthValidator.Max;
+                                target.MaxLength = lengthValidator.Max;
                             if (lengthValidator.GetType() == typeof(MinimumLengthValidator<>) ||
                                 lengthValidator.GetType() == typeof(ExactLengthValidator<>) ||
-                                prop.MinLength is null or 1)
-                                prop.MinLength = lengthValidator.Min;
+                                target.MinLength is null or 1)
+                                target.MinLength = lengthValidator.Min;
                         }
             },
             new("Pattern")

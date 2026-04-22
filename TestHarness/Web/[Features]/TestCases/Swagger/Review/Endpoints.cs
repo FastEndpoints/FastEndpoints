@@ -233,6 +233,30 @@ sealed class JsonPropertyNameTransformerReviewEndpoint : Endpoint<JsonPropertyNa
             ct);
 }
 
+sealed class CollectionLengthReviewRequest
+{
+    public string[] Tags { get; set; } = [];
+}
+
+sealed class CollectionLengthReviewValidator : Validator<CollectionLengthReviewRequest>
+{
+    public CollectionLengthReviewValidator()
+        => RuleFor(x => x.Tags).NotEmpty();
+}
+
+sealed class CollectionLengthReviewEndpoint : Endpoint<CollectionLengthReviewRequest, string>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/collection-length");
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(CollectionLengthReviewRequest req, CancellationToken ct)
+        => Send.OkAsync(req.Tags.Length.ToString(), ct);
+}
+
 sealed class InterfaceDictionaryReviewRequest
 {
     public IDictionary<string, string> Metadata { get; set; } = new Dictionary<string, string>();

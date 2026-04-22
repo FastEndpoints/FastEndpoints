@@ -17,20 +17,16 @@ static class DocumentSchemaHelpers
                 return;
 
             var referencedSchemas = new HashSet<string>(StringComparer.Ordinal);
-            CollectReferencedSchemas(document, referencedSchemas);
+            var pendingSchemas = new Queue<string>();
+            CollectReferencedSchemas(document, referencedSchemas, pendingSchemas);
 
-            int prevCount;
-
-            do
+            while (pendingSchemas.Count > 0)
             {
-                prevCount = referencedSchemas.Count;
+                var refId = pendingSchemas.Dequeue();
 
-                foreach (var refId in referencedSchemas.ToArray())
-                {
-                    if (schemas.TryGetValue(refId, out var s))
-                        CollectSchemaRefs(s, referencedSchemas);
-                }
-            } while (referencedSchemas.Count > prevCount);
+                if (schemas.TryGetValue(refId, out var s))
+                    CollectSchemaRefs(s, referencedSchemas, pendingSchemas);
+            }
 
             foreach (var key in schemas.Keys.ToArray())
             {
@@ -247,7 +243,7 @@ static class DocumentSchemaHelpers
             document.Components.Schemas[key] = schema;
     }
 
-    static void CollectReferencedSchemas(OpenApiDocument document, HashSet<string> refs)
+    static void CollectReferencedSchemas(OpenApiDocument document, HashSet<string> refs, Queue<string> pendingRefs)
     {
         foreach (var pathItem in document.Paths.Values)
         {
@@ -258,17 +254,17 @@ static class DocumentSchemaHelpers
             {
                 if (op.Parameters is { Count: > 0 })
                 {
-                    CollectSchemaRefs(op.Parameters.Select(p => p.Schema), refs);
+                    CollectSchemaRefs(op.Parameters.Select(p => p.Schema), refs, pendingRefs);
 
                     foreach (var param in op.Parameters)
                     {
                         if (param.Content is { Count: > 0 })
-                            CollectSchemaRefs(param.Content.Values.Select(content => content.Schema), refs);
+                            CollectSchemaRefs(param.Content.Values.Select(content => content.Schema), refs, pendingRefs);
                     }
                 }
 
                 if (op.RequestBody?.Content is { Count: > 0 })
-                    CollectSchemaRefs(op.RequestBody.Content.Values.Select(content => content.Schema), refs);
+                    CollectSchemaRefs(op.RequestBody.Content.Values.Select(content => content.Schema), refs, pendingRefs);
 
                 if (op.Responses is not { Count: > 0 })
                     continue;
@@ -276,19 +272,19 @@ static class DocumentSchemaHelpers
                 foreach (var resp in op.Responses.Values)
                 {
                     if (resp is OpenApiResponse { Content.Count: > 0 } concreteResp)
-                        CollectSchemaRefs(concreteResp.Content.Values.Select(content => content.Schema), refs);
+                        CollectSchemaRefs(concreteResp.Content.Values.Select(content => content.Schema), refs, pendingRefs);
                 }
             }
         }
     }
 
-    static void CollectSchemaRefs(IEnumerable<IOpenApiSchema?> schemas, HashSet<string> refs)
+    static void CollectSchemaRefs(IEnumerable<IOpenApiSchema?> schemas, HashSet<string> refs, Queue<string> pendingRefs)
     {
         foreach (var schema in schemas)
-            CollectSchemaRefs(schema, refs);
+            CollectSchemaRefs(schema, refs, pendingRefs);
     }
 
-    static void CollectSchemaRefs(IOpenApiSchema? schema, HashSet<string> refs)
+    static void CollectSchemaRefs(IOpenApiSchema? schema, HashSet<string> refs, Queue<string> pendingRefs)
     {
         switch (schema)
         {
@@ -298,26 +294,26 @@ static class DocumentSchemaHelpers
             {
                 var refId = GetReferenceId(schemaRef);
 
-                if (!string.IsNullOrEmpty(refId))
-                    refs.Add(refId);
+                if (!string.IsNullOrEmpty(refId) && refs.Add(refId))
+                    pendingRefs.Enqueue(refId);
 
                 return;
             }
             case OpenApiSchema s:
             {
                 if (s.Properties is { Count: > 0 })
-                    CollectSchemaRefs(s.Properties.Values, refs);
+                    CollectSchemaRefs(s.Properties.Values, refs, pendingRefs);
 
-                CollectSchemaRefs([s.Items, s.AdditionalProperties], refs);
+                CollectSchemaRefs([s.Items, s.AdditionalProperties], refs, pendingRefs);
 
                 if (s.AllOf is { Count: > 0 })
-                    CollectSchemaRefs(s.AllOf, refs);
+                    CollectSchemaRefs(s.AllOf, refs, pendingRefs);
 
                 if (s.OneOf is { Count: > 0 })
-                    CollectSchemaRefs(s.OneOf, refs);
+                    CollectSchemaRefs(s.OneOf, refs, pendingRefs);
 
                 if (s.AnyOf is { Count: > 0 })
-                    CollectSchemaRefs(s.AnyOf, refs);
+                    CollectSchemaRefs(s.AnyOf, refs, pendingRefs);
 
                 break;
             }

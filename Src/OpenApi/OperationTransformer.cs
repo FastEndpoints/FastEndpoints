@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Globalization;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -19,6 +20,13 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
     const BindingFlags PublicInstanceHierarchy = BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy;
     static readonly TextInfo _textInfo = CultureInfo.InvariantCulture.TextInfo;
     static readonly string[] _illegalHeaderNames = ["Accept", "Content-Type", "Authorization"];
+    static readonly ConcurrentDictionary<Type, TypeMetadata> _typeMetadataCache = new();
+
+    sealed class TypeMetadata
+    {
+        public required PropertyInfo[] PublicInstanceProperties { get; init; }
+        public Dictionary<string, string>? JsonNameMap { get; init; }
+    }
 
     [GeneratedRegex(@"(?<=\{)[^}]+(?=\})")]
     private static partial Regex RouteParamsRegex();
@@ -486,7 +494,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
         if (requestDtoType is null)
             return;
 
-        var requestDtoProps = requestDtoType.GetProperties(PublicInstanceHierarchy);
+        var requestDtoProps = GetPublicInstanceProperties(requestDtoType);
 
         var fromBodyProp = requestDtoProps
             .FirstOrDefault(p => p.IsDefined(Types.FromBodyAttribute, false));
@@ -629,16 +637,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
 
     static Dictionary<string, string>? BuildJsonNameMap(Type? type)
     {
-        return type?
-               .GetProperties(PublicInstanceHierarchy)
-               .Select(
-                   p => new
-                   {
-                       JsonName = p.GetCustomAttribute<JsonPropertyNameAttribute>()?.Name,
-                       ClrName = p.Name
-                   })
-               .Where(x => x.JsonName is not null)
-               .ToDictionary(x => x.JsonName!, x => x.ClrName);
+        return type is null ? null : GetTypeMetadata(type).JsonNameMap;
     }
 
     void ApplyParameterMetadata(OpenApiOperation operation, EndpointDefinition epDef)
@@ -706,7 +705,35 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
     }
 
     static PropertyInfo[] GetPublicInstanceProperties(Type type)
-        => type.GetProperties(PublicInstanceHierarchy);
+        => GetTypeMetadata(type).PublicInstanceProperties;
+
+    static TypeMetadata GetTypeMetadata(Type type)
+    {
+        type = Nullable.GetUnderlyingType(type) ?? type;
+
+        return _typeMetadataCache.GetOrAdd(type, static t =>
+        {
+            var properties = t.GetProperties(PublicInstanceHierarchy);
+            Dictionary<string, string>? jsonNameMap = null;
+
+            foreach (var property in properties)
+            {
+                var jsonName = property.GetCustomAttribute<JsonPropertyNameAttribute>()?.Name;
+
+                if (jsonName is null)
+                    continue;
+
+                jsonNameMap ??= [];
+                jsonNameMap[jsonName] = property.Name;
+            }
+
+            return new()
+            {
+                PublicInstanceProperties = properties,
+                JsonNameMap = jsonNameMap
+            };
+        });
+    }
 
     static Type? GetRequestDtoType(EndpointDefinition epDef)
         => epDef.EndpointType.BaseType?.GetGenericArguments().FirstOrDefault();

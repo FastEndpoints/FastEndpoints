@@ -72,6 +72,14 @@ static class XmlDocLookup
 
                     break;
                 }
+                case XElement { Name.LocalName: "paramref" } el:
+                    sb.Append(el.Attribute("name")?.Value);
+
+                    break;
+                case XElement el:
+                    sb.Append(GetTextWithSeeRefs(el));
+
+                    break;
             }
         }
 

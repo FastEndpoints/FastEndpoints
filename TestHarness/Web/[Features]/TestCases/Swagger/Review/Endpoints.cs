@@ -294,6 +294,30 @@ sealed class GenericXmlDocReviewRequest : GenericXmlDocWrapper<string>;
 /// </summary>
 sealed class GenericXmlDocReviewResponse : GenericXmlDocWrapper<string>;
 
+/// <summary>
+/// returns the <c>User</c> record.
+/// </summary>
+sealed class InlineMarkupXmlDocReviewRequest
+{
+    /// <summary>
+    /// filter by <paramref name="UserId"/> value.
+    /// </summary>
+    public string UserId { get; set; } = string.Empty;
+}
+
+sealed class InlineMarkupXmlDocReviewEndpoint : Endpoint<InlineMarkupXmlDocReviewRequest, string>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/inline-markup-xml-doc");
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(InlineMarkupXmlDocReviewRequest req, CancellationToken ct)
+        => Send.OkAsync(req.UserId, ct);
+}
+
 sealed class GenericXmlDocReviewEndpoint : Endpoint<GenericXmlDocReviewRequest, GenericXmlDocReviewResponse>
 {
     public override void Configure()

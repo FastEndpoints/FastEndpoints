@@ -250,6 +250,17 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     }
 
     [Fact]
+    public async Task xml_doc_inline_markup_text_is_preserved_in_descriptions()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var doc = JToken.Parse(json);
+        var requestSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewInlineMarkupXmlDocReviewRequest"]!;
+
+        requestSchema["description"]!.Value<string>().ShouldBe("returns the User record.");
+        requestSchema["properties"]!["userId"]!["description"]!.Value<string>().ShouldBe("filter by UserId value.");
+    }
+
+    [Fact]
     public async Task missing_schema_generation_uses_primitive_formats_for_primitive_like_properties()
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review");

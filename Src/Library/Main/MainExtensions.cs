@@ -211,11 +211,16 @@ public static class MainExtensions
 
     internal static string BuildRoute(this StringBuilder builder, int epVersion, string route, string? prefixOverride)
     {
-        if (Cfg.EpOpts.RoutePrefix is not null && prefixOverride != string.Empty)
+        var prefix = prefixOverride ?? Cfg.EpOpts.RoutePrefix;
+        if (!string.IsNullOrEmpty(prefix))
         {
-            builder.Append('/')
-                   .Append(prefixOverride ?? Cfg.EpOpts.RoutePrefix)
-                   .Append('/');
+            var normalizedPrefix = prefix.AsSpan().Trim('/');
+            if (!normalizedPrefix.IsEmpty)
+            {
+                builder.Append('/')
+                       .Append(normalizedPrefix)
+                       .Append('/');
+            }
         }
 
         if (Cfg.VerOpts.RouteTemplate is not null && (epVersion > 0 || Cfg.VerOpts.DefaultVersion != 0))

@@ -50,6 +50,23 @@ url.ShouldBe("api/invoices/123?IncludeLines=true");
 
 ## Improvements 🚀
 
+<details><summary>Configurable response deserialization behavior for unmapped JSON members in routeless test helpers</summary>
+
+The routeless `HttpClient` testing extensions no longer hardcode `JsonUnmappedMemberHandling.Disallow` when deserializing response DTOs. You can now control that behavior with `c.Serializer.TestResponseUnmappedMemberHandling`, while defaulting to strict failure when the response JSON contains properties your test DTO does not define.
+
+To allowing unmapped members during test response deserialization:
+
+```csharp
+using System.Text.Json.Serialization;
+
+app.UseFastEndpoints(c =>
+{
+    c.Serializer.TestResponseUnmappedMemberHandling = JsonUnmappedMemberHandling.Skip;
+});
+```
+
+</details>
+
 <details><summary>OpenApi generation now emits wrapped JSON Patch request bodies as top-level patch operation arrays</summary>
 
 When a request DTO contains a `[FromBody]` property accepted as `application/json-patch+json`, the generated OpenAPI request body schema is now promoted from the wrapper object shape to the top-level JSON Patch array shape expected by Swagger UI.

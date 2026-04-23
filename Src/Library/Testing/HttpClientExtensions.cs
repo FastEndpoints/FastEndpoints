@@ -9,7 +9,6 @@ using System.Net.Http.Json;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
 using static FastEndpoints.Config;
@@ -23,11 +22,7 @@ namespace FastEndpoints;
 public static class HttpClientExtensions
 {
     static readonly ConcurrentDictionary<string, string> _testUrlCache = new();
-
-    static readonly JsonSerializerOptions _errSerOpts = new(SerOpts.Options)
-    {
-        UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow
-    };
+    static readonly JsonSerializerOptions _errSerOpts = new(SerOpts.Options) { UnmappedMemberHandling = SerOpts.TestResponseUnmappedMemberHandling };
 
     extension(HttpClient client)
     {

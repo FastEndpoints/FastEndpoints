@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Collections.Concurrent;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.OpenApi;
@@ -8,6 +9,9 @@ namespace FastEndpoints.OpenApi;
 static class OperationSchemaHelpers
 {
     const BindingFlags PublicInstanceHierarchy = BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy;
+    static readonly ConcurrentDictionary<Type, PropertyInfo[]> _sampleJsonPropertyCache = new();
+    static readonly ConstructorInfo? _openApiSchemaCopyCtor = typeof(OpenApiSchema).GetConstructor([typeof(IOpenApiSchema)]);
+    static readonly PropertyInfo[] _openApiSchemaProperties = typeof(OpenApiSchema).GetProperties(BindingFlags.Public | BindingFlags.Instance);
 
     internal static OpenApiSchema StringSchema()
         => new() { Type = JsonSchemaType.String };
@@ -29,6 +33,37 @@ static class OperationSchemaHelpers
                 OpenApiSchema concreteSchema => concreteSchema,
                 _ => null
             };
+
+        internal OpenApiSchema? CloneAsConcreteSchema()
+            => schema switch
+            {
+                OpenApiSchema concreteSchema => CloneConcreteSchema(concreteSchema),
+                OpenApiSchemaReference { Target: IOpenApiSchema target } => CloneConcreteSchema(target),
+                _ => null
+            };
+    }
+
+    extension(OpenApiMediaType mediaType)
+    {
+        internal OpenApiSchema? EnsureOperationLocalSchema()
+        {
+            var cloned = mediaType.Schema.CloneAsConcreteSchema();
+
+            if (cloned is not null)
+                mediaType.Schema = cloned;
+
+            return cloned;
+        }
+
+        internal OpenApiSchema? EnsureOperationLocalSchemaIfShared(SharedContext sharedCtx)
+        {
+            if (mediaType.Schema is not OpenApiSchemaReference schemaRef ||
+                GetReferenceId(schemaRef) is not { } refId ||
+                !sharedCtx.SharedRequestSchemaRefs.Contains(refId))
+                return mediaType.Schema.ResolveSchema();
+
+            return mediaType.EnsureOperationLocalSchema();
+        }
     }
 
     extension(Type type)
@@ -94,7 +129,7 @@ static class OperationSchemaHelpers
             };
         }
 
-        internal JsonNode? GenerateSampleJsonNode(HashSet<Type>? visited = null)
+        internal JsonNode? GenerateSampleJsonNode(JsonNamingPolicy? namingPolicy = null, HashSet<Type>? visited = null)
         {
             var underlying = Nullable.GetUnderlyingType(type) ?? type;
 
@@ -104,7 +139,7 @@ static class OperationSchemaHelpers
 
                 if (elementType is not null)
                 {
-                    var itemSample = elementType.GenerateSampleJsonNode(visited);
+                    var itemSample = elementType.GenerateSampleJsonNode(namingPolicy, visited);
 
                     if (itemSample is not null)
                         return new JsonArray(itemSample);
@@ -135,21 +170,17 @@ static class OperationSchemaHelpers
                 return null;
 
             var obj = new JsonObject();
-            var policy = Extensions.NamingPolicy;
 
-            foreach (var prop in underlying.GetProperties(PublicInstanceHierarchy))
+            foreach (var prop in GetSampleJsonProperties(underlying))
             {
-                if (prop.GetSetMethod() is null)
-                    continue;
-
-                var propName = policy?.ConvertName(prop.Name) ?? prop.Name;
+                var propName = PropertyNameResolver.GetSchemaPropertyName(prop, namingPolicy);
                 var sample = prop.PropertyType.GetSampleValue(propName);
 
                 if (sample is not null)
                     obj[propName] = sample.JsonNodeFromObject();
                 else
                 {
-                    var nested = prop.PropertyType.GenerateSampleJsonNode(visited);
+                    var nested = prop.PropertyType.GenerateSampleJsonNode(namingPolicy, visited);
 
                     if (nested is not null)
                         obj[propName] = nested;
@@ -162,27 +193,124 @@ static class OperationSchemaHelpers
         }
     }
 
-    internal static void RemovePropFromRequestBody(this OpenApiOperation operation, string propName, HashSet<string>? removedProps = null)
+    static OpenApiSchema CloneConcreteSchema(IOpenApiSchema schema)
+    {
+        if (_openApiSchemaCopyCtor?.Invoke([schema]) is OpenApiSchema cloned)
+            return cloned;
+
+        return CloneConcreteSchemaFallback(schema.ResolveSchema() ?? (schema as OpenApiSchema) ?? StringSchema());
+    }
+
+    static OpenApiSchema CloneConcreteSchemaFallback(OpenApiSchema schema)
+    {
+        var clone = new OpenApiSchema();
+
+        foreach (var property in _openApiSchemaProperties)
+        {
+            if (!property.CanRead || !property.CanWrite)
+                continue;
+
+            property.SetValue(clone, CloneSchemaMemberValue(property.GetValue(schema)));
+        }
+
+        return clone;
+    }
+
+    static object? CloneSchemaMemberValue(object? value)
+    {
+        if (value is null)
+            return null;
+
+        return value switch
+        {
+            JsonNode node => node.DeepClone(),
+            OpenApiSchema concreteSchema => CloneConcreteSchemaFallback(concreteSchema),
+            OpenApiSchemaReference schemaRef => schemaRef,
+            IDictionary<string, IOpenApiSchema> schemaDictionary => CloneSchemaDictionary(schemaDictionary),
+            IList<IOpenApiSchema> schemaList => CloneSchemaList(schemaList),
+            ISet<string> requiredSet => new HashSet<string>(requiredSet),
+            IList<JsonNode> jsonNodes => CloneJsonNodeList(jsonNodes),
+            _ => value
+        };
+    }
+
+    static Dictionary<string, IOpenApiSchema>? CloneSchemaDictionary(IDictionary<string, IOpenApiSchema>? schemas)
+    {
+        if (schemas is null)
+            return null;
+
+        var cloned = new Dictionary<string, IOpenApiSchema>(schemas.Count, StringComparer.Ordinal);
+
+        foreach (var (key, value) in schemas)
+            cloned[key] = CloneNestedSchema(value)!;
+
+        return cloned;
+    }
+
+    static List<IOpenApiSchema>? CloneSchemaList(IList<IOpenApiSchema>? schemas)
+    {
+        if (schemas is null)
+            return null;
+
+        var cloned = new List<IOpenApiSchema>(schemas.Count);
+
+        foreach (var schema in schemas)
+            cloned.Add(CloneNestedSchema(schema)!);
+
+        return cloned;
+    }
+
+    static IOpenApiSchema? CloneNestedSchema(IOpenApiSchema? schema)
+        => schema switch
+        {
+            OpenApiSchema concreteSchema => CloneConcreteSchemaFallback(concreteSchema),
+            OpenApiSchemaReference schemaRef => schemaRef,
+            null => null,
+            _ => schema
+        };
+
+    static List<JsonNode>? CloneJsonNodeList(IList<JsonNode>? nodes)
+    {
+        if (nodes is null)
+            return null;
+
+        var cloned = new List<JsonNode>(nodes.Count);
+
+        foreach (var node in nodes)
+        {
+            if (node is not null)
+                cloned.Add(node.DeepClone());
+        }
+
+        return cloned;
+    }
+
+    internal static void RemovePropFromRequestBody(this OpenApiOperation operation,
+                                                   PropertyInfo property,
+                                                   SharedContext sharedCtx,
+                                                   JsonNamingPolicy? namingPolicy,
+                                                   HashSet<string>? removedProps = null)
     {
         if (operation.RequestBody?.Content is null)
             return;
 
-        var policy = Extensions.SelectedJsonNamingPolicy;
-        var schemaName = policy?.ConvertName(propName) ?? propName;
+        var schemaName = PropertyNameResolver.GetSchemaPropertyName(property, namingPolicy);
 
         removedProps?.Add(schemaName);
 
         foreach (var content in operation.RequestBody.Content.Values)
         {
-            if (content.Schema?.Properties is null)
+            var schema = content.EnsureOperationLocalSchemaIfShared(sharedCtx);
+
+            if (schema?.Properties is null)
                 continue;
 
-            var key = content.Schema.Properties.Keys.FindCaseInsensitiveKey(schemaName);
+            var key = schema.Properties.Keys.FindCaseInsensitiveKey(schemaName);
 
             if (key is not null)
             {
-                content.Schema.Properties.Remove(key);
-                content.Schema.Required?.Remove(key);
+                schema.Properties.Remove(key);
+                schema.Required?.Remove(key);
             }
         }
     }
@@ -294,6 +422,20 @@ static class OperationSchemaHelpers
     internal static string? FindCaseInsensitiveKey(this IEnumerable<string> keys, string match)
         => keys.FirstOrDefault(k => string.Equals(k, match, StringComparison.OrdinalIgnoreCase));
 
+    static string? GetReferenceId(OpenApiSchemaReference schemaRef)
+        => schemaRef.Reference.Id ?? schemaRef.Id;
+
+    static PropertyInfo[] GetSampleJsonProperties(Type type)
+    {
+        type = Nullable.GetUnderlyingType(type) ?? type;
+
+        return _sampleJsonPropertyCache.GetOrAdd(
+            type,
+            static t => t.GetProperties(PublicInstanceHierarchy)
+                         .Where(p => p.GetSetMethod() is not null)
+                         .ToArray());
+    }
+
     static OpenApiSchema? TryCreatePrimitiveSchema(Type type)
         => type switch
         {
@@ -340,13 +482,37 @@ static class OperationSchemaHelpers
         return null;
     }
 
-    static Type? TryGetDictionaryValueType(Type type)
+    internal static Type? TryGetDictionaryValueType(Type type)
     {
-        if (!type.IsGenericType || type.GetGenericTypeDefinition() != typeof(Dictionary<,>))
-            return null;
+        type = Nullable.GetUnderlyingType(type) ?? type;
 
-        var args = type.GetGenericArguments();
+        if (TryMatchDictionary(type) is { } directMatch)
+            return directMatch;
 
-        return args[0] == typeof(string) ? args[1] : null;
+        foreach (var iface in type.GetInterfaces())
+        {
+            if (TryMatchDictionary(iface) is { } interfaceMatch)
+                return interfaceMatch;
+        }
+
+        return null;
+
+        static Type? TryMatchDictionary(Type candidate)
+        {
+            if (!candidate.IsGenericType)
+                return null;
+
+            var genDef = candidate.GetGenericTypeDefinition();
+
+            if (genDef != typeof(Dictionary<,>) &&
+                genDef != typeof(IDictionary<,>) &&
+                genDef != typeof(IReadOnlyDictionary<,>) &&
+                genDef != typeof(ConcurrentDictionary<,>))
+                return null;
+
+            var args = candidate.GetGenericArguments();
+
+            return args[0] == typeof(string) ? args[1] : null;
+        }
     }
 }

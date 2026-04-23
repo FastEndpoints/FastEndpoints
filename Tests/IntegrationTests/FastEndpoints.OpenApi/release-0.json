@@ -22,7 +22,32 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AdminLoginRequest"
+                "required": [
+                  "userName",
+                  "password"
+                ],
+                "type": "object",
+                "properties": {
+                  "userName": {
+                    "maxLength": 50,
+                    "minLength": 3,
+                    "type": "string",
+                    "description": "overriden username text",
+                    "default": "admin",
+                    "example": "custom example user name from summary"
+                  },
+                  "password": {
+                    "minLength": 3,
+                    "type": "string",
+                    "description": "the admin password",
+                    "example": "custom example password from summary"
+                  }
+                },
+                "description": "the admin login request",
+                "example": {
+                  "userName": "custom example user name from summary",
+                  "password": "custom example password from summary"
+                }
               },
               "example": {
                 "userName": "custom example user name from summary",
@@ -78,7 +103,32 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AdminLoginRequest"
+                "required": [
+                  "userName",
+                  "password"
+                ],
+                "type": "object",
+                "properties": {
+                  "userName": {
+                    "maxLength": 50,
+                    "minLength": 3,
+                    "type": "string",
+                    "description": "overriden username text",
+                    "default": "admin",
+                    "example": "custom example user name from summary"
+                  },
+                  "password": {
+                    "minLength": 3,
+                    "type": "string",
+                    "description": "the admin password",
+                    "example": "custom example password from summary"
+                  }
+                },
+                "description": "the admin login request",
+                "example": {
+                  "userName": "custom example user name from summary",
+                  "password": "custom example password from summary"
+                }
               },
               "example": {
                 "userName": "custom example user name from summary",
@@ -134,7 +184,32 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AdminLoginRequest"
+                "required": [
+                  "userName",
+                  "password"
+                ],
+                "type": "object",
+                "properties": {
+                  "userName": {
+                    "maxLength": 50,
+                    "minLength": 3,
+                    "type": "string",
+                    "description": "overriden username text",
+                    "default": "admin",
+                    "example": "custom example user name from summary"
+                  },
+                  "password": {
+                    "minLength": 3,
+                    "type": "string",
+                    "description": "the admin password",
+                    "example": "custom example password from summary"
+                  }
+                },
+                "description": "the admin login request",
+                "example": {
+                  "userName": "custom example user name from summary",
+                  "password": "custom example password from summary"
+                }
               },
               "example": {
                 "userName": "custom example user name from summary",
@@ -972,6 +1047,26 @@
         ]
       }
     },
+    "/api/filtered-shared-path": {
+      "post": {
+        "tags": [
+          "FilteredSharedPath"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewSharedPathFastEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/inventory/get-product/{productID}": {
       "get": {
         "tags": [
@@ -1446,6 +1541,683 @@
         }
       }
     },
+    "/api/swagger-review/auto-tag-override": {
+      "get": {
+        "tags": [
+          "ReviewTag"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewAutoTagOverrideEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/child-validator": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewChildValidatorReviewEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSwaggerReviewChildValidatorReviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/collection-length": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewCollectionLengthReviewEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSwaggerReviewCollectionLengthReviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/deep-nested-validator": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewDeepNestedValidatorReviewEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSwaggerReviewDeepNestedValidatorReviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/default-route-value/{id}": {
+      "get": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewDefaultRouteValueReviewEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "route param summary",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/duplicate-examples": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewDuplicateRequestExamplesEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSwaggerReviewDuplicateRequestExamplesRequest"
+              },
+              "examples": {
+                "Example 1": {
+                  "value": {
+                    "name": "first"
+                  }
+                },
+                "Example 2": {
+                  "value": {
+                    "name": "second"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/empty-schema-cleanup": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewEmptySchemaCleanupEndpoint",
+        "parameters": [
+          {
+            "name": "x-review-header",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/generic-xml-doc": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewGenericXmlDocReviewEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSwaggerReviewGenericXmlDocReviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesSwaggerReviewGenericXmlDocReviewResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/idempotency-anonymous-example": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewIdempotencyAnonymousExampleEndpoint",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "custom idempotency header",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "key": {
+                  "type": "string"
+                },
+                "scope": {
+                  "type": "string"
+                }
+              }
+            },
+            "example": {
+              "key": "demo-key",
+              "scope": "tenant-a"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/illegal-headers": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewIllegalHeadersEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSwaggerReviewIllegalHeadersRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/inline-markup-xml-doc": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewInlineMarkupXmlDocReviewEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSwaggerReviewInlineMarkupXmlDocReviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/interface-dictionary": {
+      "get": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewInterfaceDictionaryReviewEndpoint",
+        "parameters": [
+          {
+            "name": "metadata",
+            "in": "query",
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/intermediate-base-validator": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewIntermediateBaseValidatorReviewEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSwaggerReviewIntermediateBaseValidatorReviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/json-property-name-transformers": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewJsonPropertyNameTransformerReviewEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSwaggerReviewJsonPropertyNameTransformerReviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "x-secret": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": ""
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesSwaggerReviewJsonPropertyNameTransformerReviewResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/missing-schema-enum": {
+      "get": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewMissingSchemaEnumEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesSwaggerReviewMissingSchemaEnumResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/missing-schema-primitives": {
+      "get": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewMissingSchemaPrimitiveEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesSwaggerReviewMissingSchemaPrimitiveResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/no-request-metadata-leak/{leakId}": {
+      "get": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewNoRequestMetadataLeakEndpoint",
+        "parameters": [
+          {
+            "name": "leakId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesSwaggerReviewNoRequestMetadataLeakResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/shared-request-metadata-alpha": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewSharedRequestMetadataAlphaEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "alpha description",
+                    "example": "alpha example"
+                  }
+                },
+                "example": {
+                  "name": "alpha example"
+                }
+              },
+              "example": {
+                "name": "alpha example"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/shared-request-metadata-beta": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewSharedRequestMetadataBetaEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "beta description",
+                    "example": "beta example"
+                  }
+                },
+                "example": {
+                  "name": "beta example"
+                }
+              },
+              "example": {
+                "name": "beta example"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/ulong-enum": {
+      "get": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewUlongEnumReviewEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesSwaggerReviewUlongEnumReviewResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/test-cases/antiforgery/render-form": {
       "get": {
         "tags": [
@@ -1886,7 +2658,8 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": "integer",
+              "format": "int32"
             }
           },
           {
@@ -4913,6 +5686,62 @@
         ]
       }
     },
+    "/apiary/ver0/status": {
+      "get": {
+        "tags": [
+          "Apiary"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewBareRouteSubstringReviewEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/filtered-shared-path": {
+      "get": {
+        "tags": [
+          "exclude"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "shared-path"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/mobile/api/test-cases/global-prefix-override/{id}": {
       "post": {
         "tags": [
@@ -5071,35 +5900,6 @@
   },
   "components": {
     "schemas": {
-      "AdminLoginRequest": {
-        "required": [
-          "userName",
-          "password"
-        ],
-        "type": "object",
-        "properties": {
-          "userName": {
-            "maxLength": 50,
-            "minLength": 3,
-            "type": "string",
-            "description": "overriden username text",
-            "default": "admin",
-            "example": "custom example user name from summary"
-          },
-          "password": {
-            "minLength": 3,
-            "type": "string",
-            "description": "the admin password",
-            "example": "custom example password from summary"
-          }
-        },
-        "additionalProperties": false,
-        "description": "the admin login request",
-        "example": {
-          "userName": "custom example user name from summary",
-          "password": "custom example password from summary"
-        }
-      },
       "AdminLoginResponse": {
         "type": "object",
         "properties": {
@@ -5115,16 +5915,13 @@
           "permissions": {
             "$ref": "#/components/schemas/SystemCollectionsGenericIEnumerableOfString"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "CustomersCreateRequest": {
-        "type": "object",
-        "additionalProperties": false
+        "type": "object"
       },
       "CustomersCreateWithPropertiesDIRequest": {
-        "type": "object",
-        "additionalProperties": false
+        "type": "object"
       },
       "CustomersListRecentResponse": {
         "type": "object",
@@ -5139,8 +5936,7 @@
               }
             ]
           }
-        },
-        "additionalProperties": false
+        }
       },
       "CustomersUpdateRequest": {
         "type": "object",
@@ -5152,8 +5948,7 @@
           "address": {
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "CustomersUpdateWithHeaderRequest": {
         "required": [
@@ -5173,8 +5968,7 @@
           "address": {
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "FastEndpointsErrorResponse": {
         "type": "object",
@@ -5201,7 +5995,6 @@
             "description": "the collection of errors for the current context"
           }
         },
-        "additionalProperties": false,
         "description": "the dto used to send an error response to the client"
       },
       "FastEndpointsHttp": {
@@ -5223,11 +6016,17 @@
         "type": "object",
         "properties": {
           "type": {
-            "type": "string",
+            "type": [
+              "null",
+              "string"
+            ],
             "default": "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1"
           },
           "title": {
-            "type": "string",
+            "type": [
+              "null",
+              "string"
+            ],
             "default": "One or more validation errors occurred."
           },
           "status": {
@@ -5244,43 +6043,47 @@
             "default": "0HMPNHL0JHL76:00000001"
           },
           "detail": {
-            "type": "string",
+            "type": [
+              "null",
+              "string"
+            ],
             "description": "the details of the error"
           },
           "errors": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/FastEndpointsProblemDetails_Error"
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "the name of the error or property of the dto that caused the error",
+                  "default": "Error or field name"
+                },
+                "reason": {
+                  "type": "string",
+                  "description": "the reason for the error",
+                  "default": "Error reason"
+                },
+                "code": {
+                  "type": [
+                    "null",
+                    "string"
+                  ],
+                  "description": "the code of the error"
+                },
+                "severity": {
+                  "type": [
+                    "null",
+                    "string"
+                  ],
+                  "description": "the severity of the error"
+                }
+              },
+              "description": "the error details object"
             }
           }
         },
-        "additionalProperties": false,
-        "description": "RFC7807 compatible problem details/ error response class. this can be used by configuring startup like so:"
-      },
-      "FastEndpointsProblemDetails_Error": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": "the name of the error or property of the dto that caused the error",
-            "default": "Error or field name"
-          },
-          "reason": {
-            "type": "string",
-            "description": "the reason for the error",
-            "default": "Error reason"
-          },
-          "code": {
-            "type": "string",
-            "description": "the code of the error"
-          },
-          "severity": {
-            "type": "string",
-            "description": "the severity of the error"
-          }
-        },
-        "additionalProperties": false,
-        "description": "the error details object"
+        "description": "RFC7807 compatible problem details/ error response class. this can be used by configuring startup like so:\n```app.UseFastEndpoints(c =&gt; c.Errors.UseProblemDetails())```"
       },
       "FastEndpointsSecurityTokenRequest": {
         "type": "object",
@@ -5294,7 +6097,6 @@
             "description": "a single-use refresh token which will be valid for the duration specified by RefreshExpiry"
           }
         },
-        "additionalProperties": false,
         "description": "base dto for access/refresh token renewal requests"
       },
       "FastEndpointsSecurityTokenResponse": {
@@ -5313,7 +6115,6 @@
             "description": "a single-use refresh token which will be valid for the duration specified by RefreshExpiry"
           }
         },
-        "additionalProperties": false,
         "description": "base dto for access/refresh token responses"
       },
       "InventoryGetProductResponse": {
@@ -5330,8 +6131,7 @@
             "description": "blah blah blah",
             "format": "int64"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "InventoryListRecentResponse": {
         "type": "object",
@@ -5342,8 +6142,7 @@
               "string"
             ]
           }
-        },
-        "additionalProperties": false
+        }
       },
       "InventoryManageCreateRequest": {
         "required": [
@@ -5389,7 +6188,6 @@
             "example": false
           }
         },
-        "additionalProperties": false,
         "example": {
           "id": 1,
           "name": "first name",
@@ -5436,8 +6234,7 @@
             "minLength": 1,
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "MicrosoftAspNetCoreJsonPatchSystemTextJsonJsonPatchDocumentOfPerson": {
         "type": "array",
@@ -5528,8 +6325,7 @@
             "type": "integer",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "SalesOrdersCreateResponse": {
         "type": "object",
@@ -5557,8 +6353,7 @@
           "event": {
             "$ref": "#/components/schemas/TestCasesEventHandlingTestSomeEvent"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "SalesOrdersRetrieveResponse": {
         "type": "object",
@@ -5569,8 +6364,7 @@
               "string"
             ]
           }
-        },
-        "additionalProperties": false
+        }
       },
       "SystemCollectionsGenericDictionaryOfStringAndString": {
         "type": "object",
@@ -5637,8 +6431,7 @@
             "type": "integer",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "SystemCollectionsGenericListOfAddress": {
         "type": "array",
@@ -5708,6 +6501,10 @@
           "type": "string"
         }
       },
+      "SystemDateOnly": {
+        "type": "string",
+        "format": "date"
+      },
       "SystemDayOfWeek": {
         "enum": [
           0,
@@ -5745,8 +6542,7 @@
               "string"
             ]
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesAntiforgeryTestVerificationRequest": {
         "type": "object",
@@ -5758,8 +6554,7 @@
           "tokenResponse": {
             "$ref": "#/components/schemas/TestCasesAntiforgeryTestTokenResponse"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesCustomRequestBinderProduct": {
         "type": "object",
@@ -5775,8 +6570,7 @@
             "type": "number",
             "format": "double"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesCustomRequestBinderRequest": {
         "type": "object",
@@ -5797,8 +6591,7 @@
           "customerID": {
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesCustomRequestBinderResponse": {
         "type": "object",
@@ -5819,8 +6612,7 @@
           "customerID": {
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesDataAnnotationCompliantChildRequest": {
         "required": [
@@ -5845,8 +6637,7 @@
             "minLength": 1,
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesDataAnnotationCompliantNestedRequest": {
         "required": [
@@ -5865,8 +6656,7 @@
             "type": "integer",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesDataAnnotationCompliantRequest": {
         "required": [
@@ -5891,8 +6681,7 @@
           "children": {
             "$ref": "#/components/schemas/SystemCollectionsGenericListOfChildRequest"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesDontBindAttributeTestRequest": {
         "type": "object",
@@ -5901,8 +6690,7 @@
             "type": "integer",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesDupeParamBindingForIEnumerablePropsRequest_Person": {
         "type": "object",
@@ -5914,8 +6702,7 @@
             "type": "integer",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesDupeParamBindingForIEnumerablePropsResponse": {
         "type": "object",
@@ -5941,8 +6728,7 @@
           "persons": {
             "$ref": "#/components/schemas/SystemCollectionsGenericIEnumerableOfPerson"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesEventHandlingTestSomeEvent": {
         "type": "object",
@@ -5955,8 +6741,7 @@
             "type": "integer",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesEventStreamTestRequest": {
         "required": [
@@ -5971,8 +6756,7 @@
           "notifications": {
             "$ref": "#/components/schemas/TestCasesEventStreamTestSomeNotification[]"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesEventStreamTestSomeNotification": {
         "required": [
@@ -5983,8 +6767,7 @@
           "name": {
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesEventStreamTestSomeNotification[]": {
         "type": "array",
@@ -6009,8 +6792,7 @@
               "format": "binary"
             }
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesFormBindingComplexDtosAuthor": {
         "type": "object",
@@ -6035,8 +6817,7 @@
           "otherAddresses": {
             "$ref": "#/components/schemas/SystemCollectionsGenericListOfAddress"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesFormBindingComplexDtosBook": {
         "type": "object",
@@ -6064,8 +6845,7 @@
           "barCodes": {
             "$ref": "#/components/schemas/SystemCollectionsGenericIEnumerableOfInt32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesFormFileBindingTestRequest": {
         "type": "object",
@@ -6103,8 +6883,7 @@
               "format": "binary"
             }
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesFormFileBindingTestResponse": {
         "type": "object",
@@ -6121,8 +6900,7 @@
           "jetNames": {
             "$ref": "#/components/schemas/SystemCollectionsGenericListOfString"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesFromBodyJsonBindingProduct": {
         "type": "object",
@@ -6146,7 +6924,6 @@
             "example": 200.22
           }
         },
-        "additionalProperties": false,
         "example": {
           "name": "test product name",
           "price": 200.22
@@ -6166,8 +6943,7 @@
             "type": "integer",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesFromCookieRequestBindingTestResponse": {
         "type": "object",
@@ -6179,8 +6955,7 @@
           "cookieValue": {
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesGlobalGenericProcessorTestRequest": {
         "type": "object",
@@ -6191,8 +6966,7 @@
           "postProcRan": {
             "type": "boolean"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesGlobalRoutePrefixOverrideTestRequest": {
         "type": "object",
@@ -6201,8 +6975,7 @@
             "type": "string",
             "description": "overriden content text"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesGlobalRoutePrefixOverrideTestResponse": {
         "type": "object",
@@ -6214,8 +6987,7 @@
           "bodyContent": {
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesHydratedQueryParamGeneratorTestRequest_ComplexIdClass": {
         "type": "object",
@@ -6228,8 +7000,7 @@
             "type": "integer",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesHydratedQueryParamGeneratorTestRequest_ComplexIdClassWithToString": {
         "type": "object",
@@ -6242,8 +7013,7 @@
             "type": "integer",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesHydratedQueryParamGeneratorTestRequest_NestedClass": {
         "required": [
@@ -6262,8 +7032,7 @@
             "type": "integer",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesHydratedQueryParamGeneratorTestResponse": {
         "type": "object",
@@ -6283,8 +7052,7 @@
           "complexIdString": {
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesIdempotencyResponse": {
         "type": "object",
@@ -6296,8 +7064,7 @@
             "type": "integer",
             "format": "int64"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesIncludedValidatorTestRequest": {
         "required": [
@@ -6316,8 +7083,7 @@
             "type": "integer",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesJsonArrayBindingForIEnumerablePropsRequest_Person": {
         "type": "object",
@@ -6329,8 +7095,7 @@
           "name": {
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesJsonArrayBindingForIEnumerablePropsResponse": {
         "type": "object",
@@ -6353,8 +7118,7 @@
           "dict": {
             "$ref": "#/components/schemas/SystemCollectionsGenericDictionaryOfStringAndString"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesJsonArrayBindingToIEnumerableDtoItem": {
         "type": "object",
@@ -6366,8 +7130,7 @@
           "name": {
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesJsonArrayBindingToIEnumerableDtoRequest": {
         "type": "array",
@@ -6385,8 +7148,7 @@
           "name": {
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesJsonArrayBindingToListOfModelsRequest": {
         "type": "object",
@@ -6394,8 +7156,7 @@
           "name": {
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesMapperTestRequest": {
         "type": "object",
@@ -6410,8 +7171,7 @@
             "type": "integer",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesMapperTestResponse": {
         "type": "object",
@@ -6423,8 +7183,7 @@
             "type": "integer",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesMissingHeaderTestDontThrowIfMissingRequest": {
         "type": "object",
@@ -6435,8 +7194,7 @@
               "string"
             ]
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesOnBeforeAfterValidationTestRequest": {
         "type": "object",
@@ -6450,8 +7208,7 @@
               "string"
             ]
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesOnBeforeAfterValidationTestResponse": {
         "type": "object",
@@ -6462,8 +7219,7 @@
               "string"
             ]
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesPlainTextRequestTestRequest": {
         "type": "object",
@@ -6472,8 +7228,7 @@
             "type": "string",
             "description": "overriden content text"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesPlainTextRequestTestResponse": {
         "type": "object",
@@ -6485,8 +7240,7 @@
           "bodyContent": {
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesPostProcessorTestExceptionDetailsResponse": {
         "type": "object",
@@ -6494,8 +7248,7 @@
           "type": {
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesPreProcessorIsRunOnValidationFailureRequest": {
         "required": [
@@ -6511,8 +7264,7 @@
             "type": "integer",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesPreProcessorIsRunOnValidationFailureResponse": {
         "type": "object",
@@ -6523,8 +7275,7 @@
               "string"
             ]
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesProcessorAttributesTestRequest": {
         "type": "object",
@@ -6532,8 +7283,7 @@
           "values": {
             "$ref": "#/components/schemas/SystemCollectionsGenericListOfString"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesQueryObjectBindingTestByteEnum": {
         "enum": [
@@ -6566,8 +7316,7 @@
           "isHidden": {
             "type": "boolean"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesQueryObjectBindingTestPerson": {
         "type": "object",
@@ -6598,8 +7347,7 @@
           "isHidden": {
             "type": "boolean"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesQueryObjectBindingTestResponse": {
         "type": "object",
@@ -6633,8 +7381,7 @@
           "person": {
             "$ref": "#/components/schemas/TestCasesQueryObjectBindingTestPerson"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesQueryObjectWithObjectsArrayBindingTestNestedPerson": {
         "type": "object",
@@ -6642,8 +7389,7 @@
           "objects": {
             "$ref": "#/components/schemas/SystemCollectionsGenericListOfObjectInArray"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesQueryObjectWithObjectsArrayBindingTestObjectInArray": {
         "type": "object",
@@ -6672,8 +7418,7 @@
           "enum": {
             "$ref": "#/components/schemas/SystemDayOfWeek"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesQueryObjectWithObjectsArrayBindingTestPerson": {
         "type": "object",
@@ -6684,8 +7429,7 @@
           "objects": {
             "$ref": "#/components/schemas/SystemCollectionsGenericListOfObjectInArray"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesQueryObjectWithObjectsArrayBindingTestResponse": {
         "type": "object",
@@ -6693,8 +7437,7 @@
           "person": {
             "$ref": "#/components/schemas/TestCasesQueryObjectWithObjectsArrayBindingTestPerson"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesQueryParamBindingInEpWithoutReqResponse": {
         "type": "object",
@@ -6724,8 +7467,7 @@
             "type": "number",
             "format": "float"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesRateLimitTestsResponse": {
         "type": "object",
@@ -6742,8 +7484,7 @@
             "description": "optional other id",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesRouteBindingInEpWithoutReqResponse": {
         "type": "object",
@@ -6760,8 +7501,7 @@
             "description": "optional other id",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesRouteBindingTestCustom": {
         "type": "object",
@@ -6770,8 +7510,7 @@
             "type": "integer",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesRouteBindingTestCustomList": {
         "type": "array",
@@ -6797,8 +7536,7 @@
           "strings": {
             "$ref": "#/components/schemas/SystemCollectionsGenericListOfString"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesRouteBindingTestPerson": {
         "type": "object",
@@ -6820,8 +7558,7 @@
           "numbers": {
             "$ref": "#/components/schemas/SystemCollectionsGenericListOfInt32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesRouteBindingTestRequest": {
         "type": "object",
@@ -6858,8 +7595,7 @@
             "type": "string",
             "description": "overriden from body comment"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesRouteBindingTestResponse": {
         "type": "object",
@@ -6911,8 +7647,7 @@
           "person": {
             "$ref": "#/components/schemas/TestCasesRouteBindingTestPerson"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesSTJInfiniteRecursionTestResponse": {
         "type": "object",
@@ -6931,8 +7666,7 @@
               }
             ]
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesSwaggerJsonPatchRequestBodyTestPerson": {
         "type": "object",
@@ -6943,8 +7677,187 @@
           "lastName": {
             "type": "string"
           }
+        }
+      },
+      "TestCasesSwaggerReviewChildValidatorReviewChild": {
+        "type": "object",
+        "properties": {
+          "score": {
+            "exclusiveMinimum": 10,
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "TestCasesSwaggerReviewChildValidatorReviewRequest": {
+        "type": "object",
+        "properties": {
+          "child": {
+            "$ref": "#/components/schemas/TestCasesSwaggerReviewChildValidatorReviewChild"
+          }
+        }
+      },
+      "TestCasesSwaggerReviewCollectionLengthReviewRequest": {
+        "required": [
+          "tags"
+        ],
+        "type": "object",
+        "properties": {
+          "tags": {
+            "$ref": "#/components/schemas/SystemString[]"
+          }
+        }
+      },
+      "TestCasesSwaggerReviewDeepNestedValidatorReviewChild": {
+        "type": "object",
+        "properties": {
+          "subChild": {
+            "$ref": "#/components/schemas/TestCasesSwaggerReviewDeepNestedValidatorReviewGrandChild"
+          }
+        }
+      },
+      "TestCasesSwaggerReviewDeepNestedValidatorReviewGrandChild": {
+        "type": "object",
+        "properties": {
+          "field": {
+            "minLength": 5,
+            "type": "string"
+          }
+        }
+      },
+      "TestCasesSwaggerReviewDeepNestedValidatorReviewRequest": {
+        "type": "object",
+        "properties": {
+          "child": {
+            "$ref": "#/components/schemas/TestCasesSwaggerReviewDeepNestedValidatorReviewChild"
+          }
+        }
+      },
+      "TestCasesSwaggerReviewDuplicateRequestExamplesRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "first"
+          }
         },
-        "additionalProperties": false
+        "example": {
+          "name": "first"
+        }
+      },
+      "TestCasesSwaggerReviewGenericXmlDocReviewRequest": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "wrapped value summary",
+            "example": "wrapped example"
+          }
+        }
+      },
+      "TestCasesSwaggerReviewGenericXmlDocReviewResponse": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": [
+              "null",
+              "string"
+            ],
+            "description": "wrapped value summary",
+            "example": "wrapped example"
+          }
+        },
+        "description": "generic review response summary"
+      },
+      "TestCasesSwaggerReviewIllegalHeadersRequest": {
+        "type": "object",
+        "properties": {
+          "bodyValue": {
+            "type": "string"
+          }
+        }
+      },
+      "TestCasesSwaggerReviewInlineMarkupXmlDocReviewRequest": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "description": "filter by UserId value."
+          }
+        },
+        "description": "returns the User record."
+      },
+      "TestCasesSwaggerReviewIntermediateBaseValidatorReviewRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "minLength": 3,
+            "type": "string"
+          }
+        }
+      },
+      "TestCasesSwaggerReviewJsonPropertyNameTransformerReviewRequest": {
+        "type": "object",
+        "properties": {
+          "x_coord": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "TestCasesSwaggerReviewJsonPropertyNameTransformerReviewResponse": {
+        "type": "object",
+        "properties": {
+          "bodyValue": {
+            "type": "string"
+          }
+        }
+      },
+      "TestCasesSwaggerReviewMissingSchemaEnumResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/TestCasesSwaggerReviewUlongEnumReviewStatus"
+          }
+        }
+      },
+      "TestCasesSwaggerReviewMissingSchemaPrimitiveResponse": {
+        "type": "object",
+        "properties": {
+          "correlationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "effectiveOn": {
+            "$ref": "#/components/schemas/SystemDateOnly"
+          }
+        }
+      },
+      "TestCasesSwaggerReviewNoRequestMetadataLeakResponse": {
+        "type": "object",
+        "properties": {
+          "leakId": {
+            "type": "string",
+            "description": "response leak id"
+          }
+        }
+      },
+      "TestCasesSwaggerReviewUlongEnumReviewResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "$ref": "#/components/schemas/TestCasesSwaggerReviewUlongEnumReviewStatus"
+          }
+        }
+      },
+      "TestCasesSwaggerReviewUlongEnumReviewStatus": {
+        "enum": [
+          18446744073709551615
+        ],
+        "type": "integer"
       },
       "TestCasesTypedHeaderBindingTestMyRequest": {
         "type": "object",
@@ -6953,8 +7866,7 @@
             "type": "string",
             "description": "the body content of the incoming request"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesTypedResultTestRequest": {
         "type": "object",
@@ -6963,8 +7875,7 @@
             "type": "integer",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesTypedResultTestResponse": {
         "type": "object",
@@ -6973,8 +7884,7 @@
             "type": "integer",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesValidationErrorTestArrayRequest": {
         "type": "object",
@@ -6982,8 +7892,7 @@
           "stringArray": {
             "$ref": "#/components/schemas/SystemString[]"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesValidationErrorTestDictionaryRequest": {
         "type": "object",
@@ -6991,8 +7900,7 @@
           "stringDictionary": {
             "$ref": "#/components/schemas/SystemCollectionsGenericDictionaryOfStringAndString"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesValidationErrorTestListInListRequest": {
         "type": "object",
@@ -7000,8 +7908,7 @@
           "numbersList": {
             "$ref": "#/components/schemas/SystemCollectionsGenericListOfListOfInt32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesValidationErrorTestListRequest": {
         "type": "object",
@@ -7009,8 +7916,7 @@
           "numbersList": {
             "$ref": "#/components/schemas/SystemCollectionsGenericListOfInt32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesValidationErrorTestObjectArrayRequest": {
         "type": "object",
@@ -7018,8 +7924,7 @@
           "objectArray": {
             "$ref": "#/components/schemas/TestCasesValidationErrorTestTObject[]"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesValidationErrorTestTObject": {
         "type": "object",
@@ -7027,8 +7932,7 @@
           "test": {
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "TestCasesValidationErrorTestTObject[]": {
         "type": "array",
@@ -7042,8 +7946,7 @@
           "message": {
             "type": "string"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "UploadsImageSaveRequest": {
         "type": "object",
@@ -7063,8 +7966,7 @@
             "type": "integer",
             "format": "int32"
           }
-        },
-        "additionalProperties": false
+        }
       },
       "UploadsImageSaveTypedRequest": {
         "type": "object",
@@ -7132,8 +8034,7 @@
               "format": "binary"
             }
           }
-        },
-        "additionalProperties": false
+        }
       }
     },
     "securitySchemes": {

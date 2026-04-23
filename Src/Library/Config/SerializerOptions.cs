@@ -30,6 +30,12 @@ public sealed class SerializerOptions
     public string? CharacterEncoding { internal get; set; } = "utf-8";
 
     /// <summary>
+    /// controls how the routeless integration test helpers handle unmapped json members when deserializing response dto bodies.
+    /// defaults to <see cref="JsonUnmappedMemberHandling.Disallow" /> so response dto mismatches fail loudly with the received json payload.
+    /// </summary>
+    public JsonUnmappedMemberHandling TestResponseUnmappedMemberHandling { internal get; set; } = JsonUnmappedMemberHandling.Disallow;
+
+    /// <summary>
     /// a function for deserializing the incoming http request body. this function will be executed for each request received if it has a json request body.
     /// the input parameters of the func are as follows:
     /// <code>

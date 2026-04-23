@@ -898,7 +898,7 @@ public sealed class EpVersion
     /// bld.Services.SwaggerDocument(
     ///        o =>
     ///        {
-    ///            o.DocumentSettings = d => d.DocumentName = "Release 2";
+    ///            o.DocumentName = "Release 2";
     ///            o.ReleaseVersion = 2;
     ///        })
     ///  </code>

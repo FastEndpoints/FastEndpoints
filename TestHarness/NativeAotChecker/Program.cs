@@ -20,11 +20,12 @@ bld.Services
            c.Register<MiddlewareTestCmd, MiddlewareTestResult, SecondMiddleware<MiddlewareTestCmd, MiddlewareTestResult>>();
            c.Register<MiddlewareTestCmd, MiddlewareTestResult, ThirdMiddleware<MiddlewareTestCmd, MiddlewareTestResult>>();
        })
-   .OpenApiDocument(o => o.DocumentSettings = s => s.DocumentName = "v1");
+   .OpenApiDocument(o => o.DocumentName = "v1");
 
 var app = bld.Build();
 app.MapGet("healthy", () => Results.Ok());
-app.UseAuthentication()
+app.UseStaticFiles()
+   .UseAuthentication()
    .UseAuthorization()
    .UseFastEndpoints(
        c =>
@@ -34,7 +35,9 @@ app.UseAuthentication()
            c.Binding.ReflectionCache.AddFromNativeAotChecker();
            c.Endpoints.Configurator = ep => { ep.PreProcessors(Order.Before, typeof(OpenGenericGlobalPreProcessor<>)); };
        });
-app.MapOpenApi();
+
+await app.ExportOpenApiDocsAndExitAsync("v1");
+
 app.MapScalarApiReference(o => o.AddDocument("v1"));
 app.UseJobQueues(o => o.StorageProbeDelay = TimeSpan.FromMilliseconds(50));
 app.Services.RegisterGenericCommand<AotGenericCommand<ProductData>, AotGenericResult<ProductData>, AotGenericCommandHandler<ProductData>>();

@@ -1,23 +1,37 @@
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.OpenApi;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
 
 namespace FastEndpoints.OpenApi;
 
 sealed partial class DocumentTransformer : IOpenApiDocumentTransformer
 {
+    static readonly HashSet<string> _frameworkHeaderValueSchemaKeys =
+    [
+        "MicrosoftNetHttpHeadersCacheControlHeaderValue",
+        "MicrosoftNetHttpHeadersContentDispositionHeaderValue",
+        "MicrosoftNetHttpHeadersContentRangeHeaderValue",
+        "MicrosoftNetHttpHeadersMediaTypeHeaderValue",
+        "MicrosoftNetHttpHeadersRangeConditionHeaderValue",
+        "MicrosoftNetHttpHeadersRangeHeaderValue",
+        "MicrosoftNetHttpHeadersEntityTagHeaderValue",
+        "SystemCollectionsGenericIListOfMicrosoftNetHttpHeadersMediaTypeHeaderValue",
+        "SystemCollectionsGenericIListOfMicrosoftNetHttpHeadersEntityTagHeaderValue",
+        "SystemCollectionsGenericIListOfMicrosoftNetHttpHeadersSetCookieHeaderValue"
+    ];
+
     readonly DocumentOptions _opts;
-    readonly DocumentSettings _docSettings;
     readonly SharedContext _sharedCtx;
     readonly int _maxEpVer;
     readonly int _minEpVer;
     readonly int _docRelVer;
     readonly bool _showDeprecated;
 
-    public DocumentTransformer(DocumentOptions opts, DocumentSettings docSettings, SharedContext sharedCtx)
+    public DocumentTransformer(DocumentOptions opts, SharedContext sharedCtx)
     {
         _opts = opts;
-        _docSettings = docSettings;
         _sharedCtx = sharedCtx;
         _minEpVer = opts.MinEndpointVersion;
         _maxEpVer = opts.MaxEndpointVersion;
@@ -40,17 +54,17 @@ sealed partial class DocumentTransformer : IOpenApiDocumentTransformer
             throw new ArgumentException("MaxEndpointVersion must be greater than or equal to MinEndpointVersion");
     }
 
-    public Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
+    public async Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
     {
         _opts.Services ??= context.ApplicationServices;
+        _sharedCtx.ResolveNamingPolicy(context.ApplicationServices);
 
-        if (_docSettings.Title is not null)
-            document.Info.Title = _docSettings.Title;
+        if (_opts.Title is not null)
+            document.Info.Title = _opts.Title;
 
-        if (_docSettings.Version is not null)
-            document.Info.Version = _docSettings.Version;
+        if (_opts.Version is not null)
+            document.Info.Version = _opts.Version;
 
-        RemoveFilteredPaths(document);
         ApplyVersionFiltering(document);
         AddSecuritySchemes(document);
         FixOperationSecurity(document);
@@ -58,7 +72,7 @@ sealed partial class DocumentTransformer : IOpenApiDocumentTransformer
         RemoveHeaderValueSchemas(document);
         document.RemoveFormFileSchemas();
         ApplyPathNamingPolicy(document);
-        NormalizeSchemas(document);
+        await NormalizeSchemas(document, context, cancellationToken);
 
         if (_opts.TagDescriptions is null)
             document.Tags?.Clear();
@@ -67,58 +81,64 @@ sealed partial class DocumentTransformer : IOpenApiDocumentTransformer
         document.SortSchemas();
         document.SortResponses();
 
-        return Task.CompletedTask;
     }
 
-    void NormalizeSchemas(OpenApiDocument document)
+    async Task NormalizeSchemas(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
     {
-        document.AddMissingSchemas(_sharedCtx);
-
-        if (_opts.FlattenSchema)
-            document.FlattenAllOfSchemas();
-
-        if (_opts.RemoveEmptyRequestSchema)
-            document.RemoveEmptyRequestSchemas();
-
-        document.AddAdditionalPropertiesFalse();
+        await document.AddMissingSchemas(_sharedCtx, context, cancellationToken);
         document.RemoveUnreferencedSchemas();
-    }
-
-    void RemoveFilteredPaths(OpenApiDocument document)
-    {
-        if (_sharedCtx.PathsToRemove.IsEmpty)
-            return;
-
-        var pathsToRemove = _sharedCtx.PathsToRemove.ToHashSet(StringComparer.OrdinalIgnoreCase);
-
-        foreach (var path in document.Paths.Keys.ToArray())
-        {
-            if (pathsToRemove.Contains(path))
-                document.Paths.Remove(path);
-        }
     }
 
     void ApplyVersionFiltering(OpenApiDocument document)
     {
-        var operationsByBareRoute = _sharedCtx.Operations.Values
-                                              .Where(op => op.IsFastEndpoint)
-                                              .GroupBy(op => op.OperationKey)
-                                              .ToList();
+        var operationsByBareRoute = new Dictionary<string, List<OperationMeta>>(StringComparer.Ordinal);
 
         var opsToKeep = new HashSet<(string Path, string Method)>();
         var opsToDeprecate = new HashSet<(string Path, string Method)>();
 
-        foreach (var group in operationsByBareRoute)
+        foreach (var op in _sharedCtx.Operations.Values)
         {
-            var sortedGroup = group.OrderByDescending(x => x.Version).ToList();
-            var latestVersion = sortedGroup.FirstOrDefault(x => x.StartingReleaseVersion <= _docRelVer)?.Version ?? 0;
-
-            var taken = (_showDeprecated
-                             ? sortedGroup.Where(IsInRequestedRange)
-                             : sortedGroup.Where(IsInRequestedRange).Take(1)).ToList();
-
-            foreach (var op in taken)
+            if (!op.IsFastEndpoint)
             {
+                opsToKeep.Add((op.DocumentPath, op.HttpMethod));
+
+                continue;
+            }
+
+            if (!operationsByBareRoute.TryGetValue(op.OperationKey, out var operations))
+            {
+                operations = [];
+                operationsByBareRoute[op.OperationKey] = operations;
+            }
+
+            operations.Add(op);
+        }
+
+        foreach (var group in operationsByBareRoute.Values)
+        {
+            group.Sort(static (x, y) => y.Version.CompareTo(x.Version));
+
+            var latestVersion = 0;
+
+            for (var i = 0; i < group.Count; i++)
+            {
+                var candidate = group[i];
+
+                if (candidate.StartingReleaseVersion > _docRelVer)
+                    continue;
+
+                latestVersion = candidate.Version;
+
+                break;
+            }
+
+            for (var i = 0; i < group.Count; i++)
+            {
+                var op = group[i];
+
+                if (!IsInRequestedRange(op))
+                    continue;
+
                 var isDeprecated = IsDeprecated(op, latestVersion);
 
                 if (isDeprecated && !_showDeprecated)
@@ -128,12 +148,11 @@ sealed partial class DocumentTransformer : IOpenApiDocumentTransformer
 
                 if (isDeprecated && _showDeprecated)
                     opsToDeprecate.Add((op.DocumentPath, op.HttpMethod));
+
+                if (!_showDeprecated)
+                    break;
             }
         }
-
-        // non-FastEndpoint operations aren't version-filtered - keep them unconditionally
-        foreach (var op in _sharedCtx.Operations.Values.Where(op => !op.IsFastEndpoint))
-            opsToKeep.Add((op.DocumentPath, op.HttpMethod));
 
         foreach (var path in document.Paths.Keys.ToArray())
         {
@@ -172,13 +191,13 @@ sealed partial class DocumentTransformer : IOpenApiDocumentTransformer
 
     void AddSecuritySchemes(OpenApiDocument document)
     {
-        if (_docSettings.AuthSchemes.Count == 0)
+        if (_opts.AuthSchemes.Count == 0)
             return;
 
         document.Components ??= new();
         document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
 
-        foreach (var auth in _docSettings.AuthSchemes)
+        foreach (var auth in _opts.AuthSchemes)
             document.Components.SecuritySchemes[auth.Name] = auth.Scheme;
     }
 
@@ -255,7 +274,7 @@ sealed partial class DocumentTransformer : IOpenApiDocumentTransformer
             document.Components.Schemas.Remove(stringSegmentKey);
 
         static bool IsHeaderValueSchema(string schemaKey)
-            => schemaKey.EndsWith("HeaderValue", StringComparison.Ordinal);
+            => _frameworkHeaderValueSchemaKeys.Contains(schemaKey);
     }
 
     void ApplyPathNamingPolicy(OpenApiDocument document)
@@ -263,7 +282,7 @@ sealed partial class DocumentTransformer : IOpenApiDocumentTransformer
         if (!_opts.UsePropertyNamingPolicy)
             return;
 
-        var policy = Extensions.NamingPolicy;
+        var policy = _sharedCtx.NamingPolicy;
 
         if (policy is null)
             return;

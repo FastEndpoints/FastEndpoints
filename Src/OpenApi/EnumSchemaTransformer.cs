@@ -20,12 +20,15 @@ sealed class EnumSchemaTransformer : IOpenApiSchemaTransformer
         if (!schema.Type.HasValue || !schema.Type.Value.HasFlag(JsonSchemaType.Integer))
             return Task.CompletedTask;
 
-        var values = Enum.GetValues(type);
+        var values = Enum.GetValuesAsUnderlyingType(type);
+        var isUnsignedLong = Enum.GetUnderlyingType(type) == typeof(ulong);
 
         schema.Enum ??= [];
 
         foreach (var val in values)
-            schema.Enum.Add(JsonValue.Create(Convert.ToInt64(val)));
+            schema.Enum.Add(isUnsignedLong
+                                ? JsonValue.Create(Convert.ToDecimal(val))
+                                : JsonValue.Create(Convert.ToInt64(val)));
 
         return Task.CompletedTask;
     }

@@ -33,12 +33,62 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     }
 
     [Fact]
+    public async Task endpoint_specific_request_metadata_does_not_mutate_shared_component_schema()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var doc = JToken.Parse(json);
+        var alphaSchema = doc["paths"]!["/api/swagger-review/shared-request-metadata-alpha"]!["post"]!
+                             ["requestBody"]!["content"]!["application/json"]!["schema"]!;
+        var betaSchema = doc["paths"]!["/api/swagger-review/shared-request-metadata-beta"]!["post"]!
+                            ["requestBody"]!["content"]!["application/json"]!["schema"]!;
+        var componentSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewSharedRequestMetadataReviewRequest"];
+
+        alphaSchema["$ref"].ShouldBeNull();
+        betaSchema["$ref"].ShouldBeNull();
+        alphaSchema["example"]!["name"]!.Value<string>().ShouldBe("alpha example");
+        betaSchema["example"]!["name"]!.Value<string>().ShouldBe("beta example");
+        alphaSchema["properties"]!["name"]!["description"]!.Value<string>().ShouldBe("alpha description");
+        betaSchema["properties"]!["name"]!["description"]!.Value<string>().ShouldBe("beta description");
+        componentSchema.ShouldBeNull();
+    }
+
+    [Fact]
     public async Task illegal_header_names_are_not_added_as_parameters()
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review");
         var parameters = JToken.Parse(json)["paths"]!["/api/swagger-review/illegal-headers"]!["post"]!["parameters"];
 
         parameters.ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task ulong_enum_schema_keeps_values_above_long_max()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var enumValue = JToken.Parse(json)["components"]!["schemas"]!["TestCasesSwaggerReviewUlongEnumReviewStatus"]!["enum"]![0]!;
+
+        enumValue.ToString().ShouldBe("18446744073709551615");
+    }
+
+    [Fact]
+    public async Task filtered_operation_does_not_remove_other_methods_on_same_path()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var pathItem = JToken.Parse(json)["paths"]!["/api/filtered-shared-path"]!;
+
+        pathItem["get"].ShouldBeNull();
+        pathItem["post"].ShouldNotBeNull();
+    }
+
+    [Fact]
+    public async Task bare_route_stripping_only_removes_structural_segments()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var tags = JToken.Parse(json)["paths"]!["/apiary/ver0/status"]!["get"]!["tags"]!
+                         .Values<string>()
+                         .ToArray();
+
+        tags.ShouldBe(["Apiary"]);
     }
 
     [Fact]
@@ -183,4 +233,162 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
 
         doc["components"]!["schemas"]!["TestCasesHydratedQueryParamGeneratorTestRequest_NestedClass"].ShouldNotBeNull();
     }
+
+    [Fact]
+    public async Task child_validator_rules_are_applied_to_nested_schema_properties()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var childSchema = JToken.Parse(json)["components"]!["schemas"]!["TestCasesSwaggerReviewChildValidatorReviewChild"]!;
+
+        childSchema["properties"]!["score"]!["exclusiveMinimum"]!.Value<string>().ShouldBe("10");
+    }
+
+    [Fact]
+    public async Task deep_nested_validator_rules_are_applied_to_nested_schema_properties()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var grandChildSchema = JToken.Parse(json)["components"]!["schemas"]!["TestCasesSwaggerReviewDeepNestedValidatorReviewGrandChild"]!;
+
+        grandChildSchema["properties"]!["field"]!["minLength"]!.Value<int>().ShouldBe(5);
+    }
+
+    [Fact]
+    public async Task validator_rules_are_applied_through_intermediate_non_generic_base_type()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var requestSchema = JToken.Parse(json)["components"]!["schemas"]!["TestCasesSwaggerReviewIntermediateBaseValidatorReviewRequest"]!;
+
+        requestSchema["properties"]!["name"]!["minLength"]!.Value<int>().ShouldBe(3);
+    }
+
+    [Fact]
+    public async Task json_property_name_attributes_are_used_by_to_header_transformer()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var doc = JToken.Parse(json);
+        var responseSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewJsonPropertyNameTransformerReviewResponse"]!;
+
+        responseSchema["properties"]!["x_secret"].ShouldBeNull();
+        responseSchema["properties"]!["bodyValue"].ShouldNotBeNull();
+    }
+
+    [Fact]
+    public async Task interface_dictionary_query_parameter_uses_object_schema()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var operation = JToken.Parse(json)["paths"]!["/api/swagger-review/interface-dictionary"]!["get"]!;
+        var dictParam = operation["parameters"]!.First(p => p["name"]!.Value<string>() == "metadata");
+
+        dictParam["schema"].ShouldBeNull();
+        dictParam["content"]!["application/json"]!["schema"]!["type"]!.Value<string>().ShouldBe("object");
+        dictParam["content"]!["application/json"]!["schema"]!["additionalProperties"]!["type"]!.Value<string>().ShouldBe("string");
+    }
+
+    [Fact]
+    public async Task xml_docs_are_applied_for_properties_on_generic_types()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var doc = JToken.Parse(json);
+        var requestSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewGenericXmlDocReviewRequest"]!;
+        var responseSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewGenericXmlDocReviewResponse"]!;
+
+        requestSchema["properties"]!["value"]!["description"]!.Value<string>().ShouldBe("wrapped value summary");
+        requestSchema["properties"]!["value"]!["example"]!.Value<string>().ShouldBe("wrapped example");
+        responseSchema["description"]!.Value<string>().ShouldBe("generic review response summary");
+        responseSchema["properties"]!["value"]!["description"]!.Value<string>().ShouldBe("wrapped value summary");
+    }
+
+    [Fact]
+    public async Task xml_doc_inline_markup_text_is_preserved_in_descriptions()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var doc = JToken.Parse(json);
+        var requestSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewInlineMarkupXmlDocReviewRequest"]!;
+
+        requestSchema["description"]!.Value<string>().ShouldBe("returns the User record.");
+        requestSchema["properties"]!["userId"]!["description"]!.Value<string>().ShouldBe("filter by UserId value.");
+    }
+
+    [Fact]
+    public async Task missing_schema_generation_uses_primitive_formats_for_primitive_like_properties()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var doc = JToken.Parse(json);
+        var responseSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewMissingSchemaPrimitiveResponse"]!;
+
+        responseSchema["properties"]!["correlationId"]!["type"]!.Value<string>().ShouldBe("string");
+        responseSchema["properties"]!["correlationId"]!["format"]!.Value<string>().ShouldBe("uuid");
+        responseSchema["properties"]!["effectiveOn"]!["$ref"]!.Value<string>().ShouldBe("#/components/schemas/SystemDateOnly");
+        doc["components"]!["schemas"]!["SystemDateOnly"]!["type"]!.Value<string>().ShouldBe("string");
+        doc["components"]!["schemas"]!["SystemDateOnly"]!["format"]!.Value<string>().ShouldBe("date");
+    }
+
+    [Fact]
+    public async Task missing_schema_generation_runs_schema_transformers()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var doc = JToken.Parse(json);
+        var responseSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewMissingSchemaEnumResponse"]!;
+        var enumSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewUlongEnumReviewStatus"]!;
+
+        responseSchema["properties"]!["status"]!["$ref"]!.Value<string>().ShouldBe("#/components/schemas/TestCasesSwaggerReviewUlongEnumReviewStatus");
+        enumSchema["enum"]![0]!.ToString().ShouldBe("18446744073709551615");
+    }
+
+    [Fact]
+    public async Task orphan_constrained_route_param_uses_constraint_type()
+    {
+        var json = await App.GetDocumentJsonAsync("Release 2.0");
+        var operation = JToken.Parse(json)["paths"]!["/api/test-cases/ep-witout-req-route-binding-test/{customerID}/{otherID}"]!["get"]!;
+        var customerId = operation["parameters"]!.First(p => p["name"]!.Value<string>() == "customerID");
+
+        customerId["schema"]!["type"]!.Value<string>().ShouldBe("integer");
+        customerId["schema"]!["format"]!.Value<string>().ShouldBe("int32");
+    }
+
+    [Fact]
+    public async Task endpoint_without_request_does_not_use_response_metadata_for_request_parameters()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var operation = JToken.Parse(json)["paths"]!["/api/swagger-review/no-request-metadata-leak/{leakId}"]!["get"]!;
+        var leakId = operation["parameters"]!.First(p => p["name"]!.Value<string>() == "leakId");
+
+        leakId["description"].ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task inline_default_route_values_are_removed_from_openapi_paths_and_parameter_names()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var operation = JToken.Parse(json)["paths"]!["/api/swagger-review/default-route-value/{id}"]!["get"]!;
+        var id = operation["parameters"]!.First(p => p["name"]!.Value<string>() == "id");
+
+        id["description"]!.Value<string>().ShouldBe("route param summary");
+    }
+
+    [Fact]
+    public async Task multi_route_endpoint_uses_path_parameters_from_matching_route_only()
+    {
+        var json = await App.GetDocumentJsonAsync("Initial Release");
+        var doc = JToken.Parse(json);
+        var saveOperation = doc["paths"]!["/api/customer/save"]!["get"]!;
+        var pathParams = saveOperation["parameters"]!
+                                      .Where(p => p["in"]!.Value<string>() == "path")
+                                      .Select(p => p["name"]!.Value<string>())
+                                      .ToArray();
+        var routedOperation = doc["paths"]!["/api/customer/{cID}/new/{sourceID}"]!["get"]!;
+        var routedParams = routedOperation["parameters"]!
+                                          .Select(p => new
+                                          {
+                                              Name = p["name"]!.Value<string>(),
+                                              Location = p["in"]!.Value<string>()
+                                          })
+                                          .ToArray();
+
+        pathParams.ShouldBeEmpty();
+        routedParams.ShouldContain(p => p.Name == "cID" && p.Location == "path");
+        routedParams.ShouldContain(p => p.Name == "sourceID" && p.Location == "path");
+        routedParams.ShouldNotContain(p => p.Name == "refererID");
+    }
+
 }

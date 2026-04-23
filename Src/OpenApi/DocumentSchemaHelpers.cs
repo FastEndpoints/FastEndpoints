@@ -1,7 +1,4 @@
-using System.Reflection;
-using System.Text.Json;
-using System.Text.Json.Nodes;
-using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
 
 namespace FastEndpoints.OpenApi;
@@ -16,20 +13,16 @@ static class DocumentSchemaHelpers
                 return;
 
             var referencedSchemas = new HashSet<string>(StringComparer.Ordinal);
-            CollectReferencedSchemas(document, referencedSchemas);
+            var pendingSchemas = new Queue<string>();
+            CollectReferencedSchemas(document, referencedSchemas, pendingSchemas);
 
-            int prevCount;
-
-            do
+            while (pendingSchemas.Count > 0)
             {
-                prevCount = referencedSchemas.Count;
+                var refId = pendingSchemas.Dequeue();
 
-                foreach (var refId in referencedSchemas.ToArray())
-                {
-                    if (schemas.TryGetValue(refId, out var s))
-                        CollectSchemaRefs(s, referencedSchemas);
-                }
-            } while (referencedSchemas.Count > prevCount);
+                if (schemas.TryGetValue(refId, out var s))
+                    CollectSchemaRefs(s, referencedSchemas, pendingSchemas);
+            }
 
             foreach (var key in schemas.Keys.ToArray())
             {
@@ -89,27 +82,7 @@ static class DocumentSchemaHelpers
             }
         }
 
-        internal void AddAdditionalPropertiesFalse()
-        {
-            if (document.Components?.Schemas is not { Count: > 0 })
-                return;
-
-            foreach (var (_, iSchema) in document.Components.Schemas)
-            {
-                if (iSchema is not OpenApiSchema schema)
-                    continue;
-
-                if (!schema.Type.HasValue || !schema.Type.Value.HasFlag(JsonSchemaType.Object))
-                    continue;
-
-                if (schema.AdditionalProperties is not null)
-                    continue;
-
-                schema.AdditionalPropertiesAllowed = false;
-            }
-        }
-
-        internal void AddMissingSchemas(SharedContext sharedCtx)
+        internal async Task AddMissingSchemas(SharedContext sharedCtx, OpenApiDocumentTransformerContext context, CancellationToken ct)
         {
             if (sharedCtx.MissingSchemaTypes.IsEmpty)
                 return;
@@ -122,98 +95,13 @@ static class DocumentSchemaHelpers
                 if (document.Components.Schemas.ContainsKey(refId))
                     continue;
 
-                var extraSchemas = new Dictionary<string, IOpenApiSchema>();
-                var schema = BuildSchemaForType(type, extraSchemas);
+                var schema = await context.GetOrCreateSchemaAsync(type, parameterDescription: null, ct);
 
                 if (schema is not null)
-                    document.Components.Schemas[refId] = schema;
-
-                foreach (var (extraRefId, extraSchema) in extraSchemas)
-                    document.Components.Schemas.TryAdd(extraRefId, extraSchema);
+                    document.Components.Schemas.TryAdd(refId, schema);
             }
         }
 
-        internal void FlattenAllOfSchemas()
-        {
-            if (document.Components?.Schemas is null)
-                return;
-
-            foreach (var (_, iSchema) in document.Components.Schemas)
-            {
-                if (iSchema is not OpenApiSchema schema || schema.AllOf is not { Count: > 0 })
-                    continue;
-
-                var unresolved = new List<IOpenApiSchema>();
-
-                foreach (var allOfEntry in schema.AllOf)
-                {
-                    var resolved = ResolveSchemaReference(allOfEntry, document.Components.Schemas);
-
-                    if (resolved is null)
-                    {
-                        unresolved.Add(allOfEntry);
-
-                        continue;
-                    }
-
-                    MergeSchemaMembers(schema, resolved);
-                }
-
-                schema.AllOf.Clear();
-
-                foreach (var entry in unresolved)
-                    schema.AllOf.Add(entry);
-
-                if (schema.AllOf.Count == 0)
-                    schema.AllOf = null;
-
-                if (schema.Properties is { Count: > 0 })
-                    schema.Type ??= JsonSchemaType.Object;
-            }
-        }
-    }
-
-    static IOpenApiSchema? ResolveSchemaReference(IOpenApiSchema schema, IDictionary<string, IOpenApiSchema> schemas)
-    {
-        if (schema is not OpenApiSchemaReference schemaRef)
-            return schema;
-
-        var refId = GetReferenceId(schemaRef);
-
-        return !string.IsNullOrEmpty(refId) && schemas.TryGetValue(refId, out var resolvedSchema)
-                   ? resolvedSchema
-                   : null;
-    }
-
-    static void MergeSchemaMembers(OpenApiSchema target, IOpenApiSchema source)
-    {
-        if (source.Properties is not null)
-        {
-            target.Properties ??= new Dictionary<string, IOpenApiSchema>();
-
-            foreach (var (propName, propSchema) in source.Properties)
-                target.Properties.TryAdd(propName, propSchema);
-        }
-
-        if (source.Required is null)
-            return;
-
-        target.Required ??= new HashSet<string>();
-
-        foreach (var req in source.Required)
-            target.Required.Add(req);
-    }
-
-    internal static void RemoveEmptyRequestSchemas(this OpenApiDocument document)
-    {
-        if (document.Components?.Schemas is null)
-            return;
-
-        foreach (var key in document.Components.Schemas
-                                    .Where(s => s.Value.Properties?.Count == 0 && s.Value.Type == JsonSchemaType.Object)
-                                    .Select(s => s.Key)
-                                    .ToArray())
-            document.Components.Schemas.Remove(key);
     }
 
     internal static void SortPaths(this OpenApiDocument document)
@@ -258,7 +146,7 @@ static class DocumentSchemaHelpers
             document.Components.Schemas[key] = schema;
     }
 
-    static void CollectReferencedSchemas(OpenApiDocument document, HashSet<string> refs)
+    static void CollectReferencedSchemas(OpenApiDocument document, HashSet<string> refs, Queue<string> pendingRefs)
     {
         foreach (var pathItem in document.Paths.Values)
         {
@@ -269,37 +157,40 @@ static class DocumentSchemaHelpers
             {
                 if (op.Parameters is { Count: > 0 })
                 {
-                    CollectSchemaRefs(op.Parameters.Select(p => p.Schema), refs);
+                    CollectSchemaRefs(op.Parameters.Select(p => p.Schema), refs, pendingRefs);
 
                     foreach (var param in op.Parameters)
                     {
                         if (param.Content is { Count: > 0 })
-                            CollectSchemaRefs(param.Content.Values.Select(content => content.Schema), refs);
+                            CollectSchemaRefs(param.Content.Values.Select(content => content.Schema), refs, pendingRefs);
                     }
                 }
 
                 if (op.RequestBody?.Content is { Count: > 0 })
-                    CollectSchemaRefs(op.RequestBody.Content.Values.Select(content => content.Schema), refs);
+                    CollectSchemaRefs(op.RequestBody.Content.Values.Select(content => content.Schema), refs, pendingRefs);
 
                 if (op.Responses is not { Count: > 0 })
                     continue;
 
                 foreach (var resp in op.Responses.Values)
                 {
+                    if (resp.Headers is { Count: > 0 })
+                        CollectSchemaRefs(resp.Headers.Values.Select(h => h.Schema), refs, pendingRefs);
+
                     if (resp is OpenApiResponse { Content.Count: > 0 } concreteResp)
-                        CollectSchemaRefs(concreteResp.Content.Values.Select(content => content.Schema), refs);
+                        CollectSchemaRefs(concreteResp.Content.Values.Select(content => content.Schema), refs, pendingRefs);
                 }
             }
         }
     }
 
-    static void CollectSchemaRefs(IEnumerable<IOpenApiSchema?> schemas, HashSet<string> refs)
+    static void CollectSchemaRefs(IEnumerable<IOpenApiSchema?> schemas, HashSet<string> refs, Queue<string> pendingRefs)
     {
         foreach (var schema in schemas)
-            CollectSchemaRefs(schema, refs);
+            CollectSchemaRefs(schema, refs, pendingRefs);
     }
 
-    static void CollectSchemaRefs(IOpenApiSchema? schema, HashSet<string> refs)
+    static void CollectSchemaRefs(IOpenApiSchema? schema, HashSet<string> refs, Queue<string> pendingRefs)
     {
         switch (schema)
         {
@@ -309,26 +200,29 @@ static class DocumentSchemaHelpers
             {
                 var refId = GetReferenceId(schemaRef);
 
-                if (!string.IsNullOrEmpty(refId))
-                    refs.Add(refId);
+                if (!string.IsNullOrEmpty(refId) && refs.Add(refId))
+                    pendingRefs.Enqueue(refId);
 
                 return;
             }
             case OpenApiSchema s:
             {
                 if (s.Properties is { Count: > 0 })
-                    CollectSchemaRefs(s.Properties.Values, refs);
+                    CollectSchemaRefs(s.Properties.Values, refs, pendingRefs);
 
-                CollectSchemaRefs([s.Items, s.AdditionalProperties], refs);
+                CollectSchemaRefs([s.Items, s.AdditionalProperties], refs, pendingRefs);
 
                 if (s.AllOf is { Count: > 0 })
-                    CollectSchemaRefs(s.AllOf, refs);
+                    CollectSchemaRefs(s.AllOf, refs, pendingRefs);
 
                 if (s.OneOf is { Count: > 0 })
-                    CollectSchemaRefs(s.OneOf, refs);
+                    CollectSchemaRefs(s.OneOf, refs, pendingRefs);
 
                 if (s.AnyOf is { Count: > 0 })
-                    CollectSchemaRefs(s.AnyOf, refs);
+                    CollectSchemaRefs(s.AnyOf, refs, pendingRefs);
+
+                if (s.Discriminator?.Mapping is { Count: > 0 })
+                    CollectSchemaRefs(s.Discriminator.Mapping.Values, refs, pendingRefs);
 
                 break;
             }
@@ -367,6 +261,9 @@ static class DocumentSchemaHelpers
 
     static IOpenApiSchema? RewriteFormFileSchema(IOpenApiSchema? schema)
     {
+        if (IsFormFileCollectionRef(schema))
+            return FormFileArraySchema();
+
         if (IsFormFileRef(schema))
             return FormFileBinarySchema();
 
@@ -385,8 +282,16 @@ static class DocumentSchemaHelpers
     static bool IsFormFileRef(IOpenApiSchema? schema)
         => schema is OpenApiSchemaReference schemaRef &&
            GetReferenceId(schemaRef) is { } refId &&
-           (refId is "IFormFile" or "IFormFileCollection" ||
-            refId.Contains("IFormFile", StringComparison.Ordinal));
+           refId is "IFormFile";
+
+    static bool IsFormFileCollectionRef(IOpenApiSchema? schema)
+        => schema is OpenApiSchemaReference schemaRef &&
+           GetReferenceId(schemaRef) is { } refId &&
+           (refId is "IFormFileCollection" ||
+            refId.Contains("IFormFileCollection", StringComparison.Ordinal) ||
+            refId.Contains("IEnumerableOfIFormFile", StringComparison.Ordinal) ||
+            refId.Contains("ListOfIFormFile", StringComparison.Ordinal) ||
+            refId.Contains("IFormFile[]", StringComparison.Ordinal));
 
     static string? GetReferenceId(OpenApiSchemaReference schemaRef)
         => schemaRef.Reference.Id ?? schemaRef.Id;
@@ -394,134 +299,11 @@ static class DocumentSchemaHelpers
     static OpenApiSchema FormFileBinarySchema()
         => new() { Type = JsonSchemaType.String, Format = "binary" };
 
-    static OpenApiSchema? BuildSchemaForType(Type type, Dictionary<string, IOpenApiSchema>? extraSchemas = null)
-    {
-        var schema = new OpenApiSchema
+    static OpenApiSchema FormFileArraySchema()
+        => new()
         {
-            Type = JsonSchemaType.Object,
-            Properties = new Dictionary<string, IOpenApiSchema>(),
-            Description = XmlDocLookup.GetTypeSummary(type)
+            Type = JsonSchemaType.Array,
+            Items = FormFileBinarySchema()
         };
 
-        var namingPolicy = Extensions.NamingPolicy;
-        extraSchemas ??= new();
-
-        foreach (var prop in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
-        {
-            if (prop.GetCustomAttribute<JsonIgnoreAttribute>()?.Condition ==
-                JsonIgnoreCondition.Always)
-                continue;
-
-            if (prop.IsDefined(Types.HideFromDocsAttribute))
-                continue;
-
-            var jsonNameAttr = prop.GetCustomAttribute<JsonPropertyNameAttribute>();
-            var propName = jsonNameAttr?.Name ?? namingPolicy?.ConvertName(prop.Name) ?? prop.Name;
-            var propSchema = GetJsonSchemaForType(prop.PropertyType, extraSchemas);
-
-            if (propSchema is OpenApiSchema concrete)
-            {
-                concrete.Description ??= XmlDocLookup.GetPropertySummary(prop);
-
-                var defaultAttr = prop.GetCustomAttribute<System.ComponentModel.DefaultValueAttribute>();
-
-                if (defaultAttr?.Value is not null)
-                {
-                    try
-                    {
-                        concrete.Default = JsonNode.Parse(JsonSerializer.Serialize(defaultAttr.Value));
-                    }
-                    catch
-                    {
-                        // invalid JSON — ignore
-                    }
-                }
-            }
-
-            schema.Properties[propName] = propSchema;
-        }
-
-        return schema.Properties.Count > 0 ? schema : null;
-    }
-
-    static IOpenApiSchema GetJsonSchemaForType(Type type, Dictionary<string, IOpenApiSchema> extraSchemas)
-    {
-        var actualType = Nullable.GetUnderlyingType(type) ?? type;
-
-        if (TryCreatePrimitiveSchema(actualType) is { } primitiveSchema)
-            return primitiveSchema;
-
-        if (TryGetDictionaryValueType(actualType) is { } dictionaryValueType)
-        {
-            return new OpenApiSchema
-            {
-                Type = JsonSchemaType.Object,
-                AdditionalProperties = GetJsonSchemaForType(dictionaryValueType, extraSchemas)
-            };
-        }
-
-        if (TryGetCollectionElementType(actualType) is { } elementType)
-        {
-            return new OpenApiSchema
-            {
-                Type = JsonSchemaType.Array,
-                Items = GetJsonSchemaForType(elementType, extraSchemas)
-            };
-        }
-
-        var refId = SchemaNameGenerator.GetReferenceId(actualType, false);
-
-        if (refId is not null && !extraSchemas.ContainsKey(refId))
-        {
-            extraSchemas[refId] = new OpenApiSchema { Type = JsonSchemaType.Object };
-            var built = BuildSchemaForType(actualType, extraSchemas);
-            if (built is not null)
-                extraSchemas[refId] = built;
-        }
-
-        return refId is not null
-                   ? new OpenApiSchemaReference(refId)
-                   : new OpenApiSchema { Type = JsonSchemaType.Object };
-    }
-
-    static OpenApiSchema? TryCreatePrimitiveSchema(Type type)
-        => type switch
-        {
-            _ when type == typeof(string) => new() { Type = JsonSchemaType.String },
-            _ when type == typeof(int) || type == typeof(short) || type == typeof(long) => new() { Type = JsonSchemaType.Integer, Format = "int32" },
-            _ when type == typeof(float) || type == typeof(double) => new() { Type = JsonSchemaType.Number, Format = "double" },
-            _ when type == typeof(decimal) => new() { Type = JsonSchemaType.Number, Format = "decimal" },
-            _ when type == typeof(bool) => new() { Type = JsonSchemaType.Boolean },
-            _ => null
-        };
-
-    static Type? TryGetDictionaryValueType(Type type)
-    {
-        if (!type.IsGenericType || type.GetGenericTypeDefinition() != typeof(Dictionary<,>))
-            return null;
-
-        var args = type.GetGenericArguments();
-
-        return args[0] == typeof(string) ? args[1] : null;
-    }
-
-    static Type? TryGetCollectionElementType(Type type)
-    {
-        if (type.IsArray)
-            return type.GetElementType();
-
-        if (!type.IsGenericType)
-            return null;
-
-        var genDef = type.GetGenericTypeDefinition();
-
-        return genDef == typeof(List<>) ||
-               genDef == typeof(IList<>) ||
-               genDef == typeof(IEnumerable<>) ||
-               genDef == typeof(ICollection<>) ||
-               genDef == typeof(IReadOnlyList<>) ||
-               genDef == typeof(IReadOnlyCollection<>)
-                   ? type.GetGenericArguments()[0]
-                   : null;
-    }
 }

@@ -23,7 +23,7 @@ public class RuleContext(OpenApiSchema schema, string propertyKey, IPropertyVali
     /// </summary>
     public bool TryGetPropertySchema(out OpenApiSchema propertySchema)
     {
-        if (Schema.Properties?.TryGetValue(PropertyKey, out var p) == true && p is OpenApiSchema s)
+        if (Schema.Properties?.TryGetValue(PropertyKey, out var p) == true && p.ResolveSchema() is { } s)
         {
             propertySchema = s;
 

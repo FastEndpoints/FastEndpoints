@@ -1,7 +1,12 @@
 using System.Text.Json;
 using FluentValidation;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.OpenApi;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
 
 namespace FastEndpoints.OpenApi;
@@ -12,17 +17,6 @@ namespace FastEndpoints.OpenApi;
 public static class Extensions
 {
     /// <summary>
-    /// JsonNamingPolicy chosen for swagger
-    /// </summary>
-    public static JsonNamingPolicy? SelectedJsonNamingPolicy { get; private set; }
-
-    /// <summary>
-    /// resolved naming policy: the swagger-selected policy, falling back to the serializer options policy.
-    /// use this instead of repeating <c>SelectedJsonNamingPolicy ?? Cfg.SerOpts.Options.PropertyNamingPolicy</c>.
-    /// </summary>
-    internal static JsonNamingPolicy? NamingPolicy => SelectedJsonNamingPolicy ?? Cfg.SerOpts.Options.PropertyNamingPolicy;
-
-    /// <summary>
     /// enable support for FastEndpoints and create an open-api document.
     /// </summary>
     /// <param name="services">the service collection</param>
@@ -32,12 +26,11 @@ public static class Extensions
         var opts = new DocumentOptions();
         options?.Invoke(opts);
 
-        var docSettings = new DocumentSettings();
-
         // add JWT bearer auth if enabled (before user-defined schemes so it appears first)
         if (opts.EnableJWTBearerAuth)
         {
-            docSettings.AuthSchemes.Add(
+            opts.AuthSchemes.Insert(
+                0,
                 new(
                     "JWTBearerAuth",
                     new()
@@ -50,27 +43,22 @@ public static class Extensions
                     null));
         }
 
-        opts.DocumentSettings?.Invoke(docSettings);
-
-        var stjOpts = new JsonSerializerOptions(Cfg.SerOpts.Options);
-        SelectedJsonNamingPolicy = stjOpts.PropertyNamingPolicy;
-
         var sharedCtx = new SharedContext();
 
         services.AddOpenApi(
-            docSettings.DocumentName,
+            opts.DocumentName,
             apiOptions =>
             {
                 // schema naming
                 apiOptions.CreateSchemaReferenceId = SchemaNameGenerator.Create(opts.ShortSchemaNames);
 
                 // add transformers
-                apiOptions.AddOperationTransformer(new OperationTransformer(opts, docSettings, sharedCtx));
-                apiOptions.AddDocumentTransformer(new DocumentTransformer(opts, docSettings, sharedCtx));
-                apiOptions.AddSchemaTransformer<ValidationSchemaTransformer>();
+                apiOptions.AddOperationTransformer(new OperationTransformer(opts, sharedCtx));
+                apiOptions.AddDocumentTransformer(new DocumentTransformer(opts, sharedCtx));
+                apiOptions.AddSchemaTransformer(new ValidationSchemaTransformer(sharedCtx));
                 apiOptions.AddSchemaTransformer<XmlDocSchemaTransformer>();
                 apiOptions.AddSchemaTransformer<NumericTypeCleanupSchemaTransformer>();
-                apiOptions.AddSchemaTransformer<ToHeaderPropertySchemaTransformer>();
+                apiOptions.AddSchemaTransformer(new ToHeaderPropertySchemaTransformer(sharedCtx));
                 apiOptions.AddSchemaTransformer<EnumSchemaTransformer>();
 
                 if (opts.UseOneOfForPolymorphism)
@@ -104,10 +92,114 @@ public static class Extensions
         return rule.When(_ => true, applyConditionTo);
     }
 
-    internal static string Remove(this string value, string removeString)
-    {
-        var index = value.IndexOf(removeString, StringComparison.Ordinal);
+    const string OpenApiJsonExportKey = "export-openapi-docs";
 
-        return index < 0 ? value : value.Remove(index, removeString.Length);
+    extension(IHost app)
+    {
+        /// <summary>
+        /// returns true if the app is being launched just to export openapi json files.
+        /// </summary>
+        public bool IsJsonExportMode()
+            => string.Equals(app.Services.GetRequiredService<IConfiguration>()[OpenApiJsonExportKey], "true", StringComparison.Ordinal);
+
+        /// <summary>
+        /// returns true if the app is running normally and not launched for the purpose of exporting openapi json files.
+        /// </summary>
+        public bool IsNotJsonExportMode()
+            => !app.IsJsonExportMode();
+    }
+
+    extension(IHostApplicationBuilder bld)
+    {
+        /// <summary>
+        /// returns true if the app is being launched just to export openapi json files.
+        /// </summary>
+        public bool IsJsonExportMode()
+            => string.Equals(bld.Configuration[OpenApiJsonExportKey], "true", StringComparison.Ordinal);
+
+        /// <summary>
+        /// returns true if the app is running normally and not launched for the purpose of exporting openapi json files.
+        /// </summary>
+        public bool IsNotJsonExportMode()
+            => !bld.IsJsonExportMode();
+    }
+
+    /// <summary>
+    /// exports openapi .json files to disk and exits the program.
+    /// <para>HINT: make sure to place the call straight after <c>app.UseFastEndpoints()</c></para>
+    /// <para>
+    /// to enable automatic export during AOT publish builds, add this to your .csproj:
+    /// <code>
+    /// &lt;PropertyGroup&gt;
+    ///     &lt;ExportOpenApiDocs&gt;true&lt;/ExportOpenApiDocs&gt;
+    /// &lt;/PropertyGroup&gt;
+    /// </code>
+    /// </para>
+    /// <para>
+    /// to customize the export path, add this to your .csproj:
+    /// <code>
+    /// &lt;PropertyGroup&gt;
+    ///     &lt;OpenApiExportPath&gt;wwwroot/openapi&lt;/OpenApiExportPath&gt;
+    /// &lt;/PropertyGroup&gt;
+    /// </code>
+    /// </para>
+    /// <para>
+    /// to force generate openapi docs outside a AOT publish, run the following in a terminal:
+    /// <code>dotnet run --export-openapi-docs true -p:PublishAot=false</code>
+    /// optionally specify the output folder:
+    /// <code>dotnet run --export-openapi-docs true -p:PublishAot=false -p:OpenApiExportPath=wwwroot/openapi</code>
+    /// </para>
+    /// </summary>
+    /// <param name="documentNames">the openapi document names to export. these must match the names used in <c>.OpenApiDocument()</c> configuration.</param>
+    public static async Task ExportOpenApiDocsAndExitAsync(this WebApplication app, params string[] documentNames)
+    {
+        if (app.IsNotJsonExportMode())
+            return;
+
+        if (documentNames.Length == 0)
+            return;
+
+        var destinationPath = Path.Combine(app.Environment.ContentRootPath, DocumentOptions.OpenApiExportPath);
+        var logger = app.Services.GetRequiredService<ILogger<OpenApiExportRunner>>();
+
+        await app.StartAsync();
+
+        try
+        {
+            Directory.CreateDirectory(destinationPath);
+
+            foreach (var docName in documentNames)
+            {
+                try
+                {
+                    logger.ExportingOpenApiDoc(docName);
+                    var filePath = await ExportOpenApiDocument(app, docName, destinationPath, CancellationToken.None);
+                    logger.OpenApiDocExportSuccessful(docName, filePath);
+                }
+                catch (Exception ex)
+                {
+                    logger.OpenApiDocExportFailed(docName, ex.Message);
+                }
+            }
+        }
+        finally
+        {
+            await app.StopAsync();
+        }
+
+        Environment.Exit(0);
+    }
+
+    static async Task<string> ExportOpenApiDocument(WebApplication app, string documentName, string destinationPath, CancellationToken ct)
+    {
+        var provider = app.Services.GetRequiredKeyedService<IOpenApiDocumentProvider>(documentName);
+        var openApiVersion = app.Services.GetRequiredService<IOptionsMonitor<OpenApiOptions>>().Get(documentName).OpenApiVersion;
+        var doc = await provider.GetOpenApiDocumentAsync(ct);
+        var json = await doc.SerializeAsJsonAsync(openApiVersion, ct);
+        var filePath = Path.Combine(destinationPath, $"{documentName}.json");
+
+        await File.WriteAllTextAsync(filePath, json, ct);
+
+        return filePath;
     }
 }

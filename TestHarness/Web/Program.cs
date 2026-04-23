@@ -21,10 +21,8 @@ using Scalar.AspNetCore;
 var bld = WebApplication.CreateBuilder(args);
 
 var isTesting = string.Equals(bld.Environment.EnvironmentName, "Testing", StringComparison.OrdinalIgnoreCase);
-Func<EndpointDefinition, bool> excludeReviewAndReleaseVersioning =
-    ep => ep.EndpointTags?.Contains("release_versioning") is not true && ep.EndpointTags?.Contains("swagger_review") is not true;
-Func<EndpointDefinition, bool> includeSwaggerReview =
-    ep => ep.EndpointTags?.Contains("swagger_review") is true;
+Func<EndpointDefinition, bool> excludeReleaseVersioning = ep => ep.EndpointTags?.Contains("release_versioning") is not true;
+Func<EndpointDefinition, bool> includeSwaggerReview = ep => ep.EndpointTags?.Contains("swagger_review") is true;
 
 bld.AddHandlerServer();
 bld.Services
@@ -46,68 +44,49 @@ bld.Services
    .OpenApiDocument(
        o =>
        {
-           o.EndpointFilter = excludeReviewAndReleaseVersioning;
-           o.DocumentSettings =
-               s =>
-               {
-                   s.DocumentName = "Initial Release";
-                   s.Title = "Web API";
-                   s.Version = "v0.0";
-               };
+           o.EndpointFilter = excludeReleaseVersioning;
+           o.DocumentName = "Initial Release";
+           o.Title = "Web API";
+           o.Version = "v0.0";
            o.TagCase = TagCase.TitleCase;
            o.TagStripSymbols = true;
-           o.RemoveEmptyRequestSchema = false;
        })
    .OpenApiDocument(
        o =>
        {
-           o.EndpointFilter = excludeReviewAndReleaseVersioning;
-           o.DocumentSettings =
-               s =>
+           o.EndpointFilter = excludeReleaseVersioning;
+           o.DocumentName = "Release 1.0";
+           o.Title = "Web API";
+           o.Version = "v1.0";
+           o.AddAuth(
+               "ApiKey",
+               new()
                {
-                   s.DocumentName = "Release 1.0";
-                   s.Title = "Web API";
-                   s.Version = "v1.0";
-                   s.AddAuth(
-                       "ApiKey",
-                       new()
-                       {
-                           Name = "api_key",
-                           In = ParameterLocation.Header,
-                           Type = SecuritySchemeType.ApiKey
-                       });
-               };
+                   Name = "api_key",
+                   In = ParameterLocation.Header,
+                   Type = SecuritySchemeType.ApiKey
+               });
            o.MaxEndpointVersion = 1;
-           o.RemoveEmptyRequestSchema = false;
            o.TagStripSymbols = true;
        })
    .OpenApiDocument(
        o =>
        {
-           o.EndpointFilter = excludeReviewAndReleaseVersioning;
-           o.DocumentSettings =
-               s =>
-               {
-                   s.DocumentName = "Release 2.0";
-                   s.Title = "FastEndpoints Sandbox";
-                   s.Version = "v2.0";
-               };
+           o.EndpointFilter = excludeReleaseVersioning;
+           o.DocumentName = "Release 2.0";
+           o.Title = "FastEndpoints Sandbox";
+           o.Version = "v2.0";
            o.MaxEndpointVersion = 2;
            o.ShowDeprecatedOps = true;
-           o.RemoveEmptyRequestSchema = false;
            o.TagStripSymbols = true;
        })
    .OpenApiDocument(
        o => //only ver3 & only FastEndpoints
        {
-           o.EndpointFilter = excludeReviewAndReleaseVersioning;
-           o.DocumentSettings =
-               s =>
-               {
-                   s.DocumentName = "Release 3.0";
-                   s.Title = "FastEndpoints Sandbox ver3 only";
-                   s.Version = "v3.0";
-               };
+           o.EndpointFilter = excludeReleaseVersioning;
+           o.DocumentName = "Release 3.0";
+           o.Title = "FastEndpoints Sandbox ver3 only";
+           o.Version = "v3.0";
            o.MinEndpointVersion = 3;
            o.MaxEndpointVersion = 3;
            o.ExcludeNonFastEndpoints = true;
@@ -119,11 +98,8 @@ bld.Services
        {
            o.ExcludeNonFastEndpoints = true;
            o.EndpointFilter = ep => ep.EndpointTags?.Contains("release_versioning") is true;
-           o.DocumentSettings = d =>
-                                {
-                                    d.Title = "Web API";
-                                    d.DocumentName = "ReleaseVersioning - v0";
-                                };
+           o.Title = "Web API";
+           o.DocumentName = "ReleaseVersioning - v0";
            o.ReleaseVersion = 0;
            o.ShowDeprecatedOps = true;
        })
@@ -132,11 +108,8 @@ bld.Services
        {
            o.ExcludeNonFastEndpoints = true;
            o.EndpointFilter = ep => ep.EndpointTags?.Contains("release_versioning") is true;
-           o.DocumentSettings = d =>
-                                {
-                                    d.Title = "Web API";
-                                    d.DocumentName = "ReleaseVersioning - v1";
-                                };
+           o.Title = "Web API";
+           o.DocumentName = "ReleaseVersioning - v1";
            o.ReleaseVersion = 1;
            o.ShowDeprecatedOps = true;
        })
@@ -145,11 +118,8 @@ bld.Services
        {
            o.ExcludeNonFastEndpoints = true;
            o.EndpointFilter = ep => ep.EndpointTags?.Contains("release_versioning") is true;
-           o.DocumentSettings = d =>
-                                {
-                                    d.Title = "Web API";
-                                    d.DocumentName = "ReleaseVersioning - v2";
-                                };
+           o.Title = "Web API";
+           o.DocumentName = "ReleaseVersioning - v2";
            o.ReleaseVersion = 2;
            o.ShowDeprecatedOps = true;
        })
@@ -158,11 +128,8 @@ bld.Services
        {
            o.ExcludeNonFastEndpoints = true;
            o.EndpointFilter = ep => ep.EndpointTags?.Contains("release_versioning") is true;
-           o.DocumentSettings = d =>
-                                {
-                                    d.Title = "Web API";
-                                    d.DocumentName = "ReleaseVersioning - v3";
-                                };
+           o.Title = "Web API";
+           o.DocumentName = "ReleaseVersioning - v3";
            o.ReleaseVersion = 3;
            o.ShowDeprecatedOps = true;
        })
@@ -171,11 +138,8 @@ bld.Services
        {
            o.ExcludeNonFastEndpoints = true;
            o.EndpointFilter = includeSwaggerReview;
-           o.DocumentSettings = d =>
-                                {
-                                    d.Title = "Web API";
-                                    d.DocumentName = "Swagger Review";
-                                };
+           o.Title = "Web API";
+           o.DocumentName = "Swagger Review";
            o.TagStripSymbols = true;
        })
    .OpenApiDocument(
@@ -183,12 +147,8 @@ bld.Services
        {
            o.ExcludeNonFastEndpoints = true;
            o.EndpointFilter = includeSwaggerReview;
-           o.DocumentSettings = d =>
-                                {
-                                    d.Title = "Web API";
-                                    d.DocumentName = "Swagger Review Empty Schema";
-                                };
-           o.RemoveEmptyRequestSchema = true;
+           o.Title = "Web API";
+           o.DocumentName = "Swagger Review Empty Schema";
            o.TagStripSymbols = true;
        });
 
@@ -259,6 +219,8 @@ app.UseRequestLocalization(
        {
            c.MapGet("test", () => "hello world!").WithTags("map-get");
            c.MapGet("test/{testId:int?}", (int? testId) => $"hello {testId}").WithTags("map-get");
+           c.MapGet("filtered-shared-path", () => "get").WithTags("exclude");
+           c.MapPost("filtered-shared-path", () => TypedResults.Ok("post")).WithTags("shared-path");
        });
 
 if (!app.Environment.IsProduction())

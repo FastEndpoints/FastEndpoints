@@ -1,7 +1,10 @@
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Globalization;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
@@ -13,17 +16,30 @@ using Microsoft.OpenApi;
 
 namespace FastEndpoints.OpenApi;
 
-sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSettings docSettings, SharedContext sharedCtx) : IOpenApiOperationTransformer
+sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext sharedCtx) : IOpenApiOperationTransformer
 {
     const BindingFlags PublicInstanceHierarchy = BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy;
     static readonly TextInfo _textInfo = CultureInfo.InvariantCulture.TextInfo;
     static readonly string[] _illegalHeaderNames = ["Accept", "Content-Type", "Authorization"];
+    static readonly ConcurrentDictionary<Type, TypeMetadata> _typeMetadataCache = new();
+    JsonNamingPolicy? NamingPolicy => sharedCtx.NamingPolicy;
+
+    sealed class TypeMetadata
+    {
+        public required PropertyInfo[] PublicInstanceProperties { get; init; }
+    }
 
     [GeneratedRegex(@"(?<=\{)[^}]+(?=\})")]
     private static partial Regex RouteParamsRegex();
 
-    [GeneratedRegex("(?<={)([^?:}]+)[^}]*(?=})")]
+    [GeneratedRegex("(?<={)([^?:=}]+)[^}]*(?=})")]
     private static partial Regex RouteConstraintsRegex();
+
+    sealed class RouteParameterInfo
+    {
+        public required string Name { get; init; }
+        public Type? ConstraintType { get; init; }
+    }
 
     static readonly Dictionary<string, string> _defaultDescriptions = new()
     {
@@ -48,6 +64,8 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
         var epDef = metadata.OfType<EndpointDefinition>().SingleOrDefault();
 
         docOpts.Services ??= context.ApplicationServices;
+        _ = sharedCtx.ResolveNamingPolicy(context.ApplicationServices);
+        sharedCtx.InitializeSharedRequestSchemaRefs(context.ApplicationServices, docOpts);
 
         // compute the document path for this operation
         var relativePath = context.Description.RelativePath?.TrimStart('~').TrimEnd('/') ?? "";
@@ -57,6 +75,9 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
 
         if (epDef is null)
         {
+            if (docOpts.ExcludeNonFastEndpoints)
+                return Task.CompletedTask;
+
             // not a FastEndpoint
             sharedCtx.Operations[operationKey] = new()
             {
@@ -69,24 +90,15 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
                 IsFastEndpoint = false
             };
 
-            if (docOpts.ExcludeNonFastEndpoints)
-                sharedCtx.PathsToRemove.Add(documentPath);
-
             return Task.CompletedTask;
         }
 
         // apply endpoint filter
         if (docOpts.EndpointFilter?.Invoke(epDef) == false)
-        {
-            sharedCtx.PathsToRemove.Add(documentPath);
-
             return Task.CompletedTask;
-        }
 
         // store version metadata for document transformer
-        var version = $"/{GlobalConfig.VersioningPrefix ?? "v"}{epDef.Version.Current}";
-        var routePrefix = "/" + (GlobalConfig.EndpointRoutePrefix ?? "_");
-        var bareRoute = documentPath.Remove(routePrefix).Remove(version);
+        var bareRoute = BuildBareRoute(documentPath, GlobalConfig.EndpointRoutePrefix, epDef.Version.Current);
         var bareKey = $"{httpMethod}:{bareRoute}";
 
         sharedCtx.Operations[operationKey] = new()
@@ -117,7 +129,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
             operation.Deprecated = true;
 
         // handle request parameters
-        var propsRemovedFromBody = HandleRequestParameters(operation, context, documentPath);
+        var propsRemovedFromBody = HandleRequestParameters(operation, context, epDef, documentPath);
 
         // handle [FromBody]/[FromForm] request body replacement + JSON Patch unwrap
         ApplyRequestBodyOverrides(operation, epDef);
@@ -158,7 +170,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
         AddX402Headers(operation, epDef);
 
         // handle security requirements
-        ApplySecurityRequirements(operation, epDef, metadata, docSettings, sharedCtx, operationKey);
+        ApplySecurityRequirements(operation, epDef, metadata, docOpts, sharedCtx, operationKey);
 
         // drop duplicate parameters introduced by Asp.Versioning (it adds the version route
         // segment as an extra path parameter alongside the one we derive from the endpoint).
@@ -175,9 +187,27 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
     void ApplyAutoTag(OpenApiOperation operation, EndpointDefinition epDef, string bareRoute, IList<object> metadata)
     {
         // collect the tag values that came from explicit .WithTags(...) metadata so we never drop them
-        var explicitTags = metadata.OfType<ITagsMetadata>()
-                                   .SelectMany(t => t.Tags)
-                                   .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        HashSet<string>? explicitTags = null;
+        string? overrideVal = null;
+
+        for (var i = 0; i < metadata.Count; i++)
+        {
+            switch (metadata[i])
+            {
+                case ITagsMetadata tagsMetadata:
+                {
+                    explicitTags ??= new(StringComparer.OrdinalIgnoreCase);
+
+                    foreach (var tagName in tagsMetadata.Tags)
+                        explicitTags.Add(tagName);
+
+                    break;
+                }
+                case AutoTagOverride autoTagOverride:
+                    overrideVal = autoTagOverride.TagName;
+                    break;
+            }
+        }
 
         // always strip framework-generated tags (controller/assembly name) that weren't set via WithTags,
         // regardless of whether auto-tagging is enabled. old NSwag integration never emitted them and
@@ -186,7 +216,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
         {
             foreach (var t in operation.Tags.ToArray())
             {
-                if (t.Name is null || !explicitTags.Contains(t.Name))
+                if (t.Name is null || explicitTags?.Contains(t.Name) is not true)
                     operation.Tags.Remove(t);
             }
         }
@@ -194,7 +224,6 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
         if (docOpts.AutoTagPathSegmentIndex <= 0 || epDef.DontAutoTagEndpoints)
             return;
 
-        var overrideVal = metadata.OfType<AutoTagOverride>().SingleOrDefault()?.TagName;
         string? tag = null;
 
         if (overrideVal is not null)
@@ -213,28 +242,25 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
         }
     }
 
-    HashSet<string> HandleRequestParameters(OpenApiOperation operation, OpenApiOperationTransformerContext context, string documentPath)
+    HashSet<string> HandleRequestParameters(OpenApiOperation operation,
+                                            OpenApiOperationTransformerContext context,
+                                            EndpointDefinition epDef,
+                                            string documentPath)
     {
         var propsRemovedFromBody = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var endpointRouteTemplate = FindEndpointRouteTemplate(epDef, documentPath);
+        var routeParameters = GetRouteParameters(endpointRouteTemplate ?? context.Description.RelativePath ?? documentPath);
+        var routeParamNames = new List<string>(routeParameters.Count);
 
-        // collect route param names from operation path (needed for all endpoints, not just those with DTOs).
-        // raw segments preserve any :constraints so we can resolve CLR types via GlobalConfig.RouteConstraintMap
-        // when a route param has no matching DTO property.
-        var routeParamSegments = RouteParamsRegex()
-                                 .Matches(documentPath)
-                                 .Select(m => m.Value)
-                                 .ToList();
+        for (var i = 0; i < routeParameters.Count; i++)
+            routeParamNames.Add(routeParameters[i].Name);
 
-        var routeParamNames = routeParamSegments
-                              .Select(s => RouteConstraintsRegex().Replace(s, "$1"))
-                              .ToList();
+        var requestDtoType = GetRequestDtoType(epDef);
 
-        var requestDtoType = context.Description.ParameterDescriptions.FirstOrDefault()?.Type;
-
-        if (requestDtoType is not null)
+        if (requestDtoType is not null && requestDtoType != Types.EmptyRequest)
         {
             var isGetRequest = context.Description.HttpMethod == "GET";
-            var requestDtoIsList = typeof(IEnumerable).IsAssignableFrom(requestDtoType) && requestDtoType != typeof(string);
+            var requestDtoIsList = requestDtoType.IsCollection();
             var requestDtoProps = requestDtoIsList
                                       ? null
                                       : GetPublicInstanceProperties(requestDtoType).ToList();
@@ -242,33 +268,47 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
             if (requestDtoProps is not null)
             {
                 // remove hidden properties
-                var propsToRemove = requestDtoProps
-                                    .Where(
-                                        p => p.GetCustomAttribute<JsonIgnoreAttribute>()?.Condition == JsonIgnoreCondition.Always ||
-                                             p.IsDefined(Types.HideFromDocsAttribute) ||
-                                             p.GetSetMethod()?.IsPublic is not true)
-                                    .ToArray();
-
-                foreach (var p in propsToRemove)
+                for (var i = requestDtoProps.Count - 1; i >= 0; i--)
                 {
-                    requestDtoProps.Remove(p);
-                    operation.RemovePropFromRequestBody(p.Name, propsRemovedFromBody);
+                    var p = requestDtoProps[i];
+
+                    if (p.GetCustomAttribute<JsonIgnoreAttribute>()?.Condition != JsonIgnoreCondition.Always &&
+                        !p.IsDefined(Types.HideFromDocsAttribute) &&
+                        p.GetSetMethod()?.IsPublic is true)
+                        continue;
+
+                    requestDtoProps.RemoveAt(i);
+                    operation.RemovePropFromRequestBody(p, sharedCtx, NamingPolicy, propsRemovedFromBody);
                 }
 
                 // handle attribute-based parameters
-                foreach (var p in requestDtoProps.ToArray())
+                for (var i = 0; i < requestDtoProps.Count; i++)
                 {
+                    var p = requestDtoProps[i];
+
                     foreach (var attribute in p.GetCustomAttributes())
                     {
                         switch (attribute)
                         {
                             case FromHeaderAttribute hAttrib:
                             {
-                                var pName = hAttrib.HeaderName ?? p.Name.ApplyPropNamingPolicy(docOpts);
+                                var pName = hAttrib.HeaderName ?? p.Name.ApplyPropNamingPolicy(docOpts, NamingPolicy);
 
-                                if (_illegalHeaderNames.Any(n => n.Equals(pName, StringComparison.OrdinalIgnoreCase)))
+                                var isIllegalHeaderName = false;
+
+                                for (var j = 0; j < _illegalHeaderNames.Length; j++)
                                 {
-                                    operation.RemovePropFromRequestBody(p.Name, propsRemovedFromBody);
+                                    if (!_illegalHeaderNames[j].Equals(pName, StringComparison.OrdinalIgnoreCase))
+                                        continue;
+
+                                    isIllegalHeaderName = true;
+
+                                    break;
+                                }
+
+                                if (isIllegalHeaderName)
+                                {
+                                    operation.RemovePropFromRequestBody(p, sharedCtx, NamingPolicy, propsRemovedFromBody);
 
                                     continue;
                                 }
@@ -276,25 +316,25 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
                                 AddParameter(operation, pName, ParameterLocation.Header, p, hAttrib.IsRequired, docOpts.ShortSchemaNames);
 
                                 if (hAttrib.IsRequired || hAttrib.RemoveFromSchema)
-                                    operation.RemovePropFromRequestBody(p.Name, propsRemovedFromBody);
+                                    operation.RemovePropFromRequestBody(p, sharedCtx, NamingPolicy, propsRemovedFromBody);
 
                                 break;
                             }
 
                             case FromCookieAttribute cAttrib:
                             {
-                                var pName = cAttrib.CookieName ?? p.Name.ApplyPropNamingPolicy(docOpts);
+                                var pName = cAttrib.CookieName ?? p.Name.ApplyPropNamingPolicy(docOpts, NamingPolicy);
                                 AddParameter(operation, pName, ParameterLocation.Cookie, p, cAttrib.IsRequired, docOpts.ShortSchemaNames);
 
                                 if (cAttrib.IsRequired || cAttrib.RemoveFromSchema)
-                                    operation.RemovePropFromRequestBody(p.Name, propsRemovedFromBody);
+                                    operation.RemovePropFromRequestBody(p, sharedCtx, NamingPolicy, propsRemovedFromBody);
 
                                 break;
                             }
 
                             case FromClaimAttribute cAttrib when cAttrib.IsRequired || cAttrib.RemoveFromSchema:
                             case HasPermissionAttribute pAttrib when pAttrib.IsRequired || pAttrib.RemoveFromSchema:
-                                operation.RemovePropFromRequestBody(p.Name, propsRemovedFromBody);
+                                operation.RemovePropFromRequestBody(p, sharedCtx, NamingPolicy, propsRemovedFromBody);
 
                                 break;
                         }
@@ -306,20 +346,22 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
 
                     if (matchingRouteParam is not null)
                     {
-                        operation.RemovePropFromRequestBody(p.Name, propsRemovedFromBody);
+                        operation.RemovePropFromRequestBody(p, sharedCtx, NamingPolicy, propsRemovedFromBody);
 
                         // add as path parameter using the route template variable name with naming policy applied
-                        var appliedName = matchingRouteParam.ApplyPropNamingPolicy(docOpts);
+                        var appliedName = matchingRouteParam.ApplyPropNamingPolicy(docOpts, NamingPolicy);
 
                         if (!HasParameter(operation, ParameterLocation.Path, appliedName))
                             AddParameter(operation, appliedName, ParameterLocation.Path, p, true, docOpts.ShortSchemaNames);
+                        else
+                            UpdateParameterSchema(operation, ParameterLocation.Path, appliedName, p.PropertyType, docOpts.ShortSchemaNames);
                     }
 
                     // handle query params
                     if (ShouldAddQueryParam(p, operation, isGetRequest && !docOpts.EnableGetRequestsWithBody))
                     {
-                        operation.RemovePropFromRequestBody(p.Name, propsRemovedFromBody);
-                        AddParameter(operation, p.Name.ApplyPropNamingPolicy(docOpts), ParameterLocation.Query, p, shortSchemaNames: docOpts.ShortSchemaNames);
+                        operation.RemovePropFromRequestBody(p, sharedCtx, NamingPolicy, propsRemovedFromBody);
+                        AddParameter(operation, p.Name.ApplyPropNamingPolicy(docOpts, NamingPolicy), ParameterLocation.Query, p, shortSchemaNames: docOpts.ShortSchemaNames);
                     }
                 }
             }
@@ -337,15 +379,19 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
         for (var i = 0; i < routeParamNames.Count; i++)
         {
             var routeParam = routeParamNames[i];
-            var appliedName = routeParam.ApplyPropNamingPolicy(docOpts);
+            var appliedName = routeParam.ApplyPropNamingPolicy(docOpts, NamingPolicy);
+            var resolvedType = routeParameters[i].ConstraintType;
 
             if (HasParameter(operation, ParameterLocation.Path, appliedName))
+            {
+                if (resolvedType is not null)
+                    UpdateParameterSchema(operation, ParameterLocation.Path, appliedName, resolvedType, docOpts.ShortSchemaNames);
+
                 continue;
+            }
 
             // resolve the route constraint (e.g. "{id:int}") via GlobalConfig.RouteConstraintMap so
             // orphan route params get a typed schema instead of defaulting to string
-            var resolvedType = routeParamSegments[i].TryResolveRouteConstraintType();
-
             AddParameter(operation, appliedName, ParameterLocation.Path, null, true, docOpts.ShortSchemaNames, resolvedType);
         }
 
@@ -356,7 +402,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
             {
                 if (param is OpenApiParameter { In: ParameterLocation.Path, Name: not null } concreteParam)
                 {
-                    var renamed = concreteParam.Name.ApplyPropNamingPolicy(docOpts);
+                    var renamed = concreteParam.Name.ApplyPropNamingPolicy(docOpts, NamingPolicy);
                     if (renamed != concreteParam.Name)
                         concreteParam.Name = renamed;
                 }
@@ -390,13 +436,13 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
         return isGetRequest || prop.IsDefined(Types.QueryParamAttribute);
     }
 
-    static void AddParameter(OpenApiOperation operation,
-                             string name,
-                             ParameterLocation location,
-                             PropertyInfo? prop,
-                             bool? isRequired = null,
-                             bool shortSchemaNames = false,
-                             Type? explicitType = null)
+    void AddParameter(OpenApiOperation operation,
+                      string name,
+                      ParameterLocation location,
+                      PropertyInfo? prop,
+                      bool? isRequired = null,
+                      bool shortSchemaNames = false,
+                      Type? explicitType = null)
     {
         operation.Parameters ??= [];
 
@@ -448,7 +494,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
             }
 
             // fall back to auto-generated sample (use coerced propType, not original PropertyType)
-            example ??= propType.GenerateSampleJsonNode();
+            example ??= propType.GenerateSampleJsonNode(NamingPolicy);
 
             if (example is not null)
             {
@@ -470,10 +516,10 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
         type = Nullable.GetUnderlyingType(type) ?? type;
 
         return type.IsComplexType() && !type.IsCollection() ||
-               typeof(System.Collections.IDictionary).IsAssignableFrom(type);
+               OperationSchemaHelpers.TryGetDictionaryValueType(type) is not null;
     }
 
-    static void ApplyRequestBodyOverrides(OpenApiOperation operation, EndpointDefinition epDef)
+    void ApplyRequestBodyOverrides(OpenApiOperation operation, EndpointDefinition epDef)
     {
         if (operation.RequestBody?.Content is null)
             return;
@@ -483,7 +529,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
         if (requestDtoType is null)
             return;
 
-        var requestDtoProps = requestDtoType.GetProperties(PublicInstanceHierarchy);
+        var requestDtoProps = GetPublicInstanceProperties(requestDtoType);
 
         var fromBodyProp = requestDtoProps
             .FirstOrDefault(p => p.IsDefined(Types.FromBodyAttribute, false));
@@ -505,9 +551,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
                 continue;
 
             // find the promoted property in the schema
-            var propName = promoteProp.Name;
-            var policy = Extensions.NamingPolicy;
-            var schemaKey = policy?.ConvertName(propName) ?? propName;
+            var schemaKey = PropertyNameResolver.GetSchemaPropertyName(promoteProp, NamingPolicy);
 
             var matchingKey = resolvedSchema.Properties?.Keys
                                             .FirstOrDefault(k => string.Equals(k, schemaKey, StringComparison.OrdinalIgnoreCase));
@@ -559,7 +603,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
 
                 // apply ResponseParams property descriptions to response schema properties
                 if (epDef.EndpointSummary.ResponseParams.TryGetValue(code, out var propDescriptions))
-                    ApplyResponseParamDescriptions(response, propDescriptions, context, code);
+                    ApplyResponseParamDescriptions(response, propDescriptions, context, code, NamingPolicy);
             }
         }
     }
@@ -596,16 +640,17 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
     static void ApplyResponseParamDescriptions(IOpenApiResponse response,
                                                Dictionary<string, string> propDescriptions,
                                                OpenApiOperationTransformerContext context,
-                                               int statusCode)
+                                               int statusCode,
+                                               JsonNamingPolicy? namingPolicy)
     {
         if (response is not OpenApiResponse concreteResp || concreteResp.Content is not { Count: > 0 })
             return;
 
         var respDtoType = context.Description.SupportedResponseTypes
-                                 .SingleOrDefault(x => x.StatusCode == statusCode)?
+                                 .FirstOrDefault(x => x.StatusCode == statusCode)?
                                  .Type;
 
-        var jsonNameToClrName = BuildJsonNameMap(respDtoType);
+        var jsonNameToClrName = BuildJsonNameMap(respDtoType, namingPolicy);
 
         foreach (var content in concreteResp.Content.Values)
         {
@@ -624,18 +669,21 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
         }
     }
 
-    static Dictionary<string, string>? BuildJsonNameMap(Type? type)
+    static Dictionary<string, string>? BuildJsonNameMap(Type? type, JsonNamingPolicy? namingPolicy)
     {
-        return type?
-               .GetProperties(PublicInstanceHierarchy)
-               .Select(
-                   p => new
-                   {
-                       JsonName = p.GetCustomAttribute<JsonPropertyNameAttribute>()?.Name,
-                       ClrName = p.Name
-                   })
-               .Where(x => x.JsonName is not null)
-               .ToDictionary(x => x.JsonName!, x => x.ClrName);
+        if (type is null)
+            return null;
+
+        Dictionary<string, string>? jsonNameMap = null;
+
+        foreach (var property in GetTypeMetadata(type).PublicInstanceProperties)
+        {
+            var jsonName = PropertyNameResolver.GetSchemaPropertyName(property, namingPolicy);
+            jsonNameMap ??= [];
+            jsonNameMap[jsonName] = property.Name;
+        }
+
+        return jsonNameMap;
     }
 
     void ApplyParameterMetadata(OpenApiOperation operation, EndpointDefinition epDef)
@@ -652,7 +700,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
                 continue;
 
             var prop = concreteParam.Name is { } parameterName
-                           ? requestProps?.FirstOrDefault(p => MatchesParameterName(p, parameterName))
+                           ? requestProps?.FirstOrDefault(p => MatchesParameterName(p, parameterName, docOpts, concreteParam.In ?? ParameterLocation.Query, NamingPolicy))
                            : null;
 
             if (epDef.EndpointSummary?.Params is { Count: > 0 })
@@ -680,19 +728,34 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
         ApplyExampleRequestToParams(operation, epDef);
     }
 
-    static bool MatchesParameterName(PropertyInfo property, string parameterName)
+    static bool MatchesParameterName(PropertyInfo property,
+                                     string parameterName,
+                                     DocumentOptions documentOptions,
+                                     ParameterLocation location,
+                                     JsonNamingPolicy? namingPolicy)
     {
-        var headerAttr = property.GetCustomAttribute<FromHeaderAttribute>();
+        return string.Equals(GetEffectiveParameterName(property, documentOptions, location, namingPolicy), parameterName, StringComparison.OrdinalIgnoreCase);
+    }
 
-        if (headerAttr is not null)
-            return string.Equals(headerAttr.HeaderName ?? property.Name, parameterName, StringComparison.OrdinalIgnoreCase);
+    static string GetEffectiveParameterName(PropertyInfo property,
+                                            DocumentOptions documentOptions,
+                                            ParameterLocation location,
+                                            JsonNamingPolicy? namingPolicy)
+    {
+        if (location == ParameterLocation.Header)
+            return property.GetCustomAttribute<FromHeaderAttribute>()?.HeaderName ?? property.Name.ApplyPropNamingPolicy(documentOptions, namingPolicy);
 
-        var bindAttr = property.GetCustomAttribute<BindFromAttribute>();
+        if (location == ParameterLocation.Cookie)
+            return property.GetCustomAttribute<FromCookieAttribute>()?.CookieName ?? property.Name.ApplyPropNamingPolicy(documentOptions, namingPolicy);
 
-        if (bindAttr is not null)
-            return string.Equals(bindAttr.Name, parameterName, StringComparison.OrdinalIgnoreCase);
+        if (location == ParameterLocation.Path)
+            return property.GetCustomAttribute<BindFromAttribute>()?.Name?.ApplyPropNamingPolicy(documentOptions, namingPolicy) ??
+                   property.Name.ApplyPropNamingPolicy(documentOptions, namingPolicy);
 
-        return string.Equals(property.Name, parameterName, StringComparison.OrdinalIgnoreCase);
+        if (location == ParameterLocation.Query)
+            return property.GetCustomAttribute<BindFromAttribute>()?.Name ?? PropertyNameResolver.GetSchemaPropertyName(property, namingPolicy);
+
+        return property.Name;
     }
 
     static string? FindParamDescription(IReadOnlyDictionary<string, string> paramDescriptions, string key)
@@ -703,16 +766,40 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
     }
 
     static PropertyInfo[] GetPublicInstanceProperties(Type type)
-        => type.GetProperties(PublicInstanceHierarchy);
+        => GetTypeMetadata(type).PublicInstanceProperties;
+
+    static TypeMetadata GetTypeMetadata(Type type)
+    {
+        type = Nullable.GetUnderlyingType(type) ?? type;
+
+        return _typeMetadataCache.GetOrAdd(type, static t => new() { PublicInstanceProperties = t.GetProperties(PublicInstanceHierarchy) });
+    }
 
     static Type? GetRequestDtoType(EndpointDefinition epDef)
-        => epDef.EndpointType.BaseType?.GetGenericArguments().FirstOrDefault();
+        => epDef.ReqDtoType;
 
     static bool HasParameter(OpenApiOperation operation, ParameterLocation location, string name)
         => operation.Parameters?.Any(
                p => p.In == location &&
                     string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase)) ==
            true;
+
+    static void UpdateParameterSchema(OpenApiOperation operation, ParameterLocation location, string name, Type type, bool shortSchemaNames)
+    {
+        if (operation.Parameters is not { Count: > 0 })
+            return;
+
+        foreach (var param in operation.Parameters)
+        {
+            if (param.In != location || !string.Equals(param.Name, name, StringComparison.OrdinalIgnoreCase))
+                continue;
+
+            if (param is OpenApiParameter concreteParam)
+                concreteParam.Schema = type.GetSchemaForType(shortSchemaNames);
+
+            return;
+        }
+    }
 
     static void ApplyExampleRequestToParams(OpenApiOperation operation, EndpointDefinition epDef)
     {
@@ -763,7 +850,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
         }
     }
 
-    static void ApplyRequestExamples(OpenApiOperation operation, EndpointDefinition epDef, HashSet<string> propsRemovedFromBody)
+    void ApplyRequestExamples(OpenApiOperation operation, EndpointDefinition epDef, HashSet<string> propsRemovedFromBody)
     {
         if (epDef.EndpointSummary?.RequestExamples.Count is not > 0)
             return;
@@ -829,9 +916,9 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
         }
     }
 
-    static JsonNode? BuildRequestExampleFallback(EndpointDefinition epDef, HashSet<string> propsRemovedFromBody)
+    JsonNode? BuildRequestExampleFallback(EndpointDefinition epDef, HashSet<string> propsRemovedFromBody)
     {
-        var fallback = GetRequestDtoType(epDef)?.GenerateSampleJsonNode();
+        var fallback = GetRequestDtoType(epDef)?.GenerateSampleJsonNode(NamingPolicy);
 
         if (fallback is JsonObject fallbackObj && propsRemovedFromBody.Count > 0)
             fallbackObj.RemoveProperties(propsRemovedFromBody);
@@ -872,15 +959,16 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
             if (toHeaderAttr is null)
                 continue;
 
-            var headerName = toHeaderAttr.HeaderName ?? prop.Name.ApplyPropNamingPolicy(docOpts);
+            var headerName = toHeaderAttr.HeaderName ?? prop.Name.ApplyPropNamingPolicy(docOpts, NamingPolicy);
+            var headerType = prop.PropertyType.Name.EndsWith("HeaderValue", StringComparison.Ordinal) ? typeof(string) : prop.PropertyType;
 
             AddResponseHeader(
                 response,
                 headerName,
                 new()
                 {
-                    Schema = prop.PropertyType.GetSchemaForType(docOpts.ShortSchemaNames),
-                    Example = prop.PropertyType.GetSampleValue().JsonNodeFromObject()
+                    Schema = headerType.GetSchemaForType(docOpts.ShortSchemaNames),
+                    Example = headerType.GetSampleValue().JsonNodeFromObject()
                 });
         }
     }
@@ -996,18 +1084,23 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
         if (metadata.Type is null || metadata.Type == Types.Void || !metadata.ContentTypes.Any())
             return;
 
+        response.Content ??= new Dictionary<string, OpenApiMediaType>();
         var schemaRefId = SchemaNameGenerator.GetReferenceId(metadata.Type, docOpts.ShortSchemaNames);
 
-        if (schemaRefId is null)
-            return;
+        OpenApiMediaType mediaType;
 
-        sharedCtx.MissingSchemaTypes.TryAdd(schemaRefId, metadata.Type);
-        response.Content ??= new Dictionary<string, OpenApiMediaType>();
+        if (schemaRefId is null)
+            mediaType = new() { Schema = metadata.Type.GetSchemaForType(docOpts.ShortSchemaNames) };
+        else
+        {
+            sharedCtx.MissingSchemaTypes.TryAdd(schemaRefId, metadata.Type);
+            mediaType = CreateSchemaRefMediaType(schemaRefId);
+        }
 
         foreach (var contentType in metadata.ContentTypes)
         {
             if (!response.Content.ContainsKey(contentType))
-                response.Content[contentType] = CreateSchemaRefMediaType(schemaRefId);
+                response.Content[contentType] = mediaType;
         }
     }
 
@@ -1099,13 +1192,27 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
     static void ApplySecurityRequirements(OpenApiOperation operation,
                                           EndpointDefinition epDef,
                                           IList<object> metadata,
-                                          DocumentSettings docSettings,
+                                          DocumentOptions docOpts,
                                           SharedContext sharedCtx,
                                           string operationKey)
     {
-        var authorizeAttributes = metadata.OfType<AuthorizeAttribute>().ToList();
+        var authorizeAttributes = new List<AuthorizeAttribute>();
+        var hasAllowAnonymous = false;
 
-        if (IsAnonymousOperation(metadata, authorizeAttributes))
+        for (var i = 0; i < metadata.Count; i++)
+        {
+            switch (metadata[i])
+            {
+                case AllowAnonymousAttribute:
+                    hasAllowAnonymous = true;
+                    break;
+                case AuthorizeAttribute authorizeAttribute:
+                    authorizeAttributes.Add(authorizeAttribute);
+                    break;
+            }
+        }
+
+        if (hasAllowAnonymous || authorizeAttributes.Count == 0)
         {
             operation.Security?.Clear();
 
@@ -1113,48 +1220,145 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
         }
 
         var scopes = BuildScopes(authorizeAttributes).ToList();
-        var securityEntries = BuildSecurityEntries(epDef, docSettings, scopes);
+        var securityEntries = BuildSecurityEntries(epDef, docOpts, scopes);
 
         if (securityEntries.Count > 0)
             sharedCtx.SecurityRequirements[operationKey] = securityEntries;
     }
 
-    static bool IsAnonymousOperation(IList<object> metadata, List<AuthorizeAttribute> authorizeAttributes)
-        => metadata.OfType<AllowAnonymousAttribute>().Any() || authorizeAttributes.Count == 0;
-
     static List<(string SchemeName, List<string> Scopes)> BuildSecurityEntries(EndpointDefinition epDef,
-                                                                               DocumentSettings docSettings,
-                                                                               List<string> scopes)
+                                                                                DocumentOptions docOpts,
+                                                                                List<string> scopes)
     {
         var securityEntries = new List<(string SchemeName, List<string> Scopes)>();
 
-        foreach (var authConfig in docSettings.AuthSchemes)
+        foreach (var authConfig in docOpts.AuthSchemes)
         {
             var epSchemes = epDef.AuthSchemeNames;
 
             if (epSchemes?.Contains(authConfig.Name) == false)
                 continue;
 
-            securityEntries.Add((authConfig.Name, scopes));
+            var mergedScopes = new HashSet<string>(scopes, StringComparer.Ordinal);
+
+            if (authConfig.GlobalScopes is not null)
+            {
+                foreach (var scope in authConfig.GlobalScopes)
+                    mergedScopes.Add(scope);
+            }
+
+            securityEntries.Add((authConfig.Name, [.. mergedScopes]));
         }
 
         return securityEntries;
     }
 
     static IEnumerable<string> BuildScopes(IEnumerable<AuthorizeAttribute> authorizeAttributes)
-        => authorizeAttributes
-           .Where(a => a.Roles != null)
-           .SelectMany(a => a.Roles!.Split(','))
-           .Distinct();
+    {
+        var scopes = new HashSet<string>(StringComparer.Ordinal);
+
+        foreach (var authorizeAttribute in authorizeAttributes)
+        {
+            if (authorizeAttribute.Roles is not { Length: > 0 } roles)
+                continue;
+
+            foreach (var role in roles.Split(','))
+                scopes.Add(role);
+        }
+
+        return scopes;
+    }
 
     static string StripRouteConstraints(string relativePath)
     {
-        var parts = relativePath.Split('/');
+        if (!relativePath.Contains('{'))
+            return relativePath;
 
-        for (var i = 0; i < parts.Length; i++)
-            parts[i] = RouteConstraintsRegex().Replace(parts[i], "$1");
+        return RouteConstraintsRegex().Replace(relativePath, "$1");
+    }
 
-        return string.Join("/", parts);
+    static string BuildBareRoute(string documentPath, string? routePrefix, int endpointVersion)
+    {
+        var segments = documentPath.Split('/', StringSplitOptions.RemoveEmptyEntries).ToList();
+
+        if (!string.IsNullOrWhiteSpace(routePrefix))
+        {
+            var prefixSegments = routePrefix.Split('/', StringSplitOptions.RemoveEmptyEntries);
+            var hasPrefix = segments.Count >= prefixSegments.Length;
+
+            for (var i = 0; hasPrefix && i < prefixSegments.Length; i++)
+                hasPrefix = string.Equals(segments[i], prefixSegments[i], StringComparison.Ordinal);
+
+            if (hasPrefix)
+                segments.RemoveRange(0, prefixSegments.Length);
+        }
+
+        if (endpointVersion > 0)
+        {
+            var versionSegment = $"{GlobalConfig.VersioningPrefix ?? "v"}{endpointVersion}";
+            var versionIndex = segments.IndexOf(versionSegment);
+
+            if (versionIndex >= 0)
+                segments.RemoveAt(versionIndex);
+        }
+
+        return "/" + string.Join('/', segments);
+    }
+
+    static string? FindEndpointRouteTemplate(EndpointDefinition epDef, string documentPath)
+    {
+        if (epDef.Routes.Length == 0)
+            return null;
+
+        if (epDef.Routes.Length == 1)
+            return epDef.Routes[0];
+
+        foreach (var route in epDef.Routes)
+        {
+            var finalRoute = FastEndpoints.MainExtensions.BuildRoute(new StringBuilder(), epDef.Version.Current, route, epDef.OverriddenRoutePrefix);
+
+            if (string.Equals(NormalizeRoutePath(finalRoute), documentPath, StringComparison.OrdinalIgnoreCase))
+                return route;
+        }
+
+        return null;
+    }
+
+    static string NormalizeRoutePath(string route)
+    {
+        route = StripRouteConstraints(route.TrimStart('~').TrimEnd('/'));
+
+        return route.StartsWith('/') ? route : "/" + route;
+    }
+
+    static List<RouteParameterInfo> GetRouteParameters(string? relativePath)
+    {
+        var matches = RouteParamsRegex().Matches(relativePath ?? string.Empty);
+        var parameters = new List<RouteParameterInfo>(matches.Count);
+
+        for (var i = 0; i < matches.Count; i++)
+        {
+            var segment = matches[i].Value;
+            parameters.Add(
+                new()
+                {
+                    Name = GetRouteParameterName(segment),
+                    ConstraintType = segment.TryResolveRouteConstraintType()
+                });
+        }
+
+        return parameters;
+
+        static string GetRouteParameterName(string segment)
+        {
+            var colonIdx = segment.IndexOf(':');
+            var equalsIdx = segment.IndexOf('=');
+            var splitIdx = colonIdx >= 0 && equalsIdx >= 0
+                               ? Math.Min(colonIdx, equalsIdx)
+                               : Math.Max(colonIdx, equalsIdx);
+            var name = splitIdx >= 0 ? segment[..splitIdx] : segment;
+            return name.TrimStart('*').TrimEnd('?');
+        }
     }
 
     static string TagName(string input, TagCase tagCase, bool stripSymbols)
@@ -1172,7 +1376,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
             => stripSymbols ? Regex.Replace(val, "[^a-zA-Z0-9]", "") : val;
     }
 
-    static void ApplyParamDescriptionsToRequestBodySchema(OpenApiOperation operation, EndpointDefinition epDef, HashSet<string> propsRemovedFromBody)
+    void ApplyParamDescriptionsToRequestBodySchema(OpenApiOperation operation, EndpointDefinition epDef, HashSet<string> propsRemovedFromBody)
     {
         if (operation.RequestBody?.Content is null)
             return;
@@ -1201,7 +1405,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
 
         foreach (var content in operation.RequestBody.Content.Values)
         {
-            var schema = content.Schema.ResolveSchema();
+            var schema = content.EnsureOperationLocalSchemaIfShared(sharedCtx);
 
             if (schema is null)
                 continue;
@@ -1390,8 +1594,17 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
                     actualSchema.OneOf is not { Count: > 0 })
                     continue;
 
-                // copy oneOf entries from the referenced schema to the response schema level
-                mediaType.Schema = new OpenApiSchema { OneOf = [..actualSchema.OneOf] };
+                // preserve existing schema metadata and only surface oneOf at the response schema level
+                if (mediaType.Schema.OneOf is { Count: > 0 })
+                    continue;
+
+                if (mediaType.Schema is not OpenApiSchema responseSchema)
+                    continue;
+
+                responseSchema.OneOf ??= [];
+
+                foreach (var schemaOption in actualSchema.OneOf)
+                    responseSchema.OneOf.Add(schemaOption);
             }
         }
     }
@@ -1441,14 +1654,12 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, DocumentSetti
 
 file static class OperationTransformerExtensions
 {
-    internal static string ApplyPropNamingPolicy(this string paramName, DocumentOptions documentOptions)
+    internal static string ApplyPropNamingPolicy(this string paramName, DocumentOptions documentOptions, JsonNamingPolicy? namingPolicy)
     {
         if (!documentOptions.UsePropertyNamingPolicy)
             return paramName;
 
-        var policy = Extensions.NamingPolicy;
-
-        return policy?.ConvertName(paramName) ?? paramName;
+        return namingPolicy?.ConvertName(paramName) ?? paramName;
     }
 
     internal static bool IsNullable(this PropertyInfo prop)

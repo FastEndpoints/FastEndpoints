@@ -1,19 +1,31 @@
+using Microsoft.OpenApi;
+
 namespace FastEndpoints.OpenApi;
 
 /// <summary>
-/// options for the swagger document
+/// options for the openapi document
 /// </summary>
 public class DocumentOptions
 {
     /// <summary>
-     /// the index of the route path segment to use for tagging/grouping endpoints. set 0 to disable auto tagging.
-     /// </summary>
-    public int AutoTagPathSegmentIndex { get; set; } = 1;
+    /// the name of the openapi document (used as the route parameter)
+    /// </summary>
+    public string DocumentName { get; set; } = "v1";
 
     /// <summary>
-    /// a function for configuring the document settings (name, title, version, auth)
+    /// the openapi of the openapi document
     /// </summary>
-    public Action<DocumentSettings>? DocumentSettings { get; set; }
+    public string? Title { get; set; }
+
+    /// <summary>
+    /// the version of the openapi document
+    /// </summary>
+    public string? Version { get; set; }
+
+    /// <summary>
+    /// the index of the route path segment to use for tagging/grouping endpoints. set 0 to disable auto tagging.
+    /// </summary>
+    public int AutoTagPathSegmentIndex { get; set; } = 1;
 
     /// <summary>
     /// by default GET request DTO properties are automatically converted to query parameters because fetch-client/swagger ui doesn't support it.
@@ -26,48 +38,40 @@ public class DocumentOptions
     /// </summary>
     public bool EnableJWTBearerAuth { get; set; } = true;
 
+    internal List<AuthSchemeConfig> AuthSchemes { get; } = [];
+
     /// <summary>
-    /// a function to filter out endpoints from the swagger document.
+    /// a function to filter out endpoints from the openapi document.
     /// this function will be run against every fast endpoint discovered.
-    /// return true to include the endpoint and return false to exclude the endpoint from the swagger doc.
+    /// return true to include the endpoint and return false to exclude the endpoint from the openapi doc.
     /// </summary>
     public Func<EndpointDefinition, bool>? EndpointFilter { get; set; }
 
     /// <summary>
-    /// if set to true, only FastEndpoints will show up in the swagger doc
+    /// if set to true, only FastEndpoints will show up in the openapi doc
     /// </summary>
     public bool ExcludeNonFastEndpoints { get; set; }
 
     /// <summary>
-    /// enabling this flattens the inheritance hierarchy of all the schema.
-    /// </summary>
-    public bool FlattenSchema { get; set; }
-
-    /// <summary>
-    /// endpoints greater than this version will not be included in this swagger doc.
+    /// endpoints greater than this version will not be included in this openapi doc.
     /// </summary>
     public int MaxEndpointVersion { get; set; }
 
     /// <summary>
-    /// endpoints lower than this version will not be included in the swagger doc.
+    /// endpoints lower than this version will not be included in the openapi doc.
     /// </summary>
     public int MinEndpointVersion { get; set; }
 
     /// <summary>
-    /// specify a "release version" for this swagger document.
+    /// specify a "release version" for this openapi document.
     /// </summary>
     public int ReleaseVersion { get; set; }
 
     /// <summary>
-    /// by default deprecated endpoints/operations will not show up in the swagger doc.
+    /// by default deprecated endpoints/operations will not show up in the openapi doc.
     /// set this to true if you instead want them to show up but displayed as "obsolete".
     /// </summary>
     public bool ShowDeprecatedOps { get; set; }
-
-    /// <summary>
-    /// set to true for removing empty request dto schema from the swagger document.
-    /// </summary>
-    public bool RemoveEmptyRequestSchema { get; set; }
 
     /// <summary>
     /// set to true if you'd like schema names to be just the class name instead of the full name.
@@ -85,7 +89,7 @@ public class DocumentOptions
     public bool TagStripSymbols { get; set; } = false;
 
     /// <summary>
-    /// specify swagger tag descriptions for the document.
+    /// specify openapi tag descriptions for the document.
     /// the key of the dictionary is the name of the tag to add a description for.
     /// </summary>
     public Action<Dictionary<string, string>>? TagDescriptions { get; set; }
@@ -96,7 +100,7 @@ public class DocumentOptions
     public bool UsePropertyNamingPolicy { get; set; } = true;
 
     /// <summary>
-    /// by setting this to true, you can have base class types as request/response dtos and get swagger to generate possible derived types within a oneOf field.
+    /// by setting this to true, you can have base class types as request/response dtos and get openapi to generate possible derived types within a oneOf field.
     /// </summary>
     public bool UseOneOfForPolymorphism { get; set; }
 
@@ -112,4 +116,19 @@ public class DocumentOptions
     /// use it from inside transformers or from <see cref="ConfigureOpenApi" /> hooks that run at document generation time.
     /// </summary>
     public IServiceProvider? Services { get; internal set; }
+
+    /// <summary>
+    /// add openapi auth for this open api document
+    /// </summary>
+    /// <param name="schemeName">the authentication scheme</param>
+    /// <param name="securityScheme">an open api security scheme object</param>
+    /// <param name="globalScopeNames">a collection of global scope names</param>
+    public void AddAuth(string schemeName, OpenApiSecurityScheme securityScheme, IEnumerable<string>? globalScopeNames = null)
+    {
+        AuthSchemes.Add(new(schemeName, securityScheme, globalScopeNames));
+    }
+
+    public static string OpenApiExportPath { get; set; } = "wwwroot/openapi";
 }
+
+internal record AuthSchemeConfig(string Name, OpenApiSecurityScheme Scheme, IEnumerable<string>? GlobalScopes);

@@ -54,7 +54,7 @@ static class SchemaNameGenerator
         return IsFormFileType(type);
     }
 
-    static bool IsFormFileType(Type type)
+    internal static bool IsFormFileType(Type type)
     {
         // IFormFile and IFormFileCollection should be inlined, not referenced
         if (type.FullName is "Microsoft.AspNetCore.Http.IFormFile" or "Microsoft.AspNetCore.Http.IFormFileCollection")
@@ -85,7 +85,7 @@ static class SchemaNameGenerator
         {
             var index = fullNameWithoutGenericArgs.LastIndexOf('.');
             index = index == -1 ? 0 : index + 1;
-            var shortName = fullNameWithoutGenericArgs[index..];
+            var shortName = fullNameWithoutGenericArgs[index..].Replace("+", "_");
 
             return isGeneric
                        ? shortName + GenericArgString(type)

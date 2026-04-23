@@ -19,6 +19,9 @@
 
     <ItemGroup>
         <None Include="..\icon.png" Pack="true" PackagePath="\" Link="Content\Icon" Visible="false"/>
+        <None Include="FastEndpoints.OpenApi.targets" Pack="true" PackagePath="build\FastEndpoints.OpenApi.targets" Visible="true"/>
     </ItemGroup>
+
+    <Import Project="FastEndpoints.OpenApi.targets"/>
 
 </Project>

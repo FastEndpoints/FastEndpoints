@@ -1087,27 +1087,22 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
         response.Content ??= new Dictionary<string, OpenApiMediaType>();
         var schemaRefId = SchemaNameGenerator.GetReferenceId(metadata.Type, docOpts.ShortSchemaNames);
 
-        OpenApiMediaType mediaType;
-
-        if (schemaRefId is null)
-            mediaType = new() { Schema = metadata.Type.GetSchemaForType(docOpts.ShortSchemaNames) };
-        else
-        {
+        if (schemaRefId is not null)
             sharedCtx.MissingSchemaTypes.TryAdd(schemaRefId, metadata.Type);
-            mediaType = CreateSchemaRefMediaType(schemaRefId);
-        }
 
         foreach (var contentType in metadata.ContentTypes)
         {
             if (!response.Content.ContainsKey(contentType))
-                response.Content[contentType] = mediaType;
+                response.Content[contentType] = CreateMissingResponseMediaType(metadata.Type, schemaRefId, docOpts.ShortSchemaNames);
         }
     }
 
-    static OpenApiMediaType CreateSchemaRefMediaType(string schemaRefId)
+    static OpenApiMediaType CreateMissingResponseMediaType(Type type, string? schemaRefId, bool shortSchemaNames)
         => new()
         {
-            Schema = new OpenApiSchemaReference(schemaRefId)
+            Schema = schemaRefId is null
+                         ? type.GetSchemaForType(shortSchemaNames)
+                         : new OpenApiSchemaReference(schemaRefId)
         };
 
     static bool IsFrameworkDefault(string statusCode, string description)

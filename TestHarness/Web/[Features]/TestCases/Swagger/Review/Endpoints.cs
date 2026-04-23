@@ -1,7 +1,5 @@
 using FluentValidation;
 using FastEndpoints.OpenApi;
-using System.Collections.Generic;
-using System.Text.Json.Serialization;
 
 namespace TestCases.Swagger.Review;
 
@@ -59,7 +57,7 @@ sealed class SharedRequestMetadataAlphaEndpoint : Endpoint<SharedRequestMetadata
             s =>
             {
                 s.Params[nameof(SharedRequestMetadataReviewRequest.Name)] = "alpha description";
-                s.ExampleRequest = new SharedRequestMetadataReviewRequest { Name = "alpha example" };
+                s.ExampleRequest = new() { Name = "alpha example" };
             });
     }
 
@@ -78,7 +76,7 @@ sealed class SharedRequestMetadataBetaEndpoint : Endpoint<SharedRequestMetadataR
             s =>
             {
                 s.Params[nameof(SharedRequestMetadataReviewRequest.Name)] = "beta description";
-                s.ExampleRequest = new SharedRequestMetadataReviewRequest { Name = "beta example" };
+                s.ExampleRequest = new() { Name = "beta example" };
             });
     }
 
@@ -416,11 +414,9 @@ sealed class GenericXmlDocReviewResponse : GenericXmlDocWrapper<string>;
 /// </summary>
 sealed class InlineMarkupXmlDocReviewRequest
 {
-#pragma warning disable CS1574, CS1584, CS1581, CS1580
     /// <summary>
     /// filter by <paramref name="UserId" /> value.
     /// </summary>
-#pragma warning restore CS1574, CS1584, CS1581, CS1580
     public string UserId { get; set; } = string.Empty;
 }
 

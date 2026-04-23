@@ -94,10 +94,10 @@ public class ReflectionGenerator : IIncrementalGenerator
               /// </summary>
               public static class GeneratedReflection
               {
-              /// <summary>
-              /// register source generated reflection data from [{{_rootNamespace}}] with the central cache.
-              /// </summary>
-              public static ReflectionCache AddFrom{{_rootNamespace!.ToValidIdentifier(string.Empty)}}(this ReflectionCache cache)
+                  /// <summary>
+                  /// register source generated reflection data from [{{_rootNamespace}}] with the central cache.
+                  /// </summary>
+                  public static ReflectionCache AddFrom{{_rootNamespace!.ToValidIdentifier(string.Empty)}}(this ReflectionCache cache)
                   {
 
               """);

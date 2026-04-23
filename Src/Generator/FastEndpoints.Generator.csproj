@@ -3,7 +3,8 @@
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0;</TargetFrameworks>
         <Description>Source generator library for FastEndpoints.</Description>
-        <DevelopmentDependency>true</DevelopmentDependency>
+        <DevelopmentDependency>false</DevelopmentDependency>
+        <BuildOutputTargetFolder>analyzers\dotnet\cs</BuildOutputTargetFolder>
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
         <IsRoslynComponent>true</IsRoslynComponent>
         <NoWarn>1701;1702;CS1591;CS1573;NU5128</NoWarn>
@@ -19,9 +20,7 @@
 
     <ItemGroup>
         <None Include="..\icon.png" Pack="true" PackagePath="\" Link="Content\Icon" Visible="false"/>
-        <None Include="$(OutputPath)\netstandard2.0\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false"/>
-        <None Include="$(OutputPath)\netstandard2.0\FastEndpoints.Attributes.dll" Pack="true" PackagePath="lib/netstandard2.0" Visible="false"/>
-        <None Include="$(OutputPath)\netstandard2.0\FastEndpoints.Attributes.dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false"/>
+        <None Include="$(OutputPath)\netstandard2.0\FastEndpoints.Attributes.dll" Pack="true" PackagePath="lib\netstandard2.0" Visible="true"/>
         <None Include="FastEndpoints.Generator.targets" Pack="true" PackagePath="build/FastEndpoints.Generator.targets" Visible="true"/>
     </ItemGroup>
 

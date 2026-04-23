@@ -12,7 +12,7 @@ Due to low financial backing by the community, FastEndpoints will soon be going 
 
 <details><summary>New 'FastEndpoints.OpenApi' package that uses 'Microsoft.AspNetCore.OpenApi'</summary>
 
-Starting with `v8.2`, the FastEndpoints ecosystem has switched from `NSwag/Newtonsoft` based Swagger/OpenAPI document generation to the more modern and Native AOT friendly `Microsoft.AspNetCore.OpenApi` based document generation library. Integration is provided via our own `FastEndpoints.OpenApi` package which corrects a few issues with the MS package as well as doing a lot of post-processing on the document model to bring feature parity with the `FastEndpoints.Swagger` package.
+Starting with `v8.2`, the FastEndpoints ecosystem has switched from `NSwag/Newtonsoft` based Swagger/OpenAPI document generation to the more modern and Native AOT friendly `Microsoft.AspNetCore.OpenApi` based document generation library. Integration is provided via a new `FastEndpoints.OpenApi` package which corrects a few issues with the MS package as well as doing a lot of post-processing on the document model to bring feature parity with the `FastEndpoints.Swagger` package.
 
 There's no immediate need for you to switch to the new package if your projects are heavily invested in `NSwag` based generation. Especially if you're not yet on .NET10. The new package only supports .NET10+ projects. See EOL notice below for more info.
 
@@ -50,7 +50,13 @@ url.ShouldBe("api/invoices/123?IncludeLines=true");
 
 ## Improvements 🚀
 
-<details><summary>Configurable response deserialization behavior for unmapped JSON members in routeless test helpers</summary>
+<details><summary>More lenient route prefix handling</summary>
+
+Global route prefixes now normalize empty-string configuration values to no prefix and trim surrounding `/` characters before route registration. This fixes cases where configuration APIs return `""` instead of `null` while preserving the existing `RoutePrefixOverride(...)` contract, including ignoring endpoint-level overrides when no global prefix is configured and allowing `RoutePrefixOverride(string.Empty)` to disable the global prefix for a single endpoint.
+
+</details>
+
+<details><summary>Configurable response deserialization behavior for routeless test helpers</summary>
 
 The routeless `HttpClient` testing extensions no longer hardcode `JsonUnmappedMemberHandling.Disallow` when deserializing response DTOs. You can now control that behavior with `c.Serializer.TestResponseUnmappedMemberHandling`, while defaulting to strict failure when the response JSON contains properties your test DTO does not define.
 
@@ -67,7 +73,7 @@ app.UseFastEndpoints(c =>
 
 </details>
 
-<details><summary>OpenApi generation now emits wrapped JSON Patch request bodies as top-level patch operation arrays</summary>
+<details><summary>Emit wrapped JSON Patch request bodies as top-level patch operation arrays in OpenApi docs</summary>
 
 When a request DTO contains a `[FromBody]` property accepted as `application/json-patch+json`, the generated OpenAPI request body schema is now promoted from the wrapper object shape to the top-level JSON Patch array shape expected by Swagger UI.
 
@@ -118,7 +124,7 @@ app.UseFastEndpoints(c =>
 
 ## End-Of-Life Packages 🪦
 
-<details><summary>NSwag based Swagger packages are being discontinued</summary>
+<details><summary>NSwag based Swagger packages are set to be discontinued</summary>
 
 The following `NSwag` based packages will no longer be receiving new features:
 
@@ -126,9 +132,9 @@ The following `NSwag` based packages will no longer be receiving new features:
 - `FastEndpoints.ClientGen` (NSwag based api client generation)
 - `FastEndpoints.ClientGen.Kiota` (NSwag+Kiota based api client generation)
 
-There is no immediate need for you to migrate away from these packages to the `Microsoft.AspNetCore.OpenApi` based new ones, as they will continue to receive bug fixes as `patch` versions to `v8.1.x`. Migration is not that difficult either, as the new packages purposefully contain extremely close API surfaces. If you have no deep customization with stuff like custom newtonsoft converters, operation/schema processors, etc; migration should be not too difficult.
+There is no immediate need for you to migrate away from these packages to the `Microsoft.AspNetCore.OpenApi` based new ones, as they will continue to receive bug fixes for the time being. Migration is not that difficult either, as the new packages purposefully contain extremely close API surfaces. If you have no deep customization with stuff like custom newtonsoft converters, operation/schema processors, etc; migration should not be too difficult.
 
-The new `FastEndpoints.OpenApi*` packages are however .NET10+ only. If you'd like to migrate to the new packages, you'd have to migrate your projects to .NET10 first.
+The new `FastEndpoints.OpenApi*` packages are however .NET 10+ only. If you'd like to migrate to the new packages, you'd have to migrate your projects to .NET 10 first. The above discontinued packages will be deprecated after .NET 9 goes out of support.
 
 </details>
 

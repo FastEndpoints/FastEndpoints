@@ -18,6 +18,11 @@
         <PackageVersion Include="Microsoft.AspNetCore.JsonPatch.SystemTextJson" Version="10.0.5"/>
         <PackageVersion Include="Microsoft.AspNetCore.OData" Version="9.4.1"/>
         <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.6"/>
+        <PackageVersion Include="ModelContextProtocol" Version="1.2.0"/>
+        <PackageVersion Include="ModelContextProtocol.AspNetCore" Version="1.2.0"/>
+        <PackageVersion Include="ModelContextProtocol.Core" Version="1.2.0"/>
+        <PackageVersion Include="Microsoft.Extensions.AI" Version="9.11.0"/>
+        <PackageVersion Include="Microsoft.Extensions.AI.Abstractions" Version="9.11.0"/>
         <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="4.14.0"/>
         <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="[4.11.0]"/><!-- not upgradeable for net8 compatibility -->
         <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.5"/>

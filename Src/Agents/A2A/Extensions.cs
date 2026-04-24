@@ -9,11 +9,20 @@ namespace FastEndpoints.A2A;
 
 /// <summary>
 /// entry-point extensions for wiring FastEndpoints-as-A2A into the ASP.NET Core host.
+/// typical usage:
+/// <code>
+/// builder.Services
+///     .AddFastEndpoints()
+///     .AddA2A();
+/// var app = builder.Build();
+/// app.UseFastEndpoints()
+///    .UseA2A();
+/// </code>
 /// </summary>
 public static class Extensions
 {
     /// <summary>registers the A2A services: skill dispatcher, agent-card builder, <see cref="EndpointInvoker" />.</summary>
-    public static IServiceCollection AddFastEndpointsA2A(this IServiceCollection services, Action<A2AOptions>? configure = null)
+    public static IServiceCollection AddA2A(this IServiceCollection services, Action<A2AOptions>? configure = null)
     {
         var options = new A2AOptions();
         configure?.Invoke(options);
@@ -26,17 +35,29 @@ public static class Extensions
 
     /// <summary>
     /// maps the A2A agent card (<c>/.well-known/agent.json</c>) and JSON-RPC endpoint (default <c>/a2a</c>).
-    /// call after <c>UseFastEndpoints()</c>.
+    /// call after <c>UseFastEndpoints()</c>. pass <paramref name="configureRpcRoute" /> /
+    /// <paramref name="configureCardRoute" /> to chain conventions like <c>RequireAuthorization</c>.
     /// </summary>
-    public static void MapFastEndpointsA2A(this IEndpointRouteBuilder app, string rpcPattern = "/a2a", string agentCardPattern = "/.well-known/agent.json")
+    public static IApplicationBuilder UseA2A(
+        this IApplicationBuilder app,
+        string rpcPattern = "/a2a",
+        string agentCardPattern = "/.well-known/agent.json",
+        Action<IEndpointConventionBuilder>? configureRpcRoute = null,
+        Action<IEndpointConventionBuilder>? configureCardRoute = null)
     {
-        app.MapGet(agentCardPattern, (HttpContext ctx, AgentCardBuilder builder) =>
+        if (app is not IEndpointRouteBuilder routes)
+            throw new InvalidOperationException(
+                "UseA2A must be called on an IApplicationBuilder that also implements IEndpointRouteBuilder (such as WebApplication). " +
+                "Call UseA2A after building the WebApplication, or after UseRouting in a classic pipeline.");
+
+        var cardRoute = routes.MapGet(agentCardPattern, (HttpContext ctx, AgentCardBuilder builder) =>
         {
             var card = builder.Build(ctx);
             return Results.Json(card, FastEndpoints.Config.SerOpts.Options);
         });
+        configureCardRoute?.Invoke(cardRoute);
 
-        app.MapPost(rpcPattern, async (HttpContext ctx, A2ASkillDispatcher dispatcher) =>
+        var rpcRoute = routes.MapPost(rpcPattern, async (HttpContext ctx, A2ASkillDispatcher dispatcher) =>
         {
             var serializerOptions = FastEndpoints.Config.SerOpts.Options;
             JsonRpcRequest? req;
@@ -70,5 +91,8 @@ public static class Extensions
 
             return Results.Json(response, serializerOptions);
         });
+        configureRpcRoute?.Invoke(rpcRoute);
+
+        return app;
     }
 }

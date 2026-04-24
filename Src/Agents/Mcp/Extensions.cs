@@ -1,9 +1,7 @@
-using System.Text.Json;
 using FastEndpoints.Agents;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
-using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 
 namespace FastEndpoints.Mcp;
@@ -14,10 +12,10 @@ namespace FastEndpoints.Mcp;
 /// <code>
 /// builder.Services
 ///     .AddFastEndpoints()
-///     .AddFastEndpointsMcp();
+///     .AddMcp();
 /// var app = builder.Build();
-/// app.UseFastEndpoints();
-/// app.MapFastEndpointsMcp();
+/// app.UseFastEndpoints()
+///    .UseMcp();
 /// </code>
 /// </summary>
 public static class Extensions
@@ -25,9 +23,9 @@ public static class Extensions
     /// <summary>
     /// registers the services the MCP bridge needs: the <see cref="EndpointInvoker" /> that runs
     /// endpoints in-process, the <see cref="McpOptions" /> singleton, and the <c>ModelContextProtocol</c>
-    /// MCP server itself. tools are discovered lazily when <c>MapFastEndpointsMcp</c> is called.
+    /// MCP server itself. tools are discovered lazily when <c>UseMcp</c> is called.
     /// </summary>
-    public static IServiceCollection AddFastEndpointsMcp(this IServiceCollection services, Action<McpOptions>? configure = null)
+    public static IServiceCollection AddMcp(this IServiceCollection services, Action<McpOptions>? configure = null)
     {
         var options = new McpOptions();
         configure?.Invoke(options);
@@ -44,17 +42,29 @@ public static class Extensions
     /// <summary>
     /// maps the MCP HTTP endpoint at <paramref name="pattern" /> (default <c>/mcp</c>) and registers
     /// every opt-in FastEndpoints endpoint as a tool. call <em>after</em> <c>UseFastEndpoints()</c> so
-    /// the endpoint registry is populated.
+    /// the endpoint registry is populated. pass <paramref name="configureRoute" /> to chain conventions
+    /// onto the MCP route itself (e.g. <c>route => route.RequireAuthorization()</c>).
     /// </summary>
-    public static IEndpointConventionBuilder MapFastEndpointsMcp(this IEndpointRouteBuilder app, string pattern = "/mcp")
+    public static IApplicationBuilder UseMcp(
+        this IApplicationBuilder app,
+        string pattern = "/mcp",
+        Action<IEndpointConventionBuilder>? configureRoute = null)
     {
-        var source = app.ServiceProvider.GetRequiredService<EndpointMcpToolSource>();
+        var source = app.ApplicationServices.GetRequiredService<EndpointMcpToolSource>();
         var tools = source.BuildTools();
-        var serverOptions = app.ServiceProvider.GetRequiredService<Microsoft.Extensions.Options.IOptions<ModelContextProtocol.Server.McpServerOptions>>().Value;
-        serverOptions.ToolCollection ??= new ModelContextProtocol.Server.McpServerPrimitiveCollection<ModelContextProtocol.Server.McpServerTool>();
+        var serverOptions = app.ApplicationServices.GetRequiredService<Microsoft.Extensions.Options.IOptions<McpServerOptions>>().Value;
+        serverOptions.ToolCollection ??= new McpServerPrimitiveCollection<McpServerTool>();
         foreach (var t in tools)
             serverOptions.ToolCollection.Add(t);
 
-        return app.MapMcp(pattern);
+        if (app is not IEndpointRouteBuilder routeBuilder)
+            throw new InvalidOperationException(
+                "UseMcp must be called on an IApplicationBuilder that also implements IEndpointRouteBuilder (such as WebApplication). " +
+                "Call UseMcp after building the WebApplication, or after UseRouting in a classic pipeline.");
+
+        var route = routeBuilder.MapMcp(pattern);
+        configureRoute?.Invoke(route);
+
+        return app;
     }
 }

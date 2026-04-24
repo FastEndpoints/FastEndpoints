@@ -1,6 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
+        <!-- independently versioned from FastEndpoints core; see Src/Agents/Directory.Build.props -->
+        <Version>0.1.0-preview.1</Version>
         <TargetFrameworks>net9.0;net10.0</TargetFrameworks>
         <NoWarn>1701;1702;CS1591;CS1573</NoWarn>
         <Description>PREVIEW addon for FastEndpoints: expose opt-in endpoints as A2A (agent-to-agent) skills with an Agent Card and a JSON-RPC 2.0 dispatcher. The A2A protocol surface is still stabilising under the Linux Foundation. Versioned independently of FastEndpoints core.</Description>
@@ -23,7 +25,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <None Include="..\..\..\icon.png" Pack="true" PackagePath="\" Link="Content\Icon" Visible="false"/>
+        <None Include="..\..\icon.png" Pack="true" PackagePath="\" Link="Content\Icon" Visible="false"/>
     </ItemGroup>
 
 </Project>

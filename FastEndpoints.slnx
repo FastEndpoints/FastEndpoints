@@ -37,6 +37,7 @@
         <File Path="Tests/Directory.Build.props"/>
     </Folder>
     <Folder Name="/Tests/IntegrationTests/">
+        <Project Path="Tests/IntegrationTests/FastEndpoints.Agents/Int.Agents.csproj"/>
         <Project Path="Tests/IntegrationTests/FastEndpoints.OpenApi.Kiota/Int.OpenApi.Kiota.csproj"/>
         <Project Path="Tests/IntegrationTests/FastEndpoints.OpenApi/Int.OpenApi.csproj"/>
         <Project Path="Tests/IntegrationTests/FastEndpoints/Int.FastEndpoints.csproj"/>

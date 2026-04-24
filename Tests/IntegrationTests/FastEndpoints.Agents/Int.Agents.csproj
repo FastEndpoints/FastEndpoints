@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\Src\Agents\Core\FastEndpoints.Agents.Core.csproj"/>
+        <ProjectReference Include="..\..\..\Src\Agents\Mcp\FastEndpoints.Mcp.csproj"/>
+        <ProjectReference Include="..\..\..\Src\Agents\A2A\FastEndpoints.A2A.csproj"/>
+        <ProjectReference Include="..\..\..\Src\Testing\FastEndpoints.Testing.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="xunit.runner.json" CopyToOutputDirectory="Always"/>
+    </ItemGroup>
+
+</Project>

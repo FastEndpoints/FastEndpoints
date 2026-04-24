@@ -262,6 +262,17 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     }
 
     [Fact]
+    public async Task included_validator_rules_are_applied_to_schema_properties()
+    {
+        var json = await App.GetDocumentJsonAsync("Initial Release");
+        var requestSchema = JToken.Parse(json)["components"]!["schemas"]!["TestCasesIncludedValidatorTestRequest"]!;
+
+        requestSchema["required"]!.Values<string>().ShouldContain("id");
+        requestSchema["properties"]!["id"]!["exclusiveMinimum"]!.Value<string>().ShouldBe("5");
+        requestSchema["properties"]!["name"]!["minLength"]!.Value<int>().ShouldBe(5);
+    }
+
+    [Fact]
     public async Task json_property_name_attributes_are_used_by_to_header_transformer()
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review");

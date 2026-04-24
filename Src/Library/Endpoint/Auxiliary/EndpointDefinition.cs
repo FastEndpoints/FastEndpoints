@@ -59,20 +59,6 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     public bool ThrowIfValidationFails { get; private set; } = true;
     public X402PaymentMetadata? X402PaymentMetadata { get; private set; }
 
-    /// <summary>
-    /// MCP (Model Context Protocol) tool metadata. <c>null</c> means this endpoint is not exposed
-    /// as an MCP tool. set via the bare <c>McpTool(…)</c> call inside <see cref="BaseEndpoint.Configure" />
-    /// or via the <c>[McpTool]</c> attribute. read by the <c>FastEndpoints.Mcp</c> companion package.
-    /// </summary>
-    public McpToolInfo? McpToolInfo { get; internal set; }
-
-    /// <summary>
-    /// A2A (agent-to-agent) skill metadata. <c>null</c> means this endpoint is not exposed as an A2A
-    /// skill. set via the bare <c>A2ASkill(…)</c> call inside <see cref="BaseEndpoint.Configure" /> or
-    /// via the <c>[A2ASkill]</c> attribute. read by the <c>FastEndpoints.A2A</c> companion package.
-    /// </summary>
-    public A2ASkillInfo? A2ASkillInfo { get; internal set; }
-
     //only accessible to internal code
     internal bool AcceptsAnyContentType;
     internal bool AcceptsMetaDataPresent;
@@ -772,45 +758,6 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     {
         ThrowIfLocked();
         ValidatorType = typeof(TValidator);
-    }
-
-    /// <summary>
-    /// opt this endpoint in to being exposed as a Model Context Protocol (MCP) tool. without an
-    /// opt-in call the endpoint is invisible to MCP — which is the safe default for avoiding
-    /// accidental exposure of admin or internal routes to LLMs.
-    /// </summary>
-    /// <param name="name">tool name seen by MCP clients. <c>null</c> uses the endpoint type name converted to <c>snake_case</c>.</param>
-    /// <param name="description">description shown to LLMs when listing tools. <c>null</c> falls back to <see cref="EndpointSummary" /> / XML docs.</param>
-    /// <param name="configure">optional callback for setting tool hints (read-only, idempotent, destructive, open-world).</param>
-    public void McpTool(string? name = null, string? description = null, Action<McpToolInfo>? configure = null)
-    {
-        ThrowIfLocked();
-        var info = McpToolInfo ?? new McpToolInfo();
-        if (name is not null)
-            info.Name = name;
-        if (description is not null)
-            info.Description = description;
-        configure?.Invoke(info);
-        McpToolInfo = info;
-    }
-
-    /// <summary>
-    /// opt this endpoint in to being exposed as an A2A (agent-to-agent) skill. without an
-    /// opt-in call the endpoint is invisible to A2A.
-    /// </summary>
-    /// <param name="id">stable skill identifier. <c>null</c> uses the endpoint type name in <c>snake_case</c>.</param>
-    /// <param name="tags">free-form tags that other agents can filter by when selecting skills.</param>
-    /// <param name="configure">optional callback for setting name, description, examples, and input/output modes.</param>
-    public void A2ASkill(string? id = null, string[]? tags = null, Action<A2ASkillInfo>? configure = null)
-    {
-        ThrowIfLocked();
-        var info = A2ASkillInfo ?? new A2ASkillInfo();
-        if (id is not null)
-            info.Id = id;
-        if (tags is not null)
-            info.Tags = tags;
-        configure?.Invoke(info);
-        A2ASkillInfo = info;
     }
 
     internal void ThrowIfLocked([CallerMemberName] string callerName = "Unknown")

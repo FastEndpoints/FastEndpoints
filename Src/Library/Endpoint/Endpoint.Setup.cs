@@ -726,28 +726,6 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
         => Definition.Validator<TValidator>();
 
     /// <summary>
-    /// opt this endpoint in to being exposed as a Model Context Protocol (MCP) tool via the
-    /// <c>FastEndpoints.Mcp</c> companion package. without an opt-in call the endpoint is invisible
-    /// to MCP clients.
-    /// </summary>
-    /// <param name="name">tool name seen by MCP clients. <c>null</c> uses the endpoint type name converted to <c>snake_case</c>.</param>
-    /// <param name="description">description shown to LLMs when listing tools. <c>null</c> falls back to the endpoint summary / XML docs.</param>
-    /// <param name="configure">optional callback for setting tool hints (read-only, idempotent, destructive, open-world).</param>
-    protected void McpTool(string? name = null, string? description = null, Action<McpToolInfo>? configure = null)
-        => Definition.McpTool(name, description, configure);
-
-    /// <summary>
-    /// opt this endpoint in to being exposed as an A2A (agent-to-agent) skill via the
-    /// <c>FastEndpoints.A2A</c> companion package. without an opt-in call the endpoint is invisible
-    /// to A2A clients.
-    /// </summary>
-    /// <param name="id">stable skill identifier. <c>null</c> uses the endpoint type name in <c>snake_case</c>.</param>
-    /// <param name="tags">free-form tags other agents can filter by when selecting skills.</param>
-    /// <param name="configure">optional callback for setting name, description, examples, and input/output modes.</param>
-    protected void A2ASkill(string? id = null, string[]? tags = null, Action<A2ASkillInfo>? configure = null)
-        => Definition.A2ASkill(id, tags, configure);
-
-    /// <summary>
     /// specify one or more http method verbs this endpoint should be accepting requests for
     /// </summary>
     public void Verbs(params Http[] methods)

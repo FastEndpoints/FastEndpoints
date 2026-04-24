@@ -51,11 +51,9 @@ public static class Extensions
         var source = app.ServiceProvider.GetRequiredService<EndpointMcpToolSource>();
         var tools = source.BuildTools();
         var serverOptions = app.ServiceProvider.GetRequiredService<Microsoft.Extensions.Options.IOptions<ModelContextProtocol.Server.McpServerOptions>>().Value;
-        serverOptions.Capabilities ??= new();
-        serverOptions.Capabilities.Tools ??= new();
-        var collection = serverOptions.Capabilities.Tools.ToolCollection ??= new ModelContextProtocol.Server.McpServerPrimitiveCollection<ModelContextProtocol.Server.McpServerTool>();
+        serverOptions.ToolCollection ??= new ModelContextProtocol.Server.McpServerPrimitiveCollection<ModelContextProtocol.Server.McpServerTool>();
         foreach (var t in tools)
-            collection.Add(t);
+            serverOptions.ToolCollection.Add(t);
 
         return app.MapMcp(pattern);
     }

@@ -4,6 +4,7 @@ using System.Text.Json.Nodes;
 using FastEndpoints.Agents;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using ModelContextProtocol;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 

@@ -57,7 +57,11 @@ sealed class EndpointInvoker
             return InvocationResult.Faulted(ex, endpoint.ValidationFailures);
         }
 
-        if (endpoint.ValidationFailures.Count > 0 && httpContext.Response.StatusCode >= 400)
+        // report validation failures regardless of response status: an endpoint that opts into
+        // DontThrowIfValidationFails() leaves StatusCode = 200 even when AddError(...) pushed
+        // failures onto the collection. gating on StatusCode >= 400 would silently swallow those
+        // and hand the agent a "success" response containing failure information it can't see.
+        if (endpoint.ValidationFailures.Count > 0)
             return InvocationResult.Invalid(endpoint.ValidationFailures);
 
         var body = (MemoryStream)httpContext.Response.Body;

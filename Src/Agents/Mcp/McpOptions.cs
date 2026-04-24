@@ -5,7 +5,7 @@ namespace FastEndpoints.Mcp;
 
 /// <summary>
 /// user-facing configuration for the FastEndpoints MCP bridge. passed to
-/// <see cref="Extensions.AddFastEndpointsMcp(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Action{McpOptions}?)" />.
+/// <see cref="Extensions.AddMcp(Microsoft.Extensions.DependencyInjection.IServiceCollection, System.Action{McpOptions}?)" />.
 /// </summary>
 public sealed class McpOptions
 {

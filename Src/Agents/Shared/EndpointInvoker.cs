@@ -13,7 +13,7 @@ namespace FastEndpoints.Agents;
 /// runs exactly as it would for a real request. this is the engine shared by <c>FastEndpoints.Mcp</c>
 /// and <c>FastEndpoints.A2A</c>.
 /// </summary>
-public sealed class EndpointInvoker
+sealed class EndpointInvoker
 {
     readonly IServiceScopeFactory _scopeFactory;
 
@@ -120,7 +120,7 @@ public sealed class EndpointInvoker
 }
 
 /// <summary>outcome of <see cref="EndpointInvoker.InvokeAsync" />.</summary>
-public readonly struct InvocationResult
+readonly struct InvocationResult
 {
     public InvocationStatus Status { get; }
     public int HttpStatusCode { get; }
@@ -149,7 +149,7 @@ public readonly struct InvocationResult
         => new(InvocationStatus.Faulted, 500, null, [], ex, failures);
 }
 
-public enum InvocationStatus
+enum InvocationStatus
 {
     Success,
     ValidationFailed,

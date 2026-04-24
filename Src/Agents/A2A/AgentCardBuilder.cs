@@ -22,12 +22,12 @@ sealed class AgentCardBuilder
 
         foreach (var def in endpointData.Found)
         {
-            if (def.A2ASkillInfo is null)
+            var info = def.ResolveSkillInfo();
+            if (info is null)
                 continue;
             if (_options.SkillFilter is not null && !_options.SkillFilter(def))
                 continue;
 
-            var info = def.A2ASkillInfo;
             var id = info.Id ?? def.EndpointType.Name;
 
             skills.Add(new AgentSkill

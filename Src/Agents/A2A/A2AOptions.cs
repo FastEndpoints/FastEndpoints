@@ -1,7 +1,7 @@
 namespace FastEndpoints.A2A;
 
 /// <summary>
-/// configuration for <see cref="Extensions.AddFastEndpointsA2A" /> / <see cref="Extensions.MapFastEndpointsA2A" />.
+/// configuration for <see cref="Extensions.AddA2A" /> / <see cref="Extensions.UseA2A" />.
 /// surfaces the agent-card fields that sit at <c>/.well-known/agent.json</c> plus the JSON-RPC route.
 /// </summary>
 public sealed class A2AOptions

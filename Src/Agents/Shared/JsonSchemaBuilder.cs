@@ -11,7 +11,7 @@ namespace FastEndpoints.Agents;
 /// enrichment with FluentValidation constraints is applied by <see cref="FluentValidationSchemaEnricher" />
 /// on top of the base schema.
 /// </summary>
-public static class JsonSchemaBuilder
+static class JsonSchemaBuilder
 {
     static readonly ConcurrentDictionary<(Type, JsonSerializerOptions), JsonNode> _cache = new();
 

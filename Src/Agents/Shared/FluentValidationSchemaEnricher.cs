@@ -11,10 +11,10 @@ namespace FastEndpoints.Agents;
 /// from a FluentValidation <see cref="IValidator" />. subset of rules covered: <c>NotNull</c>/<c>NotEmpty</c>
 /// (<c>required</c>), <c>Length</c>/<c>MinimumLength</c>/<c>MaximumLength</c>, <c>InclusiveBetween</c>
 /// (for strings and numbers), <c>Regex</c>/<c>Matches</c> (<c>pattern</c>), and <c>EmailAddress</c>
-/// (<c>format: email</c>). mirrors the rules ported from <see cref="FastEndpoints.OpenApi" />'s
+/// (<c>format: email</c>). mirrors the rules ported from the <c>FastEndpoints.OpenApi</c>
 /// <c>ValidationSchemaTransformer</c> onto <see cref="JsonNode" /> instead of OpenAPI.
 /// </summary>
-public static class FluentValidationSchemaEnricher
+static class FluentValidationSchemaEnricher
 {
     static readonly ConcurrentDictionary<Type, (string PropertyName, IPropertyValidator Validator)[]> _ruleCache = new();
 

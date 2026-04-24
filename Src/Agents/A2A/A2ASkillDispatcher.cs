@@ -92,9 +92,10 @@ sealed class A2ASkillDispatcher
         var endpointData = _services.GetRequiredService<EndpointData>();
         foreach (var def in endpointData.Found)
         {
-            if (def.A2ASkillInfo is null)
+            var info = def.ResolveSkillInfo();
+            if (info is null)
                 continue;
-            var skillId = def.A2ASkillInfo.Id ?? def.EndpointType.Name;
+            var skillId = info.Id ?? def.EndpointType.Name;
             if (skillId == id)
                 return def;
         }

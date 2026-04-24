@@ -13,7 +13,7 @@ namespace FastEndpoints.Mcp;
 /// <summary>
 /// builds <see cref="McpServerTool" /> instances for every FastEndpoints endpoint that opted-in via
 /// <c>McpTool(...)</c> or <c>[McpTool]</c>. tools are registered into the MCP server's primary tool
-/// collection at <c>MapFastEndpointsMcp</c> time; per-session filtering (auth visibility) is applied
+/// collection at <c>MapMcp</c> time; per-session filtering (auth visibility) is applied
 /// inside each tool's invocation handler because tool visibility depends on <c>HttpContext.User</c>,
 /// which is only available at call time.
 /// </summary>
@@ -37,20 +37,20 @@ sealed class EndpointMcpToolSource
         var tools = new List<McpServerTool>();
         foreach (var def in endpointData.Found)
         {
-            if (def.McpToolInfo is null)
+            var info = def.ResolveToolInfo();
+            if (info is null)
                 continue;
 
             if (_options.ToolFilter is not null && !_options.ToolFilter(def))
                 continue;
 
-            tools.Add(BuildTool(def, invoker, serializerOptions));
+            tools.Add(BuildTool(def, info, invoker, serializerOptions));
         }
         return tools;
     }
 
-    McpServerTool BuildTool(EndpointDefinition def, EndpointInvoker invoker, JsonSerializerOptions serializerOptions)
+    McpServerTool BuildTool(EndpointDefinition def, McpToolInfo info, EndpointInvoker invoker, JsonSerializerOptions serializerOptions)
     {
-        var info = def.McpToolInfo!;
         var name = info.Name ?? ToSnakeCase(def.EndpointType.Name);
         var description = info.Description ?? def.EndpointSummary?.Description;
 

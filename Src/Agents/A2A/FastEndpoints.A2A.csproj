@@ -3,12 +3,18 @@
     <PropertyGroup>
         <TargetFrameworks>net9.0;net10.0</TargetFrameworks>
         <NoWarn>1701;1702;CS1591;CS1573</NoWarn>
-        <VersionSuffix>preview.1</VersionSuffix>
-        <Description>PREVIEW: expose FastEndpoints endpoints as A2A (agent-to-agent) skills with an Agent Card and a JSON-RPC 2.0 dispatcher. A2A protocol surface is still stabilising under the Linux Foundation.</Description>
+        <Description>PREVIEW addon for FastEndpoints: expose opt-in endpoints as A2A (agent-to-agent) skills with an Agent Card and a JSON-RPC 2.0 dispatcher. The A2A protocol surface is still stabilising under the Linux Foundation. Versioned independently of FastEndpoints core.</Description>
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Core\FastEndpoints.Agents.Core.csproj"/>
+      <!-- shared addon plumbing compiled in as internal types; kept outside a NuGet package so
+           consumers only see FastEndpoints.A2A on the wire, not a third FastEndpoints.Agents.Core dep. -->
+      <Compile Include="..\Shared\*.cs" LinkBase="Shared"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\Library\FastEndpoints.csproj"/>
+        <PackageReference Include="FluentValidation"/>
         <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
     </ItemGroup>
 

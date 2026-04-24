@@ -48,7 +48,6 @@
         <Project Path="Tests/UnitTests/FastEndpoints.Testing/Unit.Testing.csproj"/>
     </Folder>
     <Project Path="Src/Agents/A2A/FastEndpoints.A2A.csproj"/>
-    <Project Path="Src/Agents/Core/FastEndpoints.Agents.Core.csproj"/>
     <Project Path="Src/Agents/Mcp/FastEndpoints.Mcp.csproj"/>
     <Project Path="Src/AspVersioning/FastEndpoints.AspVersioning.csproj"/>
     <Project Path="Src/Attributes/FastEndpoints.Attributes.csproj"/>

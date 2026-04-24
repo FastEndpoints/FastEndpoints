@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net9.0;net10.0</TargetFrameworks>
+        <NoWarn>1701;1702;CS1591;CS1573</NoWarn>
+        <Description>Expose FastEndpoints endpoints as Model Context Protocol (MCP) tools over stdio or Streamable HTTP. Built on the official ModelContextProtocol C# SDK.</Description>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Core\FastEndpoints.Agents.Core.csproj"/>
+        <PackageReference Include="ModelContextProtocol.AspNetCore"/>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\..\..\icon.png" Pack="true" PackagePath="\" Link="Content\Icon" Visible="false"/>
+    </ItemGroup>
+
+</Project>

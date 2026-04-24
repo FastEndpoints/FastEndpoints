@@ -29,11 +29,22 @@ public override void Configure()
 public class GetOrder : Endpoint<GetOrderRequest, Order> { /* ... */ }
 ```
 
+The `this.` prefix is **required by the C# language** on an extension method
+invoked against the enclosing instance — bare `McpTool(...)` does not resolve
+inside `Configure()` because the compiler only searches for extension methods
+when there is an explicit receiver. The alternative was to ship parallel
+`McpEndpoint<,>` / `A2AEndpoint<,>` base classes, which would force a choice
+of inheritance on every opt-in endpoint for the sake of saving four characters,
+so we keep the simpler extension form. The owner explicitly accepted this:
+*"AI lovers will have to do `this.Whatever()` to configure it"* (Discord).
+
 Behind the scenes the addon pushes an `McpToolInfo` / `A2ASkillInfo` into the
 endpoint's existing `EndpointDefinition.EndpointMetadata` bag (for the fluent
 form) or reads back the addon attribute from `EndpointDefinition.EndpointAttributes`
 (for the attribute form). Both are generic, AI-agnostic extension points that
-FastEndpoints already exposes to every addon.
+FastEndpoints already exposes to every addon. Authors composing configuration
+from helpers can also call `Definition.McpTool(...)` / `Definition.A2ASkill(...)`
+(extension on `EndpointDefinition`) directly.
 
 ## Layout
 

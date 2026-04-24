@@ -79,6 +79,46 @@ static partial class EndpointExtensions
 
                         break;
 
+                    case McpToolAttribute mcpAttr:
+                        def.McpTool(
+                            mcpAttr.Name,
+                            mcpAttr.Description,
+                            info =>
+                            {
+                                if (mcpAttr.Title is not null)
+                                    info.Title = mcpAttr.Title;
+                                if (mcpAttr.ReadOnly)
+                                    info.Hints.ReadOnly = true;
+                                if (mcpAttr.Idempotent)
+                                    info.Hints.Idempotent = true;
+                                if (mcpAttr.Destructive)
+                                    info.Hints.Destructive = true;
+                                if (mcpAttr.OpenWorld)
+                                    info.Hints.OpenWorld = true;
+                            });
+
+                        break;
+
+                    case A2ASkillAttribute a2aAttr:
+                        def.A2ASkill(
+                            a2aAttr.Id,
+                            a2aAttr.Tags,
+                            info =>
+                            {
+                                if (a2aAttr.Name is not null)
+                                    info.Name = a2aAttr.Name;
+                                if (a2aAttr.Description is not null)
+                                    info.Description = a2aAttr.Description;
+                                if (a2aAttr.Examples is not null)
+                                    info.Examples = a2aAttr.Examples;
+                                if (a2aAttr.InputModes is not null)
+                                    info.InputModes = a2aAttr.InputModes;
+                                if (a2aAttr.OutputModes is not null)
+                                    info.OutputModes = a2aAttr.OutputModes;
+                            });
+
+                        break;
+
                     case IProcessorAttribute procAttr:
                         procAttr.AddToEndpointDefinition(def);
 

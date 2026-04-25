@@ -271,7 +271,7 @@ sealed partial class OperationTransformer
             if (!IsAnonymousType(exampleType))
                 return exampleType.GetSchemaForType(sharedCtx, docOpts.ShortSchemaNames);
 
-            return CreateSchemaFromExampleNode(exampleNode);
+            return OperationSchemaHelpers.CreateSchemaFromExampleNode(exampleNode);
         }
 
         static void ApplyDefaultResponseDescription(string statusCode, IOpenApiResponse response)
@@ -303,42 +303,6 @@ sealed partial class OperationTransformer
             {
                 Schema = type.GetSchemaForType(sharedCtx, shortSchemaNames)
             };
-
-        internal static OpenApiSchema? CreateSchemaFromExampleNode(JsonNode? node)
-            => node switch
-            {
-                JsonObject obj => new()
-                {
-                    Type = JsonSchemaType.Object,
-                    Properties = obj.ToDictionary(
-                        kvp => kvp.Key,
-                        IOpenApiSchema (kvp) => CreateSchemaFromExampleNode(kvp.Value) ?? OperationSchemaHelpers.StringSchema())
-                },
-                JsonArray arr => new()
-                {
-                    Type = JsonSchemaType.Array,
-                    Items = CreateSchemaFromExampleNode(arr.FirstOrDefault()) ?? OperationSchemaHelpers.StringSchema()
-                },
-                JsonValue value => CreatePrimitiveSchemaFromValue(value),
-                _ => null
-            };
-
-        static OpenApiSchema CreatePrimitiveSchemaFromValue(JsonValue value)
-        {
-            if (value.TryGetValue<bool>(out _))
-                return new() { Type = JsonSchemaType.Boolean };
-
-            if (value.TryGetValue<int>(out _))
-                return new() { Type = JsonSchemaType.Integer, Format = "int32" };
-
-            if (value.TryGetValue<long>(out _))
-                return new() { Type = JsonSchemaType.Integer, Format = "int64" };
-
-            if (value.TryGetValue<decimal>(out _))
-                return new() { Type = JsonSchemaType.Number };
-
-            return OperationSchemaHelpers.StringSchema();
-        }
 
         static bool IsAnonymousType(Type type)
         {

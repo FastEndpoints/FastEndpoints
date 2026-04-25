@@ -88,7 +88,7 @@ sealed partial class OperationTransformer
                     Description = epDef.IdempotencyOptions.SwaggerHeaderDescription,
                     Schema = epDef.IdempotencyOptions.SwaggerHeaderType is not null
                                   ? epDef.IdempotencyOptions.SwaggerHeaderType.GetSchemaForType(sharedCtx, docOpts.ShortSchemaNames)
-                                 : ResponseOperationTransformer.CreateSchemaFromExampleNode(exampleNode) ?? OperationSchemaHelpers.StringSchema(),
+                                  : OperationSchemaHelpers.CreateSchemaFromExampleNode(exampleNode) ?? OperationSchemaHelpers.StringSchema(),
                     Example = exampleNode
                 });
         }

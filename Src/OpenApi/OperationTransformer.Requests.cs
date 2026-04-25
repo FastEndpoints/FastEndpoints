@@ -28,10 +28,6 @@ sealed partial class OperationTransformer
             var state = new RequestTransformState();
             var endpointRouteTemplate = FindEndpointRouteTemplate(epDef, documentPath);
             var routeParameters = GetRouteParameters(endpointRouteTemplate ?? context.Description.RelativePath ?? documentPath);
-            var routeParamNames = new List<string>(routeParameters.Count);
-
-            for (var i = 0; i < routeParameters.Count; i++)
-                routeParamNames.Add(routeParameters[i].Name);
 
             var requestDtoType = GetRequestDtoType(epDef);
 
@@ -46,7 +42,7 @@ sealed partial class OperationTransformer
                 if (requestDtoProps is not null)
                 {
                     RemoveHiddenProperties(operation, requestDtoProps, state);
-                    AddBoundParameters(operation, requestDtoProps, routeParamNames, isGetRequest, state);
+                    AddBoundParameters(operation, requestDtoProps, routeParameters, isGetRequest, state);
                 }
 
                 // remove request body if GET request (unless explicitly enabled) or if empty
@@ -57,7 +53,7 @@ sealed partial class OperationTransformer
                 }
             }
 
-            EnsureRouteParameters(operation, routeParameters, routeParamNames);
+            EnsureRouteParameters(operation, routeParameters);
 
             return state;
         }
@@ -336,7 +332,7 @@ sealed partial class OperationTransformer
 
         void AddBoundParameters(OpenApiOperation operation,
                                 List<PropertyInfo> requestDtoProps,
-                                List<string> routeParamNames,
+                                List<RouteParameterInfo> routeParameters,
                                 bool isGetRequest,
                                 RequestTransformState state)
         {
@@ -345,7 +341,7 @@ sealed partial class OperationTransformer
                 var p = requestDtoProps[i];
 
                 AddAttributeParameters(operation, p, state);
-                AddRouteParameter(operation, p, routeParamNames, state);
+                AddRouteParameter(operation, p, routeParameters, state);
 
                 var queryParamName = p.Name.ApplyPropNamingPolicy(docOpts, NamingPolicy);
 
@@ -402,19 +398,19 @@ sealed partial class OperationTransformer
             }
         }
 
-        void AddRouteParameter(OpenApiOperation operation, PropertyInfo p, List<string> routeParamNames, RequestTransformState state)
+        void AddRouteParameter(OpenApiOperation operation, PropertyInfo p, List<RouteParameterInfo> routeParameters, RequestTransformState state)
         {
             var bindName = p.GetCustomAttribute<BindFromAttribute>()?.Name ?? p.Name;
-            var matchingRouteParam = routeParamNames.FirstOrDefault(rp => string.Equals(rp, bindName, StringComparison.OrdinalIgnoreCase));
+            var matchingRouteParam = routeParameters.FirstOrDefault(rp => string.Equals(rp.Name, bindName, StringComparison.OrdinalIgnoreCase));
 
             if (matchingRouteParam is null)
                 return;
 
             operation.RemovePropFromRequestBody(p, sharedCtx, NamingPolicy, state.PropsRemovedFromBody);
 
-            var appliedName = matchingRouteParam.GetOpenApiRouteParameterName(docOpts, NamingPolicy);
+            var appliedName = matchingRouteParam.Name.GetOpenApiRouteParameterName(docOpts, NamingPolicy);
 
-            if (TryNormalizeExistingPathParameter(operation, matchingRouteParam, appliedName, p.PropertyType))
+            if (TryNormalizeExistingPathParameter(operation, matchingRouteParam.Name, appliedName, p.PropertyType))
                 return;
 
             if (!HasParameter(operation, ParameterLocation.Path, appliedName))
@@ -423,15 +419,15 @@ sealed partial class OperationTransformer
                 UpdateParameterSchema(operation, ParameterLocation.Path, appliedName, p.PropertyType, docOpts.ShortSchemaNames);
         }
 
-        void EnsureRouteParameters(OpenApiOperation operation, List<RouteParameterInfo> routeParameters, List<string> routeParamNames)
+        void EnsureRouteParameters(OpenApiOperation operation, List<RouteParameterInfo> routeParameters)
         {
-            for (var i = 0; i < routeParamNames.Count; i++)
+            for (var i = 0; i < routeParameters.Count; i++)
             {
-                var routeParam = routeParamNames[i];
-                var appliedName = routeParam.GetOpenApiRouteParameterName(docOpts, NamingPolicy);
-                var resolvedType = routeParameters[i].ConstraintType;
+                var routeParam = routeParameters[i];
+                var appliedName = routeParam.Name.GetOpenApiRouteParameterName(docOpts, NamingPolicy);
+                var resolvedType = routeParam.ConstraintType;
 
-                if (TryNormalizeExistingPathParameter(operation, routeParam, appliedName, resolvedType))
+                if (TryNormalizeExistingPathParameter(operation, routeParam.Name, appliedName, resolvedType))
                     continue;
 
                 AddParameter(operation, appliedName, ParameterLocation.Path, null, true, docOpts.ShortSchemaNames, resolvedType);

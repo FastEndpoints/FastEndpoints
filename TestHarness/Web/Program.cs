@@ -18,12 +18,11 @@ using Web.PipelineBehaviors.PreProcessors;
 using Web.Services;
 using Scalar.AspNetCore;
 
-var bld = WebApplication.CreateBuilder(args);
-
-var isTesting = string.Equals(bld.Environment.EnvironmentName, "Testing", StringComparison.OrdinalIgnoreCase);
 Func<EndpointDefinition, bool> excludeReleaseVersioning = ep => ep.EndpointTags?.Contains("release_versioning") is not true;
+Func<EndpointDefinition, bool> includeReleaseVersioning = ep => ep.EndpointTags?.Contains("release_versioning") is true;
 Func<EndpointDefinition, bool> includeSwaggerReview = ep => ep.EndpointTags?.Contains("swagger_review") is true;
 
+var bld = WebApplication.CreateBuilder(args);
 bld.AddHandlerServer();
 bld.Services
    .AddCors()
@@ -97,7 +96,7 @@ bld.Services
        o =>
        {
            o.ExcludeNonFastEndpoints = true;
-           o.EndpointFilter = ep => ep.EndpointTags?.Contains("release_versioning") is true;
+           o.EndpointFilter = includeReleaseVersioning;
            o.Title = "Web API";
            o.DocumentName = "ReleaseVersioning - v0";
            o.ReleaseVersion = 0;
@@ -107,7 +106,7 @@ bld.Services
        o =>
        {
            o.ExcludeNonFastEndpoints = true;
-           o.EndpointFilter = ep => ep.EndpointTags?.Contains("release_versioning") is true;
+           o.EndpointFilter = includeReleaseVersioning;
            o.Title = "Web API";
            o.DocumentName = "ReleaseVersioning - v1";
            o.ReleaseVersion = 1;
@@ -117,7 +116,7 @@ bld.Services
        o =>
        {
            o.ExcludeNonFastEndpoints = true;
-           o.EndpointFilter = ep => ep.EndpointTags?.Contains("release_versioning") is true;
+           o.EndpointFilter = includeReleaseVersioning;
            o.Title = "Web API";
            o.DocumentName = "ReleaseVersioning - v2";
            o.ReleaseVersion = 2;
@@ -127,7 +126,7 @@ bld.Services
        o =>
        {
            o.ExcludeNonFastEndpoints = true;
-           o.EndpointFilter = ep => ep.EndpointTags?.Contains("release_versioning") is true;
+           o.EndpointFilter = includeReleaseVersioning;
            o.Title = "Web API";
            o.DocumentName = "ReleaseVersioning - v3";
            o.ReleaseVersion = 3;
@@ -152,7 +151,7 @@ bld.Services
            o.TagStripSymbols = true;
        });
 
-if (isTesting)
+if (bld.Environment.EnvironmentName == "Testing")
     bld.Services.AddSingleton<IX402FacilitatorClient, FakeFacilitatorClient>();
 
 var supportedCultures = new[] { new CultureInfo("en-US") };

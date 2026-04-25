@@ -44,6 +44,41 @@ static partial class OperationSchemaHelpers
 
             return StringSchema();
         }
+
+        internal IOpenApiSchema GetSchemaForType(SharedContext sharedCtx, bool shortSchemaNames = false)
+        {
+            var schema = type.GetSchemaForType(shortSchemaNames);
+
+            RegisterMissingSchemaTypes(type, schema, sharedCtx, shortSchemaNames);
+
+            return schema;
+        }
+    }
+
+    static void RegisterMissingSchemaTypes(Type type, IOpenApiSchema schema, SharedContext sharedCtx, bool shortSchemaNames)
+    {
+        type = Nullable.GetUnderlyingType(type) ?? type;
+
+        if (schema is OpenApiSchemaReference schemaRef)
+        {
+            if (GetReferenceId(schemaRef) is { } refId)
+                sharedCtx.MissingSchemaTypes.TryAdd(refId, type);
+
+            return;
+        }
+
+        if (schema is not OpenApiSchema concreteSchema)
+            return;
+
+        if (TryGetDictionaryValueType(type) is { } dictionaryValueType && concreteSchema.AdditionalProperties is { } additionalProperties)
+        {
+            RegisterMissingSchemaTypes(dictionaryValueType, additionalProperties, sharedCtx, shortSchemaNames);
+
+            return;
+        }
+
+        if (type != typeof(string) && GetCollectionElementType(type) is { } elementType && concreteSchema.Items is { } items)
+            RegisterMissingSchemaTypes(elementType, items, sharedCtx, shortSchemaNames);
     }
 
     static OpenApiSchema? TryCreatePrimitiveSchema(Type type)

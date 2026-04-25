@@ -76,13 +76,13 @@ static partial class OperationSchemaHelpers
             if (!property.CanRead || !property.CanWrite)
                 continue;
 
-            property.SetValue(clone, CloneSchemaMemberValue(property.GetValue(schema)));
+            property.SetValue(clone, CloneSchemaMemberValue(property.Name, property.GetValue(schema)));
         }
 
         return clone;
     }
 
-    static object? CloneSchemaMemberValue(object? value)
+    static object? CloneSchemaMemberValue(string memberName, object? value)
     {
         if (value is null)
             return null;
@@ -92,12 +92,94 @@ static partial class OperationSchemaHelpers
             JsonNode node => node.DeepClone(),
             OpenApiSchema concreteSchema => CloneConcreteSchemaFallback(concreteSchema),
             OpenApiSchemaReference schemaRef => schemaRef,
+            IOpenApiSchema schema => CloneNestedSchema(schema),
             IDictionary<string, IOpenApiSchema> schemaDictionary => CloneSchemaDictionary(schemaDictionary),
+            IDictionary<string, string> stringDictionary => new Dictionary<string, string>(stringDictionary, StringComparer.Ordinal),
+            IDictionary<string, bool> boolDictionary => new Dictionary<string, bool>(boolDictionary, StringComparer.Ordinal),
+            IDictionary<string, JsonNode> jsonNodeDictionary => CloneJsonNodeDictionary(jsonNodeDictionary),
+            IDictionary<string, HashSet<string>> stringSetDictionary => CloneStringSetDictionary(stringSetDictionary),
+            IDictionary<string, IOpenApiExtension> extensionsDictionary => CloneExtensionsDictionary(extensionsDictionary),
+            IDictionary<string, object> metadataDictionary => CloneMetadataDictionary(memberName, metadataDictionary),
             IList<IOpenApiSchema> schemaList => CloneSchemaList(schemaList),
             ISet<string> requiredSet => new HashSet<string>(requiredSet),
             IList<JsonNode> jsonNodes => CloneJsonNodeList(jsonNodes),
-            _ => value
+            OpenApiDiscriminator discriminator => CloneOpenApiObject(discriminator),
+            OpenApiExternalDocs externalDocs => CloneOpenApiObject(externalDocs),
+            OpenApiXml xml => CloneOpenApiObject(xml),
+            _ when IsSafelyShareable(value) => value,
+            _ => throw new NotSupportedException(
+                $"OpenApiSchema member '{memberName}' has unsupported mutable type '{value.GetType().FullName}' for cloning. " +
+                "Update the schema clone logic before using operation-local schema mutations.")
         };
+    }
+
+    static T CloneOpenApiObject<T>(T source) where T : new()
+    {
+        var clone = new T();
+
+        foreach (var property in typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance))
+        {
+            if (!property.CanRead || !property.CanWrite || property.GetIndexParameters().Length > 0)
+                continue;
+
+            property.SetValue(clone, CloneSchemaMemberValue(property.Name, property.GetValue(source)));
+        }
+
+        return clone;
+    }
+
+    static Dictionary<string, JsonNode>? CloneJsonNodeDictionary(IDictionary<string, JsonNode>? nodes)
+    {
+        if (nodes is null)
+            return null;
+
+        var cloned = new Dictionary<string, JsonNode>(nodes.Count, StringComparer.Ordinal);
+
+        foreach (var (key, value) in nodes)
+            cloned[key] = value.DeepClone();
+
+        return cloned;
+    }
+
+    static Dictionary<string, HashSet<string>>? CloneStringSetDictionary(IDictionary<string, HashSet<string>>? sets)
+    {
+        if (sets is null)
+            return null;
+
+        var cloned = new Dictionary<string, HashSet<string>>(sets.Count, StringComparer.Ordinal);
+
+        foreach (var (key, value) in sets)
+            cloned[key] = new(value, StringComparer.Ordinal);
+
+        return cloned;
+    }
+
+    static Dictionary<string, IOpenApiExtension>? CloneExtensionsDictionary(IDictionary<string, IOpenApiExtension>? extensions)
+    {
+        if (extensions is null)
+            return null;
+
+        if (extensions.Count > 0)
+        {
+            throw new NotSupportedException(
+                "OpenApiSchema extensions cannot be safely cloned without sharing mutable extension instances. " +
+                "Update the schema clone logic before using operation-local schema mutations with schema extensions.");
+        }
+
+        return new(StringComparer.Ordinal);
+    }
+
+    static Dictionary<string, object>? CloneMetadataDictionary(string memberName, IDictionary<string, object>? metadata)
+    {
+        if (metadata is null)
+            return null;
+
+        var cloned = new Dictionary<string, object>(metadata.Count, StringComparer.Ordinal);
+
+        foreach (var (key, value) in metadata)
+            cloned[key] = CloneSchemaMemberValue(memberName, value) ?? new object();
+
+        return cloned;
     }
 
     static Dictionary<string, IOpenApiSchema>? CloneSchemaDictionary(IDictionary<string, IOpenApiSchema>? schemas)
@@ -149,6 +231,13 @@ static partial class OperationSchemaHelpers
         }
 
         return cloned;
+    }
+
+    static bool IsSafelyShareable(object value)
+    {
+        var type = value.GetType();
+
+        return type.IsValueType || value is string or Type or Uri;
     }
 
     static string? GetReferenceId(OpenApiSchemaReference schemaRef)

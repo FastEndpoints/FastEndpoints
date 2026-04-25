@@ -163,6 +163,7 @@ public static class Extensions
         var logger = app.Services.GetRequiredService<ILogger<OpenApiExportRunner>>();
 
         await app.StartAsync();
+        var exportFailed = false;
 
         try
         {
@@ -178,7 +179,8 @@ public static class Extensions
                 }
                 catch (Exception ex)
                 {
-                    logger.OpenApiDocExportFailed(docName, ex.Message);
+                    exportFailed = true;
+                    logger.OpenApiDocExportFailed(ex, docName);
                 }
             }
         }
@@ -187,7 +189,7 @@ public static class Extensions
             await app.StopAsync();
         }
 
-        Environment.Exit(0);
+        Environment.Exit(exportFailed ? 1 : 0);
     }
 
     static async Task<string> ExportOpenApiDocument(WebApplication app, string documentName, string destinationPath, CancellationToken ct)

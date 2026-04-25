@@ -1887,6 +1887,36 @@
         }
       }
     },
+    "/api/swagger-review/catch-all/{slug}": {
+      "get": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewCatchAllRouteReviewEndpoint",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/swagger-review/child-validator": {
       "post": {
         "tags": [
@@ -2071,6 +2101,120 @@
             "description": "Success",
             "content": {
               "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/duplicate-idempotency-header": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewDuplicateIdempotencyHeaderEndpoint",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/duplicate-query-naming-policy": {
+      "get": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewDuplicateQueryNamingPolicyEndpoint",
+        "parameters": [
+          {
+            "name": "firstName",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/duplicate-x402-header": {
+      "get": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewDuplicateX402HeaderEndpoint",
+        "parameters": [
+          {
+            "name": "PAYMENT-SIGNATURE",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "PAYMENT-RESPONSE": {
+                "description": "Base64-encoded x402 settlement result. Present when the middleware attempts settlement.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required",
+            "headers": {
+              "PAYMENT-REQUIRED": {
+                "description": "Base64-encoded x402 payment challenge payload.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "PAYMENT-RESPONSE": {
+                "description": "Base64-encoded x402 settlement result. Present when the middleware attempts settlement.",
                 "schema": {
                   "type": "string"
                 }
@@ -2368,6 +2512,103 @@
         }
       }
     },
+    "/api/swagger-review/manual-complex-idempotency-header": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewManualSchemaIdempotencyHeaderEndpoint",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TestCasesSwaggerReviewManualSchemaIdempotencyHeader"
+            },
+            "example": {
+              "key": "demo-key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/manual-complex-query": {
+      "get": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewManualSchemaQueryEndpoint",
+        "parameters": [
+          {
+            "name": "filter",
+            "in": "query",
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesSwaggerReviewManualSchemaNested"
+                },
+                "example": {
+                  "value": "value"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/manual-complex-response-header": {
+      "get": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewManualSchemaResponseHeaderEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "x-complex-header": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesSwaggerReviewManualSchemaNested"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesSwaggerReviewManualSchemaResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/swagger-review/missing-schema-enum": {
       "get": {
         "tags": [
@@ -2537,6 +2778,72 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/TestCasesSwaggerReviewUlongEnumReviewResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/version-prefilter-initial": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewVersionPrefilterInitialEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "initial description"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/version-prefilter-v1/ver1": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewVersionPrefilterV1Endpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSwaggerReviewVersionPrefilterSharedRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
                 }
               }
             }
@@ -8142,6 +8449,30 @@
           }
         }
       },
+      "TestCasesSwaggerReviewManualSchemaIdempotencyHeader": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          }
+        }
+      },
+      "TestCasesSwaggerReviewManualSchemaNested": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "TestCasesSwaggerReviewManualSchemaResponse": {
+        "type": "object",
+        "properties": {
+          "bodyValue": {
+            "type": "string"
+          }
+        }
+      },
       "TestCasesSwaggerReviewMissingSchemaEnumResponse": {
         "type": "object",
         "properties": {
@@ -8184,6 +8515,14 @@
           18446744073709551615
         ],
         "type": "integer"
+      },
+      "TestCasesSwaggerReviewVersionPrefilterSharedRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
       },
       "TestCasesTypedHeaderBindingTestMyRequest": {
         "type": "object",

@@ -8,6 +8,7 @@ using FastEndpoints.OpenApi.ValidationProcessor.Extensions;
 using FluentValidation;
 using FluentValidation.Internal;
 using FluentValidation.Validators;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi;
 
@@ -23,6 +24,8 @@ sealed partial class ValidationSchemaTransformer
         public required Type ValidatorType { get; init; }
         public string? PropertyPrefix { get; init; }
     }
+
+    sealed record CachedValidatorRules(ReadOnlyDictionary<string, List<IValidationRule>> Rules, CachedValidatorRules[] IncludedRules);
 
     sealed class ValidatorBindingProvider
     {
@@ -99,7 +102,7 @@ sealed partial class ValidationSchemaTransformer
             => SupportsNestedPropertyWalk(type);
     }
 
-    sealed class ValidationSchemaApplier
+    sealed class ValidationSchemaApplier : IDisposable
     {
         readonly SharedContext _sharedCtx;
         readonly ILogger<ValidationSchemaTransformer>? _logger;
@@ -109,13 +112,27 @@ sealed partial class ValidationSchemaTransformer
         public ValidationSchemaApplier(SharedContext sharedCtx,
                                        IServiceResolver serviceResolver,
                                        ILogger<ValidationSchemaTransformer>? logger,
-                                       IServiceProvider services,
+                                       Func<IServiceScope> createScope,
                                        FluentValidationRule[] rules)
         {
             _sharedCtx = sharedCtx;
             _logger = logger;
             _rules = rules;
-            _childResolver = new(serviceResolver, logger, services, ApplyValidator, ApplyRulesToSchema);
+            _childResolver = new(serviceResolver, logger, createScope, ApplyValidator, ApplyRulesToSchema);
+        }
+
+        public void Dispose()
+            => _childResolver.Dispose();
+
+        public void ApplyValidatorRules(OpenApiSchema schema,
+                                        CachedValidatorRules cachedRules,
+                                        string propertyPrefix,
+                                        HashSet<Type> activeChildValidators)
+        {
+            ApplyRulesToSchema(schema, cachedRules.Rules, propertyPrefix, activeChildValidators);
+
+            foreach (var includedRules in cachedRules.IncludedRules)
+                ApplyValidatorRules(schema, includedRules, string.Empty, activeChildValidators);
         }
 
         public void ApplyValidator(OpenApiSchema schema, IValidator validator, string propertyPrefix, HashSet<Type> activeChildValidators)
@@ -124,6 +141,10 @@ sealed partial class ValidationSchemaTransformer
             ApplyRulesToSchema(schema, rulesDict, propertyPrefix, activeChildValidators);
             _childResolver.ApplyRulesFromIncludedValidators(schema, validator, activeChildValidators, _sharedCtx.NamingPolicy);
         }
+
+        [DynamicDependency(DynamicallyAccessedMemberTypes.PublicMethods, typeof(ChildValidatorAdaptor<,>))]
+        public static IEnumerable<IValidator> GetIncludedValidators(IValidator validator, ILogger<ValidationSchemaTransformer>? logger)
+            => ChildValidatorResolver.GetIncludedValidators(validator, logger);
 
         void ApplyRulesToSchema(OpenApiSchema? schema,
                                 ReadOnlyDictionary<string, List<IValidationRule>> rulesDict,
@@ -221,39 +242,53 @@ sealed partial class ValidationSchemaTransformer
 
     sealed class ChildValidatorResolver(IServiceResolver serviceResolver,
                                         ILogger<ValidationSchemaTransformer>? logger,
-                                        IServiceProvider services,
+                                        Func<IServiceScope> createScope,
                                         Action<OpenApiSchema, IValidator, string, HashSet<Type>> applyValidator,
-                                        Action<OpenApiSchema?, ReadOnlyDictionary<string, List<IValidationRule>>, string, HashSet<Type>> applyRulesToSchema)
+                                        Action<OpenApiSchema?, ReadOnlyDictionary<string, List<IValidationRule>>, string, HashSet<Type>> applyRulesToSchema) : IDisposable
     {
-        [DynamicDependency(DynamicallyAccessedMemberTypes.PublicMethods, typeof(ChildValidatorAdaptor<,>))]
-        public void ApplyRulesFromIncludedValidators(OpenApiSchema schema,
-                                                     IValidator validator,
-                                                     HashSet<Type> activeChildValidators,
-                                                     System.Text.Json.JsonNamingPolicy? namingPolicy)
+        IServiceScope? _scope;
+
+        IServiceProvider Services => (_scope ??= createScope()).ServiceProvider;
+
+        public void Dispose()
+            => _scope?.Dispose();
+
+        public static IEnumerable<IValidator> GetIncludedValidators(IValidator validator, ILogger<ValidationSchemaTransformer>? logger)
         {
             if (validator is not IEnumerable<IValidationRule> rules)
-                return;
+                yield break;
 
             var childAdapters = rules
                                 .Where(rule => rule.HasNoCondition() && rule is IIncludeRule)
                                 .SelectMany(includeRule => includeRule.Components.Select(c => c.Validator))
                                 .Where(
                                     v => v.GetType() is { IsGenericType: true } vType &&
-                                         vType.GetGenericTypeDefinition() == typeof(ChildValidatorAdaptor<,>))
-                                .ToList();
+                                         vType.GetGenericTypeDefinition() == typeof(ChildValidatorAdaptor<,>));
 
             foreach (var adapter in childAdapters)
             {
-                if (!TryGetIncludedValidator(adapter, out var includeValidator))
-                    continue;
+                if (TryGetIncludedValidator(adapter, logger, out var includeValidator))
+                    yield return includeValidator;
+            }
+        }
 
+        [DynamicDependency(DynamicallyAccessedMemberTypes.PublicMethods, typeof(ChildValidatorAdaptor<,>))]
+        public void ApplyRulesFromIncludedValidators(OpenApiSchema schema,
+                                                     IValidator validator,
+                                                     HashSet<Type> activeChildValidators,
+                                                     System.Text.Json.JsonNamingPolicy? namingPolicy)
+        {
+            foreach (var includeValidator in GetIncludedValidators(validator, logger))
+            {
                 var rulesDict = includeValidator.GetDictionaryOfRules(namingPolicy, GetValidatorTargetType(includeValidator));
                 applyRulesToSchema(schema, rulesDict, string.Empty, activeChildValidators);
                 ApplyRulesFromIncludedValidators(schema, includeValidator, activeChildValidators, namingPolicy);
             }
         }
 
-        bool TryGetIncludedValidator(IPropertyValidator adapter, [NotNullWhen(true)] out IValidator? validator)
+        static bool TryGetIncludedValidator(IPropertyValidator adapter,
+                                            ILogger<ValidationSchemaTransformer>? logger,
+                                            [NotNullWhen(true)] out IValidator? validator)
         {
             validator = null;
 
@@ -303,7 +338,7 @@ sealed partial class ValidationSchemaTransformer
 
             try
             {
-                var childValidator = (IValidator)serviceResolver.CreateInstance(validatorType, services);
+                var childValidator = (IValidator)serviceResolver.CreateInstance(validatorType, Services);
 
                 if (schema.Properties?.TryGetValue(propertyName, out var childPropSchema) == true)
                 {

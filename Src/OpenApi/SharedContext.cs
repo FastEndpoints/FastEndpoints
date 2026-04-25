@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Collections.Frozen;
 using Microsoft.Extensions.Logging.Abstractions;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http.Json;
@@ -12,28 +13,45 @@ namespace FastEndpoints.OpenApi;
 /// </summary>
 internal class SharedContext
 {
-    internal JsonNamingPolicy? NamingPolicy;
-    int _requestSchemaSharingInitialized;
+    static readonly FrozenSet<string> _emptyRequestSchemaRefs = Array.Empty<string>().ToFrozenSet(StringComparer.Ordinal);
 
-    internal HashSet<string> SharedRequestSchemaRefs { get; } = new(StringComparer.Ordinal);
+    internal JsonNamingPolicy? NamingPolicy;
+    readonly object _requestSchemaSharingLock = new();
+    FrozenSet<string>? _sharedRequestSchemaRefs;
+
+    internal IReadOnlySet<string> SharedRequestSchemaRefs
+        => Volatile.Read(ref _sharedRequestSchemaRefs) ?? _emptyRequestSchemaRefs;
 
     internal JsonNamingPolicy? ResolveNamingPolicy(IServiceProvider services)
         => NamingPolicy ??= services.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions.PropertyNamingPolicy;
 
     internal void InitializeSharedRequestSchemaRefs(IServiceProvider services, DocumentOptions docOpts)
     {
-        if (Interlocked.Exchange(ref _requestSchemaSharingInitialized, 1) == 1)
+        if (Volatile.Read(ref _sharedRequestSchemaRefs) is not null)
             return;
+
+        lock (_requestSchemaSharingLock)
+        {
+            if (_sharedRequestSchemaRefs is not null)
+                return;
+
+            Volatile.Write(ref _sharedRequestSchemaRefs, BuildSharedRequestSchemaRefs(services, docOpts));
+        }
+    }
+
+    static FrozenSet<string> BuildSharedRequestSchemaRefs(IServiceProvider services, DocumentOptions docOpts)
+    {
+        var empty = _emptyRequestSchemaRefs;
 
         var serviceResolver = services.GetService<IServiceResolver>();
 
         if (serviceResolver is null)
-            return;
+            return empty;
 
         var endpointData = serviceResolver.Resolve<EndpointData>();
 
         if (endpointData is null)
-            return;
+            return empty;
 
         var includedRefCounts = new Dictionary<string, int>(StringComparer.Ordinal);
 
@@ -51,11 +69,9 @@ internal class SharedContext
             includedRefCounts[refId] = count + 1;
         }
 
-        foreach (var (refId, count) in includedRefCounts)
-        {
-            if (count > 1)
-                SharedRequestSchemaRefs.Add(refId);
-        }
+        return includedRefCounts.Where(kvp => kvp.Value > 1)
+                                .Select(kvp => kvp.Key)
+                                .ToFrozenSet(StringComparer.Ordinal);
 
         static bool ShouldInclude(EndpointDefinition epDef, DocumentOptions docOpts)
         {
@@ -72,7 +88,7 @@ internal class SharedContext
             if (currentVersion < minVersion)
                 return false;
 
-            if (maxVersion > 0 && currentVersion > maxVersion)
+            if (currentVersion > maxVersion)
                 return false;
 
             return true;

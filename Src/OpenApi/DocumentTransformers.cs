@@ -212,13 +212,23 @@ static class DocumentTagTransformer
 
     public static void Cleanup(OpenApiDocument document, DocumentOptions opts)
     {
-        if (opts.TagDescriptions is null)
-            document.Tags?.Clear();
+        if (opts.TagDescriptions is not null || document.Tags is null)
+            return;
+
+        foreach (var tag in document.Tags.Where(static t => string.IsNullOrEmpty(t.Description) && t.ExternalDocs is null && t.Extensions is not { Count: > 0 }).ToArray())
+            document.Tags.Remove(tag);
     }
 }
 
 static partial class DocumentPathNormalizer
 {
+    public static void NormalizeParameterNames(OpenApiDocument document)
+        => RenamePaths(
+            document,
+            path => RouteParamRegex().Replace(
+                path,
+                m => $"{{{NormalizeParameterName(m.Groups[1].Value)}}}"));
+
     public static void Apply(OpenApiDocument document, DocumentOptions opts, SharedContext sharedCtx)
     {
         if (!opts.UsePropertyNamingPolicy)
@@ -229,18 +239,20 @@ static partial class DocumentPathNormalizer
         if (policy is null)
             return;
 
+        RenamePaths(
+            document,
+            path => RouteParamRegex().Replace(
+                path,
+                m => $"{{{policy.ConvertName(m.Groups[1].Value)}}}"));
+    }
+
+    static void RenamePaths(OpenApiDocument document, Func<string, string> rename)
+    {
         var renames = new List<(string OldPath, string NewPath)>();
 
         foreach (var path in document.Paths.Keys)
         {
-            var newPath = RouteParamRegex().Replace(
-                path,
-                m =>
-                {
-                    var paramName = m.Groups[1].Value;
-
-                    return $"{{{policy.ConvertName(paramName)}}}";
-                });
+            var newPath = rename(path);
 
             if (newPath != path)
                 renames.Add((path, newPath));
@@ -251,6 +263,18 @@ static partial class DocumentPathNormalizer
             if (document.Paths.Remove(oldPath, out var pathItem))
                 document.Paths[newPath] = pathItem;
         }
+    }
+
+    static string NormalizeParameterName(string segment)
+    {
+        var colonIdx = segment.IndexOf(':');
+        var equalsIdx = segment.IndexOf('=');
+        var splitIdx = colonIdx >= 0 && equalsIdx >= 0
+                           ? Math.Min(colonIdx, equalsIdx)
+                           : Math.Max(colonIdx, equalsIdx);
+        var name = splitIdx >= 0 ? segment[..splitIdx] : segment;
+
+        return name.TrimStart('*').TrimEnd('?');
     }
 
     [GeneratedRegex(@"\{([^}]+)\}")]

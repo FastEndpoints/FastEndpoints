@@ -72,6 +72,9 @@ sealed partial class OperationTransformer
             if (epDef.IdempotencyOptions is null)
                 return;
 
+            if (HasParameter(operation, ParameterLocation.Header, epDef.IdempotencyOptions.HeaderName))
+                return;
+
             operation.Parameters ??= [];
             var exampleValue = epDef.IdempotencyOptions.SwaggerExampleGenerator?.Invoke();
             var exampleNode = exampleValue.JsonNodeFromObject();
@@ -84,7 +87,7 @@ sealed partial class OperationTransformer
                     Required = true,
                     Description = epDef.IdempotencyOptions.SwaggerHeaderDescription,
                     Schema = epDef.IdempotencyOptions.SwaggerHeaderType is not null
-                                 ? epDef.IdempotencyOptions.SwaggerHeaderType.GetSchemaForType(docOpts.ShortSchemaNames)
+                                  ? epDef.IdempotencyOptions.SwaggerHeaderType.GetSchemaForType(sharedCtx, docOpts.ShortSchemaNames)
                                  : ResponseOperationTransformer.CreateSchemaFromExampleNode(exampleNode) ?? OperationSchemaHelpers.StringSchema(),
                     Example = exampleNode
                 });
@@ -95,16 +98,19 @@ sealed partial class OperationTransformer
             if (epDef.X402PaymentMetadata is null)
                 return;
 
-            operation.Parameters ??= [];
-            operation.Parameters.Add(
-                new OpenApiParameter
-                {
-                    Name = X402Constants.PaymentSignatureHeader,
-                    In = ParameterLocation.Header,
-                    Required = false,
-                    Description = "Base64-encoded x402 payment payload.",
-                    Schema = OperationSchemaHelpers.StringSchema()
-                });
+            if (!HasParameter(operation, ParameterLocation.Header, X402Constants.PaymentSignatureHeader))
+            {
+                operation.Parameters ??= [];
+                operation.Parameters.Add(
+                    new OpenApiParameter
+                    {
+                        Name = X402Constants.PaymentSignatureHeader,
+                        In = ParameterLocation.Header,
+                        Required = false,
+                        Description = "Base64-encoded x402 payment payload.",
+                        Schema = OperationSchemaHelpers.StringSchema()
+                    });
+            }
 
             if (operation.Responses is null)
                 return;

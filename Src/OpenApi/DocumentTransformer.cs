@@ -27,6 +27,7 @@ sealed class DocumentTransformer : IOpenApiDocumentTransformer
         if (_opts.Version is not null)
             document.Info.Version = _opts.Version;
 
+        DocumentPathNormalizer.NormalizeParameterNames(document);
         _versionFilter.Apply(document);
         DocumentSecurityTransformer.Apply(document, _opts, _sharedCtx);
         DocumentTagTransformer.Apply(document, _opts);

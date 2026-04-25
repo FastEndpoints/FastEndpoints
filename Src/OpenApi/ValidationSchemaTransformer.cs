@@ -2,7 +2,9 @@
 // MIT License
 // Copyright (c) 2019 Zym Labs LLC
 
+using System.Collections.Concurrent;
 using FastEndpoints.OpenApi.ValidationProcessor;
+using FastEndpoints.OpenApi.ValidationProcessor.Extensions;
 using FluentValidation;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,6 +18,7 @@ sealed partial class ValidationSchemaTransformer(SharedContext sharedCtx) : IOpe
     IServiceResolver? _serviceResolver;
     ILogger<ValidationSchemaTransformer>? _logger;
     Dictionary<Type, ValidatorBinding[]>? _validatorBindings;
+    readonly ConcurrentDictionary<Type, Lazy<CachedValidatorRules?>> _validatorRulesCache = new();
     readonly object _initializeLock = new();
     volatile bool _initialized;
 
@@ -57,23 +60,50 @@ sealed partial class ValidationSchemaTransformer(SharedContext sharedCtx) : IOpe
         if (!_validatorBindings.TryGetValue(tRequest, out var bindings) || bindings.Length == 0)
             return Task.CompletedTask;
 
-        using var scope = _serviceResolver.CreateScope();
-        var schemaApplier = new ValidationSchemaApplier(sharedCtx, _serviceResolver, _logger, scope.ServiceProvider, ValidationRuleCatalog.DefaultRules);
+        using var schemaApplier = new ValidationSchemaApplier(sharedCtx, _serviceResolver, _logger, _serviceResolver.CreateScope, ValidationRuleCatalog.DefaultRules);
 
         foreach (var binding in bindings)
         {
-            try
-            {
-                var validator = _serviceResolver.CreateInstance(binding.ValidatorType, scope.ServiceProvider) ??
-                                throw new InvalidOperationException($"Unable to instantiate validator {binding.ValidatorType.Name}!");
-                schemaApplier.ApplyValidator(schema, (IValidator)validator, binding.PropertyPrefix ?? string.Empty, []);
-            }
-            catch (Exception ex)
-            {
-                _logger?.ExceptionProcessingValidator(ex, binding.ValidatorType.Name);
-            }
+            var cachedRules = GetOrCreateValidatorRules(binding.ValidatorType);
+
+            if (cachedRules is not null)
+                schemaApplier.ApplyValidatorRules(schema, cachedRules, binding.PropertyPrefix ?? string.Empty, []);
         }
 
         return Task.CompletedTask;
+    }
+
+    CachedValidatorRules? GetOrCreateValidatorRules(Type validatorType)
+        => _validatorRulesCache.GetOrAdd(
+                                    validatorType,
+                                    type => new(
+                                        () =>
+                                        {
+                                            try
+                                            {
+                                                using var scope = _serviceResolver!.CreateScope();
+                                                var validator = _serviceResolver.CreateInstance(type, scope.ServiceProvider) ??
+                                                                throw new InvalidOperationException($"Unable to instantiate validator {type.Name}!");
+
+                                                return CacheValidatorRules((IValidator)validator);
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                                _logger?.ExceptionProcessingValidator(ex, type.Name);
+
+                                                return null;
+                                            }
+                                        },
+                                        LazyThreadSafetyMode.ExecutionAndPublication))
+                                .Value;
+
+    CachedValidatorRules CacheValidatorRules(IValidator validator)
+    {
+        var rules = validator.GetDictionaryOfRules(sharedCtx.NamingPolicy, GetValidatorTargetType(validator));
+        var includedRules = ValidationSchemaApplier.GetIncludedValidators(validator, _logger)
+                                               .Select(CacheValidatorRules)
+                                               .ToArray();
+
+        return new(rules, includedRules);
     }
 }

@@ -223,7 +223,7 @@ sealed partial class OperationTransformer
                     headerName,
                     new()
                     {
-                        Schema = headerType.GetSchemaForType(docOpts.ShortSchemaNames),
+                        Schema = headerType.GetSchemaForType(sharedCtx, docOpts.ShortSchemaNames),
                         Example = headerType.GetSampleValue().JsonNodeFromObject()
                     });
             }
@@ -273,7 +273,7 @@ sealed partial class OperationTransformer
             var exampleType = exampleValue.GetType();
 
             if (!IsAnonymousType(exampleType))
-                return exampleType.GetSchemaForType(docOpts.ShortSchemaNames);
+                return exampleType.GetSchemaForType(sharedCtx, docOpts.ShortSchemaNames);
 
             return CreateSchemaFromExampleNode(exampleNode);
         }
@@ -302,11 +302,11 @@ sealed partial class OperationTransformer
             return jsonNameMap;
         }
 
-        static OpenApiMediaType CreateMissingResponseMediaType(Type type, string? schemaRefId, bool shortSchemaNames)
+        OpenApiMediaType CreateMissingResponseMediaType(Type type, string? schemaRefId, bool shortSchemaNames)
             => new()
             {
                 Schema = schemaRefId is null
-                             ? type.GetSchemaForType(shortSchemaNames)
+                             ? type.GetSchemaForType(sharedCtx, shortSchemaNames)
                              : new OpenApiSchemaReference(schemaRefId)
             };
 

@@ -339,10 +339,12 @@ sealed partial class OperationTransformer
                 AddAttributeParameters(operation, p, state);
                 AddRouteParameter(operation, p, routeParamNames, state);
 
-                if (ShouldAddQueryParam(p, operation, isGetRequest && !docOpts.EnableGetRequestsWithBody))
+                var queryParamName = p.Name.ApplyPropNamingPolicy(docOpts, namingPolicy);
+
+                if (ShouldAddQueryParam(p, operation, queryParamName, isGetRequest && !docOpts.EnableGetRequestsWithBody))
                 {
                     operation.RemovePropFromRequestBody(p, sharedCtx, namingPolicy, state.PropsRemovedFromBody);
-                    AddParameter(operation, p.Name.ApplyPropNamingPolicy(docOpts, namingPolicy), ParameterLocation.Query, p, shortSchemaNames: docOpts.ShortSchemaNames);
+                    AddParameter(operation, queryParamName, ParameterLocation.Query, p, shortSchemaNames: docOpts.ShortSchemaNames);
                 }
             }
         }
@@ -462,7 +464,7 @@ sealed partial class OperationTransformer
             if (propType.Name.EndsWith("HeaderValue"))
                 propType = typeof(string);
 
-            var schema = propType.GetSchemaForType(shortSchemaNames);
+            var schema = propType.GetSchemaForType(sharedCtx, shortSchemaNames);
             var isNullable = prop?.IsNullable() ?? false;
             var required = isRequired ?? !isNullable;
 
@@ -535,7 +537,7 @@ sealed partial class OperationTransformer
             return false;
         }
 
-        static bool ShouldAddQueryParam(PropertyInfo prop, OpenApiOperation operation, bool isGetRequest)
+        static bool ShouldAddQueryParam(PropertyInfo prop, OpenApiOperation operation, string queryParamName, bool isGetRequest)
         {
             foreach (var attribute in prop.GetCustomAttributes())
             {
@@ -551,7 +553,7 @@ sealed partial class OperationTransformer
                 }
             }
 
-            if (operation.Parameters?.Any(p => string.Equals(p.Name, prop.Name, StringComparison.OrdinalIgnoreCase)) == true)
+            if (operation.Parameters?.Any(p => string.Equals(p.Name, queryParamName, StringComparison.OrdinalIgnoreCase)) == true)
                 return false;
 
             return isGetRequest || prop.IsDefined(Types.QueryParamAttribute);

@@ -120,14 +120,13 @@ static class SchemaNameGenerator
             return sb.ToString();
         }
 
-        return type.Name;
+        return string.Empty;
 
         static string TypeNameWithoutGenericArgs(Type type)
         {
             var index = type.Name.IndexOf('`');
-            index = index == -1 ? 0 : index;
 
-            return type.Name[..index];
+            return index == -1 ? type.Name : type.Name[..index];
         }
     }
 }

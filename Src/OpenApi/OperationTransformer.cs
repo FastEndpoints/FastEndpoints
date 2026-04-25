@@ -24,7 +24,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
     [GeneratedRegex(@"(?<=\{)[^}]+(?=\})")]
     private static partial Regex RouteParamsRegex();
 
-    [GeneratedRegex("(?<={)([^?:=}]+)[^}]*(?=})")]
+    [GeneratedRegex("(?<={)\\**([^?:=}]+)[^}]*(?=})")]
     private static partial Regex RouteConstraintsRegex();
 
     sealed class RouteParameterInfo

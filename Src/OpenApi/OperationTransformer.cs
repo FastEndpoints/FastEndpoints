@@ -3,7 +3,6 @@ using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.AspNetCore.Routing;
@@ -24,12 +23,6 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
         public required IReadOnlyDictionary<PropertyInfo, bool> NullableProperties { get; init; }
     }
 
-    [GeneratedRegex(@"(?<=\{)[^}]+(?=\})")]
-    private static partial Regex RouteParamsRegex();
-
-    [GeneratedRegex("(?<={)\\**([^?:=}]+)[^}]*(?=})")]
-    private static partial Regex RouteConstraintsRegex();
-
     sealed class RouteParameterInfo
     {
         public required string Name { get; init; }
@@ -47,7 +40,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
 
         // compute the document path for this operation
         var relativePath = context.Description.RelativePath?.TrimStart('~').TrimEnd('/') ?? "";
-        var documentPath = "/" + StripRouteConstraints(relativePath);
+        var documentPath = "/" + RouteTemplateHelpers.StripConstraints(relativePath);
         var httpMethod = context.Description.HttpMethod?.ToUpperInvariant() ?? "GET";
         var operationKey = $"{httpMethod}:{documentPath}";
 
@@ -227,14 +220,6 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
         }
     }
 
-    static string StripRouteConstraints(string relativePath)
-    {
-        if (!relativePath.Contains('{'))
-            return relativePath;
-
-        return RouteConstraintsRegex().Replace(relativePath, "$1");
-    }
-
     static string BuildBareRoute(string documentPath, string? routePrefix, int endpointVersion)
     {
         var segments = documentPath.Split('/', StringSplitOptions.RemoveEmptyEntries).ToList();
@@ -284,39 +269,28 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
 
     static string NormalizeRoutePath(string route)
     {
-        route = StripRouteConstraints(route.TrimStart('~').TrimEnd('/'));
+        route = RouteTemplateHelpers.StripConstraints(route.TrimStart('~').TrimEnd('/'));
 
         return route.StartsWith('/') ? route : "/" + route;
     }
 
     static List<RouteParameterInfo> GetRouteParameters(string? relativePath)
     {
-        var matches = RouteParamsRegex().Matches(relativePath ?? string.Empty);
-        var parameters = new List<RouteParameterInfo>(matches.Count);
+        var segments = RouteTemplateHelpers.GetParameterSegments(relativePath);
+        var parameters = new List<RouteParameterInfo>(segments.Count);
 
-        for (var i = 0; i < matches.Count; i++)
+        for (var i = 0; i < segments.Count; i++)
         {
-            var segment = matches[i].Value;
+            var segment = segments[i];
             parameters.Add(
                 new()
                 {
-                    Name = GetRouteParameterName(segment),
+                    Name = RouteTemplateHelpers.NormalizeParameterName(segment),
                     ConstraintType = segment.TryResolveRouteConstraintType()
                 });
         }
 
         return parameters;
-
-        static string GetRouteParameterName(string segment)
-        {
-            var colonIdx = segment.IndexOf(':');
-            var equalsIdx = segment.IndexOf('=');
-            var splitIdx = colonIdx >= 0 && equalsIdx >= 0
-                               ? Math.Min(colonIdx, equalsIdx)
-                               : Math.Max(colonIdx, equalsIdx);
-            var name = splitIdx >= 0 ? segment[..splitIdx] : segment;
-            return name.TrimStart('*').TrimEnd('?');
-        }
     }
 
     static void FinalizeParameters(OpenApiOperation operation)

@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
 
@@ -225,9 +224,7 @@ static partial class DocumentPathNormalizer
     public static void NormalizeParameterNames(OpenApiDocument document)
         => RenamePaths(
             document,
-            path => RouteParamRegex().Replace(
-                path,
-                m => $"{{{NormalizeParameterName(m.Groups[1].Value)}}}"));
+            path => RouteTemplateHelpers.ReplaceParameters(path, RouteTemplateHelpers.NormalizeParameterName));
 
     public static void Apply(OpenApiDocument document, DocumentOptions opts, SharedContext sharedCtx)
     {
@@ -241,9 +238,9 @@ static partial class DocumentPathNormalizer
 
         RenamePaths(
             document,
-            path => RouteParamRegex().Replace(
+            path => RouteTemplateHelpers.ReplaceParameters(
                 path,
-                m => $"{{{policy.ConvertName(m.Groups[1].Value)}}}"));
+                segment => policy.ConvertName(RouteTemplateHelpers.NormalizeParameterName(segment))));
     }
 
     static void RenamePaths(OpenApiDocument document, Func<string, string> rename)
@@ -265,20 +262,6 @@ static partial class DocumentPathNormalizer
         }
     }
 
-    static string NormalizeParameterName(string segment)
-    {
-        var colonIdx = segment.IndexOf(':');
-        var equalsIdx = segment.IndexOf('=');
-        var splitIdx = colonIdx >= 0 && equalsIdx >= 0
-                           ? Math.Min(colonIdx, equalsIdx)
-                           : Math.Max(colonIdx, equalsIdx);
-        var name = splitIdx >= 0 ? segment[..splitIdx] : segment;
-
-        return name.TrimStart('*').TrimEnd('?');
-    }
-
-    [GeneratedRegex(@"\{([^}]+)\}")]
-    private static partial Regex RouteParamRegex();
 }
 
 static class DocumentSchemaNormalizer

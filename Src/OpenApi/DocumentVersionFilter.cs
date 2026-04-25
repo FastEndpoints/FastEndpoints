@@ -123,10 +123,20 @@ sealed class DocumentVersionFilter
         }
     }
 
+    internal static bool IncludesEndpoint(EndpointDefinition epDef, DocumentOptions opts)
+        => opts.EndpointFilter?.Invoke(epDef) != false &&
+           IsInRequestedRange(epDef.Version.Current, epDef.Version.StartingReleaseVersion, opts);
+
+    internal static bool IsInRequestedRange(int version, int startingReleaseVersion, DocumentOptions opts)
+        => IsInRequestedRange(version, startingReleaseVersion, opts.ReleaseVersion, opts.MinEndpointVersion, opts.MaxEndpointVersion);
+
     bool IsInRequestedRange(OperationMeta op)
-        => _docRelVer > 0
-               ? op.StartingReleaseVersion <= _docRelVer
-               : op.Version >= _minEpVer && op.Version <= _maxEpVer;
+        => IsInRequestedRange(op.Version, op.StartingReleaseVersion, _docRelVer, _minEpVer, _maxEpVer);
+
+    static bool IsInRequestedRange(int version, int startingReleaseVersion, int releaseVersion, int minVersion, int maxVersion)
+        => releaseVersion > 0
+               ? startingReleaseVersion <= releaseVersion
+               : version >= minVersion && version <= maxVersion;
 
     bool IsDeprecated(OperationMeta op, int latestVersion)
         => _docRelVer > 0

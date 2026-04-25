@@ -57,7 +57,7 @@ internal class SharedContext
 
         foreach (var epDef in endpointData.Found)
         {
-            if (!ShouldInclude(epDef, docOpts) || epDef.ReqDtoType == Types.EmptyRequest)
+            if (!DocumentVersionFilter.IncludesEndpoint(epDef, docOpts) || epDef.ReqDtoType == Types.EmptyRequest)
                 continue;
 
             var refId = SchemaNameGenerator.GetReferenceId(epDef.ReqDtoType, docOpts.ShortSchemaNames);
@@ -72,27 +72,6 @@ internal class SharedContext
         return includedRefCounts.Where(kvp => kvp.Value > 1)
                                 .Select(kvp => kvp.Key)
                                 .ToFrozenSet(StringComparer.Ordinal);
-
-        static bool ShouldInclude(EndpointDefinition epDef, DocumentOptions docOpts)
-        {
-            if (docOpts.EndpointFilter?.Invoke(epDef) == false)
-                return false;
-
-            if (docOpts.ReleaseVersion > 0)
-                return epDef.Version.StartingReleaseVersion <= docOpts.ReleaseVersion;
-
-            var currentVersion = epDef.Version.Current;
-            var maxVersion = docOpts.MaxEndpointVersion;
-            var minVersion = docOpts.MinEndpointVersion;
-
-            if (currentVersion < minVersion)
-                return false;
-
-            if (currentVersion > maxVersion)
-                return false;
-
-            return true;
-        }
     }
 
     /// <summary>

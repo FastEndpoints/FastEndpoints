@@ -179,7 +179,7 @@ static class DocumentSecurityTransformer
                 {
                     var requirement = new OpenApiSecurityRequirement
                     {
-                        [new(schemeName, document)] = scopes
+                        [new(schemeName, document)] = [.. scopes]
                     };
                     operation.Security.Add(requirement);
                 }
@@ -303,6 +303,7 @@ static class DocumentSchemaNormalizer
                                        CancellationToken cancellationToken)
     {
         await document.AddMissingSchemas(sharedCtx, context, cancellationToken);
+        document.RemovePromotedRequestWrapperSchemas(sharedCtx);
         document.RemoveUnreferencedSchemas();
     }
 

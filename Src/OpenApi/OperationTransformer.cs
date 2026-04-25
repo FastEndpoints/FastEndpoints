@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
@@ -14,11 +15,13 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
 {
     const BindingFlags PublicInstanceHierarchy = BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy;
     static readonly ConcurrentDictionary<Type, TypeMetadata> _typeMetadataCache = new();
+    readonly ValidationSchemaTransformer _validationTransformer = new(sharedCtx);
     JsonNamingPolicy? NamingPolicy => sharedCtx.NamingPolicy;
 
     sealed class TypeMetadata
     {
         public required PropertyInfo[] PublicInstanceProperties { get; init; }
+        public required IReadOnlyDictionary<PropertyInfo, bool> NullableProperties { get; init; }
     }
 
     [GeneratedRegex(@"(?<=\{)[^}]+(?=\})")]
@@ -114,6 +117,9 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
         // handle [FromBody]/[FromForm] request body replacement + JSON Patch unwrap
         requestTransformer.ApplyBodyOverrides(operation, epDef);
 
+        // apply endpoint-scoped validation to request body schemas after request body shape is finalized
+        _validationTransformer.ApplyEndpointValidation(operation, context.ApplicationServices, epDef.ValidatorType);
+
         // apply parameter descriptions from EndpointSummary.Params and defaults from [DefaultValue]
         requestTransformer.ApplyParameterMetadata(operation, epDef);
 
@@ -167,7 +173,32 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
     {
         type = Nullable.GetUnderlyingType(type) ?? type;
 
-        return _typeMetadataCache.GetOrAdd(type, static t => new() { PublicInstanceProperties = t.GetProperties(PublicInstanceHierarchy) });
+        return _typeMetadataCache.GetOrAdd(type, CreateTypeMetadata);
+    }
+
+    static TypeMetadata CreateTypeMetadata(Type type)
+    {
+        var properties = type.GetProperties(PublicInstanceHierarchy);
+        var nullabilityCtx = new NullabilityInfoContext();
+        var nullableProperties = new Dictionary<PropertyInfo, bool>(properties.Length);
+
+        foreach (var property in properties)
+            nullableProperties[property] = nullabilityCtx.Create(property).WriteState is NullabilityState.Nullable;
+
+        return new()
+        {
+            PublicInstanceProperties = properties,
+            NullableProperties = new ReadOnlyDictionary<PropertyInfo, bool>(nullableProperties)
+        };
+    }
+
+    static bool IsNullable(PropertyInfo prop)
+    {
+        var declaringType = prop.DeclaringType ?? prop.ReflectedType;
+
+        return declaringType is not null &&
+               GetTypeMetadata(declaringType).NullableProperties.TryGetValue(prop, out var isNullable) &&
+               isNullable;
     }
 
     static Type? GetRequestDtoType(EndpointDefinition epDef)
@@ -349,8 +380,7 @@ static class OperationTransformerExtensions
         return namingPolicy?.ConvertName(paramName) ?? paramName;
     }
 
-    internal static bool IsNullable(this PropertyInfo prop)
-        => _nullabilityCtx.Create(prop).WriteState is NullabilityState.Nullable;
+    internal static string GetOpenApiRouteParameterName(this string routeParamName, DocumentOptions documentOptions, JsonNamingPolicy? namingPolicy)
+        => routeParamName.ApplyPropNamingPolicy(documentOptions, namingPolicy);
 
-    static readonly NullabilityInfoContext _nullabilityCtx = new();
 }

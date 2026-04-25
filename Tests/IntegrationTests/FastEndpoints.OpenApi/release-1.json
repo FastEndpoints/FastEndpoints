@@ -2410,6 +2410,76 @@
         }
       }
     },
+    "/api/swagger-review/shared-nested-validation-alpha": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "TestCasesSwaggerReviewSharedNestedValidationAlphaEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSwaggerReviewSharedNestedValidationAlphaRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/shared-nested-validation-beta": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "TestCasesSwaggerReviewSharedNestedValidationBetaEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSwaggerReviewSharedNestedValidationBetaRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/swagger-review/shared-request-metadata-alpha": {
       "post": {
         "tags": [
@@ -6429,21 +6499,6 @@
         },
         "description": "the dto used to send an error response to the client"
       },
-      "FastEndpointsHttp": {
-        "enum": [
-          1,
-          2,
-          3,
-          4,
-          5,
-          6,
-          7,
-          8,
-          9
-        ],
-        "type": "integer",
-        "description": "enum for specifying a http verb"
-      },
       "FastEndpointsProblemDetails": {
         "type": "object",
         "properties": {
@@ -6957,6 +7012,7 @@
         }
       },
       "SystemString[]": {
+        "minItems": 1,
         "type": "array",
         "items": {
           "type": "string"
@@ -7349,7 +7405,6 @@
             "example": "test product name"
           },
           "price": {
-            "exclusiveMinimum": 200,
             "type": "number",
             "description": "product price goes here",
             "format": "double",
@@ -7632,7 +7687,19 @@
         "type": "object",
         "properties": {
           "verb": {
-            "$ref": "#/components/schemas/FastEndpointsHttp"
+            "enum": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "type": "integer",
+            "description": "enum for specifying a http verb"
           },
           "host": {
             "type": [
@@ -8003,10 +8070,20 @@
             "format": "uri"
           },
           "custom": {
-            "$ref": "#/components/schemas/TestCasesRouteBindingTestCustom"
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
           },
           "customList": {
-            "$ref": "#/components/schemas/TestCasesRouteBindingTestCustomList"
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
           },
           "blank": {
             "type": [
@@ -8111,21 +8188,18 @@
           }
         }
       },
-      "TestCasesSwaggerReviewChildValidatorReviewChild": {
-        "type": "object",
-        "properties": {
-          "score": {
-            "exclusiveMinimum": 10,
-            "type": "integer",
-            "format": "int32"
-          }
-        }
-      },
       "TestCasesSwaggerReviewChildValidatorReviewRequest": {
         "type": "object",
         "properties": {
           "child": {
-            "$ref": "#/components/schemas/TestCasesSwaggerReviewChildValidatorReviewChild"
+            "type": "object",
+            "properties": {
+              "score": {
+                "exclusiveMinimum": 10,
+                "type": "integer",
+                "format": "int32"
+              }
+            }
           }
         }
       },
@@ -8136,24 +8210,11 @@
         "type": "object",
         "properties": {
           "tags": {
-            "$ref": "#/components/schemas/SystemString[]"
-          }
-        }
-      },
-      "TestCasesSwaggerReviewDeepNestedValidatorReviewChild": {
-        "type": "object",
-        "properties": {
-          "subChild": {
-            "$ref": "#/components/schemas/TestCasesSwaggerReviewDeepNestedValidatorReviewGrandChild"
-          }
-        }
-      },
-      "TestCasesSwaggerReviewDeepNestedValidatorReviewGrandChild": {
-        "type": "object",
-        "properties": {
-          "field": {
-            "minLength": 5,
-            "type": "string"
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },
@@ -8161,7 +8222,18 @@
         "type": "object",
         "properties": {
           "child": {
-            "$ref": "#/components/schemas/TestCasesSwaggerReviewDeepNestedValidatorReviewChild"
+            "type": "object",
+            "properties": {
+              "subChild": {
+                "type": "object",
+                "properties": {
+                  "field": {
+                    "minLength": 5,
+                    "type": "string"
+                  }
+                }
+              }
+            }
           }
         }
       },
@@ -8298,6 +8370,39 @@
           "leakId": {
             "type": "string",
             "description": "response leak id"
+          }
+        }
+      },
+      "TestCasesSwaggerReviewSharedNestedValidationAddress": {
+        "type": "object",
+        "properties": {
+          "zip": {
+            "type": "string"
+          }
+        }
+      },
+      "TestCasesSwaggerReviewSharedNestedValidationAlphaRequest": {
+        "type": "object",
+        "properties": {
+          "address": {
+            "required": [
+              "zip"
+            ],
+            "type": "object",
+            "properties": {
+              "zip": {
+                "minLength": 1,
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "TestCasesSwaggerReviewSharedNestedValidationBetaRequest": {
+        "type": "object",
+        "properties": {
+          "address": {
+            "$ref": "#/components/schemas/TestCasesSwaggerReviewSharedNestedValidationAddress"
           }
         }
       },

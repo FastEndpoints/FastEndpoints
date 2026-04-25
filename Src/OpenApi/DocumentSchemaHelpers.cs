@@ -12,22 +12,26 @@ static class DocumentSchemaHelpers
             if (document.Components?.Schemas is not { Count: > 0 } schemas || document.Paths is not { Count: > 0 })
                 return;
 
-            var referencedSchemas = new HashSet<string>(StringComparer.Ordinal);
-            var pendingSchemas = new Queue<string>();
-            CollectReferencedSchemas(document, referencedSchemas, pendingSchemas);
-
-            while (pendingSchemas.Count > 0)
-            {
-                var refId = pendingSchemas.Dequeue();
-
-                if (schemas.TryGetValue(refId, out var s))
-                    CollectSchemaRefs(s, referencedSchemas, pendingSchemas);
-            }
+            var referencedSchemas = document.GetReferencedSchemaRefs();
 
             foreach (var key in schemas.Keys.ToArray())
             {
                 if (!referencedSchemas.Contains(key))
                     schemas.Remove(key);
+            }
+        }
+
+        internal void RemovePromotedRequestWrapperSchemas(SharedContext sharedCtx)
+        {
+            if (sharedCtx.PromotedRequestWrapperSchemaRefs.IsEmpty || document.Components?.Schemas is not { Count: > 0 } schemas)
+                return;
+
+            var referencedSchemas = document.GetReferencedSchemaRefs();
+
+            foreach (var refId in sharedCtx.PromotedRequestWrapperSchemaRefs.Keys)
+            {
+                if (!referencedSchemas.Contains(refId))
+                    schemas.Remove(refId);
             }
         }
 
@@ -100,6 +104,23 @@ static class DocumentSchemaHelpers
                 if (schema is not null)
                     document.Components.Schemas.TryAdd(refId, schema);
             }
+        }
+
+        internal HashSet<string> GetReferencedSchemaRefs()
+        {
+            var referencedSchemas = new HashSet<string>(StringComparer.Ordinal);
+            var pendingSchemas = new Queue<string>();
+            CollectReferencedSchemas(document, referencedSchemas, pendingSchemas);
+
+            while (pendingSchemas.Count > 0)
+            {
+                var refId = pendingSchemas.Dequeue();
+
+                if (document.Components?.Schemas?.TryGetValue(refId, out var s) == true)
+                    CollectSchemaRefs(s, referencedSchemas, pendingSchemas);
+            }
+
+            return referencedSchemas;
         }
 
     }

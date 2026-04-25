@@ -17,90 +17,8 @@ namespace FastEndpoints.OpenApi;
 sealed partial class ValidationSchemaTransformer
 {
     const BindingFlags PublicInstance = BindingFlags.Public | BindingFlags.Instance;
-    static readonly ConcurrentDictionary<Type, PropertyInfo[]> _propertyCache = new();
-
-    sealed class ValidatorBinding
-    {
-        public required Type ValidatorType { get; init; }
-        public string? PropertyPrefix { get; init; }
-    }
 
     sealed record CachedValidatorRules(ReadOnlyDictionary<string, List<IValidationRule>> Rules, CachedValidatorRules[] IncludedRules);
-
-    sealed class ValidatorBindingProvider
-    {
-        public static Dictionary<Type, ValidatorBinding[]> Build(EndpointData endpointData, System.Text.Json.JsonNamingPolicy? namingPolicy)
-        {
-            var bindings = new Dictionary<Type, List<ValidatorBinding>>();
-
-            foreach (var validatorType in endpointData.Found
-                                                    .Where(e => e.ValidatorType != null)
-                                                    .Select(e => e.ValidatorType!)
-                                                    .Distinct())
-            {
-                var validatorTargetType = validatorType.GetGenericArgumentsOfType(Types.ValidatorOf1)?[0];
-
-                if (validatorTargetType is null)
-                    continue;
-
-                AddBinding(validatorTargetType, validatorType, null);
-
-                if (!SupportsNestedPropertyWalk(validatorTargetType))
-                    continue;
-
-                foreach (var prop in GetPublicInstanceProperties(validatorTargetType))
-                {
-                    if (!SupportsNestedPropertyTarget(prop.PropertyType))
-                        continue;
-
-                    var prefix = PropertyNameResolver.GetSchemaPropertyName(prop, namingPolicy);
-                    AddBinding(prop.PropertyType, validatorType, prefix + ".");
-                }
-            }
-
-            return bindings.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.ToArray());
-
-            void AddBinding(Type targetType, Type validatorType, string? propertyPrefix)
-            {
-                targetType = Nullable.GetUnderlyingType(targetType) ?? targetType;
-
-                if (!bindings.TryGetValue(targetType, out var targetBindings))
-                    bindings[targetType] = targetBindings = [];
-
-                if (targetBindings.Any(b => b.ValidatorType == validatorType && b.PropertyPrefix == propertyPrefix))
-                    return;
-
-                targetBindings.Add(new() { ValidatorType = validatorType, PropertyPrefix = propertyPrefix });
-            }
-        }
-
-        static bool SupportsNestedPropertyWalk(Type type)
-        {
-            type = Nullable.GetUnderlyingType(type) ?? type;
-
-            if (type.IsPrimitive || type.IsEnum || type.IsArray || type.IsPointer)
-                return false;
-
-            if (type == typeof(string) ||
-                type == typeof(decimal) ||
-                type == typeof(DateTime) ||
-                type == typeof(DateTimeOffset) ||
-                type == typeof(DateOnly) ||
-                type == typeof(TimeOnly) ||
-                type == typeof(TimeSpan) ||
-                type == typeof(Guid) ||
-                type == typeof(Uri) ||
-                type == typeof(byte[]) ||
-                type == typeof(object) ||
-                type == typeof(Version))
-                return false;
-
-            return !typeof(System.Collections.IEnumerable).IsAssignableFrom(type);
-        }
-
-        static bool SupportsNestedPropertyTarget(Type type)
-            => SupportsNestedPropertyWalk(type);
-    }
 
     sealed class ValidationSchemaApplier : IDisposable
     {
@@ -108,17 +26,20 @@ sealed partial class ValidationSchemaTransformer
         readonly ILogger<ValidationSchemaTransformer>? _logger;
         readonly FluentValidationRule[] _rules;
         readonly ChildValidatorResolver _childResolver;
+        readonly bool _localizeReferencedSchemas;
 
         public ValidationSchemaApplier(SharedContext sharedCtx,
                                        IServiceResolver serviceResolver,
                                        ILogger<ValidationSchemaTransformer>? logger,
                                        Func<IServiceScope> createScope,
-                                       FluentValidationRule[] rules)
+                                       FluentValidationRule[] rules,
+                                       bool localizeReferencedSchemas = false)
         {
             _sharedCtx = sharedCtx;
             _logger = logger;
             _rules = rules;
-            _childResolver = new(serviceResolver, logger, createScope, ApplyValidator, ApplyRulesToSchema);
+            _localizeReferencedSchemas = localizeReferencedSchemas;
+            _childResolver = new(serviceResolver, logger, createScope, ApplyValidator, ApplyRulesToSchema, localizeReferencedSchemas);
         }
 
         public void Dispose()
@@ -173,9 +94,9 @@ sealed partial class ValidationSchemaTransformer
             if (composite is null)
                 return;
 
-            foreach (var entry in composite)
+            for (var i = 0; i < composite.Count; i++)
             {
-                var resolved = entry.ResolveSchema();
+                var resolved = ResolveForMutation(composite, i);
 
                 if (resolved is not null && resolved.Properties is { Count: > 0 })
                     ApplyRulesToSchema(resolved, rulesDict, propertyPrefix, activeChildValidators);
@@ -199,12 +120,43 @@ sealed partial class ValidationSchemaTransformer
             if (schema.Properties?.TryGetValue(propertyName, out var property) != true)
                 return;
 
-            var propertySchema = property.ResolveSchema();
+            if (property is null)
+                return;
+
+            var propertySchema = ResolvePropertyForMutation(schema, propertyName, property);
 
             if (propertySchema is not null &&
                 propertySchema.Properties is { Count: > 0 } &&
                 propertySchema != schema)
                 ApplyRulesToSchema(propertySchema, rulesDict, $"{fullPropertyName}.", activeChildValidators);
+        }
+
+        OpenApiSchema? ResolvePropertyForMutation(OpenApiSchema schema, string propertyName, IOpenApiSchema property)
+        {
+            if (!_localizeReferencedSchemas || property is not OpenApiSchemaReference)
+                return property.ResolveSchema();
+
+            var cloned = property.CloneAsConcreteSchema();
+
+            if (cloned is not null)
+                schema.Properties![propertyName] = cloned;
+
+            return cloned;
+        }
+
+        OpenApiSchema? ResolveForMutation(IList<IOpenApiSchema> schemas, int i)
+        {
+            var schema = schemas[i];
+
+            if (!_localizeReferencedSchemas || schema is not OpenApiSchemaReference)
+                return schema.ResolveSchema();
+
+            var cloned = schema.CloneAsConcreteSchema();
+
+            if (cloned is not null)
+                schemas[i] = cloned;
+
+            return cloned;
         }
 
         void ApplyValidationRule(OpenApiSchema schema,
@@ -241,10 +193,11 @@ sealed partial class ValidationSchemaTransformer
     }
 
     sealed class ChildValidatorResolver(IServiceResolver serviceResolver,
-                                        ILogger<ValidationSchemaTransformer>? logger,
-                                        Func<IServiceScope> createScope,
-                                        Action<OpenApiSchema, IValidator, string, HashSet<Type>> applyValidator,
-                                        Action<OpenApiSchema?, ReadOnlyDictionary<string, List<IValidationRule>>, string, HashSet<Type>> applyRulesToSchema) : IDisposable
+                                         ILogger<ValidationSchemaTransformer>? logger,
+                                         Func<IServiceScope> createScope,
+                                         Action<OpenApiSchema, IValidator, string, HashSet<Type>> applyValidator,
+                                         Action<OpenApiSchema?, ReadOnlyDictionary<string, List<IValidationRule>>, string, HashSet<Type>> applyRulesToSchema,
+                                         bool localizeReferencedSchemas) : IDisposable
     {
         IServiceScope? _scope;
 
@@ -342,13 +295,13 @@ sealed partial class ValidationSchemaTransformer
 
                 if (schema.Properties?.TryGetValue(propertyName, out var childPropSchema) == true)
                 {
-                    var childSchema = childPropSchema.ResolveSchema();
+                    var childSchema = ResolveChildForMutation(schema, propertyName, childPropSchema);
 
                     if (childSchema is not null)
                     {
                         if (childSchema.Type.HasValue &&
                             childSchema.Type.Value.HasFlag(JsonSchemaType.Array) &&
-                            childSchema.Items.ResolveSchema() is { } itemsSchema)
+                            ResolveItemsForMutation(childSchema) is { } itemsSchema)
                             applyValidator(itemsSchema, childValidator, string.Empty, activeChildValidators);
                         else
                             applyValidator(childSchema, childValidator, string.Empty, activeChildValidators);
@@ -359,6 +312,32 @@ sealed partial class ValidationSchemaTransformer
             {
                 activeChildValidators.Remove(validatorType);
             }
+        }
+
+        OpenApiSchema? ResolveChildForMutation(OpenApiSchema schema, string propertyName, IOpenApiSchema childPropSchema)
+        {
+            if (!localizeReferencedSchemas || childPropSchema is not OpenApiSchemaReference)
+                return childPropSchema.ResolveSchema();
+
+            var cloned = childPropSchema.CloneAsConcreteSchema();
+
+            if (cloned is not null)
+                schema.Properties![propertyName] = cloned;
+
+            return cloned;
+        }
+
+        OpenApiSchema? ResolveItemsForMutation(OpenApiSchema arraySchema)
+        {
+            if (!localizeReferencedSchemas || arraySchema.Items is not OpenApiSchemaReference)
+                return arraySchema.Items.ResolveSchema();
+
+            var cloned = arraySchema.Items.CloneAsConcreteSchema();
+
+            if (cloned is not null)
+                arraySchema.Items = cloned;
+
+            return cloned;
         }
 
     }
@@ -430,12 +409,6 @@ sealed partial class ValidationSchemaTransformer
 
             return Expression.Lambda<Func<object, object?, object?>>(body, adapterParam, contextParam).Compile();
         }
-    }
-
-    static PropertyInfo[] GetPublicInstanceProperties(Type type)
-    {
-        type = Nullable.GetUnderlyingType(type) ?? type;
-        return _propertyCache.GetOrAdd(type, static t => t.GetProperties(PublicInstance));
     }
 
     static Type GetValidatorTargetType(IValidator validator)

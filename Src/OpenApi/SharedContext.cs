@@ -101,15 +101,20 @@ internal class SharedContext
     internal ConcurrentDictionary<string, OperationMeta> Operations { get; } = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
-    /// key: "METHOD:/path", value: list of (schemeName, scopes) tuples for security requirements
+    /// key: "METHOD:/path", value: immutable snapshot of (schemeName, scopes) tuples for security requirements
     /// </summary>
-    internal ConcurrentDictionary<string, List<(string SchemeName, List<string> Scopes)>> SecurityRequirements { get; } = new(StringComparer.OrdinalIgnoreCase);
+    internal ConcurrentDictionary<string, (string SchemeName, string[] Scopes)[]> SecurityRequirements { get; } = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     /// types that need schemas generated in the document but weren't picked up by ApiExplorer.
     /// key: schema reference id, value: the CLR type
     /// </summary>
     internal ConcurrentDictionary<string, Type> MissingSchemaTypes { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// request DTO schemas whose body was promoted to a [FromBody]/[FromForm] property schema.
+    /// </summary>
+    internal ConcurrentDictionary<string, byte> PromotedRequestWrapperSchemaRefs { get; } = new(StringComparer.OrdinalIgnoreCase);
 }
 
 internal class OperationMeta

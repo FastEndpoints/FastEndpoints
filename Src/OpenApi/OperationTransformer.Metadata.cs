@@ -164,16 +164,16 @@ sealed partial class OperationTransformer
                 return;
             }
 
-            var scopes = BuildScopes(authorizeAttributes).ToList();
+            var scopes = BuildScopes(authorizeAttributes);
             var securityEntries = BuildSecurityEntries(epDef, scopes);
 
-            if (securityEntries.Count > 0)
+            if (securityEntries.Length > 0)
                 sharedCtx.SecurityRequirements[operationKey] = securityEntries;
         }
 
-        List<(string SchemeName, List<string> Scopes)> BuildSecurityEntries(EndpointDefinition epDef, List<string> scopes)
+        (string SchemeName, string[] Scopes)[] BuildSecurityEntries(EndpointDefinition epDef, IReadOnlyCollection<string> scopes)
         {
-            var securityEntries = new List<(string SchemeName, List<string> Scopes)>();
+            var securityEntries = new List<(string SchemeName, string[] Scopes)>();
 
             foreach (var authConfig in docOpts.AuthSchemes)
             {
@@ -193,10 +193,10 @@ sealed partial class OperationTransformer
                 securityEntries.Add((authConfig.Name, [.. mergedScopes]));
             }
 
-            return securityEntries;
+            return [.. securityEntries];
         }
 
-        static IEnumerable<string> BuildScopes(IEnumerable<AuthorizeAttribute> authorizeAttributes)
+        static string[] BuildScopes(IEnumerable<AuthorizeAttribute> authorizeAttributes)
         {
             var scopes = new HashSet<string>(StringComparer.Ordinal);
 
@@ -209,7 +209,7 @@ sealed partial class OperationTransformer
                     scopes.Add(role);
             }
 
-            return scopes;
+            return [.. scopes];
         }
 
         static string TagName(string input, TagCase tagCase, bool stripSymbols)

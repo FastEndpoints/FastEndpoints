@@ -85,12 +85,14 @@ static partial class OperationSchemaHelpers
         => type switch
         {
             _ when type == typeof(string) => new() { Type = JsonSchemaType.String },
-            _ when type == typeof(int) || type == typeof(short) => new() { Type = JsonSchemaType.Integer, Format = "int32" },
-            _ when type == typeof(long) => new() { Type = JsonSchemaType.Integer, Format = "int64" },
+            _ when type == typeof(byte) || type == typeof(sbyte) || type == typeof(short) || type == typeof(ushort) || type == typeof(int) || type == typeof(uint)
+                => new() { Type = JsonSchemaType.Integer, Format = "int32" },
+            _ when type == typeof(long) || type == typeof(ulong) => new() { Type = JsonSchemaType.Integer, Format = "int64" },
             _ when type == typeof(float) => new() { Type = JsonSchemaType.Number, Format = "float" },
             _ when type == typeof(double) => new() { Type = JsonSchemaType.Number, Format = "double" },
             _ when type == typeof(decimal) => new() { Type = JsonSchemaType.Number, Format = "decimal" },
             _ when type == typeof(bool) => new() { Type = JsonSchemaType.Boolean },
+            _ when type == typeof(char) => new() { Type = JsonSchemaType.String, MinLength = 1, MaxLength = 1 },
             _ when type == typeof(Guid) => new() { Type = JsonSchemaType.String, Format = "uuid" },
             _ when type == typeof(DateTime) || type == typeof(DateTimeOffset) => new() { Type = JsonSchemaType.String, Format = "date-time" },
             _ when type == typeof(DateOnly) => new() { Type = JsonSchemaType.String, Format = "date" },

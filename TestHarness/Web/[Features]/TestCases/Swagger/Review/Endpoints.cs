@@ -85,6 +85,55 @@ sealed class SharedRequestMetadataBetaEndpoint : Endpoint<SharedRequestMetadataR
         => Send.OkAsync(req.Name, ct);
 }
 
+sealed class SharedNestedValidationAddress
+{
+    public string Zip { get; set; } = string.Empty;
+}
+
+sealed class SharedNestedValidationAlphaRequest
+{
+    public SharedNestedValidationAddress Address { get; set; } = new();
+}
+
+sealed class SharedNestedValidationBetaRequest
+{
+    public SharedNestedValidationAddress Address { get; set; } = new();
+}
+
+sealed class SharedNestedValidationAlphaValidator : Validator<SharedNestedValidationAlphaRequest>
+{
+    public SharedNestedValidationAlphaValidator()
+    {
+        RuleFor(x => x.Address.Zip).NotEmpty();
+    }
+}
+
+sealed class SharedNestedValidationAlphaEndpoint : Endpoint<SharedNestedValidationAlphaRequest, string>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/shared-nested-validation-alpha");
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(SharedNestedValidationAlphaRequest req, CancellationToken ct)
+        => Send.OkAsync(req.Address.Zip, ct);
+}
+
+sealed class SharedNestedValidationBetaEndpoint : Endpoint<SharedNestedValidationBetaRequest, string>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/shared-nested-validation-beta");
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(SharedNestedValidationBetaRequest req, CancellationToken ct)
+        => Send.OkAsync(req.Address.Zip, ct);
+}
+
 sealed class VersionPrefilterSharedRequest
 {
     public string Name { get; set; } = string.Empty;

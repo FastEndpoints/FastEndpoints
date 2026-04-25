@@ -106,7 +106,7 @@ sealed partial class OperationTransformer
 
                 foreach (var content in response.Content.Values)
                 {
-                    content.Example = exampleNode;
+                    content.Example = exampleNode?.DeepClone();
 
                     // clear any framework-populated named examples to avoid invalid spec (OAS 3.1 forbids both)
                     content.Examples?.Clear();
@@ -253,15 +253,11 @@ sealed partial class OperationTransformer
                 return;
 
             response.Content ??= new Dictionary<string, OpenApiMediaType>();
-            var schemaRefId = SchemaNameGenerator.GetReferenceId(metadata.Type, docOpts.ShortSchemaNames);
-
-            if (schemaRefId is not null)
-                sharedCtx.MissingSchemaTypes.TryAdd(schemaRefId, metadata.Type);
 
             foreach (var contentType in metadata.ContentTypes)
             {
                 if (!response.Content.ContainsKey(contentType))
-                    response.Content[contentType] = CreateMissingResponseMediaType(metadata.Type, schemaRefId, docOpts.ShortSchemaNames);
+                    response.Content[contentType] = CreateMissingResponseMediaType(metadata.Type, docOpts.ShortSchemaNames);
             }
         }
 
@@ -302,12 +298,10 @@ sealed partial class OperationTransformer
             return jsonNameMap;
         }
 
-        OpenApiMediaType CreateMissingResponseMediaType(Type type, string? schemaRefId, bool shortSchemaNames)
+        OpenApiMediaType CreateMissingResponseMediaType(Type type, bool shortSchemaNames)
             => new()
             {
-                Schema = schemaRefId is null
-                             ? type.GetSchemaForType(sharedCtx, shortSchemaNames)
-                             : new OpenApiSchemaReference(schemaRefId)
+                Schema = type.GetSchemaForType(sharedCtx, shortSchemaNames)
             };
 
         internal static OpenApiSchema? CreateSchemaFromExampleNode(JsonNode? node)

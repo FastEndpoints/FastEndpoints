@@ -319,21 +319,43 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     }
 
     [Fact]
-    public async Task child_validator_rules_are_applied_to_nested_schema_properties()
+    public async Task child_validator_rules_are_applied_to_operation_schema_properties()
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review");
-        var childSchema = JToken.Parse(json)["components"]!["schemas"]!["TestCasesSwaggerReviewChildValidatorReviewChild"]!;
+        var doc = JToken.Parse(json);
+        var requestSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewChildValidatorReviewRequest"]!;
+        var childSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewChildValidatorReviewChild"]!;
 
-        childSchema["properties"]!["score"]!["exclusiveMinimum"]!.Value<string>().ShouldBe("10");
+        requestSchema["properties"]!["child"]!["properties"]!["score"]!["exclusiveMinimum"]!.Value<int>().ShouldBe(10);
+        childSchema.ShouldBeNull();
     }
 
     [Fact]
-    public async Task deep_nested_validator_rules_are_applied_to_nested_schema_properties()
+    public async Task deep_nested_validator_rules_are_applied_to_operation_schema_properties()
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review");
-        var grandChildSchema = JToken.Parse(json)["components"]!["schemas"]!["TestCasesSwaggerReviewDeepNestedValidatorReviewGrandChild"]!;
+        var doc = JToken.Parse(json);
+        var requestSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewDeepNestedValidatorReviewRequest"]!;
+        var grandChildSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewDeepNestedValidatorReviewGrandChild"]!;
 
-        grandChildSchema["properties"]!["field"]!["minLength"]!.Value<int>().ShouldBe(5);
+        requestSchema["properties"]!["child"]!["properties"]!["subChild"]!["properties"]!["field"]!["minLength"]!.Value<int>().ShouldBe(5);
+        grandChildSchema.ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task parent_path_validator_rules_do_not_mutate_shared_nested_component_schema()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var doc = JToken.Parse(json);
+        var alphaRequest = doc["components"]!["schemas"]!["TestCasesSwaggerReviewSharedNestedValidationAlphaRequest"]!;
+        var betaRequest = doc["components"]!["schemas"]!["TestCasesSwaggerReviewSharedNestedValidationBetaRequest"]!;
+        var addressComponent = doc["components"]!["schemas"]!["TestCasesSwaggerReviewSharedNestedValidationAddress"]!;
+
+        alphaRequest["properties"]!["address"]!["$ref"].ShouldBeNull();
+        alphaRequest["properties"]!["address"]!["required"]!.Values<string>().ShouldContain("zip");
+        betaRequest["properties"]!["address"]!["$ref"]!.Value<string>()
+                   .ShouldBe("#/components/schemas/TestCasesSwaggerReviewSharedNestedValidationAddress");
+        addressComponent["required"].ShouldBeNull();
     }
 
     [Fact]

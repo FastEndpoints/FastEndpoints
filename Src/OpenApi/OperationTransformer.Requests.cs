@@ -57,7 +57,6 @@ sealed partial class OperationTransformer
             }
 
             EnsureRouteParameters(operation, routeParameters, routeParamNames);
-            ApplyNamingPolicyToPathParameters(operation);
 
             return state;
         }
@@ -84,6 +83,8 @@ sealed partial class OperationTransformer
             if (promoteProp is null)
                 return;
 
+            var promoted = false;
+
             // replace the entire request body schema with the [FromBody]/[FromForm] property's type schema
             foreach (var content in operation.RequestBody.Content.Values)
             {
@@ -97,8 +98,14 @@ sealed partial class OperationTransformer
                                                 .FirstOrDefault(k => string.Equals(k, schemaKey, StringComparison.OrdinalIgnoreCase));
 
                 if (matchingKey is not null && resolvedSchema.Properties!.TryGetValue(matchingKey, out var propSchema))
+                {
                     content.Schema = propSchema;
+                    promoted = true;
+                }
             }
+
+            if (promoted && SchemaNameGenerator.GetReferenceId(requestDtoType, docOpts.ShortSchemaNames) is { } refId)
+                sharedCtx.PromotedRequestWrapperSchemaRefs.TryAdd(refId, 0);
 
             // JSON Patch unwrap: only for [FromBody], promote the operations array to top-level
             if (fromBodyProp is not null && operation.RequestBody.Content.TryGetValue("application/json-patch+json", out var patchContent))
@@ -404,7 +411,10 @@ sealed partial class OperationTransformer
 
             operation.RemovePropFromRequestBody(p, sharedCtx, namingPolicy, state.PropsRemovedFromBody);
 
-            var appliedName = matchingRouteParam.ApplyPropNamingPolicy(docOpts, namingPolicy);
+            var appliedName = matchingRouteParam.GetOpenApiRouteParameterName(docOpts, namingPolicy);
+
+            if (TryNormalizeExistingPathParameter(operation, matchingRouteParam, appliedName, p.PropertyType))
+                return;
 
             if (!HasParameter(operation, ParameterLocation.Path, appliedName))
                 AddParameter(operation, appliedName, ParameterLocation.Path, p, true, docOpts.ShortSchemaNames);
@@ -417,34 +427,42 @@ sealed partial class OperationTransformer
             for (var i = 0; i < routeParamNames.Count; i++)
             {
                 var routeParam = routeParamNames[i];
-                var appliedName = routeParam.ApplyPropNamingPolicy(docOpts, namingPolicy);
+                var appliedName = routeParam.GetOpenApiRouteParameterName(docOpts, namingPolicy);
                 var resolvedType = routeParameters[i].ConstraintType;
 
-                if (HasParameter(operation, ParameterLocation.Path, appliedName))
-                {
-                    if (resolvedType is not null)
-                        UpdateParameterSchema(operation, ParameterLocation.Path, appliedName, resolvedType, docOpts.ShortSchemaNames);
-
+                if (TryNormalizeExistingPathParameter(operation, routeParam, appliedName, resolvedType))
                     continue;
-                }
 
                 AddParameter(operation, appliedName, ParameterLocation.Path, null, true, docOpts.ShortSchemaNames, resolvedType);
             }
         }
 
-        void ApplyNamingPolicyToPathParameters(OpenApiOperation operation)
+        bool TryNormalizeExistingPathParameter(OpenApiOperation operation, string routeParamName, string appliedName, Type? schemaType)
         {
-            if (operation.Parameters is not { Count: > 0 })
-                return;
+            var existing = FindPathParameter(operation, appliedName) ?? FindPathParameter(operation, routeParamName);
 
-            foreach (var param in operation.Parameters)
+            if (existing is null)
+                return false;
+
+            if (!string.Equals(existing.Name, appliedName, StringComparison.Ordinal))
+                existing.Name = appliedName;
+
+            if (schemaType is not null)
+                UpdateParameterSchema(operation, ParameterLocation.Path, appliedName, schemaType, docOpts.ShortSchemaNames);
+
+            return true;
+
+            static OpenApiParameter? FindPathParameter(OpenApiOperation operation, string name)
             {
-                if (param is OpenApiParameter { In: ParameterLocation.Path, Name: not null } concreteParam)
-                {
-                    var renamed = concreteParam.Name.ApplyPropNamingPolicy(docOpts, namingPolicy);
-                    if (renamed != concreteParam.Name)
-                        concreteParam.Name = renamed;
-                }
+                if (operation.Parameters is not { Count: > 0 })
+                    return null;
+
+                foreach (var param in operation.Parameters)
+                    if (param is OpenApiParameter { In: ParameterLocation.Path, Name: not null } concreteParam &&
+                        string.Equals(concreteParam.Name, name, StringComparison.OrdinalIgnoreCase))
+                        return concreteParam;
+
+                return null;
             }
         }
 
@@ -465,7 +483,7 @@ sealed partial class OperationTransformer
                 propType = typeof(string);
 
             var schema = propType.GetSchemaForType(sharedCtx, shortSchemaNames);
-            var isNullable = prop?.IsNullable() ?? false;
+            var isNullable = prop is not null && IsNullable(prop);
             var required = isRequired ?? !isNullable;
 
             var param = new OpenApiParameter

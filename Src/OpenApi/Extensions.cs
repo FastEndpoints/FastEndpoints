@@ -55,7 +55,6 @@ public static class Extensions
                 // add transformers
                 apiOptions.AddOperationTransformer(new OperationTransformer(opts, sharedCtx));
                 apiOptions.AddDocumentTransformer(new DocumentTransformer(opts, sharedCtx));
-                apiOptions.AddSchemaTransformer(new ValidationSchemaTransformer(sharedCtx));
                 apiOptions.AddSchemaTransformer<XmlDocSchemaTransformer>();
                 apiOptions.AddSchemaTransformer<NumericTypeCleanupSchemaTransformer>();
                 apiOptions.AddSchemaTransformer(new ToHeaderPropertySchemaTransformer(sharedCtx));

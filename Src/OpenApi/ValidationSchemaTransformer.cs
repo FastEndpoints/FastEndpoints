@@ -7,14 +7,13 @@ using System.Text.Json;
 using FastEndpoints.OpenApi.ValidationProcessor;
 using FastEndpoints.OpenApi.ValidationProcessor.Extensions;
 using FluentValidation;
-using Microsoft.AspNetCore.OpenApi;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi;
 
 namespace FastEndpoints.OpenApi;
 
-sealed partial class ValidationSchemaTransformer(SharedContext sharedCtx) : IOpenApiSchemaTransformer
+sealed partial class ValidationSchemaTransformer(SharedContext sharedCtx)
 {
     IServiceResolver? _serviceResolver;
     ILogger<ValidationSchemaTransformer>? _logger;
@@ -42,11 +41,6 @@ sealed partial class ValidationSchemaTransformer(SharedContext sharedCtx) : IOpe
 
             _initialized = true;
         }
-    }
-
-    public Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context, CancellationToken cancellationToken)
-    {
-        return Task.CompletedTask;
     }
 
     public void ApplyEndpointValidation(OpenApiOperation operation, IServiceProvider services, Type? validatorType)

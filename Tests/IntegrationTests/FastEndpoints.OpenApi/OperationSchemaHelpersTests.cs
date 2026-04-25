@@ -134,7 +134,7 @@ public class OperationSchemaHelpersTests
             transformerType,
             BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
             binder: null,
-            args: [new DocumentOptions(), new SharedContext(), null],
+            args: [new DocumentOptions(), new SharedContext()],
             culture: null)!;
 
         transformerType.GetMethod("ApplyExamples", BindingFlags.Instance | BindingFlags.Public)!
@@ -219,7 +219,7 @@ public class OperationSchemaHelpersTests
             transformerType,
             BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
             binder: null,
-            args: [new DocumentOptions(), new SharedContext(), null],
+            args: [new DocumentOptions(), new SharedContext()],
             culture: null)!;
         var addParameter = transformerType.GetMethod("AddParameter", BindingFlags.Instance | BindingFlags.NonPublic)!;
 
@@ -251,7 +251,7 @@ public class OperationSchemaHelpersTests
             transformerType,
             BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
             binder: null,
-            args: [new DocumentOptions(), sharedCtx, null],
+            args: [new DocumentOptions(), sharedCtx],
             culture: null)!;
         var addMissingResponseContent = transformerType.GetMethod("AddMissingResponseContent", BindingFlags.Instance | BindingFlags.NonPublic)!;
 

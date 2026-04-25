@@ -10,7 +10,7 @@ namespace FastEndpoints.OpenApi;
 
 sealed partial class OperationTransformer
 {
-    sealed class ResponseOperationTransformer(DocumentOptions docOpts, SharedContext sharedCtx, JsonNamingPolicy? namingPolicy)
+    sealed class ResponseOperationTransformer(DocumentOptions docOpts, SharedContext sharedCtx)
     {
         static readonly Dictionary<string, string> _defaultDescriptions = new()
         {
@@ -28,6 +28,7 @@ sealed partial class OperationTransformer
             { "429", "Too Many Requests" },
             { "500", "Server Error" }
         };
+        JsonNamingPolicy? NamingPolicy => sharedCtx.NamingPolicy;
 
         public void AddMissingResponses(OpenApiOperation operation, IList<object> metadata)
         {
@@ -187,7 +188,7 @@ sealed partial class OperationTransformer
                                      .FirstOrDefault(x => x.StatusCode == statusCode)?
                                      .Type;
 
-            var jsonNameToClrName = BuildJsonNameMap(respDtoType, namingPolicy);
+            var jsonNameToClrName = BuildJsonNameMap(respDtoType, NamingPolicy);
 
             foreach (var content in concreteResp.Content.Values)
             {
@@ -215,7 +216,7 @@ sealed partial class OperationTransformer
                 if (toHeaderAttr is null)
                     continue;
 
-                var headerName = toHeaderAttr.HeaderName ?? prop.Name.ApplyPropNamingPolicy(docOpts, namingPolicy);
+                var headerName = toHeaderAttr.HeaderName ?? prop.Name.ApplyPropNamingPolicy(docOpts, NamingPolicy);
                 var headerType = prop.PropertyType.Name.EndsWith("HeaderValue", StringComparison.Ordinal) ? typeof(string) : prop.PropertyType;
 
                 AddResponseHeader(

@@ -15,7 +15,9 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
     const BindingFlags PublicInstanceHierarchy = BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy;
     static readonly ConcurrentDictionary<Type, TypeMetadata> _typeMetadataCache = new();
     readonly ValidationSchemaTransformer _validationTransformer = new(sharedCtx);
-    JsonNamingPolicy? NamingPolicy => sharedCtx.NamingPolicy;
+    readonly OperationMetadataTransformer _metadataTransformer = new(docOpts, sharedCtx);
+    readonly RequestOperationTransformer _requestTransformer = new(docOpts, sharedCtx);
+    readonly ResponseOperationTransformer _responseTransformer = new(docOpts, sharedCtx);
 
     sealed class TypeMetadata
     {
@@ -88,10 +90,8 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
         if (nameMetadata is not null)
             operation.OperationId = nameMetadata.EndpointName;
 
-        var metadataTransformer = new OperationMetadataTransformer(docOpts, sharedCtx);
-
         // auto-tagging
-        metadataTransformer.ApplyAutoTag(operation, epDef, bareRoute, metadata);
+        _metadataTransformer.ApplyAutoTag(operation, epDef, bareRoute, metadata);
 
         // summary / description
         operation.Summary ??= epDef.EndpointSummary?.Summary;
@@ -101,55 +101,52 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
         if (epDef.EndpointType.GetCustomAttribute<ObsoleteAttribute>() is not null)
             operation.Deprecated = true;
 
-        var requestTransformer = new RequestOperationTransformer(docOpts, sharedCtx, NamingPolicy);
-        var responseTransformer = new ResponseOperationTransformer(docOpts, sharedCtx, NamingPolicy);
-
         // handle request parameters
-        var requestTransformState = requestTransformer.HandleParameters(operation, context, epDef, documentPath);
+        var requestTransformState = _requestTransformer.HandleParameters(operation, context, epDef, documentPath);
 
         // handle [FromBody]/[FromForm] request body replacement + JSON Patch unwrap
-        requestTransformer.ApplyBodyOverrides(operation, epDef);
+        _requestTransformer.ApplyBodyOverrides(operation, epDef);
 
         // apply endpoint-scoped validation to request body schemas after request body shape is finalized
         _validationTransformer.ApplyEndpointValidation(operation, context.ApplicationServices, epDef.ValidatorType);
 
         // apply parameter descriptions from EndpointSummary.Params and defaults from [DefaultValue]
-        requestTransformer.ApplyParameterMetadata(operation, epDef);
+        _requestTransformer.ApplyParameterMetadata(operation, epDef);
 
         // add missing responses from IProducesResponseTypeMetadata that ApiExplorer may have skipped
         // (e.g., 400 ErrorResponse with application/problem+json content type)
-        responseTransformer.AddMissingResponses(operation, metadata);
+        _responseTransformer.AddMissingResponses(operation, metadata);
 
         // handle response descriptions
-        responseTransformer.ApplyDescriptions(operation, epDef, context);
+        _responseTransformer.ApplyDescriptions(operation, epDef, context);
 
         // fix binary response formats (MS OpenApi generates "byte" instead of "binary" for raw binary content types)
-        responseTransformer.FixBinaryFormats(operation);
+        _responseTransformer.FixBinaryFormats(operation);
 
         // handle response examples from EndpointSummary
-        responseTransformer.ApplyExamples(operation, epDef);
+        _responseTransformer.ApplyExamples(operation, epDef);
 
         // handle request body examples from EndpointSummary.RequestExamples
-        requestTransformer.ApplyExamples(operation, epDef, requestTransformState);
+        _requestTransformer.ApplyExamples(operation, epDef, requestTransformState);
 
         // apply EndpointSummary.Params descriptions to request body schema properties
-        requestTransformer.ApplyParamDescriptionsToBodySchema(operation, epDef, requestTransformState);
+        _requestTransformer.ApplyParamDescriptionsToBodySchema(operation, epDef, requestTransformState);
 
         // handle response headers ([ToHeader] on response DTO + EndpointSummary.ResponseHeaders)
-        responseTransformer.AddHeaders(operation, epDef, metadata);
+        _responseTransformer.AddHeaders(operation, epDef, metadata);
 
         // fix response polymorphism if enabled
         if (docOpts.UseOneOfForPolymorphism)
-            responseTransformer.FixPolymorphism(operation);
+            _responseTransformer.FixPolymorphism(operation);
 
         // handle idempotency header
-        metadataTransformer.AddIdempotencyHeader(operation, epDef);
+        _metadataTransformer.AddIdempotencyHeader(operation, epDef);
 
         // handle x402 headers
-        metadataTransformer.AddX402Headers(operation, epDef);
+        _metadataTransformer.AddX402Headers(operation, epDef);
 
         // handle security requirements
-        metadataTransformer.ApplySecurityRequirements(operation, epDef, metadata, operationKey);
+        _metadataTransformer.ApplySecurityRequirements(operation, epDef, metadata, operationKey);
 
         // drop duplicate parameters introduced by Asp.Versioning (it adds the version route
         // segment as an extra path parameter alongside the one we derive from the endpoint).

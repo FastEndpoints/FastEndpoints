@@ -29,6 +29,27 @@ public class SchemaNameGeneratorTests
 
         refId.ShouldBe("GenericPairOfStringAndGenericTypeOfListOfSchemaNameCustomer");
     }
+
+    [Fact]
+    public void long_schema_names_include_generic_argument_namespaces()
+    {
+        var userFromApiA = SchemaNameGenerator.GetReferenceId(typeof(ApiA.Page<ApiA.User>), shortSchemaNames: false);
+        var userFromApiB = SchemaNameGenerator.GetReferenceId(typeof(ApiA.Page<ApiB.User>), shortSchemaNames: false);
+
+        userFromApiA.ShouldBe("OpenApiApiA_PageOfOpenApiApiA_User");
+        userFromApiB.ShouldBe("OpenApiApiA_PageOfOpenApiApiB_User");
+        userFromApiA.ShouldNotBe(userFromApiB);
+    }
+
+    [Fact]
+    public void short_schema_names_keep_short_generic_argument_names()
+    {
+        var userFromApiA = SchemaNameGenerator.GetReferenceId(typeof(ApiA.Page<ApiA.User>), shortSchemaNames: true);
+        var userFromApiB = SchemaNameGenerator.GetReferenceId(typeof(ApiA.Page<ApiB.User>), shortSchemaNames: true);
+
+        userFromApiA.ShouldBe("ApiA_PageOfUser");
+        userFromApiB.ShouldBe("ApiA_PageOfUser");
+    }
 }
 
 public class NestedTypeContainer
@@ -41,3 +62,15 @@ public class SchemaNameCustomer { }
 public class GenericType<T> { }
 
 public class GenericPair<T1, T2> { }
+
+public static class ApiA
+{
+    public class User { }
+
+    public class Page<T> { }
+}
+
+public static class ApiB
+{
+    public class User { }
+}

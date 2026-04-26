@@ -15,6 +15,8 @@ sealed partial class OperationTransformer
         public HashSet<string> PropsRemovedFromBody { get; } = new(StringComparer.OrdinalIgnoreCase);
     }
 
+    sealed record PromotedBodyProperty(string Name, Type Type);
+
     sealed class RequestOperationTransformer(DocumentOptions docOpts, SharedContext sharedCtx)
     {
         static readonly string[] _illegalHeaderNames = ["Accept", "Content-Type", "Authorization"];
@@ -58,15 +60,15 @@ sealed partial class OperationTransformer
             return state;
         }
 
-        public void ApplyBodyOverrides(OpenApiOperation operation, EndpointDefinition epDef)
+        public PromotedBodyProperty? ApplyBodyOverrides(OpenApiOperation operation, EndpointDefinition epDef)
         {
             if (operation.RequestBody?.Content is null)
-                return;
+                return null;
 
             var requestDtoType = GetRequestDtoType(epDef);
 
             if (requestDtoType is null)
-                return;
+                return null;
 
             var requestDtoProps = GetPublicInstanceProperties(requestDtoType);
 
@@ -78,9 +80,10 @@ sealed partial class OperationTransformer
 
             var promoteProp = fromBodyProp ?? fromFormProp;
             if (promoteProp is null)
-                return;
+                return null;
 
             var promoted = false;
+            var schemaKey = PropertyNameResolver.GetSchemaPropertyName(promoteProp, NamingPolicy, docOpts.UsePropertyNamingPolicy);
 
             // replace the entire request body schema with the [FromBody]/[FromForm] property's type schema
             foreach (var content in operation.RequestBody.Content.Values)
@@ -90,7 +93,6 @@ sealed partial class OperationTransformer
                 if (resolvedSchema is null)
                     continue;
 
-                var schemaKey = PropertyNameResolver.GetSchemaPropertyName(promoteProp, NamingPolicy);
                 var matchingKey = resolvedSchema.Properties?.Keys
                                                 .FirstOrDefault(k => string.Equals(k, schemaKey, StringComparison.OrdinalIgnoreCase));
 
@@ -112,6 +114,8 @@ sealed partial class OperationTransformer
                 if (patchArraySchema is not null)
                     patchContent.Schema = patchArraySchema;
             }
+
+            return promoted ? new(schemaKey, promoteProp.PropertyType) : null;
         }
 
         public void ApplyParameterMetadata(OpenApiOperation operation, EndpointDefinition epDef)
@@ -156,7 +160,10 @@ sealed partial class OperationTransformer
             ApplyExampleRequestToParams(operation, epDef);
         }
 
-        public void ApplyExamples(OpenApiOperation operation, EndpointDefinition epDef, RequestTransformState state)
+        public void ApplyExamples(OpenApiOperation operation,
+                                  EndpointDefinition epDef,
+                                  RequestTransformState state,
+                                  PromotedBodyProperty? promotedBodyProperty)
         {
             if (epDef.EndpointSummary?.RequestExamples.Count is not > 0)
                 return;
@@ -165,7 +172,7 @@ sealed partial class OperationTransformer
                 return;
 
             var examples = BuildUniqueRequestExamples(epDef.EndpointSummary.RequestExamples);
-            var fallbackExample = BuildRequestExampleFallback(epDef, state.PropsRemovedFromBody);
+            var fallbackExample = BuildRequestExampleFallback(epDef, state.PropsRemovedFromBody, promotedBodyProperty);
 
             foreach (var content in operation.RequestBody.Content.Values)
             {
@@ -173,7 +180,9 @@ sealed partial class OperationTransformer
 
                 if (examples.Count == 1)
                 {
-                    content.Example = NormalizeExampleNode(StripRemovedProps(examples[0].Value.JsonNodeFromObject(), state.PropsRemovedFromBody), schema, fallbackExample);
+                    content.Example = NormalizeExampleNode(BuildRequestExampleNode(examples[0].Value, state.PropsRemovedFromBody, promotedBodyProperty),
+                                                           schema,
+                                                           fallbackExample);
                     content.Examples?.Clear();
                 }
                 else
@@ -187,21 +196,26 @@ sealed partial class OperationTransformer
                         {
                             Summary = example.Summary,
                             Description = example.Description,
-                            Value = NormalizeExampleNode(StripRemovedProps(example.Value.JsonNodeFromObject(), state.PropsRemovedFromBody), schema, fallbackExample)
+                            Value = NormalizeExampleNode(BuildRequestExampleNode(example.Value, state.PropsRemovedFromBody, promotedBodyProperty),
+                                                         schema,
+                                                         fallbackExample)
                         };
                     }
                 }
             }
         }
 
-        public void ApplyParamDescriptionsToBodySchema(OpenApiOperation operation, EndpointDefinition epDef, RequestTransformState state)
+        public void ApplyParamDescriptionsToBodySchema(OpenApiOperation operation,
+                                                       EndpointDefinition epDef,
+                                                       RequestTransformState state,
+                                                       PromotedBodyProperty? promotedBodyProperty)
         {
             if (operation.RequestBody?.Content is null)
                 return;
 
             var hasParams = epDef.EndpointSummary?.Params is { Count: > 0 };
             var exampleObj = epDef.EndpointSummary?.ExampleRequest;
-            var fallbackExample = BuildRequestExampleFallback(epDef, state.PropsRemovedFromBody);
+            var fallbackExample = BuildRequestExampleFallback(epDef, state.PropsRemovedFromBody, promotedBodyProperty);
 
             if (!hasParams && exampleObj is null)
                 return;
@@ -209,7 +223,7 @@ sealed partial class OperationTransformer
             Dictionary<string, JsonNode>? propExamples = null;
 
             if (exampleObj is not null and not IEnumerable &&
-                exampleObj.JsonObjectFromObject() is { } obj)
+                BuildRequestExampleNode(exampleObj, state.PropsRemovedFromBody, promotedBodyProperty) is JsonObject obj)
             {
                 propExamples = [];
 
@@ -229,15 +243,10 @@ sealed partial class OperationTransformer
 
                 if (exampleObj is not null)
                 {
-                    var exNode = exampleObj.JsonNodeFromObject();
+                    var exNode = BuildRequestExampleNode(exampleObj, state.PropsRemovedFromBody, promotedBodyProperty);
 
                     if (exNode is not null)
-                    {
-                        if (state.PropsRemovedFromBody.Count > 0 && exNode is JsonObject exObj)
-                            exObj.RemoveProperties(state.PropsRemovedFromBody);
-
                         schema.Example = NormalizeExampleNode(exNode, schema, fallbackExample);
-                    }
                 }
 
                 if (schema.Properties is null)
@@ -277,7 +286,8 @@ sealed partial class OperationTransformer
                        property.Name.ApplyPropNamingPolicy(docOpts, NamingPolicy);
 
             if (location == ParameterLocation.Query)
-                return property.GetCustomAttribute<BindFromAttribute>()?.Name ?? PropertyNameResolver.GetSchemaPropertyName(property, NamingPolicy);
+                return property.GetCustomAttribute<BindFromAttribute>()?.Name ??
+                       PropertyNameResolver.GetSchemaPropertyName(property, NamingPolicy, docOpts.UsePropertyNamingPolicy);
 
             return property.Name;
         }
@@ -326,7 +336,7 @@ sealed partial class OperationTransformer
                     continue;
 
                 requestDtoProps.RemoveAt(i);
-                operation.RemovePropFromRequestBody(p, sharedCtx, NamingPolicy, state.PropsRemovedFromBody);
+                operation.RemovePropFromRequestBody(p, sharedCtx, docOpts, NamingPolicy, state.PropsRemovedFromBody);
             }
         }
 
@@ -343,15 +353,26 @@ sealed partial class OperationTransformer
                 AddAttributeParameters(operation, p, state);
                 AddRouteParameter(operation, p, routeParameters, state);
 
-                var queryParamName = p.Name.ApplyPropNamingPolicy(docOpts, NamingPolicy);
+                var queryParamName = GetQueryParameterName(p);
 
                 if (ShouldAddQueryParam(p, operation, queryParamName, isGetRequest && !docOpts.EnableGetRequestsWithBody))
                 {
-                    operation.RemovePropFromRequestBody(p, sharedCtx, NamingPolicy, state.PropsRemovedFromBody);
-                    AddParameter(operation, queryParamName, ParameterLocation.Query, p, shortSchemaNames: docOpts.ShortSchemaNames);
+                    operation.RemovePropFromRequestBody(p, sharedCtx, docOpts, NamingPolicy, state.PropsRemovedFromBody);
+                    AddParameter(operation,
+                                 queryParamName,
+                                 ParameterLocation.Query,
+                                 p,
+                                 GetDontBindRequiredness(p),
+                                 docOpts.ShortSchemaNames);
                 }
             }
         }
+
+        string GetQueryParameterName(PropertyInfo property)
+            => property.GetCustomAttribute<BindFromAttribute>()?.Name ?? property.Name.ApplyPropNamingPolicy(docOpts, NamingPolicy);
+
+        static bool? GetDontBindRequiredness(PropertyInfo property)
+            => property.GetCustomAttribute<DontBindAttribute>()?.IsRequired is true ? true : null;
 
         void AddAttributeParameters(OpenApiOperation operation, PropertyInfo p, RequestTransformState state)
         {
@@ -365,7 +386,7 @@ sealed partial class OperationTransformer
 
                         if (IsIllegalHeaderName(pName))
                         {
-                            operation.RemovePropFromRequestBody(p, sharedCtx, NamingPolicy, state.PropsRemovedFromBody);
+                            operation.RemovePropFromRequestBody(p, sharedCtx, docOpts, NamingPolicy, state.PropsRemovedFromBody);
 
                             continue;
                         }
@@ -373,7 +394,7 @@ sealed partial class OperationTransformer
                         AddParameter(operation, pName, ParameterLocation.Header, p, hAttrib.IsRequired, docOpts.ShortSchemaNames);
 
                         if (hAttrib.IsRequired || hAttrib.RemoveFromSchema)
-                            operation.RemovePropFromRequestBody(p, sharedCtx, NamingPolicy, state.PropsRemovedFromBody);
+                            operation.RemovePropFromRequestBody(p, sharedCtx, docOpts, NamingPolicy, state.PropsRemovedFromBody);
 
                         break;
                     }
@@ -384,14 +405,14 @@ sealed partial class OperationTransformer
                         AddParameter(operation, pName, ParameterLocation.Cookie, p, cAttrib.IsRequired, docOpts.ShortSchemaNames);
 
                         if (cAttrib.IsRequired || cAttrib.RemoveFromSchema)
-                            operation.RemovePropFromRequestBody(p, sharedCtx, NamingPolicy, state.PropsRemovedFromBody);
+                            operation.RemovePropFromRequestBody(p, sharedCtx, docOpts, NamingPolicy, state.PropsRemovedFromBody);
 
                         break;
                     }
 
                     case FromClaimAttribute cAttrib when cAttrib.IsRequired || cAttrib.RemoveFromSchema:
                     case HasPermissionAttribute pAttrib when pAttrib.IsRequired || pAttrib.RemoveFromSchema:
-                        operation.RemovePropFromRequestBody(p, sharedCtx, NamingPolicy, state.PropsRemovedFromBody);
+                        operation.RemovePropFromRequestBody(p, sharedCtx, docOpts, NamingPolicy, state.PropsRemovedFromBody);
 
                         break;
                 }
@@ -406,7 +427,7 @@ sealed partial class OperationTransformer
             if (matchingRouteParam is null)
                 return;
 
-            operation.RemovePropFromRequestBody(p, sharedCtx, NamingPolicy, state.PropsRemovedFromBody);
+            operation.RemovePropFromRequestBody(p, sharedCtx, docOpts, NamingPolicy, state.PropsRemovedFromBody);
 
             var appliedName = matchingRouteParam.Name.GetOpenApiRouteParameterName(docOpts, NamingPolicy);
 
@@ -517,7 +538,7 @@ sealed partial class OperationTransformer
                     }
                 }
 
-                example ??= propType.GenerateSampleJsonNode(NamingPolicy);
+                example ??= propType.GenerateSampleJsonNode(NamingPolicy, docOpts.UsePropertyNamingPolicy);
 
                 if (example is not null)
                 {
@@ -531,14 +552,38 @@ sealed partial class OperationTransformer
             operation.Parameters.Add(param);
         }
 
-        JsonNode? BuildRequestExampleFallback(EndpointDefinition epDef, HashSet<string> propsRemovedFromBody)
+        JsonNode? BuildRequestExampleFallback(EndpointDefinition epDef,
+                                             HashSet<string> propsRemovedFromBody,
+                                             PromotedBodyProperty? promotedBodyProperty)
         {
-            var fallback = GetRequestDtoType(epDef)?.GenerateSampleJsonNode(NamingPolicy);
+            var fallback = (promotedBodyProperty?.Type ?? GetRequestDtoType(epDef))?.GenerateSampleJsonNode(NamingPolicy, docOpts.UsePropertyNamingPolicy);
 
-            if (fallback is JsonObject fallbackObj && propsRemovedFromBody.Count > 0)
+            if (promotedBodyProperty is null && fallback is JsonObject fallbackObj && propsRemovedFromBody.Count > 0)
                 fallbackObj.RemoveProperties(propsRemovedFromBody);
 
             return fallback;
+        }
+
+        static JsonNode? BuildRequestExampleNode(object? example,
+                                                 HashSet<string> propsRemovedFromBody,
+                                                 PromotedBodyProperty? promotedBodyProperty)
+        {
+            var node = example.JsonNodeFromObject();
+
+            if (promotedBodyProperty is not null)
+                return UnwrapPromotedBodyExample(node, promotedBodyProperty.Name);
+
+            return StripRemovedProps(node, propsRemovedFromBody);
+        }
+
+        static JsonNode? UnwrapPromotedBodyExample(JsonNode? node, string promotedPropertyName)
+        {
+            if (node is not JsonObject obj)
+                return node;
+
+            var key = obj.Select(kvp => kvp.Key).FindCaseInsensitiveKey(promotedPropertyName);
+
+            return key is null ? node : obj[key]?.DeepClone();
         }
 
         static bool IsIllegalHeaderName(string name)
@@ -558,8 +603,8 @@ sealed partial class OperationTransformer
             {
                 switch (attribute)
                 {
-                    case BindFromAttribute:
                     case FromHeaderAttribute:
+                    case FromCookieAttribute:
                         return false;
                     case FromClaimAttribute cAttrib:
                         return !cAttrib.IsRequired;

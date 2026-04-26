@@ -14,7 +14,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
 {
     const BindingFlags PublicInstanceHierarchy = BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy;
     static readonly ConcurrentDictionary<Type, TypeMetadata> _typeMetadataCache = new();
-    readonly ValidationSchemaTransformer _validationTransformer = new(sharedCtx);
+    readonly ValidationSchemaTransformer _validationTransformer = new(docOpts, sharedCtx);
     readonly OperationMetadataTransformer _metadataTransformer = new(docOpts, sharedCtx);
     readonly RequestOperationTransformer _requestTransformer = new(docOpts, sharedCtx);
     readonly ResponseOperationTransformer _responseTransformer = new(docOpts, sharedCtx);
@@ -105,10 +105,10 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
         var requestTransformState = _requestTransformer.HandleParameters(operation, context, epDef, documentPath);
 
         // handle [FromBody]/[FromForm] request body replacement + JSON Patch unwrap
-        _requestTransformer.ApplyBodyOverrides(operation, epDef);
+        var promotedBodyPropertyName = _requestTransformer.ApplyBodyOverrides(operation, epDef);
 
         // apply endpoint-scoped validation to request body schemas after request body shape is finalized
-        _validationTransformer.ApplyEndpointValidation(operation, context.ApplicationServices, epDef.ValidatorType);
+        _validationTransformer.ApplyEndpointValidation(operation, context.ApplicationServices, epDef.ValidatorType, promotedBodyPropertyName?.Name);
 
         // apply parameter descriptions from EndpointSummary.Params and defaults from [DefaultValue]
         _requestTransformer.ApplyParameterMetadata(operation, epDef);
@@ -127,10 +127,10 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
         _responseTransformer.ApplyExamples(operation, epDef);
 
         // handle request body examples from EndpointSummary.RequestExamples
-        _requestTransformer.ApplyExamples(operation, epDef, requestTransformState);
+        _requestTransformer.ApplyExamples(operation, epDef, requestTransformState, promotedBodyPropertyName);
 
         // apply EndpointSummary.Params descriptions to request body schema properties
-        _requestTransformer.ApplyParamDescriptionsToBodySchema(operation, epDef, requestTransformState);
+        _requestTransformer.ApplyParamDescriptionsToBodySchema(operation, epDef, requestTransformState, promotedBodyPropertyName);
 
         // handle response headers ([ToHeader] on response DTO + EndpointSummary.ResponseHeaders)
         _responseTransformer.AddHeaders(operation, epDef, metadata);

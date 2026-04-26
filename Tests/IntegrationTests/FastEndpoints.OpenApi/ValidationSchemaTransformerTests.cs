@@ -39,7 +39,7 @@ public class ValidationSchemaTransformerTests
             transformerType,
             BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
             binder: null,
-            args: [new FastEndpoints.OpenApi.SharedContext()],
+            args: [new FastEndpoints.OpenApi.DocumentOptions(), new FastEndpoints.OpenApi.SharedContext()],
             culture: null)!;
         transformerType.GetField("_serviceResolver", BindingFlags.Instance | BindingFlags.NonPublic)!
                        .SetValue(transformer, new TestServiceResolver());
@@ -52,6 +52,25 @@ public class ValidationSchemaTransformerTests
         HasRule(xRules, "y_Name").ShouldBeFalse();
         HasRule(yRules, "y_Name").ShouldBeTrue();
         HasRule(yRules, "x_Name").ShouldBeFalse();
+    }
+
+    [Fact]
+    public void validator_rule_paths_do_not_apply_naming_policy_when_disabled()
+    {
+        var rules = new NamingPolicyCacheValidator().GetDictionaryOfRules(new PrefixNamingPolicy("x_"), false, typeof(NamingPolicyCacheRequest));
+
+        rules.ContainsKey("Name").ShouldBeTrue();
+        rules.ContainsKey("x_Name").ShouldBeFalse();
+    }
+
+    [Fact]
+    public void validator_rule_paths_keep_json_property_name_attributes_when_naming_policy_is_disabled()
+    {
+        var rules = new JsonPropertyNameRulePathValidator().GetDictionaryOfRules(JsonNamingPolicy.CamelCase,
+                                                                                 false,
+                                                                                 typeof(JsonPropertyNameRulePathRequest));
+
+        rules.ContainsKey("point_data.x_coord").ShouldBeTrue();
     }
 
     static bool HasRule(object cachedRules, string key)

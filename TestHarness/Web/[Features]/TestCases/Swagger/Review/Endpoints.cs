@@ -294,6 +294,157 @@ sealed class DuplicateQueryNamingPolicyEndpoint : Endpoint<DuplicateQueryNamingP
         => Send.OkAsync(req.FirstName, ct);
 }
 
+sealed class BindFromQueryGetReviewRequest
+{
+    [BindFrom("id")]
+    public string CustomerID { get; set; } = string.Empty;
+}
+
+sealed class BindFromQueryGetReviewEndpoint : Endpoint<BindFromQueryGetReviewRequest, string>
+{
+    public override void Configure()
+    {
+        Get("/swagger-review/bindfrom-query-get");
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(BindFromQueryGetReviewRequest req, CancellationToken ct)
+        => Send.OkAsync(req.CustomerID, ct);
+}
+
+sealed class BindFromQueryPostReviewRequest
+{
+    [QueryParam, BindFrom("id")]
+    public string CustomerID { get; set; } = string.Empty;
+
+    public string BodyValue { get; set; } = string.Empty;
+}
+
+sealed class BindFromQueryPostReviewEndpoint : Endpoint<BindFromQueryPostReviewRequest, string>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/bindfrom-query-post");
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(BindFromQueryPostReviewRequest req, CancellationToken ct)
+        => Send.OkAsync(req.BodyValue, ct);
+}
+
+sealed class RequiredQueryParamReviewRequest
+{
+    [QueryParam(IsRequired = true)]
+    public string? Search { get; set; }
+
+    [QueryParam]
+    public string? Filter { get; set; }
+
+    public string BodyValue { get; set; } = string.Empty;
+}
+
+sealed class RequiredQueryParamReviewEndpoint : Endpoint<RequiredQueryParamReviewRequest, string>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/required-query-param");
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(RequiredQueryParamReviewRequest req, CancellationToken ct)
+        => Send.OkAsync(req.Search ?? req.BodyValue, ct);
+}
+
+sealed class PromotedBodyValidationReviewRequest
+{
+    public int Id { get; set; }
+
+    [FromBody]
+    public PromotedBodyValidationPayload Body { get; set; } = new();
+}
+
+sealed class PromotedBodyValidationPayload
+{
+    public string? Name { get; set; }
+
+    public PromotedBodyValidationChild Child { get; set; } = new();
+}
+
+sealed class PromotedBodyValidationChild
+{
+    public string? Code { get; set; }
+}
+
+sealed class PromotedBodyValidationChildValidator : Validator<PromotedBodyValidationChild>
+{
+    public PromotedBodyValidationChildValidator()
+    {
+        RuleFor(x => x.Code).NotEmpty().MinimumLength(2);
+    }
+}
+
+sealed class PromotedBodyValidationPayloadValidator : Validator<PromotedBodyValidationPayload>
+{
+    public PromotedBodyValidationPayloadValidator()
+    {
+        RuleFor(x => x.Name).NotEmpty().MinimumLength(3);
+        RuleFor(x => x.Child).SetValidator(new PromotedBodyValidationChildValidator());
+    }
+}
+
+sealed class PromotedBodyValidationReviewValidator : Validator<PromotedBodyValidationReviewRequest>
+{
+    public PromotedBodyValidationReviewValidator()
+    {
+        RuleFor(x => x.Body).SetValidator(new PromotedBodyValidationPayloadValidator());
+    }
+}
+
+sealed class PromotedBodyValidationReviewEndpoint : Endpoint<PromotedBodyValidationReviewRequest, string>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/promoted-body-validation/{id}");
+        Tags("swagger_review");
+        AllowAnonymous();
+        Summary(
+            s => s.ExampleRequest = new()
+            {
+                Id = 123,
+                Body = new()
+                {
+                    Name = "example name",
+                    Child = new() { Code = "xy" }
+                }
+            });
+    }
+
+    public override Task HandleAsync(PromotedBodyValidationReviewRequest req, CancellationToken ct)
+        => Send.OkAsync(req.Body.Name ?? string.Empty, ct);
+}
+
+sealed class CookieGetReviewRequest
+{
+    [FromCookie("session_id")]
+    public string SessionId { get; set; } = string.Empty;
+}
+
+sealed class CookieGetReviewEndpoint : Endpoint<CookieGetReviewRequest, string>
+{
+    public override void Configure()
+    {
+        Get("/swagger-review/cookie-get");
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(CookieGetReviewRequest req, CancellationToken ct)
+        => Send.OkAsync(req.SessionId, ct);
+}
+
 sealed class IdempotencyAnonymousExampleEndpoint : EndpointWithoutRequest<string>
 {
     public override void Configure()

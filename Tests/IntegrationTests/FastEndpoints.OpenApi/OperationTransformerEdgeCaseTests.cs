@@ -158,6 +158,82 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     }
 
     [Fact]
+    public async Task get_request_uses_bind_from_name_for_query_parameter()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var operation = JToken.Parse(json)["paths"]!["/api/swagger-review/bindfrom-query-get"]!["get"]!;
+        var queryParam = operation["parameters"]!.First(p => p["in"]!.Value<string>() == "query");
+
+        queryParam["name"]!.Value<string>().ShouldBe("id");
+        operation["parameters"]!.Any(p => p["name"]!.Value<string>() == "customerID").ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task non_get_query_param_attribute_with_bind_from_is_added_using_bind_name()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var operation = JToken.Parse(json)["paths"]!["/api/swagger-review/bindfrom-query-post"]!["post"]!;
+        var queryParam = operation["parameters"]!.First(p => p["in"]!.Value<string>() == "query");
+
+        queryParam["name"]!.Value<string>().ShouldBe("id");
+        operation["parameters"]!.Any(p => p["name"]!.Value<string>() == "customerID").ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task nullable_query_param_attribute_with_is_required_is_added_as_required_parameter()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var operation = JToken.Parse(json)["paths"]!["/api/swagger-review/required-query-param"]!["post"]!;
+        var requiredSearch = operation["parameters"]!.First(p => p["name"]!.Value<string>() == "search");
+        var optionalFilter = operation["parameters"]!.First(p => p["name"]!.Value<string>() == "filter");
+
+        requiredSearch["in"]!.Value<string>().ShouldBe("query");
+        requiredSearch["required"]!.Value<bool>().ShouldBeTrue();
+        optionalFilter["required"].ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task promoted_body_schema_keeps_validation_rules_from_promoted_property_subtree()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var doc = JToken.Parse(json);
+        var requestSchema = doc["paths"]!["/api/swagger-review/promoted-body-validation/{id}"]!["post"]!
+                               ["requestBody"]!["content"]!["application/json"]!["schema"]!;
+        var refId = requestSchema["$ref"]!.Value<string>()!.Split('/').Last();
+        var schema = doc["components"]!["schemas"]![refId]!;
+
+        schema["properties"]!["body"].ShouldBeNull();
+        schema["properties"]!["name"]!["minLength"]!.Value<int>().ShouldBe(3);
+        schema["required"]!.Values<string>().ShouldContain("name");
+        schema["properties"]!["child"]!["properties"]!["code"]!["minLength"]!.Value<int>().ShouldBe(2);
+        schema["properties"]!["child"]!["required"]!.Values<string>().ShouldContain("code");
+    }
+
+    [Fact]
+    public async Task promoted_body_request_examples_are_unwrapped_to_promoted_schema_shape()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var operation = JToken.Parse(json)["paths"]!["/api/swagger-review/promoted-body-validation/{id}"]!["post"]!;
+        var example = operation["requestBody"]!["content"]!["application/json"]!["example"]!;
+
+        example["body"].ShouldBeNull();
+        example["id"].ShouldBeNull();
+        example["name"]!.Value<string>().ShouldBe("example name");
+        example["child"]!["code"]!.Value<string>().ShouldBe("xy");
+    }
+
+    [Fact]
+    public async Task get_request_from_cookie_property_is_not_duplicated_as_query_parameter()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var parameters = JToken.Parse(json)["paths"]!["/api/swagger-review/cookie-get"]!["get"]!["parameters"]!;
+
+        parameters.Count(p => p["in"]!.Value<string>() == "cookie" && p["name"]!.Value<string>() == "session_id").ShouldBe(1);
+        parameters.Any(p => p["in"]!.Value<string>() == "query" && p["name"]!.Value<string>() == "sessionId").ShouldBeFalse();
+        parameters.Any(p => p["in"]!.Value<string>() == "query" && p["name"]!.Value<string>() == "SessionId").ShouldBeFalse();
+    }
+
+    [Fact]
     public async Task empty_request_schemas_are_removed_when_option_is_enabled()
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review Empty Schema");

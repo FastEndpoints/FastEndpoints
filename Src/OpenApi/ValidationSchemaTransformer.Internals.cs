@@ -27,40 +27,49 @@ sealed partial class ValidationSchemaTransformer
         readonly FluentValidationRule[] _rules;
         readonly ChildValidatorResolver _childResolver;
         readonly bool _localizeReferencedSchemas;
+        readonly bool _usePropertyNamingPolicy;
 
         public ValidationSchemaApplier(SharedContext sharedCtx,
                                        IServiceResolver serviceResolver,
                                        ILogger<ValidationSchemaTransformer>? logger,
                                        Func<IServiceScope> createScope,
                                        FluentValidationRule[] rules,
+                                       bool usePropertyNamingPolicy,
                                        bool localizeReferencedSchemas = false)
         {
             _sharedCtx = sharedCtx;
             _logger = logger;
             _rules = rules;
+            _usePropertyNamingPolicy = usePropertyNamingPolicy;
             _localizeReferencedSchemas = localizeReferencedSchemas;
-            _childResolver = new(serviceResolver, logger, createScope, ApplyValidator, ApplyRulesToSchema, localizeReferencedSchemas);
+            _childResolver = new(serviceResolver,
+                                 logger,
+                                 createScope,
+                                 ApplyValidator,
+                                 ApplyRulesToSchema,
+                                 usePropertyNamingPolicy,
+                                 localizeReferencedSchemas);
         }
 
         public void Dispose()
             => _childResolver.Dispose();
 
         public void ApplyValidatorRules(OpenApiSchema schema,
-                                        CachedValidatorRules cachedRules,
-                                        string propertyPrefix,
-                                        HashSet<Type> activeChildValidators)
+                                         CachedValidatorRules cachedRules,
+                                         string propertyPrefix,
+                                         HashSet<Type> activeChildValidators)
         {
             ApplyRulesToSchema(schema, cachedRules.Rules, propertyPrefix, activeChildValidators);
 
             foreach (var includedRules in cachedRules.IncludedRules)
-                ApplyValidatorRules(schema, includedRules, string.Empty, activeChildValidators);
+                ApplyValidatorRules(schema, includedRules, propertyPrefix, activeChildValidators);
         }
 
         public void ApplyValidator(OpenApiSchema schema, IValidator validator, string propertyPrefix, HashSet<Type> activeChildValidators)
         {
-            var rulesDict = validator.GetDictionaryOfRules(_sharedCtx.NamingPolicy, GetValidatorTargetType(validator));
+            var rulesDict = validator.GetDictionaryOfRules(_sharedCtx.NamingPolicy, _usePropertyNamingPolicy, GetValidatorTargetType(validator));
             ApplyRulesToSchema(schema, rulesDict, propertyPrefix, activeChildValidators);
-            _childResolver.ApplyRulesFromIncludedValidators(schema, validator, activeChildValidators, _sharedCtx.NamingPolicy);
+            _childResolver.ApplyRulesFromIncludedValidators(schema, validator, propertyPrefix, activeChildValidators, _sharedCtx.NamingPolicy);
         }
 
         [DynamicDependency(DynamicallyAccessedMemberTypes.PublicMethods, typeof(ChildValidatorAdaptor<,>))]
@@ -74,6 +83,8 @@ sealed partial class ValidationSchemaTransformer
         {
             if (schema is null)
                 return;
+
+            TryApplyRootValidation(schema, rulesDict, propertyPrefix, activeChildValidators);
 
             if (schema.Properties is not null)
             {
@@ -129,6 +140,27 @@ sealed partial class ValidationSchemaTransformer
                 propertySchema.Properties is { Count: > 0 } &&
                 propertySchema != schema)
                 ApplyRulesToSchema(propertySchema, rulesDict, $"{fullPropertyName}.", activeChildValidators);
+        }
+
+        void TryApplyRootValidation(OpenApiSchema schema,
+                                    ReadOnlyDictionary<string, List<IValidationRule>> rulesDict,
+                                    string propertyPrefix,
+                                    HashSet<Type> activeChildValidators)
+        {
+            if (propertyPrefix.Length == 0 ||
+                !rulesDict.TryGetValue(propertyPrefix.TrimEnd('.'), out var validationRules))
+                return;
+
+            foreach (var validationRule in validationRules)
+            {
+                foreach (var ruleComponent in validationRule.Components)
+                {
+                    var propertyValidator = ruleComponent.Validator;
+
+                    if (propertyValidator.Name == "ChildValidatorAdaptor")
+                        _childResolver.ApplyChildValidator(schema, propertyValidator, activeChildValidators);
+                }
+            }
         }
 
         OpenApiSchema? ResolvePropertyForMutation(OpenApiSchema schema, string propertyName, IOpenApiSchema property)
@@ -193,11 +225,12 @@ sealed partial class ValidationSchemaTransformer
     }
 
     sealed class ChildValidatorResolver(IServiceResolver serviceResolver,
-                                         ILogger<ValidationSchemaTransformer>? logger,
-                                         Func<IServiceScope> createScope,
-                                         Action<OpenApiSchema, IValidator, string, HashSet<Type>> applyValidator,
-                                         Action<OpenApiSchema?, ReadOnlyDictionary<string, List<IValidationRule>>, string, HashSet<Type>> applyRulesToSchema,
-                                         bool localizeReferencedSchemas) : IDisposable
+                                        ILogger<ValidationSchemaTransformer>? logger,
+                                        Func<IServiceScope> createScope,
+                                        Action<OpenApiSchema, IValidator, string, HashSet<Type>> applyValidator,
+                                        Action<OpenApiSchema?, ReadOnlyDictionary<string, List<IValidationRule>>, string, HashSet<Type>> applyRulesToSchema,
+                                        bool usePropertyNamingPolicy,
+                                        bool localizeReferencedSchemas) : IDisposable
     {
         IServiceScope? _scope;
 
@@ -228,14 +261,15 @@ sealed partial class ValidationSchemaTransformer
         [DynamicDependency(DynamicallyAccessedMemberTypes.PublicMethods, typeof(ChildValidatorAdaptor<,>))]
         public void ApplyRulesFromIncludedValidators(OpenApiSchema schema,
                                                      IValidator validator,
+                                                     string propertyPrefix,
                                                      HashSet<Type> activeChildValidators,
                                                      System.Text.Json.JsonNamingPolicy? namingPolicy)
         {
             foreach (var includeValidator in GetIncludedValidators(validator, logger))
             {
-                var rulesDict = includeValidator.GetDictionaryOfRules(namingPolicy, GetValidatorTargetType(includeValidator));
-                applyRulesToSchema(schema, rulesDict, string.Empty, activeChildValidators);
-                ApplyRulesFromIncludedValidators(schema, includeValidator, activeChildValidators, namingPolicy);
+                var rulesDict = includeValidator.GetDictionaryOfRules(namingPolicy, usePropertyNamingPolicy, GetValidatorTargetType(includeValidator));
+                applyRulesToSchema(schema, rulesDict, propertyPrefix, activeChildValidators);
+                ApplyRulesFromIncludedValidators(schema, includeValidator, propertyPrefix, activeChildValidators, namingPolicy);
             }
         }
 
@@ -274,25 +308,11 @@ sealed partial class ValidationSchemaTransformer
                                         IPropertyValidator propertyValidator,
                                         HashSet<Type> activeChildValidators)
         {
-            if (propertyValidator.GetType().Name.StartsWith("PolymorphicValidator"))
-            {
-                logger?.SwaggerWithFluentValidationIntegrationForPolymorphicValidatorsIsNotSupported(propertyValidator.GetType().Name);
-
-                return;
-            }
-
-            var validatorTypeObj = propertyValidator.GetType().GetProperty("ValidatorType")?.GetValue(propertyValidator);
-
-            if (validatorTypeObj is not Type validatorType)
-                throw new InvalidOperationException("ChildValidatorAdaptor.ValidatorType is null");
-
-            if (validatorType.IsInterface || !activeChildValidators.Add(validatorType))
+            if (!TryCreateChildValidator(propertyValidator, activeChildValidators, out var validatorType, out var childValidator))
                 return;
 
             try
             {
-                var childValidator = (IValidator)serviceResolver.CreateInstance(validatorType, Services);
-
                 if (schema.Properties?.TryGetValue(propertyName, out var childPropSchema) == true)
                 {
                     var childSchema = ResolveChildForMutation(schema, propertyName, childPropSchema);
@@ -312,6 +332,52 @@ sealed partial class ValidationSchemaTransformer
             {
                 activeChildValidators.Remove(validatorType);
             }
+        }
+
+        public void ApplyChildValidator(OpenApiSchema schema,
+                                        IPropertyValidator propertyValidator,
+                                        HashSet<Type> activeChildValidators)
+        {
+            if (TryCreateChildValidator(propertyValidator, activeChildValidators, out var validatorType, out var childValidator))
+            {
+                try
+                {
+                    applyValidator(schema, childValidator, string.Empty, activeChildValidators);
+                }
+                finally
+                {
+                    activeChildValidators.Remove(validatorType);
+                }
+            }
+        }
+
+        bool TryCreateChildValidator(IPropertyValidator propertyValidator,
+                                     HashSet<Type> activeChildValidators,
+                                     [NotNullWhen(true)] out Type? validatorType,
+                                     [NotNullWhen(true)] out IValidator? childValidator)
+        {
+            validatorType = null;
+            childValidator = null;
+
+            if (propertyValidator.GetType().Name.StartsWith("PolymorphicValidator"))
+            {
+                logger?.SwaggerWithFluentValidationIntegrationForPolymorphicValidatorsIsNotSupported(propertyValidator.GetType().Name);
+
+                return false;
+            }
+
+            var validatorTypeObj = propertyValidator.GetType().GetProperty("ValidatorType")?.GetValue(propertyValidator);
+
+            if (validatorTypeObj is not Type resolvedValidatorType)
+                throw new InvalidOperationException("ChildValidatorAdaptor.ValidatorType is null");
+
+            if (resolvedValidatorType.IsInterface || !activeChildValidators.Add(resolvedValidatorType))
+                return false;
+
+            validatorType = resolvedValidatorType;
+            childValidator = (IValidator)serviceResolver.CreateInstance(resolvedValidatorType, Services);
+
+            return true;
         }
 
         OpenApiSchema? ResolveChildForMutation(OpenApiSchema schema, string propertyName, IOpenApiSchema childPropSchema)

@@ -1,6 +1,7 @@
 using System.Globalization;
 using FastEndpoints.OpenApi;
 using Microsoft.OpenApi;
+using Scalar.AspNetCore;
 using TestCases.ClientStreamingTest;
 using TestCases.CommandBusTest;
 using TestCases.CommandHandlerTest;
@@ -9,6 +10,7 @@ using TestCases.EventQueueTest;
 using TestCases.GlobalGenericProcessorTest;
 using TestCases.JobQueueTest;
 using TestCases.KeyedServicesTests;
+using TestCases.MetadataRegistrationTest;
 using TestCases.ProcessorStateTest;
 using TestCases.ServerStreamingTest;
 using TestCases.UnitTestConcurrencyTest;
@@ -16,7 +18,6 @@ using TestCases.X402;
 using Web;
 using Web.PipelineBehaviors.PreProcessors;
 using Web.Services;
-using Scalar.AspNetCore;
 
 Func<EndpointDefinition, bool> excludeReleaseVersioning = ep => ep.EndpointTags?.Contains("release_versioning") is not true;
 Func<EndpointDefinition, bool> includeReleaseVersioning = ep => ep.EndpointTags?.Contains("release_versioning") is true;
@@ -204,7 +205,7 @@ app.UseRequestLocalization(
                    ep.PreProcessors(Order.Before, new AdminHeaderChecker());
                    if (ep.EndpointTags?.Contains("Orders") is true)
                        ep.Description(b => b.Produces<ErrorResponse>(400, "application/problem+json"));
-                   if (ep.EndpointMetadata?.OfType<TestCases.MetadataRegistrationTest.SomeObject>().Any(s => s.Yes) is true)
+                   if (ep.EndpointMetadata?.OfType<SomeObject>().Any(s => s.Yes) is true)
                        ep.AllowAnonymous();
                };
 

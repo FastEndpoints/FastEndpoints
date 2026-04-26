@@ -210,6 +210,50 @@ public class OperationSchemaHelpersTests
     }
 
     [Fact]
+    public void request_body_property_removal_does_not_apply_naming_policy_when_disabled()
+    {
+        var operation = new OpenApiOperation
+        {
+            RequestBody = new OpenApiRequestBody
+            {
+                Content = new Dictionary<string, OpenApiMediaType>
+                {
+                    ["application/json"] = new()
+                    {
+                        Schema = new OpenApiSchema
+                        {
+                            Type = JsonSchemaType.Object,
+                            Required = new HashSet<string> { "QueryValue", "queryValue" },
+                            Properties = new Dictionary<string, IOpenApiSchema>
+                            {
+                                ["QueryValue"] = new OpenApiSchema { Type = JsonSchemaType.String },
+                                ["queryValue"] = new OpenApiSchema { Type = JsonSchemaType.String }
+                            }
+                        }
+                    }
+                }
+            }
+        };
+        var prop = typeof(NamingPolicyRequest).GetProperty(nameof(NamingPolicyRequest.QueryValue))!;
+        var removedProps = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        operation.RemovePropFromRequestBody(prop,
+                                            new SharedContext(),
+                                            new() { UsePropertyNamingPolicy = false },
+                                            JsonNamingPolicy.CamelCase,
+                                            removedProps);
+        var schema = operation.RequestBody!.Content!["application/json"].Schema.ShouldBeOfType<OpenApiSchema>();
+
+        schema.Properties.ShouldNotBeNull();
+        schema.Properties.ContainsKey("QueryValue").ShouldBeFalse();
+        schema.Properties.ContainsKey("queryValue").ShouldBeTrue();
+        schema.Required.ShouldNotBeNull();
+        schema.Required.ShouldNotContain("QueryValue");
+        schema.Required.ShouldContain("queryValue");
+        removedProps.ShouldContain("QueryValue");
+    }
+
+    [Fact]
     public void primitive_numeric_parameters_use_numeric_schemas()
     {
         var operation = new OpenApiOperation();
@@ -273,6 +317,11 @@ public class OperationSchemaHelpersTests
     sealed class MissingSchemaCollectionItem
     {
         public string Name { get; set; } = string.Empty;
+    }
+
+    sealed class NamingPolicyRequest
+    {
+        public string QueryValue { get; set; } = string.Empty;
     }
 
     sealed class ProducesMetadata(Type type) : IProducesResponseTypeMetadata

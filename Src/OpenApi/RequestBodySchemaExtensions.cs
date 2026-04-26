@@ -7,15 +7,16 @@ namespace FastEndpoints.OpenApi;
 static partial class OperationSchemaHelpers
 {
     internal static void RemovePropFromRequestBody(this OpenApiOperation operation,
-                                                   PropertyInfo property,
-                                                   SharedContext sharedCtx,
-                                                   JsonNamingPolicy? namingPolicy,
-                                                   HashSet<string>? removedProps = null)
+                                                    PropertyInfo property,
+                                                    SharedContext sharedCtx,
+                                                    DocumentOptions docOpts,
+                                                    JsonNamingPolicy? namingPolicy,
+                                                    HashSet<string>? removedProps = null)
     {
         if (operation.RequestBody?.Content is null)
             return;
 
-        var schemaName = PropertyNameResolver.GetSchemaPropertyName(property, namingPolicy);
+        var schemaName = PropertyNameResolver.GetSchemaPropertyName(property, namingPolicy, docOpts.UsePropertyNamingPolicy);
 
         removedProps?.Add(schemaName);
 

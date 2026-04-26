@@ -9,7 +9,7 @@ namespace FastEndpoints.OpenApi;
 /// these properties are sent as response headers, not in the JSON body,
 /// so they should not appear in the schema.
 /// </summary>
-sealed class ToHeaderPropertySchemaTransformer(SharedContext sharedCtx) : IOpenApiSchemaTransformer
+sealed class ToHeaderPropertySchemaTransformer(DocumentOptions docOpts, SharedContext sharedCtx) : IOpenApiSchemaTransformer
 {
     public Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context, CancellationToken ct)
     {
@@ -26,7 +26,7 @@ sealed class ToHeaderPropertySchemaTransformer(SharedContext sharedCtx) : IOpenA
             if (!prop.IsDefined(typeof(ToHeaderAttribute), true))
                 continue;
 
-            var jsonName = PropertyNameResolver.GetSchemaPropertyName(prop, namingPolicy);
+            var jsonName = PropertyNameResolver.GetSchemaPropertyName(prop, namingPolicy, docOpts.UsePropertyNamingPolicy);
 
             schema.Properties.Remove(jsonName);
             schema.Required?.Remove(jsonName);

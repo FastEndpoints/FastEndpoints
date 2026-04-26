@@ -13,7 +13,7 @@ using Microsoft.OpenApi;
 
 namespace FastEndpoints.OpenApi;
 
-sealed partial class ValidationSchemaTransformer(SharedContext sharedCtx)
+sealed partial class ValidationSchemaTransformer(DocumentOptions docOpts, SharedContext sharedCtx)
 {
     IServiceResolver? _serviceResolver;
     ILogger<ValidationSchemaTransformer>? _logger;
@@ -43,7 +43,7 @@ sealed partial class ValidationSchemaTransformer(SharedContext sharedCtx)
         }
     }
 
-    public void ApplyEndpointValidation(OpenApiOperation operation, IServiceProvider services, Type? validatorType)
+    public void ApplyEndpointValidation(OpenApiOperation operation, IServiceProvider services, Type? validatorType, string? propertyPrefix = null)
     {
         if (validatorType is null || operation.RequestBody?.Content is null)
             return;
@@ -64,6 +64,7 @@ sealed partial class ValidationSchemaTransformer(SharedContext sharedCtx)
             _logger,
             _serviceResolver.CreateScope,
             ValidationRuleCatalog.DefaultRules,
+            docOpts.UsePropertyNamingPolicy,
             localizeReferencedSchemas: true);
 
         foreach (var content in operation.RequestBody.Content.Values)
@@ -71,9 +72,12 @@ sealed partial class ValidationSchemaTransformer(SharedContext sharedCtx)
             var schema = content.EnsureOperationLocalSchemaIfShared(sharedCtx);
 
             if (schema is not null)
-                schemaApplier.ApplyValidatorRules(schema, cachedRules, string.Empty, []);
+                schemaApplier.ApplyValidatorRules(schema, cachedRules, FormatPropertyPrefix(propertyPrefix), []);
         }
     }
+
+    static string FormatPropertyPrefix(string? propertyPrefix)
+        => string.IsNullOrWhiteSpace(propertyPrefix) ? string.Empty : $"{propertyPrefix}.";
 
     CachedValidatorRules? GetOrCreateValidatorRules(Type validatorType, JsonNamingPolicy? namingPolicy)
         => _validatorRulesCache.GetOrAdd(
@@ -101,7 +105,7 @@ sealed partial class ValidationSchemaTransformer(SharedContext sharedCtx)
 
     CachedValidatorRules CacheValidatorRules(IValidator validator, JsonNamingPolicy? namingPolicy)
     {
-        var rules = validator.GetDictionaryOfRules(namingPolicy, GetValidatorTargetType(validator));
+        var rules = validator.GetDictionaryOfRules(namingPolicy, docOpts.UsePropertyNamingPolicy, GetValidatorTargetType(validator));
         var includedRules = ValidationSchemaApplier.GetIncludedValidators(validator, _logger)
                                                .Select(v => CacheValidatorRules(v, namingPolicy))
                                                .ToArray();

@@ -188,7 +188,7 @@ sealed partial class OperationTransformer
                                      .FirstOrDefault(x => x.StatusCode == statusCode)?
                                      .Type;
 
-            var jsonNameToClrName = BuildJsonNameMap(respDtoType, NamingPolicy);
+            var jsonNameToClrName = BuildJsonNameMap(respDtoType, NamingPolicy, docOpts.UsePropertyNamingPolicy);
 
             foreach (var content in concreteResp.Content.Values)
             {
@@ -282,7 +282,7 @@ sealed partial class OperationTransformer
                 response.Description = description;
         }
 
-        static Dictionary<string, string>? BuildJsonNameMap(Type? type, JsonNamingPolicy? namingPolicy)
+        static Dictionary<string, string>? BuildJsonNameMap(Type? type, JsonNamingPolicy? namingPolicy, bool usePropertyNamingPolicy)
         {
             if (type is null)
                 return null;
@@ -291,7 +291,7 @@ sealed partial class OperationTransformer
 
             foreach (var property in GetTypeMetadata(type).PublicInstanceProperties)
             {
-                var jsonName = PropertyNameResolver.GetSchemaPropertyName(property, namingPolicy);
+                var jsonName = PropertyNameResolver.GetSchemaPropertyName(property, namingPolicy, usePropertyNamingPolicy);
                 jsonNameMap ??= [];
                 jsonNameMap[jsonName] = property.Name;
             }

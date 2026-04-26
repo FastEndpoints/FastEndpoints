@@ -35,7 +35,9 @@ static partial class OperationSchemaHelpers
             };
         }
 
-        internal JsonNode? GenerateSampleJsonNode(JsonNamingPolicy? namingPolicy = null, HashSet<Type>? visited = null)
+        internal JsonNode? GenerateSampleJsonNode(JsonNamingPolicy? namingPolicy = null,
+                                                 bool usePropertyNamingPolicy = true,
+                                                 HashSet<Type>? visited = null)
         {
             var underlying = Nullable.GetUnderlyingType(type) ?? type;
 
@@ -45,7 +47,7 @@ static partial class OperationSchemaHelpers
 
                 if (elementType is not null)
                 {
-                    var itemSample = elementType.GenerateSampleJsonNode(namingPolicy, visited);
+                    var itemSample = elementType.GenerateSampleJsonNode(namingPolicy, usePropertyNamingPolicy, visited);
 
                     if (itemSample is not null)
                         return new JsonArray(itemSample);
@@ -79,14 +81,14 @@ static partial class OperationSchemaHelpers
 
             foreach (var prop in GetSampleJsonProperties(underlying))
             {
-                var propName = PropertyNameResolver.GetSchemaPropertyName(prop, namingPolicy);
+                var propName = PropertyNameResolver.GetSchemaPropertyName(prop, namingPolicy, usePropertyNamingPolicy);
                 var sample = prop.PropertyType.GetSampleValue(propName);
 
                 if (sample is not null)
                     obj[propName] = sample.JsonNodeFromObject();
                 else
                 {
-                    var nested = prop.PropertyType.GenerateSampleJsonNode(namingPolicy, visited);
+                    var nested = prop.PropertyType.GenerateSampleJsonNode(namingPolicy, usePropertyNamingPolicy, visited);
 
                     if (nested is not null)
                         obj[propName] = nested;

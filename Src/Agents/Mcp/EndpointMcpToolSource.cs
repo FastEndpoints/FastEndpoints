@@ -4,6 +4,7 @@ using System.Text.Json.Nodes;
 using FastEndpoints.Agents;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using ModelContextProtocol;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
@@ -21,11 +22,13 @@ sealed class EndpointMcpToolSource
 {
     readonly IServiceProvider _services;
     readonly McpOptions _options;
+    readonly ILogger<EndpointMcpToolSource> _logger;
 
-    public EndpointMcpToolSource(IServiceProvider services, McpOptions options)
+    public EndpointMcpToolSource(IServiceProvider services, McpOptions options, ILogger<EndpointMcpToolSource> logger)
     {
         _services = services;
         _options = options;
+        _logger = logger;
     }
 
     public IReadOnlyList<McpServerTool> BuildTools()
@@ -51,8 +54,26 @@ sealed class EndpointMcpToolSource
 
     McpServerTool BuildTool(EndpointDefinition def, McpToolInfo info, EndpointInvoker invoker, JsonSerializerOptions serializerOptions)
     {
-        var name = info.Name ?? ToSnakeCase(def.EndpointType.Name);
+        var summaryTitle = def.EndpointSummary?.Summary;
+        var name = info.Name
+                   ?? (!string.IsNullOrWhiteSpace(summaryTitle) ? NamingHelpers.ToSnakeCase(summaryTitle) : null)
+                   ?? NamingHelpers.ToSnakeCase(def.EndpointType.Name);
         var description = info.Description ?? def.EndpointSummary?.Description;
+
+        if (info.Name is null && string.IsNullOrWhiteSpace(summaryTitle))
+            _logger.LogWarning(
+                "MCP tool for {EndpointType} has no explicit name and no OpenAPI Summary set. " +
+                "Falling back to type name \"{Name}\". " +
+                "Call Summary(s => s.Summary = ...) or pass an explicit name: this.McpTool(\"{Name}\", ...).",
+                def.EndpointType.Name,
+                name);
+
+        if (info.Description is null && string.IsNullOrWhiteSpace(def.EndpointSummary?.Description))
+            _logger.LogWarning(
+                "MCP tool \"{Name}\" ({EndpointType}) has no description. " +
+                "Call Summary(s => s.Description = ...) or pass an explicit description: this.McpTool(description: \"...\").",
+                name,
+                def.EndpointType.Name);
 
         var inputSchema = JsonSchemaBuilder.Build(def.ReqDtoType, serializerOptions);
         if (TryResolveValidator(def) is { } validator)
@@ -148,19 +169,4 @@ sealed class EndpointMcpToolSource
             ?? (IValidator?)ActivatorUtilities.CreateInstance(_services, def.ValidatorType);
     }
 
-    static string ToSnakeCase(string input)
-    {
-        if (string.IsNullOrEmpty(input))
-            return input;
-
-        var sb = new StringBuilder(input.Length + 8);
-        for (var i = 0; i < input.Length; i++)
-        {
-            var c = input[i];
-            if (i > 0 && char.IsUpper(c) && !char.IsUpper(input[i - 1]))
-                sb.Append('_');
-            sb.Append(char.ToLowerInvariant(c));
-        }
-        return sb.ToString();
-    }
 }

@@ -6,12 +6,15 @@ namespace FastEndpoints.OpenApi;
 
 static class PropertyNameResolver
 {
-    internal static string GetSchemaPropertyName(PropertyInfo property, JsonNamingPolicy? namingPolicy = null)
+    internal static string GetSchemaPropertyName(PropertyInfo property, JsonNamingPolicy? namingPolicy = null, bool usePropertyNamingPolicy = true)
         => property.GetCustomAttribute<JsonPropertyNameAttribute>()?.Name ??
-           namingPolicy?.ConvertName(property.Name) ??
+           (usePropertyNamingPolicy ? namingPolicy?.ConvertName(property.Name) : null) ??
            property.Name;
 
-    internal static string ConvertPropertyPath(Type declaringType, string propertyPath, JsonNamingPolicy? namingPolicy = null)
+    internal static string ConvertPropertyPath(Type declaringType,
+                                               string propertyPath,
+                                               JsonNamingPolicy? namingPolicy = null,
+                                               bool usePropertyNamingPolicy = true)
     {
         if (string.IsNullOrWhiteSpace(propertyPath))
             return propertyPath;
@@ -30,12 +33,12 @@ static class PropertyNameResolver
 
             if (property is null)
             {
-                segments[i] = namingPolicy?.ConvertName(segment) ?? segment;
+                segments[i] = usePropertyNamingPolicy ? namingPolicy?.ConvertName(segment) ?? segment : segment;
                 currentType = typeof(object);
                 continue;
             }
 
-            segments[i] = GetSchemaPropertyName(property, namingPolicy);
+            segments[i] = GetSchemaPropertyName(property, namingPolicy, usePropertyNamingPolicy);
             currentType = property.PropertyType;
         }
 

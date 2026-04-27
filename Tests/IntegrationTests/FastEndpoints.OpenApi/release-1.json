@@ -1335,7 +1335,7 @@
           "content": {
             "application/json-patch+json": {
               "schema": {
-                "$ref": "#/components/schemas/MicrosoftAspNetCoreJsonPatchSystemTextJsonJsonPatchDocumentOfPerson"
+                "$ref": "#/components/schemas/MicrosoftAspNetCoreJsonPatchSystemTextJsonJsonPatchDocumentOfTestCasesSwaggerJsonPatchRequestBodyTestPerson"
               }
             }
           },
@@ -1618,6 +1618,106 @@
         }
       }
     },
+    "/api/swagger-review/bindfrom-query-get": {
+      "get": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewBindFromQueryGetReviewEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/bindfrom-query-post": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewBindFromQueryPostReviewEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSwaggerReviewBindFromQueryPostReviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/catch-all/{slug}": {
+      "get": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewCatchAllRouteReviewEndpoint",
+        "parameters": [
+          {
+            "name": "slug",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/swagger-review/child-validator": {
       "post": {
         "tags": [
@@ -1691,6 +1791,36 @@
               "application/problem+json": {
                 "schema": {
                   "$ref": "#/components/schemas/FastEndpointsErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/cookie-get": {
+      "get": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewCookieGetReviewEndpoint",
+        "parameters": [
+          {
+            "name": "session_id",
+            "in": "cookie",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
                 }
               }
             }
@@ -1802,6 +1932,120 @@
             "description": "Success",
             "content": {
               "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/duplicate-idempotency-header": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewDuplicateIdempotencyHeaderEndpoint",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/duplicate-query-naming-policy": {
+      "get": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewDuplicateQueryNamingPolicyEndpoint",
+        "parameters": [
+          {
+            "name": "firstName",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/duplicate-x402-header": {
+      "get": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewDuplicateX402HeaderEndpoint",
+        "parameters": [
+          {
+            "name": "PAYMENT-SIGNATURE",
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "PAYMENT-RESPONSE": {
+                "description": "Base64-encoded x402 settlement result. Present when the middleware attempts settlement.",
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment Required",
+            "headers": {
+              "PAYMENT-REQUIRED": {
+                "description": "Base64-encoded x402 payment challenge payload.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "PAYMENT-RESPONSE": {
+                "description": "Base64-encoded x402 settlement result. Present when the middleware attempts settlement.",
                 "schema": {
                   "type": "string"
                 }
@@ -2099,6 +2343,103 @@
         }
       }
     },
+    "/api/swagger-review/manual-complex-idempotency-header": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewManualSchemaIdempotencyHeaderEndpoint",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/TestCasesSwaggerReviewManualSchemaIdempotencyHeader"
+            },
+            "example": {
+              "key": "demo-key"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/manual-complex-query": {
+      "get": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewManualSchemaQueryEndpoint",
+        "parameters": [
+          {
+            "name": "filter",
+            "in": "query",
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesSwaggerReviewManualSchemaNested"
+                },
+                "example": {
+                  "value": "value"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/manual-complex-response-header": {
+      "get": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewManualSchemaResponseHeaderEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "x-complex-header": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesSwaggerReviewManualSchemaNested"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesSwaggerReviewManualSchemaResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/swagger-review/missing-schema-enum": {
       "get": {
         "tags": [
@@ -2162,6 +2503,181 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/TestCasesSwaggerReviewNoRequestMetadataLeakResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/promoted-body-validation/{id}": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewPromotedBodyValidationReviewEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "example": 123
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSwaggerReviewPromotedBodyValidationPayload"
+              },
+              "example": {
+                "name": "example name",
+                "child": {
+                  "code": "xy"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/required-query-param": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewRequiredQueryParamReviewEndpoint",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSwaggerReviewRequiredQueryParamReviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/shared-nested-validation-alpha": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewSharedNestedValidationAlphaEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSwaggerReviewSharedNestedValidationAlphaRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/shared-nested-validation-beta": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewSharedNestedValidationBetaEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSwaggerReviewSharedNestedValidationBetaRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
                 }
               }
             }
@@ -2268,6 +2784,72 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/TestCasesSwaggerReviewUlongEnumReviewResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/version-prefilter-initial": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewVersionPrefilterInitialEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "initial description"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/version-prefilter-v1/ver1": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewVersionPrefilterV1Endpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSwaggerReviewVersionPrefilterSharedRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
                 }
               }
             }
@@ -2928,6 +3510,7 @@
                 "$ref": "#/components/schemas/TestCasesFromBodyJsonBindingProduct"
               },
               "example": {
+                "id": 201,
                 "name": "test product name",
                 "price": 200.22
               }
@@ -3232,7 +3815,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SystemCollectionsGenericListOfResponse"
+                  "$ref": "#/components/schemas/SystemCollectionsGenericListOfTestCasesJsonArrayBindingToIEnumerableDtoResponse"
                 }
               }
             }
@@ -3250,7 +3833,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/SystemCollectionsGenericListOfRequest"
+                "$ref": "#/components/schemas/SystemCollectionsGenericListOfTestCasesJsonArrayBindingToListOfModelsRequest"
               }
             }
           },
@@ -3262,7 +3845,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SystemCollectionsGenericListOfResponse"
+                  "$ref": "#/components/schemas/SystemCollectionsGenericListOfTestCasesJsonArrayBindingToListOfModelsResponse"
                 }
               }
             }
@@ -3723,7 +4306,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SystemCollectionsGenericListOfString"
+                  "$ref": "#/components/schemas/SystemCollectionsGenericListOfSystemString"
                 }
               }
             }
@@ -5403,7 +5986,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SystemCollectionsGenericIEnumerableOfInt32"
+                  "$ref": "#/components/schemas/SystemCollectionsGenericIEnumerableOfSystemInt32"
                 }
               }
             }
@@ -5466,7 +6049,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/SystemCollectionsGenericIEnumerableOfGuid"
+                  "$ref": "#/components/schemas/SystemCollectionsGenericIEnumerableOfSystemGuid"
                 }
               }
             }
@@ -6038,7 +6621,7 @@
             "format": "date-time"
           },
           "permissions": {
-            "$ref": "#/components/schemas/SystemCollectionsGenericIEnumerableOfString"
+            "$ref": "#/components/schemas/SystemCollectionsGenericIEnumerableOfSystemString"
           }
         }
       },
@@ -6057,7 +6640,7 @@
                 "type": "null"
               },
               {
-                "$ref": "#/components/schemas/SystemCollectionsGenericIEnumerableOfKeyValuePairOfStringAndInt32"
+                "$ref": "#/components/schemas/SystemCollectionsGenericIEnumerableOfSystemCollectionsGenericKeyValuePairOfSystemStringAndSystemInt32"
               }
             ]
           }
@@ -6121,21 +6704,6 @@
           }
         },
         "description": "the dto used to send an error response to the client"
-      },
-      "FastEndpointsHttp": {
-        "enum": [
-          1,
-          2,
-          3,
-          4,
-          5,
-          6,
-          7,
-          8,
-          9
-        ],
-        "type": "integer",
-        "description": "enum for specifying a http verb"
       },
       "FastEndpointsProblemDetails": {
         "type": "object",
@@ -6361,7 +6929,7 @@
           }
         }
       },
-      "MicrosoftAspNetCoreJsonPatchSystemTextJsonJsonPatchDocumentOfPerson": {
+      "MicrosoftAspNetCoreJsonPatchSystemTextJsonJsonPatchDocumentOfTestCasesSwaggerJsonPatchRequestBodyTestPerson": {
         "type": "array",
         "items": {
           "type": "object",
@@ -6491,13 +7059,13 @@
           }
         }
       },
-      "SystemCollectionsGenericDictionaryOfStringAndString": {
+      "SystemCollectionsGenericDictionaryOfSystemStringAndSystemString": {
         "type": "object",
         "additionalProperties": {
           "type": "string"
         }
       },
-      "SystemCollectionsGenericICollectionOfDateTime": {
+      "SystemCollectionsGenericICollectionOfSystemDateTime": {
         "type": "array",
         "items": {
           "type": "string",
@@ -6507,39 +7075,39 @@
           "2020-10-10"
         ]
       },
-      "SystemCollectionsGenericIEnumerableOfGuid": {
+      "SystemCollectionsGenericIEnumerableOfSystemCollectionsGenericKeyValuePairOfSystemStringAndSystemInt32": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/SystemCollectionsGenericKeyValuePairOfSystemStringAndSystemInt32"
+        }
+      },
+      "SystemCollectionsGenericIEnumerableOfSystemGuid": {
         "type": "array",
         "items": {
           "type": "string",
           "format": "uuid"
         }
       },
-      "SystemCollectionsGenericIEnumerableOfInt32": {
+      "SystemCollectionsGenericIEnumerableOfSystemInt32": {
         "type": "array",
         "items": {
           "type": "integer",
           "format": "int32"
         }
       },
-      "SystemCollectionsGenericIEnumerableOfKeyValuePairOfStringAndInt32": {
-        "type": "array",
-        "items": {
-          "$ref": "#/components/schemas/SystemCollectionsGenericKeyValuePairOfStringAndInt32"
-        }
-      },
-      "SystemCollectionsGenericIEnumerableOfPerson": {
-        "type": "array",
-        "items": {
-          "$ref": "#/components/schemas/TestCasesDupeParamBindingForIEnumerablePropsRequest_Person"
-        }
-      },
-      "SystemCollectionsGenericIEnumerableOfString": {
+      "SystemCollectionsGenericIEnumerableOfSystemString": {
         "type": "array",
         "items": {
           "type": "string"
         }
       },
-      "SystemCollectionsGenericKeyValuePairOfStringAndInt32": {
+      "SystemCollectionsGenericIEnumerableOfTestCasesDupeParamBindingForIEnumerablePropsRequest_Person": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/TestCasesDupeParamBindingForIEnumerablePropsRequest_Person"
+        }
+      },
+      "SystemCollectionsGenericKeyValuePairOfSystemStringAndSystemInt32": {
         "required": [
           "key",
           "value"
@@ -6558,72 +7126,78 @@
           }
         }
       },
-      "SystemCollectionsGenericListOfAddress": {
+      "SystemCollectionsGenericListOfSystemCollectionsGenericListOfSystemInt32": {
         "type": "array",
         "items": {
-          "$ref": "#/components/schemas/TestCasesFormBindingComplexDtosAddress"
+          "$ref": "#/components/schemas/SystemCollectionsGenericListOfSystemInt32"
         }
       },
-      "SystemCollectionsGenericListOfAuthor": {
-        "type": "array",
-        "items": {
-          "$ref": "#/components/schemas/TestCasesFormBindingComplexDtosAuthor"
-        }
-      },
-      "SystemCollectionsGenericListOfChildRequest": {
-        "type": "array",
-        "items": {
-          "$ref": "#/components/schemas/TestCasesDataAnnotationCompliantChildRequest"
-        }
-      },
-      "SystemCollectionsGenericListOfDayOfWeek": {
+      "SystemCollectionsGenericListOfSystemDayOfWeek": {
         "type": "array",
         "items": {
           "$ref": "#/components/schemas/SystemDayOfWeek"
         }
       },
-      "SystemCollectionsGenericListOfGuid": {
+      "SystemCollectionsGenericListOfSystemGuid": {
         "type": "array",
         "items": {
           "type": "string",
           "format": "uuid"
         }
       },
-      "SystemCollectionsGenericListOfInt32": {
+      "SystemCollectionsGenericListOfSystemInt32": {
         "type": "array",
         "items": {
           "type": "integer",
           "format": "int32"
         }
       },
-      "SystemCollectionsGenericListOfListOfInt32": {
+      "SystemCollectionsGenericListOfSystemString": {
         "type": "array",
         "items": {
-          "$ref": "#/components/schemas/SystemCollectionsGenericListOfInt32"
+          "type": "string"
         }
       },
-      "SystemCollectionsGenericListOfObjectInArray": {
+      "SystemCollectionsGenericListOfTestCasesDataAnnotationCompliantChildRequest": {
         "type": "array",
         "items": {
-          "$ref": "#/components/schemas/TestCasesQueryObjectWithObjectsArrayBindingTestObjectInArray"
+          "$ref": "#/components/schemas/TestCasesDataAnnotationCompliantChildRequest"
         }
       },
-      "SystemCollectionsGenericListOfRequest": {
+      "SystemCollectionsGenericListOfTestCasesFormBindingComplexDtosAddress": {
         "type": "array",
         "items": {
-          "$ref": "#/components/schemas/TestCasesJsonArrayBindingToListOfModelsRequest"
+          "$ref": "#/components/schemas/TestCasesFormBindingComplexDtosAddress"
         }
       },
-      "SystemCollectionsGenericListOfResponse": {
+      "SystemCollectionsGenericListOfTestCasesFormBindingComplexDtosAuthor": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/TestCasesFormBindingComplexDtosAuthor"
+        }
+      },
+      "SystemCollectionsGenericListOfTestCasesJsonArrayBindingToIEnumerableDtoResponse": {
         "type": "array",
         "items": {
           "$ref": "#/components/schemas/TestCasesJsonArrayBindingToIEnumerableDtoResponse"
         }
       },
-      "SystemCollectionsGenericListOfString": {
+      "SystemCollectionsGenericListOfTestCasesJsonArrayBindingToListOfModelsRequest": {
         "type": "array",
         "items": {
-          "type": "string"
+          "$ref": "#/components/schemas/TestCasesJsonArrayBindingToListOfModelsRequest"
+        }
+      },
+      "SystemCollectionsGenericListOfTestCasesJsonArrayBindingToListOfModelsResponse": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/TestCasesJsonArrayBindingToListOfModelsResponse"
+        }
+      },
+      "SystemCollectionsGenericListOfTestCasesQueryObjectWithObjectsArrayBindingTestObjectInArray": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/TestCasesQueryObjectWithObjectsArrayBindingTestObjectInArray"
         }
       },
       "SystemDateOnly": {
@@ -6650,6 +7224,7 @@
         }
       },
       "SystemString[]": {
+        "minItems": 1,
         "type": "array",
         "items": {
           "type": "string"
@@ -6804,7 +7379,7 @@
             "$ref": "#/components/schemas/TestCasesDataAnnotationCompliantNestedRequest"
           },
           "children": {
-            "$ref": "#/components/schemas/SystemCollectionsGenericListOfChildRequest"
+            "$ref": "#/components/schemas/SystemCollectionsGenericListOfTestCasesDataAnnotationCompliantChildRequest"
           }
         }
       },
@@ -6842,16 +7417,16 @@
             "$ref": "#/components/schemas/SystemDouble[]"
           },
           "ints": {
-            "$ref": "#/components/schemas/SystemCollectionsGenericIEnumerableOfInt32"
+            "$ref": "#/components/schemas/SystemCollectionsGenericIEnumerableOfSystemInt32"
           },
           "guids": {
-            "$ref": "#/components/schemas/SystemCollectionsGenericListOfGuid"
+            "$ref": "#/components/schemas/SystemCollectionsGenericListOfSystemGuid"
           },
           "dates": {
-            "$ref": "#/components/schemas/SystemCollectionsGenericICollectionOfDateTime"
+            "$ref": "#/components/schemas/SystemCollectionsGenericICollectionOfSystemDateTime"
           },
           "persons": {
-            "$ref": "#/components/schemas/SystemCollectionsGenericIEnumerableOfPerson"
+            "$ref": "#/components/schemas/SystemCollectionsGenericIEnumerableOfTestCasesDupeParamBindingForIEnumerablePropsRequest_Person"
           }
         }
       },
@@ -6940,7 +7515,7 @@
             "$ref": "#/components/schemas/TestCasesFormBindingComplexDtosAddress"
           },
           "otherAddresses": {
-            "$ref": "#/components/schemas/SystemCollectionsGenericListOfAddress"
+            "$ref": "#/components/schemas/SystemCollectionsGenericListOfTestCasesFormBindingComplexDtosAddress"
           }
         }
       },
@@ -6965,10 +7540,10 @@
             "$ref": "#/components/schemas/TestCasesFormBindingComplexDtosAuthor"
           },
           "coAuthors": {
-            "$ref": "#/components/schemas/SystemCollectionsGenericListOfAuthor"
+            "$ref": "#/components/schemas/SystemCollectionsGenericListOfTestCasesFormBindingComplexDtosAuthor"
           },
           "barCodes": {
-            "$ref": "#/components/schemas/SystemCollectionsGenericIEnumerableOfInt32"
+            "$ref": "#/components/schemas/SystemCollectionsGenericIEnumerableOfSystemInt32"
           }
         }
       },
@@ -7020,10 +7595,10 @@
             "type": "string"
           },
           "carNames": {
-            "$ref": "#/components/schemas/SystemCollectionsGenericListOfString"
+            "$ref": "#/components/schemas/SystemCollectionsGenericListOfSystemString"
           },
           "jetNames": {
-            "$ref": "#/components/schemas/SystemCollectionsGenericListOfString"
+            "$ref": "#/components/schemas/SystemCollectionsGenericListOfSystemString"
           }
         }
       },
@@ -7050,6 +7625,7 @@
           }
         },
         "example": {
+          "id": 201,
           "name": "test product name",
           "price": 200.22
         }
@@ -7229,19 +7805,19 @@
             "$ref": "#/components/schemas/SystemDouble[]"
           },
           "ints": {
-            "$ref": "#/components/schemas/SystemCollectionsGenericIEnumerableOfInt32"
+            "$ref": "#/components/schemas/SystemCollectionsGenericIEnumerableOfSystemInt32"
           },
           "guids": {
-            "$ref": "#/components/schemas/SystemCollectionsGenericListOfGuid"
+            "$ref": "#/components/schemas/SystemCollectionsGenericListOfSystemGuid"
           },
           "dates": {
-            "$ref": "#/components/schemas/SystemCollectionsGenericICollectionOfDateTime"
+            "$ref": "#/components/schemas/SystemCollectionsGenericICollectionOfSystemDateTime"
           },
           "steven": {
             "$ref": "#/components/schemas/TestCasesJsonArrayBindingForIEnumerablePropsRequest_Person"
           },
           "dict": {
-            "$ref": "#/components/schemas/SystemCollectionsGenericDictionaryOfStringAndString"
+            "$ref": "#/components/schemas/SystemCollectionsGenericDictionaryOfSystemStringAndSystemString"
           }
         }
       },
@@ -7278,6 +7854,18 @@
       "TestCasesJsonArrayBindingToListOfModelsRequest": {
         "type": "object",
         "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "TestCasesJsonArrayBindingToListOfModelsResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
           "name": {
             "type": "string"
           }
@@ -7325,7 +7913,19 @@
         "type": "object",
         "properties": {
           "verb": {
-            "$ref": "#/components/schemas/FastEndpointsHttp"
+            "enum": [
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9
+            ],
+            "type": "integer",
+            "description": "enum for specifying a http verb"
           },
           "host": {
             "type": [
@@ -7406,7 +8006,7 @@
         "type": "object",
         "properties": {
           "values": {
-            "$ref": "#/components/schemas/SystemCollectionsGenericListOfString"
+            "$ref": "#/components/schemas/SystemCollectionsGenericListOfSystemString"
           }
         }
       },
@@ -7433,10 +8033,10 @@
             "format": "int32"
           },
           "strings": {
-            "$ref": "#/components/schemas/SystemCollectionsGenericListOfString"
+            "$ref": "#/components/schemas/SystemCollectionsGenericListOfSystemString"
           },
           "favoriteDays": {
-            "$ref": "#/components/schemas/SystemCollectionsGenericListOfDayOfWeek"
+            "$ref": "#/components/schemas/SystemCollectionsGenericListOfSystemDayOfWeek"
           },
           "isHidden": {
             "type": "boolean"
@@ -7461,7 +8061,7 @@
             "$ref": "#/components/schemas/TestCasesQueryObjectBindingTestNestedPerson"
           },
           "numbers": {
-            "$ref": "#/components/schemas/SystemCollectionsGenericListOfInt32"
+            "$ref": "#/components/schemas/SystemCollectionsGenericListOfSystemInt32"
           },
           "favoriteDay": {
             "$ref": "#/components/schemas/SystemDayOfWeek"
@@ -7512,7 +8112,7 @@
         "type": "object",
         "properties": {
           "objects": {
-            "$ref": "#/components/schemas/SystemCollectionsGenericListOfObjectInArray"
+            "$ref": "#/components/schemas/SystemCollectionsGenericListOfTestCasesQueryObjectWithObjectsArrayBindingTestObjectInArray"
           }
         }
       },
@@ -7552,7 +8152,7 @@
             "$ref": "#/components/schemas/TestCasesQueryObjectWithObjectsArrayBindingTestNestedPerson"
           },
           "objects": {
-            "$ref": "#/components/schemas/SystemCollectionsGenericListOfObjectInArray"
+            "$ref": "#/components/schemas/SystemCollectionsGenericListOfTestCasesQueryObjectWithObjectsArrayBindingTestObjectInArray"
           }
         }
       },
@@ -7583,10 +8183,10 @@
             "$ref": "#/components/schemas/SystemDouble[]"
           },
           "ints": {
-            "$ref": "#/components/schemas/SystemCollectionsGenericIEnumerableOfInt32"
+            "$ref": "#/components/schemas/SystemCollectionsGenericIEnumerableOfSystemInt32"
           },
           "guids": {
-            "$ref": "#/components/schemas/SystemCollectionsGenericListOfGuid"
+            "$ref": "#/components/schemas/SystemCollectionsGenericListOfSystemGuid"
           },
           "floaty": {
             "type": "number",
@@ -7659,7 +8259,7 @@
             "format": "int32"
           },
           "strings": {
-            "$ref": "#/components/schemas/SystemCollectionsGenericListOfString"
+            "$ref": "#/components/schemas/SystemCollectionsGenericListOfSystemString"
           }
         }
       },
@@ -7681,7 +8281,7 @@
             "$ref": "#/components/schemas/TestCasesRouteBindingTestNestedPerson"
           },
           "numbers": {
-            "$ref": "#/components/schemas/SystemCollectionsGenericListOfInt32"
+            "$ref": "#/components/schemas/SystemCollectionsGenericListOfSystemInt32"
           }
         }
       },
@@ -7696,10 +8296,20 @@
             "format": "uri"
           },
           "custom": {
-            "$ref": "#/components/schemas/TestCasesRouteBindingTestCustom"
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
           },
           "customList": {
-            "$ref": "#/components/schemas/TestCasesRouteBindingTestCustomList"
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
           },
           "blank": {
             "type": [
@@ -7804,13 +8414,11 @@
           }
         }
       },
-      "TestCasesSwaggerReviewChildValidatorReviewChild": {
+      "TestCasesSwaggerReviewBindFromQueryPostReviewRequest": {
         "type": "object",
         "properties": {
-          "score": {
-            "exclusiveMinimum": 10,
-            "type": "integer",
-            "format": "int32"
+          "bodyValue": {
+            "type": "string"
           }
         }
       },
@@ -7818,7 +8426,14 @@
         "type": "object",
         "properties": {
           "child": {
-            "$ref": "#/components/schemas/TestCasesSwaggerReviewChildValidatorReviewChild"
+            "type": "object",
+            "properties": {
+              "score": {
+                "exclusiveMinimum": 10,
+                "type": "integer",
+                "format": "int32"
+              }
+            }
           }
         }
       },
@@ -7829,24 +8444,11 @@
         "type": "object",
         "properties": {
           "tags": {
-            "$ref": "#/components/schemas/SystemString[]"
-          }
-        }
-      },
-      "TestCasesSwaggerReviewDeepNestedValidatorReviewChild": {
-        "type": "object",
-        "properties": {
-          "subChild": {
-            "$ref": "#/components/schemas/TestCasesSwaggerReviewDeepNestedValidatorReviewGrandChild"
-          }
-        }
-      },
-      "TestCasesSwaggerReviewDeepNestedValidatorReviewGrandChild": {
-        "type": "object",
-        "properties": {
-          "field": {
-            "minLength": 5,
-            "type": "string"
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },
@@ -7854,7 +8456,18 @@
         "type": "object",
         "properties": {
           "child": {
-            "$ref": "#/components/schemas/TestCasesSwaggerReviewDeepNestedValidatorReviewChild"
+            "type": "object",
+            "properties": {
+              "subChild": {
+                "type": "object",
+                "properties": {
+                  "field": {
+                    "minLength": 5,
+                    "type": "string"
+                  }
+                }
+              }
+            }
           }
         }
       },
@@ -7941,6 +8554,30 @@
           }
         }
       },
+      "TestCasesSwaggerReviewManualSchemaIdempotencyHeader": {
+        "type": "object",
+        "properties": {
+          "key": {
+            "type": "string"
+          }
+        }
+      },
+      "TestCasesSwaggerReviewManualSchemaNested": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "TestCasesSwaggerReviewManualSchemaResponse": {
+        "type": "object",
+        "properties": {
+          "bodyValue": {
+            "type": "string"
+          }
+        }
+      },
       "TestCasesSwaggerReviewMissingSchemaEnumResponse": {
         "type": "object",
         "properties": {
@@ -7970,6 +8607,81 @@
           }
         }
       },
+      "TestCasesSwaggerReviewPromotedBodyValidationPayload": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "minLength": 3,
+            "type": "string",
+            "example": "example name"
+          },
+          "child": {
+            "required": [
+              "code"
+            ],
+            "type": "object",
+            "properties": {
+              "code": {
+                "minLength": 2,
+                "type": "string"
+              }
+            },
+            "example": {
+              "code": "xy"
+            }
+          }
+        },
+        "example": {
+          "name": "example name",
+          "child": {
+            "code": "xy"
+          }
+        }
+      },
+      "TestCasesSwaggerReviewRequiredQueryParamReviewRequest": {
+        "type": "object",
+        "properties": {
+          "bodyValue": {
+            "type": "string"
+          }
+        }
+      },
+      "TestCasesSwaggerReviewSharedNestedValidationAddress": {
+        "type": "object",
+        "properties": {
+          "zip": {
+            "type": "string"
+          }
+        }
+      },
+      "TestCasesSwaggerReviewSharedNestedValidationAlphaRequest": {
+        "type": "object",
+        "properties": {
+          "address": {
+            "required": [
+              "zip"
+            ],
+            "type": "object",
+            "properties": {
+              "zip": {
+                "minLength": 1,
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "TestCasesSwaggerReviewSharedNestedValidationBetaRequest": {
+        "type": "object",
+        "properties": {
+          "address": {
+            "$ref": "#/components/schemas/TestCasesSwaggerReviewSharedNestedValidationAddress"
+          }
+        }
+      },
       "TestCasesSwaggerReviewUlongEnumReviewResponse": {
         "type": "object",
         "properties": {
@@ -7983,6 +8695,14 @@
           18446744073709551615
         ],
         "type": "integer"
+      },
+      "TestCasesSwaggerReviewVersionPrefilterSharedRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
       },
       "TestCasesTypedHeaderBindingTestMyRequest": {
         "type": "object",
@@ -8023,7 +8743,7 @@
         "type": "object",
         "properties": {
           "stringDictionary": {
-            "$ref": "#/components/schemas/SystemCollectionsGenericDictionaryOfStringAndString"
+            "$ref": "#/components/schemas/SystemCollectionsGenericDictionaryOfSystemStringAndSystemString"
           }
         }
       },
@@ -8031,7 +8751,7 @@
         "type": "object",
         "properties": {
           "numbersList": {
-            "$ref": "#/components/schemas/SystemCollectionsGenericListOfListOfInt32"
+            "$ref": "#/components/schemas/SystemCollectionsGenericListOfSystemCollectionsGenericListOfSystemInt32"
           }
         }
       },
@@ -8039,7 +8759,7 @@
         "type": "object",
         "properties": {
           "numbersList": {
-            "$ref": "#/components/schemas/SystemCollectionsGenericListOfInt32"
+            "$ref": "#/components/schemas/SystemCollectionsGenericListOfSystemInt32"
           }
         }
       },

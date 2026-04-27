@@ -24,10 +24,11 @@ static class ValidationExtensions
     /// Creates a dictionary with the validation rules.
     /// </summary>
     internal static ReadOnlyDictionary<string, List<IValidationRule>> GetDictionaryOfRules(this IValidator validator, Type? validatorTargetType = null)
-        => validator.GetDictionaryOfRules(null, validatorTargetType);
+        => validator.GetDictionaryOfRules(null, true, validatorTargetType);
 
     internal static ReadOnlyDictionary<string, List<IValidationRule>> GetDictionaryOfRules(this IValidator validator,
                                                                                            JsonNamingPolicy? namingPolicy,
+                                                                                           bool usePropertyNamingPolicy = true,
                                                                                            Type? validatorTargetType = null)
     {
         var rulesDict = new Dictionary<string, List<IValidationRule>>();
@@ -39,8 +40,11 @@ static class ValidationExtensions
             {
                 var propertyNameRaw = rule.ValidationRule.PropertyName;
                 var propertyNameWithSchemaCasing = validatorTargetType is null
-                                                       ? propertyNameRaw.ConvertToSchemaCasing(namingPolicy)
-                                                       : PropertyNameResolver.ConvertPropertyPath(validatorTargetType, propertyNameRaw, namingPolicy);
+                                                       ? propertyNameRaw.ConvertToSchemaCasing(namingPolicy, usePropertyNamingPolicy)
+                                                       : PropertyNameResolver.ConvertPropertyPath(validatorTargetType,
+                                                                                                  propertyNameRaw,
+                                                                                                  namingPolicy,
+                                                                                                  usePropertyNamingPolicy);
 
                 if (rulesDict.TryGetValue(propertyNameWithSchemaCasing, out var propertyRules))
                     propertyRules.Add(rule.ValidationRule);
@@ -55,9 +59,9 @@ static class ValidationExtensions
     /// <summary>
     /// Converts a property name to the schema casing by using the selected JsonNamingPolicy
     /// </summary>
-    internal static string ConvertToSchemaCasing(this string propertyName, JsonNamingPolicy? namingPolicy)
+    internal static string ConvertToSchemaCasing(this string propertyName, JsonNamingPolicy? namingPolicy, bool usePropertyNamingPolicy = true)
     {
-        if (namingPolicy is null)
+        if (namingPolicy is null || !usePropertyNamingPolicy)
             return propertyName;
 
         var segments = propertyName.Split('.');

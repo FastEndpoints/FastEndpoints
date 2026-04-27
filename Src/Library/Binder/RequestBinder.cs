@@ -271,7 +271,16 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             return;
 
         if (Cfg.BndOpts.FormExceptionTransformer is null)
-            Execute();
+        {
+            try
+            {
+                Execute();
+            }
+            catch (Exception e) when (e is IOException or InvalidDataException)
+            {
+                ctx.ValidationFailures.Add(new("formData", e.Message));
+            }
+        }
         else
         {
             try

@@ -95,7 +95,10 @@ sealed class A2ASkillDispatcher
             var info = def.ResolveSkillInfo();
             if (info is null)
                 continue;
-            var skillId = info.Id ?? def.EndpointType.Name;
+            var summaryTitle = def.EndpointSummary?.Summary;
+            var skillId = info.Id
+                          ?? (!string.IsNullOrWhiteSpace(summaryTitle) ? NamingHelpers.ToSnakeCase(summaryTitle) : null)
+                          ?? NamingHelpers.ToSnakeCase(def.EndpointType.Name);
             if (skillId == id)
                 return def;
         }

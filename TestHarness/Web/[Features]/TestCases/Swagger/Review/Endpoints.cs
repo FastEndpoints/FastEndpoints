@@ -1,5 +1,6 @@
 using FluentValidation;
 using FastEndpoints.OpenApi;
+using Microsoft.OpenApi;
 
 namespace TestCases.Swagger.Review;
 
@@ -84,6 +85,88 @@ sealed class SharedRequestMetadataBetaEndpoint : Endpoint<SharedRequestMetadataR
         => Send.OkAsync(req.Name, ct);
 }
 
+sealed class SharedNestedValidationAddress
+{
+    public string Zip { get; set; } = string.Empty;
+}
+
+sealed class SharedNestedValidationAlphaRequest
+{
+    public SharedNestedValidationAddress Address { get; set; } = new();
+}
+
+sealed class SharedNestedValidationBetaRequest
+{
+    public SharedNestedValidationAddress Address { get; set; } = new();
+}
+
+sealed class SharedNestedValidationAlphaValidator : Validator<SharedNestedValidationAlphaRequest>
+{
+    public SharedNestedValidationAlphaValidator()
+    {
+        RuleFor(x => x.Address.Zip).NotEmpty();
+    }
+}
+
+sealed class SharedNestedValidationAlphaEndpoint : Endpoint<SharedNestedValidationAlphaRequest, string>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/shared-nested-validation-alpha");
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(SharedNestedValidationAlphaRequest req, CancellationToken ct)
+        => Send.OkAsync(req.Address.Zip, ct);
+}
+
+sealed class SharedNestedValidationBetaEndpoint : Endpoint<SharedNestedValidationBetaRequest, string>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/shared-nested-validation-beta");
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(SharedNestedValidationBetaRequest req, CancellationToken ct)
+        => Send.OkAsync(req.Address.Zip, ct);
+}
+
+sealed class VersionPrefilterSharedRequest
+{
+    public string Name { get; set; } = string.Empty;
+}
+
+sealed class VersionPrefilterInitialEndpoint : Endpoint<VersionPrefilterSharedRequest, string>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/version-prefilter-initial");
+        Tags("swagger_review");
+        AllowAnonymous();
+        Summary(s => s.Params[nameof(VersionPrefilterSharedRequest.Name)] = "initial description");
+    }
+
+    public override Task HandleAsync(VersionPrefilterSharedRequest req, CancellationToken ct)
+        => Send.OkAsync(req.Name, ct);
+}
+
+sealed class VersionPrefilterV1Endpoint : Endpoint<VersionPrefilterSharedRequest, string>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/version-prefilter-v1");
+        Tags("swagger_review");
+        Version(1);
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(VersionPrefilterSharedRequest req, CancellationToken ct)
+        => Send.OkAsync(req.Name, ct);
+}
+
 sealed class EmptySchemaCleanupRequest
 {
     [FromHeader("x-review-header")]
@@ -160,6 +243,208 @@ sealed class BareRouteSubstringReviewEndpoint : EndpointWithoutRequest<string>
         => Send.OkAsync("ok", ct);
 }
 
+sealed class CatchAllRouteReviewRequest
+{
+    public string Slug { get; set; } = string.Empty;
+}
+
+sealed class CatchAllRouteReviewEndpoint : Endpoint<CatchAllRouteReviewRequest, string>
+{
+    public override void Configure()
+    {
+        Get("/swagger-review/catch-all/{*slug}");
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(CatchAllRouteReviewRequest req, CancellationToken ct)
+        => Send.OkAsync(req.Slug, ct);
+}
+
+sealed class DuplicateQueryNamingPolicyRequest
+{
+    public string FirstName { get; set; } = string.Empty;
+}
+
+sealed class DuplicateQueryNamingPolicyEndpoint : Endpoint<DuplicateQueryNamingPolicyRequest, string>
+{
+    public override void Configure()
+    {
+        Get("/swagger-review/duplicate-query-naming-policy");
+        Tags("swagger_review");
+        AllowAnonymous();
+        Description(
+            b => b.WithOpenApi(
+                operation =>
+                {
+                    operation.Parameters ??= [];
+                    operation.Parameters.Add(
+                        new OpenApiParameter
+                        {
+                            Name = "firstName",
+                            In = ParameterLocation.Query,
+                            Schema = new OpenApiSchema { Type = JsonSchemaType.String }
+                        });
+
+                    return operation;
+                }));
+    }
+
+    public override Task HandleAsync(DuplicateQueryNamingPolicyRequest req, CancellationToken ct)
+        => Send.OkAsync(req.FirstName, ct);
+}
+
+sealed class BindFromQueryGetReviewRequest
+{
+    [BindFrom("id")]
+    public string CustomerID { get; set; } = string.Empty;
+}
+
+sealed class BindFromQueryGetReviewEndpoint : Endpoint<BindFromQueryGetReviewRequest, string>
+{
+    public override void Configure()
+    {
+        Get("/swagger-review/bindfrom-query-get");
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(BindFromQueryGetReviewRequest req, CancellationToken ct)
+        => Send.OkAsync(req.CustomerID, ct);
+}
+
+sealed class BindFromQueryPostReviewRequest
+{
+    [QueryParam, BindFrom("id")]
+    public string CustomerID { get; set; } = string.Empty;
+
+    public string BodyValue { get; set; } = string.Empty;
+}
+
+sealed class BindFromQueryPostReviewEndpoint : Endpoint<BindFromQueryPostReviewRequest, string>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/bindfrom-query-post");
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(BindFromQueryPostReviewRequest req, CancellationToken ct)
+        => Send.OkAsync(req.BodyValue, ct);
+}
+
+sealed class RequiredQueryParamReviewRequest
+{
+    [QueryParam(IsRequired = true)]
+    public string? Search { get; set; }
+
+    [QueryParam]
+    public string? Filter { get; set; }
+
+    public string BodyValue { get; set; } = string.Empty;
+}
+
+sealed class RequiredQueryParamReviewEndpoint : Endpoint<RequiredQueryParamReviewRequest, string>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/required-query-param");
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(RequiredQueryParamReviewRequest req, CancellationToken ct)
+        => Send.OkAsync(req.Search ?? req.BodyValue, ct);
+}
+
+sealed class PromotedBodyValidationReviewRequest
+{
+    public int Id { get; set; }
+
+    [FromBody]
+    public PromotedBodyValidationPayload Body { get; set; } = new();
+}
+
+sealed class PromotedBodyValidationPayload
+{
+    public string? Name { get; set; }
+
+    public PromotedBodyValidationChild Child { get; set; } = new();
+}
+
+sealed class PromotedBodyValidationChild
+{
+    public string? Code { get; set; }
+}
+
+sealed class PromotedBodyValidationChildValidator : Validator<PromotedBodyValidationChild>
+{
+    public PromotedBodyValidationChildValidator()
+    {
+        RuleFor(x => x.Code).NotEmpty().MinimumLength(2);
+    }
+}
+
+sealed class PromotedBodyValidationPayloadValidator : Validator<PromotedBodyValidationPayload>
+{
+    public PromotedBodyValidationPayloadValidator()
+    {
+        RuleFor(x => x.Name).NotEmpty().MinimumLength(3);
+        RuleFor(x => x.Child).SetValidator(new PromotedBodyValidationChildValidator());
+    }
+}
+
+sealed class PromotedBodyValidationReviewValidator : Validator<PromotedBodyValidationReviewRequest>
+{
+    public PromotedBodyValidationReviewValidator()
+    {
+        RuleFor(x => x.Body).SetValidator(new PromotedBodyValidationPayloadValidator());
+    }
+}
+
+sealed class PromotedBodyValidationReviewEndpoint : Endpoint<PromotedBodyValidationReviewRequest, string>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/promoted-body-validation/{id}");
+        Tags("swagger_review");
+        AllowAnonymous();
+        Summary(
+            s => s.ExampleRequest = new()
+            {
+                Id = 123,
+                Body = new()
+                {
+                    Name = "example name",
+                    Child = new() { Code = "xy" }
+                }
+            });
+    }
+
+    public override Task HandleAsync(PromotedBodyValidationReviewRequest req, CancellationToken ct)
+        => Send.OkAsync(req.Body.Name ?? string.Empty, ct);
+}
+
+sealed class CookieGetReviewRequest
+{
+    [FromCookie("session_id")]
+    public string SessionId { get; set; } = string.Empty;
+}
+
+sealed class CookieGetReviewEndpoint : Endpoint<CookieGetReviewRequest, string>
+{
+    public override void Configure()
+    {
+        Get("/swagger-review/cookie-get");
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(CookieGetReviewRequest req, CancellationToken ct)
+        => Send.OkAsync(req.SessionId, ct);
+}
+
 sealed class IdempotencyAnonymousExampleEndpoint : EndpointWithoutRequest<string>
 {
     public override void Configure()
@@ -172,6 +457,114 @@ sealed class IdempotencyAnonymousExampleEndpoint : EndpointWithoutRequest<string
             {
                 o.SwaggerHeaderDescription = "custom idempotency header";
                 o.SwaggerExampleGenerator = () => new { key = "demo-key", scope = "tenant-a" };
+            });
+    }
+
+    public override Task HandleAsync(CancellationToken ct)
+        => Send.OkAsync("ok", ct);
+}
+
+sealed class DuplicateIdempotencyHeaderRequest
+{
+    [FromHeader("Idempotency-Key")]
+    public string IdempotencyKey { get; set; } = string.Empty;
+}
+
+sealed class DuplicateIdempotencyHeaderEndpoint : Endpoint<DuplicateIdempotencyHeaderRequest, string>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/duplicate-idempotency-header");
+        Tags("swagger_review");
+        AllowAnonymous();
+        Idempotency();
+    }
+
+    public override Task HandleAsync(DuplicateIdempotencyHeaderRequest req, CancellationToken ct)
+        => Send.OkAsync(req.IdempotencyKey, ct);
+}
+
+sealed class DuplicateX402HeaderRequest
+{
+    [FromHeader("PAYMENT-SIGNATURE", IsRequired = false)]
+    public string? PaymentSignature { get; set; }
+}
+
+sealed class DuplicateX402HeaderEndpoint : Endpoint<DuplicateX402HeaderRequest, string>
+{
+    public override void Configure()
+    {
+        Get("/swagger-review/duplicate-x402-header");
+        Tags("swagger_review");
+        AllowAnonymous();
+        RequirePayment("1000", "Protected review endpoint");
+    }
+
+    public override Task HandleAsync(DuplicateX402HeaderRequest req, CancellationToken ct)
+        => Send.OkAsync(req.PaymentSignature ?? "", ct);
+}
+
+sealed class ManualSchemaNested
+{
+    public string Value { get; set; } = string.Empty;
+}
+
+sealed class ManualSchemaQueryRequest
+{
+    public ManualSchemaNested Filter { get; set; } = new();
+}
+
+sealed class ManualSchemaResponse
+{
+    [ToHeader("x-complex-header")]
+    public ManualSchemaNested Header { get; set; } = new();
+
+    public string BodyValue { get; set; } = string.Empty;
+}
+
+sealed class ManualSchemaIdempotencyHeader
+{
+    public string Key { get; set; } = string.Empty;
+}
+
+sealed class ManualSchemaQueryEndpoint : Endpoint<ManualSchemaQueryRequest, string>
+{
+    public override void Configure()
+    {
+        Get("/swagger-review/manual-complex-query");
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(ManualSchemaQueryRequest req, CancellationToken ct)
+        => Send.OkAsync(req.Filter.Value, ct);
+}
+
+sealed class ManualSchemaResponseHeaderEndpoint : EndpointWithoutRequest<ManualSchemaResponse>
+{
+    public override void Configure()
+    {
+        Get("/swagger-review/manual-complex-response-header");
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(CancellationToken ct)
+        => Send.OkAsync(new() { BodyValue = "ok", Header = new() { Value = "header" } }, ct);
+}
+
+sealed class ManualSchemaIdempotencyHeaderEndpoint : EndpointWithoutRequest<string>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/manual-complex-idempotency-header");
+        Tags("swagger_review");
+        AllowAnonymous();
+        Idempotency(
+            o =>
+            {
+                o.SwaggerHeaderType = typeof(ManualSchemaIdempotencyHeader);
+                o.SwaggerExampleGenerator = () => new ManualSchemaIdempotencyHeader { Key = "demo-key" };
             });
     }
 

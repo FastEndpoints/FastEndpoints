@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Collections.Frozen;
 using Microsoft.Extensions.Logging.Abstractions;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http.Json;
@@ -12,34 +13,51 @@ namespace FastEndpoints.OpenApi;
 /// </summary>
 internal class SharedContext
 {
-    internal JsonNamingPolicy? NamingPolicy;
-    int _requestSchemaSharingInitialized;
+    static readonly FrozenSet<string> _emptyRequestSchemaRefs = Array.Empty<string>().ToFrozenSet(StringComparer.Ordinal);
 
-    internal HashSet<string> SharedRequestSchemaRefs { get; } = new(StringComparer.Ordinal);
+    internal JsonNamingPolicy? NamingPolicy;
+    readonly object _requestSchemaSharingLock = new();
+    FrozenSet<string>? _sharedRequestSchemaRefs;
+
+    internal IReadOnlySet<string> SharedRequestSchemaRefs
+        => Volatile.Read(ref _sharedRequestSchemaRefs) ?? _emptyRequestSchemaRefs;
 
     internal JsonNamingPolicy? ResolveNamingPolicy(IServiceProvider services)
         => NamingPolicy ??= services.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions.PropertyNamingPolicy;
 
     internal void InitializeSharedRequestSchemaRefs(IServiceProvider services, DocumentOptions docOpts)
     {
-        if (Interlocked.Exchange(ref _requestSchemaSharingInitialized, 1) == 1)
+        if (Volatile.Read(ref _sharedRequestSchemaRefs) is not null)
             return;
+
+        lock (_requestSchemaSharingLock)
+        {
+            if (_sharedRequestSchemaRefs is not null)
+                return;
+
+            Volatile.Write(ref _sharedRequestSchemaRefs, BuildSharedRequestSchemaRefs(services, docOpts));
+        }
+    }
+
+    static FrozenSet<string> BuildSharedRequestSchemaRefs(IServiceProvider services, DocumentOptions docOpts)
+    {
+        var empty = _emptyRequestSchemaRefs;
 
         var serviceResolver = services.GetService<IServiceResolver>();
 
         if (serviceResolver is null)
-            return;
+            return empty;
 
         var endpointData = serviceResolver.Resolve<EndpointData>();
 
         if (endpointData is null)
-            return;
+            return empty;
 
         var includedRefCounts = new Dictionary<string, int>(StringComparer.Ordinal);
 
         foreach (var epDef in endpointData.Found)
         {
-            if (!ShouldInclude(epDef, docOpts) || epDef.ReqDtoType == Types.EmptyRequest)
+            if (!DocumentVersionFilter.IncludesEndpoint(epDef, docOpts) || epDef.ReqDtoType == Types.EmptyRequest)
                 continue;
 
             var refId = SchemaNameGenerator.GetReferenceId(epDef.ReqDtoType, docOpts.ShortSchemaNames);
@@ -51,32 +69,9 @@ internal class SharedContext
             includedRefCounts[refId] = count + 1;
         }
 
-        foreach (var (refId, count) in includedRefCounts)
-        {
-            if (count > 1)
-                SharedRequestSchemaRefs.Add(refId);
-        }
-
-        static bool ShouldInclude(EndpointDefinition epDef, DocumentOptions docOpts)
-        {
-            if (docOpts.EndpointFilter?.Invoke(epDef) == false)
-                return false;
-
-            if (docOpts.ReleaseVersion > 0)
-                return epDef.Version.StartingReleaseVersion <= docOpts.ReleaseVersion;
-
-            var currentVersion = epDef.Version.Current;
-            var maxVersion = docOpts.MaxEndpointVersion;
-            var minVersion = docOpts.MinEndpointVersion;
-
-            if (currentVersion < minVersion)
-                return false;
-
-            if (maxVersion > 0 && currentVersion > maxVersion)
-                return false;
-
-            return true;
-        }
+        return includedRefCounts.Where(kvp => kvp.Value > 1)
+                                .Select(kvp => kvp.Key)
+                                .ToFrozenSet(StringComparer.Ordinal);
     }
 
     /// <summary>
@@ -85,15 +80,20 @@ internal class SharedContext
     internal ConcurrentDictionary<string, OperationMeta> Operations { get; } = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
-    /// key: "METHOD:/path", value: list of (schemeName, scopes) tuples for security requirements
+    /// key: "METHOD:/path", value: immutable snapshot of (schemeName, scopes) tuples for security requirements
     /// </summary>
-    internal ConcurrentDictionary<string, List<(string SchemeName, List<string> Scopes)>> SecurityRequirements { get; } = new(StringComparer.OrdinalIgnoreCase);
+    internal ConcurrentDictionary<string, (string SchemeName, string[] Scopes)[]> SecurityRequirements { get; } = new(StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
     /// types that need schemas generated in the document but weren't picked up by ApiExplorer.
     /// key: schema reference id, value: the CLR type
     /// </summary>
     internal ConcurrentDictionary<string, Type> MissingSchemaTypes { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// request DTO schemas whose body was promoted to a [FromBody]/[FromForm] property schema.
+    /// </summary>
+    internal ConcurrentDictionary<string, byte> PromotedRequestWrapperSchemaRefs { get; } = new(StringComparer.OrdinalIgnoreCase);
 }
 
 internal class OperationMeta

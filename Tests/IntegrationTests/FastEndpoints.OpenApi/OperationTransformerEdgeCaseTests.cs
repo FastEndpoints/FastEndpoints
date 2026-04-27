@@ -1,3 +1,5 @@
+using FastEndpoints.OpenApi;
+
 namespace OpenApi;
 
 public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
@@ -53,6 +55,46 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     }
 
     [Fact]
+    public async Task shared_request_schema_ref_initialization_is_thread_safe()
+    {
+        var sharedCtx = new SharedContext();
+        var docOpts = new DocumentOptions
+        {
+            EndpointFilter = ep => ep.EndpointTags?.Contains("swagger_review") is true
+        };
+        const string sharedRequestRef = "TestCasesSwaggerReviewSharedRequestMetadataReviewRequest";
+        using var start = new ManualResetEventSlim();
+        var tasks = Enumerable.Range(0, Environment.ProcessorCount * 8)
+                              .Select(_ => Task.Run(
+                                          () =>
+                                          {
+                                              start.Wait();
+                                              sharedCtx.InitializeSharedRequestSchemaRefs(App.Services, docOpts);
+                                              sharedCtx.SharedRequestSchemaRefs.Contains(sharedRequestRef).ShouldBeTrue();
+                                          }))
+                              .ToArray();
+
+        start.Set();
+        await Task.WhenAll(tasks);
+
+        sharedCtx.SharedRequestSchemaRefs.Contains(sharedRequestRef).ShouldBeTrue();
+        sharedCtx.SharedRequestSchemaRefs.ShouldNotBeOfType<HashSet<string>>();
+    }
+
+    [Fact]
+    public async Task default_version_document_excludes_v1_endpoints_from_schema_sharing()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var doc = JToken.Parse(json);
+        var initialSchema = doc["paths"]!["/api/swagger-review/version-prefilter-initial"]!["post"]!
+                               ["requestBody"]!["content"]!["application/json"]!["schema"]!;
+
+        initialSchema["$ref"]!.Value<string>().ShouldBe("#/components/schemas/TestCasesSwaggerReviewVersionPrefilterSharedRequest");
+        initialSchema["properties"].ShouldBeNull();
+        doc["paths"]!["/api/swagger-review/version-prefilter-v1"].ShouldBeNull();
+    }
+
+    [Fact]
     public async Task illegal_header_names_are_not_added_as_parameters()
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review");
@@ -89,6 +131,106 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
                          .ToArray();
 
         tags.ShouldBe(["Apiary"]);
+    }
+
+    [Fact]
+    public async Task catch_all_route_parameter_is_normalized_in_path_and_parameter()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var doc = JToken.Parse(json);
+        var operation = doc["paths"]!["/api/swagger-review/catch-all/{slug}"]!["get"]!;
+        var pathParam = operation["parameters"]!.First(p => p["in"]!.Value<string>() == "path");
+
+        doc["paths"]!["/api/swagger-review/catch-all/{*slug}"].ShouldBeNull();
+        pathParam["name"]!.Value<string>().ShouldBe("slug");
+    }
+
+    [Fact]
+    public async Task query_parameter_duplicate_detection_uses_naming_policy_name()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var operation = JToken.Parse(json)["paths"]!["/api/swagger-review/duplicate-query-naming-policy"]!["get"]!;
+        var firstNameParams = operation["parameters"]!
+                              .Where(p => p["in"]!.Value<string>() == "query" && p["name"]!.Value<string>() == "firstName")
+                              .ToArray();
+
+        firstNameParams.Length.ShouldBe(1);
+    }
+
+    [Fact]
+    public async Task get_request_uses_bind_from_name_for_query_parameter()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var operation = JToken.Parse(json)["paths"]!["/api/swagger-review/bindfrom-query-get"]!["get"]!;
+        var queryParam = operation["parameters"]!.First(p => p["in"]!.Value<string>() == "query");
+
+        queryParam["name"]!.Value<string>().ShouldBe("id");
+        operation["parameters"]!.Any(p => p["name"]!.Value<string>() == "customerID").ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task non_get_query_param_attribute_with_bind_from_is_added_using_bind_name()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var operation = JToken.Parse(json)["paths"]!["/api/swagger-review/bindfrom-query-post"]!["post"]!;
+        var queryParam = operation["parameters"]!.First(p => p["in"]!.Value<string>() == "query");
+
+        queryParam["name"]!.Value<string>().ShouldBe("id");
+        operation["parameters"]!.Any(p => p["name"]!.Value<string>() == "customerID").ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task nullable_query_param_attribute_with_is_required_is_added_as_required_parameter()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var operation = JToken.Parse(json)["paths"]!["/api/swagger-review/required-query-param"]!["post"]!;
+        var requiredSearch = operation["parameters"]!.First(p => p["name"]!.Value<string>() == "search");
+        var optionalFilter = operation["parameters"]!.First(p => p["name"]!.Value<string>() == "filter");
+
+        requiredSearch["in"]!.Value<string>().ShouldBe("query");
+        requiredSearch["required"]!.Value<bool>().ShouldBeTrue();
+        optionalFilter["required"].ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task promoted_body_schema_keeps_validation_rules_from_promoted_property_subtree()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var doc = JToken.Parse(json);
+        var requestSchema = doc["paths"]!["/api/swagger-review/promoted-body-validation/{id}"]!["post"]!
+                               ["requestBody"]!["content"]!["application/json"]!["schema"]!;
+        var refId = requestSchema["$ref"]!.Value<string>()!.Split('/').Last();
+        var schema = doc["components"]!["schemas"]![refId]!;
+
+        schema["properties"]!["body"].ShouldBeNull();
+        schema["properties"]!["name"]!["minLength"]!.Value<int>().ShouldBe(3);
+        schema["required"]!.Values<string>().ShouldContain("name");
+        schema["properties"]!["child"]!["properties"]!["code"]!["minLength"]!.Value<int>().ShouldBe(2);
+        schema["properties"]!["child"]!["required"]!.Values<string>().ShouldContain("code");
+    }
+
+    [Fact]
+    public async Task promoted_body_request_examples_are_unwrapped_to_promoted_schema_shape()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var operation = JToken.Parse(json)["paths"]!["/api/swagger-review/promoted-body-validation/{id}"]!["post"]!;
+        var example = operation["requestBody"]!["content"]!["application/json"]!["example"]!;
+
+        example["body"].ShouldBeNull();
+        example["id"].ShouldBeNull();
+        example["name"]!.Value<string>().ShouldBe("example name");
+        example["child"]!["code"]!.Value<string>().ShouldBe("xy");
+    }
+
+    [Fact]
+    public async Task get_request_from_cookie_property_is_not_duplicated_as_query_parameter()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var parameters = JToken.Parse(json)["paths"]!["/api/swagger-review/cookie-get"]!["get"]!["parameters"]!;
+
+        parameters.Count(p => p["in"]!.Value<string>() == "cookie" && p["name"]!.Value<string>() == "session_id").ShouldBe(1);
+        parameters.Any(p => p["in"]!.Value<string>() == "query" && p["name"]!.Value<string>() == "sessionId").ShouldBeFalse();
+        parameters.Any(p => p["in"]!.Value<string>() == "query" && p["name"]!.Value<string>() == "SessionId").ShouldBeFalse();
     }
 
     [Fact]
@@ -170,6 +312,24 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     }
 
     [Fact]
+    public async Task idempotency_header_is_not_duplicated_when_already_present()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var parameters = JToken.Parse(json)["paths"]!["/api/swagger-review/duplicate-idempotency-header"]!["post"]!["parameters"]!;
+
+        parameters.Count(p => p["in"]!.Value<string>() == "header" && p["name"]!.Value<string>() == "Idempotency-Key").ShouldBe(1);
+    }
+
+    [Fact]
+    public async Task x402_signature_header_is_not_duplicated_when_already_present()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var parameters = JToken.Parse(json)["paths"]!["/api/swagger-review/duplicate-x402-header"]!["get"]!["parameters"]!;
+
+        parameters.Count(p => p["in"]!.Value<string>() == "header" && p["name"]!.Value<string>() == "PAYMENT-SIGNATURE").ShouldBe(1);
+    }
+
+    [Fact]
     public async Task x402_headers_are_added_to_request_and_responses()
     {
         var json = await App.GetDocumentJsonAsync("Release 2.0");
@@ -235,21 +395,43 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     }
 
     [Fact]
-    public async Task child_validator_rules_are_applied_to_nested_schema_properties()
+    public async Task child_validator_rules_are_applied_to_operation_schema_properties()
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review");
-        var childSchema = JToken.Parse(json)["components"]!["schemas"]!["TestCasesSwaggerReviewChildValidatorReviewChild"]!;
+        var doc = JToken.Parse(json);
+        var requestSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewChildValidatorReviewRequest"]!;
+        var childSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewChildValidatorReviewChild"]!;
 
-        childSchema["properties"]!["score"]!["exclusiveMinimum"]!.Value<string>().ShouldBe("10");
+        requestSchema["properties"]!["child"]!["properties"]!["score"]!["exclusiveMinimum"]!.Value<int>().ShouldBe(10);
+        childSchema.ShouldBeNull();
     }
 
     [Fact]
-    public async Task deep_nested_validator_rules_are_applied_to_nested_schema_properties()
+    public async Task deep_nested_validator_rules_are_applied_to_operation_schema_properties()
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review");
-        var grandChildSchema = JToken.Parse(json)["components"]!["schemas"]!["TestCasesSwaggerReviewDeepNestedValidatorReviewGrandChild"]!;
+        var doc = JToken.Parse(json);
+        var requestSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewDeepNestedValidatorReviewRequest"]!;
+        var grandChildSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewDeepNestedValidatorReviewGrandChild"]!;
 
-        grandChildSchema["properties"]!["field"]!["minLength"]!.Value<int>().ShouldBe(5);
+        requestSchema["properties"]!["child"]!["properties"]!["subChild"]!["properties"]!["field"]!["minLength"]!.Value<int>().ShouldBe(5);
+        grandChildSchema.ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task parent_path_validator_rules_do_not_mutate_shared_nested_component_schema()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var doc = JToken.Parse(json);
+        var alphaRequest = doc["components"]!["schemas"]!["TestCasesSwaggerReviewSharedNestedValidationAlphaRequest"]!;
+        var betaRequest = doc["components"]!["schemas"]!["TestCasesSwaggerReviewSharedNestedValidationBetaRequest"]!;
+        var addressComponent = doc["components"]!["schemas"]!["TestCasesSwaggerReviewSharedNestedValidationAddress"]!;
+
+        alphaRequest["properties"]!["address"]!["$ref"].ShouldBeNull();
+        alphaRequest["properties"]!["address"]!["required"]!.Values<string>().ShouldContain("zip");
+        betaRequest["properties"]!["address"]!["$ref"]!.Value<string>()
+                   .ShouldBe("#/components/schemas/TestCasesSwaggerReviewSharedNestedValidationAddress");
+        addressComponent["required"].ShouldBeNull();
     }
 
     [Fact]
@@ -259,6 +441,17 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         var requestSchema = JToken.Parse(json)["components"]!["schemas"]!["TestCasesSwaggerReviewIntermediateBaseValidatorReviewRequest"]!;
 
         requestSchema["properties"]!["name"]!["minLength"]!.Value<int>().ShouldBe(3);
+    }
+
+    [Fact]
+    public async Task included_validator_rules_are_applied_to_schema_properties()
+    {
+        var json = await App.GetDocumentJsonAsync("Initial Release");
+        var requestSchema = JToken.Parse(json)["components"]!["schemas"]!["TestCasesIncludedValidatorTestRequest"]!;
+
+        requestSchema["required"]!.Values<string>().ShouldContain("id");
+        requestSchema["properties"]!["id"]!["exclusiveMinimum"]!.Value<string>().ShouldBe("5");
+        requestSchema["properties"]!["name"]!["minLength"]!.Value<int>().ShouldBe(5);
     }
 
     [Fact]
@@ -282,6 +475,27 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         dictParam["schema"].ShouldBeNull();
         dictParam["content"]!["application/json"]!["schema"]!["type"]!.Value<string>().ShouldBe("object");
         dictParam["content"]!["application/json"]!["schema"]!["additionalProperties"]!["type"]!.Value<string>().ShouldBe("string");
+    }
+
+    [Fact]
+    public async Task manually_added_complex_parameter_and_header_refs_have_component_schemas()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var doc = JToken.Parse(json);
+        var nestedRef = "#/components/schemas/TestCasesSwaggerReviewManualSchemaNested";
+        var idempotencyRef = "#/components/schemas/TestCasesSwaggerReviewManualSchemaIdempotencyHeader";
+        var queryParam = doc["paths"]!["/api/swagger-review/manual-complex-query"]!["get"]!["parameters"]!
+                            .First(p => p["name"]!.Value<string>() == "filter");
+        var responseHeader = doc["paths"]!["/api/swagger-review/manual-complex-response-header"]!["get"]!["responses"]!["200"]!
+                                ["headers"]!["x-complex-header"]!;
+        var idempotencyHeader = doc["paths"]!["/api/swagger-review/manual-complex-idempotency-header"]!["post"]!["parameters"]!
+                                  .First(p => p["name"]!.Value<string>() == "Idempotency-Key");
+
+        queryParam["content"]!["application/json"]!["schema"]!["$ref"]!.Value<string>().ShouldBe(nestedRef);
+        responseHeader["schema"]!["$ref"]!.Value<string>().ShouldBe(nestedRef);
+        idempotencyHeader["schema"]!["$ref"]!.Value<string>().ShouldBe(idempotencyRef);
+        doc["components"]!["schemas"]!["TestCasesSwaggerReviewManualSchemaNested"].ShouldNotBeNull();
+        doc["components"]!["schemas"]!["TestCasesSwaggerReviewManualSchemaIdempotencyHeader"].ShouldNotBeNull();
     }
 
     [Fact]

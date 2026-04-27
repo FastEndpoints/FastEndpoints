@@ -88,18 +88,18 @@ static class SchemaNameGenerator
             var shortName = fullNameWithoutGenericArgs[index..].Replace("+", "_");
 
             return isGeneric
-                       ? shortName + GenericArgString(type)
+                       ? shortName + GenericArgString(type, shortNames)
                        : shortName;
         }
 
         var sanitizedFullName = fullNameWithoutGenericArgs.Replace(".", string.Empty).Replace("+", "_");
 
         return isGeneric
-                   ? sanitizedFullName + GenericArgString(type)
+                   ? sanitizedFullName + GenericArgString(type, shortNames)
                    : sanitizedFullName;
     }
 
-    static string GenericArgString(Type type)
+    static string GenericArgString(Type type, bool shortNames)
     {
         if (type.IsGenericType)
         {
@@ -111,8 +111,8 @@ static class SchemaNameGenerator
                 var arg = args[i];
                 if (i == 0)
                     sb.Append("Of");
-                sb.Append(TypeNameWithoutGenericArgs(arg));
-                sb.Append(GenericArgString(arg));
+                sb.Append(TypeNameWithoutGenericArgs(arg, shortNames));
+                sb.Append(GenericArgString(arg, shortNames));
                 if (i < args.Length - 1)
                     sb.Append("And");
             }
@@ -120,14 +120,22 @@ static class SchemaNameGenerator
             return sb.ToString();
         }
 
-        return type.Name;
+        return string.Empty;
 
-        static string TypeNameWithoutGenericArgs(Type type)
+        static string TypeNameWithoutGenericArgs(Type type, bool shortNames)
         {
-            var index = type.Name.IndexOf('`');
-            index = index == -1 ? 0 : index;
+            if (shortNames)
+            {
+                var index = type.Name.IndexOf('`');
 
-            return type.Name[..index];
+                return index == -1 ? type.Name : type.Name[..index];
+            }
+
+            var fullName = type.FullName ?? type.Name;
+            var genericArgIndex = fullName.IndexOf('`');
+            var fullNameWithoutGenericArgs = genericArgIndex == -1 ? fullName : fullName[..genericArgIndex];
+
+            return fullNameWithoutGenericArgs.Replace(".", string.Empty).Replace("+", "_");
         }
     }
 }

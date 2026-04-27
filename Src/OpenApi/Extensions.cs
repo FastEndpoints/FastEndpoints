@@ -55,10 +55,9 @@ public static class Extensions
                 // add transformers
                 apiOptions.AddOperationTransformer(new OperationTransformer(opts, sharedCtx));
                 apiOptions.AddDocumentTransformer(new DocumentTransformer(opts, sharedCtx));
-                apiOptions.AddSchemaTransformer(new ValidationSchemaTransformer(sharedCtx));
                 apiOptions.AddSchemaTransformer<XmlDocSchemaTransformer>();
                 apiOptions.AddSchemaTransformer<NumericTypeCleanupSchemaTransformer>();
-                apiOptions.AddSchemaTransformer(new ToHeaderPropertySchemaTransformer(sharedCtx));
+                apiOptions.AddSchemaTransformer(new ToHeaderPropertySchemaTransformer(opts, sharedCtx));
                 apiOptions.AddSchemaTransformer<EnumSchemaTransformer>();
 
                 if (opts.UseOneOfForPolymorphism)
@@ -163,6 +162,7 @@ public static class Extensions
         var logger = app.Services.GetRequiredService<ILogger<OpenApiExportRunner>>();
 
         await app.StartAsync();
+        var exportFailed = false;
 
         try
         {
@@ -178,7 +178,8 @@ public static class Extensions
                 }
                 catch (Exception ex)
                 {
-                    logger.OpenApiDocExportFailed(docName, ex.Message);
+                    exportFailed = true;
+                    logger.OpenApiDocExportFailed(ex, docName);
                 }
             }
         }
@@ -187,7 +188,7 @@ public static class Extensions
             await app.StopAsync();
         }
 
-        Environment.Exit(0);
+        Environment.Exit(exportFailed ? 1 : 0);
     }
 
     static async Task<string> ExportOpenApiDocument(WebApplication app, string documentName, string destinationPath, CancellationToken ct)

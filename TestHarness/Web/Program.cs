@@ -1,6 +1,7 @@
 using System.Globalization;
 using FastEndpoints.OpenApi;
 using Microsoft.OpenApi;
+using Scalar.AspNetCore;
 using TestCases.ClientStreamingTest;
 using TestCases.CommandBusTest;
 using TestCases.CommandHandlerTest;
@@ -9,6 +10,7 @@ using TestCases.EventQueueTest;
 using TestCases.GlobalGenericProcessorTest;
 using TestCases.JobQueueTest;
 using TestCases.KeyedServicesTests;
+using TestCases.MetadataRegistrationTest;
 using TestCases.ProcessorStateTest;
 using TestCases.ServerStreamingTest;
 using TestCases.UnitTestConcurrencyTest;
@@ -16,14 +18,12 @@ using TestCases.X402;
 using Web;
 using Web.PipelineBehaviors.PreProcessors;
 using Web.Services;
-using Scalar.AspNetCore;
 
-var bld = WebApplication.CreateBuilder(args);
-
-var isTesting = string.Equals(bld.Environment.EnvironmentName, "Testing", StringComparison.OrdinalIgnoreCase);
 Func<EndpointDefinition, bool> excludeReleaseVersioning = ep => ep.EndpointTags?.Contains("release_versioning") is not true;
+Func<EndpointDefinition, bool> includeReleaseVersioning = ep => ep.EndpointTags?.Contains("release_versioning") is true;
 Func<EndpointDefinition, bool> includeSwaggerReview = ep => ep.EndpointTags?.Contains("swagger_review") is true;
 
+var bld = WebApplication.CreateBuilder(args);
 bld.AddHandlerServer();
 bld.Services
    .AddCors()
@@ -97,7 +97,7 @@ bld.Services
        o =>
        {
            o.ExcludeNonFastEndpoints = true;
-           o.EndpointFilter = ep => ep.EndpointTags?.Contains("release_versioning") is true;
+           o.EndpointFilter = includeReleaseVersioning;
            o.Title = "Web API";
            o.DocumentName = "ReleaseVersioning - v0";
            o.ReleaseVersion = 0;
@@ -107,7 +107,7 @@ bld.Services
        o =>
        {
            o.ExcludeNonFastEndpoints = true;
-           o.EndpointFilter = ep => ep.EndpointTags?.Contains("release_versioning") is true;
+           o.EndpointFilter = includeReleaseVersioning;
            o.Title = "Web API";
            o.DocumentName = "ReleaseVersioning - v1";
            o.ReleaseVersion = 1;
@@ -117,7 +117,7 @@ bld.Services
        o =>
        {
            o.ExcludeNonFastEndpoints = true;
-           o.EndpointFilter = ep => ep.EndpointTags?.Contains("release_versioning") is true;
+           o.EndpointFilter = includeReleaseVersioning;
            o.Title = "Web API";
            o.DocumentName = "ReleaseVersioning - v2";
            o.ReleaseVersion = 2;
@@ -127,7 +127,7 @@ bld.Services
        o =>
        {
            o.ExcludeNonFastEndpoints = true;
-           o.EndpointFilter = ep => ep.EndpointTags?.Contains("release_versioning") is true;
+           o.EndpointFilter = includeReleaseVersioning;
            o.Title = "Web API";
            o.DocumentName = "ReleaseVersioning - v3";
            o.ReleaseVersion = 3;
@@ -152,7 +152,7 @@ bld.Services
            o.TagStripSymbols = true;
        });
 
-if (isTesting)
+if (bld.Environment.EnvironmentName == "Testing")
     bld.Services.AddSingleton<IX402FacilitatorClient, FakeFacilitatorClient>();
 
 var supportedCultures = new[] { new CultureInfo("en-US") };
@@ -205,7 +205,7 @@ app.UseRequestLocalization(
                    ep.PreProcessors(Order.Before, new AdminHeaderChecker());
                    if (ep.EndpointTags?.Contains("Orders") is true)
                        ep.Description(b => b.Produces<ErrorResponse>(400, "application/problem+json"));
-                   if (ep.EndpointMetadata?.OfType<TestCases.MetadataRegistrationTest.SomeObject>().Any(s => s.Yes) is true)
+                   if (ep.EndpointMetadata?.OfType<SomeObject>().Any(s => s.Yes) is true)
                        ep.AllowAnonymous();
                };
 

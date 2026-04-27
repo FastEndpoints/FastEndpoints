@@ -63,8 +63,8 @@ sealed class EndpointMcpToolSource
         if (info.Name is null && string.IsNullOrWhiteSpace(summaryTitle))
             _logger.LogWarning(
                 "MCP tool for {EndpointType} has no explicit name and no OpenAPI Summary set. " +
-                "Falling back to type name \"{Name}\". " +
-                "Call Summary(s => s.Summary = ...) or pass an explicit name: this.McpTool(\"{Name}\", ...).",
+                "Falling back to type name \"{FallbackName}\". " +
+                "Set Summary(s => s.Summary = ...) or pass the name explicitly.",
                 def.EndpointType.Name,
                 name);
 

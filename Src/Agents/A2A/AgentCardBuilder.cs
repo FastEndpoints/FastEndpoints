@@ -40,8 +40,8 @@ sealed class AgentCardBuilder
             if (info.Id is null && string.IsNullOrWhiteSpace(summaryTitle))
                 _logger.LogWarning(
                     "A2A skill for {EndpointType} has no explicit id and no OpenAPI Summary set. " +
-                    "Falling back to type name \"{Id}\". " +
-                    "Call Summary(s => s.Summary = ...) or pass an explicit id: this.A2ASkill(\"{Id}\").",
+                    "Falling back to type name \"{FallbackId}\". " +
+                    "Set Summary(s => s.Summary = ...) or pass the id explicitly.",
                     def.EndpointType.Name,
                     id);
 

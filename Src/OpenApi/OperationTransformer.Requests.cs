@@ -41,6 +41,8 @@ sealed partial class OperationTransformer
                                           ? null
                                           : GetPublicInstanceProperties(requestDtoType).ToList();
 
+                ValidateRequestDto(epDef, requestDtoType, requestDtoIsList);
+
                 if (requestDtoProps is not null)
                 {
                     RemoveHiddenProperties(operation, requestDtoProps, state);
@@ -99,6 +101,7 @@ sealed partial class OperationTransformer
                 if (matchingKey is not null && resolvedSchema.Properties!.TryGetValue(matchingKey, out var propSchema))
                 {
                     content.Schema = propSchema;
+                    content.EnsureOperationLocalSchemaForMutation();
                     promoted = true;
                 }
             }
@@ -106,16 +109,39 @@ sealed partial class OperationTransformer
             if (promoted && SchemaNameGenerator.GetReferenceId(requestDtoType, docOpts.ShortSchemaNames) is { } refId)
                 sharedCtx.PromotedRequestWrapperSchemaRefs.TryAdd(refId, 0);
 
+            if (promoted && fromFormProp is not null)
+                NormalizePromotedFormRequestBodyContent(operation, epDef.FormDataContentType);
+
             // JSON Patch unwrap: only for [FromBody], promote the operations array to top-level
             if (fromBodyProp is not null && operation.RequestBody.Content.TryGetValue("application/json-patch+json", out var patchContent))
             {
                 var patchArraySchema = TryGetJsonPatchArraySchema(patchContent.Schema);
 
                 if (patchArraySchema is not null)
+                {
                     patchContent.Schema = patchArraySchema;
+                    patchContent.EnsureOperationLocalSchemaForMutation();
+                }
             }
 
             return promoted ? new(schemaKey, promoteProp.PropertyType) : null;
+        }
+
+        static void NormalizePromotedFormRequestBodyContent(OpenApiOperation operation, string? formDataContentType)
+        {
+            if (operation.RequestBody?.Content is not { Count: > 0 } content)
+                return;
+
+            var targetContentType = string.IsNullOrWhiteSpace(formDataContentType)
+                                        ? "multipart/form-data"
+                                        : formDataContentType;
+            var targetKey = content.Keys.FindCaseInsensitiveKey(targetContentType);
+            var targetContent = targetKey is not null
+                                    ? content[targetKey]
+                                    : content.Values.First();
+
+            content.Clear();
+            content[targetContentType] = targetContent;
         }
 
         public void ApplyParameterMetadata(OpenApiOperation operation, EndpointDefinition epDef)
@@ -358,6 +384,10 @@ sealed partial class OperationTransformer
                 if (ShouldAddQueryParam(p, operation, queryParamName, isGetRequest && !docOpts.EnableGetRequestsWithBody))
                 {
                     operation.RemovePropFromRequestBody(p, sharedCtx, docOpts, NamingPolicy, state.PropsRemovedFromBody);
+
+                    if (TryAddComplexFromQueryParameters(operation, p, docOpts.ShortSchemaNames))
+                        continue;
+
                     AddParameter(operation,
                                  queryParamName,
                                  ParameterLocation.Query,
@@ -370,6 +400,71 @@ sealed partial class OperationTransformer
 
         string GetQueryParameterName(PropertyInfo property)
             => property.GetCustomAttribute<BindFromAttribute>()?.Name ?? property.Name.ApplyPropNamingPolicy(docOpts, NamingPolicy);
+
+        bool TryAddComplexFromQueryParameters(OpenApiOperation operation, PropertyInfo property, bool shortSchemaNames)
+        {
+            var propertyType = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
+
+            if (!property.IsDefined(typeof(FromQueryAttribute), false) ||
+                !propertyType.IsComplexType() ||
+                propertyType.IsCollection() ||
+                OperationSchemaHelpers.TryGetDictionaryValueType(propertyType) is not null)
+                return false;
+
+            AddComplexQueryParameters(operation, propertyType, prefix: null, shortSchemaNames, []);
+
+            return true;
+        }
+
+        void AddComplexQueryParameters(OpenApiOperation operation,
+                                       Type type,
+                                       string? prefix,
+                                       bool shortSchemaNames,
+                                       HashSet<Type> visited)
+        {
+            type = Nullable.GetUnderlyingType(type) ?? type;
+
+            if (!visited.Add(type))
+                return;
+
+            foreach (var prop in GetBindableRequestProperties(type))
+            {
+                if (prop.IsDefined(Types.HideFromDocsAttribute))
+                    continue;
+
+                var propName = GetQueryParameterName(prop);
+                var key = string.IsNullOrEmpty(prefix) ? propName : $"{prefix}.{propName}";
+                var propType = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
+
+                if (propType.IsComplexType() &&
+                    !propType.IsCollection() &&
+                    OperationSchemaHelpers.TryGetDictionaryValueType(propType) is null)
+                {
+                    AddComplexQueryParameters(operation, propType, key, shortSchemaNames, visited);
+
+                    continue;
+                }
+
+                if (propType.IsCollection() && TryGetCollectionElementType(propType) is { } elementType && elementType.IsComplexType())
+                {
+                    AddComplexQueryParameters(operation, elementType, $"{key}[0]", shortSchemaNames, visited);
+
+                    continue;
+                }
+
+                AddParameter(operation, key, ParameterLocation.Query, prop, GetDontBindRequiredness(prop), shortSchemaNames);
+            }
+
+            visited.Remove(type);
+        }
+
+        static Type? TryGetCollectionElementType(Type type)
+        {
+            if (type.IsArray)
+                return type.GetElementType();
+
+            return type.IsGenericType ? type.GetGenericArguments().FirstOrDefault() : null;
+        }
 
         static bool? GetDontBindRequiredness(PropertyInfo property)
             => property.GetCustomAttribute<DontBindAttribute>()?.IsRequired is true ? true : null;
@@ -597,6 +692,28 @@ sealed partial class OperationTransformer
             return false;
         }
 
+        static void ValidateRequestDto(EndpointDefinition epDef, Type requestDtoType, bool requestDtoIsList)
+        {
+            if (requestDtoType == Types.EmptyRequest || requestDtoIsList || GlobalConfig.AllowEmptyRequestDtos)
+                return;
+
+            if (GetBindableRequestProperties(requestDtoType).Any())
+                return;
+
+            throw new NotSupportedException(
+                "Request DTOs without any publicly accessible properties are not supported. " +
+                $"Offending Endpoint: [{epDef.EndpointType.FullName}] " +
+                $"Offending DTO type: [{requestDtoType.FullName}]");
+        }
+
+        static IEnumerable<PropertyInfo> GetBindableRequestProperties(Type requestDtoType)
+            => requestDtoType.GetProperties(PublicInstanceHierarchy)
+                             .Where(
+                                 p => p.GetSetMethod()?.IsPublic is true &&
+                                      p.GetGetMethod()?.IsPublic is true &&
+                                      p.GetCustomAttribute<JsonIgnoreAttribute>()?.Condition != JsonIgnoreCondition.Always &&
+                                      !p.IsDefined(Types.DontInjectAttribute));
+
         static bool ShouldAddQueryParam(PropertyInfo prop, OpenApiOperation operation, string queryParamName, bool isGetRequest)
         {
             foreach (var attribute in prop.GetCustomAttributes())
@@ -610,6 +727,8 @@ sealed partial class OperationTransformer
                         return !cAttrib.IsRequired;
                     case HasPermissionAttribute pAttrib:
                         return !pAttrib.IsRequired;
+                    case DontBindAttribute dontBindAttrib when dontBindAttrib.BindingSources.HasFlag(Source.QueryParam):
+                        return false;
                 }
             }
 
@@ -679,6 +798,9 @@ sealed partial class OperationTransformer
             if (example is null)
                 return AllowsNull(schema) ? null : fallback?.DeepClone() ?? CreateSampleFromSchema(schema);
 
+            if (schema?.Enum is { Count: > 0 } enumValues && !MatchesEnumValue(example, enumValues))
+                return enumValues[0]?.DeepClone();
+
             return example switch
             {
                 JsonObject obj => NormalizeObjectExample(obj, schema, fallback as JsonObject),
@@ -742,6 +864,9 @@ sealed partial class OperationTransformer
             if (schema is null)
                 return null;
 
+            if (schema.Enum is { Count: > 0 })
+                return schema.Enum[0]?.DeepClone();
+
             if (schema.OneOf is { Count: > 0 })
             {
                 foreach (var option in schema.OneOf)
@@ -779,7 +904,16 @@ sealed partial class OperationTransformer
                 return obj.Count > 0 ? obj : null;
             }
 
-            if (schema.Type == JsonSchemaType.Array)
+            if (schema.AdditionalProperties.ResolveSchema() is { } additionalPropertiesSchema)
+            {
+                var sample = CreateSampleFromSchema(additionalPropertiesSchema, "additionalProp1");
+
+                return sample is not null
+                           ? new JsonObject { ["additionalProp1"] = sample }
+                           : new JsonObject();
+            }
+
+            if (schema.Type?.HasFlag(JsonSchemaType.Array) == true)
             {
                 var itemSample = CreateSampleFromSchema(schema.Items.ResolveSchema(), propertyName);
 
@@ -794,6 +928,19 @@ sealed partial class OperationTransformer
                 JsonSchemaType.Boolean => false.JsonNodeFromObject(),
                 _ => null
             };
+        }
+
+        static bool MatchesEnumValue(JsonNode example, IList<JsonNode> enumValues)
+        {
+            var exampleJson = example.ToJsonString();
+
+            for (var i = 0; i < enumValues.Count; i++)
+            {
+                if (enumValues[i]?.ToJsonString() == exampleJson)
+                    return true;
+            }
+
+            return false;
         }
     }
 }

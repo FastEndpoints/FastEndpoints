@@ -12,6 +12,16 @@ static partial class RouteTemplateHelpers
         return RouteConstraintsRegex().Replace(route, "$1");
     }
 
+    public static string NormalizePath(string route)
+    {
+        route = NormalizeRouteTemplate(route.TrimStart('~').TrimEnd('/'));
+
+        return route.StartsWith('/') ? route : "/" + route;
+    }
+
+    public static string NormalizeRouteTemplate(string route)
+        => ReplaceParameters(StripConstraints(route), NormalizeParameterName);
+
     public static List<string> GetParameterSegments(string? route)
     {
         var matches = RouteParamRegex().Matches(route ?? string.Empty);

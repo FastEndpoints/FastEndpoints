@@ -104,13 +104,28 @@ sealed partial class ValidationSchemaTransformer(DocumentOptions docOpts, Shared
                                 .Value;
 
     CachedValidatorRules CacheValidatorRules(IValidator validator, JsonNamingPolicy? namingPolicy)
+        => CacheValidatorRules(validator, namingPolicy, []);
+
+    CachedValidatorRules CacheValidatorRules(IValidator validator, JsonNamingPolicy? namingPolicy, HashSet<Type> activeIncludedValidators)
     {
         var rules = validator.GetDictionaryOfRules(namingPolicy, docOpts.UsePropertyNamingPolicy, GetValidatorTargetType(validator));
-        var includedRules = ValidationSchemaApplier.GetIncludedValidators(validator, _logger)
-                                               .Select(v => CacheValidatorRules(v, namingPolicy))
-                                               .ToArray();
 
-        return new(rules, includedRules);
+        if (!activeIncludedValidators.Add(validator.GetType()))
+            return new(rules, []);
+
+        try
+        {
+            var includedRules = ValidationSchemaApplier.GetIncludedValidators(validator, _logger)
+                                                       .Where(v => !activeIncludedValidators.Contains(v.GetType()))
+                                                       .Select(v => CacheValidatorRules(v, namingPolicy, activeIncludedValidators))
+                                                       .ToArray();
+
+            return new(rules, includedRules);
+        }
+        finally
+        {
+            activeIncludedValidators.Remove(validator.GetType());
+        }
     }
 
     readonly record struct ValidatorRuleCacheKey(Type ValidatorType, JsonNamingPolicy? NamingPolicy);

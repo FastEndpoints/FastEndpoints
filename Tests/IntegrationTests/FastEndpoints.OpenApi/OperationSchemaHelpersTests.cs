@@ -254,6 +254,56 @@ public class OperationSchemaHelpersTests
     }
 
     [Fact]
+    public void promoted_request_body_schema_is_operation_localized_before_mutation()
+    {
+        var promotedComponent = new OpenApiSchema
+        {
+            Type = JsonSchemaType.Object,
+            Required = new HashSet<string> { "name" },
+            Properties = new Dictionary<string, IOpenApiSchema>
+            {
+                ["name"] = new OpenApiSchema { Type = JsonSchemaType.String }
+            }
+        };
+        var operation = new OpenApiOperation
+        {
+            RequestBody = new OpenApiRequestBody
+            {
+                Content = new Dictionary<string, OpenApiMediaType>
+                {
+                    ["application/json"] = new()
+                    {
+                        Schema = new OpenApiSchema
+                        {
+                            Type = JsonSchemaType.Object,
+                            Properties = new Dictionary<string, IOpenApiSchema>
+                            {
+                                ["Body"] = promotedComponent
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        ApplyBodyOverrides(operation, typeof(PromotedBodyRequest));
+
+        var promotedSchema = operation.RequestBody!.Content!["application/json"].Schema.ShouldBeOfType<OpenApiSchema>();
+
+        promotedSchema.ShouldNotBeSameAs(promotedComponent);
+        promotedSchema.Properties.ShouldNotBeSameAs(promotedComponent.Properties);
+        promotedSchema.Required.ShouldNotBeSameAs(promotedComponent.Required);
+
+        promotedSchema.Description = "endpoint-specific";
+        promotedSchema.Properties!.Remove("name");
+        promotedSchema.Required!.Remove("name");
+
+        promotedComponent.Description.ShouldBeNull();
+        promotedComponent.Properties!.Keys.ShouldBe(["name"]);
+        promotedComponent.Required.ShouldBe(["name"]);
+    }
+
+    [Fact]
     public void primitive_numeric_parameters_use_numeric_schemas()
     {
         var operation = new OpenApiOperation();
@@ -282,6 +332,116 @@ public class OperationSchemaHelpersTests
         ((OpenApiSchema)query.Schema!).Format.ShouldBe("int64");
         header.Schema.ShouldBeOfType<OpenApiSchema>().Type.ShouldBe(JsonSchemaType.Integer);
         ((OpenApiSchema)header.Schema!).Format.ShouldBe("int32");
+    }
+
+    [Fact]
+    public void type_sample_generation_uses_first_enum_value_and_dictionary_shape()
+    {
+        var sample = typeof(SampleGenerationRequest).GenerateSampleJsonNode().ShouldBeOfType<JsonObject>();
+
+        sample["Status"]!.GetValue<int>().ShouldBe(5);
+        var metadata = sample["Metadata"].ShouldBeOfType<JsonObject>();
+        metadata["additionalProp1"]!.GetValue<string>().ShouldBe("additionalProp1");
+    }
+
+    [Fact]
+    public void schema_sample_generation_prefers_enum_values_and_additional_properties()
+    {
+        var enumSample = CreateSchemaSample(new OpenApiSchema
+        {
+            Type = JsonSchemaType.String,
+            Enum = [JsonValue.Create("active")!]
+        });
+        var dictionarySample = CreateSchemaSample(new OpenApiSchema
+        {
+            Type = JsonSchemaType.Object,
+            AdditionalProperties = new OpenApiSchema { Type = JsonSchemaType.Integer }
+        }).ShouldBeOfType<JsonObject>();
+
+        enumSample!.GetValue<string>().ShouldBe("active");
+        dictionarySample["additionalProp1"]!.GetValue<int>().ShouldBe(0);
+    }
+
+    [Fact]
+    public void schema_example_normalization_replaces_invalid_enum_values()
+    {
+        var schema = new OpenApiSchema
+        {
+            Type = JsonSchemaType.String,
+            Enum = [JsonValue.Create("active")!]
+        };
+        var normalized = NormalizeSchemaExample(JsonValue.Create("invalid")!, schema);
+
+        normalized!.GetValue<string>().ShouldBe("active");
+    }
+
+    [Fact]
+    public void empty_request_dto_validation_rejects_dtos_without_bindable_properties()
+    {
+        var ex = Should.Throw<NotSupportedException>(() => ValidateRequestDto(typeof(EmptyOpenApiRequest), false));
+
+        ex.Message.ShouldContain(typeof(EmptyOpenApiRequest).FullName!);
+        ex.Message.ShouldContain(typeof(object).FullName!);
+    }
+
+    [Fact]
+    public void empty_request_dto_validation_allows_collections_empty_request_and_hidden_doc_properties()
+    {
+        Should.NotThrow(() => ValidateRequestDto(typeof(List<EmptyOpenApiRequest>), true));
+        Should.NotThrow(() => ValidateRequestDto(Types.EmptyRequest, false));
+        Should.NotThrow(() => ValidateRequestDto(typeof(HiddenDocsBindableRequest), false));
+    }
+
+    [Fact]
+    public void query_parameter_discovery_respects_dont_bind_query_source()
+    {
+        ShouldAddQueryParam(nameof(QueryBindingSourcesRequest.DisabledQuery), true).ShouldBeFalse();
+        ShouldAddQueryParam(nameof(QueryBindingSourcesRequest.FormOnly), true).ShouldBeFalse();
+        ShouldAddQueryParam(nameof(QueryBindingSourcesRequest.RouteOnly), true).ShouldBeFalse();
+        ShouldAddQueryParam(nameof(QueryBindingSourcesRequest.ExplicitQuery), false).ShouldBeTrue();
+    }
+
+    [Fact]
+    public void from_form_promotion_keeps_only_actual_form_content_type()
+    {
+        var operation = CreateFormPromotionOperation();
+        var epDef = new EndpointDefinition(typeof(object), typeof(FromFormPromotionRequest), typeof(object));
+        epDef.AllowFormData(urlEncoded: true);
+
+        ApplyBodyOverrides(operation, epDef);
+
+        var content = operation.RequestBody!.Content!;
+
+        content.Keys.ShouldBe(["application/x-www-form-urlencoded"]);
+        content["application/x-www-form-urlencoded"].Schema.ShouldBeOfType<OpenApiSchema>()
+                                               .Properties!.Keys.ShouldBe(["name"]);
+    }
+
+    [Fact]
+    public void from_body_promotion_does_not_prune_json_content_types()
+    {
+        var operation = CreateBodyPromotionOperation();
+        var epDef = new EndpointDefinition(typeof(object), typeof(FromBodyPromotionRequest), typeof(object));
+
+        ApplyBodyOverrides(operation, epDef);
+
+        operation.RequestBody!.Content!.Keys.ShouldBe(["application/json", "*/*"]);
+    }
+
+    [Fact]
+    public void complex_from_query_property_is_documented_as_flattened_query_parameters()
+    {
+        var operation = new OpenApiOperation();
+        var prop = typeof(ComplexFromQueryRequest).GetProperty(nameof(ComplexFromQueryRequest.Filter))!;
+
+        AddComplexFromQueryParameters(operation, prop).ShouldBeTrue();
+
+        var parameters = operation.Parameters!.Cast<OpenApiParameter>().ToArray();
+
+        parameters.Select(p => p.Name).ShouldBe(["City", "zip", "Tags", "Metadata", "Addresses[0].Street"]);
+        parameters.Any(p => p.Name == "Filter").ShouldBeFalse();
+        parameters.Single(p => p.Name == "Metadata").Content.ShouldNotBeNull();
+        parameters.Single(p => p.Name == "City").Content.ShouldBeNull();
     }
 
     [Fact]
@@ -322,6 +482,216 @@ public class OperationSchemaHelpersTests
     sealed class NamingPolicyRequest
     {
         public string QueryValue { get; set; } = string.Empty;
+    }
+
+    sealed class SampleGenerationRequest
+    {
+        public SampleGenerationStatus Status { get; set; }
+
+        public Dictionary<string, string> Metadata { get; set; } = [];
+    }
+
+    sealed class EmptyOpenApiRequest;
+
+    sealed class HiddenDocsBindableRequest
+    {
+        [HideFromDocs]
+        public string Name { get; set; } = string.Empty;
+    }
+
+    sealed class QueryBindingSourcesRequest
+    {
+        [DontBind(Source.QueryParam)]
+        public string DisabledQuery { get; set; } = string.Empty;
+
+        [FormField]
+        public string FormOnly { get; set; } = string.Empty;
+
+        [RouteParam]
+        public string RouteOnly { get; set; } = string.Empty;
+
+        [QueryParam]
+        public string ExplicitQuery { get; set; } = string.Empty;
+    }
+
+    sealed class FromFormPromotionRequest
+    {
+        [FromForm]
+        public FormPromotionPayload Payload { get; set; } = new();
+    }
+
+    sealed class FromBodyPromotionRequest
+    {
+        [FromBody]
+        public FormPromotionPayload Payload { get; set; } = new();
+    }
+
+    sealed class ComplexFromQueryRequest
+    {
+        [FromQuery]
+        public ComplexQueryFilter Filter { get; set; } = new();
+    }
+
+    sealed class ComplexQueryFilter
+    {
+        public string City { get; set; } = string.Empty;
+
+        [BindFrom("zip")]
+        public int ZipCode { get; set; }
+
+        public string[] Tags { get; set; } = [];
+
+        public Dictionary<string, string> Metadata { get; set; } = [];
+
+        public List<ComplexQueryAddress> Addresses { get; set; } = [];
+    }
+
+    sealed class ComplexQueryAddress
+    {
+        public string Street { get; set; } = string.Empty;
+    }
+
+    sealed class FormPromotionPayload
+    {
+        public string Name { get; set; } = string.Empty;
+    }
+
+    enum SampleGenerationStatus
+    {
+        Active = 5
+    }
+
+    sealed class PromotedBodyRequest
+    {
+        [FromBody]
+        public PromotedBody Body { get; set; } = new();
+    }
+
+    sealed class PromotedBody
+    {
+        public string Name { get; set; } = string.Empty;
+    }
+
+    static void ApplyBodyOverrides(OpenApiOperation operation, Type requestType)
+        => ApplyBodyOverrides(operation, new EndpointDefinition(typeof(object), requestType, typeof(object)));
+
+    static void ApplyBodyOverrides(OpenApiOperation operation, EndpointDefinition epDef)
+    {
+        var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
+                                                               .GetType("FastEndpoints.OpenApi.OperationTransformer+RequestOperationTransformer", throwOnError: true)!;
+        var transformer = Activator.CreateInstance(
+            transformerType,
+            BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
+            binder: null,
+            args: [new DocumentOptions(), new SharedContext()],
+            culture: null)!;
+
+        transformerType.GetMethod("ApplyBodyOverrides", BindingFlags.Instance | BindingFlags.Public)!
+                       .Invoke(transformer, [operation, epDef]);
+    }
+
+    static OpenApiOperation CreateFormPromotionOperation()
+    {
+        var operation = CreatePromotionOperation();
+        operation.RequestBody!.Content!["application/x-www-form-urlencoded"] = new()
+        {
+            Schema = ClonePromotionWrapperSchema()
+        };
+
+        return operation;
+    }
+
+    static OpenApiOperation CreateBodyPromotionOperation()
+        => CreatePromotionOperation();
+
+    static OpenApiOperation CreatePromotionOperation()
+        => new()
+        {
+            RequestBody = new OpenApiRequestBody
+            {
+                Content = new Dictionary<string, OpenApiMediaType>
+                {
+                    ["application/json"] = new() { Schema = ClonePromotionWrapperSchema() },
+                    ["*/*"] = new() { Schema = ClonePromotionWrapperSchema() }
+                }
+            }
+        };
+
+    static OpenApiSchema ClonePromotionWrapperSchema()
+        => new()
+        {
+            Type = JsonSchemaType.Object,
+            Properties = new Dictionary<string, IOpenApiSchema>
+            {
+                ["Payload"] = new OpenApiSchema
+                {
+                    Type = JsonSchemaType.Object,
+                    Properties = new Dictionary<string, IOpenApiSchema>
+                    {
+                        ["name"] = new OpenApiSchema { Type = JsonSchemaType.String }
+                    }
+                }
+            }
+        };
+
+    static JsonNode? CreateSchemaSample(OpenApiSchema schema)
+    {
+        var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
+                                                               .GetType("FastEndpoints.OpenApi.OperationTransformer+RequestOperationTransformer", throwOnError: true)!;
+
+        return (JsonNode?)transformerType.GetMethod("CreateSampleFromSchema", BindingFlags.Static | BindingFlags.NonPublic)!
+                                         .Invoke(null, [schema, null]);
+    }
+
+    static JsonNode? NormalizeSchemaExample(JsonNode example, OpenApiSchema schema)
+    {
+        var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
+                                                               .GetType("FastEndpoints.OpenApi.OperationTransformer+RequestOperationTransformer", throwOnError: true)!;
+
+        return (JsonNode?)transformerType.GetMethod("NormalizeExampleNode", BindingFlags.Static | BindingFlags.NonPublic)!
+                                         .Invoke(null, [example, schema, null]);
+    }
+
+    static void ValidateRequestDto(Type requestType, bool isCollection)
+    {
+        var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
+                                                               .GetType("FastEndpoints.OpenApi.OperationTransformer+RequestOperationTransformer", throwOnError: true)!;
+        var epDef = new EndpointDefinition(typeof(object), requestType, typeof(object));
+
+        try
+        {
+            transformerType.GetMethod("ValidateRequestDto", BindingFlags.Static | BindingFlags.NonPublic)!
+                           .Invoke(null, [epDef, requestType, isCollection]);
+        }
+        catch (TargetInvocationException ex) when (ex.InnerException is not null)
+        {
+            throw ex.InnerException;
+        }
+    }
+
+    static bool ShouldAddQueryParam(string propertyName, bool isGetRequest)
+    {
+        var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
+                                                               .GetType("FastEndpoints.OpenApi.OperationTransformer+RequestOperationTransformer", throwOnError: true)!;
+        var prop = typeof(QueryBindingSourcesRequest).GetProperty(propertyName)!;
+
+        return (bool)transformerType.GetMethod("ShouldAddQueryParam", BindingFlags.Static | BindingFlags.NonPublic)!
+                                    .Invoke(null, [prop, new OpenApiOperation(), propertyName, isGetRequest])!;
+    }
+
+    static bool AddComplexFromQueryParameters(OpenApiOperation operation, PropertyInfo prop)
+    {
+        var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
+                                                               .GetType("FastEndpoints.OpenApi.OperationTransformer+RequestOperationTransformer", throwOnError: true)!;
+        var transformer = Activator.CreateInstance(
+            transformerType,
+            BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
+            binder: null,
+            args: [new DocumentOptions(), new SharedContext()],
+            culture: null)!;
+
+        return (bool)transformerType.GetMethod("TryAddComplexFromQueryParameters", BindingFlags.Instance | BindingFlags.NonPublic)!
+                                    .Invoke(transformer, [operation, prop, false])!;
     }
 
     sealed class ProducesMetadata(Type type) : IProducesResponseTypeMetadata

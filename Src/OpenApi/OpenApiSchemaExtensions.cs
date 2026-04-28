@@ -57,6 +57,9 @@ static partial class OperationSchemaHelpers
 
             return mediaType.EnsureOperationLocalSchema();
         }
+
+        internal OpenApiSchema? EnsureOperationLocalSchemaForMutation()
+            => mediaType.EnsureOperationLocalSchema();
     }
 
     static OpenApiSchema CloneConcreteSchema(IOpenApiSchema schema)

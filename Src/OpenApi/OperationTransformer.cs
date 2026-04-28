@@ -41,8 +41,8 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
         sharedCtx.InitializeSharedRequestSchemaRefs(context.ApplicationServices, docOpts);
 
         // compute the document path for this operation
-        var relativePath = context.Description.RelativePath?.TrimStart('~').TrimEnd('/') ?? "";
-        var documentPath = "/" + RouteTemplateHelpers.StripConstraints(relativePath);
+        var relativePath = context.Description.RelativePath ?? "";
+        var documentPath = RouteTemplateHelpers.NormalizePath(relativePath);
         var httpMethod = context.Description.HttpMethod?.ToUpperInvariant() ?? "GET";
         var operationKey = $"{httpMethod}:{documentPath}";
 
@@ -265,11 +265,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
     }
 
     static string NormalizeRoutePath(string route)
-    {
-        route = RouteTemplateHelpers.StripConstraints(route.TrimStart('~').TrimEnd('/'));
-
-        return route.StartsWith('/') ? route : "/" + route;
-    }
+        => RouteTemplateHelpers.NormalizePath(route);
 
     static List<RouteParameterInfo> GetRouteParameters(string? relativePath)
     {

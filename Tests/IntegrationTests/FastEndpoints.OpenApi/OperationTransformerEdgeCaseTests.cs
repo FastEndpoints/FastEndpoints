@@ -198,9 +198,8 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         var json = await App.GetDocumentJsonAsync("Swagger Review");
         var doc = JToken.Parse(json);
         var requestSchema = doc["paths"]!["/api/swagger-review/promoted-body-validation/{id}"]!["post"]!
-                               ["requestBody"]!["content"]!["application/json"]!["schema"]!;
-        var refId = requestSchema["$ref"]!.Value<string>()!.Split('/').Last();
-        var schema = doc["components"]!["schemas"]![refId]!;
+                                ["requestBody"]!["content"]!["application/json"]!["schema"]!;
+        var schema = requestSchema;
 
         schema["properties"]!["body"].ShouldBeNull();
         schema["properties"]!["name"]!["minLength"]!.Value<int>().ShouldBe(3);
@@ -250,10 +249,28 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         var json = await App.GetDocumentJsonAsync("Release 2.0");
         var operation = JToken.Parse(json)["paths"]!["/api/test-cases/from-body-binding/{id}"]!["post"]!;
 
-        operation["requestBody"]!["content"]!["application/json"]!["schema"]!["$ref"]!.Value<string>()
-                                                                                      .ShouldBe("#/components/schemas/TestCasesFromBodyJsonBindingProduct");
+        var schema = operation["requestBody"]!["content"]!["application/json"]!["schema"]!;
+
+        schema["$ref"].ShouldBeNull();
+        schema["properties"]!["id"].ShouldNotBeNull();
+        schema["properties"]!["name"].ShouldNotBeNull();
+        schema["properties"]!["price"].ShouldNotBeNull();
+        schema["properties"]!["price"]!["exclusiveMinimum"]!.Value<int>().ShouldBe(200);
+        schema["example"]!["name"]!.Value<string>().ShouldBe("test product name");
         operation["parameters"]!.SelectToken("$[?(@.name=='customerID')].in")!.Value<string>().ShouldBe("header");
         operation["parameters"]!.SelectToken("$[?(@.name=='id')].in")!.Value<string>().ShouldBe("path");
+    }
+
+    [Fact]
+    public async Task promoted_body_validation_and_examples_do_not_mutate_shared_response_component_schema()
+    {
+        var json = await App.GetDocumentJsonAsync("Release 2.0");
+        var productSchema = JToken.Parse(json)["components"]!["schemas"]!["TestCasesFromBodyJsonBindingProduct"]!;
+
+        productSchema["properties"]!["price"]!["exclusiveMinimum"].ShouldBeNull();
+        productSchema["example"].ShouldBeNull();
+        productSchema["properties"]!["name"]!["example"].ShouldBeNull();
+        productSchema["properties"]!["id"]!["description"]!.Value<string>().ShouldBe("product id goes here");
     }
 
     [Fact]
@@ -265,9 +282,8 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         // MS OpenApi generates a proper JsonPatchDocument<T> schema using the framework's built-in type
         // instead of NSwag's incorrect type:object. see accepted differences in the port review.
         var schema = content["application/json-patch+json"]!["schema"]!;
-        var refId = schema["$ref"]!.Value<string>()!;
-        refId.ShouldContain("JsonPatchDocument");
-        refId.ShouldContain("Person");
+        schema["type"]!.Value<string>().ShouldBe("array");
+        schema["items"]!["oneOf"]!.ShouldNotBeNull();
     }
 
     [Fact]
@@ -380,7 +396,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     }
 
     [Fact]
-    public async Task complex_query_object_parameter_uses_json_content()
+    public async Task complex_query_object_parameter_uses_json_content_unless_from_query()
     {
         var json = await App.GetDocumentJsonAsync("Initial Release");
         var doc = JToken.Parse(json);
@@ -391,7 +407,13 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         stevenParam["content"]!["application/json"]!["schema"]!["$ref"]!.Value<string>()
                   .ShouldBe("#/components/schemas/TestCasesJsonArrayBindingForIEnumerablePropsRequest_Person");
 
-        doc["components"]!["schemas"]!["TestCasesHydratedQueryParamGeneratorTestRequest_NestedClass"].ShouldNotBeNull();
+        var fromQueryOperation = doc["paths"]!["/api/test-cases/query-param-creation-from-test-helpers/{complexId}/{complexIdString}"]!["get"]!;
+        var fromQueryParameters = fromQueryOperation["parameters"]!;
+
+        fromQueryParameters.Any(p => p["name"]!.Value<string>() == "Nested").ShouldBeFalse();
+        fromQueryParameters.Any(p => p["name"]!.Value<string>() == "first" && p["in"]!.Value<string>() == "query").ShouldBeTrue();
+        fromQueryParameters.Any(p => p["name"]!.Value<string>() == "last" && p["in"]!.Value<string>() == "query").ShouldBeTrue();
+        doc["components"]!["schemas"]!["TestCasesHydratedQueryParamGeneratorTestRequest_NestedClass"].ShouldBeNull();
     }
 
     [Fact]

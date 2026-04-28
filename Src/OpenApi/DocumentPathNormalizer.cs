@@ -7,7 +7,7 @@ static class DocumentPathNormalizer
     public static void NormalizeParameterNames(OpenApiDocument document)
         => RenamePaths(
             document,
-            path => RouteTemplateHelpers.ReplaceParameters(path, RouteTemplateHelpers.NormalizeParameterName));
+            RouteTemplateHelpers.NormalizePath);
 
     public static void Apply(OpenApiDocument document, DocumentOptions opts, SharedContext sharedCtx)
     {

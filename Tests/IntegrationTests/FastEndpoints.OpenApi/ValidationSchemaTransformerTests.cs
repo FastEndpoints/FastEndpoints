@@ -73,11 +73,38 @@ public class ValidationSchemaTransformerTests
         rules.ContainsKey("point_data.x_coord").ShouldBeTrue();
     }
 
+    [Fact]
+    public void cyclic_included_validators_do_not_recurse_forever_when_rules_are_cached()
+    {
+        var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
+                                                               .GetType("FastEndpoints.OpenApi.ValidationSchemaTransformer", throwOnError: true)!;
+        var transformer = Activator.CreateInstance(
+            transformerType,
+            BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
+            binder: null,
+            args: [new FastEndpoints.OpenApi.DocumentOptions(), new FastEndpoints.OpenApi.SharedContext()],
+            culture: null)!;
+        var cacheRules = transformerType.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic)
+                                        .Single(m => m.Name == "CacheValidatorRules" && m.GetParameters().Length == 2);
+
+        var cachedRules = cacheRules.Invoke(transformer, [new SelfIncludeValidator(), null])!;
+
+        HasRule(cachedRules, "Name").ShouldBeTrue();
+        GetIncludedRuleCount(cachedRules).ShouldBe(0);
+    }
+
     static bool HasRule(object cachedRules, string key)
     {
         var rules = cachedRules.GetType().GetProperty("Rules")!.GetValue(cachedRules)!;
 
         return (bool)rules.GetType().GetMethod("ContainsKey")!.Invoke(rules, [key])!;
+    }
+
+    static int GetIncludedRuleCount(object cachedRules)
+    {
+        var includedRules = (Array)cachedRules.GetType().GetProperty("IncludedRules")!.GetValue(cachedRules)!;
+
+        return includedRules.Length;
     }
 
     sealed class JsonPropertyNameRulePathRequest
@@ -107,6 +134,15 @@ public class ValidationSchemaTransformerTests
     {
         public NamingPolicyCacheValidator()
             => RuleFor(x => x.Name).NotEmpty();
+    }
+
+    sealed class SelfIncludeValidator : Validator<NamingPolicyCacheRequest>
+    {
+        public SelfIncludeValidator()
+        {
+            RuleFor(x => x.Name).NotEmpty();
+            Include(this);
+        }
     }
 
     sealed class PrefixNamingPolicy(string prefix) : JsonNamingPolicy

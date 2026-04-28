@@ -69,7 +69,7 @@ sealed partial class ValidationSchemaTransformer
         {
             var rulesDict = validator.GetDictionaryOfRules(_sharedCtx.NamingPolicy, _usePropertyNamingPolicy, GetValidatorTargetType(validator));
             ApplyRulesToSchema(schema, rulesDict, propertyPrefix, activeChildValidators);
-            _childResolver.ApplyRulesFromIncludedValidators(schema, validator, propertyPrefix, activeChildValidators, _sharedCtx.NamingPolicy);
+            _childResolver.ApplyRulesFromIncludedValidators(schema, validator, propertyPrefix, activeChildValidators, _sharedCtx.NamingPolicy, []);
         }
 
         [DynamicDependency(DynamicallyAccessedMemberTypes.PublicMethods, typeof(ChildValidatorAdaptor<,>))]
@@ -263,13 +263,27 @@ sealed partial class ValidationSchemaTransformer
                                                      IValidator validator,
                                                      string propertyPrefix,
                                                      HashSet<Type> activeChildValidators,
-                                                     System.Text.Json.JsonNamingPolicy? namingPolicy)
+                                                     System.Text.Json.JsonNamingPolicy? namingPolicy,
+                                                     HashSet<Type> activeIncludedValidators)
         {
-            foreach (var includeValidator in GetIncludedValidators(validator, logger))
+            if (!activeIncludedValidators.Add(validator.GetType()))
+                return;
+
+            try
             {
-                var rulesDict = includeValidator.GetDictionaryOfRules(namingPolicy, usePropertyNamingPolicy, GetValidatorTargetType(includeValidator));
-                applyRulesToSchema(schema, rulesDict, propertyPrefix, activeChildValidators);
-                ApplyRulesFromIncludedValidators(schema, includeValidator, propertyPrefix, activeChildValidators, namingPolicy);
+                foreach (var includeValidator in GetIncludedValidators(validator, logger))
+                {
+                    if (activeIncludedValidators.Contains(includeValidator.GetType()))
+                        continue;
+
+                    var rulesDict = includeValidator.GetDictionaryOfRules(namingPolicy, usePropertyNamingPolicy, GetValidatorTargetType(includeValidator));
+                    applyRulesToSchema(schema, rulesDict, propertyPrefix, activeChildValidators);
+                    ApplyRulesFromIncludedValidators(schema, includeValidator, propertyPrefix, activeChildValidators, namingPolicy, activeIncludedValidators);
+                }
+            }
+            finally
+            {
+                activeIncludedValidators.Remove(validator.GetType());
             }
         }
 

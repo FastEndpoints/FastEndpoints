@@ -52,7 +52,7 @@ static class PropertyNameResolver
             segments[i] = GetSchemaPropertyName(property, namingPolicy, usePropertyNamingPolicy) + indexers;
             currentType = property.PropertyType;
 
-            if (indexers.Length > 0 && TryGetCollectionElementType(currentType) is { } elementType)
+            if (indexers.Length > 0 && OperationSchemaHelpers.TryGetCollectionElementType(currentType) is { } elementType)
                 currentType = elementType;
         }
 
@@ -70,7 +70,7 @@ static class PropertyNameResolver
         if (property is not null)
             return property;
 
-        return TryGetCollectionElementType(currentType) is { } elementType
+        return OperationSchemaHelpers.TryGetCollectionElementType(currentType) is { } elementType
                    ? elementType.GetProperty(memberName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
                    : null;
     }
@@ -108,27 +108,5 @@ static class PropertyNameResolver
         }
 
         return result?.ToString() ?? string.Empty;
-    }
-
-    static Type? TryGetCollectionElementType(Type type)
-    {
-        type = type.GetUnderlyingType();
-
-        if (type == typeof(string))
-            return null;
-
-        if (type.IsArray)
-            return type.GetElementType();
-
-        if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-            return type.GetGenericArguments()[0];
-
-        foreach (var interfaceType in type.GetInterfaces())
-        {
-            if (interfaceType.IsGenericType && interfaceType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-                return interfaceType.GetGenericArguments()[0];
-        }
-
-        return null;
     }
 }

@@ -151,9 +151,9 @@ public class ValidationSchemaTransformerTests
         var applierType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
                                                                .GetType("FastEndpoints.OpenApi.ValidationSchemaTransformer+ValidationSchemaApplier", throwOnError: true)!;
         var rules = typeof(FastEndpoints.OpenApi.Extensions).Assembly
-                                                            .GetType("FastEndpoints.OpenApi.ValidationSchemaTransformer", throwOnError: true)!
-                                                            .GetMethod("CreateDefaultRules", BindingFlags.NonPublic | BindingFlags.Static)!
-                                                            .Invoke(null, null)!;
+                                                            .GetType("FastEndpoints.OpenApi.ValidationRuleCatalog", throwOnError: true)!
+                                                            .GetField("DefaultRules", BindingFlags.NonPublic | BindingFlags.Static)!
+                                                            .GetValue(null)!;
         var resolver = new TestServiceResolver();
         using var applier = (IDisposable)Activator.CreateInstance(
             applierType,

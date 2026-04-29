@@ -53,7 +53,7 @@ static partial class OperationSchemaHelpers
                                : new JsonObject();
                 }
 
-                var elementType = GetCollectionElementType(underlying);
+                var elementType = TryGetCollectionElementType(underlying);
 
                 if (elementType is not null)
                 {

@@ -22,9 +22,6 @@ sealed partial class ValidationSchemaTransformer(DocumentOptions docOpts, Shared
     readonly object _initializeLock = new();
     volatile bool _initialized;
 
-    static FluentValidationRule[] CreateDefaultRules()
-        => [.. ValidationRuleCatalog.DefaultRules];
-
     void Initialize(IServiceProvider services)
     {
         if (_initialized)
@@ -110,22 +107,28 @@ sealed partial class ValidationSchemaTransformer(DocumentOptions docOpts, Shared
     CachedValidatorRules CacheValidatorRules(IValidator validator, JsonNamingPolicy? namingPolicy, HashSet<Type> activeIncludedValidators)
     {
         var rules = validator.GetDictionaryOfRules(namingPolicy, docOpts.UsePropertyNamingPolicy, GetValidatorTargetType(validator));
+        var validatorType = validator.GetType();
 
-        if (!activeIncludedValidators.Add(validator.GetType()))
+        if (!activeIncludedValidators.Add(validatorType))
             return new(rules, []);
 
         try
         {
-            var includedRules = ValidationSchemaApplier.GetIncludedValidators(validator, _logger)
-                                                       .Where(v => !activeIncludedValidators.Contains(v.GetType()))
-                                                       .Select(v => CacheValidatorRules(v, namingPolicy, activeIncludedValidators))
-                                                       .ToArray();
+            var includedRules = new List<CachedValidatorRules>();
 
-            return new(rules, includedRules);
+            foreach (var includedValidator in ValidationSchemaApplier.GetIncludedValidators(validator, _logger))
+            {
+                if (activeIncludedValidators.Contains(includedValidator.GetType()))
+                    continue;
+
+                includedRules.Add(CacheValidatorRules(includedValidator, namingPolicy, activeIncludedValidators));
+            }
+
+            return new(rules, [.. includedRules]);
         }
         finally
         {
-            activeIncludedValidators.Remove(validator.GetType());
+            activeIncludedValidators.Remove(validatorType);
         }
     }
 

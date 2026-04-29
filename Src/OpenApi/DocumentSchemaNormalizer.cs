@@ -25,8 +25,9 @@ static class DocumentSchemaNormalizer
                                        CancellationToken cancellationToken)
     {
         await document.AddMissingSchemas(sharedCtx, context, cancellationToken);
-        document.RemovePromotedRequestWrapperSchemas(sharedCtx);
-        document.RemoveUnreferencedSchemas();
+        var referencedSchemas = document.GetReferencedSchemaRefs();
+        document.RemovePromotedRequestWrapperSchemas(sharedCtx, referencedSchemas);
+        document.RemoveUnreferencedSchemas(referencedSchemas);
     }
 
     public static void RemoveFrameworkSchemas(OpenApiDocument document)

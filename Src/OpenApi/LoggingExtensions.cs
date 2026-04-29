@@ -4,9 +4,6 @@ namespace FastEndpoints.OpenApi;
 
 static partial class LoggingExtensions
 {
-    [LoggerMessage(1, LogLevel.Information, "No validators found in the system!")]
-    public static partial void NoValidatorsFound(this ILogger l);
-
     [LoggerMessage(2, LogLevel.Error, "Exception while processing {validatorType}")]
     public static partial void ExceptionProcessingValidator(this ILogger l, Exception ex, string validatorType);
 

@@ -7,12 +7,10 @@ static class DocumentSchemaHelpers
 {
     extension(OpenApiDocument document)
     {
-        internal void RemoveUnreferencedSchemas()
+        internal void RemoveUnreferencedSchemas(HashSet<string> referencedSchemas)
         {
             if (document.Components?.Schemas is not { Count: > 0 } schemas || document.Paths is not { Count: > 0 })
                 return;
-
-            var referencedSchemas = document.GetReferencedSchemaRefs();
 
             foreach (var key in schemas.Keys.ToArray())
             {
@@ -21,12 +19,13 @@ static class DocumentSchemaHelpers
             }
         }
 
-        internal void RemovePromotedRequestWrapperSchemas(SharedContext sharedCtx)
+        internal void RemoveUnreferencedSchemas()
+            => document.RemoveUnreferencedSchemas(document.GetReferencedSchemaRefs());
+
+        internal void RemovePromotedRequestWrapperSchemas(SharedContext sharedCtx, HashSet<string> referencedSchemas)
         {
             if (sharedCtx.PromotedRequestWrapperSchemaRefs.IsEmpty || document.Components?.Schemas is not { Count: > 0 } schemas)
                 return;
-
-            var referencedSchemas = document.GetReferencedSchemaRefs();
 
             foreach (var refId in sharedCtx.PromotedRequestWrapperSchemaRefs.Keys)
             {
@@ -34,6 +33,9 @@ static class DocumentSchemaHelpers
                     schemas.Remove(refId);
             }
         }
+
+        internal void RemovePromotedRequestWrapperSchemas(SharedContext sharedCtx)
+            => document.RemovePromotedRequestWrapperSchemas(sharedCtx, document.GetReferencedSchemaRefs());
 
         internal void RemoveFormFileSchemas()
         {

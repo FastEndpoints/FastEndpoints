@@ -261,9 +261,11 @@ sealed partial class OperationTransformer
                 return;
 
             Dictionary<string, JsonNode>? propExamples = null;
+            var requestExampleNode = exampleObj is null
+                                         ? null
+                                         : BuildRequestExampleNode(exampleObj, state.PropsRemovedFromBody, promotedBodyProperty);
 
-            if (exampleObj is not null and not IEnumerable &&
-                BuildRequestExampleNode(exampleObj, state.PropsRemovedFromBody, promotedBodyProperty) is JsonObject obj)
+            if (exampleObj is not null and not IEnumerable && requestExampleNode is JsonObject obj)
             {
                 propExamples = [];
 
@@ -281,13 +283,8 @@ sealed partial class OperationTransformer
                 if (schema is null)
                     continue;
 
-                if (exampleObj is not null)
-                {
-                    var exNode = BuildRequestExampleNode(exampleObj, state.PropsRemovedFromBody, promotedBodyProperty);
-
-                    if (exNode is not null)
-                        schema.Example = NormalizeExampleNode(exNode, schema, fallbackExample);
-                }
+                if (requestExampleNode is not null)
+                    schema.Example = NormalizeExampleNode(requestExampleNode.DeepClone(), schema, fallbackExample);
 
                 if (schema.Properties is null)
                     continue;
@@ -487,7 +484,7 @@ sealed partial class OperationTransformer
                     continue;
                 }
 
-                if (propType.IsCollection() && TryGetCollectionElementType(propType) is { } elementType && elementType.IsComplexType())
+                if (propType.IsCollection() && OperationSchemaHelpers.TryGetCollectionElementType(propType) is { } elementType && elementType.IsComplexType())
                 {
                     AddComplexQueryParameters(operation, elementType, $"{key}[0]", shortSchemaNames, visited);
 
@@ -498,14 +495,6 @@ sealed partial class OperationTransformer
             }
 
             visited.Remove(type);
-        }
-
-        static Type? TryGetCollectionElementType(Type type)
-        {
-            if (type.IsArray)
-                return type.GetElementType();
-
-            return type.IsGenericType ? type.GetGenericArguments().FirstOrDefault() : null;
         }
 
         static bool? GetDontBindRequiredness(PropertyInfo property)
@@ -719,7 +708,7 @@ sealed partial class OperationTransformer
             if (node is not JsonObject obj)
                 return node;
 
-            var key = obj.Select(kvp => kvp.Key).FindCaseInsensitiveKey(promotedPropertyName);
+            var key = obj.Select(static kvp => kvp.Key).FindCaseInsensitiveKey(promotedPropertyName);
 
             return key is null ? node : obj[key]?.DeepClone();
         }
@@ -863,14 +852,28 @@ sealed partial class OperationTransformer
             if (schema?.Properties is not { Count: > 0 } properties)
                 return example;
 
+            var propertyKeys = new Dictionary<string, string>(properties.Count, StringComparer.OrdinalIgnoreCase);
+
+            foreach (var propertyKey in properties.Keys)
+                propertyKeys.TryAdd(propertyKey, propertyKey);
+
+            Dictionary<string, string>? fallbackKeys = null;
+
+            if (fallback is not null)
+            {
+                fallbackKeys = new(fallback.Count, StringComparer.OrdinalIgnoreCase);
+
+                foreach (var fallbackKey in fallback.Select(static kvp => kvp.Key))
+                    fallbackKeys.TryAdd(fallbackKey, fallbackKey);
+            }
+
             foreach (var key in example.Select(kvp => kvp.Key).ToArray())
             {
-                var schemaKey = properties.Keys.FindCaseInsensitiveKey(key);
-
-                if (schemaKey is null || properties[schemaKey].ResolveSchema() is not { } propertySchema)
+                if (!propertyKeys.TryGetValue(key, out var schemaKey) || properties[schemaKey].ResolveSchema() is not { } propertySchema)
                     continue;
 
-                var fallbackKey = fallback?.Select(kvp => kvp.Key).FindCaseInsensitiveKey(key);
+                string? fallbackKey = null;
+                fallbackKeys?.TryGetValue(key, out fallbackKey);
                 var fallbackNode = fallbackKey is not null ? fallback![fallbackKey] : null;
 
                 example[key] = NormalizeExampleNode(example[key], propertySchema, fallbackNode);

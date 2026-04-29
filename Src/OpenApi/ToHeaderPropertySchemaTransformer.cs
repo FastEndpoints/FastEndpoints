@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Reflection;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
@@ -11,6 +12,8 @@ namespace FastEndpoints.OpenApi;
 /// </summary>
 sealed class ToHeaderPropertySchemaTransformer(DocumentOptions docOpts, SharedContext sharedCtx) : IOpenApiSchemaTransformer
 {
+    static readonly ConcurrentDictionary<Type, PropertyInfo[]> _toHeaderPropertiesCache = new();
+
     public Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context, CancellationToken ct)
     {
         var namingPolicy = sharedCtx.ResolveNamingPolicy(context.ApplicationServices);
@@ -21,11 +24,8 @@ sealed class ToHeaderPropertySchemaTransformer(DocumentOptions docOpts, SharedCo
 
         var type = context.JsonTypeInfo.Type;
 
-        foreach (var prop in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+        foreach (var prop in _toHeaderPropertiesCache.GetOrAdd(type, GetToHeaderProperties))
         {
-            if (!prop.IsDefined(typeof(ToHeaderAttribute), true))
-                continue;
-
             var jsonName = PropertyNameResolver.GetSchemaPropertyName(prop, namingPolicy, docOpts.UsePropertyNamingPolicy);
 
             schema.Properties.Remove(jsonName);
@@ -34,4 +34,9 @@ sealed class ToHeaderPropertySchemaTransformer(DocumentOptions docOpts, SharedCo
 
         return Task.CompletedTask;
     }
+
+    static PropertyInfo[] GetToHeaderProperties(Type type)
+        => type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+               .Where(static prop => prop.IsDefined(typeof(ToHeaderAttribute), true))
+               .ToArray();
 }

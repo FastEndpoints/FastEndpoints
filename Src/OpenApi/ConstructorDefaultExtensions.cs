@@ -6,6 +6,7 @@ namespace FastEndpoints.OpenApi;
 static class ConstructorDefaultExtensions
 {
     static readonly ConcurrentDictionary<Type, IReadOnlyDictionary<string, object?>> _constructorDefaultCache = new();
+    static readonly IReadOnlyDictionary<string, object?> _emptyConstructorDefaults = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
 
     internal static object? GetParentCtorDefaultValue(this PropertyInfo property)
     {
@@ -21,12 +22,18 @@ static class ConstructorDefaultExtensions
 
     static IReadOnlyDictionary<string, object?> CreateConstructorDefaultMap(Type type)
     {
-        var parameters = type.GetConstructors()
-                             .Select(c => c.GetParameters())
-                             .MaxBy(p => p.Length);
+        ParameterInfo[]? parameters = null;
+
+        foreach (var constructor in type.GetConstructors())
+        {
+            var candidate = constructor.GetParameters();
+
+            if (parameters is null || candidate.Length > parameters.Length)
+                parameters = candidate;
+        }
 
         if (parameters is null)
-            return new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
+            return _emptyConstructorDefaults;
 
         var defaults = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
 
@@ -36,6 +43,6 @@ static class ConstructorDefaultExtensions
                 defaults[parameter.Name] = parameter.DefaultValue;
         }
 
-        return defaults;
+        return defaults.Count == 0 ? _emptyConstructorDefaults : defaults;
     }
 }

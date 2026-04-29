@@ -25,7 +25,52 @@ static partial class OperationSchemaHelpers
     }
 
     internal static string? FindCaseInsensitiveKey(this IEnumerable<string> keys, string match)
-        => keys.FirstOrDefault(k => string.Equals(k, match, StringComparison.OrdinalIgnoreCase));
+    {
+        foreach (var key in keys)
+        {
+            if (string.Equals(key, match, StringComparison.OrdinalIgnoreCase))
+                return key;
+        }
+
+        return null;
+    }
+
+    internal static Type? TryGetCollectionElementType(Type type)
+    {
+        type = type.GetUnderlyingType();
+
+        if (type == typeof(string))
+            return null;
+
+        if (TryGetDictionaryValueType(type) is not null)
+            return null;
+
+        if (type.IsArray)
+            return type.GetElementType();
+
+        if (type.IsGenericType && TryMatchEnumerable(type) is { } directMatch)
+            return directMatch;
+
+        foreach (var interfaceType in type.GetInterfaces())
+        {
+            if (TryMatchEnumerable(interfaceType) is { } interfaceMatch)
+                return interfaceMatch;
+        }
+
+        return null;
+
+        static Type? TryMatchEnumerable(Type candidate)
+        {
+            if (!candidate.IsGenericType)
+                return null;
+
+            var genericType = candidate.GetGenericTypeDefinition();
+
+            return genericType == typeof(IEnumerable<>)
+                       ? candidate.GetGenericArguments()[0]
+                       : null;
+        }
+    }
 
     internal static OpenApiSchema? CreateSchemaFromExampleNode(JsonNode? node)
         => node switch

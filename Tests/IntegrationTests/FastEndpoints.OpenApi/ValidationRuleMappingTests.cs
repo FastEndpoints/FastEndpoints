@@ -121,9 +121,9 @@ public class ValidationRuleMappingTests
 
     static FluentValidationRule[] GetDefaultRules()
         => (FluentValidationRule[])typeof(FastEndpoints.OpenApi.Extensions).Assembly
-                                .GetType("FastEndpoints.OpenApi.ValidationSchemaTransformer", throwOnError: true)!
-                                 .GetMethod("CreateDefaultRules", BindingFlags.NonPublic | BindingFlags.Static)!
-                                 .Invoke(null, null)!;
+                                .GetType("FastEndpoints.OpenApi.ValidationRuleCatalog", throwOnError: true)!
+                                 .GetField("DefaultRules", BindingFlags.NonPublic | BindingFlags.Static)!
+                                 .GetValue(null)!;
 
     static OpenApiSchema CreateParentSchema(string propertyName, OpenApiSchema propertySchema)
         => new()

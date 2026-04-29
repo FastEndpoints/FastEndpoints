@@ -31,7 +31,7 @@ static partial class OperationSchemaHelpers
             {
                 return valueType is null
                            ? JsonSerializer.SerializeToNode(value, Cfg.SerOpts.Options) as JsonObject
-                           : JsonNode.Parse(JsonSerializer.Serialize(value, valueType, Cfg.SerOpts.Options)) as JsonObject;
+                           : JsonSerializer.SerializeToNode(value, valueType, Cfg.SerOpts.Options) as JsonObject;
             }
             catch
             {

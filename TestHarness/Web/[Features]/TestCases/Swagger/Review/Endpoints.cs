@@ -274,19 +274,18 @@ sealed class DuplicateQueryNamingPolicyEndpoint : Endpoint<DuplicateQueryNamingP
         Tags("swagger_review");
         AllowAnonymous();
         Description(
-            b => b.WithOpenApi(
-                operation =>
+            b => b.WithMetadata(
+                new OpenApiOperation
                 {
-                    operation.Parameters ??= [];
-                    operation.Parameters.Add(
+                    Parameters =
+                    [
                         new OpenApiParameter
                         {
                             Name = "firstName",
                             In = ParameterLocation.Query,
                             Schema = new OpenApiSchema { Type = JsonSchemaType.String }
-                        });
-
-                    return operation;
+                        }
+                    ]
                 }));
     }
 

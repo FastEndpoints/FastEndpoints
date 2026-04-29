@@ -507,7 +507,8 @@ static class DocumentSchemaHelpers
                 if (s.Properties is { Count: > 0 })
                     CollectSchemaRefs(s.Properties.Values, refs, pendingRefs);
 
-                CollectSchemaRefs([s.Items, s.AdditionalProperties], refs, pendingRefs);
+                CollectSchemaRefs(s.Items, refs, pendingRefs);
+                CollectSchemaRefs(s.AdditionalProperties, refs, pendingRefs);
 
                 if (s.AllOf is { Count: > 0 })
                     CollectSchemaRefs(s.AllOf, refs, pendingRefs);
@@ -530,9 +531,8 @@ static class DocumentSchemaHelpers
     {
         if (schema.Properties is { Count: > 0 })
         {
-            foreach (var propName in schema.Properties.Keys.ToArray())
+            foreach (var (propName, propSchema) in schema.Properties.ToArray())
             {
-                var propSchema = schema.Properties[propName];
                 if (RewriteFormFileSchema(propSchema) is { } rewrittenSchema)
                     schema.Properties[propName] = rewrittenSchema;
             }

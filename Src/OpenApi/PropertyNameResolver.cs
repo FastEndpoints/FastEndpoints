@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -86,7 +87,7 @@ static class PropertyNameResolver
         if (value.Length == 0)
             return string.Empty;
 
-        var result = string.Empty;
+        StringBuilder? result = null;
         var index = 0;
 
         while (index < value.Length)
@@ -101,11 +102,12 @@ static class PropertyNameResolver
             if (end < 0)
                 break;
 
-            result += "[]";
+            result ??= new();
+            result.Append("[]");
             index = end + 1;
         }
 
-        return result;
+        return result?.ToString() ?? string.Empty;
     }
 
     static Type? TryGetCollectionElementType(Type type)

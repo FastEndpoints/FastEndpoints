@@ -123,9 +123,12 @@ static class PropertyNameResolver
         if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
             return type.GetGenericArguments()[0];
 
-        return type.GetInterfaces()
-                   .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-                   .Select(i => i.GetGenericArguments()[0])
-                   .FirstOrDefault();
+        foreach (var interfaceType in type.GetInterfaces())
+        {
+            if (interfaceType.IsGenericType && interfaceType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                return interfaceType.GetGenericArguments()[0];
+        }
+
+        return null;
     }
 }

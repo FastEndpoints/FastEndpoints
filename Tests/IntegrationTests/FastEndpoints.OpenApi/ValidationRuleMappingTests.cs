@@ -1,5 +1,7 @@
 using System.Reflection;
 using FastEndpoints.OpenApi.ValidationProcessor;
+using FluentValidation;
+using FluentValidation.Internal;
 using FluentValidation.Validators;
 using Microsoft.OpenApi;
 
@@ -119,6 +121,63 @@ public class ValidationRuleMappingTests
         propertySchema.Pattern.ShouldBeNull();
     }
 
+    [Fact]
+    public void greater_than_uint_emits_exclusive_minimum()
+    {
+        var rules = GetDefaultRules();
+        var propertySchema = new OpenApiSchema { Type = JsonSchemaType.Integer, Format = "int64" };
+        var schema = CreateParentSchema("count", propertySchema);
+        var comparisonValidator = GetPropertyValidator(new UnsignedNumericRuleValidator(), nameof(UnsignedNumericRuleRequest.Count));
+        var comparisonRule = rules.Single(r => r.Matches(comparisonValidator));
+
+        comparisonRule.Apply(new(schema, "count", comparisonValidator, false));
+
+        propertySchema.ExclusiveMinimum.ShouldBe("0");
+    }
+
+    [Fact]
+    public void less_than_ulong_max_value_emits_exclusive_maximum()
+    {
+        var rules = GetDefaultRules();
+        var propertySchema = new OpenApiSchema { Type = JsonSchemaType.Integer, Format = "int64" };
+        var schema = CreateParentSchema("amount", propertySchema);
+        var comparisonValidator = GetPropertyValidator(new UlongNumericRuleValidator(), nameof(UlongNumericRuleRequest.Amount));
+        var comparisonRule = rules.Single(r => r.Matches(comparisonValidator));
+
+        comparisonRule.Apply(new(schema, "amount", comparisonValidator, false));
+
+        propertySchema.ExclusiveMaximum.ShouldBe("18446744073709551615");
+    }
+
+    [Fact]
+    public void inclusive_between_byte_emits_minimum_and_maximum()
+    {
+        var rules = GetDefaultRules();
+        var propertySchema = new OpenApiSchema { Type = JsonSchemaType.Integer, Format = "int32" };
+        var schema = CreateParentSchema("rating", propertySchema);
+        var betweenValidator = GetPropertyValidator(new ByteNumericRuleValidator(), nameof(ByteNumericRuleRequest.Rating));
+        var betweenRule = rules.Single(r => r.Matches(betweenValidator));
+
+        betweenRule.Apply(new(schema, "rating", betweenValidator, false));
+
+        propertySchema.Minimum.ShouldBe("1");
+        propertySchema.Maximum.ShouldBe("10");
+    }
+
+    [Fact]
+    public void signed_numeric_comparison_behavior_is_unchanged()
+    {
+        var rules = GetDefaultRules();
+        var propertySchema = new OpenApiSchema { Type = JsonSchemaType.Integer, Format = "int32" };
+        var schema = CreateParentSchema("age", propertySchema);
+        var comparisonValidator = GetPropertyValidator(new SignedNumericRuleValidator(), nameof(SignedNumericRuleRequest.Age));
+        var comparisonRule = rules.Single(r => r.Matches(comparisonValidator));
+
+        comparisonRule.Apply(new(schema, "age", comparisonValidator, false));
+
+        propertySchema.Minimum.ShouldBe("18");
+    }
+
     static FluentValidationRule[] GetDefaultRules()
         => (FluentValidationRule[])typeof(FastEndpoints.OpenApi.Extensions).Assembly
                                 .GetType("FastEndpoints.OpenApi.ValidationRuleCatalog", throwOnError: true)!
@@ -146,6 +205,57 @@ public class ValidationRuleMappingTests
 
     static TValidator CreateValidator<TValidator>(Type openGenericValidatorType, params object[] args)
         => (TValidator)Activator.CreateInstance(openGenericValidatorType.MakeGenericType(typeof(object)), args)!;
+
+    static IPropertyValidator GetPropertyValidator<TRequest>(AbstractValidator<TRequest> validator, string propertyName)
+    {
+        var rule = ((IEnumerable<IValidationRule>)validator).Single(r => r.PropertyName == propertyName);
+
+        return rule.Components.Single().Validator;
+    }
+
+    sealed class UnsignedNumericRuleRequest
+    {
+        public uint Count { get; set; }
+    }
+
+    sealed class UnsignedNumericRuleValidator : AbstractValidator<UnsignedNumericRuleRequest>
+    {
+        public UnsignedNumericRuleValidator()
+            => RuleFor(x => x.Count).GreaterThan((uint)0);
+    }
+
+    sealed class UlongNumericRuleRequest
+    {
+        public ulong Amount { get; set; }
+    }
+
+    sealed class UlongNumericRuleValidator : AbstractValidator<UlongNumericRuleRequest>
+    {
+        public UlongNumericRuleValidator()
+            => RuleFor(x => x.Amount).LessThan(ulong.MaxValue);
+    }
+
+    sealed class ByteNumericRuleRequest
+    {
+        public byte Rating { get; set; }
+    }
+
+    sealed class ByteNumericRuleValidator : AbstractValidator<ByteNumericRuleRequest>
+    {
+        public ByteNumericRuleValidator()
+            => RuleFor(x => x.Rating).InclusiveBetween((byte)1, (byte)10);
+    }
+
+    sealed class SignedNumericRuleRequest
+    {
+        public int Age { get; set; }
+    }
+
+    sealed class SignedNumericRuleValidator : AbstractValidator<SignedNumericRuleRequest>
+    {
+        public SignedNumericRuleValidator()
+            => RuleFor(x => x.Age).GreaterThanOrEqualTo(18);
+    }
 
     sealed class StubNotEmptyValidator : INotEmptyValidator
     {

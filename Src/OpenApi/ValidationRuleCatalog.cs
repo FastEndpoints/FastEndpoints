@@ -114,8 +114,7 @@ static class ValidationRuleCatalog
 
                         if (comparisonValidator.ValueToCompare.IsNumeric())
                         {
-                            var valueToCompare = Convert.ToDecimal(comparisonValidator.ValueToCompare);
-                            var valueStr = valueToCompare.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                            var valueStr = comparisonValidator.ValueToCompare.ToInvariantNumericString();
 
                             if (!context.TryGetPropertySchema(out var prop))
                                 return;
@@ -154,7 +153,7 @@ static class ValidationRuleCatalog
 
                         if (betweenValidator.From.IsNumeric())
                         {
-                            var fromStr = Convert.ToDecimal(betweenValidator.From).ToString(System.Globalization.CultureInfo.InvariantCulture);
+                            var fromStr = betweenValidator.From.ToInvariantNumericString();
                             if (betweenValidator.GetType().IsSubClassOfGeneric(typeof(ExclusiveBetweenValidator<,>)))
                                 prop.ExclusiveMinimum = fromStr;
                             else
@@ -163,7 +162,7 @@ static class ValidationRuleCatalog
 
                         if (betweenValidator.To.IsNumeric())
                         {
-                            var toStr = Convert.ToDecimal(betweenValidator.To).ToString(System.Globalization.CultureInfo.InvariantCulture);
+                            var toStr = betweenValidator.To.ToInvariantNumericString();
                             if (betweenValidator.GetType().IsSubClassOfGeneric(typeof(ExclusiveBetweenValidator<,>)))
                                 prop.ExclusiveMaximum = toStr;
                             else

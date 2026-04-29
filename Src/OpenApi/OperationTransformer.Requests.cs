@@ -204,7 +204,7 @@ sealed partial class OperationTransformer
                 }
             }
 
-            ApplyExampleRequestToParams(operation, epDef);
+            ApplyExampleRequestToParams(operation, epDef, requestPropLookup);
         }
 
         public void ApplyExamples(OpenApiOperation operation,
@@ -363,13 +363,14 @@ sealed partial class OperationTransformer
                        property.Name.ApplyPropNamingPolicy(docOpts, NamingPolicy);
 
             if (location == ParameterLocation.Query)
-                return property.GetCustomAttribute<BindFromAttribute>()?.Name ??
-                       PropertyNameResolver.GetSchemaPropertyName(property, NamingPolicy, docOpts.UsePropertyNamingPolicy);
+                return GetQueryParameterName(property);
 
             return property.Name;
         }
 
-        static void ApplyExampleRequestToParams(OpenApiOperation operation, EndpointDefinition epDef)
+        static void ApplyExampleRequestToParams(OpenApiOperation operation,
+                                                EndpointDefinition epDef,
+                                                Dictionary<string, PropertyInfo>? requestPropLookup)
         {
             var exampleRequest = epDef.EndpointSummary?.ExampleRequest;
 
@@ -390,7 +391,21 @@ sealed partial class OperationTransformer
                 var matchingProp = exampleObj.FirstOrDefault(kv => string.Equals(kv.Key, concreteParam.Name, StringComparison.OrdinalIgnoreCase));
 
                 if (matchingProp.Value is not null)
+                {
                     concreteParam.Example = matchingProp.Value.DeepClone();
+
+                    continue;
+                }
+
+                var prop = concreteParam.Name is { } parameterName
+                               ? FindRequestProperty(requestPropLookup, parameterName, concreteParam.In ?? ParameterLocation.Query)
+                               : null;
+                var propValue = prop?.DeclaringType?.IsInstanceOfType(exampleRequest) is true
+                                    ? prop.GetValue(exampleRequest)
+                                    : null;
+
+                if (propValue is not null)
+                    concreteParam.Example = propValue.JsonNodeFromObject();
             }
         }
 

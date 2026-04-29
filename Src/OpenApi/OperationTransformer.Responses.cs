@@ -196,16 +196,19 @@ sealed partial class OperationTransformer
             if (response is not OpenApiResponse concreteResp || concreteResp.Content is not { Count: > 0 })
                 return;
 
-            var jsonNameToClrName = BuildJsonNameMap(responseDtoType, NamingPolicy, docOpts.UsePropertyNamingPolicy);
+            var collectionElementType = responseDtoType is null ? null : OperationSchemaHelpers.TryGetCollectionElementType(responseDtoType);
+            var descriptionType = collectionElementType ?? responseDtoType;
+            var jsonNameToClrName = BuildJsonNameMap(descriptionType, NamingPolicy, docOpts.UsePropertyNamingPolicy);
 
             foreach (var content in concreteResp.Content.Values)
             {
                 var schema = content.EnsureOperationLocalSchemaForMutation();
+                var descriptionTarget = collectionElementType is null ? schema : EnsureLocalArrayItemSchema(schema);
 
-                if (schema?.Properties is not { Count: > 0 })
+                if (descriptionTarget?.Properties is not { Count: > 0 })
                     continue;
 
-                foreach (var (propKey, propSchema) in schema.Properties)
+                foreach (var (propKey, propSchema) in descriptionTarget.Properties)
                 {
                     var propName = jsonNameToClrName?.TryGetValue(propKey, out var clrName) == true ? clrName : propKey;
 
@@ -213,6 +216,19 @@ sealed partial class OperationTransformer
                         concretePropSchema.Description = responseDescription;
                 }
             }
+        }
+
+        static OpenApiSchema? EnsureLocalArrayItemSchema(OpenApiSchema? schema)
+        {
+            if (schema?.Type?.HasFlag(JsonSchemaType.Array) != true)
+                return null;
+
+            var itemSchema = schema.Items.CloneAsConcreteSchema();
+
+            if (itemSchema is not null)
+                schema.Items = itemSchema;
+
+            return itemSchema;
         }
 
         static Dictionary<int, Type?> BuildSupportedResponseTypeMap(OpenApiOperationTransformerContext context)

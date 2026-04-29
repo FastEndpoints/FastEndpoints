@@ -2651,6 +2651,39 @@
         }
       }
     },
+    "/api/swagger-review/json-named-query-metadata": {
+      "get": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewJsonNamedQueryMetadataReviewEndpoint",
+        "parameters": [
+          {
+            "name": "customerId",
+            "in": "query",
+            "description": "customer id query summary",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "default": "default-customer"
+            },
+            "example": "example-customer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/swagger-review/json-property-name-transformers": {
       "post": {
         "tags": [

@@ -180,6 +180,20 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     }
 
     [Fact]
+    public async Task query_parameter_metadata_uses_binding_name_not_json_property_name()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var operation = JToken.Parse(json)["paths"]!["/api/swagger-review/json-named-query-metadata"]!["get"]!;
+        var queryParam = operation["parameters"]!.First(p => p["in"]!.Value<string>() == "query");
+
+        queryParam["name"]!.Value<string>().ShouldBe("customerId");
+        operation["parameters"]!.Any(p => p["name"]!.Value<string>() == "customer_id").ShouldBeFalse();
+        queryParam["description"]!.Value<string>().ShouldBe("customer id query summary");
+        queryParam["schema"]!["default"]!.Value<string>().ShouldBe("default-customer");
+        queryParam["example"]!.Value<string>().ShouldBe("example-customer");
+    }
+
+    [Fact]
     public async Task nullable_query_param_attribute_with_is_required_is_added_as_required_parameter()
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review");

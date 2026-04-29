@@ -334,6 +334,31 @@ sealed class BindFromQueryPostReviewEndpoint : Endpoint<BindFromQueryPostReviewR
         => Send.OkAsync(req.BodyValue, ct);
 }
 
+sealed class JsonNamedQueryMetadataReviewRequest
+{
+    [JsonPropertyName("customer_id"), System.ComponentModel.DefaultValue("default-customer")]
+    public string CustomerId { get; set; } = string.Empty;
+}
+
+sealed class JsonNamedQueryMetadataReviewEndpoint : Endpoint<JsonNamedQueryMetadataReviewRequest, string>
+{
+    public override void Configure()
+    {
+        Get("/swagger-review/json-named-query-metadata");
+        Tags("swagger_review");
+        AllowAnonymous();
+        Summary(
+            s =>
+            {
+                s.Params[nameof(JsonNamedQueryMetadataReviewRequest.CustomerId)] = "customer id query summary";
+                s.ExampleRequest = new() { CustomerId = "example-customer" };
+            });
+    }
+
+    public override Task HandleAsync(JsonNamedQueryMetadataReviewRequest req, CancellationToken ct)
+        => Send.OkAsync(req.CustomerId, ct);
+}
+
 sealed class RequiredQueryParamReviewRequest
 {
     [QueryParam(IsRequired = true)]

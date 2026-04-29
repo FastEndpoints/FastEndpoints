@@ -4,6 +4,7 @@
 
 using FluentValidation;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.Text.Json;
 using FluentValidation.Internal;
 
@@ -18,7 +19,10 @@ static class ValidationExtensions
     /// Is supported swagger numeric type.
     /// </summary>
     internal static bool IsNumeric(this object value)
-        => value is int or long or float or double or decimal;
+        => value is byte or sbyte or short or ushort or int or uint or long or ulong or float or double or decimal;
+
+    internal static string ToInvariantNumericString(this object value)
+        => Convert.ToDecimal(value, CultureInfo.InvariantCulture).ToString(CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Creates a dictionary with the validation rules.

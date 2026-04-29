@@ -568,6 +568,63 @@ public class OperationSchemaHelpersTests
     }
 
     [Fact]
+    public void collection_response_param_descriptions_apply_to_local_item_schema()
+    {
+        var componentSchema = new OpenApiSchema
+        {
+            Type = JsonSchemaType.Object,
+            Properties = new Dictionary<string, IOpenApiSchema>
+            {
+                ["displayName"] = new OpenApiSchema { Type = JsonSchemaType.String },
+                ["sku_id"] = new OpenApiSchema { Type = JsonSchemaType.String }
+            }
+        };
+        var document = new OpenApiDocument
+        {
+            Components = new OpenApiComponents
+            {
+                Schemas = new Dictionary<string, IOpenApiSchema>
+                {
+                    ["ResponseParamDescriptionCollectionItem"] = componentSchema
+                }
+            }
+        };
+        var response = new OpenApiResponse
+        {
+            Content = new Dictionary<string, OpenApiMediaType>
+            {
+                ["application/json"] = new()
+                {
+                    Schema = new OpenApiSchema
+                    {
+                        Type = JsonSchemaType.Array,
+                        Items = new OpenApiSchemaReference("ResponseParamDescriptionCollectionItem", document)
+                    }
+                }
+            }
+        };
+
+        ApplyResponseParamDescriptions(
+            response,
+            typeof(List<ResponseParamDescriptionCollectionItem>),
+            new Dictionary<string, string>
+            {
+                [nameof(ResponseParamDescriptionCollectionItem.DisplayName)] = "item display name",
+                [nameof(ResponseParamDescriptionCollectionItem.SkuCode)] = "item sku code"
+            },
+            JsonNamingPolicy.CamelCase);
+
+        var arraySchema = response.Content!["application/json"].Schema.ShouldBeOfType<OpenApiSchema>();
+        var itemSchema = arraySchema.Items.ShouldBeOfType<OpenApiSchema>();
+
+        itemSchema.ShouldNotBeSameAs(componentSchema);
+        itemSchema.Properties!["displayName"].ShouldBeOfType<OpenApiSchema>().Description.ShouldBe("item display name");
+        itemSchema.Properties!["sku_id"].ShouldBeOfType<OpenApiSchema>().Description.ShouldBe("item sku code");
+        componentSchema.Properties!["displayName"].ShouldBeOfType<OpenApiSchema>().Description.ShouldBeNull();
+        componentSchema.Properties!["sku_id"].ShouldBeOfType<OpenApiSchema>().Description.ShouldBeNull();
+    }
+
+    [Fact]
     public void primitive_numeric_parameters_use_numeric_schemas()
     {
         var operation = new OpenApiOperation();
@@ -832,6 +889,14 @@ public class OperationSchemaHelpersTests
         public string Name { get; set; } = string.Empty;
     }
 
+    sealed class ResponseParamDescriptionCollectionItem
+    {
+        public string DisplayName { get; set; } = string.Empty;
+
+        [System.Text.Json.Serialization.JsonPropertyName("sku_id")]
+        public string SkuCode { get; set; } = string.Empty;
+    }
+
     enum RouteStatus
     {
         Pending,
@@ -1077,15 +1142,19 @@ public class OperationSchemaHelpersTests
                        .Invoke(null, [operation, ParameterLocation.Path, name, type, sharedCtx, false]);
     }
 
-    static void ApplyResponseParamDescriptions(OpenApiResponse response, Type responseType, Dictionary<string, string> descriptions)
+    static void ApplyResponseParamDescriptions(OpenApiResponse response,
+                                               Type responseType,
+                                               Dictionary<string, string> descriptions,
+                                               JsonNamingPolicy? namingPolicy = null)
     {
         var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
-                                                               .GetType("FastEndpoints.OpenApi.OperationTransformer+ResponseOperationTransformer", throwOnError: true)!;
+                                                                .GetType("FastEndpoints.OpenApi.OperationTransformer+ResponseOperationTransformer", throwOnError: true)!;
+        var sharedCtx = new SharedContext { NamingPolicy = namingPolicy };
         var transformer = Activator.CreateInstance(
             transformerType,
             BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
             binder: null,
-            args: [new DocumentOptions(), new SharedContext()],
+            args: [new DocumentOptions(), sharedCtx],
             culture: null)!;
 
         transformerType.GetMethod("ApplyParamDescriptions", BindingFlags.Instance | BindingFlags.NonPublic)!

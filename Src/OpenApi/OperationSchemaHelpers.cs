@@ -10,9 +10,9 @@ static partial class OperationSchemaHelpers
 
     internal static void RemoveProperties(this JsonObject obj, IEnumerable<string> propertyNames)
     {
-        var existingKeys = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        var existingKeys = new Dictionary<string, string>(obj.Count, StringComparer.OrdinalIgnoreCase);
 
-        foreach (var key in obj.Select(static kvp => kvp.Key))
+        foreach (var (key, _) in obj)
             existingKeys.TryAdd(key, key);
 
         foreach (var propertyName in propertyNames)

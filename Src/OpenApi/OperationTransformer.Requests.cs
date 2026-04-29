@@ -165,6 +165,7 @@ sealed partial class OperationTransformer
             var requestDtoType = GetRequestDtoType(epDef);
             var requestProps = requestDtoType is null ? null : GetPublicInstanceProperties(requestDtoType);
             var requestPropLookup = requestProps is null ? null : BuildRequestPropertyLookup(requestProps);
+            var paramDescriptions = epDef.EndpointSummary?.Params;
 
             foreach (var param in operation.Parameters)
             {
@@ -175,11 +176,11 @@ sealed partial class OperationTransformer
                                ? FindRequestProperty(requestPropLookup, parameterName, concreteParam.In ?? ParameterLocation.Query)
                                : null;
 
-                if (epDef.EndpointSummary?.Params is { Count: > 0 })
+                if (paramDescriptions is { Count: > 0 })
                 {
                     var descriptionKey = prop?.Name ?? concreteParam.Name;
                     var description = descriptionKey is not null
-                                          ? FindParamDescription(epDef.EndpointSummary.Params, descriptionKey)
+                                          ? FindParamDescription(paramDescriptions, descriptionKey)
                                           : null;
                     if (description is not null)
                         concreteParam.Description = description;
@@ -213,16 +214,20 @@ sealed partial class OperationTransformer
 
             var examples = BuildUniqueRequestExamples(epDef.EndpointSummary.RequestExamples);
             var fallbackExample = BuildRequestExampleFallback(epDef, state.PropsRemovedFromBody, promotedBodyProperty);
+            var exampleNodes = new List<(RequestExample Example, JsonNode? Node)>(examples.Count);
+
+            foreach (var example in examples)
+                exampleNodes.Add((example, BuildRequestExampleNode(example.Value, state.PropsRemovedFromBody, promotedBodyProperty)));
 
             foreach (var content in operation.RequestBody.Content.Values)
             {
                 var schema = content.Schema.ResolveSchema();
 
-                if (examples.Count == 1)
+                if (exampleNodes.Count == 1)
                 {
-                    content.Example = NormalizeExampleNode(BuildRequestExampleNode(examples[0].Value, state.PropsRemovedFromBody, promotedBodyProperty),
-                                                           schema,
-                                                           fallbackExample);
+                    content.Example = NormalizeExampleNode(exampleNodes[0].Node?.DeepClone(),
+                                                            schema,
+                                                            fallbackExample);
                     content.Examples?.Clear();
                 }
                 else
@@ -230,15 +235,15 @@ sealed partial class OperationTransformer
                     content.Example = null;
                     content.Examples ??= new Dictionary<string, IOpenApiExample>();
 
-                    foreach (var example in examples)
+                    foreach (var (example, exampleNode) in exampleNodes)
                     {
                         content.Examples[example.Label] = new OpenApiExample
                         {
                             Summary = example.Summary,
                             Description = example.Description,
-                            Value = NormalizeExampleNode(BuildRequestExampleNode(example.Value, state.PropsRemovedFromBody, promotedBodyProperty),
-                                                         schema,
-                                                         fallbackExample)
+                            Value = NormalizeExampleNode(exampleNode?.DeepClone(),
+                                                          schema,
+                                                          fallbackExample)
                         };
                     }
                 }
@@ -253,7 +258,8 @@ sealed partial class OperationTransformer
             if (operation.RequestBody?.Content is null)
                 return;
 
-            var hasParams = epDef.EndpointSummary?.Params is { Count: > 0 };
+            var paramDescriptions = epDef.EndpointSummary?.Params;
+            var hasParams = paramDescriptions is { Count: > 0 };
             var exampleObj = epDef.EndpointSummary?.ExampleRequest;
             var fallbackExample = BuildRequestExampleFallback(epDef, state.PropsRemovedFromBody, promotedBodyProperty);
 
@@ -294,9 +300,9 @@ sealed partial class OperationTransformer
                     if (propSchema is not OpenApiSchema concreteProp)
                         continue;
 
-                    if (hasParams && epDef.EndpointSummary?.Params != null)
+                    if (paramDescriptions is not null)
                     {
-                        var description = FindParamDescription(epDef.EndpointSummary.Params, propName);
+                        var description = FindParamDescription(paramDescriptions, propName);
                         if (description is not null)
                             concreteProp.Description = description;
                     }

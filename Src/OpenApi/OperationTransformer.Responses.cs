@@ -254,8 +254,11 @@ sealed partial class OperationTransformer
 
         void AddConfiguredResponseHeaders(OpenApiResponse response, IEnumerable<ResponseHeader> headers, int statusCode)
         {
-            foreach (var header in headers.Where(h => h.StatusCode == statusCode))
+            foreach (var header in headers)
             {
+                if (header.StatusCode != statusCode)
+                    continue;
+
                 var example = header.Example.JsonNodeFromObject();
 
                 AddResponseHeader(
@@ -272,7 +275,7 @@ sealed partial class OperationTransformer
 
         void AddMissingResponseContent(OpenApiResponse response, IProducesResponseTypeMetadata metadata)
         {
-            if (metadata.Type is null || metadata.Type == Types.Void || !metadata.ContentTypes.Any())
+            if (metadata.Type is null || metadata.Type == Types.Void)
                 return;
 
             response.Content ??= new Dictionary<string, OpenApiMediaType>();

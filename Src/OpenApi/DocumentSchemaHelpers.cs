@@ -193,13 +193,13 @@ static class DocumentSchemaHelpers
         if (components.Parameters is { Count: > 0 })
         {
             foreach (var (id, parameter) in components.Parameters)
-                CollectParameterRefs(parameter, document, refs, pendingRefs, walkedParameters, id);
+                CollectParameterRefs(parameter, document, refs, pendingRefs, walkedParameters, walkedHeaders, id);
         }
 
         if (components.RequestBodies is { Count: > 0 })
         {
             foreach (var (id, requestBody) in components.RequestBodies)
-                CollectRequestBodyRefs(requestBody, document, refs, pendingRefs, walkedRequestBodies, id);
+                CollectRequestBodyRefs(requestBody, document, refs, pendingRefs, walkedRequestBodies, walkedHeaders, id);
         }
 
         if (components.Headers is { Count: > 0 })
@@ -234,7 +234,7 @@ static class DocumentSchemaHelpers
         if (pathItem?.Parameters is { Count: > 0 })
         {
             foreach (var parameter in pathItem.Parameters)
-                CollectParameterRefs(parameter, document, refs, pendingRefs, walkedParameters);
+                CollectParameterRefs(parameter, document, refs, pendingRefs, walkedParameters, walkedHeaders);
         }
 
         if (pathItem?.Operations is not { Count: > 0 })
@@ -245,10 +245,10 @@ static class DocumentSchemaHelpers
             if (op.Parameters is { Count: > 0 })
             {
                 foreach (var parameter in op.Parameters)
-                    CollectParameterRefs(parameter, document, refs, pendingRefs, walkedParameters);
+                    CollectParameterRefs(parameter, document, refs, pendingRefs, walkedParameters, walkedHeaders);
             }
 
-            CollectRequestBodyRefs(op.RequestBody, document, refs, pendingRefs, walkedRequestBodies);
+            CollectRequestBodyRefs(op.RequestBody, document, refs, pendingRefs, walkedRequestBodies, walkedHeaders);
 
             if (op.Responses is { Count: > 0 })
             {
@@ -299,6 +299,7 @@ static class DocumentSchemaHelpers
                                      HashSet<string> refs,
                                      Queue<string> pendingRefs,
                                      HashSet<string> walkedParameters,
+                                     HashSet<string> walkedHeaders,
                                      string? componentId = null)
     {
         if (parameter is null)
@@ -307,7 +308,8 @@ static class DocumentSchemaHelpers
         if (componentId is not null && !walkedParameters.Add(componentId))
             return;
 
-        if (parameter is OpenApiParameterReference parameterRef && TryCollectReferencedComponent(parameterRef.Reference, document.Components?.Parameters, document, refs, pendingRefs, walkedParameters))
+        if (parameter is OpenApiParameterReference parameterRef &&
+            TryCollectReferencedComponent(parameterRef.Reference, document.Components?.Parameters, document, refs, pendingRefs, walkedParameters, walkedHeaders))
             return;
 
         CollectSchemaRefs(parameter.Schema, refs, pendingRefs);
@@ -315,7 +317,7 @@ static class DocumentSchemaHelpers
         if (parameter.Content is { Count: > 0 })
         {
             foreach (var mediaType in parameter.Content.Values)
-                CollectMediaTypeRefs(mediaType, document, refs, pendingRefs, new(StringComparer.Ordinal));
+                CollectMediaTypeRefs(mediaType, document, refs, pendingRefs, walkedHeaders);
         }
     }
 
@@ -324,6 +326,7 @@ static class DocumentSchemaHelpers
                                        HashSet<string> refs,
                                        Queue<string> pendingRefs,
                                        HashSet<string> walkedRequestBodies,
+                                       HashSet<string> walkedHeaders,
                                        string? componentId = null)
     {
         if (requestBody is null)
@@ -332,13 +335,14 @@ static class DocumentSchemaHelpers
         if (componentId is not null && !walkedRequestBodies.Add(componentId))
             return;
 
-        if (requestBody is OpenApiRequestBodyReference requestBodyRef && TryCollectReferencedComponent(requestBodyRef.Reference, document.Components?.RequestBodies, document, refs, pendingRefs, walkedRequestBodies))
+        if (requestBody is OpenApiRequestBodyReference requestBodyRef &&
+            TryCollectReferencedComponent(requestBodyRef.Reference, document.Components?.RequestBodies, document, refs, pendingRefs, walkedRequestBodies, walkedHeaders))
             return;
 
         if (requestBody.Content is { Count: > 0 })
         {
             foreach (var mediaType in requestBody.Content.Values)
-                CollectMediaTypeRefs(mediaType, document, refs, pendingRefs, new(StringComparer.Ordinal));
+                CollectMediaTypeRefs(mediaType, document, refs, pendingRefs, walkedHeaders);
         }
     }
 
@@ -446,10 +450,10 @@ static class DocumentSchemaHelpers
                 CollectResponseRefs(response, document, refs, pendingRefs, walkedRefs, walkedHeaders ?? new(StringComparer.Ordinal), id);
                 break;
             case IOpenApiParameter parameter:
-                CollectParameterRefs(parameter, document, refs, pendingRefs, walkedRefs, id);
+                CollectParameterRefs(parameter, document, refs, pendingRefs, walkedRefs, walkedHeaders ?? new(StringComparer.Ordinal), id);
                 break;
             case IOpenApiRequestBody requestBody:
-                CollectRequestBodyRefs(requestBody, document, refs, pendingRefs, walkedRefs, id);
+                CollectRequestBodyRefs(requestBody, document, refs, pendingRefs, walkedRefs, walkedHeaders ?? new(StringComparer.Ordinal), id);
                 break;
             case IOpenApiHeader header:
                 CollectHeaderRefs(header, document, refs, pendingRefs, walkedRefs, id);

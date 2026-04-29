@@ -28,19 +28,15 @@ static class DocumentPathNormalizer
 
     static void RenamePaths(OpenApiDocument document, Func<string, string> rename)
     {
-        var renames = new List<(string OldPath, string NewPath)>();
+        var renames = CollectPathRenames(document, rename);
+
+        if (renames.Count == 0)
+            return;
+
         var normalizedPathOrigins = new Dictionary<string, string>(document.Paths.Count, StringComparer.Ordinal);
 
         foreach (var path in document.Paths.Keys)
             normalizedPathOrigins[path] = path;
-
-        foreach (var path in document.Paths.Keys)
-        {
-            var newPath = rename(path);
-
-            if (newPath != path)
-                renames.Add((path, newPath));
-        }
 
         foreach (var (oldPath, newPath) in renames)
         {
@@ -61,6 +57,21 @@ static class DocumentPathNormalizer
             MergePathItems(existingPathItem, pathItem, oldPath, existingPathOrigin, newPath);
             normalizedPathOrigins.Remove(oldPath);
         }
+    }
+
+    static List<(string OldPath, string NewPath)> CollectPathRenames(OpenApiDocument document, Func<string, string> rename)
+    {
+        var renames = new List<(string OldPath, string NewPath)>();
+
+        foreach (var path in document.Paths.Keys)
+        {
+            var newPath = rename(path);
+
+            if (newPath != path)
+                renames.Add((path, newPath));
+        }
+
+        return renames;
     }
 
     static void MergePathItems(IOpenApiPathItem target,

@@ -53,6 +53,8 @@ sealed partial class OperationTransformer
             if (operation.Responses is null)
                 return;
 
+            var responseTypes = BuildSupportedResponseTypeMap(context);
+
             foreach (var (statusCode, response) in operation.Responses)
             {
                 ApplyDefaultResponseDescription(statusCode, response);
@@ -64,7 +66,7 @@ sealed partial class OperationTransformer
                         response.Description = customDesc;
 
                     if (epDef.EndpointSummary.ResponseParams.TryGetValue(code, out var propDescriptions))
-                        ApplyParamDescriptions(response, propDescriptions, context, code);
+                        ApplyParamDescriptions(response, propDescriptions, responseTypes.GetValueOrDefault(code));
                 }
             }
         }
@@ -178,17 +180,12 @@ sealed partial class OperationTransformer
 
         void ApplyParamDescriptions(IOpenApiResponse response,
                                     Dictionary<string, string> propDescriptions,
-                                    OpenApiOperationTransformerContext context,
-                                    int statusCode)
+                                    Type? responseDtoType)
         {
             if (response is not OpenApiResponse concreteResp || concreteResp.Content is not { Count: > 0 })
                 return;
 
-            var respDtoType = context.Description.SupportedResponseTypes
-                                     .FirstOrDefault(x => x.StatusCode == statusCode)?
-                                     .Type;
-
-            var jsonNameToClrName = BuildJsonNameMap(respDtoType, NamingPolicy, docOpts.UsePropertyNamingPolicy);
+            var jsonNameToClrName = BuildJsonNameMap(responseDtoType, NamingPolicy, docOpts.UsePropertyNamingPolicy);
 
             foreach (var content in concreteResp.Content.Values)
             {
@@ -205,6 +202,20 @@ sealed partial class OperationTransformer
                         concretePropSchema.Description = responseDescription;
                 }
             }
+        }
+
+        static Dictionary<int, Type?> BuildSupportedResponseTypeMap(OpenApiOperationTransformerContext context)
+        {
+            var responseTypes = context.Description.SupportedResponseTypes;
+            var map = new Dictionary<int, Type?>(responseTypes.Count);
+
+            for (var i = 0; i < responseTypes.Count; i++)
+            {
+                var responseType = responseTypes[i];
+                map[responseType.StatusCode] = responseType.Type;
+            }
+
+            return map;
         }
 
         void AddTypedResponseHeaders(OpenApiResponse response, Type responseType)

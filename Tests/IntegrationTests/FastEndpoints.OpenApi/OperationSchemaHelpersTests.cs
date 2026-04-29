@@ -1087,28 +1087,9 @@ public class OperationSchemaHelpersTests
             binder: null,
             args: [new DocumentOptions(), new SharedContext()],
             culture: null)!;
-        var context = CreateTransformerContext(responseType);
 
         transformerType.GetMethod("ApplyParamDescriptions", BindingFlags.Instance | BindingFlags.NonPublic)!
-                       .Invoke(transformer, [response, descriptions, context, 200]);
-    }
-
-    static OpenApiOperationTransformerContext CreateTransformerContext(Type responseType)
-    {
-        var description = new ApiDescription();
-        description.SupportedResponseTypes.Add(new ApiResponseType
-        {
-            StatusCode = 200,
-            Type = responseType
-        });
-
-        return new()
-        {
-            Description = description,
-            DocumentName = "test",
-            ApplicationServices = EmptyServiceProvider.Instance,
-            Document = new OpenApiDocument()
-        };
+                       .Invoke(transformer, [response, descriptions, responseType]);
     }
 
     sealed class EmptyServiceProvider : IServiceProvider

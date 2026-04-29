@@ -66,13 +66,14 @@ sealed partial class ValidationSchemaTransformer(DocumentOptions docOpts, Shared
             ValidationRuleCatalog.DefaultRules,
             docOpts.UsePropertyNamingPolicy,
             localizeReferencedSchemas: true);
+        var formattedPropertyPrefix = FormatPropertyPrefix(propertyPrefix);
 
         foreach (var content in operation.RequestBody.Content.Values)
         {
             var schema = content.EnsureOperationLocalSchemaIfShared(sharedCtx);
 
             if (schema is not null)
-                schemaApplier.ApplyValidatorRules(schema, cachedRules, FormatPropertyPrefix(propertyPrefix), []);
+                schemaApplier.ApplyValidatorRules(schema, cachedRules, formattedPropertyPrefix, []);
         }
     }
 

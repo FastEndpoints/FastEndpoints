@@ -749,14 +749,6 @@ sealed partial class OperationTransformer
                 $"Offending DTO type: [{requestDtoType.FullName}]");
         }
 
-        static IEnumerable<PropertyInfo> GetBindableRequestProperties(Type requestDtoType)
-            => requestDtoType.GetProperties(PublicInstanceHierarchy)
-                             .Where(
-                                 p => p.GetSetMethod()?.IsPublic is true &&
-                                      p.GetGetMethod()?.IsPublic is true &&
-                                      p.GetCustomAttribute<JsonIgnoreAttribute>()?.Condition != JsonIgnoreCondition.Always &&
-                                      !p.IsDefined(Types.DontInjectAttribute));
-
         static bool ShouldAddQueryParam(PropertyInfo prop, OpenApiOperation operation, string queryParamName, bool isGetRequest)
         {
             foreach (var attribute in prop.GetCustomAttributes())

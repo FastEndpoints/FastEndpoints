@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.AspNetCore.Routing;
@@ -22,6 +23,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
     sealed class TypeMetadata
     {
         public required PropertyInfo[] PublicInstanceProperties { get; init; }
+        public required PropertyInfo[] BindableRequestProperties { get; init; }
         public required IReadOnlyDictionary<PropertyInfo, bool> NullableProperties { get; init; }
     }
 
@@ -138,6 +140,9 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
     static PropertyInfo[] GetPublicInstanceProperties(Type type)
         => GetTypeMetadata(type).PublicInstanceProperties;
 
+    static PropertyInfo[] GetBindableRequestProperties(Type type)
+        => GetTypeMetadata(type).BindableRequestProperties;
+
     static string CreateOperationKey(string httpMethod, string documentPath)
         => $"{httpMethod}:{documentPath}";
 
@@ -188,9 +193,16 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
         return new()
         {
             PublicInstanceProperties = properties,
+            BindableRequestProperties = properties.Where(IsBindableRequestProperty).ToArray(),
             NullableProperties = new ReadOnlyDictionary<PropertyInfo, bool>(nullableProperties)
         };
     }
+
+    static bool IsBindableRequestProperty(PropertyInfo property)
+        => property.GetSetMethod()?.IsPublic is true &&
+           property.GetGetMethod()?.IsPublic is true &&
+           property.GetCustomAttribute<JsonIgnoreAttribute>()?.Condition != JsonIgnoreCondition.Always &&
+           !property.IsDefined(Types.DontInjectAttribute);
 
     static bool IsNullable(PropertyInfo prop)
     {

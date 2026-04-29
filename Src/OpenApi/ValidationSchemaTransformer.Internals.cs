@@ -88,8 +88,8 @@ sealed partial class ValidationSchemaTransformer
 
             if (schema.Properties is not null)
             {
-                foreach (var schemaProperty in schema.Properties.Keys.ToArray())
-                    TryApplyValidation(schema, rulesDict, schemaProperty, propertyPrefix, activeChildValidators);
+                foreach (var (propertyName, propertySchema) in schema.Properties.ToArray())
+                    TryApplyValidation(schema, rulesDict, propertyName, propertySchema, propertyPrefix, activeChildValidators);
             }
 
             RecurseComposite(schema.AllOf, rulesDict, propertyPrefix, activeChildValidators);
@@ -117,6 +117,7 @@ sealed partial class ValidationSchemaTransformer
         void TryApplyValidation(OpenApiSchema schema,
                                 ReadOnlyDictionary<string, List<IValidationRule>> rulesDict,
                                 string propertyName,
+                                IOpenApiSchema? property,
                                 string parameterPrefix,
                                 HashSet<Type> activeChildValidators)
         {
@@ -127,9 +128,6 @@ sealed partial class ValidationSchemaTransformer
                 foreach (var validationRule in validationRules)
                     ApplyValidationRule(schema, validationRule, propertyName, activeChildValidators);
             }
-
-            if (schema.Properties?.TryGetValue(propertyName, out var property) != true)
-                return;
 
             if (property is null)
                 return;

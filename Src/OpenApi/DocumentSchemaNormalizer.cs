@@ -39,13 +39,7 @@ static class DocumentSchemaNormalizer
         var headerRemoved = false;
 
         foreach (var s in document.Components.Schemas.Keys.ToArray())
-        {
-            if (_frameworkHeaderValueSchemaKeys.Contains(s))
-            {
-                document.Components.Schemas.Remove(s);
-                headerRemoved = true;
-            }
-        }
+            headerRemoved |= _frameworkHeaderValueSchemaKeys.Contains(s) && document.Components.Schemas.Remove(s);
 
         if (headerRemoved)
             document.Components.Schemas.Remove(stringSegmentKey);

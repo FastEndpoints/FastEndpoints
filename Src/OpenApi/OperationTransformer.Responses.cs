@@ -331,19 +331,11 @@ sealed partial class OperationTransformer
             };
 
         static bool IsAnonymousType(Type type)
-        {
-            if (!Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), inherit: false))
-                return false;
-
-            if (!type.IsGenericType)
-                return false;
-
-            var name = type.Name;
-
-            return name.Contains("AnonymousType", StringComparison.Ordinal) &&
-                   (name.StartsWith("<>", StringComparison.Ordinal) || name.StartsWith("VB$", StringComparison.Ordinal)) &&
-                   !type.IsPublic;
-        }
+            => Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), inherit: false) &&
+               type.IsGenericType &&
+               type.Name.Contains("AnonymousType", StringComparison.Ordinal) &&
+               (type.Name.StartsWith("<>", StringComparison.Ordinal) || type.Name.StartsWith("VB$", StringComparison.Ordinal)) &&
+               !type.IsPublic;
 
         static void AddResponseHeader(OpenApiResponse response, string headerName, OpenApiHeader header)
         {

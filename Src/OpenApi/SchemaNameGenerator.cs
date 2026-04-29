@@ -57,23 +57,9 @@ static class SchemaNameGenerator
     }
 
     internal static bool IsFormFileType(Type type)
-    {
-        // IFormFile and IFormFileCollection should be inlined, not referenced
-        if (type.FullName is "Microsoft.AspNetCore.Http.IFormFile" or "Microsoft.AspNetCore.Http.IFormFileCollection")
-            return true;
-
-        // generic collections of IFormFile (List<IFormFile>, IEnumerable<IFormFile>, etc.) should also be inlined
-        if (type.IsGenericType)
-        {
-            foreach (var arg in type.GetGenericArguments())
-            {
-                if (arg.FullName == "Microsoft.AspNetCore.Http.IFormFile")
-                    return true;
-            }
-        }
-
-        return false;
-    }
+        // Generic collections of IFormFile should also be inlined.
+        => type.FullName is "Microsoft.AspNetCore.Http.IFormFile" or "Microsoft.AspNetCore.Http.IFormFileCollection" ||
+           type.IsGenericType && type.GetGenericArguments().Any(static arg => arg.FullName == "Microsoft.AspNetCore.Http.IFormFile");
 
     static string Generate(Type type, bool shortNames)
     {

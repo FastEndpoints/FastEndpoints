@@ -92,19 +92,9 @@ static partial class OperationSchemaHelpers
         };
 
     static OpenApiSchema CreatePrimitiveSchemaFromValue(JsonValue value)
-    {
-        if (value.TryGetValue<bool>(out _))
-            return new() { Type = JsonSchemaType.Boolean };
-
-        if (value.TryGetValue<int>(out _))
-            return new() { Type = JsonSchemaType.Integer, Format = "int32" };
-
-        if (value.TryGetValue<long>(out _))
-            return new() { Type = JsonSchemaType.Integer, Format = "int64" };
-
-        if (value.TryGetValue<decimal>(out _))
-            return new() { Type = JsonSchemaType.Number };
-
-        return StringSchema();
-    }
+        => value.TryGetValue<bool>(out _) ? new() { Type = JsonSchemaType.Boolean } :
+           value.TryGetValue<int>(out _) ? new() { Type = JsonSchemaType.Integer, Format = "int32" } :
+           value.TryGetValue<long>(out _) ? new() { Type = JsonSchemaType.Integer, Format = "int64" } :
+           value.TryGetValue<decimal>(out _) ? new() { Type = JsonSchemaType.Number } :
+           StringSchema();
 }

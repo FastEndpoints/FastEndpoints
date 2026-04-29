@@ -37,19 +37,7 @@ static class DocumentTagTransformer
         if (opts.TagDescriptions is not null || document.Tags is not { Count: > 0 } tags)
             return;
 
-        List<OpenApiTag>? emptyTags = null;
-
-        foreach (var tag in tags)
-        {
-            if (HasTagMetadata(tag))
-                continue;
-
-            emptyTags ??= [];
-            emptyTags.Add(tag);
-        }
-
-        if (emptyTags is null)
-            return;
+        var emptyTags = tags.Where(static tag => !HasTagMetadata(tag)).ToArray();
 
         foreach (var tag in emptyTags)
             tags.Remove(tag);

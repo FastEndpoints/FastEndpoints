@@ -22,15 +22,9 @@ static class ConstructorDefaultExtensions
 
     static IReadOnlyDictionary<string, object?> CreateConstructorDefaultMap(Type type)
     {
-        ParameterInfo[]? parameters = null;
-
-        foreach (var constructor in type.GetConstructors())
-        {
-            var candidate = constructor.GetParameters();
-
-            if (parameters is null || candidate.Length > parameters.Length)
-                parameters = candidate;
-        }
+        var parameters = type.GetConstructors()
+                             .MaxBy(static c => c.GetParameters().Length)
+                             ?.GetParameters();
 
         if (parameters is null)
             return _emptyConstructorDefaults;

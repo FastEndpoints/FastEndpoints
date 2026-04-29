@@ -236,28 +236,49 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
     {
         var segments = documentPath.Split('/', StringSplitOptions.RemoveEmptyEntries).ToList();
 
-        if (!string.IsNullOrWhiteSpace(routePrefix))
-        {
-            var prefixSegments = routePrefix.Split('/', StringSplitOptions.RemoveEmptyEntries);
-            var hasPrefix = segments.Count >= prefixSegments.Length;
-
-            for (var i = 0; hasPrefix && i < prefixSegments.Length; i++)
-                hasPrefix = string.Equals(segments[i], prefixSegments[i], StringComparison.Ordinal);
-
-            if (hasPrefix)
-                segments.RemoveRange(0, prefixSegments.Length);
-        }
-
-        if (endpointVersion > 0)
-        {
-            var versionSegment = $"{GlobalConfig.VersioningPrefix ?? "v"}{endpointVersion}";
-            var versionIndex = segments.IndexOf(versionSegment);
-
-            if (versionIndex >= 0)
-                segments.RemoveAt(versionIndex);
-        }
+        RemoveRoutePrefix(segments, routePrefix);
+        RemoveVersionSegment(segments, endpointVersion);
 
         return "/" + string.Join('/', segments);
+    }
+
+    static void RemoveRoutePrefix(List<string> routeSegments, string? routePrefix)
+    {
+        if (string.IsNullOrWhiteSpace(routePrefix))
+            return;
+
+        var prefixSegments = routePrefix.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+        if (!StartsWithSegments(routeSegments, prefixSegments))
+            return;
+
+        routeSegments.RemoveRange(0, prefixSegments.Length);
+    }
+
+    static bool StartsWithSegments(List<string> routeSegments, string[] prefixSegments)
+    {
+        if (routeSegments.Count < prefixSegments.Length)
+            return false;
+
+        for (var i = 0; i < prefixSegments.Length; i++)
+        {
+            if (!string.Equals(routeSegments[i], prefixSegments[i], StringComparison.Ordinal))
+                return false;
+        }
+
+        return true;
+    }
+
+    static void RemoveVersionSegment(List<string> routeSegments, int endpointVersion)
+    {
+        if (endpointVersion <= 0)
+            return;
+
+        var versionSegment = $"{GlobalConfig.VersioningPrefix ?? "v"}{endpointVersion}";
+        var versionIndex = routeSegments.IndexOf(versionSegment);
+
+        if (versionIndex >= 0)
+            routeSegments.RemoveAt(versionIndex);
     }
 
     static string? FindEndpointRouteTemplate(EndpointDefinition epDef, string documentPath)

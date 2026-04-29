@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Reflection;
 using System.Text.Json.Nodes;
 using Microsoft.OpenApi;
@@ -8,6 +9,7 @@ static partial class OperationSchemaHelpers
 {
     static readonly ConstructorInfo? _openApiSchemaCopyCtor = typeof(OpenApiSchema).GetConstructor([typeof(IOpenApiSchema)]);
     static readonly PropertyInfo[] _openApiSchemaProperties = typeof(OpenApiSchema).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+    static readonly ConcurrentDictionary<Type, PropertyInfo[]> _cloneablePropertiesCache = new();
 
     extension(IOpenApiSchema? schema)
     {
@@ -120,16 +122,18 @@ static partial class OperationSchemaHelpers
     {
         var clone = new T();
 
-        foreach (var property in typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance))
-        {
-            if (!property.CanRead || !property.CanWrite || property.GetIndexParameters().Length > 0)
-                continue;
-
+        foreach (var property in GetCloneableProperties(typeof(T)))
             property.SetValue(clone, CloneSchemaMemberValue(property.Name, property.GetValue(source)));
-        }
 
         return clone;
     }
+
+    static PropertyInfo[] GetCloneableProperties(Type type)
+        => _cloneablePropertiesCache.GetOrAdd(
+            type,
+            static t => t.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                         .Where(p => p.CanRead && p.CanWrite && p.GetIndexParameters().Length == 0)
+                         .ToArray());
 
     static Dictionary<string, JsonNode>? CloneJsonNodeDictionary(IDictionary<string, JsonNode>? nodes)
     {

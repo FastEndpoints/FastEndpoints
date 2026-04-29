@@ -791,17 +791,31 @@ sealed partial class OperationTransformer
 
         static List<RequestExample> BuildUniqueRequestExamples(ICollection<RequestExample> examples)
         {
-            var result = examples.ToList();
+            var labelCounts = new Dictionary<string, int>(StringComparer.Ordinal);
 
-            foreach (var group in result.GroupBy(e => e.Label).Where(g => g.Count() > 1).ToList())
+            foreach (var example in examples)
             {
-                var i = 1;
+                labelCounts.TryGetValue(example.Label, out var count);
+                labelCounts[example.Label] = count + 1;
+            }
 
-                foreach (var ex in group)
+            var duplicateCounters = new Dictionary<string, int>(StringComparer.Ordinal);
+            var result = new List<RequestExample>(examples.Count);
+
+            foreach (var example in examples)
+            {
+                if (labelCounts[example.Label] == 1)
                 {
-                    result[result.IndexOf(ex)] = new(ex.Value, $"{ex.Label} {i}", ex.Summary, ex.Description);
-                    i++;
+                    result.Add(example);
+
+                    continue;
                 }
+
+                duplicateCounters.TryGetValue(example.Label, out var duplicateIndex);
+                duplicateIndex++;
+                duplicateCounters[example.Label] = duplicateIndex;
+
+                result.Add(new(example.Value, $"{example.Label} {duplicateIndex}", example.Summary, example.Description));
             }
 
             return result;

@@ -265,17 +265,21 @@ sealed partial class ValidationSchemaTransformer
             if (validator is not IEnumerable<IValidationRule> rules)
                 yield break;
 
-            var childAdapters = rules
-                                .Where(rule => rule.HasNoCondition() && rule is IIncludeRule)
-                                .SelectMany(includeRule => includeRule.Components.Select(c => c.Validator))
-                                .Where(
-                                    v => v.GetType() is { IsGenericType: true } vType &&
-                                         vType.GetGenericTypeDefinition() == typeof(ChildValidatorAdaptor<,>));
-
-            foreach (var adapter in childAdapters)
+            foreach (var rule in rules)
             {
-                if (TryGetIncludedValidator(adapter, logger, out var includeValidator))
-                    yield return includeValidator;
+                if (!rule.HasNoCondition() || rule is not IIncludeRule)
+                    continue;
+
+                foreach (var component in rule.Components)
+                {
+                    var validatorType = component.Validator.GetType();
+
+                    if (!validatorType.IsGenericType || validatorType.GetGenericTypeDefinition() != typeof(ChildValidatorAdaptor<,>))
+                        continue;
+
+                    if (TryGetIncludedValidator(component.Validator, logger, out var includeValidator))
+                        yield return includeValidator;
+                }
             }
         }
 

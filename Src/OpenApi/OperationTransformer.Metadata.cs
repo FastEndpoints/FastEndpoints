@@ -8,7 +8,7 @@ namespace FastEndpoints.OpenApi;
 
 sealed partial class OperationTransformer
 {
-    sealed class OperationMetadataTransformer(DocumentOptions docOpts, SharedContext sharedCtx)
+    sealed partial class OperationMetadataTransformer(DocumentOptions docOpts, SharedContext sharedCtx)
     {
         static readonly TextInfo _textInfo = CultureInfo.InvariantCulture.TextInfo;
 
@@ -224,7 +224,10 @@ sealed partial class OperationTransformer
                 });
 
             string StripSymbols(string val)
-                => stripSymbols ? Regex.Replace(val, "[^a-zA-Z0-9]", "") : val;
+                => stripSymbols ? TagSymbolsRegex().Replace(val, "") : val;
         }
+
+        [GeneratedRegex("[^a-zA-Z0-9]")]
+        private static partial Regex TagSymbolsRegex();
     }
 }

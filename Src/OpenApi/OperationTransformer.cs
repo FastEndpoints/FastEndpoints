@@ -44,24 +44,14 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
         var relativePath = context.Description.RelativePath ?? "";
         var documentPath = RouteTemplateHelpers.NormalizePath(relativePath);
         var httpMethod = context.Description.HttpMethod?.ToUpperInvariant() ?? "GET";
-        var operationKey = $"{httpMethod}:{documentPath}";
+        var operationKey = CreateOperationKey(httpMethod, documentPath);
 
         if (epDef is null)
         {
             if (docOpts.ExcludeNonFastEndpoints)
                 return Task.CompletedTask;
 
-            // not a FastEndpoint
-            sharedCtx.Operations[operationKey] = new()
-            {
-                OperationKey = operationKey,
-                DocumentPath = documentPath,
-                HttpMethod = httpMethod,
-                Version = 0,
-                StartingReleaseVersion = 0,
-                DeprecatedAt = 0,
-                IsFastEndpoint = false
-            };
+            RegisterNonFastEndpointOperation(operationKey, documentPath, httpMethod);
 
             return Task.CompletedTask;
         }
@@ -72,18 +62,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
 
         // store version metadata for document transformer
         var bareRoute = BuildBareRoute(documentPath, GlobalConfig.EndpointRoutePrefix, epDef.Version.Current);
-        var bareKey = $"{httpMethod}:{bareRoute}";
-
-        sharedCtx.Operations[operationKey] = new()
-        {
-            OperationKey = bareKey,
-            DocumentPath = documentPath,
-            HttpMethod = httpMethod,
-            Version = epDef.Version.Current,
-            StartingReleaseVersion = epDef.Version.StartingReleaseVersion,
-            DeprecatedAt = epDef.Version.DeprecatedAt,
-            IsFastEndpoint = true
-        };
+        RegisterFastEndpointOperation(operationKey, httpMethod, documentPath, bareRoute, epDef);
 
         // operation ID
         var nameMetadata = metadata.OfType<EndpointNameMetadata>().LastOrDefault();
@@ -158,6 +137,37 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
 
     static PropertyInfo[] GetPublicInstanceProperties(Type type)
         => GetTypeMetadata(type).PublicInstanceProperties;
+
+    static string CreateOperationKey(string httpMethod, string documentPath)
+        => $"{httpMethod}:{documentPath}";
+
+    void RegisterNonFastEndpointOperation(string operationKey, string documentPath, string httpMethod)
+        => sharedCtx.Operations[operationKey] = new()
+        {
+            OperationKey = operationKey,
+            DocumentPath = documentPath,
+            HttpMethod = httpMethod,
+            Version = 0,
+            StartingReleaseVersion = 0,
+            DeprecatedAt = 0,
+            IsFastEndpoint = false
+        };
+
+    void RegisterFastEndpointOperation(string operationKey,
+                                       string httpMethod,
+                                       string documentPath,
+                                       string bareRoute,
+                                       EndpointDefinition epDef)
+        => sharedCtx.Operations[operationKey] = new()
+        {
+            OperationKey = CreateOperationKey(httpMethod, bareRoute),
+            DocumentPath = documentPath,
+            HttpMethod = httpMethod,
+            Version = epDef.Version.Current,
+            StartingReleaseVersion = epDef.Version.StartingReleaseVersion,
+            DeprecatedAt = epDef.Version.DeprecatedAt,
+            IsFastEndpoint = true
+        };
 
     static TypeMetadata GetTypeMetadata(Type type)
     {

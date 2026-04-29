@@ -19,7 +19,12 @@ sealed partial class OperationTransformer
 
     sealed class RequestOperationTransformer(DocumentOptions docOpts, SharedContext sharedCtx)
     {
-        static readonly string[] _illegalHeaderNames = ["Accept", "Content-Type", "Authorization"];
+        static readonly HashSet<string> _illegalHeaderNames = new(StringComparer.OrdinalIgnoreCase)
+        {
+            "Accept",
+            "Content-Type",
+            "Authorization"
+        };
         JsonNamingPolicy? NamingPolicy => sharedCtx.NamingPolicy;
 
         public RequestTransformState HandleParameters(OpenApiOperation operation,
@@ -30,6 +35,7 @@ sealed partial class OperationTransformer
             var state = new RequestTransformState();
             var endpointRouteTemplate = FindEndpointRouteTemplate(epDef, documentPath);
             var routeParameters = GetRouteParameters(endpointRouteTemplate ?? context.Description.RelativePath ?? documentPath);
+            var routeParameterLookup = BuildRouteParameterLookup(routeParameters);
 
             var requestDtoType = GetRequestDtoType(epDef);
 
@@ -46,7 +52,7 @@ sealed partial class OperationTransformer
                 if (requestDtoProps is not null)
                 {
                     RemoveHiddenProperties(operation, requestDtoProps, state);
-                    AddBoundParameters(operation, requestDtoProps, routeParameters, isGetRequest, state);
+                    AddBoundParameters(operation, requestDtoProps, routeParameterLookup, isGetRequest, state);
                 }
 
                 // remove request body if GET request (unless explicitly enabled) or if empty
@@ -411,9 +417,19 @@ sealed partial class OperationTransformer
             }
         }
 
+        static Dictionary<string, RouteParameterInfo> BuildRouteParameterLookup(List<RouteParameterInfo> routeParameters)
+        {
+            var lookup = new Dictionary<string, RouteParameterInfo>(routeParameters.Count, StringComparer.OrdinalIgnoreCase);
+
+            foreach (var routeParameter in routeParameters)
+                lookup.TryAdd(routeParameter.Name, routeParameter);
+
+            return lookup;
+        }
+
         void AddBoundParameters(OpenApiOperation operation,
                                 List<PropertyInfo> requestDtoProps,
-                                List<RouteParameterInfo> routeParameters,
+                                Dictionary<string, RouteParameterInfo> routeParameters,
                                 bool isGetRequest,
                                 RequestTransformState state)
         {
@@ -551,12 +567,11 @@ sealed partial class OperationTransformer
             }
         }
 
-        void AddRouteParameter(OpenApiOperation operation, PropertyInfo p, List<RouteParameterInfo> routeParameters, RequestTransformState state)
+        void AddRouteParameter(OpenApiOperation operation, PropertyInfo p, Dictionary<string, RouteParameterInfo> routeParameters, RequestTransformState state)
         {
             var bindName = p.GetCustomAttribute<BindFromAttribute>()?.Name ?? p.Name;
-            var matchingRouteParam = routeParameters.FirstOrDefault(rp => string.Equals(rp.Name, bindName, StringComparison.OrdinalIgnoreCase));
 
-            if (matchingRouteParam is null)
+            if (!routeParameters.TryGetValue(bindName, out var matchingRouteParam))
                 return;
 
             operation.RemovePropFromRequestBody(p, sharedCtx, docOpts, NamingPolicy, state.PropsRemovedFromBody);
@@ -720,15 +735,7 @@ sealed partial class OperationTransformer
         }
 
         static bool IsIllegalHeaderName(string name)
-        {
-            for (var i = 0; i < _illegalHeaderNames.Length; i++)
-            {
-                if (_illegalHeaderNames[i].Equals(name, StringComparison.OrdinalIgnoreCase))
-                    return true;
-            }
-
-            return false;
-        }
+            => _illegalHeaderNames.Contains(name);
 
         static void ValidateRequestDto(EndpointDefinition epDef, Type requestDtoType, bool requestDtoIsList)
         {

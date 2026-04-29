@@ -107,7 +107,7 @@ sealed partial class ValidationSchemaTransformer
 
             for (var i = 0; i < composite.Count; i++)
             {
-                var resolved = ResolveForMutation(composite, i);
+                var resolved = ResolveForMutation(composite[i], cloned => composite[i] = cloned);
 
                 if (resolved is not null && resolved.Properties is { Count: > 0 })
                     ApplyRulesToSchema(resolved, rulesDict, propertyPrefix, activeChildValidators);
@@ -132,7 +132,7 @@ sealed partial class ValidationSchemaTransformer
             if (property is null)
                 return;
 
-            var propertySchema = ResolvePropertyForMutation(schema, propertyName, property);
+            var propertySchema = ResolveForMutation(property, cloned => schema.Properties![propertyName] = cloned);
 
             if (propertySchema is not null &&
                 propertySchema.Properties is { Count: > 0 } &&
@@ -144,7 +144,7 @@ sealed partial class ValidationSchemaTransformer
 
             if (propertySchema is { Type: { } type } &&
                 type.HasFlag(JsonSchemaType.Array) &&
-                ResolveItemsForMutation(propertySchema) is { Properties.Count: > 0 } itemsSchema)
+                ResolveForMutation(propertySchema.Items, cloned => propertySchema.Items = cloned) is { Properties.Count: > 0 } itemsSchema)
                 ApplyRulesToSchema(itemsSchema, rulesDict, $"{fullPropertyName}[].", activeChildValidators);
         }
 
@@ -169,43 +169,15 @@ sealed partial class ValidationSchemaTransformer
             }
         }
 
-        OpenApiSchema? ResolvePropertyForMutation(OpenApiSchema schema, string propertyName, IOpenApiSchema property)
+        OpenApiSchema? ResolveForMutation(IOpenApiSchema? schema, Action<OpenApiSchema> replace)
         {
-            if (!_localizeReferencedSchemas || property is not OpenApiSchemaReference)
-                return property.ResolveSchema();
-
-            var cloned = property.CloneAsConcreteSchema();
-
-            if (cloned is not null)
-                schema.Properties![propertyName] = cloned;
-
-            return cloned;
-        }
-
-        OpenApiSchema? ResolveForMutation(IList<IOpenApiSchema> schemas, int i)
-        {
-            var schema = schemas[i];
-
             if (!_localizeReferencedSchemas || schema is not OpenApiSchemaReference)
                 return schema.ResolveSchema();
 
             var cloned = schema.CloneAsConcreteSchema();
 
             if (cloned is not null)
-                schemas[i] = cloned;
-
-            return cloned;
-        }
-
-        OpenApiSchema? ResolveItemsForMutation(OpenApiSchema arraySchema)
-        {
-            if (!_localizeReferencedSchemas || arraySchema.Items is not OpenApiSchemaReference)
-                return arraySchema.Items.ResolveSchema();
-
-            var cloned = arraySchema.Items.CloneAsConcreteSchema();
-
-            if (cloned is not null)
-                arraySchema.Items = cloned;
+                replace(cloned);
 
             return cloned;
         }
@@ -352,13 +324,13 @@ sealed partial class ValidationSchemaTransformer
             {
                 if (schema.Properties?.TryGetValue(propertyName, out var childPropSchema) == true)
                 {
-                    var childSchema = ResolveChildForMutation(schema, propertyName, childPropSchema);
+                    var childSchema = ResolveForMutation(childPropSchema, cloned => schema.Properties![propertyName] = cloned);
 
                     if (childSchema is not null)
                     {
                         if (childSchema.Type.HasValue &&
                             childSchema.Type.Value.HasFlag(JsonSchemaType.Array) &&
-                            ResolveItemsForMutation(childSchema) is { } itemsSchema)
+                            ResolveForMutation(childSchema.Items, cloned => childSchema.Items = cloned) is { } itemsSchema)
                             applyValidator(itemsSchema, childValidator, string.Empty, activeChildValidators);
                         else
                             applyValidator(childSchema, childValidator, string.Empty, activeChildValidators);
@@ -417,28 +389,15 @@ sealed partial class ValidationSchemaTransformer
             return true;
         }
 
-        OpenApiSchema? ResolveChildForMutation(OpenApiSchema schema, string propertyName, IOpenApiSchema childPropSchema)
+        OpenApiSchema? ResolveForMutation(IOpenApiSchema? schema, Action<OpenApiSchema> replace)
         {
-            if (!localizeReferencedSchemas || childPropSchema is not OpenApiSchemaReference)
-                return childPropSchema.ResolveSchema();
+            if (!localizeReferencedSchemas || schema is not OpenApiSchemaReference)
+                return schema.ResolveSchema();
 
-            var cloned = childPropSchema.CloneAsConcreteSchema();
+            var cloned = schema.CloneAsConcreteSchema();
 
             if (cloned is not null)
-                schema.Properties![propertyName] = cloned;
-
-            return cloned;
-        }
-
-        OpenApiSchema? ResolveItemsForMutation(OpenApiSchema arraySchema)
-        {
-            if (!localizeReferencedSchemas || arraySchema.Items is not OpenApiSchemaReference)
-                return arraySchema.Items.ResolveSchema();
-
-            var cloned = arraySchema.Items.CloneAsConcreteSchema();
-
-            if (cloned is not null)
-                arraySchema.Items = cloned;
+                replace(cloned);
 
             return cloned;
         }

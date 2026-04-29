@@ -72,15 +72,8 @@ sealed partial class OperationTransformer
             if (requestDtoType is null)
                 return null;
 
-            var requestDtoProps = GetPublicInstanceProperties(requestDtoType);
+            var (promoteProp, fromBodyProp, fromFormProp) = FindPromotedBodyProperty(requestDtoType);
 
-            var fromBodyProp = requestDtoProps
-                .FirstOrDefault(p => p.IsDefined(Types.FromBodyAttribute, false));
-
-            var fromFormProp = requestDtoProps
-                .FirstOrDefault(p => p.IsDefined(Types.FromFormAttribute, false));
-
-            var promoteProp = fromBodyProp ?? fromFormProp;
             if (promoteProp is null)
                 return null;
 
@@ -125,6 +118,26 @@ sealed partial class OperationTransformer
             }
 
             return promoted ? new(schemaKey, promoteProp.PropertyType) : null;
+        }
+
+        static (PropertyInfo? Promoted, PropertyInfo? FromBody, PropertyInfo? FromForm) FindPromotedBodyProperty(Type requestDtoType)
+        {
+            PropertyInfo? fromBodyProp = null;
+            PropertyInfo? fromFormProp = null;
+
+            foreach (var prop in GetPublicInstanceProperties(requestDtoType))
+            {
+                if (fromBodyProp is null && prop.IsDefined(Types.FromBodyAttribute, false))
+                    fromBodyProp = prop;
+
+                if (fromFormProp is null && prop.IsDefined(Types.FromFormAttribute, false))
+                    fromFormProp = prop;
+
+                if (fromBodyProp is not null && fromFormProp is not null)
+                    break;
+            }
+
+            return (fromBodyProp ?? fromFormProp, fromBodyProp, fromFormProp);
         }
 
         static void NormalizePromotedFormRequestBodyContent(OpenApiOperation operation, string? formDataContentType)

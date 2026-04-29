@@ -14,7 +14,7 @@ static partial class OperationSchemaHelpers
         internal OpenApiSchema? ResolveSchema()
             => schema switch
             {
-                OpenApiSchemaReference schemaRef => schemaRef.Target as OpenApiSchema,
+                OpenApiSchemaReference schemaRef => ResolveSchemaReference(schemaRef) as OpenApiSchema,
                 OpenApiSchema concreteSchema => concreteSchema,
                 _ => null
             };
@@ -22,7 +22,7 @@ static partial class OperationSchemaHelpers
         internal IOpenApiSchema? ResolveSchemaOrReference()
             => schema switch
             {
-                OpenApiSchemaReference schemaRef => schemaRef.Target,
+                OpenApiSchemaReference schemaRef => ResolveSchemaReference(schemaRef),
                 OpenApiSchema concreteSchema => concreteSchema,
                 _ => null
             };
@@ -31,7 +31,7 @@ static partial class OperationSchemaHelpers
             => schema switch
             {
                 OpenApiSchema concreteSchema => CloneConcreteSchema(concreteSchema),
-                OpenApiSchemaReference { Target: IOpenApiSchema target } => CloneConcreteSchema(target),
+                OpenApiSchemaReference schemaRef when ResolveSchemaReference(schemaRef) is { } target => CloneConcreteSchema(target),
                 _ => null
             };
     }
@@ -219,6 +219,21 @@ static partial class OperationSchemaHelpers
             null => null,
             _ => schema
         };
+
+    static IOpenApiSchema? ResolveSchemaReference(OpenApiSchemaReference schemaRef)
+    {
+        if (schemaRef.Target is { } target)
+            return target;
+
+        var refId = GetReferenceId(schemaRef);
+
+        if (string.IsNullOrEmpty(refId) || schemaRef.Reference.IsExternal)
+            return null;
+
+        return schemaRef.Reference.HostDocument?.Components?.Schemas?.TryGetValue(refId, out var schema) == true
+                   ? schema
+                   : null;
+    }
 
     static List<JsonNode>? CloneJsonNodeList(IList<JsonNode>? nodes)
     {

@@ -1134,7 +1134,20 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/InventoryGetProductResponse"
+                  "type": "object",
+                  "properties": {
+                    "productID": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "Last_Moddded": {
+                      "type": "integer",
+                      "description": "blah blah blah",
+                      "format": "int64"
+                    }
+                  }
                 }
               }
             }
@@ -4821,7 +4834,38 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/TestCasesQueryObjectBindingTestResponse"
+                  "type": "object",
+                  "properties": {
+                    "string": {
+                      "type": "string",
+                      "description": "Some string property"
+                    },
+                    "bool": {
+                      "type": "boolean",
+                      "description": "Some bool property"
+                    },
+                    "int": {
+                      "type": [
+                        "null",
+                        "integer"
+                      ],
+                      "format": "int32"
+                    },
+                    "long": {
+                      "type": "integer",
+                      "format": "int64"
+                    },
+                    "double": {
+                      "type": "number",
+                      "format": "double"
+                    },
+                    "enum": {
+                      "$ref": "#/components/schemas/SystemDayOfWeek"
+                    },
+                    "person": {
+                      "$ref": "#/components/schemas/TestCasesQueryObjectBindingTestPerson"
+                    }
+                  }
                 }
               }
             }
@@ -7177,22 +7221,6 @@
         },
         "description": "base dto for access/refresh token responses"
       },
-      "InventoryGetProductResponse": {
-        "type": "object",
-        "properties": {
-          "productID": {
-            "type": [
-              "null",
-              "string"
-            ]
-          },
-          "Last_Moddded": {
-            "type": "integer",
-            "description": "blah blah blah",
-            "format": "int64"
-          }
-        }
-      },
       "InventoryListRecentResponse": {
         "type": "object",
         "properties": {
@@ -8334,40 +8362,6 @@
           },
           "isHidden": {
             "type": "boolean"
-          }
-        }
-      },
-      "TestCasesQueryObjectBindingTestResponse": {
-        "type": "object",
-        "properties": {
-          "string": {
-            "type": "string",
-            "description": "Some string property"
-          },
-          "bool": {
-            "type": "boolean",
-            "description": "Some bool property"
-          },
-          "int": {
-            "type": [
-              "null",
-              "integer"
-            ],
-            "format": "int32"
-          },
-          "long": {
-            "type": "integer",
-            "format": "int64"
-          },
-          "double": {
-            "type": "number",
-            "format": "double"
-          },
-          "enum": {
-            "$ref": "#/components/schemas/SystemDayOfWeek"
-          },
-          "person": {
-            "$ref": "#/components/schemas/TestCasesQueryObjectBindingTestPerson"
           }
         }
       },

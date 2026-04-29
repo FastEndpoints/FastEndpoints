@@ -11,6 +11,9 @@ static partial class OperationSchemaHelpers
         {
             var actualType = Nullable.GetUnderlyingType(type) ?? type;
 
+            if (actualType == typeof(byte[]))
+                return ByteArraySchema();
+
             if (TryGetDictionaryValueType(actualType) is { } dictionaryValueType)
             {
                 return new OpenApiSchema
@@ -77,9 +80,12 @@ static partial class OperationSchemaHelpers
             return;
         }
 
-        if (type != typeof(string) && GetCollectionElementType(type) is { } elementType && concreteSchema.Items is { } items)
+        if (type != typeof(string) && type != typeof(byte[]) && GetCollectionElementType(type) is { } elementType && concreteSchema.Items is { } items)
             RegisterMissingSchemaTypes(elementType, items, sharedCtx, shortSchemaNames);
     }
+
+    static OpenApiSchema ByteArraySchema()
+        => new() { Type = JsonSchemaType.String, Format = "byte" };
 
     static OpenApiSchema? TryCreatePrimitiveSchema(Type type)
         => type switch

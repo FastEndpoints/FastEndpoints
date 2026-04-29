@@ -69,29 +69,19 @@ static partial class OperationSchemaHelpers
 
         static bool IsContentSchemaEmpty(IOpenApiSchema? schema)
         {
-            switch (schema)
-            {
-                case null:
-                    return true;
-                case OpenApiSchemaReference r:
-                {
-                    var target = r.Target;
+            if (schema.ResolveSchema() is not { } s)
+                return true;
 
-                    return target is null || (target.Properties is null or { Count: 0 } && target.Type != JsonSchemaType.Array);
-                }
-                case OpenApiSchema s:
-                    return s.Type != JsonSchemaType.Array &&
-                           s.Type != JsonSchemaType.String &&
-                           s.Type != JsonSchemaType.Integer &&
-                           s.Type != JsonSchemaType.Number &&
-                           s.Type != JsonSchemaType.Boolean &&
-                           (s.Properties is null || s.Properties.Count == 0) &&
-                           s.OneOf is null or { Count: 0 } &&
-                           s.AnyOf is null or { Count: 0 } &&
-                           s.AllOf is null or { Count: 0 };
-                default:
-                    return true;
-            }
+            return s.Type != JsonSchemaType.Array &&
+                   s.Type != JsonSchemaType.String &&
+                   s.Type != JsonSchemaType.Integer &&
+                   s.Type != JsonSchemaType.Number &&
+                   s.Type != JsonSchemaType.Boolean &&
+                   (s.Properties is null || s.Properties.Count == 0) &&
+                   s.AdditionalProperties is null &&
+                   s.OneOf is null or { Count: 0 } &&
+                   s.AnyOf is null or { Count: 0 } &&
+                   s.AllOf is null or { Count: 0 };
         }
     }
 }

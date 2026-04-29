@@ -200,7 +200,12 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
                     string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase)) ==
            true;
 
-    static void UpdateParameterSchema(OpenApiOperation operation, ParameterLocation location, string name, Type type, bool shortSchemaNames)
+    static void UpdateParameterSchema(OpenApiOperation operation,
+                                      ParameterLocation location,
+                                      string name,
+                                      Type type,
+                                      SharedContext sharedCtx,
+                                      bool shortSchemaNames)
     {
         if (operation.Parameters is not { Count: > 0 })
             return;
@@ -211,7 +216,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
                 continue;
 
             if (param is OpenApiParameter concreteParam)
-                concreteParam.Schema = type.GetSchemaForType(shortSchemaNames);
+                concreteParam.Schema = type.GetSchemaForType(sharedCtx, shortSchemaNames);
 
             return;
         }

@@ -139,7 +139,15 @@ sealed partial class ValidationSchemaTransformer
             if (propertySchema is not null &&
                 propertySchema.Properties is { Count: > 0 } &&
                 propertySchema != schema)
+            {
                 ApplyRulesToSchema(propertySchema, rulesDict, $"{fullPropertyName}.", activeChildValidators);
+                return;
+            }
+
+            if (propertySchema is { Type: { } type } &&
+                type.HasFlag(JsonSchemaType.Array) &&
+                ResolveItemsForMutation(propertySchema) is { Properties.Count: > 0 } itemsSchema)
+                ApplyRulesToSchema(itemsSchema, rulesDict, $"{fullPropertyName}[].", activeChildValidators);
         }
 
         void TryApplyRootValidation(OpenApiSchema schema,
@@ -187,6 +195,19 @@ sealed partial class ValidationSchemaTransformer
 
             if (cloned is not null)
                 schemas[i] = cloned;
+
+            return cloned;
+        }
+
+        OpenApiSchema? ResolveItemsForMutation(OpenApiSchema arraySchema)
+        {
+            if (!_localizeReferencedSchemas || arraySchema.Items is not OpenApiSchemaReference)
+                return arraySchema.Items.ResolveSchema();
+
+            var cloned = arraySchema.Items.CloneAsConcreteSchema();
+
+            if (cloned is not null)
+                arraySchema.Items = cloned;
 
             return cloned;
         }

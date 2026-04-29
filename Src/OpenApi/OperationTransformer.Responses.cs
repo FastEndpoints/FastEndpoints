@@ -192,7 +192,7 @@ sealed partial class OperationTransformer
 
             foreach (var content in concreteResp.Content.Values)
             {
-                var schema = content.Schema.ResolveSchema();
+                var schema = content.EnsureOperationLocalSchemaForMutation();
 
                 if (schema?.Properties is not { Count: > 0 })
                     continue;

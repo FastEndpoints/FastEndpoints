@@ -532,7 +532,7 @@ sealed partial class OperationTransformer
             if (!HasParameter(operation, ParameterLocation.Path, appliedName))
                 AddParameter(operation, appliedName, ParameterLocation.Path, p, true, docOpts.ShortSchemaNames);
             else
-                UpdateParameterSchema(operation, ParameterLocation.Path, appliedName, p.PropertyType, docOpts.ShortSchemaNames);
+                UpdateParameterSchema(operation, ParameterLocation.Path, appliedName, p.PropertyType, sharedCtx, docOpts.ShortSchemaNames);
         }
 
         void EnsureRouteParameters(OpenApiOperation operation, List<RouteParameterInfo> routeParameters)
@@ -561,7 +561,7 @@ sealed partial class OperationTransformer
                 existing.Name = appliedName;
 
             if (schemaType is not null)
-                UpdateParameterSchema(operation, ParameterLocation.Path, appliedName, schemaType, docOpts.ShortSchemaNames);
+                UpdateParameterSchema(operation, ParameterLocation.Path, appliedName, schemaType, sharedCtx, docOpts.ShortSchemaNames);
 
             return true;
 
@@ -597,7 +597,8 @@ sealed partial class OperationTransformer
 
             var schema = propType.GetSchemaForType(sharedCtx, shortSchemaNames);
             var isNullable = prop is not null && IsNullable(prop);
-            var required = isRequired ?? !isNullable;
+            var hasCtorDefault = prop?.GetParentCtorDefaultValue() is not null;
+            var required = isRequired ?? (!hasCtorDefault && !isNullable);
 
             var param = new OpenApiParameter
             {

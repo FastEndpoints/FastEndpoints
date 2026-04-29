@@ -5,9 +5,7 @@ using FastEndpoints;
 using FastEndpoints.OpenApi;
 using FastEndpoints.OpenApi.ValidationProcessor.Extensions;
 using FluentValidation;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi;
-using Web;
 
 namespace OpenApi;
 
@@ -36,12 +34,12 @@ public class ValidationSchemaTransformerTests
     public void validator_rule_cache_keeps_naming_policy_context_separate()
     {
         var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
-                                                               .GetType("FastEndpoints.OpenApi.ValidationSchemaTransformer", throwOnError: true)!;
+                                                                      .GetType("FastEndpoints.OpenApi.ValidationSchemaTransformer", throwOnError: true)!;
         var transformer = Activator.CreateInstance(
             transformerType,
             BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
             binder: null,
-            args: [new FastEndpoints.OpenApi.DocumentOptions(), new FastEndpoints.OpenApi.SharedContext()],
+            args: [new DocumentOptions(), new SharedContext()],
             culture: null)!;
         transformerType.GetField("_serviceResolver", BindingFlags.Instance | BindingFlags.NonPublic)!
                        .SetValue(transformer, new TestServiceResolver());
@@ -68,9 +66,10 @@ public class ValidationSchemaTransformerTests
     [Fact]
     public void validator_rule_paths_keep_json_property_name_attributes_when_naming_policy_is_disabled()
     {
-        var rules = new JsonPropertyNameRulePathValidator().GetDictionaryOfRules(JsonNamingPolicy.CamelCase,
-                                                                                  false,
-                                                                                  typeof(JsonPropertyNameRulePathRequest));
+        var rules = new JsonPropertyNameRulePathValidator().GetDictionaryOfRules(
+            JsonNamingPolicy.CamelCase,
+            false,
+            typeof(JsonPropertyNameRulePathRequest));
 
         rules.ContainsKey("point_data.x_coord").ShouldBeTrue();
     }
@@ -116,12 +115,12 @@ public class ValidationSchemaTransformerTests
     public void cyclic_included_validators_do_not_recurse_forever_when_rules_are_cached()
     {
         var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
-                                                               .GetType("FastEndpoints.OpenApi.ValidationSchemaTransformer", throwOnError: true)!;
+                                                                      .GetType("FastEndpoints.OpenApi.ValidationSchemaTransformer", throwOnError: true)!;
         var transformer = Activator.CreateInstance(
             transformerType,
             BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
             binder: null,
-            args: [new FastEndpoints.OpenApi.DocumentOptions(), new FastEndpoints.OpenApi.SharedContext()],
+            args: [new DocumentOptions(), new SharedContext()],
             culture: null)!;
         var cacheRules = transformerType.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic)
                                         .Single(m => m.Name == "CacheValidatorRules" && m.GetParameters().Length == 2);
@@ -149,7 +148,7 @@ public class ValidationSchemaTransformerTests
     static void ApplyValidatorToSchema(OpenApiSchema schema, IValidator validator)
     {
         var applierType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
-                                                               .GetType("FastEndpoints.OpenApi.ValidationSchemaTransformer+ValidationSchemaApplier", throwOnError: true)!;
+                                                                  .GetType("FastEndpoints.OpenApi.ValidationSchemaTransformer+ValidationSchemaApplier", throwOnError: true)!;
         var rules = typeof(FastEndpoints.OpenApi.Extensions).Assembly
                                                             .GetType("FastEndpoints.OpenApi.ValidationRuleCatalog", throwOnError: true)!
                                                             .GetField("DefaultRules", BindingFlags.NonPublic | BindingFlags.Static)!
@@ -178,7 +177,7 @@ public class ValidationSchemaTransformerTests
     sealed class JsonPropertyNameRulePathRequest
     {
         [JsonPropertyName("point_data")]
-        public JsonPropertyNameRulePathPoint PointData { get; set; } = new();
+        public JsonPropertyNameRulePathPoint PointData { get; } = new();
     }
 
     sealed class JsonPropertyNameRulePathPoint
@@ -190,16 +189,18 @@ public class ValidationSchemaTransformerTests
     sealed class JsonPropertyNameRulePathValidator : Validator<JsonPropertyNameRulePathRequest>
     {
         public JsonPropertyNameRulePathValidator()
-            => RuleFor(x => x.PointData.XCoord).GreaterThan(0);
+        {
+            RuleFor(x => x.PointData.XCoord).GreaterThan(0);
+        }
     }
 
     sealed class CollectionRulePathRequest
     {
         [JsonPropertyName("line_items")]
-        public List<CollectionRulePathItem> LineItems { get; set; } = [];
+        public List<CollectionRulePathItem> LineItems { get; } = [];
 
         [JsonPropertyName("indexed_items")]
-        public CollectionRulePathItem[] IndexedItems { get; set; } = [];
+        public CollectionRulePathItem[] IndexedItems { get; } = [];
     }
 
     sealed class CollectionRulePathItem
@@ -220,18 +221,22 @@ public class ValidationSchemaTransformerTests
     sealed class IndexedCollectionRulePathValidator : Validator<CollectionRulePathRequest>
     {
         public IndexedCollectionRulePathValidator()
-            => RuleFor(x => x.IndexedItems).NotEmpty().OverridePropertyName("IndexedItems[0].ProductName");
+        {
+            RuleFor(x => x.IndexedItems).NotEmpty().OverridePropertyName("IndexedItems[0].ProductName");
+        }
     }
 
     sealed class NamingPolicyCacheRequest
     {
-        public string Name { get; set; } = string.Empty;
+        public string Name { get; } = string.Empty;
     }
 
     sealed class NamingPolicyCacheValidator : Validator<NamingPolicyCacheRequest>
     {
         public NamingPolicyCacheValidator()
-            => RuleFor(x => x.Name).NotEmpty();
+        {
+            RuleFor(x => x.Name).NotEmpty();
+        }
     }
 
     sealed class SelfIncludeValidator : Validator<NamingPolicyCacheRequest>
@@ -295,5 +300,4 @@ public class ValidationSchemaTransformerTests
                 disposable.Dispose();
         }
     }
-
 }

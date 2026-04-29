@@ -25,12 +25,10 @@ sealed partial class OperationTransformer
             "Content-Type",
             "Authorization"
         };
+
         JsonNamingPolicy? NamingPolicy => sharedCtx.NamingPolicy;
 
-        public RequestTransformState HandleParameters(OpenApiOperation operation,
-                                                      OpenApiOperationTransformerContext context,
-                                                      EndpointDefinition epDef,
-                                                      string documentPath)
+        public RequestTransformState HandleParameters(OpenApiOperation operation, OpenApiOperationTransformerContext context, EndpointDefinition epDef, string documentPath)
         {
             var state = new RequestTransformState();
             var endpointRouteTemplate = FindEndpointRouteTemplate(epDef, documentPath);
@@ -94,8 +92,7 @@ sealed partial class OperationTransformer
                 if (resolvedSchema is null)
                     continue;
 
-                var matchingKey = resolvedSchema.Properties?.Keys
-                                                .FirstOrDefault(k => string.Equals(k, schemaKey, StringComparison.OrdinalIgnoreCase));
+                var matchingKey = resolvedSchema.Properties?.Keys.FirstOrDefault(k => string.Equals(k, schemaKey, StringComparison.OrdinalIgnoreCase));
 
                 if (matchingKey is not null && resolvedSchema.Properties!.TryGetValue(matchingKey, out var propSchema))
                 {
@@ -207,10 +204,7 @@ sealed partial class OperationTransformer
             ApplyExampleRequestToParams(operation, epDef, requestPropLookup);
         }
 
-        public void ApplyExamples(OpenApiOperation operation,
-                                  EndpointDefinition epDef,
-                                  RequestTransformState state,
-                                  PromotedBodyProperty? promotedBodyProperty)
+        public void ApplyExamples(OpenApiOperation operation, EndpointDefinition epDef, RequestTransformState state, PromotedBodyProperty? promotedBodyProperty)
         {
             if (epDef.EndpointSummary?.RequestExamples.Count is not > 0)
                 return;
@@ -231,9 +225,10 @@ sealed partial class OperationTransformer
 
                 if (exampleNodes.Count == 1)
                 {
-                    content.Example = NormalizeExampleNode(exampleNodes[0].Node?.DeepClone(),
-                                                            schema,
-                                                            fallbackExample);
+                    content.Example = NormalizeExampleNode(
+                        exampleNodes[0].Node?.DeepClone(),
+                        schema,
+                        fallbackExample);
                     content.Examples?.Clear();
                 }
                 else
@@ -247,9 +242,10 @@ sealed partial class OperationTransformer
                         {
                             Summary = example.Summary,
                             Description = example.Description,
-                            Value = NormalizeExampleNode(exampleNode?.DeepClone(),
-                                                          schema,
-                                                          fallbackExample)
+                            Value = NormalizeExampleNode(
+                                exampleNode?.DeepClone(),
+                                schema,
+                                fallbackExample)
                         };
                     }
                 }
@@ -359,8 +355,10 @@ sealed partial class OperationTransformer
                 return property.GetCustomAttribute<FromCookieAttribute>()?.CookieName ?? property.Name.ApplyPropNamingPolicy(docOpts, NamingPolicy);
 
             if (location == ParameterLocation.Path)
+            {
                 return property.GetCustomAttribute<BindFromAttribute>()?.Name?.ApplyPropNamingPolicy(docOpts, NamingPolicy) ??
                        property.Name.ApplyPropNamingPolicy(docOpts, NamingPolicy);
+            }
 
             if (location == ParameterLocation.Query)
                 return GetQueryParameterName(property);
@@ -464,12 +462,13 @@ sealed partial class OperationTransformer
                     if (TryAddComplexFromQueryParameters(operation, p, docOpts.ShortSchemaNames))
                         continue;
 
-                    AddParameter(operation,
-                                 queryParamName,
-                                 ParameterLocation.Query,
-                                 p,
-                                 GetDontBindRequiredness(p),
-                                 docOpts.ShortSchemaNames);
+                    AddParameter(
+                        operation,
+                        queryParamName,
+                        ParameterLocation.Query,
+                        p,
+                        GetDontBindRequiredness(p),
+                        docOpts.ShortSchemaNames);
                 }
             }
         }
@@ -638,9 +637,11 @@ sealed partial class OperationTransformer
                     return null;
 
                 foreach (var param in operation.Parameters)
+                {
                     if (param is OpenApiParameter { In: ParameterLocation.Path, Name: not null } concreteParam &&
                         string.Equals(concreteParam.Name, name, StringComparison.OrdinalIgnoreCase))
                         return concreteParam;
+                }
 
                 return null;
             }
@@ -716,8 +717,8 @@ sealed partial class OperationTransformer
         }
 
         JsonNode? BuildRequestExampleFallback(EndpointDefinition epDef,
-                                             HashSet<string> propsRemovedFromBody,
-                                             PromotedBodyProperty? promotedBodyProperty)
+                                              HashSet<string> propsRemovedFromBody,
+                                              PromotedBodyProperty? promotedBodyProperty)
         {
             var fallback = (promotedBodyProperty?.Type ?? GetRequestDtoType(epDef))?.GenerateSampleJsonNode(NamingPolicy, docOpts.UsePropertyNamingPolicy);
 
@@ -797,7 +798,7 @@ sealed partial class OperationTransformer
 
             type = Nullable.GetUnderlyingType(type) ?? type;
 
-            return type.IsComplexType() && !type.IsCollection() ||
+            return (type.IsComplexType() && !type.IsCollection()) ||
                    OperationSchemaHelpers.TryGetDictionaryValueType(type) is not null;
         }
 

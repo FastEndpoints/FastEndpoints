@@ -1,7 +1,6 @@
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 using FluentValidation;
 using FluentValidation.Internal;
@@ -212,6 +211,7 @@ public static class MainExtensions
     internal static string BuildRoute(this StringBuilder builder, int epVersion, string route, string? prefixOverride)
     {
         var prefix = RoutePrefixHelper.Resolve(Cfg.EpOpts.RoutePrefix, prefixOverride);
+
         if (prefix is not null)
         {
             builder.Append('/')

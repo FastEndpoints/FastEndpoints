@@ -5,9 +5,7 @@ namespace FastEndpoints.OpenApi;
 static class DocumentPathNormalizer
 {
     public static void NormalizeParameterNames(OpenApiDocument document)
-        => RenamePaths(
-            document,
-            RouteTemplateHelpers.NormalizePath);
+        => RenamePaths(document, RouteTemplateHelpers.NormalizePath);
 
     public static void Apply(OpenApiDocument document, DocumentOptions opts, SharedContext sharedCtx)
     {
@@ -19,11 +17,7 @@ static class DocumentPathNormalizer
         if (policy is null)
             return;
 
-        RenamePaths(
-            document,
-            path => RouteTemplateHelpers.ReplaceParameters(
-                path,
-                segment => policy.ConvertName(RouteTemplateHelpers.NormalizeParameterName(segment))));
+        RenamePaths(document, path => RouteTemplateHelpers.ReplaceParameters(path, segment => policy.ConvertName(RouteTemplateHelpers.NormalizeParameterName(segment))));
     }
 
     static void RenamePaths(OpenApiDocument document, Func<string, string> rename)
@@ -74,11 +68,7 @@ static class DocumentPathNormalizer
         return renames;
     }
 
-    static void MergePathItems(IOpenApiPathItem target,
-                               IOpenApiPathItem source,
-                               string sourcePath,
-                               string existingPath,
-                               string normalizedPath)
+    static void MergePathItems(IOpenApiPathItem target, IOpenApiPathItem source, string sourcePath, string existingPath, string normalizedPath)
     {
         if (source.Operations is not { Count: > 0 })
             return;
@@ -89,9 +79,11 @@ static class DocumentPathNormalizer
         foreach (var (method, operation) in source.Operations)
         {
             if (target.Operations.ContainsKey(method))
+            {
                 throw new InvalidOperationException(
                     $"OpenAPI path normalization collision detected for '{normalizedPath}'. " +
                     $"Both '{existingPath}' and '{sourcePath}' define '{method}' operations.");
+            }
 
             target.Operations[method] = operation;
         }

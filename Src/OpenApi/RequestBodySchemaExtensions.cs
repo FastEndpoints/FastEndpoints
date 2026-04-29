@@ -7,11 +7,11 @@ namespace FastEndpoints.OpenApi;
 static partial class OperationSchemaHelpers
 {
     internal static void RemovePropFromRequestBody(this OpenApiOperation operation,
-                                                    PropertyInfo property,
-                                                    SharedContext sharedCtx,
-                                                    DocumentOptions docOpts,
-                                                    JsonNamingPolicy? namingPolicy,
-                                                    HashSet<string>? removedProps = null)
+                                                   PropertyInfo property,
+                                                   SharedContext sharedCtx,
+                                                   DocumentOptions docOpts,
+                                                   JsonNamingPolicy? namingPolicy,
+                                                   HashSet<string>? removedProps = null)
     {
         if (operation.RequestBody?.Content is null)
             return;
@@ -62,10 +62,7 @@ static partial class OperationSchemaHelpers
 
     internal static bool IsRequestBodyEmpty(this OpenApiOperation operation)
     {
-        if (operation.RequestBody?.Content is null)
-            return true;
-
-        return operation.RequestBody.Content.Values.All(c => IsContentSchemaEmpty(c.Schema));
+        return operation.RequestBody?.Content is null || operation.RequestBody.Content.Values.All(c => IsContentSchemaEmpty(c.Schema));
 
         static bool IsContentSchemaEmpty(IOpenApiSchema? schema)
         {

@@ -1,6 +1,5 @@
 using FastEndpoints.OpenApi.ValidationProcessor;
 using FastEndpoints.OpenApi.ValidationProcessor.Extensions;
-using FluentValidation;
 using FluentValidation.Validators;
 using Microsoft.OpenApi;
 
@@ -197,7 +196,7 @@ static class ValidationRuleCatalog
     {
         var validatorType = validator.GetType();
 
-        return validatorType.IsGenericType && validatorType.GetGenericTypeDefinition() == openGenericValidatorType ||
+        return (validatorType.IsGenericType && validatorType.GetGenericTypeDefinition() == openGenericValidatorType) ||
                validatorType.IsSubClassOfGeneric(openGenericValidatorType);
     }
 }

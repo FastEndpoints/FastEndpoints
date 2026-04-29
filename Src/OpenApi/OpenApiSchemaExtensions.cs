@@ -69,7 +69,7 @@ static partial class OperationSchemaHelpers
         if (_openApiSchemaCopyCtor?.Invoke([schema]) is OpenApiSchema cloned)
             return cloned;
 
-        return CloneConcreteSchemaFallback(schema.ResolveSchema() ?? (schema as OpenApiSchema) ?? StringSchema());
+        return CloneConcreteSchemaFallback(schema.ResolveSchema() ?? schema as OpenApiSchema ?? StringSchema());
     }
 
     static OpenApiSchema CloneConcreteSchemaFallback(OpenApiSchema schema)
@@ -113,8 +113,8 @@ static partial class OperationSchemaHelpers
             OpenApiXml xml => CloneOpenApiObject(xml),
             _ when IsSafelyShareable(value) => value,
             _ => throw new NotSupportedException(
-                $"OpenApiSchema member '{memberName}' has unsupported mutable type '{value.GetType().FullName}' for cloning. " +
-                "Update the schema clone logic before using operation-local schema mutations.")
+                     $"OpenApiSchema member '{memberName}' has unsupported mutable type '{value.GetType().FullName}' for cloning. " +
+                     "Update the schema clone logic before using operation-local schema mutations.")
         };
     }
 
@@ -247,10 +247,7 @@ static partial class OperationSchemaHelpers
         var cloned = new List<JsonNode>(nodes.Count);
 
         foreach (var node in nodes)
-        {
-            if (node is not null)
-                cloned.Add(node.DeepClone());
-        }
+            cloned.Add(node.DeepClone());
 
         return cloned;
     }

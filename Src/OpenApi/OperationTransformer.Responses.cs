@@ -28,6 +28,7 @@ sealed partial class OperationTransformer
             { "429", "Too Many Requests" },
             { "500", "Server Error" }
         };
+
         JsonNamingPolicy? NamingPolicy => sharedCtx.NamingPolicy;
 
         public void AddMissingResponses(OpenApiOperation operation, IList<object> metadata)

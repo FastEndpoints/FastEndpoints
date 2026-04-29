@@ -12,10 +12,7 @@ static class PropertyNameResolver
            (usePropertyNamingPolicy ? namingPolicy?.ConvertName(property.Name) : null) ??
            property.Name;
 
-    internal static string ConvertPropertyPath(Type declaringType,
-                                               string propertyPath,
-                                               JsonNamingPolicy? namingPolicy = null,
-                                               bool usePropertyNamingPolicy = true)
+    internal static string ConvertPropertyPath(Type declaringType, string propertyPath, JsonNamingPolicy? namingPolicy = null, bool usePropertyNamingPolicy = true)
     {
         if (string.IsNullOrWhiteSpace(propertyPath))
             return propertyPath;
@@ -46,6 +43,7 @@ static class PropertyNameResolver
 
                 segments[i] = convertedSegment + indexers;
                 currentType = typeof(object);
+
                 continue;
             }
 

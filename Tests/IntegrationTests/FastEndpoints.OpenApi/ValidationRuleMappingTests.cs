@@ -1,7 +1,6 @@
 using System.Reflection;
 using FastEndpoints.OpenApi.ValidationProcessor;
 using FluentValidation;
-using FluentValidation.Internal;
 using FluentValidation.Validators;
 using Microsoft.OpenApi;
 
@@ -22,22 +21,22 @@ public class ValidationRuleMappingTests
             }
         };
         var notEmptyRule = rules.Where(r => r.Matches(new StubNotEmptyValidator()))
-                               .Single(
-            r =>
-            {
-                var candidateSchema = new OpenApiSchema { Type = JsonSchemaType.Array };
-                var candidateParent = new OpenApiSchema
-                {
-                    Properties = new Dictionary<string, IOpenApiSchema>
-                    {
-                        ["tags"] = candidateSchema
-                    }
-                };
+                                .Single(
+                                    r =>
+                                    {
+                                        var candidateSchema = new OpenApiSchema { Type = JsonSchemaType.Array };
+                                        var candidateParent = new OpenApiSchema
+                                        {
+                                            Properties = new Dictionary<string, IOpenApiSchema>
+                                            {
+                                                ["tags"] = candidateSchema
+                                            }
+                                        };
 
-                r.Apply(new(candidateParent, "tags", new StubNotEmptyValidator(), false));
+                                        r.Apply(new(candidateParent, "tags", new StubNotEmptyValidator(), false));
 
-                return candidateSchema.MinItems == 1;
-            });
+                                        return candidateSchema.MinItems == 1;
+                                    });
 
         notEmptyRule.Apply(new(schema, "tags", new StubNotEmptyValidator(), false));
 
@@ -180,9 +179,9 @@ public class ValidationRuleMappingTests
 
     static FluentValidationRule[] GetDefaultRules()
         => (FluentValidationRule[])typeof(FastEndpoints.OpenApi.Extensions).Assembly
-                                .GetType("FastEndpoints.OpenApi.ValidationRuleCatalog", throwOnError: true)!
-                                 .GetField("DefaultRules", BindingFlags.NonPublic | BindingFlags.Static)!
-                                 .GetValue(null)!;
+                                                                           .GetType("FastEndpoints.OpenApi.ValidationRuleCatalog", throwOnError: true)!
+                                                                           .GetField("DefaultRules", BindingFlags.NonPublic | BindingFlags.Static)!
+                                                                           .GetValue(null)!;
 
     static OpenApiSchema CreateParentSchema(string propertyName, OpenApiSchema propertySchema)
         => new()
@@ -208,7 +207,7 @@ public class ValidationRuleMappingTests
 
     static IPropertyValidator GetPropertyValidator<TRequest>(AbstractValidator<TRequest> validator, string propertyName)
     {
-        var rule = ((IEnumerable<IValidationRule>)validator).Single(r => r.PropertyName == propertyName);
+        var rule = validator.Single(r => r.PropertyName == propertyName);
 
         return rule.Components.Single().Validator;
     }
@@ -221,7 +220,9 @@ public class ValidationRuleMappingTests
     sealed class UnsignedNumericRuleValidator : AbstractValidator<UnsignedNumericRuleRequest>
     {
         public UnsignedNumericRuleValidator()
-            => RuleFor(x => x.Count).GreaterThan((uint)0);
+        {
+            RuleFor(x => x.Count).GreaterThan((uint)0);
+        }
     }
 
     sealed class UlongNumericRuleRequest
@@ -232,7 +233,9 @@ public class ValidationRuleMappingTests
     sealed class UlongNumericRuleValidator : AbstractValidator<UlongNumericRuleRequest>
     {
         public UlongNumericRuleValidator()
-            => RuleFor(x => x.Amount).LessThan(ulong.MaxValue);
+        {
+            RuleFor(x => x.Amount).LessThan(ulong.MaxValue);
+        }
     }
 
     sealed class ByteNumericRuleRequest
@@ -243,7 +246,9 @@ public class ValidationRuleMappingTests
     sealed class ByteNumericRuleValidator : AbstractValidator<ByteNumericRuleRequest>
     {
         public ByteNumericRuleValidator()
-            => RuleFor(x => x.Rating).InclusiveBetween((byte)1, (byte)10);
+        {
+            RuleFor(x => x.Rating).InclusiveBetween((byte)1, (byte)10);
+        }
     }
 
     sealed class SignedNumericRuleRequest
@@ -254,7 +259,9 @@ public class ValidationRuleMappingTests
     sealed class SignedNumericRuleValidator : AbstractValidator<SignedNumericRuleRequest>
     {
         public SignedNumericRuleValidator()
-            => RuleFor(x => x.Age).GreaterThanOrEqualTo(18);
+        {
+            RuleFor(x => x.Age).GreaterThanOrEqualTo(18);
+        }
     }
 
     sealed class StubNotEmptyValidator : INotEmptyValidator

@@ -89,9 +89,7 @@ sealed class DocumentVersionFilter
         PruneDocumentOperations(document, opsToKeep, opsToDeprecate);
     }
 
-    static void PruneDocumentOperations(OpenApiDocument document,
-                                        HashSet<(string Path, string Method)> opsToKeep,
-                                        HashSet<(string Path, string Method)> opsToDeprecate)
+    static void PruneDocumentOperations(OpenApiDocument document, HashSet<(string Path, string Method)> opsToKeep, HashSet<(string Path, string Method)> opsToDeprecate)
     {
         if (document.Paths is not { Count: > 0 })
             return;
@@ -108,10 +106,7 @@ sealed class DocumentVersionFilter
         }
     }
 
-    static void PrunePathOperations(IOpenApiPathItem pathItem,
-                                    string path,
-                                    HashSet<(string Path, string Method)> opsToKeep,
-                                    HashSet<(string Path, string Method)> opsToDeprecate)
+    static void PrunePathOperations(IOpenApiPathItem pathItem, string path, HashSet<(string Path, string Method)> opsToKeep, HashSet<(string Path, string Method)> opsToDeprecate)
     {
         foreach (var method in pathItem.Operations!.Keys.ToArray())
         {

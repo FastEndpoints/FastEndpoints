@@ -1,4 +1,3 @@
-using System.Text.Json;
 using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.OpenApi;

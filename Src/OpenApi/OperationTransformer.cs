@@ -4,7 +4,6 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.OpenApi;
@@ -158,11 +157,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
             IsFastEndpoint = false
         };
 
-    void RegisterFastEndpointOperation(string operationKey,
-                                       string httpMethod,
-                                       string documentPath,
-                                       string bareRoute,
-                                       EndpointDefinition epDef)
+    void RegisterFastEndpointOperation(string operationKey, string httpMethod, string documentPath, string bareRoute, EndpointDefinition epDef)
         => sharedCtx.Operations[operationKey] = new()
         {
             OperationKey = CreateOperationKey(httpMethod, bareRoute),
@@ -222,12 +217,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
                     string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase)) ==
            true;
 
-    static void UpdateParameterSchema(OpenApiOperation operation,
-                                      ParameterLocation location,
-                                      string name,
-                                      Type type,
-                                      SharedContext sharedCtx,
-                                      bool shortSchemaNames)
+    static void UpdateParameterSchema(OpenApiOperation operation, ParameterLocation location, string name, Type type, SharedContext sharedCtx, bool shortSchemaNames)
     {
         if (operation.Parameters is not { Count: > 0 })
             return;
@@ -303,7 +293,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
 
         foreach (var route in epDef.Routes)
         {
-            var finalRoute = FastEndpoints.MainExtensions.BuildRoute(new StringBuilder(), epDef.Version.Current, route, epDef.OverriddenRoutePrefix);
+            var finalRoute = new StringBuilder().BuildRoute(epDef.Version.Current, route, epDef.OverriddenRoutePrefix);
 
             if (string.Equals(NormalizeRoutePath(finalRoute), documentPath, StringComparison.OrdinalIgnoreCase))
                 return route;
@@ -397,5 +387,4 @@ static class OperationTransformerExtensions
 
     internal static string GetOpenApiRouteParameterName(this string routeParamName, DocumentOptions documentOptions, JsonNamingPolicy? namingPolicy)
         => routeParamName.ApplyPropNamingPolicy(documentOptions, namingPolicy);
-
 }

@@ -32,6 +32,7 @@ sealed partial class OperationTransformer
                     }
                     case AutoTagOverride autoTagOverride:
                         overrideVal = autoTagOverride.TagName;
+
                         break;
                 }
             }
@@ -87,8 +88,8 @@ sealed partial class OperationTransformer
                     Required = true,
                     Description = epDef.IdempotencyOptions.SwaggerHeaderDescription,
                     Schema = epDef.IdempotencyOptions.SwaggerHeaderType is not null
-                                  ? epDef.IdempotencyOptions.SwaggerHeaderType.GetSchemaForType(sharedCtx, docOpts.ShortSchemaNames)
-                                  : OperationSchemaHelpers.CreateSchemaFromExampleNode(exampleNode) ?? OperationSchemaHelpers.StringSchema(),
+                                 ? epDef.IdempotencyOptions.SwaggerHeaderType.GetSchemaForType(sharedCtx, docOpts.ShortSchemaNames)
+                                 : OperationSchemaHelpers.CreateSchemaFromExampleNode(exampleNode) ?? OperationSchemaHelpers.StringSchema(),
                     Example = exampleNode
                 });
         }
@@ -150,9 +151,11 @@ sealed partial class OperationTransformer
                 {
                     case AllowAnonymousAttribute:
                         hasAllowAnonymous = true;
+
                         break;
                     case AuthorizeAttribute authorizeAttribute:
                         authorizeAttributes.Add(authorizeAttribute);
+
                         break;
                 }
             }

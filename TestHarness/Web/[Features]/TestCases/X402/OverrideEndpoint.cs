@@ -1,5 +1,3 @@
-using System.Text.Json.Nodes;
-
 namespace TestCases.X402;
 
 sealed class OverrideEndpoint : EndpointWithoutRequest<Response>

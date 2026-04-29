@@ -19,10 +19,7 @@ static class DocumentSchemaNormalizer
         "SystemCollectionsGenericIListOfMicrosoftNetHttpHeadersSetCookieHeaderValue"
     ];
 
-    public static async Task Normalize(OpenApiDocument document,
-                                       SharedContext sharedCtx,
-                                       OpenApiDocumentTransformerContext context,
-                                       CancellationToken cancellationToken)
+    public static async Task Normalize(OpenApiDocument document, SharedContext sharedCtx, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
     {
         await document.AddMissingSchemas(sharedCtx, context, cancellationToken);
         var referencedSchemas = document.GetReferencedSchemaRefs();

@@ -124,7 +124,6 @@ static class DocumentSchemaHelpers
 
             return referencedSchemas;
         }
-
     }
 
     internal static void SortPaths(this OpenApiDocument document)
@@ -280,7 +279,8 @@ static class DocumentSchemaHelpers
         if (componentId is not null && !walkedResponses.Add(componentId))
             return;
 
-        if (response is OpenApiResponseReference responseRef && TryCollectReferencedComponent(responseRef.Reference, document.Components?.Responses, document, refs, pendingRefs, walkedResponses, walkedHeaders))
+        if (response is OpenApiResponseReference responseRef &&
+            TryCollectReferencedComponent(responseRef.Reference, document.Components?.Responses, document, refs, pendingRefs, walkedResponses, walkedHeaders))
             return;
 
         if (response.Headers is { Count: > 0 })
@@ -361,7 +361,8 @@ static class DocumentSchemaHelpers
         if (componentId is not null && !walkedHeaders.Add(componentId))
             return;
 
-        if (header is OpenApiHeaderReference headerRef && TryCollectReferencedComponent(headerRef.Reference, document.Components?.Headers, document, refs, pendingRefs, walkedHeaders))
+        if (header is OpenApiHeaderReference headerRef &&
+            TryCollectReferencedComponent(headerRef.Reference, document.Components?.Headers, document, refs, pendingRefs, walkedHeaders))
             return;
 
         CollectSchemaRefs(header.Schema, refs, pendingRefs);
@@ -391,7 +392,16 @@ static class DocumentSchemaHelpers
             return;
 
         if (callback is OpenApiCallbackReference callbackRef &&
-            TryCollectReferencedCallback(callbackRef.Reference, document, refs, pendingRefs, walkedResponses, walkedParameters, walkedRequestBodies, walkedHeaders, walkedCallbacks))
+            TryCollectReferencedCallback(
+                callbackRef.Reference,
+                document,
+                refs,
+                pendingRefs,
+                walkedResponses,
+                walkedParameters,
+                walkedRequestBodies,
+                walkedHeaders,
+                walkedCallbacks))
             return;
 
         if (callback.PathItems is not { Count: > 0 })
@@ -450,15 +460,19 @@ static class DocumentSchemaHelpers
         {
             case IOpenApiResponse response:
                 CollectResponseRefs(response, document, refs, pendingRefs, walkedRefs, walkedHeaders ?? new(StringComparer.Ordinal), id);
+
                 break;
             case IOpenApiParameter parameter:
                 CollectParameterRefs(parameter, document, refs, pendingRefs, walkedRefs, walkedHeaders ?? new(StringComparer.Ordinal), id);
+
                 break;
             case IOpenApiRequestBody requestBody:
                 CollectRequestBodyRefs(requestBody, document, refs, pendingRefs, walkedRefs, walkedHeaders ?? new(StringComparer.Ordinal), id);
+
                 break;
             case IOpenApiHeader header:
                 CollectHeaderRefs(header, document, refs, pendingRefs, walkedRefs, id);
+
                 break;
             default:
                 return false;
@@ -608,5 +622,4 @@ static class DocumentSchemaHelpers
             Type = JsonSchemaType.Array,
             Items = FormFileBinarySchema()
         };
-
 }

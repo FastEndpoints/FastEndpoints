@@ -1,6 +1,5 @@
 using System.Collections.Concurrent;
 using System.Collections.Frozen;
-using Microsoft.Extensions.Logging.Abstractions;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,8 +18,7 @@ internal class SharedContext
     readonly object _requestSchemaSharingLock = new();
     FrozenSet<string>? _sharedRequestSchemaRefs;
 
-    internal IReadOnlySet<string> SharedRequestSchemaRefs
-        => Volatile.Read(ref _sharedRequestSchemaRefs) ?? _emptyRequestSchemaRefs;
+    internal IReadOnlySet<string> SharedRequestSchemaRefs => Volatile.Read(ref _sharedRequestSchemaRefs) ?? _emptyRequestSchemaRefs;
 
     internal JsonNamingPolicy? ResolveNamingPolicy(IServiceProvider services)
         => NamingPolicy ??= services.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions.PropertyNamingPolicy;

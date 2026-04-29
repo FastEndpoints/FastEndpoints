@@ -35,9 +35,7 @@ static partial class OperationSchemaHelpers
             };
         }
 
-        internal JsonNode? GenerateSampleJsonNode(JsonNamingPolicy? namingPolicy = null,
-                                                 bool usePropertyNamingPolicy = true,
-                                                 HashSet<Type>? visited = null)
+        internal JsonNode? GenerateSampleJsonNode(JsonNamingPolicy? namingPolicy = null, bool usePropertyNamingPolicy = true, HashSet<Type>? visited = null)
         {
             var underlying = Nullable.GetUnderlyingType(type) ?? type;
 

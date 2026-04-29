@@ -4,7 +4,6 @@ using System.Reflection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using QueueTesting;
-using static QueueTesting.QueueTestSupport;
 
 namespace JobQueue;
 

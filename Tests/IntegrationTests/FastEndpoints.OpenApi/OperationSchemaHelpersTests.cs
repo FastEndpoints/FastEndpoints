@@ -4,8 +4,6 @@ using System.Text.Json.Nodes;
 using FastEndpoints;
 using FastEndpoints.OpenApi;
 using Microsoft.AspNetCore.Http.Metadata;
-using Microsoft.AspNetCore.Mvc.ApiExplorer;
-using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
 
 namespace OpenApi;
@@ -116,7 +114,7 @@ public class OperationSchemaHelpersTests
     {
         var operation = new OpenApiOperation
         {
-            Responses = new OpenApiResponses
+            Responses = new()
             {
                 ["200"] = new OpenApiResponse
                 {
@@ -131,7 +129,7 @@ public class OperationSchemaHelpersTests
         var epDef = new EndpointDefinition(typeof(object), typeof(object), typeof(object));
         epDef.Summary(s => s.ResponseExamples[200] = new { name = "ok" });
         var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
-                                                               .GetType("FastEndpoints.OpenApi.OperationTransformer+ResponseOperationTransformer", throwOnError: true)!;
+                                                                      .GetType("FastEndpoints.OpenApi.OperationTransformer+ResponseOperationTransformer", throwOnError: true)!;
         var transformer = Activator.CreateInstance(
             transformerType,
             BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
@@ -156,11 +154,11 @@ public class OperationSchemaHelpersTests
     {
         var document = new OpenApiDocument
         {
-            Paths = new OpenApiPaths
+            Paths = new()
             {
                 ["/promoted"] = new OpenApiPathItem
                 {
-                    Operations = new Dictionary<HttpMethod, OpenApiOperation>
+                    Operations = new()
                     {
                         [HttpMethod.Post] = new()
                         {
@@ -176,7 +174,7 @@ public class OperationSchemaHelpersTests
                 },
                 ["/still-used"] = new OpenApiPathItem
                 {
-                    Operations = new Dictionary<HttpMethod, OpenApiOperation>
+                    Operations = new()
                     {
                         [HttpMethod.Post] = new()
                         {
@@ -191,7 +189,7 @@ public class OperationSchemaHelpersTests
                     }
                 }
             },
-            Components = new OpenApiComponents
+            Components = new()
             {
                 Schemas = new Dictionary<string, IOpenApiSchema>
                 {
@@ -267,7 +265,7 @@ public class OperationSchemaHelpersTests
         {
             var document = new OpenApiDocument
             {
-                Components = new OpenApiComponents
+                Components = new()
                 {
                     Schemas = new Dictionary<string, IOpenApiSchema>
                     {
@@ -302,7 +300,7 @@ public class OperationSchemaHelpersTests
         {
             var document = new OpenApiDocument
             {
-                Components = new OpenApiComponents
+                Components = new()
                 {
                     Schemas = new Dictionary<string, IOpenApiSchema>
                     {
@@ -320,15 +318,15 @@ public class OperationSchemaHelpersTests
     {
         var document = new OpenApiDocument
         {
-            Paths = new OpenApiPaths
+            Paths = new()
             {
                 ["/ping"] = new OpenApiPathItem
                 {
-                    Operations = new Dictionary<HttpMethod, OpenApiOperation>
+                    Operations = new()
                     {
                         [HttpMethod.Get] = new()
                         {
-                            Responses = new OpenApiResponses
+                            Responses = new()
                             {
                                 ["204"] = new OpenApiResponse()
                             }
@@ -336,7 +334,7 @@ public class OperationSchemaHelpersTests
                     }
                 }
             },
-            Components = new OpenApiComponents
+            Components = new()
             {
                 Schemas = new Dictionary<string, IOpenApiSchema>
                 {
@@ -379,7 +377,7 @@ public class OperationSchemaHelpersTests
     {
         var document = new OpenApiDocument
         {
-            Components = new OpenApiComponents
+            Components = new()
             {
                 Schemas = new Dictionary<string, IOpenApiSchema>
                 {
@@ -409,16 +407,16 @@ public class OperationSchemaHelpersTests
                 }
             }
         };
-        document.Paths = new OpenApiPaths
+        document.Paths = new()
         {
             ["/wrapped"] = new OpenApiPathItem
             {
-                Operations = new Dictionary<HttpMethod, OpenApiOperation>
+                Operations = new()
                 {
                     [HttpMethod.Post] = new()
                     {
                         RequestBody = new OpenApiRequestBodyReference("ReusableRequest", document),
-                        Responses = new OpenApiResponses
+                        Responses = new()
                         {
                             ["200"] = new OpenApiResponseReference("ReusableResponse", document)
                         }
@@ -462,11 +460,12 @@ public class OperationSchemaHelpersTests
         var prop = typeof(NamingPolicyRequest).GetProperty(nameof(NamingPolicyRequest.QueryValue))!;
         var removedProps = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        operation.RemovePropFromRequestBody(prop,
-                                            new SharedContext(),
-                                            new() { UsePropertyNamingPolicy = false },
-                                            JsonNamingPolicy.CamelCase,
-                                            removedProps);
+        operation.RemovePropFromRequestBody(
+            prop,
+            new(),
+            new() { UsePropertyNamingPolicy = false },
+            JsonNamingPolicy.CamelCase,
+            removedProps);
         var schema = operation.RequestBody!.Content!["application/json"].Schema.ShouldBeOfType<OpenApiSchema>();
 
         schema.Properties.ShouldNotBeNull();
@@ -541,7 +540,7 @@ public class OperationSchemaHelpersTests
         };
         var document = new OpenApiDocument
         {
-            Components = new OpenApiComponents
+            Components = new()
             {
                 Schemas = new Dictionary<string, IOpenApiSchema>
                 {
@@ -557,9 +556,10 @@ public class OperationSchemaHelpersTests
             }
         };
 
-        ApplyResponseParamDescriptions(response,
-                                       typeof(ResponseParamDescriptionResponse),
-                                       new Dictionary<string, string> { ["name"] = "operation-specific" });
+        ApplyResponseParamDescriptions(
+            response,
+            typeof(ResponseParamDescriptionResponse),
+            new() { ["name"] = "operation-specific" });
 
         var operationSchema = response.Content!["application/json"].Schema.ShouldBeOfType<OpenApiSchema>();
 
@@ -581,7 +581,7 @@ public class OperationSchemaHelpersTests
         };
         var document = new OpenApiDocument
         {
-            Components = new OpenApiComponents
+            Components = new()
             {
                 Schemas = new Dictionary<string, IOpenApiSchema>
                 {
@@ -607,7 +607,7 @@ public class OperationSchemaHelpersTests
         ApplyResponseParamDescriptions(
             response,
             typeof(List<ResponseParamDescriptionCollectionItem>),
-            new Dictionary<string, string>
+            new()
             {
                 [nameof(ResponseParamDescriptionCollectionItem.DisplayName)] = "item display name",
                 [nameof(ResponseParamDescriptionCollectionItem.SkuCode)] = "item sku code"
@@ -629,7 +629,7 @@ public class OperationSchemaHelpersTests
     {
         var operation = new OpenApiOperation();
         var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
-                                                               .GetType("FastEndpoints.OpenApi.OperationTransformer+RequestOperationTransformer", throwOnError: true)!;
+                                                                      .GetType("FastEndpoints.OpenApi.OperationTransformer+RequestOperationTransformer", throwOnError: true)!;
         var transformer = Activator.CreateInstance(
             transformerType,
             BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
@@ -670,7 +670,7 @@ public class OperationSchemaHelpersTests
     {
         var operation = new OpenApiOperation
         {
-            Responses = new OpenApiResponses
+            Responses = new()
             {
                 ["200"] = new OpenApiResponse
                 {
@@ -707,16 +707,18 @@ public class OperationSchemaHelpersTests
     [Fact]
     public void schema_sample_generation_prefers_enum_values_and_additional_properties()
     {
-        var enumSample = CreateSchemaSample(new OpenApiSchema
-        {
-            Type = JsonSchemaType.String,
-            Enum = [JsonValue.Create("active")!]
-        });
-        var dictionarySample = CreateSchemaSample(new OpenApiSchema
-        {
-            Type = JsonSchemaType.Object,
-            AdditionalProperties = new OpenApiSchema { Type = JsonSchemaType.Integer }
-        }).ShouldBeOfType<JsonObject>();
+        var enumSample = CreateSchemaSample(
+            new()
+            {
+                Type = JsonSchemaType.String,
+                Enum = [JsonValue.Create("active")!]
+            });
+        var dictionarySample = CreateSchemaSample(
+            new()
+            {
+                Type = JsonSchemaType.Object,
+                AdditionalProperties = new OpenApiSchema { Type = JsonSchemaType.Integer }
+            }).ShouldBeOfType<JsonObject>();
 
         enumSample!.GetValue<string>().ShouldBe("active");
         dictionarySample["additionalProp1"]!.GetValue<int>().ShouldBe(0);
@@ -796,7 +798,7 @@ public class OperationSchemaHelpersTests
 
         content.Keys.ShouldBe(["application/x-www-form-urlencoded"]);
         content["application/x-www-form-urlencoded"].Schema.ShouldBeOfType<OpenApiSchema>()
-                                               .Properties!.Keys.ShouldBe(["name"]);
+                                                    .Properties!.Keys.ShouldBe(["name"]);
     }
 
     [Fact]
@@ -832,7 +834,7 @@ public class OperationSchemaHelpersTests
         var response = new OpenApiResponse();
         var sharedCtx = new SharedContext();
         var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
-                                                               .GetType("FastEndpoints.OpenApi.OperationTransformer+ResponseOperationTransformer", throwOnError: true)!;
+                                                                      .GetType("FastEndpoints.OpenApi.OperationTransformer+ResponseOperationTransformer", throwOnError: true)!;
         var transformer = Activator.CreateInstance(
             transformerType,
             BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
@@ -1002,7 +1004,7 @@ public class OperationSchemaHelpersTests
     static void ApplyBodyOverrides(OpenApiOperation operation, EndpointDefinition epDef)
     {
         var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
-                                                               .GetType("FastEndpoints.OpenApi.OperationTransformer+RequestOperationTransformer", throwOnError: true)!;
+                                                                      .GetType("FastEndpoints.OpenApi.OperationTransformer+RequestOperationTransformer", throwOnError: true)!;
         var transformer = Activator.CreateInstance(
             transformerType,
             BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
@@ -1061,7 +1063,7 @@ public class OperationSchemaHelpersTests
     static JsonNode? CreateSchemaSample(OpenApiSchema schema)
     {
         var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
-                                                               .GetType("FastEndpoints.OpenApi.OperationTransformer+RequestOperationTransformer", throwOnError: true)!;
+                                                                      .GetType("FastEndpoints.OpenApi.OperationTransformer+RequestOperationTransformer", throwOnError: true)!;
 
         return (JsonNode?)transformerType.GetMethod("CreateSampleFromSchema", BindingFlags.Static | BindingFlags.NonPublic)!
                                          .Invoke(null, [schema, null]);
@@ -1070,7 +1072,7 @@ public class OperationSchemaHelpersTests
     static JsonNode? NormalizeSchemaExample(JsonNode example, OpenApiSchema schema)
     {
         var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
-                                                               .GetType("FastEndpoints.OpenApi.OperationTransformer+RequestOperationTransformer", throwOnError: true)!;
+                                                                      .GetType("FastEndpoints.OpenApi.OperationTransformer+RequestOperationTransformer", throwOnError: true)!;
 
         return (JsonNode?)transformerType.GetMethod("NormalizeExampleNode", BindingFlags.Static | BindingFlags.NonPublic)!
                                          .Invoke(null, [example, schema, null]);
@@ -1079,7 +1081,7 @@ public class OperationSchemaHelpersTests
     static void ValidateRequestDto(Type requestType, bool isCollection)
     {
         var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
-                                                               .GetType("FastEndpoints.OpenApi.OperationTransformer+RequestOperationTransformer", throwOnError: true)!;
+                                                                      .GetType("FastEndpoints.OpenApi.OperationTransformer+RequestOperationTransformer", throwOnError: true)!;
         var epDef = new EndpointDefinition(typeof(object), requestType, typeof(object));
 
         try
@@ -1096,7 +1098,7 @@ public class OperationSchemaHelpersTests
     static bool ShouldAddQueryParam(string propertyName, bool isGetRequest)
     {
         var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
-                                                               .GetType("FastEndpoints.OpenApi.OperationTransformer+RequestOperationTransformer", throwOnError: true)!;
+                                                                      .GetType("FastEndpoints.OpenApi.OperationTransformer+RequestOperationTransformer", throwOnError: true)!;
         var prop = typeof(QueryBindingSourcesRequest).GetProperty(propertyName)!;
 
         return (bool)transformerType.GetMethod("ShouldAddQueryParam", BindingFlags.Static | BindingFlags.NonPublic)!
@@ -1106,7 +1108,7 @@ public class OperationSchemaHelpersTests
     static bool AddComplexFromQueryParameters(OpenApiOperation operation, PropertyInfo prop)
     {
         var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
-                                                               .GetType("FastEndpoints.OpenApi.OperationTransformer+RequestOperationTransformer", throwOnError: true)!;
+                                                                      .GetType("FastEndpoints.OpenApi.OperationTransformer+RequestOperationTransformer", throwOnError: true)!;
         var transformer = Activator.CreateInstance(
             transformerType,
             BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
@@ -1115,13 +1117,13 @@ public class OperationSchemaHelpersTests
             culture: null)!;
 
         return (bool)transformerType.GetMethod("TryAddComplexFromQueryParameters", BindingFlags.Instance | BindingFlags.NonPublic)!
-                                     .Invoke(transformer, [operation, prop, false])!;
+                                    .Invoke(transformer, [operation, prop, false])!;
     }
 
     static void FixBinaryFormats(OpenApiOperation operation)
     {
         var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
-                                                               .GetType("FastEndpoints.OpenApi.OperationTransformer+ResponseOperationTransformer", throwOnError: true)!;
+                                                                      .GetType("FastEndpoints.OpenApi.OperationTransformer+ResponseOperationTransformer", throwOnError: true)!;
         var transformer = Activator.CreateInstance(
             transformerType,
             BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
@@ -1136,7 +1138,7 @@ public class OperationSchemaHelpersTests
     static void UpdateParameterSchema(OpenApiOperation operation, string name, Type type, SharedContext sharedCtx)
     {
         var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
-                                                               .GetType("FastEndpoints.OpenApi.OperationTransformer", throwOnError: true)!;
+                                                                      .GetType("FastEndpoints.OpenApi.OperationTransformer", throwOnError: true)!;
 
         transformerType.GetMethod("UpdateParameterSchema", BindingFlags.Static | BindingFlags.NonPublic)!
                        .Invoke(null, [operation, ParameterLocation.Path, name, type, sharedCtx, false]);
@@ -1148,7 +1150,7 @@ public class OperationSchemaHelpersTests
                                                JsonNamingPolicy? namingPolicy = null)
     {
         var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
-                                                                .GetType("FastEndpoints.OpenApi.OperationTransformer+ResponseOperationTransformer", throwOnError: true)!;
+                                                                      .GetType("FastEndpoints.OpenApi.OperationTransformer+ResponseOperationTransformer", throwOnError: true)!;
         var sharedCtx = new SharedContext { NamingPolicy = namingPolicy };
         var transformer = Activator.CreateInstance(
             transformerType,
@@ -1172,7 +1174,7 @@ public class OperationSchemaHelpersTests
     static void AddParameter(OpenApiOperation operation, string name, ParameterLocation location, PropertyInfo prop, bool? isRequired = null)
     {
         var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
-                                                               .GetType("FastEndpoints.OpenApi.OperationTransformer+RequestOperationTransformer", throwOnError: true)!;
+                                                                      .GetType("FastEndpoints.OpenApi.OperationTransformer+RequestOperationTransformer", throwOnError: true)!;
         var transformer = Activator.CreateInstance(
             transformerType,
             BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
@@ -1187,7 +1189,9 @@ public class OperationSchemaHelpersTests
     sealed class ConstructorDefaultQueryRequest
     {
         public ConstructorDefaultQueryRequest(int page = 1)
-            => Page = page;
+        {
+            Page = page;
+        }
 
         public int Page { get; }
     }

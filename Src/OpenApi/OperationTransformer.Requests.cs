@@ -164,6 +164,7 @@ sealed partial class OperationTransformer
 
             var requestDtoType = GetRequestDtoType(epDef);
             var requestProps = requestDtoType is null ? null : GetPublicInstanceProperties(requestDtoType);
+            var requestPropLookup = requestProps is null ? null : BuildRequestPropertyLookup(requestProps);
 
             foreach (var param in operation.Parameters)
             {
@@ -171,7 +172,7 @@ sealed partial class OperationTransformer
                     continue;
 
                 var prop = concreteParam.Name is { } parameterName
-                               ? requestProps?.FirstOrDefault(p => MatchesParameterName(p, parameterName, concreteParam.In ?? ParameterLocation.Query))
+                               ? FindRequestProperty(requestPropLookup, parameterName, concreteParam.In ?? ParameterLocation.Query)
                                : null;
 
                 if (epDef.EndpointSummary?.Params is { Count: > 0 })
@@ -309,8 +310,36 @@ sealed partial class OperationTransformer
             }
         }
 
-        bool MatchesParameterName(PropertyInfo property, string parameterName, ParameterLocation location)
-            => string.Equals(GetEffectiveParameterName(property, location), parameterName, StringComparison.OrdinalIgnoreCase);
+        Dictionary<string, PropertyInfo> BuildRequestPropertyLookup(PropertyInfo[] requestProps)
+        {
+            var lookup = new Dictionary<string, PropertyInfo>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var prop in requestProps)
+            {
+                AddRequestPropertyLookup(lookup, prop, ParameterLocation.Path);
+                AddRequestPropertyLookup(lookup, prop, ParameterLocation.Query);
+                AddRequestPropertyLookup(lookup, prop, ParameterLocation.Header);
+                AddRequestPropertyLookup(lookup, prop, ParameterLocation.Cookie);
+            }
+
+            return lookup;
+        }
+
+        void AddRequestPropertyLookup(Dictionary<string, PropertyInfo> lookup, PropertyInfo property, ParameterLocation location)
+            => lookup.TryAdd(GetRequestPropertyLookupKey(GetEffectiveParameterName(property, location), location), property);
+
+        static PropertyInfo? FindRequestProperty(Dictionary<string, PropertyInfo>? lookup, string parameterName, ParameterLocation location)
+        {
+            if (lookup is null)
+                return null;
+
+            return lookup.TryGetValue(GetRequestPropertyLookupKey(parameterName, location), out var property)
+                       ? property
+                       : null;
+        }
+
+        static string GetRequestPropertyLookupKey(string parameterName, ParameterLocation location)
+            => $"{location}:{parameterName}";
 
         string GetEffectiveParameterName(PropertyInfo property, ParameterLocation location)
         {

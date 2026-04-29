@@ -98,28 +98,47 @@ sealed class DocumentVersionFilter
             }
         }
 
+        PruneDocumentOperations(document, opsToKeep, opsToDeprecate);
+    }
+
+    static void PruneDocumentOperations(OpenApiDocument document,
+                                        HashSet<(string Path, string Method)> opsToKeep,
+                                        HashSet<(string Path, string Method)> opsToDeprecate)
+    {
+        if (document.Paths is not { Count: > 0 })
+            return;
+
         foreach (var path in document.Paths.Keys.ToArray())
         {
             if (!document.Paths.TryGetValue(path, out var pathItem) || pathItem.Operations is null)
                 continue;
 
-            foreach (var method in pathItem.Operations.Keys.ToArray())
-            {
-                var methodName = method.ToString().ToUpperInvariant();
-
-                if (!opsToKeep.Contains((path, methodName)))
-                {
-                    pathItem.Operations.Remove(method);
-
-                    continue;
-                }
-
-                if (opsToDeprecate.Contains((path, methodName)))
-                    pathItem.Operations[method].Deprecated = true;
-            }
+            PrunePathOperations(pathItem, path, opsToKeep, opsToDeprecate);
 
             if (pathItem.Operations.Count == 0)
                 document.Paths.Remove(path);
+        }
+    }
+
+    static void PrunePathOperations(IOpenApiPathItem pathItem,
+                                    string path,
+                                    HashSet<(string Path, string Method)> opsToKeep,
+                                    HashSet<(string Path, string Method)> opsToDeprecate)
+    {
+        foreach (var method in pathItem.Operations!.Keys.ToArray())
+        {
+            var methodName = method.ToString().ToUpperInvariant();
+            var operationKey = (path, methodName);
+
+            if (!opsToKeep.Contains(operationKey))
+            {
+                pathItem.Operations.Remove(method);
+
+                continue;
+            }
+
+            if (opsToDeprecate.Contains(operationKey))
+                pathItem.Operations[method].Deprecated = true;
         }
     }
 

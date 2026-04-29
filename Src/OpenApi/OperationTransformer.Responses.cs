@@ -122,9 +122,7 @@ sealed partial class OperationTransformer
             if (operation.Responses is null)
                 return;
 
-            var responseTypeMetas = metadata.OfType<IProducesResponseTypeMetadata>()
-                                            .GroupBy(m => m.StatusCode)
-                                            .ToDictionary(g => g.Key, g => g.Last());
+            var responseTypeMetas = BuildResponseTypeMetadataMap(metadata);
 
             foreach (var (statusCode, response) in operation.Responses)
             {
@@ -139,6 +137,19 @@ sealed partial class OperationTransformer
                 if (epDef.EndpointSummary?.ResponseHeaders is { Count: > 0 })
                     AddConfiguredResponseHeaders(concreteResponse, epDef.EndpointSummary.ResponseHeaders, code);
             }
+        }
+
+        static Dictionary<int, IProducesResponseTypeMetadata> BuildResponseTypeMetadataMap(IList<object> metadata)
+        {
+            var responseTypeMetas = new Dictionary<int, IProducesResponseTypeMetadata>();
+
+            for (var i = 0; i < metadata.Count; i++)
+            {
+                if (metadata[i] is IProducesResponseTypeMetadata responseTypeMeta)
+                    responseTypeMetas[responseTypeMeta.StatusCode] = responseTypeMeta;
+            }
+
+            return responseTypeMetas;
         }
 
         public void FixPolymorphism(OpenApiOperation operation)

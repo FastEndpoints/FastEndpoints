@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Text;
 using System.Text.Json.Serialization.Metadata;
 
@@ -26,6 +27,7 @@ static class SchemaNameGenerator
         typeof(TimeSpan),
         typeof(Guid)
     ];
+    static readonly ConcurrentDictionary<SchemaReferenceIdKey, string> _referenceIdCache = new();
 
     internal static Func<JsonTypeInfo, string?> Create(bool shortSchemaNames)
         => typeInfo => GetReferenceId(typeInfo.Type, shortSchemaNames);
@@ -35,7 +37,7 @@ static class SchemaNameGenerator
         if (ShouldInlineType(type))
             return null;
 
-        return Generate(type, shortSchemaNames);
+        return _referenceIdCache.GetOrAdd(new(type, shortSchemaNames), static key => Generate(key.Type, key.ShortSchemaNames));
     }
 
     static bool ShouldInlineType(Type type)
@@ -138,4 +140,6 @@ static class SchemaNameGenerator
             return fullNameWithoutGenericArgs.Replace(".", string.Empty).Replace("+", "_");
         }
     }
+
+    readonly record struct SchemaReferenceIdKey(Type Type, bool ShortSchemaNames);
 }

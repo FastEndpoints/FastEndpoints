@@ -1983,6 +1983,36 @@
         }
       }
     },
+    "/api/swagger-review/default-value-schema": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewDefaultValueSchemaReviewEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSwaggerReviewDefaultValueSchemaReviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/swagger-review/duplicate-examples": {
       "post": {
         "tags": [
@@ -2169,6 +2199,50 @@
         }
       }
     },
+    "/api/swagger-review/endpoint-summary-overrides-xml-doc": {
+      "get": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "summary": "configured endpoint summary",
+        "description": "configured endpoint description",
+        "operationId": "swagger_review_TestCasesSwaggerReviewEndpointSummaryOverridesXmlDocReviewEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/endpoint-xml-doc": {
+      "get": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "summary": "xml endpoint summary",
+        "description": "xml endpoint remarks",
+        "operationId": "swagger_review_TestCasesSwaggerReviewEndpointXmlDocReviewEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/swagger-review/generic-xml-doc": {
       "post": {
         "tags": [
@@ -2192,6 +2266,36 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/TestCasesSwaggerReviewGenericXmlDocReviewResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/hidden-schema": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewHiddenSchemaReviewEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSwaggerReviewHiddenSchemaReviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesSwaggerReviewHiddenSchemaReviewResponse"
                 }
               }
             }
@@ -8761,6 +8865,20 @@
           }
         }
       },
+      "TestCasesSwaggerReviewDefaultValueSchemaReviewRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "default": "schema-default"
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32",
+            "default": 7
+          }
+        }
+      },
       "TestCasesSwaggerReviewDuplicateRequestExamplesRequest": {
         "type": "object",
         "properties": {
@@ -8799,6 +8917,22 @@
           }
         },
         "description": "generic review response summary"
+      },
+      "TestCasesSwaggerReviewHiddenSchemaReviewRequest": {
+        "type": "object",
+        "properties": {
+          "visibleValue": {
+            "type": "string"
+          }
+        }
+      },
+      "TestCasesSwaggerReviewHiddenSchemaReviewResponse": {
+        "type": "object",
+        "properties": {
+          "visibleValue": {
+            "type": "string"
+          }
+        }
       },
       "TestCasesSwaggerReviewIllegalHeadersRequest": {
         "type": "object",

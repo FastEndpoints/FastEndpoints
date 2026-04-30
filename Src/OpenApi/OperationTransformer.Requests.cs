@@ -266,7 +266,6 @@ sealed partial class OperationTransformer
             var paramDescriptions = epDef.EndpointSummary?.Params;
             var hasParams = paramDescriptions is { Count: > 0 };
             var exampleObj = epDef.EndpointSummary?.ExampleRequest;
-            var fallbackExample = GetRequestExampleFallback(epDef, state, promotedBodyProperty);
             var defaultProps = BuildRequestSchemaDefaultLookup(promotedBodyProperty?.Type ?? GetRequestDtoType(epDef));
             var hasDefaults = defaultProps.Count > 0;
 
@@ -275,8 +274,9 @@ sealed partial class OperationTransformer
 
             Dictionary<string, JsonNode>? propExamples = null;
             var requestExampleNode = exampleObj is null
-                                         ? null
-                                         : BuildRequestExampleNode(exampleObj, state.PropsRemovedFromBody, promotedBodyProperty);
+                                          ? null
+                                          : BuildRequestExampleNode(exampleObj, state.PropsRemovedFromBody, promotedBodyProperty);
+            JsonNode? fallbackExample = null;
 
             if (exampleObj is not null and not IEnumerable && requestExampleNode is JsonObject obj)
             {
@@ -308,7 +308,10 @@ sealed partial class OperationTransformer
                 }
 
                 if (requestExampleNode is not null)
+                {
+                    fallbackExample ??= GetRequestExampleFallback(epDef, state, promotedBodyProperty);
                     schema.Example = NormalizeExampleNode(requestExampleNode.DeepClone(), schema, fallbackExample);
+                }
 
                 if (schema.Properties is null)
                     continue;

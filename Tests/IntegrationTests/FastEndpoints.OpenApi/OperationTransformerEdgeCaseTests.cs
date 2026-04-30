@@ -527,6 +527,54 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     }
 
     [Fact]
+    public async Task to_header_response_properties_use_xml_docs_for_description_and_example()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var header = JToken.Parse(json)["paths"]!["/api/swagger-review/json-property-name-transformers"]!["post"]!
+                               ["responses"]!["200"]!["headers"]!["x-secret"]!;
+
+        header["description"]!.Value<string>().ShouldBe("secret header summary");
+        header["example"]!.Value<string>().ShouldBe("xml-secret-header");
+    }
+
+    [Fact]
+    public async Task response_metadata_examples_are_applied_to_response_content()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var example = JToken.Parse(json)["paths"]!["/api/swagger-review/response-metadata-example"]!["post"]!
+                            ["responses"]!["201"]!["content"]!["application/json"]!["example"]!;
+
+        example["message"]!.Value<string>().ShouldBe("from response metadata");
+    }
+
+    [Fact]
+    public async Task explicit_response_examples_override_response_metadata_examples()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var example = JToken.Parse(json)["paths"]!["/api/swagger-review/explicit-response-example"]!["post"]!
+                            ["responses"]!["200"]!["content"]!["application/json"]!["example"]!;
+
+        example["message"]!.Value<string>().ShouldBe("from explicit response examples");
+    }
+
+    [Fact]
+    public async Task non_fastendpoint_auth_metadata_uses_configured_security_schemes()
+    {
+        var json = await App.GetDocumentJsonAsync("Release 1.0");
+        var doc = JToken.Parse(json);
+        var securedOperation = doc["paths"]!["/non-fe-auth"]!["get"]!;
+        var anonymousOperation = doc["paths"]!["/non-fe-auth-anon"]!["get"]!;
+        var securitySchemeNames = securedOperation["security"]!
+                                  .Children<JObject>()
+                                  .SelectMany(o => o.Properties().Select(p => p.Name))
+                                  .ToArray();
+
+        securitySchemeNames.ShouldContain("JWTBearerAuth");
+        securitySchemeNames.ShouldContain("ApiKey");
+        (anonymousOperation["security"]?.Any() == true).ShouldBeFalse();
+    }
+
+    [Fact]
     public async Task interface_dictionary_query_parameter_uses_object_schema()
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review");

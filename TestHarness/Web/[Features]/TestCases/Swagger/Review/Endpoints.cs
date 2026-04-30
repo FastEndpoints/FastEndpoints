@@ -733,6 +733,10 @@ sealed class JsonPropertyNameTransformerReviewRequest
 
 sealed class JsonPropertyNameTransformerReviewResponse
 {
+    /// <summary>
+    /// secret header summary
+    /// </summary>
+    /// <example>xml-secret-header</example>
     [JsonPropertyName("x_secret"), ToHeader("x-secret")]
     public string Secret { get; set; } = string.Empty;
 
@@ -764,6 +768,44 @@ sealed class JsonPropertyNameTransformerReviewEndpoint : Endpoint<JsonPropertyNa
                 BodyValue = "ok"
             },
             ct);
+}
+
+sealed class ResponseExampleMetadataReviewResponse
+{
+    public string Message { get; set; } = string.Empty;
+}
+
+sealed class ResponseExampleMetadataReviewEndpoint : EndpointWithoutRequest<ResponseExampleMetadataReviewResponse>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/response-metadata-example");
+        Tags("swagger_review");
+        AllowAnonymous();
+        Summary(s => s.Response(201, "created", example: new ResponseExampleMetadataReviewResponse { Message = "from response metadata" }));
+    }
+
+    public override Task HandleAsync(CancellationToken ct)
+        => Send.OkAsync(new() { Message = "ok" }, ct);
+}
+
+sealed class ExplicitResponseExampleReviewEndpoint : EndpointWithoutRequest<ResponseExampleMetadataReviewResponse>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/explicit-response-example");
+        Tags("swagger_review");
+        AllowAnonymous();
+        Summary(
+            s =>
+            {
+                s.Response(200, example: new ResponseExampleMetadataReviewResponse { Message = "from response metadata" });
+                s.ResponseExamples[200] = new ResponseExampleMetadataReviewResponse { Message = "from explicit response examples" };
+            });
+    }
+
+    public override Task HandleAsync(CancellationToken ct)
+        => Send.OkAsync(new() { Message = "ok" }, ct);
 }
 
 sealed class CollectionLengthReviewRequest

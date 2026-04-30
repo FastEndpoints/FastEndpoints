@@ -138,7 +138,7 @@ public class OperationSchemaHelpersTests
             culture: null)!;
 
         transformerType.GetMethod("ApplyExamples", BindingFlags.Instance | BindingFlags.Public)!
-                       .Invoke(transformer, [operation, epDef]);
+                       .Invoke(transformer, [operation, epDef, Array.Empty<object>()]);
 
         var jsonExample = operation.Responses["200"].Content!["application/json"].Example;
         var problemExample = operation.Responses["200"].Content!["application/problem+json"].Example;

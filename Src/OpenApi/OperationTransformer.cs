@@ -53,6 +53,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
                 return Task.CompletedTask;
 
             RegisterNonFastEndpointOperation(operationKey, documentPath, httpMethod);
+            _metadataTransformer.ApplySecurityRequirements(operation, null, metadata, operationKey);
 
             return Task.CompletedTask;
         }
@@ -110,7 +111,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
         _responseTransformer.FixBinaryFormats(operation);
 
         // handle response examples from EndpointSummary
-        _responseTransformer.ApplyExamples(operation, epDef);
+        _responseTransformer.ApplyExamples(operation, epDef, metadata);
 
         // handle request body examples from EndpointSummary.RequestExamples
         _requestTransformer.ApplyExamples(operation, epDef, requestTransformState, promotedBodyPropertyName);

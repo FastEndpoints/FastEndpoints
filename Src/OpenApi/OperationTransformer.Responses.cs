@@ -94,12 +94,14 @@ sealed partial class OperationTransformer
             }
         }
 
-        public void ApplyExamples(OpenApiOperation operation, EndpointDefinition epDef)
+        public void ApplyExamples(OpenApiOperation operation, EndpointDefinition epDef, IList<object> metadata)
         {
-            if (epDef.EndpointSummary?.ResponseExamples.Count is not > 0)
+            var examples = BuildResponseExamples(epDef, metadata);
+
+            if (examples.Count == 0)
                 return;
 
-            foreach (var (statusCode, example) in epDef.EndpointSummary.ResponseExamples)
+            foreach (var (statusCode, example) in examples)
             {
                 var key = statusCode.ToString();
 
@@ -116,6 +118,25 @@ sealed partial class OperationTransformer
                     content.Examples?.Clear();
                 }
             }
+        }
+
+        static Dictionary<int, object?> BuildResponseExamples(EndpointDefinition epDef, IList<object> metadata)
+        {
+            var examples = new Dictionary<int, object?>();
+
+            foreach (var meta in metadata.OfType<DefaultProducesResponseMetadata>())
+            {
+                if (meta.Example is not null)
+                    examples[meta.StatusCode] = meta.Example;
+            }
+
+            if (epDef.EndpointSummary?.ResponseExamples is { Count: > 0 } explicitExamples)
+            {
+                foreach (var (statusCode, example) in explicitExamples)
+                    examples[statusCode] = example;
+            }
+
+            return examples;
         }
 
         public void AddHeaders(OpenApiOperation operation, EndpointDefinition epDef, IList<object> metadata)
@@ -263,10 +284,30 @@ sealed partial class OperationTransformer
                     headerName,
                     new()
                     {
+                        Description = XmlDocLookup.GetPropertySummary(prop),
                         Schema = headerType.GetSchemaForType(sharedCtx, docOpts.ShortSchemaNames),
-                        Example = headerType.GetSampleValue().JsonNodeFromObject()
+                        Example = GetHeaderExample(prop, headerType)
                     });
             }
+        }
+
+        static JsonNode? GetHeaderExample(PropertyInfo prop, Type headerType)
+        {
+            var xmlExample = XmlDocLookup.GetPropertyExample(prop);
+
+            if (xmlExample is not null)
+            {
+                try
+                {
+                    return JsonNode.Parse(xmlExample);
+                }
+                catch
+                {
+                    return JsonValue.Create(xmlExample);
+                }
+            }
+
+            return headerType.GetSampleValue().JsonNodeFromObject();
         }
 
         void AddConfiguredResponseHeaders(OpenApiResponse response, IEnumerable<ResponseHeader> headers, int statusCode)

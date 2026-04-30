@@ -2243,6 +2243,29 @@
         }
       }
     },
+    "/api/swagger-review/explicit-response-example": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewExplicitResponseExampleReviewEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesSwaggerReviewResponseExampleMetadataReviewResponse"
+                },
+                "example": {
+                  "message": "from explicit response examples"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/swagger-review/generic-xml-doc": {
       "post": {
         "tags": [
@@ -2540,10 +2563,11 @@
             "description": "Success",
             "headers": {
               "x-secret": {
+                "description": "secret header summary",
                 "schema": {
                   "type": "string"
                 },
-                "example": ""
+                "example": "xml-secret-header"
               }
             },
             "content": {
@@ -2863,6 +2887,29 @@
               "application/json": {
                 "schema": {
                   "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/response-metadata-example": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewResponseExampleMetadataReviewEndpoint",
+        "responses": {
+          "201": {
+            "description": "created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesSwaggerReviewResponseExampleMetadataReviewResponse"
+                },
+                "example": {
+                  "message": "from response metadata"
                 }
               }
             }
@@ -7051,6 +7098,52 @@
         }
       }
     },
+    "/non-fe-auth": {
+      "get": {
+        "tags": [
+          "non-fe-auth"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": [ ]
+          },
+          {
+            "ApiKey": [ ]
+          }
+        ]
+      }
+    },
+    "/non-fe-auth-anon": {
+      "get": {
+        "tags": [
+          "non-fe-auth"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/test": {
       "get": {
         "tags": [
@@ -9035,6 +9128,14 @@
         "type": "object",
         "properties": {
           "bodyValue": {
+            "type": "string"
+          }
+        }
+      },
+      "TestCasesSwaggerReviewResponseExampleMetadataReviewResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
             "type": "string"
           }
         }

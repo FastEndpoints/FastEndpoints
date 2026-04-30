@@ -140,7 +140,7 @@ sealed partial class OperationTransformer
             }
         }
 
-        public void ApplySecurityRequirements(OpenApiOperation operation, EndpointDefinition epDef, IList<object> metadata, string operationKey)
+        public void ApplySecurityRequirements(OpenApiOperation operation, EndpointDefinition? epDef, IList<object> metadata, string operationKey)
         {
             var authorizeAttributes = new List<AuthorizeAttribute>();
             var hasAllowAnonymous = false;
@@ -174,16 +174,19 @@ sealed partial class OperationTransformer
                 sharedCtx.SecurityRequirements[operationKey] = securityEntries;
         }
 
-        (string SchemeName, string[] Scopes)[] BuildSecurityEntries(EndpointDefinition epDef, IReadOnlyCollection<string> scopes)
+        (string SchemeName, string[] Scopes)[] BuildSecurityEntries(EndpointDefinition? epDef, IReadOnlyCollection<string> scopes)
         {
             var securityEntries = new List<(string SchemeName, string[] Scopes)>();
 
             foreach (var authConfig in docOpts.AuthSchemes)
             {
-                var epSchemes = epDef.AuthSchemeNames;
+                if (epDef is not null)
+                {
+                    var epSchemes = epDef.AuthSchemeNames;
 
-                if (epSchemes?.Contains(authConfig.Name) == false)
-                    continue;
+                    if (epSchemes?.Contains(authConfig.Name) == false)
+                        continue;
+                }
 
                 var mergedScopes = new HashSet<string>(scopes, StringComparer.Ordinal);
 

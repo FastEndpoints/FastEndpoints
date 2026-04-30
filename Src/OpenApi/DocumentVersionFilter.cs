@@ -62,7 +62,9 @@ sealed class DocumentVersionFilter
         {
             group.Sort(static (x, y) => y.Version.CompareTo(x.Version));
 
-            var latestVersion = group.FirstOrDefault(op => op.StartingReleaseVersion <= _docRelVer)?.Version ?? 0;
+            var latestVersion = _docRelVer > 0
+                                    ? group.FirstOrDefault(op => op.StartingReleaseVersion <= _docRelVer)?.Version ?? 0
+                                    : 0;
 
             for (var i = 0; i < group.Count; i++)
             {

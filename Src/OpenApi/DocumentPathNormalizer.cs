@@ -27,10 +27,7 @@ static class DocumentPathNormalizer
         if (renames.Count == 0)
             return;
 
-        var normalizedPathOrigins = new Dictionary<string, string>(document.Paths.Count, StringComparer.Ordinal);
-
-        foreach (var path in document.Paths.Keys)
-            normalizedPathOrigins[path] = path;
+        var normalizedPathOrigins = new Dictionary<string, string>(renames.Count, StringComparer.Ordinal);
 
         foreach (var (oldPath, newPath) in renames)
         {

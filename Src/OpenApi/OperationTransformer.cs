@@ -38,7 +38,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
         var epDef = metadata.OfType<EndpointDefinition>().SingleOrDefault();
 
         docOpts.Services ??= context.ApplicationServices;
-        _ = sharedCtx.ResolveNamingPolicy(context.ApplicationServices);
+        sharedCtx.ResolveNamingPolicy(context.ApplicationServices);
         sharedCtx.InitializeSharedRequestSchemaRefs(context.ApplicationServices, docOpts);
 
         // compute the document path for this operation
@@ -302,15 +302,12 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
         {
             var finalRoute = new StringBuilder().BuildRoute(epDef.Version.Current, route, epDef.OverriddenRoutePrefix);
 
-            if (string.Equals(NormalizeRoutePath(finalRoute), documentPath, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(RouteTemplateHelpers.NormalizePath(finalRoute), documentPath, StringComparison.OrdinalIgnoreCase))
                 return route;
         }
 
         return null;
     }
-
-    static string NormalizeRoutePath(string route)
-        => RouteTemplateHelpers.NormalizePath(route);
 
     static List<RouteParameterInfo> GetRouteParameters(string? relativePath)
     {

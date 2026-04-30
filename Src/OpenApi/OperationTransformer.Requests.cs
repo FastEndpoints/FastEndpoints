@@ -27,6 +27,7 @@ sealed partial class OperationTransformer
             "Content-Type",
             "Authorization"
         };
+
         static readonly ParameterLookupKeyComparer _parameterLookupKeyComparer = new();
 
         JsonNamingPolicy? NamingPolicy => sharedCtx.NamingPolicy;
@@ -172,6 +173,9 @@ sealed partial class OperationTransformer
             var requestProps = requestDtoType is null ? null : GetPublicInstanceProperties(requestDtoType);
             var requestPropLookup = requestProps is null ? null : BuildRequestPropertyLookup(requestProps);
             var paramDescriptions = epDef.EndpointSummary?.Params;
+            var paramDescriptionLookup = paramDescriptions is { Count: > 0 }
+                                             ? BuildParamDescriptionLookup(paramDescriptions)
+                                             : null;
 
             foreach (var param in operation.Parameters)
             {
@@ -182,13 +186,11 @@ sealed partial class OperationTransformer
                                ? FindRequestProperty(requestPropLookup, parameterName, concreteParam.In ?? ParameterLocation.Query)
                                : null;
 
-                if (paramDescriptions is { Count: > 0 })
+                if (paramDescriptionLookup is not null)
                 {
                     var descriptionKey = prop?.Name ?? concreteParam.Name;
-                    var description = descriptionKey is not null
-                                          ? FindParamDescription(paramDescriptions, descriptionKey)
-                                          : null;
-                    if (description is not null)
+
+                    if (descriptionKey is not null && paramDescriptionLookup.TryGetValue(descriptionKey, out var description))
                         concreteParam.Description = description;
                 }
 
@@ -265,6 +267,7 @@ sealed partial class OperationTransformer
 
             var paramDescriptions = epDef.EndpointSummary?.Params;
             var hasParams = paramDescriptions is { Count: > 0 };
+            var paramDescriptionLookup = hasParams ? BuildParamDescriptionLookup(paramDescriptions!) : null;
             var exampleObj = epDef.EndpointSummary?.ExampleRequest;
             var defaultProps = BuildRequestSchemaDefaultLookup(promotedBodyProperty?.Type ?? GetRequestDtoType(epDef));
             var hasDefaults = defaultProps.Count > 0;
@@ -274,8 +277,8 @@ sealed partial class OperationTransformer
 
             Dictionary<string, JsonNode>? propExamples = null;
             var requestExampleNode = exampleObj is null
-                                          ? null
-                                          : BuildRequestExampleNode(exampleObj, state.PropsRemovedFromBody, promotedBodyProperty);
+                                         ? null
+                                         : BuildRequestExampleNode(exampleObj, state.PropsRemovedFromBody, promotedBodyProperty);
             JsonNode? fallbackExample = null;
 
             if (exampleObj is not null and not IEnumerable && requestExampleNode is JsonObject obj)
@@ -321,10 +324,9 @@ sealed partial class OperationTransformer
                     if (propSchema is not OpenApiSchema concreteProp)
                         continue;
 
-                    if (paramDescriptions is not null)
+                    if (paramDescriptionLookup is not null)
                     {
-                        var description = FindParamDescription(paramDescriptions, propName);
-                        if (description is not null)
+                        if (paramDescriptionLookup.TryGetValue(propName, out var description))
                             concreteProp.Description = description;
                     }
 
@@ -416,8 +418,8 @@ sealed partial class OperationTransformer
         }
 
         static void ApplyExampleRequestToParams(OpenApiOperation operation,
-                                                 EndpointDefinition epDef,
-                                                 Dictionary<(ParameterLocation Location, string Name), PropertyInfo>? requestPropLookup)
+                                                EndpointDefinition epDef,
+                                                Dictionary<(ParameterLocation Location, string Name), PropertyInfo>? requestPropLookup)
         {
             var exampleRequest = epDef.EndpointSummary?.ExampleRequest;
 
@@ -456,11 +458,14 @@ sealed partial class OperationTransformer
             }
         }
 
-        static string? FindParamDescription(IReadOnlyDictionary<string, string> paramDescriptions, string key)
+        static Dictionary<string, string> BuildParamDescriptionLookup(IReadOnlyDictionary<string, string> paramDescriptions)
         {
-            var matchingKey = paramDescriptions.Keys.FindCaseInsensitiveKey(key);
+            var lookup = new Dictionary<string, string>(paramDescriptions.Count, StringComparer.OrdinalIgnoreCase);
 
-            return matchingKey is not null ? paramDescriptions[matchingKey] : null;
+            foreach (var (key, description) in paramDescriptions)
+                lookup.TryAdd(key, description);
+
+            return lookup;
         }
 
         void RemoveHiddenProperties(OpenApiOperation operation, List<PropertyInfo> requestDtoProps, RequestTransformState state)
@@ -498,13 +503,14 @@ sealed partial class OperationTransformer
             for (var i = 0; i < requestDtoProps.Count; i++)
             {
                 var p = requestDtoProps[i];
+                var attributes = p.GetCustomAttributes().ToArray();
 
-                AddAttributeParameters(operation, p, state);
+                AddAttributeParameters(operation, p, attributes, state);
                 AddRouteParameter(operation, p, routeParameters, state);
 
                 var queryParamName = GetQueryParameterName(p);
 
-                if (ShouldAddQueryParam(p, operation, queryParamName, isGetRequest && !docOpts.EnableGetRequestsWithBody))
+                if (ShouldAddQueryParam(p, attributes, operation, queryParamName, isGetRequest && !docOpts.EnableGetRequestsWithBody))
                 {
                     operation.RemovePropFromRequestBody(p, sharedCtx, docOpts, NamingPolicy, state.PropsRemovedFromBody);
 
@@ -585,9 +591,9 @@ sealed partial class OperationTransformer
         static bool? GetDontBindRequiredness(PropertyInfo property)
             => property.GetCustomAttribute<DontBindAttribute>()?.IsRequired is true ? true : null;
 
-        void AddAttributeParameters(OpenApiOperation operation, PropertyInfo p, RequestTransformState state)
+        void AddAttributeParameters(OpenApiOperation operation, PropertyInfo p, Attribute[] attributes, RequestTransformState state)
         {
-            foreach (var attribute in p.GetCustomAttributes())
+            foreach (var attribute in attributes)
             {
                 switch (attribute)
                 {
@@ -676,7 +682,7 @@ sealed partial class OperationTransformer
                 existing.Name = appliedName;
 
             if (schemaType is not null)
-                UpdateParameterSchema(operation, ParameterLocation.Path, appliedName, schemaType, sharedCtx, docOpts.ShortSchemaNames);
+                existing.Schema = schemaType.GetSchemaForType(sharedCtx, docOpts.ShortSchemaNames);
 
             return true;
 
@@ -777,9 +783,9 @@ sealed partial class OperationTransformer
                 $"Offending DTO type: [{requestDtoType.FullName}]");
         }
 
-        static bool ShouldAddQueryParam(PropertyInfo prop, OpenApiOperation operation, string queryParamName, bool isGetRequest)
+        static bool ShouldAddQueryParam(PropertyInfo prop, Attribute[] attributes, OpenApiOperation operation, string queryParamName, bool isGetRequest)
         {
-            foreach (var attribute in prop.GetCustomAttributes())
+            foreach (var attribute in attributes)
             {
                 switch (attribute)
                 {
@@ -827,6 +833,5 @@ sealed partial class OperationTransformer
                        ? arraySchema
                        : null;
         }
-
     }
 }

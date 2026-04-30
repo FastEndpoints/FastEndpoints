@@ -54,7 +54,9 @@ sealed partial class OperationTransformer
             if (operation.Responses is null)
                 return;
 
-            var responseTypes = BuildSupportedResponseTypeMap(context);
+            var responseTypes = epDef.EndpointSummary?.ResponseParams.Count > 0
+                                    ? BuildSupportedResponseTypeMap(context)
+                                    : null;
 
             foreach (var (statusCode, response) in operation.Responses)
             {
@@ -67,7 +69,7 @@ sealed partial class OperationTransformer
                         response.Description = customDesc;
 
                     if (epDef.EndpointSummary.ResponseParams.TryGetValue(code, out var propDescriptions))
-                        ApplyParamDescriptions(response, propDescriptions, responseTypes.GetValueOrDefault(code));
+                        ApplyParamDescriptions(response, propDescriptions, responseTypes?.GetValueOrDefault(code));
                 }
             }
         }
@@ -145,6 +147,9 @@ sealed partial class OperationTransformer
                 return;
 
             var responseTypeMetas = BuildResponseTypeMetadataMap(metadata);
+            var configuredHeaders = epDef.EndpointSummary?.ResponseHeaders is { Count: > 0 } headers
+                                        ? BuildResponseHeadersByStatusCode(headers)
+                                        : null;
 
             foreach (var (statusCode, response) in operation.Responses)
             {
@@ -156,9 +161,27 @@ sealed partial class OperationTransformer
                 if (responseTypeMetas.TryGetValue(code, out var responseMeta) && responseMeta.Type is not null)
                     AddTypedResponseHeaders(concreteResponse, responseMeta.Type);
 
-                if (epDef.EndpointSummary?.ResponseHeaders is { Count: > 0 })
-                    AddConfiguredResponseHeaders(concreteResponse, epDef.EndpointSummary.ResponseHeaders, code);
+                if (configuredHeaders?.TryGetValue(code, out var headersForStatusCode) == true)
+                    AddConfiguredResponseHeaders(concreteResponse, headersForStatusCode);
             }
+        }
+
+        static Dictionary<int, List<ResponseHeader>> BuildResponseHeadersByStatusCode(IEnumerable<ResponseHeader> headers)
+        {
+            var result = new Dictionary<int, List<ResponseHeader>>();
+
+            foreach (var header in headers)
+            {
+                if (!result.TryGetValue(header.StatusCode, out var groupedHeaders))
+                {
+                    groupedHeaders = [];
+                    result[header.StatusCode] = groupedHeaders;
+                }
+
+                groupedHeaders.Add(header);
+            }
+
+            return result;
         }
 
         static Dictionary<int, IProducesResponseTypeMetadata> BuildResponseTypeMetadataMap(IList<object> metadata)
@@ -292,18 +315,13 @@ sealed partial class OperationTransformer
         }
 
         static JsonNode? GetHeaderExample(PropertyInfo prop, Type headerType)
-        {
-            return OperationSchemaHelpers.ParseXmlExampleJsonNode(XmlDocLookup.GetPropertyExample(prop), preserveRawString: true) ??
-                   headerType.GetSampleValue().JsonNodeFromObject();
-        }
+            => OperationSchemaHelpers.ParseXmlExampleJsonNode(XmlDocLookup.GetPropertyExample(prop), preserveRawString: true) ??
+               headerType.GetSampleValue().JsonNodeFromObject();
 
-        void AddConfiguredResponseHeaders(OpenApiResponse response, IEnumerable<ResponseHeader> headers, int statusCode)
+        void AddConfiguredResponseHeaders(OpenApiResponse response, IEnumerable<ResponseHeader> headers)
         {
             foreach (var header in headers)
             {
-                if (header.StatusCode != statusCode)
-                    continue;
-
                 var example = header.Example.JsonNodeFromObject();
 
                 AddResponseHeader(

@@ -41,7 +41,7 @@ sealed partial class ValidationSchemaTransformer(DocumentOptions docOpts, Shared
 
     public void ApplyEndpointValidation(OpenApiOperation operation, IServiceProvider services, Type? validatorType, string? propertyPrefix = null)
     {
-        if (validatorType is null || operation.RequestBody?.Content is null)
+        if (validatorType is null || operation.RequestBody?.Content is not { Count: > 0 })
             return;
 
         Initialize(services);

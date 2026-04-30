@@ -11,10 +11,10 @@ sealed class HiddenPropertySchemaTransformer(DocumentOptions docOpts, SharedCont
 
     public Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context, CancellationToken ct)
     {
-        var namingPolicy = sharedCtx.ResolveNamingPolicy(context.ApplicationServices);
-
         if (context.JsonPropertyInfo is not null || schema.Properties is not { Count: > 0 })
             return Task.CompletedTask;
+
+        var namingPolicy = sharedCtx.ResolveNamingPolicy(context.ApplicationServices);
 
         foreach (var prop in _hiddenPropertiesCache.GetOrAdd(context.JsonTypeInfo.Type, GetHiddenProperties))
         {

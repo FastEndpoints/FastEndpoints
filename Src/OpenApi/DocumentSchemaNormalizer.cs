@@ -35,8 +35,8 @@ static class DocumentSchemaNormalizer
         const string stringSegmentKey = "MicrosoftExtensionsPrimitivesStringSegment";
         var headerRemoved = false;
 
-        foreach (var s in document.Components.Schemas.Keys.ToArray())
-            headerRemoved |= _frameworkHeaderValueSchemaKeys.Contains(s) && document.Components.Schemas.Remove(s);
+        foreach (var key in _frameworkHeaderValueSchemaKeys)
+            headerRemoved |= document.Components.Schemas.Remove(key);
 
         if (headerRemoved)
             document.Components.Schemas.Remove(stringSegmentKey);

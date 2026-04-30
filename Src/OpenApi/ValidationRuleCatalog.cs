@@ -16,7 +16,7 @@ static class ValidationRuleCatalog
                     {
                         var schema = context.Schema;
                         schema.Required ??= new HashSet<string>();
-                        if (!schema.Required.Contains(context.PropertyKey) && !context.HasCondition)
+                        if (!context.HasCondition)
                             schema.Required.Add(context.PropertyKey);
                     }
         },
@@ -150,10 +150,12 @@ static class ValidationRuleCatalog
                         if (!context.TryGetPropertySchema(out var prop))
                             return;
 
+                        var isExclusive = betweenValidator.GetType().IsSubClassOfGeneric(typeof(ExclusiveBetweenValidator<,>));
+
                         if (betweenValidator.From.IsNumeric())
                         {
                             var fromStr = betweenValidator.From.ToInvariantNumericString();
-                            if (betweenValidator.GetType().IsSubClassOfGeneric(typeof(ExclusiveBetweenValidator<,>)))
+                            if (isExclusive)
                                 prop.ExclusiveMinimum = fromStr;
                             else
                                 prop.Minimum = fromStr;
@@ -162,7 +164,7 @@ static class ValidationRuleCatalog
                         if (betweenValidator.To.IsNumeric())
                         {
                             var toStr = betweenValidator.To.ToInvariantNumericString();
-                            if (betweenValidator.GetType().IsSubClassOfGeneric(typeof(ExclusiveBetweenValidator<,>)))
+                            if (isExclusive)
                                 prop.ExclusiveMaximum = toStr;
                             else
                                 prop.Maximum = toStr;

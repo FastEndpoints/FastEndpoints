@@ -20,6 +20,19 @@ sealed partial class ValidationSchemaTransformer
 
     sealed record CachedValidatorRules(ReadOnlyDictionary<string, List<IValidationRule>> Rules, CachedValidatorRules[] IncludedRules);
 
+    static OpenApiSchema? ResolveForMutation(IOpenApiSchema? schema, bool localizeReferencedSchemas, Action<OpenApiSchema> replace)
+    {
+        if (!localizeReferencedSchemas || schema is not OpenApiSchemaReference)
+            return schema.ResolveSchema();
+
+        var cloned = schema.CloneAsConcreteSchema();
+
+        if (cloned is not null)
+            replace(cloned);
+
+        return cloned;
+    }
+
     sealed class ValidationSchemaApplier : IDisposable
     {
         readonly SharedContext _sharedCtx;
@@ -102,7 +115,7 @@ sealed partial class ValidationSchemaTransformer
 
             for (var i = 0; i < composite.Count; i++)
             {
-                var resolved = ResolveForMutation(composite[i], cloned => composite[i] = cloned);
+                var resolved = ResolveForMutation(composite[i], _localizeReferencedSchemas, cloned => composite[i] = cloned);
 
                 if (resolved is not null && resolved.Properties is { Count: > 0 })
                     ApplyRulesToSchema(resolved, rulesDict, propertyPrefix, activeChildValidators);
@@ -127,7 +140,7 @@ sealed partial class ValidationSchemaTransformer
             if (property is null)
                 return;
 
-            var propertySchema = ResolveForMutation(property, cloned => schema.Properties![propertyName] = cloned);
+            var propertySchema = ResolveForMutation(property, _localizeReferencedSchemas, cloned => schema.Properties![propertyName] = cloned);
 
             if (propertySchema is not null &&
                 propertySchema.Properties is { Count: > 0 } &&
@@ -140,7 +153,7 @@ sealed partial class ValidationSchemaTransformer
 
             if (propertySchema is { Type: { } type } &&
                 type.HasFlag(JsonSchemaType.Array) &&
-                ResolveForMutation(propertySchema.Items, cloned => propertySchema.Items = cloned) is { Properties.Count: > 0 } itemsSchema)
+                ResolveForMutation(propertySchema.Items, _localizeReferencedSchemas, cloned => propertySchema.Items = cloned) is { Properties.Count: > 0 } itemsSchema)
                 ApplyRulesToSchema(itemsSchema, rulesDict, $"{fullPropertyName}[].", activeChildValidators);
         }
 
@@ -163,19 +176,6 @@ sealed partial class ValidationSchemaTransformer
                         _childResolver.ApplyChildValidator(schema, propertyValidator, activeChildValidators);
                 }
             }
-        }
-
-        OpenApiSchema? ResolveForMutation(IOpenApiSchema? schema, Action<OpenApiSchema> replace)
-        {
-            if (!_localizeReferencedSchemas || schema is not OpenApiSchemaReference)
-                return schema.ResolveSchema();
-
-            var cloned = schema.CloneAsConcreteSchema();
-
-            if (cloned is not null)
-                replace(cloned);
-
-            return cloned;
         }
 
         void ApplyValidationRule(OpenApiSchema schema, IValidationRule validationRule, string propertyName, HashSet<Type> activeChildValidators)
@@ -255,14 +255,18 @@ sealed partial class ValidationSchemaTransformer
                                                      System.Text.Json.JsonNamingPolicy? namingPolicy,
                                                      HashSet<Type> activeIncludedValidators)
         {
-            if (!activeIncludedValidators.Add(validator.GetType()))
+            var validatorType = validator.GetType();
+
+            if (!activeIncludedValidators.Add(validatorType))
                 return;
 
             try
             {
                 foreach (var includeValidator in GetIncludedValidators(validator, logger))
                 {
-                    if (activeIncludedValidators.Contains(includeValidator.GetType()))
+                    var includeValidatorType = includeValidator.GetType();
+
+                    if (activeIncludedValidators.Contains(includeValidatorType))
                         continue;
 
                     var rulesDict = includeValidator.GetDictionaryOfRules(namingPolicy, usePropertyNamingPolicy, GetValidatorTargetType(includeValidator));
@@ -272,17 +276,18 @@ sealed partial class ValidationSchemaTransformer
             }
             finally
             {
-                activeIncludedValidators.Remove(validator.GetType());
+                activeIncludedValidators.Remove(validatorType);
             }
         }
 
         static bool TryGetIncludedValidator(IPropertyValidator adapter, ILogger<ValidationSchemaTransformer>? logger, [NotNullWhen(true)] out IValidator? validator)
         {
             validator = null;
+            var adapterType = adapter.GetType();
 
             try
             {
-                var accessor = ChildValidatorAdapterAccessor.Get(adapter.GetType());
+                var accessor = ChildValidatorAdapterAccessor.Get(adapterType);
 
                 if (!accessor.IsAvailable)
                     return false;
@@ -298,7 +303,7 @@ sealed partial class ValidationSchemaTransformer
             }
             catch (Exception ex)
             {
-                logger?.ExceptionProcessingValidator(ex, adapter.GetType().Name);
+                logger?.ExceptionProcessingValidator(ex, adapterType.Name);
 
                 return false;
             }
@@ -313,13 +318,13 @@ sealed partial class ValidationSchemaTransformer
             {
                 if (schema.Properties?.TryGetValue(propertyName, out var childPropSchema) == true)
                 {
-                    var childSchema = ResolveForMutation(childPropSchema, cloned => schema.Properties![propertyName] = cloned);
+                    var childSchema = ResolveForMutation(childPropSchema, localizeReferencedSchemas, cloned => schema.Properties![propertyName] = cloned);
 
                     if (childSchema is not null)
                     {
                         if (childSchema.Type.HasValue &&
                             childSchema.Type.Value.HasFlag(JsonSchemaType.Array) &&
-                            ResolveForMutation(childSchema.Items, cloned => childSchema.Items = cloned) is { } itemsSchema)
+                            ResolveForMutation(childSchema.Items, localizeReferencedSchemas, cloned => childSchema.Items = cloned) is { } itemsSchema)
                             applyValidator(itemsSchema, childValidator, string.Empty, activeChildValidators);
                         else
                             applyValidator(childSchema, childValidator, string.Empty, activeChildValidators);
@@ -355,14 +360,16 @@ sealed partial class ValidationSchemaTransformer
             validatorType = null;
             childValidator = null;
 
-            if (propertyValidator.GetType().Name.StartsWith("PolymorphicValidator"))
+            var propertyValidatorType = propertyValidator.GetType();
+
+            if (propertyValidatorType.Name.StartsWith("PolymorphicValidator"))
             {
-                logger?.SwaggerWithFluentValidationIntegrationForPolymorphicValidatorsIsNotSupported(propertyValidator.GetType().Name);
+                logger?.SwaggerWithFluentValidationIntegrationForPolymorphicValidatorsIsNotSupported(propertyValidatorType.Name);
 
                 return false;
             }
 
-            var validatorTypeObj = propertyValidator.GetType().GetProperty("ValidatorType")?.GetValue(propertyValidator);
+            var validatorTypeObj = propertyValidatorType.GetProperty("ValidatorType")?.GetValue(propertyValidator);
 
             if (validatorTypeObj is not Type resolvedValidatorType)
                 throw new InvalidOperationException("ChildValidatorAdaptor.ValidatorType is null");
@@ -374,19 +381,6 @@ sealed partial class ValidationSchemaTransformer
             childValidator = (IValidator)serviceResolver.CreateInstance(resolvedValidatorType, Services);
 
             return true;
-        }
-
-        OpenApiSchema? ResolveForMutation(IOpenApiSchema? schema, Action<OpenApiSchema> replace)
-        {
-            if (!localizeReferencedSchemas || schema is not OpenApiSchemaReference)
-                return schema.ResolveSchema();
-
-            var cloned = schema.CloneAsConcreteSchema();
-
-            if (cloned is not null)
-                replace(cloned);
-
-            return cloned;
         }
     }
 

@@ -16,11 +16,11 @@ sealed class ToHeaderPropertySchemaTransformer(DocumentOptions docOpts, SharedCo
 
     public Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context, CancellationToken ct)
     {
-        var namingPolicy = sharedCtx.ResolveNamingPolicy(context.ApplicationServices);
-
         // only process type-level schemas (not property-level)
         if (context.JsonPropertyInfo is not null || schema.Properties is not { Count: > 0 })
             return Task.CompletedTask;
+
+        var namingPolicy = sharedCtx.ResolveNamingPolicy(context.ApplicationServices);
 
         var type = context.JsonTypeInfo.Type;
 

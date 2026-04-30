@@ -13,6 +13,7 @@ static class ReflectionExtension
             return true;
 
         var parameters = parent.GetGenericArguments();
+        var parentDefinition = GetFullTypeDefinition(parent);
 
         var isParameterLessGeneric = !(parameters is { Length: > 0 } &&
                                        (parameters[0].Attributes & TypeAttributes.BeforeFieldInit) == TypeAttributes.BeforeFieldInit);
@@ -24,22 +25,20 @@ static class ReflectionExtension
             if (parent == cur ||
                 (isParameterLessGeneric &&
                  cur.GetInterfaces()
-                    .Select(GetFullTypeDefinition)
-                    .Contains(GetFullTypeDefinition(parent))))
+                    .Any(i => GetFullTypeDefinition(i) == parentDefinition)))
                 return true;
 
             if (!isParameterLessGeneric)
             {
-                if (GetFullTypeDefinition(parent) == cur && !cur.IsInterface)
+                if (parentDefinition == cur && !cur.IsInterface)
                 {
-                    if (VerifyGenericArguments(GetFullTypeDefinition(parent), cur) && VerifyGenericArguments(parent, child))
+                    if (VerifyGenericArguments(parentDefinition, cur) && VerifyGenericArguments(parent, child))
                         return true;
                 }
                 else
                 {
                     if (child.GetInterfaces()
-                             .Where(i => GetFullTypeDefinition(parent) == GetFullTypeDefinition(i))
-                             .Any(item => VerifyGenericArguments(parent, item)))
+                             .Any(i => parentDefinition == GetFullTypeDefinition(i) && VerifyGenericArguments(parent, i)))
                         return true;
                 }
             }

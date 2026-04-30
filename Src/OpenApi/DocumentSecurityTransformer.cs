@@ -34,7 +34,7 @@ static class DocumentSecurityTransformer
 
             foreach (var (method, operation) in pathItem.Operations)
             {
-                var opKey = $"{method.ToString().ToUpperInvariant()}:{path}";
+                var opKey = $"{method}:{path}";
 
                 if (!sharedCtx.SecurityRequirements.TryGetValue(opKey, out var securityEntries))
                     continue;

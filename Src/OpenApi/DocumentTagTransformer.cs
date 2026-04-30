@@ -12,6 +12,9 @@ static class DocumentTagTransformer
         var dict = new Dictionary<string, string>();
         opts.TagDescriptions(dict);
 
+        if (dict.Count == 0)
+            return;
+
         document.Tags ??= new HashSet<OpenApiTag>();
         var existingTags = document.Tags
                                    .Where(static tag => tag.Name is not null)

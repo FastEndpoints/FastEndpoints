@@ -1100,9 +1100,10 @@ public class OperationSchemaHelpersTests
         var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
                                                                       .GetType("FastEndpoints.OpenApi.OperationTransformer+RequestOperationTransformer", throwOnError: true)!;
         var prop = typeof(QueryBindingSourcesRequest).GetProperty(propertyName)!;
+        var attributes = prop.GetCustomAttributes().ToArray();
 
         return (bool)transformerType.GetMethod("ShouldAddQueryParam", BindingFlags.Static | BindingFlags.NonPublic)!
-                                    .Invoke(null, [prop, new OpenApiOperation(), propertyName, isGetRequest])!;
+                                    .Invoke(null, [prop, attributes, new OpenApiOperation(), propertyName, isGetRequest])!;
     }
 
     static bool AddComplexFromQueryParameters(OpenApiOperation operation, PropertyInfo prop)

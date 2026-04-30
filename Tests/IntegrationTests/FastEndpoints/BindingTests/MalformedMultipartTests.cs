@@ -1,33 +1,49 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 
 namespace Binding;
 
+[Trait("ExcludeInCiCd", "Yes")]
 public class MalformedMultipartTests : IAsyncLifetime
 {
+    const string MalformedFormDataError = "The request body contains malformed form data!";
+
     readonly WebApplication _app;
     readonly IServiceResolver? _previousServiceResolver;
+    readonly string? _previousRoutePrefix;
+    readonly Func<EndpointDefinition, bool>? _previousEndpointFilter;
+    readonly Action<EndpointDefinition>? _previousEndpointConfigurator;
 
     public MalformedMultipartTests()
     {
         _previousServiceResolver = ServiceResolver.InstanceNotSet ? null : ServiceResolver.Instance;
+        _previousRoutePrefix = Config.EpOpts.RoutePrefix;
+        _previousEndpointFilter = Config.EpOpts.Filter;
+        _previousEndpointConfigurator = Config.EpOpts.Configurator;
 
         var bld = WebApplication.CreateBuilder();
-        bld.WebHost.ConfigureKestrel(o => o.ListenLocalhost(1025));
+        bld.WebHost.ConfigureKestrel(o => o.Listen(IPAddress.Loopback, 0));
         bld.Services.AddFastEndpoints(o => o.Filter = t => t == typeof(Ep));
         var app = bld.Build();
-        app.UseFastEndpoints();
+        app.UseFastEndpoints(
+            c =>
+            {
+                c.Endpoints.RoutePrefix = null;
+                c.Endpoints.Filter = null;
+                c.Endpoints.Configurator = null;
+            });
         _app = app;
     }
 
     public async ValueTask InitializeAsync()
         => await _app.StartAsync();
 
-    [Fact, Trait("ExcludeInCiCd", "Yes")]
+    [Fact]
     public async Task Truncated_Multipart_Body_Returns_400()
     {
         var baseUrl = _app.Urls.First();
@@ -43,10 +59,10 @@ public class MalformedMultipartTests : IAsyncLifetime
 
         var res = await rsp.Content.ReadFromJsonAsync<ErrorResponse>();
         res.ShouldNotBeNull();
-        res.Errors.ShouldContainKey("formData");
+        res.Errors["generalErrors"].ShouldBe([MalformedFormDataError]);
     }
 
-    [Fact, Trait("ExcludeInCiCd", "Yes")]
+    [Fact]
     public async Task Malformed_Content_Disposition_Returns_400()
     {
         var baseUrl = _app.Urls.First();
@@ -60,9 +76,12 @@ public class MalformedMultipartTests : IAsyncLifetime
         var rsp = await client.SendAsync(request);
         rsp.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
 
-        var res = await rsp.Content.ReadFromJsonAsync<ErrorResponse>();
+        var body = await rsp.Content.ReadAsStringAsync();
+        body.ShouldNotContain("' OR '1'='1");
+
+        var res = JsonSerializer.Deserialize<ErrorResponse>(body, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         res.ShouldNotBeNull();
-        res.Errors.ShouldContainKey("formData");
+        res.Errors["generalErrors"].ShouldBe([MalformedFormDataError]);
     }
 
     sealed class Req
@@ -88,6 +107,10 @@ public class MalformedMultipartTests : IAsyncLifetime
     public async ValueTask DisposeAsync()
     {
         await _app.DisposeAsync();
+
+        Config.EpOpts.RoutePrefix = _previousRoutePrefix;
+        Config.EpOpts.Filter = _previousEndpointFilter;
+        Config.EpOpts.Configurator = _previousEndpointConfigurator;
 
         if (_previousServiceResolver is not null)
             ServiceResolver.Instance = _previousServiceResolver;

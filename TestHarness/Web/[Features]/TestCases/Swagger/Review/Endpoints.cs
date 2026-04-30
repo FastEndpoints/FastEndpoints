@@ -390,6 +390,28 @@ sealed class JsonNamedQueryMetadataReviewEndpoint : Endpoint<JsonNamedQueryMetad
         => Send.OkAsync(req.CustomerId, ct);
 }
 
+sealed class DefaultValueSchemaReviewRequest
+{
+    [System.ComponentModel.DefaultValue("schema-default")]
+    public string Name { get; set; } = string.Empty;
+
+    [System.ComponentModel.DefaultValue(7)]
+    public int Count { get; set; }
+}
+
+sealed class DefaultValueSchemaReviewEndpoint : Endpoint<DefaultValueSchemaReviewRequest, string>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/default-value-schema");
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(DefaultValueSchemaReviewRequest req, CancellationToken ct)
+        => Send.OkAsync(req.Name, ct);
+}
+
 sealed class RequiredQueryParamReviewRequest
 {
     [QueryParam(IsRequired = true)]

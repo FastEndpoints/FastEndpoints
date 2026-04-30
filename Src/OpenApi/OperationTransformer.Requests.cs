@@ -264,8 +264,10 @@ sealed partial class OperationTransformer
             var hasParams = paramDescriptions is { Count: > 0 };
             var exampleObj = epDef.EndpointSummary?.ExampleRequest;
             var fallbackExample = BuildRequestExampleFallback(epDef, state.PropsRemovedFromBody, promotedBodyProperty);
+            var defaultProps = BuildRequestSchemaDefaultLookup(promotedBodyProperty?.Type ?? GetRequestDtoType(epDef));
+            var hasDefaults = defaultProps.Count > 0;
 
-            if (!hasParams && exampleObj is null)
+            if (!hasParams && exampleObj is null && !hasDefaults)
                 return;
 
             Dictionary<string, JsonNode>? propExamples = null;
@@ -286,10 +288,21 @@ sealed partial class OperationTransformer
 
             foreach (var content in operation.RequestBody.Content.Values)
             {
-                var schema = content.EnsureOperationLocalSchemaIfShared(sharedCtx);
+                var schema = content.Schema.ResolveSchema();
 
                 if (schema is null)
                     continue;
+
+                if (hasDefaults)
+                    ApplyDefaultValues(schema, defaultProps);
+
+                if (hasParams || requestExampleNode is not null)
+                {
+                    schema = content.EnsureOperationLocalSchemaIfShared(sharedCtx);
+
+                    if (schema is null)
+                        continue;
+                }
 
                 if (requestExampleNode is not null)
                     schema.Example = NormalizeExampleNode(requestExampleNode.DeepClone(), schema, fallbackExample);
@@ -312,6 +325,39 @@ sealed partial class OperationTransformer
                     if (propExamples is not null && propExamples.TryGetValue(propName, out var exVal))
                         concreteProp.Example = exVal;
                 }
+            }
+        }
+
+        Dictionary<string, System.ComponentModel.DefaultValueAttribute> BuildRequestSchemaDefaultLookup(Type? requestType)
+        {
+            if (requestType is null)
+                return [];
+
+            var defaults = new Dictionary<string, System.ComponentModel.DefaultValueAttribute>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var prop in GetPublicInstanceProperties(requestType))
+            {
+                var defaultAttr = prop.GetCustomAttribute<System.ComponentModel.DefaultValueAttribute>();
+
+                if (defaultAttr?.Value is null)
+                    continue;
+
+                var schemaName = PropertyNameResolver.GetSchemaPropertyName(prop, NamingPolicy, docOpts.UsePropertyNamingPolicy);
+                defaults[schemaName] = defaultAttr;
+            }
+
+            return defaults;
+        }
+
+        static void ApplyDefaultValues(OpenApiSchema schema, Dictionary<string, System.ComponentModel.DefaultValueAttribute> defaultProps)
+        {
+            if (schema.Properties is null)
+                return;
+
+            foreach (var (propName, propSchema) in schema.Properties)
+            {
+                if (propSchema is OpenApiSchema { Default: null } concreteProp && defaultProps.TryGetValue(propName, out var defaultAttr))
+                    concreteProp.Default = defaultAttr.Value.JsonNodeFromObject();
             }
         }
 

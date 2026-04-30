@@ -194,6 +194,16 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     }
 
     [Fact]
+    public async Task default_value_attributes_are_applied_to_request_schema_properties()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var requestSchema = JToken.Parse(json)["components"]!["schemas"]!["TestCasesSwaggerReviewDefaultValueSchemaReviewRequest"]!;
+
+        requestSchema["properties"]!["name"]!["default"]!.Value<string>().ShouldBe("schema-default");
+        requestSchema["properties"]!["count"]!["default"]!.Value<int>().ShouldBe(7);
+    }
+
+    [Fact]
     public async Task nullable_query_param_attribute_with_is_required_is_added_as_required_parameter()
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review");

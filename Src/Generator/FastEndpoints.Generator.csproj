@@ -3,8 +3,11 @@
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0;</TargetFrameworks>
         <Description>Source generator library for FastEndpoints.</Description>
+
+        <!-- see PR #1091 why this is being done -->
         <DevelopmentDependency>false</DevelopmentDependency>
         <BuildOutputTargetFolder>analyzers\dotnet\cs</BuildOutputTargetFolder>
+
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
         <IsRoslynComponent>true</IsRoslynComponent>
         <NoWarn>1701;1702;CS1591;CS1573;NU5128</NoWarn>

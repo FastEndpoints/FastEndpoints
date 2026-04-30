@@ -5,6 +5,21 @@ namespace FastEndpoints.OpenApi;
 
 static partial class OperationSchemaHelpers
 {
+    internal static JsonNode? ParseXmlExampleJsonNode(string? example, bool preserveRawString = false)
+    {
+        if (example is null)
+            return null;
+
+        try
+        {
+            return JsonNode.Parse(example);
+        }
+        catch
+        {
+            return preserveRawString ? JsonValue.Create(example) : null;
+        }
+    }
+
     extension(object? value)
     {
         internal JsonNode? JsonNodeFromObject()
@@ -31,7 +46,7 @@ static partial class OperationSchemaHelpers
             {
                 return valueType is null
                            ? JsonSerializer.SerializeToNode(value, Cfg.SerOpts.Options) as JsonObject
-                           : JsonNode.Parse(JsonSerializer.Serialize(value, valueType, Cfg.SerOpts.Options)) as JsonObject;
+                           : JsonSerializer.SerializeToNode(value, valueType, Cfg.SerOpts.Options) as JsonObject;
             }
             catch
             {

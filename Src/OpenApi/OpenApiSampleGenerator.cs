@@ -30,20 +30,28 @@ static partial class OperationSchemaHelpers
                 _ when underlying == typeof(DateTimeOffset) => DateTimeOffset.MinValue,
                 _ when underlying == typeof(DateOnly) => new DateOnly(2020, 10, 10),
                 _ when underlying == typeof(TimeOnly) => new TimeOnly(0, 0, 0),
-                _ when underlying.IsEnum => 0,
+                _ when underlying.IsEnum => Enum.GetValues(underlying).GetValue(0),
                 _ => null
             };
         }
 
-        internal JsonNode? GenerateSampleJsonNode(JsonNamingPolicy? namingPolicy = null,
-                                                 bool usePropertyNamingPolicy = true,
-                                                 HashSet<Type>? visited = null)
+        internal JsonNode? GenerateSampleJsonNode(JsonNamingPolicy? namingPolicy = null, bool usePropertyNamingPolicy = true, HashSet<Type>? visited = null)
         {
             var underlying = Nullable.GetUnderlyingType(type) ?? type;
 
             if (underlying != typeof(string))
             {
-                var elementType = GetCollectionElementType(underlying);
+                if (TryGetDictionaryValueType(underlying) is { } dictionaryValueType)
+                {
+                    var valueSample = dictionaryValueType.GenerateSampleJsonNode(namingPolicy, usePropertyNamingPolicy, visited) ??
+                                      dictionaryValueType.GetSampleValue("additionalProp1")?.JsonNodeFromObject();
+
+                    return valueSample is not null
+                               ? new JsonObject { ["additionalProp1"] = valueSample }
+                               : new JsonObject();
+                }
+
+                var elementType = TryGetCollectionElementType(underlying);
 
                 if (elementType is not null)
                 {

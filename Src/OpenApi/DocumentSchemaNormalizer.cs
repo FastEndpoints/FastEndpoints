@@ -19,14 +19,12 @@ static class DocumentSchemaNormalizer
         "SystemCollectionsGenericIListOfMicrosoftNetHttpHeadersSetCookieHeaderValue"
     ];
 
-    public static async Task Normalize(OpenApiDocument document,
-                                       SharedContext sharedCtx,
-                                       OpenApiDocumentTransformerContext context,
-                                       CancellationToken cancellationToken)
+    public static async Task Normalize(OpenApiDocument document, SharedContext sharedCtx, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
     {
         await document.AddMissingSchemas(sharedCtx, context, cancellationToken);
-        document.RemovePromotedRequestWrapperSchemas(sharedCtx);
-        document.RemoveUnreferencedSchemas();
+        var referencedSchemas = document.GetReferencedSchemaRefs();
+        document.RemovePromotedRequestWrapperSchemas(sharedCtx, referencedSchemas);
+        document.RemoveUnreferencedSchemas(referencedSchemas);
     }
 
     public static void RemoveFrameworkSchemas(OpenApiDocument document)
@@ -38,13 +36,7 @@ static class DocumentSchemaNormalizer
         var headerRemoved = false;
 
         foreach (var s in document.Components.Schemas.Keys.ToArray())
-        {
-            if (_frameworkHeaderValueSchemaKeys.Contains(s))
-            {
-                document.Components.Schemas.Remove(s);
-                headerRemoved = true;
-            }
-        }
+            headerRemoved |= _frameworkHeaderValueSchemaKeys.Contains(s) && document.Components.Schemas.Remove(s);
 
         if (headerRemoved)
             document.Components.Schemas.Remove(stringSegmentKey);

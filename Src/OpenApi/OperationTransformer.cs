@@ -3,7 +3,7 @@ using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
-using Microsoft.AspNetCore.Http.Metadata;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.OpenApi;
@@ -22,6 +22,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
     sealed class TypeMetadata
     {
         public required PropertyInfo[] PublicInstanceProperties { get; init; }
+        public required PropertyInfo[] BindableRequestProperties { get; init; }
         public required IReadOnlyDictionary<PropertyInfo, bool> NullableProperties { get; init; }
     }
 
@@ -41,27 +42,18 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
         sharedCtx.InitializeSharedRequestSchemaRefs(context.ApplicationServices, docOpts);
 
         // compute the document path for this operation
-        var relativePath = context.Description.RelativePath?.TrimStart('~').TrimEnd('/') ?? "";
-        var documentPath = "/" + RouteTemplateHelpers.StripConstraints(relativePath);
+        var relativePath = context.Description.RelativePath ?? "";
+        var documentPath = RouteTemplateHelpers.NormalizePath(relativePath);
         var httpMethod = context.Description.HttpMethod?.ToUpperInvariant() ?? "GET";
-        var operationKey = $"{httpMethod}:{documentPath}";
+        var operationKey = CreateOperationKey(httpMethod, documentPath);
 
         if (epDef is null)
         {
             if (docOpts.ExcludeNonFastEndpoints)
                 return Task.CompletedTask;
 
-            // not a FastEndpoint
-            sharedCtx.Operations[operationKey] = new()
-            {
-                OperationKey = operationKey,
-                DocumentPath = documentPath,
-                HttpMethod = httpMethod,
-                Version = 0,
-                StartingReleaseVersion = 0,
-                DeprecatedAt = 0,
-                IsFastEndpoint = false
-            };
+            RegisterNonFastEndpointOperation(operationKey, documentPath, httpMethod);
+            _metadataTransformer.ApplySecurityRequirements(operation, null, metadata, operationKey);
 
             return Task.CompletedTask;
         }
@@ -72,18 +64,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
 
         // store version metadata for document transformer
         var bareRoute = BuildBareRoute(documentPath, GlobalConfig.EndpointRoutePrefix, epDef.Version.Current);
-        var bareKey = $"{httpMethod}:{bareRoute}";
-
-        sharedCtx.Operations[operationKey] = new()
-        {
-            OperationKey = bareKey,
-            DocumentPath = documentPath,
-            HttpMethod = httpMethod,
-            Version = epDef.Version.Current,
-            StartingReleaseVersion = epDef.Version.StartingReleaseVersion,
-            DeprecatedAt = epDef.Version.DeprecatedAt,
-            IsFastEndpoint = true
-        };
+        RegisterFastEndpointOperation(operationKey, httpMethod, documentPath, bareRoute, epDef);
 
         // operation ID
         var nameMetadata = metadata.OfType<EndpointNameMetadata>().LastOrDefault();
@@ -96,6 +77,12 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
         // summary / description
         operation.Summary ??= epDef.EndpointSummary?.Summary;
         operation.Description ??= epDef.EndpointSummary?.Description;
+
+        if (string.IsNullOrWhiteSpace(epDef.EndpointSummary?.Summary) && string.IsNullOrWhiteSpace(operation.Summary))
+            operation.Summary = XmlDocLookup.GetTypeSummary(epDef.EndpointType);
+
+        if (string.IsNullOrWhiteSpace(epDef.EndpointSummary?.Description) && string.IsNullOrWhiteSpace(operation.Description))
+            operation.Description = XmlDocLookup.GetTypeRemarks(epDef.EndpointType);
 
         // deprecation from [Obsolete]
         if (epDef.EndpointType.GetCustomAttribute<ObsoleteAttribute>() is not null)
@@ -124,7 +111,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
         _responseTransformer.FixBinaryFormats(operation);
 
         // handle response examples from EndpointSummary
-        _responseTransformer.ApplyExamples(operation, epDef);
+        _responseTransformer.ApplyExamples(operation, epDef, metadata);
 
         // handle request body examples from EndpointSummary.RequestExamples
         _requestTransformer.ApplyExamples(operation, epDef, requestTransformState, promotedBodyPropertyName);
@@ -159,6 +146,36 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
     static PropertyInfo[] GetPublicInstanceProperties(Type type)
         => GetTypeMetadata(type).PublicInstanceProperties;
 
+    static PropertyInfo[] GetBindableRequestProperties(Type type)
+        => GetTypeMetadata(type).BindableRequestProperties;
+
+    static string CreateOperationKey(string httpMethod, string documentPath)
+        => $"{httpMethod}:{documentPath}";
+
+    void RegisterNonFastEndpointOperation(string operationKey, string documentPath, string httpMethod)
+        => sharedCtx.Operations[operationKey] = new()
+        {
+            OperationKey = operationKey,
+            DocumentPath = documentPath,
+            HttpMethod = httpMethod,
+            Version = 0,
+            StartingReleaseVersion = 0,
+            DeprecatedAt = 0,
+            IsFastEndpoint = false
+        };
+
+    void RegisterFastEndpointOperation(string operationKey, string httpMethod, string documentPath, string bareRoute, EndpointDefinition epDef)
+        => sharedCtx.Operations[operationKey] = new()
+        {
+            OperationKey = CreateOperationKey(httpMethod, bareRoute),
+            DocumentPath = documentPath,
+            HttpMethod = httpMethod,
+            Version = epDef.Version.Current,
+            StartingReleaseVersion = epDef.Version.StartingReleaseVersion,
+            DeprecatedAt = epDef.Version.DeprecatedAt,
+            IsFastEndpoint = true
+        };
+
     static TypeMetadata GetTypeMetadata(Type type)
     {
         type = Nullable.GetUnderlyingType(type) ?? type;
@@ -178,9 +195,16 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
         return new()
         {
             PublicInstanceProperties = properties,
+            BindableRequestProperties = properties.Where(IsBindableRequestProperty).ToArray(),
             NullableProperties = new ReadOnlyDictionary<PropertyInfo, bool>(nullableProperties)
         };
     }
+
+    static bool IsBindableRequestProperty(PropertyInfo property)
+        => property.GetSetMethod()?.IsPublic is true &&
+           property.GetGetMethod()?.IsPublic is true &&
+           property.GetCustomAttribute<JsonIgnoreAttribute>()?.Condition != JsonIgnoreCondition.Always &&
+           !property.IsDefined(Types.DontInjectAttribute);
 
     static bool IsNullable(PropertyInfo prop)
     {
@@ -200,7 +224,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
                     string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase)) ==
            true;
 
-    static void UpdateParameterSchema(OpenApiOperation operation, ParameterLocation location, string name, Type type, bool shortSchemaNames)
+    static void UpdateParameterSchema(OpenApiOperation operation, ParameterLocation location, string name, Type type, SharedContext sharedCtx, bool shortSchemaNames)
     {
         if (operation.Parameters is not { Count: > 0 })
             return;
@@ -211,7 +235,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
                 continue;
 
             if (param is OpenApiParameter concreteParam)
-                concreteParam.Schema = type.GetSchemaForType(shortSchemaNames);
+                concreteParam.Schema = type.GetSchemaForType(sharedCtx, shortSchemaNames);
 
             return;
         }
@@ -221,28 +245,49 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
     {
         var segments = documentPath.Split('/', StringSplitOptions.RemoveEmptyEntries).ToList();
 
-        if (!string.IsNullOrWhiteSpace(routePrefix))
-        {
-            var prefixSegments = routePrefix.Split('/', StringSplitOptions.RemoveEmptyEntries);
-            var hasPrefix = segments.Count >= prefixSegments.Length;
-
-            for (var i = 0; hasPrefix && i < prefixSegments.Length; i++)
-                hasPrefix = string.Equals(segments[i], prefixSegments[i], StringComparison.Ordinal);
-
-            if (hasPrefix)
-                segments.RemoveRange(0, prefixSegments.Length);
-        }
-
-        if (endpointVersion > 0)
-        {
-            var versionSegment = $"{GlobalConfig.VersioningPrefix ?? "v"}{endpointVersion}";
-            var versionIndex = segments.IndexOf(versionSegment);
-
-            if (versionIndex >= 0)
-                segments.RemoveAt(versionIndex);
-        }
+        RemoveRoutePrefix(segments, routePrefix);
+        RemoveVersionSegment(segments, endpointVersion);
 
         return "/" + string.Join('/', segments);
+    }
+
+    static void RemoveRoutePrefix(List<string> routeSegments, string? routePrefix)
+    {
+        if (string.IsNullOrWhiteSpace(routePrefix))
+            return;
+
+        var prefixSegments = routePrefix.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
+        if (!StartsWithSegments(routeSegments, prefixSegments))
+            return;
+
+        routeSegments.RemoveRange(0, prefixSegments.Length);
+    }
+
+    static bool StartsWithSegments(List<string> routeSegments, string[] prefixSegments)
+    {
+        if (routeSegments.Count < prefixSegments.Length)
+            return false;
+
+        for (var i = 0; i < prefixSegments.Length; i++)
+        {
+            if (!string.Equals(routeSegments[i], prefixSegments[i], StringComparison.Ordinal))
+                return false;
+        }
+
+        return true;
+    }
+
+    static void RemoveVersionSegment(List<string> routeSegments, int endpointVersion)
+    {
+        if (endpointVersion <= 0)
+            return;
+
+        var versionSegment = $"{GlobalConfig.VersioningPrefix ?? "v"}{endpointVersion}";
+        var versionIndex = routeSegments.IndexOf(versionSegment);
+
+        if (versionIndex >= 0)
+            routeSegments.RemoveAt(versionIndex);
     }
 
     static string? FindEndpointRouteTemplate(EndpointDefinition epDef, string documentPath)
@@ -255,7 +300,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
 
         foreach (var route in epDef.Routes)
         {
-            var finalRoute = FastEndpoints.MainExtensions.BuildRoute(new StringBuilder(), epDef.Version.Current, route, epDef.OverriddenRoutePrefix);
+            var finalRoute = new StringBuilder().BuildRoute(epDef.Version.Current, route, epDef.OverriddenRoutePrefix);
 
             if (string.Equals(NormalizeRoutePath(finalRoute), documentPath, StringComparison.OrdinalIgnoreCase))
                 return route;
@@ -265,11 +310,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
     }
 
     static string NormalizeRoutePath(string route)
-    {
-        route = RouteTemplateHelpers.StripConstraints(route.TrimStart('~').TrimEnd('/'));
-
-        return route.StartsWith('/') ? route : "/" + route;
-    }
+        => RouteTemplateHelpers.NormalizePath(route);
 
     static List<RouteParameterInfo> GetRouteParameters(string? relativePath)
     {
@@ -353,5 +394,4 @@ static class OperationTransformerExtensions
 
     internal static string GetOpenApiRouteParameterName(this string routeParamName, DocumentOptions documentOptions, JsonNamingPolicy? namingPolicy)
         => routeParamName.ApplyPropNamingPolicy(documentOptions, namingPolicy);
-
 }

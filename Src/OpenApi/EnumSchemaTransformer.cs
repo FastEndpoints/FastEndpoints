@@ -14,10 +14,7 @@ sealed class EnumSchemaTransformer : IOpenApiSchemaTransformer
     {
         var type = context.JsonTypeInfo.Type;
 
-        if (!type.IsEnum)
-            return Task.CompletedTask;
-
-        if (!schema.Type.HasValue || !schema.Type.Value.HasFlag(JsonSchemaType.Integer))
+        if (!type.IsEnum || !schema.Type.HasValue || !schema.Type.Value.HasFlag(JsonSchemaType.Integer))
             return Task.CompletedTask;
 
         var values = Enum.GetValuesAsUnderlyingType(type);
@@ -26,9 +23,12 @@ sealed class EnumSchemaTransformer : IOpenApiSchemaTransformer
         schema.Enum ??= [];
 
         foreach (var val in values)
-            schema.Enum.Add(isUnsignedLong
-                                ? JsonValue.Create(Convert.ToDecimal(val))
-                                : JsonValue.Create(Convert.ToInt64(val)));
+        {
+            schema.Enum.Add(
+                isUnsignedLong
+                    ? JsonValue.Create(Convert.ToDecimal(val))
+                    : JsonValue.Create(Convert.ToInt64(val)));
+        }
 
         return Task.CompletedTask;
     }

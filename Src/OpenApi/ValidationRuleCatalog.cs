@@ -1,6 +1,5 @@
 using FastEndpoints.OpenApi.ValidationProcessor;
 using FastEndpoints.OpenApi.ValidationProcessor.Extensions;
-using FluentValidation;
 using FluentValidation.Validators;
 using Microsoft.OpenApi;
 
@@ -50,9 +49,9 @@ static class ValidationRuleCatalog
                         if (prop.Type.HasValue && prop.Type.Value.HasFlag(JsonSchemaType.Null))
                             prop.Type = prop.Type.Value & ~JsonSchemaType.Null;
 
-                        if (prop.Type == JsonSchemaType.Array)
+                        if (IsArraySchema(prop))
                             prop.MinItems = 1;
-                        else
+                        else if (IsStringSchema(prop))
                             prop.MinLength = 1;
                     }
         },
@@ -67,22 +66,25 @@ static class ValidationRuleCatalog
                         var lengthValidator = (ILengthValidator)context.PropertyValidator;
                         var target = prop;
 
-                        if (target.Type == JsonSchemaType.Array)
+                        if (IsArraySchema(target))
                         {
                             if (lengthValidator.Max > 0)
                                 target.MaxItems = lengthValidator.Max;
-                            if (lengthValidator.GetType() == typeof(MinimumLengthValidator<>) ||
-                                lengthValidator.GetType() == typeof(ExactLengthValidator<>) ||
+                            if (IsValidatorType(lengthValidator, typeof(MinimumLengthValidator<>)) ||
+                                IsValidatorType(lengthValidator, typeof(ExactLengthValidator<>)) ||
                                 target.MinItems is null or 1)
                                 target.MinItems = lengthValidator.Min;
 
                             return;
                         }
 
+                        if (!IsStringSchema(target))
+                            return;
+
                         if (lengthValidator.Max > 0)
                             target.MaxLength = lengthValidator.Max;
-                        if (lengthValidator.GetType() == typeof(MinimumLengthValidator<>) ||
-                            lengthValidator.GetType() == typeof(ExactLengthValidator<>) ||
+                        if (IsValidatorType(lengthValidator, typeof(MinimumLengthValidator<>)) ||
+                            IsValidatorType(lengthValidator, typeof(ExactLengthValidator<>)) ||
                             target.MinLength is null or 1)
                             target.MinLength = lengthValidator.Min;
                     }
@@ -93,6 +95,9 @@ static class ValidationRuleCatalog
             Apply = context =>
                     {
                         if (!context.TryGetPropertySchema(out var prop))
+                            return;
+
+                        if (!IsStringSchema(prop))
                             return;
 
                         var regularExpressionValidator = (IRegularExpressionValidator)context.PropertyValidator;
@@ -108,8 +113,7 @@ static class ValidationRuleCatalog
 
                         if (comparisonValidator.ValueToCompare.IsNumeric())
                         {
-                            var valueToCompare = Convert.ToDecimal(comparisonValidator.ValueToCompare);
-                            var valueStr = valueToCompare.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                            var valueStr = comparisonValidator.ValueToCompare.ToInvariantNumericString();
 
                             if (!context.TryGetPropertySchema(out var prop))
                                 return;
@@ -148,7 +152,7 @@ static class ValidationRuleCatalog
 
                         if (betweenValidator.From.IsNumeric())
                         {
-                            var fromStr = Convert.ToDecimal(betweenValidator.From).ToString(System.Globalization.CultureInfo.InvariantCulture);
+                            var fromStr = betweenValidator.From.ToInvariantNumericString();
                             if (betweenValidator.GetType().IsSubClassOfGeneric(typeof(ExclusiveBetweenValidator<,>)))
                                 prop.ExclusiveMinimum = fromStr;
                             else
@@ -157,7 +161,7 @@ static class ValidationRuleCatalog
 
                         if (betweenValidator.To.IsNumeric())
                         {
-                            var toStr = Convert.ToDecimal(betweenValidator.To).ToString(System.Globalization.CultureInfo.InvariantCulture);
+                            var toStr = betweenValidator.To.ToInvariantNumericString();
                             if (betweenValidator.GetType().IsSubClassOfGeneric(typeof(ExclusiveBetweenValidator<,>)))
                                 prop.ExclusiveMaximum = toStr;
                             else
@@ -173,9 +177,26 @@ static class ValidationRuleCatalog
                         if (!context.TryGetPropertySchema(out var prop))
                             return;
 
-                        prop.Format = "email";
-                        prop.Pattern = "^[^@]+@[^@]+$";
+                        if (IsStringSchema(prop))
+                        {
+                            prop.Format = "email";
+                            prop.Pattern = "^[^@]+@[^@]+$";
+                        }
                     }
         }
     ];
+
+    static bool IsStringSchema(OpenApiSchema schema)
+        => schema.Type?.HasFlag(JsonSchemaType.String) == true;
+
+    static bool IsArraySchema(OpenApiSchema schema)
+        => schema.Type?.HasFlag(JsonSchemaType.Array) == true;
+
+    static bool IsValidatorType(object validator, Type openGenericValidatorType)
+    {
+        var validatorType = validator.GetType();
+
+        return (validatorType.IsGenericType && validatorType.GetGenericTypeDefinition() == openGenericValidatorType) ||
+               validatorType.IsSubClassOfGeneric(openGenericValidatorType);
+    }
 }

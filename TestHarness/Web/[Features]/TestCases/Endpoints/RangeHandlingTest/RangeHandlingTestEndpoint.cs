@@ -1,6 +1,4 @@
-﻿using System.Text;
-
-namespace TestCases.RangeHandlingTest;
+﻿namespace TestCases.RangeHandlingTest;
 
 public class Endpoint : EndpointWithoutRequest
 {
@@ -14,7 +12,5 @@ public class Endpoint : EndpointWithoutRequest
     }
 
     public override Task HandleAsync(CancellationToken ct)
-    {
-        return Send.BytesAsync(content, contentType: "text/plain", enableRangeProcessing: true);
-    }
+        => Send.BytesAsync(content, contentType: "text/plain", enableRangeProcessing: true);
 }

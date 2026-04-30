@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-
-namespace TestCases.CustomRequestBinder;
+﻿namespace TestCases.CustomRequestBinder;
 
 public class Product
 {

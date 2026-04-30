@@ -271,12 +271,27 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             return;
 
         if (Cfg.BndOpts.FormExceptionTransformer is null)
-            Execute();
+        {
+            IFormCollection form;
+
+            try
+            {
+                form = ctx.HttpContext.Request.Form; // reading 'Form' triggers parsing
+            }
+            catch (Exception e) when (e is IOException or InvalidDataException)
+            {
+                ctx.ValidationFailures.Add(new(Cfg.ErrOpts.GeneralErrorsField, "The request body contains malformed form data!"));
+
+                return;
+            }
+
+            Execute(form);
+        }
         else
         {
             try
             {
-                Execute();
+                Execute(ctx.HttpContext.Request.Form);
             }
             catch (Exception e)
             {
@@ -287,36 +302,36 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             }
         }
 
-        void Execute()
+        void Execute(IFormCollection form)
         {
             if (_fromFormProp is null)
             {
-                BindFormFields();
-                BindFiles();
+                BindFormFields(form);
+                BindFiles(form);
             }
             else
-                ComplexFormBinder.Bind(_fromFormProp, req, ctx.HttpContext.Request.Form, ctx.ValidationFailures);
+                ComplexFormBinder.Bind(_fromFormProp, req, form, ctx.ValidationFailures);
         }
 
-        void BindFormFields()
+        void BindFormFields(IFormCollection form)
         {
-            foreach (var kvp in ctx.HttpContext.Request.Form)
+            foreach (var kvp in form)
             {
                 Bind(req, kvp, ctx.ValidationFailures, Source.FormField);
                 ctx.BoundProperties.Add(kvp.Key);
             }
         }
 
-        void BindFiles()
+        void BindFiles(IFormCollection form)
         {
             Dictionary<string, FormFileCollection>? formFileCollections =
                 _formFileCollectionProps.Count > 0
                     ? new()
                     : null;
 
-            for (var y = 0; y < ctx.HttpContext.Request.Form.Files.Count; y++)
+            for (var y = 0; y < form.Files.Count; y++)
             {
-                var formFile = ctx.HttpContext.Request.Form.Files[y];
+                var formFile = form.Files[y];
                 var fieldName = formFile.BareFieldName();
 
                 if (formFileCollections is not null && _formFileCollectionProps.ContainsKey(fieldName))

@@ -2,7 +2,6 @@ using FastEndpoints;
 using RichardSzalay.MockHttp;
 using System.Net.Http.Json;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using Xunit;
 
 namespace Unit.FastEndpoints;
@@ -25,7 +24,7 @@ public class X402FacilitatorClientTests
                         json.GetProperty("paymentPayload").TryGetProperty("resource", out _).ShouldBeFalse();
                         json.GetProperty("paymentRequirements").GetProperty("amount").GetString().ShouldBe("1000");
 
-                        return new System.Net.Http.HttpResponseMessage(System.Net.HttpStatusCode.OK)
+                        return new(System.Net.HttpStatusCode.OK)
                         {
                             Content = JsonContent.Create(new VerificationResponse { IsValid = true, Payer = "0xpayer" }, options: X402Serializer.Options)
                         };
@@ -64,10 +63,11 @@ public class X402FacilitatorClientTests
     {
         MockHttpMessageHandler mockHttp = new();
         mockHttp.Expect(HttpMethod.Post, "https://facilitator.test/verify")
-                .Respond(req => new(System.Net.HttpStatusCode.BadGateway)
-                {
-                    Content = new StringContent("<html>bad gateway</html>")
-                });
+                .Respond(
+                    req => new(System.Net.HttpStatusCode.BadGateway)
+                    {
+                        Content = new StringContent("<html>bad gateway</html>")
+                    });
 
         var http = mockHttp.ToHttpClient();
         http.BaseAddress = new("https://facilitator.test/");

@@ -189,6 +189,38 @@ sealed class EmptySchemaCleanupEndpoint : Endpoint<EmptySchemaCleanupRequest, st
         => Send.OkAsync(req.HeaderValue, ct);
 }
 
+sealed class HiddenSchemaReviewRequest
+{
+    public string VisibleValue { get; set; } = string.Empty;
+
+    [HideFromDocs]
+    public string HiddenValue { get; set; } = string.Empty;
+
+    [JsonIgnore]
+    public string IgnoredValue { get; set; } = string.Empty;
+}
+
+sealed class HiddenSchemaReviewResponse
+{
+    public string VisibleValue { get; set; } = string.Empty;
+
+    [HideFromDocs]
+    public string HiddenValue { get; set; } = string.Empty;
+}
+
+sealed class HiddenSchemaReviewEndpoint : Endpoint<HiddenSchemaReviewRequest, HiddenSchemaReviewResponse>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/hidden-schema");
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(HiddenSchemaReviewRequest req, CancellationToken ct)
+        => Send.OkAsync(new() { VisibleValue = req.VisibleValue }, ct);
+}
+
 sealed class IllegalHeadersRequest
 {
     [FromHeader("Accept", IsRequired = false)]
@@ -274,19 +306,18 @@ sealed class DuplicateQueryNamingPolicyEndpoint : Endpoint<DuplicateQueryNamingP
         Tags("swagger_review");
         AllowAnonymous();
         Description(
-            b => b.WithOpenApi(
-                operation =>
+            b => b.WithMetadata(
+                new OpenApiOperation
                 {
-                    operation.Parameters ??= [];
-                    operation.Parameters.Add(
+                    Parameters =
+                    [
                         new OpenApiParameter
                         {
                             Name = "firstName",
                             In = ParameterLocation.Query,
                             Schema = new OpenApiSchema { Type = JsonSchemaType.String }
-                        });
-
-                    return operation;
+                        }
+                    ]
                 }));
     }
 
@@ -332,6 +363,53 @@ sealed class BindFromQueryPostReviewEndpoint : Endpoint<BindFromQueryPostReviewR
 
     public override Task HandleAsync(BindFromQueryPostReviewRequest req, CancellationToken ct)
         => Send.OkAsync(req.BodyValue, ct);
+}
+
+sealed class JsonNamedQueryMetadataReviewRequest
+{
+    [JsonPropertyName("customer_id"), System.ComponentModel.DefaultValue("default-customer")]
+    public string CustomerId { get; set; } = string.Empty;
+}
+
+sealed class JsonNamedQueryMetadataReviewEndpoint : Endpoint<JsonNamedQueryMetadataReviewRequest, string>
+{
+    public override void Configure()
+    {
+        Get("/swagger-review/json-named-query-metadata");
+        Tags("swagger_review");
+        AllowAnonymous();
+        Summary(
+            s =>
+            {
+                s.Params[nameof(JsonNamedQueryMetadataReviewRequest.CustomerId)] = "customer id query summary";
+                s.ExampleRequest = new() { CustomerId = "example-customer" };
+            });
+    }
+
+    public override Task HandleAsync(JsonNamedQueryMetadataReviewRequest req, CancellationToken ct)
+        => Send.OkAsync(req.CustomerId, ct);
+}
+
+sealed class DefaultValueSchemaReviewRequest
+{
+    [System.ComponentModel.DefaultValue("schema-default")]
+    public string Name { get; set; } = string.Empty;
+
+    [System.ComponentModel.DefaultValue(7)]
+    public int Count { get; set; }
+}
+
+sealed class DefaultValueSchemaReviewEndpoint : Endpoint<DefaultValueSchemaReviewRequest, string>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/default-value-schema");
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(DefaultValueSchemaReviewRequest req, CancellationToken ct)
+        => Send.OkAsync(req.Name, ct);
 }
 
 sealed class RequiredQueryParamReviewRequest
@@ -655,6 +733,10 @@ sealed class JsonPropertyNameTransformerReviewRequest
 
 sealed class JsonPropertyNameTransformerReviewResponse
 {
+    /// <summary>
+    /// secret header summary
+    /// </summary>
+    /// <example>xml-secret-header</example>
     [JsonPropertyName("x_secret"), ToHeader("x-secret")]
     public string Secret { get; set; } = string.Empty;
 
@@ -686,6 +768,44 @@ sealed class JsonPropertyNameTransformerReviewEndpoint : Endpoint<JsonPropertyNa
                 BodyValue = "ok"
             },
             ct);
+}
+
+sealed class ResponseExampleMetadataReviewResponse
+{
+    public string Message { get; set; } = string.Empty;
+}
+
+sealed class ResponseExampleMetadataReviewEndpoint : EndpointWithoutRequest<ResponseExampleMetadataReviewResponse>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/response-metadata-example");
+        Tags("swagger_review");
+        AllowAnonymous();
+        Summary(s => s.Response(201, "created", example: new ResponseExampleMetadataReviewResponse { Message = "from response metadata" }));
+    }
+
+    public override Task HandleAsync(CancellationToken ct)
+        => Send.OkAsync(new() { Message = "ok" }, ct);
+}
+
+sealed class ExplicitResponseExampleReviewEndpoint : EndpointWithoutRequest<ResponseExampleMetadataReviewResponse>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/explicit-response-example");
+        Tags("swagger_review");
+        AllowAnonymous();
+        Summary(
+            s =>
+            {
+                s.Response(200, example: new ResponseExampleMetadataReviewResponse { Message = "from response metadata" });
+                s.ResponseExamples[200] = new ResponseExampleMetadataReviewResponse { Message = "from explicit response examples" };
+            });
+    }
+
+    public override Task HandleAsync(CancellationToken ct)
+        => Send.OkAsync(new() { Message = "ok" }, ct);
 }
 
 sealed class CollectionLengthReviewRequest
@@ -824,6 +944,50 @@ sealed class InlineMarkupXmlDocReviewEndpoint : Endpoint<InlineMarkupXmlDocRevie
 
     public override Task HandleAsync(InlineMarkupXmlDocReviewRequest req, CancellationToken ct)
         => Send.OkAsync(req.UserId, ct);
+}
+
+/// <summary>
+/// xml endpoint summary
+/// </summary>
+/// <remarks>
+/// xml endpoint remarks
+/// </remarks>
+sealed class EndpointXmlDocReviewEndpoint : EndpointWithoutRequest<string>
+{
+    public override void Configure()
+    {
+        Get("/swagger-review/endpoint-xml-doc");
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(CancellationToken ct)
+        => Send.OkAsync("ok", ct);
+}
+
+/// <summary>
+/// xml endpoint summary should not win
+/// </summary>
+/// <remarks>
+/// xml endpoint remarks should not win
+/// </remarks>
+sealed class EndpointSummaryOverridesXmlDocReviewEndpoint : EndpointWithoutRequest<string>
+{
+    public override void Configure()
+    {
+        Get("/swagger-review/endpoint-summary-overrides-xml-doc");
+        Tags("swagger_review");
+        AllowAnonymous();
+        Summary(
+            s =>
+            {
+                s.Summary = "configured endpoint summary";
+                s.Description = "configured endpoint description";
+            });
+    }
+
+    public override Task HandleAsync(CancellationToken ct)
+        => Send.OkAsync("ok", ct);
 }
 
 sealed class GenericXmlDocReviewEndpoint : Endpoint<GenericXmlDocReviewRequest, GenericXmlDocReviewResponse>

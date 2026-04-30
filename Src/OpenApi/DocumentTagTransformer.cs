@@ -13,23 +13,38 @@ static class DocumentTagTransformer
         opts.TagDescriptions(dict);
 
         document.Tags ??= new HashSet<OpenApiTag>();
+        var existingTags = document.Tags
+                                   .Where(static tag => tag.Name is not null)
+                                   .ToDictionary(static tag => tag.Name!, StringComparer.Ordinal);
 
         foreach (var kvp in dict)
         {
-            var existing = document.Tags.FirstOrDefault(t => t.Name == kvp.Key);
-            if (existing is not null)
-                existing.Description = kvp.Value;
-            else
-                document.Tags.Add(new() { Name = kvp.Key, Description = kvp.Value });
+            if (existingTags.TryGetValue(kvp.Key, out var tag))
+            {
+                tag.Description = kvp.Value;
+
+                continue;
+            }
+
+            tag = new() { Name = kvp.Key, Description = kvp.Value };
+            if (document.Tags.Add(tag))
+                existingTags[kvp.Key] = tag;
         }
     }
 
     public static void Cleanup(OpenApiDocument document, DocumentOptions opts)
     {
-        if (opts.TagDescriptions is not null || document.Tags is null)
+        if (opts.TagDescriptions is not null || document.Tags is not { Count: > 0 } tags)
             return;
 
-        foreach (var tag in document.Tags.Where(static t => string.IsNullOrEmpty(t.Description) && t.ExternalDocs is null && t.Extensions is not { Count: > 0 }).ToArray())
-            document.Tags.Remove(tag);
+        var emptyTags = tags.Where(static tag => !HasTagMetadata(tag)).ToArray();
+
+        foreach (var tag in emptyTags)
+            tags.Remove(tag);
+
+        static bool HasTagMetadata(OpenApiTag tag)
+            => !string.IsNullOrEmpty(tag.Description) ||
+               tag.ExternalDocs is not null ||
+               tag.Extensions is { Count: > 0 };
     }
 }

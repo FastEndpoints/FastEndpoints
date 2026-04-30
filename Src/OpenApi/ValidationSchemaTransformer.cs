@@ -4,7 +4,6 @@
 
 using System.Collections.Concurrent;
 using System.Text.Json;
-using FastEndpoints.OpenApi.ValidationProcessor;
 using FastEndpoints.OpenApi.ValidationProcessor.Extensions;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,9 +20,6 @@ sealed partial class ValidationSchemaTransformer(DocumentOptions docOpts, Shared
     readonly ConcurrentDictionary<ValidatorRuleCacheKey, Lazy<CachedValidatorRules?>> _validatorRulesCache = new();
     readonly object _initializeLock = new();
     volatile bool _initialized;
-
-    static FluentValidationRule[] CreateDefaultRules()
-        => [.. ValidationRuleCatalog.DefaultRules];
 
     void Initialize(IServiceProvider services)
     {
@@ -66,13 +62,14 @@ sealed partial class ValidationSchemaTransformer(DocumentOptions docOpts, Shared
             ValidationRuleCatalog.DefaultRules,
             docOpts.UsePropertyNamingPolicy,
             localizeReferencedSchemas: true);
+        var formattedPropertyPrefix = FormatPropertyPrefix(propertyPrefix);
 
         foreach (var content in operation.RequestBody.Content.Values)
         {
             var schema = content.EnsureOperationLocalSchemaIfShared(sharedCtx);
 
             if (schema is not null)
-                schemaApplier.ApplyValidatorRules(schema, cachedRules, FormatPropertyPrefix(propertyPrefix), []);
+                schemaApplier.ApplyValidatorRules(schema, cachedRules, formattedPropertyPrefix, []);
         }
     }
 
@@ -81,36 +78,57 @@ sealed partial class ValidationSchemaTransformer(DocumentOptions docOpts, Shared
 
     CachedValidatorRules? GetOrCreateValidatorRules(Type validatorType, JsonNamingPolicy? namingPolicy)
         => _validatorRulesCache.GetOrAdd(
-                                    new(validatorType, namingPolicy),
-                                    key => new(
-                                        () =>
-                                        {
-                                            try
-                                            {
-                                                using var scope = _serviceResolver!.CreateScope();
-                                                var validator = _serviceResolver.CreateInstance(key.ValidatorType, scope.ServiceProvider) ??
-                                                                throw new InvalidOperationException($"Unable to instantiate validator {key.ValidatorType.Name}!");
+                                   new(validatorType, namingPolicy),
+                                   key => new(
+                                       () =>
+                                       {
+                                           try
+                                           {
+                                               using var scope = _serviceResolver!.CreateScope();
+                                               var validator = _serviceResolver.CreateInstance(key.ValidatorType, scope.ServiceProvider) ??
+                                                               throw new InvalidOperationException($"Unable to instantiate validator {key.ValidatorType.Name}!");
 
-                                                return CacheValidatorRules((IValidator)validator, key.NamingPolicy);
-                                            }
-                                            catch (Exception ex)
-                                            {
-                                                _logger?.ExceptionProcessingValidator(ex, key.ValidatorType.Name);
+                                               return CacheValidatorRules((IValidator)validator, key.NamingPolicy);
+                                           }
+                                           catch (Exception ex)
+                                           {
+                                               _logger?.ExceptionProcessingValidator(ex, key.ValidatorType.Name);
 
-                                                return null;
-                                            }
-                                        },
-                                        LazyThreadSafetyMode.ExecutionAndPublication))
-                                .Value;
+                                               return null;
+                                           }
+                                       },
+                                       LazyThreadSafetyMode.ExecutionAndPublication))
+                               .Value;
 
     CachedValidatorRules CacheValidatorRules(IValidator validator, JsonNamingPolicy? namingPolicy)
+        => CacheValidatorRules(validator, namingPolicy, []);
+
+    CachedValidatorRules CacheValidatorRules(IValidator validator, JsonNamingPolicy? namingPolicy, HashSet<Type> activeIncludedValidators)
     {
         var rules = validator.GetDictionaryOfRules(namingPolicy, docOpts.UsePropertyNamingPolicy, GetValidatorTargetType(validator));
-        var includedRules = ValidationSchemaApplier.GetIncludedValidators(validator, _logger)
-                                               .Select(v => CacheValidatorRules(v, namingPolicy))
-                                               .ToArray();
+        var validatorType = validator.GetType();
 
-        return new(rules, includedRules);
+        if (!activeIncludedValidators.Add(validatorType))
+            return new(rules, []);
+
+        try
+        {
+            var includedRules = new List<CachedValidatorRules>();
+
+            foreach (var includedValidator in ValidationSchemaApplier.GetIncludedValidators(validator, _logger))
+            {
+                if (activeIncludedValidators.Contains(includedValidator.GetType()))
+                    continue;
+
+                includedRules.Add(CacheValidatorRules(includedValidator, namingPolicy, activeIncludedValidators));
+            }
+
+            return new(rules, [.. includedRules]);
+        }
+        finally
+        {
+            activeIncludedValidators.Remove(validatorType);
+        }
     }
 
     readonly record struct ValidatorRuleCacheKey(Type ValidatorType, JsonNamingPolicy? NamingPolicy);

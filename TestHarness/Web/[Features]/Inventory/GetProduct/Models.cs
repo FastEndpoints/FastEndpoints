@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace Inventory.GetProduct;
+﻿namespace Inventory.GetProduct;
 
 public class Response
 {

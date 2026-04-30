@@ -180,6 +180,30 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     }
 
     [Fact]
+    public async Task query_parameter_metadata_uses_binding_name_not_json_property_name()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var operation = JToken.Parse(json)["paths"]!["/api/swagger-review/json-named-query-metadata"]!["get"]!;
+        var queryParam = operation["parameters"]!.First(p => p["in"]!.Value<string>() == "query");
+
+        queryParam["name"]!.Value<string>().ShouldBe("customerId");
+        operation["parameters"]!.Any(p => p["name"]!.Value<string>() == "customer_id").ShouldBeFalse();
+        queryParam["description"]!.Value<string>().ShouldBe("customer id query summary");
+        queryParam["schema"]!["default"]!.Value<string>().ShouldBe("default-customer");
+        queryParam["example"]!.Value<string>().ShouldBe("example-customer");
+    }
+
+    [Fact]
+    public async Task default_value_attributes_are_applied_to_request_schema_properties()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var requestSchema = JToken.Parse(json)["components"]!["schemas"]!["TestCasesSwaggerReviewDefaultValueSchemaReviewRequest"]!;
+
+        requestSchema["properties"]!["name"]!["default"]!.Value<string>().ShouldBe("schema-default");
+        requestSchema["properties"]!["count"]!["default"]!.Value<int>().ShouldBe(7);
+    }
+
+    [Fact]
     public async Task nullable_query_param_attribute_with_is_required_is_added_as_required_parameter()
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review");
@@ -198,9 +222,8 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         var json = await App.GetDocumentJsonAsync("Swagger Review");
         var doc = JToken.Parse(json);
         var requestSchema = doc["paths"]!["/api/swagger-review/promoted-body-validation/{id}"]!["post"]!
-                               ["requestBody"]!["content"]!["application/json"]!["schema"]!;
-        var refId = requestSchema["$ref"]!.Value<string>()!.Split('/').Last();
-        var schema = doc["components"]!["schemas"]![refId]!;
+                                ["requestBody"]!["content"]!["application/json"]!["schema"]!;
+        var schema = requestSchema;
 
         schema["properties"]!["body"].ShouldBeNull();
         schema["properties"]!["name"]!["minLength"]!.Value<int>().ShouldBe(3);
@@ -245,15 +268,48 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     }
 
     [Fact]
+    public async Task hide_from_docs_properties_are_removed_from_request_and_response_schemas()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var doc = JToken.Parse(json);
+        var requestSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewHiddenSchemaReviewRequest"]!;
+        var responseSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewHiddenSchemaReviewResponse"]!;
+
+        requestSchema["properties"]!["visibleValue"].ShouldNotBeNull();
+        requestSchema["properties"]!["hiddenValue"].ShouldBeNull();
+        requestSchema["properties"]!["ignoredValue"].ShouldBeNull();
+        responseSchema["properties"]!["visibleValue"].ShouldNotBeNull();
+        responseSchema["properties"]!["hiddenValue"].ShouldBeNull();
+    }
+
+    [Fact]
     public async Task from_body_property_replaces_request_body_schema()
     {
         var json = await App.GetDocumentJsonAsync("Release 2.0");
         var operation = JToken.Parse(json)["paths"]!["/api/test-cases/from-body-binding/{id}"]!["post"]!;
 
-        operation["requestBody"]!["content"]!["application/json"]!["schema"]!["$ref"]!.Value<string>()
-                                                                                      .ShouldBe("#/components/schemas/TestCasesFromBodyJsonBindingProduct");
+        var schema = operation["requestBody"]!["content"]!["application/json"]!["schema"]!;
+
+        schema["$ref"].ShouldBeNull();
+        schema["properties"]!["id"].ShouldNotBeNull();
+        schema["properties"]!["name"].ShouldNotBeNull();
+        schema["properties"]!["price"].ShouldNotBeNull();
+        schema["properties"]!["price"]!["exclusiveMinimum"]!.Value<int>().ShouldBe(200);
+        schema["example"]!["name"]!.Value<string>().ShouldBe("test product name");
         operation["parameters"]!.SelectToken("$[?(@.name=='customerID')].in")!.Value<string>().ShouldBe("header");
         operation["parameters"]!.SelectToken("$[?(@.name=='id')].in")!.Value<string>().ShouldBe("path");
+    }
+
+    [Fact]
+    public async Task promoted_body_validation_and_examples_do_not_mutate_shared_response_component_schema()
+    {
+        var json = await App.GetDocumentJsonAsync("Release 2.0");
+        var productSchema = JToken.Parse(json)["components"]!["schemas"]!["TestCasesFromBodyJsonBindingProduct"]!;
+
+        productSchema["properties"]!["price"]!["exclusiveMinimum"].ShouldBeNull();
+        productSchema["example"].ShouldBeNull();
+        productSchema["properties"]!["name"]!["example"].ShouldBeNull();
+        productSchema["properties"]!["id"]!["description"]!.Value<string>().ShouldBe("product id goes here");
     }
 
     [Fact]
@@ -265,9 +321,8 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         // MS OpenApi generates a proper JsonPatchDocument<T> schema using the framework's built-in type
         // instead of NSwag's incorrect type:object. see accepted differences in the port review.
         var schema = content["application/json-patch+json"]!["schema"]!;
-        var refId = schema["$ref"]!.Value<string>()!;
-        refId.ShouldContain("JsonPatchDocument");
-        refId.ShouldContain("Person");
+        schema["type"]!.Value<string>().ShouldBe("array");
+        schema["items"]!["oneOf"]!.ShouldNotBeNull();
     }
 
     [Fact]
@@ -380,7 +435,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     }
 
     [Fact]
-    public async Task complex_query_object_parameter_uses_json_content()
+    public async Task complex_query_object_parameter_uses_json_content_unless_from_query()
     {
         var json = await App.GetDocumentJsonAsync("Initial Release");
         var doc = JToken.Parse(json);
@@ -391,7 +446,13 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         stevenParam["content"]!["application/json"]!["schema"]!["$ref"]!.Value<string>()
                   .ShouldBe("#/components/schemas/TestCasesJsonArrayBindingForIEnumerablePropsRequest_Person");
 
-        doc["components"]!["schemas"]!["TestCasesHydratedQueryParamGeneratorTestRequest_NestedClass"].ShouldNotBeNull();
+        var fromQueryOperation = doc["paths"]!["/api/test-cases/query-param-creation-from-test-helpers/{complexId}/{complexIdString}"]!["get"]!;
+        var fromQueryParameters = fromQueryOperation["parameters"]!;
+
+        fromQueryParameters.Any(p => p["name"]!.Value<string>() == "Nested").ShouldBeFalse();
+        fromQueryParameters.Any(p => p["name"]!.Value<string>() == "first" && p["in"]!.Value<string>() == "query").ShouldBeTrue();
+        fromQueryParameters.Any(p => p["name"]!.Value<string>() == "last" && p["in"]!.Value<string>() == "query").ShouldBeTrue();
+        doc["components"]!["schemas"]!["TestCasesHydratedQueryParamGeneratorTestRequest_NestedClass"].ShouldBeNull();
     }
 
     [Fact]
@@ -466,6 +527,54 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     }
 
     [Fact]
+    public async Task to_header_response_properties_use_xml_docs_for_description_and_example()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var header = JToken.Parse(json)["paths"]!["/api/swagger-review/json-property-name-transformers"]!["post"]!
+                               ["responses"]!["200"]!["headers"]!["x-secret"]!;
+
+        header["description"]!.Value<string>().ShouldBe("secret header summary");
+        header["example"]!.Value<string>().ShouldBe("xml-secret-header");
+    }
+
+    [Fact]
+    public async Task response_metadata_examples_are_applied_to_response_content()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var example = JToken.Parse(json)["paths"]!["/api/swagger-review/response-metadata-example"]!["post"]!
+                            ["responses"]!["201"]!["content"]!["application/json"]!["example"]!;
+
+        example["message"]!.Value<string>().ShouldBe("from response metadata");
+    }
+
+    [Fact]
+    public async Task explicit_response_examples_override_response_metadata_examples()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var example = JToken.Parse(json)["paths"]!["/api/swagger-review/explicit-response-example"]!["post"]!
+                            ["responses"]!["200"]!["content"]!["application/json"]!["example"]!;
+
+        example["message"]!.Value<string>().ShouldBe("from explicit response examples");
+    }
+
+    [Fact]
+    public async Task non_fastendpoint_auth_metadata_uses_configured_security_schemes()
+    {
+        var json = await App.GetDocumentJsonAsync("Release 1.0");
+        var doc = JToken.Parse(json);
+        var securedOperation = doc["paths"]!["/non-fe-auth"]!["get"]!;
+        var anonymousOperation = doc["paths"]!["/non-fe-auth-anon"]!["get"]!;
+        var securitySchemeNames = securedOperation["security"]!
+                                  .Children<JObject>()
+                                  .SelectMany(o => o.Properties().Select(p => p.Name))
+                                  .ToArray();
+
+        securitySchemeNames.ShouldContain("JWTBearerAuth");
+        securitySchemeNames.ShouldContain("ApiKey");
+        (anonymousOperation["security"]?.Any() == true).ShouldBeFalse();
+    }
+
+    [Fact]
     public async Task interface_dictionary_query_parameter_uses_object_schema()
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review");
@@ -521,6 +630,26 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
 
         requestSchema["description"]!.Value<string>().ShouldBe("returns the User record.");
         requestSchema["properties"]!["userId"]!["description"]!.Value<string>().ShouldBe("filter by UserId value.");
+    }
+
+    [Fact]
+    public async Task endpoint_xml_docs_are_applied_to_operation_summary_and_description()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var operation = JToken.Parse(json)["paths"]!["/api/swagger-review/endpoint-xml-doc"]!["get"]!;
+
+        operation["summary"]!.Value<string>().ShouldBe("xml endpoint summary");
+        operation["description"]!.Value<string>().ShouldBe("xml endpoint remarks");
+    }
+
+    [Fact]
+    public async Task endpoint_summary_values_override_endpoint_xml_docs()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var operation = JToken.Parse(json)["paths"]!["/api/swagger-review/endpoint-summary-overrides-xml-doc"]!["get"]!;
+
+        operation["summary"]!.Value<string>().ShouldBe("configured endpoint summary");
+        operation["description"]!.Value<string>().ShouldBe("configured endpoint description");
     }
 
     [Fact]

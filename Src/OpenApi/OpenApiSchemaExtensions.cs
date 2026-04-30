@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Reflection;
 using System.Text.Json.Nodes;
 using Microsoft.OpenApi;
@@ -8,13 +9,14 @@ static partial class OperationSchemaHelpers
 {
     static readonly ConstructorInfo? _openApiSchemaCopyCtor = typeof(OpenApiSchema).GetConstructor([typeof(IOpenApiSchema)]);
     static readonly PropertyInfo[] _openApiSchemaProperties = typeof(OpenApiSchema).GetProperties(BindingFlags.Public | BindingFlags.Instance);
+    static readonly ConcurrentDictionary<Type, PropertyInfo[]> _cloneablePropertiesCache = new();
 
     extension(IOpenApiSchema? schema)
     {
         internal OpenApiSchema? ResolveSchema()
             => schema switch
             {
-                OpenApiSchemaReference schemaRef => schemaRef.Target as OpenApiSchema,
+                OpenApiSchemaReference schemaRef => ResolveSchemaReference(schemaRef) as OpenApiSchema,
                 OpenApiSchema concreteSchema => concreteSchema,
                 _ => null
             };
@@ -22,7 +24,7 @@ static partial class OperationSchemaHelpers
         internal IOpenApiSchema? ResolveSchemaOrReference()
             => schema switch
             {
-                OpenApiSchemaReference schemaRef => schemaRef.Target,
+                OpenApiSchemaReference schemaRef => ResolveSchemaReference(schemaRef),
                 OpenApiSchema concreteSchema => concreteSchema,
                 _ => null
             };
@@ -31,7 +33,7 @@ static partial class OperationSchemaHelpers
             => schema switch
             {
                 OpenApiSchema concreteSchema => CloneConcreteSchema(concreteSchema),
-                OpenApiSchemaReference { Target: IOpenApiSchema target } => CloneConcreteSchema(target),
+                OpenApiSchemaReference schemaRef when ResolveSchemaReference(schemaRef) is { } target => CloneConcreteSchema(target),
                 _ => null
             };
     }
@@ -57,6 +59,9 @@ static partial class OperationSchemaHelpers
 
             return mediaType.EnsureOperationLocalSchema();
         }
+
+        internal OpenApiSchema? EnsureOperationLocalSchemaForMutation()
+            => mediaType.EnsureOperationLocalSchema();
     }
 
     static OpenApiSchema CloneConcreteSchema(IOpenApiSchema schema)
@@ -64,7 +69,7 @@ static partial class OperationSchemaHelpers
         if (_openApiSchemaCopyCtor?.Invoke([schema]) is OpenApiSchema cloned)
             return cloned;
 
-        return CloneConcreteSchemaFallback(schema.ResolveSchema() ?? (schema as OpenApiSchema) ?? StringSchema());
+        return CloneConcreteSchemaFallback(schema.ResolveSchema() ?? schema as OpenApiSchema ?? StringSchema());
     }
 
     static OpenApiSchema CloneConcreteSchemaFallback(OpenApiSchema schema)
@@ -108,8 +113,8 @@ static partial class OperationSchemaHelpers
             OpenApiXml xml => CloneOpenApiObject(xml),
             _ when IsSafelyShareable(value) => value,
             _ => throw new NotSupportedException(
-                $"OpenApiSchema member '{memberName}' has unsupported mutable type '{value.GetType().FullName}' for cloning. " +
-                "Update the schema clone logic before using operation-local schema mutations.")
+                     $"OpenApiSchema member '{memberName}' has unsupported mutable type '{value.GetType().FullName}' for cloning. " +
+                     "Update the schema clone logic before using operation-local schema mutations.")
         };
     }
 
@@ -117,16 +122,18 @@ static partial class OperationSchemaHelpers
     {
         var clone = new T();
 
-        foreach (var property in typeof(T).GetProperties(BindingFlags.Public | BindingFlags.Instance))
-        {
-            if (!property.CanRead || !property.CanWrite || property.GetIndexParameters().Length > 0)
-                continue;
-
+        foreach (var property in GetCloneableProperties(typeof(T)))
             property.SetValue(clone, CloneSchemaMemberValue(property.Name, property.GetValue(source)));
-        }
 
         return clone;
     }
+
+    static PropertyInfo[] GetCloneableProperties(Type type)
+        => _cloneablePropertiesCache.GetOrAdd(
+            type,
+            static t => t.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                         .Where(p => p.CanRead && p.CanWrite && p.GetIndexParameters().Length == 0)
+                         .ToArray());
 
     static Dictionary<string, JsonNode>? CloneJsonNodeDictionary(IDictionary<string, JsonNode>? nodes)
     {
@@ -217,6 +224,21 @@ static partial class OperationSchemaHelpers
             _ => schema
         };
 
+    static IOpenApiSchema? ResolveSchemaReference(OpenApiSchemaReference schemaRef)
+    {
+        if (schemaRef.Target is { } target)
+            return target;
+
+        var refId = GetReferenceId(schemaRef);
+
+        if (string.IsNullOrEmpty(refId) || schemaRef.Reference.IsExternal)
+            return null;
+
+        return schemaRef.Reference.HostDocument?.Components?.Schemas?.TryGetValue(refId, out var schema) == true
+                   ? schema
+                   : null;
+    }
+
     static List<JsonNode>? CloneJsonNodeList(IList<JsonNode>? nodes)
     {
         if (nodes is null)
@@ -225,10 +247,7 @@ static partial class OperationSchemaHelpers
         var cloned = new List<JsonNode>(nodes.Count);
 
         foreach (var node in nodes)
-        {
-            if (node is not null)
-                cloned.Add(node.DeepClone());
-        }
+            cloned.Add(node.DeepClone());
 
         return cloned;
     }

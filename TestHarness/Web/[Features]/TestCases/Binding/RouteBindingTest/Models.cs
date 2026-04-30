@@ -1,5 +1,4 @@
 using FluentValidation;
-using System.Text.Json.Serialization;
 
 namespace TestCases.RouteBindingTest;
 
@@ -89,9 +88,9 @@ public class Request
 
     [FromQuery]
     public Person Person { get; set; }
-    
+
     public long StringOverride { get; set; }
-    
+
     public long StringOverrideNullable { get; set; }
 
     /// <summary>

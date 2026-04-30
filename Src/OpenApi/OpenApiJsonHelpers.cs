@@ -5,6 +5,21 @@ namespace FastEndpoints.OpenApi;
 
 static partial class OperationSchemaHelpers
 {
+    internal static JsonNode? ParseXmlExampleJsonNode(string? example, bool preserveRawString = false)
+    {
+        if (example is null)
+            return null;
+
+        try
+        {
+            return JsonNode.Parse(example);
+        }
+        catch
+        {
+            return preserveRawString ? JsonValue.Create(example) : null;
+        }
+    }
+
     extension(object? value)
     {
         internal JsonNode? JsonNodeFromObject()

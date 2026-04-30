@@ -13,6 +13,8 @@ sealed partial class OperationTransformer
     sealed class RequestTransformState
     {
         public HashSet<string> PropsRemovedFromBody { get; } = new(StringComparer.OrdinalIgnoreCase);
+        public JsonNode? RequestBodyFallbackExample { get; set; }
+        public bool RequestBodyFallbackExampleCreated { get; set; }
     }
 
     sealed record PromotedBodyProperty(string Name, Type Type);
@@ -25,6 +27,7 @@ sealed partial class OperationTransformer
             "Content-Type",
             "Authorization"
         };
+        static readonly ParameterLookupKeyComparer _parameterLookupKeyComparer = new();
 
         JsonNamingPolicy? NamingPolicy => sharedCtx.NamingPolicy;
 
@@ -213,7 +216,7 @@ sealed partial class OperationTransformer
                 return;
 
             var examples = BuildUniqueRequestExamples(epDef.EndpointSummary.RequestExamples);
-            var fallbackExample = BuildRequestExampleFallback(epDef, state.PropsRemovedFromBody, promotedBodyProperty);
+            var fallbackExample = GetRequestExampleFallback(epDef, state, promotedBodyProperty);
             var exampleNodes = new List<(RequestExample Example, JsonNode? Node)>(examples.Count);
 
             foreach (var example in examples)
@@ -263,7 +266,7 @@ sealed partial class OperationTransformer
             var paramDescriptions = epDef.EndpointSummary?.Params;
             var hasParams = paramDescriptions is { Count: > 0 };
             var exampleObj = epDef.EndpointSummary?.ExampleRequest;
-            var fallbackExample = BuildRequestExampleFallback(epDef, state.PropsRemovedFromBody, promotedBodyProperty);
+            var fallbackExample = GetRequestExampleFallback(epDef, state, promotedBodyProperty);
             var defaultProps = BuildRequestSchemaDefaultLookup(promotedBodyProperty?.Type ?? GetRequestDtoType(epDef));
             var hasDefaults = defaultProps.Count > 0;
 
@@ -361,9 +364,9 @@ sealed partial class OperationTransformer
             }
         }
 
-        Dictionary<string, PropertyInfo> BuildRequestPropertyLookup(PropertyInfo[] requestProps)
+        Dictionary<(ParameterLocation Location, string Name), PropertyInfo> BuildRequestPropertyLookup(PropertyInfo[] requestProps)
         {
-            var lookup = new Dictionary<string, PropertyInfo>(StringComparer.OrdinalIgnoreCase);
+            var lookup = new Dictionary<(ParameterLocation Location, string Name), PropertyInfo>(_parameterLookupKeyComparer);
 
             foreach (var prop in requestProps)
             {
@@ -376,21 +379,18 @@ sealed partial class OperationTransformer
             return lookup;
         }
 
-        void AddRequestPropertyLookup(Dictionary<string, PropertyInfo> lookup, PropertyInfo property, ParameterLocation location)
-            => lookup.TryAdd(GetRequestPropertyLookupKey(GetEffectiveParameterName(property, location), location), property);
+        void AddRequestPropertyLookup(Dictionary<(ParameterLocation Location, string Name), PropertyInfo> lookup, PropertyInfo property, ParameterLocation location)
+            => lookup.TryAdd((location, GetEffectiveParameterName(property, location)), property);
 
-        static PropertyInfo? FindRequestProperty(Dictionary<string, PropertyInfo>? lookup, string parameterName, ParameterLocation location)
+        static PropertyInfo? FindRequestProperty(Dictionary<(ParameterLocation Location, string Name), PropertyInfo>? lookup, string parameterName, ParameterLocation location)
         {
             if (lookup is null)
                 return null;
 
-            return lookup.TryGetValue(GetRequestPropertyLookupKey(parameterName, location), out var property)
+            return lookup.TryGetValue((location, parameterName), out var property)
                        ? property
                        : null;
         }
-
-        static string GetRequestPropertyLookupKey(string parameterName, ParameterLocation location)
-            => $"{location}:{parameterName}";
 
         string GetEffectiveParameterName(PropertyInfo property, ParameterLocation location)
         {
@@ -413,8 +413,8 @@ sealed partial class OperationTransformer
         }
 
         static void ApplyExampleRequestToParams(OpenApiOperation operation,
-                                                EndpointDefinition epDef,
-                                                Dictionary<string, PropertyInfo>? requestPropLookup)
+                                                 EndpointDefinition epDef,
+                                                 Dictionary<(ParameterLocation Location, string Name), PropertyInfo>? requestPropLookup)
         {
             var exampleRequest = epDef.EndpointSummary?.ExampleRequest;
 
@@ -733,22 +733,8 @@ sealed partial class OperationTransformer
 
             if (required && prop is not null)
             {
-                JsonNode? example = null;
-                var xmlExample = XmlDocLookup.GetPropertyExample(prop);
-
-                if (xmlExample is not null)
-                {
-                    try
-                    {
-                        example = JsonNode.Parse(xmlExample);
-                    }
-                    catch
-                    {
-                        // not valid JSON, ignore
-                    }
-                }
-
-                example ??= propType.GenerateSampleJsonNode(NamingPolicy, docOpts.UsePropertyNamingPolicy);
+                var example = OperationSchemaHelpers.ParseXmlExampleJsonNode(XmlDocLookup.GetPropertyExample(prop)) ??
+                              propType.GenerateSampleJsonNode(NamingPolicy, docOpts.UsePropertyNamingPolicy);
 
                 if (example is not null)
                 {
@@ -772,6 +758,28 @@ sealed partial class OperationTransformer
                 fallbackObj.RemoveProperties(propsRemovedFromBody);
 
             return fallback;
+        }
+
+        JsonNode? GetRequestExampleFallback(EndpointDefinition epDef,
+                                            RequestTransformState state,
+                                            PromotedBodyProperty? promotedBodyProperty)
+        {
+            if (!state.RequestBodyFallbackExampleCreated)
+            {
+                state.RequestBodyFallbackExample = BuildRequestExampleFallback(epDef, state.PropsRemovedFromBody, promotedBodyProperty);
+                state.RequestBodyFallbackExampleCreated = true;
+            }
+
+            return state.RequestBodyFallbackExample;
+        }
+
+        sealed class ParameterLookupKeyComparer : IEqualityComparer<(ParameterLocation Location, string Name)>
+        {
+            public bool Equals((ParameterLocation Location, string Name) x, (ParameterLocation Location, string Name) y)
+                => x.Location == y.Location && string.Equals(x.Name, y.Name, StringComparison.OrdinalIgnoreCase);
+
+            public int GetHashCode((ParameterLocation Location, string Name) obj)
+                => HashCode.Combine(obj.Location, StringComparer.OrdinalIgnoreCase.GetHashCode(obj.Name));
         }
 
         static JsonNode? BuildRequestExampleNode(object? example,

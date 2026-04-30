@@ -293,21 +293,8 @@ sealed partial class OperationTransformer
 
         static JsonNode? GetHeaderExample(PropertyInfo prop, Type headerType)
         {
-            var xmlExample = XmlDocLookup.GetPropertyExample(prop);
-
-            if (xmlExample is not null)
-            {
-                try
-                {
-                    return JsonNode.Parse(xmlExample);
-                }
-                catch
-                {
-                    return JsonValue.Create(xmlExample);
-                }
-            }
-
-            return headerType.GetSampleValue().JsonNodeFromObject();
+            return OperationSchemaHelpers.ParseXmlExampleJsonNode(XmlDocLookup.GetPropertyExample(prop), preserveRawString: true) ??
+                   headerType.GetSampleValue().JsonNodeFromObject();
         }
 
         void AddConfiguredResponseHeaders(OpenApiResponse response, IEnumerable<ResponseHeader> headers, int statusCode)

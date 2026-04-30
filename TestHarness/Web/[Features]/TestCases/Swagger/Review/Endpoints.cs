@@ -189,6 +189,38 @@ sealed class EmptySchemaCleanupEndpoint : Endpoint<EmptySchemaCleanupRequest, st
         => Send.OkAsync(req.HeaderValue, ct);
 }
 
+sealed class HiddenSchemaReviewRequest
+{
+    public string VisibleValue { get; set; } = string.Empty;
+
+    [HideFromDocs]
+    public string HiddenValue { get; set; } = string.Empty;
+
+    [JsonIgnore]
+    public string IgnoredValue { get; set; } = string.Empty;
+}
+
+sealed class HiddenSchemaReviewResponse
+{
+    public string VisibleValue { get; set; } = string.Empty;
+
+    [HideFromDocs]
+    public string HiddenValue { get; set; } = string.Empty;
+}
+
+sealed class HiddenSchemaReviewEndpoint : Endpoint<HiddenSchemaReviewRequest, HiddenSchemaReviewResponse>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/hidden-schema");
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(HiddenSchemaReviewRequest req, CancellationToken ct)
+        => Send.OkAsync(new() { VisibleValue = req.VisibleValue }, ct);
+}
+
 sealed class IllegalHeadersRequest
 {
     [FromHeader("Accept", IsRequired = false)]

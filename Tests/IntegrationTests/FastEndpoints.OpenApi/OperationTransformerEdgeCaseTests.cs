@@ -258,6 +258,21 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     }
 
     [Fact]
+    public async Task hide_from_docs_properties_are_removed_from_request_and_response_schemas()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var doc = JToken.Parse(json);
+        var requestSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewHiddenSchemaReviewRequest"]!;
+        var responseSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewHiddenSchemaReviewResponse"]!;
+
+        requestSchema["properties"]!["visibleValue"].ShouldNotBeNull();
+        requestSchema["properties"]!["hiddenValue"].ShouldBeNull();
+        requestSchema["properties"]!["ignoredValue"].ShouldBeNull();
+        responseSchema["properties"]!["visibleValue"].ShouldNotBeNull();
+        responseSchema["properties"]!["hiddenValue"].ShouldBeNull();
+    }
+
+    [Fact]
     public async Task from_body_property_replaces_request_body_schema()
     {
         var json = await App.GetDocumentJsonAsync("Release 2.0");

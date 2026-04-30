@@ -56,6 +56,7 @@ public static class Extensions
                 apiOptions.AddDocumentTransformer(new DocumentTransformer(opts, sharedCtx));
                 apiOptions.AddSchemaTransformer<XmlDocSchemaTransformer>();
                 apiOptions.AddSchemaTransformer<NumericTypeCleanupSchemaTransformer>();
+                apiOptions.AddSchemaTransformer(new HiddenPropertySchemaTransformer(opts, sharedCtx));
                 apiOptions.AddSchemaTransformer(new ToHeaderPropertySchemaTransformer(opts, sharedCtx));
                 apiOptions.AddSchemaTransformer<EnumSchemaTransformer>();
 

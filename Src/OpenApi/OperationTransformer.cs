@@ -77,6 +77,12 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
         operation.Summary ??= epDef.EndpointSummary?.Summary;
         operation.Description ??= epDef.EndpointSummary?.Description;
 
+        if (string.IsNullOrWhiteSpace(epDef.EndpointSummary?.Summary) && string.IsNullOrWhiteSpace(operation.Summary))
+            operation.Summary = XmlDocLookup.GetTypeSummary(epDef.EndpointType);
+
+        if (string.IsNullOrWhiteSpace(epDef.EndpointSummary?.Description) && string.IsNullOrWhiteSpace(operation.Description))
+            operation.Description = XmlDocLookup.GetTypeRemarks(epDef.EndpointType);
+
         // deprecation from [Obsolete]
         if (epDef.EndpointType.GetCustomAttribute<ObsoleteAttribute>() is not null)
             operation.Deprecated = true;

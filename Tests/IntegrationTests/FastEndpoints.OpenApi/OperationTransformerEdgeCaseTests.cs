@@ -560,6 +560,26 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     }
 
     [Fact]
+    public async Task endpoint_xml_docs_are_applied_to_operation_summary_and_description()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var operation = JToken.Parse(json)["paths"]!["/api/swagger-review/endpoint-xml-doc"]!["get"]!;
+
+        operation["summary"]!.Value<string>().ShouldBe("xml endpoint summary");
+        operation["description"]!.Value<string>().ShouldBe("xml endpoint remarks");
+    }
+
+    [Fact]
+    public async Task endpoint_summary_values_override_endpoint_xml_docs()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var operation = JToken.Parse(json)["paths"]!["/api/swagger-review/endpoint-summary-overrides-xml-doc"]!["get"]!;
+
+        operation["summary"]!.Value<string>().ShouldBe("configured endpoint summary");
+        operation["description"]!.Value<string>().ShouldBe("configured endpoint description");
+    }
+
+    [Fact]
     public async Task missing_schema_generation_uses_primitive_formats_for_primitive_like_properties()
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review");

@@ -850,6 +850,50 @@ sealed class InlineMarkupXmlDocReviewEndpoint : Endpoint<InlineMarkupXmlDocRevie
         => Send.OkAsync(req.UserId, ct);
 }
 
+/// <summary>
+/// xml endpoint summary
+/// </summary>
+/// <remarks>
+/// xml endpoint remarks
+/// </remarks>
+sealed class EndpointXmlDocReviewEndpoint : EndpointWithoutRequest<string>
+{
+    public override void Configure()
+    {
+        Get("/swagger-review/endpoint-xml-doc");
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(CancellationToken ct)
+        => Send.OkAsync("ok", ct);
+}
+
+/// <summary>
+/// xml endpoint summary should not win
+/// </summary>
+/// <remarks>
+/// xml endpoint remarks should not win
+/// </remarks>
+sealed class EndpointSummaryOverridesXmlDocReviewEndpoint : EndpointWithoutRequest<string>
+{
+    public override void Configure()
+    {
+        Get("/swagger-review/endpoint-summary-overrides-xml-doc");
+        Tags("swagger_review");
+        AllowAnonymous();
+        Summary(
+            s =>
+            {
+                s.Summary = "configured endpoint summary";
+                s.Description = "configured endpoint description";
+            });
+    }
+
+    public override Task HandleAsync(CancellationToken ct)
+        => Send.OkAsync("ok", ct);
+}
+
 sealed class GenericXmlDocReviewEndpoint : Endpoint<GenericXmlDocReviewRequest, GenericXmlDocReviewResponse>
 {
     public override void Configure()

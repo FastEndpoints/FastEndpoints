@@ -15,7 +15,7 @@ static class XmlDocLookup
     static readonly ConditionalWeakTable<Assembly, Dictionary<string, XmlMemberInfo>> _xmlDocCache = new();
     static readonly Dictionary<string, XmlMemberInfo> _emptyMembers = new(StringComparer.Ordinal);
 
-    readonly record struct XmlMemberInfo(string? Summary, string? Example);
+    readonly record struct XmlMemberInfo(string? Summary, string? Remarks, string? Example);
 
     internal static string? GetPropertySummary(PropertyInfo prop)
         => GetMemberSummary(prop.DeclaringType?.Assembly, PropertyMemberId(prop));
@@ -25,6 +25,9 @@ static class XmlDocLookup
 
     internal static string? GetTypeSummary(Type type)
         => GetMemberSummary(type.Assembly, $"T:{GetTypeId(type)}");
+
+    internal static string? GetTypeRemarks(Type type)
+        => GetMemberRemarks(type.Assembly, $"T:{GetTypeId(type)}");
 
     static string PropertyMemberId(PropertyInfo prop)
         => $"P:{GetTypeId(prop.DeclaringType)}.{prop.Name}";
@@ -38,6 +41,18 @@ static class XmlDocLookup
 
         return members.TryGetValue(memberId, out var member)
                    ? member.Summary
+                   : null;
+    }
+
+    static string? GetMemberRemarks(Assembly? assembly, string memberId)
+    {
+        if (assembly is null)
+            return null;
+
+        var members = GetXmlDoc(assembly);
+
+        return members.TryGetValue(memberId, out var member)
+                   ? member.Remarks
                    : null;
     }
 
@@ -145,12 +160,13 @@ static class XmlDocLookup
                 continue;
 
             var summary = GetSummary(member);
+            var remarks = GetRemarks(member);
             var example = GetExample(member);
 
-            if (summary is null && example is null)
+            if (summary is null && remarks is null && example is null)
                 continue;
 
-            index[name] = new(summary, example);
+            index[name] = new(summary, remarks, example);
         }
 
         return index;
@@ -172,6 +188,18 @@ static class XmlDocLookup
             var example = member.Element("example")?.Value.Trim();
 
             return string.IsNullOrWhiteSpace(example) ? null : example;
+        }
+
+        static string? GetRemarks(XElement member)
+        {
+            var remarksEl = member.Element("remarks") ?? member.Element("description");
+
+            if (remarksEl is null)
+                return null;
+
+            var remarks = GetTextWithSeeRefs(remarksEl).Trim();
+
+            return string.IsNullOrWhiteSpace(remarks) ? null : remarks;
         }
     }
 }

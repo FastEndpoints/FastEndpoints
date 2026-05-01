@@ -1,4 +1,3 @@
-using System.Text.Json;
 using FastEndpoints.Agents;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -62,52 +61,10 @@ public static class Extensions
 
         var cardRoute = routes.MapGet(
             agentCardPattern,
-            (HttpContext ctx, AgentCardBuilder builder) =>
-            {
-                var card = builder.Build(ctx);
-
-                return Results.Json(card, Config.SerOpts.Options);
-            });
+            static (HttpContext ctx, AgentCardBuilder builder) => Results.Json(builder.Build(ctx), Config.SerOpts.Options));
         configureCardRoute?.Invoke(cardRoute);
 
-        var rpcRoute = routes.MapPost(
-            rpcPattern,
-            async (HttpContext ctx, A2ASkillDispatcher dispatcher) =>
-            {
-                var serializerOptions = Config.SerOpts.Options;
-                JsonRpcRequest? req;
-
-                try
-                {
-                    req = await JsonSerializer.DeserializeAsync<JsonRpcRequest>(ctx.Request.Body, serializerOptions, ctx.RequestAborted);
-                }
-                catch (JsonException ex)
-                {
-                    return Results.Json(new JsonRpcResponse { Error = new() { Code = -32700, Message = $"parse error: {ex.Message}" } }, serializerOptions, statusCode: 400);
-                }
-
-                if (req is null || req.JsonRpc != "2.0" || string.IsNullOrEmpty(req.Method))
-                    return Results.Json(new JsonRpcResponse { Error = new() { Code = -32600, Message = "invalid JSON-RPC request" } }, serializerOptions, statusCode: 400);
-
-                var response = new JsonRpcResponse { Id = req.Id };
-
-                try
-                {
-                    response.Result = await dispatcher.DispatchAsync(req.Method, req.Params, ctx, ctx.RequestAborted);
-                }
-                catch (A2ARpcException rpc)
-                {
-                    response.Result = null;
-                    response.Error = rpc.Error;
-                }
-                catch (Exception ex)
-                {
-                    response.Result = null;
-                    response.Error = JsonRpcError.Internal(ex.Message);
-                }
-
-                return Results.Json(response, serializerOptions);
-            });
+        var rpcRoute = routes.MapPost(rpcPattern, A2AJsonRpcEndpoint.HandleAsync);
         configureRpcRoute?.Invoke(rpcRoute);
 
         return app;

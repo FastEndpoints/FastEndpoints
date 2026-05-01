@@ -1,0 +1,68 @@
+namespace FastEndpoints.Mcp;
+
+/// <summary>
+/// opt an endpoint in to being exposed as a Model Context Protocol (MCP) tool. the
+/// <c>FastEndpoints.Mcp</c> addon scans the endpoint's public <see cref="EndpointDefinition.EndpointAttributes" />
+/// for this attribute at <c>UseMcp()</c> time. use this form on attribute-configured endpoints; endpoints
+/// that override <c>Configure()</c> should call <c>McpEndpointExtensions.McpTool(...)</c>
+/// instead. core FastEndpoints has no knowledge of this attribute.
+/// </summary>
+[AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+public sealed class McpToolAttribute : Attribute
+{
+    /// <summary>
+    /// tool name seen by MCP clients. <c>null</c> uses the endpoint type name converted to <c>snake_case</c>.
+    /// </summary>
+    public string? Name { get; }
+
+    /// <summary>
+    /// description shown to LLMs when listing tools.
+    /// </summary>
+    public string? Description { get; set; }
+
+    /// <summary>
+    /// optional display title.
+    /// </summary>
+    public string? Title { get; set; }
+
+    /// <summary>
+    /// advisory: tool does not modify its environment.
+    /// </summary>
+    public bool ReadOnly { get; set; }
+
+    /// <summary>
+    /// advisory: repeated calls with the same args produce the same effect.
+    /// </summary>
+    public bool Idempotent { get; set; }
+
+    /// <summary>
+    /// advisory: tool may perform irreversible actions.
+    /// </summary>
+    public bool Destructive { get; set; }
+
+    /// <summary>
+    /// advisory: tool touches the outside world (network, external services).
+    /// </summary>
+    public bool OpenWorld { get; set; }
+
+    /// <inheritdoc cref="McpToolAttribute" />
+    public McpToolAttribute(string? name = null)
+    {
+        Name = name;
+    }
+
+    internal McpToolInfo ToInfo()
+    {
+        var info = new McpToolInfo
+        {
+            Name = Name,
+            Description = Description,
+            Title = Title
+        };
+        if (ReadOnly) info.Hints.ReadOnly = true;
+        if (Idempotent) info.Hints.Idempotent = true;
+        if (Destructive) info.Hints.Destructive = true;
+        if (OpenWorld) info.Hints.OpenWorld = true;
+        return info;
+    }
+}

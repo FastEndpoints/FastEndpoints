@@ -37,6 +37,7 @@
         <File Path="Tests/Directory.Build.props"/>
     </Folder>
     <Folder Name="/Tests/IntegrationTests/">
+        <Project Path="Tests/IntegrationTests/FastEndpoints.Agents/Int.Agents.csproj"/>
         <Project Path="Tests/IntegrationTests/FastEndpoints.OpenApi.Kiota/Int.OpenApi.Kiota.csproj"/>
         <Project Path="Tests/IntegrationTests/FastEndpoints.OpenApi/Int.OpenApi.csproj"/>
         <Project Path="Tests/IntegrationTests/FastEndpoints/Int.FastEndpoints.csproj"/>
@@ -46,6 +47,8 @@
         <Project Path="Tests/UnitTests/FastEndpoints/Unit.FastEndpoints.csproj"/>
         <Project Path="Tests/UnitTests/FastEndpoints.Testing/Unit.Testing.csproj"/>
     </Folder>
+    <Project Path="Src/Agents/A2A/FastEndpoints.A2A.csproj"/>
+    <Project Path="Src/Agents/Mcp/FastEndpoints.Mcp.csproj"/>
     <Project Path="Src/AspVersioning/FastEndpoints.AspVersioning.csproj"/>
     <Project Path="Src/Attributes/FastEndpoints.Attributes.csproj"/>
     <Project Path="Src/Core/FastEndpoints.Core.csproj"/>

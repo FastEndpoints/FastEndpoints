@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <!-- independently versioned from FastEndpoints core; see Src/Agents/Directory.Build.props -->
+        <Version>1.0.0-beta.1</Version>
+        <TargetFrameworks>net9.0;net10.0</TargetFrameworks>
+        <NoWarn>1701;1702;CS1591;CS1573</NoWarn>
+        <Description>Addon for FastEndpoints: expose opt-in endpoints as Model Context Protocol (MCP) tools over stdio or Streamable HTTP. Built on the official ModelContextProtocol C# SDK. Versioned independently of FastEndpoints core.</Description>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <!-- shared addon plumbing compiled in as internal types; kept outside a NuGet package so
+           consumers only see FastEndpoints.Mcp on the wire, not a third FastEndpoints.Agents.Core dep. -->
+      <Compile Include="..\Shared\*.cs" LinkBase="Shared"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\Library\FastEndpoints.csproj"/>
+        <PackageReference Include="FluentValidation"/>
+        <PackageReference Include="ModelContextProtocol.AspNetCore"/>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\..\icon.png" Pack="true" PackagePath="\" Link="Content\Icon" Visible="false"/>
+    </ItemGroup>
+
+</Project>

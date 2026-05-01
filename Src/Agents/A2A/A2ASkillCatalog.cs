@@ -1,12 +1,15 @@
 using FastEndpoints.Agents;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FastEndpoints.A2A;
 
-sealed class A2ASkillCatalog(EndpointData endpointData, A2AOptions options)
+sealed class A2ASkillCatalog(IServiceProvider services, A2AOptions options)
 {
     public IEnumerable<A2ASkillDescriptor> GetVisibleSkills(HttpContext context)
     {
+        var endpointData = services.GetRequiredService<EndpointData>();
+
         foreach (var def in endpointData.Found)
         {
             var skill = CreateDescriptor(def, context);

@@ -36,7 +36,7 @@ public static class A2AEndpointExtensions
         /// </summary>
         public void A2ASkill(string? id = null, string[]? tags = null, Action<A2ASkillInfo>? configure = null)
         {
-            var info = ResolveOrCreate(def);
+            var info = GetMetadataSkillInfo(def) ?? CreateSkillInfo(def);
 
             if (id is not null)
                 info.Id = id;
@@ -56,14 +56,10 @@ public static class A2AEndpointExtensions
         /// </summary>
         internal A2ASkillInfo? ResolveSkillInfo()
         {
-            if (def.EndpointMetadata is { } meta)
-            {
-                foreach (var o in meta)
-                {
-                    if (o is A2ASkillInfo info)
-                        return info;
-                }
-            }
+            var info = GetMetadataSkillInfo(def);
+
+            if (info is not null)
+                return info;
 
             if (def.EndpointAttributes is not { } attrs)
                 return null;
@@ -78,7 +74,7 @@ public static class A2AEndpointExtensions
         }
     }
 
-    static A2ASkillInfo ResolveOrCreate(EndpointDefinition def)
+    static A2ASkillInfo? GetMetadataSkillInfo(EndpointDefinition def)
     {
         if (def.EndpointMetadata is { } meta)
         {
@@ -89,6 +85,11 @@ public static class A2AEndpointExtensions
             }
         }
 
+        return null;
+    }
+
+    static A2ASkillInfo CreateSkillInfo(EndpointDefinition def)
+    {
         var info = new A2ASkillInfo();
         def.Metadata(info);
 

@@ -17,6 +17,8 @@ public class NestedPerson
     public Guid Id { get; set; }
     public string Name { get; set; }
     public int Age { get; set; }
+    public DateOnly? BirthDate { get; set; }
+    public TimeOnly? WakeUpTime { get; set; }
     public List<string> Strings { get; set; }
     public List<DayOfWeek> FavoriteDays { get; set; }
     public bool IsHidden { get; set; }

@@ -60,12 +60,20 @@ static class ReflectionExtensions
     {
         var isComplex = type.IsClass || (type.IsValueType && type is { IsPrimitive: false, IsEnum: false } && type != typeof(decimal));
         var isSimpleType = type == typeof(string) ||
-                           type == typeof(DateTime) ||
-                           type == typeof(DateTimeOffset) ||
-                           type == typeof(TimeSpan) ||
-                           type == typeof(Guid) ||
-                           type == typeof(Uri) ||
-                           type == typeof(Version);
+                            type == typeof(DateTime) ||
+                            type == typeof(DateTimeOffset) ||
+                            type == typeof(DateOnly) ||
+                            type == typeof(TimeOnly) ||
+                            type == typeof(TimeSpan) ||
+                            type == typeof(Guid) ||
+                            type == typeof(Half) ||
+                            type == typeof(Int128) ||
+                            type == typeof(UInt128) ||
+                            type == typeof(System.Numerics.BigInteger) ||
+                            type == typeof(System.Net.IPAddress) ||
+                            type == typeof(System.Net.IPEndPoint) ||
+                            type == typeof(Uri) ||
+                            type == typeof(Version);
 
         return isComplex && !isSimpleType;
     }

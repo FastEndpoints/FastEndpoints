@@ -4937,6 +4937,22 @@
             }
           },
           {
+            "name": "child.birthDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "child.wakeUpTime",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "time"
+            }
+          },
+          {
             "name": "child.strings",
             "in": "query",
             "required": true,
@@ -7773,6 +7789,14 @@
           "format": "double"
         }
       },
+      "SystemNullableOfSystemDateOnly": {
+        "type": "string",
+        "format": "date"
+      },
+      "SystemNullableOfSystemTimeOnly": {
+        "type": "string",
+        "format": "time"
+      },
       "SystemString[]": {
         "minItems": 1,
         "type": "array",
@@ -8552,6 +8576,26 @@
           "age": {
             "type": "integer",
             "format": "int32"
+          },
+          "birthDate": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/SystemNullableOfSystemDateOnly"
+              }
+            ]
+          },
+          "wakeUpTime": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/SystemNullableOfSystemTimeOnly"
+              }
+            ]
           },
           "strings": {
             "$ref": "#/components/schemas/SystemCollectionsGenericListOfSystemString"

@@ -335,8 +335,23 @@ public class BindingTests(Sut App) : TestBase<Sut>
                         IsHidden = true
                     },
                     Numbers = [0, 1, -222, 1000, 22]
-                 }
-             });
+                }
+            });
+    }
+
+    [Fact]
+    public async Task BindingNestedDateOnlyAndTimeOnlyFromQueryUse()
+    {
+        var (rsp, res) = await App.Client
+                                  .GETAsync<TestCases.QueryObjectBindingTest.Request, TestCases.QueryObjectBindingTest.Response>(
+                                      "api/test-cases/query-object-binding-test" +
+                                      "?BoOl=TRUE&String=everything&iNt=99&long=483752874564876&DOUBLE=2232.12&Enum=3" +
+                                      "&child.birthDate=2026-05-01&child.wakeUpTime=08:15:30",
+                                      new());
+
+        rsp.StatusCode.ShouldBe(HttpStatusCode.OK);
+        res.Person.Child.BirthDate.ShouldBe(new DateOnly(2026, 5, 1));
+        res.Person.Child.WakeUpTime.ShouldBe(new TimeOnly(8, 15, 30));
     }
 
     [Fact]

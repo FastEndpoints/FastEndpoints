@@ -48,6 +48,14 @@ url.ShouldBe("api/invoices/123?IncludeLines=true");
 
 ## Fixes 🪲
 
+<details><summary>'DateOnly','TimeOnly' not binding correctly from nested '[FromQuery]' DTOs</summary>
+
+Complex query/form binding now treats `DateOnly`, `TimeOnly`, `Half`, `Int128`, `UInt128`, `BigInteger`, `IPAddress`, and `IPEndPoint` as scalar values instead of recursively binding them as complex objects.
+
+This fixes nested `[FromQuery]` request DTO properties such as `DateOnly?` and `TimeOnly?` being left at their default values (`0001-01-01`, `00:00:00`, etc.) even when valid query string values were supplied.
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>More lenient route prefix handling</summary>

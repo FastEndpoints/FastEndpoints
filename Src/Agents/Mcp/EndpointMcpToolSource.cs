@@ -34,13 +34,15 @@ sealed class EndpointMcpToolSource
     public IReadOnlyList<McpServerTool> BuildTools()
     {
         var endpointData = _services.GetRequiredService<EndpointData>();
-        var serializerOptions = FastEndpoints.Config.SerOpts.Options;
+        var serializerOptions = Config.SerOpts.Options;
         var invoker = _services.GetRequiredService<EndpointInvoker>();
 
         var tools = new List<McpServerTool>();
+
         foreach (var def in endpointData.Found)
         {
             var info = def.ResolveToolInfo();
+
             if (info is null)
                 continue;
 
@@ -49,31 +51,34 @@ sealed class EndpointMcpToolSource
 
             tools.Add(BuildTool(def, info, invoker, serializerOptions));
         }
+
         return tools;
     }
 
     McpServerTool BuildTool(EndpointDefinition def, McpToolInfo info, EndpointInvoker invoker, JsonSerializerOptions serializerOptions)
     {
         var summaryTitle = def.EndpointSummary?.Summary;
-        var name = info.Name
-                   ?? (!string.IsNullOrWhiteSpace(summaryTitle) ? NamingHelpers.ToSnakeCase(summaryTitle) : null)
-                   ?? NamingHelpers.ToSnakeCase(def.EndpointType.Name);
+        var name = info.Name ?? (!string.IsNullOrWhiteSpace(summaryTitle) ? NamingHelpers.ToSnakeCase(summaryTitle) : null) ?? NamingHelpers.ToSnakeCase(def.EndpointType.Name);
         var description = info.Description ?? def.EndpointSummary?.Description;
 
         if (info.Name is null && string.IsNullOrWhiteSpace(summaryTitle))
+        {
             _logger.LogWarning(
                 "MCP tool for {EndpointType} has no explicit name and no OpenAPI Summary set. " +
                 "Falling back to type name \"{FallbackName}\". " +
                 "Set Summary(s => s.Summary = ...) or pass the name explicitly.",
                 def.EndpointType.Name,
                 name);
+        }
 
         if (info.Description is null && string.IsNullOrWhiteSpace(def.EndpointSummary?.Description))
+        {
             _logger.LogWarning(
                 "MCP tool \"{Name}\" ({EndpointType}) has no description. " +
                 "Call Summary(s => s.Description = ...) or pass an explicit description: this.McpTool(description: \"...\").",
                 name,
                 def.EndpointType.Name);
+        }
 
         var inputSchema = JsonSchemaBuilder.Build(def.ReqDtoType, serializerOptions);
         if (TryResolveValidator(def) is { } validator)
@@ -102,15 +107,13 @@ sealed class EndpointMcpToolSource
                 if (_options.ToolVisibilityFilter is not null &&
                     httpContext is not null &&
                     !_options.ToolVisibilityFilter(def, principal, httpContext))
-                {
                     throw new McpException($"Tool '{name}' is not available for the current caller.");
-                }
 
                 var args = ctx.Params?.Arguments is { } argMap
                                ? JsonSerializer.SerializeToElement(argMap, serializerOptions)
                                : JsonDocument.Parse("{}").RootElement;
 
-                var result = await invoker.InvokeAsync(def, args, principal, serializerOptions, ct);
+                var result = await invoker.InvokeAsync(def, args, principal, ct);
 
                 return result.Status switch
                 {
@@ -120,13 +123,14 @@ sealed class EndpointMcpToolSource
                     _ => throw new McpException("Unknown invocation status.")
                 };
             },
-            new McpServerToolCreateOptions { Name = name, Description = description, Title = info.Title });
+            new() { Name = name, Description = description, Title = info.Title });
     }
 
     static CallToolResult BuildSuccessResult(InvocationResult r)
     {
         var text = r.Body.Length == 0 ? string.Empty : Encoding.UTF8.GetString(r.Body);
-        return new CallToolResult
+
+        return new()
         {
             Content = [new TextContentBlock { Text = text }],
             IsError = false
@@ -137,7 +141,8 @@ sealed class EndpointMcpToolSource
     {
         var errors = r.ValidationFailures.Select(f => new { property = f.PropertyName, error = f.ErrorMessage, code = f.ErrorCode });
         var json = JsonSerializer.Serialize(new { validationErrors = errors });
-        return new CallToolResult
+
+        return new()
         {
             Content = [new TextContentBlock { Text = json }],
             IsError = true
@@ -147,10 +152,11 @@ sealed class EndpointMcpToolSource
     static ToolAnnotations? BuildAnnotations(McpToolInfo info)
     {
         var h = info.Hints;
+
         if (h.ReadOnly is null && h.Idempotent is null && h.Destructive is null && h.OpenWorld is null)
             return null;
 
-        return new ToolAnnotations
+        return new()
         {
             ReadOnlyHint = h.ReadOnly,
             IdempotentHint = h.Idempotent,
@@ -165,8 +171,6 @@ sealed class EndpointMcpToolSource
         if (def.ValidatorType is null)
             return null;
 
-        return _services.GetService(def.ValidatorType) as IValidator
-            ?? (IValidator?)ActivatorUtilities.CreateInstance(_services, def.ValidatorType);
+        return _services.GetService(def.ValidatorType) as IValidator ?? (IValidator?)ActivatorUtilities.CreateInstance(_services, def.ValidatorType);
     }
-
 }

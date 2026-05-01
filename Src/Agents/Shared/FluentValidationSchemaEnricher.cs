@@ -1,7 +1,6 @@
 using System.Collections.Concurrent;
 using System.Text.Json.Nodes;
 using FluentValidation;
-using FluentValidation.Internal;
 using FluentValidation.Validators;
 
 namespace FastEndpoints.Agents;
@@ -30,6 +29,7 @@ static class FluentValidationSchemaEnricher
             return;
 
         var rules = GetRules(validator);
+
         if (rules.Length == 0)
             return;
 
@@ -46,16 +46,19 @@ static class FluentValidationSchemaEnricher
                 case INotNullValidator or INotEmptyValidator:
                     required ??= [];
                     var alreadyRequired = false;
+
                     foreach (var r in required)
                     {
                         if (r?.GetValue<string>() == propertyName)
                         {
                             alreadyRequired = true;
+
                             break;
                         }
                     }
                     if (!alreadyRequired)
                         required.Add(propertyName);
+
                     break;
 
                 case ILengthValidator lenValidator:
@@ -63,23 +66,28 @@ static class FluentValidationSchemaEnricher
                         propSchema["minLength"] = lenValidator.Min;
                     if (lenValidator.Max > 0)
                         propSchema["maxLength"] = lenValidator.Max;
+
                     break;
 
                 case IRegularExpressionValidator rxValidator when !string.IsNullOrWhiteSpace(rxValidator.Expression):
                     propSchema["pattern"] = rxValidator.Expression;
+
                     break;
 
                 case IEmailValidator:
                     propSchema["format"] = "email";
+
                     break;
 
                 case IComparisonValidator cmpValidator when cmpValidator.ValueToCompare is IConvertible:
                     ApplyNumericComparison(propSchema, cmpValidator);
+
                     break;
 
                 case IBetweenValidator btwValidator:
                     propSchema["minimum"] = JsonValue.Create(btwValidator.From);
                     propSchema["maximum"] = JsonValue.Create(btwValidator.To);
+
                     break;
             }
         }
@@ -91,19 +99,24 @@ static class FluentValidationSchemaEnricher
     static void ApplyNumericComparison(JsonObject propSchema, IComparisonValidator cmp)
     {
         var value = JsonValue.Create(cmp.ValueToCompare);
+
         switch (cmp.Comparison)
         {
             case Comparison.GreaterThan:
                 propSchema["exclusiveMinimum"] = value;
+
                 break;
             case Comparison.GreaterThanOrEqual:
                 propSchema["minimum"] = value;
+
                 break;
             case Comparison.LessThan:
                 propSchema["exclusiveMaximum"] = value;
+
                 break;
             case Comparison.LessThanOrEqual:
                 propSchema["maximum"] = value;
+
                 break;
         }
     }
@@ -117,6 +130,7 @@ static class FluentValidationSchemaEnricher
                     return [];
 
                 var list = new List<(string, IPropertyValidator)>();
+
                 foreach (var rule in ruleEnum)
                 {
                     if (rule.PropertyName is null)
@@ -125,6 +139,7 @@ static class FluentValidationSchemaEnricher
                     foreach (var component in rule.Components)
                         list.Add((rule.PropertyName, component.Validator));
                 }
+
                 return list.ToArray();
             });
 }

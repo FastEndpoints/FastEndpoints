@@ -24,58 +24,58 @@ public static class A2AEndpointExtensions
     /// <param name="id">stable skill identifier. <c>null</c> uses the endpoint type name in <c>snake_case</c>.</param>
     /// <param name="tags">free-form tags other agents can filter by when selecting skills.</param>
     /// <param name="configure">optional callback for setting name, description, examples, and input/output modes.</param>
-    public static void A2ASkill(this BaseEndpoint ep,
-                                string? id = null,
-                                string[]? tags = null,
-                                Action<A2ASkillInfo>? configure = null)
+    public static void A2ASkill(this BaseEndpoint ep, string? id = null, string[]? tags = null, Action<A2ASkillInfo>? configure = null)
         => ep.Definition.A2ASkill(id, tags, configure);
 
-    /// <summary>
-    /// opt this endpoint in to being exposed as an A2A skill. identical to the <see cref="BaseEndpoint" />
-    /// overload but targets the <see cref="EndpointDefinition" /> directly — useful when composing
-    /// configuration from helpers that only see the definition.
-    /// </summary>
-    public static void A2ASkill(this EndpointDefinition def,
-                                string? id = null,
-                                string[]? tags = null,
-                                Action<A2ASkillInfo>? configure = null)
+    extension(EndpointDefinition def)
     {
-        var info = ResolveOrCreate(def);
-        if (id is not null)
-            info.Id = id;
-        if (tags is not null)
-            info.Tags = tags;
-        configure?.Invoke(info);
-    }
-
-    /// <summary>
-    /// resolve the <see cref="A2ASkillInfo" /> attached to an endpoint, preferring a fluent
-    /// <c>A2ASkill(...)</c> registration (stored on <see cref="EndpointDefinition.EndpointMetadata" />)
-    /// and falling back to an <see cref="A2ASkillAttribute" /> captured in
-    /// <see cref="EndpointDefinition.EndpointAttributes" />. returns <c>null</c> when the endpoint
-    /// has not opted in.
-    /// </summary>
-    internal static A2ASkillInfo? ResolveSkillInfo(this EndpointDefinition def)
-    {
-        if (def.EndpointMetadata is { } meta)
+        /// <summary>
+        /// opt this endpoint in to being exposed as an A2A skill. identical to the <see cref="BaseEndpoint" />
+        /// overload but targets the <see cref="EndpointDefinition" /> directly — useful when composing
+        /// configuration from helpers that only see the definition.
+        /// </summary>
+        public void A2ASkill(string? id = null, string[]? tags = null, Action<A2ASkillInfo>? configure = null)
         {
-            foreach (var o in meta)
-            {
-                if (o is A2ASkillInfo info)
-                    return info;
-            }
+            var info = ResolveOrCreate(def);
+
+            if (id is not null)
+                info.Id = id;
+
+            if (tags is not null)
+                info.Tags = tags;
+
+            configure?.Invoke(info);
         }
 
-        if (def.EndpointAttributes is { } attrs)
+        /// <summary>
+        /// resolve the <see cref="A2ASkillInfo" /> attached to an endpoint, preferring a fluent
+        /// <c>A2ASkill(...)</c> registration (stored on <see cref="EndpointDefinition.EndpointMetadata" />)
+        /// and falling back to an <see cref="A2ASkillAttribute" /> captured in
+        /// <see cref="EndpointDefinition.EndpointAttributes" />. returns <c>null</c> when the endpoint
+        /// has not opted in.
+        /// </summary>
+        internal A2ASkillInfo? ResolveSkillInfo()
         {
+            if (def.EndpointMetadata is { } meta)
+            {
+                foreach (var o in meta)
+                {
+                    if (o is A2ASkillInfo info)
+                        return info;
+                }
+            }
+
+            if (def.EndpointAttributes is not { } attrs)
+                return null;
+
             foreach (var a in attrs)
             {
                 if (a is A2ASkillAttribute attr)
                     return attr.ToInfo();
             }
-        }
 
-        return null;
+            return null;
+        }
     }
 
     static A2ASkillInfo ResolveOrCreate(EndpointDefinition def)

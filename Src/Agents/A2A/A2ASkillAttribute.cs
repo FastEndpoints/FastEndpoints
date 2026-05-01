@@ -8,7 +8,7 @@ namespace FastEndpoints.A2A;
 /// should call <c>A2AEndpointExtensions.A2ASkill(...)</c>
 /// instead. core FastEndpoints has no knowledge of this attribute.
 /// </summary>
-[AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+[AttributeUsage(AttributeTargets.Class, Inherited = false)]
 public sealed class A2ASkillAttribute : Attribute
 {
     /// <summary>

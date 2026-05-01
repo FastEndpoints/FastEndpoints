@@ -3,7 +3,6 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using FastEndpoints.Agents;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace FastEndpoints.A2A;
 
@@ -11,7 +10,7 @@ namespace FastEndpoints.A2A;
 /// dispatches A2A v1 JSON-RPC <c>SendMessage</c> calls to the matching FastEndpoints endpoint.
 /// if multiple visible skills exist, callers can select one with <c>params.metadata.skill</c>.
 /// </summary>
-sealed class A2ASkillDispatcher(IServiceProvider services, EndpointInvoker invoker, A2AOptions options)
+sealed class A2ASkillDispatcher(A2ASkillCatalog skillCatalog, EndpointInvoker invoker)
 {
     public async Task<object?> DispatchAsync(string method, JsonElement? parameters, HttpContext ctx, CancellationToken ct)
     {
@@ -33,7 +32,7 @@ sealed class A2ASkillDispatcher(IServiceProvider services, EndpointInvoker invok
         ValidateMessage(p.Message);
 
         var requestedSkill = GetRequestedSkill(p.Metadata);
-        var def = FindSkill(requestedSkill, ctx) ?? throw new A2ARpcException(
+        var def = skillCatalog.FindVisibleSkill(requestedSkill, ctx) ?? throw new A2ARpcException(
                       requestedSkill is null
                           ? JsonRpcError.InvalidParams("multiple skills are available; set 'metadata.skill' to choose one.")
                           : JsonRpcError.MethodNotFound($"skill '{requestedSkill}'"));
@@ -43,7 +42,7 @@ sealed class A2ASkillDispatcher(IServiceProvider services, EndpointInvoker invok
 
         return result.Status switch
         {
-            InvocationStatus.Success => BuildSuccess(result, p.Message, serializerOptions),
+            InvocationStatus.Success => BuildSuccess(result, p.Message),
             InvocationStatus.HttpError => throw new A2ARpcException(BuildHttpError(result)),
             InvocationStatus.ValidationFailed => throw new A2ARpcException(
                                                      new()
@@ -57,7 +56,7 @@ sealed class A2ASkillDispatcher(IServiceProvider services, EndpointInvoker invok
         };
     }
 
-    static A2ASendMessageResponse BuildSuccess(InvocationResult r, A2AMessage? requestMessage, JsonSerializerOptions _)
+    static A2ASendMessageResponse BuildSuccess(InvocationResult r, A2AMessage? requestMessage)
     {
         var text = r.Body.Length == 0 ? string.Empty : Encoding.UTF8.GetString(r.Body);
 
@@ -179,7 +178,12 @@ sealed class A2ASkillDispatcher(IServiceProvider services, EndpointInvoker invok
 
             if (part.Text is { } text)
             {
-                try { return JsonDocument.Parse(text).RootElement; }
+                try
+                {
+                    using var doc = JsonDocument.Parse(text);
+
+                    return doc.RootElement.Clone();
+                }
                 catch (JsonException)
                 {
                     throw new A2ARpcException(JsonRpcError.InvalidParams("text parts must contain valid JSON to invoke a skill."));
@@ -202,45 +206,6 @@ sealed class A2ASkillDispatcher(IServiceProvider services, EndpointInvoker invok
                    : null;
     }
 
-    EndpointDefinition? FindSkill(string? id, HttpContext ctx)
-    {
-        var endpointData = services.GetRequiredService<EndpointData>();
-        EndpointDefinition? onlyVisible = null;
-        var visibleCount = 0;
-
-        foreach (var def in endpointData.Found)
-        {
-            var info = def.ResolveSkillInfo();
-
-            if (info is null)
-                continue;
-
-            if (options.SkillFilter is not null && !options.SkillFilter(def))
-                continue;
-
-            var summaryTitle = def.EndpointSummary?.Summary;
-            var skillId =
-                info.Id ?? (!string.IsNullOrWhiteSpace(summaryTitle) ? NamingHelpers.ToSnakeCase(summaryTitle) : null) ?? NamingHelpers.ToSnakeCase(def.EndpointType.Name);
-
-            if (options.SkillVisibilityFilter is not null && !options.SkillVisibilityFilter(def, ctx.User, ctx))
-                continue;
-
-            if (id is null)
-            {
-                onlyVisible = def;
-                visibleCount++;
-
-                continue;
-            }
-
-            if (skillId == id)
-            {
-                return def;
-            }
-        }
-
-        return id is null && visibleCount == 1 ? onlyVisible : null;
-    }
 }
 
 sealed class A2ARpcException(JsonRpcError error) : Exception(error.Message)

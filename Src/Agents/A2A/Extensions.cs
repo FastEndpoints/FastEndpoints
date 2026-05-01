@@ -32,6 +32,7 @@ public static class Extensions
         configure?.Invoke(options);
         services.AddSingleton(options);
         services.AddSingleton<EndpointInvoker>();
+        services.AddSingleton<A2ASkillCatalog>();
         services.AddSingleton<AgentCardBuilder>();
         services.AddSingleton<A2ASkillDispatcher>();
 

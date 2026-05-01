@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using FastEndpoints.Agents;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
@@ -43,6 +44,7 @@ sealed class A2ASkillDispatcher(IServiceProvider services, EndpointInvoker invok
         return result.Status switch
         {
             InvocationStatus.Success => BuildSuccess(result, p.Message, serializerOptions),
+            InvocationStatus.HttpError => throw new A2ARpcException(BuildHttpError(result)),
             InvocationStatus.ValidationFailed => throw new A2ARpcException(
                                                      new()
                                                      {
@@ -72,6 +74,38 @@ sealed class A2ASkillDispatcher(IServiceProvider services, EndpointInvoker invok
         };
     }
 
+    static JsonRpcError BuildHttpError(InvocationResult result)
+    {
+        var text = result.Body.Length == 0 ? string.Empty : Encoding.UTF8.GetString(result.Body);
+        object? body = null;
+
+        if (!string.IsNullOrWhiteSpace(text))
+        {
+            try
+            {
+                using var doc = JsonDocument.Parse(text);
+                body = doc.RootElement.Clone();
+            }
+            catch (JsonException)
+            {
+                // keep non-JSON bodies in rawBody so callers still get the response payload.
+            }
+        }
+
+        return new()
+        {
+            Code = -32000,
+            Message = $"Endpoint returned HTTP {result.HttpStatusCode}.",
+            Data = new EndpointErrorData
+            {
+                statusCode = result.HttpStatusCode,
+                contentType = NormalizeMediaType(result.ContentType),
+                body = body,
+                rawBody = text
+            }
+        };
+    }
+
     static A2APart BuildResponsePart(string text, string mediaType)
     {
         if (!string.IsNullOrWhiteSpace(text))
@@ -95,6 +129,18 @@ sealed class A2ASkillDispatcher(IServiceProvider services, EndpointInvoker invok
         => string.IsNullOrWhiteSpace(contentType)
                ? "application/json"
                : contentType.Split(';', 2)[0].Trim();
+
+    sealed class EndpointErrorData
+    {
+        public int statusCode { get; init; }
+        public string contentType { get; init; } = "application/json";
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
+        public object? body { get; init; }
+
+        [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
+        public string rawBody { get; init; } = string.Empty;
+    }
 
     static void ValidateMessage(A2AMessage? message)
     {

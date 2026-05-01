@@ -1,9 +1,11 @@
 extern alias A2AAsm;
 
+using System.Net;
 using System.Security.Claims;
 using System.Net.Http.Json;
 using System.Text.Json;
 using A2AAsm::FastEndpoints.A2A;
+using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -198,6 +200,113 @@ public class A2ASkillVisibilityTests
         failureJson.TryGetProperty("result", out _).ShouldBeFalse();
     }
 
+    [Theory]
+    [InlineData("forbidden", 403, "application/json", false, "")]
+    [InlineData("not_found", 404, "application/json", true, "missing")]
+    [InlineData("bad_request", 400, "application/json", true, "bad-request")]
+    [InlineData("string_error", 500, "text/plain", false, "boom")]
+    public async Task Http_SendMessage_maps_endpoint_non_2xx_responses_to_json_rpc_error(
+        string skill,
+        int expectedStatus,
+        string expectedContentType,
+        bool expectJsonBody,
+        string expectedBodyValue)
+    {
+        await using var app = BuildHttpApp(
+            skillFilter: def => def.EndpointType == typeof(ForbiddenSkillEndpoint) ||
+                               def.EndpointType == typeof(NotFoundSkillEndpoint) ||
+                               def.EndpointType == typeof(BadRequestSkillEndpoint) ||
+                               def.EndpointType == typeof(StringErrorSkillEndpoint));
+        await app.StartAsync(CancellationToken.None);
+        var client = app.GetTestClient();
+
+        var response = await client.PostAsJsonAsync(
+            "/a2a",
+            new
+            {
+                jsonrpc = "2.0",
+                id = 1,
+                method = "SendMessage",
+                @params = new
+                {
+                    message = new
+                    {
+                        messageId = "client-message-1",
+                        role = "ROLE_USER",
+                        parts = new[] { new { data = new { Value = "ping" } } }
+                    },
+                    metadata = new { skill }
+                }
+            },
+            CancellationToken.None);
+        var json = await response.Content.ReadFromJsonAsync<JsonElement>(CancellationToken.None);
+        var error = json.GetProperty("error");
+        var data = error.GetProperty("data");
+
+        json.TryGetProperty("result", out _).ShouldBeFalse();
+        error.GetProperty("code").GetInt32().ShouldBe(-32000);
+        error.GetProperty("message").GetString().ShouldBe($"Endpoint returned HTTP {expectedStatus}.");
+        data.GetProperty("statusCode").GetInt32().ShouldBe(expectedStatus);
+        data.GetProperty("contentType").GetString().ShouldBe(expectedContentType);
+        var rawBody = data.GetProperty("rawBody").GetString();
+
+        if (string.IsNullOrEmpty(expectedBodyValue))
+            rawBody.ShouldBe(string.Empty);
+        else
+        {
+            rawBody.ShouldNotBeNull();
+            rawBody.ShouldContain(expectedBodyValue);
+        }
+
+        if (expectJsonBody)
+        {
+            data.GetProperty("body").ToString().ShouldContain(expectedBodyValue);
+        }
+        else
+        {
+            data.GetProperty("body").ValueKind.ShouldBe(JsonValueKind.Null);
+        }
+    }
+
+    [Fact]
+    public async Task Http_SendMessage_preserves_validation_failures_as_invalid_params()
+    {
+        await using var app = BuildHttpApp(skillFilter: def => def.EndpointType == typeof(ValidationSkillEndpoint));
+        await app.StartAsync(CancellationToken.None);
+        var client = app.GetTestClient();
+
+        var response = await client.PostAsJsonAsync(
+            "/a2a",
+            new
+            {
+                jsonrpc = "2.0",
+                id = 1,
+                method = "SendMessage",
+                @params = new
+                {
+                    message = new
+                    {
+                        messageId = "client-message-1",
+                        role = "ROLE_USER",
+                        parts = new[] { new { data = new { Value = "" } } }
+                    },
+                    metadata = new { skill = "validation" }
+                }
+            },
+            CancellationToken.None);
+        var json = await response.Content.ReadFromJsonAsync<JsonElement>(CancellationToken.None);
+
+        json.TryGetProperty("result", out _).ShouldBeFalse();
+        json.GetProperty("error").GetProperty("code").GetInt32().ShouldBe(-32602);
+        json.GetProperty("error").GetProperty("message").GetString().ShouldBe("validation failed");
+        var validationFailure = json.GetProperty("error").GetProperty("data")[0];
+        var propertyName = validationFailure.TryGetProperty("propertyName", out var camelCaseName)
+                               ? camelCaseName.GetString()
+                               : validationFailure.GetProperty("PropertyName").GetString();
+
+        propertyName.ShouldBe("Value");
+    }
+
     [Fact]
     public async Task Agent_card_advertises_custom_rpc_pattern()
     {
@@ -295,6 +404,16 @@ public class A2ASkillVisibilityTests
                 def.A2ASkill(visibleSkillId);
             else if (def.EndpointType == typeof(HiddenSkillEndpoint))
                 def.A2ASkill(hiddenSkillId);
+            else if (def.EndpointType == typeof(ForbiddenSkillEndpoint))
+                def.A2ASkill("forbidden");
+            else if (def.EndpointType == typeof(NotFoundSkillEndpoint))
+                def.A2ASkill("not_found");
+            else if (def.EndpointType == typeof(BadRequestSkillEndpoint))
+                def.A2ASkill("bad_request");
+            else if (def.EndpointType == typeof(StringErrorSkillEndpoint))
+                def.A2ASkill("string_error");
+            else if (def.EndpointType == typeof(ValidationSkillEndpoint))
+                def.A2ASkill("validation");
         }
 
         return provider;
@@ -314,7 +433,13 @@ public class A2ASkillVisibilityTests
             o => o.SourceGeneratorDiscoveredTypes.AddRange(
                 [
                     typeof(VisibleSkillEndpoint),
-                    typeof(HiddenSkillEndpoint)
+                    typeof(HiddenSkillEndpoint),
+                    typeof(ForbiddenSkillEndpoint),
+                    typeof(NotFoundSkillEndpoint),
+                    typeof(BadRequestSkillEndpoint),
+                    typeof(StringErrorSkillEndpoint),
+                    typeof(ValidationSkillEndpoint),
+                    typeof(ValidationSkillEndpointValidator)
                 ]));
         builder.Services.AddA2A(o => o.SkillFilter = skillFilter);
 
@@ -326,6 +451,16 @@ public class A2ASkillVisibilityTests
                 def.A2ASkill("visible");
             else if (def.EndpointType == typeof(HiddenSkillEndpoint))
                 def.A2ASkill("hidden");
+            else if (def.EndpointType == typeof(ForbiddenSkillEndpoint))
+                def.A2ASkill("forbidden");
+            else if (def.EndpointType == typeof(NotFoundSkillEndpoint))
+                def.A2ASkill("not_found");
+            else if (def.EndpointType == typeof(BadRequestSkillEndpoint))
+                def.A2ASkill("bad_request");
+            else if (def.EndpointType == typeof(StringErrorSkillEndpoint))
+                def.A2ASkill("string_error");
+            else if (def.EndpointType == typeof(ValidationSkillEndpoint))
+                def.A2ASkill("validation");
         }
 
         app.UseA2A(rpcPattern: rpcPattern);
@@ -394,6 +529,54 @@ public class A2ASkillVisibilityTests
     {
         public override async Task HandleAsync(SkillRequest req, CancellationToken ct)
             => await Send.OkAsync(new() { Value = "hidden:" + req.Value }, ct);
+    }
+
+    [HttpPost("/forbidden")]
+    sealed class ForbiddenSkillEndpoint : Endpoint<SkillRequest, object?>
+    {
+        public override Task HandleAsync(SkillRequest req, CancellationToken ct)
+            => Send.ForbiddenAsync(ct);
+    }
+
+    [HttpPost("/not-found")]
+    sealed class NotFoundSkillEndpoint : Endpoint<SkillRequest, object?>
+    {
+        public override Task HandleAsync(SkillRequest req, CancellationToken ct)
+            => Send.ResultAsync(TypedResults.NotFound(new SkillResponse { Value = "missing:" + req.Value }));
+    }
+
+    [HttpPost("/bad-request")]
+    sealed class BadRequestSkillEndpoint : Endpoint<SkillRequest, object?>
+    {
+        public override Task HandleAsync(SkillRequest req, CancellationToken ct)
+            => Send.ResultAsync(TypedResults.BadRequest(new SkillResponse { Value = "bad-request" }));
+    }
+
+    [HttpPost("/string-error")]
+    sealed class StringErrorSkillEndpoint : Endpoint<SkillRequest, object?>
+    {
+        public override Task HandleAsync(SkillRequest req, CancellationToken ct)
+            => Send.StringAsync("boom", (int)HttpStatusCode.InternalServerError, cancellation: ct);
+    }
+
+    sealed class ValidationSkillRequest
+    {
+        public string? Value { get; set; }
+    }
+
+    [HttpPost("/validation")]
+    sealed class ValidationSkillEndpoint : Endpoint<ValidationSkillRequest, SkillResponse>
+    {
+        public override Task HandleAsync(ValidationSkillRequest req, CancellationToken ct)
+            => Send.OkAsync(new() { Value = "validated:" + req.Value }, ct);
+    }
+
+    sealed class ValidationSkillEndpointValidator : Validator<ValidationSkillRequest>
+    {
+        public ValidationSkillEndpointValidator()
+        {
+            RuleFor(x => x.Value).NotEmpty();
+        }
     }
 
     sealed class SkillRequest

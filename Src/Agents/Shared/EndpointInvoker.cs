@@ -54,7 +54,9 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
         body.Position = 0;
         var payload = body.ToArray();
 
-        return InvocationResult.Ok(httpContext.Response.StatusCode, httpContext.Response.ContentType, payload);
+        return httpContext.Response.StatusCode is >= 200 and < 300
+                   ? InvocationResult.Ok(httpContext.Response.StatusCode, httpContext.Response.ContentType, payload)
+                   : InvocationResult.HttpError(httpContext.Response.StatusCode, httpContext.Response.ContentType, payload);
     }
 
     static DefaultHttpContext BuildHttpContext(EndpointDefinition definition, JsonElement args, System.Security.Claims.ClaimsPrincipal? principal, IServiceProvider services)
@@ -127,6 +129,9 @@ readonly struct InvocationResult
     public static InvocationResult Ok(int statusCode, string? contentType, byte[] body)
         => new(InvocationStatus.Success, statusCode, contentType, body, null, []);
 
+    public static InvocationResult HttpError(int statusCode, string? contentType, byte[] body)
+        => new(InvocationStatus.HttpError, statusCode, contentType, body, null, []);
+
     public static InvocationResult Invalid(IReadOnlyList<ValidationFailure> failures)
         => new(InvocationStatus.ValidationFailed, 400, null, [], null, failures);
 
@@ -137,6 +142,7 @@ readonly struct InvocationResult
 enum InvocationStatus
 {
     Success,
+    HttpError,
     ValidationFailed,
     Faulted
 }

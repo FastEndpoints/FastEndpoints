@@ -118,6 +118,7 @@ sealed class EndpointMcpToolSource
                 return result.Status switch
                 {
                     InvocationStatus.Success => BuildSuccessResult(result),
+                    InvocationStatus.HttpError => BuildHttpErrorResult(result),
                     InvocationStatus.ValidationFailed => BuildValidationErrorResult(result),
                     InvocationStatus.Faulted => throw new McpException(result.Exception?.Message ?? "Endpoint invocation failed.", result.Exception),
                     _ => throw new McpException("Unknown invocation status.")
@@ -145,6 +146,17 @@ sealed class EndpointMcpToolSource
         return new()
         {
             Content = [new TextContentBlock { Text = json }],
+            IsError = true
+        };
+    }
+
+    static CallToolResult BuildHttpErrorResult(InvocationResult r)
+    {
+        var text = r.Body.Length == 0 ? string.Empty : Encoding.UTF8.GetString(r.Body);
+
+        return new()
+        {
+            Content = [new TextContentBlock { Text = JsonSerializer.Serialize(new { statusCode = r.HttpStatusCode, contentType = r.ContentType, body = text }) }],
             IsError = true
         };
     }

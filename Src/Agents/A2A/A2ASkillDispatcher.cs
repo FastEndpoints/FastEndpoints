@@ -12,6 +12,8 @@ namespace FastEndpoints.A2A;
 /// </summary>
 sealed class A2ASkillDispatcher(A2ASkillCatalog skillCatalog, EndpointInvoker invoker)
 {
+    const string DefaultMediaType = "application/json";
+
     public async Task<object?> DispatchAsync(string method, JsonElement? parameters, HttpContext ctx, CancellationToken ct)
     {
         return method switch
@@ -29,44 +31,38 @@ sealed class A2ASkillDispatcher(A2ASkillCatalog skillCatalog, EndpointInvoker in
         var serializerOptions = Config.SerOpts.Options;
         var p = parameters.Value.Deserialize<A2AMessageSendParams>(serializerOptions) ?? throw new A2ARpcException(JsonRpcError.InvalidParams("invalid 'params' payload."));
 
-        ValidateMessage(p.Message);
+        var message = ValidateMessage(p.Message);
 
         var requestedSkill = GetRequestedSkill(p.Metadata);
         var def = skillCatalog.FindVisibleSkill(requestedSkill, ctx) ?? throw new A2ARpcException(
                       requestedSkill is null
-                          ? JsonRpcError.InvalidParams("multiple skills are available; set 'metadata.skill' to choose one.")
-                          : JsonRpcError.MethodNotFound($"skill '{requestedSkill}'"));
+                           ? JsonRpcError.InvalidParams("multiple skills are available; set 'metadata.skill' to choose one.")
+                           : JsonRpcError.MethodNotFound($"skill '{requestedSkill}'"));
 
-        var args = ExtractArgs(p.Message!);
+        var args = ExtractArgs(message);
         var result = await invoker.InvokeAsync(def, args, ctx.User, ct);
 
         return result.Status switch
         {
-            InvocationStatus.Success => BuildSuccess(result, p.Message),
+            InvocationStatus.Success => BuildSuccess(result, message),
             InvocationStatus.HttpError => throw new A2ARpcException(BuildHttpError(result)),
-            InvocationStatus.ValidationFailed => throw new A2ARpcException(
-                                                     new()
-                                                     {
-                                                         Code = -32602,
-                                                         Message = "validation failed",
-                                                         Data = result.ValidationFailures.Select(f => new { f.PropertyName, f.ErrorMessage, f.ErrorCode })
-                                                     }),
+            InvocationStatus.ValidationFailed => throw new A2ARpcException(BuildValidationError(result)),
             InvocationStatus.Faulted => throw new A2ARpcException(JsonRpcError.Internal(result.Exception?.Message ?? "Endpoint invocation failed.")),
             _ => throw new A2ARpcException(JsonRpcError.Internal("Unknown invocation status."))
         };
     }
 
-    static A2ASendMessageResponse BuildSuccess(InvocationResult r, A2AMessage? requestMessage)
+    static A2ASendMessageResponse BuildSuccess(InvocationResult r, A2AMessage requestMessage)
     {
-        var text = r.Body.Length == 0 ? string.Empty : Encoding.UTF8.GetString(r.Body);
+        var text = ReadBodyText(r);
 
         return new()
         {
             Message = new()
             {
                 MessageId = Guid.NewGuid().ToString("N"),
-                ContextId = requestMessage?.ContextId,
-                TaskId = requestMessage?.TaskId,
+                ContextId = requestMessage.ContextId,
+                TaskId = requestMessage.TaskId,
                 Role = "ROLE_AGENT",
                 Parts = [BuildResponsePart(text, NormalizeMediaType(r.ContentType))]
             }
@@ -75,21 +71,8 @@ sealed class A2ASkillDispatcher(A2ASkillCatalog skillCatalog, EndpointInvoker in
 
     static JsonRpcError BuildHttpError(InvocationResult result)
     {
-        var text = result.Body.Length == 0 ? string.Empty : Encoding.UTF8.GetString(result.Body);
-        object? body = null;
-
-        if (!string.IsNullOrWhiteSpace(text))
-        {
-            try
-            {
-                using var doc = JsonDocument.Parse(text);
-                body = doc.RootElement.Clone();
-            }
-            catch (JsonException)
-            {
-                // keep non-JSON bodies in rawBody so callers still get the response payload.
-            }
-        }
+        var text = ReadBodyText(result);
+        object? body = TryParseJson(text, out var json) ? json : null;
 
         return new()
         {
@@ -105,34 +88,54 @@ sealed class A2ASkillDispatcher(A2ASkillCatalog skillCatalog, EndpointInvoker in
         };
     }
 
+    static JsonRpcError BuildValidationError(InvocationResult result)
+        => new()
+        {
+            Code = -32602,
+            Message = "validation failed",
+            Data = result.ValidationFailures.Select(f => new { f.PropertyName, f.ErrorMessage, f.ErrorCode })
+        };
+
     static A2APart BuildResponsePart(string text, string mediaType)
     {
-        if (!string.IsNullOrWhiteSpace(text))
-        {
-            try
-            {
-                using var doc = JsonDocument.Parse(text);
-
-                return new() { Data = doc.RootElement.Clone(), MediaType = mediaType };
-            }
-            catch (JsonException)
-            {
-                // non-JSON endpoint responses are valid A2A text parts
-            }
-        }
+        if (TryParseJson(text, out var data))
+            return new() { Data = data, MediaType = mediaType };
 
         return new() { Text = text, MediaType = mediaType };
     }
 
+    static string ReadBodyText(InvocationResult result)
+        => result.Body.Length == 0 ? string.Empty : Encoding.UTF8.GetString(result.Body);
+
+    static bool TryParseJson(string text, out JsonElement json)
+    {
+        json = default;
+
+        if (string.IsNullOrWhiteSpace(text))
+            return false;
+
+        try
+        {
+            using var doc = JsonDocument.Parse(text);
+            json = doc.RootElement.Clone();
+
+            return true;
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
+
     static string NormalizeMediaType(string? contentType)
         => string.IsNullOrWhiteSpace(contentType)
-               ? "application/json"
+               ? DefaultMediaType
                : contentType.Split(';', 2)[0].Trim();
 
     sealed class EndpointErrorData
     {
         public int statusCode { get; init; }
-        public string contentType { get; init; } = "application/json";
+        public string contentType { get; init; } = DefaultMediaType;
 
         [JsonIgnore(Condition = JsonIgnoreCondition.Never)]
         public object? body { get; init; }
@@ -141,7 +144,7 @@ sealed class A2ASkillDispatcher(A2ASkillCatalog skillCatalog, EndpointInvoker in
         public string rawBody { get; init; } = string.Empty;
     }
 
-    static void ValidateMessage(A2AMessage? message)
+    static A2AMessage ValidateMessage(A2AMessage? message)
     {
         if (message is null)
             throw new A2ARpcException(JsonRpcError.InvalidParams("'message' is required."));
@@ -149,12 +152,12 @@ sealed class A2ASkillDispatcher(A2ASkillCatalog skillCatalog, EndpointInvoker in
         if (string.IsNullOrWhiteSpace(message.MessageId))
             throw new A2ARpcException(JsonRpcError.InvalidParams("'message.messageId' is required."));
 
-        if (message.Parts is not { Length: > 0 })
+        if (message.Parts is not { Length: > 0 } parts)
             throw new A2ARpcException(JsonRpcError.InvalidParams("'message.parts' must contain at least one part."));
 
-        for (var i = 0; i < message.Parts.Length; i++)
+        for (var i = 0; i < parts.Length; i++)
         {
-            var part = message.Parts[i];
+            var part = parts[i];
             var hasData = part.Data is { ValueKind: not JsonValueKind.Null and not JsonValueKind.Undefined };
             var contentCount = (part.Text is not null ? 1 : 0) +
                                (hasData ? 1 : 0) +
@@ -167,6 +170,8 @@ sealed class A2ASkillDispatcher(A2ASkillCatalog skillCatalog, EndpointInvoker in
             if (hasData && part.Data!.Value.ValueKind != JsonValueKind.Object)
                 throw new A2ARpcException(JsonRpcError.InvalidParams($"'message.parts[{i}].data' must be a JSON object."));
         }
+
+        return message;
     }
 
     static JsonElement ExtractArgs(A2AMessage message)

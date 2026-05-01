@@ -11,6 +11,9 @@ static partial class OperationSchemaHelpers
         {
             var actualType = Nullable.GetUnderlyingType(type) ?? type;
 
+            if (actualType == typeof(byte[]))
+                return ByteArraySchema();
+
             if (TryGetDictionaryValueType(actualType) is { } dictionaryValueType)
             {
                 return new OpenApiSchema
@@ -22,7 +25,7 @@ static partial class OperationSchemaHelpers
 
             if (actualType != typeof(string))
             {
-                var elementType = GetCollectionElementType(actualType);
+                var elementType = TryGetCollectionElementType(actualType);
 
                 if (elementType is not null)
                 {
@@ -77,9 +80,12 @@ static partial class OperationSchemaHelpers
             return;
         }
 
-        if (type != typeof(string) && GetCollectionElementType(type) is { } elementType && concreteSchema.Items is { } items)
+        if (type != typeof(string) && type != typeof(byte[]) && TryGetCollectionElementType(type) is { } elementType && concreteSchema.Items is { } items)
             RegisterMissingSchemaTypes(elementType, items, sharedCtx, shortSchemaNames);
     }
+
+    static OpenApiSchema ByteArraySchema()
+        => new() { Type = JsonSchemaType.String, Format = "byte" };
 
     static OpenApiSchema? TryCreatePrimitiveSchema(Type type)
         => type switch
@@ -99,35 +105,6 @@ static partial class OperationSchemaHelpers
             _ when type == typeof(TimeOnly) => new() { Type = JsonSchemaType.String, Format = "time" },
             _ => null
         };
-
-    static Type? GetCollectionElementType(Type type)
-    {
-        if (type.IsArray)
-            return type.GetElementType();
-
-        if (type.IsGenericType)
-        {
-            var genDef = type.GetGenericTypeDefinition();
-
-            if (genDef == typeof(IEnumerable<>) ||
-                genDef == typeof(ICollection<>) ||
-                genDef == typeof(IList<>) ||
-                genDef == typeof(List<>) ||
-                genDef == typeof(IReadOnlyList<>) ||
-                genDef == typeof(IReadOnlyCollection<>) ||
-                genDef == typeof(HashSet<>) ||
-                genDef == typeof(ISet<>))
-                return type.GetGenericArguments()[0];
-        }
-
-        foreach (var iface in type.GetInterfaces())
-        {
-            if (iface.IsGenericType && iface.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-                return iface.GetGenericArguments()[0];
-        }
-
-        return null;
-    }
 
     internal static Type? TryGetDictionaryValueType(Type type)
     {

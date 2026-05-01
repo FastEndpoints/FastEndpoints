@@ -1,5 +1,4 @@
 using FastEndpoints;
-using System.Collections.Concurrent;
 using System.Reflection;
 using Microsoft.Extensions.Logging;
 using QueueTesting;
@@ -233,8 +232,7 @@ public partial class JobQueueTests
         var cancellations = GetCancellations(queue);
         var method = queue.GetType().GetMethod("CancelJobAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
 
-        await Should.ThrowAsync<InvalidOperationException>(
-            () => ((Task)method.Invoke(queue, [trackingId, CancellationToken.None])!).WaitAsync(TimeSpan.FromSeconds(5)));
+        await Should.ThrowAsync<InvalidOperationException>(() => ((Task)method.Invoke(queue, [trackingId, CancellationToken.None])!).WaitAsync(TimeSpan.FromSeconds(5)));
 
         cancellations.ContainsKey(trackingId).ShouldBeFalse();
         storage.CancelCount.ShouldBe(1);
@@ -273,8 +271,8 @@ public partial class JobQueueTests
         (await WaitUntilAsync(() => staleMarkers.IsEmpty, TimeSpan.FromSeconds(5))).ShouldBeTrue();
 
         var markerPreservedDuringCleanup = await WaitUntilAsync(
-                                         () => cancellations.TryGetValue(command.TrackingID, out var state) && state is null,
-                                         TimeSpan.FromSeconds(1));
+                                               () => cancellations.TryGetValue(command.TrackingID, out var state) && state is null,
+                                               TimeSpan.FromSeconds(1));
 
         markerPreservedDuringCleanup.ShouldBeTrue();
 
@@ -709,7 +707,7 @@ public partial class JobQueueTests
         (await storage.WaitForCompletionAsync(command.TrackingID, TimeSpan.FromSeconds(5))).ShouldBeTrue();
 
         var field = typeof(JobCancellationTracker)
-                    .GetField("_preCancelledTokenSource", BindingFlags.Static | BindingFlags.NonPublic)!;
+            .GetField("_preCancelledTokenSource", BindingFlags.Static | BindingFlags.NonPublic)!;
         var sharedMarker = (CancellationTokenSource)field.GetValue(null)!;
 
         sharedMarker.IsCancellationRequested.ShouldBeTrue();

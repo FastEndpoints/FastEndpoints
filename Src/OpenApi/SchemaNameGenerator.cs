@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Text;
 using System.Text.Json.Serialization.Metadata;
 
@@ -27,6 +28,8 @@ static class SchemaNameGenerator
         typeof(Guid)
     ];
 
+    static readonly ConcurrentDictionary<SchemaReferenceIdKey, string> _referenceIdCache = new();
+
     internal static Func<JsonTypeInfo, string?> Create(bool shortSchemaNames)
         => typeInfo => GetReferenceId(typeInfo.Type, shortSchemaNames);
 
@@ -35,7 +38,7 @@ static class SchemaNameGenerator
         if (ShouldInlineType(type))
             return null;
 
-        return Generate(type, shortSchemaNames);
+        return _referenceIdCache.GetOrAdd(new(type, shortSchemaNames), static key => Generate(key.Type, key.ShortSchemaNames));
     }
 
     static bool ShouldInlineType(Type type)
@@ -55,23 +58,10 @@ static class SchemaNameGenerator
     }
 
     internal static bool IsFormFileType(Type type)
-    {
-        // IFormFile and IFormFileCollection should be inlined, not referenced
-        if (type.FullName is "Microsoft.AspNetCore.Http.IFormFile" or "Microsoft.AspNetCore.Http.IFormFileCollection")
-            return true;
 
-        // generic collections of IFormFile (List<IFormFile>, IEnumerable<IFormFile>, etc.) should also be inlined
-        if (type.IsGenericType)
-        {
-            foreach (var arg in type.GetGenericArguments())
-            {
-                if (arg.FullName == "Microsoft.AspNetCore.Http.IFormFile")
-                    return true;
-            }
-        }
-
-        return false;
-    }
+        // Generic collections of IFormFile should also be inlined.
+        => type.FullName is "Microsoft.AspNetCore.Http.IFormFile" or "Microsoft.AspNetCore.Http.IFormFileCollection" ||
+           (type.IsGenericType && type.GetGenericArguments().Any(static arg => arg.FullName == "Microsoft.AspNetCore.Http.IFormFile"));
 
     static string Generate(Type type, bool shortNames)
     {
@@ -92,7 +82,7 @@ static class SchemaNameGenerator
                        : shortName;
         }
 
-        var sanitizedFullName = fullNameWithoutGenericArgs.Replace(".", string.Empty).Replace("+", "_");
+        var sanitizedFullName = SanitizeFullName(fullNameWithoutGenericArgs);
 
         return isGeneric
                    ? sanitizedFullName + GenericArgString(type, shortNames)
@@ -101,26 +91,24 @@ static class SchemaNameGenerator
 
     static string GenericArgString(Type type, bool shortNames)
     {
-        if (type.IsGenericType)
+        if (!type.IsGenericType)
+            return string.Empty;
+
+        var sb = new StringBuilder();
+        var args = type.GetGenericArguments();
+
+        for (var i = 0; i < args.Length; i++)
         {
-            var sb = new StringBuilder();
-            var args = type.GetGenericArguments();
-
-            for (var i = 0; i < args.Length; i++)
-            {
-                var arg = args[i];
-                if (i == 0)
-                    sb.Append("Of");
-                sb.Append(TypeNameWithoutGenericArgs(arg, shortNames));
-                sb.Append(GenericArgString(arg, shortNames));
-                if (i < args.Length - 1)
-                    sb.Append("And");
-            }
-
-            return sb.ToString();
+            var arg = args[i];
+            if (i == 0)
+                sb.Append("Of");
+            sb.Append(TypeNameWithoutGenericArgs(arg, shortNames));
+            sb.Append(GenericArgString(arg, shortNames));
+            if (i < args.Length - 1)
+                sb.Append("And");
         }
 
-        return string.Empty;
+        return sb.ToString();
 
         static string TypeNameWithoutGenericArgs(Type type, bool shortNames)
         {
@@ -135,7 +123,12 @@ static class SchemaNameGenerator
             var genericArgIndex = fullName.IndexOf('`');
             var fullNameWithoutGenericArgs = genericArgIndex == -1 ? fullName : fullName[..genericArgIndex];
 
-            return fullNameWithoutGenericArgs.Replace(".", string.Empty).Replace("+", "_");
+            return SanitizeFullName(fullNameWithoutGenericArgs);
         }
     }
+
+    static string SanitizeFullName(string fullName)
+        => fullName.Replace(".", string.Empty).Replace("+", "_");
+
+    readonly record struct SchemaReferenceIdKey(Type Type, bool ShortSchemaNames);
 }

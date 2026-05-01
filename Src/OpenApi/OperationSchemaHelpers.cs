@@ -10,16 +10,67 @@ static partial class OperationSchemaHelpers
 
     internal static void RemoveProperties(this JsonObject obj, IEnumerable<string> propertyNames)
     {
+        var existingKeys = new Dictionary<string, string>(obj.Count, StringComparer.OrdinalIgnoreCase);
+
+        foreach (var (key, _) in obj)
+            existingKeys.TryAdd(key, key);
+
         foreach (var propertyName in propertyNames)
         {
-            var key = obj.Select(kvp => kvp.Key).FindCaseInsensitiveKey(propertyName);
-            if (key is not null)
-                obj.Remove(key);
+            if (!existingKeys.Remove(propertyName, out var existingKey))
+                continue;
+
+            obj.Remove(existingKey);
         }
     }
 
     internal static string? FindCaseInsensitiveKey(this IEnumerable<string> keys, string match)
-        => keys.FirstOrDefault(k => string.Equals(k, match, StringComparison.OrdinalIgnoreCase));
+    {
+        foreach (var key in keys)
+        {
+            if (string.Equals(key, match, StringComparison.OrdinalIgnoreCase))
+                return key;
+        }
+
+        return null;
+    }
+
+    internal static Type? TryGetCollectionElementType(Type type)
+    {
+        type = type.GetUnderlyingType();
+
+        if (type == typeof(string))
+            return null;
+
+        if (TryGetDictionaryValueType(type) is not null)
+            return null;
+
+        if (type.IsArray)
+            return type.GetElementType();
+
+        if (type.IsGenericType && TryMatchEnumerable(type) is { } directMatch)
+            return directMatch;
+
+        foreach (var interfaceType in type.GetInterfaces())
+        {
+            if (TryMatchEnumerable(interfaceType) is { } interfaceMatch)
+                return interfaceMatch;
+        }
+
+        return null;
+
+        static Type? TryMatchEnumerable(Type candidate)
+        {
+            if (!candidate.IsGenericType)
+                return null;
+
+            var genericType = candidate.GetGenericTypeDefinition();
+
+            return genericType == typeof(IEnumerable<>)
+                       ? candidate.GetGenericArguments()[0]
+                       : null;
+        }
+    }
 
     internal static OpenApiSchema? CreateSchemaFromExampleNode(JsonNode? node)
         => node switch
@@ -41,19 +92,9 @@ static partial class OperationSchemaHelpers
         };
 
     static OpenApiSchema CreatePrimitiveSchemaFromValue(JsonValue value)
-    {
-        if (value.TryGetValue<bool>(out _))
-            return new() { Type = JsonSchemaType.Boolean };
-
-        if (value.TryGetValue<int>(out _))
-            return new() { Type = JsonSchemaType.Integer, Format = "int32" };
-
-        if (value.TryGetValue<long>(out _))
-            return new() { Type = JsonSchemaType.Integer, Format = "int64" };
-
-        if (value.TryGetValue<decimal>(out _))
-            return new() { Type = JsonSchemaType.Number };
-
-        return StringSchema();
-    }
+        => value.TryGetValue<bool>(out _) ? new() { Type = JsonSchemaType.Boolean } :
+           value.TryGetValue<int>(out _) ? new() { Type = JsonSchemaType.Integer, Format = "int32" } :
+           value.TryGetValue<long>(out _) ? new() { Type = JsonSchemaType.Integer, Format = "int64" } :
+           value.TryGetValue<decimal>(out _) ? new() { Type = JsonSchemaType.Number } :
+           StringSchema();
 }

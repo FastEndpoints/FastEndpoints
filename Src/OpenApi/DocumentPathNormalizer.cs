@@ -5,9 +5,7 @@ namespace FastEndpoints.OpenApi;
 static class DocumentPathNormalizer
 {
     public static void NormalizeParameterNames(OpenApiDocument document)
-        => RenamePaths(
-            document,
-            path => RouteTemplateHelpers.ReplaceParameters(path, RouteTemplateHelpers.NormalizeParameterName));
+        => RenamePaths(document, RouteTemplateHelpers.NormalizePath);
 
     public static void Apply(OpenApiDocument document, DocumentOptions opts, SharedContext sharedCtx)
     {
@@ -19,28 +17,17 @@ static class DocumentPathNormalizer
         if (policy is null)
             return;
 
-        RenamePaths(
-            document,
-            path => RouteTemplateHelpers.ReplaceParameters(
-                path,
-                segment => policy.ConvertName(RouteTemplateHelpers.NormalizeParameterName(segment))));
+        RenamePaths(document, path => RouteTemplateHelpers.ReplaceParameters(path, segment => policy.ConvertName(RouteTemplateHelpers.NormalizeParameterName(segment))));
     }
 
     static void RenamePaths(OpenApiDocument document, Func<string, string> rename)
     {
-        var renames = new List<(string OldPath, string NewPath)>();
-        var normalizedPathOrigins = new Dictionary<string, string>(document.Paths.Count, StringComparer.Ordinal);
+        var renames = CollectPathRenames(document, rename);
 
-        foreach (var path in document.Paths.Keys)
-            normalizedPathOrigins[path] = path;
+        if (renames.Count == 0)
+            return;
 
-        foreach (var path in document.Paths.Keys)
-        {
-            var newPath = rename(path);
-
-            if (newPath != path)
-                renames.Add((path, newPath));
-        }
+        var normalizedPathOrigins = new Dictionary<string, string>(renames.Count, StringComparer.Ordinal);
 
         foreach (var (oldPath, newPath) in renames)
         {
@@ -63,11 +50,22 @@ static class DocumentPathNormalizer
         }
     }
 
-    static void MergePathItems(IOpenApiPathItem target,
-                               IOpenApiPathItem source,
-                               string sourcePath,
-                               string existingPath,
-                               string normalizedPath)
+    static List<(string OldPath, string NewPath)> CollectPathRenames(OpenApiDocument document, Func<string, string> rename)
+    {
+        var renames = new List<(string OldPath, string NewPath)>();
+
+        foreach (var path in document.Paths.Keys)
+        {
+            var newPath = rename(path);
+
+            if (newPath != path)
+                renames.Add((path, newPath));
+        }
+
+        return renames;
+    }
+
+    static void MergePathItems(IOpenApiPathItem target, IOpenApiPathItem source, string sourcePath, string existingPath, string normalizedPath)
     {
         if (source.Operations is not { Count: > 0 })
             return;
@@ -78,9 +76,11 @@ static class DocumentPathNormalizer
         foreach (var (method, operation) in source.Operations)
         {
             if (target.Operations.ContainsKey(method))
+            {
                 throw new InvalidOperationException(
                     $"OpenAPI path normalization collision detected for '{normalizedPath}'. " +
                     $"Both '{existingPath}' and '{sourcePath}' define '{method}' operations.");
+            }
 
             target.Operations[method] = operation;
         }

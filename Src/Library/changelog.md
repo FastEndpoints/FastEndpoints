@@ -122,6 +122,14 @@ app.UseFastEndpoints(c =>
 
 </details>
 
+<details><summary>Malformed multipart form requests now fail as validation errors instead of server errors</summary>
+
+Multipart form binding now treats request body parsing failures caused by malformed client input as validation failures. Truncated multipart bodies and invalid `Content-Disposition` headers are caught when no custom `FormExceptionTransformer` is configured, returning a `400 Bad Request` response instead of surfacing as unhandled `500 Internal Server Error` exceptions.
+
+This avoids noisy false-positive security scanner findings and keeps genuinely unexpected exceptions propagating normally, while still allowing applications with a custom `FormExceptionTransformer` to control their own form parsing error behavior.
+
+</details>
+
 ## End-Of-Life Packages 🪦
 
 <details><summary>NSwag based Swagger packages are set to be discontinued</summary>

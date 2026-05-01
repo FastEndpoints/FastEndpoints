@@ -60,6 +60,46 @@ public class DocumentPathNormalizerTests
         document.Paths["/items/{firstName}"]!.Operations!.ContainsKey(HttpMethod.Post).ShouldBeTrue();
     }
 
+    [Fact]
+    public void canonical_path_normalization_strips_constraints_and_catch_all_markers()
+    {
+        RouteTemplateHelpers.NormalizePath("~/files/{*slug:minlength(3)?}").ShouldBe("/files/{slug}");
+        RouteTemplateHelpers.NormalizePath("/files/{**path=default}").ShouldBe("/files/{path}");
+    }
+
+    [Fact]
+    public void normalized_catch_all_operation_keys_match_version_filter_and_security_lookup()
+    {
+        var document = new OpenApiDocument();
+        document.Paths["/files/{*slug:int}"] = CreatePathItem(HttpMethod.Get, "catch_all");
+
+        DocumentPathNormalizer.NormalizeParameterNames(document);
+
+        var sharedCtx = new SharedContext();
+        var normalizedPath = RouteTemplateHelpers.NormalizePath("/files/{*slug:int}");
+        var operationKey = $"GET:{normalizedPath}";
+        sharedCtx.Operations[operationKey] = new()
+        {
+            OperationKey = normalizedPath,
+            DocumentPath = normalizedPath,
+            HttpMethod = "GET",
+            Version = 0,
+            StartingReleaseVersion = 0,
+            DeprecatedAt = 0,
+            IsFastEndpoint = true
+        };
+        sharedCtx.SecurityRequirements[operationKey] = [("ApiKey", [])];
+        var opts = new DocumentOptions();
+        opts.AddAuth("ApiKey", new() { Type = SecuritySchemeType.ApiKey, Name = "api_key", In = ParameterLocation.Header });
+
+        new DocumentVersionFilter(opts, sharedCtx).Apply(document);
+        DocumentSecurityTransformer.Apply(document, opts, sharedCtx);
+
+        var operation = document.Paths["/files/{slug}"]!.Operations![HttpMethod.Get];
+        operation.Security.ShouldNotBeNull();
+        operation.Security.Count.ShouldBe(1);
+    }
+
     static OpenApiPathItem CreatePathItem(HttpMethod method, string operationId)
         => new()
         {

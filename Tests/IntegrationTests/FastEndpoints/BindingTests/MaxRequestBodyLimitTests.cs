@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -9,6 +10,10 @@ public class MaxRequestBodyLimitTests : IAsyncLifetime
 {
     readonly WebApplication _app;
     readonly IServiceResolver? _previousServiceResolver;
+    readonly Func<Exception, ValidationFailure>? _previousFormExceptionTransformer;
+    readonly string? _previousRoutePrefix;
+    readonly Func<EndpointDefinition, bool>? _previousEndpointFilter;
+    readonly Action<EndpointDefinition>? _previousEndpointConfigurator;
 
     public MaxRequestBodyLimitTests()
     {
@@ -17,6 +22,10 @@ public class MaxRequestBodyLimitTests : IAsyncLifetime
         // after this test's WebApplication is disposed, which would cause ObjectDisposedException
         // in other tests that depend on ServiceResolver.Instance.
         _previousServiceResolver = ServiceResolver.InstanceNotSet ? null : ServiceResolver.Instance;
+        _previousFormExceptionTransformer = Config.BndOpts.FormExceptionTransformer;
+        _previousRoutePrefix = Config.EpOpts.RoutePrefix;
+        _previousEndpointFilter = Config.EpOpts.Filter;
+        _previousEndpointConfigurator = Config.EpOpts.Configurator;
 
         var bld = WebApplication.CreateBuilder();
         bld.WebHost.ConfigureKestrel(o => o.ListenLocalhost(1024));
@@ -25,6 +34,8 @@ public class MaxRequestBodyLimitTests : IAsyncLifetime
         app.UseFastEndpoints(
             c =>
             {
+                c.Endpoints.RoutePrefix = null;
+                c.Endpoints.Filter = null;
                 c.Endpoints.Configurator = ep => ep.MaxRequestBodySize(100);
                 c.Binding.FormExceptionTransformer = ex => new("formErrors", ex.Message);
             });
@@ -84,6 +95,11 @@ public class MaxRequestBodyLimitTests : IAsyncLifetime
 
         // Restore the previous ServiceResolver.Instance so that other tests
         // don't end up using a disposed IServiceProvider.
+        Config.BndOpts.FormExceptionTransformer = _previousFormExceptionTransformer;
+        Config.EpOpts.RoutePrefix = _previousRoutePrefix;
+        Config.EpOpts.Filter = _previousEndpointFilter;
+        Config.EpOpts.Configurator = _previousEndpointConfigurator;
+
         if (_previousServiceResolver is not null)
             ServiceResolver.Instance = _previousServiceResolver;
     }

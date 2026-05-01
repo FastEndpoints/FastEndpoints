@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -11,10 +12,7 @@ static class PropertyNameResolver
            (usePropertyNamingPolicy ? namingPolicy?.ConvertName(property.Name) : null) ??
            property.Name;
 
-    internal static string ConvertPropertyPath(Type declaringType,
-                                               string propertyPath,
-                                               JsonNamingPolicy? namingPolicy = null,
-                                               bool usePropertyNamingPolicy = true)
+    internal static string ConvertPropertyPath(Type declaringType, string propertyPath, JsonNamingPolicy? namingPolicy = null, bool usePropertyNamingPolicy = true)
     {
         if (string.IsNullOrWhiteSpace(propertyPath))
             return propertyPath;
@@ -29,19 +27,84 @@ static class PropertyNameResolver
             if (string.IsNullOrWhiteSpace(segment))
                 continue;
 
-            var property = currentType.GetUnderlyingType().GetProperty(segment, BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+            var memberName = GetIndexerStart(segment) is { } indexerStart
+                                 ? segment[..indexerStart]
+                                 : segment;
+            var indexers = NormalizeIndexers(segment[memberName.Length..]);
+            var property = ResolveProperty(currentType, memberName);
 
             if (property is null)
             {
-                segments[i] = usePropertyNamingPolicy ? namingPolicy?.ConvertName(segment) ?? segment : segment;
+                var convertedSegment = string.IsNullOrEmpty(memberName)
+                                           ? string.Empty
+                                           : usePropertyNamingPolicy
+                                               ? namingPolicy?.ConvertName(memberName) ?? memberName
+                                               : memberName;
+
+                segments[i] = convertedSegment + indexers;
                 currentType = typeof(object);
+
                 continue;
             }
 
-            segments[i] = GetSchemaPropertyName(property, namingPolicy, usePropertyNamingPolicy);
+            segments[i] = GetSchemaPropertyName(property, namingPolicy, usePropertyNamingPolicy) + indexers;
             currentType = property.PropertyType;
+
+            if (indexers.Length > 0 && OperationSchemaHelpers.TryGetCollectionElementType(currentType) is { } elementType)
+                currentType = elementType;
         }
 
         return string.Join(".", segments);
+    }
+
+    static PropertyInfo? ResolveProperty(Type type, string memberName)
+    {
+        if (string.IsNullOrEmpty(memberName))
+            return null;
+
+        var currentType = type.GetUnderlyingType();
+        var property = currentType.GetProperty(memberName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+
+        if (property is not null)
+            return property;
+
+        return OperationSchemaHelpers.TryGetCollectionElementType(currentType) is { } elementType
+                   ? elementType.GetProperty(memberName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
+                   : null;
+    }
+
+    static int? GetIndexerStart(string segment)
+    {
+        var index = segment.IndexOf('[');
+
+        return index < 0 ? null : index;
+    }
+
+    static string NormalizeIndexers(string value)
+    {
+        if (value.Length == 0)
+            return string.Empty;
+
+        StringBuilder? result = null;
+        var index = 0;
+
+        while (index < value.Length)
+        {
+            var start = value.IndexOf('[', index);
+
+            if (start < 0)
+                break;
+
+            var end = value.IndexOf(']', start + 1);
+
+            if (end < 0)
+                break;
+
+            result ??= new();
+            result.Append("[]");
+            index = end + 1;
+        }
+
+        return result?.ToString() ?? string.Empty;
     }
 }

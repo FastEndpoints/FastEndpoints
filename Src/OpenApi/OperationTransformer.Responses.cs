@@ -28,6 +28,7 @@ sealed partial class OperationTransformer
             { "429", "Too Many Requests" },
             { "500", "Server Error" }
         };
+
         JsonNamingPolicy? NamingPolicy => sharedCtx.NamingPolicy;
 
         public void AddMissingResponses(OpenApiOperation operation, IList<object> metadata)
@@ -53,6 +54,10 @@ sealed partial class OperationTransformer
             if (operation.Responses is null)
                 return;
 
+            var responseTypes = epDef.EndpointSummary?.ResponseParams.Count > 0
+                                    ? BuildSupportedResponseTypeMap(context)
+                                    : null;
+
             foreach (var (statusCode, response) in operation.Responses)
             {
                 ApplyDefaultResponseDescription(statusCode, response);
@@ -64,7 +69,7 @@ sealed partial class OperationTransformer
                         response.Description = customDesc;
 
                     if (epDef.EndpointSummary.ResponseParams.TryGetValue(code, out var propDescriptions))
-                        ApplyParamDescriptions(response, propDescriptions, context, code);
+                        ApplyParamDescriptions(response, propDescriptions, responseTypes?.GetValueOrDefault(code));
                 }
             }
         }
@@ -91,12 +96,14 @@ sealed partial class OperationTransformer
             }
         }
 
-        public void ApplyExamples(OpenApiOperation operation, EndpointDefinition epDef)
+        public void ApplyExamples(OpenApiOperation operation, EndpointDefinition epDef, IList<object> metadata)
         {
-            if (epDef.EndpointSummary?.ResponseExamples.Count is not > 0)
+            var examples = BuildResponseExamples(epDef, metadata);
+
+            if (examples.Count == 0)
                 return;
 
-            foreach (var (statusCode, example) in epDef.EndpointSummary.ResponseExamples)
+            foreach (var (statusCode, example) in examples)
             {
                 var key = statusCode.ToString();
 
@@ -115,14 +122,34 @@ sealed partial class OperationTransformer
             }
         }
 
+        static Dictionary<int, object?> BuildResponseExamples(EndpointDefinition epDef, IList<object> metadata)
+        {
+            var examples = new Dictionary<int, object?>();
+
+            foreach (var meta in metadata.OfType<DefaultProducesResponseMetadata>())
+            {
+                if (meta.Example is not null)
+                    examples[meta.StatusCode] = meta.Example;
+            }
+
+            if (epDef.EndpointSummary?.ResponseExamples is { Count: > 0 } explicitExamples)
+            {
+                foreach (var (statusCode, example) in explicitExamples)
+                    examples[statusCode] = example;
+            }
+
+            return examples;
+        }
+
         public void AddHeaders(OpenApiOperation operation, EndpointDefinition epDef, IList<object> metadata)
         {
             if (operation.Responses is null)
                 return;
 
-            var responseTypeMetas = metadata.OfType<IProducesResponseTypeMetadata>()
-                                            .GroupBy(m => m.StatusCode)
-                                            .ToDictionary(g => g.Key, g => g.Last());
+            var responseTypeMetas = BuildResponseTypeMetadataMap(metadata);
+            var configuredHeaders = epDef.EndpointSummary?.ResponseHeaders is { Count: > 0 } headers
+                                        ? BuildResponseHeadersByStatusCode(headers)
+                                        : null;
 
             foreach (var (statusCode, response) in operation.Responses)
             {
@@ -134,9 +161,40 @@ sealed partial class OperationTransformer
                 if (responseTypeMetas.TryGetValue(code, out var responseMeta) && responseMeta.Type is not null)
                     AddTypedResponseHeaders(concreteResponse, responseMeta.Type);
 
-                if (epDef.EndpointSummary?.ResponseHeaders is { Count: > 0 })
-                    AddConfiguredResponseHeaders(concreteResponse, epDef.EndpointSummary.ResponseHeaders, code);
+                if (configuredHeaders?.TryGetValue(code, out var headersForStatusCode) == true)
+                    AddConfiguredResponseHeaders(concreteResponse, headersForStatusCode);
             }
+        }
+
+        static Dictionary<int, List<ResponseHeader>> BuildResponseHeadersByStatusCode(IEnumerable<ResponseHeader> headers)
+        {
+            var result = new Dictionary<int, List<ResponseHeader>>();
+
+            foreach (var header in headers)
+            {
+                if (!result.TryGetValue(header.StatusCode, out var groupedHeaders))
+                {
+                    groupedHeaders = [];
+                    result[header.StatusCode] = groupedHeaders;
+                }
+
+                groupedHeaders.Add(header);
+            }
+
+            return result;
+        }
+
+        static Dictionary<int, IProducesResponseTypeMetadata> BuildResponseTypeMetadataMap(IList<object> metadata)
+        {
+            var responseTypeMetas = new Dictionary<int, IProducesResponseTypeMetadata>();
+
+            for (var i = 0; i < metadata.Count; i++)
+            {
+                if (metadata[i] is IProducesResponseTypeMetadata responseTypeMeta)
+                    responseTypeMetas[responseTypeMeta.StatusCode] = responseTypeMeta;
+            }
+
+            return responseTypeMetas;
         }
 
         public void FixPolymorphism(OpenApiOperation operation)
@@ -178,26 +236,24 @@ sealed partial class OperationTransformer
 
         void ApplyParamDescriptions(IOpenApiResponse response,
                                     Dictionary<string, string> propDescriptions,
-                                    OpenApiOperationTransformerContext context,
-                                    int statusCode)
+                                    Type? responseDtoType)
         {
             if (response is not OpenApiResponse concreteResp || concreteResp.Content is not { Count: > 0 })
                 return;
 
-            var respDtoType = context.Description.SupportedResponseTypes
-                                     .FirstOrDefault(x => x.StatusCode == statusCode)?
-                                     .Type;
-
-            var jsonNameToClrName = BuildJsonNameMap(respDtoType, NamingPolicy, docOpts.UsePropertyNamingPolicy);
+            var collectionElementType = responseDtoType is null ? null : OperationSchemaHelpers.TryGetCollectionElementType(responseDtoType);
+            var descriptionType = collectionElementType ?? responseDtoType;
+            var jsonNameToClrName = BuildJsonNameMap(descriptionType, NamingPolicy, docOpts.UsePropertyNamingPolicy);
 
             foreach (var content in concreteResp.Content.Values)
             {
-                var schema = content.Schema.ResolveSchema();
+                var schema = content.EnsureOperationLocalSchemaForMutation();
+                var descriptionTarget = collectionElementType is null ? schema : EnsureLocalArrayItemSchema(schema);
 
-                if (schema?.Properties is not { Count: > 0 })
+                if (descriptionTarget?.Properties is not { Count: > 0 })
                     continue;
 
-                foreach (var (propKey, propSchema) in schema.Properties)
+                foreach (var (propKey, propSchema) in descriptionTarget.Properties)
                 {
                     var propName = jsonNameToClrName?.TryGetValue(propKey, out var clrName) == true ? clrName : propKey;
 
@@ -205,6 +261,33 @@ sealed partial class OperationTransformer
                         concretePropSchema.Description = responseDescription;
                 }
             }
+        }
+
+        static OpenApiSchema? EnsureLocalArrayItemSchema(OpenApiSchema? schema)
+        {
+            if (schema?.Type?.HasFlag(JsonSchemaType.Array) != true)
+                return null;
+
+            var itemSchema = schema.Items.CloneAsConcreteSchema();
+
+            if (itemSchema is not null)
+                schema.Items = itemSchema;
+
+            return itemSchema;
+        }
+
+        static Dictionary<int, Type?> BuildSupportedResponseTypeMap(OpenApiOperationTransformerContext context)
+        {
+            var responseTypes = context.Description.SupportedResponseTypes;
+            var map = new Dictionary<int, Type?>(responseTypes.Count);
+
+            for (var i = 0; i < responseTypes.Count; i++)
+            {
+                var responseType = responseTypes[i];
+                map[responseType.StatusCode] = responseType.Type;
+            }
+
+            return map;
         }
 
         void AddTypedResponseHeaders(OpenApiResponse response, Type responseType)
@@ -224,15 +307,20 @@ sealed partial class OperationTransformer
                     headerName,
                     new()
                     {
+                        Description = XmlDocLookup.GetPropertySummary(prop),
                         Schema = headerType.GetSchemaForType(sharedCtx, docOpts.ShortSchemaNames),
-                        Example = headerType.GetSampleValue().JsonNodeFromObject()
+                        Example = GetHeaderExample(prop, headerType)
                     });
             }
         }
 
-        void AddConfiguredResponseHeaders(OpenApiResponse response, IEnumerable<ResponseHeader> headers, int statusCode)
+        static JsonNode? GetHeaderExample(PropertyInfo prop, Type headerType)
+            => OperationSchemaHelpers.ParseXmlExampleJsonNode(XmlDocLookup.GetPropertyExample(prop), preserveRawString: true) ??
+               headerType.GetSampleValue().JsonNodeFromObject();
+
+        void AddConfiguredResponseHeaders(OpenApiResponse response, IEnumerable<ResponseHeader> headers)
         {
-            foreach (var header in headers.Where(h => h.StatusCode == statusCode))
+            foreach (var header in headers)
             {
                 var example = header.Example.JsonNodeFromObject();
 
@@ -250,7 +338,7 @@ sealed partial class OperationTransformer
 
         void AddMissingResponseContent(OpenApiResponse response, IProducesResponseTypeMetadata metadata)
         {
-            if (metadata.Type is null || metadata.Type == Types.Void || !metadata.ContentTypes.Any())
+            if (metadata.Type is null || metadata.Type == Types.Void)
                 return;
 
             response.Content ??= new Dictionary<string, OpenApiMediaType>();
@@ -306,19 +394,11 @@ sealed partial class OperationTransformer
             };
 
         static bool IsAnonymousType(Type type)
-        {
-            if (!Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), inherit: false))
-                return false;
-
-            if (!type.IsGenericType)
-                return false;
-
-            var name = type.Name;
-
-            return name.Contains("AnonymousType", StringComparison.Ordinal) &&
-                   (name.StartsWith("<>", StringComparison.Ordinal) || name.StartsWith("VB$", StringComparison.Ordinal)) &&
-                   !type.IsPublic;
-        }
+            => Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), inherit: false) &&
+               type.IsGenericType &&
+               type.Name.Contains("AnonymousType", StringComparison.Ordinal) &&
+               (type.Name.StartsWith("<>", StringComparison.Ordinal) || type.Name.StartsWith("VB$", StringComparison.Ordinal)) &&
+               !type.IsPublic;
 
         static void AddResponseHeader(OpenApiResponse response, string headerName, OpenApiHeader header)
         {

@@ -8,7 +8,7 @@ namespace FastEndpoints.OpenApi;
 
 sealed partial class OperationTransformer
 {
-    sealed class OperationMetadataTransformer(DocumentOptions docOpts, SharedContext sharedCtx)
+    sealed partial class OperationMetadataTransformer(DocumentOptions docOpts, SharedContext sharedCtx)
     {
         static readonly TextInfo _textInfo = CultureInfo.InvariantCulture.TextInfo;
 
@@ -32,6 +32,7 @@ sealed partial class OperationTransformer
                     }
                     case AutoTagOverride autoTagOverride:
                         overrideVal = autoTagOverride.TagName;
+
                         break;
                 }
             }
@@ -87,8 +88,8 @@ sealed partial class OperationTransformer
                     Required = true,
                     Description = epDef.IdempotencyOptions.SwaggerHeaderDescription,
                     Schema = epDef.IdempotencyOptions.SwaggerHeaderType is not null
-                                  ? epDef.IdempotencyOptions.SwaggerHeaderType.GetSchemaForType(sharedCtx, docOpts.ShortSchemaNames)
-                                  : OperationSchemaHelpers.CreateSchemaFromExampleNode(exampleNode) ?? OperationSchemaHelpers.StringSchema(),
+                                 ? epDef.IdempotencyOptions.SwaggerHeaderType.GetSchemaForType(sharedCtx, docOpts.ShortSchemaNames)
+                                 : OperationSchemaHelpers.CreateSchemaFromExampleNode(exampleNode) ?? OperationSchemaHelpers.StringSchema(),
                     Example = exampleNode
                 });
         }
@@ -139,7 +140,7 @@ sealed partial class OperationTransformer
             }
         }
 
-        public void ApplySecurityRequirements(OpenApiOperation operation, EndpointDefinition epDef, IList<object> metadata, string operationKey)
+        public void ApplySecurityRequirements(OpenApiOperation operation, EndpointDefinition? epDef, IList<object> metadata, string operationKey)
         {
             var authorizeAttributes = new List<AuthorizeAttribute>();
             var hasAllowAnonymous = false;
@@ -150,9 +151,11 @@ sealed partial class OperationTransformer
                 {
                     case AllowAnonymousAttribute:
                         hasAllowAnonymous = true;
+
                         break;
                     case AuthorizeAttribute authorizeAttribute:
                         authorizeAttributes.Add(authorizeAttribute);
+
                         break;
                 }
             }
@@ -171,16 +174,19 @@ sealed partial class OperationTransformer
                 sharedCtx.SecurityRequirements[operationKey] = securityEntries;
         }
 
-        (string SchemeName, string[] Scopes)[] BuildSecurityEntries(EndpointDefinition epDef, IReadOnlyCollection<string> scopes)
+        (string SchemeName, string[] Scopes)[] BuildSecurityEntries(EndpointDefinition? epDef, IReadOnlyCollection<string> scopes)
         {
             var securityEntries = new List<(string SchemeName, string[] Scopes)>();
 
             foreach (var authConfig in docOpts.AuthSchemes)
             {
-                var epSchemes = epDef.AuthSchemeNames;
+                if (epDef is not null)
+                {
+                    var epSchemes = epDef.AuthSchemeNames;
 
-                if (epSchemes?.Contains(authConfig.Name) == false)
-                    continue;
+                    if (epSchemes?.Contains(authConfig.Name) == false)
+                        continue;
+                }
 
                 var mergedScopes = new HashSet<string>(scopes, StringComparer.Ordinal);
 
@@ -224,7 +230,10 @@ sealed partial class OperationTransformer
                 });
 
             string StripSymbols(string val)
-                => stripSymbols ? Regex.Replace(val, "[^a-zA-Z0-9]", "") : val;
+                => stripSymbols ? TagSymbolsRegex().Replace(val, "") : val;
         }
+
+        [GeneratedRegex("[^a-zA-Z0-9]")]
+        private static partial Regex TagSymbolsRegex();
     }
 }

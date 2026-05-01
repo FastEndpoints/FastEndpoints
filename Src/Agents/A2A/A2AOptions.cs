@@ -1,3 +1,6 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
+
 namespace FastEndpoints.A2A;
 
 /// <summary>
@@ -21,8 +24,14 @@ public sealed class A2AOptions
     /// <summary>public URL for this agent as seen by remote agents. defaults to the request base if <c>null</c>.</summary>
     public string? Url { get; set; }
 
-    /// <summary>optional filter controlling which opt-in endpoints are published as skills.</summary>
+    /// <summary>optional startup/static filter controlling which opt-in endpoints are published as skills.</summary>
     public Func<EndpointDefinition, bool>? SkillFilter { get; set; }
+
+    /// <summary>
+    /// optional per-caller visibility filter used on the agent card and skill dispatch to hide skills
+    /// the current principal cannot invoke. if <c>null</c>, all statically included skills are visible.
+    /// </summary>
+    public Func<EndpointDefinition, ClaimsPrincipal, HttpContext, bool>? SkillVisibilityFilter { get; set; }
 }
 
 /// <summary>agent-card <c>provider</c> block.</summary>

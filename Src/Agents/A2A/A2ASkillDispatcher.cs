@@ -10,7 +10,7 @@ namespace FastEndpoints.A2A;
 /// dispatches A2A JSON-RPC <c>message/send</c> calls to the matching FastEndpoints endpoint. skill lookup
 /// is by <c>A2ASkillInfo.Id</c>; the message <c>data</c> part is forwarded to <see cref="EndpointInvoker" />.
 /// </summary>
-sealed class A2ASkillDispatcher(IServiceProvider services, EndpointInvoker invoker)
+sealed class A2ASkillDispatcher(IServiceProvider services, EndpointInvoker invoker, A2AOptions options)
 {
     public async Task<object?> DispatchAsync(string method, JsonElement? parameters, HttpContext ctx, CancellationToken ct)
     {
@@ -32,7 +32,7 @@ sealed class A2ASkillDispatcher(IServiceProvider services, EndpointInvoker invok
         if (string.IsNullOrWhiteSpace(p.Skill))
             throw new A2ARpcException(JsonRpcError.InvalidParams("'skill' is required."));
 
-        var def = FindSkill(p.Skill) ?? throw new A2ARpcException(JsonRpcError.MethodNotFound($"skill '{p.Skill}'"));
+        var def = FindSkill(p.Skill, ctx) ?? throw new A2ARpcException(JsonRpcError.MethodNotFound($"skill '{p.Skill}'"));
 
         var args = ExtractArgs(p.Message, serializerOptions);
         var result = await invoker.InvokeAsync(def, args, ctx.User, ct);
@@ -87,7 +87,7 @@ sealed class A2ASkillDispatcher(IServiceProvider services, EndpointInvoker invok
         return JsonDocument.Parse("{}").RootElement;
     }
 
-    EndpointDefinition? FindSkill(string id)
+    EndpointDefinition? FindSkill(string id, HttpContext ctx)
     {
         var endpointData = services.GetRequiredService<EndpointData>();
 
@@ -98,12 +98,20 @@ sealed class A2ASkillDispatcher(IServiceProvider services, EndpointInvoker invok
             if (info is null)
                 continue;
 
+            if (options.SkillFilter is not null && !options.SkillFilter(def))
+                continue;
+
             var summaryTitle = def.EndpointSummary?.Summary;
             var skillId =
                 info.Id ?? (!string.IsNullOrWhiteSpace(summaryTitle) ? NamingHelpers.ToSnakeCase(summaryTitle) : null) ?? NamingHelpers.ToSnakeCase(def.EndpointType.Name);
 
             if (skillId == id)
+            {
+                if (options.SkillVisibilityFilter is not null && !options.SkillVisibilityFilter(def, ctx.User, ctx))
+                    continue;
+
                 return def;
+            }
         }
 
         return null;

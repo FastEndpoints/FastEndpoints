@@ -23,6 +23,9 @@ sealed class AgentCardBuilder(IServiceProvider services, A2AOptions options, ILo
             if (options.SkillFilter is not null && !options.SkillFilter(def))
                 continue;
 
+            if (options.SkillVisibilityFilter is not null && !options.SkillVisibilityFilter(def, ctx.User, ctx))
+                continue;
+
             var summaryTitle = def.EndpointSummary?.Summary;
             var id = info.Id ?? (!string.IsNullOrWhiteSpace(summaryTitle) ? NamingHelpers.ToSnakeCase(summaryTitle) : null) ?? NamingHelpers.ToSnakeCase(def.EndpointType.Name);
 

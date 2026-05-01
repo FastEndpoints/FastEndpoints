@@ -21,7 +21,11 @@ namespace FastEndpoints.A2A;
 /// </summary>
 public static class Extensions
 {
-    /// <summary>registers the A2A services: skill dispatcher, agent-card builder, <see cref="EndpointInvoker" />.</summary>
+    /// <summary>
+    /// registers the A2A services: skill dispatcher, agent-card builder, <see cref="EndpointInvoker" />.
+    /// use <see cref="A2AOptions.SkillFilter" /> for startup/static skill inclusion and
+    /// <see cref="A2AOptions.SkillVisibilityFilter" /> for per-request/per-caller skill visibility.
+    /// </summary>
     public static IServiceCollection AddA2A(this IServiceCollection services, Action<A2AOptions>? configure = null)
     {
         var options = new A2AOptions();
@@ -36,6 +40,7 @@ public static class Extensions
 
     /// <summary>
     /// maps the A2A agent card (<c>/.well-known/agent.json</c>) and JSON-RPC endpoint (default <c>/a2a</c>).
+    /// <see cref="A2AOptions.SkillVisibilityFilter" /> is applied to both card generation and skill dispatch.
     /// call after <c>UseFastEndpoints()</c>. pass <paramref name="configureRpcRoute" /> /
     /// <paramref name="configureCardRoute" /> to chain conventions like <c>RequireAuthorization</c>.
     /// </summary>

@@ -13,6 +13,10 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.TestHost"/>
+    </ItemGroup>
+
+    <ItemGroup>
         <Content Include="xunit.runner.json" CopyToOutputDirectory="Always"/>
     </ItemGroup>
 

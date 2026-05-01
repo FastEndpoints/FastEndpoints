@@ -16,8 +16,13 @@ sealed class JsonRpcResponse
 {
     [JsonPropertyName("jsonrpc")] public string JsonRpc { get; set; } = "2.0";
     [JsonPropertyName("id")] public JsonElement? Id { get; set; }
-    [JsonPropertyName("result")] public object? Result { get; set; }
-    [JsonPropertyName("error")] public JsonRpcError? Error { get; set; }
+    [JsonPropertyName("result")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public object? Result { get; set; }
+
+    [JsonPropertyName("error")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public JsonRpcError? Error { get; set; }
 }
 
 sealed class JsonRpcError
@@ -31,23 +36,82 @@ sealed class JsonRpcError
     public static JsonRpcError Internal(string msg, object? data = null) => new() { Code = -32603, Message = msg, Data = data };
 }
 
-/// <summary>A2A <c>message/send</c> params: a single skill call with its input message.</summary>
+/// <summary>A2A v1 <c>SendMessage</c> params.</summary>
 sealed class A2AMessageSendParams
 {
-    [JsonPropertyName("skill")] public string? Skill { get; set; }
+    [JsonPropertyName("tenant")] public string? Tenant { get; set; }
     [JsonPropertyName("message")] public A2AMessage? Message { get; set; }
+    [JsonPropertyName("configuration")] public A2ASendMessageConfiguration? Configuration { get; set; }
+    [JsonPropertyName("metadata")] public JsonElement? Metadata { get; set; }
+}
+
+sealed class A2ASendMessageConfiguration
+{
+    [JsonPropertyName("acceptedOutputModes")] public string[]? AcceptedOutputModes { get; set; }
+    [JsonPropertyName("historyLength")] public int? HistoryLength { get; set; }
+    [JsonPropertyName("returnImmediately")] public bool ReturnImmediately { get; set; }
+}
+
+sealed class A2ASendMessageResponse
+{
+    [JsonPropertyName("message")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public A2AMessage? Message { get; init; }
+
+    [JsonPropertyName("task")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public object? Task { get; init; }
 }
 
 sealed class A2AMessage
 {
-    [JsonPropertyName("role")] public string Role { get; set; } = "user";
+    [JsonPropertyName("messageId")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? MessageId { get; set; }
+
+    [JsonPropertyName("contextId")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? ContextId { get; set; }
+
+    [JsonPropertyName("taskId")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? TaskId { get; set; }
+
+    [JsonPropertyName("role")] public string Role { get; set; } = "ROLE_USER";
     [JsonPropertyName("parts")] public A2APart[]? Parts { get; set; }
+
+    [JsonPropertyName("metadata")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public JsonElement? Metadata { get; set; }
 }
 
 sealed class A2APart
 {
-    [JsonPropertyName("kind")] public string Kind { get; set; } = "data";
-    [JsonPropertyName("text")] public string? Text { get; set; }
-    [JsonPropertyName("data")] public JsonElement? Data { get; set; }
-    [JsonPropertyName("mimeType")] public string? MimeType { get; set; }
+    [JsonPropertyName("text")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? Text { get; set; }
+
+    [JsonPropertyName("raw")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? Raw { get; set; }
+
+    [JsonPropertyName("url")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? Url { get; set; }
+
+    [JsonPropertyName("data")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public JsonElement? Data { get; set; }
+
+    [JsonPropertyName("metadata")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public JsonElement? Metadata { get; set; }
+
+    [JsonPropertyName("filename")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? Filename { get; set; }
+
+    [JsonPropertyName("mediaType")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? MediaType { get; set; }
 }

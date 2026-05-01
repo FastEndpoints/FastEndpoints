@@ -55,8 +55,8 @@ sealed class AgentCardBuilder(IServiceProvider services, A2AOptions options, ILo
                 {
                     Id = id,
                     Name = info.Name ?? summaryTitle ?? id,
-                    Description = description,
-                    Tags = info.Tags,
+                    Description = description ?? string.Empty,
+                    Tags = info.Tags ?? [],
                     Examples = info.Examples,
                     InputModes = info.InputModes,
                     OutputModes = info.OutputModes
@@ -66,11 +66,27 @@ sealed class AgentCardBuilder(IServiceProvider services, A2AOptions options, ILo
         return new()
         {
             Name = options.AgentName,
-            Description = options.Description,
+            Description = options.Description ?? string.Empty,
             Version = options.Version,
-            Url = options.Url ?? $"{ctx.Request.Scheme}://{ctx.Request.Host}",
             Provider = options.Provider,
+            SupportedInterfaces =
+            [
+                new()
+                {
+                    Url = options.Url ?? BuildRpcUrl(ctx),
+                    ProtocolBinding = "JSONRPC",
+                    ProtocolVersion = "1.0"
+                }
+            ],
             Skills = skills
         };
     }
+
+    string BuildRpcUrl(HttpContext ctx)
+        => $"{ctx.Request.Scheme}://{ctx.Request.Host}{ctx.Request.PathBase}{NormalizePath(options.RpcPattern)}";
+
+    static string NormalizePath(string path)
+        => string.IsNullOrWhiteSpace(path)
+               ? "/a2a"
+               : path[0] == '/' ? path : "/" + path;
 }

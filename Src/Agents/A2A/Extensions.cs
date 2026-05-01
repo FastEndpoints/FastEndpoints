@@ -39,14 +39,14 @@ public static class Extensions
     }
 
     /// <summary>
-    /// maps the A2A agent card (<c>/.well-known/agent.json</c>) and JSON-RPC endpoint (default <c>/a2a</c>).
+    /// maps the A2A v1 agent card (<c>/.well-known/agent-card.json</c>) and JSON-RPC endpoint (default <c>/a2a</c>).
     /// <see cref="A2AOptions.SkillVisibilityFilter" /> is applied to both card generation and skill dispatch.
     /// call after <c>UseFastEndpoints()</c>. pass <paramref name="configureRpcRoute" /> /
     /// <paramref name="configureCardRoute" /> to chain conventions like <c>RequireAuthorization</c>.
     /// </summary>
     public static IApplicationBuilder UseA2A(this IApplicationBuilder app,
                                              string rpcPattern = "/a2a",
-                                             string agentCardPattern = "/.well-known/agent.json",
+                                             string agentCardPattern = "/.well-known/agent-card.json",
                                              Action<IEndpointConventionBuilder>? configureRpcRoute = null,
                                              Action<IEndpointConventionBuilder>? configureCardRoute = null)
     {
@@ -56,6 +56,8 @@ public static class Extensions
                 "UseA2A must be called on an IApplicationBuilder that also implements IEndpointRouteBuilder (such as WebApplication). " +
                 "Call UseA2A after building the WebApplication, or after UseRouting in a classic pipeline.");
         }
+
+        routes.ServiceProvider.GetRequiredService<A2AOptions>().RpcPattern = rpcPattern;
 
         var cardRoute = routes.MapGet(
             agentCardPattern,

@@ -5,7 +5,7 @@ namespace FastEndpoints.A2A;
 
 /// <summary>
 /// configuration for <see cref="Extensions.AddA2A" /> / <see cref="Extensions.UseA2A" />.
-/// surfaces the agent-card fields that sit at <c>/.well-known/agent.json</c> plus the JSON-RPC route.
+/// surfaces the agent-card fields that sit at <c>/.well-known/agent-card.json</c> plus the JSON-RPC route.
 /// </summary>
 public sealed class A2AOptions
 {
@@ -21,7 +21,7 @@ public sealed class A2AOptions
     /// <summary>the organization publishing this agent (provider info on the agent card).</summary>
     public A2AProvider? Provider { get; set; }
 
-    /// <summary>public URL for this agent as seen by remote agents. defaults to the request base if <c>null</c>.</summary>
+    /// <summary>public JSON-RPC URL for this agent as seen by remote agents. defaults to the request base plus <c>/a2a</c> if <c>null</c>.</summary>
     public string? Url { get; set; }
 
     /// <summary>optional startup/static filter controlling which opt-in endpoints are published as skills.</summary>
@@ -32,11 +32,16 @@ public sealed class A2AOptions
     /// the current principal cannot invoke. if <c>null</c>, all statically included skills are visible.
     /// </summary>
     public Func<EndpointDefinition, ClaimsPrincipal, HttpContext, bool>? SkillVisibilityFilter { get; set; }
+
+    internal string RpcPattern { get; set; } = "/a2a";
 }
 
 /// <summary>agent-card <c>provider</c> block.</summary>
 public sealed class A2AProvider
 {
+    [System.Text.Json.Serialization.JsonPropertyName("organization")]
     public string Organization { get; set; } = "";
+
+    [System.Text.Json.Serialization.JsonPropertyName("url")]
     public string? Url { get; set; }
 }

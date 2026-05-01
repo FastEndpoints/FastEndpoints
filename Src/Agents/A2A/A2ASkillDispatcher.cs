@@ -7,8 +7,8 @@ using Microsoft.Extensions.DependencyInjection;
 namespace FastEndpoints.A2A;
 
 /// <summary>
-/// dispatches A2A JSON-RPC <c>message/send</c> calls to the matching FastEndpoints endpoint. skill lookup
-/// is by <c>A2ASkillInfo.Id</c>; the message <c>data</c> part is forwarded to <see cref="EndpointInvoker" />.
+/// dispatches A2A v1 JSON-RPC <c>SendMessage</c> calls to the matching FastEndpoints endpoint.
+/// if multiple visible skills exist, callers can select one with <c>params.metadata.skill</c>.
 /// </summary>
 sealed class A2ASkillDispatcher(IServiceProvider services, EndpointInvoker invoker, A2AOptions options)
 {
@@ -16,7 +16,7 @@ sealed class A2ASkillDispatcher(IServiceProvider services, EndpointInvoker invok
     {
         return method switch
         {
-            "message/send" => await HandleMessageSend(parameters, ctx, ct),
+            "SendMessage" => await HandleMessageSend(parameters, ctx, ct),
             _ => throw new A2ARpcException(JsonRpcError.MethodNotFound(method))
         };
     }
@@ -29,17 +29,20 @@ sealed class A2ASkillDispatcher(IServiceProvider services, EndpointInvoker invok
         var serializerOptions = Config.SerOpts.Options;
         var p = parameters.Value.Deserialize<A2AMessageSendParams>(serializerOptions) ?? throw new A2ARpcException(JsonRpcError.InvalidParams("invalid 'params' payload."));
 
-        if (string.IsNullOrWhiteSpace(p.Skill))
-            throw new A2ARpcException(JsonRpcError.InvalidParams("'skill' is required."));
+        ValidateMessage(p.Message);
 
-        var def = FindSkill(p.Skill, ctx) ?? throw new A2ARpcException(JsonRpcError.MethodNotFound($"skill '{p.Skill}'"));
+        var requestedSkill = GetRequestedSkill(p.Metadata);
+        var def = FindSkill(requestedSkill, ctx) ?? throw new A2ARpcException(
+                      requestedSkill is null
+                          ? JsonRpcError.InvalidParams("multiple skills are available; set 'metadata.skill' to choose one.")
+                          : JsonRpcError.MethodNotFound($"skill '{requestedSkill}'"));
 
-        var args = ExtractArgs(p.Message, serializerOptions);
+        var args = ExtractArgs(p.Message!);
         var result = await invoker.InvokeAsync(def, args, ctx.User, ct);
 
         return result.Status switch
         {
-            InvocationStatus.Success => BuildSuccess(result, serializerOptions),
+            InvocationStatus.Success => BuildSuccess(result, p.Message, serializerOptions),
             InvocationStatus.ValidationFailed => throw new A2ARpcException(
                                                      new()
                                                      {
@@ -52,44 +55,112 @@ sealed class A2ASkillDispatcher(IServiceProvider services, EndpointInvoker invok
         };
     }
 
-    static A2AMessage BuildSuccess(InvocationResult r, JsonSerializerOptions _)
+    static A2ASendMessageResponse BuildSuccess(InvocationResult r, A2AMessage? requestMessage, JsonSerializerOptions _)
     {
         var text = r.Body.Length == 0 ? string.Empty : Encoding.UTF8.GetString(r.Body);
 
         return new()
         {
-            Role = "agent",
-            Parts = [new() { Kind = "data", Text = text, MimeType = r.ContentType ?? "application/json" }]
+            Message = new()
+            {
+                MessageId = Guid.NewGuid().ToString("N"),
+                ContextId = requestMessage?.ContextId,
+                TaskId = requestMessage?.TaskId,
+                Role = "ROLE_AGENT",
+                Parts = [BuildResponsePart(text, NormalizeMediaType(r.ContentType))]
+            }
         };
     }
 
-    static JsonElement ExtractArgs(A2AMessage? message, JsonSerializerOptions _)
+    static A2APart BuildResponsePart(string text, string mediaType)
     {
-        if (message?.Parts is { Length: > 0 } parts)
+        if (!string.IsNullOrWhiteSpace(text))
         {
-            var dataPart = parts.FirstOrDefault(p => p.Kind == "data" && p.Data is not null);
+            try
+            {
+                using var doc = JsonDocument.Parse(text);
 
-            if (dataPart?.Data is { } data)
+                return new() { Data = doc.RootElement.Clone(), MediaType = mediaType };
+            }
+            catch (JsonException)
+            {
+                // non-JSON endpoint responses are valid A2A text parts
+            }
+        }
+
+        return new() { Text = text, MediaType = mediaType };
+    }
+
+    static string NormalizeMediaType(string? contentType)
+        => string.IsNullOrWhiteSpace(contentType)
+               ? "application/json"
+               : contentType.Split(';', 2)[0].Trim();
+
+    static void ValidateMessage(A2AMessage? message)
+    {
+        if (message is null)
+            throw new A2ARpcException(JsonRpcError.InvalidParams("'message' is required."));
+
+        if (string.IsNullOrWhiteSpace(message.MessageId))
+            throw new A2ARpcException(JsonRpcError.InvalidParams("'message.messageId' is required."));
+
+        if (message.Parts is not { Length: > 0 })
+            throw new A2ARpcException(JsonRpcError.InvalidParams("'message.parts' must contain at least one part."));
+
+        for (var i = 0; i < message.Parts.Length; i++)
+        {
+            var part = message.Parts[i];
+            var hasData = part.Data is { ValueKind: not JsonValueKind.Null and not JsonValueKind.Undefined };
+            var contentCount = (part.Text is not null ? 1 : 0) +
+                               (hasData ? 1 : 0) +
+                               (part.Raw is not null ? 1 : 0) +
+                               (part.Url is not null ? 1 : 0);
+
+            if (contentCount != 1)
+                throw new A2ARpcException(JsonRpcError.InvalidParams($"'message.parts[{i}]' must contain exactly one of 'text', 'data', 'raw', or 'url'."));
+
+            if (hasData && part.Data!.Value.ValueKind != JsonValueKind.Object)
+                throw new A2ARpcException(JsonRpcError.InvalidParams($"'message.parts[{i}].data' must be a JSON object."));
+        }
+    }
+
+    static JsonElement ExtractArgs(A2AMessage message)
+    {
+        foreach (var part in message.Parts!)
+        {
+            if (part.Data is { ValueKind: JsonValueKind.Object } data)
                 return data;
 
-            var textPart = parts.FirstOrDefault(p => p.Kind == "text" && !string.IsNullOrWhiteSpace(p.Text));
-
-            if (textPart?.Text is { } text)
+            if (part.Text is { } text)
             {
                 try { return JsonDocument.Parse(text).RootElement; }
-                catch
+                catch (JsonException)
                 {
-                    /* fall through to empty */
+                    throw new A2ARpcException(JsonRpcError.InvalidParams("text parts must contain valid JSON to invoke a skill."));
                 }
             }
         }
 
-        return JsonDocument.Parse("{}").RootElement;
+        throw new A2ARpcException(JsonRpcError.InvalidParams("no supported input part found. only 'data' and JSON 'text' parts can invoke skills."));
     }
 
-    EndpointDefinition? FindSkill(string id, HttpContext ctx)
+    static string? GetRequestedSkill(JsonElement? metadata)
+    {
+        if (metadata is null or { ValueKind: JsonValueKind.Null or JsonValueKind.Undefined })
+            return null;
+
+        return metadata.Value.ValueKind == JsonValueKind.Object &&
+               metadata.Value.TryGetProperty("skill", out var skill) &&
+               skill.ValueKind == JsonValueKind.String
+                   ? skill.GetString()
+                   : null;
+    }
+
+    EndpointDefinition? FindSkill(string? id, HttpContext ctx)
     {
         var endpointData = services.GetRequiredService<EndpointData>();
+        EndpointDefinition? onlyVisible = null;
+        var visibleCount = 0;
 
         foreach (var def in endpointData.Found)
         {
@@ -105,16 +176,24 @@ sealed class A2ASkillDispatcher(IServiceProvider services, EndpointInvoker invok
             var skillId =
                 info.Id ?? (!string.IsNullOrWhiteSpace(summaryTitle) ? NamingHelpers.ToSnakeCase(summaryTitle) : null) ?? NamingHelpers.ToSnakeCase(def.EndpointType.Name);
 
+            if (options.SkillVisibilityFilter is not null && !options.SkillVisibilityFilter(def, ctx.User, ctx))
+                continue;
+
+            if (id is null)
+            {
+                onlyVisible = def;
+                visibleCount++;
+
+                continue;
+            }
+
             if (skillId == id)
             {
-                if (options.SkillVisibilityFilter is not null && !options.SkillVisibilityFilter(def, ctx.User, ctx))
-                    continue;
-
                 return def;
             }
         }
 
-        return null;
+        return id is null && visibleCount == 1 ? onlyVisible : null;
     }
 }
 

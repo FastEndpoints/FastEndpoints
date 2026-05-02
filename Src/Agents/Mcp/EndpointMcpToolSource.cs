@@ -34,8 +34,7 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
 
     public IReadOnlyList<Tool> BuildVisibleProtocolTools(ClaimsPrincipal? user = null, HttpContext? httpContext = null)
     {
-        var (principal, context) = ResolveCallerContext(user, httpContext);
-        var visibleTools = _tools.Value.Where(x => options.ToolVisibilityFilter(x.Definition, principal, context)).ToArray();
+        var visibleTools = GetVisibleTools(user, httpContext);
 
         EnsureUniqueNames(visibleTools, "MCP tools visible to the current caller");
 
@@ -44,8 +43,7 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
 
     public McpServerTool? ResolveVisibleTool(string name, ClaimsPrincipal? user = null, HttpContext? httpContext = null)
     {
-        var (principal, context) = ResolveCallerContext(user, httpContext);
-        var matches = _tools.Value.Where(x => x.Name == name && options.ToolVisibilityFilter(x.Definition, principal, context)).ToArray();
+        var matches = GetVisibleTools(user, httpContext).Where(x => x.Name == name).ToArray();
 
         return matches.Length switch
         {
@@ -57,6 +55,13 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
 
     (ClaimsPrincipal Principal, HttpContext HttpContext) ResolveCallerContext(ClaimsPrincipal? user, HttpContext? httpContext)
         => CallerContextResolver.Resolve(services, user, httpContext);
+
+    IReadOnlyList<ToolRegistration> GetVisibleTools(ClaimsPrincipal? user, HttpContext? httpContext)
+    {
+        var (principal, context) = ResolveCallerContext(user, httpContext);
+
+        return _tools.Value.Where(x => options.ToolVisibilityFilter(x.Definition, principal, context)).ToArray();
+    }
 
     static IReadOnlyList<ToolRegistration> BuildRegistrations(IServiceProvider services, McpOptions options, ILogger<EndpointMcpToolSource> logger)
     {
@@ -145,22 +150,11 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
                 def.EndpointType.Name);
         }
 
-        var inputSchema = JsonSchemaBuilder.Build(def.ReqDtoType, serializerOptions);
-        NormalizeRootObjectSchema(inputSchema);
-        EnsureObjectRootSchema(inputSchema, name, def.ReqDtoType, "input", "arguments");
+        var inputSchema = BuildInputSchema(def, serializerOptions, name);
         if (TryResolveValidator(services, def) is { } validator)
             FluentValidationSchemaEnricher.Enrich(inputSchema, validator);
 
-        JsonNode? outputSchema = null;
-
-        if (options.IncludeOutputSchemas && def.ResDtoType != typeof(object) && def.ResDtoType != typeof(void))
-        {
-            var candidateOutputSchema = JsonSchemaBuilder.Build(def.ResDtoType, serializerOptions);
-            NormalizeRootObjectSchema(candidateOutputSchema);
-
-            if (HasObjectRootSchema(candidateOutputSchema))
-                outputSchema = candidateOutputSchema;
-        }
+        var outputSchema = TryBuildOutputSchema(def, serializerOptions, options);
 
         var tool = McpServerTool.Create(
             async (RequestContext<CallToolRequestParams> ctx, CancellationToken ct) =>
@@ -207,7 +201,7 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
 
     static CallToolResult BuildSuccessResult(InvocationResult r, JsonNode? outputSchema)
     {
-        var text = r.Body.Length == 0 ? string.Empty : Encoding.UTF8.GetString(r.Body);
+        var text = GetResponseText(r.Body);
         JsonElement? structuredContent = null;
 
         if (outputSchema is not null && TryExtractStructuredContent(text, out var content))
@@ -223,8 +217,8 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
 
     static CallToolResult BuildValidationErrorResult(InvocationResult r)
     {
-        var errors = r.ValidationFailures.Select(f => new { property = f.PropertyName, error = f.ErrorMessage, code = f.ErrorCode });
-        var json = JsonSerializer.Serialize(new { validationErrors = errors });
+        var validationErrors = r.ValidationFailures.Select(f => new { property = f.PropertyName, error = f.ErrorMessage, code = f.ErrorCode });
+        var json = JsonSerializer.Serialize(new { validationErrors });
 
         return new()
         {
@@ -235,7 +229,7 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
 
     static CallToolResult BuildHttpErrorResult(InvocationResult r)
     {
-        var text = r.Body.Length == 0 ? string.Empty : Encoding.UTF8.GetString(r.Body);
+        var text = GetResponseText(r.Body);
 
         return new()
         {
@@ -243,6 +237,29 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
             IsError = true
         };
     }
+
+    static JsonNode BuildInputSchema(EndpointDefinition def, JsonSerializerOptions serializerOptions, string toolName)
+    {
+        var inputSchema = JsonSchemaBuilder.Build(def.ReqDtoType, serializerOptions);
+        NormalizeRootObjectSchema(inputSchema);
+        EnsureObjectRootSchema(inputSchema, toolName, def.ReqDtoType, "input", "arguments");
+
+        return inputSchema;
+    }
+
+    static JsonNode? TryBuildOutputSchema(EndpointDefinition def, JsonSerializerOptions serializerOptions, McpOptions options)
+    {
+        if (!options.IncludeOutputSchemas || def.ResDtoType == typeof(object) || def.ResDtoType == typeof(void))
+            return null;
+
+        var outputSchema = JsonSchemaBuilder.Build(def.ResDtoType, serializerOptions);
+        NormalizeRootObjectSchema(outputSchema);
+
+        return HasObjectRootSchema(outputSchema) ? outputSchema : null;
+    }
+
+    static string GetResponseText(byte[] body)
+        => body.Length == 0 ? string.Empty : Encoding.UTF8.GetString(body);
 
     static void NormalizeRootObjectSchema(JsonNode schema)
     {

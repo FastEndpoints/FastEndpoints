@@ -78,13 +78,14 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
         if (TryResolveValidator(def) is { } validator)
             FluentValidationSchemaEnricher.Enrich(inputSchema, validator);
 
+        JsonNode? outputSchema = null;
         if (options.IncludeOutputSchemas && def.ResDtoType != typeof(object) && def.ResDtoType != typeof(void))
         {
-            var outputSchema = JsonSchemaBuilder.Build(def.ResDtoType, serializerOptions);
+            outputSchema = JsonSchemaBuilder.Build(def.ResDtoType, serializerOptions);
             NormalizeRootObjectSchema(outputSchema);
         }
 
-        return McpServerTool.Create(
+        var tool = McpServerTool.Create(
             async (RequestContext<CallToolRequestParams> ctx, CancellationToken ct) =>
             {
                 var requestUser = ctx.User ?? new System.Security.Claims.ClaimsPrincipal();
@@ -103,23 +104,44 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
 
                 return result.Status switch
                 {
-                    InvocationStatus.Success => BuildSuccessResult(result),
+                    InvocationStatus.Success => BuildSuccessResult(result, outputSchema),
                     InvocationStatus.HttpError => BuildHttpErrorResult(result),
                     InvocationStatus.ValidationFailed => BuildValidationErrorResult(result),
                     InvocationStatus.Faulted => throw new McpException(result.Exception?.Message ?? "Endpoint invocation failed.", result.Exception),
                     _ => throw new McpException("Unknown invocation status.")
                 };
             },
-            new() { Name = name, Description = description, Title = info.Title });
+            new()
+            {
+                Name = name,
+                Description = description,
+                Title = info.Title,
+                ReadOnly = info.Hints.ReadOnly,
+                Idempotent = info.Hints.Idempotent,
+                Destructive = info.Hints.Destructive,
+                OpenWorld = info.Hints.OpenWorld,
+                UseStructuredContent = outputSchema is not null,
+                OutputSchema = outputSchema is null ? null : JsonSerializer.SerializeToElement(outputSchema, serializerOptions),
+                SerializerOptions = serializerOptions
+            });
+
+        tool.ProtocolTool.InputSchema = JsonSerializer.SerializeToElement(inputSchema, serializerOptions);
+
+        return tool;
     }
 
-    static CallToolResult BuildSuccessResult(InvocationResult r)
+    static CallToolResult BuildSuccessResult(InvocationResult r, JsonNode? outputSchema)
     {
         var text = r.Body.Length == 0 ? string.Empty : Encoding.UTF8.GetString(r.Body);
+        JsonElement? structuredContent = null;
+
+        if (outputSchema is not null && TryExtractStructuredContent(text, out var content))
+            structuredContent = content;
 
         return new()
         {
             Content = [new TextContentBlock { Text = text }],
+            StructuredContent = structuredContent,
             IsError = false
         };
     }
@@ -161,6 +183,36 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
                 return;
             }
         }
+    }
+
+    static bool TryExtractStructuredContent(string text, out JsonElement structuredContent)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            structuredContent = default;
+
+            return false;
+        }
+
+        try
+        {
+            var json = JsonSerializer.Deserialize<JsonElement>(text);
+
+            if (json.ValueKind == JsonValueKind.Object)
+            {
+                structuredContent = json;
+
+                return true;
+            }
+        }
+        catch (JsonException)
+        {
+            // non-JSON or non-object payloads keep the existing text-only result
+        }
+
+        structuredContent = default;
+
+        return false;
     }
 
     IValidator? TryResolveValidator(EndpointDefinition def)

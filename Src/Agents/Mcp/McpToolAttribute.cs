@@ -1,3 +1,5 @@
+using System.Reflection;
+
 namespace FastEndpoints.Mcp;
 
 /// <summary>
@@ -51,7 +53,7 @@ public sealed class McpToolAttribute : Attribute
     /// </summary>
     public bool OpenWorld { get; set; }
 
-    internal McpToolInfo ToInfo()
+    internal McpToolInfo ToInfo(Type endpointType)
     {
         var info = new McpToolInfo
         {
@@ -59,14 +61,21 @@ public sealed class McpToolAttribute : Attribute
             Description = Description,
             Title = Title
         };
-        if (ReadOnly)
-            info.Hints.ReadOnly = true;
-        if (Idempotent)
-            info.Hints.Idempotent = true;
-        if (Destructive)
-            info.Hints.Destructive = true;
-        if (OpenWorld)
-            info.Hints.OpenWorld = true;
+
+        var configuredHints = endpointType.GetCustomAttributesData()
+                                         .FirstOrDefault(a => a.AttributeType == typeof(McpToolAttribute))?
+                                         .NamedArguments
+                                         .Select(a => a.MemberName)
+                                         .ToHashSet(StringComparer.Ordinal);
+
+        if (configuredHints?.Contains(nameof(ReadOnly)) == true)
+            info.Hints.ReadOnly = ReadOnly;
+        if (configuredHints?.Contains(nameof(Idempotent)) == true)
+            info.Hints.Idempotent = Idempotent;
+        if (configuredHints?.Contains(nameof(Destructive)) == true)
+            info.Hints.Destructive = Destructive;
+        if (configuredHints?.Contains(nameof(OpenWorld)) == true)
+            info.Hints.OpenWorld = OpenWorld;
 
         return info;
     }

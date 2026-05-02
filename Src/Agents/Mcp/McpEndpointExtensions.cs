@@ -69,7 +69,7 @@ public static class McpEndpointExtensions
                 foreach (var a in attrs)
                 {
                     if (a is McpToolAttribute attr)
-                        return attr.ToInfo();
+                        return attr.ToInfo(def.EndpointType);
                 }
             }
 

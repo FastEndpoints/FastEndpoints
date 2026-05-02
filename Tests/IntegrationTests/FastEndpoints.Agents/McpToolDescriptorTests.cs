@@ -63,6 +63,30 @@ public class McpToolDescriptorTests
     }
 
     [Fact]
+    public void Attribute_explicit_false_hints_are_preserved()
+    {
+        using var provider = BuildServices();
+
+        var tool = BuildTool(provider, "attribute_false_tool");
+        var protocolTool = tool.ProtocolTool;
+
+        protocolTool.Annotations.ShouldNotBeNull();
+        protocolTool.Annotations.DestructiveHint.ShouldBe(false);
+        protocolTool.Annotations.OpenWorldHint.ShouldBe(false);
+    }
+
+    [Fact]
+    public void Attribute_omitted_hints_remain_null()
+    {
+        using var provider = BuildServices();
+
+        var tool = BuildTool(provider, "attribute_omitted_tool");
+        var protocolTool = tool.ProtocolTool;
+
+        protocolTool.Annotations.ShouldBeNull();
+    }
+
+    [Fact]
     public async Task Structured_content_is_populated_for_json_object_response_when_output_schema_is_enabled()
     {
         using var provider = BuildServices();
@@ -94,6 +118,8 @@ public class McpToolDescriptorTests
             {
                 o.SourceGeneratorDiscoveredTypes.Add(typeof(DescriptorToolEndpoint));
                 o.SourceGeneratorDiscoveredTypes.Add(typeof(AttributeToolEndpoint));
+                o.SourceGeneratorDiscoveredTypes.Add(typeof(AttributeFalseToolEndpoint));
+                o.SourceGeneratorDiscoveredTypes.Add(typeof(AttributeOmittedHintsToolEndpoint));
             });
         services.AddMcp(
             o =>
@@ -161,6 +187,22 @@ public class McpToolDescriptorTests
     {
         public override async Task HandleAsync(ToolRequest req, CancellationToken ct)
             => await Send.OkAsync(new() { Value = "attribute:" + req.Value }, ct);
+    }
+
+    [McpTool("attribute_false_tool", Description = "Explicit false hints.", Destructive = false, OpenWorld = false)]
+    [HttpPost("/attribute-false-tool")]
+    sealed class AttributeFalseToolEndpoint : Endpoint<ToolRequest, ToolResponse>
+    {
+        public override async Task HandleAsync(ToolRequest req, CancellationToken ct)
+            => await Send.OkAsync(new() { Value = "attribute-false:" + req.Value }, ct);
+    }
+
+    [McpTool("attribute_omitted_tool", Description = "Hints omitted.")]
+    [HttpPost("/attribute-omitted-tool")]
+    sealed class AttributeOmittedHintsToolEndpoint : Endpoint<ToolRequest, ToolResponse>
+    {
+        public override async Task HandleAsync(ToolRequest req, CancellationToken ct)
+            => await Send.OkAsync(new() { Value = "attribute-omitted:" + req.Value }, ct);
     }
 
     sealed class ToolRequest

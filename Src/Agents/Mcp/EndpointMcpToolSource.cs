@@ -56,20 +56,7 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
     }
 
     (ClaimsPrincipal Principal, HttpContext HttpContext) ResolveCallerContext(ClaimsPrincipal? user, HttpContext? httpContext)
-    {
-        var principal = user ?? httpContext?.User ?? new ClaimsPrincipal();
-        var resolvedHttpContext = httpContext ??
-                                  services.GetService<IHttpContextAccessor>()?.HttpContext ??
-                                  new DefaultHttpContext { RequestServices = services, User = principal };
-
-        if (!ReferenceEquals(resolvedHttpContext.User, principal))
-            resolvedHttpContext.User = principal;
-
-        if (resolvedHttpContext.RequestServices == null!)
-            resolvedHttpContext.RequestServices = services;
-
-        return (principal, resolvedHttpContext);
-    }
+        => CallerContextResolver.Resolve(services, user, httpContext);
 
     static IReadOnlyList<ToolRegistration> BuildRegistrations(IServiceProvider services, McpOptions options, ILogger<EndpointMcpToolSource> logger)
     {
@@ -178,10 +165,8 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
         var tool = McpServerTool.Create(
             async (RequestContext<CallToolRequestParams> ctx, CancellationToken ct) =>
             {
-                var requestUser = ctx.User ?? new ClaimsPrincipal();
-                var httpContext = ctx.Services?.GetService<IHttpContextAccessor>()?.HttpContext ??
-                                  new DefaultHttpContext { RequestServices = ctx.Services ?? services, User = requestUser };
-                var principal = httpContext.User;
+                var scopedServices = ctx.Services ?? services;
+                var (principal, httpContext) = CallerContextResolver.Resolve(scopedServices, ctx.User);
 
                 if (!options.ToolVisibilityFilter(def, principal, httpContext))
                     throw new McpException($"Tool '{name}' is not available for the current caller.");

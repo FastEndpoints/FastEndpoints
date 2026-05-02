@@ -89,17 +89,5 @@ public static class Extensions
     }
 
     static (ClaimsPrincipal Principal, HttpContext HttpContext) ResolveCallerContext<TParams>(RequestContext<TParams> ctx)
-    {
-        var principal = ctx.User ?? new ClaimsPrincipal();
-        var httpContext = ctx.Services?.GetService<IHttpContextAccessor>()?.HttpContext ??
-                          new DefaultHttpContext { RequestServices = ctx.Services!, User = principal };
-
-        if (!ReferenceEquals(httpContext.User, principal))
-            httpContext.User = principal;
-
-        if (httpContext.RequestServices is null)
-            httpContext.RequestServices = ctx.Services!;
-
-        return (principal, httpContext);
-    }
+        => CallerContextResolver.Resolve(ctx);
 }

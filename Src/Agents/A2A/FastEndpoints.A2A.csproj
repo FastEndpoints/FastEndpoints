@@ -17,7 +17,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\Library\FastEndpoints.csproj"/>
-        <PackageReference Include="FluentValidation"/>
         <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
     </ItemGroup>
 

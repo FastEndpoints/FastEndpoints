@@ -24,58 +24,57 @@ public static class McpEndpointExtensions
     /// <param name="name">tool name seen by MCP clients. <c>null</c> uses the endpoint type name converted to <c>snake_case</c>.</param>
     /// <param name="description">description shown to LLMs when listing tools. <c>null</c> falls back to the endpoint summary / XML docs.</param>
     /// <param name="configure">optional callback for setting tool hints (read-only, idempotent, destructive, open-world).</param>
-    public static void McpTool(this BaseEndpoint ep,
-                               string? name = null,
-                               string? description = null,
-                               Action<McpToolInfo>? configure = null)
+    public static void McpTool(this BaseEndpoint ep, string? name = null, string? description = null, Action<McpToolInfo>? configure = null)
         => ep.Definition.McpTool(name, description, configure);
 
-    /// <summary>
-    /// opt this endpoint in to being exposed as a Model Context Protocol (MCP) tool. identical to the
-    /// <see cref="BaseEndpoint" /> overload but targets the <see cref="EndpointDefinition" /> directly
-    /// — useful when composing configuration from helpers that only see the definition.
-    /// </summary>
-    public static void McpTool(this EndpointDefinition def,
-                               string? name = null,
-                               string? description = null,
-                               Action<McpToolInfo>? configure = null)
+    extension(EndpointDefinition def)
     {
-        var info = ResolveOrCreate(def);
-        if (name is not null)
-            info.Name = name;
-        if (description is not null)
-            info.Description = description;
-        configure?.Invoke(info);
-    }
-
-    /// <summary>
-    /// resolve the <see cref="McpToolInfo" /> attached to an endpoint, preferring a fluent
-    /// <c>McpTool(...)</c> registration (stored on <see cref="EndpointDefinition.EndpointMetadata" />)
-    /// and falling back to a <see cref="McpToolAttribute" /> captured in
-    /// <see cref="EndpointDefinition.EndpointAttributes" />. returns <c>null</c> when the endpoint has
-    /// not opted in.
-    /// </summary>
-    internal static McpToolInfo? ResolveToolInfo(this EndpointDefinition def)
-    {
-        if (def.EndpointMetadata is { } meta)
+        /// <summary>
+        /// opt this endpoint in to being exposed as a Model Context Protocol (MCP) tool. identical to the
+        /// <see cref="BaseEndpoint" /> overload but targets the <see cref="EndpointDefinition" /> directly
+        /// — useful when composing configuration from helpers that only see the definition.
+        /// </summary>
+        public void McpTool(string? name = null,
+                            string? description = null,
+                            Action<McpToolInfo>? configure = null)
         {
-            foreach (var o in meta)
-            {
-                if (o is McpToolInfo info)
-                    return info;
-            }
+            var info = ResolveOrCreate(def);
+            if (name is not null)
+                info.Name = name;
+            if (description is not null)
+                info.Description = description;
+            configure?.Invoke(info);
         }
 
-        if (def.EndpointAttributes is { } attrs)
+        /// <summary>
+        /// resolve the <see cref="McpToolInfo" /> attached to an endpoint, preferring a fluent
+        /// <c>McpTool(...)</c> registration (stored on <see cref="EndpointDefinition.EndpointMetadata" />)
+        /// and falling back to a <see cref="McpToolAttribute" /> captured in
+        /// <see cref="EndpointDefinition.EndpointAttributes" />. returns <c>null</c> when the endpoint has
+        /// not opted in.
+        /// </summary>
+        internal McpToolInfo? ResolveToolInfo()
         {
-            foreach (var a in attrs)
+            if (def.EndpointMetadata is { } meta)
             {
-                if (a is McpToolAttribute attr)
-                    return attr.ToInfo();
+                foreach (var o in meta)
+                {
+                    if (o is McpToolInfo info)
+                        return info;
+                }
             }
-        }
 
-        return null;
+            if (def.EndpointAttributes is { } attrs)
+            {
+                foreach (var a in attrs)
+                {
+                    if (a is McpToolAttribute attr)
+                        return attr.ToInfo();
+                }
+            }
+
+            return null;
+        }
     }
 
     static McpToolInfo ResolveOrCreate(EndpointDefinition def)

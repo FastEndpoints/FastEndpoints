@@ -18,24 +18,13 @@ namespace FastEndpoints.Mcp;
 /// inside each tool's invocation handler because tool visibility depends on <c>HttpContext.User</c>,
 /// which is only available at call time.
 /// </summary>
-sealed class EndpointMcpToolSource
+sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options, ILogger<EndpointMcpToolSource> logger)
 {
-    readonly IServiceProvider _services;
-    readonly McpOptions _options;
-    readonly ILogger<EndpointMcpToolSource> _logger;
-
-    public EndpointMcpToolSource(IServiceProvider services, McpOptions options, ILogger<EndpointMcpToolSource> logger)
-    {
-        _services = services;
-        _options = options;
-        _logger = logger;
-    }
-
     public IReadOnlyList<McpServerTool> BuildTools()
     {
-        var endpointData = _services.GetRequiredService<EndpointData>();
+        var endpointData = services.GetRequiredService<EndpointData>();
         var serializerOptions = Config.SerOpts.Options;
-        var invoker = _services.GetRequiredService<EndpointInvoker>();
+        var invoker = services.GetRequiredService<EndpointInvoker>();
 
         var tools = new List<McpServerTool>();
 
@@ -46,7 +35,7 @@ sealed class EndpointMcpToolSource
             if (info is null)
                 continue;
 
-            if (_options.ToolFilter is not null && !_options.ToolFilter(def))
+            if (options.ToolFilter is not null && !options.ToolFilter(def))
                 continue;
 
             tools.Add(BuildTool(def, info, invoker, serializerOptions));
@@ -58,12 +47,16 @@ sealed class EndpointMcpToolSource
     McpServerTool BuildTool(EndpointDefinition def, McpToolInfo info, EndpointInvoker invoker, JsonSerializerOptions serializerOptions)
     {
         var summaryTitle = def.EndpointSummary?.Summary;
-        var name = info.Name ?? (!string.IsNullOrWhiteSpace(summaryTitle) ? NamingHelpers.ToSnakeCase(summaryTitle) : null) ?? NamingHelpers.ToSnakeCase(def.EndpointType.Name);
+        var name = info.Name ??
+                   (!string.IsNullOrWhiteSpace(summaryTitle)
+                        ? NamingHelpers.ToSnakeCase(summaryTitle)
+                        : null) ??
+                   NamingHelpers.ToSnakeCase(def.EndpointType.Name);
         var description = info.Description ?? def.EndpointSummary?.Description;
 
         if (info.Name is null && string.IsNullOrWhiteSpace(summaryTitle))
         {
-            _logger.LogWarning(
+            logger.LogWarning(
                 "MCP tool for {EndpointType} has no explicit name and no OpenAPI Summary set. " +
                 "Falling back to type name \"{FallbackName}\". " +
                 "Set Summary(s => s.Summary = ...) or pass the name explicitly.",
@@ -73,7 +66,7 @@ sealed class EndpointMcpToolSource
 
         if (info.Description is null && string.IsNullOrWhiteSpace(def.EndpointSummary?.Description))
         {
-            _logger.LogWarning(
+            logger.LogWarning(
                 "MCP tool \"{Name}\" ({EndpointType}) has no description. " +
                 "Call Summary(s => s.Description = ...) or pass an explicit description: this.McpTool(description: \"...\").",
                 name,
@@ -81,35 +74,28 @@ sealed class EndpointMcpToolSource
         }
 
         var inputSchema = JsonSchemaBuilder.Build(def.ReqDtoType, serializerOptions);
+        NormalizeRootObjectSchema(inputSchema);
         if (TryResolveValidator(def) is { } validator)
             FluentValidationSchemaEnricher.Enrich(inputSchema, validator);
 
-        JsonNode? outputSchema = null;
-        if (_options.IncludeOutputSchemas && def.ResDtoType != typeof(object) && def.ResDtoType != typeof(void))
-            outputSchema = JsonSchemaBuilder.Build(def.ResDtoType, serializerOptions);
-
-        var protocolTool = new Tool
+        if (options.IncludeOutputSchemas && def.ResDtoType != typeof(object) && def.ResDtoType != typeof(void))
         {
-            Name = name,
-            Description = description,
-            Title = info.Title,
-            InputSchema = JsonSerializer.SerializeToElement(inputSchema, serializerOptions),
-            OutputSchema = outputSchema is null ? null : JsonSerializer.SerializeToElement(outputSchema, serializerOptions),
-            Annotations = BuildAnnotations(info)
-        };
+            var outputSchema = JsonSchemaBuilder.Build(def.ResDtoType, serializerOptions);
+            NormalizeRootObjectSchema(outputSchema);
+        }
 
         return McpServerTool.Create(
             async (RequestContext<CallToolRequestParams> ctx, CancellationToken ct) =>
             {
-                var httpContext = ctx.Services?.GetService<Microsoft.AspNetCore.Http.IHttpContextAccessor>()?.HttpContext;
-                var principal = httpContext?.User ?? ctx.User ?? new System.Security.Claims.ClaimsPrincipal();
+                var requestUser = ctx.User ?? new System.Security.Claims.ClaimsPrincipal();
+                var httpContext = ctx.Services?.GetService<Microsoft.AspNetCore.Http.IHttpContextAccessor>()?.HttpContext ??
+                                  new Microsoft.AspNetCore.Http.DefaultHttpContext { RequestServices = ctx.Services ?? services, User = requestUser };
+                var principal = httpContext.User;
 
-                if (_options.ToolVisibilityFilter is not null &&
-                    httpContext is not null &&
-                    !_options.ToolVisibilityFilter(def, principal, httpContext))
+                if (!options.ToolVisibilityFilter(def, principal, httpContext))
                     throw new McpException($"Tool '{name}' is not available for the current caller.");
 
-                var args = ctx.Params?.Arguments is { } argMap
+                var args = ctx.Params.Arguments is { } argMap
                                ? JsonSerializer.SerializeToElement(argMap, serializerOptions)
                                : JsonDocument.Parse("{}").RootElement;
 
@@ -161,21 +147,20 @@ sealed class EndpointMcpToolSource
         };
     }
 
-    static ToolAnnotations? BuildAnnotations(McpToolInfo info)
+    static void NormalizeRootObjectSchema(JsonNode schema)
     {
-        var h = info.Hints;
+        if (schema is not JsonObject obj || obj["type"] is not JsonArray types)
+            return;
 
-        if (h.ReadOnly is null && h.Idempotent is null && h.Destructive is null && h.OpenWorld is null)
-            return null;
-
-        return new()
+        foreach (var type in types)
         {
-            ReadOnlyHint = h.ReadOnly,
-            IdempotentHint = h.Idempotent,
-            DestructiveHint = h.Destructive,
-            OpenWorldHint = h.OpenWorld,
-            Title = info.Title
-        };
+            if (type?.GetValue<string>() == "object")
+            {
+                obj["type"] = "object";
+
+                return;
+            }
+        }
     }
 
     IValidator? TryResolveValidator(EndpointDefinition def)
@@ -183,6 +168,6 @@ sealed class EndpointMcpToolSource
         if (def.ValidatorType is null)
             return null;
 
-        return _services.GetService(def.ValidatorType) as IValidator ?? (IValidator?)ActivatorUtilities.CreateInstance(_services, def.ValidatorType);
+        return services.GetService(def.ValidatorType) as IValidator ?? (IValidator?)ActivatorUtilities.CreateInstance(services, def.ValidatorType);
     }
 }

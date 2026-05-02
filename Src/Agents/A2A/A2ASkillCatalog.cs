@@ -54,7 +54,7 @@ sealed class A2ASkillCatalog(IServiceProvider services, A2AOptions options)
         if (options.SkillFilter is not null && !options.SkillFilter(def))
             return null;
 
-        if (options.SkillVisibilityFilter is not null && !options.SkillVisibilityFilter(def, context.User, context))
+        if (!options.SkillVisibilityFilter(def, context.User, context))
             return null;
 
         var summaryTitle = def.EndpointSummary?.Summary;

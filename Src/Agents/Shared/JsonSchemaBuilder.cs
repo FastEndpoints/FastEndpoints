@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 using System.Text.Json.Nodes;
 using System.Text.Json.Schema;
 
@@ -26,7 +27,14 @@ static class JsonSchemaBuilder
     {
         var cached = _cache.GetOrAdd(
             (type, options),
-            static key => JsonSchemaExporter.GetJsonSchemaAsNode(key.Item2, key.Item1));
+            static key =>
+            {
+                var serializerOptions = key.Item2.TypeInfoResolver is null
+                                            ? new JsonSerializerOptions(key.Item2) { TypeInfoResolver = new DefaultJsonTypeInfoResolver() }
+                                            : key.Item2;
+
+                return JsonSchemaExporter.GetJsonSchemaAsNode(serializerOptions, key.Item1);
+            });
 
         return cached.DeepClone();
     }

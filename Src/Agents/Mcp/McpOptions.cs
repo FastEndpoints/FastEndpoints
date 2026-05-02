@@ -13,20 +13,16 @@ public sealed class McpOptions
     public Func<EndpointDefinition, bool>? ToolFilter { get; set; }
 
     /// <summary>
-    /// optional per-caller visibility filter used on <c>tools/list</c> to hide tools the current
-    /// principal cannot invoke. runs once per session; if <c>null</c>, <see cref="RequiresAuthorizationFilter" />
-    /// is used as the default so auth-gated endpoints stay hidden from anonymous callers.
+    /// per-caller visibility filter used by MCP tool invocation to hide tools the current agent caller cannot invoke.
+    /// FastEndpoints REST endpoint authorization is intentionally not reused by MCP; configure the MCP route and this
+    /// agent-facing filter separately. anonymous callers are denied by default. set this to a custom delegate such as
+    /// <c>(_, _, _) => true</c> to relax visibility.
     /// </summary>
-    public Func<EndpointDefinition, ClaimsPrincipal, HttpContext, bool>? ToolVisibilityFilter { get; set; }
+    public Func<EndpointDefinition, ClaimsPrincipal, HttpContext, bool> ToolVisibilityFilter { get; set; } = _authenticatedCallersOnly;
 
     /// <summary>include <c>outputSchema</c> in tool descriptors when <c>true</c> (default).</summary>
     public bool IncludeOutputSchemas { get; set; } = true;
 
-    /// <summary>
-    /// default visibility check — allows anonymous callers to see anonymous tools and authenticated
-    /// callers to see everything they could plausibly invoke. endpoints with role/policy requirements
-    /// are hidden until the caller authenticates. the actual auth check happens per invocation.
-    /// </summary>
-    public static readonly Func<EndpointDefinition, ClaimsPrincipal, HttpContext, bool> RequiresAuthorizationFilter =
-        static (def, principal, _) => !def.RequiresAuthorization() || (principal.Identity?.IsAuthenticated ?? false);
+    static readonly Func<EndpointDefinition, ClaimsPrincipal, HttpContext, bool> _authenticatedCallersOnly =
+        static (_, principal, _) => principal.Identity?.IsAuthenticated == true;
 }

@@ -56,10 +56,42 @@ public class A2ASkillVisibilityTests
     }
 
     [Fact]
-    public async Task All_skills_remain_visible_and_invokable_when_visibility_filter_is_null()
+    public async Task Anonymous_caller_cannot_see_or_invoke_opt_in_skill_by_default()
+    {
+        using var provider = BuildServices();
+        var ctx = BuildContext(provider, authenticated: false);
+
+        var card = provider.GetRequiredService<AgentCardBuilder>().Build(ctx);
+
+        card.Skills.ShouldBeEmpty();
+
+        var ex = await Should.ThrowAsync<A2ARpcException>(() => Dispatch(provider, "visible", ctx));
+
+        ex.Error.Code.ShouldBe(-32601);
+        ex.Error.Message.ShouldBe("Method not found: skill 'visible'");
+    }
+
+    [Fact]
+    public async Task Authenticated_caller_can_see_and_invoke_opt_in_skill_by_default()
     {
         using var provider = BuildServices();
         var ctx = BuildContext(provider);
+
+        var card = provider.GetRequiredService<AgentCardBuilder>().Build(ctx);
+
+        card.Skills.Select(s => s.Id).ShouldBe(["visible", "hidden"], ignoreOrder: true);
+
+        var result = await Dispatch(provider, "visible", ctx);
+        var resultJson = JsonSerializer.SerializeToElement(result, Config.SerOpts.Options);
+
+        resultJson.GetProperty("message").GetProperty("parts")[0].GetProperty("data").GetProperty("Value").GetString().ShouldBe("visible:ping");
+    }
+
+    [Fact]
+    public async Task Always_true_visibility_filter_restores_anonymous_skill_access()
+    {
+        using var provider = BuildServices(visibilityFilter: (_, _, _) => true);
+        var ctx = BuildContext(provider, authenticated: false);
 
         var card = provider.GetRequiredService<AgentCardBuilder>().Build(ctx);
 
@@ -393,7 +425,8 @@ public class A2ASkillVisibilityTests
             o =>
             {
                 o.SkillFilter = skillFilter;
-                o.SkillVisibilityFilter = visibilityFilter;
+                if (visibilityFilter is not null)
+                    o.SkillVisibilityFilter = visibilityFilter;
             });
 
         var provider = services.BuildServiceProvider();
@@ -441,7 +474,12 @@ public class A2ASkillVisibilityTests
                     typeof(ValidationSkillEndpoint),
                     typeof(ValidationSkillEndpointValidator)
                 ]));
-        builder.Services.AddA2A(o => o.SkillFilter = skillFilter);
+        builder.Services.AddA2A(
+            o =>
+            {
+                o.SkillFilter = skillFilter;
+                o.SkillVisibilityFilter = (_, _, _) => true;
+            });
 
         var app = builder.Build();
 
@@ -468,12 +506,14 @@ public class A2ASkillVisibilityTests
         return app;
     }
 
-    static DefaultHttpContext BuildContext(IServiceProvider provider)
+    static DefaultHttpContext BuildContext(IServiceProvider provider, bool authenticated = true)
     {
         var ctx = new DefaultHttpContext
         {
             RequestServices = provider,
-            User = new(new ClaimsIdentity([new("sub", "caller")], "test"))
+            User = authenticated
+                       ? new(new ClaimsIdentity([new("sub", "caller")], "test"))
+                       : new(new ClaimsIdentity())
         };
 
         ctx.Request.Scheme = "http";

@@ -22,8 +22,9 @@ public static class Extensions
 {
     /// <summary>
     /// registers the A2A services: skill dispatcher, agent-card builder, <see cref="EndpointInvoker" />.
-    /// use <see cref="A2AOptions.SkillFilter" /> for startup/static skill inclusion and
-    /// <see cref="A2AOptions.SkillVisibilityFilter" /> for per-request/per-caller skill visibility.
+    /// REST endpoint authorization is intentionally not reused by A2A. use <see cref="A2AOptions.SkillFilter" />
+    /// for startup/static skill inclusion and <see cref="A2AOptions.SkillVisibilityFilter" /> for separate
+    /// agent-facing per-request/per-caller skill visibility. anonymous callers are denied by default.
     /// </summary>
     public static IServiceCollection AddA2A(this IServiceCollection services, Action<A2AOptions>? configure = null)
     {

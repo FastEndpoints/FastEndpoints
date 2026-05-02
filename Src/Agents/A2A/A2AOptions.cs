@@ -28,12 +28,17 @@ public sealed class A2AOptions
     public Func<EndpointDefinition, bool>? SkillFilter { get; set; }
 
     /// <summary>
-    /// optional per-caller visibility filter used on the agent card and skill dispatch to hide skills
-    /// the current principal cannot invoke. if <c>null</c>, all statically included skills are visible.
+    /// per-caller visibility filter used on the agent card and skill dispatch to hide skills the current agent caller
+    /// cannot invoke. FastEndpoints REST endpoint authorization is intentionally not reused by A2A; configure the A2A
+    /// routes and this agent-facing filter separately. anonymous callers are denied by default. set this to a custom
+    /// delegate such as <c>(_, _, _) => true</c> to relax visibility.
     /// </summary>
-    public Func<EndpointDefinition, ClaimsPrincipal, HttpContext, bool>? SkillVisibilityFilter { get; set; }
+    public Func<EndpointDefinition, ClaimsPrincipal, HttpContext, bool> SkillVisibilityFilter { get; set; } = _authenticatedCallersOnly;
 
     internal string RpcPattern { get; set; } = "/a2a";
+
+    static readonly Func<EndpointDefinition, ClaimsPrincipal, HttpContext, bool> _authenticatedCallersOnly =
+        static (_, principal, _) => principal.Identity?.IsAuthenticated == true;
 }
 
 /// <summary>agent-card <c>provider</c> block.</summary>

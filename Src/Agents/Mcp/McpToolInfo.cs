@@ -4,7 +4,7 @@ namespace FastEndpoints.Mcp;
 /// opt-in metadata attached to a FastEndpoints endpoint so the <c>FastEndpoints.Mcp</c> addon
 /// exposes it as a Model Context Protocol (MCP) tool. pushed onto the endpoint's public
 /// <see cref="EndpointDefinition.EndpointMetadata" /> bag via the extension methods in
-/// <see cref="McpEndpointExtensions" />, or materialised at startup from the <see cref="McpToolAttribute" />.
+/// <see cref="McpEndpointExtensions" />, or materialized at startup from the <see cref="McpToolAttribute" />.
 /// core FastEndpoints has no knowledge of this type.
 /// </summary>
 public sealed class McpToolInfo
@@ -27,14 +27,14 @@ public sealed class McpToolInfo
     public string? Title { get; set; }
 
     /// <summary>
-    /// hints that describe the behaviour of this tool — used by MCP clients to reason about
-    /// side-effects before invoking it. all fields are advisory; the server itself enforces nothing.
+    /// hints that describe the behavior of this tool — used by MCP clients to reason about
+    /// side effects before invoking it. all fields are advisory; the server itself enforces nothing.
     /// </summary>
     public McpToolBehaviorHints Hints { get; set; } = new();
 }
 
 /// <summary>
-/// advisory behavioural hints for an MCP tool. mirrors the <c>ToolAnnotations</c> structure in the
+/// advisory behavioral hints for an MCP tool. mirrors the <c>ToolAnnotations</c> structure in the
 /// MCP spec so they can be forwarded unchanged to clients.
 /// </summary>
 public sealed class McpToolBehaviorHints

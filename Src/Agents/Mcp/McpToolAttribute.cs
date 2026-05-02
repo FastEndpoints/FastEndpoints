@@ -7,9 +7,15 @@ namespace FastEndpoints.Mcp;
 /// that override <c>Configure()</c> should call <c>McpEndpointExtensions.McpTool(...)</c>
 /// instead. core FastEndpoints has no knowledge of this attribute.
 /// </summary>
-[AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
+[AttributeUsage(AttributeTargets.Class, Inherited = false)]
 public sealed class McpToolAttribute : Attribute
 {
+    /// <inheritdoc cref="McpToolAttribute" />
+    public McpToolAttribute(string? name = null)
+    {
+        Name = name;
+    }
+
     /// <summary>
     /// tool name seen by MCP clients. <c>null</c> uses the endpoint type name converted to <c>snake_case</c>.
     /// </summary>
@@ -45,12 +51,6 @@ public sealed class McpToolAttribute : Attribute
     /// </summary>
     public bool OpenWorld { get; set; }
 
-    /// <inheritdoc cref="McpToolAttribute" />
-    public McpToolAttribute(string? name = null)
-    {
-        Name = name;
-    }
-
     internal McpToolInfo ToInfo()
     {
         var info = new McpToolInfo
@@ -59,10 +59,15 @@ public sealed class McpToolAttribute : Attribute
             Description = Description,
             Title = Title
         };
-        if (ReadOnly) info.Hints.ReadOnly = true;
-        if (Idempotent) info.Hints.Idempotent = true;
-        if (Destructive) info.Hints.Destructive = true;
-        if (OpenWorld) info.Hints.OpenWorld = true;
+        if (ReadOnly)
+            info.Hints.ReadOnly = true;
+        if (Idempotent)
+            info.Hints.Idempotent = true;
+        if (Destructive)
+            info.Hints.Destructive = true;
+        if (OpenWorld)
+            info.Hints.OpenWorld = true;
+
         return info;
     }
 }

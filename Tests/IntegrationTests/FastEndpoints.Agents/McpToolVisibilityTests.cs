@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Threading.Channels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.Extensions.Options;
 using FastEndpoints.Mcp;
 using ModelContextProtocol;
 using ModelContextProtocol.Protocol;
@@ -27,6 +28,17 @@ public class McpToolVisibilityTests
     }
 
     [Fact]
+    public async Task Anonymous_caller_cannot_list_opt_in_tool_by_default()
+    {
+        using var provider = BuildServices();
+        SetUser(provider, authenticated: false);
+
+        var result = await ListTools(provider, authenticated: false);
+
+        result.Tools.ShouldBeEmpty();
+    }
+
+    [Fact]
     public async Task Authenticated_caller_can_invoke_opt_in_tool_by_default()
     {
         using var provider = BuildServices();
@@ -41,6 +53,17 @@ public class McpToolVisibilityTests
     }
 
     [Fact]
+    public async Task Authenticated_caller_can_list_opt_in_tool_by_default()
+    {
+        using var provider = BuildServices();
+        SetUser(provider, authenticated: true);
+
+        var result = await ListTools(provider, authenticated: true);
+
+        result.Tools.Select(t => t.Name).ShouldBe(["visible"]);
+    }
+
+    [Fact]
     public async Task Always_true_visibility_filter_restores_anonymous_tool_access()
     {
         using var provider = BuildServices((_, _, _) => true);
@@ -52,6 +75,28 @@ public class McpToolVisibilityTests
         var result = await tool.InvokeAsync(ctx, CancellationToken.None);
 
         ((TextContentBlock)result.Content[0]).Text.ShouldContain("visible:ping");
+    }
+
+    [Fact]
+    public async Task Always_true_visibility_filter_restores_anonymous_tool_listing()
+    {
+        using var provider = BuildServices((_, _, _) => true);
+        SetUser(provider, authenticated: false);
+
+        var result = await ListTools(provider, authenticated: false);
+
+        result.Tools.Select(t => t.Name).ShouldBe(["visible"]);
+    }
+
+    [Fact]
+    public async Task Hidden_tools_remain_blocked_on_direct_invoke_through_server_handler()
+    {
+        using var provider = BuildServices();
+        SetUser(provider, authenticated: false);
+
+        var ex = await Should.ThrowAsync<McpException>(async () => await CallTool(provider, "visible", authenticated: false));
+
+        ex.Message.ShouldBe("Tool 'visible' is not available for the current caller.");
     }
 
     static ServiceProvider BuildServices(Func<EndpointDefinition, ClaimsPrincipal, HttpContext, bool>? visibilityFilter = null)
@@ -87,6 +132,24 @@ public class McpToolVisibilityTests
 
     static McpServerTool BuildTool(IServiceProvider provider)
         => provider.GetRequiredService<EndpointMcpToolSource>().BuildTools().Single();
+
+    static async Task<ListToolsResult> ListTools(IServiceProvider provider, bool authenticated)
+    {
+        var options = provider.GetRequiredService<IOptions<McpServerOptions>>().Value;
+        var handler = options.Handlers.ListToolsHandler;
+        handler.ShouldNotBeNull();
+
+        return await handler!(McpToolVisibilityTests_Bridge.BuildListRequestContext(provider, BuildPrincipal(authenticated)), CancellationToken.None);
+    }
+
+    static async Task<CallToolResult> CallTool(IServiceProvider provider, string toolName, bool authenticated)
+    {
+        var options = provider.GetRequiredService<IOptions<McpServerOptions>>().Value;
+        var handler = options.Handlers.CallToolHandler;
+        handler.ShouldNotBeNull();
+
+        return await handler!(McpToolVisibilityTests_Bridge.BuildCallRequestContext(provider, toolName, BuildPrincipal(authenticated)), CancellationToken.None);
+    }
 
     static RequestContext<CallToolRequestParams> BuildRequestContext(IServiceProvider provider, McpServerTool tool, bool authenticated)
     {

@@ -177,6 +177,13 @@ public class McpToolDescriptorTests
 static class McpToolVisibilityTests_Bridge
 {
     public static RequestContext<CallToolRequestParams> BuildRequestContext(IServiceProvider provider, McpServerTool tool, ClaimsPrincipal user)
+        => BuildCallRequestContext(provider, tool.ProtocolTool.Name, user, new Dictionary<string, JsonElement> { ["Value"] = JsonSerializer.SerializeToElement("ping") }, tool);
+
+    public static RequestContext<CallToolRequestParams> BuildCallRequestContext(IServiceProvider provider,
+                                                                                string toolName,
+                                                                                ClaimsPrincipal user,
+                                                                                Dictionary<string, JsonElement>? arguments = null,
+                                                                                McpServerTool? matchedTool = null)
     {
         var request = new JsonRpcRequest
         {
@@ -190,16 +197,32 @@ static class McpToolVisibilityTests_Bridge
             request,
             new()
             {
-                Name = tool.ProtocolTool.Name,
-                Arguments = new Dictionary<string, JsonElement>
-                {
-                    ["Value"] = JsonSerializer.SerializeToElement("ping")
-                }
+                Name = toolName,
+                Arguments = arguments ?? new Dictionary<string, JsonElement> { ["Value"] = JsonSerializer.SerializeToElement("ping") }
             })
         {
             Services = provider,
             User = user,
-            MatchedPrimitive = tool
+            MatchedPrimitive = matchedTool
+        };
+    }
+
+    public static RequestContext<ListToolsRequestParams> BuildListRequestContext(IServiceProvider provider, ClaimsPrincipal user)
+    {
+        var request = new JsonRpcRequest
+        {
+            Id = new RequestId(1),
+            Method = RequestMethods.ToolsList
+        };
+        var server = McpServer.Create(new TestTransport(), new McpServerOptions(), Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory.Instance, provider);
+
+        return new(
+            server,
+            request,
+            new ListToolsRequestParams())
+        {
+            Services = provider,
+            User = user
         };
     }
 

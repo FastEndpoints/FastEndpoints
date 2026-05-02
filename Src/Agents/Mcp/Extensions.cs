@@ -1,8 +1,11 @@
 using FastEndpoints.Agents;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
+using ModelContextProtocol;
+using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 
 namespace FastEndpoints.Mcp;
@@ -35,7 +38,10 @@ public static class Extensions
         services.AddSingleton(options);
         services.AddSingleton<EndpointInvoker>();
         services.AddSingleton<EndpointMcpToolSource>();
-        services.AddMcpServer().WithHttpTransport();
+        services.AddMcpServer()
+                .WithHttpTransport()
+                .WithListToolsHandler(ListToolsAsync)
+                .WithCallToolHandler(CallToolAsync);
 
         return services;
     }
@@ -48,13 +54,6 @@ public static class Extensions
     /// </summary>
     public static IApplicationBuilder UseMcp(this IApplicationBuilder app, string pattern = "/mcp", Action<IEndpointConventionBuilder>? configureRoute = null)
     {
-        var source = app.ApplicationServices.GetRequiredService<EndpointMcpToolSource>();
-        var tools = source.BuildTools();
-        var serverOptions = app.ApplicationServices.GetRequiredService<IOptions<McpServerOptions>>().Value;
-        serverOptions.ToolCollection ??= [];
-        foreach (var t in tools)
-            serverOptions.ToolCollection.Add(t);
-
         if (app is not IEndpointRouteBuilder routeBuilder)
         {
             throw new InvalidOperationException(
@@ -66,5 +65,40 @@ public static class Extensions
         configureRoute?.Invoke(route);
 
         return app;
+    }
+
+    static ValueTask<ListToolsResult> ListToolsAsync(RequestContext<ListToolsRequestParams> ctx, CancellationToken ct)
+    {
+        _ = ct;
+        var source = ctx.Services!.GetRequiredService<EndpointMcpToolSource>();
+        var (principal, httpContext) = ResolveCallerContext(ctx);
+
+        return ValueTask.FromResult(new ListToolsResult { Tools = source.BuildVisibleProtocolTools(principal, httpContext).ToList() });
+    }
+
+    static async ValueTask<CallToolResult> CallToolAsync(RequestContext<CallToolRequestParams> ctx, CancellationToken ct)
+    {
+        var source = ctx.Services!.GetRequiredService<EndpointMcpToolSource>();
+        var tool = source.FindTool(ctx.Params.Name);
+
+        if (tool is null)
+            throw new McpException($"Tool '{ctx.Params.Name}' is not available for the current caller.");
+
+        return await tool.InvokeAsync(ctx, ct);
+    }
+
+    static (ClaimsPrincipal Principal, HttpContext HttpContext) ResolveCallerContext<TParams>(RequestContext<TParams> ctx)
+    {
+        var principal = ctx.User ?? new ClaimsPrincipal();
+        var httpContext = ctx.Services?.GetService<IHttpContextAccessor>()?.HttpContext ??
+                          new DefaultHttpContext { RequestServices = ctx.Services!, User = principal };
+
+        if (!ReferenceEquals(httpContext.User, principal))
+            httpContext.User = principal;
+
+        if (httpContext.RequestServices is null)
+            httpContext.RequestServices = ctx.Services!;
+
+        return (principal, httpContext);
     }
 }

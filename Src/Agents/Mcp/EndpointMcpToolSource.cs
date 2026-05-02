@@ -20,13 +20,48 @@ namespace FastEndpoints.Mcp;
 /// </summary>
 sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options, ILogger<EndpointMcpToolSource> logger)
 {
+    readonly Lazy<IReadOnlyList<ToolRegistration>> _tools = new(() => BuildRegistrations(services, options, logger));
+
     public IReadOnlyList<McpServerTool> BuildTools()
+        => _tools.Value.Select(x => x.Tool).ToArray();
+
+    public IReadOnlyList<Tool> BuildVisibleProtocolTools(System.Security.Claims.ClaimsPrincipal? user = null, Microsoft.AspNetCore.Http.HttpContext? httpContext = null)
+    {
+        var (principal, context) = ResolveCallerContext(user, httpContext);
+
+        return _tools.Value
+                     .Where(x => options.ToolVisibilityFilter(x.Definition, principal, context))
+                     .Select(x => x.Tool.ProtocolTool)
+                     .ToArray();
+    }
+
+    public McpServerTool? FindTool(string name)
+        => _tools.Value.FirstOrDefault(x => x.Tool.ProtocolTool.Name == name)?.Tool;
+
+    (System.Security.Claims.ClaimsPrincipal Principal, Microsoft.AspNetCore.Http.HttpContext HttpContext) ResolveCallerContext(System.Security.Claims.ClaimsPrincipal? user,
+                                                                                                                               Microsoft.AspNetCore.Http.HttpContext? httpContext)
+    {
+        var principal = user ?? httpContext?.User ?? new System.Security.Claims.ClaimsPrincipal();
+        var resolvedHttpContext = httpContext ??
+                                  services.GetService<Microsoft.AspNetCore.Http.IHttpContextAccessor>()?.HttpContext ??
+                                  new Microsoft.AspNetCore.Http.DefaultHttpContext { RequestServices = services, User = principal };
+
+        if (!ReferenceEquals(resolvedHttpContext.User, principal))
+            resolvedHttpContext.User = principal;
+
+        if (resolvedHttpContext.RequestServices is null)
+            resolvedHttpContext.RequestServices = services;
+
+        return (principal, resolvedHttpContext);
+    }
+
+    static IReadOnlyList<ToolRegistration> BuildRegistrations(IServiceProvider services, McpOptions options, ILogger<EndpointMcpToolSource> logger)
     {
         var endpointData = services.GetRequiredService<EndpointData>();
         var serializerOptions = Config.SerOpts.Options;
         var invoker = services.GetRequiredService<EndpointInvoker>();
 
-        var tools = new List<McpServerTool>();
+        var tools = new List<ToolRegistration>();
 
         foreach (var def in endpointData.Found)
         {
@@ -38,13 +73,19 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
             if (options.ToolFilter is not null && !options.ToolFilter(def))
                 continue;
 
-            tools.Add(BuildTool(def, info, invoker, serializerOptions));
+            tools.Add(new(def, BuildTool(def, info, invoker, serializerOptions, services, options, logger)));
         }
 
         return tools;
     }
 
-    McpServerTool BuildTool(EndpointDefinition def, McpToolInfo info, EndpointInvoker invoker, JsonSerializerOptions serializerOptions)
+    static McpServerTool BuildTool(EndpointDefinition def,
+                                   McpToolInfo info,
+                                   EndpointInvoker invoker,
+                                   JsonSerializerOptions serializerOptions,
+                                   IServiceProvider services,
+                                   McpOptions options,
+                                   ILogger<EndpointMcpToolSource> logger)
     {
         var summaryTitle = def.EndpointSummary?.Summary;
         var name = info.Name ??
@@ -75,7 +116,7 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
 
         var inputSchema = JsonSchemaBuilder.Build(def.ReqDtoType, serializerOptions);
         NormalizeRootObjectSchema(inputSchema);
-        if (TryResolveValidator(def) is { } validator)
+        if (TryResolveValidator(services, def) is { } validator)
             FluentValidationSchemaEnricher.Enrich(inputSchema, validator);
 
         JsonNode? outputSchema = null;
@@ -215,11 +256,13 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
         return false;
     }
 
-    IValidator? TryResolveValidator(EndpointDefinition def)
+    static IValidator? TryResolveValidator(IServiceProvider services, EndpointDefinition def)
     {
         if (def.ValidatorType is null)
             return null;
 
         return services.GetService(def.ValidatorType) as IValidator ?? (IValidator?)ActivatorUtilities.CreateInstance(services, def.ValidatorType);
     }
+
+    sealed record ToolRegistration(EndpointDefinition Definition, McpServerTool Tool);
 }

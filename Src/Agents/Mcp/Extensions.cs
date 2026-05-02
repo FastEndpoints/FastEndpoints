@@ -79,7 +79,8 @@ public static class Extensions
     static async ValueTask<CallToolResult> CallToolAsync(RequestContext<CallToolRequestParams> ctx, CancellationToken ct)
     {
         var source = ctx.Services!.GetRequiredService<EndpointMcpToolSource>();
-        var tool = source.FindTool(ctx.Params.Name);
+        var (principal, httpContext) = ResolveCallerContext(ctx);
+        var tool = source.ResolveVisibleTool(ctx.Params.Name, principal, httpContext);
 
         if (tool is null)
             throw new McpException($"Tool '{ctx.Params.Name}' is not available for the current caller.");

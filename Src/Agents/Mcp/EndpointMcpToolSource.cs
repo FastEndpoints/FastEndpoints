@@ -1,8 +1,10 @@
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using FastEndpoints.Agents;
 using FluentValidation;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ModelContextProtocol;
@@ -23,33 +25,46 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
     readonly Lazy<IReadOnlyList<ToolRegistration>> _tools = new(() => BuildRegistrations(services, options, logger));
 
     public IReadOnlyList<McpServerTool> BuildTools()
-        => _tools.Value.Select(x => x.Tool).ToArray();
-
-    public IReadOnlyList<Tool> BuildVisibleProtocolTools(System.Security.Claims.ClaimsPrincipal? user = null, Microsoft.AspNetCore.Http.HttpContext? httpContext = null)
     {
-        var (principal, context) = ResolveCallerContext(user, httpContext);
+        EnsureUniqueNames(_tools.Value, "registered MCP tools");
 
-        return _tools.Value
-                     .Where(x => options.ToolVisibilityFilter(x.Definition, principal, context))
-                     .Select(x => x.Tool.ProtocolTool)
-                     .ToArray();
+        return _tools.Value.Select(x => x.Tool).ToArray();
     }
 
-    public McpServerTool? FindTool(string name)
-        => _tools.Value.FirstOrDefault(x => x.Tool.ProtocolTool.Name == name)?.Tool;
-
-    (System.Security.Claims.ClaimsPrincipal Principal, Microsoft.AspNetCore.Http.HttpContext HttpContext) ResolveCallerContext(System.Security.Claims.ClaimsPrincipal? user,
-                                                                                                                               Microsoft.AspNetCore.Http.HttpContext? httpContext)
+    public IReadOnlyList<Tool> BuildVisibleProtocolTools(ClaimsPrincipal? user = null, HttpContext? httpContext = null)
     {
-        var principal = user ?? httpContext?.User ?? new System.Security.Claims.ClaimsPrincipal();
+        var (principal, context) = ResolveCallerContext(user, httpContext);
+        var visibleTools = _tools.Value.Where(x => options.ToolVisibilityFilter(x.Definition, principal, context)).ToArray();
+
+        EnsureUniqueNames(visibleTools, "MCP tools visible to the current caller");
+
+        return visibleTools.Select(x => x.Tool.ProtocolTool).ToArray();
+    }
+
+    public McpServerTool? ResolveVisibleTool(string name, ClaimsPrincipal? user = null, HttpContext? httpContext = null)
+    {
+        var (principal, context) = ResolveCallerContext(user, httpContext);
+        var matches = _tools.Value.Where(x => x.Name == name && options.ToolVisibilityFilter(x.Definition, principal, context)).ToArray();
+
+        return matches.Length switch
+        {
+            0 => null,
+            1 => matches[0].Tool,
+            _ => throw CreateDuplicateNameException(name, matches, "MCP tools visible to the current caller")
+        };
+    }
+
+    (ClaimsPrincipal Principal, HttpContext HttpContext) ResolveCallerContext(ClaimsPrincipal? user, HttpContext? httpContext)
+    {
+        var principal = user ?? httpContext?.User ?? new ClaimsPrincipal();
         var resolvedHttpContext = httpContext ??
-                                  services.GetService<Microsoft.AspNetCore.Http.IHttpContextAccessor>()?.HttpContext ??
-                                  new Microsoft.AspNetCore.Http.DefaultHttpContext { RequestServices = services, User = principal };
+                                  services.GetService<IHttpContextAccessor>()?.HttpContext ??
+                                  new DefaultHttpContext { RequestServices = services, User = principal };
 
         if (!ReferenceEquals(resolvedHttpContext.User, principal))
             resolvedHttpContext.User = principal;
 
-        if (resolvedHttpContext.RequestServices is null)
+        if (resolvedHttpContext.RequestServices == null!)
             resolvedHttpContext.RequestServices = services;
 
         return (principal, resolvedHttpContext);
@@ -73,11 +88,39 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
             if (options.ToolFilter is not null && !options.ToolFilter(def))
                 continue;
 
-            tools.Add(new(def, BuildTool(def, info, invoker, serializerOptions, services, options, logger)));
+            var tool = BuildTool(def, info, invoker, serializerOptions, services, options, logger);
+            tools.Add(new(def, tool.ProtocolTool.Name, tool));
         }
 
         return tools;
     }
+
+    static void EnsureUniqueNames(IReadOnlyCollection<ToolRegistration> tools, string scope)
+    {
+        var collisions = tools.GroupBy(x => x.Name, StringComparer.Ordinal)
+                              .Where(g => g.Count() > 1)
+                              .ToArray();
+
+        if (collisions.Length == 0)
+            return;
+
+        throw new InvalidOperationException(
+            "Duplicate MCP tool names detected among " +
+            scope +
+            ": " +
+            string.Join(
+                "; ",
+                collisions.Select(
+                    g =>
+                        $"'{g.Key}' => {string.Join(", ", g.Select(x => x.Definition.EndpointType.FullName ?? x.Definition.EndpointType.Name).Distinct(StringComparer.Ordinal))}")) +
+            ". MCP tool names must be unique.");
+    }
+
+    static InvalidOperationException CreateDuplicateNameException(string name, IReadOnlyCollection<ToolRegistration> matches, string scope)
+        => new(
+            $"Duplicate MCP tool name '{name}' detected among {scope}: " +
+            string.Join(", ", matches.Select(x => x.Definition.EndpointType.FullName ?? x.Definition.EndpointType.Name).Distinct(StringComparer.Ordinal)) +
+            ". MCP tool names must be unique.");
 
     static McpServerTool BuildTool(EndpointDefinition def,
                                    McpToolInfo info,
@@ -120,6 +163,7 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
             FluentValidationSchemaEnricher.Enrich(inputSchema, validator);
 
         JsonNode? outputSchema = null;
+
         if (options.IncludeOutputSchemas && def.ResDtoType != typeof(object) && def.ResDtoType != typeof(void))
         {
             outputSchema = JsonSchemaBuilder.Build(def.ResDtoType, serializerOptions);
@@ -129,9 +173,9 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
         var tool = McpServerTool.Create(
             async (RequestContext<CallToolRequestParams> ctx, CancellationToken ct) =>
             {
-                var requestUser = ctx.User ?? new System.Security.Claims.ClaimsPrincipal();
-                var httpContext = ctx.Services?.GetService<Microsoft.AspNetCore.Http.IHttpContextAccessor>()?.HttpContext ??
-                                  new Microsoft.AspNetCore.Http.DefaultHttpContext { RequestServices = ctx.Services ?? services, User = requestUser };
+                var requestUser = ctx.User ?? new ClaimsPrincipal();
+                var httpContext = ctx.Services?.GetService<IHttpContextAccessor>()?.HttpContext ??
+                                  new DefaultHttpContext { RequestServices = ctx.Services ?? services, User = requestUser };
                 var principal = httpContext.User;
 
                 if (!options.ToolVisibilityFilter(def, principal, httpContext))
@@ -264,5 +308,5 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
         return services.GetService(def.ValidatorType) as IValidator ?? (IValidator?)ActivatorUtilities.CreateInstance(services, def.ValidatorType);
     }
 
-    sealed record ToolRegistration(EndpointDefinition Definition, McpServerTool Tool);
+    sealed record ToolRegistration(EndpointDefinition Definition, string Name, McpServerTool Tool);
 }

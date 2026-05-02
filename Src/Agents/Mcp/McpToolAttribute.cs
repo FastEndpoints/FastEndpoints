@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Reflection;
 
 namespace FastEndpoints.Mcp;
@@ -12,6 +13,8 @@ namespace FastEndpoints.Mcp;
 [AttributeUsage(AttributeTargets.Class, Inherited = false)]
 public sealed class McpToolAttribute : Attribute
 {
+    static readonly ConcurrentDictionary<Type, ConfiguredHints> _configuredHintsByEndpointType = new();
+
     /// <inheritdoc cref="McpToolAttribute" />
     public McpToolAttribute(string? name = null)
     {
@@ -62,21 +65,51 @@ public sealed class McpToolAttribute : Attribute
             Title = Title
         };
 
-        var configuredHints = endpointType.GetCustomAttributesData()
-                                         .FirstOrDefault(a => a.AttributeType == typeof(McpToolAttribute))?
-                                         .NamedArguments
-                                         .Select(a => a.MemberName)
-                                         .ToHashSet(StringComparer.Ordinal);
+        var configuredHints = _configuredHintsByEndpointType.GetOrAdd(endpointType, ResolveConfiguredHints);
 
-        if (configuredHints?.Contains(nameof(ReadOnly)) == true)
+        if ((configuredHints & ConfiguredHints.ReadOnly) != 0)
             info.Hints.ReadOnly = ReadOnly;
-        if (configuredHints?.Contains(nameof(Idempotent)) == true)
+        if ((configuredHints & ConfiguredHints.Idempotent) != 0)
             info.Hints.Idempotent = Idempotent;
-        if (configuredHints?.Contains(nameof(Destructive)) == true)
+        if ((configuredHints & ConfiguredHints.Destructive) != 0)
             info.Hints.Destructive = Destructive;
-        if (configuredHints?.Contains(nameof(OpenWorld)) == true)
+        if ((configuredHints & ConfiguredHints.OpenWorld) != 0)
             info.Hints.OpenWorld = OpenWorld;
 
         return info;
+    }
+
+    static ConfiguredHints ResolveConfiguredHints(Type endpointType)
+    {
+        var attribute = endpointType.GetCustomAttributesData().FirstOrDefault(a => a.AttributeType == typeof(McpToolAttribute));
+
+        if (attribute is null)
+            return ConfiguredHints.None;
+
+        var configuredHints = ConfiguredHints.None;
+
+        foreach (var argument in attribute.NamedArguments)
+        {
+            configuredHints |= argument.MemberName switch
+            {
+                nameof(ReadOnly) => ConfiguredHints.ReadOnly,
+                nameof(Idempotent) => ConfiguredHints.Idempotent,
+                nameof(Destructive) => ConfiguredHints.Destructive,
+                nameof(OpenWorld) => ConfiguredHints.OpenWorld,
+                _ => ConfiguredHints.None
+            };
+        }
+
+        return configuredHints;
+    }
+
+    [Flags]
+    enum ConfiguredHints
+    {
+        None = 0,
+        ReadOnly = 1,
+        Idempotent = 2,
+        Destructive = 4,
+        OpenWorld = 8
     }
 }

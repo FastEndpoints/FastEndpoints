@@ -23,13 +23,15 @@ namespace FastEndpoints.Mcp;
 /// </summary>
 sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options, ILogger<EndpointMcpToolSource> logger)
 {
-    readonly Lazy<IReadOnlyList<ToolRegistration>> _tools = new(() => BuildRegistrations(services, options, logger));
+    static readonly JsonElement _emptyArguments = JsonDocument.Parse("{}").RootElement.Clone();
+
+    readonly Lazy<ToolCatalog> _toolCatalog = new(() => BuildToolCatalog(services, options, logger));
 
     public IReadOnlyList<McpServerTool> BuildTools()
     {
-        EnsureUniqueNames(_tools.Value, "registered MCP tools");
+        EnsureUniqueNames(_toolCatalog.Value.Tools, "registered MCP tools");
 
-        return _tools.Value.Select(x => x.Tool).ToArray();
+        return _toolCatalog.Value.Tools.Select(x => x.Tool).ToArray();
     }
 
     public IReadOnlyList<Tool> BuildVisibleProtocolTools(ClaimsPrincipal? user = null, HttpContext? httpContext = null)
@@ -43,7 +45,11 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
 
     public McpServerTool? ResolveVisibleTool(string name, ClaimsPrincipal? user = null, HttpContext? httpContext = null)
     {
-        var matches = GetVisibleTools(user, httpContext).Where(x => x.Name == name).ToArray();
+        if (!_toolCatalog.Value.ToolsByName.TryGetValue(name, out var candidateTools))
+            return null;
+
+        var (principal, context) = ResolveCallerContext(user, httpContext);
+        var matches = candidateTools.Where(x => options.ToolVisibilityFilter(x.Definition, principal, context)).ToArray();
 
         return matches.Length switch
         {
@@ -60,10 +66,10 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
     {
         var (principal, context) = ResolveCallerContext(user, httpContext);
 
-        return _tools.Value.Where(x => options.ToolVisibilityFilter(x.Definition, principal, context)).ToArray();
+        return _toolCatalog.Value.Tools.Where(x => options.ToolVisibilityFilter(x.Definition, principal, context)).ToArray();
     }
 
-    static IReadOnlyList<ToolRegistration> BuildRegistrations(IServiceProvider services, McpOptions options, ILogger<EndpointMcpToolSource> logger)
+    static ToolCatalog BuildToolCatalog(IServiceProvider services, McpOptions options, ILogger<EndpointMcpToolSource> logger)
     {
         var endpointData = services.GetRequiredService<EndpointData>();
         var serializerOptions = EnsureTypeInfoResolver(Config.SerOpts.Options);
@@ -85,8 +91,12 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
             tools.Add(new(def, tool.ProtocolTool.Name, tool));
         }
 
-        return tools;
+        return new(tools, IndexToolsByName(tools));
     }
+
+    static IReadOnlyDictionary<string, ToolRegistration[]> IndexToolsByName(IReadOnlyList<ToolRegistration> tools)
+        => tools.GroupBy(x => x.Name, StringComparer.Ordinal)
+                .ToDictionary(group => group.Key, group => group.ToArray(), StringComparer.Ordinal);
 
     static void EnsureUniqueNames(IReadOnlyCollection<ToolRegistration> tools, string scope)
     {
@@ -104,16 +114,18 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
             string.Join(
                 "; ",
                 collisions.Select(
-                    g =>
-                        $"'{g.Key}' => {string.Join(", ", g.Select(x => x.Definition.EndpointType.FullName ?? x.Definition.EndpointType.Name).Distinct(StringComparer.Ordinal))}")) +
+                    g => $"'{g.Key}' => {FormatEndpointTypeNames(g)}")) +
             ". MCP tool names must be unique.");
     }
 
     static InvalidOperationException CreateDuplicateNameException(string name, IReadOnlyCollection<ToolRegistration> matches, string scope)
         => new(
             $"Duplicate MCP tool name '{name}' detected among {scope}: " +
-            string.Join(", ", matches.Select(x => x.Definition.EndpointType.FullName ?? x.Definition.EndpointType.Name).Distinct(StringComparer.Ordinal)) +
+            FormatEndpointTypeNames(matches) +
             ". MCP tool names must be unique.");
+
+    static string FormatEndpointTypeNames(IEnumerable<ToolRegistration> tools)
+        => string.Join(", ", tools.Select(x => x.Definition.EndpointType.FullName ?? x.Definition.EndpointType.Name).Distinct(StringComparer.Ordinal));
 
     static McpServerTool BuildTool(EndpointDefinition def,
                                    McpToolInfo info,
@@ -167,7 +179,7 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
 
                 var args = ctx.Params.Arguments is { } argMap
                                ? JsonSerializer.SerializeToElement(argMap, serializerOptions)
-                               : JsonDocument.Parse("{}").RootElement;
+                               : _emptyArguments;
 
                 var result = await invoker.InvokeAsync(def, args, principal, ct);
 
@@ -356,4 +368,6 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
     }
 
     sealed record ToolRegistration(EndpointDefinition Definition, string Name, McpServerTool Tool);
+
+    sealed record ToolCatalog(IReadOnlyList<ToolRegistration> Tools, IReadOnlyDictionary<string, ToolRegistration[]> ToolsByName);
 }

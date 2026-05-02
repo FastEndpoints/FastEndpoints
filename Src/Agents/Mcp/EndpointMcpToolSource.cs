@@ -2,6 +2,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization.Metadata;
 using FastEndpoints.Agents;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
@@ -73,7 +74,7 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
     static IReadOnlyList<ToolRegistration> BuildRegistrations(IServiceProvider services, McpOptions options, ILogger<EndpointMcpToolSource> logger)
     {
         var endpointData = services.GetRequiredService<EndpointData>();
-        var serializerOptions = Config.SerOpts.Options;
+        var serializerOptions = EnsureTypeInfoResolver(Config.SerOpts.Options);
         var invoker = services.GetRequiredService<EndpointInvoker>();
 
         var tools = new List<ToolRegistration>();
@@ -159,6 +160,7 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
 
         var inputSchema = JsonSchemaBuilder.Build(def.ReqDtoType, serializerOptions);
         NormalizeRootObjectSchema(inputSchema);
+        EnsureObjectRootSchema(inputSchema, name, def.ReqDtoType, "input", "arguments");
         if (TryResolveValidator(services, def) is { } validator)
             FluentValidationSchemaEnricher.Enrich(inputSchema, validator);
 
@@ -166,8 +168,11 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
 
         if (options.IncludeOutputSchemas && def.ResDtoType != typeof(object) && def.ResDtoType != typeof(void))
         {
-            outputSchema = JsonSchemaBuilder.Build(def.ResDtoType, serializerOptions);
-            NormalizeRootObjectSchema(outputSchema);
+            var candidateOutputSchema = JsonSchemaBuilder.Build(def.ResDtoType, serializerOptions);
+            NormalizeRootObjectSchema(candidateOutputSchema);
+
+            if (HasObjectRootSchema(candidateOutputSchema))
+                outputSchema = candidateOutputSchema;
         }
 
         var tool = McpServerTool.Create(
@@ -269,6 +274,46 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
             }
         }
     }
+
+    static void EnsureObjectRootSchema(JsonNode schema, string toolName, Type dtoType, string schemaKind, string shapeDescription)
+    {
+        if (HasObjectRootSchema(schema))
+            return;
+
+        throw new InvalidOperationException(
+            $"MCP tool '{toolName}' cannot use {schemaKind} schema generated from '{dtoType.FullName ?? dtoType.Name}' with root type '{GetRootSchemaType(schema)}' because MCP tools require an object root schema. Use an object-shaped DTO for tool {shapeDescription}.");
+    }
+
+    static bool HasObjectRootSchema(JsonNode schema)
+    {
+        if (schema is not JsonObject obj || obj["type"] is not JsonNode typeNode)
+            return false;
+
+        return typeNode switch
+        {
+            JsonValue value => value.TryGetValue<string>(out var type) && type == "object",
+            JsonArray types => types.Any(type => type is JsonValue value && value.TryGetValue<string>(out var entry) && entry == "object"),
+            _ => false
+        };
+    }
+
+    static string GetRootSchemaType(JsonNode schema)
+    {
+        if (schema is not JsonObject obj || obj["type"] is not JsonNode typeNode)
+            return "<unspecified>";
+
+        return typeNode switch
+        {
+            JsonValue value when value.TryGetValue<string>(out var type) => type,
+            JsonArray types => string.Join("|", types.Select(type => type?.ToJsonString() ?? "null")),
+            _ => typeNode.ToJsonString()
+        };
+    }
+
+    static JsonSerializerOptions EnsureTypeInfoResolver(JsonSerializerOptions options)
+        => options.TypeInfoResolver is not null
+               ? options
+               : new JsonSerializerOptions(options) { TypeInfoResolver = new DefaultJsonTypeInfoResolver() };
 
     static bool TryExtractStructuredContent(string text, out JsonElement structuredContent)
     {

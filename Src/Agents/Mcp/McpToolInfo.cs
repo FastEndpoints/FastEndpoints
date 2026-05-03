@@ -10,8 +10,9 @@ namespace FastEndpoints.Mcp;
 public sealed class McpToolInfo
 {
     /// <summary>
-    /// unique tool name seen by MCP clients. must match <c>^[a-zA-Z0-9_-]+$</c>. defaults to
-    /// the endpoint type's short name in <c>snake_case</c> when <c>null</c>.
+    /// unique tool name seen by MCP clients. explicit values must match <c>^[a-zA-Z0-9_-]+$</c>.
+    /// when <c>null</c>, the name is generated from the endpoint summary or type name and
+    /// sanitized to the same character set.
     /// </summary>
     public string? Name { get; set; }
 

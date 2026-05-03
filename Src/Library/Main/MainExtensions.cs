@@ -70,7 +70,15 @@ public static class MainExtensions
     {
         ServiceResolver.Instance = app.ServiceProvider.GetRequiredService<IServiceResolver>();
 
-        Cfg.SerOpts.Options = app.ServiceProvider.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions ?? Cfg.SerOpts.Options;
+        var serializerOptions = app.ServiceProvider.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions;
+
+        if (serializerOptions is not null)
+        {
+            Cfg.SerOpts.Options = serializerOptions.IsReadOnly
+                                      ? new(serializerOptions)
+                                      : serializerOptions;
+        }
+
         Cfg.SerOpts.Options.ConfigureSerializer(app.ServiceProvider.GetRequiredService<Cfg>(), configAction);
         Cfg.BndOpts.AddTypedHeaderValueParsers();
 

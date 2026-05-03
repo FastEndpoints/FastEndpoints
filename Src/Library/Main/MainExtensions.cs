@@ -70,7 +70,11 @@ public static class MainExtensions
     {
         ServiceResolver.Instance = app.ServiceProvider.GetRequiredService<IServiceResolver>();
 
-        Cfg.SerOpts.Options = app.ServiceProvider.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions ?? Cfg.SerOpts.Options;
+        var serializerOptions = app.ServiceProvider.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions;
+
+        if (serializerOptions is not null)
+            Cfg.SerOpts.Options = new(serializerOptions);
+
         Cfg.SerOpts.Options.ConfigureSerializer(app.ServiceProvider.GetRequiredService<Cfg>(), configAction);
         Cfg.BndOpts.AddTypedHeaderValueParsers();
 
@@ -202,7 +206,9 @@ public static class MainExtensions
 
         CommandExtensions.TestHandlersPresent = app.ServiceProvider.GetService<TestCommandHandlerMarker>() is not null;
 
-        app.MapGet("_test_url_cache_", () => TypedResults.Ok(IEndpoint.GetTestUrlCache()))
+        app.MapGet(
+               "_test_url_cache_",
+               () => Results.Json(IEndpoint.GetTestUrlCache(), Cfg.SerOpts.Options))
            .ExcludeFromDescription();
 
         return app;

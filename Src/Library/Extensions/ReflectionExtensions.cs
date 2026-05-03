@@ -35,70 +35,73 @@ static class ReflectionExtensions
                    _ => throw new NotSupportedException($"[{expression}] is not a valid member expression!")
                }).Name;
 
-    internal static Type[]? GetGenericArgumentsOfType(this Type source, Type targetGeneric)
+    extension(Type source)
     {
-        if (!targetGeneric.IsGenericType)
-            throw new ArgumentException($"{nameof(targetGeneric)} is not a valid generic type!", nameof(targetGeneric));
-
-        var t = source;
-
-        while (t != null)
+        internal Type[]? GetGenericArgumentsOfType(Type targetGeneric)
         {
-            if (t.IsGenericType && t.GetGenericTypeDefinition() == targetGeneric)
-                return t.GetGenericArguments();
+            if (!targetGeneric.IsGenericType)
+                throw new ArgumentException($"{nameof(targetGeneric)} is not a valid generic type!", nameof(targetGeneric));
 
-            t = t.BaseType;
+            var t = source;
+
+            while (t != null)
+            {
+                if (t.IsGenericType && t.GetGenericTypeDefinition() == targetGeneric)
+                    return t.GetGenericArguments();
+
+                t = t.BaseType;
+            }
+
+            return null;
         }
 
-        return null;
-    }
+        internal Type GetUnderlyingType()
+            => Nullable.GetUnderlyingType(source) ?? source;
 
-    internal static Type GetUnderlyingType(this Type type)
-        => Nullable.GetUnderlyingType(type) ?? type;
-
-    internal static bool IsComplexType(this Type type)
-    {
-        var isComplex = type.IsClass || (type.IsValueType && type is { IsPrimitive: false, IsEnum: false } && type != typeof(decimal));
-        var isSimpleType = type == typeof(string) ||
-                            type == typeof(DateTime) ||
-                            type == typeof(DateTimeOffset) ||
-                            type == typeof(DateOnly) ||
-                            type == typeof(TimeOnly) ||
-                            type == typeof(TimeSpan) ||
-                            type == typeof(Guid) ||
-                            type == typeof(Half) ||
-                            type == typeof(Int128) ||
-                            type == typeof(UInt128) ||
-                            type == typeof(System.Numerics.BigInteger) ||
-                            type == typeof(System.Net.IPAddress) ||
-                            type == typeof(System.Net.IPEndPoint) ||
-                            type == typeof(Uri) ||
-                            type == typeof(Version);
-
-        return isComplex && !isSimpleType;
-    }
-
-    internal static bool IsCollection(this Type type)
-        => Types.IEnumerable.IsAssignableFrom(type) && type != Types.String;
-
-    internal static bool IsFormFileProp(this Type tProp)
-        => Types.IFormFile.IsAssignableFrom(tProp);
-
-    internal static bool IsFormFileCollectionProp(this Type tProp)
-        => Types.IEnumerableOfIFormFile.IsAssignableFrom(tProp);
-
-    internal static bool IsValidatable(this Type type)
-    {
-        var typeDef = Cfg.BndOpts.ReflectionCache.GetOrAdd(type, new TypeDefinition());
-
-        if (typeDef.IsValidatable is null) // was never initialized
+        internal bool IsComplexType()
         {
-            if (type.IsComplexType() && (type.IsDefined(Types.ValidationAttribute) || type.BindableProps().Any(p => p.IsDefined(Types.ValidationAttribute))))
-                typeDef.IsValidatable = true;
-            else
-                typeDef.IsValidatable = false;
+            var isComplex = source.IsClass || (source.IsValueType && source is { IsPrimitive: false, IsEnum: false } && source != typeof(decimal));
+            var isSimpleType = source == typeof(string) ||
+                               source == typeof(DateTime) ||
+                               source == typeof(DateTimeOffset) ||
+                               source == typeof(DateOnly) ||
+                               source == typeof(TimeOnly) ||
+                               source == typeof(TimeSpan) ||
+                               source == typeof(Guid) ||
+                               source == typeof(Half) ||
+                               source == typeof(Int128) ||
+                               source == typeof(UInt128) ||
+                               source == typeof(System.Numerics.BigInteger) ||
+                               source == typeof(System.Net.IPAddress) ||
+                               source == typeof(System.Net.IPEndPoint) ||
+                               source == typeof(Uri) ||
+                               source == typeof(Version);
+
+            return isComplex && !isSimpleType;
         }
 
-        return typeDef.IsValidatable is true;
+        internal bool IsCollection()
+            => Types.IEnumerable.IsAssignableFrom(source) && source != Types.String;
+
+        internal bool IsFormFileProp()
+            => Types.IFormFile.IsAssignableFrom(source);
+
+        internal bool IsFormFileCollectionProp()
+            => Types.IEnumerableOfIFormFile.IsAssignableFrom(source);
+
+        internal bool IsValidatable()
+        {
+            var typeDef = Cfg.BndOpts.ReflectionCache.GetOrAdd(source, new TypeDefinition());
+
+            if (typeDef.IsValidatable is null) // was never initialized
+            {
+                if (source.IsComplexType() && (source.IsDefined(Types.ValidationAttribute) || source.BindableProps().Any(p => p.IsDefined(Types.ValidationAttribute))))
+                    typeDef.IsValidatable = true;
+                else
+                    typeDef.IsValidatable = false;
+            }
+
+            return typeDef.IsValidatable is true;
+        }
     }
 }

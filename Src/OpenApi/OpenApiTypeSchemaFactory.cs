@@ -29,11 +29,15 @@ static partial class OperationSchemaHelpers
 
                 if (elementType is not null)
                 {
-                    return new OpenApiSchema
+                    var schema = new OpenApiSchema
                     {
                         Type = JsonSchemaType.Array,
                         Items = elementType.GetSchemaForType(shortSchemaNames)
                     };
+
+                    ApplyUniqueItems(schema, actualType);
+
+                    return schema;
                 }
             }
 

@@ -20,13 +20,13 @@ jobs:
             10.x
           #dotnet-quality: 'preview'
 
-      - name: Modify xUnit Runner Config
-        run: |
-          echo '{
-            "parallelizeAssembly": false,
-            "parallelizeTestCollections": false,
-            "diagnosticMessages": false
-          }' > Tests/IntegrationTests/FastEndpoints/xunit.runner.json
+      # - name: Modify xUnit Runner Config
+      #   run: |
+      #     echo '{
+      #       "parallelizeAssembly": false,
+      #       "parallelizeTestCollections": false,
+      #       "diagnosticMessages": false
+      #     }' > Tests/IntegrationTests/FastEndpoints/xunit.runner.json
 
       - name: Run WAF Tests
         run: dotnet test FastEndpoints.slnx -c Release --verbosity minimal --filter "ExcludeInCiCd!=Yes"

@@ -3362,6 +3362,36 @@
         }
       }
     },
+    "/api/swagger-review/unique-items": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewUniqueItemsReviewEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSwaggerReviewUniqueItemsReviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesSwaggerReviewUniqueItemsReviewResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/swagger-review/version-prefilter-initial": {
       "post": {
         "tags": [
@@ -7829,6 +7859,19 @@
           "type": "string"
         }
       },
+      "SystemCollectionsGenericHashSetOfSystemString": {
+        "uniqueItems": true,
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "SystemCollectionsGenericHashSetOfTestCasesSwaggerReviewUniqueItemsReviewChild": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/TestCasesSwaggerReviewUniqueItemsReviewChild"
+        }
+      },
       "SystemCollectionsGenericICollectionOfSystemDateTime": {
         "type": "array",
         "items": {
@@ -7962,6 +8005,21 @@
         "type": "array",
         "items": {
           "$ref": "#/components/schemas/TestCasesQueryObjectWithObjectsArrayBindingTestObjectInArray"
+        }
+      },
+      "SystemCollectionsGenericListOfTestCasesSwaggerReviewUniqueItemsReviewChild": {
+        "uniqueItems": true,
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/TestCasesSwaggerReviewUniqueItemsReviewChild"
+        }
+      },
+      "SystemCollectionsGenericSortedSetOfSystemInt32": {
+        "uniqueItems": true,
+        "type": "array",
+        "items": {
+          "type": "integer",
+          "format": "int32"
         }
       },
       "SystemDateOnly": {
@@ -9428,6 +9486,42 @@
           18446744073709551615
         ],
         "type": "integer"
+      },
+      "TestCasesSwaggerReviewUniqueItemsReviewChild": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "TestCasesSwaggerReviewUniqueItemsReviewRequest": {
+        "type": "object",
+        "properties": {
+          "autoTags": {
+            "$ref": "#/components/schemas/SystemCollectionsGenericHashSetOfSystemString"
+          },
+          "autoChildren": {
+            "$ref": "#/components/schemas/SystemCollectionsGenericHashSetOfTestCasesSwaggerReviewUniqueItemsReviewChild"
+          },
+          "explicitChildren": {
+            "$ref": "#/components/schemas/SystemCollectionsGenericListOfTestCasesSwaggerReviewUniqueItemsReviewChild"
+          }
+        }
+      },
+      "TestCasesSwaggerReviewUniqueItemsReviewResponse": {
+        "type": "object",
+        "properties": {
+          "autoIds": {
+            "$ref": "#/components/schemas/SystemCollectionsGenericSortedSetOfSystemInt32"
+          },
+          "explicitChildren": {
+            "$ref": "#/components/schemas/SystemCollectionsGenericListOfTestCasesSwaggerReviewUniqueItemsReviewChild"
+          }
+        }
       },
       "TestCasesSwaggerReviewVersionPrefilterSharedRequest": {
         "type": "object",

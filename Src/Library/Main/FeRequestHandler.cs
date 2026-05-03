@@ -53,11 +53,7 @@ internal sealed class FeRequestHandler : IResult
             return ctx.Response.StartAsync(ctx.RequestAborted);
         }
 
-        var epInstance = ctx.RequestServices.GetRequiredService<IEndpointFactory>().Create(epDef, ctx);
-        epInstance.Definition = epDef;
-        epInstance.HttpContext = ctx;
-        ctx.Items[CtxKey.ValidationFailures] = epInstance.ValidationFailures;
-        ctx.Items[CtxKey.ToHeaderProps] = epDef.ToHeaderProps;
+        var epInstance = EndpointBootstrap.CreateEndpoint(ctx, epDef);
 
         // ReSharper disable SuspiciousTypeConversion.Global
         if (epDef.Disposable)

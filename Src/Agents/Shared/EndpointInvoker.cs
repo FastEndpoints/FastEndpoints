@@ -34,19 +34,36 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
     {
         using var scope = scopeFactory.CreateScope();
         var httpContext = BuildHttpContext(definition, args, principal, scope.ServiceProvider);
-
-        var factory = scope.ServiceProvider.GetRequiredService<IEndpointFactory>();
-        var endpoint = factory.Create(definition, httpContext);
-        endpoint.Definition = definition;
-        endpoint.HttpContext = httpContext;
+        var endpoint = EndpointBootstrap.CreateEndpoint(httpContext, definition);
+        var accessor = scope.ServiceProvider.GetService<IHttpContextAccessor>();
+        var resolverAccessor = FastEndpoints.HttpContextExtensions.TryResolve<IHttpContextAccessor>(httpContext);
+        var previousContext = accessor?.HttpContext;
+        var previousResolverContext = resolverAccessor?.HttpContext;
 
         try
         {
+            if (accessor is not null)
+                accessor.HttpContext = httpContext;
+            if (resolverAccessor is not null && !ReferenceEquals(resolverAccessor, accessor))
+                resolverAccessor.HttpContext = httpContext;
+
             await endpoint.ExecAsync(ct);
         }
         catch (Exception ex)
         {
             return InvocationResult.Faulted(ex, endpoint.ValidationFailures);
+        }
+        finally
+        {
+            if (accessor is not null)
+                accessor.HttpContext = previousContext;
+            if (resolverAccessor is not null && !ReferenceEquals(resolverAccessor, accessor))
+                resolverAccessor.HttpContext = previousResolverContext;
+
+            if (definition.DisposableAsync)
+                await ((IAsyncDisposable)endpoint).DisposeAsync();
+            if (definition.Disposable)
+                ((IDisposable)endpoint).Dispose();
         }
 
         // report validation failures regardless of response status: an endpoint that opts into

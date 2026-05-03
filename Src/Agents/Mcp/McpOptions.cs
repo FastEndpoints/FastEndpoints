@@ -1,3 +1,4 @@
+using FastEndpoints.Agents;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 
@@ -18,11 +19,8 @@ public sealed class McpOptions
     /// agent-facing filter separately. anonymous callers are denied by default. set this to a custom delegate such as
     /// <c>(_, _, _) => true</c> to relax visibility.
     /// </summary>
-    public Func<EndpointDefinition, ClaimsPrincipal, HttpContext, bool> ToolVisibilityFilter { get; set; } = _authenticatedCallersOnly;
+    public Func<EndpointDefinition, ClaimsPrincipal, HttpContext, bool> ToolVisibilityFilter { get; set; } = AgentVisibilityFilters.AuthenticatedCallersOnly;
 
     /// <summary>include <c>outputSchema</c> in tool descriptors when <c>true</c> (default).</summary>
     public bool IncludeOutputSchemas { get; set; } = true;
-
-    static readonly Func<EndpointDefinition, ClaimsPrincipal, HttpContext, bool> _authenticatedCallersOnly =
-        static (_, principal, _) => principal.Identity?.IsAuthenticated == true;
 }

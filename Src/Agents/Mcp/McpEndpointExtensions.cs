@@ -1,3 +1,5 @@
+using FastEndpoints.Agents;
+
 namespace FastEndpoints.Mcp;
 
 /// <summary>
@@ -38,7 +40,7 @@ public static class McpEndpointExtensions
                             string? description = null,
                             Action<McpToolInfo>? configure = null)
         {
-            var info = ResolveOrCreate(def);
+            var info = EndpointMetadataHelpers.GetOrCreateMetadata<McpToolInfo>(def);
             if (name is not null)
                 info.Name = name;
             if (description is not null)
@@ -55,42 +57,12 @@ public static class McpEndpointExtensions
         /// </summary>
         internal McpToolInfo? ResolveToolInfo()
         {
-            if (def.EndpointMetadata is { } meta)
-            {
-                foreach (var o in meta)
-                {
-                    if (o is McpToolInfo info)
-                        return info;
-                }
-            }
+            var info = EndpointMetadataHelpers.GetMetadata<McpToolInfo>(def);
 
-            if (def.EndpointAttributes is { } attrs)
-            {
-                foreach (var a in attrs)
-                {
-                    if (a is McpToolAttribute attr)
-                        return attr.ToInfo(def.EndpointType);
-                }
-            }
+            if (info is not null)
+                return info;
 
-            return null;
+            return EndpointMetadataHelpers.GetAttribute<McpToolAttribute>(def)?.ToInfo(def.EndpointType);
         }
-    }
-
-    static McpToolInfo ResolveOrCreate(EndpointDefinition def)
-    {
-        if (def.EndpointMetadata is { } meta)
-        {
-            foreach (var o in meta)
-            {
-                if (o is McpToolInfo existing)
-                    return existing;
-            }
-        }
-
-        var info = new McpToolInfo();
-        def.Metadata(info);
-
-        return info;
     }
 }

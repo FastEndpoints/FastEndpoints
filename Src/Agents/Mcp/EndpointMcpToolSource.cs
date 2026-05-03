@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization.Metadata;
@@ -209,7 +208,7 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
 
     static CallToolResult BuildSuccessResult(InvocationResult r, JsonNode? outputSchema)
     {
-        var text = GetResponseText(r.Body);
+        var text = InvocationResultHelpers.ReadBodyText(r);
         JsonElement? structuredContent = null;
 
         if (outputSchema is not null && TryExtractStructuredContent(text, out var content))
@@ -237,7 +236,7 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
 
     static CallToolResult BuildHttpErrorResult(InvocationResult r)
     {
-        var text = GetResponseText(r.Body);
+        var text = InvocationResultHelpers.ReadBodyText(r);
 
         return new()
         {
@@ -265,9 +264,6 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
 
         return HasObjectRootSchema(outputSchema) ? outputSchema : null;
     }
-
-    static string GetResponseText(byte[] body)
-        => body.Length == 0 ? string.Empty : Encoding.UTF8.GetString(body);
 
     static void NormalizeRootObjectSchema(JsonNode schema)
     {
@@ -327,27 +323,11 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
 
     static bool TryExtractStructuredContent(string text, out JsonElement structuredContent)
     {
-        if (string.IsNullOrWhiteSpace(text))
+        if (InvocationResultHelpers.TryParseJson(text, out var json) && json.ValueKind == JsonValueKind.Object)
         {
-            structuredContent = default;
+            structuredContent = json;
 
-            return false;
-        }
-
-        try
-        {
-            var json = JsonSerializer.Deserialize<JsonElement>(text);
-
-            if (json.ValueKind == JsonValueKind.Object)
-            {
-                structuredContent = json;
-
-                return true;
-            }
-        }
-        catch (JsonException)
-        {
-            // non-JSON or non-object payloads keep the existing text-only result
+            return true;
         }
 
         structuredContent = default;

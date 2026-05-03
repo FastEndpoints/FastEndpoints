@@ -1,3 +1,5 @@
+using FastEndpoints.Agents;
+
 namespace FastEndpoints.A2A;
 
 /// <summary>
@@ -36,7 +38,7 @@ public static class A2AEndpointExtensions
         /// </summary>
         public void A2ASkill(string? id = null, string[]? tags = null, Action<A2ASkillInfo>? configure = null)
         {
-            var info = GetMetadataSkillInfo(def) ?? CreateSkillInfo(def);
+            var info = EndpointMetadataHelpers.GetOrCreateMetadata<A2ASkillInfo>(def);
 
             if (id is not null)
                 info.Id = id;
@@ -56,43 +58,12 @@ public static class A2AEndpointExtensions
         /// </summary>
         internal A2ASkillInfo? ResolveSkillInfo()
         {
-            var info = GetMetadataSkillInfo(def);
+            var info = EndpointMetadataHelpers.GetMetadata<A2ASkillInfo>(def);
 
             if (info is not null)
                 return info;
 
-            if (def.EndpointAttributes is not { } attrs)
-                return null;
-
-            foreach (var a in attrs)
-            {
-                if (a is A2ASkillAttribute attr)
-                    return attr.ToInfo();
-            }
-
-            return null;
+            return EndpointMetadataHelpers.GetAttribute<A2ASkillAttribute>(def)?.ToInfo();
         }
-    }
-
-    static A2ASkillInfo? GetMetadataSkillInfo(EndpointDefinition def)
-    {
-        if (def.EndpointMetadata is { } meta)
-        {
-            foreach (var o in meta)
-            {
-                if (o is A2ASkillInfo existing)
-                    return existing;
-            }
-        }
-
-        return null;
-    }
-
-    static A2ASkillInfo CreateSkillInfo(EndpointDefinition def)
-    {
-        var info = new A2ASkillInfo();
-        def.Metadata(info);
-
-        return info;
     }
 }

@@ -1,4 +1,3 @@
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using FastEndpoints.Agents;
@@ -54,7 +53,7 @@ sealed class A2ASkillDispatcher(A2ASkillCatalog skillCatalog, EndpointInvoker in
 
     static A2ASendMessageResponse BuildSuccess(InvocationResult r, A2AMessage requestMessage)
     {
-        var text = ReadBodyText(r);
+        var text = InvocationResultHelpers.ReadBodyText(r);
 
         return new()
         {
@@ -64,15 +63,15 @@ sealed class A2ASkillDispatcher(A2ASkillCatalog skillCatalog, EndpointInvoker in
                 ContextId = requestMessage.ContextId,
                 TaskId = requestMessage.TaskId,
                 Role = "ROLE_AGENT",
-                Parts = [BuildResponsePart(text, NormalizeMediaType(r.ContentType))]
+                Parts = [BuildResponsePart(text, InvocationResultHelpers.NormalizeMediaType(r.ContentType, DefaultMediaType))]
             }
         };
     }
 
     static JsonRpcError BuildHttpError(InvocationResult result)
     {
-        var text = ReadBodyText(result);
-        object? body = TryParseJson(text, out var json) ? json : null;
+        var text = InvocationResultHelpers.ReadBodyText(result);
+        object? body = InvocationResultHelpers.TryParseJson(text, out var json) ? json : null;
 
         return new()
         {
@@ -81,7 +80,7 @@ sealed class A2ASkillDispatcher(A2ASkillCatalog skillCatalog, EndpointInvoker in
             Data = new EndpointErrorData
             {
                 statusCode = result.HttpStatusCode,
-                contentType = NormalizeMediaType(result.ContentType),
+                contentType = InvocationResultHelpers.NormalizeMediaType(result.ContentType, DefaultMediaType),
                 body = body,
                 rawBody = text
             }
@@ -98,39 +97,11 @@ sealed class A2ASkillDispatcher(A2ASkillCatalog skillCatalog, EndpointInvoker in
 
     static A2APart BuildResponsePart(string text, string mediaType)
     {
-        if (TryParseJson(text, out var data))
+        if (InvocationResultHelpers.TryParseJson(text, out var data))
             return new() { Data = data, MediaType = mediaType };
 
         return new() { Text = text, MediaType = mediaType };
     }
-
-    static string ReadBodyText(InvocationResult result)
-        => result.Body.Length == 0 ? string.Empty : Encoding.UTF8.GetString(result.Body);
-
-    static bool TryParseJson(string text, out JsonElement json)
-    {
-        json = default;
-
-        if (string.IsNullOrWhiteSpace(text))
-            return false;
-
-        try
-        {
-            using var doc = JsonDocument.Parse(text);
-            json = doc.RootElement.Clone();
-
-            return true;
-        }
-        catch (JsonException)
-        {
-            return false;
-        }
-    }
-
-    static string NormalizeMediaType(string? contentType)
-        => string.IsNullOrWhiteSpace(contentType)
-               ? DefaultMediaType
-               : contentType.Split(';', 2)[0].Trim();
 
     sealed class EndpointErrorData
     {

@@ -126,7 +126,7 @@ public static class Factory
         ctx.RequestServices = collection.BuildServiceProvider();
         ServiceResolver.Instance.Resolve<IHttpContextAccessor>().HttpContext = ctx;
         if (ctx.RequestServices.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions is { } serializerOpts)
-            Cfg.SerOpts.Options = serializerOpts;
+            Cfg.SerOpts.Options = new(serializerOpts);
     }
 
     /// <summary>

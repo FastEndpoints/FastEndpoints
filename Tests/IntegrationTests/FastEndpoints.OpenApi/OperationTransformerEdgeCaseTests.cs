@@ -217,6 +217,31 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     }
 
     [Fact]
+    public async Task unique_items_are_emitted_for_scalar_set_types_and_explicit_opt_in()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var doc = JToken.Parse(json);
+        var requestSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewUniqueItemsReviewRequest"]!;
+        var responseSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewUniqueItemsReviewResponse"]!;
+        var hashSetStringSchema = doc["components"]!["schemas"]!["SystemCollectionsGenericHashSetOfSystemString"]!;
+        var hashSetChildSchema = doc["components"]!["schemas"]!["SystemCollectionsGenericHashSetOfTestCasesSwaggerReviewUniqueItemsReviewChild"]!;
+        var listChildSchema = doc["components"]!["schemas"]!["SystemCollectionsGenericListOfTestCasesSwaggerReviewUniqueItemsReviewChild"]!;
+        var sortedSetIntSchema = doc["components"]!["schemas"]!["SystemCollectionsGenericSortedSetOfSystemInt32"]!;
+
+        requestSchema["properties"]!["autoTags"]!["$ref"]!.Value<string>().ShouldBe("#/components/schemas/SystemCollectionsGenericHashSetOfSystemString");
+        requestSchema["properties"]!["autoChildren"]!["$ref"]!.Value<string>().ShouldBe("#/components/schemas/SystemCollectionsGenericHashSetOfTestCasesSwaggerReviewUniqueItemsReviewChild");
+        requestSchema["properties"]!["explicitChildren"]!["$ref"]!.Value<string>().ShouldBe("#/components/schemas/SystemCollectionsGenericListOfTestCasesSwaggerReviewUniqueItemsReviewChild");
+
+        hashSetStringSchema["uniqueItems"]!.Value<bool>().ShouldBeTrue();
+        hashSetChildSchema["uniqueItems"].ShouldBeNull();
+        listChildSchema["uniqueItems"]!.Value<bool>().ShouldBeTrue();
+        sortedSetIntSchema["uniqueItems"]!.Value<bool>().ShouldBeTrue();
+
+        responseSchema["properties"]!["autoIds"]!["$ref"]!.Value<string>().ShouldBe("#/components/schemas/SystemCollectionsGenericSortedSetOfSystemInt32");
+        responseSchema["properties"]!["explicitChildren"]!["$ref"]!.Value<string>().ShouldBe("#/components/schemas/SystemCollectionsGenericListOfTestCasesSwaggerReviewUniqueItemsReviewChild");
+    }
+
+    [Fact]
     public async Task promoted_body_schema_keeps_validation_rules_from_promoted_property_subtree()
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review");

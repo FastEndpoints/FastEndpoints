@@ -719,6 +719,10 @@ sealed partial class OperationTransformer
                 propType = typeof(string);
 
             var schema = propType.GetSchemaForType(sharedCtx, shortSchemaNames);
+
+            if (schema is OpenApiSchema concreteSchema)
+                OperationSchemaHelpers.ApplyUniqueItems(concreteSchema, propType, prop);
+
             var isNullable = prop is not null && IsNullable(prop);
             var hasCtorDefault = prop?.GetParentCtorDefaultValue() is not null;
             var required = isRequired ?? (!hasCtorDefault && !isNullable);

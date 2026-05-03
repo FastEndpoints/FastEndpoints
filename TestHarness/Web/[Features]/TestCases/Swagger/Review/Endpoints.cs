@@ -456,6 +456,48 @@ sealed class PromotedBodyValidationChild
     public string? Code { get; set; }
 }
 
+sealed class UniqueItemsReviewRequest
+{
+    public HashSet<string> AutoTags { get; set; } = [];
+
+    public HashSet<UniqueItemsReviewChild> AutoChildren { get; set; } = [];
+
+    [UniqueItems]
+    public List<UniqueItemsReviewChild> ExplicitChildren { get; set; } = [];
+}
+
+sealed class UniqueItemsReviewResponse
+{
+    public SortedSet<int> AutoIds { get; set; } = [];
+
+    [UniqueItems]
+    public List<UniqueItemsReviewChild> ExplicitChildren { get; set; } = [];
+}
+
+sealed class UniqueItemsReviewChild
+{
+    public string? Name { get; set; }
+}
+
+sealed class UniqueItemsReviewEndpoint : Endpoint<UniqueItemsReviewRequest, UniqueItemsReviewResponse>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/unique-items");
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(UniqueItemsReviewRequest req, CancellationToken ct)
+        => Send.OkAsync(
+            new()
+            {
+                AutoIds = [1, 2],
+                ExplicitChildren = req.ExplicitChildren
+            },
+            ct);
+}
+
 sealed class PromotedBodyValidationChildValidator : Validator<PromotedBodyValidationChild>
 {
     public PromotedBodyValidationChildValidator()

@@ -786,6 +786,17 @@ public class OperationSchemaHelpersTests
     }
 
     [Fact]
+    public void inherited_nullable_query_parameter_is_not_required()
+    {
+        var operation = new OpenApiOperation();
+        var prop = typeof(InheritedNullableQueryRequest).GetProperty(nameof(InheritedNullableQueryRequest.Optional))!;
+
+        AddParameter(operation, "optional", ParameterLocation.Query, prop);
+
+        operation.Parameters!.Single().Required.ShouldBeFalse();
+    }
+
+    [Fact]
     public void from_form_promotion_keeps_only_actual_form_content_type()
     {
         var operation = CreateFormPromotionOperation();
@@ -1195,6 +1206,13 @@ public class OperationSchemaHelpersTests
         }
 
         public int Page { get; }
+    }
+
+    sealed class InheritedNullableQueryRequest : InheritedNullableQueryBase;
+
+    class InheritedNullableQueryBase
+    {
+        public string? Optional { get; init; }
     }
 
     sealed class ProducesMetadata(Type type) : IProducesResponseTypeMetadata

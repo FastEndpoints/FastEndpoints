@@ -14,6 +14,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
 {
     const BindingFlags PublicInstanceHierarchy = BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy;
     static readonly ConcurrentDictionary<Type, TypeMetadata> _typeMetadataCache = new();
+    static readonly ConcurrentDictionary<PropertyInfo, bool> _nullablePropertyCache = new();
     readonly ValidationSchemaTransformer _validationTransformer = new(docOpts, sharedCtx);
     readonly OperationMetadataTransformer _metadataTransformer = new(docOpts, sharedCtx);
     readonly RequestOperationTransformer _requestTransformer = new(docOpts, sharedCtx);
@@ -23,7 +24,6 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
     {
         public required PropertyInfo[] PublicInstanceProperties { get; init; }
         public required PropertyInfo[] BindableRequestProperties { get; init; }
-        public required IReadOnlyDictionary<PropertyInfo, bool> NullableProperties { get; init; }
     }
 
     sealed class RouteParameterInfo
@@ -186,17 +186,11 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
     static TypeMetadata CreateTypeMetadata(Type type)
     {
         var properties = type.GetProperties(PublicInstanceHierarchy);
-        var nullabilityCtx = new NullabilityInfoContext();
-        var nullableProperties = new Dictionary<PropertyInfo, bool>(properties.Length);
-
-        foreach (var property in properties)
-            nullableProperties[property] = nullabilityCtx.Create(property).WriteState is NullabilityState.Nullable;
 
         return new()
         {
             PublicInstanceProperties = properties,
-            BindableRequestProperties = properties.Where(IsBindableRequestProperty).ToArray(),
-            NullableProperties = new ReadOnlyDictionary<PropertyInfo, bool>(nullableProperties)
+            BindableRequestProperties = properties.Where(IsBindableRequestProperty).ToArray()
         };
     }
 
@@ -207,13 +201,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
            !property.IsDefined(Types.DontInjectAttribute);
 
     static bool IsNullable(PropertyInfo prop)
-    {
-        var declaringType = prop.DeclaringType ?? prop.ReflectedType;
-
-        return declaringType is not null &&
-               GetTypeMetadata(declaringType).NullableProperties.TryGetValue(prop, out var isNullable) &&
-               isNullable;
-    }
+        => _nullablePropertyCache.GetOrAdd(prop, static property => new NullabilityInfoContext().Create(property).WriteState is NullabilityState.Nullable);
 
     static Type? GetRequestDtoType(EndpointDefinition epDef)
         => epDef.ReqDtoType;

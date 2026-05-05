@@ -50,6 +50,15 @@ public class SchemaNameGeneratorTests
         userFromApiA.ShouldBe("ApiA_PageOfUser");
         userFromApiB.ShouldBe("ApiA_PageOfUser");
     }
+
+    [Fact]
+    public void nullable_enum_schema_names_reuse_underlying_enum_schema_name()
+    {
+        var refId = SchemaNameGenerator.GetReferenceId(typeof(NullableSchemaNameStatus?), shortSchemaNames: true);
+
+        refId.ShouldBe(SchemaNameGenerator.GetReferenceId(typeof(NullableSchemaNameStatus), shortSchemaNames: true));
+        refId.ShouldBe("NullableSchemaNameStatus");
+    }
 }
 
 public class NestedTypeContainer
@@ -62,6 +71,12 @@ public class SchemaNameCustomer { }
 public class GenericType<T> { }
 
 public class GenericPair<T1, T2> { }
+
+public enum NullableSchemaNameStatus
+{
+    Active,
+    Disabled
+}
 
 public static class ApiA
 {

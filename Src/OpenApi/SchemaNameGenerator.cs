@@ -35,10 +35,12 @@ static class SchemaNameGenerator
 
     internal static string? GetReferenceId(Type type, bool shortSchemaNames)
     {
-        if (ShouldInlineType(type))
-            return null;
+        if (type.GetUnderlyingType() is { IsEnum: true } enumType)
+            type = enumType;
 
-        return _referenceIdCache.GetOrAdd(new(type, shortSchemaNames), static key => Generate(key.Type, key.ShortSchemaNames));
+        return ShouldInlineType(type)
+                   ? null
+                   : _referenceIdCache.GetOrAdd(new(type, shortSchemaNames), static key => Generate(key.Type, key.ShortSchemaNames));
     }
 
     static bool ShouldInlineType(Type type)

@@ -1,6 +1,6 @@
 namespace OpenApi;
 
-public class SwaggerDocTests(Fixture App) : TestBase<Fixture>
+public class SnapshotTests(Fixture App) : TestBase<Fixture>
 {
     //NOTE: matching against verified json files in the project root vs latest generated json.
     //      to update the golden master (verified json files), just set '_updateSnapshots = true' and run the tests.

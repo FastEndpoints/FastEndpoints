@@ -12,7 +12,7 @@ sealed class EnumSchemaTransformer(SharedContext sharedCtx) : IOpenApiSchemaTran
 {
     public Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context, CancellationToken ct)
     {
-        var type = context.JsonTypeInfo.Type;
+        var type = context.JsonTypeInfo.Type.GetUnderlyingType();
 
         if (!type.IsEnum)
             return Task.CompletedTask;

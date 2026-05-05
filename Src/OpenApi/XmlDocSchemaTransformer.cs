@@ -1,5 +1,4 @@
 using System.Reflection;
-using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
 
@@ -26,14 +25,7 @@ sealed class XmlDocSchemaTransformer : IOpenApiSchemaTransformer
                 if (example is null)
                     return Task.CompletedTask;
 
-                try
-                {
-                    schema.Example = JsonNode.Parse(example);
-                }
-                catch
-                {
-                    schema.Example = JsonValue.Create(example);
-                }
+                schema.Example = OperationSchemaHelpers.ParseXmlExampleJsonNode(example, preserveRawString: true);
             }
         }
         else

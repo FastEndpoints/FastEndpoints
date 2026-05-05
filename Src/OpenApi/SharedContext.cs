@@ -19,11 +19,11 @@ internal class SharedContext
 
     internal IReadOnlySet<string> SharedRequestSchemaRefs => Volatile.Read(ref _sharedRequestSchemaRefs) ?? _emptyRequestSchemaRefs;
 
-    internal JsonSerializerOptions ResolveSerializerOptions(IServiceProvider services)
+    internal JsonSerializerOptions ResolveSerializerOptions()
         => SerializerOptions ??= Cfg.SerOpts.Options;
 
-    internal JsonNamingPolicy? ResolveNamingPolicy(IServiceProvider services)
-        => NamingPolicy ??= ResolveSerializerOptions(services).PropertyNamingPolicy;
+    internal JsonNamingPolicy? ResolveNamingPolicy()
+        => NamingPolicy ??= ResolveSerializerOptions().PropertyNamingPolicy;
 
     internal void InitializeSharedRequestSchemaRefs(IServiceProvider services, DocumentOptions docOpts)
     {

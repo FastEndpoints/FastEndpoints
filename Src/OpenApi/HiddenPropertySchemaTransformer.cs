@@ -1,31 +1,14 @@
 using System.Collections.Concurrent;
 using System.Reflection;
-using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi;
 
 namespace FastEndpoints.OpenApi;
 
-sealed class HiddenPropertySchemaTransformer(DocumentOptions docOpts, SharedContext sharedCtx) : IOpenApiSchemaTransformer
+sealed class HiddenPropertySchemaTransformer(DocumentOptions docOpts, SharedContext sharedCtx) : PropertyRemovalSchemaTransformer(docOpts, sharedCtx)
 {
     static readonly ConcurrentDictionary<Type, PropertyInfo[]> _hiddenPropertiesCache = new();
 
-    public Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context, CancellationToken ct)
-    {
-        if (context.JsonPropertyInfo is not null || schema.Properties is not { Count: > 0 })
-            return Task.CompletedTask;
-
-        var namingPolicy = sharedCtx.ResolveNamingPolicy(context.ApplicationServices);
-
-        foreach (var prop in _hiddenPropertiesCache.GetOrAdd(context.JsonTypeInfo.Type, GetHiddenProperties))
-        {
-            var jsonName = PropertyNameResolver.GetSchemaPropertyName(prop, namingPolicy, docOpts.UsePropertyNamingPolicy);
-
-            schema.Properties.Remove(jsonName);
-            schema.Required?.Remove(jsonName);
-        }
-
-        return Task.CompletedTask;
-    }
+    protected override IReadOnlyList<PropertyInfo> GetPropertiesToRemove(Type type)
+        => _hiddenPropertiesCache.GetOrAdd(type, GetHiddenProperties);
 
     static PropertyInfo[] GetHiddenProperties(Type type)
         => type.GetProperties(BindingFlags.Public | BindingFlags.Instance)

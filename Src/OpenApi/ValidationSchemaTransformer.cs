@@ -31,7 +31,7 @@ sealed partial class ValidationSchemaTransformer(DocumentOptions docOpts, Shared
             if (_initialized)
                 return;
 
-            _namingPolicy = sharedCtx.ResolveNamingPolicy(services);
+            _namingPolicy = sharedCtx.ResolveNamingPolicy();
             _serviceResolver = services.GetRequiredService<IServiceResolver>();
             _logger = services.GetRequiredService<ILogger<ValidationSchemaTransformer>>();
 

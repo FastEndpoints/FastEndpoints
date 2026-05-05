@@ -37,7 +37,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
         var epDef = metadata.OfType<EndpointDefinition>().SingleOrDefault();
 
         docOpts.Services ??= context.ApplicationServices;
-        sharedCtx.ResolveNamingPolicy(context.ApplicationServices);
+        sharedCtx.ResolveNamingPolicy();
         sharedCtx.InitializeSharedRequestSchemaRefs(context.ApplicationServices, docOpts);
 
         // compute the document path for this operation

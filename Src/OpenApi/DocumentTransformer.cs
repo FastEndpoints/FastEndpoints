@@ -10,7 +10,7 @@ sealed class DocumentTransformer(DocumentOptions opts, SharedContext sharedCtx) 
     public async Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
     {
         opts.Services ??= context.ApplicationServices;
-        sharedCtx.ResolveNamingPolicy(context.ApplicationServices);
+        sharedCtx.ResolveNamingPolicy();
 
         if (opts.Title is not null)
             document.Info.Title = opts.Title;

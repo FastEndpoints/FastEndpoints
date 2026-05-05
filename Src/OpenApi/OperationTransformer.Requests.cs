@@ -427,23 +427,24 @@ sealed partial class OperationTransformer
             if (exampleObj is null)
                 return;
 
+            var examplePropertyLookup = BuildExamplePropertyLookup(exampleObj);
+
             foreach (var param in operation.Parameters)
             {
                 if (param is not OpenApiParameter concreteParam)
                     continue;
 
-                // look up by param name in the serialized JSON (case-insensitive)
-                var matchingProp = exampleObj.FirstOrDefault(kv => string.Equals(kv.Key, concreteParam.Name, StringComparison.OrdinalIgnoreCase));
-
-                if (matchingProp.Value is not null)
+                if (concreteParam.Name is { } parameterName &&
+                    examplePropertyLookup.TryGetValue(parameterName, out var exampleValue) &&
+                    exampleValue is not null)
                 {
-                    concreteParam.Example = matchingProp.Value.DeepClone();
+                    concreteParam.Example = exampleValue.DeepClone();
 
                     continue;
                 }
 
-                var prop = concreteParam.Name is { } parameterName
-                               ? FindRequestProperty(requestPropLookup, parameterName, concreteParam.In ?? ParameterLocation.Query)
+                var prop = concreteParam.Name is { } name
+                               ? FindRequestProperty(requestPropLookup, name, concreteParam.In ?? ParameterLocation.Query)
                                : null;
                 var propValue = prop?.DeclaringType?.IsInstanceOfType(exampleRequest) is true
                                     ? prop.GetValue(exampleRequest)
@@ -452,6 +453,16 @@ sealed partial class OperationTransformer
                 if (propValue is not null)
                     concreteParam.Example = propValue.JsonNodeFromObject(SerializerOptions);
             }
+        }
+
+        static Dictionary<string, JsonNode?> BuildExamplePropertyLookup(JsonObject exampleObj)
+        {
+            var lookup = new Dictionary<string, JsonNode?>(exampleObj.Count, StringComparer.OrdinalIgnoreCase);
+
+            foreach (var (key, value) in exampleObj)
+                lookup.TryAdd(key, value);
+
+            return lookup;
         }
 
         static Dictionary<string, string> BuildParamDescriptionLookup(IReadOnlyDictionary<string, string> paramDescriptions)

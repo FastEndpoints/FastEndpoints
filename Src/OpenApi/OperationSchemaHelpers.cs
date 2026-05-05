@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Text.Json.Nodes;
 using Microsoft.OpenApi;
 
@@ -5,6 +6,11 @@ namespace FastEndpoints.OpenApi;
 
 static partial class OperationSchemaHelpers
 {
+    static readonly ConcurrentDictionary<Type, TypeLookupResult> _collectionElementTypeCache = new();
+    static readonly ConcurrentDictionary<Type, TypeLookupResult> _dictionaryValueTypeCache = new();
+
+    readonly record struct TypeLookupResult(Type? Type);
+
     internal static OpenApiSchema StringSchema()
         => new() { Type = JsonSchemaType.String };
 
@@ -36,6 +42,13 @@ static partial class OperationSchemaHelpers
     }
 
     internal static Type? TryGetCollectionElementType(Type type)
+    {
+        type = type.GetUnderlyingType();
+
+        return _collectionElementTypeCache.GetOrAdd(type, static t => new(ResolveCollectionElementType(t))).Type;
+    }
+
+    static Type? ResolveCollectionElementType(Type type)
     {
         type = type.GetUnderlyingType();
 

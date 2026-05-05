@@ -18,7 +18,7 @@ sealed class EnumSchemaTransformer(SharedContext sharedCtx) : IOpenApiSchemaTran
             return Task.CompletedTask;
 
         var values = Enum.GetValues(type);
-        var serializerOptions = sharedCtx.ResolveSerializerOptions(context.ApplicationServices);
+        var serializerOptions = sharedCtx.ResolveSerializerOptions();
 
         schema.Enum = [];
 

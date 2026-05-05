@@ -112,7 +112,12 @@ static partial class OperationSchemaHelpers
 
     internal static Type? TryGetDictionaryValueType(Type type)
     {
-        type = Nullable.GetUnderlyingType(type) ?? type;
+        return _dictionaryValueTypeCache.GetOrAdd(type.GetUnderlyingType(), static t => new(ResolveDictionaryValueType(t))).Type;
+    }
+
+    static Type? ResolveDictionaryValueType(Type type)
+    {
+        type = type.GetUnderlyingType();
 
         if (TryMatchDictionary(type) is { } directMatch)
             return directMatch;

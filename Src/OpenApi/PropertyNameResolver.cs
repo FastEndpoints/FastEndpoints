@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
@@ -7,6 +8,11 @@ namespace FastEndpoints.OpenApi;
 
 static class PropertyNameResolver
 {
+    static readonly ConcurrentDictionary<PropertyLookupKey, PropertyLookupResult> _propertyLookupCache = new();
+
+    readonly record struct PropertyLookupKey(Type Type, string MemberName);
+    readonly record struct PropertyLookupResult(PropertyInfo? Property);
+
     internal static string GetSchemaPropertyName(PropertyInfo property, JsonNamingPolicy? namingPolicy = null, bool usePropertyNamingPolicy = true)
         => property.GetCustomAttribute<JsonPropertyNameAttribute>()?.Name ??
            (usePropertyNamingPolicy ? namingPolicy?.ConvertName(property.Name) : null) ??
@@ -63,6 +69,15 @@ static class PropertyNameResolver
             return null;
 
         var currentType = type.GetUnderlyingType();
+
+        return _propertyLookupCache.GetOrAdd(
+                                       new(currentType, memberName),
+                                       static key => new(ResolvePropertyCore(key.Type, key.MemberName)))
+                                   .Property;
+    }
+
+    static PropertyInfo? ResolvePropertyCore(Type currentType, string memberName)
+    {
         var property = currentType.GetProperty(memberName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
 
         if (property is not null)

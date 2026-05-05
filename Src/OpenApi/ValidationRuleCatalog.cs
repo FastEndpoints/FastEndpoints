@@ -118,6 +118,7 @@ static class ValidationRuleCatalog
                             if (!context.TryGetPropertySchema(out var prop))
                                 return;
 
+                            // ReSharper disable once SwitchStatementMissingSomeEnumCasesNoDefault
                             switch (comparisonValidator.Comparison)
                             {
                                 case Comparison.GreaterThanOrEqual:

@@ -1,9 +1,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Frozen;
 using System.Text.Json;
-using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 
 namespace FastEndpoints.OpenApi;
 
@@ -14,14 +12,18 @@ internal class SharedContext
 {
     static readonly FrozenSet<string> _emptyRequestSchemaRefs = Array.Empty<string>().ToFrozenSet(StringComparer.Ordinal);
 
+    internal JsonSerializerOptions? SerializerOptions;
     internal JsonNamingPolicy? NamingPolicy;
     readonly object _requestSchemaSharingLock = new();
     FrozenSet<string>? _sharedRequestSchemaRefs;
 
     internal IReadOnlySet<string> SharedRequestSchemaRefs => Volatile.Read(ref _sharedRequestSchemaRefs) ?? _emptyRequestSchemaRefs;
 
+    internal JsonSerializerOptions ResolveSerializerOptions(IServiceProvider services)
+        => SerializerOptions ??= Cfg.SerOpts.Options;
+
     internal JsonNamingPolicy? ResolveNamingPolicy(IServiceProvider services)
-        => NamingPolicy ??= services.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions.PropertyNamingPolicy;
+        => NamingPolicy ??= ResolveSerializerOptions(services).PropertyNamingPolicy;
 
     internal void InitializeSharedRequestSchemaRefs(IServiceProvider services, DocumentOptions docOpts)
     {
@@ -39,17 +41,7 @@ internal class SharedContext
 
     static FrozenSet<string> BuildSharedRequestSchemaRefs(IServiceProvider services, DocumentOptions docOpts)
     {
-        var empty = _emptyRequestSchemaRefs;
-
-        var serviceResolver = services.GetService<IServiceResolver>();
-
-        if (serviceResolver is null)
-            return empty;
-
-        var endpointData = serviceResolver.Resolve<EndpointData>();
-
-        if (endpointData is null)
-            return empty;
+        var endpointData = services.GetRequiredService<EndpointData>();
 
         var includedRefCounts = new Dictionary<string, int>(StringComparer.Ordinal);
 

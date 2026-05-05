@@ -23,8 +23,8 @@ static class ConstructorDefaultExtensions
     static IReadOnlyDictionary<string, object?> CreateConstructorDefaultMap(Type type)
     {
         var parameters = type.GetConstructors()
-                             .MaxBy(static c => c.GetParameters().Length)
-                             ?.GetParameters();
+                             .MaxBy(static c => c.GetParameters().Length)?
+                             .GetParameters();
 
         if (parameters is null)
             return _emptyConstructorDefaults;
@@ -33,7 +33,7 @@ static class ConstructorDefaultExtensions
 
         foreach (var parameter in parameters)
         {
-            if (parameter.HasDefaultValue && parameter.Name is not null)
+            if (parameter is { HasDefaultValue: true, Name: not null })
                 defaults[parameter.Name] = parameter.DefaultValue;
         }
 

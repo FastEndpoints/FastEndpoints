@@ -30,6 +30,7 @@ sealed partial class OperationTransformer
         };
 
         JsonNamingPolicy? NamingPolicy => sharedCtx.NamingPolicy;
+        JsonSerializerOptions SerializerOptions => sharedCtx.SerializerOptions ?? Cfg.SerOpts.Options;
 
         public void AddMissingResponses(OpenApiOperation operation, IList<object> metadata)
         {
@@ -110,7 +111,7 @@ sealed partial class OperationTransformer
                 if (operation.Responses?.TryGetValue(key, out var response) != true || response?.Content is null)
                     continue;
 
-                var exampleNode = example.JsonNodeFromObject();
+                var exampleNode = example.JsonNodeFromObject(SerializerOptions);
 
                 foreach (var content in response.Content.Values)
                 {
@@ -314,15 +315,15 @@ sealed partial class OperationTransformer
             }
         }
 
-        static JsonNode? GetHeaderExample(PropertyInfo prop, Type headerType)
+        JsonNode? GetHeaderExample(PropertyInfo prop, Type headerType)
             => OperationSchemaHelpers.ParseXmlExampleJsonNode(XmlDocLookup.GetPropertyExample(prop), preserveRawString: true) ??
-               headerType.GetSampleValue().JsonNodeFromObject();
+               headerType.GetSampleValue().JsonNodeFromObject(SerializerOptions);
 
         void AddConfiguredResponseHeaders(OpenApiResponse response, IEnumerable<ResponseHeader> headers)
         {
             foreach (var header in headers)
             {
-                var example = header.Example.JsonNodeFromObject();
+                var example = header.Example.JsonNodeFromObject(SerializerOptions);
 
                 AddResponseHeader(
                     response,

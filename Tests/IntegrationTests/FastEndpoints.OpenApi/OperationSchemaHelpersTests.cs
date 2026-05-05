@@ -4,12 +4,20 @@ using System.Text.Json.Nodes;
 using FastEndpoints;
 using FastEndpoints.OpenApi;
 using Microsoft.AspNetCore.Http.Metadata;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
 
 namespace OpenApi;
 
-public class OperationSchemaHelpersTests
+public class OperationSchemaHelpersTests : TestBase<Fixture>
 {
+    readonly JsonSerializerOptions _jsonSerializerOptions;
+
+    public OperationSchemaHelpersTests(Fixture app)
+    {
+        _jsonSerializerOptions = app.Services.GetRequiredService<IOptions<JsonSerializerOptions>>().Value;
+    }
+
     [Fact]
     public void clone_as_concrete_schema_deep_copies_mutable_members()
     {
@@ -96,8 +104,8 @@ public class OperationSchemaHelpersTests
     {
         var value = new ThrowingSerializableObject();
 
-        value.JsonNodeFromObject().ShouldBeNull();
-        value.JsonObjectFromObject().ShouldBeNull();
+        value.JsonNodeFromObject(_jsonSerializerOptions).ShouldBeNull();
+        value.JsonObjectFromObject(_jsonSerializerOptions).ShouldBeNull();
     }
 
     [Fact]
@@ -697,7 +705,7 @@ public class OperationSchemaHelpersTests
     [Fact]
     public void type_sample_generation_uses_first_enum_value_and_dictionary_shape()
     {
-        var sample = typeof(SampleGenerationRequest).GenerateSampleJsonNode().ShouldBeOfType<JsonObject>();
+        var sample = typeof(SampleGenerationRequest).GenerateSampleJsonNode(_jsonSerializerOptions).ShouldBeOfType<JsonObject>();
 
         sample["Status"]!.GetValue<int>().ShouldBe(5);
         var metadata = sample["Metadata"].ShouldBeOfType<JsonObject>();
@@ -1075,18 +1083,30 @@ public class OperationSchemaHelpersTests
     {
         var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
                                                                       .GetType("FastEndpoints.OpenApi.OperationTransformer+RequestOperationTransformer", throwOnError: true)!;
+        var transformer = Activator.CreateInstance(
+            transformerType,
+            BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
+            binder: null,
+            args: [new DocumentOptions(), new SharedContext()],
+            culture: null)!;
 
-        return (JsonNode?)transformerType.GetMethod("CreateSampleFromSchema", BindingFlags.Static | BindingFlags.NonPublic)!
-                                         .Invoke(null, [schema, null]);
+        return (JsonNode?)transformerType.GetMethod("CreateSampleFromSchema", BindingFlags.Instance | BindingFlags.NonPublic)!
+                                         .Invoke(transformer, [schema, null]);
     }
 
     static JsonNode? NormalizeSchemaExample(JsonNode example, OpenApiSchema schema)
     {
         var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
                                                                       .GetType("FastEndpoints.OpenApi.OperationTransformer+RequestOperationTransformer", throwOnError: true)!;
+        var transformer = Activator.CreateInstance(
+            transformerType,
+            BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
+            binder: null,
+            args: [new DocumentOptions(), new SharedContext()],
+            culture: null)!;
 
-        return (JsonNode?)transformerType.GetMethod("NormalizeExampleNode", BindingFlags.Static | BindingFlags.NonPublic)!
-                                         .Invoke(null, [example, schema, null]);
+        return (JsonNode?)transformerType.GetMethod("NormalizeExampleNode", BindingFlags.Instance | BindingFlags.NonPublic)!
+                                         .Invoke(transformer, [example, schema, null]);
     }
 
     static void ValidateRequestDto(Type requestType, bool isCollection)

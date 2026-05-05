@@ -31,6 +31,7 @@ sealed partial class OperationTransformer
         static readonly ParameterLookupKeyComparer _parameterLookupKeyComparer = new();
 
         JsonNamingPolicy? NamingPolicy => sharedCtx.NamingPolicy;
+        JsonSerializerOptions SerializerOptions => sharedCtx.SerializerOptions ?? Cfg.SerOpts.Options;
 
         public RequestTransformState HandleParameters(OpenApiOperation operation, OpenApiOperationTransformerContext context, EndpointDefinition epDef, string documentPath)
         {
@@ -41,7 +42,7 @@ sealed partial class OperationTransformer
 
             var requestDtoType = GetRequestDtoType(epDef);
 
-            if (requestDtoType is not null && requestDtoType != Types.EmptyRequest)
+            if (requestDtoType != Types.EmptyRequest)
             {
                 var isGetRequest = context.Description.HttpMethod == "GET";
                 var requestDtoIsList = requestDtoType.IsCollection();
@@ -76,9 +77,6 @@ sealed partial class OperationTransformer
                 return null;
 
             var requestDtoType = GetRequestDtoType(epDef);
-
-            if (requestDtoType is null)
-                return null;
 
             var (promoteProp, fromBodyProp, fromFormProp) = FindPromotedBodyProperty(requestDtoType);
 
@@ -170,8 +168,8 @@ sealed partial class OperationTransformer
                 return;
 
             var requestDtoType = GetRequestDtoType(epDef);
-            var requestProps = requestDtoType is null ? null : GetPublicInstanceProperties(requestDtoType);
-            var requestPropLookup = requestProps is null ? null : BuildRequestPropertyLookup(requestProps);
+            var requestProps = GetPublicInstanceProperties(requestDtoType);
+            var requestPropLookup = BuildRequestPropertyLookup(requestProps);
             var paramDescriptions = epDef.EndpointSummary?.Params;
             var paramDescriptionLookup = paramDescriptions is { Count: > 0 }
                                              ? BuildParamDescriptionLookup(paramDescriptions)
@@ -202,7 +200,7 @@ sealed partial class OperationTransformer
                     var defaultAttr = prop.GetCustomAttribute<System.ComponentModel.DefaultValueAttribute>();
 
                     if (defaultAttr?.Value is not null && concreteParam.Schema is OpenApiSchema paramSchema)
-                        paramSchema.Default = defaultAttr.Value.JsonNodeFromObject();
+                        paramSchema.Default = defaultAttr.Value.JsonNodeFromObject(SerializerOptions);
                 }
             }
 
@@ -357,7 +355,7 @@ sealed partial class OperationTransformer
             return defaults;
         }
 
-        static void ApplyDefaultValues(OpenApiSchema schema, Dictionary<string, System.ComponentModel.DefaultValueAttribute> defaultProps)
+        void ApplyDefaultValues(OpenApiSchema schema, Dictionary<string, System.ComponentModel.DefaultValueAttribute> defaultProps)
         {
             if (schema.Properties is null)
                 return;
@@ -365,7 +363,7 @@ sealed partial class OperationTransformer
             foreach (var (propName, propSchema) in schema.Properties)
             {
                 if (propSchema is OpenApiSchema { Default: null } concreteProp && defaultProps.TryGetValue(propName, out var defaultAttr))
-                    concreteProp.Default = defaultAttr.Value.JsonNodeFromObject();
+                    concreteProp.Default = defaultAttr.Value.JsonNodeFromObject(SerializerOptions);
             }
         }
 
@@ -392,9 +390,7 @@ sealed partial class OperationTransformer
             if (lookup is null)
                 return null;
 
-            return lookup.TryGetValue((location, parameterName), out var property)
-                       ? property
-                       : null;
+            return lookup.GetValueOrDefault((location, parameterName));
         }
 
         string GetEffectiveParameterName(PropertyInfo property, ParameterLocation location)
@@ -407,7 +403,7 @@ sealed partial class OperationTransformer
 
             if (location == ParameterLocation.Path)
             {
-                return property.GetCustomAttribute<BindFromAttribute>()?.Name?.ApplyPropNamingPolicy(docOpts, NamingPolicy) ??
+                return property.GetCustomAttribute<BindFromAttribute>()?.Name.ApplyPropNamingPolicy(docOpts, NamingPolicy) ??
                        property.Name.ApplyPropNamingPolicy(docOpts, NamingPolicy);
             }
 
@@ -417,16 +413,16 @@ sealed partial class OperationTransformer
             return property.Name;
         }
 
-        static void ApplyExampleRequestToParams(OpenApiOperation operation,
-                                                EndpointDefinition epDef,
-                                                Dictionary<(ParameterLocation Location, string Name), PropertyInfo>? requestPropLookup)
+        void ApplyExampleRequestToParams(OpenApiOperation operation,
+                                         EndpointDefinition epDef,
+                                         Dictionary<(ParameterLocation Location, string Name), PropertyInfo>? requestPropLookup)
         {
             var exampleRequest = epDef.EndpointSummary?.ExampleRequest;
 
             if (exampleRequest is null || operation.Parameters is not { Count: > 0 })
                 return;
 
-            var exampleObj = exampleRequest.JsonObjectFromObject(exampleRequest.GetType());
+            var exampleObj = exampleRequest.JsonObjectFromObject(SerializerOptions, exampleRequest.GetType());
 
             if (exampleObj is null)
                 return;
@@ -454,7 +450,7 @@ sealed partial class OperationTransformer
                                     : null;
 
                 if (propValue is not null)
-                    concreteParam.Example = propValue.JsonNodeFromObject();
+                    concreteParam.Example = propValue.JsonNodeFromObject(SerializerOptions);
             }
         }
 
@@ -747,7 +743,7 @@ sealed partial class OperationTransformer
             if (required && prop is not null)
             {
                 var example = OperationSchemaHelpers.ParseXmlExampleJsonNode(XmlDocLookup.GetPropertyExample(prop)) ??
-                              propType.GenerateSampleJsonNode(NamingPolicy, docOpts.UsePropertyNamingPolicy);
+                              propType.GenerateSampleJsonNode(SerializerOptions, NamingPolicy, docOpts.UsePropertyNamingPolicy);
 
                 if (example is not null)
                 {

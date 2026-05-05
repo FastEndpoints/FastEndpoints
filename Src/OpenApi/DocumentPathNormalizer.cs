@@ -43,7 +43,7 @@ static class DocumentPathNormalizer
                 continue;
             }
 
-            var existingPathOrigin = normalizedPathOrigins.TryGetValue(newPath, out var origin) ? origin : newPath;
+            var existingPathOrigin = normalizedPathOrigins.GetValueOrDefault(newPath, newPath);
 
             MergePathItems(existingPathItem, pathItem, oldPath, existingPathOrigin, newPath);
             normalizedPathOrigins.Remove(oldPath);
@@ -75,14 +75,12 @@ static class DocumentPathNormalizer
 
         foreach (var (method, operation) in source.Operations)
         {
-            if (target.Operations.ContainsKey(method))
+            if (!target.Operations.TryAdd(method, operation))
             {
                 throw new InvalidOperationException(
                     $"OpenAPI path normalization collision detected for '{normalizedPath}'. " +
                     $"Both '{existingPath}' and '{sourcePath}' define '{method}' operations.");
             }
-
-            target.Operations[method] = operation;
         }
     }
 }

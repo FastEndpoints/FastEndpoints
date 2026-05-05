@@ -147,12 +147,15 @@ public class ValidationSchemaTransformerTests
 
     static void ApplyValidatorToSchema(OpenApiSchema schema, IValidator validator)
     {
-        var applierType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
-                                                                  .GetType("FastEndpoints.OpenApi.ValidationSchemaTransformer+ValidationSchemaApplier", throwOnError: true)!;
-        var rules = typeof(FastEndpoints.OpenApi.Extensions).Assembly
-                                                            .GetType("FastEndpoints.OpenApi.ValidationRuleCatalog", throwOnError: true)!
-                                                            .GetField("DefaultRules", BindingFlags.NonPublic | BindingFlags.Static)!
-                                                            .GetValue(null)!;
+        var applierType = typeof(FastEndpoints.OpenApi.Extensions)
+                          .Assembly
+                          .GetType("FastEndpoints.OpenApi.ValidationSchemaTransformer+ValidationSchemaApplier", throwOnError: true)!;
+
+        var rules = typeof(FastEndpoints.OpenApi.Extensions)
+                    .Assembly
+                    .GetType("FastEndpoints.OpenApi.ValidationRuleCatalog", throwOnError: true)!
+                    .GetField("DefaultRules", BindingFlags.NonPublic | BindingFlags.Static)!
+                    .GetValue(null)!;
         var resolver = new TestServiceResolver();
         using var applier = (IDisposable)Activator.CreateInstance(
             applierType,
@@ -170,7 +173,7 @@ public class ValidationSchemaTransformerTests
             ],
             culture: null)!;
 
-        applierType.GetMethod("ApplyValidator", BindingFlags.Instance | BindingFlags.Public)!
+        applierType.GetMethod("ApplyValidator", BindingFlags.Instance | BindingFlags.NonPublic)!
                    .Invoke(applier, [schema, validator, string.Empty, new HashSet<Type>()]);
     }
 

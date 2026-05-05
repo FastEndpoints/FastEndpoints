@@ -132,7 +132,7 @@ static partial class OperationSchemaHelpers
         => _cloneablePropertiesCache.GetOrAdd(
             type,
             static t => t.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                         .Where(p => p.CanRead && p.CanWrite && p.GetIndexParameters().Length == 0)
+                         .Where(p => p is { CanRead: true, CanWrite: true } && p.GetIndexParameters().Length == 0)
                          .ToArray());
 
     static Dictionary<string, JsonNode>? CloneJsonNodeDictionary(IDictionary<string, JsonNode>? nodes)

@@ -76,7 +76,7 @@ sealed partial class ValidationSchemaTransformer
                 ApplyValidatorRules(schema, includedRules, propertyPrefix, activeChildValidators);
         }
 
-        public void ApplyValidator(OpenApiSchema schema, IValidator validator, string propertyPrefix, HashSet<Type> activeChildValidators)
+        void ApplyValidator(OpenApiSchema schema, IValidator validator, string propertyPrefix, HashSet<Type> activeChildValidators)
         {
             var rulesDict = validator.GetDictionaryOfRules(_sharedCtx.NamingPolicy, _usePropertyNamingPolicy, GetValidatorTargetType(validator));
             ApplyRulesToSchema(schema, rulesDict, propertyPrefix, activeChildValidators);
@@ -117,7 +117,7 @@ sealed partial class ValidationSchemaTransformer
             {
                 var resolved = ResolveForMutation(composite[i], _localizeReferencedSchemas, cloned => composite[i] = cloned);
 
-                if (resolved is not null && resolved.Properties is { Count: > 0 })
+                if (resolved?.Properties is { Count: > 0 })
                     ApplyRulesToSchema(resolved, rulesDict, propertyPrefix, activeChildValidators);
             }
         }

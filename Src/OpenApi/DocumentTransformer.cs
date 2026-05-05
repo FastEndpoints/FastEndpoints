@@ -3,39 +3,30 @@ using Microsoft.OpenApi;
 
 namespace FastEndpoints.OpenApi;
 
-sealed class DocumentTransformer : IOpenApiDocumentTransformer
+sealed class DocumentTransformer(DocumentOptions opts, SharedContext sharedCtx) : IOpenApiDocumentTransformer
 {
-    readonly DocumentOptions _opts;
-    readonly SharedContext _sharedCtx;
-    readonly DocumentVersionFilter _versionFilter;
-
-    public DocumentTransformer(DocumentOptions opts, SharedContext sharedCtx)
-    {
-        _opts = opts;
-        _sharedCtx = sharedCtx;
-        _versionFilter = new(opts, sharedCtx);
-    }
+    readonly DocumentVersionFilter _versionFilter = new(opts, sharedCtx);
 
     public async Task TransformAsync(OpenApiDocument document, OpenApiDocumentTransformerContext context, CancellationToken cancellationToken)
     {
-        _opts.Services ??= context.ApplicationServices;
-        _sharedCtx.ResolveNamingPolicy(context.ApplicationServices);
+        opts.Services ??= context.ApplicationServices;
+        sharedCtx.ResolveNamingPolicy(context.ApplicationServices);
 
-        if (_opts.Title is not null)
-            document.Info.Title = _opts.Title;
+        if (opts.Title is not null)
+            document.Info.Title = opts.Title;
 
-        if (_opts.Version is not null)
-            document.Info.Version = _opts.Version;
+        if (opts.Version is not null)
+            document.Info.Version = opts.Version;
 
         DocumentPathNormalizer.NormalizeParameterNames(document);
         _versionFilter.Apply(document);
-        DocumentSecurityTransformer.Apply(document, _opts, _sharedCtx);
-        DocumentTagTransformer.Apply(document, _opts);
+        DocumentSecurityTransformer.Apply(document, opts, sharedCtx);
+        DocumentTagTransformer.Apply(document, opts);
         DocumentSchemaNormalizer.RemoveFrameworkSchemas(document);
         document.RemoveFormFileSchemas();
-        DocumentPathNormalizer.Apply(document, _opts, _sharedCtx);
-        await DocumentSchemaNormalizer.Normalize(document, _sharedCtx, context, cancellationToken);
-        DocumentTagTransformer.Cleanup(document, _opts);
+        DocumentPathNormalizer.Apply(document, opts, sharedCtx);
+        await DocumentSchemaNormalizer.Normalize(document, sharedCtx, context, cancellationToken);
+        DocumentTagTransformer.Cleanup(document, opts);
 
         document.SortPaths();
         document.SortSchemas();

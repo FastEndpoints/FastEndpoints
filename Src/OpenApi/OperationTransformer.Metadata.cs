@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Metadata;
@@ -11,6 +12,7 @@ sealed partial class OperationTransformer
     sealed partial class OperationMetadataTransformer(DocumentOptions docOpts, SharedContext sharedCtx)
     {
         static readonly TextInfo _textInfo = CultureInfo.InvariantCulture.TextInfo;
+        JsonSerializerOptions SerializerOptions => sharedCtx.SerializerOptions ?? Cfg.SerOpts.Options;
 
         public void ApplyAutoTag(OpenApiOperation operation, EndpointDefinition epDef, string bareRoute, IList<object> metadata)
         {
@@ -78,7 +80,7 @@ sealed partial class OperationTransformer
 
             operation.Parameters ??= [];
             var exampleValue = epDef.IdempotencyOptions.SwaggerExampleGenerator?.Invoke();
-            var exampleNode = exampleValue.JsonNodeFromObject();
+            var exampleNode = exampleValue.JsonNodeFromObject(SerializerOptions);
 
             operation.Parameters.Add(
                 new OpenApiParameter

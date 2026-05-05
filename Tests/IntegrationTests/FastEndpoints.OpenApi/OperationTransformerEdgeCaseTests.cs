@@ -29,7 +29,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review");
         var examples = (JObject)JToken.Parse(json)["paths"]!["/api/swagger-review/duplicate-examples"]!["post"]!
-                                                 ["requestBody"]!["content"]!["application/json"]!["examples"]!;
+            ["requestBody"]!["content"]!["application/json"]!["examples"]!;
 
         examples.Properties().Select(p => p.Name).ToArray().ShouldBe(["Example 1", "Example 2"]);
     }
@@ -40,9 +40,9 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         var json = await App.GetDocumentJsonAsync("Swagger Review");
         var doc = JToken.Parse(json);
         var alphaSchema = doc["paths"]!["/api/swagger-review/shared-request-metadata-alpha"]!["post"]!
-                             ["requestBody"]!["content"]!["application/json"]!["schema"]!;
+            ["requestBody"]!["content"]!["application/json"]!["schema"]!;
         var betaSchema = doc["paths"]!["/api/swagger-review/shared-request-metadata-beta"]!["post"]!
-                            ["requestBody"]!["content"]!["application/json"]!["schema"]!;
+            ["requestBody"]!["content"]!["application/json"]!["schema"]!;
         var componentSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewSharedRequestMetadataReviewRequest"];
 
         alphaSchema["$ref"].ShouldBeNull();
@@ -65,13 +65,14 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         const string sharedRequestRef = "TestCasesSwaggerReviewSharedRequestMetadataReviewRequest";
         using var start = new ManualResetEventSlim();
         var tasks = Enumerable.Range(0, Environment.ProcessorCount * 8)
-                              .Select(_ => Task.Run(
-                                          () =>
-                                          {
-                                              start.Wait();
-                                              sharedCtx.InitializeSharedRequestSchemaRefs(App.Services, docOpts);
-                                              sharedCtx.SharedRequestSchemaRefs.Contains(sharedRequestRef).ShouldBeTrue();
-                                          }))
+                              .Select(
+                                  _ => Task.Run(
+                                      () =>
+                                      {
+                                          start.Wait();
+                                          sharedCtx.InitializeSharedRequestSchemaRefs(App.Services, docOpts);
+                                          sharedCtx.SharedRequestSchemaRefs.Contains(sharedRequestRef).ShouldBeTrue();
+                                      }))
                               .ToArray();
 
         start.Set();
@@ -87,7 +88,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         var json = await App.GetDocumentJsonAsync("Swagger Review");
         var doc = JToken.Parse(json);
         var initialSchema = doc["paths"]!["/api/swagger-review/version-prefilter-initial"]!["post"]!
-                               ["requestBody"]!["content"]!["application/json"]!["schema"]!;
+            ["requestBody"]!["content"]!["application/json"]!["schema"]!;
 
         initialSchema["$ref"]!.Value<string>().ShouldBe("#/components/schemas/TestCasesSwaggerReviewVersionPrefilterSharedRequest");
         initialSchema["properties"].ShouldBeNull();
@@ -109,7 +110,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         var json = await App.GetDocumentJsonAsync("Swagger Review");
         var enumValue = JToken.Parse(json)["components"]!["schemas"]!["TestCasesSwaggerReviewUlongEnumReviewStatus"]!["enum"]![0]!;
 
-        enumValue.ToString().ShouldBe("18446744073709551615");
+        enumValue.ToString().ShouldBe("Max");
     }
 
     [Fact]
@@ -229,8 +230,10 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         var sortedSetIntSchema = doc["components"]!["schemas"]!["SystemCollectionsGenericSortedSetOfSystemInt32"]!;
 
         requestSchema["properties"]!["autoTags"]!["$ref"]!.Value<string>().ShouldBe("#/components/schemas/SystemCollectionsGenericHashSetOfSystemString");
-        requestSchema["properties"]!["autoChildren"]!["$ref"]!.Value<string>().ShouldBe("#/components/schemas/SystemCollectionsGenericHashSetOfTestCasesSwaggerReviewUniqueItemsReviewChild");
-        requestSchema["properties"]!["explicitChildren"]!["$ref"]!.Value<string>().ShouldBe("#/components/schemas/SystemCollectionsGenericListOfTestCasesSwaggerReviewUniqueItemsReviewChild");
+        requestSchema["properties"]!["autoChildren"]!["$ref"]!.Value<string>()
+                                                              .ShouldBe("#/components/schemas/SystemCollectionsGenericHashSetOfTestCasesSwaggerReviewUniqueItemsReviewChild");
+        requestSchema["properties"]!["explicitChildren"]!["$ref"]!.Value<string>()
+                                                                  .ShouldBe("#/components/schemas/SystemCollectionsGenericListOfTestCasesSwaggerReviewUniqueItemsReviewChild");
 
         hashSetStringSchema["uniqueItems"]!.Value<bool>().ShouldBeTrue();
         hashSetChildSchema["uniqueItems"].ShouldBeNull();
@@ -238,7 +241,8 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         sortedSetIntSchema["uniqueItems"]!.Value<bool>().ShouldBeTrue();
 
         responseSchema["properties"]!["autoIds"]!["$ref"]!.Value<string>().ShouldBe("#/components/schemas/SystemCollectionsGenericSortedSetOfSystemInt32");
-        responseSchema["properties"]!["explicitChildren"]!["$ref"]!.Value<string>().ShouldBe("#/components/schemas/SystemCollectionsGenericListOfTestCasesSwaggerReviewUniqueItemsReviewChild");
+        responseSchema["properties"]!["explicitChildren"]!["$ref"]!.Value<string>()
+                                                                   .ShouldBe("#/components/schemas/SystemCollectionsGenericListOfTestCasesSwaggerReviewUniqueItemsReviewChild");
     }
 
     [Fact]
@@ -247,7 +251,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         var json = await App.GetDocumentJsonAsync("Swagger Review");
         var doc = JToken.Parse(json);
         var requestSchema = doc["paths"]!["/api/swagger-review/promoted-body-validation/{id}"]!["post"]!
-                                ["requestBody"]!["content"]!["application/json"]!["schema"]!;
+            ["requestBody"]!["content"]!["application/json"]!["schema"]!;
         var schema = requestSchema;
 
         schema["properties"]!["body"].ShouldBeNull();
@@ -469,7 +473,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
 
         stevenParam["schema"].ShouldBeNull();
         stevenParam["content"]!["application/json"]!["schema"]!["$ref"]!.Value<string>()
-                  .ShouldBe("#/components/schemas/TestCasesJsonArrayBindingForIEnumerablePropsRequest_Person");
+                                                                        .ShouldBe("#/components/schemas/TestCasesJsonArrayBindingForIEnumerablePropsRequest_Person");
 
         var fromQueryOperation = doc["paths"]!["/api/test-cases/query-param-creation-from-test-helpers/{complexId}/{complexIdString}"]!["get"]!;
         var fromQueryParameters = fromQueryOperation["parameters"]!;
@@ -516,7 +520,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         alphaRequest["properties"]!["address"]!["$ref"].ShouldBeNull();
         alphaRequest["properties"]!["address"]!["required"]!.Values<string>().ShouldContain("zip");
         betaRequest["properties"]!["address"]!["$ref"]!.Value<string>()
-                   .ShouldBe("#/components/schemas/TestCasesSwaggerReviewSharedNestedValidationAddress");
+                                                       .ShouldBe("#/components/schemas/TestCasesSwaggerReviewSharedNestedValidationAddress");
         addressComponent["required"].ShouldBeNull();
     }
 
@@ -556,7 +560,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review");
         var header = JToken.Parse(json)["paths"]!["/api/swagger-review/json-property-name-transformers"]!["post"]!
-                               ["responses"]!["200"]!["headers"]!["x-secret"]!;
+            ["responses"]!["200"]!["headers"]!["x-secret"]!;
 
         header["description"]!.Value<string>().ShouldBe("secret header summary");
         header["example"]!.Value<string>().ShouldBe("xml-secret-header");
@@ -567,7 +571,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review");
         var example = JToken.Parse(json)["paths"]!["/api/swagger-review/response-metadata-example"]!["post"]!
-                            ["responses"]!["201"]!["content"]!["application/json"]!["example"]!;
+            ["responses"]!["201"]!["content"]!["application/json"]!["example"]!;
 
         example["message"]!.Value<string>().ShouldBe("from response metadata");
     }
@@ -577,7 +581,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review");
         var example = JToken.Parse(json)["paths"]!["/api/swagger-review/explicit-response-example"]!["post"]!
-                            ["responses"]!["200"]!["content"]!["application/json"]!["example"]!;
+            ["responses"]!["200"]!["content"]!["application/json"]!["example"]!;
 
         example["message"]!.Value<string>().ShouldBe("from explicit response examples");
     }
@@ -619,11 +623,11 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         var nestedRef = "#/components/schemas/TestCasesSwaggerReviewManualSchemaNested";
         var idempotencyRef = "#/components/schemas/TestCasesSwaggerReviewManualSchemaIdempotencyHeader";
         var queryParam = doc["paths"]!["/api/swagger-review/manual-complex-query"]!["get"]!["parameters"]!
-                            .First(p => p["name"]!.Value<string>() == "filter");
+            .First(p => p["name"]!.Value<string>() == "filter");
         var responseHeader = doc["paths"]!["/api/swagger-review/manual-complex-response-header"]!["get"]!["responses"]!["200"]!
-                                ["headers"]!["x-complex-header"]!;
+            ["headers"]!["x-complex-header"]!;
         var idempotencyHeader = doc["paths"]!["/api/swagger-review/manual-complex-idempotency-header"]!["post"]!["parameters"]!
-                                  .First(p => p["name"]!.Value<string>() == "Idempotency-Key");
+            .First(p => p["name"]!.Value<string>() == "Idempotency-Key");
 
         queryParam["content"]!["application/json"]!["schema"]!["$ref"]!.Value<string>().ShouldBe(nestedRef);
         responseHeader["schema"]!["$ref"]!.Value<string>().ShouldBe(nestedRef);
@@ -700,7 +704,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         var enumSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewUlongEnumReviewStatus"]!;
 
         responseSchema["properties"]!["status"]!["$ref"]!.Value<string>().ShouldBe("#/components/schemas/TestCasesSwaggerReviewUlongEnumReviewStatus");
-        enumSchema["enum"]![0]!.ToString().ShouldBe("18446744073709551615");
+        enumSchema["enum"]![0]!.ToString().ShouldBe("Max");
     }
 
     [Fact]
@@ -741,22 +745,22 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         var doc = JToken.Parse(json);
         var saveOperation = doc["paths"]!["/api/customer/save"]!["get"]!;
         var pathParams = saveOperation["parameters"]!
-                                      .Where(p => p["in"]!.Value<string>() == "path")
-                                      .Select(p => p["name"]!.Value<string>())
-                                      .ToArray();
+                         .Where(p => p["in"]!.Value<string>() == "path")
+                         .Select(p => p["name"]!.Value<string>())
+                         .ToArray();
         var routedOperation = doc["paths"]!["/api/customer/{cID}/new/{sourceID}"]!["get"]!;
         var routedParams = routedOperation["parameters"]!
-                                          .Select(p => new
-                                          {
-                                              Name = p["name"]!.Value<string>(),
-                                              Location = p["in"]!.Value<string>()
-                                          })
-                                          .ToArray();
+                           .Select(
+                               p => new
+                               {
+                                   Name = p["name"]!.Value<string>(),
+                                   Location = p["in"]!.Value<string>()
+                               })
+                           .ToArray();
 
         pathParams.ShouldBeEmpty();
         routedParams.ShouldContain(p => p.Name == "cID" && p.Location == "path");
         routedParams.ShouldContain(p => p.Name == "sourceID" && p.Location == "path");
         routedParams.ShouldNotContain(p => p.Name == "refererID");
     }
-
 }

@@ -59,7 +59,7 @@ public static class Extensions
                 apiOptions.AddSchemaTransformer<UniqueItemsSchemaTransformer>();
                 apiOptions.AddSchemaTransformer(new HiddenPropertySchemaTransformer(opts, sharedCtx));
                 apiOptions.AddSchemaTransformer(new ToHeaderPropertySchemaTransformer(opts, sharedCtx));
-                apiOptions.AddSchemaTransformer<EnumSchemaTransformer>();
+                apiOptions.AddSchemaTransformer(new EnumSchemaTransformer(sharedCtx));
 
                 if (opts.UseOneOfForPolymorphism)
                     apiOptions.AddSchemaTransformer(new PolymorphismSchemaTransformer(opts));
@@ -144,7 +144,7 @@ public static class Extensions
     /// </code>
     /// </para>
     /// <para>
-    /// to force generate openapi docs outside a AOT publish, run the following in a terminal:
+    /// to force generate openapi docs outside an AOT publish, run the following in a terminal:
     /// <code>dotnet run --export-openapi-docs true -p:PublishAot=false</code>
     /// optionally specify the output folder:
     /// <code>dotnet run --export-openapi-docs true -p:PublishAot=false -p:OpenApiExportPath=wwwroot/openapi</code>

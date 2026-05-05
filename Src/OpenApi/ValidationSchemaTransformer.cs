@@ -18,7 +18,7 @@ sealed partial class ValidationSchemaTransformer(DocumentOptions docOpts, Shared
     ILogger<ValidationSchemaTransformer>? _logger;
     JsonNamingPolicy? _namingPolicy;
     readonly ConcurrentDictionary<ValidatorRuleCacheKey, Lazy<CachedValidatorRules?>> _validatorRulesCache = new();
-    readonly object _initializeLock = new();
+    readonly Lock _initializeLock = new();
     volatile bool _initialized;
 
     void Initialize(IServiceProvider services)

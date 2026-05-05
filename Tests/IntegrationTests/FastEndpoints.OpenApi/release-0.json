@@ -4792,7 +4792,7 @@
               }
             },
             "example": [
-              0
+              "Sunday"
             ]
           },
           {
@@ -7619,15 +7619,15 @@
       },
       "SystemDayOfWeek": {
         "enum": [
-          0,
-          1,
-          2,
-          3,
-          4,
-          5,
-          6
+          "Sunday",
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday"
         ],
-        "type": "integer"
+        "type": "string"
       },
       "SystemDouble[]": {
         "type": "array",
@@ -8306,17 +8306,17 @@
         "properties": {
           "verb": {
             "enum": [
-              1,
-              2,
-              3,
-              4,
-              5,
-              6,
-              7,
-              8,
-              9
+              "GET",
+              "POST",
+              "PUT",
+              "PATCH",
+              "DELETE",
+              "HEAD",
+              "OPTIONS",
+              "CONNECT",
+              "TRACE"
             ],
-            "type": "integer",
+            "type": "string",
             "description": "enum for specifying a http verb"
           },
           "host": {
@@ -8404,11 +8404,11 @@
       },
       "TestCasesQueryObjectBindingTestByteEnum": {
         "enum": [
-          0,
-          1,
-          2
+          "Check",
+          "Test",
+          "AnotherCheck"
         ],
-        "type": "integer"
+        "type": "string"
       },
       "TestCasesQueryObjectBindingTestNestedPerson": {
         "type": "object",
@@ -9074,9 +9074,9 @@
       },
       "TestCasesSwaggerReviewUlongEnumReviewStatus": {
         "enum": [
-          18446744073709551615
+          "Max"
         ],
-        "type": "integer"
+        "type": "string"
       },
       "TestCasesSwaggerReviewUniqueItemsReviewChild": {
         "type": "object",

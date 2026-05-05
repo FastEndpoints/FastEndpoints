@@ -22,30 +22,32 @@ static partial class OperationSchemaHelpers
 
     extension(object? value)
     {
-        internal JsonNode? JsonNodeFromObject()
+        internal JsonNode? JsonNodeFromObject(JsonSerializerOptions serializerOptions)
         {
             if (value is null)
                 return null;
 
-            return TrySerializeToNode(value);
+            return TrySerializeToNode(value, serializerOptions: serializerOptions);
         }
 
-        internal JsonObject? JsonObjectFromObject(Type? valueType = null)
+        internal JsonObject? JsonObjectFromObject(JsonSerializerOptions serializerOptions, Type? valueType = null)
         {
             if (value is null)
                 return null;
 
-            return TrySerializeToNode(value, valueType) as JsonObject;
+            return TrySerializeToNode(value, valueType, serializerOptions) as JsonObject;
         }
     }
 
-    static JsonNode? TrySerializeToNode(object value, Type? valueType = null)
+    static JsonNode? TrySerializeToNode(object value, Type? valueType = null, JsonSerializerOptions? serializerOptions = null)
     {
         try
         {
+            serializerOptions ??= Cfg.SerOpts.Options;
+
             return valueType is null
-                       ? JsonSerializer.SerializeToNode(value, Cfg.SerOpts.Options)
-                       : JsonSerializer.SerializeToNode(value, valueType, Cfg.SerOpts.Options);
+                       ? JsonSerializer.SerializeToNode(value, serializerOptions)
+                       : JsonSerializer.SerializeToNode(value, valueType, serializerOptions);
         }
         catch
         {

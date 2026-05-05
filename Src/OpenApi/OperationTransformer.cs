@@ -1,5 +1,4 @@
 using System.Collections.Concurrent;
-using System.Collections.ObjectModel;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
@@ -203,7 +202,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
     static bool IsNullable(PropertyInfo prop)
         => _nullablePropertyCache.GetOrAdd(prop, static property => new NullabilityInfoContext().Create(property).WriteState is NullabilityState.Nullable);
 
-    static Type? GetRequestDtoType(EndpointDefinition epDef)
+    static Type GetRequestDtoType(EndpointDefinition epDef)
         => epDef.ReqDtoType;
 
     static bool HasParameter(OpenApiOperation operation, ParameterLocation location, string name)

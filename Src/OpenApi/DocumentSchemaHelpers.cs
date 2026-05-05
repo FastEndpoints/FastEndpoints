@@ -102,9 +102,7 @@ static class DocumentSchemaHelpers
                     continue;
 
                 var schema = await context.GetOrCreateSchemaAsync(type, parameterDescription: null, ct);
-
-                if (schema is not null)
-                    document.Components.Schemas.TryAdd(refId, schema);
+                document.Components.Schemas.TryAdd(refId, schema);
             }
         }
 
@@ -597,9 +595,7 @@ static class DocumentSchemaHelpers
     }
 
     static bool IsFormFileRef(IOpenApiSchema? schema)
-        => schema is OpenApiSchemaReference schemaRef &&
-           GetReferenceId(schemaRef) is { } refId &&
-           refId is "IFormFile";
+        => schema is OpenApiSchemaReference schemaRef && GetReferenceId(schemaRef) is "IFormFile";
 
     static bool IsFormFileCollectionRef(IOpenApiSchema? schema)
         => schema is OpenApiSchemaReference schemaRef &&

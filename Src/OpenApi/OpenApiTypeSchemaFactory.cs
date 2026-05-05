@@ -56,13 +56,13 @@ static partial class OperationSchemaHelpers
         {
             var schema = type.GetSchemaForType(shortSchemaNames);
 
-            RegisterMissingSchemaTypes(type, schema, sharedCtx, shortSchemaNames);
+            RegisterMissingSchemaTypes(type, schema, sharedCtx);
 
             return schema;
         }
     }
 
-    static void RegisterMissingSchemaTypes(Type type, IOpenApiSchema schema, SharedContext sharedCtx, bool shortSchemaNames)
+    static void RegisterMissingSchemaTypes(Type type, IOpenApiSchema schema, SharedContext sharedCtx)
     {
         type = Nullable.GetUnderlyingType(type) ?? type;
 
@@ -79,13 +79,13 @@ static partial class OperationSchemaHelpers
 
         if (TryGetDictionaryValueType(type) is { } dictionaryValueType && concreteSchema.AdditionalProperties is { } additionalProperties)
         {
-            RegisterMissingSchemaTypes(dictionaryValueType, additionalProperties, sharedCtx, shortSchemaNames);
+            RegisterMissingSchemaTypes(dictionaryValueType, additionalProperties, sharedCtx);
 
             return;
         }
 
         if (type != typeof(string) && type != typeof(byte[]) && TryGetCollectionElementType(type) is { } elementType && concreteSchema.Items is { } items)
-            RegisterMissingSchemaTypes(elementType, items, sharedCtx, shortSchemaNames);
+            RegisterMissingSchemaTypes(elementType, items, sharedCtx);
     }
 
     static OpenApiSchema ByteArraySchema()

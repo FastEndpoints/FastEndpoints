@@ -18,21 +18,21 @@ sealed class XmlDocSchemaTransformer : IOpenApiSchemaTransformer
                 if (summary is not null && string.IsNullOrWhiteSpace(schema.Description))
                     schema.Description = summary;
 
-                if (schema.Example is null)
-                {
-                    var example = XmlDocLookup.GetPropertyExample(propInfo);
+                if (schema.Example is not null)
+                    return Task.CompletedTask;
 
-                    if (example is not null)
-                    {
-                        try
-                        {
-                            schema.Example = JsonNode.Parse(example);
-                        }
-                        catch
-                        {
-                            schema.Example = JsonValue.Create(example);
-                        }
-                    }
+                var example = XmlDocLookup.GetPropertyExample(propInfo);
+
+                if (example is null)
+                    return Task.CompletedTask;
+
+                try
+                {
+                    schema.Example = JsonNode.Parse(example);
+                }
+                catch
+                {
+                    schema.Example = JsonValue.Create(example);
                 }
             }
         }

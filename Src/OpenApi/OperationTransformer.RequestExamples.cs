@@ -11,7 +11,10 @@ sealed partial class OperationTransformer
                                               HashSet<string> propsRemovedFromBody,
                                               PromotedBodyProperty? promotedBodyProperty)
         {
-            var fallback = (promotedBodyProperty?.Type ?? GetRequestDtoType(epDef))?.GenerateSampleJsonNode(NamingPolicy, docOpts.UsePropertyNamingPolicy);
+            var fallback = (promotedBodyProperty?.Type ?? GetRequestDtoType(epDef)).GenerateSampleJsonNode(
+                SerializerOptions,
+                NamingPolicy,
+                docOpts.UsePropertyNamingPolicy);
 
             if (promotedBodyProperty is null && fallback is JsonObject fallbackObj && propsRemovedFromBody.Count > 0)
                 fallbackObj.RemoveProperties(propsRemovedFromBody);
@@ -32,11 +35,11 @@ sealed partial class OperationTransformer
             return state.RequestBodyFallbackExample;
         }
 
-        static JsonNode? BuildRequestExampleNode(object? example,
-                                                 HashSet<string> propsRemovedFromBody,
-                                                 PromotedBodyProperty? promotedBodyProperty)
+        JsonNode? BuildRequestExampleNode(object? example,
+                                          HashSet<string> propsRemovedFromBody,
+                                          PromotedBodyProperty? promotedBodyProperty)
         {
-            var node = example.JsonNodeFromObject();
+            var node = example.JsonNodeFromObject(SerializerOptions);
 
             if (promotedBodyProperty is not null)
                 return UnwrapPromotedBodyExample(node, promotedBodyProperty.Name);
@@ -96,13 +99,13 @@ sealed partial class OperationTransformer
             return result;
         }
 
-        static JsonNode? NormalizeExampleNode(JsonNode? example, OpenApiSchema? schema, JsonNode? fallback)
+        JsonNode? NormalizeExampleNode(JsonNode? example, OpenApiSchema? schema, JsonNode? fallback)
         {
             if (example is null)
                 return AllowsNull(schema) ? null : fallback?.DeepClone() ?? CreateSampleFromSchema(schema);
 
             if (schema?.Enum is { Count: > 0 } enumValues && !MatchesEnumValue(example, enumValues))
-                return enumValues[0]?.DeepClone();
+                return enumValues[0].DeepClone();
 
             return example switch
             {
@@ -112,7 +115,7 @@ sealed partial class OperationTransformer
             };
         }
 
-        static JsonObject NormalizeObjectExample(JsonObject example, OpenApiSchema? schema, JsonObject? fallback)
+        JsonObject NormalizeObjectExample(JsonObject example, OpenApiSchema? schema, JsonObject? fallback)
         {
             if (schema?.Properties is not { Count: > 0 } properties)
                 return example;
@@ -147,7 +150,7 @@ sealed partial class OperationTransformer
             return example;
         }
 
-        static JsonArray NormalizeArrayExample(JsonArray example, OpenApiSchema? schema, JsonArray? fallback)
+        JsonArray NormalizeArrayExample(JsonArray example, OpenApiSchema? schema, JsonArray? fallback)
         {
             var itemSchema = schema?.Items.ResolveSchema();
 
@@ -176,13 +179,13 @@ sealed partial class OperationTransformer
             return schema.AnyOf?.Any(s => AllowsNull(s.ResolveSchema())) == true;
         }
 
-        static JsonNode? CreateSampleFromSchema(OpenApiSchema? schema, string? propertyName = null)
+        JsonNode? CreateSampleFromSchema(OpenApiSchema? schema, string? propertyName = null)
         {
             if (schema is null)
                 return null;
 
             if (schema.Enum is { Count: > 0 })
-                return schema.Enum[0]?.DeepClone();
+                return schema.Enum[0].DeepClone();
 
             if (schema.OneOf is { Count: > 0 })
             {
@@ -239,10 +242,10 @@ sealed partial class OperationTransformer
 
             return schema.Type switch
             {
-                JsonSchemaType.String => (propertyName ?? string.Empty).JsonNodeFromObject(),
-                JsonSchemaType.Integer => 0.JsonNodeFromObject(),
-                JsonSchemaType.Number => 0m.JsonNodeFromObject(),
-                JsonSchemaType.Boolean => false.JsonNodeFromObject(),
+                JsonSchemaType.String => (propertyName ?? string.Empty).JsonNodeFromObject(SerializerOptions),
+                JsonSchemaType.Integer => 0.JsonNodeFromObject(SerializerOptions),
+                JsonSchemaType.Number => 0m.JsonNodeFromObject(SerializerOptions),
+                JsonSchemaType.Boolean => false.JsonNodeFromObject(SerializerOptions),
                 _ => null
             };
         }
@@ -253,7 +256,7 @@ sealed partial class OperationTransformer
 
             for (var i = 0; i < enumValues.Count; i++)
             {
-                if (enumValues[i]?.ToJsonString() == exampleJson)
+                if (enumValues[i].ToJsonString() == exampleJson)
                     return true;
             }
 

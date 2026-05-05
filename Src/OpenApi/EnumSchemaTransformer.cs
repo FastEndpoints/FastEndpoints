@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
@@ -5,30 +6,42 @@ using Microsoft.OpenApi;
 namespace FastEndpoints.OpenApi;
 
 /// <summary>
-/// populates enum values for integer enum schemas.
-/// MS OpenApi generates type: "integer" for enums but does not include the enum array with values.
+/// populates enum values using the effective FastEndpoints serializer options.
 /// </summary>
-sealed class EnumSchemaTransformer : IOpenApiSchemaTransformer
+sealed class EnumSchemaTransformer(SharedContext sharedCtx) : IOpenApiSchemaTransformer
 {
     public Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context, CancellationToken ct)
     {
         var type = context.JsonTypeInfo.Type;
 
-        if (!type.IsEnum || !schema.Type.HasValue || !schema.Type.Value.HasFlag(JsonSchemaType.Integer))
+        if (!type.IsEnum)
             return Task.CompletedTask;
 
-        var values = Enum.GetValuesAsUnderlyingType(type);
-        var isUnsignedLong = Enum.GetUnderlyingType(type) == typeof(ulong);
+        var values = Enum.GetValues(type);
+        var serializerOptions = sharedCtx.ResolveSerializerOptions(context.ApplicationServices);
 
-        schema.Enum ??= [];
+        schema.Enum = [];
 
         foreach (var val in values)
         {
-            schema.Enum.Add(
-                isUnsignedLong
-                    ? JsonValue.Create(Convert.ToDecimal(val))
-                    : JsonValue.Create(Convert.ToInt64(val)));
+            var enumValue = JsonSerializer.SerializeToNode(val, type, serializerOptions);
+
+            if (enumValue is not null)
+                schema.Enum.Add(enumValue);
         }
+
+        if (schema.Enum.Count == 0)
+            return Task.CompletedTask;
+
+        schema.Type = schema.Enum[0] switch
+        {
+            JsonValue jv when jv.TryGetValue(out string? _) => JsonSchemaType.String,
+            JsonValue jv when jv.TryGetValue(out bool _) => JsonSchemaType.Boolean,
+            _ => JsonSchemaType.Integer
+        };
+
+        if (schema.Type.Value.HasFlag(JsonSchemaType.String))
+            schema.Format = null;
 
         return Task.CompletedTask;
     }

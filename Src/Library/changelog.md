@@ -138,6 +138,25 @@ This avoids noisy false-positive security scanner findings and keeps genuinely u
 
 </details>
 
+<details><summary>'Send.OkAsync(ct)' no longer tries to serialize cancellation tokens on untyped endpoints</summary>
+
+When an endpoint response type is `object` such as with `EndpointWithoutRequest`, calling `Send.OkAsync(ct)` could previously bind to the response-body overload and end up passing the `CancellationToken` to STJ for serialization.
+
+That case is now detected at runtime and routed to the no-body `200 OK` path instead, avoiding the serialization failure while preserving the existing overload surface.
+
+```csharp
+public class PingEndpoint : EndpointWithoutRequest
+{
+    public override void Configure()
+        => Get("/ping");
+
+    public override Task HandleAsync(CancellationToken ct)
+        => Send.OkAsync(ct);
+}
+```
+
+</details>
+
 ## End-Of-Life Packages 🪦
 
 <details><summary>NSwag based Swagger packages are set to be discontinued</summary>

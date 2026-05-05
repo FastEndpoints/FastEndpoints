@@ -50,6 +50,24 @@ public class SendOkShouldSetCorrectResponse : Endpoint<Request, Response>
     }
 }
 
+public class SendOkShouldTreatCancellationTokenAsCancellationForObjectResponse : Endpoint<EmptyRequest, object?>
+{
+    [Fact]
+    public async Task execute_test()
+    {
+        HttpContext = new DefaultHttpContext();
+        Definition = new(typeof(SendOkShouldTreatCancellationTokenAsCancellationForObjectResponse), typeof(EmptyRequest), typeof(object));
+
+        using var cts = new CancellationTokenSource();
+
+        await Send.OkAsync(cts.Token);
+
+        Response.ShouldBeNull();
+        ValidationFailed.ShouldBeFalse();
+        HttpContext.Response.StatusCode.ShouldBe(StatusCodes.Status200OK);
+    }
+}
+
 public class SendForbiddenShouldSetCorrectResponse : Endpoint<Request, Response>
 {
     [Fact]

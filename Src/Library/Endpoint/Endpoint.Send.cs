@@ -309,6 +309,11 @@ public readonly struct ResponseSender<TRequest, TResponse>(Endpoint<TRequest, TR
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>
     public Task<Void> OkAsync(TResponse response, CancellationToken cancellation)
     {
+        // when TResponse is object, Send.OkAsync(ct) binds here because CancellationToken is also an object.
+        // forward that case to the no-body overload instead of trying to serialize the token.
+        if (Definition.ResDtoTypeIsObject && response is CancellationToken ct)
+            return ep.HttpContext.Response.SendOkAsync(ct);
+
         ep.Response = response;
 
         return ep.HttpContext.Response.SendOkAsync(response, ep.Definition.SerializerContext, cancellation);

@@ -81,6 +81,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     internal object? EpRequestBinder;
     string? _reqDtoFromBodyPropName;
     internal string ReqDtoFromBodyPropName => _reqDtoFromBodyPropName ??= GetFromBodyPropName();
+    internal bool ResDtoTypeIsObject { get; init; } = responseDtoType.GetUnderlyingType() == Types.Object;
     ServiceBoundEpProp[]? _serviceBoundEpProps;
     internal ServiceBoundEpProp[] ServiceBoundEpProps => _serviceBoundEpProps ??= GetServiceBoundEpProps();
     internal JsonSerializerContext? SerializerContext;

@@ -1,5 +1,4 @@
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.Http.Metadata;
@@ -11,6 +10,8 @@ namespace FastEndpoints.OpenApi;
 
 sealed class ResponseOperationTransformer(DocumentOptions docOpts, SharedContext sharedCtx)
 {
+        readonly ResponseHeaderFactory _headerFactory = new(docOpts, sharedCtx);
+
         static readonly Dictionary<string, string> _defaultDescriptions = new()
         {
             { "200", "Success" },
@@ -169,10 +170,10 @@ sealed class ResponseOperationTransformer(DocumentOptions docOpts, SharedContext
                 var code = int.TryParse(statusCode, out var c) ? c : 0;
 
                 if (responseTypeMetas.TryGetValue(code, out var responseMeta) && responseMeta.Type is not null)
-                    AddTypedResponseHeaders(concreteResponse, responseMeta.Type);
+                    _headerFactory.AddTypedHeaders(concreteResponse, responseMeta.Type);
 
                 if (configuredHeaders?.TryGetValue(code, out var headersForStatusCode) == true)
-                    AddConfiguredResponseHeaders(concreteResponse, headersForStatusCode);
+                    _headerFactory.AddConfiguredHeaders(concreteResponse, headersForStatusCode);
             }
         }
 
@@ -315,52 +316,6 @@ sealed class ResponseOperationTransformer(DocumentOptions docOpts, SharedContext
             return map;
         }
 
-        void AddTypedResponseHeaders(OpenApiResponse response, Type responseType)
-        {
-            foreach (var prop in GetPublicInstanceProperties(responseType))
-            {
-                var toHeaderAttr = GetPropertyMetadata(prop).ToHeader;
-
-                if (toHeaderAttr is null)
-                    continue;
-
-                var headerName = toHeaderAttr.HeaderName ?? prop.Name.ApplyPropNamingPolicy(docOpts, NamingPolicy);
-                var headerType = prop.PropertyType.Name.EndsWith("HeaderValue", StringComparison.Ordinal) ? typeof(string) : prop.PropertyType;
-
-                AddResponseHeader(
-                    response,
-                    headerName,
-                    new()
-                    {
-                        Description = XmlDocLookup.GetPropertySummary(prop),
-                        Schema = headerType.GetSchemaForType(sharedCtx, docOpts.ShortSchemaNames),
-                        Example = GetHeaderExample(prop, headerType)
-                    });
-            }
-        }
-
-        JsonNode? GetHeaderExample(PropertyInfo prop, Type headerType)
-            => OperationSchemaHelpers.ParseXmlExampleJsonNode(XmlDocLookup.GetPropertyExample(prop), preserveRawString: true) ??
-               headerType.GetSampleValue().JsonNodeFromObject(SerializerOptions);
-
-        void AddConfiguredResponseHeaders(OpenApiResponse response, IEnumerable<ResponseHeader> headers)
-        {
-            foreach (var header in headers)
-            {
-                var example = header.Example.JsonNodeFromObject(SerializerOptions);
-
-                AddResponseHeader(
-                    response,
-                    header.HeaderName,
-                    new()
-                    {
-                        Description = header.Description,
-                        Example = example,
-                        Schema = CreateConfiguredResponseHeaderSchema(header.Example, example)
-                    });
-            }
-        }
-
         void AddMissingResponseContent(OpenApiResponse response, IProducesResponseTypeMetadata metadata)
         {
             if (metadata.Type is null || metadata.Type == Types.Void)
@@ -373,19 +328,6 @@ sealed class ResponseOperationTransformer(DocumentOptions docOpts, SharedContext
                 if (!response.Content.ContainsKey(contentType))
                     response.Content[contentType] = CreateMissingResponseMediaType(metadata.Type, docOpts.ShortSchemaNames);
             }
-        }
-
-        IOpenApiSchema? CreateConfiguredResponseHeaderSchema(object? exampleValue, JsonNode? exampleNode)
-        {
-            if (exampleValue is null)
-                return null;
-
-            var exampleType = exampleValue.GetType();
-
-            if (!IsAnonymousType(exampleType))
-                return exampleType.GetSchemaForType(sharedCtx, docOpts.ShortSchemaNames);
-
-            return OperationSchemaHelpers.CreateSchemaFromExampleNode(exampleNode);
         }
 
         static void ApplyDefaultResponseDescription(string statusCode, IOpenApiResponse response)
@@ -417,19 +359,6 @@ sealed class ResponseOperationTransformer(DocumentOptions docOpts, SharedContext
             {
                 Schema = type.GetSchemaForType(sharedCtx, shortSchemaNames)
             };
-
-        static bool IsAnonymousType(Type type)
-            => Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), inherit: false) &&
-               type.IsGenericType &&
-               type.Name.Contains("AnonymousType", StringComparison.Ordinal) &&
-               (type.Name.StartsWith("<>", StringComparison.Ordinal) || type.Name.StartsWith("VB$", StringComparison.Ordinal)) &&
-               !type.IsPublic;
-
-        static void AddResponseHeader(OpenApiResponse response, string headerName, OpenApiHeader header)
-        {
-            response.Headers ??= new Dictionary<string, IOpenApiHeader>();
-            response.Headers[headerName] = header;
-        }
 
         static bool IsFrameworkDefault(string statusCode, string description)
             => statusCode switch

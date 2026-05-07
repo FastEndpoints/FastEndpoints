@@ -14,8 +14,7 @@ sealed class RouteParameterApplicator(DocumentOptions docOpts, SharedContext sha
     JsonNamingPolicy? NamingPolicy => sharedCtx.NamingPolicy;
 
     internal static Dictionary<string, RouteParameterInfo> BuildLookup(List<RouteParameterInfo> routeParameters)
-        => routeParameters.Select(static routeParameter => KeyValuePair.Create(routeParameter.Name, routeParameter))
-                          .ToCaseInsensitiveDictionary(routeParameters.Count);
+        => routeParameters.Select(static routeParameter => KeyValuePair.Create(routeParameter.Name, routeParameter)).ToCaseInsensitiveDictionary(routeParameters.Count);
 
     internal void AddBoundRouteParameter(OpenApiOperation operation,
                                          PropertyInfo property,

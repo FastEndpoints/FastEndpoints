@@ -12,7 +12,7 @@ using Microsoft.OpenApi;
 
 namespace FastEndpoints.OpenApi;
 
-sealed partial class ValidationSchemaTransformer(DocumentOptions docOpts, SharedContext sharedCtx)
+sealed class ValidationSchemaTransformer(DocumentOptions docOpts, SharedContext sharedCtx)
 {
     IServiceResolver? _serviceResolver;
     ILogger<ValidationSchemaTransformer>? _logger;
@@ -150,6 +150,6 @@ sealed partial class ValidationSchemaTransformer(DocumentOptions docOpts, Shared
         => validator.GetType().GetGenericArgumentsOfType(Types.ValidatorOf1)?[0] ?? validator.GetType();
 }
 
-internal sealed record CachedValidatorRules(System.Collections.ObjectModel.ReadOnlyDictionary<string, List<FluentValidation.IValidationRule>> Rules, CachedValidatorRules[] IncludedRules);
+internal sealed record CachedValidatorRules(System.Collections.ObjectModel.ReadOnlyDictionary<string, List<IValidationRule>> Rules, CachedValidatorRules[] IncludedRules);
 
 readonly record struct ValidatorRuleCacheKey(Type ValidatorType, JsonNamingPolicy? NamingPolicy);

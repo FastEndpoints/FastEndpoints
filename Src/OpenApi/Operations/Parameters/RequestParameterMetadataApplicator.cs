@@ -22,7 +22,7 @@ sealed class RequestParameterMetadataApplicator(DocumentOptions docOpts, SharedC
         var requestPropLookup = BuildRequestPropertyLookup(requestProps);
         var paramDescriptions = epDef.EndpointSummary?.Params;
         var paramDescriptionLookup = paramDescriptions is { Count: > 0 }
-                                         ? ParameterDescriptionLookup.Build(paramDescriptions)
+                                         ? paramDescriptions.ToCaseInsensitiveDictionary(paramDescriptions.Count)
                                          : null;
 
         foreach (var param in operation.Parameters)

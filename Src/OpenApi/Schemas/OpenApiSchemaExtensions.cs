@@ -305,3 +305,9 @@ static partial class OperationSchemaHelpers
 }
 
 readonly record struct OperationSchemaMutationContext(SharedContext SharedContext, string OperationKey);
+
+static class OpenApiSchemaReferenceExtensions
+{
+    internal static string? GetReferenceId(this OpenApiSchemaReference schemaRef)
+        => schemaRef.Reference.Id ?? schemaRef.Id;
+}

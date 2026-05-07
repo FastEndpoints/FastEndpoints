@@ -144,7 +144,7 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
 
         var paramDescriptions = epDef.EndpointSummary?.Params;
         var hasParams = paramDescriptions is { Count: > 0 };
-        var paramDescriptionLookup = hasParams ? ParameterDescriptionLookup.Build(paramDescriptions!) : null;
+        var paramDescriptionLookup = hasParams ? paramDescriptions!.ToCaseInsensitiveDictionary(paramDescriptions!.Count) : null;
         var exampleObj = epDef.EndpointSummary?.ExampleRequest;
         var defaultProps = BuildRequestSchemaDefaultLookup(promotedBodyProperty?.Type ?? epDef.ReqDtoType);
         var hasDefaults = defaultProps.Count > 0;

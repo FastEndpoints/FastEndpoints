@@ -187,7 +187,7 @@ sealed class ResponseOperationTransformer(DocumentOptions docOpts, SharedContext
                 if (mediaType.Schema.EnsureSchemaForMutation(
                         mutationCtx,
                         "response.polymorphism",
-                        localized => mediaType.Schema = localized) is not OpenApiSchema responseSchema)
+                        localized => mediaType.Schema = localized) is not { } responseSchema)
                     continue;
 
                 responseSchema.OneOf ??= [];

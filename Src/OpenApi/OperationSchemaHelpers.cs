@@ -52,6 +52,18 @@ static partial class OperationSchemaHelpers
         return lookup;
     }
 
+    internal static void SortByKey<TValue>(this IDictionary<string, TValue> dictionary)
+    {
+        if (dictionary.Count < 2)
+            return;
+
+        var sorted = dictionary.OrderBy(static kvp => kvp.Key, StringComparer.Ordinal).ToList();
+        dictionary.Clear();
+
+        foreach (var (key, value) in sorted)
+            dictionary[key] = value;
+    }
+
     internal static Type GetOpenApiParameterType(this Type type)
         => type.Name.EndsWith("HeaderValue", StringComparison.Ordinal) ? typeof(string) : type;
 

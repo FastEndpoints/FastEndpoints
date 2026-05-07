@@ -81,13 +81,7 @@ static class DocumentSchemaHelpers
     #region Sorting
 
     internal static void SortPaths(this OpenApiDocument document)
-    {
-        var sorted = document.Paths.OrderBy(p => p.Key, StringComparer.Ordinal).ToList();
-        document.Paths.Clear();
-
-        foreach (var (path, pathItem) in sorted)
-            document.Paths[path] = pathItem;
-    }
+        => document.Paths.SortByKey();
 
     internal static void SortResponses(this OpenApiDocument document)
     {
@@ -98,14 +92,7 @@ static class DocumentSchemaHelpers
 
             foreach (var (_, operation) in pathItem.Operations)
             {
-                if (operation.Responses is not { Count: > 1 })
-                    continue;
-
-                var sorted = operation.Responses.OrderBy(r => r.Key, StringComparer.Ordinal).ToList();
-                operation.Responses.Clear();
-
-                foreach (var (key, value) in sorted)
-                    operation.Responses[key] = value;
+                operation.Responses?.SortByKey();
             }
         }
     }
@@ -115,11 +102,7 @@ static class DocumentSchemaHelpers
         if (document.Components?.Schemas is null)
             return;
 
-        var sorted = document.Components.Schemas.OrderBy(s => s.Key, StringComparer.Ordinal).ToList();
-        document.Components.Schemas.Clear();
-
-        foreach (var (key, schema) in sorted)
-            document.Components.Schemas[key] = schema;
+        document.Components.Schemas.SortByKey();
     }
 
     #endregion

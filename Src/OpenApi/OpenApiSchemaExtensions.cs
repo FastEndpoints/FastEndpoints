@@ -206,30 +206,10 @@ static partial class OperationSchemaHelpers
                          .ToArray());
 
     static Dictionary<string, JsonNode>? CloneJsonNodeDictionary(IDictionary<string, JsonNode>? nodes)
-    {
-        if (nodes is null)
-            return null;
-
-        var cloned = new Dictionary<string, JsonNode>(nodes.Count, StringComparer.Ordinal);
-
-        foreach (var (key, value) in nodes)
-            cloned[key] = value.DeepClone();
-
-        return cloned;
-    }
+        => CloneDictionary(nodes, static node => node.DeepClone());
 
     static Dictionary<string, HashSet<string>>? CloneStringSetDictionary(IDictionary<string, HashSet<string>>? sets)
-    {
-        if (sets is null)
-            return null;
-
-        var cloned = new Dictionary<string, HashSet<string>>(sets.Count, StringComparer.Ordinal);
-
-        foreach (var (key, value) in sets)
-            cloned[key] = new(value, StringComparer.Ordinal);
-
-        return cloned;
-    }
+        => CloneDictionary(sets, static set => new HashSet<string>(set, StringComparer.Ordinal));
 
     static Dictionary<string, IOpenApiExtension>? CloneExtensionsDictionary(IDictionary<string, IOpenApiExtension>? extensions)
     {
@@ -247,27 +227,20 @@ static partial class OperationSchemaHelpers
     }
 
     static Dictionary<string, object>? CloneMetadataDictionary(string memberName, IDictionary<string, object>? metadata)
-    {
-        if (metadata is null)
-            return null;
-
-        var cloned = new Dictionary<string, object>(metadata.Count, StringComparer.Ordinal);
-
-        foreach (var (key, value) in metadata)
-            cloned[key] = CloneSchemaMemberValue(memberName, value) ?? new object();
-
-        return cloned;
-    }
+        => CloneDictionary(metadata, value => CloneSchemaMemberValue(memberName, value) ?? new object());
 
     static Dictionary<string, IOpenApiSchema>? CloneSchemaDictionary(IDictionary<string, IOpenApiSchema>? schemas)
+        => CloneDictionary(schemas, static schema => CloneNestedSchema(schema)!);
+
+    static Dictionary<string, TValue>? CloneDictionary<TSource, TValue>(IDictionary<string, TSource>? source, Func<TSource, TValue> cloneValue)
     {
-        if (schemas is null)
+        if (source is null)
             return null;
 
-        var cloned = new Dictionary<string, IOpenApiSchema>(schemas.Count, StringComparer.Ordinal);
+        var cloned = new Dictionary<string, TValue>(source.Count, StringComparer.Ordinal);
 
-        foreach (var (key, value) in schemas)
-            cloned[key] = CloneNestedSchema(value)!;
+        foreach (var (key, value) in source)
+            cloned[key] = cloneValue(value);
 
         return cloned;
     }

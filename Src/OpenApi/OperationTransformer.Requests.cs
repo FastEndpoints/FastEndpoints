@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Concurrent;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -22,6 +21,11 @@ sealed record PromotedBodyProperty(string Name, Type Type);
 sealed partial class RequestOperationTransformer(DocumentOptions docOpts, SharedContext sharedCtx)
 {
         readonly OperationParameterFactory _parameterFactory = new(docOpts, sharedCtx);
+        readonly OperationParameterNameResolver _parameterNameResolver = new(docOpts, sharedCtx);
+        readonly RequestBodyOverrideApplicator _requestBodyOverrideApplicator = new(docOpts, sharedCtx);
+        readonly RequestParameterMetadataApplicator _requestParameterMetadataApplicator = new(docOpts, sharedCtx);
+        readonly ComplexQueryParameterExpander _complexQueryParameterExpander = new(new(docOpts, sharedCtx), new(docOpts, sharedCtx));
+        readonly RouteParameterApplicator _routeParameterApplicator = new(docOpts, sharedCtx);
 
         static readonly HashSet<string> _illegalHeaderNames = new(StringComparer.OrdinalIgnoreCase)
         {
@@ -29,9 +33,6 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
             "Content-Type",
             "Authorization"
         };
-
-        static readonly ConcurrentDictionary<Type, PromotedBodyPropertySelection> _promotedBodyPropertyCache = new();
-        static readonly ParameterLookupKeyComparer _parameterLookupKeyComparer = new();
 
         JsonNamingPolicy? NamingPolicy => sharedCtx.NamingPolicy;
         JsonSerializerOptions SerializerOptions => sharedCtx.SerializerOptions ?? Cfg.SerOpts.Options;
@@ -45,7 +46,7 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
             var state = new RequestTransformState();
             var endpointRouteTemplate = FindEndpointRouteTemplate(epDef, documentPath);
             var routeParameters = GetRouteParameters(endpointRouteTemplate ?? context.Description.RelativePath ?? documentPath);
-            var routeParameterLookup = BuildRouteParameterLookup(routeParameters);
+            var routeParameterLookup = RouteParameterApplicator.BuildLookup(routeParameters);
 
             var requestDtoType = GetRequestDtoType(epDef);
 
@@ -73,154 +74,16 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
                 }
             }
 
-            EnsureRouteParameters(operation, routeParameters);
+            _routeParameterApplicator.EnsureRouteParameters(operation, routeParameters);
 
             return state;
         }
 
         public PromotedBodyProperty? ApplyBodyOverrides(OpenApiOperation operation, EndpointDefinition epDef, string operationKey)
-        {
-            if (operation.RequestBody?.Content is null)
-                return null;
-
-            var requestDtoType = GetRequestDtoType(epDef);
-
-            var (promoteProp, fromBodyProp, fromFormProp) = FindPromotedBodyProperty(requestDtoType);
-
-            if (promoteProp is null)
-                return null;
-
-            var promoted = false;
-            var mutationCtx = new OperationSchemaMutationContext(sharedCtx, operationKey);
-            var schemaKey = PropertyNameResolver.GetSchemaPropertyName(promoteProp, NamingPolicy, docOpts.UsePropertyNamingPolicy);
-
-            // replace the entire request body schema with the [FromBody]/[FromForm] property's type schema
-            foreach (var content in operation.RequestBody.Content.Values)
-            {
-                var resolvedSchema = content.Schema.ResolveSchema(sharedCtx);
-
-                if (resolvedSchema is null)
-                    continue;
-
-                var matchingKey = resolvedSchema.Properties?.Keys.FirstOrDefault(k => string.Equals(k, schemaKey, StringComparison.OrdinalIgnoreCase));
-
-                if (matchingKey is not null && resolvedSchema.Properties!.TryGetValue(matchingKey, out var propSchema))
-                {
-                    content.Schema = propSchema;
-                    content.EnsureOperationLocalSchemaForMutation(mutationCtx, "requestBody");
-                    promoted = true;
-                }
-            }
-
-            if (promoted && SchemaNameGenerator.GetReferenceId(requestDtoType, docOpts.ShortSchemaNames) is { } refId)
-                sharedCtx.PromotedRequestWrapperSchemaRefs.TryAdd(refId, 0);
-
-            if (promoted && fromFormProp is not null)
-                NormalizePromotedFormRequestBodyContent(operation, epDef.FormDataContentType);
-
-            // JSON Patch unwrap: only for [FromBody], promote the operations array to top-level
-            if (fromBodyProp is not null && operation.RequestBody.Content.TryGetValue("application/json-patch+json", out var patchContent))
-            {
-                var patchArraySchema = TryGetJsonPatchArraySchema(patchContent.Schema, sharedCtx);
-
-                if (patchArraySchema is not null)
-                {
-                    patchContent.Schema = patchArraySchema;
-                    patchContent.EnsureOperationLocalSchemaForMutation(mutationCtx, "requestBody.jsonPatch");
-                }
-            }
-
-            return promoted ? new(schemaKey, promoteProp.PropertyType) : null;
-        }
-
-        static PromotedBodyPropertySelection FindPromotedBodyProperty(Type requestDtoType)
-            => _promotedBodyPropertyCache.GetOrAdd(requestDtoType, CreatePromotedBodyPropertySelection);
-
-        static PromotedBodyPropertySelection CreatePromotedBodyPropertySelection(Type requestDtoType)
-        {
-            PropertyInfo? fromBodyProp = null;
-            PropertyInfo? fromFormProp = null;
-
-            foreach (var prop in GetPublicInstanceProperties(requestDtoType))
-            {
-                var metadata = GetPropertyMetadata(prop);
-
-                if (fromBodyProp is null && metadata.IsFromBody)
-                    fromBodyProp = prop;
-
-                if (fromFormProp is null && metadata.IsFromForm)
-                    fromFormProp = prop;
-
-                if (fromBodyProp is not null && fromFormProp is not null)
-                    break;
-            }
-
-            return new(fromBodyProp ?? fromFormProp, fromBodyProp, fromFormProp);
-        }
-
-        readonly record struct PromotedBodyPropertySelection(PropertyInfo? Promoted, PropertyInfo? FromBody, PropertyInfo? FromForm);
-
-        static void NormalizePromotedFormRequestBodyContent(OpenApiOperation operation, string? formDataContentType)
-        {
-            if (operation.RequestBody?.Content is not { Count: > 0 } content)
-                return;
-
-            var targetContentType = string.IsNullOrWhiteSpace(formDataContentType)
-                                        ? "multipart/form-data"
-                                        : formDataContentType;
-            var targetKey = content.Keys.FindCaseInsensitiveKey(targetContentType);
-            var targetContent = targetKey is not null
-                                    ? content[targetKey]
-                                    : content.Values.First();
-
-            content.Clear();
-            content[targetContentType] = targetContent;
-        }
+            => _requestBodyOverrideApplicator.Apply(operation, epDef, operationKey);
 
         public void ApplyParameterMetadata(OpenApiOperation operation, EndpointDefinition epDef)
-        {
-            if (operation.Parameters is not { Count: > 0 })
-                return;
-
-            var requestDtoType = GetRequestDtoType(epDef);
-            var requestProps = GetPublicInstanceProperties(requestDtoType);
-            var requestPropLookup = BuildRequestPropertyLookup(requestProps);
-            var paramDescriptions = epDef.EndpointSummary?.Params;
-            var paramDescriptionLookup = paramDescriptions is { Count: > 0 }
-                                             ? BuildParamDescriptionLookup(paramDescriptions)
-                                             : null;
-
-            foreach (var param in operation.Parameters)
-            {
-                if (param is not OpenApiParameter concreteParam)
-                    continue;
-
-                var prop = concreteParam.Name is { } parameterName
-                               ? FindRequestProperty(requestPropLookup, parameterName, concreteParam.In ?? ParameterLocation.Query)
-                               : null;
-
-                if (paramDescriptionLookup is not null)
-                {
-                    var descriptionKey = prop?.Name ?? concreteParam.Name;
-
-                    if (descriptionKey is not null && paramDescriptionLookup.TryGetValue(descriptionKey, out var description))
-                        concreteParam.Description = description;
-                }
-
-                if (string.IsNullOrWhiteSpace(concreteParam.Description) && prop is not null)
-                    concreteParam.Description = XmlDocLookup.GetPropertySummary(prop);
-
-                if (prop is not null)
-                {
-                    var defaultAttr = GetPropertyMetadata(prop).DefaultValue;
-
-                    if (defaultAttr?.Value is not null && concreteParam.Schema is OpenApiSchema paramSchema)
-                        paramSchema.Default = defaultAttr.Value.JsonNodeFromObject(SerializerOptions);
-                }
-            }
-
-            ApplyExampleRequestToParams(operation, epDef, requestPropLookup);
-        }
+            => _requestParameterMetadataApplicator.Apply(operation, epDef);
 
         public void ApplyExamples(OpenApiOperation operation, EndpointDefinition epDef, RequestTransformState state, PromotedBodyProperty? promotedBodyProperty)
         {
@@ -281,7 +144,7 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
 
             var paramDescriptions = epDef.EndpointSummary?.Params;
             var hasParams = paramDescriptions is { Count: > 0 };
-            var paramDescriptionLookup = hasParams ? BuildParamDescriptionLookup(paramDescriptions!) : null;
+            var paramDescriptionLookup = hasParams ? ParameterDescriptionLookup.Build(paramDescriptions!) : null;
             var exampleObj = epDef.EndpointSummary?.ExampleRequest;
             var defaultProps = BuildRequestSchemaDefaultLookup(promotedBodyProperty?.Type ?? GetRequestDtoType(epDef));
             var hasDefaults = defaultProps.Count > 0;
@@ -402,116 +265,6 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
             }
         }
 
-        Dictionary<(ParameterLocation Location, string Name), PropertyInfo> BuildRequestPropertyLookup(PropertyInfo[] requestProps)
-        {
-            var lookup = new Dictionary<(ParameterLocation Location, string Name), PropertyInfo>(_parameterLookupKeyComparer);
-
-            foreach (var prop in requestProps)
-            {
-                AddRequestPropertyLookup(lookup, prop, ParameterLocation.Path);
-                AddRequestPropertyLookup(lookup, prop, ParameterLocation.Query);
-                AddRequestPropertyLookup(lookup, prop, ParameterLocation.Header);
-                AddRequestPropertyLookup(lookup, prop, ParameterLocation.Cookie);
-            }
-
-            return lookup;
-        }
-
-        void AddRequestPropertyLookup(Dictionary<(ParameterLocation Location, string Name), PropertyInfo> lookup, PropertyInfo property, ParameterLocation location)
-            => lookup.TryAdd((location, GetEffectiveParameterName(property, location)), property);
-
-        static PropertyInfo? FindRequestProperty(Dictionary<(ParameterLocation Location, string Name), PropertyInfo>? lookup, string parameterName, ParameterLocation location)
-        {
-            if (lookup is null)
-                return null;
-
-            return lookup.GetValueOrDefault((location, parameterName));
-        }
-
-        string GetEffectiveParameterName(PropertyInfo property, ParameterLocation location)
-        {
-            var metadata = GetPropertyMetadata(property);
-
-            if (location == ParameterLocation.Header)
-                return metadata.FromHeader?.HeaderName ?? property.Name.ApplyPropNamingPolicy(docOpts, NamingPolicy);
-
-            if (location == ParameterLocation.Cookie)
-                return metadata.FromCookie?.CookieName ?? property.Name.ApplyPropNamingPolicy(docOpts, NamingPolicy);
-
-            if (location == ParameterLocation.Path)
-            {
-                return metadata.BindFrom?.Name.ApplyPropNamingPolicy(docOpts, NamingPolicy) ??
-                       property.Name.ApplyPropNamingPolicy(docOpts, NamingPolicy);
-            }
-
-            if (location == ParameterLocation.Query)
-                return GetQueryParameterName(property);
-
-            return property.Name;
-        }
-
-        void ApplyExampleRequestToParams(OpenApiOperation operation,
-                                         EndpointDefinition epDef,
-                                         Dictionary<(ParameterLocation Location, string Name), PropertyInfo>? requestPropLookup)
-        {
-            var exampleRequest = epDef.EndpointSummary?.ExampleRequest;
-
-            if (exampleRequest is null || operation.Parameters is not { Count: > 0 })
-                return;
-
-            var exampleObj = exampleRequest.JsonObjectFromObject(SerializerOptions, exampleRequest.GetType());
-
-            if (exampleObj is null)
-                return;
-
-            var examplePropertyLookup = BuildExamplePropertyLookup(exampleObj);
-
-            foreach (var param in operation.Parameters)
-            {
-                if (param is not OpenApiParameter concreteParam)
-                    continue;
-
-                if (concreteParam.Name is { } parameterName &&
-                    examplePropertyLookup.TryGetValue(parameterName, out var exampleValue) &&
-                    exampleValue is not null)
-                {
-                    concreteParam.Example = exampleValue.DeepClone();
-
-                    continue;
-                }
-
-                var prop = concreteParam.Name is { } name
-                               ? FindRequestProperty(requestPropLookup, name, concreteParam.In ?? ParameterLocation.Query)
-                               : null;
-                var propValue = prop?.DeclaringType?.IsInstanceOfType(exampleRequest) is true
-                                    ? prop.GetValue(exampleRequest)
-                                    : null;
-
-                if (propValue is not null)
-                    concreteParam.Example = propValue.JsonNodeFromObject(SerializerOptions);
-            }
-        }
-
-        static Dictionary<string, JsonNode?> BuildExamplePropertyLookup(JsonObject exampleObj)
-        {
-            var lookup = new Dictionary<string, JsonNode?>(exampleObj.Count, StringComparer.OrdinalIgnoreCase);
-
-            foreach (var (key, value) in exampleObj)
-                lookup.TryAdd(key, value);
-
-            return lookup;
-        }
-
-        static Dictionary<string, string> BuildParamDescriptionLookup(IReadOnlyDictionary<string, string> paramDescriptions)
-        {
-            var lookup = new Dictionary<string, string>(paramDescriptions.Count, StringComparer.OrdinalIgnoreCase);
-
-            foreach (var (key, description) in paramDescriptions)
-                lookup.TryAdd(key, description);
-
-            return lookup;
-        }
-
         void RemoveHiddenProperties(OpenApiOperation operation, List<PropertyInfo> requestDtoProps, RequestTransformState state, string operationKey)
         {
             for (var i = requestDtoProps.Count - 1; i >= 0; i--)
@@ -530,16 +283,6 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
             }
         }
 
-        static Dictionary<string, RouteParameterInfo> BuildRouteParameterLookup(List<RouteParameterInfo> routeParameters)
-        {
-            var lookup = new Dictionary<string, RouteParameterInfo>(routeParameters.Count, StringComparer.OrdinalIgnoreCase);
-
-            foreach (var routeParameter in routeParameters)
-                lookup.TryAdd(routeParameter.Name, routeParameter);
-
-            return lookup;
-        }
-
         void AddBoundParameters(OpenApiOperation operation,
                                 List<PropertyInfo> requestDtoProps,
                                 Dictionary<string, RouteParameterInfo> routeParameters,
@@ -553,15 +296,15 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
                 var metadata = GetPropertyMetadata(p);
 
                 AddAttributeParameters(operation, p, metadata, state, operationKey);
-                AddRouteParameter(operation, p, routeParameters, state, operationKey);
+                _routeParameterApplicator.AddBoundRouteParameter(operation, p, routeParameters, state, operationKey);
 
-                var queryParamName = GetQueryParameterName(p);
+                var queryParamName = _parameterNameResolver.GetQueryName(p);
 
                 if (ShouldAddQueryParam(p, metadata, operation, queryParamName, isGetRequest && !docOpts.EnableGetRequestsWithBody))
                 {
                     operation.RemovePropFromRequestBody(p, sharedCtx, operationKey, docOpts, NamingPolicy, state.PropsRemovedFromBody);
 
-                    if (TryAddComplexFromQueryParameters(operation, p, docOpts.ShortSchemaNames))
+                    if (_complexQueryParameterExpander.TryAdd(operation, p, docOpts.ShortSchemaNames))
                         continue;
 
                     AddParameter(
@@ -575,66 +318,6 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
             }
         }
 
-        string GetQueryParameterName(PropertyInfo property)
-            => GetPropertyMetadata(property).BindFrom?.Name ?? property.Name.ApplyPropNamingPolicy(docOpts, NamingPolicy);
-
-        bool TryAddComplexFromQueryParameters(OpenApiOperation operation, PropertyInfo property, bool shortSchemaNames)
-        {
-            var propertyType = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
-
-            if (!GetPropertyMetadata(property).IsFromQuery ||
-                !propertyType.IsComplexType() ||
-                propertyType.IsCollection() ||
-                OperationSchemaHelpers.TryGetDictionaryValueType(propertyType) is not null)
-                return false;
-
-            AddComplexQueryParameters(operation, propertyType, prefix: null, shortSchemaNames, []);
-
-            return true;
-        }
-
-        void AddComplexQueryParameters(OpenApiOperation operation,
-                                       Type type,
-                                       string? prefix,
-                                       bool shortSchemaNames,
-                                       HashSet<Type> visited)
-        {
-            type = Nullable.GetUnderlyingType(type) ?? type;
-
-            if (!visited.Add(type))
-                return;
-
-            foreach (var prop in GetBindableRequestProperties(type))
-            {
-                if (GetPropertyMetadata(prop).IsHiddenFromDocs)
-                    continue;
-
-                var propName = GetQueryParameterName(prop);
-                var key = string.IsNullOrEmpty(prefix) ? propName : $"{prefix}.{propName}";
-                var propType = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
-
-                if (propType.IsComplexType() &&
-                    !propType.IsCollection() &&
-                    OperationSchemaHelpers.TryGetDictionaryValueType(propType) is null)
-                {
-                    AddComplexQueryParameters(operation, propType, key, shortSchemaNames, visited);
-
-                    continue;
-                }
-
-                if (propType.IsCollection() && OperationSchemaHelpers.TryGetCollectionElementType(propType) is { } elementType && elementType.IsComplexType())
-                {
-                    AddComplexQueryParameters(operation, elementType, $"{key}[0]", shortSchemaNames, visited);
-
-                    continue;
-                }
-
-                AddParameter(operation, key, ParameterLocation.Query, prop, GetDontBindRequiredness(prop), shortSchemaNames);
-            }
-
-            visited.Remove(type);
-        }
-
         static bool? GetDontBindRequiredness(PropertyInfo property)
             => property.GetCustomAttribute<DontBindAttribute>()?.IsRequired is true ? true : null;
 
@@ -646,7 +329,7 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
         {
             if (metadata.FromHeader is { } hAttrib)
             {
-                var pName = hAttrib.HeaderName ?? p.Name.ApplyPropNamingPolicy(docOpts, NamingPolicy);
+                var pName = hAttrib.HeaderName ?? _parameterNameResolver.ApplyPropertyNamingPolicy(p.Name);
 
                 if (IsIllegalHeaderName(pName))
                 {
@@ -663,7 +346,7 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
 
             if (metadata.FromCookie is { } cAttrib)
             {
-                var pName = cAttrib.CookieName ?? p.Name.ApplyPropNamingPolicy(docOpts, NamingPolicy);
+                var pName = cAttrib.CookieName ?? _parameterNameResolver.ApplyPropertyNamingPolicy(p.Name);
                 AddParameter(operation, pName, ParameterLocation.Cookie, p, cAttrib.IsRequired, docOpts.ShortSchemaNames);
 
                 if (cAttrib.IsRequired || cAttrib.RemoveFromSchema)
@@ -675,72 +358,6 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
                 operation.RemovePropFromRequestBody(p, sharedCtx, operationKey, docOpts, NamingPolicy, state.PropsRemovedFromBody);
         }
 
-        void AddRouteParameter(OpenApiOperation operation, PropertyInfo p, Dictionary<string, RouteParameterInfo> routeParameters, RequestTransformState state, string operationKey)
-        {
-            var bindName = GetPropertyMetadata(p).BindFrom?.Name ?? p.Name;
-
-            if (!routeParameters.TryGetValue(bindName, out var matchingRouteParam))
-                return;
-
-            operation.RemovePropFromRequestBody(p, sharedCtx, operationKey, docOpts, NamingPolicy, state.PropsRemovedFromBody);
-
-            var appliedName = matchingRouteParam.Name.GetOpenApiRouteParameterName(docOpts, NamingPolicy);
-
-            if (TryNormalizeExistingPathParameter(operation, matchingRouteParam.Name, appliedName, p.PropertyType))
-                return;
-
-            if (!HasParameter(operation, ParameterLocation.Path, appliedName))
-                AddParameter(operation, appliedName, ParameterLocation.Path, p, true, docOpts.ShortSchemaNames);
-            else
-                UpdateParameterSchema(operation, ParameterLocation.Path, appliedName, p.PropertyType, sharedCtx, docOpts.ShortSchemaNames);
-        }
-
-        void EnsureRouteParameters(OpenApiOperation operation, List<RouteParameterInfo> routeParameters)
-        {
-            for (var i = 0; i < routeParameters.Count; i++)
-            {
-                var routeParam = routeParameters[i];
-                var appliedName = routeParam.Name.GetOpenApiRouteParameterName(docOpts, NamingPolicy);
-                var resolvedType = routeParam.ConstraintType;
-
-                if (TryNormalizeExistingPathParameter(operation, routeParam.Name, appliedName, resolvedType))
-                    continue;
-
-                AddParameter(operation, appliedName, ParameterLocation.Path, null, true, docOpts.ShortSchemaNames, resolvedType);
-            }
-        }
-
-        bool TryNormalizeExistingPathParameter(OpenApiOperation operation, string routeParamName, string appliedName, Type? schemaType)
-        {
-            var existing = FindPathParameter(operation, appliedName) ?? FindPathParameter(operation, routeParamName);
-
-            if (existing is null)
-                return false;
-
-            if (!string.Equals(existing.Name, appliedName, StringComparison.Ordinal))
-                existing.Name = appliedName;
-
-            if (schemaType is not null)
-                existing.Schema = schemaType.GetSchemaForType(sharedCtx, docOpts.ShortSchemaNames);
-
-            return true;
-
-            static OpenApiParameter? FindPathParameter(OpenApiOperation operation, string name)
-            {
-                if (operation.Parameters is not { Count: > 0 })
-                    return null;
-
-                foreach (var param in operation.Parameters)
-                {
-                    if (param is OpenApiParameter { In: ParameterLocation.Path, Name: not null } concreteParam &&
-                        string.Equals(concreteParam.Name, name, StringComparison.OrdinalIgnoreCase))
-                        return concreteParam;
-                }
-
-                return null;
-            }
-        }
-
         void AddParameter(OpenApiOperation operation,
                           string name,
                           ParameterLocation location,
@@ -749,17 +366,7 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
                           bool shortSchemaNames = false,
                           Type? explicitType = null)
         {
-            operation.Parameters ??= [];
-            operation.Parameters.Add(_parameterFactory.Create(name, location, prop, isRequired, shortSchemaNames, explicitType));
-        }
-
-        sealed class ParameterLookupKeyComparer : IEqualityComparer<(ParameterLocation Location, string Name)>
-        {
-            public bool Equals((ParameterLocation Location, string Name) x, (ParameterLocation Location, string Name) y)
-                => x.Location == y.Location && string.Equals(x.Name, y.Name, StringComparison.OrdinalIgnoreCase);
-
-            public int GetHashCode((ParameterLocation Location, string Name) obj)
-                => HashCode.Combine(obj.Location, StringComparer.OrdinalIgnoreCase.GetHashCode(obj.Name));
+            OperationParameterCollection.Add(operation, _parameterFactory.Create(name, location, prop, isRequired, shortSchemaNames, explicitType));
         }
 
         static bool IsIllegalHeaderName(string name)
@@ -803,19 +410,4 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
             return isGetRequest || prop.IsDefined(Types.QueryParamAttribute);
         }
 
-        static OpenApiSchema? TryGetJsonPatchArraySchema(IOpenApiSchema? schema, SharedContext sharedCtx)
-        {
-            var resolved = schema.ResolveSchema(sharedCtx);
-
-            if (resolved is not { Type: JsonSchemaType.Object, Properties.Count: 1 })
-                return null;
-
-            var operationsProp = resolved.Properties
-                                         .FirstOrDefault(p => string.Equals(p.Key, "operations", StringComparison.OrdinalIgnoreCase))
-                                         .Value;
-
-            return operationsProp.ResolveSchema(sharedCtx) is { Type: JsonSchemaType.Array } arraySchema
-                       ? arraySchema
-                       : null;
-        }
 }

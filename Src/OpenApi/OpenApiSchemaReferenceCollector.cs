@@ -24,51 +24,7 @@ static class OpenApiSchemaReferenceCollector
     }
 
     internal static void CollectSchemaRefs(IOpenApiSchema? schema, HashSet<string> refs, Queue<string> pendingRefs)
-    {
-        switch (schema)
-        {
-            case null:
-                return;
-            case OpenApiSchemaReference schemaRef:
-            {
-                var refId = GetReferenceId(schemaRef);
-
-                if (!string.IsNullOrEmpty(refId) && refs.Add(refId))
-                    pendingRefs.Enqueue(refId);
-
-                return;
-            }
-            case OpenApiSchema s:
-            {
-                if (s.Properties is { Count: > 0 })
-                    CollectSchemaRefs(s.Properties.Values, refs, pendingRefs);
-
-                CollectSchemaRefs(s.Items, refs, pendingRefs);
-                CollectSchemaRefs(s.AdditionalProperties, refs, pendingRefs);
-                CollectSchemaRefs(s.Not, refs, pendingRefs);
-
-                if (s.AllOf is { Count: > 0 })
-                    CollectSchemaRefs(s.AllOf, refs, pendingRefs);
-
-                if (s.OneOf is { Count: > 0 })
-                    CollectSchemaRefs(s.OneOf, refs, pendingRefs);
-
-                if (s.AnyOf is { Count: > 0 })
-                    CollectSchemaRefs(s.AnyOf, refs, pendingRefs);
-
-                if (s.PatternProperties is { Count: > 0 })
-                    CollectSchemaRefs(s.PatternProperties.Values, refs, pendingRefs);
-
-                if (s.Definitions is { Count: > 0 })
-                    CollectSchemaRefs(s.Definitions.Values, refs, pendingRefs);
-
-                if (s.Discriminator?.Mapping is { Count: > 0 })
-                    CollectSchemaRefs(s.Discriminator.Mapping.Values, refs, pendingRefs);
-
-                break;
-            }
-        }
-    }
+        => OpenApiSchemaTraversal.CollectReferences(schema, refs, pendingRefs);
 
     static void CollectReferencedSchemas(ReferenceCollectionContext context)
     {
@@ -327,15 +283,6 @@ static class OpenApiSchemaReferenceCollector
 
         return true;
     }
-
-    static void CollectSchemaRefs(IEnumerable<IOpenApiSchema?> schemas, HashSet<string> refs, Queue<string> pendingRefs)
-    {
-        foreach (var schema in schemas)
-            CollectSchemaRefs(schema, refs, pendingRefs);
-    }
-
-    static string? GetReferenceId(OpenApiSchemaReference schemaRef)
-        => schemaRef.Reference.Id ?? schemaRef.Id;
 
     sealed class ReferenceCollectionContext(OpenApiDocument document, HashSet<string> refs, Queue<string> pendingRefs)
     {

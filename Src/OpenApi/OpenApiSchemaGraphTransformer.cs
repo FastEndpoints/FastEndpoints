@@ -18,7 +18,7 @@ static class OpenApiSchemaGraphTransformer
         if (components.Schemas is { Count: > 0 })
         {
             foreach (var (key, schema) in components.Schemas.ToArray())
-                components.Schemas[key] = RewriteSchema(schema, transform)!;
+                components.Schemas[key] = OpenApiSchemaTraversal.Rewrite(schema, transform)!;
         }
 
         if (components.Responses is { Count: > 0 })
@@ -117,7 +117,7 @@ static class OpenApiSchemaGraphTransformer
             return;
 
         if (parameter is OpenApiParameter concreteParameter)
-            concreteParameter.Schema = RewriteSchema(parameter.Schema, rewrite);
+            concreteParameter.Schema = OpenApiSchemaTraversal.Rewrite(parameter.Schema, rewrite);
 
         if (parameter.Content is { Count: > 0 })
         {
@@ -141,7 +141,7 @@ static class OpenApiSchemaGraphTransformer
             return;
 
         if (header is OpenApiHeader concreteHeader)
-            concreteHeader.Schema = RewriteSchema(header.Schema, rewrite);
+            concreteHeader.Schema = OpenApiSchemaTraversal.Rewrite(header.Schema, rewrite);
 
         if (header.Content is { Count: > 0 })
         {
@@ -164,7 +164,7 @@ static class OpenApiSchemaGraphTransformer
         if (mediaType is null)
             return;
 
-        mediaType.Schema = RewriteSchema(mediaType.Schema, rewrite);
+        mediaType.Schema = OpenApiSchemaTraversal.Rewrite(mediaType.Schema, rewrite);
 
         if (mediaType.Encoding is { Count: > 0 })
         {
@@ -182,59 +182,4 @@ static class OpenApiSchemaGraphTransformer
             RewriteHeaderSchemas(header, rewrite);
     }
 
-    static IOpenApiSchema? RewriteSchema(IOpenApiSchema? schema, Func<IOpenApiSchema?, IOpenApiSchema?> rewrite)
-    {
-        var rewritten = rewrite(schema);
-
-        if (rewritten is not OpenApiSchema s)
-            return rewritten;
-
-        if (s.Properties is { Count: > 0 })
-        {
-            foreach (var (key, childSchema) in s.Properties.ToArray())
-                s.Properties[key] = RewriteSchema(childSchema, rewrite)!;
-        }
-
-        s.Items = RewriteSchema(s.Items, rewrite);
-        s.AdditionalProperties = RewriteSchema(s.AdditionalProperties, rewrite);
-        s.Not = RewriteSchema(s.Not, rewrite);
-
-        if (s.AllOf is { Count: > 0 })
-            RewriteSchemaList(s.AllOf, rewrite);
-
-        if (s.OneOf is { Count: > 0 })
-            RewriteSchemaList(s.OneOf, rewrite);
-
-        if (s.AnyOf is { Count: > 0 })
-            RewriteSchemaList(s.AnyOf, rewrite);
-
-        if (s.PatternProperties is { Count: > 0 })
-        {
-            foreach (var (key, childSchema) in s.PatternProperties.ToArray())
-                s.PatternProperties[key] = RewriteSchema(childSchema, rewrite)!;
-        }
-
-        if (s.Definitions is { Count: > 0 })
-        {
-            foreach (var (key, childSchema) in s.Definitions.ToArray())
-                s.Definitions[key] = RewriteSchema(childSchema, rewrite)!;
-        }
-
-        if (s.Discriminator?.Mapping is { Count: > 0 })
-        {
-            foreach (var (key, mappedSchema) in s.Discriminator.Mapping.ToArray())
-            {
-                if (RewriteSchema(mappedSchema, rewrite) is OpenApiSchemaReference rewrittenSchemaRef)
-                    s.Discriminator.Mapping[key] = rewrittenSchemaRef;
-            }
-        }
-
-        return rewritten;
-    }
-
-    static void RewriteSchemaList(IList<IOpenApiSchema> schemas, Func<IOpenApiSchema?, IOpenApiSchema?> rewrite)
-    {
-        for (var i = 0; i < schemas.Count; i++)
-            schemas[i] = RewriteSchema(schemas[i], rewrite)!;
-    }
 }

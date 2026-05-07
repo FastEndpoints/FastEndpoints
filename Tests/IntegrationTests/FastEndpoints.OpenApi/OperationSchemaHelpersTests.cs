@@ -1359,17 +1359,33 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
 
     static bool AddComplexFromQueryParameters(OpenApiOperation operation, PropertyInfo prop)
     {
-        var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
-                                                                      .GetType("FastEndpoints.OpenApi.RequestOperationTransformer", throwOnError: true)!;
-        var transformer = Activator.CreateInstance(
-            transformerType,
+        var assembly = typeof(FastEndpoints.OpenApi.Extensions).Assembly;
+        var docOpts = new DocumentOptions();
+        var sharedCtx = new SharedContext();
+        var parameterFactoryType = assembly.GetType("FastEndpoints.OpenApi.OperationParameterFactory", throwOnError: true)!;
+        var parameterNameResolverType = assembly.GetType("FastEndpoints.OpenApi.OperationParameterNameResolver", throwOnError: true)!;
+        var expanderType = assembly.GetType("FastEndpoints.OpenApi.ComplexQueryParameterExpander", throwOnError: true)!;
+        var parameterFactory = Activator.CreateInstance(
+            parameterFactoryType,
             BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
             binder: null,
-            args: [new DocumentOptions(), new SharedContext()],
+            args: [docOpts, sharedCtx],
+            culture: null)!;
+        var parameterNameResolver = Activator.CreateInstance(
+            parameterNameResolverType,
+            BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
+            binder: null,
+            args: [docOpts, sharedCtx],
+            culture: null)!;
+        var expander = Activator.CreateInstance(
+            expanderType,
+            BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
+            binder: null,
+            args: [parameterFactory, parameterNameResolver],
             culture: null)!;
 
-        return (bool)transformerType.GetMethod("TryAddComplexFromQueryParameters", BindingFlags.Instance | BindingFlags.NonPublic)!
-                                    .Invoke(transformer, [operation, prop, false])!;
+        return (bool)expanderType.GetMethod("TryAdd", BindingFlags.Instance | BindingFlags.NonPublic)!
+                                  .Invoke(expander, [operation, prop, false])!;
     }
 
     static void FixBinaryFormats(OpenApiOperation operation)
@@ -1389,11 +1405,11 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
 
     static void UpdateParameterSchema(OpenApiOperation operation, string name, Type type, SharedContext sharedCtx)
     {
-        var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
-                                                                      .GetType("FastEndpoints.OpenApi.OperationTransformer", throwOnError: true)!;
+        var parameterCollectionType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
+                                                                            .GetType("FastEndpoints.OpenApi.OperationParameterCollection", throwOnError: true)!;
 
-        transformerType.GetMethod("UpdateParameterSchema", BindingFlags.Static | BindingFlags.NonPublic)!
-                       .Invoke(null, [operation, ParameterLocation.Path, name, type, sharedCtx, false]);
+        parameterCollectionType.GetMethod("UpdateSchema", BindingFlags.Static | BindingFlags.NonPublic)!
+                               .Invoke(null, [operation, ParameterLocation.Path, name, type, sharedCtx, false]);
     }
 
     static SharedContext ApplyResponseParamDescriptions(OpenApiResponse response,

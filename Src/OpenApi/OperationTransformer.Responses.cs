@@ -56,7 +56,7 @@ sealed class ResponseOperationTransformer(DocumentOptions docOpts, SharedContext
                 return;
 
             var responseTypes = epDef.EndpointSummary?.ResponseParams.Count > 0
-                                    ? BuildSupportedResponseTypeMap(context)
+                                    ? ResponseMetadataCatalog.BuildSupportedResponseTypeMap(context)
                                     : null;
 
             foreach (var (statusCode, response) in operation.Responses)
@@ -109,7 +109,7 @@ sealed class ResponseOperationTransformer(DocumentOptions docOpts, SharedContext
 
         public void ApplyExamples(OpenApiOperation operation, EndpointDefinition epDef, IList<object> metadata)
         {
-            var examples = BuildResponseExamples(epDef, metadata);
+            var examples = ResponseMetadataCatalog.BuildExamples(epDef, metadata);
 
             if (examples.Count == 0)
                 return;
@@ -133,33 +133,14 @@ sealed class ResponseOperationTransformer(DocumentOptions docOpts, SharedContext
             }
         }
 
-        static Dictionary<int, object?> BuildResponseExamples(EndpointDefinition epDef, IList<object> metadata)
-        {
-            var examples = new Dictionary<int, object?>();
-
-            foreach (var meta in metadata.OfType<DefaultProducesResponseMetadata>())
-            {
-                if (meta.Example is not null)
-                    examples[meta.StatusCode] = meta.Example;
-            }
-
-            if (epDef.EndpointSummary?.ResponseExamples is { Count: > 0 } explicitExamples)
-            {
-                foreach (var (statusCode, example) in explicitExamples)
-                    examples[statusCode] = example;
-            }
-
-            return examples;
-        }
-
         public void AddHeaders(OpenApiOperation operation, EndpointDefinition epDef, IList<object> metadata)
         {
             if (operation.Responses is null)
                 return;
 
-            var responseTypeMetas = BuildResponseTypeMetadataMap(metadata);
+            var responseTypeMetas = ResponseMetadataCatalog.BuildResponseTypeMetadataMap(metadata);
             var configuredHeaders = epDef.EndpointSummary?.ResponseHeaders is { Count: > 0 } headers
-                                        ? BuildResponseHeadersByStatusCode(headers)
+                                        ? ResponseMetadataCatalog.BuildHeadersByStatusCode(headers)
                                         : null;
 
             foreach (var (statusCode, response) in operation.Responses)
@@ -175,37 +156,6 @@ sealed class ResponseOperationTransformer(DocumentOptions docOpts, SharedContext
                 if (configuredHeaders?.TryGetValue(code, out var headersForStatusCode) == true)
                     _headerFactory.AddConfiguredHeaders(concreteResponse, headersForStatusCode);
             }
-        }
-
-        static Dictionary<int, List<ResponseHeader>> BuildResponseHeadersByStatusCode(IEnumerable<ResponseHeader> headers)
-        {
-            var result = new Dictionary<int, List<ResponseHeader>>();
-
-            foreach (var header in headers)
-            {
-                if (!result.TryGetValue(header.StatusCode, out var groupedHeaders))
-                {
-                    groupedHeaders = [];
-                    result[header.StatusCode] = groupedHeaders;
-                }
-
-                groupedHeaders.Add(header);
-            }
-
-            return result;
-        }
-
-        static Dictionary<int, IProducesResponseTypeMetadata> BuildResponseTypeMetadataMap(IList<object> metadata)
-        {
-            var responseTypeMetas = new Dictionary<int, IProducesResponseTypeMetadata>();
-
-            for (var i = 0; i < metadata.Count; i++)
-            {
-                if (metadata[i] is IProducesResponseTypeMetadata responseTypeMeta)
-                    responseTypeMetas[responseTypeMeta.StatusCode] = responseTypeMeta;
-            }
-
-            return responseTypeMetas;
         }
 
         public void FixPolymorphism(OpenApiOperation operation, string operationKey)
@@ -300,20 +250,6 @@ sealed class ResponseOperationTransformer(DocumentOptions docOpts, SharedContext
                 $"{schemaKey}.items",
                 localized => schema.Items = localized,
                 cloneConcreteSchema: true);
-        }
-
-        static Dictionary<int, Type?> BuildSupportedResponseTypeMap(OpenApiOperationTransformerContext context)
-        {
-            var responseTypes = context.Description.SupportedResponseTypes;
-            var map = new Dictionary<int, Type?>(responseTypes.Count);
-
-            for (var i = 0; i < responseTypes.Count; i++)
-            {
-                var responseType = responseTypes[i];
-                map[responseType.StatusCode] = responseType.Type;
-            }
-
-            return map;
         }
 
         void AddMissingResponseContent(OpenApiResponse response, IProducesResponseTypeMetadata metadata)

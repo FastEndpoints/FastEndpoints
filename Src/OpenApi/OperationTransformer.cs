@@ -170,29 +170,6 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
     internal static Type GetRequestDtoType(EndpointDefinition epDef)
         => epDef.ReqDtoType;
 
-    internal static bool HasParameter(OpenApiOperation operation, ParameterLocation location, string name)
-        => operation.Parameters?.Any(
-               p => p.In == location &&
-                    string.Equals(p.Name, name, StringComparison.OrdinalIgnoreCase)) ==
-           true;
-
-    internal static void UpdateParameterSchema(OpenApiOperation operation, ParameterLocation location, string name, Type type, SharedContext sharedCtx, bool shortSchemaNames)
-    {
-        if (operation.Parameters is not { Count: > 0 })
-            return;
-
-        foreach (var param in operation.Parameters)
-        {
-            if (param.In != location || !string.Equals(param.Name, name, StringComparison.OrdinalIgnoreCase))
-                continue;
-
-            if (param is OpenApiParameter concreteParam)
-                concreteParam.Schema = type.GetSchemaForType(sharedCtx, shortSchemaNames);
-
-            return;
-        }
-    }
-
 }
 
 static class OperationTransformerExtensions

@@ -867,4 +867,34 @@ public class BindingTests(Sut App) : TestBase<Sut>
         res.Errors.Count.ShouldBe(1);
         res.Errors.Keys.Contains(nameof(TestCases.FromCookieRequestBindingTest.Request.SomeCookie));
     }
+
+    [Fact]
+    public async Task NestedFromFormBindingWithIFormFile()
+    {
+        await using var stream = File.OpenRead("test.png");
+
+        var req = new TestCases.NestedFromFormBindingTest.Request
+        {
+            Data = new()
+            {
+                Name = "test name",
+                File = new FormFile(stream, 0, stream.Length, "File", "test.png")
+                {
+                    Headers = new HeaderDictionary(),
+                    ContentType = "image/png"
+                }
+            }
+        };
+
+        var (rsp, res) = await App.GuestClient.POSTAsync<
+                             TestCases.NestedFromFormBindingTest.Endpoint,
+                             TestCases.NestedFromFormBindingTest.Request,
+                             TestCases.NestedFromFormBindingTest.Response>(req, sendAsFormData: true);
+
+        rsp.IsSuccessStatusCode.ShouldBeTrue();
+        res.Name.ShouldBe("test name");
+        res.FileName.ShouldBe("test.png");
+    }
+
+
 }

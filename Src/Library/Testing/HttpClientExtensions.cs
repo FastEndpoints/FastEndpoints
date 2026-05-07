@@ -734,15 +734,30 @@ public static class HttpClientExtensions
     static MultipartFormDataContent ToForm<TRequest>(this TRequest req)
     {
         var form = new MultipartFormDataContent();
+        AddObjectToForm(req!, form);
 
-        foreach (var p in req!.GetType().BindableProps())
+        return !form.Any()
+                   ? throw new InvalidOperationException("Converting the request DTO to MultipartFormDataContent was unsuccessful!")
+                   : form;
+    }
+
+    static void AddObjectToForm(object obj, MultipartFormDataContent form)
+    {
+        foreach (var p in obj.GetType().BindableProps())
         {
-            if (p.PropertyType.GetUnderlyingType() == Types.IFormFile)
-                AddFileToForm(p.GetValue(req) as IFormFile, p);
-
+            if (p.IsDefined(Types.FromFormAttribute))
+            {
+                var nestedObj = p.GetValue(obj);
+                if (nestedObj is not null)
+                    AddObjectToForm(nestedObj, form);
+            }
+            else if (p.PropertyType.GetUnderlyingType() == Types.IFormFile)
+            {
+                AddFileToForm(p.GetValue(obj) as IFormFile, p);
+            }
             else if (p.PropertyType.IsAssignableTo(Types.IEnumerableOfIFormFile))
             {
-                var files = p.GetValue(req) as IFormFileCollection;
+                var files = p.GetValue(obj) as IFormFileCollection;
 
                 if (files?.Count is 0 or null)
                     continue;
@@ -752,15 +767,11 @@ public static class HttpClientExtensions
             }
             else
             {
-                var value = p.GetValueAsString(req);
+                var value = p.GetValueAsString(obj);
                 if (value is not null)
                     form.Add(new StringContent(value), p.Name);
             }
         }
-
-        return !form.Any()
-                   ? throw new InvalidOperationException("Converting the request DTO to MultipartFormDataContent was unsuccessful!")
-                   : form;
 
         void AddFileToForm(IFormFile? file, PropertyInfo prop)
         {
@@ -806,9 +817,6 @@ public static class HttpClientExtensions
         }
         catch
         {
-            if (p.IsDefined(Types.FromFormAttribute))
-                throw new NotSupportedException("Automatically constructing MultiPartFormData requests for properties annotated with [FromForm] is not yet supported!");
-
             throw;
         }
 

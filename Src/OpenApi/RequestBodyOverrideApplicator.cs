@@ -30,7 +30,7 @@ sealed class RequestBodyOverrideApplicator(DocumentOptions docOpts, SharedContex
             if (resolvedSchema is null)
                 continue;
 
-            var matchingKey = resolvedSchema.Properties?.Keys.FirstOrDefault(k => string.Equals(k, schemaKey, StringComparison.OrdinalIgnoreCase));
+            var matchingKey = resolvedSchema.Properties?.Keys.FindCaseInsensitiveKey(schemaKey);
 
             if (matchingKey is not null && resolvedSchema.Properties!.TryGetValue(matchingKey, out var propSchema))
             {

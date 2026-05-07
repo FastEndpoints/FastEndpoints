@@ -17,10 +17,8 @@ static partial class OperationSchemaHelpers
 
     internal static void RemoveProperties(this JsonObject obj, IEnumerable<string> propertyNames)
     {
-        var existingKeys = new Dictionary<string, string>(obj.Count, StringComparer.OrdinalIgnoreCase);
-
-        foreach (var (key, _) in obj)
-            existingKeys.TryAdd(key, key);
+        var existingKeys = obj.Select(static kvp => KeyValuePair.Create(kvp.Key, kvp.Key))
+                              .ToCaseInsensitiveDictionary(obj.Count);
 
         foreach (var propertyName in propertyNames)
         {
@@ -40,6 +38,18 @@ static partial class OperationSchemaHelpers
         }
 
         return null;
+    }
+
+    internal static Dictionary<string, TValue> ToCaseInsensitiveDictionary<TValue>(this IEnumerable<KeyValuePair<string, TValue>> values, int capacity = 0)
+    {
+        var lookup = capacity > 0
+                         ? new Dictionary<string, TValue>(capacity, StringComparer.OrdinalIgnoreCase)
+                         : new Dictionary<string, TValue>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var (key, value) in values)
+            lookup.TryAdd(key, value);
+
+        return lookup;
     }
 
     internal static Type GetOpenApiParameterType(this Type type)

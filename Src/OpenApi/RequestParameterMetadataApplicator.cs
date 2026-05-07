@@ -98,7 +98,7 @@ sealed class RequestParameterMetadataApplicator(DocumentOptions docOpts, SharedC
         if (exampleObj is null)
             return;
 
-        var examplePropertyLookup = BuildExamplePropertyLookup(exampleObj);
+        var examplePropertyLookup = exampleObj.ToCaseInsensitiveDictionary(exampleObj.Count);
 
         foreach (var param in operation.Parameters)
         {
@@ -124,16 +124,6 @@ sealed class RequestParameterMetadataApplicator(DocumentOptions docOpts, SharedC
             if (propValue is not null)
                 concreteParam.Example = propValue.JsonNodeFromObject(SerializerOptions);
         }
-    }
-
-    static Dictionary<string, JsonNode?> BuildExamplePropertyLookup(JsonObject exampleObj)
-    {
-        var lookup = new Dictionary<string, JsonNode?>(exampleObj.Count, StringComparer.OrdinalIgnoreCase);
-
-        foreach (var (key, value) in exampleObj)
-            lookup.TryAdd(key, value);
-
-        return lookup;
     }
 
     sealed class ParameterLookupKeyComparer : IEqualityComparer<(ParameterLocation Location, string Name)>

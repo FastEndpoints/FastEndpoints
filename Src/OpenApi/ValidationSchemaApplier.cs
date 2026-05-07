@@ -1,6 +1,5 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
-using System.Reflection;
 using FastEndpoints.OpenApi.ValidationProcessor;
 using FastEndpoints.OpenApi.ValidationProcessor.Extensions;
 using FluentValidation;
@@ -255,9 +254,7 @@ sealed class ValidationSchemaApplier : IDisposable
                 for (var separatorIndex = ruleName.IndexOf('.');
                      separatorIndex >= 0;
                      separatorIndex = ruleName.IndexOf('.', separatorIndex + 1))
-                {
                     prefixes.Add(ruleName[..(separatorIndex + 1)]);
-                }
             }
 
             return prefixes;

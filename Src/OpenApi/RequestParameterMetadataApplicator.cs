@@ -1,6 +1,5 @@
 using System.Reflection;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using Microsoft.OpenApi;
 using static FastEndpoints.OpenApi.OperationReflectionCache;
 

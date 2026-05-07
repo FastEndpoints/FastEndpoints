@@ -180,6 +180,66 @@
         }
       }
     },
+    "/api/api/test-cases/circular-fromform-binding-test": {
+      "post": {
+        "tags": [
+          "Api"
+        ],
+        "operationId": "TestCasesNestedFromFormBindingTestCircularEndpoint",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesNestedFromFormBindingTestCircularFormData"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesNestedFromFormBindingTestCircularResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/api/test-cases/nested-fromform-binding-test": {
+      "post": {
+        "tags": [
+          "Api"
+        ],
+        "operationId": "TestCasesNestedFromFormBindingTestEndpoint",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesNestedFromFormBindingTestRequest_FormData"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesNestedFromFormBindingTestResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/customer/list/recent": {
       "get": {
         "tags": [
@@ -3038,6 +3098,35 @@
             "JWTBearerAuth": [ ]
           }
         ]
+      }
+    },
+    "/api/test-cases/circular-query-object-binding-test": {
+      "get": {
+        "tags": [
+          "TestCases"
+        ],
+        "operationId": "TestCasesQueryObjectBindingTestCircularEndpoint",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesQueryObjectBindingTestCircularResponse"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/test-cases/custom-request-binder": {
@@ -7623,6 +7712,12 @@
           "$ref": "#/components/schemas/TestCasesJsonArrayBindingToListOfModelsResponse"
         }
       },
+      "SystemCollectionsGenericListOfTestCasesNestedFromFormBindingTestRequest_Item": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/TestCasesNestedFromFormBindingTestRequest_Item"
+        }
+      },
       "SystemCollectionsGenericListOfTestCasesQueryObjectWithObjectsArrayBindingTestObjectInArray": {
         "type": "array",
         "items": {
@@ -8366,6 +8461,160 @@
           }
         }
       },
+      "TestCasesNestedFromFormBindingTestCircularFormData": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "child": {
+            "oneOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/components/schemas/TestCasesNestedFromFormBindingTestCircularFormData"
+              }
+            ]
+          }
+        }
+      },
+      "TestCasesNestedFromFormBindingTestCircularResponse": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "childName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "TestCasesNestedFromFormBindingTestRequest_Details": {
+        "required": [
+          "title",
+          "image",
+          "gallery"
+        ],
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string",
+            "format": "binary"
+          },
+          "gallery": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "binary"
+            }
+          }
+        }
+      },
+      "TestCasesNestedFromFormBindingTestRequest_FormData": {
+        "required": [
+          "name",
+          "customName",
+          "file",
+          "documents",
+          "details",
+          "items",
+          "numbers"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "customName": {
+            "type": "string"
+          },
+          "file": {
+            "type": "string",
+            "format": "binary"
+          },
+          "documents": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "binary"
+            }
+          },
+          "details": {
+            "$ref": "#/components/schemas/TestCasesNestedFromFormBindingTestRequest_Details"
+          },
+          "items": {
+            "$ref": "#/components/schemas/SystemCollectionsGenericListOfTestCasesNestedFromFormBindingTestRequest_Item"
+          },
+          "numbers": {
+            "$ref": "#/components/schemas/SystemCollectionsGenericListOfSystemInt32"
+          }
+        }
+      },
+      "TestCasesNestedFromFormBindingTestRequest_Item": {
+        "required": [
+          "description",
+          "attachment"
+        ],
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "attachment": {
+            "type": "string",
+            "format": "binary"
+          }
+        }
+      },
+      "TestCasesNestedFromFormBindingTestResponse": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "customName": {
+            "type": "string"
+          },
+          "fileName": {
+            "type": "string"
+          },
+          "documentFileNames": {
+            "$ref": "#/components/schemas/SystemStringArray"
+          },
+          "detailsTitle": {
+            "type": "string"
+          },
+          "detailsImageFileName": {
+            "type": "string"
+          },
+          "galleryFileNames": {
+            "$ref": "#/components/schemas/SystemStringArray"
+          },
+          "firstItemDescription": {
+            "type": "string"
+          },
+          "firstItemAttachmentFileName": {
+            "type": "string"
+          },
+          "numbersSum": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
       "TestCasesOnBeforeAfterValidationTestRequest": {
         "type": "object",
         "properties": {
@@ -8462,6 +8711,23 @@
           "AnotherCheck"
         ],
         "type": "string"
+      },
+      "TestCasesQueryObjectBindingTestCircularResponse": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "childName": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
       },
       "TestCasesQueryObjectBindingTestNestedPerson": {
         "type": "object",

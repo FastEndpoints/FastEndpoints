@@ -762,6 +762,9 @@ public static class HttpClientExtensions
                     continue;
                 }
 
+                if (ShouldSkipFormField(p))
+                    continue;
+
                 AddValueToForm(value, p.PropertyType.GetUnderlyingType(), FieldPath(prefix, p.FieldName()), form, flattenComplexProps, visiting);
             }
         }
@@ -836,6 +839,13 @@ public static class HttpClientExtensions
                     AddStringToForm(item, itemType, fieldName, form);
             }
         }
+
+        static bool ShouldSkipFormField(PropertyInfo p)
+            => p.GetCustomAttribute<FromClaimAttribute>()?.IsRequired is true ||
+               p.GetCustomAttribute<FromHeaderAttribute>()?.IsRequired is true ||
+               p.GetCustomAttribute<FromCookieAttribute>()?.IsRequired is true ||
+               p.GetCustomAttribute<HasPermissionAttribute>()?.IsRequired is true ||
+               p.GetCustomAttribute<DontBindAttribute>()?.BindingSources.HasFlag(Source.FormField) is true;
     }
 
     static string FieldPath(string? prefix, string fieldName)

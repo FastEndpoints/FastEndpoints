@@ -123,7 +123,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
         // drop duplicate parameters introduced by Asp.Versioning (it adds the version route
         // segment as an extra path parameter alongside the one we derive from the endpoint).
         // ref: https://github.com/FastEndpoints/FastEndpoints/issues/560
-        FinalizeParameters(operation);
+        OperationParameterFinalizer.Finalize(operation);
 
         return Task.CompletedTask;
     }
@@ -193,55 +193,6 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
         }
     }
 
-    static void FinalizeParameters(OpenApiOperation operation)
-    {
-        if (GlobalConfig.IsUsingAspVersioning)
-            RemoveDuplicateParameters(operation);
-
-        SortParameters(operation);
-    }
-
-    static void RemoveDuplicateParameters(OpenApiOperation operation)
-    {
-        if (operation.Parameters is not { Count: > 1 })
-            return;
-
-        var seen = new HashSet<(string Name, ParameterLocation Location)>();
-
-        for (var i = operation.Parameters.Count - 1; i >= 0; i--)
-        {
-            var p = operation.Parameters[i];
-
-            if (p.Name is null || p.In is not { } loc)
-                continue;
-
-            if (!seen.Add((p.Name, loc)))
-                operation.Parameters.RemoveAt(i);
-        }
-    }
-
-    static void SortParameters(OpenApiOperation operation)
-    {
-        if (operation.Parameters is not { Count: > 1 })
-            return;
-
-        var sorted = operation.Parameters
-                              .OrderBy(
-                                  p => p.In switch
-                                  {
-                                      ParameterLocation.Path => 0,
-                                      ParameterLocation.Query => 1,
-                                      ParameterLocation.Header => 2,
-                                      ParameterLocation.Cookie => 3,
-                                      _ => 4
-                                  })
-                              .ToList();
-
-        operation.Parameters.Clear();
-
-        foreach (var p in sorted)
-            operation.Parameters.Add(p);
-    }
 }
 
 static class OperationTransformerExtensions

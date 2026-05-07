@@ -164,10 +164,7 @@ sealed partial class RequestOperationTransformer
             if (schema.Type.HasValue && schema.Type.Value.HasFlag(JsonSchemaType.Null))
                 return true;
 
-            if (schema.OneOf?.Any(s => AllowsNull(s.ResolveSchema(sharedCtx))) == true)
-                return true;
-
-            return schema.AnyOf?.Any(s => AllowsNull(s.ResolveSchema(sharedCtx))) == true;
+            return ContainsNullOption(schema.OneOf) || ContainsNullOption(schema.AnyOf);
         }
 
         JsonNode? CreateSampleFromSchema(OpenApiSchema? schema, string? propertyName = null)
@@ -178,27 +175,11 @@ sealed partial class RequestOperationTransformer
             if (schema.Enum is { Count: > 0 })
                 return schema.Enum[0].DeepClone();
 
-            if (schema.OneOf is { Count: > 0 })
-            {
-                foreach (var option in schema.OneOf)
-                {
-                    var resolved = option.ResolveSchema(sharedCtx);
+            if (CreateSampleFromFirstNonNullableOption(schema.OneOf, propertyName) is { } oneOfSample)
+                return oneOfSample;
 
-                    if (resolved is not null && !AllowsNull(resolved))
-                        return CreateSampleFromSchema(resolved, propertyName);
-                }
-            }
-
-            if (schema.AnyOf is { Count: > 0 })
-            {
-                foreach (var option in schema.AnyOf)
-                {
-                    var resolved = option.ResolveSchema(sharedCtx);
-
-                    if (resolved is not null && !AllowsNull(resolved))
-                        return CreateSampleFromSchema(resolved, propertyName);
-                }
-            }
+            if (CreateSampleFromFirstNonNullableOption(schema.AnyOf, propertyName) is { } anyOfSample)
+                return anyOfSample;
 
             if (schema.Properties is { Count: > 0 })
             {
@@ -252,5 +233,24 @@ sealed partial class RequestOperationTransformer
             }
 
             return false;
+        }
+
+        bool ContainsNullOption(IList<IOpenApiSchema>? schemas)
+            => schemas?.Any(s => AllowsNull(s.ResolveSchema(sharedCtx))) == true;
+
+        JsonNode? CreateSampleFromFirstNonNullableOption(IList<IOpenApiSchema>? schemas, string? propertyName)
+        {
+            if (schemas is not { Count: > 0 })
+                return null;
+
+            foreach (var option in schemas)
+            {
+                var resolved = option.ResolveSchema(sharedCtx);
+
+                if (resolved is not null && !AllowsNull(resolved))
+                    return CreateSampleFromSchema(resolved, propertyName);
+            }
+
+            return null;
         }
 }

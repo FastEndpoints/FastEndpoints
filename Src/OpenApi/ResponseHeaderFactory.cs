@@ -24,8 +24,7 @@ sealed class ResponseHeaderFactory(DocumentOptions docOpts, SharedContext shared
             var headerName = toHeaderAttr.HeaderName ?? prop.Name.ApplyPropNamingPolicy(docOpts, NamingPolicy);
             var headerType = prop.PropertyType.GetOpenApiParameterType();
 
-            AddHeader(
-                response,
+            response.AddHeader(
                 headerName,
                 new()
                 {
@@ -42,8 +41,7 @@ sealed class ResponseHeaderFactory(DocumentOptions docOpts, SharedContext shared
         {
             var example = header.Example.JsonNodeFromObject(SerializerOptions);
 
-            AddHeader(
-                response,
+            response.AddHeader(
                 header.HeaderName,
                 new()
                 {
@@ -69,12 +67,6 @@ sealed class ResponseHeaderFactory(DocumentOptions docOpts, SharedContext shared
             return exampleType.GetSchemaForType(sharedCtx, docOpts.ShortSchemaNames);
 
         return OperationSchemaHelpers.CreateSchemaFromExampleNode(exampleNode);
-    }
-
-    static void AddHeader(OpenApiResponse response, string headerName, OpenApiHeader header)
-    {
-        response.Headers ??= new Dictionary<string, IOpenApiHeader>();
-        response.Headers[headerName] = header;
     }
 
     static bool IsAnonymousType(Type type)

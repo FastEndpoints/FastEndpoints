@@ -67,6 +67,12 @@ static partial class OperationSchemaHelpers
     internal static IOrderedEnumerable<KeyValuePair<string, TValue>> OrderByKey<TValue>(this IEnumerable<KeyValuePair<string, TValue>> values)
         => values.OrderBy(static kvp => kvp.Key, StringComparer.Ordinal);
 
+    internal static void AddHeader(this OpenApiResponse response, string headerName, OpenApiHeader header)
+    {
+        response.Headers ??= new Dictionary<string, IOpenApiHeader>();
+        response.Headers[headerName] = header;
+    }
+
     internal static Type GetOpenApiParameterType(this Type type)
         => type.Name.EndsWith("HeaderValue", StringComparison.Ordinal) ? typeof(string) : type;
 

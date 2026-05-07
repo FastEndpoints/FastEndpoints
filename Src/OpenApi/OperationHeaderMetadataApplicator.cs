@@ -60,22 +60,24 @@ sealed class OperationHeaderMetadataApplicator(DocumentOptions docOpts, SharedCo
             if (response is not OpenApiResponse concreteResponse)
                 continue;
 
-            concreteResponse.Headers ??= new Dictionary<string, IOpenApiHeader>();
-
             if (statusCode == "402")
             {
-                concreteResponse.Headers[X402Constants.PaymentRequiredHeader] = new OpenApiHeader
-                {
-                    Description = "Base64-encoded x402 payment challenge payload.",
-                    Schema = OperationSchemaHelpers.StringSchema()
-                };
+                concreteResponse.AddHeader(
+                    X402Constants.PaymentRequiredHeader,
+                    new()
+                    {
+                        Description = "Base64-encoded x402 payment challenge payload.",
+                        Schema = OperationSchemaHelpers.StringSchema()
+                    });
             }
 
-            concreteResponse.Headers[X402Constants.PaymentResponseHeader] = new OpenApiHeader
-            {
-                Description = "Base64-encoded x402 settlement result. Present when the middleware attempts settlement.",
-                Schema = OperationSchemaHelpers.StringSchema()
-            };
+            concreteResponse.AddHeader(
+                X402Constants.PaymentResponseHeader,
+                new()
+                {
+                    Description = "Base64-encoded x402 settlement result. Present when the middleware attempts settlement.",
+                    Schema = OperationSchemaHelpers.StringSchema()
+                });
         }
     }
 }

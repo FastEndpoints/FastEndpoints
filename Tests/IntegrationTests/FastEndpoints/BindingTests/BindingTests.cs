@@ -871,18 +871,45 @@ public class BindingTests(Sut App) : TestBase<Sut>
     [Fact]
     public async Task NestedFromFormBindingWithIFormFile()
     {
-        await using var stream = File.OpenRead("test.png");
+        await using var file = File.OpenRead("test.png");
+        await using var document1 = File.OpenRead("test.png");
+        await using var document2 = File.OpenRead("test.png");
+        await using var detailsImage = File.OpenRead("test.png");
+        await using var gallery1 = File.OpenRead("test.png");
+        await using var gallery2 = File.OpenRead("test.png");
+        await using var itemAttachment = File.OpenRead("test.png");
 
         var req = new TestCases.NestedFromFormBindingTest.Request
         {
             Data = new()
             {
                 Name = "test name",
-                File = new FormFile(stream, 0, stream.Length, "File", "test.png")
+                CustomName = "custom value",
+                File = CreateFile(file, "File", "root-file.png"),
+                Documents = new FormFileCollection
                 {
-                    Headers = new HeaderDictionary(),
-                    ContentType = "image/png"
-                }
+                    CreateFile(document1, "Documents", "document-1.png"),
+                    CreateFile(document2, "Documents", "document-2.png")
+                },
+                Details = new()
+                {
+                    Title = "details title",
+                    Image = CreateFile(detailsImage, "Image", "details-image.png"),
+                    Gallery =
+                    [
+                        CreateFile(gallery1, "Gallery", "gallery-1.png"),
+                        CreateFile(gallery2, "Gallery", "gallery-2.png")
+                    ]
+                },
+                Items =
+                [
+                    new()
+                    {
+                        Description = "first item",
+                        Attachment = CreateFile(itemAttachment, "Attachment", "item-attachment.png")
+                    }
+                ],
+                Numbers = [1, 2, 3]
             }
         };
 
@@ -893,8 +920,47 @@ public class BindingTests(Sut App) : TestBase<Sut>
 
         rsp.IsSuccessStatusCode.ShouldBeTrue();
         res.Name.ShouldBe("test name");
-        res.FileName.ShouldBe("test.png");
+        res.CustomName.ShouldBe("custom value");
+        res.FileName.ShouldBe("root-file.png");
+        res.DocumentFileNames.ShouldBe(["document-1.png", "document-2.png"]);
+        res.DetailsTitle.ShouldBe("details title");
+        res.DetailsImageFileName.ShouldBe("details-image.png");
+        res.GalleryFileNames.ShouldBe(["gallery-1.png", "gallery-2.png"]);
+        res.FirstItemDescription.ShouldBe("first item");
+        res.FirstItemAttachmentFileName.ShouldBe("item-attachment.png");
+        res.NumbersSum.ShouldBe(6);
+
+        static FormFile CreateFile(Stream stream, string fieldName, string fileName)
+            => new(stream, 0, stream.Length, fieldName, fileName)
+            {
+                Headers = new HeaderDictionary(),
+                ContentType = "image/png"
+            };
     }
 
+    [Fact]
+    public async Task SendAsFormDataThrowsForCircularFromFormObjectGraph()
+    {
+        var data = new CircularFormData { Name = "root" };
+        data.Child = data;
+
+        var req = new CircularFormRequest { Data = data };
+        var act = async () => await App.GuestClient.SENDAsync<CircularFormRequest, EmptyResponse>(HttpMethod.Post, "api/not-used", req, sendAsFormData: true);
+
+        var ex = await Should.ThrowAsync<InvalidOperationException>(act);
+        ex.Message.ShouldBe("Circular reference detected while converting the request DTO to MultipartFormDataContent.");
+    }
+
+    sealed class CircularFormRequest
+    {
+        [FromForm]
+        public required CircularFormData Data { get; set; }
+    }
+
+    sealed class CircularFormData
+    {
+        public string? Name { get; set; }
+        public CircularFormData? Child { get; set; }
+    }
 
 }

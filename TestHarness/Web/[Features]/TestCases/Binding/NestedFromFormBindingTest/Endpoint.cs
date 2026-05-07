@@ -14,7 +14,15 @@ sealed class Endpoint : Endpoint<Request, Response>
         await Send.OkAsync(new Response
         {
             Name = req.Data.Name,
-            FileName = req.Data.File.FileName
+            CustomName = req.Data.CustomName,
+            FileName = req.Data.File.FileName,
+            DocumentFileNames = req.Data.Documents.Select(f => f.FileName).ToArray(),
+            DetailsTitle = req.Data.Details.Title,
+            DetailsImageFileName = req.Data.Details.Image.FileName,
+            GalleryFileNames = req.Data.Details.Gallery.Select(f => f.FileName).ToArray(),
+            FirstItemDescription = req.Data.Items[0].Description,
+            FirstItemAttachmentFileName = req.Data.Items[0].Attachment.FileName,
+            NumbersSum = req.Data.Numbers.Sum()
         });
     }
 }

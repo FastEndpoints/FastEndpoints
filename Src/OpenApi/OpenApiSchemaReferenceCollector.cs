@@ -8,7 +8,9 @@ static class OpenApiSchemaReferenceCollector
     {
         var referencedSchemas = new HashSet<string>(StringComparer.Ordinal);
         var pendingSchemas = new Queue<string>();
-        CollectReferencedSchemas(document, referencedSchemas, pendingSchemas);
+        var context = new ReferenceCollectionContext(document, referencedSchemas, pendingSchemas);
+
+        CollectReferencedSchemas(context);
 
         while (pendingSchemas.Count > 0)
         {
@@ -68,74 +70,60 @@ static class OpenApiSchemaReferenceCollector
         }
     }
 
-    static void CollectReferencedSchemas(OpenApiDocument document, HashSet<string> refs, Queue<string> pendingRefs)
+    static void CollectReferencedSchemas(ReferenceCollectionContext context)
     {
-        var walkedResponses = new HashSet<string>(StringComparer.Ordinal);
-        var walkedParameters = new HashSet<string>(StringComparer.Ordinal);
-        var walkedRequestBodies = new HashSet<string>(StringComparer.Ordinal);
-        var walkedHeaders = new HashSet<string>(StringComparer.Ordinal);
-        var walkedCallbacks = new HashSet<string>(StringComparer.Ordinal);
-
-        if (document.Paths is { Count: > 0 })
+        if (context.Document.Paths is { Count: > 0 })
         {
-            foreach (var pathItem in document.Paths.Values)
-                CollectPathItemRefs(pathItem, document, refs, pendingRefs, walkedResponses, walkedParameters, walkedRequestBodies, walkedHeaders, walkedCallbacks);
+            foreach (var pathItem in context.Document.Paths.Values)
+                CollectPathItemRefs(pathItem, context);
         }
 
-        if (document.Components is not { } components)
+        if (context.Document.Components is not { } components)
             return;
 
         if (components.Responses is { Count: > 0 })
         {
             foreach (var (id, response) in components.Responses)
-                CollectResponseRefs(response, document, refs, pendingRefs, walkedResponses, walkedHeaders, id);
+                CollectResponseRefs(response, context, id);
         }
 
         if (components.Parameters is { Count: > 0 })
         {
             foreach (var (id, parameter) in components.Parameters)
-                CollectParameterRefs(parameter, document, refs, pendingRefs, walkedParameters, walkedHeaders, id);
+                CollectParameterRefs(parameter, context, id);
         }
 
         if (components.RequestBodies is { Count: > 0 })
         {
             foreach (var (id, requestBody) in components.RequestBodies)
-                CollectRequestBodyRefs(requestBody, document, refs, pendingRefs, walkedRequestBodies, walkedHeaders, id);
+                CollectRequestBodyRefs(requestBody, context, id);
         }
 
         if (components.Headers is { Count: > 0 })
         {
             foreach (var (id, header) in components.Headers)
-                CollectHeaderRefs(header, document, refs, pendingRefs, walkedHeaders, id);
+                CollectHeaderRefs(header, context, id);
         }
 
         if (components.Callbacks is { Count: > 0 })
         {
             foreach (var (id, callback) in components.Callbacks)
-                CollectCallbackRefs(callback, document, refs, pendingRefs, walkedResponses, walkedParameters, walkedRequestBodies, walkedHeaders, walkedCallbacks, id);
+                CollectCallbackRefs(callback, context, id);
         }
 
         if (components.PathItems is { Count: > 0 })
         {
             foreach (var pathItem in components.PathItems.Values)
-                CollectPathItemRefs(pathItem, document, refs, pendingRefs, walkedResponses, walkedParameters, walkedRequestBodies, walkedHeaders, walkedCallbacks);
+                CollectPathItemRefs(pathItem, context);
         }
     }
 
-    static void CollectPathItemRefs(IOpenApiPathItem? pathItem,
-                                    OpenApiDocument document,
-                                    HashSet<string> refs,
-                                    Queue<string> pendingRefs,
-                                    HashSet<string> walkedResponses,
-                                    HashSet<string> walkedParameters,
-                                    HashSet<string> walkedRequestBodies,
-                                    HashSet<string> walkedHeaders,
-                                    HashSet<string> walkedCallbacks)
+    static void CollectPathItemRefs(IOpenApiPathItem? pathItem, ReferenceCollectionContext context)
     {
         if (pathItem?.Parameters is { Count: > 0 })
         {
             foreach (var parameter in pathItem.Parameters)
-                CollectParameterRefs(parameter, document, refs, pendingRefs, walkedParameters, walkedHeaders);
+                CollectParameterRefs(parameter, context);
         }
 
         if (pathItem?.Operations is not { Count: > 0 })
@@ -146,209 +134,156 @@ static class OpenApiSchemaReferenceCollector
             if (op.Parameters is { Count: > 0 })
             {
                 foreach (var parameter in op.Parameters)
-                    CollectParameterRefs(parameter, document, refs, pendingRefs, walkedParameters, walkedHeaders);
+                    CollectParameterRefs(parameter, context);
             }
 
-            CollectRequestBodyRefs(op.RequestBody, document, refs, pendingRefs, walkedRequestBodies, walkedHeaders);
+            CollectRequestBodyRefs(op.RequestBody, context);
 
             if (op.Responses is { Count: > 0 })
             {
                 foreach (var resp in op.Responses.Values)
-                    CollectResponseRefs(resp, document, refs, pendingRefs, walkedResponses, walkedHeaders);
+                    CollectResponseRefs(resp, context);
             }
 
             if (op.Callbacks is { Count: > 0 })
             {
                 foreach (var callback in op.Callbacks.Values)
-                    CollectCallbackRefs(callback, document, refs, pendingRefs, walkedResponses, walkedParameters, walkedRequestBodies, walkedHeaders, walkedCallbacks);
+                    CollectCallbackRefs(callback, context);
             }
         }
     }
 
-    static void CollectResponseRefs(IOpenApiResponse? response,
-                                    OpenApiDocument document,
-                                    HashSet<string> refs,
-                                    Queue<string> pendingRefs,
-                                    HashSet<string> walkedResponses,
-                                    HashSet<string> walkedHeaders,
-                                    string? componentId = null)
+    static void CollectResponseRefs(IOpenApiResponse? response, ReferenceCollectionContext context, string? componentId = null)
     {
         if (response is null)
             return;
 
-        if (componentId is not null && !walkedResponses.Add(componentId))
+        if (componentId is not null && !context.WalkedResponses.Add(componentId))
             return;
 
         if (response is OpenApiResponseReference responseRef &&
-            TryCollectReferencedComponent(responseRef.Reference, document.Components?.Responses, document, refs, pendingRefs, walkedResponses, walkedHeaders))
+            TryCollectReferencedComponent(responseRef.Reference, context.Document.Components?.Responses, context))
             return;
 
         if (response.Headers is { Count: > 0 })
         {
             foreach (var header in response.Headers.Values)
-                CollectHeaderRefs(header, document, refs, pendingRefs, walkedHeaders);
+                CollectHeaderRefs(header, context);
         }
 
         if (response.Content is { Count: > 0 })
         {
             foreach (var mediaType in response.Content.Values)
-                CollectMediaTypeRefs(mediaType, document, refs, pendingRefs, walkedHeaders);
+                CollectMediaTypeRefs(mediaType, context);
         }
     }
 
-    static void CollectParameterRefs(IOpenApiParameter? parameter,
-                                     OpenApiDocument document,
-                                     HashSet<string> refs,
-                                     Queue<string> pendingRefs,
-                                     HashSet<string> walkedParameters,
-                                     HashSet<string> walkedHeaders,
-                                     string? componentId = null)
+    static void CollectParameterRefs(IOpenApiParameter? parameter, ReferenceCollectionContext context, string? componentId = null)
     {
         if (parameter is null)
             return;
 
-        if (componentId is not null && !walkedParameters.Add(componentId))
+        if (componentId is not null && !context.WalkedParameters.Add(componentId))
             return;
 
         if (parameter is OpenApiParameterReference parameterRef &&
-            TryCollectReferencedComponent(parameterRef.Reference, document.Components?.Parameters, document, refs, pendingRefs, walkedParameters, walkedHeaders))
+            TryCollectReferencedComponent(parameterRef.Reference, context.Document.Components?.Parameters, context))
             return;
 
-        CollectSchemaRefs(parameter.Schema, refs, pendingRefs);
+        context.CollectSchemaRefs(parameter.Schema);
 
         if (parameter.Content is { Count: > 0 })
         {
             foreach (var mediaType in parameter.Content.Values)
-                CollectMediaTypeRefs(mediaType, document, refs, pendingRefs, walkedHeaders);
+                CollectMediaTypeRefs(mediaType, context);
         }
     }
 
-    static void CollectRequestBodyRefs(IOpenApiRequestBody? requestBody,
-                                       OpenApiDocument document,
-                                       HashSet<string> refs,
-                                       Queue<string> pendingRefs,
-                                       HashSet<string> walkedRequestBodies,
-                                       HashSet<string> walkedHeaders,
-                                       string? componentId = null)
+    static void CollectRequestBodyRefs(IOpenApiRequestBody? requestBody, ReferenceCollectionContext context, string? componentId = null)
     {
         if (requestBody is null)
             return;
 
-        if (componentId is not null && !walkedRequestBodies.Add(componentId))
+        if (componentId is not null && !context.WalkedRequestBodies.Add(componentId))
             return;
 
         if (requestBody is OpenApiRequestBodyReference requestBodyRef &&
-            TryCollectReferencedComponent(requestBodyRef.Reference, document.Components?.RequestBodies, document, refs, pendingRefs, walkedRequestBodies, walkedHeaders))
+            TryCollectReferencedComponent(requestBodyRef.Reference, context.Document.Components?.RequestBodies, context))
             return;
 
         if (requestBody.Content is { Count: > 0 })
         {
             foreach (var mediaType in requestBody.Content.Values)
-                CollectMediaTypeRefs(mediaType, document, refs, pendingRefs, walkedHeaders);
+                CollectMediaTypeRefs(mediaType, context);
         }
     }
 
-    static void CollectHeaderRefs(IOpenApiHeader? header,
-                                  OpenApiDocument document,
-                                  HashSet<string> refs,
-                                  Queue<string> pendingRefs,
-                                  HashSet<string> walkedHeaders,
-                                  string? componentId = null)
+    static void CollectHeaderRefs(IOpenApiHeader? header, ReferenceCollectionContext context, string? componentId = null)
     {
         if (header is null)
             return;
 
-        if (componentId is not null && !walkedHeaders.Add(componentId))
+        if (componentId is not null && !context.WalkedHeaders.Add(componentId))
             return;
 
         if (header is OpenApiHeaderReference headerRef &&
-            TryCollectReferencedComponent(headerRef.Reference, document.Components?.Headers, document, refs, pendingRefs, walkedHeaders))
+            TryCollectReferencedComponent(headerRef.Reference, context.Document.Components?.Headers, context))
             return;
 
-        CollectSchemaRefs(header.Schema, refs, pendingRefs);
+        context.CollectSchemaRefs(header.Schema);
 
         if (header.Content is { Count: > 0 })
         {
             foreach (var mediaType in header.Content.Values)
-                CollectMediaTypeRefs(mediaType, document, refs, pendingRefs, walkedHeaders);
+                CollectMediaTypeRefs(mediaType, context);
         }
     }
 
-    static void CollectCallbackRefs(IOpenApiCallback? callback,
-                                    OpenApiDocument document,
-                                    HashSet<string> refs,
-                                    Queue<string> pendingRefs,
-                                    HashSet<string> walkedResponses,
-                                    HashSet<string> walkedParameters,
-                                    HashSet<string> walkedRequestBodies,
-                                    HashSet<string> walkedHeaders,
-                                    HashSet<string> walkedCallbacks,
-                                    string? componentId = null)
+    static void CollectCallbackRefs(IOpenApiCallback? callback, ReferenceCollectionContext context, string? componentId = null)
     {
         if (callback is null)
             return;
 
-        if (componentId is not null && !walkedCallbacks.Add(componentId))
+        if (componentId is not null && !context.WalkedCallbacks.Add(componentId))
             return;
 
         if (callback is OpenApiCallbackReference callbackRef &&
-            TryCollectReferencedCallback(
-                callbackRef.Reference,
-                document,
-                refs,
-                pendingRefs,
-                walkedResponses,
-                walkedParameters,
-                walkedRequestBodies,
-                walkedHeaders,
-                walkedCallbacks))
+            TryCollectReferencedCallback(callbackRef.Reference, context))
             return;
 
         if (callback.PathItems is not { Count: > 0 })
             return;
 
         foreach (var pathItem in callback.PathItems.Values)
-            CollectPathItemRefs(pathItem, document, refs, pendingRefs, walkedResponses, walkedParameters, walkedRequestBodies, walkedHeaders, walkedCallbacks);
+            CollectPathItemRefs(pathItem, context);
     }
 
-    static void CollectMediaTypeRefs(OpenApiMediaType? mediaType,
-                                     OpenApiDocument document,
-                                     HashSet<string> refs,
-                                     Queue<string> pendingRefs,
-                                     HashSet<string> walkedHeaders)
+    static void CollectMediaTypeRefs(OpenApiMediaType? mediaType, ReferenceCollectionContext context)
     {
         if (mediaType is null)
             return;
 
-        CollectSchemaRefs(mediaType.Schema, refs, pendingRefs);
+        context.CollectSchemaRefs(mediaType.Schema);
 
         if (mediaType.Encoding is { Count: > 0 })
         {
             foreach (var encoding in mediaType.Encoding.Values)
-                CollectEncodingRefs(encoding, document, refs, pendingRefs, walkedHeaders);
+                CollectEncodingRefs(encoding, context);
         }
     }
 
-    static void CollectEncodingRefs(OpenApiEncoding? encoding,
-                                    OpenApiDocument document,
-                                    HashSet<string> refs,
-                                    Queue<string> pendingRefs,
-                                    HashSet<string> walkedHeaders)
+    static void CollectEncodingRefs(OpenApiEncoding? encoding, ReferenceCollectionContext context)
     {
         if (encoding?.Headers is { Count: > 0 })
         {
             foreach (var header in encoding.Headers.Values)
-                CollectHeaderRefs(header, document, refs, pendingRefs, walkedHeaders);
+                CollectHeaderRefs(header, context);
         }
     }
 
     static bool TryCollectReferencedComponent<TComponent>(BaseOpenApiReference reference,
                                                           IDictionary<string, TComponent>? components,
-                                                          OpenApiDocument document,
-                                                          HashSet<string> refs,
-                                                          Queue<string> pendingRefs,
-                                                          HashSet<string> walkedRefs,
-                                                          HashSet<string>? walkedHeaders = null)
+                                                          ReferenceCollectionContext context)
         where TComponent : class
     {
         var id = reference.Id;
@@ -359,19 +294,19 @@ static class OpenApiSchemaReferenceCollector
         switch (component)
         {
             case IOpenApiResponse response:
-                CollectResponseRefs(response, document, refs, pendingRefs, walkedRefs, walkedHeaders ?? new(StringComparer.Ordinal), id);
+                CollectResponseRefs(response, context, id);
 
                 break;
             case IOpenApiParameter parameter:
-                CollectParameterRefs(parameter, document, refs, pendingRefs, walkedRefs, walkedHeaders ?? new(StringComparer.Ordinal), id);
+                CollectParameterRefs(parameter, context, id);
 
                 break;
             case IOpenApiRequestBody requestBody:
-                CollectRequestBodyRefs(requestBody, document, refs, pendingRefs, walkedRefs, walkedHeaders ?? new(StringComparer.Ordinal), id);
+                CollectRequestBodyRefs(requestBody, context, id);
 
                 break;
             case IOpenApiHeader header:
-                CollectHeaderRefs(header, document, refs, pendingRefs, walkedRefs, id);
+                CollectHeaderRefs(header, context, id);
 
                 break;
             default:
@@ -381,22 +316,14 @@ static class OpenApiSchemaReferenceCollector
         return true;
     }
 
-    static bool TryCollectReferencedCallback(BaseOpenApiReference reference,
-                                             OpenApiDocument document,
-                                             HashSet<string> refs,
-                                             Queue<string> pendingRefs,
-                                             HashSet<string> walkedResponses,
-                                             HashSet<string> walkedParameters,
-                                             HashSet<string> walkedRequestBodies,
-                                             HashSet<string> walkedHeaders,
-                                             HashSet<string> walkedCallbacks)
+    static bool TryCollectReferencedCallback(BaseOpenApiReference reference, ReferenceCollectionContext context)
     {
         var id = reference.Id;
 
-        if (string.IsNullOrEmpty(id) || reference.IsExternal || document.Components?.Callbacks?.TryGetValue(id, out var callback) != true)
+        if (string.IsNullOrEmpty(id) || reference.IsExternal || context.Document.Components?.Callbacks?.TryGetValue(id, out var callback) != true)
             return false;
 
-        CollectCallbackRefs(callback, document, refs, pendingRefs, walkedResponses, walkedParameters, walkedRequestBodies, walkedHeaders, walkedCallbacks, id);
+        CollectCallbackRefs(callback, context, id);
 
         return true;
     }
@@ -409,4 +336,17 @@ static class OpenApiSchemaReferenceCollector
 
     static string? GetReferenceId(OpenApiSchemaReference schemaRef)
         => schemaRef.Reference.Id ?? schemaRef.Id;
+
+    sealed class ReferenceCollectionContext(OpenApiDocument document, HashSet<string> refs, Queue<string> pendingRefs)
+    {
+        public OpenApiDocument Document { get; } = document;
+        public HashSet<string> WalkedResponses { get; } = new(StringComparer.Ordinal);
+        public HashSet<string> WalkedParameters { get; } = new(StringComparer.Ordinal);
+        public HashSet<string> WalkedRequestBodies { get; } = new(StringComparer.Ordinal);
+        public HashSet<string> WalkedHeaders { get; } = new(StringComparer.Ordinal);
+        public HashSet<string> WalkedCallbacks { get; } = new(StringComparer.Ordinal);
+
+        public void CollectSchemaRefs(IOpenApiSchema? schema)
+            => OpenApiSchemaReferenceCollector.CollectSchemaRefs(schema, refs, pendingRefs);
+    }
 }

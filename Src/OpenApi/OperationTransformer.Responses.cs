@@ -63,7 +63,8 @@ sealed class ResponseOperationTransformer(DocumentOptions docOpts, SharedContext
 
                 if (epDef.EndpointSummary is not null)
                 {
-                    var code = int.TryParse(statusCode, out var c) ? c : 0;
+                    var code = ParseStatusCode(statusCode);
+
                     if (epDef.EndpointSummary.Responses.TryGetValue(code, out var customDesc))
                         response.Description = customDesc;
 
@@ -146,7 +147,7 @@ sealed class ResponseOperationTransformer(DocumentOptions docOpts, SharedContext
                 if (response is not OpenApiResponse concreteResponse)
                     continue;
 
-                var code = int.TryParse(statusCode, out var c) ? c : 0;
+                var code = ParseStatusCode(statusCode);
 
                 if (responseTypeMetas.TryGetValue(code, out var responseMeta) && responseMeta.Type is not null)
                     _headerFactory.AddTypedHeaders(concreteResponse, responseMeta.Type);
@@ -303,4 +304,7 @@ sealed class ResponseOperationTransformer(DocumentOptions docOpts, SharedContext
                 "500" => description == "Internal Server Error",
                 _ => false
             };
+
+        static int ParseStatusCode(string statusCode)
+            => int.TryParse(statusCode, out var code) ? code : 0;
 }

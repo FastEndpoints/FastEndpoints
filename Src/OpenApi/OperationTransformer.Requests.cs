@@ -748,13 +748,34 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
                           Type? explicitType = null)
         {
             operation.Parameters ??= [];
+            var schemaInfo = CreateParameterSchemaInfo(prop, explicitType, isRequired, shortSchemaNames);
 
-            var propType = explicitType ?? prop?.PropertyType ?? typeof(string);
+            var param = new OpenApiParameter
+            {
+                Name = name,
+                In = location,
+                Required = schemaInfo.Required,
+                Schema = schemaInfo.Schema
+            };
 
-            // typed header values (e.g. ContentDispositionHeaderValue) are transmitted as strings
-            if (propType.Name.EndsWith("HeaderValue"))
-                propType = typeof(string);
+            if (ShouldUseJsonParameterContent(location, schemaInfo.Type))
+            {
+                param.Schema = null;
+                param.Content = new Dictionary<string, OpenApiMediaType>
+                {
+                    ["application/json"] = new() { Schema = schemaInfo.Schema }
+                };
+            }
 
+            if (schemaInfo.Required && prop is not null)
+                ApplyRequiredParameterExample(param, prop, schemaInfo.Type);
+
+            operation.Parameters.Add(param);
+        }
+
+        ParameterSchemaInfo CreateParameterSchemaInfo(PropertyInfo? prop, Type? explicitType, bool? isRequired, bool shortSchemaNames)
+        {
+            var propType = GetParameterType(prop, explicitType);
             var schema = propType.GetSchemaForType(sharedCtx, shortSchemaNames);
 
             if (schema is OpenApiSchema concreteSchema)
@@ -764,39 +785,32 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
             var hasCtorDefault = prop?.GetParentCtorDefaultValue() is not null;
             var required = isRequired ?? (!hasCtorDefault && !isNullable);
 
-            var param = new OpenApiParameter
-            {
-                Name = name,
-                In = location,
-                Required = required,
-                Schema = schema
-            };
-
-            if (ShouldUseJsonParameterContent(location, propType))
-            {
-                param.Schema = null;
-                param.Content = new Dictionary<string, OpenApiMediaType>
-                {
-                    ["application/json"] = new() { Schema = schema }
-                };
-            }
-
-            if (required && prop is not null)
-            {
-                var example = OperationSchemaHelpers.ParseXmlExampleJsonNode(XmlDocLookup.GetPropertyExample(prop)) ??
-                              propType.GenerateSampleJsonNode(SerializerOptions, NamingPolicy, docOpts.UsePropertyNamingPolicy);
-
-                if (example is not null)
-                {
-                    if (param.Content is not null)
-                        param.Content["application/json"].Example = example;
-                    else
-                        param.Example = example;
-                }
-            }
-
-            operation.Parameters.Add(param);
+            return new(propType, schema, required);
         }
+
+        static Type GetParameterType(PropertyInfo? prop, Type? explicitType)
+        {
+            var propType = explicitType ?? prop?.PropertyType ?? typeof(string);
+
+            // typed header values (e.g. ContentDispositionHeaderValue) are transmitted as strings
+            return propType.Name.EndsWith("HeaderValue", StringComparison.Ordinal) ? typeof(string) : propType;
+        }
+
+        void ApplyRequiredParameterExample(OpenApiParameter param, PropertyInfo prop, Type propType)
+        {
+            var example = OperationSchemaHelpers.ParseXmlExampleJsonNode(XmlDocLookup.GetPropertyExample(prop)) ??
+                          propType.GenerateSampleJsonNode(SerializerOptions, NamingPolicy, docOpts.UsePropertyNamingPolicy);
+
+            if (example is null)
+                return;
+
+            if (param.Content is not null)
+                param.Content["application/json"].Example = example;
+            else
+                param.Example = example;
+        }
+
+        readonly record struct ParameterSchemaInfo(Type Type, IOpenApiSchema? Schema, bool Required);
 
         sealed class ParameterLookupKeyComparer : IEqualityComparer<(ParameterLocation Location, string Name)>
         {

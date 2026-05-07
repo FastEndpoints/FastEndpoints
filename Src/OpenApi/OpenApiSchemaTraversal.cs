@@ -12,7 +12,7 @@ static class OpenApiSchemaTraversal
                 return;
             case OpenApiSchemaReference schemaRef:
             {
-                var refId = GetReferenceId(schemaRef);
+                var refId = schemaRef.GetReferenceId();
 
                 if (!string.IsNullOrEmpty(refId) && refs.Add(refId))
                     pendingRefs.Enqueue(refId);
@@ -133,6 +133,4 @@ static class OpenApiSchemaTraversal
             schemas[i] = Rewrite(schemas[i], rewrite)!;
     }
 
-    static string? GetReferenceId(OpenApiSchemaReference schemaRef)
-        => schemaRef.Reference.Id ?? schemaRef.Id;
 }

@@ -1,16 +1,17 @@
-using Microsoft.OpenApi;
 using System.Text;
 using System.Text.Json.Nodes;
+using Microsoft.OpenApi;
+using static FastEndpoints.OpenApi.DocumentSchemaHelpers;
 
 namespace FastEndpoints.OpenApi;
 
-static partial class DocumentSchemaHelpers
+static class SchemaSignatureBuilder
 {
-    static string GetSchemaSignature(string refId,
-                                     IOpenApiSchema schema,
-                                     Dictionary<string, string> aliases,
-                                     Dictionary<SchemaSignatureCacheKey, string> signatureCache,
-                                     int aliasRevision)
+    internal static string GetSchemaSignature(string refId,
+                                              IOpenApiSchema schema,
+                                              Dictionary<string, string> aliases,
+                                              Dictionary<SchemaSignatureCacheKey, string> signatureCache,
+                                              int aliasRevision)
     {
         var cacheKey = new SchemaSignatureCacheKey(refId, aliasRevision);
 
@@ -38,7 +39,7 @@ static partial class DocumentSchemaHelpers
 
                 return;
             case OpenApiSchemaReference schemaRef:
-                builder.Append("ref:").Append(GetReferenceId(schemaRef) is { } refId ? ResolveAlias(refId, aliases) : string.Empty).Append(';');
+                builder.Append("ref:").Append(schemaRef.GetReferenceId() is { } refId ? ResolveAlias(refId, aliases) : string.Empty).Append(';');
 
                 return;
             case OpenApiSchema s:

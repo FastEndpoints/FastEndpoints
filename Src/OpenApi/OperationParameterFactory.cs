@@ -49,7 +49,7 @@ sealed class OperationParameterFactory(DocumentOptions docOpts, SharedContext sh
         if (schema is OpenApiSchema concreteSchema)
             OperationSchemaHelpers.ApplyUniqueItems(concreteSchema, propType, prop);
 
-        var isNullable = prop is not null && OperationTransformer.IsNullable(prop);
+        var isNullable = prop is not null && OperationReflectionCache.IsNullable(prop);
         var hasCtorDefault = prop?.GetParentCtorDefaultValue() is not null;
         var required = isRequired ?? (!hasCtorDefault && !isNullable);
 

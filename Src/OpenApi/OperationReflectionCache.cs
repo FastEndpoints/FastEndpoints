@@ -47,6 +47,12 @@ static class OperationReflectionCache
     internal static PropertyMetadata GetPropertyMetadata(PropertyInfo property)
         => _propertyMetadataCache.GetOrAdd(property, CreatePropertyMetadata);
 
+    internal static PropertyInfo[] GetPublicInstanceProperties(Type type)
+        => GetTypeMetadata(type).PublicInstanceProperties;
+
+    internal static PropertyInfo[] GetBindableRequestProperties(Type type)
+        => GetTypeMetadata(type).BindableRequestProperties;
+
     internal static bool IsNullable(PropertyInfo prop)
         => _nullablePropertyCache.GetOrAdd(prop, static property => new NullabilityInfoContext().Create(property).WriteState is NullabilityState.Nullable);
 

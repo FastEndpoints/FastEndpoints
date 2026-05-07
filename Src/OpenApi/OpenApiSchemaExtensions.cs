@@ -24,7 +24,7 @@ static partial class OperationSchemaHelpers
         internal OpenApiSchema? ResolveSchema(SharedContext sharedCtx)
             => schema switch
             {
-                OpenApiSchemaReference schemaRef when GetReferenceId(schemaRef) is { } refId && sharedCtx.TryGetOperationSchemaVariant(refId, out var variant) => variant,
+                OpenApiSchemaReference schemaRef when schemaRef.GetReferenceId() is { } refId && sharedCtx.TryGetOperationSchemaVariant(refId, out var variant) => variant,
                 _ => schema.ResolveSchema()
             };
 
@@ -39,7 +39,7 @@ static partial class OperationSchemaHelpers
         internal IOpenApiSchema? ResolveSchemaOrReference(SharedContext sharedCtx)
             => schema switch
             {
-                OpenApiSchemaReference schemaRef when GetReferenceId(schemaRef) is { } refId && sharedCtx.TryGetOperationSchemaVariant(refId, out var variant) => variant,
+                OpenApiSchemaReference schemaRef when schemaRef.GetReferenceId() is { } refId && sharedCtx.TryGetOperationSchemaVariant(refId, out var variant) => variant,
                 _ => schema.ResolveSchemaOrReference()
             };
 
@@ -104,7 +104,7 @@ static partial class OperationSchemaHelpers
         {
             switch (schema)
             {
-                case OpenApiSchemaReference schemaRef when GetReferenceId(schemaRef) is { } refId:
+                case OpenApiSchemaReference schemaRef when schemaRef.GetReferenceId() is { } refId:
                 {
                     if (sharedCtx.TryGetOperationSchemaVariant(refId, out var existingVariant))
                         return existingVariant;
@@ -299,7 +299,7 @@ static partial class OperationSchemaHelpers
         if (schemaRef.Target is { } target)
             return target;
 
-        var refId = GetReferenceId(schemaRef);
+        var refId = schemaRef.GetReferenceId();
 
         if (string.IsNullOrEmpty(refId) || schemaRef.Reference.IsExternal)
             return null;
@@ -329,8 +329,6 @@ static partial class OperationSchemaHelpers
         return type.IsValueType || value is string or Type or Uri;
     }
 
-    static string? GetReferenceId(OpenApiSchemaReference schemaRef)
-        => schemaRef.Reference.Id ?? schemaRef.Id;
 }
 
 readonly record struct OperationSchemaMutationContext(SharedContext SharedContext, string OperationKey);

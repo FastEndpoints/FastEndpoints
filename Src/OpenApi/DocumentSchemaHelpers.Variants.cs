@@ -47,7 +47,7 @@ static partial class DocumentSchemaHelpers
                     var signatureToRefId = new Dictionary<string, string>(StringComparer.Ordinal);
 
                     if (schemas.TryGetValue(group.SourceRefId, out var sourceSchema) && sourceSchema is OpenApiSchema concreteSourceSchema)
-                        signatureToRefId[GetSchemaSignature(group.SourceRefId, concreteSourceSchema, aliases, signatureCache, aliasRevision)] =
+                        signatureToRefId[SchemaSignatureBuilder.GetSchemaSignature(group.SourceRefId, concreteSourceSchema, aliases, signatureCache, aliasRevision)] =
                             group.SourceRefId;
 
                     foreach (var refId in group.VariantIds)
@@ -55,7 +55,7 @@ static partial class DocumentSchemaHelpers
                         if (aliases.ContainsKey(refId) || !schemas.TryGetValue(refId, out var iSchema) || iSchema is not OpenApiSchema schema)
                             continue;
 
-                        var signature = GetSchemaSignature(refId, schema, aliases, signatureCache, aliasRevision);
+                        var signature = SchemaSignatureBuilder.GetSchemaSignature(refId, schema, aliases, signatureCache, aliasRevision);
 
                         if (signatureToRefId.TryGetValue(signature, out var canonicalRefId))
                         {
@@ -134,7 +134,7 @@ static partial class DocumentSchemaHelpers
         return suffixIndex < 0 ? refId : refId[..suffixIndex];
     }
 
-    static string ResolveAlias(string refId, Dictionary<string, string> aliases)
+    internal static string ResolveAlias(string refId, Dictionary<string, string> aliases)
     {
         if (!aliases.TryGetValue(refId, out var targetRefId))
             return refId;
@@ -169,7 +169,7 @@ static partial class DocumentSchemaHelpers
     static IOpenApiSchema? RewriteSchemaRef(IOpenApiSchema? schema, Dictionary<string, string> aliases)
     {
         if (schema is OpenApiSchemaReference schemaRef &&
-            GetReferenceId(schemaRef) is { } refId &&
+            schemaRef.GetReferenceId() is { } refId &&
             aliases.TryGetValue(refId, out var canonicalRefId))
             return new OpenApiSchemaReference(ResolveAlias(canonicalRefId, aliases));
 
@@ -178,5 +178,5 @@ static partial class DocumentSchemaHelpers
 
     readonly record struct OrderedVariantGroup(string SourceRefId, string[] VariantIds);
 
-    readonly record struct SchemaSignatureCacheKey(string RefId, int AliasRevision);
+    internal readonly record struct SchemaSignatureCacheKey(string RefId, int AliasRevision);
 }

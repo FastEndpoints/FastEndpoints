@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Text.Json;
 using Microsoft.OpenApi;
+using static FastEndpoints.OpenApi.OperationReflectionCache;
 using static FastEndpoints.OpenApi.OperationTransformer;
 
 namespace FastEndpoints.OpenApi;

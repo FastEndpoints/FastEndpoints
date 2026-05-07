@@ -54,11 +54,11 @@ static partial class DocumentSchemaHelpers
     }
 
     static bool IsFormFileRef(IOpenApiSchema? schema)
-        => schema is OpenApiSchemaReference schemaRef && GetReferenceId(schemaRef) is "IFormFile";
+        => schema is OpenApiSchemaReference schemaRef && schemaRef.GetReferenceId() is "IFormFile";
 
     static bool IsFormFileCollectionRef(IOpenApiSchema? schema)
         => schema is OpenApiSchemaReference schemaRef &&
-           GetReferenceId(schemaRef) is { } refId &&
+           schemaRef.GetReferenceId() is { } refId &&
            (refId is "IFormFileCollection" ||
             refId.Contains("IFormFileCollection", StringComparison.Ordinal) ||
             refId.Contains("IEnumerableOfIFormFile", StringComparison.Ordinal) ||

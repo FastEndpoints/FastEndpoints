@@ -133,5 +133,23 @@ sealed partial class ValidationSchemaTransformer(DocumentOptions docOpts, Shared
         }
     }
 
-    readonly record struct ValidatorRuleCacheKey(Type ValidatorType, JsonNamingPolicy? NamingPolicy);
+    internal static OpenApiSchema? ResolveForMutation(IOpenApiSchema? schema,
+                                                      bool localizeReferencedSchemas,
+                                                      SharedContext sharedCtx,
+                                                      string operationKey,
+                                                      string schemaKey,
+                                                      Action<IOpenApiSchema> replace)
+    {
+        if (!localizeReferencedSchemas || schema is not OpenApiSchemaReference)
+            return schema.ResolveSchema();
+
+        return schema.EnsureSchemaForMutation(sharedCtx, operationKey, schemaKey, replace);
+    }
+
+    internal static Type GetValidatorTargetType(IValidator validator)
+        => validator.GetType().GetGenericArgumentsOfType(Types.ValidatorOf1)?[0] ?? validator.GetType();
 }
+
+internal sealed record CachedValidatorRules(System.Collections.ObjectModel.ReadOnlyDictionary<string, List<FluentValidation.IValidationRule>> Rules, CachedValidatorRules[] IncludedRules);
+
+readonly record struct ValidatorRuleCacheKey(Type ValidatorType, JsonNamingPolicy? NamingPolicy);

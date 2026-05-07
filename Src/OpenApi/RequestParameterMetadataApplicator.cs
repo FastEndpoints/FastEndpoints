@@ -2,7 +2,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.OpenApi;
-using static FastEndpoints.OpenApi.OperationTransformer;
+using static FastEndpoints.OpenApi.OperationReflectionCache;
 
 namespace FastEndpoints.OpenApi;
 
@@ -18,7 +18,7 @@ sealed class RequestParameterMetadataApplicator(DocumentOptions docOpts, SharedC
         if (operation.Parameters is not { Count: > 0 })
             return;
 
-        var requestDtoType = GetRequestDtoType(epDef);
+        var requestDtoType = epDef.ReqDtoType;
         var requestProps = GetPublicInstanceProperties(requestDtoType);
         var requestPropLookup = BuildRequestPropertyLookup(requestProps);
         var paramDescriptions = epDef.EndpointSummary?.Params;

@@ -68,7 +68,7 @@ static partial class OperationSchemaHelpers
 
         if (schema is OpenApiSchemaReference schemaRef)
         {
-            if (GetReferenceId(schemaRef) is { } refId)
+            if (schemaRef.GetReferenceId() is { } refId)
                 sharedCtx.MissingSchemaTypes.TryAdd(refId, type);
 
             return;

@@ -4,8 +4,6 @@ using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
-using static FastEndpoints.OpenApi.OperationTransformer;
-
 namespace FastEndpoints.OpenApi;
 
 sealed class ResponseOperationTransformer(DocumentOptions docOpts, SharedContext sharedCtx)

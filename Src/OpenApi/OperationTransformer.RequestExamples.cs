@@ -1,16 +1,14 @@
 using System.Text.Json.Nodes;
 using Microsoft.OpenApi;
-using static FastEndpoints.OpenApi.OperationTransformer;
-
 namespace FastEndpoints.OpenApi;
 
 sealed partial class RequestOperationTransformer
 {
         JsonNode? BuildRequestExampleFallback(EndpointDefinition epDef,
-                                              HashSet<string> propsRemovedFromBody,
-                                              PromotedBodyProperty? promotedBodyProperty)
+                                               HashSet<string> propsRemovedFromBody,
+                                               PromotedBodyProperty? promotedBodyProperty)
         {
-            var fallback = (promotedBodyProperty?.Type ?? GetRequestDtoType(epDef)).GenerateSampleJsonNode(
+            var fallback = (promotedBodyProperty?.Type ?? epDef.ReqDtoType).GenerateSampleJsonNode(
                 SerializerOptions,
                 NamingPolicy,
                 docOpts.UsePropertyNamingPolicy);

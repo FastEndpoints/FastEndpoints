@@ -175,7 +175,7 @@ public class ValidationSchemaTransformerTests
     {
         var applierType = typeof(FastEndpoints.OpenApi.Extensions)
                           .Assembly
-                          .GetType("FastEndpoints.OpenApi.ValidationSchemaTransformer+ValidationSchemaApplier", throwOnError: true)!;
+                          .GetType("FastEndpoints.OpenApi.ValidationSchemaApplier", throwOnError: true)!;
 
         var rules = typeof(FastEndpoints.OpenApi.Extensions)
                     .Assembly

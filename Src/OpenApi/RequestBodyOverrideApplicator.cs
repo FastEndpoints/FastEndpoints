@@ -1,7 +1,5 @@
 using System.Text.Json;
 using Microsoft.OpenApi;
-using static FastEndpoints.OpenApi.OperationTransformer;
-
 namespace FastEndpoints.OpenApi;
 
 sealed class RequestBodyOverrideApplicator(DocumentOptions docOpts, SharedContext sharedCtx)
@@ -13,7 +11,7 @@ sealed class RequestBodyOverrideApplicator(DocumentOptions docOpts, SharedContex
         if (operation.RequestBody?.Content is null)
             return null;
 
-        var requestDtoType = GetRequestDtoType(epDef);
+        var requestDtoType = epDef.ReqDtoType;
 
         var (promoteProp, fromBodyProp, fromFormProp) = PromotedBodyPropertyResolver.Find(requestDtoType);
 

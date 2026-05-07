@@ -128,15 +128,6 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
         return Task.CompletedTask;
     }
 
-    internal static PropertyInfo[] GetPublicInstanceProperties(Type type)
-        => OperationReflectionCache.GetTypeMetadata(type).PublicInstanceProperties;
-
-    internal static PropertyInfo[] GetBindableRequestProperties(Type type)
-        => OperationReflectionCache.GetTypeMetadata(type).BindableRequestProperties;
-
-    internal static OperationReflectionCache.PropertyMetadata GetPropertyMetadata(PropertyInfo property)
-        => OperationReflectionCache.GetPropertyMetadata(property);
-
     static string CreateOperationKey(string httpMethod, string documentPath)
         => $"{httpMethod}:{documentPath}";
 
@@ -163,12 +154,6 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
             DeprecatedAt = epDef.Version.DeprecatedAt,
             IsFastEndpoint = true
         };
-
-    internal static bool IsNullable(PropertyInfo prop)
-        => OperationReflectionCache.IsNullable(prop);
-
-    internal static Type GetRequestDtoType(EndpointDefinition epDef)
-        => epDef.ReqDtoType;
 
 }
 

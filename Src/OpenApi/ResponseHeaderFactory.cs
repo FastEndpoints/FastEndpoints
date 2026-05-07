@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.OpenApi;
-using static FastEndpoints.OpenApi.OperationTransformer;
+using static FastEndpoints.OpenApi.OperationReflectionCache;
 
 namespace FastEndpoints.OpenApi;
 

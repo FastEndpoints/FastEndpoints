@@ -5,6 +5,7 @@ using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
+using static FastEndpoints.OpenApi.OperationReflectionCache;
 using static FastEndpoints.OpenApi.OperationTransformer;
 
 namespace FastEndpoints.OpenApi;
@@ -48,7 +49,7 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
             var routeParameters = GetRouteParameters(endpointRouteTemplate ?? context.Description.RelativePath ?? documentPath);
             var routeParameterLookup = RouteParameterApplicator.BuildLookup(routeParameters);
 
-            var requestDtoType = GetRequestDtoType(epDef);
+            var requestDtoType = epDef.ReqDtoType;
 
             if (requestDtoType != Types.EmptyRequest)
             {
@@ -146,7 +147,7 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
             var hasParams = paramDescriptions is { Count: > 0 };
             var paramDescriptionLookup = hasParams ? ParameterDescriptionLookup.Build(paramDescriptions!) : null;
             var exampleObj = epDef.EndpointSummary?.ExampleRequest;
-            var defaultProps = BuildRequestSchemaDefaultLookup(promotedBodyProperty?.Type ?? GetRequestDtoType(epDef));
+            var defaultProps = BuildRequestSchemaDefaultLookup(promotedBodyProperty?.Type ?? epDef.ReqDtoType);
             var hasDefaults = defaultProps.Count > 0;
 
             if (!hasParams && exampleObj is null && !hasDefaults)

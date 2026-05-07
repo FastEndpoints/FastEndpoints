@@ -10,7 +10,4 @@ static partial class DocumentSchemaHelpers
             => OpenApiSchemaReferenceCollector.GetReferencedSchemaRefs(document);
     }
 
-    static string? GetReferenceId(OpenApiSchemaReference schemaRef)
-        => schemaRef.Reference.Id ?? schemaRef.Id;
-
 }

@@ -60,8 +60,7 @@ sealed class OperationParameterFactory(DocumentOptions docOpts, SharedContext sh
     {
         var propType = explicitType ?? prop?.PropertyType ?? typeof(string);
 
-        // typed header values (e.g. ContentDispositionHeaderValue) are transmitted as strings
-        return propType.Name.EndsWith("HeaderValue", StringComparison.Ordinal) ? typeof(string) : propType;
+        return propType.GetOpenApiParameterType();
     }
 
     void ApplyRequiredExample(OpenApiParameter param, PropertyInfo prop, Type propType)

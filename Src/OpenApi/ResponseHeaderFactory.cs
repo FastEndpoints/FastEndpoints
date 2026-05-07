@@ -22,7 +22,7 @@ sealed class ResponseHeaderFactory(DocumentOptions docOpts, SharedContext shared
                 continue;
 
             var headerName = toHeaderAttr.HeaderName ?? prop.Name.ApplyPropNamingPolicy(docOpts, NamingPolicy);
-            var headerType = prop.PropertyType.Name.EndsWith("HeaderValue", StringComparison.Ordinal) ? typeof(string) : prop.PropertyType;
+            var headerType = prop.PropertyType.GetOpenApiParameterType();
 
             AddHeader(
                 response,

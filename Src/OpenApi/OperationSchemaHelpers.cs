@@ -42,6 +42,9 @@ static partial class OperationSchemaHelpers
         return null;
     }
 
+    internal static Type GetOpenApiParameterType(this Type type)
+        => type.Name.EndsWith("HeaderValue", StringComparison.Ordinal) ? typeof(string) : type;
+
     internal static Type? TryGetCollectionElementType(Type type)
     {
         type = type.GetUnderlyingType();

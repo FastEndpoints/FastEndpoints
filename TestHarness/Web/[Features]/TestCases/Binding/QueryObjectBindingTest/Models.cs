@@ -58,3 +58,21 @@ public enum ByteEnum : byte
     Test,
     AnotherCheck
 }
+
+public class CircularRequest
+{
+    [FromQuery]
+    public required CircularQueryData Data { get; set; }
+}
+
+public class CircularQueryData
+{
+    public string? Name { get; set; }
+    public CircularQueryData? Child { get; set; }
+}
+
+public class CircularResponse
+{
+    public string? Name { get; set; }
+    public string? ChildName { get; set; }
+}

@@ -88,6 +88,9 @@ static class ComplexFormBinder
 
         static bool BindComplexType(object parent, Type tParent, PropertyInfo prop, Type tProp, string key, IFormCollection form, List<ValidationFailure> failures)
         {
+            if (!HasFormDataForPrefix(key, form))
+                return false;
+
             var propVal = tProp.ObjectFactory()();
             var bound = BindPropertiesRecursively(propVal, key, form, failures);
             tParent.SetterForProp(prop)(parent, propVal);
@@ -203,6 +206,18 @@ static class ComplexFormBinder
             tParent.SetterForProp(prop)(parent, res.Value);
 
             return true;
+        }
+
+        static bool HasFormDataForPrefix(string key, IFormCollection form)
+        {
+            var dottedPrefix = $"{key}.";
+            var indexedPrefix = $"{key}[";
+
+            return form.Keys.Any(MatchesPrefix) || form.Files.Any(f => MatchesPrefix(f.Name));
+
+            bool MatchesPrefix(string candidate)
+                => candidate.StartsWith(dottedPrefix, StringComparison.OrdinalIgnoreCase) ||
+                   candidate.StartsWith(indexedPrefix, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

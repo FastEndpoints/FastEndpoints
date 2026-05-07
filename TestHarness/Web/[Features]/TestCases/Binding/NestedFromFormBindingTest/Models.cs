@@ -44,3 +44,21 @@ sealed class Response
     public string FirstItemAttachmentFileName { get; set; }
     public int NumbersSum { get; set; }
 }
+
+sealed class CircularRequest
+{
+    [FromForm]
+    public required CircularFormData Data { get; set; }
+}
+
+sealed class CircularFormData
+{
+    public string? Name { get; set; }
+    public CircularFormData? Child { get; set; }
+}
+
+sealed class CircularResponse
+{
+    public string? Name { get; set; }
+    public string? ChildName { get; set; }
+}

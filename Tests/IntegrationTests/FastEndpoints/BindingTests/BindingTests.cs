@@ -355,6 +355,25 @@ public class BindingTests(Sut App) : TestBase<Sut>
     }
 
     [Fact]
+    public async Task CircularFromQueryBindingDoesNotRecurseForever()
+    {
+        var route = App.Client.GetTestUrlFor<TestCases.QueryObjectBindingTest.CircularEndpoint>(
+            new TestCases.QueryObjectBindingTest.CircularRequest { Data = new() },
+            true);
+        route = route.Split('?')[0];
+
+        var (rsp, res) = await App.Client.GETAsync<
+                             TestCases.QueryObjectBindingTest.CircularRequest,
+                             TestCases.QueryObjectBindingTest.CircularResponse>(
+                             $"{route}?name=root&child.name=child",
+                             new() { Data = new() });
+
+        rsp.StatusCode.ShouldBe(HttpStatusCode.OK, await rsp.Content.ReadAsStringAsync(Cancellation));
+        res.Name.ShouldBe("root");
+        res.ChildName.ShouldBe("child");
+    }
+
+    [Fact]
     public async Task BindingUndefinedEnumValueFromQueryFails()
     {
         var (rsp, res) = await App.Client
@@ -947,8 +966,30 @@ public class BindingTests(Sut App) : TestBase<Sut>
         var req = new CircularFormRequest { Data = data };
         var act = async () => await App.GuestClient.SENDAsync<CircularFormRequest, EmptyResponse>(HttpMethod.Post, "api/not-used", req, sendAsFormData: true);
 
-        var ex = await Should.ThrowAsync<InvalidOperationException>(act);
-        ex.Message.ShouldBe("Circular reference detected while converting the request DTO to MultipartFormDataContent.");
+        var ex = await Should.ThrowAsync<NotSupportedException>(act);
+        ex.Message.ShouldBe("Circular references are not supported when converting the request DTO to MultipartFormDataContent.");
+    }
+
+    [Fact]
+    public async Task CircularFromFormBindingDoesNotRecurseForever()
+    {
+        var req = new TestCases.NestedFromFormBindingTest.CircularRequest
+        {
+            Data = new()
+            {
+                Name = "root",
+                Child = new() { Name = "child" }
+            }
+        };
+
+        var (rsp, res) = await App.GuestClient.POSTAsync<
+                             TestCases.NestedFromFormBindingTest.CircularEndpoint,
+                             TestCases.NestedFromFormBindingTest.CircularRequest,
+                             TestCases.NestedFromFormBindingTest.CircularResponse>(req, sendAsFormData: true);
+
+        rsp.IsSuccessStatusCode.ShouldBeTrue();
+        res.Name.ShouldBe("root");
+        res.ChildName.ShouldBe("child");
     }
 
     sealed class CircularFormRequest

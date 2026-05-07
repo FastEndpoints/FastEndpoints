@@ -26,3 +26,22 @@ sealed class Endpoint : Endpoint<Request, Response>
         });
     }
 }
+
+sealed class CircularEndpoint : Endpoint<CircularRequest, CircularResponse>
+{
+    public override void Configure()
+    {
+        Post("api/test-cases/circular-fromform-binding-test");
+        AllowAnonymous();
+        AllowFileUploads();
+    }
+
+    public override async Task HandleAsync(CircularRequest req, CancellationToken ct)
+    {
+        await Send.OkAsync(new CircularResponse
+        {
+            Name = req.Data.Name,
+            ChildName = req.Data.Child?.Name
+        });
+    }
+}

@@ -734,7 +734,7 @@ public static class HttpClientExtensions
     static MultipartFormDataContent ToForm<TRequest>(this TRequest req)
     {
         var form = new MultipartFormDataContent();
-        AddObjectToForm(req!, form, prefix: null, flattenComplexProps: false, []);
+        AddObjectToForm(req!, form, prefix: null, flattenComplexProps: false, new(ReferenceEqualityComparer.Instance));
 
         return !form.Any()
                    ? throw new InvalidOperationException("Converting the request DTO to MultipartFormDataContent was unsuccessful!")
@@ -743,10 +743,10 @@ public static class HttpClientExtensions
 
     static void AddObjectToForm(object obj, MultipartFormDataContent form, string? prefix, bool flattenComplexProps, HashSet<object> visiting)
     {
-        var trackCircularRef = !obj.GetType().IsValueType;
+        var shouldTrackRef = !obj.GetType().IsValueType;
 
-        if (trackCircularRef && !visiting.Add(obj))
-            throw new InvalidOperationException("Circular reference detected while converting the request DTO to MultipartFormDataContent.");
+        if (shouldTrackRef && !visiting.Add(obj))
+            throw new NotSupportedException("Circular references are not supported when converting the request DTO to MultipartFormDataContent.");
 
         try
         {
@@ -767,16 +767,11 @@ public static class HttpClientExtensions
         }
         finally
         {
-            if (trackCircularRef)
+            if (shouldTrackRef)
                 visiting.Remove(obj);
         }
 
-        static void AddValueToForm(object? value,
-                                   Type type,
-                                   string fieldName,
-                                   MultipartFormDataContent form,
-                                   bool flattenComplexProps,
-                                   HashSet<object> visiting)
+        static void AddValueToForm(object? value, Type type, string fieldName, MultipartFormDataContent form, bool flattenComplexProps, HashSet<object> visiting)
         {
             if (value is null)
                 return;
@@ -883,21 +878,14 @@ public static class HttpClientExtensions
         if (toStringMethod is not null && toStringMethod.DeclaringType != Types.Object && !isRecord)
             return ToInvariantIsoString(value);
 
-        try
-        {
-            var json = JsonSerializer.Serialize(value, SerOpts.Options);
+        var json = JsonSerializer.Serialize(value, SerOpts.Options);
 
-            //this is a json string literal
-            if (json.StartsWith('"') && json.EndsWith('"'))
-                return json.TrimStart('"').TrimEnd('"');
+        //this is a json string literal
+        if (json.StartsWith('"') && json.EndsWith('"'))
+            return json.TrimStart('"').TrimEnd('"');
 
-            //this is either a json array or object
-            return json;
-        }
-        catch
-        {
-            throw;
-        }
+        //this is either a json array or object
+        return json;
 
         static string? ToInvariantIsoString(object value)
         {

@@ -117,20 +117,14 @@ sealed partial class RequestOperationTransformer
             if (schema?.Properties is not { Count: > 0 } properties)
                 return example;
 
-            var propertyKeys = new Dictionary<string, string>(properties.Count, StringComparer.OrdinalIgnoreCase);
-
-            foreach (var propertyKey in properties.Keys)
-                propertyKeys.TryAdd(propertyKey, propertyKey);
+            var propertyKeys = properties.Keys.Select(static key => KeyValuePair.Create(key, key))
+                                             .ToCaseInsensitiveDictionary(properties.Count);
 
             Dictionary<string, string>? fallbackKeys = null;
 
             if (fallback is not null)
-            {
-                fallbackKeys = new(fallback.Count, StringComparer.OrdinalIgnoreCase);
-
-                foreach (var fallbackKey in fallback.Select(static kvp => kvp.Key))
-                    fallbackKeys.TryAdd(fallbackKey, fallbackKey);
-            }
+                fallbackKeys = fallback.Select(static kvp => KeyValuePair.Create(kvp.Key, kvp.Key))
+                                       .ToCaseInsensitiveDictionary(fallback.Count);
 
             foreach (var key in example.Select(kvp => kvp.Key).ToArray())
             {

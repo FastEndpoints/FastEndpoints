@@ -129,7 +129,7 @@ static class SchemaSignatureBuilder
             case JsonObject obj:
                 builder.Append('{');
 
-                foreach (var (key, value) in obj.OrderBy(static kvp => kvp.Key, StringComparer.Ordinal))
+                foreach (var (key, value) in obj.OrderByKey())
                 {
                     builder.Append(key).Append(':');
                     AppendJsonNodeValue(builder, value);
@@ -193,7 +193,7 @@ static class SchemaSignatureBuilder
 
         if (values is not null)
         {
-            foreach (var (key, value) in values.OrderBy(static kvp => kvp.Key, StringComparer.Ordinal))
+            foreach (var (key, value) in values.OrderByKey())
                 builder.Append(key).Append(':').Append(value).Append(',');
         }
 
@@ -240,7 +240,7 @@ static class SchemaSignatureBuilder
 
         if (schemas is not null)
         {
-            foreach (var (key, schema) in schemas.OrderBy(static kvp => kvp.Key, StringComparer.Ordinal))
+            foreach (var (key, schema) in schemas.OrderByKey())
             {
                 builder.Append(key).Append(':');
                 AppendSchemaSignature(builder, schema, aliases, visited);
@@ -264,7 +264,7 @@ static class SchemaSignatureBuilder
 
             if (discriminator.Mapping is not null)
             {
-                foreach (var (key, schema) in discriminator.Mapping.OrderBy(static kvp => kvp.Key, StringComparer.Ordinal))
+                foreach (var (key, schema) in discriminator.Mapping.OrderByKey())
                 {
                     builder.Append(key).Append(':');
                     AppendSchemaSignature(builder, schema, aliases, visited);
@@ -311,7 +311,7 @@ static class SchemaSignatureBuilder
 
         if (extensions is not null)
         {
-            foreach (var (key, value) in extensions.OrderBy(static kvp => kvp.Key, StringComparer.Ordinal))
+            foreach (var (key, value) in extensions.OrderByKey())
                 builder.Append(key).Append(':').Append(value.GetType().FullName).Append(',');
         }
 
@@ -324,7 +324,7 @@ static class SchemaSignatureBuilder
 
         if (values is not null)
         {
-            foreach (var (key, value) in values.OrderBy(static kvp => kvp.Key, StringComparer.Ordinal))
+            foreach (var (key, value) in values.OrderByKey())
             {
                 builder.Append(key).Append(':');
                 AppendJsonNodeValue(builder, value);
@@ -341,7 +341,7 @@ static class SchemaSignatureBuilder
 
         if (values is not null)
         {
-            foreach (var (key, set) in values.OrderBy(static kvp => kvp.Key, StringComparer.Ordinal))
+            foreach (var (key, set) in values.OrderByKey())
             {
                 builder.Append(key).Append(':');
 

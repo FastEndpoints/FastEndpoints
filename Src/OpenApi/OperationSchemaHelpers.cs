@@ -64,6 +64,9 @@ static partial class OperationSchemaHelpers
             dictionary[key] = value;
     }
 
+    internal static IOrderedEnumerable<KeyValuePair<string, TValue>> OrderByKey<TValue>(this IEnumerable<KeyValuePair<string, TValue>> values)
+        => values.OrderBy(static kvp => kvp.Key, StringComparer.Ordinal);
+
     internal static Type GetOpenApiParameterType(this Type type)
         => type.Name.EndsWith("HeaderValue", StringComparison.Ordinal) ? typeof(string) : type;
 

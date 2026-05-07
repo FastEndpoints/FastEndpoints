@@ -25,6 +25,11 @@ static class OperationReflectionCache
         public required bool IsHiddenFromDocs { get; init; }
         public required bool IsDontInject { get; init; }
         public required bool IsFromQuery { get; init; }
+        public required bool IsFromBody { get; init; }
+        public required bool IsFromForm { get; init; }
+        public required FromClaimAttribute? FromClaim { get; init; }
+        public required HasPermissionAttribute? HasPermission { get; init; }
+        public required DontBindAttribute? DontBind { get; init; }
         public required BindFromAttribute? BindFrom { get; init; }
         public required FromHeaderAttribute? FromHeader { get; init; }
         public required FromCookieAttribute? FromCookie { get; init; }
@@ -65,6 +70,11 @@ static class OperationReflectionCache
             IsHiddenFromDocs = property.IsDefined(Types.HideFromDocsAttribute),
             IsDontInject = property.IsDefined(Types.DontInjectAttribute),
             IsFromQuery = property.IsDefined(typeof(FromQueryAttribute), false),
+            IsFromBody = property.IsDefined(Types.FromBodyAttribute, false),
+            IsFromForm = property.IsDefined(Types.FromFormAttribute, false),
+            FromClaim = property.GetCustomAttribute<FromClaimAttribute>(),
+            HasPermission = property.GetCustomAttribute<HasPermissionAttribute>(),
+            DontBind = property.GetCustomAttribute<DontBindAttribute>(),
             BindFrom = property.GetCustomAttribute<BindFromAttribute>(),
             FromHeader = property.GetCustomAttribute<FromHeaderAttribute>(),
             FromCookie = property.GetCustomAttribute<FromCookieAttribute>(),

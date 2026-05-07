@@ -141,10 +141,12 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
 
             foreach (var prop in GetPublicInstanceProperties(requestDtoType))
             {
-                if (fromBodyProp is null && prop.IsDefined(Types.FromBodyAttribute, false))
+                var metadata = GetPropertyMetadata(prop);
+
+                if (fromBodyProp is null && metadata.IsFromBody)
                     fromBodyProp = prop;
 
-                if (fromFormProp is null && prop.IsDefined(Types.FromFormAttribute, false))
+                if (fromFormProp is null && metadata.IsFromForm)
                     fromFormProp = prop;
 
                 if (fromBodyProp is not null && fromFormProp is not null)
@@ -546,14 +548,14 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
             for (var i = 0; i < requestDtoProps.Count; i++)
             {
                 var p = requestDtoProps[i];
-                var attributes = p.GetCustomAttributes().ToArray();
+                var metadata = GetPropertyMetadata(p);
 
-                AddAttributeParameters(operation, p, attributes, state, operationKey);
+                AddAttributeParameters(operation, p, metadata, state, operationKey);
                 AddRouteParameter(operation, p, routeParameters, state, operationKey);
 
                 var queryParamName = GetQueryParameterName(p);
 
-                if (ShouldAddQueryParam(p, attributes, operation, queryParamName, isGetRequest && !docOpts.EnableGetRequestsWithBody))
+                if (ShouldAddQueryParam(p, metadata, operation, queryParamName, isGetRequest && !docOpts.EnableGetRequestsWithBody))
                 {
                     operation.RemovePropFromRequestBody(p, sharedCtx, operationKey, docOpts, NamingPolicy, state.PropsRemovedFromBody);
 
@@ -634,49 +636,41 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
         static bool? GetDontBindRequiredness(PropertyInfo property)
             => property.GetCustomAttribute<DontBindAttribute>()?.IsRequired is true ? true : null;
 
-        void AddAttributeParameters(OpenApiOperation operation, PropertyInfo p, Attribute[] attributes, RequestTransformState state, string operationKey)
+        void AddAttributeParameters(OpenApiOperation operation,
+                                    PropertyInfo p,
+                                    OperationReflectionCache.PropertyMetadata metadata,
+                                    RequestTransformState state,
+                                    string operationKey)
         {
-            foreach (var attribute in attributes)
+            if (metadata.FromHeader is { } hAttrib)
             {
-                switch (attribute)
+                var pName = hAttrib.HeaderName ?? p.Name.ApplyPropNamingPolicy(docOpts, NamingPolicy);
+
+                if (IsIllegalHeaderName(pName))
                 {
-                    case FromHeaderAttribute hAttrib:
-                    {
-                        var pName = hAttrib.HeaderName ?? p.Name.ApplyPropNamingPolicy(docOpts, NamingPolicy);
+                    operation.RemovePropFromRequestBody(p, sharedCtx, operationKey, docOpts, NamingPolicy, state.PropsRemovedFromBody);
 
-                        if (IsIllegalHeaderName(pName))
-                        {
-                            operation.RemovePropFromRequestBody(p, sharedCtx, operationKey, docOpts, NamingPolicy, state.PropsRemovedFromBody);
-
-                            continue;
-                        }
-
-                        AddParameter(operation, pName, ParameterLocation.Header, p, hAttrib.IsRequired, docOpts.ShortSchemaNames);
-
-                        if (hAttrib.IsRequired || hAttrib.RemoveFromSchema)
-                            operation.RemovePropFromRequestBody(p, sharedCtx, operationKey, docOpts, NamingPolicy, state.PropsRemovedFromBody);
-
-                        break;
-                    }
-
-                    case FromCookieAttribute cAttrib:
-                    {
-                        var pName = cAttrib.CookieName ?? p.Name.ApplyPropNamingPolicy(docOpts, NamingPolicy);
-                        AddParameter(operation, pName, ParameterLocation.Cookie, p, cAttrib.IsRequired, docOpts.ShortSchemaNames);
-
-                        if (cAttrib.IsRequired || cAttrib.RemoveFromSchema)
-                            operation.RemovePropFromRequestBody(p, sharedCtx, operationKey, docOpts, NamingPolicy, state.PropsRemovedFromBody);
-
-                        break;
-                    }
-
-                    case FromClaimAttribute cAttrib when cAttrib.IsRequired || cAttrib.RemoveFromSchema:
-                    case HasPermissionAttribute pAttrib when pAttrib.IsRequired || pAttrib.RemoveFromSchema:
-                        operation.RemovePropFromRequestBody(p, sharedCtx, operationKey, docOpts, NamingPolicy, state.PropsRemovedFromBody);
-
-                        break;
+                    return;
                 }
+
+                AddParameter(operation, pName, ParameterLocation.Header, p, hAttrib.IsRequired, docOpts.ShortSchemaNames);
+
+                if (hAttrib.IsRequired || hAttrib.RemoveFromSchema)
+                    operation.RemovePropFromRequestBody(p, sharedCtx, operationKey, docOpts, NamingPolicy, state.PropsRemovedFromBody);
             }
+
+            if (metadata.FromCookie is { } cAttrib)
+            {
+                var pName = cAttrib.CookieName ?? p.Name.ApplyPropNamingPolicy(docOpts, NamingPolicy);
+                AddParameter(operation, pName, ParameterLocation.Cookie, p, cAttrib.IsRequired, docOpts.ShortSchemaNames);
+
+                if (cAttrib.IsRequired || cAttrib.RemoveFromSchema)
+                    operation.RemovePropFromRequestBody(p, sharedCtx, operationKey, docOpts, NamingPolicy, state.PropsRemovedFromBody);
+            }
+
+            if (metadata.FromClaim is { IsRequired: true } or { RemoveFromSchema: true } ||
+                metadata.HasPermission is { IsRequired: true } or { RemoveFromSchema: true })
+                operation.RemovePropFromRequestBody(p, sharedCtx, operationKey, docOpts, NamingPolicy, state.PropsRemovedFromBody);
         }
 
         void AddRouteParameter(OpenApiOperation operation, PropertyInfo p, Dictionary<string, RouteParameterInfo> routeParameters, RequestTransformState state, string operationKey)
@@ -830,23 +824,23 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
                 $"Offending DTO type: [{requestDtoType.FullName}]");
         }
 
-        static bool ShouldAddQueryParam(PropertyInfo prop, Attribute[] attributes, OpenApiOperation operation, string queryParamName, bool isGetRequest)
+        static bool ShouldAddQueryParam(PropertyInfo prop,
+                                        OperationReflectionCache.PropertyMetadata metadata,
+                                        OpenApiOperation operation,
+                                        string queryParamName,
+                                        bool isGetRequest)
         {
-            foreach (var attribute in attributes)
-            {
-                switch (attribute)
-                {
-                    case FromHeaderAttribute:
-                    case FromCookieAttribute:
-                        return false;
-                    case FromClaimAttribute cAttrib:
-                        return !cAttrib.IsRequired;
-                    case HasPermissionAttribute pAttrib:
-                        return !pAttrib.IsRequired;
-                    case DontBindAttribute dontBindAttrib when dontBindAttrib.BindingSources.HasFlag(Source.QueryParam):
-                        return false;
-                }
-            }
+            if (metadata.FromHeader is not null || metadata.FromCookie is not null)
+                return false;
+
+            if (metadata.FromClaim is { } fromClaim)
+                return !fromClaim.IsRequired;
+
+            if (metadata.HasPermission is { } hasPermission)
+                return !hasPermission.IsRequired;
+
+            if (metadata.DontBind?.BindingSources.HasFlag(Source.QueryParam) == true)
+                return false;
 
             if (operation.Parameters?.Any(p => string.Equals(p.Name, queryParamName, StringComparison.OrdinalIgnoreCase)) == true)
                 return false;

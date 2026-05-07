@@ -1,4 +1,5 @@
 using FastEndpoints;
+using Microsoft.AspNetCore.Http;
 using RichardSzalay.MockHttp;
 using Web.Auth;
 using Xunit;
@@ -179,6 +180,55 @@ public class HttpClientExtensionsTests
             nameof(MultipartPromotedBindingSourceRequest.Normal)
         ]);
     }
+
+    [Fact]
+    public async Task SendAsFormDataOnlyPromotesFromFormOnRootRequestDto()
+    {
+        var handler = new MultipartCaptureHandler();
+        var http = new HttpClient(handler) { BaseAddress = new("http://localhost") };
+
+        await http.SENDAsync<MultipartRootPromotionRequest, EmptyResponse>(
+            HttpMethod.Post,
+            "api/test",
+            new()
+            {
+                Form = new()
+                {
+                    Name = "root",
+                    Child = new()
+                    {
+                        Name = "child",
+                        File = CreateFile("child-file.png"),
+                        Files = new FormFileCollection { CreateFile("child-files.png") }
+                    },
+                    Items =
+                    [
+                        new() { Name = "item" }
+                    ]
+                }
+            },
+            sendAsFormData: true);
+
+        handler.FieldNames.OrderBy(n => n).ShouldBe(
+        [
+            "Child.File",
+            "Child.Files",
+            "Child.Name",
+            "Items[0].Name",
+            "Name"
+        ]);
+
+        static FormFile CreateFile(string fileName)
+        {
+            var stream = new MemoryStream([1]);
+
+            return new(stream, 0, stream.Length, fileName, fileName)
+            {
+                Headers = new HeaderDictionary(),
+                ContentType = "application/octet-stream"
+            };
+        }
+    }
 }
 
 file class HydratedRouteArgsEndpoint : Endpoint<Request>;
@@ -283,6 +333,36 @@ file class MultipartPromotedBindingSourceRequest
 
     [HasPermission(Allow.Customers_Create)]
     public bool? RequiredPermission { get; set; }
+}
+
+file class MultipartRootPromotionRequest
+{
+    [FromForm]
+    public MultipartRootPromotionForm Form { get; set; } = null!;
+}
+
+file class MultipartRootPromotionForm
+{
+    public string Name { get; set; } = null!;
+
+    [FromForm]
+    public MultipartNestedFromFormChild Child { get; set; } = null!;
+
+    public List<MultipartRootPromotionItem> Items { get; set; } = [];
+}
+
+file class MultipartNestedFromFormChild
+{
+    public string Name { get; set; } = null!;
+
+    public IFormFile File { get; set; } = null!;
+
+    public IFormFileCollection Files { get; set; } = null!;
+}
+
+file class MultipartRootPromotionItem
+{
+    public string Name { get; set; } = null!;
 }
 
 file sealed class MultipartCaptureHandler : HttpMessageHandler

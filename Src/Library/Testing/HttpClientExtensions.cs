@@ -734,14 +734,19 @@ public static class HttpClientExtensions
     static MultipartFormDataContent ToForm<TRequest>(this TRequest req)
     {
         var form = new MultipartFormDataContent();
-        AddObjectToForm(req!, form, prefix: null, flattenComplexProps: false, new(ReferenceEqualityComparer.Instance));
+        AddObjectToForm(req!, form, prefix: null, flattenComplexProps: false, allowFormRootPromotion: true, new(ReferenceEqualityComparer.Instance));
 
         return !form.Any()
                    ? throw new InvalidOperationException("Converting the request DTO to MultipartFormDataContent was unsuccessful!")
                    : form;
     }
 
-    static void AddObjectToForm(object obj, MultipartFormDataContent form, string? prefix, bool flattenComplexProps, HashSet<object> visiting)
+    static void AddObjectToForm(object obj,
+                                MultipartFormDataContent form,
+                                string? prefix,
+                                bool flattenComplexProps,
+                                bool allowFormRootPromotion,
+                                HashSet<object> visiting)
     {
         var shouldTrackRef = !obj.GetType().IsValueType;
 
@@ -757,7 +762,12 @@ public static class HttpClientExtensions
                 if (p.IsDefined(Types.FromFormAttribute))
                 {
                     if (value is not null)
-                        AddObjectToForm(value, form, prefix: null, flattenComplexProps: true, visiting);
+                    {
+                        if (allowFormRootPromotion)
+                            AddObjectToForm(value, form, prefix: null, flattenComplexProps: true, allowFormRootPromotion: false, visiting);
+                        else
+                            AddValueToForm(value, p.PropertyType.GetUnderlyingType(), FieldPath(prefix, p.FieldName()), form, flattenComplexProps: true, visiting);
+                    }
 
                     continue;
                 }
@@ -813,7 +823,7 @@ public static class HttpClientExtensions
 
                 if (type.IsComplexType())
                 {
-                    AddObjectToForm(value, form, fieldName, flattenComplexProps: true, visiting);
+                    AddObjectToForm(value, form, fieldName, flattenComplexProps: true, allowFormRootPromotion: false, visiting);
 
                     return;
                 }
@@ -834,7 +844,7 @@ public static class HttpClientExtensions
                 var itemType = item.GetType().GetUnderlyingType();
 
                 if (itemType.IsComplexType())
-                    AddObjectToForm(item, form, $"{fieldName}[{index++}]", flattenComplexProps: true, visiting);
+                    AddObjectToForm(item, form, $"{fieldName}[{index++}]", flattenComplexProps: true, allowFormRootPromotion: false, visiting);
                 else
                     AddStringToForm(item, itemType, fieldName, form);
             }

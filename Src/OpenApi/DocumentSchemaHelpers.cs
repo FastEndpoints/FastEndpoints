@@ -46,44 +46,7 @@ static class DocumentSchemaHelpers
 
     internal static void RemoveFormFileSchemas(this OpenApiDocument document)
     {
-        if (document.Components?.Schemas is { Count: > 0 })
-        {
-            foreach (var (_, iSchema) in document.Components.Schemas)
-            {
-                if (iSchema is OpenApiSchema schema)
-                    InlineFormFileRefs(schema);
-            }
-        }
-
-        if (document.Paths is { Count: > 0 })
-        {
-            foreach (var pathItem in document.Paths.Values)
-            {
-                if (pathItem.Operations is null)
-                    continue;
-
-                foreach (var op in pathItem.Operations.Values)
-                {
-                    if (op.RequestBody?.Content is { Count: > 0 })
-                    {
-                        foreach (var content in op.RequestBody.Content.Values)
-                            RewriteFormFileMediaType(content);
-                    }
-
-                    if (op.Responses is { Count: > 0 })
-                    {
-                        foreach (var resp in op.Responses.Values)
-                        {
-                            if (resp is OpenApiResponse { Content.Count: > 0 } concreteResp)
-                            {
-                                foreach (var content in concreteResp.Content.Values)
-                                    RewriteFormFileMediaType(content);
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        OpenApiSchemaGraphTransformer.TransformDocumentSchemas(document, RewriteFormFileSchema);
 
         if (document.Components?.Schemas is null)
             return;
@@ -340,35 +303,6 @@ static class DocumentSchemaHelpers
 
     #region FormFiles
 
-    static void InlineFormFileRefs(OpenApiSchema schema)
-    {
-        if (schema.Properties is { Count: > 0 })
-        {
-            foreach (var (propName, propSchema) in schema.Properties.ToArray())
-            {
-                if (RewriteFormFileSchema(propSchema) is { } rewrittenSchema)
-                    schema.Properties[propName] = rewrittenSchema;
-            }
-        }
-
-        schema.Items = RewriteFormFileSchema(schema.Items);
-        schema.AdditionalProperties = RewriteFormFileSchema(schema.AdditionalProperties);
-
-        if (schema.AllOf is { Count: > 0 })
-            RewriteFormFileSchemaList(schema.AllOf);
-
-        if (schema.OneOf is { Count: > 0 })
-            RewriteFormFileSchemaList(schema.OneOf);
-
-        if (schema.AnyOf is { Count: > 0 })
-            RewriteFormFileSchemaList(schema.AnyOf);
-    }
-
-    static void RewriteFormFileMediaType(OpenApiMediaType content)
-    {
-        content.Schema = RewriteFormFileSchema(content.Schema);
-    }
-
     static IOpenApiSchema? RewriteFormFileSchema(IOpenApiSchema? schema)
     {
         if (IsFormFileCollectionRef(schema))
@@ -377,16 +311,7 @@ static class DocumentSchemaHelpers
         if (IsFormFileRef(schema))
             return FormFileBinarySchema();
 
-        if (schema is OpenApiSchema concreteSchema)
-            InlineFormFileRefs(concreteSchema);
-
         return schema;
-    }
-
-    static void RewriteFormFileSchemaList(IList<IOpenApiSchema> schemas)
-    {
-        for (var i = 0; i < schemas.Count; i++)
-            schemas[i] = RewriteFormFileSchema(schemas[i])!;
     }
 
     static bool IsFormFileRef(IOpenApiSchema? schema)

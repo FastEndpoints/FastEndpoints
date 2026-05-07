@@ -48,10 +48,8 @@ sealed class RequestParameterMetadataApplicator(DocumentOptions docOpts, SharedC
 
             if (prop is not null)
             {
-                var defaultAttr = GetPropertyMetadata(prop).DefaultValue;
-
-                if (defaultAttr?.Value is not null && concreteParam.Schema is OpenApiSchema paramSchema)
-                    paramSchema.Default = defaultAttr.Value.JsonNodeFromObject(SerializerOptions);
+                if (concreteParam.Schema is OpenApiSchema paramSchema && GetPropertyMetadata(prop).DefaultValue.ToJsonNode(SerializerOptions) is { } defaultNode)
+                    paramSchema.Default = defaultNode;
             }
         }
 

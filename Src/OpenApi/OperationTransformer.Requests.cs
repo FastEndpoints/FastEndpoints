@@ -262,7 +262,7 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
                     localized => schema.Properties![propName] = localized);
 
                 if (concreteProp is { Default: null })
-                    concreteProp.Default = defaultAttr.Value.JsonNodeFromObject(SerializerOptions);
+                    concreteProp.Default = defaultAttr.ToJsonNode(SerializerOptions);
             }
         }
 

@@ -1,5 +1,7 @@
 using System.Collections.Concurrent;
+using System.ComponentModel;
 using System.Reflection;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.OpenApi;
 
@@ -72,6 +74,9 @@ static partial class OperationSchemaHelpers
         response.Headers ??= new Dictionary<string, IOpenApiHeader>();
         response.Headers[headerName] = header;
     }
+
+    internal static JsonNode? ToJsonNode(this DefaultValueAttribute? defaultAttr, JsonSerializerOptions serializerOptions)
+        => defaultAttr?.Value is null ? null : defaultAttr.Value.JsonNodeFromObject(serializerOptions);
 
     internal static Type GetOpenApiParameterType(this Type type)
         => type.Name.EndsWith("HeaderValue", StringComparison.Ordinal) ? typeof(string) : type;

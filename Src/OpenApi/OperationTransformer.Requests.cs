@@ -21,6 +21,8 @@ sealed record PromotedBodyProperty(string Name, Type Type);
 
 sealed partial class RequestOperationTransformer(DocumentOptions docOpts, SharedContext sharedCtx)
 {
+        readonly OperationParameterFactory _parameterFactory = new(docOpts, sharedCtx);
+
         static readonly HashSet<string> _illegalHeaderNames = new(StringComparer.OrdinalIgnoreCase)
         {
             "Accept",
@@ -748,69 +750,8 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
                           Type? explicitType = null)
         {
             operation.Parameters ??= [];
-            var schemaInfo = CreateParameterSchemaInfo(prop, explicitType, isRequired, shortSchemaNames);
-
-            var param = new OpenApiParameter
-            {
-                Name = name,
-                In = location,
-                Required = schemaInfo.Required,
-                Schema = schemaInfo.Schema
-            };
-
-            if (ShouldUseJsonParameterContent(location, schemaInfo.Type))
-            {
-                param.Schema = null;
-                param.Content = new Dictionary<string, OpenApiMediaType>
-                {
-                    ["application/json"] = new() { Schema = schemaInfo.Schema }
-                };
-            }
-
-            if (schemaInfo.Required && prop is not null)
-                ApplyRequiredParameterExample(param, prop, schemaInfo.Type);
-
-            operation.Parameters.Add(param);
+            operation.Parameters.Add(_parameterFactory.Create(name, location, prop, isRequired, shortSchemaNames, explicitType));
         }
-
-        ParameterSchemaInfo CreateParameterSchemaInfo(PropertyInfo? prop, Type? explicitType, bool? isRequired, bool shortSchemaNames)
-        {
-            var propType = GetParameterType(prop, explicitType);
-            var schema = propType.GetSchemaForType(sharedCtx, shortSchemaNames);
-
-            if (schema is OpenApiSchema concreteSchema)
-                OperationSchemaHelpers.ApplyUniqueItems(concreteSchema, propType, prop);
-
-            var isNullable = prop is not null && IsNullable(prop);
-            var hasCtorDefault = prop?.GetParentCtorDefaultValue() is not null;
-            var required = isRequired ?? (!hasCtorDefault && !isNullable);
-
-            return new(propType, schema, required);
-        }
-
-        static Type GetParameterType(PropertyInfo? prop, Type? explicitType)
-        {
-            var propType = explicitType ?? prop?.PropertyType ?? typeof(string);
-
-            // typed header values (e.g. ContentDispositionHeaderValue) are transmitted as strings
-            return propType.Name.EndsWith("HeaderValue", StringComparison.Ordinal) ? typeof(string) : propType;
-        }
-
-        void ApplyRequiredParameterExample(OpenApiParameter param, PropertyInfo prop, Type propType)
-        {
-            var example = OperationSchemaHelpers.ParseXmlExampleJsonNode(XmlDocLookup.GetPropertyExample(prop)) ??
-                          propType.GenerateSampleJsonNode(SerializerOptions, NamingPolicy, docOpts.UsePropertyNamingPolicy);
-
-            if (example is null)
-                return;
-
-            if (param.Content is not null)
-                param.Content["application/json"].Example = example;
-            else
-                param.Example = example;
-        }
-
-        readonly record struct ParameterSchemaInfo(Type Type, IOpenApiSchema? Schema, bool Required);
 
         sealed class ParameterLookupKeyComparer : IEqualityComparer<(ParameterLocation Location, string Name)>
         {
@@ -860,17 +801,6 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
                 return false;
 
             return isGetRequest || prop.IsDefined(Types.QueryParamAttribute);
-        }
-
-        static bool ShouldUseJsonParameterContent(ParameterLocation location, Type type)
-        {
-            if (location != ParameterLocation.Query)
-                return false;
-
-            type = Nullable.GetUnderlyingType(type) ?? type;
-
-            return (type.IsComplexType() && !type.IsCollection()) ||
-                   OperationSchemaHelpers.TryGetDictionaryValueType(type) is not null;
         }
 
         static OpenApiSchema? TryGetJsonPatchArraySchema(IOpenApiSchema? schema, SharedContext sharedCtx)

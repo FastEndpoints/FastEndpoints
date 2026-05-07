@@ -63,16 +63,15 @@ static class DocumentSchemaHelpers
         if (sharedCtx.MissingSchemaTypes.IsEmpty)
             return;
 
-        document.Components ??= new();
-        document.Components.Schemas ??= new Dictionary<string, IOpenApiSchema>();
+        var schemas = document.EnsureComponentSchemas();
 
         foreach (var (refId, type) in sharedCtx.MissingSchemaTypes)
         {
-            if (document.Components.Schemas.ContainsKey(refId))
+            if (schemas.ContainsKey(refId))
                 continue;
 
             var schema = await context.GetOrCreateSchemaAsync(type, parameterDescription: null, ct);
-            document.Components.Schemas.TryAdd(refId, schema);
+            schemas.TryAdd(refId, schema);
         }
     }
 
@@ -114,11 +113,18 @@ static class DocumentSchemaHelpers
         if (sharedCtx.OperationSchemaVariants.IsEmpty)
             return;
 
+        var schemas = document.EnsureComponentSchemas();
+
+        foreach (var (refId, schema) in sharedCtx.OperationSchemaVariants)
+            schemas.TryAdd(refId, schema);
+    }
+
+    static IDictionary<string, IOpenApiSchema> EnsureComponentSchemas(this OpenApiDocument document)
+    {
         document.Components ??= new();
         document.Components.Schemas ??= new Dictionary<string, IOpenApiSchema>();
 
-        foreach (var (refId, schema) in sharedCtx.OperationSchemaVariants)
-            document.Components.Schemas.TryAdd(refId, schema);
+        return document.Components.Schemas;
     }
 
     internal static void DeduplicateOperationSchemaVariants(this OpenApiDocument document, SharedContext sharedCtx)

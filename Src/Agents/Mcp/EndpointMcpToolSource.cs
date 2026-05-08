@@ -247,6 +247,13 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
 
     static JsonNode BuildInputSchema(EndpointDefinition def, JsonSerializerOptions serializerOptions, string toolName)
     {
+        if (def.ReqDtoType == Types.EmptyRequest)
+            return new JsonObject
+            {
+                ["type"] = "object",
+                ["properties"] = new JsonObject()
+            };
+
         var inputSchema = JsonSchemaBuilder.Build(def.ReqDtoType, serializerOptions);
         NormalizeRootObjectSchema(inputSchema);
         EnsureObjectRootSchema(inputSchema, toolName, def.ReqDtoType, "input", "arguments");

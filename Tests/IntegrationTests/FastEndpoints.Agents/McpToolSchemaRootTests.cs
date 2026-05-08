@@ -28,6 +28,21 @@ public class McpToolSchemaRootTests
     }
 
     [Fact]
+    public async Task No_request_endpoint_uses_empty_object_input_schema()
+    {
+        using var provider = BuildServices(typeof(NoRequestEndpoint));
+        SetUser(provider, true);
+
+        var tool = BuildTool(provider, "no_request");
+        var result = await tool.InvokeAsync(BuildRequestContext(provider, tool, []), CancellationToken.None);
+
+        tool.ProtocolTool.InputSchema.GetProperty("type").GetString().ShouldBe("object");
+        tool.ProtocolTool.InputSchema.GetProperty("properties").EnumerateObject().ShouldBeEmpty();
+        result.StructuredContent.HasValue.ShouldBeTrue();
+        result.StructuredContent.Value.GetProperty("Value").GetString().ShouldBe("no-request");
+    }
+
+    [Fact]
     public async Task Object_request_array_response_uses_text_only_results()
     {
         using var provider = BuildServices(
@@ -103,6 +118,9 @@ public class McpToolSchemaRootTests
 
         foreach (var def in provider.GetRequiredService<EndpointData>().Found)
         {
+            if (def.EndpointType == typeof(NoRequestEndpoint))
+                def.McpTool("no_request");
+
             if (def.EndpointType == typeof(ObjectToStringEndpoint))
                 def.McpTool("object_to_string");
 
@@ -120,6 +138,13 @@ public class McpToolSchemaRootTests
         }
 
         return provider;
+    }
+
+    [HttpPost("/mcp-schema-root/no-request")]
+    sealed class NoRequestEndpoint : EndpointWithoutRequest<ObjectResponse>
+    {
+        public override Task HandleAsync(CancellationToken ct)
+            => Send.OkAsync(new() { Value = "no-request" }, ct);
     }
 
     static McpServerTool BuildTool(IServiceProvider provider, string name)

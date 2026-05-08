@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Http;
 using FastEndpoints.Mcp;
 using ModelContextProtocol.Protocol;
@@ -101,6 +102,36 @@ public class McpToolDescriptorTests
         ((TextContentBlock)result.Content[0]).Text.ShouldContain("visible:ping");
     }
 
+    [Fact]
+    public async Task Endpoint_serializer_context_controls_tool_schemas_and_invocation_payloads()
+    {
+        using var provider = BuildServices();
+        SetUser(provider, true);
+
+        var snakeTool = BuildTool(provider, "snake_context_tool");
+        var kebabTool = BuildTool(provider, "kebab_context_tool");
+
+        var snakeInputProps = snakeTool.ProtocolTool.InputSchema.GetProperty("properties");
+        var snakeOutputProps = snakeTool.ProtocolTool.OutputSchema!.Value.GetProperty("properties");
+        snakeInputProps.TryGetProperty("request_value", out _).ShouldBeTrue();
+        snakeOutputProps.TryGetProperty("response_value", out _).ShouldBeTrue();
+
+        var kebabInputProps = kebabTool.ProtocolTool.InputSchema.GetProperty("properties");
+        var kebabOutputProps = kebabTool.ProtocolTool.OutputSchema!.Value.GetProperty("properties");
+        kebabInputProps.TryGetProperty("request-value", out _).ShouldBeTrue();
+        kebabOutputProps.TryGetProperty("response-value", out _).ShouldBeTrue();
+
+        var snakeResult = await snakeTool.InvokeAsync(
+            BuildRequestContext(provider, snakeTool, authenticated: true, new() { ["request_value"] = JsonSerializer.SerializeToElement("snake") }),
+            CancellationToken.None);
+        var kebabResult = await kebabTool.InvokeAsync(
+            BuildRequestContext(provider, kebabTool, authenticated: true, new() { ["request-value"] = JsonSerializer.SerializeToElement("kebab") }),
+            CancellationToken.None);
+
+        snakeResult.StructuredContent!.Value.GetProperty("response_value").GetString().ShouldBe("snake");
+        kebabResult.StructuredContent!.Value.GetProperty("response-value").GetString().ShouldBe("kebab");
+    }
+
     static ServiceProvider BuildServices(Action<McpOptions>? configure = null)
     {
         Factory.RegisterTestServices(
@@ -120,6 +151,8 @@ public class McpToolDescriptorTests
                 o.SourceGeneratorDiscoveredTypes.Add(typeof(AttributeToolEndpoint));
                 o.SourceGeneratorDiscoveredTypes.Add(typeof(AttributeFalseToolEndpoint));
                 o.SourceGeneratorDiscoveredTypes.Add(typeof(AttributeOmittedHintsToolEndpoint));
+                o.SourceGeneratorDiscoveredTypes.Add(typeof(SnakeCaseContextToolEndpoint));
+                o.SourceGeneratorDiscoveredTypes.Add(typeof(KebabCaseContextToolEndpoint));
             });
         services.AddMcp(
             o =>
@@ -146,6 +179,18 @@ public class McpToolDescriptorTests
                         info.Hints.OpenWorld = false;
                     });
             }
+
+            if (def.EndpointType == typeof(SnakeCaseContextToolEndpoint))
+            {
+                def.SerializerContext = SnakeCaseMcpJsonContext.Default;
+                def.McpTool("snake_context_tool");
+            }
+
+            if (def.EndpointType == typeof(KebabCaseContextToolEndpoint))
+            {
+                def.SerializerContext = KebabCaseMcpJsonContext.Default;
+                def.McpTool("kebab_context_tool");
+            }
         }
 
         return provider;
@@ -154,13 +199,16 @@ public class McpToolDescriptorTests
     static McpServerTool BuildTool(IServiceProvider provider, string name)
         => provider.GetRequiredService<EndpointMcpToolSource>().BuildTools().Single(t => t.ProtocolTool.Name == name);
 
-    static RequestContext<CallToolRequestParams> BuildRequestContext(IServiceProvider provider, McpServerTool tool, bool authenticated)
+    static RequestContext<CallToolRequestParams> BuildRequestContext(IServiceProvider provider,
+                                                                     McpServerTool tool,
+                                                                     bool authenticated,
+                                                                     Dictionary<string, JsonElement>? arguments = null)
     {
         var user = authenticated
                        ? new ClaimsPrincipal(new ClaimsIdentity([new("sub", "caller")], "test"))
                        : new ClaimsPrincipal(new ClaimsIdentity());
 
-        return McpToolVisibilityTests_Bridge.BuildRequestContext(provider, tool, user);
+        return McpToolVisibilityTests_Bridge.BuildCallRequestContext(provider, tool.ProtocolTool.Name, user, arguments, tool);
     }
 
     static void SetUser(IServiceProvider provider, bool authenticated)
@@ -214,7 +262,41 @@ public class McpToolDescriptorTests
     {
         public string? Value { get; set; }
     }
+
+    [HttpPost("/descriptor-tool/snake-context")]
+    sealed class SnakeCaseContextToolEndpoint : Endpoint<SerializerContextToolRequest, SerializerContextToolResponse>
+    {
+        public override Task HandleAsync(SerializerContextToolRequest req, CancellationToken ct)
+            => Send.OkAsync(new() { ResponseValue = req.RequestValue }, ct);
+    }
+
+    [HttpPost("/descriptor-tool/kebab-context")]
+    sealed class KebabCaseContextToolEndpoint : Endpoint<SerializerContextToolRequest, SerializerContextToolResponse>
+    {
+        public override Task HandleAsync(SerializerContextToolRequest req, CancellationToken ct)
+            => Send.OkAsync(new() { ResponseValue = req.RequestValue }, ct);
+    }
 }
+
+sealed class SerializerContextToolRequest
+{
+    public string RequestValue { get; set; } = "";
+}
+
+sealed class SerializerContextToolResponse
+{
+    public string? ResponseValue { get; set; }
+}
+
+[JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.SnakeCaseLower)]
+[JsonSerializable(typeof(SerializerContextToolRequest))]
+[JsonSerializable(typeof(SerializerContextToolResponse))]
+partial class SnakeCaseMcpJsonContext : JsonSerializerContext;
+
+[JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.KebabCaseLower)]
+[JsonSerializable(typeof(SerializerContextToolRequest))]
+[JsonSerializable(typeof(SerializerContextToolResponse))]
+partial class KebabCaseMcpJsonContext : JsonSerializerContext;
 
 static class McpToolVisibilityTests_Bridge
 {

@@ -1,5 +1,6 @@
 using System.Net;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using FluentValidation;
 using FastEndpoints.Mcp;
 
@@ -51,6 +52,17 @@ public class EndpointInvokerBindingTests
         result.ValidationFailures.Select(f => f.PropertyName).ShouldContain("CustomerId");
     }
 
+    [Fact]
+    public async Task Agent_invocation_accepts_endpoint_serializer_context_names_for_nested_query_values()
+    {
+        using var provider = BuildServices();
+
+        var result = await Invoke<SerializerContextQueryEndpoint>(provider, new { filter = new { child_value = "ok" } });
+
+        result.Status.ShouldBe(InvocationStatus.Success, result.Exception?.ToString() ?? string.Join(", ", result.ValidationFailures.Select(f => $"{f.PropertyName}:{f.ErrorMessage}")));
+        JsonDocument.Parse(result.Body).RootElement.GetProperty("value").GetString().ShouldBe("query-context:ok");
+    }
+
     static async Task<InvocationResult> Invoke<TEndpoint>(IServiceProvider provider, object args)
     {
         var definition = provider.GetRequiredService<EndpointData>().Found.Single(d => d.EndpointType == typeof(TEndpoint));
@@ -78,10 +90,16 @@ public class EndpointInvokerBindingTests
                 o.SourceGeneratorDiscoveredTypes.Add(typeof(RouteBoundEndpoint));
                 o.SourceGeneratorDiscoveredTypes.Add(typeof(QueryBoundEndpoint));
                 o.SourceGeneratorDiscoveredTypes.Add(typeof(RouteAndQueryReaderEndpoint));
+                o.SourceGeneratorDiscoveredTypes.Add(typeof(SerializerContextQueryEndpoint));
             });
         services.AddMcp(o => o.ToolVisibilityFilter = static (_, _, _) => true);
 
-        return services.BuildServiceProvider();
+        var provider = services.BuildServiceProvider();
+
+        provider.GetRequiredService<EndpointData>().Found.Single(d => d.EndpointType == typeof(SerializerContextQueryEndpoint)).SerializerContext =
+            AgentBindingSnakeCaseJsonContext.Default;
+
+        return provider;
     }
 
     [HttpGet("/agent-binding/routes/{customerId:int}")]
@@ -144,8 +162,32 @@ public class EndpointInvokerBindingTests
         public string BodyValue { get; set; } = "";
     }
 
-    sealed class BindingResponse
+    public sealed class BindingResponse
     {
         public string? Value { get; set; }
     }
+
+    [HttpGet("/agent-binding/serializer-context-query")]
+    sealed class SerializerContextQueryEndpoint : Endpoint<SerializerContextQueryRequest, BindingResponse>
+    {
+        public override Task HandleAsync(SerializerContextQueryRequest req, CancellationToken ct)
+            => Send.OkAsync(new() { Value = $"query-context:{req.Filter.ChildValue}" }, ct);
+    }
+
+    public sealed class SerializerContextQueryRequest
+    {
+        [FromQuery]
+        public SerializerContextQueryFilter Filter { get; set; } = new();
+    }
+
+    public sealed class SerializerContextQueryFilter
+    {
+        public string ChildValue { get; set; } = "";
+    }
 }
+
+[JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.SnakeCaseLower)]
+[JsonSerializable(typeof(EndpointInvokerBindingTests.SerializerContextQueryRequest))]
+[JsonSerializable(typeof(EndpointInvokerBindingTests.SerializerContextQueryFilter))]
+[JsonSerializable(typeof(EndpointInvokerBindingTests.BindingResponse))]
+partial class AgentBindingSnakeCaseJsonContext : JsonSerializerContext;

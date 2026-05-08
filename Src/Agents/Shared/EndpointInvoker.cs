@@ -84,8 +84,8 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
 
     static DefaultHttpContext BuildHttpContext(EndpointDefinition definition, JsonElement args, System.Security.Claims.ClaimsPrincipal? principal, IServiceProvider services)
     {
-        var serializerOptions = SerOpts.Options;
-        var request = BuildRequest(definition, args, serializerOptions);
+        var bindingSerializerOptions = definition.SerializerContext?.Options ?? SerOpts.Options;
+        var request = BuildRequest(definition, args, bindingSerializerOptions, SerOpts.Options);
         var ctx = new DefaultHttpContext { RequestServices = services };
 
         if (principal is not null)
@@ -133,7 +133,10 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
         return ctx;
     }
 
-    static AgentRequest BuildRequest(EndpointDefinition definition, JsonElement args, JsonSerializerOptions serializerOptions)
+    static AgentRequest BuildRequest(EndpointDefinition definition,
+                                     JsonElement args,
+                                     JsonSerializerOptions bindingSerializerOptions,
+                                     JsonSerializerOptions payloadSerializerOptions)
     {
         var verb = definition.Verbs.FirstOrDefault() ?? "POST";
         var routeTemplate = definition.Routes.FirstOrDefault();
@@ -168,7 +171,7 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
 
         foreach (var prop in definition.ReqDtoType.BindableProps())
         {
-            var spec = BuildPropertySpec(prop, definition, serializerOptions);
+            var spec = BuildPropertySpec(prop, definition, bindingSerializerOptions);
 
             if (!TryTakeArgValue(remainingArgs, spec, out var value, out var matchedKey))
                 continue;
@@ -208,7 +211,7 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
 
             if (spec.QueryKind is not QueryBindingKind.None)
             {
-                AddQueryValues(request.Query, spec.FieldName, value, prop.PropertyType, definition, serializerOptions);
+                AddQueryValues(request.Query, spec.QueryKind == QueryBindingKind.Complex ? string.Empty : spec.FieldName, value, prop.PropertyType, bindingSerializerOptions);
 
                 continue;
             }
@@ -223,7 +226,7 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
 
             if (preferQueryByDefault)
             {
-                AddQueryValues(request.Query, spec.FieldName, value, prop.PropertyType, definition, serializerOptions);
+                AddQueryValues(request.Query, spec.FieldName, value, prop.PropertyType, bindingSerializerOptions);
 
                 continue;
             }
@@ -243,7 +246,7 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
 
             if (preferQueryByDefault)
             {
-                AddQueryValues(request.Query, key, value, typeof(object), definition, serializerOptions);
+                AddQueryValues(request.Query, key, value, typeof(object), bindingSerializerOptions);
 
                 continue;
             }
@@ -251,7 +254,7 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
             bodyProps[key] = JsonNode.Parse(value.GetRawText());
         }
 
-        request.Body = fromBodyPayload ?? (bodyProps.Count > 0 ? JsonSerializer.SerializeToElement(bodyProps, serializerOptions) : null);
+        request.Body = fromBodyPayload ?? (bodyProps.Count > 0 ? JsonSerializer.SerializeToElement(bodyProps, payloadSerializerOptions) : null);
         request.Path = ResolvePath(definition, routeTemplate, request.RouteValues);
 
         return request;
@@ -351,7 +354,6 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
                                string key,
                                JsonElement value,
                                Type targetType,
-                               EndpointDefinition definition,
                                JsonSerializerOptions serializerOptions)
     {
         targetType = Nullable.GetUnderlyingType(targetType) ?? targetType;
@@ -376,7 +378,7 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
             foreach (var item in value.EnumerateArray())
             {
                 if (elementType.IsComplexType() && !elementType.IsCollection())
-                    AddQueryValues(query, $"{key}[{index++}]", item, elementType, definition, serializerOptions);
+                    AddQueryValues(query, $"{key}[{index++}]", item, elementType, serializerOptions);
                 else
                     query.Add(new(key, GetScalarValue(item)));
             }
@@ -401,12 +403,15 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
             if (!TryTakeArgValue(childArgs, childSpec, out var childValue, out _))
                 continue;
 
-            AddQueryValues(query, $"{key}.{childSpec.FieldName}", childValue, childProp.PropertyType, definition, serializerOptions);
+            AddQueryValues(query, CombineQueryKey(key, childSpec.FieldName), childValue, childProp.PropertyType, serializerOptions);
         }
 
         foreach (var (childKey, childValue) in childArgs)
-            AddQueryValues(query, $"{key}.{childKey}", childValue, typeof(object), definition, serializerOptions);
+            AddQueryValues(query, CombineQueryKey(key, childKey), childValue, typeof(object), serializerOptions);
     }
+
+    static string CombineQueryKey(string prefix, string key)
+        => string.IsNullOrEmpty(prefix) ? key : $"{prefix}.{key}";
 
     static PropertySpec BuildNestedPropertySpec(PropertyInfo prop, Type declaringType, JsonSerializerOptions serializerOptions)
     {

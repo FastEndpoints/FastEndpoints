@@ -71,7 +71,7 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
     static ToolCatalog BuildToolCatalog(IServiceProvider services, McpOptions options, ILogger<EndpointMcpToolSource> logger)
     {
         var endpointData = services.GetRequiredService<EndpointData>();
-        var serializerOptions = EnsureTypeInfoResolver(Config.SerOpts.Options);
+        var protocolSerializerOptions = EnsureTypeInfoResolver(Config.SerOpts.Options);
         var invoker = services.GetRequiredService<EndpointInvoker>();
 
         var tools = new List<ToolRegistration>();
@@ -86,7 +86,7 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
             if (options.ToolFilter is not null && !options.ToolFilter(def))
                 continue;
 
-            var tool = BuildTool(def, info, invoker, serializerOptions, services, options, logger);
+            var tool = BuildTool(def, info, invoker, ResolveSchemaSerializerOptions(def, protocolSerializerOptions), protocolSerializerOptions, services, options, logger);
             tools.Add(new(def, tool.ProtocolTool.Name, tool));
         }
 
@@ -129,7 +129,8 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
     static McpServerTool BuildTool(EndpointDefinition def,
                                    McpToolInfo info,
                                    EndpointInvoker invoker,
-                                   JsonSerializerOptions serializerOptions,
+                                   JsonSerializerOptions schemaSerializerOptions,
+                                   JsonSerializerOptions protocolSerializerOptions,
                                    IServiceProvider services,
                                    McpOptions options,
                                    ILogger<EndpointMcpToolSource> logger)
@@ -157,11 +158,11 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
                 def.EndpointType.Name);
         }
 
-        var inputSchema = BuildInputSchema(def, serializerOptions, name);
+        var inputSchema = BuildInputSchema(def, schemaSerializerOptions, name);
         if (TryResolveValidator(services, def) is { } validator)
             FluentValidationSchemaEnricher.Enrich(inputSchema, validator);
 
-        var outputSchema = TryBuildOutputSchema(def, serializerOptions, options);
+        var outputSchema = TryBuildOutputSchema(def, schemaSerializerOptions, options);
 
         var tool = McpServerTool.Create(
             async (RequestContext<CallToolRequestParams> ctx, CancellationToken ct) =>
@@ -173,7 +174,7 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
                     throw new McpException($"Tool '{name}' is not available for the current caller.");
 
                 var args = ctx.Params.Arguments is { } argMap
-                               ? JsonSerializer.SerializeToElement(argMap, serializerOptions)
+                               ? JsonSerializer.SerializeToElement(argMap, protocolSerializerOptions)
                                : _emptyArguments;
 
                 var result = await invoker.InvokeAsync(def, args, principal, ct);
@@ -197,11 +198,11 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
                 Destructive = info.Hints.Destructive,
                 OpenWorld = info.Hints.OpenWorld,
                 UseStructuredContent = outputSchema is not null,
-                OutputSchema = outputSchema is null ? null : JsonSerializer.SerializeToElement(outputSchema, serializerOptions),
-                SerializerOptions = serializerOptions
+                OutputSchema = outputSchema is null ? null : JsonSerializer.SerializeToElement(outputSchema, protocolSerializerOptions),
+                SerializerOptions = protocolSerializerOptions
             });
 
-        tool.ProtocolTool.InputSchema = JsonSerializer.SerializeToElement(inputSchema, serializerOptions);
+        tool.ProtocolTool.InputSchema = JsonSerializer.SerializeToElement(inputSchema, protocolSerializerOptions);
 
         return tool;
     }
@@ -327,6 +328,11 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
         => options.TypeInfoResolver is not null
                ? options
                : new JsonSerializerOptions(options) { TypeInfoResolver = new DefaultJsonTypeInfoResolver() };
+
+    static JsonSerializerOptions ResolveSchemaSerializerOptions(EndpointDefinition def, JsonSerializerOptions fallback)
+        => def.SerializerContext?.Options is { } options
+               ? EnsureTypeInfoResolver(options)
+               : fallback;
 
     static bool TryExtractStructuredContent(string text, out JsonElement structuredContent)
     {

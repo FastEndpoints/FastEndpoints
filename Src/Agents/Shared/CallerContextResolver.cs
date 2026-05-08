@@ -10,8 +10,8 @@ static class CallerContextResolver
                                                                                 ClaimsPrincipal? user = null,
                                                                                 HttpContext? httpContext = null)
     {
-        var principal = user ?? httpContext?.User ?? new ClaimsPrincipal();
         var resolvedHttpContext = httpContext ?? services.GetService<IHttpContextAccessor>()?.HttpContext ?? new DefaultHttpContext();
+        var principal = user ?? resolvedHttpContext.User ?? new ClaimsPrincipal();
 
         if (!ReferenceEquals(resolvedHttpContext.User, principal))
             resolvedHttpContext.User = principal;

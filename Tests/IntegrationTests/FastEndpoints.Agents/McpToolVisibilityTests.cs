@@ -99,6 +99,29 @@ public class McpToolVisibilityTests
         ex.Message.ShouldBe("Tool 'visible' is not available for the current caller.");
     }
 
+    [Fact]
+    public async Task Ambient_authenticated_http_context_user_can_list_tools_when_request_context_user_is_missing()
+    {
+        using var provider = BuildServices();
+        var principal = SetUser(provider, authenticated: true);
+
+        var result = await ListToolsWithoutRequestContextUser(provider);
+
+        result.Tools.Select(t => t.Name).ShouldBe(["visible"]);
+        provider.GetRequiredService<IHttpContextAccessor>().HttpContext!.User.ShouldBeSameAs(principal);
+    }
+
+    [Fact]
+    public async Task Ambient_authenticated_http_context_user_can_call_tool_when_request_context_user_is_missing()
+    {
+        using var provider = BuildServices();
+        SetUser(provider, authenticated: true);
+
+        var result = await CallToolWithoutRequestContextUser(provider, "visible");
+
+        ((TextContentBlock)result.Content[0]).Text.ShouldContain("visible:ping");
+    }
+
     static ServiceProvider BuildServices(Func<EndpointDefinition, ClaimsPrincipal, HttpContext, bool>? visibilityFilter = null)
     {
         Factory.RegisterTestServices(
@@ -151,6 +174,24 @@ public class McpToolVisibilityTests
         return await handler!(McpToolVisibilityTests_Bridge.BuildCallRequestContext(provider, toolName, BuildPrincipal(authenticated)), CancellationToken.None);
     }
 
+    static async Task<ListToolsResult> ListToolsWithoutRequestContextUser(IServiceProvider provider)
+    {
+        var options = provider.GetRequiredService<IOptions<McpServerOptions>>().Value;
+        var ctx = McpToolVisibilityTests_Bridge.BuildListRequestContext(provider, BuildPrincipal(authenticated: false));
+        ctx.User = null!;
+
+        return await options.Handlers.ListToolsHandler!(ctx, CancellationToken.None);
+    }
+
+    static async Task<CallToolResult> CallToolWithoutRequestContextUser(IServiceProvider provider, string toolName)
+    {
+        var options = provider.GetRequiredService<IOptions<McpServerOptions>>().Value;
+        var ctx = McpToolVisibilityTests_Bridge.BuildCallRequestContext(provider, toolName, BuildPrincipal(authenticated: false));
+        ctx.User = null!;
+
+        return await options.Handlers.CallToolHandler!(ctx, CancellationToken.None);
+    }
+
     static RequestContext<CallToolRequestParams> BuildRequestContext(IServiceProvider provider, McpServerTool tool, bool authenticated)
     {
         var user = BuildPrincipal(authenticated);
@@ -180,13 +221,17 @@ public class McpToolVisibilityTests
         return ctx;
     }
 
-    static void SetUser(IServiceProvider provider, bool authenticated)
+    static ClaimsPrincipal SetUser(IServiceProvider provider, bool authenticated)
     {
+        var principal = BuildPrincipal(authenticated);
+
         provider.GetRequiredService<IHttpContextAccessor>().HttpContext = new DefaultHttpContext
         {
             RequestServices = provider,
-            User = BuildPrincipal(authenticated)
+            User = principal
         };
+
+        return principal;
     }
 
     static ClaimsPrincipal BuildPrincipal(bool authenticated)

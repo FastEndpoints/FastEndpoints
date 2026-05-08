@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using FastEndpoints.Mcp;
 using ModelContextProtocol.Protocol;
@@ -132,18 +133,47 @@ public class McpToolDescriptorTests
         kebabResult.StructuredContent!.Value.GetProperty("response-value").GetString().ShouldBe("kebab");
     }
 
-    static ServiceProvider BuildServices(Action<McpOptions>? configure = null)
+    [Fact]
+    public void Validator_rules_apply_to_serializer_context_property_names()
+    {
+        using var provider = BuildServices();
+
+        var tool = BuildTool(provider, "validated_context_tool");
+        var inputSchema = tool.ProtocolTool.InputSchema;
+        var required = inputSchema.GetProperty("required").EnumerateArray().Select(x => x.GetString()).ToArray();
+        var valueSchema = inputSchema.GetProperty("properties").GetProperty("request_value");
+
+        required.ShouldContain("request_value");
+        valueSchema.GetProperty("minLength").GetInt32().ShouldBe(3);
+    }
+
+    [Fact]
+    public void Validator_schema_enrichment_supports_scoped_validator_dependencies()
+    {
+        using var provider = BuildServices(validateScopes: true);
+
+        var tool = BuildTool(provider, "scoped_validator_tool");
+        var required = tool.ProtocolTool.InputSchema.GetProperty("required").EnumerateArray().Select(x => x.GetString()).ToArray();
+
+        required.ShouldContain("Value");
+    }
+
+    static ServiceProvider BuildServices(Action<McpOptions>? configure = null, bool validateScopes = false)
     {
         Factory.RegisterTestServices(
             s =>
             {
                 s.AddSingleton(typeof(IRequestBinder<>), typeof(RequestBinder<>));
+                s.AddSingleton<IValidator<SerializerContextToolRequest>, SerializerContextToolRequestValidator>();
+                s.AddScoped<ScopedValidatorDependency>();
+                s.AddScoped<IValidator<ScopedValidatorToolRequest>, ScopedValidatorToolRequestValidator>();
             });
 
         var services = new ServiceCollection();
 
         services.AddLogging();
         services.AddHttpContextAccessor();
+        services.AddScoped<ScopedValidatorDependency>();
         services.AddFastEndpoints(
             o =>
             {
@@ -153,6 +183,10 @@ public class McpToolDescriptorTests
                 o.SourceGeneratorDiscoveredTypes.Add(typeof(AttributeOmittedHintsToolEndpoint));
                 o.SourceGeneratorDiscoveredTypes.Add(typeof(SnakeCaseContextToolEndpoint));
                 o.SourceGeneratorDiscoveredTypes.Add(typeof(KebabCaseContextToolEndpoint));
+                o.SourceGeneratorDiscoveredTypes.Add(typeof(ValidatedContextToolEndpoint));
+                o.SourceGeneratorDiscoveredTypes.Add(typeof(SerializerContextToolRequestValidator));
+                o.SourceGeneratorDiscoveredTypes.Add(typeof(ScopedValidatorToolEndpoint));
+                o.SourceGeneratorDiscoveredTypes.Add(typeof(ScopedValidatorToolRequestValidator));
             });
         services.AddMcp(
             o =>
@@ -161,7 +195,7 @@ public class McpToolDescriptorTests
                 configure?.Invoke(o);
             });
 
-        var provider = services.BuildServiceProvider();
+        var provider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateScopes = validateScopes });
 
         foreach (var def in provider.GetRequiredService<EndpointData>().Found)
         {
@@ -191,6 +225,15 @@ public class McpToolDescriptorTests
                 def.SerializerContext = KebabCaseMcpJsonContext.Default;
                 def.McpTool("kebab_context_tool");
             }
+
+            if (def.EndpointType == typeof(ValidatedContextToolEndpoint))
+            {
+                def.SerializerContext = SnakeCaseMcpJsonContext.Default;
+                def.McpTool("validated_context_tool");
+            }
+
+            if (def.EndpointType == typeof(ScopedValidatorToolEndpoint))
+                def.McpTool("scoped_validator_tool");
         }
 
         return provider;
@@ -276,6 +319,37 @@ public class McpToolDescriptorTests
         public override Task HandleAsync(SerializerContextToolRequest req, CancellationToken ct)
             => Send.OkAsync(new() { ResponseValue = req.RequestValue }, ct);
     }
+
+    [HttpPost("/descriptor-tool/validated-context")]
+    sealed class ValidatedContextToolEndpoint : Endpoint<SerializerContextToolRequest, SerializerContextToolResponse>
+    {
+        public override Task HandleAsync(SerializerContextToolRequest req, CancellationToken ct)
+            => Send.OkAsync(new() { ResponseValue = req.RequestValue }, ct);
+    }
+
+    [HttpPost("/descriptor-tool/scoped-validator")]
+    sealed class ScopedValidatorToolEndpoint : Endpoint<ScopedValidatorToolRequest, ToolResponse>
+    {
+        public override Task HandleAsync(ScopedValidatorToolRequest req, CancellationToken ct)
+            => Send.OkAsync(new() { Value = req.Value }, ct);
+    }
+
+    sealed class ScopedValidatorToolRequest
+    {
+        public string Value { get; set; } = "";
+    }
+
+    sealed class ScopedValidatorToolRequestValidator : Validator<ScopedValidatorToolRequest>
+    {
+        public ScopedValidatorToolRequestValidator(ScopedValidatorDependency dependency)
+        {
+            _ = dependency;
+
+            RuleFor(x => x.Value).NotEmpty();
+        }
+    }
+
+    sealed class ScopedValidatorDependency;
 }
 
 sealed class SerializerContextToolRequest
@@ -286,6 +360,14 @@ sealed class SerializerContextToolRequest
 sealed class SerializerContextToolResponse
 {
     public string? ResponseValue { get; set; }
+}
+
+sealed class SerializerContextToolRequestValidator : Validator<SerializerContextToolRequest>
+{
+    public SerializerContextToolRequestValidator()
+    {
+        RuleFor(x => x.RequestValue).NotEmpty().MinimumLength(3);
+    }
 }
 
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.SnakeCaseLower)]

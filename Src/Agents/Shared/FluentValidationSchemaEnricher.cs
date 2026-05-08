@@ -1,4 +1,6 @@
 using System.Collections.Concurrent;
+using System.Reflection;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using FluentValidation;
 using FluentValidation.Validators;
@@ -24,6 +26,9 @@ static class FluentValidationSchemaEnricher
     /// endpoint validation pipeline.
     /// </summary>
     public static void Enrich(JsonNode schema, IValidator validator)
+        => Enrich(schema, validator, null, null);
+
+    public static void Enrich(JsonNode schema, IValidator validator, Type? dtoType, JsonSerializerOptions? serializerOptions)
     {
         if (schema is not JsonObject root)
             return;
@@ -35,10 +40,15 @@ static class FluentValidationSchemaEnricher
 
         var props = root["properties"] as JsonObject;
         var required = root["required"] as JsonArray;
+        var propertyNames = dtoType is not null && serializerOptions is not null
+                                ? BuildPropertyNameMap(dtoType, serializerOptions)
+                                : null;
 
         foreach (var (propertyName, propValidator) in rules)
         {
-            if (props is null || props[propertyName] is not JsonObject propSchema)
+            var schemaPropertyName = ResolveSchemaPropertyName(propertyName, propertyNames);
+
+            if (props is null || props[schemaPropertyName] is not JsonObject propSchema)
                 continue;
 
             switch (propValidator)
@@ -49,7 +59,7 @@ static class FluentValidationSchemaEnricher
 
                     foreach (var r in required)
                     {
-                        if (r?.GetValue<string>() == propertyName)
+                        if (r?.GetValue<string>() == schemaPropertyName)
                         {
                             alreadyRequired = true;
 
@@ -57,7 +67,7 @@ static class FluentValidationSchemaEnricher
                         }
                     }
                     if (!alreadyRequired)
-                        required.Add(propertyName);
+                        required.Add(schemaPropertyName);
 
                     break;
 
@@ -142,4 +152,38 @@ static class FluentValidationSchemaEnricher
 
                 return list.ToArray();
             });
+
+    static IReadOnlyDictionary<string, string> BuildPropertyNameMap(Type dtoType, JsonSerializerOptions serializerOptions)
+    {
+        var typeInfo = serializerOptions.TypeInfoResolver?.GetTypeInfo(dtoType, serializerOptions);
+        var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+        if (typeInfo is not null)
+        {
+            foreach (var jsonProp in typeInfo.Properties)
+            {
+                if (jsonProp.AttributeProvider is PropertyInfo prop)
+                    map[prop.Name] = jsonProp.Name;
+            }
+        }
+
+        foreach (var prop in dtoType.BindableProps())
+            map.TryAdd(prop.Name, prop.FieldName());
+
+        return map;
+    }
+
+    static string ResolveSchemaPropertyName(string validationPropertyName, IReadOnlyDictionary<string, string>? propertyNames)
+    {
+        if (propertyNames is null)
+            return validationPropertyName;
+
+        var delimiter = validationPropertyName.IndexOfAny(['.', '[']);
+        var rootPropertyName = delimiter < 0 ? validationPropertyName : validationPropertyName[..delimiter];
+
+        if (!propertyNames.TryGetValue(rootPropertyName, out var schemaPropertyName))
+            return validationPropertyName;
+
+        return delimiter < 0 ? schemaPropertyName : schemaPropertyName + validationPropertyName[delimiter..];
+    }
 }

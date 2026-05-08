@@ -159,8 +159,7 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
         }
 
         var inputSchema = BuildInputSchema(def, schemaSerializerOptions, name);
-        if (TryResolveValidator(services, def) is { } validator)
-            FluentValidationSchemaEnricher.Enrich(inputSchema, validator);
+        EnrichInputSchemaWithValidation(inputSchema, def, schemaSerializerOptions, services);
 
         var outputSchema = TryBuildOutputSchema(def, schemaSerializerOptions, options);
 
@@ -348,12 +347,20 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
         return false;
     }
 
-    static IValidator? TryResolveValidator(IServiceProvider services, EndpointDefinition def)
+    static void EnrichInputSchemaWithValidation(JsonNode inputSchema, EndpointDefinition def, JsonSerializerOptions serializerOptions, IServiceProvider services)
     {
         if (def.ValidatorType is null)
-            return null;
+            return;
 
-        return services.GetService(def.ValidatorType) as IValidator ?? (IValidator?)ActivatorUtilities.CreateInstance(services, def.ValidatorType);
+        using var scope = services.CreateScope();
+
+        if (TryResolveValidator(scope.ServiceProvider, def.ValidatorType) is { } validator)
+            FluentValidationSchemaEnricher.Enrich(inputSchema, validator, def.ReqDtoType, serializerOptions);
+    }
+
+    static IValidator? TryResolveValidator(IServiceProvider services, Type validatorType)
+    {
+        return services.GetService(validatorType) as IValidator ?? (IValidator?)ActivatorUtilities.CreateInstance(services, validatorType);
     }
 
     sealed record ToolRegistration(EndpointDefinition Definition, string Name, McpServerTool Tool);

@@ -71,12 +71,35 @@ public class EndpointInvokerExecutionSemanticsTests
         provider.GetRequiredService<InvocationProbe>().AsyncDisposableDisposed.ShouldBeTrue();
     }
 
-    static async Task<InvocationResult> Invoke<TEndpoint>(IServiceProvider provider, object args)
+    [Fact]
+    public async Task Agent_invocation_exposes_cancellation_token_as_request_aborted()
+    {
+        using var provider = BuildServices(typeof(RequestAbortedEndpoint));
+        using var cts = new CancellationTokenSource();
+        provider.GetRequiredService<InvocationProbe>().ExpectedRequestAborted = cts.Token;
+
+        var result = await Invoke<RequestAbortedEndpoint>(provider, new { }, cts.Token);
+
+        result.Status.ShouldBe(InvocationStatus.Success);
+        provider.GetRequiredService<InvocationProbe>().RequestAbortedMatchesInvocationToken.ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task Agent_invocation_propagates_endpoint_cancellation()
+    {
+        using var provider = BuildServices(typeof(CancelledEndpoint));
+        using var cts = new CancellationTokenSource();
+        cts.Cancel();
+
+        await Should.ThrowAsync<OperationCanceledException>(async () => await Invoke<CancelledEndpoint>(provider, new { }, cts.Token));
+    }
+
+    static async Task<InvocationResult> Invoke<TEndpoint>(IServiceProvider provider, object args, CancellationToken ct = default)
     {
         var definition = provider.GetRequiredService<EndpointData>().Found.Single(d => d.EndpointType == typeof(TEndpoint));
         var invoker = provider.GetRequiredService<EndpointInvoker>();
 
-        return await invoker.InvokeAsync(definition, JsonSerializer.SerializeToElement(args), null, CancellationToken.None);
+        return await invoker.InvokeAsync(definition, JsonSerializer.SerializeToElement(args), null, ct);
     }
 
     static ServiceProvider BuildServices(params Type[] endpointTypes)
@@ -111,6 +134,8 @@ public class EndpointInvokerExecutionSemanticsTests
         public string? ResponseHeaderSeen { get; set; }
         public bool DisposableDisposed { get; set; }
         public bool AsyncDisposableDisposed { get; set; }
+        public CancellationToken ExpectedRequestAborted { get; set; }
+        public bool RequestAbortedMatchesInvocationToken { get; set; }
     }
 
     sealed class TestHttpContextAccessor : IHttpContextAccessor
@@ -190,6 +215,28 @@ public class EndpointInvokerExecutionSemanticsTests
             probe.AsyncDisposableDisposed = true;
 
             return ValueTask.CompletedTask;
+        }
+    }
+
+    [HttpPost("/agent-semantics/request-aborted")]
+    sealed class RequestAbortedEndpoint(InvocationProbe probe) : EndpointWithoutRequest<TestResponse>
+    {
+        public override Task HandleAsync(CancellationToken ct)
+        {
+            probe.RequestAbortedMatchesInvocationToken = HttpContext.RequestAborted.Equals(probe.ExpectedRequestAborted);
+
+            return Send.OkAsync(new() { Value = "ok" }, ct);
+        }
+    }
+
+    [HttpPost("/agent-semantics/cancelled")]
+    sealed class CancelledEndpoint : EndpointWithoutRequest<TestResponse>
+    {
+        public override Task HandleAsync(CancellationToken ct)
+        {
+            ct.ThrowIfCancellationRequested();
+
+            return Send.OkAsync(new() { Value = "ignored" }, ct);
         }
     }
 }

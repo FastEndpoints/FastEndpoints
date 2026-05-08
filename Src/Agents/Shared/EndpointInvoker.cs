@@ -33,7 +33,7 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
     public async Task<InvocationResult> InvokeAsync(EndpointDefinition definition, JsonElement args, System.Security.Claims.ClaimsPrincipal? principal, CancellationToken ct)
     {
         using var scope = scopeFactory.CreateScope();
-        var httpContext = BuildHttpContext(definition, args, principal, scope.ServiceProvider);
+        var httpContext = BuildHttpContext(definition, args, principal, scope.ServiceProvider, ct);
         var endpoint = EndpointBootstrap.CreateEndpoint(httpContext, definition);
         var accessor = scope.ServiceProvider.GetService<IHttpContextAccessor>();
         var resolverAccessor = FastEndpoints.HttpContextExtensions.TryResolve<IHttpContextAccessor>(httpContext);
@@ -48,6 +48,10 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
                 resolverAccessor.HttpContext = httpContext;
 
             await endpoint.ExecAsync(ct);
+        }
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception ex)
         {
@@ -82,7 +86,11 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
                    : InvocationResult.HttpError(httpContext.Response.StatusCode, httpContext.Response.ContentType, payload);
     }
 
-    static DefaultHttpContext BuildHttpContext(EndpointDefinition definition, JsonElement args, System.Security.Claims.ClaimsPrincipal? principal, IServiceProvider services)
+    static DefaultHttpContext BuildHttpContext(EndpointDefinition definition,
+                                               JsonElement args,
+                                               System.Security.Claims.ClaimsPrincipal? principal,
+                                               IServiceProvider services,
+                                               CancellationToken ct)
     {
         var bindingSerializerOptions = definition.SerializerContext?.Options ?? SerOpts.Options;
         var request = BuildRequest(definition, args, bindingSerializerOptions, SerOpts.Options);
@@ -105,6 +113,7 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
 
         ctx.Request.Body = requestBody;
         ctx.Request.ContentLength = requestBody.Length;
+        ctx.RequestAborted = ct;
         ctx.Request.Method = request.Method;
         ctx.Request.Path = request.Path;
         var routeValues = new RouteValueDictionary(request.RouteValues);

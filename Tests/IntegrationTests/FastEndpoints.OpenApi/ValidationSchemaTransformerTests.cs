@@ -112,6 +112,32 @@ public class ValidationSchemaTransformerTests
     }
 
     [Fact]
+    public void validator_does_not_inline_referenced_leaf_schema_without_applicable_rules()
+    {
+        var document = new OpenApiDocument
+        {
+            Components = new()
+            {
+                Schemas = new Dictionary<string, IOpenApiSchema>
+                {
+                    ["EnumRuleValue"] = new OpenApiSchema { Type = JsonSchemaType.String }
+                }
+            }
+        };
+        var schema = new OpenApiSchema
+        {
+            Properties = new Dictionary<string, IOpenApiSchema>
+            {
+                ["test"] = new OpenApiSchemaReference("EnumRuleValue", document)
+            }
+        };
+
+        ApplyValidatorToSchema(schema, new EnumRuleValidator(), localizeReferencedSchemas: true);
+
+        schema.Properties["test"].ShouldBeOfType<OpenApiSchemaReference>();
+    }
+
+    [Fact]
     public void cyclic_included_validators_do_not_recurse_forever_when_rules_are_cached()
     {
         var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
@@ -145,14 +171,17 @@ public class ValidationSchemaTransformerTests
         return includedRules.Length;
     }
 
-    static void ApplyValidatorToSchema(OpenApiSchema schema, IValidator validator)
+    static void ApplyValidatorToSchema(OpenApiSchema schema, IValidator validator, bool localizeReferencedSchemas = false)
     {
-        var applierType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
-                                                                  .GetType("FastEndpoints.OpenApi.ValidationSchemaTransformer+ValidationSchemaApplier", throwOnError: true)!;
-        var rules = typeof(FastEndpoints.OpenApi.Extensions).Assembly
-                                                            .GetType("FastEndpoints.OpenApi.ValidationRuleCatalog", throwOnError: true)!
-                                                            .GetField("DefaultRules", BindingFlags.NonPublic | BindingFlags.Static)!
-                                                            .GetValue(null)!;
+        var applierType = typeof(FastEndpoints.OpenApi.Extensions)
+                          .Assembly
+                          .GetType("FastEndpoints.OpenApi.ValidationSchemaApplier", throwOnError: true)!;
+
+        var rules = typeof(FastEndpoints.OpenApi.Extensions)
+                    .Assembly
+                    .GetType("FastEndpoints.OpenApi.ValidationRuleCatalog", throwOnError: true)!
+                    .GetField("DefaultRules", BindingFlags.NonPublic | BindingFlags.Static)!
+                    .GetValue(null)!;
         var resolver = new TestServiceResolver();
         using var applier = (IDisposable)Activator.CreateInstance(
             applierType,
@@ -166,11 +195,13 @@ public class ValidationSchemaTransformerTests
                 (Func<IServiceScope>)(() => resolver.CreateScope()),
                 rules,
                 true,
-                false
+                "GET:/test",
+                "requestBody",
+                localizeReferencedSchemas
             ],
             culture: null)!;
 
-        applierType.GetMethod("ApplyValidator", BindingFlags.Instance | BindingFlags.Public)!
+        applierType.GetMethod("ApplyValidator", BindingFlags.Instance | BindingFlags.NonPublic)!
                    .Invoke(applier, [schema, validator, string.Empty, new HashSet<Type>()]);
     }
 
@@ -224,6 +255,25 @@ public class ValidationSchemaTransformerTests
         {
             RuleFor(x => x.IndexedItems).NotEmpty().OverridePropertyName("IndexedItems[0].ProductName");
         }
+    }
+
+    sealed class EnumRuleRequest
+    {
+        public EnumRuleValue Test { get; init; }
+    }
+
+    sealed class EnumRuleValidator : Validator<EnumRuleRequest>
+    {
+        public EnumRuleValidator()
+        {
+            RuleFor(x => x.Test).IsInEnum();
+        }
+    }
+
+    enum EnumRuleValue
+    {
+        First,
+        Second
     }
 
     sealed class NamingPolicyCacheRequest

@@ -1,11 +1,8 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.OpenApi;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
 
 namespace FastEndpoints.OpenApi;
@@ -59,7 +56,7 @@ public static class Extensions
                 apiOptions.AddSchemaTransformer<UniqueItemsSchemaTransformer>();
                 apiOptions.AddSchemaTransformer(new HiddenPropertySchemaTransformer(opts, sharedCtx));
                 apiOptions.AddSchemaTransformer(new ToHeaderPropertySchemaTransformer(opts, sharedCtx));
-                apiOptions.AddSchemaTransformer<EnumSchemaTransformer>();
+                apiOptions.AddSchemaTransformer(new EnumSchemaTransformer(sharedCtx));
 
                 if (opts.UseOneOfForPolymorphism)
                     apiOptions.AddSchemaTransformer(new PolymorphismSchemaTransformer(opts));
@@ -144,64 +141,13 @@ public static class Extensions
     /// </code>
     /// </para>
     /// <para>
-    /// to force generate openapi docs outside a AOT publish, run the following in a terminal:
+    /// to force generate openapi docs outside an AOT publish, run the following in a terminal:
     /// <code>dotnet run --export-openapi-docs true -p:PublishAot=false</code>
     /// optionally specify the output folder:
     /// <code>dotnet run --export-openapi-docs true -p:PublishAot=false -p:OpenApiExportPath=wwwroot/openapi</code>
     /// </para>
     /// </summary>
     /// <param name="documentNames">the openapi document names to export. these must match the names used in <c>.OpenApiDocument()</c> configuration.</param>
-    public static async Task ExportOpenApiDocsAndExitAsync(this WebApplication app, params string[] documentNames)
-    {
-        if (app.IsNotJsonExportMode())
-            return;
-
-        if (documentNames.Length == 0)
-            return;
-
-        var destinationPath = Path.Combine(app.Environment.ContentRootPath, DocumentOptions.OpenApiExportPath);
-        var logger = app.Services.GetRequiredService<ILogger<OpenApiExportRunner>>();
-
-        await app.StartAsync();
-        var exportFailed = false;
-
-        try
-        {
-            Directory.CreateDirectory(destinationPath);
-
-            foreach (var docName in documentNames)
-            {
-                try
-                {
-                    logger.ExportingOpenApiDoc(docName);
-                    var filePath = await ExportOpenApiDocument(app, docName, destinationPath, CancellationToken.None);
-                    logger.OpenApiDocExportSuccessful(docName, filePath);
-                }
-                catch (Exception ex)
-                {
-                    exportFailed = true;
-                    logger.OpenApiDocExportFailed(ex, docName);
-                }
-            }
-        }
-        finally
-        {
-            await app.StopAsync();
-        }
-
-        Environment.Exit(exportFailed ? 1 : 0);
-    }
-
-    static async Task<string> ExportOpenApiDocument(WebApplication app, string documentName, string destinationPath, CancellationToken ct)
-    {
-        var provider = app.Services.GetRequiredKeyedService<IOpenApiDocumentProvider>(documentName);
-        var openApiVersion = app.Services.GetRequiredService<IOptionsMonitor<OpenApiOptions>>().Get(documentName).OpenApiVersion;
-        var doc = await provider.GetOpenApiDocumentAsync(ct);
-        var json = await doc.SerializeAsJsonAsync(openApiVersion, ct);
-        var filePath = Path.Combine(destinationPath, $"{documentName}.json");
-
-        await File.WriteAllTextAsync(filePath, json, ct);
-
-        return filePath;
-    }
+    public static Task ExportOpenApiDocsAndExitAsync(this WebApplication app, params string[] documentNames)
+        => OpenApiExporter.ExportDocsAndExitAsync(app, documentNames);
 }

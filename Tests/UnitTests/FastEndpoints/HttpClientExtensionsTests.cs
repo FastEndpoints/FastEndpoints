@@ -1,4 +1,5 @@
 using FastEndpoints;
+using Microsoft.AspNetCore.Http;
 using RichardSzalay.MockHttp;
 using Web.Auth;
 using Xunit;
@@ -137,6 +138,97 @@ public class HttpClientExtensionsTests
         Should.Throw<ArgumentException>(() => http.GetTestUrlFor<DateTimeQueryParamEndpoint>(new NullParamRequest()))
               .Message.ShouldBe("The request object is not the correct DTO type for the endpoint!");
     }
+
+    [Fact]
+    public async Task SendAsFormDataHonorsBindingSourceMetadata()
+    {
+        var handler = new MultipartCaptureHandler();
+        var http = new HttpClient(handler) { BaseAddress = new("http://localhost") };
+
+        await http.SENDAsync<MultipartBindingSourceRequest, EmptyResponse>(
+            HttpMethod.Post,
+            "api/test",
+            new()
+            {
+                Normal = "normal",
+                ExplicitFormField = "form-field",
+                Route = "route",
+                Query = "query",
+                RequiredHeader = "header",
+                RequiredCookie = "cookie",
+                RequiredClaim = "claim",
+                RequiredPermission = true,
+                Promoted = new()
+                {
+                    Normal = "promoted-normal",
+                    ExplicitFormField = "promoted-form-field",
+                    Route = "promoted-route",
+                    Query = "promoted-query",
+                    RequiredHeader = "promoted-header",
+                    RequiredCookie = "promoted-cookie",
+                    RequiredClaim = "promoted-claim",
+                    RequiredPermission = true
+                }
+            },
+            sendAsFormData: true);
+
+        handler.FieldNames.OrderBy(n => n).ShouldBe(
+        [
+            nameof(MultipartBindingSourceRequest.ExplicitFormField),
+            nameof(MultipartPromotedBindingSourceRequest.ExplicitFormField),
+            nameof(MultipartBindingSourceRequest.Normal),
+            nameof(MultipartPromotedBindingSourceRequest.Normal)
+        ]);
+    }
+
+    [Fact]
+    public async Task SendAsFormDataOnlyPromotesFromFormOnRootRequestDto()
+    {
+        var handler = new MultipartCaptureHandler();
+        var http = new HttpClient(handler) { BaseAddress = new("http://localhost") };
+
+        await http.SENDAsync<MultipartRootPromotionRequest, EmptyResponse>(
+            HttpMethod.Post,
+            "api/test",
+            new()
+            {
+                Form = new()
+                {
+                    Name = "root",
+                    Child = new()
+                    {
+                        Name = "child",
+                        File = CreateFile("child-file.png"),
+                        Files = new FormFileCollection { CreateFile("child-files.png") }
+                    },
+                    Items =
+                    [
+                        new() { Name = "item" }
+                    ]
+                }
+            },
+            sendAsFormData: true);
+
+        handler.FieldNames.OrderBy(n => n).ShouldBe(
+        [
+            "Child.File",
+            "Child.Files",
+            "Child.Name",
+            "Items[0].Name",
+            "Name"
+        ]);
+
+        static FormFile CreateFile(string fileName)
+        {
+            var stream = new MemoryStream([1]);
+
+            return new(stream, 0, stream.Length, fileName, fileName)
+            {
+                Headers = new HeaderDictionary(),
+                ContentType = "application/octet-stream"
+            };
+        }
+    }
 }
 
 file class HydratedRouteArgsEndpoint : Endpoint<Request>;
@@ -187,3 +279,105 @@ file class DateTimeParamRequest
 }
 
 file class HttpFallbackEndpoint : Endpoint<EmptyRequest>;
+
+file class MultipartBindingSourceRequest
+{
+    public string Normal { get; set; } = null!;
+
+    [FormField]
+    public string ExplicitFormField { get; set; } = null!;
+
+    [RouteParam]
+    public string Route { get; set; } = null!;
+
+    [QueryParam]
+    public string Query { get; set; } = null!;
+
+    [FromHeader]
+    public string RequiredHeader { get; set; } = null!;
+
+    [FromCookie]
+    public string RequiredCookie { get; set; } = null!;
+
+    [FromClaim]
+    public string RequiredClaim { get; set; } = null!;
+
+    [HasPermission(Allow.Customers_Create)]
+    public bool? RequiredPermission { get; set; }
+
+    [FromForm]
+    public MultipartPromotedBindingSourceRequest Promoted { get; set; } = null!;
+}
+
+file class MultipartPromotedBindingSourceRequest
+{
+    public string Normal { get; set; } = null!;
+
+    [FormField]
+    public string ExplicitFormField { get; set; } = null!;
+
+    [RouteParam]
+    public string Route { get; set; } = null!;
+
+    [QueryParam]
+    public string Query { get; set; } = null!;
+
+    [FromHeader]
+    public string RequiredHeader { get; set; } = null!;
+
+    [FromCookie]
+    public string RequiredCookie { get; set; } = null!;
+
+    [FromClaim]
+    public string RequiredClaim { get; set; } = null!;
+
+    [HasPermission(Allow.Customers_Create)]
+    public bool? RequiredPermission { get; set; }
+}
+
+file class MultipartRootPromotionRequest
+{
+    [FromForm]
+    public MultipartRootPromotionForm Form { get; set; } = null!;
+}
+
+file class MultipartRootPromotionForm
+{
+    public string Name { get; set; } = null!;
+
+    [FromForm]
+    public MultipartNestedFromFormChild Child { get; set; } = null!;
+
+    public List<MultipartRootPromotionItem> Items { get; set; } = [];
+}
+
+file class MultipartNestedFromFormChild
+{
+    public string Name { get; set; } = null!;
+
+    public IFormFile File { get; set; } = null!;
+
+    public IFormFileCollection Files { get; set; } = null!;
+}
+
+file class MultipartRootPromotionItem
+{
+    public string Name { get; set; } = null!;
+}
+
+file sealed class MultipartCaptureHandler : HttpMessageHandler
+{
+    public string[] FieldNames { get; private set; } = [];
+
+    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    {
+        request.Content.ShouldBeOfType<MultipartFormDataContent>();
+
+        FieldNames = ((MultipartFormDataContent)request.Content!)
+                     .Select(c => c.Headers.ContentDisposition?.Name?.Trim('"'))
+                     .Where(n => n is not null)
+                     .ToArray()!;
+
+        return Task.FromResult(new HttpResponseMessage(System.Net.HttpStatusCode.OK));
+    }
+}

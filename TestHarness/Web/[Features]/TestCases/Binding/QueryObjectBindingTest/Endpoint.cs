@@ -35,3 +35,21 @@ public class Endpoint : Endpoint<Request, Response>
         });
     }
 }
+
+public class CircularEndpoint : Endpoint<CircularRequest, CircularResponse>
+{
+    public override void Configure()
+    {
+        Get("/test-cases/circular-query-object-binding-test");
+        AllowAnonymous();
+    }
+
+    public override async Task HandleAsync(CircularRequest req, CancellationToken ct)
+    {
+        await Send.OkAsync(new CircularResponse
+        {
+            Name = req.Data.Name,
+            ChildName = req.Data.Child?.Name
+        });
+    }
+}

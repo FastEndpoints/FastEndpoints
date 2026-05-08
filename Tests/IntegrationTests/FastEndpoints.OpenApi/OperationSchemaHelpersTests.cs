@@ -4,12 +4,140 @@ using System.Text.Json.Nodes;
 using FastEndpoints;
 using FastEndpoints.OpenApi;
 using Microsoft.AspNetCore.Http.Metadata;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
 
 namespace OpenApi;
 
-public class OperationSchemaHelpersTests
+public class OperationSchemaHelpersTests : TestBase<Fixture>
 {
+    readonly JsonSerializerOptions _jsonSerializerOptions;
+
+    public OperationSchemaHelpersTests(Fixture app)
+    {
+        _jsonSerializerOptions = app.Services.GetRequiredService<IOptions<JsonSerializerOptions>>().Value;
+    }
+
+    [Fact]
+    public void schema_reference_collector_follows_components_and_nested_schema_members()
+    {
+        var document = new OpenApiDocument
+        {
+            Paths = new()
+            {
+                ["/collector"] = new OpenApiPathItem
+                {
+                    Operations = new()
+                    {
+                        [HttpMethod.Post] = new()
+                        {
+                            RequestBody = new OpenApiRequestBodyReference("ReusableRequest", null),
+                            Responses = new()
+                            {
+                                ["200"] = new OpenApiResponseReference("ReusableResponse", null)
+                            }
+                        }
+                    }
+                }
+            },
+            Components = new()
+            {
+                RequestBodies = new Dictionary<string, IOpenApiRequestBody>
+                {
+                    ["ReusableRequest"] = new OpenApiRequestBody
+                    {
+                        Content = new Dictionary<string, OpenApiMediaType>
+                        {
+                            ["application/json"] = new() { Schema = new OpenApiSchemaReference("RequestRoot") }
+                        }
+                    }
+                },
+                Responses = new Dictionary<string, IOpenApiResponse>
+                {
+                    ["ReusableResponse"] = new OpenApiResponse
+                    {
+                        Content = new Dictionary<string, OpenApiMediaType>
+                        {
+                            ["application/json"] = new() { Schema = new OpenApiSchemaReference("ResponseRoot") }
+                        }
+                    }
+                },
+                Schemas = new Dictionary<string, IOpenApiSchema>
+                {
+                    ["RequestRoot"] = new OpenApiSchema
+                    {
+                        Properties = new Dictionary<string, IOpenApiSchema>
+                        {
+                            ["child"] = new OpenApiSchemaReference("RequestChild")
+                        }
+                    },
+                    ["RequestChild"] = new OpenApiSchema(),
+                    ["ResponseRoot"] = new OpenApiSchema
+                    {
+                        Not = new OpenApiSchemaReference("ResponseChild")
+                    },
+                    ["ResponseChild"] = new OpenApiSchema(),
+                    ["Unused"] = new OpenApiSchema()
+                }
+            }
+        };
+
+        OpenApiSchemaReferenceCollector.GetReferencedSchemaRefs(document)
+                                       .ShouldBe(["RequestRoot", "ResponseRoot", "RequestChild", "ResponseChild"], ignoreOrder: true);
+    }
+
+    [Fact]
+    public void schema_graph_transformer_rewrites_component_and_operation_schema_references()
+    {
+        var document = new OpenApiDocument
+        {
+            Paths = new()
+            {
+                ["/transformer"] = new OpenApiPathItem
+                {
+                    Operations = new()
+                    {
+                        [HttpMethod.Post] = new()
+                        {
+                            RequestBody = new OpenApiRequestBody
+                            {
+                                Content = new Dictionary<string, OpenApiMediaType>
+                                {
+                                    ["application/json"] = new() { Schema = new OpenApiSchemaReference("Old") }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            Components = new()
+            {
+                Schemas = new Dictionary<string, IOpenApiSchema>
+                {
+                    ["Root"] = new OpenApiSchema
+                    {
+                        Properties = new Dictionary<string, IOpenApiSchema>
+                        {
+                            ["child"] = new OpenApiSchemaReference("Old")
+                        }
+                    }
+                }
+            }
+        };
+
+        OpenApiSchemaGraphTransformer.TransformDocumentSchemas(
+            document,
+            schema => schema is OpenApiSchemaReference schemaRef && GetReferenceId(schemaRef) == "Old"
+                          ? new OpenApiSchemaReference("New")
+                          : schema);
+
+        var operationSchema = document.Paths["/transformer"].Operations![HttpMethod.Post].RequestBody!.Content!["application/json"].Schema;
+        var componentSchema = ((OpenApiSchema)document.Components.Schemas["Root"]).Properties!["child"];
+
+        GetReferenceId((OpenApiSchemaReference)operationSchema!).ShouldBe("New");
+        GetReferenceId((OpenApiSchemaReference)componentSchema).ShouldBe("New");
+    }
+
     [Fact]
     public void clone_as_concrete_schema_deep_copies_mutable_members()
     {
@@ -96,8 +224,8 @@ public class OperationSchemaHelpersTests
     {
         var value = new ThrowingSerializableObject();
 
-        value.JsonNodeFromObject().ShouldBeNull();
-        value.JsonObjectFromObject().ShouldBeNull();
+        value.JsonNodeFromObject(_jsonSerializerOptions).ShouldBeNull();
+        value.JsonObjectFromObject(_jsonSerializerOptions).ShouldBeNull();
     }
 
     [Fact]
@@ -129,7 +257,7 @@ public class OperationSchemaHelpersTests
         var epDef = new EndpointDefinition(typeof(object), typeof(object), typeof(object));
         epDef.Summary(s => s.ResponseExamples[200] = new { name = "ok" });
         var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
-                                                                      .GetType("FastEndpoints.OpenApi.OperationTransformer+ResponseOperationTransformer", throwOnError: true)!;
+                                                                      .GetType("FastEndpoints.OpenApi.ResponseOperationTransformer", throwOnError: true)!;
         var transformer = Activator.CreateInstance(
             transformerType,
             BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
@@ -433,6 +561,103 @@ public class OperationSchemaHelpersTests
     }
 
     [Fact]
+    public void unreferenced_schema_removal_keeps_schemas_referenced_by_extended_schema_members()
+    {
+        var document = new OpenApiDocument
+        {
+            Paths = new()
+            {
+                ["/extended"] = new OpenApiPathItem
+                {
+                    Operations = new()
+                    {
+                        [HttpMethod.Post] = new()
+                        {
+                            RequestBody = new OpenApiRequestBody
+                            {
+                                Content = new Dictionary<string, OpenApiMediaType>
+                                {
+                                    ["application/json"] = new()
+                                    {
+                                        Schema = new OpenApiSchemaReference("Root")
+                                    }
+                                }
+                            },
+                            Responses = new()
+                            {
+                                ["200"] = new OpenApiResponse()
+                            }
+                        }
+                    }
+                }
+            },
+            Components = new()
+            {
+                Schemas = new Dictionary<string, IOpenApiSchema>
+                {
+                    ["Root"] = new OpenApiSchema
+                    {
+                        Type = JsonSchemaType.Object,
+                        Not = new OpenApiSchemaReference("NotModel"),
+                        PatternProperties = new Dictionary<string, IOpenApiSchema>
+                        {
+                            ["^item"] = new OpenApiSchemaReference("PatternModel")
+                        },
+                        Definitions = new Dictionary<string, IOpenApiSchema>
+                        {
+                            ["child"] = new OpenApiSchemaReference("DefinitionModel")
+                        }
+                    },
+                    ["NotModel"] = new OpenApiSchema { Type = JsonSchemaType.Object },
+                    ["PatternModel"] = new OpenApiSchema { Type = JsonSchemaType.Object },
+                    ["DefinitionModel"] = new OpenApiSchema { Type = JsonSchemaType.Object },
+                    ["UnusedModel"] = new OpenApiSchema { Type = JsonSchemaType.Object }
+                }
+            }
+        };
+
+        document.RemoveUnreferencedSchemas();
+
+        document.Components.Schemas.ContainsKey("Root").ShouldBeTrue();
+        document.Components.Schemas.ContainsKey("NotModel").ShouldBeTrue();
+        document.Components.Schemas.ContainsKey("PatternModel").ShouldBeTrue();
+        document.Components.Schemas.ContainsKey("DefinitionModel").ShouldBeTrue();
+        document.Components.Schemas.ContainsKey("UnusedModel").ShouldBeFalse();
+    }
+
+    [Fact]
+    public void unreferenced_schema_removal_runs_when_document_has_no_paths()
+    {
+        var document = new OpenApiDocument
+        {
+            Components = new()
+            {
+                Schemas = new Dictionary<string, IOpenApiSchema>
+                {
+                    ["KeptModel"] = new OpenApiSchema { Type = JsonSchemaType.Object },
+                    ["UnusedModel"] = new OpenApiSchema { Type = JsonSchemaType.Object }
+                },
+                RequestBodies = new Dictionary<string, IOpenApiRequestBody>
+                {
+                    ["ReusableRequest"] = new OpenApiRequestBody
+                    {
+                        Content = new Dictionary<string, OpenApiMediaType>
+                        {
+                            ["application/json"] = new() { Schema = new OpenApiSchemaReference("KeptModel") }
+                        }
+                    }
+                }
+            },
+            Paths = new()
+        };
+
+        document.RemoveUnreferencedSchemas();
+
+        document.Components.Schemas.ContainsKey("KeptModel").ShouldBeTrue();
+        document.Components.Schemas.ContainsKey("UnusedModel").ShouldBeFalse();
+    }
+
+    [Fact]
     public void request_body_property_removal_does_not_apply_naming_policy_when_disabled()
     {
         var operation = new OpenApiOperation
@@ -463,6 +688,7 @@ public class OperationSchemaHelpersTests
         operation.RemovePropFromRequestBody(
             prop,
             new(),
+            "GET:/test",
             new() { UsePropertyNamingPolicy = false },
             JsonNamingPolicy.CamelCase,
             removedProps);
@@ -556,12 +782,13 @@ public class OperationSchemaHelpersTests
             }
         };
 
-        ApplyResponseParamDescriptions(
+        var sharedCtx = ApplyResponseParamDescriptions(
             response,
             typeof(ResponseParamDescriptionResponse),
             new() { ["name"] = "operation-specific" });
 
-        var operationSchema = response.Content!["application/json"].Schema.ShouldBeOfType<OpenApiSchema>();
+        var operationSchemaRef = response.Content!["application/json"].Schema.ShouldBeOfType<OpenApiSchemaReference>();
+        var operationSchema = sharedCtx.OperationSchemaVariants[operationSchemaRef.Reference.Id!];
 
         operationSchema.Properties!["name"].ShouldBeOfType<OpenApiSchema>().Description.ShouldBe("operation-specific");
         componentSchema.Properties!["name"].ShouldBeOfType<OpenApiSchema>().Description.ShouldBeNull();
@@ -604,7 +831,7 @@ public class OperationSchemaHelpersTests
             }
         };
 
-        ApplyResponseParamDescriptions(
+        var sharedCtx = ApplyResponseParamDescriptions(
             response,
             typeof(List<ResponseParamDescriptionCollectionItem>),
             new()
@@ -615,7 +842,8 @@ public class OperationSchemaHelpersTests
             JsonNamingPolicy.CamelCase);
 
         var arraySchema = response.Content!["application/json"].Schema.ShouldBeOfType<OpenApiSchema>();
-        var itemSchema = arraySchema.Items.ShouldBeOfType<OpenApiSchema>();
+        var itemSchemaRef = arraySchema.Items.ShouldBeOfType<OpenApiSchemaReference>();
+        var itemSchema = sharedCtx.OperationSchemaVariants[itemSchemaRef.Reference.Id!];
 
         itemSchema.ShouldNotBeSameAs(componentSchema);
         itemSchema.Properties!["displayName"].ShouldBeOfType<OpenApiSchema>().Description.ShouldBe("item display name");
@@ -629,7 +857,7 @@ public class OperationSchemaHelpersTests
     {
         var operation = new OpenApiOperation();
         var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
-                                                                      .GetType("FastEndpoints.OpenApi.OperationTransformer+RequestOperationTransformer", throwOnError: true)!;
+                                                                      .GetType("FastEndpoints.OpenApi.RequestOperationTransformer", throwOnError: true)!;
         var transformer = Activator.CreateInstance(
             transformerType,
             BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
@@ -697,7 +925,7 @@ public class OperationSchemaHelpersTests
     [Fact]
     public void type_sample_generation_uses_first_enum_value_and_dictionary_shape()
     {
-        var sample = typeof(SampleGenerationRequest).GenerateSampleJsonNode().ShouldBeOfType<JsonObject>();
+        var sample = typeof(SampleGenerationRequest).GenerateSampleJsonNode(_jsonSerializerOptions).ShouldBeOfType<JsonObject>();
 
         sample["Status"]!.GetValue<int>().ShouldBe(5);
         var metadata = sample["Metadata"].ShouldBeOfType<JsonObject>();
@@ -786,6 +1014,17 @@ public class OperationSchemaHelpersTests
     }
 
     [Fact]
+    public void inherited_nullable_query_parameter_is_not_required()
+    {
+        var operation = new OpenApiOperation();
+        var prop = typeof(InheritedNullableQueryRequest).GetProperty(nameof(InheritedNullableQueryRequest.Optional))!;
+
+        AddParameter(operation, "optional", ParameterLocation.Query, prop);
+
+        operation.Parameters!.Single().Required.ShouldBeFalse();
+    }
+
+    [Fact]
     public void from_form_promotion_keeps_only_actual_form_content_type()
     {
         var operation = CreateFormPromotionOperation();
@@ -834,7 +1073,7 @@ public class OperationSchemaHelpersTests
         var response = new OpenApiResponse();
         var sharedCtx = new SharedContext();
         var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
-                                                                      .GetType("FastEndpoints.OpenApi.OperationTransformer+ResponseOperationTransformer", throwOnError: true)!;
+                                                                      .GetType("FastEndpoints.OpenApi.ResponseOperationTransformer", throwOnError: true)!;
         var transformer = Activator.CreateInstance(
             transformerType,
             BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
@@ -1004,7 +1243,7 @@ public class OperationSchemaHelpersTests
     static void ApplyBodyOverrides(OpenApiOperation operation, EndpointDefinition epDef)
     {
         var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
-                                                                      .GetType("FastEndpoints.OpenApi.OperationTransformer+RequestOperationTransformer", throwOnError: true)!;
+                                                                      .GetType("FastEndpoints.OpenApi.RequestOperationTransformer", throwOnError: true)!;
         var transformer = Activator.CreateInstance(
             transformerType,
             BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
@@ -1013,7 +1252,7 @@ public class OperationSchemaHelpersTests
             culture: null)!;
 
         transformerType.GetMethod("ApplyBodyOverrides", BindingFlags.Instance | BindingFlags.Public)!
-                       .Invoke(transformer, [operation, epDef]);
+                       .Invoke(transformer, [operation, epDef, "GET:/test"]);
     }
 
     static OpenApiOperation CreateFormPromotionOperation()
@@ -1063,25 +1302,37 @@ public class OperationSchemaHelpersTests
     static JsonNode? CreateSchemaSample(OpenApiSchema schema)
     {
         var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
-                                                                      .GetType("FastEndpoints.OpenApi.OperationTransformer+RequestOperationTransformer", throwOnError: true)!;
+                                                                      .GetType("FastEndpoints.OpenApi.RequestOperationTransformer", throwOnError: true)!;
+        var transformer = Activator.CreateInstance(
+            transformerType,
+            BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
+            binder: null,
+            args: [new DocumentOptions(), new SharedContext()],
+            culture: null)!;
 
-        return (JsonNode?)transformerType.GetMethod("CreateSampleFromSchema", BindingFlags.Static | BindingFlags.NonPublic)!
-                                         .Invoke(null, [schema, null]);
+        return (JsonNode?)transformerType.GetMethod("CreateSampleFromSchema", BindingFlags.Instance | BindingFlags.NonPublic)!
+                                         .Invoke(transformer, [schema, null]);
     }
 
     static JsonNode? NormalizeSchemaExample(JsonNode example, OpenApiSchema schema)
     {
         var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
-                                                                      .GetType("FastEndpoints.OpenApi.OperationTransformer+RequestOperationTransformer", throwOnError: true)!;
+                                                                      .GetType("FastEndpoints.OpenApi.RequestOperationTransformer", throwOnError: true)!;
+        var transformer = Activator.CreateInstance(
+            transformerType,
+            BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
+            binder: null,
+            args: [new DocumentOptions(), new SharedContext()],
+            culture: null)!;
 
-        return (JsonNode?)transformerType.GetMethod("NormalizeExampleNode", BindingFlags.Static | BindingFlags.NonPublic)!
-                                         .Invoke(null, [example, schema, null]);
+        return (JsonNode?)transformerType.GetMethod("NormalizeExampleNode", BindingFlags.Instance | BindingFlags.NonPublic)!
+                                         .Invoke(transformer, [example, schema, null]);
     }
 
     static void ValidateRequestDto(Type requestType, bool isCollection)
     {
         var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
-                                                                      .GetType("FastEndpoints.OpenApi.OperationTransformer+RequestOperationTransformer", throwOnError: true)!;
+                                                                      .GetType("FastEndpoints.OpenApi.RequestOperationTransformer", throwOnError: true)!;
         var epDef = new EndpointDefinition(typeof(object), requestType, typeof(object));
 
         try
@@ -1098,33 +1349,49 @@ public class OperationSchemaHelpersTests
     static bool ShouldAddQueryParam(string propertyName, bool isGetRequest)
     {
         var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
-                                                                      .GetType("FastEndpoints.OpenApi.OperationTransformer+RequestOperationTransformer", throwOnError: true)!;
+                                                                      .GetType("FastEndpoints.OpenApi.RequestOperationTransformer", throwOnError: true)!;
         var prop = typeof(QueryBindingSourcesRequest).GetProperty(propertyName)!;
-        var attributes = prop.GetCustomAttributes().ToArray();
+        var metadata = OperationReflectionCache.GetPropertyMetadata(prop);
 
         return (bool)transformerType.GetMethod("ShouldAddQueryParam", BindingFlags.Static | BindingFlags.NonPublic)!
-                                    .Invoke(null, [prop, attributes, new OpenApiOperation(), propertyName, isGetRequest])!;
+                                    .Invoke(null, [prop, metadata, new OpenApiOperation(), propertyName, isGetRequest])!;
     }
 
     static bool AddComplexFromQueryParameters(OpenApiOperation operation, PropertyInfo prop)
     {
-        var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
-                                                                      .GetType("FastEndpoints.OpenApi.OperationTransformer+RequestOperationTransformer", throwOnError: true)!;
-        var transformer = Activator.CreateInstance(
-            transformerType,
+        var assembly = typeof(FastEndpoints.OpenApi.Extensions).Assembly;
+        var docOpts = new DocumentOptions();
+        var sharedCtx = new SharedContext();
+        var parameterFactoryType = assembly.GetType("FastEndpoints.OpenApi.OperationParameterFactory", throwOnError: true)!;
+        var parameterNameResolverType = assembly.GetType("FastEndpoints.OpenApi.OperationParameterNameResolver", throwOnError: true)!;
+        var expanderType = assembly.GetType("FastEndpoints.OpenApi.ComplexQueryParameterExpander", throwOnError: true)!;
+        var parameterFactory = Activator.CreateInstance(
+            parameterFactoryType,
             BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
             binder: null,
-            args: [new DocumentOptions(), new SharedContext()],
+            args: [docOpts, sharedCtx],
+            culture: null)!;
+        var parameterNameResolver = Activator.CreateInstance(
+            parameterNameResolverType,
+            BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
+            binder: null,
+            args: [docOpts, sharedCtx],
+            culture: null)!;
+        var expander = Activator.CreateInstance(
+            expanderType,
+            BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
+            binder: null,
+            args: [parameterFactory, parameterNameResolver],
             culture: null)!;
 
-        return (bool)transformerType.GetMethod("TryAddComplexFromQueryParameters", BindingFlags.Instance | BindingFlags.NonPublic)!
-                                    .Invoke(transformer, [operation, prop, false])!;
+        return (bool)expanderType.GetMethod("TryAdd", BindingFlags.Instance | BindingFlags.NonPublic)!
+                                  .Invoke(expander, [operation, prop, false])!;
     }
 
     static void FixBinaryFormats(OpenApiOperation operation)
     {
         var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
-                                                                      .GetType("FastEndpoints.OpenApi.OperationTransformer+ResponseOperationTransformer", throwOnError: true)!;
+                                                                      .GetType("FastEndpoints.OpenApi.ResponseOperationTransformer", throwOnError: true)!;
         var transformer = Activator.CreateInstance(
             transformerType,
             BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
@@ -1133,25 +1400,25 @@ public class OperationSchemaHelpersTests
             culture: null)!;
 
         transformerType.GetMethod("FixBinaryFormats", BindingFlags.Instance | BindingFlags.Public)!
-                       .Invoke(transformer, [operation]);
+                       .Invoke(transformer, [operation, "GET:/test"]);
     }
 
     static void UpdateParameterSchema(OpenApiOperation operation, string name, Type type, SharedContext sharedCtx)
     {
-        var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
-                                                                      .GetType("FastEndpoints.OpenApi.OperationTransformer", throwOnError: true)!;
+        var parameterCollectionType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
+                                                                            .GetType("FastEndpoints.OpenApi.OperationParameterCollection", throwOnError: true)!;
 
-        transformerType.GetMethod("UpdateParameterSchema", BindingFlags.Static | BindingFlags.NonPublic)!
-                       .Invoke(null, [operation, ParameterLocation.Path, name, type, sharedCtx, false]);
+        parameterCollectionType.GetMethod("UpdateSchema", BindingFlags.Static | BindingFlags.NonPublic)!
+                               .Invoke(null, [operation, ParameterLocation.Path, name, type, sharedCtx, false]);
     }
 
-    static void ApplyResponseParamDescriptions(OpenApiResponse response,
-                                               Type responseType,
-                                               Dictionary<string, string> descriptions,
-                                               JsonNamingPolicy? namingPolicy = null)
+    static SharedContext ApplyResponseParamDescriptions(OpenApiResponse response,
+                                                        Type responseType,
+                                                        Dictionary<string, string> descriptions,
+                                                        JsonNamingPolicy? namingPolicy = null)
     {
         var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
-                                                                      .GetType("FastEndpoints.OpenApi.OperationTransformer+ResponseOperationTransformer", throwOnError: true)!;
+                                                                      .GetType("FastEndpoints.OpenApi.ResponseOperationTransformer", throwOnError: true)!;
         var sharedCtx = new SharedContext { NamingPolicy = namingPolicy };
         var transformer = Activator.CreateInstance(
             transformerType,
@@ -1161,7 +1428,9 @@ public class OperationSchemaHelpersTests
             culture: null)!;
 
         transformerType.GetMethod("ApplyParamDescriptions", BindingFlags.Instance | BindingFlags.NonPublic)!
-                       .Invoke(transformer, [response, descriptions, responseType]);
+                       .Invoke(transformer, [response, descriptions, responseType, "GET:/test", "response.200"]);
+
+        return sharedCtx;
     }
 
     sealed class EmptyServiceProvider : IServiceProvider
@@ -1175,7 +1444,7 @@ public class OperationSchemaHelpersTests
     static void AddParameter(OpenApiOperation operation, string name, ParameterLocation location, PropertyInfo prop, bool? isRequired = null)
     {
         var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
-                                                                      .GetType("FastEndpoints.OpenApi.OperationTransformer+RequestOperationTransformer", throwOnError: true)!;
+                                                                      .GetType("FastEndpoints.OpenApi.RequestOperationTransformer", throwOnError: true)!;
         var transformer = Activator.CreateInstance(
             transformerType,
             BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
@@ -1187,6 +1456,9 @@ public class OperationSchemaHelpersTests
                        .Invoke(transformer, [operation, name, location, prop, isRequired, false, null]);
     }
 
+    static string? GetReferenceId(OpenApiSchemaReference schemaRef)
+        => schemaRef.Reference.Id ?? schemaRef.Id;
+
     sealed class ConstructorDefaultQueryRequest
     {
         public ConstructorDefaultQueryRequest(int page = 1)
@@ -1195,6 +1467,13 @@ public class OperationSchemaHelpersTests
         }
 
         public int Page { get; }
+    }
+
+    sealed class InheritedNullableQueryRequest : InheritedNullableQueryBase;
+
+    class InheritedNullableQueryBase
+    {
+        public string? Optional { get; init; }
     }
 
     sealed class ProducesMetadata(Type type) : IProducesResponseTypeMetadata

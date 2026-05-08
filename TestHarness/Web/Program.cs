@@ -186,6 +186,8 @@ app.UseRequestLocalization(
    .UseFastEndpoints(
        c =>
        {
+           c.Serializer.Options.Converters.Add(new JsonStringEnumConverter());
+
            c.Validation.EnableDataAnnotationsSupport = true;
 
            c.Binding.UsePropertyNamingPolicy = true;
@@ -217,13 +219,13 @@ app.UseRequestLocalization(
    .UseEndpoints(
        c => //this must go after usefastendpoints (only if using endpoints)
        {
-            c.MapGet("test", () => "hello world!").WithTags("map-get");
-            c.MapGet("test/{testId:int?}", (int? testId) => $"hello {testId}").WithTags("map-get");
-            c.MapGet("non-fe-auth", () => "secure").RequireAuthorization().WithTags("non-fe-auth");
-            c.MapGet("non-fe-auth-anon", () => "anon").RequireAuthorization().AllowAnonymous().WithTags("non-fe-auth");
-            c.MapGet("filtered-shared-path", () => "get").WithTags("exclude");
-            c.MapPost("filtered-shared-path", () => TypedResults.Ok("post")).WithTags("shared-path");
-        });
+           c.MapGet("test", () => "hello world!").WithTags("map-get");
+           c.MapGet("test/{testId:int?}", (int? testId) => $"hello {testId}").WithTags("map-get");
+           c.MapGet("non-fe-auth", () => "secure").RequireAuthorization().WithTags("non-fe-auth");
+           c.MapGet("non-fe-auth-anon", () => "anon").RequireAuthorization().AllowAnonymous().WithTags("non-fe-auth");
+           c.MapGet("filtered-shared-path", () => "get").WithTags("exclude");
+           c.MapPost("filtered-shared-path", () => TypedResults.Ok("post")).WithTags("shared-path");
+       });
 
 if (!app.Environment.IsProduction())
 {

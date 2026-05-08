@@ -86,7 +86,7 @@ public class DocumentOptions
     /// <summary>
     /// specify whether to strip non-alphanumeric characters from tags.
     /// </summary>
-    public bool TagStripSymbols { get; set; } = false;
+    public bool TagStripSymbols { get; set; }
 
     /// <summary>
     /// specify openapi tag descriptions for the document.
@@ -97,7 +97,7 @@ public class DocumentOptions
     /// <summary>
     /// specify if JsonSerializerOptions.PropertyNamingPolicy should be used for identifying/matching schema properties. default is 'true'.
     /// </summary>
-    public bool UsePropertyNamingPolicy { get; set; } = true;
+    public bool UsePropertyNamingPolicy { get; init; } = true;
 
     /// <summary>
     /// by setting this to true, you can have base class types as request/response dtos and get openapi to generate possible derived types within a oneOf field.
@@ -124,9 +124,7 @@ public class DocumentOptions
     /// <param name="securityScheme">an open api security scheme object</param>
     /// <param name="globalScopeNames">a collection of global scope names</param>
     public void AddAuth(string schemeName, OpenApiSecurityScheme securityScheme, IEnumerable<string>? globalScopeNames = null)
-    {
-        AuthSchemes.Add(new(schemeName, securityScheme, globalScopeNames));
-    }
+        => AuthSchemes.Add(new(schemeName, securityScheme, globalScopeNames));
 
     public static string OpenApiExportPath { get; set; } = "wwwroot/openapi";
 }

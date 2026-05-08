@@ -58,6 +58,14 @@ This fixes nested `[FromQuery]` request DTO properties such as `DateOnly?` and `
 
 ## Improvements 🚀
 
+<details><summary>Deeply nested [FromForm] DTOs with files now work with routeless test helpers</summary>
+
+The routeless `HttpClient` testing extensions can now build `multipart/form-data` requests from nested `[FromForm]` DTOs containing `IFormFile`, file collections, scalar collections, and complex child objects. Root `[FromForm]` wrappers are still promoted to top-level form fields, while nested values use the dotted/indexed field names expected by the binder, such as `Details.Image` and `Items[0].Attachment`.
+
+The generated form data also respects binding source metadata by skipping route, query, header, cookie, claim, permission, and `[DontBind]` fields that should not be sent as form fields. Circular object graphs are detected up front and fail with a clear `NotSupportedException` instead of recursing forever.
+
+</details>
+
 <details><summary>More lenient route prefix handling</summary>
 
 Global route prefixes now normalize empty-string configuration values to no prefix and trim surrounding `/` characters before route registration. This fixes cases where configuration APIs return `""` instead of `null` while preserving the existing `RoutePrefixOverride(...)` contract, including ignoring endpoint-level overrides when no global prefix is configured and allowing `RoutePrefixOverride(string.Empty)` to disable the global prefix for a single endpoint.
@@ -135,6 +143,25 @@ app.UseFastEndpoints(c =>
 Multipart form binding now treats request body parsing failures caused by malformed client input as validation failures. Truncated multipart bodies and invalid `Content-Disposition` headers are caught when no custom `FormExceptionTransformer` is configured, returning a `400 Bad Request` response instead of surfacing as unhandled `500 Internal Server Error` exceptions.
 
 This avoids noisy false-positive security scanner findings and keeps genuinely unexpected exceptions propagating normally, while still allowing applications with a custom `FormExceptionTransformer` to control their own form parsing error behavior.
+
+</details>
+
+<details><summary>'Send.OkAsync(ct)' no longer tries to serialize cancellation tokens on untyped endpoints</summary>
+
+When an endpoint response type is `object` such as with `EndpointWithoutRequest`, calling `Send.OkAsync(ct)` could previously bind to the response-body overload and end up passing the `CancellationToken` to STJ for serialization.
+
+That case is now detected at runtime and routed to the no-body `200 OK` path instead, avoiding the serialization failure while preserving the existing overload surface.
+
+```csharp
+public class PingEndpoint : EndpointWithoutRequest
+{
+    public override void Configure()
+        => Get("/ping");
+
+    public override Task HandleAsync(CancellationToken ct)
+        => Send.OkAsync(ct);
+}
+```
 
 </details>
 

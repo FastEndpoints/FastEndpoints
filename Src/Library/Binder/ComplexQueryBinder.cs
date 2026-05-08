@@ -41,6 +41,9 @@ static class ComplexQueryBinder
 
         static bool BindComplexType(object parent, PropertyInfo prop, Type tProp, string key, IQueryCollection queryParams, List<ValidationFailure> failures)
         {
+            if (!HasQueryDataForPrefix(key, queryParams))
+                return false;
+
             var propVal = tProp.ObjectFactory()();
             var bound = BindPropertiesRecursively(propVal, key, queryParams, failures);
             parent.GetType().SetterForProp(prop)(parent, propVal);
@@ -151,6 +154,15 @@ static class ComplexQueryBinder
             parent.GetType().SetterForProp(prop)(parent, res.Value);
 
             return true;
+        }
+
+        static bool HasQueryDataForPrefix(string key, IQueryCollection queryParams)
+        {
+            var dottedPrefix = $"{key}.";
+            var indexedPrefix = $"{key}[";
+
+            return queryParams.Keys.Any(k => k.StartsWith(dottedPrefix, StringComparison.OrdinalIgnoreCase) ||
+                                             k.StartsWith(indexedPrefix, StringComparison.OrdinalIgnoreCase));
         }
     }
 }

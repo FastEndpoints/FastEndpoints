@@ -734,57 +734,162 @@ public static class HttpClientExtensions
     static MultipartFormDataContent ToForm<TRequest>(this TRequest req)
     {
         var form = new MultipartFormDataContent();
-
-        foreach (var p in req!.GetType().BindableProps())
-        {
-            if (p.PropertyType.GetUnderlyingType() == Types.IFormFile)
-                AddFileToForm(p.GetValue(req) as IFormFile, p);
-
-            else if (p.PropertyType.IsAssignableTo(Types.IEnumerableOfIFormFile))
-            {
-                var files = p.GetValue(req) as IFormFileCollection;
-
-                if (files?.Count is 0 or null)
-                    continue;
-
-                foreach (var file in files)
-                    AddFileToForm(file, p);
-            }
-            else
-            {
-                var value = p.GetValueAsString(req);
-                if (value is not null)
-                    form.Add(new StringContent(value), p.Name);
-            }
-        }
+        AddObjectToForm(req!, form, prefix: null, flattenComplexProps: false, allowFormRootPromotion: true, new(ReferenceEqualityComparer.Instance));
 
         return !form.Any()
                    ? throw new InvalidOperationException("Converting the request DTO to MultipartFormDataContent was unsuccessful!")
                    : form;
+    }
 
-        void AddFileToForm(IFormFile? file, PropertyInfo prop)
+    static void AddObjectToForm(object obj,
+                                MultipartFormDataContent form,
+                                string? prefix,
+                                bool flattenComplexProps,
+                                bool allowFormRootPromotion,
+                                HashSet<object> visiting)
+    {
+        var shouldTrackRef = !obj.GetType().IsValueType;
+
+        if (shouldTrackRef && !visiting.Add(obj))
+            throw new NotSupportedException("Circular references are not supported when converting the request DTO to MultipartFormDataContent.");
+
+        try
         {
-            if (file is null)
+            foreach (var p in obj.GetType().BindableProps())
+            {
+                var value = p.GetValue(obj);
+
+                if (p.IsDefined(Types.FromFormAttribute))
+                {
+                    if (value is not null)
+                    {
+                        if (allowFormRootPromotion)
+                            AddObjectToForm(value, form, prefix: null, flattenComplexProps: true, allowFormRootPromotion: false, visiting);
+                        else
+                            AddValueToForm(value, p.PropertyType.GetUnderlyingType(), FieldPath(prefix, p.FieldName()), form, flattenComplexProps: true, visiting);
+                    }
+
+                    continue;
+                }
+
+                if (ShouldSkipFormField(p))
+                    continue;
+
+                AddValueToForm(value, p.PropertyType.GetUnderlyingType(), FieldPath(prefix, p.FieldName()), form, flattenComplexProps, visiting);
+            }
+        }
+        finally
+        {
+            if (shouldTrackRef)
+                visiting.Remove(obj);
+        }
+
+        static void AddValueToForm(object? value, Type type, string fieldName, MultipartFormDataContent form, bool flattenComplexProps, HashSet<object> visiting)
+        {
+            if (value is null)
                 return;
 
-            var content = new StreamContent(file.OpenReadStream());
+            if (type == Types.Object || type.IsInterface)
+                type = value.GetType().GetUnderlyingType();
 
-            // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
-            if (file.Headers?.ContainsKey(HeaderNames.ContentType) is true)
-                content.Headers.ContentType = new(file.ContentType);
+            if (Types.IFormFile.IsAssignableFrom(type))
+            {
+                AddFileToForm(value as IFormFile, fieldName, form);
 
-            form.Add(content, prop.FieldName(), file.FileName);
+                return;
+            }
+
+            if (Types.IEnumerableOfIFormFile.IsAssignableFrom(type))
+            {
+                var files = value as IEnumerable<IFormFile>;
+
+                if (files is null)
+                    return;
+
+                foreach (var file in files)
+                    AddFileToForm(file, fieldName, form);
+
+                return;
+            }
+
+            if (flattenComplexProps)
+            {
+                if (type.IsCollection())
+                {
+                    AddCollectionToForm((IEnumerable)value, fieldName, form, visiting);
+
+                    return;
+                }
+
+                if (type.IsComplexType())
+                {
+                    AddObjectToForm(value, form, fieldName, flattenComplexProps: true, allowFormRootPromotion: false, visiting);
+
+                    return;
+                }
+            }
+
+            AddStringToForm(value, type, fieldName, form);
         }
+
+        static void AddCollectionToForm(IEnumerable values, string fieldName, MultipartFormDataContent form, HashSet<object> visiting)
+        {
+            var index = 0;
+
+            foreach (var item in values)
+            {
+                if (item is null)
+                    continue;
+
+                var itemType = item.GetType().GetUnderlyingType();
+
+                if (itemType.IsComplexType())
+                    AddObjectToForm(item, form, $"{fieldName}[{index++}]", flattenComplexProps: true, allowFormRootPromotion: false, visiting);
+                else
+                    AddStringToForm(item, itemType, fieldName, form);
+            }
+        }
+
+        static bool ShouldSkipFormField(PropertyInfo p)
+            => p.GetCustomAttribute<FromClaimAttribute>()?.IsRequired is true ||
+               p.GetCustomAttribute<FromHeaderAttribute>()?.IsRequired is true ||
+               p.GetCustomAttribute<FromCookieAttribute>()?.IsRequired is true ||
+               p.GetCustomAttribute<HasPermissionAttribute>()?.IsRequired is true ||
+               p.GetCustomAttribute<DontBindAttribute>()?.BindingSources.HasFlag(Source.FormField) is true;
+    }
+
+    static string FieldPath(string? prefix, string fieldName)
+        => prefix is null ? fieldName : $"{prefix}.{fieldName}";
+
+    static void AddFileToForm(IFormFile? file, string fieldName, MultipartFormDataContent form)
+    {
+        if (file is null)
+            return;
+
+        var content = new StreamContent(file.OpenReadStream());
+
+        // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
+        if (file.Headers?.ContainsKey(HeaderNames.ContentType) is true)
+            content.Headers.ContentType = new(file.ContentType);
+
+        form.Add(content, fieldName, file.FileName);
+    }
+
+    static void AddStringToForm(object value, Type type, string fieldName, MultipartFormDataContent form)
+    {
+        var stringValue = GetValueAsString(value, type);
+
+        if (stringValue is not null)
+            form.Add(new StringContent(stringValue), fieldName);
     }
 
     static string? GetValueAsString(this PropertyInfo p, object req)
-    {
-        var value = p.GetValue(req);
+        => GetValueAsString(p.GetValue(req), p.PropertyType);
 
+    static string? GetValueAsString(object? value, Type type)
+    {
         if (value is null)
             return null;
-
-        var type = p.PropertyType;
 
         var toStringMethod = type.GetMethod("ToString", Type.EmptyTypes);
         var isRecord = type.GetMethod("<Clone>$") is not null;
@@ -793,24 +898,14 @@ public static class HttpClientExtensions
         if (toStringMethod is not null && toStringMethod.DeclaringType != Types.Object && !isRecord)
             return ToInvariantIsoString(value);
 
-        try
-        {
-            var json = JsonSerializer.Serialize(value, SerOpts.Options);
+        var json = JsonSerializer.Serialize(value, SerOpts.Options);
 
-            //this is a json string literal
-            if (json.StartsWith('"') && json.EndsWith('"'))
-                return json.TrimStart('"').TrimEnd('"');
+        //this is a json string literal
+        if (json.StartsWith('"') && json.EndsWith('"'))
+            return json.TrimStart('"').TrimEnd('"');
 
-            //this is either a json array or object
-            return json;
-        }
-        catch
-        {
-            if (p.IsDefined(Types.FromFormAttribute))
-                throw new NotSupportedException("Automatically constructing MultiPartFormData requests for properties annotated with [FromForm] is not yet supported!");
-
-            throw;
-        }
+        //this is either a json array or object
+        return json;
 
         static string? ToInvariantIsoString(object value)
         {

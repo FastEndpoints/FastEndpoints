@@ -8,29 +8,33 @@ using Microsoft.OpenApi;
 namespace FastEndpoints.OpenApi.ValidationProcessor;
 
 [HideFromDocs]
-public class RuleContext(OpenApiSchema schema, string propertyKey, IPropertyValidator propertyValidator, bool hasCondition)
+public class RuleContext(OpenApiSchema schema, string propertyKey, IPropertyValidator propertyValidator, bool hasCondition, OpenApiSchema? propertySchema = null)
 {
     public OpenApiSchema Schema { get; } = schema;
-
     public string PropertyKey { get; } = propertyKey;
-
     public IPropertyValidator PropertyValidator { get; } = propertyValidator;
-
     public bool HasCondition { get; set; } = hasCondition;
 
     /// <summary>
     /// tries to resolve the concrete <see cref="OpenApiSchema" /> for <see cref="PropertyKey" /> from <see cref="Schema" />.
     /// </summary>
-    public bool TryGetPropertySchema(out OpenApiSchema propertySchema)
+    public bool TryGetPropertySchema(out OpenApiSchema propertySchema1)
     {
-        if (Schema.Properties?.TryGetValue(PropertyKey, out var p) == true && p.ResolveSchema() is { } s)
+        if (propertySchema is not null)
         {
-            propertySchema = s;
+            propertySchema1 = propertySchema;
 
             return true;
         }
 
-        propertySchema = null!;
+        if (Schema.Properties?.TryGetValue(PropertyKey, out var p) == true && p.ResolveSchema() is { } s)
+        {
+            propertySchema1 = s;
+
+            return true;
+        }
+
+        propertySchema1 = null!;
 
         return false;
     }

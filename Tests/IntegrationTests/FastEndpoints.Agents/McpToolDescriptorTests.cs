@@ -194,6 +194,18 @@ public class McpToolDescriptorTests
         result.StructuredContent!.Value.GetProperty("Value").GetString().ShouldBe("actual:fallback:False:ping");
     }
 
+    [Fact]
+    public async Task Endpoint_exceptions_are_returned_as_tool_errors()
+    {
+        using var provider = BuildServices();
+
+        var tool = BuildTool(provider, "faulted_tool");
+        var result = await tool.InvokeAsync(BuildRequestContext(provider, tool, authenticated: true), CancellationToken.None);
+
+        result.IsError.ShouldBe(true);
+        ((TextContentBlock)result.Content[0]).Text.ShouldContain("faulted endpoint");
+    }
+
     static ServiceProvider BuildServices(Action<McpOptions>? configure = null, bool validateScopes = false)
     {
         Factory.RegisterTestServices(
@@ -224,6 +236,7 @@ public class McpToolDescriptorTests
                 o.SourceGeneratorDiscoveredTypes.Add(typeof(ScopedValidatorToolEndpoint));
                 o.SourceGeneratorDiscoveredTypes.Add(typeof(ScopedValidatorToolRequestValidator));
                 o.SourceGeneratorDiscoveredTypes.Add(typeof(PrincipalBoundToolEndpoint));
+                o.SourceGeneratorDiscoveredTypes.Add(typeof(FaultedToolEndpoint));
             });
         services.AddMcp(
             o =>
@@ -274,6 +287,9 @@ public class McpToolDescriptorTests
 
             if (def.EndpointType == typeof(PrincipalBoundToolEndpoint))
                 def.McpTool("principal_bound_tool");
+
+            if (def.EndpointType == typeof(FaultedToolEndpoint))
+                def.McpTool("faulted_tool");
         }
 
         return provider;
@@ -410,6 +426,13 @@ public class McpToolDescriptorTests
         public bool CanEdit { get; set; }
 
         public string Value { get; set; } = "";
+    }
+
+    [HttpPost("/descriptor-tool/faulted")]
+    sealed class FaultedToolEndpoint : Endpoint<ToolRequest, ToolResponse>
+    {
+        public override Task HandleAsync(ToolRequest req, CancellationToken ct)
+            => throw new InvalidOperationException("faulted endpoint");
     }
 }
 

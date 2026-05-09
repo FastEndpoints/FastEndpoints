@@ -185,7 +185,7 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
                     InvocationStatus.Success => BuildSuccessResult(result, outputSchema),
                     InvocationStatus.HttpError => BuildHttpErrorResult(result),
                     InvocationStatus.ValidationFailed => BuildValidationErrorResult(result),
-                    InvocationStatus.Faulted => throw new McpException(result.Exception?.Message ?? "Endpoint invocation failed.", result.Exception),
+                    InvocationStatus.Faulted => BuildFaultedResult(result),
                     _ => throw new McpException("Unknown invocation status.")
                 };
             },
@@ -246,6 +246,13 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
             IsError = true
         };
     }
+
+    static CallToolResult BuildFaultedResult(InvocationResult r)
+        => new()
+        {
+            Content = [new TextContentBlock { Text = JsonSerializer.Serialize(new { error = r.Exception?.Message ?? "Endpoint invocation failed." }) }],
+            IsError = true
+        };
 
     static JsonNode BuildInputSchema(EndpointDefinition def, JsonSerializerOptions serializerOptions, string toolName)
     {

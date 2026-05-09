@@ -30,7 +30,7 @@ static class JsonSchemaBuilder
             {
                 var serializerOptions = AgentJsonSerializerOptions.EnsureTypeInfoResolver(key.Item2);
 
-                return JsonSchemaExporter.GetJsonSchemaAsNode(serializerOptions, key.Item1);
+                return serializerOptions.GetJsonSchemaAsNode(key.Item1);
             });
 
         return cached.DeepClone();

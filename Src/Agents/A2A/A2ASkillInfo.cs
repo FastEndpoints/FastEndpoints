@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace FastEndpoints.A2A;
 
 /// <summary>
@@ -7,6 +9,7 @@ namespace FastEndpoints.A2A;
 /// <see cref="A2AEndpointExtensions" />, or materialised at startup from the
 /// <see cref="A2ASkillAttribute" />. core FastEndpoints has no knowledge of this type.
 /// </summary>
+[SuppressMessage("ReSharper", "PropertyCanBeMadeInitOnly.Global")]
 public sealed class A2ASkillInfo
 {
     /// <summary>

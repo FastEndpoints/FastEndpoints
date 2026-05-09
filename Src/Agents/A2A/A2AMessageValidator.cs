@@ -52,7 +52,7 @@ static class A2AMessageValidator
         if (acceptedOutputModes is null)
             return;
 
-        var mediaType = InvocationResultHelpers.NormalizeMediaType(result.ContentType, DefaultMediaType);
+        var mediaType = InvocationResultHelpers.NormalizeMediaType(result.ContentType);
 
         if (!acceptedOutputModes.Contains(mediaType, StringComparer.OrdinalIgnoreCase))
             throw new A2ARpcException(JsonRpcError.InvalidParams($"response output mode '{mediaType}' is not accepted."));
@@ -64,7 +64,7 @@ static class A2AMessageValidator
 
         foreach (var part in message.Parts!)
         {
-            var mediaType = InvocationResultHelpers.NormalizeMediaType(part.MediaType, DefaultMediaType);
+            var mediaType = InvocationResultHelpers.NormalizeMediaType(part.MediaType);
 
             if (!inputModes.Contains(mediaType, StringComparer.OrdinalIgnoreCase))
                 throw new A2ARpcException(JsonRpcError.ContentTypeNotSupported(mediaType));

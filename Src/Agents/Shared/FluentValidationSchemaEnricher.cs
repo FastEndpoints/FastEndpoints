@@ -61,10 +61,11 @@ static class FluentValidationSchemaEnricher
                             break;
                         }
                     }
+
                     if (!alreadyRequired)
                         required.Add(schemaPropertyName);
-                    if (parentSchema["required"] is null)
-                        parentSchema["required"] = required;
+
+                    parentSchema["required"] ??= required;
 
                     break;
 
@@ -86,7 +87,7 @@ static class FluentValidationSchemaEnricher
 
                     break;
 
-                case IComparisonValidator cmpValidator when cmpValidator.ValueToCompare is IConvertible:
+                case IComparisonValidator { ValueToCompare: IConvertible } cmpValidator:
                     ApplyNumericComparison(propSchema, cmpValidator);
 
                     break;

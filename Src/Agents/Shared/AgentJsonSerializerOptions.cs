@@ -8,5 +8,5 @@ static class AgentJsonSerializerOptions
     internal static JsonSerializerOptions EnsureTypeInfoResolver(JsonSerializerOptions options)
         => options.TypeInfoResolver is not null
                ? options
-               : new JsonSerializerOptions(options) { TypeInfoResolver = new DefaultJsonTypeInfoResolver() };
+               : new(options) { TypeInfoResolver = new DefaultJsonTypeInfoResolver() };
 }

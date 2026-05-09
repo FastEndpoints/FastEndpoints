@@ -31,10 +31,11 @@ sealed class A2ASkillDispatcher(A2ASkillCatalog skillCatalog, EndpointInvoker in
         var message = A2AMessageValidator.Validate(p.Message);
 
         var requestedSkill = A2AArgumentExtractor.GetRequestedSkill(p.Metadata);
-        var skill = skillCatalog.FindVisibleSkill(requestedSkill, ctx) ?? throw new A2ARpcException(
-                      requestedSkill is null
-                           ? JsonRpcError.InvalidParams("multiple skills are available; set 'metadata.skill' to choose one.")
-                           : JsonRpcError.MethodNotFound($"skill '{requestedSkill}'"));
+        var skill = skillCatalog.FindVisibleSkill(requestedSkill, ctx) ??
+                    throw new A2ARpcException(
+                        requestedSkill is null
+                            ? JsonRpcError.InvalidParams("multiple skills are available; set 'metadata.skill' to choose one.")
+                            : JsonRpcError.MethodNotFound($"skill '{requestedSkill}'"));
 
         if (!string.IsNullOrWhiteSpace(message.TaskId))
             throw new A2ARpcException(JsonRpcError.TaskNotFound(message.TaskId));

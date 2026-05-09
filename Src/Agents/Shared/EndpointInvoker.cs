@@ -40,7 +40,7 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
         }
 
         var accessor = scope.ServiceProvider.GetService<IHttpContextAccessor>();
-        var resolverAccessor = FastEndpoints.HttpContextExtensions.TryResolve<IHttpContextAccessor>(httpContext);
+        var resolverAccessor = httpContext.TryResolve<IHttpContextAccessor>();
         var previousContext = accessor?.HttpContext;
         var previousResolverContext = resolverAccessor?.HttpContext;
         BaseEndpoint? endpoint = null;
@@ -71,8 +71,11 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
             if (resolverAccessor is not null && !ReferenceEquals(resolverAccessor, accessor))
                 resolverAccessor.HttpContext = previousResolverContext;
 
+            // ReSharper disable once SuspiciousTypeConversion.Global
             if (endpoint is not null && definition.DisposableAsync)
                 await ((IAsyncDisposable)endpoint).DisposeAsync();
+
+            // ReSharper disable once SuspiciousTypeConversion.Global
             if (endpoint is not null && definition.Disposable)
                 ((IDisposable)endpoint).Dispose();
         }

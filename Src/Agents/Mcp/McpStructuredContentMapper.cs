@@ -116,16 +116,13 @@ static class McpStructuredContentMapper
 
     static bool MatchesSchemaType(JsonElement value, JsonNode? typeNode)
     {
-        if (typeNode is null)
-            return true;
-
-        if (typeNode is JsonValue typeValue && typeValue.TryGetValue<string>(out var type))
-            return MatchesSchemaType(value, type);
-
-        if (typeNode is JsonArray types)
-            return types.Any(t => t is JsonValue item && item.TryGetValue<string>(out var type) && MatchesSchemaType(value, type));
-
-        return true;
+        return typeNode switch
+        {
+            null => true,
+            JsonValue typeValue when typeValue.TryGetValue<string>(out var type) => MatchesSchemaType(value, type),
+            JsonArray types => types.Any(t => t is JsonValue item && item.TryGetValue<string>(out var type) && MatchesSchemaType(value, type)),
+            _ => true
+        };
     }
 
     static bool MatchesSchemaType(JsonElement value, string type)

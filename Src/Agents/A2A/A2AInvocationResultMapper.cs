@@ -1,4 +1,4 @@
-using System.Text.Json;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using FastEndpoints.Agents;
 using Microsoft.Extensions.Logging;
@@ -10,11 +10,7 @@ static class A2AInvocationResultMapper
     const string DefaultMediaType = "application/json";
     const string RoleAgent = "ROLE_AGENT";
 
-    public static object? Map(InvocationResult result,
-                              A2AMessage requestMessage,
-                              string[]? acceptedOutputModes,
-                              A2ASkillDescriptor skill,
-                              ILogger logger)
+    public static object Map(InvocationResult result, A2AMessage requestMessage, string[]? acceptedOutputModes, A2ASkillDescriptor skill, ILogger logger)
         => result.Status switch
         {
             InvocationStatus.Success => BuildSuccess(result, requestMessage, acceptedOutputModes),
@@ -37,7 +33,7 @@ static class A2AInvocationResultMapper
                 MessageId = Guid.NewGuid().ToString("N"),
                 ContextId = requestMessage.ContextId ?? Guid.NewGuid().ToString("N"),
                 Role = RoleAgent,
-                Parts = [BuildResponsePart(text, InvocationResultHelpers.NormalizeMediaType(r.ContentType, DefaultMediaType))]
+                Parts = [BuildResponsePart(text, InvocationResultHelpers.NormalizeMediaType(r.ContentType))]
             }
         };
     }
@@ -54,7 +50,7 @@ static class A2AInvocationResultMapper
             Data = new EndpointErrorData
             {
                 statusCode = result.HttpStatusCode,
-                contentType = InvocationResultHelpers.NormalizeMediaType(result.ContentType, DefaultMediaType),
+                contentType = InvocationResultHelpers.NormalizeMediaType(result.ContentType),
                 body = body,
                 rawBody = text
             }
@@ -72,7 +68,13 @@ static class A2AInvocationResultMapper
     static JsonRpcError BuildFaultedError(InvocationResult result, A2ASkillDescriptor skill, ILogger logger)
     {
         if (result.Exception is { } ex)
-            logger.LogError(ex, "A2A skill {SkillId} failed while invoking endpoint {EndpointType}.", skill.Id, skill.Definition.EndpointType.FullName ?? skill.Definition.EndpointType.Name);
+        {
+            logger.LogError(
+                ex,
+                "A2A skill {SkillId} failed while invoking endpoint {EndpointType}.",
+                skill.Id,
+                skill.Definition.EndpointType.FullName ?? skill.Definition.EndpointType.Name);
+        }
 
         return JsonRpcError.Internal("Endpoint invocation failed.");
     }
@@ -88,6 +90,7 @@ static class A2AInvocationResultMapper
     static bool IsJsonMediaType(string mediaType)
         => mediaType.Equals(DefaultMediaType, StringComparison.OrdinalIgnoreCase) || mediaType.EndsWith("+json", StringComparison.OrdinalIgnoreCase);
 
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     sealed class EndpointErrorData
     {
         public int statusCode { get; init; }

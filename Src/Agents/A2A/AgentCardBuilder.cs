@@ -76,5 +76,7 @@ sealed class AgentCardBuilder(A2ASkillCatalog skillCatalog, A2AOptions options, 
     static string NormalizePath(string path)
         => string.IsNullOrWhiteSpace(path)
                ? "/a2a"
-               : path[0] == '/' ? path : "/" + path;
+               : path[0] == '/'
+                   ? path
+                   : "/" + path;
 }

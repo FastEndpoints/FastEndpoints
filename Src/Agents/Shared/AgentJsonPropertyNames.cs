@@ -13,7 +13,7 @@ static class AgentJsonPropertyNames
         => TryGetJsonPropertyName(prop, def.ReqDtoType, def.SerializerContext ?? serializerOptions.TypeInfoResolver, serializerOptions);
 
     internal static string? GetSerializedName(PropertyInfo prop, Type dtoType, JsonSerializerOptions serializerOptions)
-        => BuildSchemaNameMap(dtoType, serializerOptions).TryGetValue(prop.Name, out var jsonName) ? jsonName : null;
+        => BuildSchemaNameMap(dtoType, serializerOptions).GetValueOrDefault(prop.Name);
 
     internal static IEnumerable<string> GetSchemaNameCandidates(PropertyInfo prop, Type dtoType, JsonSerializerOptions serializerOptions)
     {
@@ -27,7 +27,7 @@ static class AgentJsonPropertyNames
     internal static IReadOnlyDictionary<string, string> BuildSchemaNameMap(Type dtoType, JsonSerializerOptions serializerOptions)
         => _schemaNameMaps.GetOrAdd((dtoType, serializerOptions), static key => BuildSchemaNameMapCore(key.DtoType, key.SerializerOptions));
 
-    static IReadOnlyDictionary<string, string> BuildSchemaNameMapCore(Type dtoType, JsonSerializerOptions serializerOptions)
+    static Dictionary<string, string> BuildSchemaNameMapCore(Type dtoType, JsonSerializerOptions serializerOptions)
     {
         var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         var typeInfo = serializerOptions.TypeInfoResolver?.GetTypeInfo(dtoType, serializerOptions);

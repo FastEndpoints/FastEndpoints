@@ -42,12 +42,14 @@ static class McpToolSchemaFactory
     static JsonNode BuildInputSchema(EndpointDefinition def, JsonSerializerOptions serializerOptions, string toolName)
     {
         if (def.ReqDtoType == Types.EmptyRequest)
+        {
             return new JsonObject
             {
                 ["type"] = "object",
                 ["properties"] = new JsonObject(),
                 ["additionalProperties"] = false
             };
+        }
 
         var inputSchema = JsonSchemaBuilder.Build(def.ReqDtoType, serializerOptions);
         NormalizeRootObjectSchema(inputSchema);
@@ -83,7 +85,7 @@ static class McpToolSchemaFactory
 
     static bool HasObjectRootSchema(JsonNode schema)
     {
-        if (schema is not JsonObject obj || obj["type"] is not JsonNode typeNode)
+        if (schema is not JsonObject obj || obj["type"] is not { } typeNode)
             return false;
 
         return typeNode switch
@@ -96,7 +98,7 @@ static class McpToolSchemaFactory
 
     static string GetRootSchemaType(JsonNode schema)
     {
-        if (schema is not JsonObject obj || obj["type"] is not JsonNode typeNode)
+        if (schema is not JsonObject obj || obj["type"] is not { } typeNode)
             return "<unspecified>";
 
         return typeNode switch
@@ -125,9 +127,7 @@ static class McpToolSchemaFactory
     }
 
     static IValidator? TryResolveValidator(IServiceProvider services, Type validatorType)
-    {
-        return services.GetService(validatorType) as IValidator ?? (IValidator?)ActivatorUtilities.CreateInstance(services, validatorType);
-    }
+        => services.GetService(validatorType) as IValidator ?? (IValidator?)ActivatorUtilities.CreateInstance(services, validatorType);
 
     static void RemoveNonClientInputProperties(JsonNode inputSchema, EndpointDefinition def, JsonSerializerOptions serializerOptions)
         => RemoveSchemaProperties(inputSchema, def.ReqDtoType, serializerOptions, AgentInputPropertyRules.ShouldIgnoreClientInput);

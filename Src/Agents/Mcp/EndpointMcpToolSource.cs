@@ -49,7 +49,7 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
     }
 
     (ClaimsPrincipal Principal, HttpContext HttpContext) ResolveCallerContext(ClaimsPrincipal? user, HttpContext? httpContext)
-        => FastEndpoints.Agents.CallerContextResolver.Resolve(services, user, httpContext);
+        => CallerContextResolver.Resolve(services, user, httpContext);
 
     IReadOnlyList<ToolRegistration> GetVisibleTools(ClaimsPrincipal? user, HttpContext? httpContext)
     {
@@ -75,7 +75,15 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
                 if (options.ToolFilter is not null && !options.ToolFilter(def))
                     return null;
 
-                var tool = BuildTool(def, info, invoker, McpToolSchemaFactory.ResolveSerializerOptions(def, protocolSerializerOptions), protocolSerializerOptions, services, options, logger);
+                var tool = BuildTool(
+                    def,
+                    info,
+                    invoker,
+                    McpToolSchemaFactory.ResolveSerializerOptions(def, protocolSerializerOptions),
+                    protocolSerializerOptions,
+                    services,
+                    options,
+                    logger);
 
                 return new(def, tool.ProtocolTool.Name, tool);
             },

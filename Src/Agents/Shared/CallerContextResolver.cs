@@ -7,17 +7,14 @@ namespace FastEndpoints.Agents;
 static class CallerContextResolver
 {
     internal static (ClaimsPrincipal Principal, HttpContext HttpContext) Resolve(IServiceProvider services,
-                                                                                ClaimsPrincipal? user = null,
-                                                                                HttpContext? httpContext = null)
+                                                                                 ClaimsPrincipal? user = null,
+                                                                                 HttpContext? httpContext = null)
     {
         var resolvedHttpContext = httpContext ?? services.GetService<IHttpContextAccessor>()?.HttpContext ?? new DefaultHttpContext();
-        var principal = user ?? resolvedHttpContext.User ?? new ClaimsPrincipal();
+        var principal = user ?? resolvedHttpContext.User;
 
         if (!ReferenceEquals(resolvedHttpContext.User, principal))
             resolvedHttpContext.User = principal;
-
-        if (resolvedHttpContext.RequestServices is null)
-            resolvedHttpContext.RequestServices = services;
 
         return (principal, resolvedHttpContext);
     }

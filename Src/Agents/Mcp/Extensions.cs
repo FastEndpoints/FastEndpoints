@@ -2,7 +2,6 @@ using FastEndpoints.Agents;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using ModelContextProtocol;
 using ModelContextProtocol.Protocol;
@@ -84,5 +83,5 @@ public static class Extensions
     }
 
     static (ClaimsPrincipal Principal, HttpContext HttpContext) ResolveCallerContext<TParams>(RequestContext<TParams> ctx)
-        => FastEndpoints.Agents.CallerContextResolver.Resolve(ctx.Services!, ctx.User);
+        => CallerContextResolver.Resolve(ctx.Services!, ctx.User);
 }

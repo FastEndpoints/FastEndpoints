@@ -22,11 +22,10 @@ sealed class AgentRequestBuilder
     {
         var requestSpec = _requestSpecs.GetOrAdd((definition, bindingSerializerOptions), static key => BuildRequestSpec(key.Definition, key.SerializerOptions));
 
-        return BuildRequest(definition, args, requestSpec, bindingSerializerOptions, payloadSerializerOptions);
+        return BuildRequest(args, requestSpec, bindingSerializerOptions, payloadSerializerOptions);
     }
 
-    static AgentRequest BuildRequest(EndpointDefinition definition,
-                                     JsonElement args,
+    static AgentRequest BuildRequest(JsonElement args,
                                      AgentRequestSpec requestSpec,
                                      JsonSerializerOptions bindingSerializerOptions,
                                      JsonSerializerOptions payloadSerializerOptions)
@@ -50,10 +49,8 @@ sealed class AgentRequestBuilder
 
         foreach (var routeParam in routeParams)
         {
-            if (!remainingArgs.TryGetValue(routeParam, out var value))
+            if (!remainingArgs.Remove(routeParam, out var value))
                 continue;
-
-            remainingArgs.Remove(routeParam);
 
             if (TryGetSingleValue(value, out var routeValue))
                 request.RouteValues[routeParam] = routeValue;
@@ -273,7 +270,18 @@ sealed class AgentRequestBuilder
         => string.IsNullOrEmpty(prefix) ? key : $"{prefix}.{key}";
 
     static AgentRequestPropertySpec BuildNestedPropertySpec(PropertyInfo prop, Type declaringType, JsonSerializerOptions serializerOptions)
-        => BuildPropertySpec(prop, declaringType, serializerOptions, false, false, null, false, null, AgentQueryBindingKind.None, false, false);
+        => BuildPropertySpec(
+            prop,
+            declaringType,
+            serializerOptions,
+            false,
+            false,
+            null,
+            false,
+            null,
+            AgentQueryBindingKind.None,
+            false,
+            false);
 
     static AgentRequestPropertySpec BuildPropertySpec(PropertyInfo prop,
                                                       Type declaringType,

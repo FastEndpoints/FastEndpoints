@@ -11,7 +11,7 @@ sealed class AgentCardBuilder(A2ASkillCatalog skillCatalog, A2AOptions options, 
         var skills = new List<AgentSkill>();
         var visibleSkills = skillCatalog.GetVisibleSkills(ctx);
 
-        A2ASkillCatalog.EnsureUniqueIds(visibleSkills, "A2A skills visible to the current caller");
+        skillCatalog.EnsureUniqueIds(visibleSkills, "A2A skills visible to the current caller");
 
         foreach (var skill in visibleSkills)
         {

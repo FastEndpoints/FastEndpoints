@@ -23,38 +23,30 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
 {
     static readonly JsonElement _emptyArguments = JsonDocument.Parse("{}").RootElement.Clone();
 
-    readonly Lazy<ToolCatalog> _toolCatalog = new(() => BuildToolCatalog(services, options, logger));
+    readonly Lazy<AgentEndpointCatalog<ToolRegistration>> _toolCatalog = new(() => BuildToolCatalog(services, options, logger));
 
     public IReadOnlyList<McpServerTool> BuildTools()
     {
-        EnsureUniqueNames(_toolCatalog.Value.Tools, "registered MCP tools");
+        _toolCatalog.Value.EnsureUnique(_toolCatalog.Value.Entries, "registered MCP tools");
 
-        return _toolCatalog.Value.Tools.Select(x => x.Tool).ToArray();
+        return _toolCatalog.Value.Entries.Select(x => x.Tool).ToArray();
     }
 
     public IReadOnlyList<Tool> BuildVisibleProtocolTools(ClaimsPrincipal? user = null, HttpContext? httpContext = null)
     {
         var visibleTools = GetVisibleTools(user, httpContext);
 
-        EnsureUniqueNames(visibleTools, "MCP tools visible to the current caller");
+        _toolCatalog.Value.EnsureUnique(visibleTools, "MCP tools visible to the current caller");
 
         return visibleTools.Select(x => x.Tool.ProtocolTool).ToArray();
     }
 
     public McpServerTool? ResolveVisibleTool(string name, ClaimsPrincipal? user = null, HttpContext? httpContext = null)
     {
-        if (!_toolCatalog.Value.ToolsByName.TryGetValue(name, out var candidateTools))
-            return null;
-
         var (principal, context) = ResolveCallerContext(user, httpContext);
-        var matches = candidateTools.Where(x => options.ToolVisibilityFilter(x.Definition, principal, context)).ToArray();
+        var tool = _toolCatalog.Value.ResolveVisible(name, principal, context, options.ToolVisibilityFilter, "MCP tools visible to the current caller", "MCP tool name");
 
-        return matches.Length switch
-        {
-            0 => null,
-            1 => matches[0].Tool,
-            _ => throw CreateDuplicateNameException(name, matches, "MCP tools visible to the current caller")
-        };
+        return tool?.Tool;
     }
 
     (ClaimsPrincipal Principal, HttpContext HttpContext) ResolveCallerContext(ClaimsPrincipal? user, HttpContext? httpContext)
@@ -64,43 +56,34 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
     {
         var (principal, context) = ResolveCallerContext(user, httpContext);
 
-        return _toolCatalog.Value.Tools.Where(x => options.ToolVisibilityFilter(x.Definition, principal, context)).ToArray();
+        return _toolCatalog.Value.GetVisible(principal, context, options.ToolVisibilityFilter);
     }
 
-    static ToolCatalog BuildToolCatalog(IServiceProvider services, McpOptions options, ILogger<EndpointMcpToolSource> logger)
+    static AgentEndpointCatalog<ToolRegistration> BuildToolCatalog(IServiceProvider services, McpOptions options, ILogger<EndpointMcpToolSource> logger)
     {
-        var endpointData = services.GetRequiredService<EndpointData>();
         var protocolSerializerOptions = AgentJsonSerializerOptions.EnsureTypeInfoResolver(Config.SerOpts.Options);
         var invoker = services.GetRequiredService<EndpointInvoker>();
 
-        var tools = new List<ToolRegistration>();
+        return AgentEndpointCatalog<ToolRegistration>.FromEndpoints(
+            services,
+            def =>
+            {
+                var info = def.ResolveToolInfo();
 
-        foreach (var def in endpointData.Found)
-        {
-            var info = def.ResolveToolInfo();
+                if (info is null)
+                    return null;
 
-            if (info is null)
-                continue;
+                if (options.ToolFilter is not null && !options.ToolFilter(def))
+                    return null;
 
-            if (options.ToolFilter is not null && !options.ToolFilter(def))
-                continue;
+                var tool = BuildTool(def, info, invoker, ResolveSchemaSerializerOptions(def, protocolSerializerOptions), protocolSerializerOptions, services, options, logger);
 
-            var tool = BuildTool(def, info, invoker, ResolveSchemaSerializerOptions(def, protocolSerializerOptions), protocolSerializerOptions, services, options, logger);
-            tools.Add(new(def, tool.ProtocolTool.Name, tool));
-        }
-
-        return new(tools, IndexToolsByName(tools));
+                return new(def, tool.ProtocolTool.Name, tool);
+            },
+            x => x.Name,
+            x => x.Definition,
+            "MCP tool names");
     }
-
-    static IReadOnlyDictionary<string, ToolRegistration[]> IndexToolsByName(IReadOnlyList<ToolRegistration> tools)
-        => tools.GroupBy(x => x.Name, StringComparer.Ordinal)
-                .ToDictionary(group => group.Key, group => group.ToArray(), StringComparer.Ordinal);
-
-    static void EnsureUniqueNames(IReadOnlyCollection<ToolRegistration> tools, string scope)
-        => AgentCatalogUniqueness.EnsureUnique(tools, scope, x => x.Name, x => x.Definition, "MCP tool names");
-
-    static InvalidOperationException CreateDuplicateNameException(string name, IReadOnlyCollection<ToolRegistration> matches, string scope)
-        => AgentCatalogUniqueness.CreateDuplicateException(name, matches, scope, x => x.Definition, "MCP tool name", "MCP tool names");
 
     static McpServerTool BuildTool(EndpointDefinition def,
                                    McpToolInfo info,
@@ -527,6 +510,4 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
     }
 
     sealed record ToolRegistration(EndpointDefinition Definition, string Name, McpServerTool Tool);
-
-    sealed record ToolCatalog(IReadOnlyList<ToolRegistration> Tools, IReadOnlyDictionary<string, ToolRegistration[]> ToolsByName);
 }

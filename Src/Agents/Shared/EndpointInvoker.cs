@@ -298,7 +298,11 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
             cookie?.CookieName ?? fieldName,
             GetQueryBindingKind(prop),
             prop.IsDefined(typeof(RouteParamAttribute), true),
-            fromClaim?.IsRequired is true || hasPermission is not null,
+            fromClaim?.IsRequired is true ||
+            fromClaim?.RemoveFromSchema is true ||
+            hasPermission is not null ||
+            header?.RemoveFromSchema is true ||
+            cookie?.RemoveFromSchema is true,
             fieldName);
     }
 

@@ -61,6 +61,28 @@ public class McpToolDescriptorTests
     }
 
     [Fact]
+    public async Task Hidden_transport_inputs_are_not_bound_from_client_arguments()
+    {
+        using var provider = BuildServices();
+
+        var tool = BuildTool(provider, "hidden_transport_input_tool");
+        var result = await tool.InvokeAsync(
+            BuildRequestContext(
+                provider,
+                tool,
+                authenticated: true,
+                new()
+                {
+                    ["InternalHeader"] = JsonSerializer.SerializeToElement("spoofed-header"),
+                    ["InternalCookie"] = JsonSerializer.SerializeToElement("spoofed-cookie"),
+                    ["Value"] = JsonSerializer.SerializeToElement("ping")
+                }),
+            CancellationToken.None);
+
+        result.StructuredContent!.Value.GetProperty("Value").GetString().ShouldBe("none:none:ping");
+    }
+
+    [Fact]
     public async Task ToHeader_response_properties_are_not_advertised_as_structured_content()
     {
         using var provider = BuildServices();
@@ -479,7 +501,10 @@ public class McpToolDescriptorTests
     sealed class HiddenTransportInputToolEndpoint : Endpoint<HiddenTransportInputToolRequest, ToolResponse>
     {
         public override Task HandleAsync(HiddenTransportInputToolRequest req, CancellationToken ct)
-            => Send.OkAsync(new() { Value = req.Value }, ct);
+            => Send.OkAsync(new() { Value = $"{TransportValue(req.InternalHeader)}:{TransportValue(req.InternalCookie)}:{req.Value}" }, ct);
+
+        static string TransportValue(string? value)
+            => string.IsNullOrEmpty(value) ? "none" : value;
     }
 
     sealed class HiddenTransportInputToolRequest

@@ -88,9 +88,7 @@ sealed class A2ASkillCatalog(IServiceProvider services, A2AOptions options)
             return null;
 
         var summaryTitle = def.EndpointSummary?.Summary;
-        var id = info.Id ??
-                 (!string.IsNullOrWhiteSpace(summaryTitle) ? NamingHelpers.ToSnakeCase(summaryTitle) : null) ??
-                 NamingHelpers.ToSnakeCase(def.EndpointType.Name);
+        var id = A2ASkillIdResolver.ResolvePublishedId(def, info);
 
         return new(def, info, id, summaryTitle);
     }

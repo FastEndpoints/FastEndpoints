@@ -145,6 +145,50 @@ public class A2ASkillVisibilityTests
         ex.Message.ShouldContain("shared");
     }
 
+    [Theory]
+    [InlineData("bad id")]
+    [InlineData("bad.id")]
+    [InlineData("")]
+    public void Explicit_invalid_skill_ids_fail_with_clear_exception(string invalidId)
+    {
+        using var provider = BuildServices(visibleSkillId: invalidId);
+        var ctx = BuildContext(provider);
+
+        var ex = Should.Throw<InvalidOperationException>(() => provider.GetRequiredService<AgentCardBuilder>().Build(ctx));
+
+        ex.Message.ShouldContain("Invalid explicit A2A skill id");
+        ex.Message.ShouldContain($"'{invalidId}'");
+        ex.Message.ShouldContain(typeof(VisibleSkillEndpoint).FullName!);
+    }
+
+    [Fact]
+    public void Summary_derived_skill_id_is_normalized_to_valid_stable_id()
+    {
+        using var provider = BuildServices(visibleSkillId: null!);
+        var ctx = BuildContext(provider);
+        var def = provider.GetRequiredService<EndpointData>().Found.Single(x => x.EndpointType == typeof(VisibleSkillEndpoint));
+        def.Summary(s => s.Summary = "Get user (admin-only)");
+
+        var card = provider.GetRequiredService<AgentCardBuilder>().Build(ctx);
+
+        card.Skills.Select(s => s.Id).ShouldContain("get_user_admin_only");
+    }
+
+    [Fact]
+    public void Generated_skill_id_that_normalizes_to_empty_fails_clearly()
+    {
+        using var provider = BuildServices(visibleSkillId: null!, skillFilter: def => def.EndpointType == typeof(VisibleSkillEndpoint));
+        var ctx = BuildContext(provider);
+        var def = provider.GetRequiredService<EndpointData>().Found.Single(x => x.EndpointType == typeof(VisibleSkillEndpoint));
+        def.Summary(s => s.Summary = "!!!");
+
+        var ex = Should.Throw<InvalidOperationException>(() => provider.GetRequiredService<AgentCardBuilder>().Build(ctx));
+
+        ex.Message.ShouldContain("Generated A2A skill id");
+        ex.Message.ShouldContain(typeof(VisibleSkillEndpoint).FullName!);
+        ex.Message.ShouldContain("Bad value: '!!!'");
+    }
+
     [Fact]
     public async Task Visible_duplicate_skill_ids_are_rejected_before_dispatch()
     {

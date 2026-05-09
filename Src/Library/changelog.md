@@ -26,6 +26,27 @@ Global x402 defaults are configured with `builder.AddX402()` and `app.UseX402(..
 
 </details>
 
+<details><summary>New 'FastEndpoints.Mcp' and 'FastEndpoints.A2A' agent integration packages</summary>
+
+Two new beta packages are now available for exposing your existing FastEndpoints endpoints to AI agent runtimes without having to build separate agent-specific controllers or handlers.
+
+`FastEndpoints.Mcp` exposes opt-in endpoints as Model Context Protocol (MCP) tools over HTTP using the official MCP ASP.NET Core transport. `FastEndpoints.A2A` exposes opt-in endpoints as A2A skills with an agent card and JSON-RPC `SendMessage` dispatcher.
+
+Both addons execute the normal FastEndpoints pipeline in-process, including binding, validation, pre/post processors and response serialization. Nothing is exposed by default. Endpoints must explicitly opt in via `this.McpTool(...)`, `[McpTool]`, `this.A2ASkill(...)`, or `[A2ASkill]`, and each package has separate agent-facing visibility filters so REST authorization and agent visibility can be configured independently.
+
+```csharp
+builder.Services
+       .AddFastEndpoints()
+       .AddMcp()
+       .AddA2A();
+
+app.UseFastEndpoints()
+   .UseMcp()
+   .UseA2A();
+```
+
+</details>
+
 <details><summary>Generate a hydrated test URL from an endpoint type and request DTO</summary>
 
 Testing extensions now expose `GetTestUrlFor<TEndpoint>(object request)` publicly. This lets you resolve the final routeless test URL for an endpoint without actually sending the request. Route parameters are populated from the supplied DTO instance, query string values are appended automatically, and the method also works in Aspire-style black-box tests by loading the endpoint URL cache over HTTP when necessary.

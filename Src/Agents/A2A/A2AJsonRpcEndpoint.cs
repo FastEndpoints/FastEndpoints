@@ -19,10 +19,10 @@ static class A2AJsonRpcEndpoint
             using var document = await JsonDocument.ParseAsync(context.Request.Body, cancellationToken: context.RequestAborted);
 
             if (document.RootElement.ValueKind == JsonValueKind.Array)
-                return Results.Json(new JsonRpcResponse { Error = JsonRpcError.InvalidRequest("batch JSON-RPC requests are not supported") }, serializerOptions, statusCode: 400);
+                return Error(JsonRpcError.InvalidRequest("batch JSON-RPC requests are not supported"), serializerOptions, 400);
 
             if (document.RootElement.ValueKind != JsonValueKind.Object)
-                return Results.Json(new JsonRpcResponse { Error = JsonRpcError.InvalidRequest("invalid JSON-RPC request") }, serializerOptions, statusCode: 400);
+                return Error(JsonRpcError.InvalidRequest("invalid JSON-RPC request"), serializerOptions, 400);
 
             hasId = document.RootElement.ValueKind == JsonValueKind.Object && document.RootElement.TryGetProperty("id", out _);
             request = document.RootElement.Deserialize<JsonRpcRequest>(serializerOptions);
@@ -34,17 +34,17 @@ static class A2AJsonRpcEndpoint
         }
         catch (JsonException ex)
         {
-            return Results.Json(new JsonRpcResponse { Error = new() { Code = -32700, Message = $"parse error: {ex.Message}" } }, serializerOptions, statusCode: 400);
+            return Error(new() { Code = -32700, Message = $"parse error: {ex.Message}" }, serializerOptions, 400);
         }
 
         if (request is null || request.JsonRpc != "2.0" || string.IsNullOrEmpty(request.Method))
-            return Results.Json(new JsonRpcResponse { Error = JsonRpcError.InvalidRequest("invalid JSON-RPC request") }, serializerOptions, statusCode: 400);
+            return Error(JsonRpcError.InvalidRequest("invalid JSON-RPC request"), serializerOptions, 400);
 
         if (request.Id is { } id && !IsValidJsonRpcId(id))
-            return Results.Json(new JsonRpcResponse { Error = JsonRpcError.InvalidRequest("invalid JSON-RPC id") }, serializerOptions, statusCode: 400);
+            return Error(JsonRpcError.InvalidRequest("invalid JSON-RPC id"), serializerOptions, 400);
 
         if (TryGetRequestedA2AVersion(context, out var requestedVersion) && requestedVersion != SupportedVersion)
-            return Results.Json(new JsonRpcResponse { Id = request.Id, Error = JsonRpcError.VersionNotSupported(requestedVersion) }, serializerOptions);
+            return Error(JsonRpcError.VersionNotSupported(requestedVersion), serializerOptions, id: request.Id);
 
         if (!hasId)
         {
@@ -80,6 +80,9 @@ static class A2AJsonRpcEndpoint
 
         return Results.Json(response, serializerOptions);
     }
+
+    static IResult Error(JsonRpcError error, JsonSerializerOptions serializerOptions, int? statusCode = null, JsonElement? id = null)
+        => Results.Json(new JsonRpcResponse { Id = id, Error = error }, serializerOptions, statusCode: statusCode);
 
     static bool TryGetRequestedA2AVersion(HttpContext context, out string version)
     {

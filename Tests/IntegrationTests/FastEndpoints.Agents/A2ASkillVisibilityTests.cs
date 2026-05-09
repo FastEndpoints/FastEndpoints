@@ -204,7 +204,9 @@ public class A2ASkillVisibilityTests
         var message = resultJson.GetProperty("message");
         var part = message.GetProperty("parts")[0];
 
-        message.GetProperty("role").GetString().ShouldBe("agent");
+        message.GetProperty("role").GetString().ShouldBe("ROLE_AGENT");
+        message.TryGetProperty("contextId", out var contextId).ShouldBeTrue();
+        contextId.GetString().ShouldNotBeNullOrWhiteSpace();
         message.TryGetProperty("messageId", out var messageId).ShouldBeTrue();
         messageId.GetString().ShouldNotBeNullOrWhiteSpace();
         part.GetProperty("data").GetProperty("Value").GetString().ShouldBe("visible:ping");
@@ -366,7 +368,7 @@ public class A2ASkillVisibilityTests
     }
 
     [Fact]
-    public async Task Http_SendMessage_returns_non_object_json_response_as_text_part()
+    public async Task Http_SendMessage_returns_non_object_json_response_as_data_part()
     {
         await using var app = BuildHttpApp(skillFilter: def => def.EndpointType == typeof(JsonArrayResponseSkillEndpoint));
         await app.StartAsync(CancellationToken.None);
@@ -393,9 +395,113 @@ public class A2ASkillVisibilityTests
         var json = await response.Content.ReadFromJsonAsync<JsonElement>(CancellationToken.None);
         var part = json.GetProperty("result").GetProperty("message").GetProperty("parts")[0];
 
-        part.GetProperty("text").GetString().ShouldBe("[1,2]");
-        part.TryGetProperty("data", out _).ShouldBeFalse();
+        part.GetProperty("data")[0].GetInt32().ShouldBe(1);
+        part.GetProperty("data")[1].GetInt32().ShouldBe(2);
+        part.TryGetProperty("text", out _).ShouldBeFalse();
         part.GetProperty("mediaType").GetString().ShouldBe("application/json");
+    }
+
+    [Fact]
+    public async Task Http_SendMessage_accepts_v1_role_and_preserves_context_id()
+    {
+        await using var app = BuildHttpApp(skillFilter: def => def.EndpointType == typeof(VisibleSkillEndpoint));
+        await app.StartAsync(CancellationToken.None);
+        var client = app.GetTestClient();
+
+        var response = await client.PostAsJsonAsync(
+            "/a2a",
+            new
+            {
+                jsonrpc = "2.0",
+                id = 1,
+                method = "SendMessage",
+                @params = new
+                {
+                    message = new
+                    {
+                        messageId = "client-message-1",
+                        contextId = "ctx-1",
+                        role = "ROLE_USER",
+                        parts = new[] { new { data = new { Value = "ping" } } }
+                    }
+                }
+            },
+            CancellationToken.None);
+        var json = await response.Content.ReadFromJsonAsync<JsonElement>(CancellationToken.None);
+        var message = json.GetProperty("result").GetProperty("message");
+
+        message.GetProperty("role").GetString().ShouldBe("ROLE_AGENT");
+        message.GetProperty("contextId").GetString().ShouldBe("ctx-1");
+        message.TryGetProperty("taskId", out _).ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task Http_SendMessage_rejects_unknown_task_id_without_execution()
+    {
+        await using var app = BuildHttpApp(skillFilter: def => def.EndpointType == typeof(VisibleSkillEndpoint));
+        await app.StartAsync(CancellationToken.None);
+        var client = app.GetTestClient();
+
+        System.Threading.Interlocked.Exchange(ref VisibleSkillEndpoint.ExecutionCount, 0);
+
+        var response = await client.PostAsJsonAsync(
+            "/a2a",
+            new
+            {
+                jsonrpc = "2.0",
+                id = 1,
+                method = "SendMessage",
+                @params = new
+                {
+                    message = new
+                    {
+                        messageId = "client-message-1",
+                        taskId = "task-1",
+                        role = "ROLE_USER",
+                        parts = new[] { new { data = new { Value = "ping" } } }
+                    }
+                }
+            },
+            CancellationToken.None);
+        var json = await response.Content.ReadFromJsonAsync<JsonElement>(CancellationToken.None);
+
+        json.GetProperty("error").GetProperty("code").GetInt32().ShouldBe(-32001);
+        json.TryGetProperty("result", out _).ShouldBeFalse();
+        VisibleSkillEndpoint.ExecutionCount.ShouldBe(0);
+    }
+
+    [Fact]
+    public async Task Http_SendMessage_rejects_unsupported_input_media_type_without_execution()
+    {
+        await using var app = BuildHttpApp(skillFilter: def => def.EndpointType == typeof(VisibleSkillEndpoint));
+        await app.StartAsync(CancellationToken.None);
+        var client = app.GetTestClient();
+
+        System.Threading.Interlocked.Exchange(ref VisibleSkillEndpoint.ExecutionCount, 0);
+
+        var response = await client.PostAsJsonAsync(
+            "/a2a",
+            new
+            {
+                jsonrpc = "2.0",
+                id = 1,
+                method = "SendMessage",
+                @params = new
+                {
+                    message = new
+                    {
+                        messageId = "client-message-1",
+                        role = "ROLE_USER",
+                        parts = new[] { new { text = "hello", mediaType = "text/plain" } }
+                    }
+                }
+            },
+            CancellationToken.None);
+        var json = await response.Content.ReadFromJsonAsync<JsonElement>(CancellationToken.None);
+
+        json.GetProperty("error").GetProperty("code").GetInt32().ShouldBe(-32005);
+        json.TryGetProperty("result", out _).ShouldBeFalse();
+        VisibleSkillEndpoint.ExecutionCount.ShouldBe(0);
     }
 
     [Theory]
@@ -530,7 +636,7 @@ public class A2ASkillVisibilityTests
             """{}""",
             """{ "message": "bad" }""",
             """{ "message": { "messageId": "m1", "parts": [ { "data": { "Value": "ping" } } ] } }""",
-            """{ "message": { "messageId": "m1", "role": "agent", "parts": [ { "data": { "Value": "ping" } } ] } }""",
+            """{ "message": { "messageId": "m1", "role": "ROLE_AGENT", "parts": [ { "data": { "Value": "ping" } } ] } }""",
             """{ "message": { "role": "user", "parts": [ { "data": { "Value": "ping" } } ] } }""",
             """{ "message": { "messageId": "m1", "role": "user", "parts": {} } }""",
             """{ "message": { "messageId": "m1", "role": "user", "parts": [] } }""",
@@ -539,8 +645,6 @@ public class A2ASkillVisibilityTests
             """{ "message": { "messageId": "m1", "role": "user", "parts": [ { "text": "not json" } ] } }""",
             """{ "message": { "messageId": "m1", "role": "user", "parts": [ { "data": { "Value": "ping" } } ] }, "metadata": { "skill": 123 } }""",
             """{ "message": { "messageId": "m1", "role": "user", "parts": [ { "data": { "Value": "ping" } } ] }, "metadata": { "skill": "" } }""",
-            """{ "message": { "messageId": "m1", "role": "user", "parts": [ { "data": null } ] } }""",
-            """{ "message": { "messageId": "m1", "role": "user", "parts": [ { "data": ["ping"] } ] } }""",
             """{ "message": { "messageId": "m1", "role": "user", "parts": [ { "raw": "cGluZw==" } ] } }"""
         };
 

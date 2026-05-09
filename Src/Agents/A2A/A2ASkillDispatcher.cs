@@ -13,6 +13,8 @@ namespace FastEndpoints.A2A;
 sealed class A2ASkillDispatcher(A2ASkillCatalog skillCatalog, EndpointInvoker invoker, ILogger<A2ASkillDispatcher> logger)
 {
     const string DefaultMediaType = "application/json";
+    const string RoleUser = "ROLE_USER";
+    const string RoleAgent = "ROLE_AGENT";
 
     public async Task<object?> DispatchAsync(string method, JsonElement? parameters, HttpContext ctx, CancellationToken ct)
     {
@@ -39,7 +41,11 @@ sealed class A2ASkillDispatcher(A2ASkillCatalog skillCatalog, EndpointInvoker in
                            ? JsonRpcError.InvalidParams("multiple skills are available; set 'metadata.skill' to choose one.")
                            : JsonRpcError.MethodNotFound($"skill '{requestedSkill}'"));
 
+        if (!string.IsNullOrWhiteSpace(message.TaskId))
+            throw new A2ARpcException(JsonRpcError.TaskNotFound(message.TaskId));
+
         EnsureRequestedOutputModesAreSupported(p.Configuration?.AcceptedOutputModes, skill.Info);
+        EnsureInputModesAreSupported(message, skill.Info);
 
         var args = ExtractArgs(message);
         var result = await invoker.InvokeAsync(skill.Definition, args, ctx.User, ct);
@@ -91,6 +97,9 @@ sealed class A2ASkillDispatcher(A2ASkillCatalog skillCatalog, EndpointInvoker in
     static string[] GetOutputModes(A2ASkillInfo skill)
         => skill.OutputModes is { Length: > 0 } outputModes ? outputModes : [DefaultMediaType];
 
+    static string[] GetInputModes(A2ASkillInfo skill)
+        => skill.InputModes is { Length: > 0 } inputModes ? inputModes : [DefaultMediaType];
+
     static A2ASendMessageResponse BuildSuccess(InvocationResult r, A2AMessage requestMessage)
     {
         var text = InvocationResultHelpers.ReadBodyText(r);
@@ -100,9 +109,8 @@ sealed class A2ASkillDispatcher(A2ASkillCatalog skillCatalog, EndpointInvoker in
             Message = new()
             {
                 MessageId = Guid.NewGuid().ToString("N"),
-                ContextId = requestMessage.ContextId,
-                TaskId = requestMessage.TaskId,
-                Role = "agent",
+                ContextId = requestMessage.ContextId ?? Guid.NewGuid().ToString("N"),
+                Role = RoleAgent,
                 Parts = [BuildResponsePart(text, InvocationResultHelpers.NormalizeMediaType(r.ContentType, DefaultMediaType))]
             }
         };
@@ -145,7 +153,7 @@ sealed class A2ASkillDispatcher(A2ASkillCatalog skillCatalog, EndpointInvoker in
 
     static A2APart BuildResponsePart(string text, string mediaType)
     {
-        if (InvocationResultHelpers.TryParseJson(text, out var data) && data.ValueKind == JsonValueKind.Object)
+        if (IsJsonMediaType(mediaType) && InvocationResultHelpers.TryParseJson(text, out var data))
             return new() { Data = data, MediaType = mediaType };
 
         return new() { Text = text, MediaType = mediaType };
@@ -171,8 +179,8 @@ sealed class A2ASkillDispatcher(A2ASkillCatalog skillCatalog, EndpointInvoker in
         if (string.IsNullOrWhiteSpace(message.MessageId))
             throw new A2ARpcException(JsonRpcError.InvalidParams("'message.messageId' is required."));
 
-        if (message.Role != "user")
-            throw new A2ARpcException(JsonRpcError.InvalidParams("'message.role' must be 'user'."));
+        if (message.Role is not RoleUser and not "user")
+            throw new A2ARpcException(JsonRpcError.InvalidParams("'message.role' must be 'ROLE_USER'."));
 
         if (message.Parts is not { Length: > 0 } parts)
             throw new A2ARpcException(JsonRpcError.InvalidParams("'message.parts' must contain at least one part."));
@@ -180,7 +188,7 @@ sealed class A2ASkillDispatcher(A2ASkillCatalog skillCatalog, EndpointInvoker in
         for (var i = 0; i < parts.Length; i++)
         {
             var part = parts[i];
-            var hasData = part.Data is { ValueKind: not JsonValueKind.Null and not JsonValueKind.Undefined };
+            var hasData = part.Data is { ValueKind: not JsonValueKind.Undefined };
             var contentCount = (part.Text is not null ? 1 : 0) +
                                (hasData ? 1 : 0) +
                                (part.Raw is not null ? 1 : 0) +
@@ -188,9 +196,6 @@ sealed class A2ASkillDispatcher(A2ASkillCatalog skillCatalog, EndpointInvoker in
 
             if (contentCount != 1)
                 throw new A2ARpcException(JsonRpcError.InvalidParams($"'message.parts[{i}]' must contain exactly one of 'text', 'data', 'raw', or 'url'."));
-
-            if (hasData && part.Data!.Value.ValueKind != JsonValueKind.Object)
-                throw new A2ARpcException(JsonRpcError.InvalidParams($"'message.parts[{i}].data' must be a JSON object."));
         }
 
         return message;
@@ -200,7 +205,7 @@ sealed class A2ASkillDispatcher(A2ASkillCatalog skillCatalog, EndpointInvoker in
     {
         foreach (var part in message.Parts!)
         {
-            if (part.Data is { ValueKind: JsonValueKind.Object } data)
+            if (part.Data is { ValueKind: not JsonValueKind.Undefined } data)
                 return data;
 
             if (part.Text is { } text)
@@ -220,6 +225,22 @@ sealed class A2ASkillDispatcher(A2ASkillCatalog skillCatalog, EndpointInvoker in
 
         throw new A2ARpcException(JsonRpcError.InvalidParams("no supported input part found. only 'data' and JSON 'text' parts can invoke skills."));
     }
+
+    static void EnsureInputModesAreSupported(A2AMessage message, A2ASkillInfo skill)
+    {
+        var inputModes = GetInputModes(skill);
+
+        foreach (var part in message.Parts!)
+        {
+            var mediaType = InvocationResultHelpers.NormalizeMediaType(part.MediaType, DefaultMediaType);
+
+            if (!inputModes.Contains(mediaType, StringComparer.OrdinalIgnoreCase))
+                throw new A2ARpcException(JsonRpcError.ContentTypeNotSupported(mediaType));
+        }
+    }
+
+    static bool IsJsonMediaType(string mediaType)
+        => mediaType.Equals(DefaultMediaType, StringComparison.OrdinalIgnoreCase) || mediaType.EndsWith("+json", StringComparison.OrdinalIgnoreCase);
 
     static string? GetRequestedSkill(JsonElement? metadata)
     {

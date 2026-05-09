@@ -187,11 +187,13 @@ sealed class A2ASkillDispatcher(A2ASkillCatalog skillCatalog, EndpointInvoker in
         if (metadata is null or { ValueKind: JsonValueKind.Null or JsonValueKind.Undefined })
             return null;
 
-        return metadata.Value.ValueKind == JsonValueKind.Object &&
-               metadata.Value.TryGetProperty("skill", out var skill) &&
-               skill.ValueKind == JsonValueKind.String
-                   ? skill.GetString()
-                   : null;
+        if (metadata.Value.ValueKind != JsonValueKind.Object || !metadata.Value.TryGetProperty("skill", out var skill))
+            return null;
+
+        if (skill.ValueKind != JsonValueKind.String || string.IsNullOrWhiteSpace(skill.GetString()))
+            throw new A2ARpcException(JsonRpcError.InvalidParams("'metadata.skill' must be a non-empty string."));
+
+        return skill.GetString();
     }
 
 }

@@ -395,6 +395,8 @@ public class A2ASkillVisibilityTests
             """{ "message": { "messageId": "m1", "role": "user", "parts": [ { } ] } }""",
             """{ "message": { "messageId": "m1", "role": "user", "parts": [ { "text": "{}", "data": { "Value": "ping" } } ] } }""",
             """{ "message": { "messageId": "m1", "role": "user", "parts": [ { "text": "not json" } ] } }""",
+            """{ "message": { "messageId": "m1", "role": "user", "parts": [ { "data": { "Value": "ping" } } ] }, "metadata": { "skill": 123 } }""",
+            """{ "message": { "messageId": "m1", "role": "user", "parts": [ { "data": { "Value": "ping" } } ] }, "metadata": { "skill": "" } }""",
             """{ "message": { "messageId": "m1", "role": "user", "parts": [ { "data": null } ] } }""",
             """{ "message": { "messageId": "m1", "role": "user", "parts": [ { "data": ["ping"] } ] } }""",
             """{ "message": { "messageId": "m1", "role": "user", "parts": [ { "raw": "cGluZw==" } ] } }"""

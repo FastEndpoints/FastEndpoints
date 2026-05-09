@@ -39,6 +39,20 @@ public class McpToolNameValidationTests
     }
 
     [Fact]
+    public void Explicit_tool_name_longer_than_protocol_limit_fails_with_clear_exception()
+    {
+        var tooLongName = new string('a', 65);
+        using var provider = BuildServices(typeof(ExplicitInvalidNameEndpoint));
+        GetDefinition<ExplicitInvalidNameEndpoint>(provider).McpTool(tooLongName);
+
+        var ex = Should.Throw<InvalidOperationException>(() => provider.GetRequiredService<EndpointMcpToolSource>().BuildTools());
+
+        ex.Message.ShouldContain("Invalid explicit MCP tool name");
+        ex.Message.ShouldContain("^[A-Za-z0-9_-]{1,64}$");
+        ex.Message.ShouldContain(typeof(ExplicitInvalidNameEndpoint).FullName!);
+    }
+
+    [Fact]
     public void Summary_derived_name_is_normalized_to_valid_stable_name()
     {
         using var provider = BuildServices(typeof(SummaryDerivedNameEndpoint));
@@ -47,6 +61,17 @@ public class McpToolNameValidationTests
         var tool = provider.GetRequiredService<EndpointMcpToolSource>().BuildTools().Single();
 
         tool.ProtocolTool.Name.ShouldBe("get_user_admin_only");
+    }
+
+    [Fact]
+    public void Summary_derived_name_is_truncated_to_protocol_limit()
+    {
+        using var provider = BuildServices(typeof(SummaryDerivedNameEndpoint));
+        ConfigureGeneratedTool<SummaryDerivedNameEndpoint>(provider, new string('a', 70));
+
+        var tool = provider.GetRequiredService<EndpointMcpToolSource>().BuildTools().Single();
+
+        tool.ProtocolTool.Name.ShouldBe(new string('a', 64));
     }
 
     [Fact]

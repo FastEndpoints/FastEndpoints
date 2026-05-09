@@ -5,7 +5,8 @@ namespace FastEndpoints.Mcp;
 
 static class McpToolNameResolver
 {
-    const string ValidNamePattern = "^[A-Za-z0-9_-]+$";
+    const int MaxNameLength = 64;
+    const string ValidNamePattern = "^[A-Za-z0-9_-]{1,64}$";
 
     internal static string ResolvePublishedName(EndpointDefinition def, McpToolInfo info)
     {
@@ -50,6 +51,9 @@ static class McpToolNameResolver
                 builder.Append(c);
                 previousWasSeparator = isSeparator;
 
+                if (builder.Length == MaxNameLength)
+                    break;
+
                 continue;
             }
 
@@ -58,6 +62,9 @@ static class McpToolNameResolver
 
             builder.Append('_');
             previousWasSeparator = true;
+
+            if (builder.Length == MaxNameLength)
+                break;
         }
 
         if (builder.Length > 0 && builder[^1] is '_' or '-')
@@ -67,7 +74,7 @@ static class McpToolNameResolver
     }
 
     static bool IsValidName(string name)
-        => name.Length != 0 && name.All(IsNameChar);
+        => name.Length is > 0 and <= MaxNameLength && name.All(IsNameChar);
 
     static bool IsNameChar(char c)
         => char.IsAsciiLetterOrDigit(c) || c is '_' or '-';

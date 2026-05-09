@@ -214,7 +214,7 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
         JsonElement? structuredContent = null;
 
         if (outputSchema is not null && TryExtractStructuredContent(text, out var content))
-            structuredContent = content;
+            structuredContent = ApplyOutputSchema(content, outputSchema);
 
         return new()
         {
@@ -277,6 +277,9 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
 
         var outputSchema = JsonSchemaBuilder.Build(def.ResDtoType, serializerOptions);
         NormalizeRootObjectSchema(outputSchema);
+
+        if (HasObjectRootSchema(outputSchema))
+            RemoveToHeaderOutputProperties(outputSchema, def, serializerOptions);
 
         return HasObjectRootSchema(outputSchema) ? outputSchema : null;
     }
@@ -356,6 +359,23 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
         return false;
     }
 
+    static JsonElement ApplyOutputSchema(JsonElement content, JsonNode outputSchema)
+    {
+        if (outputSchema is not JsonObject root || root["properties"] is not JsonObject props)
+            return content;
+
+        var allowedProps = props.Select(p => p.Key).ToHashSet(StringComparer.Ordinal);
+        var filtered = new JsonObject();
+
+        foreach (var prop in content.EnumerateObject())
+        {
+            if (allowedProps.Contains(prop.Name))
+                filtered[prop.Name] = JsonNode.Parse(prop.Value.GetRawText());
+        }
+
+        return JsonSerializer.SerializeToElement(filtered);
+    }
+
     static void EnrichInputSchemaWithValidation(JsonNode inputSchema, EndpointDefinition def, JsonSerializerOptions serializerOptions, IServiceProvider services)
     {
         if (def.ValidatorType is null)
@@ -397,7 +417,32 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
 
     static bool ShouldHideFromClientInput(PropertyInfo prop)
         => prop.GetCustomAttribute<HasPermissionAttribute>() is not null ||
-           prop.GetCustomAttribute<FromClaimAttribute>() is { IsRequired: true } or { RemoveFromSchema: true };
+           prop.GetCustomAttribute<FromClaimAttribute>() is { IsRequired: true } or { RemoveFromSchema: true } ||
+           prop.GetCustomAttribute<FromHeaderAttribute>() is { RemoveFromSchema: true } ||
+           prop.GetCustomAttribute<FromCookieAttribute>() is { RemoveFromSchema: true };
+
+    static void RemoveToHeaderOutputProperties(JsonNode outputSchema, EndpointDefinition def, JsonSerializerOptions serializerOptions)
+    {
+        if (outputSchema is not JsonObject root || root["properties"] is not JsonObject props)
+            return;
+
+        var required = root["required"] as JsonArray;
+
+        foreach (var prop in def.ResDtoType.BindableProps())
+        {
+            if (!prop.IsDefined(Types.ToHeaderAttribute, true))
+                continue;
+
+            foreach (var name in GetSchemaPropertyNameCandidates(prop, def.ResDtoType, serializerOptions))
+            {
+                props.Remove(name);
+                RemoveRequiredEntry(required, name);
+            }
+        }
+
+        if (required is { Count: 0 })
+            root.Remove("required");
+    }
 
     static IEnumerable<string> GetSchemaPropertyNameCandidates(PropertyInfo prop, Type dtoType, JsonSerializerOptions serializerOptions)
     {

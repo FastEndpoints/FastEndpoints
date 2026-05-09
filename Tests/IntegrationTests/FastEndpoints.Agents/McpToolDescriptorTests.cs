@@ -48,6 +48,38 @@ public class McpToolDescriptorTests
     }
 
     [Fact]
+    public void Hidden_transport_inputs_are_not_advertised_as_client_arguments()
+    {
+        using var provider = BuildServices();
+
+        var tool = BuildTool(provider, "hidden_transport_input_tool");
+        var props = tool.ProtocolTool.InputSchema.GetProperty("properties");
+
+        props.TryGetProperty("InternalHeader", out _).ShouldBeFalse();
+        props.TryGetProperty("InternalCookie", out _).ShouldBeFalse();
+        props.TryGetProperty("Value", out _).ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task ToHeader_response_properties_are_not_advertised_as_structured_content()
+    {
+        using var provider = BuildServices();
+        SetUser(provider, true);
+
+        var tool = BuildTool(provider, "to_header_output_tool");
+        var outputProps = tool.ProtocolTool.OutputSchema!.Value.GetProperty("properties");
+
+        outputProps.TryGetProperty("HeaderValue", out _).ShouldBeFalse();
+        outputProps.TryGetProperty("Value", out _).ShouldBeTrue();
+
+        var result = await tool.InvokeAsync(BuildRequestContext(provider, tool, authenticated: true), CancellationToken.None);
+        var structured = result.StructuredContent!.Value;
+
+        structured.TryGetProperty("HeaderValue", out _).ShouldBeFalse();
+        structured.GetProperty("Value").GetString().ShouldBe("body:ping");
+    }
+
+    [Fact]
     public void Attribute_tool_metadata_populates_protocol_descriptor()
     {
         using var provider = BuildServices();
@@ -237,6 +269,8 @@ public class McpToolDescriptorTests
                 o.SourceGeneratorDiscoveredTypes.Add(typeof(ScopedValidatorToolRequestValidator));
                 o.SourceGeneratorDiscoveredTypes.Add(typeof(PrincipalBoundToolEndpoint));
                 o.SourceGeneratorDiscoveredTypes.Add(typeof(FaultedToolEndpoint));
+                o.SourceGeneratorDiscoveredTypes.Add(typeof(HiddenTransportInputToolEndpoint));
+                o.SourceGeneratorDiscoveredTypes.Add(typeof(ToHeaderOutputToolEndpoint));
             });
         services.AddMcp(
             o =>
@@ -290,6 +324,12 @@ public class McpToolDescriptorTests
 
             if (def.EndpointType == typeof(FaultedToolEndpoint))
                 def.McpTool("faulted_tool");
+
+            if (def.EndpointType == typeof(HiddenTransportInputToolEndpoint))
+                def.McpTool("hidden_transport_input_tool");
+
+            if (def.EndpointType == typeof(ToHeaderOutputToolEndpoint))
+                def.McpTool("to_header_output_tool");
         }
 
         return provider;
@@ -433,6 +473,39 @@ public class McpToolDescriptorTests
     {
         public override Task HandleAsync(ToolRequest req, CancellationToken ct)
             => throw new InvalidOperationException("faulted endpoint");
+    }
+
+    [HttpPost("/descriptor-tool/hidden-transport-input")]
+    sealed class HiddenTransportInputToolEndpoint : Endpoint<HiddenTransportInputToolRequest, ToolResponse>
+    {
+        public override Task HandleAsync(HiddenTransportInputToolRequest req, CancellationToken ct)
+            => Send.OkAsync(new() { Value = req.Value }, ct);
+    }
+
+    sealed class HiddenTransportInputToolRequest
+    {
+        [FromHeader("x-internal", isRequired: false, removeFromSchema: true)]
+        public string? InternalHeader { get; set; }
+
+        [FromCookie("internal", isRequired: false, removeFromSchema: true)]
+        public string? InternalCookie { get; set; }
+
+        public string Value { get; set; } = "";
+    }
+
+    [HttpPost("/descriptor-tool/to-header-output")]
+    sealed class ToHeaderOutputToolEndpoint : Endpoint<ToolRequest, ToHeaderToolResponse>
+    {
+        public override Task HandleAsync(ToolRequest req, CancellationToken ct)
+            => Send.OkAsync(new() { HeaderValue = "header:" + req.Value, Value = "body:" + req.Value }, ct);
+    }
+
+    sealed class ToHeaderToolResponse
+    {
+        [ToHeader("x-tool-value")]
+        public string? HeaderValue { get; set; }
+
+        public string? Value { get; set; }
     }
 }
 

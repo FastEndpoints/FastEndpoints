@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using FastEndpoints.Agents;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace FastEndpoints.A2A;
 
@@ -9,7 +10,7 @@ namespace FastEndpoints.A2A;
 /// dispatches A2A v1 JSON-RPC <c>SendMessage</c> calls to the matching FastEndpoints endpoint.
 /// if multiple visible skills exist, callers can select one with <c>params.metadata.skill</c>.
 /// </summary>
-sealed class A2ASkillDispatcher(A2ASkillCatalog skillCatalog, EndpointInvoker invoker)
+sealed class A2ASkillDispatcher(A2ASkillCatalog skillCatalog, EndpointInvoker invoker, ILogger<A2ASkillDispatcher> logger)
 {
     const string DefaultMediaType = "application/json";
 
@@ -48,7 +49,7 @@ sealed class A2ASkillDispatcher(A2ASkillCatalog skillCatalog, EndpointInvoker in
             InvocationStatus.Success => BuildSuccess(EnsureActualOutputModeIsAccepted(result, p.Configuration?.AcceptedOutputModes), message),
             InvocationStatus.HttpError => throw new A2ARpcException(BuildHttpError(result)),
             InvocationStatus.ValidationFailed => throw new A2ARpcException(BuildValidationError(result)),
-            InvocationStatus.Faulted => throw new A2ARpcException(JsonRpcError.Internal(result.Exception?.Message ?? "Endpoint invocation failed.")),
+            InvocationStatus.Faulted => throw new A2ARpcException(BuildFaultedError(result, skill)),
             _ => throw new A2ARpcException(JsonRpcError.Internal("Unknown invocation status."))
         };
     }
@@ -133,6 +134,14 @@ sealed class A2ASkillDispatcher(A2ASkillCatalog skillCatalog, EndpointInvoker in
             Message = "validation failed",
             Data = result.ValidationFailures.Select(f => new { f.PropertyName, f.ErrorMessage, f.ErrorCode })
         };
+
+    JsonRpcError BuildFaultedError(InvocationResult result, A2ASkillDescriptor skill)
+    {
+        if (result.Exception is { } ex)
+            logger.LogError(ex, "A2A skill {SkillId} failed while invoking endpoint {EndpointType}.", skill.Id, skill.Definition.EndpointType.FullName ?? skill.Definition.EndpointType.Name);
+
+        return JsonRpcError.Internal("Endpoint invocation failed.");
+    }
 
     static A2APart BuildResponsePart(string text, string mediaType)
     {

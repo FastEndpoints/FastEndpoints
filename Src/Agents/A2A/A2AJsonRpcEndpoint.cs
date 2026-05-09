@@ -1,11 +1,12 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace FastEndpoints.A2A;
 
 static class A2AJsonRpcEndpoint
 {
-    public static async Task<IResult> HandleAsync(HttpContext context, A2ASkillDispatcher dispatcher)
+    public static async Task<IResult> HandleAsync(HttpContext context, A2ASkillDispatcher dispatcher, ILoggerFactory loggerFactory)
     {
         var serializerOptions = Config.SerOpts.Options;
         JsonRpcRequest? request;
@@ -57,8 +58,9 @@ static class A2AJsonRpcEndpoint
         }
         catch (Exception ex)
         {
+            loggerFactory.CreateLogger(typeof(A2AJsonRpcEndpoint)).LogError(ex, "A2A JSON-RPC request failed.");
             response.Result = null;
-            response.Error = JsonRpcError.Internal(ex.Message);
+            response.Error = JsonRpcError.Internal("Internal error");
         }
 
         return Results.Json(response, serializerOptions);

@@ -249,7 +249,7 @@ public class McpToolDescriptorTests
     }
 
     [Fact]
-    public async Task Endpoint_exceptions_are_returned_as_tool_errors()
+    public async Task Endpoint_exceptions_are_returned_as_generic_tool_errors()
     {
         using var provider = BuildServices();
 
@@ -257,7 +257,8 @@ public class McpToolDescriptorTests
         var result = await tool.InvokeAsync(BuildRequestContext(provider, tool, authenticated: true), CancellationToken.None);
 
         result.IsError.ShouldBe(true);
-        ((TextContentBlock)result.Content[0]).Text.ShouldContain("faulted endpoint");
+        ((TextContentBlock)result.Content[0]).Text.ShouldContain("Endpoint invocation failed.");
+        ((TextContentBlock)result.Content[0]).Text.ShouldNotContain("faulted endpoint");
     }
 
     static ServiceProvider BuildServices(Action<McpOptions>? configure = null, bool validateScopes = false)

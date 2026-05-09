@@ -647,7 +647,8 @@ public class A2ASkillVisibilityTests
                     typeof(JsonArrayResponseSkillEndpoint),
                     typeof(TextDeclaredJsonResponseSkillEndpoint),
                     typeof(ValidationSkillEndpoint),
-                    typeof(ValidationSkillEndpointValidator)
+                    typeof(ValidationSkillEndpointValidator),
+                    typeof(FaultedSkillEndpoint)
                 ]));
         builder.Services.AddA2A(
             o =>
@@ -678,6 +679,8 @@ public class A2ASkillVisibilityTests
                 def.A2ASkill("text_declared_json", configure: info => info.OutputModes = ["text/plain"]);
             else if (def.EndpointType == typeof(ValidationSkillEndpoint))
                 def.A2ASkill("validation");
+            else if (def.EndpointType == typeof(FaultedSkillEndpoint))
+                def.A2ASkill("faulted");
         }
 
         app.UseA2A(rpcPattern: rpcPattern);
@@ -728,6 +731,41 @@ public class A2ASkillVisibilityTests
               """);
 
         return provider.GetRequiredService<A2ASkillDispatcher>().DispatchAsync("SendMessage", parameters.RootElement.Clone(), ctx, CancellationToken.None);
+    }
+
+    [Fact]
+    public async Task Http_SendMessage_returns_generic_error_for_faulted_endpoint()
+    {
+        await using var app = BuildHttpApp(skillFilter: def => def.EndpointType == typeof(FaultedSkillEndpoint));
+        await app.StartAsync(CancellationToken.None);
+        var client = app.GetTestClient();
+
+        var response = await client.PostAsJsonAsync(
+            "/a2a",
+            new
+            {
+                jsonrpc = "2.0",
+                id = 1,
+                method = "SendMessage",
+                @params = new
+                {
+                    message = new
+                    {
+                        messageId = "client-message-1",
+                        role = "user",
+                        parts = new[] { new { data = new { Value = "ping" } } }
+                    },
+                    metadata = new { skill = "faulted" }
+                }
+            },
+            CancellationToken.None);
+        var json = await response.Content.ReadFromJsonAsync<JsonElement>(CancellationToken.None);
+        var error = json.GetProperty("error");
+
+        json.TryGetProperty("result", out _).ShouldBeFalse();
+        error.GetProperty("code").GetInt32().ShouldBe(-32603);
+        error.GetProperty("message").GetString().ShouldBe("Endpoint invocation failed.");
+        error.ToString().ShouldNotContain("faulted skill");
     }
 
     [HttpPost("/visible")]
@@ -816,6 +854,13 @@ public class A2ASkillVisibilityTests
         {
             RuleFor(x => x.Value).NotEmpty();
         }
+    }
+
+    [HttpPost("/faulted")]
+    sealed class FaultedSkillEndpoint : Endpoint<SkillRequest, SkillResponse>
+    {
+        public override Task HandleAsync(SkillRequest req, CancellationToken ct)
+            => throw new InvalidOperationException("faulted skill");
     }
 
     sealed class SkillRequest

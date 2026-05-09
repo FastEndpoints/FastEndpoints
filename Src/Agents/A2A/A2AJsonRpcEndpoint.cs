@@ -9,10 +9,18 @@ static class A2AJsonRpcEndpoint
     {
         var serializerOptions = Config.SerOpts.Options;
         JsonRpcRequest? request;
+        bool hasId;
 
         try
         {
-            request = await JsonSerializer.DeserializeAsync<JsonRpcRequest>(context.Request.Body, serializerOptions, context.RequestAborted);
+            using var document = await JsonDocument.ParseAsync(context.Request.Body, cancellationToken: context.RequestAborted);
+            hasId = document.RootElement.ValueKind == JsonValueKind.Object && document.RootElement.TryGetProperty("id", out _);
+            request = document.RootElement.Deserialize<JsonRpcRequest>(serializerOptions);
+
+            if (request?.Id is { } id)
+                request.Id = id.Clone();
+            if (request?.Params is { } parameters)
+                request.Params = parameters.Clone();
         }
         catch (JsonException ex)
         {
@@ -21,6 +29,20 @@ static class A2AJsonRpcEndpoint
 
         if (request is null || request.JsonRpc != "2.0" || string.IsNullOrEmpty(request.Method))
             return Results.Json(new JsonRpcResponse { Error = new() { Code = -32600, Message = "invalid JSON-RPC request" } }, serializerOptions, statusCode: 400);
+
+        if (!hasId)
+        {
+            try
+            {
+                await dispatcher.DispatchAsync(request.Method, request.Params, context, context.RequestAborted);
+            }
+            catch
+            {
+                // JSON-RPC notifications do not receive success or error responses.
+            }
+
+            return Results.NoContent();
+        }
 
         var response = new JsonRpcResponse { Id = request.Id };
 

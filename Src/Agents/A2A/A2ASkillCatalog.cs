@@ -22,13 +22,13 @@ sealed class A2ASkillCatalog(IServiceProvider services, A2AOptions options)
         return skills;
     }
 
-    public EndpointDefinition? FindVisibleSkill(string? id, HttpContext context)
+    public A2ASkillDescriptor? FindVisibleSkill(string? id, HttpContext context)
     {
         var skills = GetVisibleSkills(context);
 
         EnsureUniqueIds(skills, "A2A skills visible to the current caller");
 
-        EndpointDefinition? onlyVisible = null;
+        A2ASkillDescriptor? onlyVisible = null;
         var visibleCount = 0;
 
         foreach (var skill in skills)
@@ -36,12 +36,12 @@ sealed class A2ASkillCatalog(IServiceProvider services, A2AOptions options)
             if (id is not null)
             {
                 if (skill.Id == id)
-                    return skill.Definition;
+                    return skill;
 
                 continue;
             }
 
-            onlyVisible = skill.Definition;
+            onlyVisible = skill;
             visibleCount++;
 
             if (visibleCount > 1)

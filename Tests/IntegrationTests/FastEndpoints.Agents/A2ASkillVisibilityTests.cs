@@ -258,6 +258,146 @@ public class A2ASkillVisibilityTests
         failureJson.TryGetProperty("result", out _).ShouldBeFalse();
     }
 
+    [Fact]
+    public async Task Http_SendMessage_notification_does_not_return_response()
+    {
+        await using var app = BuildHttpApp(skillFilter: def => def.EndpointType == typeof(VisibleSkillEndpoint));
+        await app.StartAsync(CancellationToken.None);
+        var client = app.GetTestClient();
+
+        System.Threading.Interlocked.Exchange(ref VisibleSkillEndpoint.ExecutionCount, 0);
+
+        var response = await client.PostAsync(
+            "/a2a",
+            new StringContent(
+                """
+                {
+                  "jsonrpc": "2.0",
+                  "method": "SendMessage",
+                  "params": {
+                    "message": {
+                      "messageId": "client-message-1",
+                      "role": "user",
+                      "parts": [
+                        { "data": { "Value": "ping" } }
+                      ]
+                    }
+                  }
+                }
+                """,
+                System.Text.Encoding.UTF8,
+                "application/json"),
+            CancellationToken.None);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
+        (await response.Content.ReadAsStringAsync(CancellationToken.None)).ShouldBe(string.Empty);
+        VisibleSkillEndpoint.ExecutionCount.ShouldBe(1);
+    }
+
+    [Fact]
+    public async Task Http_SendMessage_rejects_unsupported_accepted_output_modes_before_execution()
+    {
+        await using var app = BuildHttpApp(skillFilter: def => def.EndpointType == typeof(VisibleSkillEndpoint));
+        await app.StartAsync(CancellationToken.None);
+        var client = app.GetTestClient();
+
+        System.Threading.Interlocked.Exchange(ref VisibleSkillEndpoint.ExecutionCount, 0);
+
+        var response = await client.PostAsJsonAsync(
+            "/a2a",
+            new
+            {
+                jsonrpc = "2.0",
+                id = 1,
+                method = "SendMessage",
+                @params = new
+                {
+                    message = new
+                    {
+                        messageId = "client-message-1",
+                        role = "user",
+                        parts = new[] { new { data = new { Value = "ping" } } }
+                    },
+                    configuration = new { acceptedOutputModes = new[] { "text/plain" } }
+                }
+            },
+            CancellationToken.None);
+        var json = await response.Content.ReadFromJsonAsync<JsonElement>(CancellationToken.None);
+
+        json.GetProperty("error").GetProperty("code").GetInt32().ShouldBe(-32602);
+        json.TryGetProperty("result", out _).ShouldBeFalse();
+        VisibleSkillEndpoint.ExecutionCount.ShouldBe(0);
+    }
+
+    [Fact]
+    public async Task Http_SendMessage_rejects_unaccepted_actual_output_mode()
+    {
+        await using var app = BuildHttpApp(skillFilter: def => def.EndpointType == typeof(TextDeclaredJsonResponseSkillEndpoint));
+        await app.StartAsync(CancellationToken.None);
+        var client = app.GetTestClient();
+
+        System.Threading.Interlocked.Exchange(ref TextDeclaredJsonResponseSkillEndpoint.ExecutionCount, 0);
+
+        var response = await client.PostAsJsonAsync(
+            "/a2a",
+            new
+            {
+                jsonrpc = "2.0",
+                id = 1,
+                method = "SendMessage",
+                @params = new
+                {
+                    message = new
+                    {
+                        messageId = "client-message-1",
+                        role = "user",
+                        parts = new[] { new { data = new { Value = "ping" } } }
+                    },
+                    configuration = new { acceptedOutputModes = new[] { "text/plain" } }
+                }
+            },
+            CancellationToken.None);
+        var json = await response.Content.ReadFromJsonAsync<JsonElement>(CancellationToken.None);
+
+        json.GetProperty("error").GetProperty("code").GetInt32().ShouldBe(-32602);
+        json.GetProperty("error").GetProperty("message").GetString().ShouldNotBeNull().ShouldContain("not accepted");
+        json.TryGetProperty("result", out _).ShouldBeFalse();
+        TextDeclaredJsonResponseSkillEndpoint.ExecutionCount.ShouldBe(1);
+    }
+
+    [Fact]
+    public async Task Http_SendMessage_returns_non_object_json_response_as_text_part()
+    {
+        await using var app = BuildHttpApp(skillFilter: def => def.EndpointType == typeof(JsonArrayResponseSkillEndpoint));
+        await app.StartAsync(CancellationToken.None);
+        var client = app.GetTestClient();
+
+        var response = await client.PostAsJsonAsync(
+            "/a2a",
+            new
+            {
+                jsonrpc = "2.0",
+                id = 1,
+                method = "SendMessage",
+                @params = new
+                {
+                    message = new
+                    {
+                        messageId = "client-message-1",
+                        role = "user",
+                        parts = new[] { new { data = new { Value = "ping" } } }
+                    }
+                }
+            },
+            CancellationToken.None);
+        var json = await response.Content.ReadFromJsonAsync<JsonElement>(CancellationToken.None);
+        var part = json.GetProperty("result").GetProperty("message").GetProperty("parts")[0];
+
+        part.GetProperty("text").GetString().ShouldBe("[1,2]");
+        part.TryGetProperty("data", out _).ShouldBeFalse();
+        part.GetProperty("mediaType").GetString().ShouldBe("application/json");
+    }
+
     [Theory]
     [InlineData("forbidden", 403, "application/json", false, "")]
     [InlineData("not_found", 404, "application/json", true, "missing")]
@@ -389,6 +529,8 @@ public class A2ASkillVisibilityTests
             """[]""",
             """{}""",
             """{ "message": "bad" }""",
+            """{ "message": { "messageId": "m1", "parts": [ { "data": { "Value": "ping" } } ] } }""",
+            """{ "message": { "messageId": "m1", "role": "agent", "parts": [ { "data": { "Value": "ping" } } ] } }""",
             """{ "message": { "role": "user", "parts": [ { "data": { "Value": "ping" } } ] } }""",
             """{ "message": { "messageId": "m1", "role": "user", "parts": {} } }""",
             """{ "message": { "messageId": "m1", "role": "user", "parts": [] } }""",
@@ -502,6 +644,8 @@ public class A2ASkillVisibilityTests
                     typeof(NotFoundSkillEndpoint),
                     typeof(BadRequestSkillEndpoint),
                     typeof(StringErrorSkillEndpoint),
+                    typeof(JsonArrayResponseSkillEndpoint),
+                    typeof(TextDeclaredJsonResponseSkillEndpoint),
                     typeof(ValidationSkillEndpoint),
                     typeof(ValidationSkillEndpointValidator)
                 ]));
@@ -528,6 +672,10 @@ public class A2ASkillVisibilityTests
                 def.A2ASkill("bad_request");
             else if (def.EndpointType == typeof(StringErrorSkillEndpoint))
                 def.A2ASkill("string_error");
+            else if (def.EndpointType == typeof(JsonArrayResponseSkillEndpoint))
+                def.A2ASkill("json_array");
+            else if (def.EndpointType == typeof(TextDeclaredJsonResponseSkillEndpoint))
+                def.A2ASkill("text_declared_json", configure: info => info.OutputModes = ["text/plain"]);
             else if (def.EndpointType == typeof(ValidationSkillEndpoint))
                 def.A2ASkill("validation");
         }
@@ -628,6 +776,26 @@ public class A2ASkillVisibilityTests
     {
         public override Task HandleAsync(SkillRequest req, CancellationToken ct)
             => Send.StringAsync("boom", (int)HttpStatusCode.InternalServerError, cancellation: ct);
+    }
+
+    [HttpPost("/json-array")]
+    sealed class JsonArrayResponseSkillEndpoint : Endpoint<SkillRequest, object?>
+    {
+        public override Task HandleAsync(SkillRequest req, CancellationToken ct)
+            => Send.StringAsync("[1,2]", 200, "application/json", ct);
+    }
+
+    [HttpPost("/text-declared-json")]
+    sealed class TextDeclaredJsonResponseSkillEndpoint : Endpoint<SkillRequest, SkillResponse>
+    {
+        public static int ExecutionCount;
+
+        public override Task HandleAsync(SkillRequest req, CancellationToken ct)
+        {
+            System.Threading.Interlocked.Increment(ref ExecutionCount);
+
+            return Send.OkAsync(new() { Value = "json:" + req.Value }, ct);
+        }
     }
 
     sealed class ValidationSkillRequest

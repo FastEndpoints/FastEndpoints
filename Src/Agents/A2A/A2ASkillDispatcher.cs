@@ -33,17 +33,19 @@ sealed class A2ASkillDispatcher(A2ASkillCatalog skillCatalog, EndpointInvoker in
         var message = ValidateMessage(p.Message);
 
         var requestedSkill = GetRequestedSkill(p.Metadata);
-        var def = skillCatalog.FindVisibleSkill(requestedSkill, ctx) ?? throw new A2ARpcException(
+        var skill = skillCatalog.FindVisibleSkill(requestedSkill, ctx) ?? throw new A2ARpcException(
                       requestedSkill is null
                            ? JsonRpcError.InvalidParams("multiple skills are available; set 'metadata.skill' to choose one.")
                            : JsonRpcError.MethodNotFound($"skill '{requestedSkill}'"));
 
+        EnsureRequestedOutputModesAreSupported(p.Configuration?.AcceptedOutputModes, skill.Info);
+
         var args = ExtractArgs(message);
-        var result = await invoker.InvokeAsync(def, args, ctx.User, ct);
+        var result = await invoker.InvokeAsync(skill.Definition, args, ctx.User, ct);
 
         return result.Status switch
         {
-            InvocationStatus.Success => BuildSuccess(result, message),
+            InvocationStatus.Success => BuildSuccess(EnsureActualOutputModeIsAccepted(result, p.Configuration?.AcceptedOutputModes), message),
             InvocationStatus.HttpError => throw new A2ARpcException(BuildHttpError(result)),
             InvocationStatus.ValidationFailed => throw new A2ARpcException(BuildValidationError(result)),
             InvocationStatus.Faulted => throw new A2ARpcException(JsonRpcError.Internal(result.Exception?.Message ?? "Endpoint invocation failed.")),
@@ -62,6 +64,31 @@ sealed class A2ASkillDispatcher(A2ASkillCatalog skillCatalog, EndpointInvoker in
             throw new A2ARpcException(JsonRpcError.InvalidParams($"invalid 'params' payload: {ex.Message}"));
         }
     }
+
+    static void EnsureRequestedOutputModesAreSupported(string[]? acceptedOutputModes, A2ASkillInfo skill)
+    {
+        if (acceptedOutputModes is null)
+            return;
+
+        if (!acceptedOutputModes.Any(mode => GetOutputModes(skill).Contains(mode, StringComparer.OrdinalIgnoreCase)))
+            throw new A2ARpcException(JsonRpcError.InvalidParams("no accepted output modes are supported by the requested skill."));
+    }
+
+    static InvocationResult EnsureActualOutputModeIsAccepted(InvocationResult result, string[]? acceptedOutputModes)
+    {
+        if (acceptedOutputModes is null)
+            return result;
+
+        var mediaType = InvocationResultHelpers.NormalizeMediaType(result.ContentType, DefaultMediaType);
+
+        if (!acceptedOutputModes.Contains(mediaType, StringComparer.OrdinalIgnoreCase))
+            throw new A2ARpcException(JsonRpcError.InvalidParams($"response output mode '{mediaType}' is not accepted."));
+
+        return result;
+    }
+
+    static string[] GetOutputModes(A2ASkillInfo skill)
+        => skill.OutputModes is { Length: > 0 } outputModes ? outputModes : [DefaultMediaType];
 
     static A2ASendMessageResponse BuildSuccess(InvocationResult r, A2AMessage requestMessage)
     {
@@ -109,7 +136,7 @@ sealed class A2ASkillDispatcher(A2ASkillCatalog skillCatalog, EndpointInvoker in
 
     static A2APart BuildResponsePart(string text, string mediaType)
     {
-        if (InvocationResultHelpers.TryParseJson(text, out var data))
+        if (InvocationResultHelpers.TryParseJson(text, out var data) && data.ValueKind == JsonValueKind.Object)
             return new() { Data = data, MediaType = mediaType };
 
         return new() { Text = text, MediaType = mediaType };
@@ -134,6 +161,9 @@ sealed class A2ASkillDispatcher(A2ASkillCatalog skillCatalog, EndpointInvoker in
 
         if (string.IsNullOrWhiteSpace(message.MessageId))
             throw new A2ARpcException(JsonRpcError.InvalidParams("'message.messageId' is required."));
+
+        if (message.Role != "user")
+            throw new A2ARpcException(JsonRpcError.InvalidParams("'message.role' must be 'user'."));
 
         if (message.Parts is not { Length: > 0 } parts)
             throw new A2ARpcException(JsonRpcError.InvalidParams("'message.parts' must contain at least one part."));

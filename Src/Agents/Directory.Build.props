@@ -1,0 +1,23 @@
+<Project>
+
+    <!--
+        inherit all shared build settings from Src/Directory.Build.props (LangVersion, Nullable,
+        ImplicitUsings, signing, source link, package icon, etc.); this file only overrides
+        the pieces that differ for the addon bundle.
+
+        MSBuild stops at the first Directory.Build.props it finds walking upward, so the import
+        below is mandatory - without it the parent file never runs and every inherited property
+        (Nullable, ImplicitUsings, signing, etc.) vanishes.
+    -->
+    <Import Project="..\Directory.Build.props"/>
+
+    <PropertyGroup>
+        <!--
+            addon packages (FastEndpoints.Mcp, FastEndpoints.A2A) are versioned independently
+            of FastEndpoints core so their release cadence is not tied to the main library.
+            each csproj sets its own <Version>; this file only carries shared addon nuget metadata.
+        -->
+        <PackageTags>fastendpoints;addon;ai;mcp;a2a</PackageTags>
+    </PropertyGroup>
+
+</Project>

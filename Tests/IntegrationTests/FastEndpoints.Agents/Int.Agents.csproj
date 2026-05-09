@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <ItemGroup>
+        <!--
+            shared plumbing (JsonSchemaBuilder / FluentValidationSchemaEnricher / EndpointInvoker) is compile-included
+            as internal types into both FastEndpoints.Mcp and FastEndpoints.A2A. an 'A2AAsm' alias on the A2A reference
+            keeps the default global namespace pointing at the Mcp copy so existing tests stay unambiguous; the A2A copy
+            is still reachable via `extern alias A2AAsm;` when a test needs to exercise it specifically.
+        -->
+        <ProjectReference Include="..\..\..\Src\Agents\Mcp\FastEndpoints.Mcp.csproj"/>
+        <ProjectReference Include="..\..\..\Src\Agents\A2A\FastEndpoints.A2A.csproj" Aliases="A2AAsm"/>
+        <ProjectReference Include="..\..\..\Src\Testing\FastEndpoints.Testing.csproj"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.TestHost"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="xunit.runner.json" CopyToOutputDirectory="Always"/>
+    </ItemGroup>
+
+</Project>

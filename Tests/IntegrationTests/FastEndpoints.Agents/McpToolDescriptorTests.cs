@@ -24,6 +24,7 @@ public class McpToolDescriptorTests
         protocolTool.Title.ShouldBe("Descriptor Tool");
         protocolTool.InputSchema.ValueKind.ShouldBe(JsonValueKind.Object);
         protocolTool.InputSchema.GetProperty("type").GetString().ShouldBe("object");
+        protocolTool.InputSchema.GetProperty("additionalProperties").GetBoolean().ShouldBeFalse();
         protocolTool.InputSchema.GetProperty("properties").GetProperty("Value").ValueKind.ShouldBe(JsonValueKind.Object);
         protocolTool.OutputSchema.HasValue.ShouldBeTrue();
         protocolTool.OutputSchema.Value.ValueKind.ShouldBe(JsonValueKind.Object);

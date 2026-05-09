@@ -33,7 +33,17 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
     public async Task<InvocationResult> InvokeAsync(EndpointDefinition definition, JsonElement args, System.Security.Claims.ClaimsPrincipal? principal, CancellationToken ct)
     {
         using var scope = scopeFactory.CreateScope();
-        var httpContext = BuildHttpContext(definition, args, principal, scope.ServiceProvider, ct);
+        DefaultHttpContext httpContext;
+
+        try
+        {
+            httpContext = BuildHttpContext(definition, args, principal, scope.ServiceProvider, ct);
+        }
+        catch (UnknownAgentArgumentsException ex)
+        {
+            return InvocationResult.Invalid(ex.Failures);
+        }
+
         var accessor = scope.ServiceProvider.GetService<IHttpContextAccessor>();
         var resolverAccessor = FastEndpoints.HttpContextExtensions.TryResolve<IHttpContextAccessor>(httpContext);
         var previousContext = accessor?.HttpContext;
@@ -248,25 +258,8 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
             bodyProps[spec.SerializedName] = JsonNode.Parse(value.GetRawText());
         }
 
-        foreach (var (key, value) in remainingArgs)
-        {
-            if (routeParams.Contains(key, StringComparer.OrdinalIgnoreCase))
-            {
-                if (TryGetSingleValue(value, out var routeValue))
-                    request.RouteValues[key] = routeValue;
-
-                continue;
-            }
-
-            if (preferQueryByDefault)
-            {
-                AddQueryValues(request.Query, key, value, typeof(object), bindingSerializerOptions);
-
-                continue;
-            }
-
-            bodyProps[key] = JsonNode.Parse(value.GetRawText());
-        }
+        if (remainingArgs.Count > 0)
+            throw new UnknownAgentArgumentsException(remainingArgs.Keys);
 
         request.Body = fromBodyPayload ?? (bodyProps.Count > 0 ? JsonSerializer.SerializeToElement(bodyProps, payloadSerializerOptions) : null);
         request.Path = ResolvePath(definition, routeTemplate, request.RouteValues);
@@ -605,6 +598,11 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
         public List<KeyValuePair<string, string?>> Query { get; } = [];
         public Dictionary<string, StringValues> Headers { get; } = new(StringComparer.OrdinalIgnoreCase);
         public Dictionary<string, string?> Cookies { get; } = new(StringComparer.OrdinalIgnoreCase);
+    }
+
+    sealed class UnknownAgentArgumentsException(IEnumerable<string> names) : Exception("Agent invocation contained unknown arguments.")
+    {
+        public IReadOnlyList<ValidationFailure> Failures { get; } = names.Select(name => new ValidationFailure(name, $"Unknown argument '{name}'.")).ToArray();
     }
 
     sealed record PropertySpec(string[] Aliases,

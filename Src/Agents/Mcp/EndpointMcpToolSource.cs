@@ -162,6 +162,7 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
         var inputSchema = BuildInputSchema(def, schemaSerializerOptions, name);
         RemoveNonClientInputProperties(inputSchema, def, schemaSerializerOptions);
         EnrichInputSchemaWithValidation(inputSchema, def, schemaSerializerOptions, services);
+        DisallowAdditionalInputProperties(inputSchema);
 
         var outputSchema = TryBuildOutputSchema(def, schemaSerializerOptions, options);
 
@@ -265,7 +266,8 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
             return new JsonObject
             {
                 ["type"] = "object",
-                ["properties"] = new JsonObject()
+                ["properties"] = new JsonObject(),
+                ["additionalProperties"] = false
             };
 
         var inputSchema = JsonSchemaBuilder.Build(def.ReqDtoType, serializerOptions);
@@ -390,6 +392,12 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
 
         if (TryResolveValidator(scope.ServiceProvider, def.ValidatorType) is { } validator)
             FluentValidationSchemaEnricher.Enrich(inputSchema, validator, def.ReqDtoType, serializerOptions);
+    }
+
+    static void DisallowAdditionalInputProperties(JsonNode inputSchema)
+    {
+        if (inputSchema is JsonObject root && HasObjectRootSchema(root))
+            root["additionalProperties"] = false;
     }
 
     static IValidator? TryResolveValidator(IServiceProvider services, Type validatorType)

@@ -77,6 +77,17 @@ public class EndpointInvokerBindingTests
         JsonDocument.Parse(result.Body).RootElement.GetProperty("value").GetString().ShouldBe("query-context:ok");
     }
 
+    [Fact]
+    public async Task Agent_invocation_rejects_unknown_arguments()
+    {
+        using var provider = BuildServices();
+
+        var result = await Invoke<RawQueryReaderEndpoint>(provider, new { secret = "smuggled" });
+
+        result.Status.ShouldBe(InvocationStatus.ValidationFailed);
+        result.ValidationFailures.Single().PropertyName.ShouldBe("secret");
+    }
+
     static async Task<InvocationResult> Invoke<TEndpoint>(IServiceProvider provider, object args)
     {
         var definition = provider.GetRequiredService<EndpointData>().Found.Single(d => d.EndpointType == typeof(TEndpoint));
@@ -106,6 +117,7 @@ public class EndpointInvokerBindingTests
                 o.SourceGeneratorDiscoveredTypes.Add(typeof(RouteAndQueryReaderEndpoint));
                 o.SourceGeneratorDiscoveredTypes.Add(typeof(CompositeRoutePathEndpoint));
                 o.SourceGeneratorDiscoveredTypes.Add(typeof(SerializerContextQueryEndpoint));
+                o.SourceGeneratorDiscoveredTypes.Add(typeof(RawQueryReaderEndpoint));
             });
         services.AddMcp(o => o.ToolVisibilityFilter = static (_, _, _) => true);
 
@@ -214,6 +226,13 @@ public class EndpointInvokerBindingTests
     public sealed class SerializerContextQueryFilter
     {
         public string ChildValue { get; set; } = "";
+    }
+
+    [HttpGet("/agent-binding/raw-query")]
+    sealed class RawQueryReaderEndpoint : EndpointWithoutRequest<BindingResponse>
+    {
+        public override Task HandleAsync(CancellationToken ct)
+            => Send.OkAsync(new() { Value = Query<string>("secret", isRequired: false) ?? "none" }, ct);
     }
 }
 

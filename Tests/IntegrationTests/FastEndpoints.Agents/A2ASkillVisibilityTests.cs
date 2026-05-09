@@ -333,6 +333,69 @@ public class A2ASkillVisibilityTests
         VisibleSkillEndpoint.ExecutionCount.ShouldBe(1);
     }
 
+    [Theory]
+    [InlineData("[]", "batch JSON-RPC requests are not supported")]
+    [InlineData("[{}]", "batch JSON-RPC requests are not supported")]
+    [InlineData("123", "invalid JSON-RPC request")]
+    [InlineData("{ \"jsonrpc\": \"2.0\", \"id\": { \"bad\": true }, \"method\": \"SendMessage\", \"params\": {} }", "invalid JSON-RPC id")]
+    [InlineData("{ \"jsonrpc\": \"2.0\", \"id\": [1], \"method\": \"SendMessage\", \"params\": {} }", "invalid JSON-RPC id")]
+    public async Task Http_rejects_invalid_json_rpc_envelopes(string payload, string expectedMessage)
+    {
+        await using var app = BuildHttpApp(skillFilter: def => def.EndpointType == typeof(VisibleSkillEndpoint));
+        await app.StartAsync(CancellationToken.None);
+        var client = app.GetTestClient();
+
+        System.Threading.Interlocked.Exchange(ref VisibleSkillEndpoint.ExecutionCount, 0);
+
+        var response = await client.PostAsync("/a2a", new StringContent(payload, System.Text.Encoding.UTF8, "application/json"), CancellationToken.None);
+        var json = await response.Content.ReadFromJsonAsync<JsonElement>(CancellationToken.None);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        json.GetProperty("error").GetProperty("code").GetInt32().ShouldBe(-32600);
+        json.GetProperty("error").GetProperty("message").GetString().ShouldBe(expectedMessage);
+        json.TryGetProperty("result", out _).ShouldBeFalse();
+        VisibleSkillEndpoint.ExecutionCount.ShouldBe(0);
+    }
+
+    [Theory]
+    [InlineData("null")]
+    [InlineData("1")]
+    [InlineData("\"abc\"")]
+    public async Task Http_accepts_valid_json_rpc_id_kinds(string id)
+    {
+        await using var app = BuildHttpApp(skillFilter: def => def.EndpointType == typeof(VisibleSkillEndpoint));
+        await app.StartAsync(CancellationToken.None);
+        var client = app.GetTestClient();
+
+        var response = await client.PostAsync(
+            "/a2a",
+            new StringContent(
+                $$"""
+                {
+                  "jsonrpc": "2.0",
+                  "id": {{id}},
+                  "method": "SendMessage",
+                  "params": {
+                    "message": {
+                      "messageId": "client-message-1",
+                      "role": "ROLE_USER",
+                      "parts": [
+                        { "data": { "Value": "ping" } }
+                      ]
+                    }
+                  }
+                }
+                """,
+                System.Text.Encoding.UTF8,
+                "application/json"),
+            CancellationToken.None);
+        var json = await response.Content.ReadFromJsonAsync<JsonElement>(CancellationToken.None);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        json.GetProperty("result").GetProperty("message").GetProperty("parts")[0].GetProperty("data").GetProperty("Value").GetString().ShouldBe("visible:ping");
+        json.TryGetProperty("error", out _).ShouldBeFalse();
+    }
+
     [Fact]
     public async Task Http_SendMessage_rejects_unsupported_accepted_output_modes_before_execution()
     {

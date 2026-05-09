@@ -32,6 +32,7 @@ sealed class JsonRpcError
     [JsonPropertyName("data")] public object? Data { get; set; }
 
     public static JsonRpcError MethodNotFound(string method) => new() { Code = -32601, Message = $"Method not found: {method}" };
+    public static JsonRpcError InvalidRequest(string msg) => new() { Code = -32600, Message = msg };
     public static JsonRpcError InvalidParams(string msg) => new() { Code = -32602, Message = msg };
     public static JsonRpcError Internal(string msg, object? data = null) => new() { Code = -32603, Message = msg, Data = data };
     public static JsonRpcError TaskNotFound(string taskId) => new() { Code = -32001, Message = $"Task not found: {taskId}" };

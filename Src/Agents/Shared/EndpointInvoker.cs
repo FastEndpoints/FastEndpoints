@@ -269,28 +269,21 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
 
     static PropertySpec BuildPropertySpec(PropertyInfo prop, EndpointDefinition definition, JsonSerializerOptions serializerOptions)
     {
-        var fieldName = prop.FieldName();
-        var serializedName = AgentJsonPropertyNames.GetSerializedName(prop, definition, serializerOptions) ?? prop.Name;
         var header = prop.GetCustomAttribute<FromHeaderAttribute>();
         var cookie = prop.GetCustomAttribute<FromCookieAttribute>();
-        var aliases = new[] { serializedName, prop.Name, fieldName }
-                      .Where(n => !string.IsNullOrWhiteSpace(n))
-                      .Distinct(StringComparer.OrdinalIgnoreCase)
-                      .ToArray();
 
-        return new(
-            aliases,
-            fieldName,
-            serializedName,
+        return BuildPropertySpec(
+            prop,
+            definition.ReqDtoType,
+            serializerOptions,
             prop.IsDefined(Types.FromBodyAttribute),
             header is not null,
-            header?.HeaderName ?? fieldName,
+            header?.HeaderName,
             cookie is not null,
-            cookie?.CookieName ?? fieldName,
+            cookie?.CookieName,
             GetQueryBindingKind(prop),
             prop.IsDefined(typeof(RouteParamAttribute), true),
-            AgentInputPropertyRules.ShouldIgnoreClientInput(prop),
-            fieldName);
+            AgentInputPropertyRules.ShouldIgnoreClientInput(prop));
     }
 
     static QueryBindingKind GetQueryBindingKind(PropertyInfo prop)
@@ -403,22 +396,39 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
         => string.IsNullOrEmpty(prefix) ? key : $"{prefix}.{key}";
 
     static PropertySpec BuildNestedPropertySpec(PropertyInfo prop, Type declaringType, JsonSerializerOptions serializerOptions)
+        => BuildPropertySpec(prop, declaringType, serializerOptions, false, false, null, false, null, QueryBindingKind.None, false, false);
+
+    static PropertySpec BuildPropertySpec(PropertyInfo prop,
+                                          Type declaringType,
+                                          JsonSerializerOptions serializerOptions,
+                                          bool fromBody,
+                                          bool hasHeaderBinding,
+                                          string? headerName,
+                                          bool hasCookieBinding,
+                                          string? cookieName,
+                                          QueryBindingKind queryKind,
+                                          bool routeOnly,
+                                          bool ignoreInput)
     {
         var fieldName = prop.FieldName();
         var serializedName = AgentJsonPropertyNames.GetSerializedName(prop, declaringType, serializerOptions) ?? prop.Name;
+        var aliases = new[] { serializedName, prop.Name, fieldName }
+                      .Where(n => !string.IsNullOrWhiteSpace(n))
+                      .Distinct(StringComparer.OrdinalIgnoreCase)
+                      .ToArray();
 
         return new(
-            [serializedName, prop.Name, fieldName],
+            aliases,
             fieldName,
             serializedName,
-            false,
-            false,
-            fieldName,
-            false,
-            fieldName,
-            QueryBindingKind.None,
-            false,
-            false,
+            fromBody,
+            hasHeaderBinding,
+            headerName ?? fieldName,
+            hasCookieBinding,
+            cookieName ?? fieldName,
+            queryKind,
+            routeOnly,
+            ignoreInput,
             fieldName);
     }
 

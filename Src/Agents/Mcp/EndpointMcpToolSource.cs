@@ -1,3 +1,4 @@
+using System.Reflection;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -159,6 +160,7 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
         }
 
         var inputSchema = BuildInputSchema(def, schemaSerializerOptions, name);
+        RemoveNonClientInputProperties(inputSchema, def, schemaSerializerOptions);
         EnrichInputSchemaWithValidation(inputSchema, def, schemaSerializerOptions, services);
 
         var outputSchema = TryBuildOutputSchema(def, schemaSerializerOptions, options);
@@ -361,6 +363,70 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
     static IValidator? TryResolveValidator(IServiceProvider services, Type validatorType)
     {
         return services.GetService(validatorType) as IValidator ?? (IValidator?)ActivatorUtilities.CreateInstance(services, validatorType);
+    }
+
+    static void RemoveNonClientInputProperties(JsonNode inputSchema, EndpointDefinition def, JsonSerializerOptions serializerOptions)
+    {
+        if (inputSchema is not JsonObject root || root["properties"] is not JsonObject props)
+            return;
+
+        var required = root["required"] as JsonArray;
+
+        foreach (var prop in def.ReqDtoType.BindableProps())
+        {
+            if (!ShouldHideFromClientInput(prop))
+                continue;
+
+            foreach (var name in GetSchemaPropertyNameCandidates(prop, def.ReqDtoType, serializerOptions))
+            {
+                props.Remove(name);
+                RemoveRequiredEntry(required, name);
+            }
+        }
+
+        if (required is { Count: 0 })
+            root.Remove("required");
+    }
+
+    static bool ShouldHideFromClientInput(PropertyInfo prop)
+        => prop.GetCustomAttribute<HasPermissionAttribute>() is not null ||
+           prop.GetCustomAttribute<FromClaimAttribute>() is { IsRequired: true } or { RemoveFromSchema: true };
+
+    static IEnumerable<string> GetSchemaPropertyNameCandidates(PropertyInfo prop, Type dtoType, JsonSerializerOptions serializerOptions)
+    {
+        if (TryGetJsonPropertyName(prop, dtoType, serializerOptions) is { } jsonName)
+            yield return jsonName;
+
+        yield return prop.Name;
+        yield return prop.FieldName();
+    }
+
+    static string? TryGetJsonPropertyName(PropertyInfo prop, Type dtoType, JsonSerializerOptions serializerOptions)
+    {
+        var typeInfo = serializerOptions.TypeInfoResolver?.GetTypeInfo(dtoType, serializerOptions);
+
+        if (typeInfo is null)
+            return null;
+
+        foreach (var jsonProp in typeInfo.Properties)
+        {
+            if (ReferenceEquals(jsonProp.AttributeProvider, prop))
+                return jsonProp.Name;
+        }
+
+        return null;
+    }
+
+    static void RemoveRequiredEntry(JsonArray? required, string name)
+    {
+        if (required is null)
+            return;
+
+        for (var i = required.Count - 1; i >= 0; i--)
+        {
+            if (required[i]?.GetValue<string>() == name)
+                required.RemoveAt(i);
+        }
     }
 
     sealed record ToolRegistration(EndpointDefinition Definition, string Name, McpServerTool Tool);

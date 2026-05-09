@@ -158,6 +158,42 @@ public class McpToolDescriptorTests
         required.ShouldContain("Value");
     }
 
+    [Fact]
+    public async Task Principal_bound_properties_are_not_advertised_as_client_arguments()
+    {
+        using var provider = BuildServices();
+
+        var principal = new ClaimsPrincipal(new ClaimsIdentity([new("sub", "caller"), new("tenant_id", "actual")], "test"));
+        var tool = BuildTool(provider, "principal_bound_tool");
+        var inputSchema = tool.ProtocolTool.InputSchema;
+        var props = inputSchema.GetProperty("properties");
+
+        props.TryGetProperty("TenantId", out _).ShouldBeFalse();
+        props.TryGetProperty("CanEdit", out _).ShouldBeFalse();
+        props.TryGetProperty("OptionalTenantId", out _).ShouldBeTrue();
+        props.TryGetProperty("Value", out _).ShouldBeTrue();
+
+        if (inputSchema.TryGetProperty("required", out var required))
+            required.EnumerateArray().Select(x => x.GetString()).ShouldNotContain("TenantId");
+
+        var result = await tool.InvokeAsync(
+            McpToolVisibilityTests_Bridge.BuildCallRequestContext(
+                provider,
+                tool.ProtocolTool.Name,
+                principal,
+                new()
+                {
+                    ["TenantId"] = JsonSerializer.SerializeToElement("spoofed"),
+                    ["OptionalTenantId"] = JsonSerializer.SerializeToElement("fallback"),
+                    ["CanEdit"] = JsonSerializer.SerializeToElement(true),
+                    ["Value"] = JsonSerializer.SerializeToElement("ping")
+                },
+                tool),
+            CancellationToken.None);
+
+        result.StructuredContent!.Value.GetProperty("Value").GetString().ShouldBe("actual:fallback:False:ping");
+    }
+
     static ServiceProvider BuildServices(Action<McpOptions>? configure = null, bool validateScopes = false)
     {
         Factory.RegisterTestServices(
@@ -187,6 +223,7 @@ public class McpToolDescriptorTests
                 o.SourceGeneratorDiscoveredTypes.Add(typeof(SerializerContextToolRequestValidator));
                 o.SourceGeneratorDiscoveredTypes.Add(typeof(ScopedValidatorToolEndpoint));
                 o.SourceGeneratorDiscoveredTypes.Add(typeof(ScopedValidatorToolRequestValidator));
+                o.SourceGeneratorDiscoveredTypes.Add(typeof(PrincipalBoundToolEndpoint));
             });
         services.AddMcp(
             o =>
@@ -234,6 +271,9 @@ public class McpToolDescriptorTests
 
             if (def.EndpointType == typeof(ScopedValidatorToolEndpoint))
                 def.McpTool("scoped_validator_tool");
+
+            if (def.EndpointType == typeof(PrincipalBoundToolEndpoint))
+                def.McpTool("principal_bound_tool");
         }
 
         return provider;
@@ -350,6 +390,27 @@ public class McpToolDescriptorTests
     }
 
     sealed class ScopedValidatorDependency;
+
+    [HttpPost("/descriptor-tool/principal-bound")]
+    sealed class PrincipalBoundToolEndpoint : Endpoint<PrincipalBoundToolRequest, ToolResponse>
+    {
+        public override Task HandleAsync(PrincipalBoundToolRequest req, CancellationToken ct)
+            => Send.OkAsync(new() { Value = $"{req.TenantId}:{req.OptionalTenantId}:{req.CanEdit}:{req.Value}" }, ct);
+    }
+
+    sealed class PrincipalBoundToolRequest
+    {
+        [FromClaim("tenant_id")]
+        public string TenantId { get; set; } = "";
+
+        [FromClaim("optional_tenant", isRequired: false)]
+        public string? OptionalTenantId { get; set; }
+
+        [HasPermission("Edit_Item", isRequired: false)]
+        public bool CanEdit { get; set; }
+
+        public string Value { get; set; } = "";
+    }
 }
 
 sealed class SerializerContextToolRequest

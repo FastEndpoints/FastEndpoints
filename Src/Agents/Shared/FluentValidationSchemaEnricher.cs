@@ -38,23 +38,19 @@ static class FluentValidationSchemaEnricher
         if (rules.Length == 0)
             return;
 
-        var props = root["properties"] as JsonObject;
-        var required = root["required"] as JsonArray;
         var propertyNames = dtoType is not null && serializerOptions is not null
                                 ? BuildPropertyNameMap(dtoType, serializerOptions)
                                 : null;
 
         foreach (var (propertyName, propValidator) in rules)
         {
-            var schemaPropertyName = ResolveSchemaPropertyName(propertyName, propertyNames);
-
-            if (props is null || props[schemaPropertyName] is not JsonObject propSchema)
+            if (!TryResolvePropertySchema(root, propertyName, propertyNames, out var parentSchema, out var schemaPropertyName, out var propSchema))
                 continue;
 
             switch (propValidator)
             {
                 case INotNullValidator or INotEmptyValidator:
-                    required ??= [];
+                    var required = parentSchema["required"] as JsonArray ?? [];
                     var alreadyRequired = false;
 
                     foreach (var r in required)
@@ -68,6 +64,8 @@ static class FluentValidationSchemaEnricher
                     }
                     if (!alreadyRequired)
                         required.Add(schemaPropertyName);
+                    if (parentSchema["required"] is null)
+                        parentSchema["required"] = required;
 
                     break;
 
@@ -101,9 +99,74 @@ static class FluentValidationSchemaEnricher
                     break;
             }
         }
+    }
 
-        if (required is not null && required.Count > 0 && root["required"] is null)
-            root["required"] = required;
+    static bool TryResolvePropertySchema(JsonObject root,
+                                         string validationPropertyName,
+                                         IReadOnlyDictionary<string, string>? propertyNames,
+                                         out JsonObject parentSchema,
+                                         out string schemaPropertyName,
+                                         out JsonObject propSchema)
+    {
+        parentSchema = root;
+        schemaPropertyName = string.Empty;
+        propSchema = null!;
+
+        foreach (var (segment, isLast) in ParsePropertyPath(validationPropertyName))
+        {
+            schemaPropertyName = ResolveSchemaPropertyName(segment, propertyNames);
+
+            if (parentSchema["properties"] is not JsonObject props || props[schemaPropertyName] is not JsonObject currentPropSchema)
+                return false;
+
+            propSchema = currentPropSchema;
+
+            if (isLast)
+                return true;
+
+            if (TryGetNestedObjectSchema(propSchema) is not { } nestedSchema)
+                return false;
+
+            parentSchema = nestedSchema;
+        }
+
+        return false;
+    }
+
+    static JsonObject? TryGetNestedObjectSchema(JsonObject propSchema)
+    {
+        if (propSchema["properties"] is JsonObject)
+            return propSchema;
+
+        return propSchema["items"] is JsonObject { } items && items["properties"] is JsonObject
+                   ? items
+                   : null;
+    }
+
+    static IEnumerable<(string Segment, bool IsLast)> ParsePropertyPath(string propertyPath)
+    {
+        var segments = new List<string>();
+        var start = 0;
+
+        for (var i = 0; i <= propertyPath.Length; i++)
+        {
+            if (i == propertyPath.Length || propertyPath[i] == '.' || propertyPath[i] == '[')
+            {
+                if (i > start)
+                    segments.Add(propertyPath[start..i]);
+
+                if (i < propertyPath.Length && propertyPath[i] == '[')
+                {
+                    var end = propertyPath.IndexOf(']', i + 1);
+                    i = end < 0 ? propertyPath.Length : end;
+                }
+
+                start = i + 1;
+            }
+        }
+
+        for (var i = 0; i < segments.Count; i++)
+            yield return (segments[i], i == segments.Count - 1);
     }
 
     static void ApplyNumericComparison(JsonObject propSchema, IComparisonValidator cmp)
@@ -174,16 +237,7 @@ static class FluentValidationSchemaEnricher
     }
 
     static string ResolveSchemaPropertyName(string validationPropertyName, IReadOnlyDictionary<string, string>? propertyNames)
-    {
-        if (propertyNames is null)
-            return validationPropertyName;
-
-        var delimiter = validationPropertyName.IndexOfAny(['.', '[']);
-        var rootPropertyName = delimiter < 0 ? validationPropertyName : validationPropertyName[..delimiter];
-
-        if (!propertyNames.TryGetValue(rootPropertyName, out var schemaPropertyName))
-            return validationPropertyName;
-
-        return delimiter < 0 ? schemaPropertyName : schemaPropertyName + validationPropertyName[delimiter..];
-    }
+        => propertyNames is not null && propertyNames.TryGetValue(validationPropertyName, out var schemaPropertyName)
+               ? schemaPropertyName
+               : validationPropertyName;
 }

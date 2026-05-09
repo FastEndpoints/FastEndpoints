@@ -11,6 +11,12 @@ public class FluentValidationSchemaEnricherTests
         public string Email { get; set; } = "";
         public string Password { get; set; } = "";
         public int Age { get; set; }
+        public AddressDto Address { get; set; } = new();
+    }
+
+    class AddressDto
+    {
+        public string ZipCode { get; set; } = "";
     }
 
     class UserValidator : AbstractValidator<UserDto>
@@ -20,6 +26,7 @@ public class FluentValidationSchemaEnricherTests
             RuleFor(x => x.Email).NotEmpty().EmailAddress();
             RuleFor(x => x.Password).NotEmpty().MinimumLength(8).MaximumLength(64).Matches("[A-Z]");
             RuleFor(x => x.Age).GreaterThanOrEqualTo(13).LessThanOrEqualTo(120);
+            RuleFor(x => x.Address.ZipCode).NotEmpty().Length(5);
         }
     }
 
@@ -68,5 +75,20 @@ public class FluentValidationSchemaEnricherTests
 
         var email = (JsonObject)schema["properties"]!["Email"]!;
         email["format"]!.GetValue<string>().ShouldBe("email");
+    }
+
+    [Fact]
+    public void Enrich_applies_nested_property_rules()
+    {
+        var schema = JsonSchemaBuilder.Build(typeof(UserDto), JsonSerializerOptions.Default);
+        FluentValidationSchemaEnricher.Enrich(schema, new UserValidator());
+
+        var address = (JsonObject)schema["properties"]!["Address"]!;
+        var zipCode = (JsonObject)address["properties"]!["ZipCode"]!;
+        var required = address["required"]?.AsArray().Select(n => n?.GetValue<string>()).ToHashSet() ?? [];
+
+        required.ShouldContain("ZipCode");
+        zipCode["minLength"]!.GetValue<int>().ShouldBe(5);
+        zipCode["maxLength"]!.GetValue<int>().ShouldBe(5);
     }
 }

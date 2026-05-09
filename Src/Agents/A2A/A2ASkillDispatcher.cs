@@ -28,7 +28,7 @@ sealed class A2ASkillDispatcher(A2ASkillCatalog skillCatalog, EndpointInvoker in
             throw new A2ARpcException(JsonRpcError.InvalidParams("'params' is required."));
 
         var serializerOptions = Config.SerOpts.Options;
-        var p = parameters.Value.Deserialize<A2AMessageSendParams>(serializerOptions) ?? throw new A2ARpcException(JsonRpcError.InvalidParams("invalid 'params' payload."));
+        var p = DeserializeParams(parameters.Value, serializerOptions);
 
         var message = ValidateMessage(p.Message);
 
@@ -49,6 +49,18 @@ sealed class A2ASkillDispatcher(A2ASkillCatalog skillCatalog, EndpointInvoker in
             InvocationStatus.Faulted => throw new A2ARpcException(JsonRpcError.Internal(result.Exception?.Message ?? "Endpoint invocation failed.")),
             _ => throw new A2ARpcException(JsonRpcError.Internal("Unknown invocation status."))
         };
+    }
+
+    static A2AMessageSendParams DeserializeParams(JsonElement parameters, JsonSerializerOptions serializerOptions)
+    {
+        try
+        {
+            return parameters.Deserialize<A2AMessageSendParams>(serializerOptions) ?? throw new A2ARpcException(JsonRpcError.InvalidParams("invalid 'params' payload."));
+        }
+        catch (JsonException ex)
+        {
+            throw new A2ARpcException(JsonRpcError.InvalidParams($"invalid 'params' payload: {ex.Message}"));
+        }
     }
 
     static A2ASendMessageResponse BuildSuccess(InvocationResult r, A2AMessage requestMessage)

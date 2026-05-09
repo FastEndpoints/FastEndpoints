@@ -386,8 +386,11 @@ public class A2ASkillVisibilityTests
 
         var invalidParams = new[]
         {
+            """[]""",
             """{}""",
+            """{ "message": "bad" }""",
             """{ "message": { "role": "ROLE_USER", "parts": [ { "data": { "Value": "ping" } } ] } }""",
+            """{ "message": { "messageId": "m1", "role": "ROLE_USER", "parts": {} } }""",
             """{ "message": { "messageId": "m1", "role": "ROLE_USER", "parts": [] } }""",
             """{ "message": { "messageId": "m1", "role": "ROLE_USER", "parts": [ { } ] } }""",
             """{ "message": { "messageId": "m1", "role": "ROLE_USER", "parts": [ { "text": "{}", "data": { "Value": "ping" } } ] } }""",

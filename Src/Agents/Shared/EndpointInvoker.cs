@@ -541,29 +541,55 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
 
         foreach (var segment in segments)
         {
-            if (!segment.StartsWith('{') || !segment.EndsWith('}'))
-            {
-                parts.Add(segment);
+            var resolved = ResolvePathSegment(segment, routeValues);
 
-                continue;
+            if (resolved.Length > 0)
+                parts.Add(resolved);
+        }
+
+        return new("/" + string.Join('/', parts));
+    }
+
+    static string ResolvePathSegment(string segment, IReadOnlyDictionary<string, object?> routeValues)
+    {
+        var builder = new StringBuilder(segment.Length);
+        var start = 0;
+
+        while (start < segment.Length)
+        {
+            var open = segment.IndexOf('{', start);
+
+            if (open < 0)
+            {
+                builder.Append(segment, start, segment.Length - start);
+
+                break;
             }
 
-            var inner = segment[1..^1];
+            builder.Append(segment, start, open - start);
+
+            var close = segment.IndexOf('}', open + 1);
+
+            if (close < 0)
+            {
+                builder.Append(segment, open, segment.Length - open);
+
+                break;
+            }
+
+            var inner = segment[(open + 1)..close];
             var routeParam = NormalizeRouteParameter(inner);
             var optional = inner.TrimStart('*').Split(':', '=')[0].EndsWith('?');
 
             if (routeValues.TryGetValue(routeParam, out var value) && value is not null)
-            {
-                parts.Add(Uri.EscapeDataString(value.ToString()!));
+                builder.Append(Uri.EscapeDataString(value.ToString()!));
+            else if (!optional)
+                builder.Append(routeParam);
 
-                continue;
-            }
-
-            if (!optional)
-                parts.Add(routeParam);
+            start = close + 1;
         }
 
-        return new("/" + string.Join('/', parts));
+        return builder.ToString();
     }
 
     sealed class AgentRequest

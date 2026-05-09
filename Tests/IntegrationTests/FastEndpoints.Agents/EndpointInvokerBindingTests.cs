@@ -42,6 +42,20 @@ public class EndpointInvokerBindingTests
     }
 
     [Fact]
+    public async Task Agent_invocation_resolves_composite_route_segments_in_request_path()
+    {
+        using var provider = BuildServices();
+        var definition = provider.GetRequiredService<EndpointData>().Found.Single(d => d.EndpointType == typeof(CompositeRoutePathEndpoint));
+        definition.Routes = ["/agent-binding/files/{name}.{ext}"];
+        definition.Verbs = ["GET"];
+
+        var result = await Invoke<CompositeRoutePathEndpoint>(provider, new { name = "report 1", ext = "txt" });
+
+        result.Status.ShouldBe(InvocationStatus.Success, string.Join(", ", result.ValidationFailures.Select(f => $"{f.PropertyName}:{f.ErrorMessage}")));
+        JsonDocument.Parse(result.Body).RootElement.GetProperty("Value").GetString().ShouldBe("/agent-binding/files/report%201.txt:report 1:txt");
+    }
+
+    [Fact]
     public async Task Agent_invocation_reports_validation_error_when_required_non_body_value_is_missing()
     {
         using var provider = BuildServices();
@@ -90,6 +104,7 @@ public class EndpointInvokerBindingTests
                 o.SourceGeneratorDiscoveredTypes.Add(typeof(RouteBoundEndpoint));
                 o.SourceGeneratorDiscoveredTypes.Add(typeof(QueryBoundEndpoint));
                 o.SourceGeneratorDiscoveredTypes.Add(typeof(RouteAndQueryReaderEndpoint));
+                o.SourceGeneratorDiscoveredTypes.Add(typeof(CompositeRoutePathEndpoint));
                 o.SourceGeneratorDiscoveredTypes.Add(typeof(SerializerContextQueryEndpoint));
             });
         services.AddMcp(o => o.ToolVisibilityFilter = static (_, _, _) => true);
@@ -160,6 +175,22 @@ public class EndpointInvokerBindingTests
         public int CustomerId { get; set; }
 
         public string BodyValue { get; set; } = "";
+    }
+
+    [HttpGet("/agent-binding/files/{name}.{ext}")]
+    sealed class CompositeRoutePathEndpoint : Endpoint<CompositeRoutePathRequest, BindingResponse>
+    {
+        public override Task HandleAsync(CompositeRoutePathRequest req, CancellationToken ct)
+            => Send.OkAsync(new() { Value = $"{HttpContext.Request.Path}:{req.Name}:{req.Ext}" }, ct);
+    }
+
+    sealed class CompositeRoutePathRequest
+    {
+        [RouteParam]
+        public string Name { get; set; } = "";
+
+        [RouteParam]
+        public string Ext { get; set; } = "";
     }
 
     public sealed class BindingResponse

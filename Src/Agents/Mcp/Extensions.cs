@@ -54,12 +54,7 @@ public static class Extensions
     /// </summary>
     public static IApplicationBuilder UseMcp(this IApplicationBuilder app, string pattern = "/mcp", Action<IEndpointConventionBuilder>? configureRoute = null)
     {
-        if (app is not IEndpointRouteBuilder routeBuilder)
-        {
-            throw new InvalidOperationException(
-                "UseMcp must be called on an IApplicationBuilder that also implements IEndpointRouteBuilder (such as WebApplication). " +
-                "Call UseMcp after building the WebApplication, or after UseRouting in a classic pipeline.");
-        }
+        var routeBuilder = AgentRouteBuilder.RequireEndpointRouteBuilder(app, nameof(UseMcp));
 
         var route = routeBuilder.MapMcp(pattern);
         configureRoute?.Invoke(route);
@@ -89,5 +84,5 @@ public static class Extensions
     }
 
     static (ClaimsPrincipal Principal, HttpContext HttpContext) ResolveCallerContext<TParams>(RequestContext<TParams> ctx)
-        => CallerContextResolver.Resolve(ctx);
+        => FastEndpoints.Agents.CallerContextResolver.Resolve(ctx.Services!, ctx.User);
 }

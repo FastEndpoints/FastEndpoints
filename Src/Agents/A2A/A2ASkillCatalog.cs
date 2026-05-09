@@ -52,27 +52,7 @@ sealed class A2ASkillCatalog(IServiceProvider services, A2AOptions options)
     }
 
     public static void EnsureUniqueIds(IReadOnlyCollection<A2ASkillDescriptor> skills, string scope)
-    {
-        var collisions = skills.GroupBy(x => x.Id, StringComparer.Ordinal)
-                               .Where(g => g.Count() > 1)
-                               .ToArray();
-
-        if (collisions.Length == 0)
-            return;
-
-        throw new InvalidOperationException(
-            "Duplicate A2A skill ids detected among " +
-            scope +
-            ": " +
-            string.Join(
-                "; ",
-                collisions.Select(
-                    g => $"'{g.Key}' => {FormatEndpointTypeNames(g)}")) +
-            ". A2A skill ids must be unique.");
-    }
-
-    static string FormatEndpointTypeNames(IEnumerable<A2ASkillDescriptor> skills)
-        => string.Join(", ", skills.Select(x => x.Definition.EndpointType.FullName ?? x.Definition.EndpointType.Name).Distinct(StringComparer.Ordinal));
+        => AgentCatalogUniqueness.EnsureUnique(skills, scope, x => x.Id, x => x.Definition, "A2A skill ids");
 
     A2ASkillDescriptor? CreateDescriptor(EndpointDefinition def, HttpContext context)
     {

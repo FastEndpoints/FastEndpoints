@@ -51,12 +51,7 @@ public static class Extensions
                                              Action<IEndpointConventionBuilder>? configureRpcRoute = null,
                                              Action<IEndpointConventionBuilder>? configureCardRoute = null)
     {
-        if (app is not IEndpointRouteBuilder routes)
-        {
-            throw new InvalidOperationException(
-                "UseA2A must be called on an IApplicationBuilder that also implements IEndpointRouteBuilder (such as WebApplication). " +
-                "Call UseA2A after building the WebApplication, or after UseRouting in a classic pipeline.");
-        }
+        var routes = AgentRouteBuilder.RequireEndpointRouteBuilder(app, nameof(UseA2A));
 
         routes.ServiceProvider.GetRequiredService<A2AOptions>().RpcPattern = rpcPattern;
 

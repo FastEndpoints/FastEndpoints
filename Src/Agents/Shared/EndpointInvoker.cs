@@ -270,11 +270,9 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
     static PropertySpec BuildPropertySpec(PropertyInfo prop, EndpointDefinition definition, JsonSerializerOptions serializerOptions)
     {
         var fieldName = prop.FieldName();
-        var serializedName = GetSerializedPropertyName(prop, definition, serializerOptions) ?? prop.Name;
+        var serializedName = AgentJsonPropertyNames.GetSerializedName(prop, definition, serializerOptions) ?? prop.Name;
         var header = prop.GetCustomAttribute<FromHeaderAttribute>();
         var cookie = prop.GetCustomAttribute<FromCookieAttribute>();
-        var fromClaim = prop.GetCustomAttribute<FromClaimAttribute>();
-        var hasPermission = prop.GetCustomAttribute<HasPermissionAttribute>();
         var aliases = new[] { serializedName, prop.Name, fieldName }
                       .Where(n => !string.IsNullOrWhiteSpace(n))
                       .Distinct(StringComparer.OrdinalIgnoreCase)
@@ -291,28 +289,8 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
             cookie?.CookieName ?? fieldName,
             GetQueryBindingKind(prop),
             prop.IsDefined(typeof(RouteParamAttribute), true),
-            fromClaim?.IsRequired is true ||
-            fromClaim?.RemoveFromSchema is true ||
-            hasPermission is not null ||
-            header?.RemoveFromSchema is true ||
-            cookie?.RemoveFromSchema is true,
+            AgentInputPropertyRules.ShouldIgnoreClientInput(prop),
             fieldName);
-    }
-
-    static string? GetSerializedPropertyName(PropertyInfo prop, EndpointDefinition definition, JsonSerializerOptions serializerOptions)
-    {
-        var typeInfo = (definition.SerializerContext ?? serializerOptions.TypeInfoResolver)?.GetTypeInfo(definition.ReqDtoType, serializerOptions);
-
-        if (typeInfo is null)
-            return null;
-
-        foreach (var jsonProp in typeInfo.Properties)
-        {
-            if (ReferenceEquals(jsonProp.AttributeProvider, prop))
-                return jsonProp.Name;
-        }
-
-        return null;
     }
 
     static QueryBindingKind GetQueryBindingKind(PropertyInfo prop)
@@ -427,7 +405,7 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
     static PropertySpec BuildNestedPropertySpec(PropertyInfo prop, Type declaringType, JsonSerializerOptions serializerOptions)
     {
         var fieldName = prop.FieldName();
-        var serializedName = GetSerializedPropertyName(prop, declaringType, serializerOptions) ?? prop.Name;
+        var serializedName = AgentJsonPropertyNames.GetSerializedName(prop, declaringType, serializerOptions) ?? prop.Name;
 
         return new(
             [serializedName, prop.Name, fieldName],
@@ -442,22 +420,6 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
             false,
             false,
             fieldName);
-    }
-
-    static string? GetSerializedPropertyName(PropertyInfo prop, Type declaringType, JsonSerializerOptions serializerOptions)
-    {
-        var typeInfo = serializerOptions.TypeInfoResolver?.GetTypeInfo(declaringType, serializerOptions);
-
-        if (typeInfo is null)
-            return null;
-
-        foreach (var jsonProp in typeInfo.Properties)
-        {
-            if (ReferenceEquals(jsonProp.AttributeProvider, prop))
-                return jsonProp.Name;
-        }
-
-        return null;
     }
 
     static StringValues ToStringValues(JsonElement value)

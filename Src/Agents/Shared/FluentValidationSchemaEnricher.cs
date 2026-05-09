@@ -1,5 +1,4 @@
 using System.Collections.Concurrent;
-using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using FluentValidation;
@@ -39,7 +38,7 @@ static class FluentValidationSchemaEnricher
             return;
 
         var propertyNames = dtoType is not null && serializerOptions is not null
-                                ? BuildPropertyNameMap(dtoType, serializerOptions)
+                                ? AgentJsonPropertyNames.BuildSchemaNameMap(dtoType, serializerOptions)
                                 : null;
 
         foreach (var (propertyName, propValidator) in rules)
@@ -215,26 +214,6 @@ static class FluentValidationSchemaEnricher
 
                 return list.ToArray();
             });
-
-    static IReadOnlyDictionary<string, string> BuildPropertyNameMap(Type dtoType, JsonSerializerOptions serializerOptions)
-    {
-        var typeInfo = serializerOptions.TypeInfoResolver?.GetTypeInfo(dtoType, serializerOptions);
-        var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-
-        if (typeInfo is not null)
-        {
-            foreach (var jsonProp in typeInfo.Properties)
-            {
-                if (jsonProp.AttributeProvider is PropertyInfo prop)
-                    map[prop.Name] = jsonProp.Name;
-            }
-        }
-
-        foreach (var prop in dtoType.BindableProps())
-            map.TryAdd(prop.Name, prop.FieldName());
-
-        return map;
-    }
 
     static string ResolveSchemaPropertyName(string validationPropertyName, IReadOnlyDictionary<string, string>? propertyNames)
         => propertyNames is not null && propertyNames.TryGetValue(validationPropertyName, out var schemaPropertyName)

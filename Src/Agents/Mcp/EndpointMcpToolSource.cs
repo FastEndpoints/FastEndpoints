@@ -1,8 +1,6 @@
-using System.Reflection;
 using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using System.Text.Json.Serialization.Metadata;
 using FastEndpoints.Agents;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
@@ -60,7 +58,7 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
     }
 
     (ClaimsPrincipal Principal, HttpContext HttpContext) ResolveCallerContext(ClaimsPrincipal? user, HttpContext? httpContext)
-        => CallerContextResolver.Resolve(services, user, httpContext);
+        => FastEndpoints.Agents.CallerContextResolver.Resolve(services, user, httpContext);
 
     IReadOnlyList<ToolRegistration> GetVisibleTools(ClaimsPrincipal? user, HttpContext? httpContext)
     {
@@ -72,7 +70,7 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
     static ToolCatalog BuildToolCatalog(IServiceProvider services, McpOptions options, ILogger<EndpointMcpToolSource> logger)
     {
         var endpointData = services.GetRequiredService<EndpointData>();
-        var protocolSerializerOptions = EnsureTypeInfoResolver(Config.SerOpts.Options);
+        var protocolSerializerOptions = AgentJsonSerializerOptions.EnsureTypeInfoResolver(Config.SerOpts.Options);
         var invoker = services.GetRequiredService<EndpointInvoker>();
 
         var tools = new List<ToolRegistration>();
@@ -99,33 +97,10 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
                 .ToDictionary(group => group.Key, group => group.ToArray(), StringComparer.Ordinal);
 
     static void EnsureUniqueNames(IReadOnlyCollection<ToolRegistration> tools, string scope)
-    {
-        var collisions = tools.GroupBy(x => x.Name, StringComparer.Ordinal)
-                              .Where(g => g.Count() > 1)
-                              .ToArray();
-
-        if (collisions.Length == 0)
-            return;
-
-        throw new InvalidOperationException(
-            "Duplicate MCP tool names detected among " +
-            scope +
-            ": " +
-            string.Join(
-                "; ",
-                collisions.Select(
-                    g => $"'{g.Key}' => {FormatEndpointTypeNames(g)}")) +
-            ". MCP tool names must be unique.");
-    }
+        => AgentCatalogUniqueness.EnsureUnique(tools, scope, x => x.Name, x => x.Definition, "MCP tool names");
 
     static InvalidOperationException CreateDuplicateNameException(string name, IReadOnlyCollection<ToolRegistration> matches, string scope)
-        => new(
-            $"Duplicate MCP tool name '{name}' detected among {scope}: " +
-            FormatEndpointTypeNames(matches) +
-            ". MCP tool names must be unique.");
-
-    static string FormatEndpointTypeNames(IEnumerable<ToolRegistration> tools)
-        => string.Join(", ", tools.Select(x => x.Definition.EndpointType.FullName ?? x.Definition.EndpointType.Name).Distinct(StringComparer.Ordinal));
+        => AgentCatalogUniqueness.CreateDuplicateException(name, matches, scope, x => x.Definition, "MCP tool name", "MCP tool names");
 
     static McpServerTool BuildTool(EndpointDefinition def,
                                    McpToolInfo info,
@@ -342,14 +317,9 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
         };
     }
 
-    static JsonSerializerOptions EnsureTypeInfoResolver(JsonSerializerOptions options)
-        => options.TypeInfoResolver is not null
-               ? options
-               : new JsonSerializerOptions(options) { TypeInfoResolver = new DefaultJsonTypeInfoResolver() };
-
     static JsonSerializerOptions ResolveSchemaSerializerOptions(EndpointDefinition def, JsonSerializerOptions fallback)
         => def.SerializerContext?.Options is { } options
-               ? EnsureTypeInfoResolver(options)
+               ? AgentJsonSerializerOptions.EnsureTypeInfoResolver(options)
                : fallback;
 
     static bool TryExtractStructuredContent(string text, out JsonElement structuredContent)
@@ -507,10 +477,10 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
 
         foreach (var prop in def.ReqDtoType.BindableProps())
         {
-            if (!ShouldHideFromClientInput(prop))
+            if (!AgentInputPropertyRules.ShouldIgnoreClientInput(prop))
                 continue;
 
-            foreach (var name in GetSchemaPropertyNameCandidates(prop, def.ReqDtoType, serializerOptions))
+            foreach (var name in AgentJsonPropertyNames.GetSchemaNameCandidates(prop, def.ReqDtoType, serializerOptions))
             {
                 props.Remove(name);
                 RemoveRequiredEntry(required, name);
@@ -520,12 +490,6 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
         if (required is { Count: 0 })
             root.Remove("required");
     }
-
-    static bool ShouldHideFromClientInput(PropertyInfo prop)
-        => prop.GetCustomAttribute<HasPermissionAttribute>() is not null ||
-           prop.GetCustomAttribute<FromClaimAttribute>() is { IsRequired: true } or { RemoveFromSchema: true } ||
-           prop.GetCustomAttribute<FromHeaderAttribute>() is { RemoveFromSchema: true } ||
-           prop.GetCustomAttribute<FromCookieAttribute>() is { RemoveFromSchema: true };
 
     static void RemoveToHeaderOutputProperties(JsonNode outputSchema, EndpointDefinition def, JsonSerializerOptions serializerOptions)
     {
@@ -539,7 +503,7 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
             if (!prop.IsDefined(Types.ToHeaderAttribute, true))
                 continue;
 
-            foreach (var name in GetSchemaPropertyNameCandidates(prop, def.ResDtoType, serializerOptions))
+            foreach (var name in AgentJsonPropertyNames.GetSchemaNameCandidates(prop, def.ResDtoType, serializerOptions))
             {
                 props.Remove(name);
                 RemoveRequiredEntry(required, name);
@@ -548,31 +512,6 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
 
         if (required is { Count: 0 })
             root.Remove("required");
-    }
-
-    static IEnumerable<string> GetSchemaPropertyNameCandidates(PropertyInfo prop, Type dtoType, JsonSerializerOptions serializerOptions)
-    {
-        if (TryGetJsonPropertyName(prop, dtoType, serializerOptions) is { } jsonName)
-            yield return jsonName;
-
-        yield return prop.Name;
-        yield return prop.FieldName();
-    }
-
-    static string? TryGetJsonPropertyName(PropertyInfo prop, Type dtoType, JsonSerializerOptions serializerOptions)
-    {
-        var typeInfo = serializerOptions.TypeInfoResolver?.GetTypeInfo(dtoType, serializerOptions);
-
-        if (typeInfo is null)
-            return null;
-
-        foreach (var jsonProp in typeInfo.Properties)
-        {
-            if (ReferenceEquals(jsonProp.AttributeProvider, prop))
-                return jsonProp.Name;
-        }
-
-        return null;
     }
 
     static void RemoveRequiredEntry(JsonArray? required, string name)

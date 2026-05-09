@@ -9,8 +9,11 @@ sealed class AgentCardBuilder(A2ASkillCatalog skillCatalog, A2AOptions options, 
     public AgentCard Build(HttpContext ctx)
     {
         var skills = new List<AgentSkill>();
+        var visibleSkills = skillCatalog.GetVisibleSkills(ctx);
 
-        foreach (var skill in skillCatalog.GetVisibleSkills(ctx))
+        A2ASkillCatalog.EnsureUniqueIds(visibleSkills, "A2A skills visible to the current caller");
+
+        foreach (var skill in visibleSkills)
         {
             var info = skill.Info;
 

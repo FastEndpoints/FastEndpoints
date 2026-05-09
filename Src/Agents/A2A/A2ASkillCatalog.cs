@@ -6,25 +6,32 @@ namespace FastEndpoints.A2A;
 
 sealed class A2ASkillCatalog(IServiceProvider services, A2AOptions options)
 {
-    public IEnumerable<A2ASkillDescriptor> GetVisibleSkills(HttpContext context)
+    public IReadOnlyList<A2ASkillDescriptor> GetVisibleSkills(HttpContext context)
     {
         var endpointData = services.GetRequiredService<EndpointData>();
+        var skills = new List<A2ASkillDescriptor>();
 
         foreach (var def in endpointData.Found)
         {
             var skill = CreateDescriptor(def, context);
 
             if (skill is not null)
-                yield return skill;
+                skills.Add(skill);
         }
+
+        return skills;
     }
 
     public EndpointDefinition? FindVisibleSkill(string? id, HttpContext context)
     {
+        var skills = GetVisibleSkills(context);
+
+        EnsureUniqueIds(skills, "A2A skills visible to the current caller");
+
         EndpointDefinition? onlyVisible = null;
         var visibleCount = 0;
 
-        foreach (var skill in GetVisibleSkills(context))
+        foreach (var skill in skills)
         {
             if (id is not null)
             {
@@ -43,6 +50,29 @@ sealed class A2ASkillCatalog(IServiceProvider services, A2AOptions options)
 
         return visibleCount == 1 ? onlyVisible : null;
     }
+
+    public static void EnsureUniqueIds(IReadOnlyCollection<A2ASkillDescriptor> skills, string scope)
+    {
+        var collisions = skills.GroupBy(x => x.Id, StringComparer.Ordinal)
+                               .Where(g => g.Count() > 1)
+                               .ToArray();
+
+        if (collisions.Length == 0)
+            return;
+
+        throw new InvalidOperationException(
+            "Duplicate A2A skill ids detected among " +
+            scope +
+            ": " +
+            string.Join(
+                "; ",
+                collisions.Select(
+                    g => $"'{g.Key}' => {FormatEndpointTypeNames(g)}")) +
+            ". A2A skill ids must be unique.");
+    }
+
+    static string FormatEndpointTypeNames(IEnumerable<A2ASkillDescriptor> skills)
+        => string.Join(", ", skills.Select(x => x.Definition.EndpointType.FullName ?? x.Definition.EndpointType.Name).Distinct(StringComparer.Ordinal));
 
     A2ASkillDescriptor? CreateDescriptor(EndpointDefinition def, HttpContext context)
     {

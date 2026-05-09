@@ -134,6 +134,32 @@ public class A2ASkillVisibilityTests
     }
 
     [Fact]
+    public void Visible_duplicate_skill_ids_are_rejected_from_agent_card()
+    {
+        using var provider = BuildServices(visibleSkillId: "shared", hiddenSkillId: "shared");
+        var ctx = BuildContext(provider);
+
+        var ex = Should.Throw<InvalidOperationException>(() => provider.GetRequiredService<AgentCardBuilder>().Build(ctx));
+
+        ex.Message.ShouldContain("Duplicate A2A skill ids detected");
+        ex.Message.ShouldContain("shared");
+    }
+
+    [Fact]
+    public async Task Visible_duplicate_skill_ids_are_rejected_before_dispatch()
+    {
+        using var provider = BuildServices(visibleSkillId: "shared", hiddenSkillId: "shared");
+        var ctx = BuildContext(provider);
+
+        System.Threading.Interlocked.Exchange(ref VisibleSkillEndpoint.ExecutionCount, 0);
+
+        var ex = await Should.ThrowAsync<InvalidOperationException>(() => Dispatch(provider, "shared", ctx));
+
+        ex.Message.ShouldContain("Duplicate A2A skill ids detected");
+        VisibleSkillEndpoint.ExecutionCount.ShouldBe(0);
+    }
+
+    [Fact]
     public void Default_agent_card_route_uses_v1_discovery_path()
     {
         var builder = WebApplication.CreateBuilder();

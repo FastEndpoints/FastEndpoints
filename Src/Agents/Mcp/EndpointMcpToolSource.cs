@@ -96,7 +96,7 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
                                    ILogger<EndpointMcpToolSource> logger)
     {
         var summaryTitle = def.EndpointSummary?.Summary;
-        var name = McpToolNameResolver.ResolvePublishedName(def, info);
+        var name = AgentPublishedNameResolver.Resolve(def, info.Name, "MCP tool name", "MCP tool names");
         var description = info.Description ?? def.EndpointSummary?.Description;
 
         if (info.Name is null && string.IsNullOrWhiteSpace(summaryTitle))

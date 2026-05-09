@@ -50,7 +50,7 @@ sealed class A2ASkillCatalog(IServiceProvider services, A2AOptions options)
                 if (options.SkillFilter is not null && !options.SkillFilter(def))
                     return null;
 
-                return new(def, info, A2ASkillIdResolver.ResolvePublishedId(def, info), def.EndpointSummary?.Summary);
+                return new(def, info, AgentPublishedNameResolver.Resolve(def, info.Id, "A2A skill id", "A2A skill ids"), def.EndpointSummary?.Summary);
             },
             x => x.Id,
             x => x.Definition,

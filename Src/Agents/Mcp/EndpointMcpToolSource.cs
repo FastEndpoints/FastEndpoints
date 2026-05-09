@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using FastEndpoints.Agents;
@@ -452,41 +453,24 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
     }
 
     static void RemoveNonClientInputProperties(JsonNode inputSchema, EndpointDefinition def, JsonSerializerOptions serializerOptions)
-    {
-        if (inputSchema is not JsonObject root || root["properties"] is not JsonObject props)
-            return;
-
-        var required = root["required"] as JsonArray;
-
-        foreach (var prop in def.ReqDtoType.BindableProps())
-        {
-            if (!AgentInputPropertyRules.ShouldIgnoreClientInput(prop))
-                continue;
-
-            foreach (var name in AgentJsonPropertyNames.GetSchemaNameCandidates(prop, def.ReqDtoType, serializerOptions))
-            {
-                props.Remove(name);
-                RemoveRequiredEntry(required, name);
-            }
-        }
-
-        if (required is { Count: 0 })
-            root.Remove("required");
-    }
+        => RemoveSchemaProperties(inputSchema, def.ReqDtoType, serializerOptions, AgentInputPropertyRules.ShouldIgnoreClientInput);
 
     static void RemoveToHeaderOutputProperties(JsonNode outputSchema, EndpointDefinition def, JsonSerializerOptions serializerOptions)
+        => RemoveSchemaProperties(outputSchema, def.ResDtoType, serializerOptions, prop => prop.IsDefined(Types.ToHeaderAttribute, true));
+
+    static void RemoveSchemaProperties(JsonNode schema, Type dtoType, JsonSerializerOptions serializerOptions, Func<PropertyInfo, bool> shouldRemove)
     {
-        if (outputSchema is not JsonObject root || root["properties"] is not JsonObject props)
+        if (schema is not JsonObject root || root["properties"] is not JsonObject props)
             return;
 
         var required = root["required"] as JsonArray;
 
-        foreach (var prop in def.ResDtoType.BindableProps())
+        foreach (var prop in dtoType.BindableProps())
         {
-            if (!prop.IsDefined(Types.ToHeaderAttribute, true))
+            if (!shouldRemove(prop))
                 continue;
 
-            foreach (var name in AgentJsonPropertyNames.GetSchemaNameCandidates(prop, def.ResDtoType, serializerOptions))
+            foreach (var name in AgentJsonPropertyNames.GetSchemaNameCandidates(prop, dtoType, serializerOptions))
             {
                 props.Remove(name);
                 RemoveRequiredEntry(required, name);

@@ -34,11 +34,11 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
     {
         using var scope = scopeFactory.CreateScope();
         var httpContext = BuildHttpContext(definition, args, principal, scope.ServiceProvider, ct);
-        var endpoint = EndpointBootstrap.CreateEndpoint(httpContext, definition);
         var accessor = scope.ServiceProvider.GetService<IHttpContextAccessor>();
         var resolverAccessor = FastEndpoints.HttpContextExtensions.TryResolve<IHttpContextAccessor>(httpContext);
         var previousContext = accessor?.HttpContext;
         var previousResolverContext = resolverAccessor?.HttpContext;
+        BaseEndpoint? endpoint = null;
 
         try
         {
@@ -46,6 +46,8 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
                 accessor.HttpContext = httpContext;
             if (resolverAccessor is not null && !ReferenceEquals(resolverAccessor, accessor))
                 resolverAccessor.HttpContext = httpContext;
+
+            endpoint = EndpointBootstrap.CreateEndpoint(httpContext, definition);
 
             await endpoint.ExecAsync(ct);
         }
@@ -55,7 +57,7 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
         }
         catch (Exception ex)
         {
-            return InvocationResult.Faulted(ex, endpoint.ValidationFailures);
+            return InvocationResult.Faulted(ex, endpoint?.ValidationFailures ?? []);
         }
         finally
         {
@@ -64,11 +66,14 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
             if (resolverAccessor is not null && !ReferenceEquals(resolverAccessor, accessor))
                 resolverAccessor.HttpContext = previousResolverContext;
 
-            if (definition.DisposableAsync)
+            if (endpoint is not null && definition.DisposableAsync)
                 await ((IAsyncDisposable)endpoint).DisposeAsync();
-            if (definition.Disposable)
+            if (endpoint is not null && definition.Disposable)
                 ((IDisposable)endpoint).Dispose();
         }
+
+        if (endpoint is null)
+            throw new InvalidOperationException("Endpoint invocation completed without creating an endpoint instance.");
 
         // report validation failures regardless of response status: an endpoint that opts into
         // DontThrowIfValidationFails() leaves StatusCode = 200 even when AddError(...) pushed

@@ -21,6 +21,7 @@ public class EndpointInvokerExecutionSemanticsTests
 
         result.Status.ShouldBe(InvocationStatus.Success);
         JsonDocument.Parse(result.Body).RootElement.GetProperty("Value").GetString().ShouldBe("ok");
+        provider.GetRequiredService<InvocationProbe>().ConstructorAccessorPathSeen.ShouldNotBe("/outer-transport");
         provider.GetRequiredService<InvocationProbe>().AccessorMatchesEndpointContext.ShouldBeTrue();
         provider.GetRequiredService<InvocationProbe>().AccessorPathSeen.ShouldNotBe("/outer-transport");
         accessor.HttpContext.ShouldBeSameAs(outerContext);
@@ -129,6 +130,7 @@ public class EndpointInvokerExecutionSemanticsTests
 
     sealed class InvocationProbe
     {
+        public string? ConstructorAccessorPathSeen { get; set; }
         public bool AccessorMatchesEndpointContext { get; set; }
         public string? AccessorPathSeen { get; set; }
         public string? ResponseHeaderSeen { get; set; }
@@ -154,12 +156,22 @@ public class EndpointInvokerExecutionSemanticsTests
     }
 
     [HttpPost("/agent-semantics/accessor")]
-    sealed class AccessorAwareEndpoint(IHttpContextAccessor accessor, InvocationProbe probe) : Endpoint<TestRequest, TestResponse>
+    sealed class AccessorAwareEndpoint : Endpoint<TestRequest, TestResponse>
     {
+        readonly IHttpContextAccessor _accessor;
+        readonly InvocationProbe _probe;
+
+        public AccessorAwareEndpoint(IHttpContextAccessor accessor, InvocationProbe probe)
+        {
+            _accessor = accessor;
+            _probe = probe;
+            probe.ConstructorAccessorPathSeen = accessor.HttpContext?.Request.Path.Value;
+        }
+
         public override Task HandleAsync(TestRequest req, CancellationToken ct)
         {
-            probe.AccessorMatchesEndpointContext = ReferenceEquals(accessor.HttpContext, HttpContext);
-            probe.AccessorPathSeen = accessor.HttpContext?.Request.Path.Value;
+            _probe.AccessorMatchesEndpointContext = ReferenceEquals(_accessor.HttpContext, HttpContext);
+            _probe.AccessorPathSeen = _accessor.HttpContext?.Request.Path.Value;
 
             return Send.OkAsync(new() { Value = "ok" }, ct);
         }

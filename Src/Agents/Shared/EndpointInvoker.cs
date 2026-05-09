@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
@@ -20,6 +21,10 @@ namespace FastEndpoints.Agents;
 /// </summary>
 sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
 {
+    static readonly ConcurrentDictionary<(Type DeclaringType, JsonSerializerOptions SerializerOptions), PropertySpec[]> _nestedPropertySpecs = new();
+
+    readonly ConcurrentDictionary<(EndpointDefinition Definition, JsonSerializerOptions SerializerOptions), RequestSpec> _requestSpecs = new();
+
     /// <summary>
     /// invokes <paramref name="definition" /> with <paramref name="args" /> as the request body. the body
     /// is fed to the FastEndpoints binder via a <see cref="DefaultHttpContext" /> whose <c>Request.Body</c>
@@ -101,14 +106,15 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
                    : InvocationResult.HttpError(httpContext.Response.StatusCode, httpContext.Response.ContentType, payload);
     }
 
-    static DefaultHttpContext BuildHttpContext(EndpointDefinition definition,
-                                               JsonElement args,
-                                               System.Security.Claims.ClaimsPrincipal? principal,
-                                               IServiceProvider services,
-                                               CancellationToken ct)
+    DefaultHttpContext BuildHttpContext(EndpointDefinition definition,
+                                        JsonElement args,
+                                        System.Security.Claims.ClaimsPrincipal? principal,
+                                        IServiceProvider services,
+                                        CancellationToken ct)
     {
         var bindingSerializerOptions = definition.SerializerContext?.Options ?? SerOpts.Options;
-        var request = BuildRequest(definition, args, bindingSerializerOptions, SerOpts.Options);
+        var requestSpec = _requestSpecs.GetOrAdd((definition, bindingSerializerOptions), static key => BuildRequestSpec(key.Definition, key.SerializerOptions));
+        var request = BuildRequest(definition, args, requestSpec, bindingSerializerOptions, SerOpts.Options);
         var ctx = new DefaultHttpContext { RequestServices = services };
 
         if (principal is not null)
@@ -158,22 +164,20 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
     }
 
     static AgentRequest BuildRequest(EndpointDefinition definition,
-                                     JsonElement args,
-                                     JsonSerializerOptions bindingSerializerOptions,
-                                     JsonSerializerOptions payloadSerializerOptions)
+                                      JsonElement args,
+                                      RequestSpec requestSpec,
+                                      JsonSerializerOptions bindingSerializerOptions,
+                                      JsonSerializerOptions payloadSerializerOptions)
     {
-        var verb = definition.Verbs.FirstOrDefault() ?? "POST";
-        var routeTemplate = definition.Routes.FirstOrDefault();
-        var routeParams = ParseRouteParameters(routeTemplate);
-        var request = new AgentRequest { Method = verb };
-        var preferQueryByDefault = IsQueryFirstVerb(verb);
+        var routeParams = requestSpec.RouteParams;
+        var request = new AgentRequest { Method = requestSpec.Verb };
 
         if (args.ValueKind != JsonValueKind.Object)
         {
             if (args.ValueKind is not JsonValueKind.Undefined and not JsonValueKind.Null)
                 request.Body = args.Clone();
 
-            request.Path = ResolvePath(definition, routeTemplate, request.RouteValues);
+            request.Path = ResolvePath(requestSpec.RouteSegments, request.RouteValues);
 
             return request;
         }
@@ -193,10 +197,8 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
                 request.RouteValues[routeParam] = routeValue;
         }
 
-        foreach (var prop in definition.ReqDtoType.BindableProps())
+        foreach (var spec in requestSpec.Properties)
         {
-            var spec = BuildPropertySpec(prop, definition, bindingSerializerOptions);
-
             if (!TryTakeArgValue(remainingArgs, spec, out var value, out var matchedKey))
                 continue;
 
@@ -235,7 +237,7 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
 
             if (spec.QueryKind is not QueryBindingKind.None)
             {
-                AddQueryValues(request.Query, spec.QueryKind == QueryBindingKind.Complex ? string.Empty : spec.FieldName, value, prop.PropertyType, bindingSerializerOptions);
+                AddQueryValues(request.Query, spec.QueryKind == QueryBindingKind.Complex ? string.Empty : spec.FieldName, value, spec.PropertyType, bindingSerializerOptions);
 
                 continue;
             }
@@ -248,9 +250,9 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
                 continue;
             }
 
-            if (preferQueryByDefault)
+            if (requestSpec.PreferQueryByDefault)
             {
-                AddQueryValues(request.Query, spec.FieldName, value, prop.PropertyType, bindingSerializerOptions);
+                AddQueryValues(request.Query, spec.FieldName, value, spec.PropertyType, bindingSerializerOptions);
 
                 continue;
             }
@@ -262,9 +264,22 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
             throw new UnknownAgentArgumentsException(remainingArgs.Keys);
 
         request.Body = fromBodyPayload ?? (bodyProps.Count > 0 ? JsonSerializer.SerializeToElement(bodyProps, payloadSerializerOptions) : null);
-        request.Path = ResolvePath(definition, routeTemplate, request.RouteValues);
+        request.Path = ResolvePath(requestSpec.RouteSegments, request.RouteValues);
 
         return request;
+    }
+
+    static RequestSpec BuildRequestSpec(EndpointDefinition definition, JsonSerializerOptions serializerOptions)
+    {
+        var verb = definition.Verbs.FirstOrDefault() ?? "POST";
+        var routeTemplate = definition.Routes.FirstOrDefault();
+
+        return new(
+            verb,
+            ParseRouteParameters(routeTemplate),
+            BuildRouteSegments(definition, routeTemplate),
+            IsQueryFirstVerb(verb),
+            definition.ReqDtoType.BindableProps().Select(prop => BuildPropertySpec(prop, definition, serializerOptions)).ToArray());
     }
 
     static PropertySpec BuildPropertySpec(PropertyInfo prop, EndpointDefinition definition, JsonSerializerOptions serializerOptions)
@@ -375,17 +390,17 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
             return;
         }
 
-        var childProps = targetType.BindableProps();
+        var childSpecs = _nestedPropertySpecs.GetOrAdd(
+            (targetType, serializerOptions),
+            static key => key.DeclaringType.BindableProps().Select(prop => BuildNestedPropertySpec(prop, key.DeclaringType, key.SerializerOptions)).ToArray());
         var childArgs = value.EnumerateObject().ToDictionary(p => p.Name, p => p.Value.Clone(), StringComparer.OrdinalIgnoreCase);
 
-        foreach (var childProp in childProps)
+        foreach (var childSpec in childSpecs)
         {
-            var childSpec = BuildNestedPropertySpec(childProp, targetType, serializerOptions);
-
             if (!TryTakeArgValue(childArgs, childSpec, out var childValue, out _))
                 continue;
 
-            AddQueryValues(query, CombineQueryKey(key, childSpec.FieldName), childValue, childProp.PropertyType, serializerOptions);
+            AddQueryValues(query, CombineQueryKey(key, childSpec.FieldName), childValue, childSpec.PropertyType, serializerOptions);
         }
 
         foreach (var (childKey, childValue) in childArgs)
@@ -419,6 +434,7 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
 
         return new(
             aliases,
+            prop.PropertyType,
             fieldName,
             serializedName,
             fromBody,
@@ -498,17 +514,24 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
         return name.TrimStart('*').TrimEnd('?');
     }
 
-    static PathString ResolvePath(EndpointDefinition definition, string? routeTemplate, IReadOnlyDictionary<string, object?> routeValues)
+    static string[] BuildRouteSegments(EndpointDefinition definition, string? routeTemplate)
     {
         if (string.IsNullOrWhiteSpace(routeTemplate))
-            return "/";
+            return [];
 
         routeTemplate = new StringBuilder().BuildRoute(definition.Version.Current, routeTemplate, definition.OverriddenRoutePrefix);
 
-        var segments = routeTemplate.TrimStart('~').Trim('/').Split('/', StringSplitOptions.RemoveEmptyEntries);
-        var parts = new List<string>(segments.Length);
+        return routeTemplate.TrimStart('~').Trim('/').Split('/', StringSplitOptions.RemoveEmptyEntries);
+    }
 
-        foreach (var segment in segments)
+    static PathString ResolvePath(string[] routeSegments, IReadOnlyDictionary<string, object?> routeValues)
+    {
+        if (routeSegments.Length == 0)
+            return "/";
+
+        var parts = new List<string>(routeSegments.Length);
+
+        foreach (var segment in routeSegments)
         {
             var resolved = ResolvePathSegment(segment, routeValues);
 
@@ -577,7 +600,14 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
         public IReadOnlyList<ValidationFailure> Failures { get; } = names.Select(name => new ValidationFailure(name, $"Unknown argument '{name}'.")).ToArray();
     }
 
+    sealed record RequestSpec(string Verb,
+                              IReadOnlyList<string> RouteParams,
+                              string[] RouteSegments,
+                              bool PreferQueryByDefault,
+                              PropertySpec[] Properties);
+
     sealed record PropertySpec(string[] Aliases,
+                               Type PropertyType,
                                string FieldName,
                                string SerializedName,
                                bool FromBody,

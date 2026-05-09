@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization.Metadata;
@@ -6,11 +7,13 @@ namespace FastEndpoints.Agents;
 
 static class AgentJsonPropertyNames
 {
+    static readonly ConcurrentDictionary<(Type DtoType, JsonSerializerOptions SerializerOptions), IReadOnlyDictionary<string, string>> _schemaNameMaps = new();
+
     internal static string? GetSerializedName(PropertyInfo prop, EndpointDefinition def, JsonSerializerOptions serializerOptions)
         => TryGetJsonPropertyName(prop, def.ReqDtoType, def.SerializerContext ?? serializerOptions.TypeInfoResolver, serializerOptions);
 
     internal static string? GetSerializedName(PropertyInfo prop, Type dtoType, JsonSerializerOptions serializerOptions)
-        => TryGetJsonPropertyName(prop, dtoType, serializerOptions.TypeInfoResolver, serializerOptions);
+        => BuildSchemaNameMap(dtoType, serializerOptions).TryGetValue(prop.Name, out var jsonName) ? jsonName : null;
 
     internal static IEnumerable<string> GetSchemaNameCandidates(PropertyInfo prop, Type dtoType, JsonSerializerOptions serializerOptions)
     {
@@ -22,6 +25,9 @@ static class AgentJsonPropertyNames
     }
 
     internal static IReadOnlyDictionary<string, string> BuildSchemaNameMap(Type dtoType, JsonSerializerOptions serializerOptions)
+        => _schemaNameMaps.GetOrAdd((dtoType, serializerOptions), static key => BuildSchemaNameMapCore(key.DtoType, key.SerializerOptions));
+
+    static IReadOnlyDictionary<string, string> BuildSchemaNameMapCore(Type dtoType, JsonSerializerOptions serializerOptions)
     {
         var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         var typeInfo = serializerOptions.TypeInfoResolver?.GetTypeInfo(dtoType, serializerOptions);

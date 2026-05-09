@@ -124,6 +124,7 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
         DisallowAdditionalInputProperties(inputSchema);
 
         var outputSchema = TryBuildOutputSchema(def, schemaSerializerOptions, options);
+        var outputPropertyNames = GetRootPropertyNames(outputSchema);
 
         var tool = McpServerTool.Create(
             async (RequestContext<CallToolRequestParams> ctx, CancellationToken ct) =>
@@ -142,7 +143,7 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
 
                 return result.Status switch
                 {
-                    InvocationStatus.Success => BuildSuccessResult(result, outputSchema),
+                    InvocationStatus.Success => BuildSuccessResult(result, outputSchema, outputPropertyNames),
                     InvocationStatus.HttpError => BuildHttpErrorResult(result),
                     InvocationStatus.ValidationFailed => BuildValidationErrorResult(result),
                     InvocationStatus.Faulted => BuildFaultedResult(result, logger, name, def),
@@ -168,12 +169,12 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
         return tool;
     }
 
-    static CallToolResult BuildSuccessResult(InvocationResult r, JsonNode? outputSchema)
+    static CallToolResult BuildSuccessResult(InvocationResult r, JsonNode? outputSchema, IReadOnlySet<string>? outputPropertyNames)
     {
         var text = InvocationResultHelpers.ReadBodyText(r);
         JsonElement? structuredContent = null;
 
-        if (outputSchema is not null && TryExtractStructuredContent(text, out var content) && TryApplyOutputSchema(content, outputSchema, out var schemaContent))
+        if (outputSchema is not null && TryExtractStructuredContent(text, out var content) && TryApplyOutputSchema(content, outputSchema, outputPropertyNames, out var schemaContent))
             structuredContent = schemaContent;
 
         return new()
@@ -320,9 +321,14 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
         return false;
     }
 
-    static bool TryApplyOutputSchema(JsonElement content, JsonNode outputSchema, out JsonElement structuredContent)
+    static IReadOnlySet<string>? GetRootPropertyNames(JsonNode? schema)
+        => schema is JsonObject { } root && root["properties"] is JsonObject props
+               ? props.Select(p => p.Key).ToHashSet(StringComparer.Ordinal)
+               : null;
+
+    static bool TryApplyOutputSchema(JsonElement content, JsonNode outputSchema, IReadOnlySet<string>? outputPropertyNames, out JsonElement structuredContent)
     {
-        if (outputSchema is not JsonObject root || root["properties"] is not JsonObject props)
+        if (outputSchema is not JsonObject root || outputPropertyNames is null)
         {
             structuredContent = content;
 
@@ -336,12 +342,11 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
             return false;
         }
 
-        var allowedProps = props.Select(p => p.Key).ToHashSet(StringComparer.Ordinal);
         var filtered = new JsonObject();
 
         foreach (var prop in content.EnumerateObject())
         {
-            if (allowedProps.Contains(prop.Name))
+            if (outputPropertyNames.Contains(prop.Name))
                 filtered[prop.Name] = JsonNode.Parse(prop.Value.GetRawText());
         }
 

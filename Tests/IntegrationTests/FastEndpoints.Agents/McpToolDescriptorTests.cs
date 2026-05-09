@@ -158,6 +158,22 @@ public class McpToolDescriptorTests
         ((TextContentBlock)result.Content[0]).Text.ShouldContain("visible:ping");
     }
 
+    [Theory]
+    [InlineData("mismatched_type_output_tool")]
+    [InlineData("missing_required_output_tool")]
+    [InlineData("unknown_nested_output_tool")]
+    public async Task Structured_content_is_omitted_when_response_violates_output_schema(string toolName)
+    {
+        using var provider = BuildServices();
+
+        var tool = BuildTool(provider, toolName);
+        var result = await tool.InvokeAsync(BuildRequestContext(provider, tool, authenticated: true), CancellationToken.None);
+
+        result.IsError.ShouldNotBe(true);
+        result.StructuredContent.HasValue.ShouldBeFalse();
+        ((TextContentBlock)result.Content[0]).Text.ShouldNotBeNullOrWhiteSpace();
+    }
+
     [Fact]
     public async Task Endpoint_serializer_context_controls_tool_schemas_and_invocation_payloads()
     {
@@ -295,6 +311,9 @@ public class McpToolDescriptorTests
                 o.SourceGeneratorDiscoveredTypes.Add(typeof(FaultedToolEndpoint));
                 o.SourceGeneratorDiscoveredTypes.Add(typeof(HiddenTransportInputToolEndpoint));
                 o.SourceGeneratorDiscoveredTypes.Add(typeof(ToHeaderOutputToolEndpoint));
+                o.SourceGeneratorDiscoveredTypes.Add(typeof(MismatchedTypeOutputToolEndpoint));
+                o.SourceGeneratorDiscoveredTypes.Add(typeof(MissingRequiredOutputToolEndpoint));
+                o.SourceGeneratorDiscoveredTypes.Add(typeof(UnknownNestedOutputToolEndpoint));
             });
         services.AddMcp(
             o =>
@@ -354,6 +373,15 @@ public class McpToolDescriptorTests
 
             if (def.EndpointType == typeof(ToHeaderOutputToolEndpoint))
                 def.McpTool("to_header_output_tool");
+
+            if (def.EndpointType == typeof(MismatchedTypeOutputToolEndpoint))
+                def.McpTool("mismatched_type_output_tool");
+
+            if (def.EndpointType == typeof(MissingRequiredOutputToolEndpoint))
+                def.McpTool("missing_required_output_tool");
+
+            if (def.EndpointType == typeof(UnknownNestedOutputToolEndpoint))
+                def.McpTool("unknown_nested_output_tool");
         }
 
         return provider;
@@ -532,6 +560,42 @@ public class McpToolDescriptorTests
         [ToHeader("x-tool-value")]
         public string? HeaderValue { get; set; }
 
+        public string? Value { get; set; }
+    }
+
+    [HttpPost("/descriptor-tool/mismatched-type-output")]
+    sealed class MismatchedTypeOutputToolEndpoint : Endpoint<ToolRequest, ToolResponse>
+    {
+        public override Task HandleAsync(ToolRequest req, CancellationToken ct)
+            => Send.StringAsync("""{"Value":123}""", 200, "application/json", ct);
+    }
+
+    [HttpPost("/descriptor-tool/missing-required-output")]
+    sealed class MissingRequiredOutputToolEndpoint : Endpoint<ToolRequest, RequiredOutputResponse>
+    {
+        public override Task HandleAsync(ToolRequest req, CancellationToken ct)
+            => Send.StringAsync("{}", 200, "application/json", ct);
+    }
+
+    sealed class RequiredOutputResponse
+    {
+        public required string Value { get; set; }
+    }
+
+    [HttpPost("/descriptor-tool/unknown-nested-output")]
+    sealed class UnknownNestedOutputToolEndpoint : Endpoint<ToolRequest, NestedOutputResponse>
+    {
+        public override Task HandleAsync(ToolRequest req, CancellationToken ct)
+            => Send.StringAsync("""{"Nested":{"Value":"ok","Secret":"leak"}}""", 200, "application/json", ct);
+    }
+
+    sealed class NestedOutputResponse
+    {
+        public NestedOutputValue Nested { get; set; } = new();
+    }
+
+    sealed class NestedOutputValue
+    {
         public string? Value { get; set; }
     }
 }

@@ -214,8 +214,8 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
         var text = InvocationResultHelpers.ReadBodyText(r);
         JsonElement? structuredContent = null;
 
-        if (outputSchema is not null && TryExtractStructuredContent(text, out var content))
-            structuredContent = ApplyOutputSchema(content, outputSchema);
+        if (outputSchema is not null && TryExtractStructuredContent(text, out var content) && TryApplyOutputSchema(content, outputSchema, out var schemaContent))
+            structuredContent = schemaContent;
 
         return new()
         {
@@ -366,10 +366,21 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
         return false;
     }
 
-    static JsonElement ApplyOutputSchema(JsonElement content, JsonNode outputSchema)
+    static bool TryApplyOutputSchema(JsonElement content, JsonNode outputSchema, out JsonElement structuredContent)
     {
         if (outputSchema is not JsonObject root || root["properties"] is not JsonObject props)
-            return content;
+        {
+            structuredContent = content;
+
+            return true;
+        }
+
+        if (!ValidateJsonValue(content, root, requireKnownObjectProperties: false))
+        {
+            structuredContent = default;
+
+            return false;
+        }
 
         var allowedProps = props.Select(p => p.Key).ToHashSet(StringComparer.Ordinal);
         var filtered = new JsonObject();
@@ -380,8 +391,90 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
                 filtered[prop.Name] = JsonNode.Parse(prop.Value.GetRawText());
         }
 
-        return JsonSerializer.SerializeToElement(filtered);
+        structuredContent = JsonSerializer.SerializeToElement(filtered);
+
+        return true;
     }
+
+    static bool ValidateJsonValue(JsonElement value, JsonObject schema, bool requireKnownObjectProperties)
+    {
+        if (!MatchesSchemaType(value, schema["type"]))
+            return false;
+
+        if (value.ValueKind == JsonValueKind.Object)
+            return ValidateJsonObject(value, schema, requireKnownObjectProperties);
+
+        if (value.ValueKind == JsonValueKind.Array && schema["items"] is JsonObject itemSchema)
+        {
+            foreach (var item in value.EnumerateArray())
+            {
+                if (!ValidateJsonValue(item, itemSchema, requireKnownObjectProperties: true))
+                    return false;
+            }
+        }
+
+        return true;
+    }
+
+    static bool ValidateJsonObject(JsonElement value, JsonObject schema, bool requireKnownObjectProperties)
+    {
+        var props = schema["properties"] as JsonObject;
+
+        if (schema["required"] is JsonArray required)
+        {
+            foreach (var requiredProp in required)
+            {
+                if (requiredProp?.GetValue<string>() is { } name && !value.TryGetProperty(name, out _))
+                    return false;
+            }
+        }
+
+        if (props is null)
+            return true;
+
+        foreach (var prop in value.EnumerateObject())
+        {
+            if (!props.TryGetPropertyValue(prop.Name, out var propSchema))
+            {
+                if (requireKnownObjectProperties)
+                    return false;
+
+                continue;
+            }
+
+            if (propSchema is JsonObject propSchemaObject && !ValidateJsonValue(prop.Value, propSchemaObject, requireKnownObjectProperties: true))
+                return false;
+        }
+
+        return true;
+    }
+
+    static bool MatchesSchemaType(JsonElement value, JsonNode? typeNode)
+    {
+        if (typeNode is null)
+            return true;
+
+        if (typeNode is JsonValue typeValue && typeValue.TryGetValue<string>(out var type))
+            return MatchesSchemaType(value, type);
+
+        if (typeNode is JsonArray types)
+            return types.Any(t => t is JsonValue item && item.TryGetValue<string>(out var type) && MatchesSchemaType(value, type));
+
+        return true;
+    }
+
+    static bool MatchesSchemaType(JsonElement value, string type)
+        => type switch
+        {
+            "object" => value.ValueKind == JsonValueKind.Object,
+            "array" => value.ValueKind == JsonValueKind.Array,
+            "string" => value.ValueKind == JsonValueKind.String,
+            "boolean" => value.ValueKind is JsonValueKind.True or JsonValueKind.False,
+            "integer" => value.ValueKind == JsonValueKind.Number && value.TryGetInt64(out _),
+            "number" => value.ValueKind == JsonValueKind.Number,
+            "null" => value.ValueKind == JsonValueKind.Null,
+            _ => true
+        };
 
     static void EnrichInputSchemaWithValidation(JsonNode inputSchema, EndpointDefinition def, JsonSerializerOptions serializerOptions, IServiceProvider services)
     {

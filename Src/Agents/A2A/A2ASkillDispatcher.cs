@@ -74,7 +74,7 @@ sealed class A2ASkillDispatcher(A2ASkillCatalog skillCatalog, EndpointInvoker in
                 MessageId = Guid.NewGuid().ToString("N"),
                 ContextId = requestMessage.ContextId,
                 TaskId = requestMessage.TaskId,
-                Role = "ROLE_AGENT",
+                Role = "agent",
                 Parts = [BuildResponsePart(text, InvocationResultHelpers.NormalizeMediaType(r.ContentType, DefaultMediaType))]
             }
         };

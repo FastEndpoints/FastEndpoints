@@ -77,7 +77,7 @@ sealed class A2AMessage
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? TaskId { get; set; }
 
-    [JsonPropertyName("role")] public string Role { get; set; } = "ROLE_USER";
+    [JsonPropertyName("role")] public string Role { get; set; } = "user";
     [JsonPropertyName("parts")] public A2APart[]? Parts { get; set; }
 
     [JsonPropertyName("metadata")]

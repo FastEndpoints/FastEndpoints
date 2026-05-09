@@ -204,7 +204,7 @@ public class A2ASkillVisibilityTests
         var message = resultJson.GetProperty("message");
         var part = message.GetProperty("parts")[0];
 
-        message.GetProperty("role").GetString().ShouldBe("ROLE_AGENT");
+        message.GetProperty("role").GetString().ShouldBe("agent");
         message.TryGetProperty("messageId", out var messageId).ShouldBeTrue();
         messageId.GetString().ShouldNotBeNullOrWhiteSpace();
         part.GetProperty("data").GetProperty("Value").GetString().ShouldBe("visible:ping");
@@ -232,7 +232,7 @@ public class A2ASkillVisibilityTests
                   "params": {
                     "message": {
                       "messageId": "client-message-1",
-                      "role": "ROLE_USER",
+                      "role": "user",
                       "parts": [
                         { "data": { "Value": "ping" } }
                       ]
@@ -290,7 +290,7 @@ public class A2ASkillVisibilityTests
                     message = new
                     {
                         messageId = "client-message-1",
-                        role = "ROLE_USER",
+                        role = "user",
                         parts = new[] { new { data = new { Value = "ping" } } }
                     },
                     metadata = new { skill }
@@ -345,7 +345,7 @@ public class A2ASkillVisibilityTests
                     message = new
                     {
                         messageId = "client-message-1",
-                        role = "ROLE_USER",
+                        role = "user",
                         parts = new[] { new { data = new { Value = "" } } }
                     },
                     metadata = new { skill = "validation" }
@@ -389,15 +389,15 @@ public class A2ASkillVisibilityTests
             """[]""",
             """{}""",
             """{ "message": "bad" }""",
-            """{ "message": { "role": "ROLE_USER", "parts": [ { "data": { "Value": "ping" } } ] } }""",
-            """{ "message": { "messageId": "m1", "role": "ROLE_USER", "parts": {} } }""",
-            """{ "message": { "messageId": "m1", "role": "ROLE_USER", "parts": [] } }""",
-            """{ "message": { "messageId": "m1", "role": "ROLE_USER", "parts": [ { } ] } }""",
-            """{ "message": { "messageId": "m1", "role": "ROLE_USER", "parts": [ { "text": "{}", "data": { "Value": "ping" } } ] } }""",
-            """{ "message": { "messageId": "m1", "role": "ROLE_USER", "parts": [ { "text": "not json" } ] } }""",
-            """{ "message": { "messageId": "m1", "role": "ROLE_USER", "parts": [ { "data": null } ] } }""",
-            """{ "message": { "messageId": "m1", "role": "ROLE_USER", "parts": [ { "data": ["ping"] } ] } }""",
-            """{ "message": { "messageId": "m1", "role": "ROLE_USER", "parts": [ { "raw": "cGluZw==" } ] } }"""
+            """{ "message": { "role": "user", "parts": [ { "data": { "Value": "ping" } } ] } }""",
+            """{ "message": { "messageId": "m1", "role": "user", "parts": {} } }""",
+            """{ "message": { "messageId": "m1", "role": "user", "parts": [] } }""",
+            """{ "message": { "messageId": "m1", "role": "user", "parts": [ { } ] } }""",
+            """{ "message": { "messageId": "m1", "role": "user", "parts": [ { "text": "{}", "data": { "Value": "ping" } } ] } }""",
+            """{ "message": { "messageId": "m1", "role": "user", "parts": [ { "text": "not json" } ] } }""",
+            """{ "message": { "messageId": "m1", "role": "user", "parts": [ { "data": null } ] } }""",
+            """{ "message": { "messageId": "m1", "role": "user", "parts": [ { "data": ["ping"] } ] } }""",
+            """{ "message": { "messageId": "m1", "role": "user", "parts": [ { "raw": "cGluZw==" } ] } }"""
         };
 
         foreach (var invalidParam in invalidParams)
@@ -566,7 +566,7 @@ public class A2ASkillVisibilityTests
               {
                 "message": {
                   "messageId": "client-message-1",
-                  "role": "ROLE_USER",
+                  "role": "user",
                   "parts": [
                     {
                       "data": { "Value": "ping" }

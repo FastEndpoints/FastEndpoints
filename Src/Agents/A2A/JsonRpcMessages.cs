@@ -36,6 +36,7 @@ sealed class JsonRpcError
     public static JsonRpcError Internal(string msg, object? data = null) => new() { Code = -32603, Message = msg, Data = data };
     public static JsonRpcError TaskNotFound(string taskId) => new() { Code = -32001, Message = $"Task not found: {taskId}" };
     public static JsonRpcError ContentTypeNotSupported(string mediaType) => new() { Code = -32005, Message = $"Content type not supported: {mediaType}" };
+    public static JsonRpcError VersionNotSupported(string version) => new() { Code = -32009, Message = $"A2A version not supported: {version}" };
 }
 
 /// <summary>A2A v1 <c>SendMessage</c> params.</summary>

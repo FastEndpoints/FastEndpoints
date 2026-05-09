@@ -261,6 +261,43 @@ public class A2ASkillVisibilityTests
     }
 
     [Fact]
+    public async Task Http_SendMessage_rejects_unsupported_a2a_version_without_execution()
+    {
+        await using var app = BuildHttpApp(skillFilter: def => def.EndpointType == typeof(VisibleSkillEndpoint));
+        await app.StartAsync(CancellationToken.None);
+        var client = app.GetTestClient();
+
+        System.Threading.Interlocked.Exchange(ref VisibleSkillEndpoint.ExecutionCount, 0);
+
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/a2a");
+        request.Headers.TryAddWithoutValidation("A2A-Version", "2.0");
+        request.Content = JsonContent.Create(
+            new
+            {
+                jsonrpc = "2.0",
+                id = 1,
+                method = "SendMessage",
+                @params = new
+                {
+                    message = new
+                    {
+                        messageId = "client-message-1",
+                        role = "ROLE_USER",
+                        parts = new[] { new { data = new { Value = "ping" } } }
+                    }
+                }
+            });
+
+        var response = await client.SendAsync(request, CancellationToken.None);
+        var json = await response.Content.ReadFromJsonAsync<JsonElement>(CancellationToken.None);
+
+        json.GetProperty("id").GetInt32().ShouldBe(1);
+        json.GetProperty("error").GetProperty("code").GetInt32().ShouldBe(-32009);
+        json.TryGetProperty("result", out _).ShouldBeFalse();
+        VisibleSkillEndpoint.ExecutionCount.ShouldBe(0);
+    }
+
+    [Fact]
     public async Task Http_SendMessage_notification_does_not_return_response()
     {
         await using var app = BuildHttpApp(skillFilter: def => def.EndpointType == typeof(VisibleSkillEndpoint));

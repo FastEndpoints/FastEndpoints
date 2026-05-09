@@ -6,6 +6,8 @@ namespace FastEndpoints.A2A;
 
 static class A2AJsonRpcEndpoint
 {
+    const string SupportedVersion = "1.0";
+
     public static async Task<IResult> HandleAsync(HttpContext context, A2ASkillDispatcher dispatcher, ILoggerFactory loggerFactory)
     {
         var serializerOptions = Config.SerOpts.Options;
@@ -30,6 +32,9 @@ static class A2AJsonRpcEndpoint
 
         if (request is null || request.JsonRpc != "2.0" || string.IsNullOrEmpty(request.Method))
             return Results.Json(new JsonRpcResponse { Error = new() { Code = -32600, Message = "invalid JSON-RPC request" } }, serializerOptions, statusCode: 400);
+
+        if (TryGetRequestedA2AVersion(context, out var requestedVersion) && requestedVersion != SupportedVersion)
+            return Results.Json(new JsonRpcResponse { Id = request.Id, Error = JsonRpcError.VersionNotSupported(requestedVersion) }, serializerOptions);
 
         if (!hasId)
         {
@@ -64,5 +69,12 @@ static class A2AJsonRpcEndpoint
         }
 
         return Results.Json(response, serializerOptions);
+    }
+
+    static bool TryGetRequestedA2AVersion(HttpContext context, out string version)
+    {
+        version = context.Request.Headers["A2A-Version"].FirstOrDefault() ?? context.Request.Query["A2A-Version"].FirstOrDefault() ?? string.Empty;
+
+        return !string.IsNullOrWhiteSpace(version);
     }
 }

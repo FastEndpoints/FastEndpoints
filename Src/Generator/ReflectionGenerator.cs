@@ -350,7 +350,7 @@ public class ReflectionGenerator : IIncrementalGenerator
             if (!SkipObjectFactory && Properties.Count == 0)
                 SkipObjectFactory = true;
 
-            if (type.IsAbstract)
+            if (type.IsAbstract || IsPartial(type))
                 SkipObjectFactory = true;
 
             if (Properties.Count > 0)
@@ -379,6 +379,10 @@ public class ReflectionGenerator : IIncrementalGenerator
 
         static bool HasDontInjectAttribute(IPropertySymbol prop)
             => prop.GetAttributes().Any(a => a.AttributeClass!.Name == DontInjectAttribute);
+
+        static bool IsPartial(ITypeSymbol type)
+            => type.DeclaringSyntaxReferences.Any(static r => r.GetSyntax() is TypeDeclarationSyntax t &&
+                                                              t.Modifiers.Any(static m => m.ValueText == "partial"));
 
         static bool HasUnconditionalJsonIgnoreAttribute(IPropertySymbol prop)
         {

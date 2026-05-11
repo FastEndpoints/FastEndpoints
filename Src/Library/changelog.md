@@ -79,6 +79,14 @@ This fixes nested `[FromQuery]` request DTO properties such as `DateOnly?` and `
 
 ## Improvements 🚀
 
+<details><summary>Source generated reflection data now avoids object factories for partial request DTOs</summary>
+
+The reflection source generator no longer emits direct object factory expressions for `partial` request DTO types. This avoids compile-time failures when another source generator augments the same partial type into an abstract base type, such as discriminated-union libraries that generate abstract union roots and concrete nested variants.
+
+Property metadata is still generated for those DTOs, so binding and validation can continue using source generated reflection data without trying to instantiate a type that may become abstract later in the generator pipeline.
+
+</details>
+
 <details><summary>Deeply nested [FromForm] DTOs with files now work with routeless test helpers</summary>
 
 The routeless `HttpClient` testing extensions can now build `multipart/form-data` requests from nested `[FromForm]` DTOs containing `IFormFile`, file collections, scalar collections, and complex child objects. Root `[FromForm]` wrappers are still promoted to top-level form fields, while nested values use the dotted/indexed field names expected by the binder, such as `Details.Image` and `Items[0].Attachment`.

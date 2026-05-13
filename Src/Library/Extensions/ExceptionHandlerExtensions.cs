@@ -25,16 +25,18 @@ public static class ExceptionHandlerExtensions
     /// <param name="logger">an optional logger instance</param>
     /// <param name="logStructuredException">set to true if you'd like to log the error in a structured manner</param>
     /// <param name="useGenericReason">set to true if you don't want to expose the actual exception reason in the json response sent to the client</param>
+    /// <param name="useProblemDetails">use the RFC compatible <see cref="ProblemDetails" /> response shape</param>
     public static IApplicationBuilder UseDefaultExceptionHandler(this IApplicationBuilder app,
                                                                  ILogger? logger = null,
                                                                  bool logStructuredException = false,
-                                                                 bool useGenericReason = false)
+                                                                 bool useGenericReason = false,
+                                                                 bool useProblemDetails = false)
     {
         app.UseExceptionHandler(
             errApp =>
             {
                 errApp.Run(
-                    async ctx =>
+                    ctx =>
                     {
                         var exHandlerFeature = ctx.Features.Get<IExceptionHandlerFeature>();
 
@@ -54,18 +56,34 @@ public static class ExceptionHandlerExtensions
                             }
 
                             ctx.Response.StatusCode = 500;
-                            await ctx.Response.WriteAsJsonAsync(
+
+                            var errorReason = useGenericReason
+                                                  ? "An unexpected error has occurred."
+                                                  : reason;
+
+                            if (useProblemDetails)
+                            {
+                                return ctx.Response.WriteAsJsonAsync(
+                                    Cfg.ErrOpts.ResponseBuilder([new(Cfg.ErrOpts.GeneralErrorsField, errorReason)], ctx, ctx.Response.StatusCode),
+                                    Cfg.SerOpts.Options,
+                                    Cfg.ErrOpts.ContentType,
+                                    ctx.RequestAborted);
+                            }
+
+                            return ctx.Response.WriteAsJsonAsync(
                                 new InternalErrorResponse
                                 {
                                     Status = "Internal Server Error!",
                                     Code = ctx.Response.StatusCode,
-                                    Reason = useGenericReason ? "An unexpected error has occurred." : reason,
+                                    Reason = errorReason,
                                     Note = "See application log for stack trace."
                                 },
                                 Cfg.SerOpts.Options,
                                 "application/problem+json",
                                 ctx.RequestAborted);
                         }
+
+                        return Task.CompletedTask;
                     });
             });
 

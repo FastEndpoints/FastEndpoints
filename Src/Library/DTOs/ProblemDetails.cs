@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Http.Metadata;
 namespace FastEndpoints;
 
 /// <summary>
-/// RFC7807 compatible problem details/ error response class. this can be used by configuring startup like so:
+/// RFC9457 compatible problem details/ error response class. this can be used by configuring startup like so:
 /// <code>app.UseFastEndpoints(c => c.Errors.UseProblemDetails())</code>
 /// </summary>
 public sealed class ProblemDetails : IResult, IEndpointMetadataProvider

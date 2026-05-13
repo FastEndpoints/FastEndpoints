@@ -166,7 +166,8 @@ public sealed class ErrorOptions
             { 428, ("Precondition Required", "https://www.rfc-editor.org/rfc/rfc6585#section-3") },
             { 429, ("Too Many Requests", "https://www.rfc-editor.org/rfc/rfc6585#section-4") },
             { 431, ("Request Header Fields Too Large", "https://www.rfc-editor.org/rfc/rfc6585#section-5") },
-            { 451, ("Unavailable For Legal Reasons", "https://www.rfc-editor.org/rfc/rfc7725#section-3") }
+            { 451, ("Unavailable For Legal Reasons", "https://www.rfc-editor.org/rfc/rfc7725#section-3") },
+            { 500, ("Internal Server Error", "https://www.rfc-editor.org/rfc/rfc7231#section-6.6.1") }
         };
     }
 }

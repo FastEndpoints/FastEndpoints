@@ -67,6 +67,19 @@ url.ShouldBe("api/invoices/123?IncludeLines=true");
 
 </details>
 
+<details><summary>'ProblemDetails' support for the built-in exception handler</summary>
+
+The built-in exception handler can now emit the RFC9457 compatible `ProblemDetails` response shape for unhandled exceptions by enabling `useProblemDetails` when registering it.
+
+This lets validation failures and unhandled exception responses share the same standards compliant error contract when the app is configured with `c.Errors.UseProblemDetails()`.
+
+```csharp
+app.UseDefaultExceptionHandler(useProblemDetails: true)
+   .UseFastEndpoints(c => c.Errors.UseProblemDetails());
+```
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>'DateOnly','TimeOnly' not binding correctly from nested '[FromQuery]' DTOs</summary>

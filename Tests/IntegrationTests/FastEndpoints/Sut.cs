@@ -2,6 +2,7 @@
 using Messaging;
 using TestCases.CommandBusTest;
 using TestCases.EventBusTest;
+using TestCases.StreamCommandBusTest;
 using Web;
 using Web.Services;
 using Endpoint = Admin.Login.Endpoint;
@@ -46,6 +47,7 @@ public class Sut : AppFixture<Web.Program>
     {
         s.RegisterTestCommandHandler<SomeCommand, TestCommandHandler, string>();
         s.RegisterTestCommandHandler<VoidCommand, TestVoidCommandHandler>();
+        s.RegisterTestStreamCommandHandler<StreamNumbersCommand, TestStreamNumbersHandler, int>();
         s.RegisterTestEventHandler<TestEventBus, FakeEventHandler>();
         s.RegisterTestEventHandler<TestEventBus, AnotherFakeEventHandler>();
         s.AddScoped<IEmailService, MockEmailService>();

@@ -64,6 +64,37 @@ public static class CommandExtensions
     }
 
     /// <summary>
+    /// executes the command and returns a stream of results
+    /// </summary>
+    /// <typeparam name="TResult">the type of items in the returned stream</typeparam>
+    /// <param name="command">the command to execute</param>
+    /// <param name="ct">optional cancellation token</param>
+    /// <exception cref="InvalidOperationException">thrown when a handler for the command cannot be instantiated</exception>
+    public static IAsyncEnumerable<TResult> ExecuteAsync<TResult>(this IStreamCommand<TResult> command, CancellationToken ct = default)
+    {
+        var tCommand = command.GetType();
+        var registry = ServiceResolver.Instance.Resolve<CommandHandlerRegistry>();
+
+        registry.TryGetValue(tCommand, out var def);
+
+        InitGenericStreamHandler<TResult>(ref def, tCommand, registry);
+
+        if (def is null)
+            throw new InvalidOperationException($"Unable to create an instance of the handler for command [{tCommand.FullName}]");
+
+        def.HandlerExecutor ??= ServiceResolver.Instance.CreateSingleton(Types.StreamCommandHandlerExecutorOf2.MakeGenericType(tCommand, typeof(TResult)));
+
+        // ReSharper disable once InvertIf
+        if (TestHandlersPresent)
+        {
+            var tHandlerInterface = Types.IStreamCommandHandlerOf2.MakeGenericType(tCommand, typeof(TResult));
+            def.HandlerType = ServiceResolver.Instance.TryResolve(tHandlerInterface)?.GetType() ?? def.HandlerType;
+        }
+
+        return ((IStreamCommandHandlerExecutor<TResult>)def.HandlerExecutor).Execute(command, def.HandlerType, ct);
+    }
+
+    /// <summary>
     /// registers a fake command handler for unit testing purposes
     /// </summary>
     /// <typeparam name="TCommand">type of the command</typeparam>
@@ -102,6 +133,26 @@ public static class CommandExtensions
         };
     }
 
+    /// <summary>
+    /// registers a fake stream command handler for unit testing purposes
+    /// </summary>
+    /// <typeparam name="TCommand">type of the command</typeparam>
+    /// <typeparam name="TResult">type of the items in the result stream</typeparam>
+    /// <param name="handler">a fake handler instance</param>
+    public static void RegisterForTesting<TCommand, TResult>(this IStreamCommandHandler<TCommand, TResult> handler) where TCommand : IStreamCommand<TResult>
+    {
+        var tCommand = typeof(TCommand);
+        var registry = ServiceResolver.Instance.Resolve<CommandHandlerRegistry>();
+
+        registry[tCommand] = new(handler.GetType())
+        {
+            HandlerExecutor = new StreamCommandHandlerExecutor<TCommand, TResult>
+            {
+                TestHandler = handler
+            }
+        };
+    }
+
     /// <param name="sp">the service provider</param>
     extension(IServiceProvider sp)
     {
@@ -131,6 +182,21 @@ public static class CommandExtensions
             TResult,
             [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
             THandler>() where TCommand : ICommand<TResult> where THandler : ICommandHandler<TCommand, TResult>
+            => sp.RegisterGenericCommand(typeof(TCommand), typeof(THandler));
+
+        /// <summary>
+        /// register a generic stream command handler for a generic command that returns a stream of results.
+        /// </summary>
+        /// <typeparam name="TCommand">the generic stream command type</typeparam>
+        /// <typeparam name="TResult">the type of items in the result stream</typeparam>
+        /// <typeparam name="THandler">the generic stream command handler type</typeparam>
+        public IServiceProvider RegisterGenericStreamCommand<
+            [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
+            TCommand,
+            [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
+            TResult,
+            [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
+            THandler>() where TCommand : IStreamCommand<TResult> where THandler : IStreamCommandHandler<TCommand, TResult>
             => sp.RegisterGenericCommand(typeof(TCommand), typeof(THandler));
 
         /// <summary>
@@ -170,6 +236,25 @@ public static class CommandExtensions
             services.AddTransient(mw.tInterface, mw.tImplementation);
 
         return services;
+    }
+
+    static void InitGenericStreamHandler<TResult>(ref CommandHandlerDefinition? def, Type tCommand, CommandHandlerRegistry registry)
+    {
+        if (def is not null || !tCommand.IsGenericType)
+            return;
+
+        var tGenCmd = tCommand.GetGenericTypeDefinition();
+
+        if (!registry.TryGetValue(tGenCmd, out var genDef))
+            throw new InvalidOperationException($"No generic handler registered for generic stream command type: [{tGenCmd.FullName}]");
+
+        var tHnd = genDef.HandlerType.MakeGenericType(tCommand.GetGenericArguments());
+        var tTargetIfc = Types.IStreamCommandHandlerOf2.MakeGenericType(tCommand, typeof(TResult));
+
+        if (!tHnd.IsAssignableTo(tTargetIfc))
+            throw new InvalidOperationException($"The registered generic handler for the generic stream command [{tGenCmd.FullName}] is not the correct type!");
+
+        def = registry[tCommand] = new(tHnd);
     }
 
     static void InitGenericHandler<TResult>(ref CommandHandlerDefinition? def, Type tCommand, CommandHandlerRegistry registry)

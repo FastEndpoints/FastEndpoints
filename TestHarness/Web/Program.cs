@@ -13,6 +13,7 @@ using TestCases.KeyedServicesTests;
 using TestCases.MetadataRegistrationTest;
 using TestCases.ProcessorStateTest;
 using TestCases.ServerStreamingTest;
+using TestCases.StreamCommandBusTest;
 using TestCases.UnitTestConcurrencyTest;
 using TestCases.X402;
 using Web;
@@ -241,6 +242,7 @@ if (!app.Environment.IsProduction())
 app.Services.RegisterGenericCommand(typeof(GenericCommand<>), typeof(GenericCommandHandler<>));
 app.Services.RegisterGenericCommand(typeof(GenericNoResultCommand<>), typeof(GenericNoResultCommandHandler<>));
 app.Services.RegisterGenericCommand<JobTestGenericCommand<SomeEvent>, JobTestGenericCommandHandler<SomeEvent>>();
+app.Services.RegisterGenericCommand(typeof(GenericStreamCommand<>), typeof(GenericStreamCommandHandler<>));
 
 app.MapHandlers(
     h =>

@@ -6425,6 +6425,26 @@
         }
       }
     },
+    "/api/tests/generic-stream-command": {
+      "get": {
+        "tags": [
+          "Tests"
+        ],
+        "operationId": "TestCasesStreamCommandBusTestGenericStreamCmdEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemCollectionsGenericIEnumerableOfSystemGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/tests/iauth-injection": {
       "get": {
         "tags": [
@@ -6467,6 +6487,26 @@
                 "schema": {
                   "type": "string",
                   "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tests/stream-command": {
+      "get": {
+        "tags": [
+          "Tests"
+        ],
+        "operationId": "TestCasesStreamCommandBusTestStreamCmdEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemCollectionsGenericIEnumerableOfSystemInt32"
                 }
               }
             }
@@ -7260,7 +7300,7 @@
             }
           }
         },
-        "description": "RFC9457 compatible problem details/ error response class. this can be used by configuring startup like so:\n```app.UseFastEndpoints(c =&gt; c.Errors.UseProblemDetails())```"
+        "description": "RFC9457 compatible problem details/ error response class. this can be used by configuring startup like so:\r\n```app.UseFastEndpoints(c =&gt; c.Errors.UseProblemDetails())```"
       },
       "FastEndpointsSecurityTokenRequest": {
         "type": "object",

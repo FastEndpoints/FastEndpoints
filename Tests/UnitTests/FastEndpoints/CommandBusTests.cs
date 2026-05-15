@@ -77,6 +77,36 @@ public class CommandBusTests
     }
 
     [Fact]
+    public async Task Stream_Command_Fake_Handler_Works()
+    {
+        Factory.RegisterTestServices(_ => { });
+
+        var fakeHandler = A.Fake<IStreamCommandHandler<StreamCmd, int>>();
+        A.CallTo(() => fakeHandler.ExecuteAsync(A<StreamCmd>.Ignored, A<CancellationToken>.Ignored))
+         .Returns(new[] { 10, 20, 30 }.ToAsyncEnumerable());
+
+        fakeHandler.RegisterForTesting();
+
+        var results = new List<int>();
+        await foreach (var item in new StreamCmd(3).ExecuteAsync())
+            results.Add(item);
+
+        Assert.Equal([10, 20, 30], results);
+    }
+
+    [Fact]
+    public async Task Stream_Command_Direct_Execution()
+    {
+        var handler = new StreamCmdHandler();
+        var results = new List<int>();
+
+        await foreach (var item in handler.ExecuteAsync(new StreamCmd(3), CancellationToken.None))
+            results.Add(item);
+
+        Assert.Equal([0, 1, 2], results);
+    }
+
+    [Fact]
     public async Task CommandMiddlewareExecutesInCorrectOrder()
     {
         Factory.RegisterTestServices(
@@ -151,4 +181,18 @@ sealed class TestCmdHandler : ICommandHandler<TestCmd, TestResult>
 {
     public Task<TestResult> ExecuteAsync(TestCmd cmd, CancellationToken c)
         => Task.FromResult(new TestResult { Output = $"{cmd.Input}[handler] << " });
+}
+
+public record StreamCmd(int Count) : IStreamCommand<int>;
+
+sealed class StreamCmdHandler : IStreamCommandHandler<StreamCmd, int>
+{
+    public async IAsyncEnumerable<int> ExecuteAsync(StreamCmd cmd, [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken ct)
+    {
+        for (var i = 0; i < cmd.Count; i++)
+        {
+            await Task.Yield();
+            yield return i;
+        }
+    }
 }

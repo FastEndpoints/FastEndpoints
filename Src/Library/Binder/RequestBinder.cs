@@ -423,20 +423,32 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
     static void BindUserClaims(TRequest req, BinderContext ctx)
     {
+        if (_fromClaimProps.Count == 0)
+            return;
+
+        var claimsDict = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var c in ctx.HttpContext.User.Claims)
+        {
+            if (!claimsDict.TryGetValue(c.Type, out var list))
+            {
+                list = [];
+                claimsDict[c.Type] = list;
+            }
+
+            list.Add(c.Value);
+        }
+
         for (var i = 0; i < _fromClaimProps.Count; i++)
         {
             var prop = _fromClaimProps[i];
             StringValues claimVal = default;
 
-            foreach (var g in ctx.HttpContext.User.Claims.GroupBy(c => c.Type, c => c.Value))
+            if (claimsDict.TryGetValue(prop.Identifier, out var values))
             {
-                if (g.Key.Equals(prop.Identifier, StringComparison.OrdinalIgnoreCase))
-                {
-                    claimVal =
-                        prop.IsCollection || g.Count() > 1
-                            ? g.Select(v => v).ToArray()
-                            : g.FirstOrDefault();
-                }
+                claimVal = prop.IsCollection || values.Count > 1
+                               ? values.ToArray()
+                               : values[0];
             }
 
             switch (claimVal.Count)
@@ -515,12 +527,21 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
     static void BindHasPermissionProps(TRequest req, BinderContext ctx)
     {
+        if (_hasPermissionProps.Count == 0)
+            return;
+
+        var permissionValues = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var claim in ctx.HttpContext.User.Claims)
+        {
+            if (string.Equals(claim.Type, Cfg.SecOpts.PermissionsClaimType, StringComparison.OrdinalIgnoreCase))
+                permissionValues.Add(claim.Value);
+        }
+
         for (var i = 0; i < _hasPermissionProps.Count; i++)
         {
             var prop = _hasPermissionProps[i];
-            var hasPerm = ctx.HttpContext.User.Claims.Any(
-                c => string.Equals(c.Type, Cfg.SecOpts.PermissionsClaimType, StringComparison.OrdinalIgnoreCase) &&
-                     string.Equals(c.Value, prop.Identifier, StringComparison.OrdinalIgnoreCase));
+            var hasPerm = permissionValues.Contains(prop.Identifier);
 
             switch (hasPerm)
             {

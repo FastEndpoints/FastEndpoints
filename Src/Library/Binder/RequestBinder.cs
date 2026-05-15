@@ -423,7 +423,11 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
     static void BindUserClaims(TRequest req, BinderContext ctx)
     {
+        if (_fromClaimProps.Count == 0)
+            return;
+
         var claimsDict = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+
         foreach (var c in ctx.HttpContext.User.Claims)
         {
             if (!claimsDict.TryGetValue(c.Type, out var list))
@@ -431,7 +435,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                 list = [];
                 claimsDict[c.Type] = list;
             }
-                
+
             list.Add(c.Value);
         }
 
@@ -443,8 +447,8 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             if (claimsDict.TryGetValue(prop.Identifier, out var values))
             {
                 claimVal = prop.IsCollection || values.Count > 1
-                    ? values.ToArray()
-                    : values[0];
+                               ? values.ToArray()
+                               : values[0];
             }
 
             switch (claimVal.Count)
@@ -523,7 +527,11 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
     static void BindHasPermissionProps(TRequest req, BinderContext ctx)
     {
+        if (_hasPermissionProps.Count == 0)
+            return;
+
         var permissionValues = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
         foreach (var claim in ctx.HttpContext.User.Claims)
         {
             if (string.Equals(claim.Type, Cfg.SecOpts.PermissionsClaimType, StringComparison.OrdinalIgnoreCase))

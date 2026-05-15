@@ -1,5 +1,6 @@
 ﻿using FastEndpoints;
 using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 using Xunit;
 
 namespace RequestBinder;
@@ -51,6 +52,50 @@ public class RequestBinderTests
         ex.Failures!.ShouldContain(f => f.PropertyName == "req_quired");
     }
 
+    [Fact]
+    public async Task HasPermissionBindsWithExactClaimValueCasing()
+    {
+        var hCtx = new DefaultHttpContext
+        {
+            User = new(new ClaimsIdentity([new("permissions", "Admin")]))
+        };
+        var binder = new RequestBinder<PermissionRequest>();
+        var ctx = new BinderContext(hCtx, [], null, false, ((IRequestBinder<PermissionRequest>)binder).RequiredProps);
+
+        var res = await binder.BindAsync(ctx, default);
+
+        res.HasAdminPermission.ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task HasPermissionDoesNotBindWithDifferentClaimValueCasing()
+    {
+        var hCtx = new DefaultHttpContext
+        {
+            User = new(new ClaimsIdentity([new("permissions", "Admin")]))
+        };
+        var binder = new RequestBinder<OptionalPermissionRequest>();
+        var ctx = new BinderContext(hCtx, [], null, false, ((IRequestBinder<OptionalPermissionRequest>)binder).RequiredProps);
+
+        var res = await binder.BindAsync(ctx, default);
+
+        res.HasAdminPermission.ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task RequiredHasPermissionFailsWithDifferentClaimValueCasing()
+    {
+        var hCtx = new DefaultHttpContext
+        {
+            User = new(new ClaimsIdentity([new("permissions", "Admin")]))
+        };
+        var binder = new RequestBinder<RequiredPermissionRequest>();
+        var ctx = new BinderContext(hCtx, [], null, false, ((IRequestBinder<RequiredPermissionRequest>)binder).RequiredProps);
+
+        var ex = Should.Throw<ValidationFailureException>(async () => await binder.BindAsync(ctx, default));
+        ex.Failures!.ShouldContain(f => f.PropertyName == "admin");
+    }
+
     // ReSharper disable once ClassNeverInstantiated.Local
     sealed class RequestClass(int intgr, int optionalProp = 678)
     {
@@ -83,6 +128,24 @@ public class RequestBinderTests
             ConstructorCalled = true;
         }
 
+    }
+
+    sealed class PermissionRequest
+    {
+        [HasPermission("Admin", isRequired: false)]
+        public bool HasAdminPermission { get; set; }
+    }
+
+    sealed class OptionalPermissionRequest
+    {
+        [HasPermission("admin", isRequired: false)]
+        public bool HasAdminPermission { get; set; }
+    }
+
+    sealed class RequiredPermissionRequest
+    {
+        [HasPermission("admin")]
+        public bool HasAdminPermission { get; set; }
     }
 
 }

@@ -1,4 +1,4 @@
-﻿using System.Security.Cryptography;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 
@@ -50,7 +50,9 @@ public sealed class JwtSigningOptions
                     rsa.ImportFromPem(key);
                 else
                     rsa.ImportRSAPublicKey(Convert.FromBase64String(key), out _);
-                _securityKey = new RsaSecurityKey(rsa);
+                
+                var previousSecurityKey = Interlocked.Exchange(ref _securityKey, new RsaSecurityKey(rsa));
+                (previousSecurityKey as RsaSecurityKey)?.Rsa?.Dispose();
 
                 break;
             }

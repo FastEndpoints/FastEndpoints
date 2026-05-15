@@ -42,10 +42,12 @@ interface IStreamCommandHandlerExecutor<TResult>
     IAsyncEnumerable<TResult> Execute(IStreamCommand<TResult> command, Type handlerType, CancellationToken ct);
 }
 
-sealed class StreamCommandHandlerExecutor<TCommand, TResult>(ICommandReceiver<TCommand>? commandReceiver = null)
+sealed class StreamCommandHandlerExecutor<TCommand, TResult>(IEnumerable<IStreamCommandMiddleware<TCommand, TResult>> m, ICommandReceiver<TCommand>? commandReceiver = null)
     : IStreamCommandHandlerExecutor<TResult> where TCommand : IStreamCommand<TResult>
 {
     internal IStreamCommandHandler<TCommand, TResult>? TestHandler { get; init; }
+
+    readonly Type[] _tMiddlewares = m.Select(x => x.GetType()).ToArray();
 
     public IAsyncEnumerable<TResult> Execute(IStreamCommand<TResult> command, Type tCommandHandler, CancellationToken ct)
     {
@@ -54,6 +56,16 @@ sealed class StreamCommandHandlerExecutor<TCommand, TResult>(ICommandReceiver<TC
         var cmdHandler = TestHandler ?? //TestHandler is not null for unit tests
                          (IStreamCommandHandler<TCommand, TResult>)ServiceResolver.Instance.CreateInstance(tCommandHandler);
 
-        return cmdHandler.ExecuteAsync((TCommand)command, ct);
+        return InvokeMiddleware(0);
+
+        IAsyncEnumerable<TResult> InvokeMiddleware(int index)
+        {
+            return index == _tMiddlewares.Length
+                       ? cmdHandler.ExecuteAsync((TCommand)command, ct)
+                       : ((IStreamCommandMiddleware<TCommand, TResult>)ServiceResolver.Instance.CreateInstance(_tMiddlewares[index])).ExecuteAsync(
+                           (TCommand)command,
+                           () => InvokeMiddleware(index + 1),
+                           ct);
+        }
     }
 }

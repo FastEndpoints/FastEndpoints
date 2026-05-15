@@ -125,6 +125,30 @@ public class CommandBusTests
 
         result.Output.ShouldBe("[ first-in >> second-in >> third-in >> [handler] << third-out << second-out << first-out ]");
     }
+
+    [Fact]
+    public async Task StreamCommandMiddlewareExecutesInCorrectOrder()
+    {
+        Factory.RegisterTestServices(
+            s => s.AddStreamCommandMiddleware(
+                      c =>
+                      {
+                          c.Register<StreamCmd, int, FirstStreamMiddleware>();
+                          c.Register(typeof(SecondStreamMiddleware<,>), typeof(ThirdStreamMiddleware<,>));
+                      })
+                  .RegisterTestStreamCommandHandler<StreamCmd, StreamCmdHandler, int>());
+
+        var handler = new StreamCmdHandler();
+        handler.RegisterForTesting();
+
+        var results = new List<int>();
+        await foreach (var item in new StreamCmd(3).ExecuteAsync(TestContext.Current.CancellationToken))
+            results.Add(item);
+
+        // handler yields [0,1,2]; FirstStreamMiddleware multiplies by 10 → [0,10,20]
+        // Second and ThirdStreamMiddleware are identity pass-throughs (verify chain isn't broken)
+        results.ShouldBe([0, 10, 20]);
+    }
 }
 
 sealed class FirstMiddleware : ICommandMiddleware<TestCmd, TestResult>
@@ -194,5 +218,34 @@ sealed class StreamCmdHandler : IStreamCommandHandler<StreamCmd, int>
             await Task.Yield();
             yield return i;
         }
+    }
+}
+
+sealed class FirstStreamMiddleware : IStreamCommandMiddleware<StreamCmd, int>
+{
+    public async IAsyncEnumerable<int> ExecuteAsync(StreamCmd cmd, StreamCommandDelegate<int> next, [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken ct)
+    {
+        await foreach (var item in next().WithCancellation(ct))
+            yield return item * 10;
+    }
+}
+
+sealed class SecondStreamMiddleware<TCommand, TResult> : IStreamCommandMiddleware<TCommand, TResult>
+    where TCommand : StreamCmd, IStreamCommand<TResult>
+{
+    public async IAsyncEnumerable<TResult> ExecuteAsync(TCommand cmd, StreamCommandDelegate<TResult> next, [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken ct)
+    {
+        await foreach (var item in next().WithCancellation(ct))
+            yield return item;
+    }
+}
+
+sealed class ThirdStreamMiddleware<TCommand, TResult> : IStreamCommandMiddleware<TCommand, TResult>
+    where TCommand : StreamCmd, IStreamCommand<TResult>
+{
+    public async IAsyncEnumerable<TResult> ExecuteAsync(TCommand cmd, StreamCommandDelegate<TResult> next, [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken ct)
+    {
+        await foreach (var item in next().WithCancellation(ct))
+            yield return item;
     }
 }

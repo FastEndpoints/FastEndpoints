@@ -10,6 +10,7 @@ static class Types
     internal static readonly Type ICommandHandlerOf1              = typeof(ICommandHandler<>);
     internal static readonly Type ICommandHandlerOf2              = typeof(ICommandHandler<,>);
     internal static readonly Type IStreamCommandHandlerOf2        = typeof(IStreamCommandHandler<,>);
+    internal static readonly Type IStreamCommandMiddlewareOf2     = typeof(IStreamCommandMiddleware<,>);
     internal static readonly Type IEventHandler                   = typeof(IEventHandler);
     internal static readonly Type IEventHandlerOf1                = typeof(IEventHandler<>);
     internal static readonly Type VoidResult                      = typeof(Void);

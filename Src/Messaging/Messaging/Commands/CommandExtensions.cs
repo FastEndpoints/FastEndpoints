@@ -146,7 +146,7 @@ public static class CommandExtensions
 
         registry[tCommand] = new(handler.GetType())
         {
-            HandlerExecutor = new StreamCommandHandlerExecutor<TCommand, TResult>
+            HandlerExecutor = new StreamCommandHandlerExecutor<TCommand, TResult>(ServiceResolver.Instance.Resolve<IEnumerable<IStreamCommandMiddleware<TCommand, TResult>>>())
             {
                 TestHandler = handler
             }
@@ -231,6 +231,27 @@ public static class CommandExtensions
 
         if (c.Middleware.Count == 0)
             throw new ArgumentNullException(nameof(config), "Please add some command middleware to the pipeline!");
+
+        foreach (var mw in c.Middleware)
+            services.AddTransient(mw.tInterface, mw.tImplementation);
+
+        return services;
+    }
+
+    /// <summary>
+    /// register a common middleware pipeline for stream command handlers. the middleware can be created as open generic classes that implement the
+    /// <see cref="IStreamCommandMiddleware{TCommand,TResult}" /> interface as well as closed generic classes implementing the same interface.
+    /// </summary>
+    /// <param name="services">the service collection</param>
+    /// <param name="config">configuration action for adding middleware components to the pipeline</param>
+    /// <returns>the service collection for chaining</returns>
+    public static IServiceCollection AddStreamCommandMiddleware(this IServiceCollection services, Action<StreamCommandMiddlewareConfig> config)
+    {
+        var c = new StreamCommandMiddlewareConfig();
+        config(c);
+
+        if (c.Middleware.Count == 0)
+            throw new ArgumentNullException(nameof(config), "Please add some stream command middleware to the pipeline!");
 
         foreach (var mw in c.Middleware)
             services.AddTransient(mw.tInterface, mw.tImplementation);

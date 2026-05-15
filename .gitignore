@@ -13,6 +13,7 @@ BenchmarkDotNet.Artifacts/
 *.tmp_proj
 *.log
 *.vspscc
+*.lscache
 publish/
 *.nupkg
 *.snupkg

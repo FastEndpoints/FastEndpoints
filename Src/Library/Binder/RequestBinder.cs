@@ -520,7 +520,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             var prop = _hasPermissionProps[i];
             var hasPerm = ctx.HttpContext.User.Claims.Any(
                 c => string.Equals(c.Type, Cfg.SecOpts.PermissionsClaimType, StringComparison.OrdinalIgnoreCase) &&
-                     string.Equals(c.Value, prop.Identifier, StringComparison.OrdinalIgnoreCase));
+                     string.Equals(c.Value, prop.Identifier, StringComparison.Ordinal));
 
             switch (hasPerm)
             {

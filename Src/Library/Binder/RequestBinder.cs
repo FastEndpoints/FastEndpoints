@@ -530,7 +530,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         if (_hasPermissionProps.Count == 0)
             return;
 
-        var permissionValues = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var permissionValues = new HashSet<string>(StringComparer.Ordinal);
 
         foreach (var claim in ctx.HttpContext.User.Claims)
         {

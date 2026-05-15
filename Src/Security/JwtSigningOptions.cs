@@ -1,4 +1,4 @@
-﻿using System.Security.Cryptography;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 
@@ -45,12 +45,14 @@ public sealed class JwtSigningOptions
                 break;
             case TokenSigningStyle.Asymmetric:
             {
-                var rsa = RSA.Create(); //do not dispose
+                using var rsa = RSA.Create();
+
                 if (KeyIsPemEncoded)
                     rsa.ImportFromPem(key);
                 else
                     rsa.ImportRSAPublicKey(Convert.FromBase64String(key), out _);
-                _securityKey = new RsaSecurityKey(rsa);
+
+                _securityKey = new RsaSecurityKey(rsa.ExportParameters(false));
 
                 break;
             }

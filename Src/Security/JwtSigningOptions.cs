@@ -45,14 +45,14 @@ public sealed class JwtSigningOptions
                 break;
             case TokenSigningStyle.Asymmetric:
             {
-                var rsa = RSA.Create(); //do not dispose
+                using var rsa = RSA.Create();
+
                 if (KeyIsPemEncoded)
                     rsa.ImportFromPem(key);
                 else
                     rsa.ImportRSAPublicKey(Convert.FromBase64String(key), out _);
-                
-                var previousSecurityKey = Interlocked.Exchange(ref _securityKey, new RsaSecurityKey(rsa));
-                (previousSecurityKey as RsaSecurityKey)?.Rsa?.Dispose();
+
+                _securityKey = new RsaSecurityKey(rsa.ExportParameters(false));
 
                 break;
             }

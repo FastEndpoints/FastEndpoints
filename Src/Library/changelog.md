@@ -82,6 +82,12 @@ app.UseDefaultExceptionHandler(useProblemDetails: true)
 
 ## Fixes 🪲
 
+<details><summary>Asymmetric JWT signing key updates no longer leak RSA handles</summary>
+
+Updating asymmetric JWT signing keys at runtime no longer keeps undisposed RSA instances alive after each key rotation. The validation key is now built from exported public key parameters instead of holding on to the temporary RSA instance used for import, avoiding unmanaged crypto handle leaks without disposing keys that may still be in use by concurrent token validations.
+
+</details>
+
 <details><summary>'DateOnly','TimeOnly' not binding correctly from nested '[FromQuery]' DTOs</summary>
 
 Complex query/form binding now treats `DateOnly`, `TimeOnly`, `Half`, `Int128`, `UInt128`, `BigInteger`, `IPAddress`, and `IPEndPoint` as scalar values instead of recursively binding them as complex objects.

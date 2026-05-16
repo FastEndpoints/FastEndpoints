@@ -58,24 +58,19 @@ public readonly struct BinderContext : IServiceResolverBase
     /// <param name="validationFailures">the validation failure collection of the endpoint</param>
     /// <param name="jsonSerializerContext">json serializer context of the endpoint if applicable</param>
     /// <param name="dontAutoBindForms">whether to enable auto binding of form data</param>
-    /// <param name="bindRequiredProps">collection of required property names</param>
+    /// <param name="requiredPropsToBind">collection of required property names</param>
     public BinderContext(HttpContext httpContext,
                          List<ValidationFailure> validationFailures,
                          JsonSerializerContext? jsonSerializerContext,
                          bool dontAutoBindForms,
-                         IEnumerable<string> bindRequiredProps)
+                         ICollection<string> requiredPropsToBind)
     {
         HttpContext = httpContext;
         ValidationFailures = validationFailures;
         JsonSerializerContext = jsonSerializerContext;
         DontAutoBindForms = dontAutoBindForms;
-        _requiredProperties = bindRequiredProps;
-        HasRequiredProperties = bindRequiredProps switch
-        {
-            ICollection<string> collection => collection.Count > 0,
-            IReadOnlyCollection<string> collection => collection.Count > 0,
-            _ => bindRequiredProps.Any()
-        };
+        _requiredProperties = requiredPropsToBind;
+        HasRequiredProperties = requiredPropsToBind.Count > 0;
         BoundProperties = HasRequiredProperties ? [] : null;
     }
 

@@ -21,5 +21,5 @@ public interface IRequestBinder<TRequest>
     public ValueTask<TRequest> BindAsync(BinderContext ctx, CancellationToken ct);
 
     internal static readonly List<string> BindRequiredProps = [];
-    internal IEnumerable<string> RequiredProps => BindRequiredProps;
+    internal ICollection<string> RequiredProps => BindRequiredProps;
 }

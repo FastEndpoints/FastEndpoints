@@ -106,7 +106,7 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     static Task<Void> AutoSendResponse(HttpContext ctx, TResponse responseDto, EndpointDefinition def, CancellationToken cancellation)
         => responseDto is null
                ? ctx.Response.SendNoContentAsync(cancellation)
-               : ctx.Response.SendAsync(responseDto, ctx.Response.StatusCode, def.SerializerContext, cancellation, def.ToHeaderProps);
+               : ctx.Response.SendAsync(responseDto, ctx.Response.StatusCode, def, null, cancellation);
 
     internal static Task RunResponseInterceptor(IResponseInterceptor interceptor,
                                                 object resp,

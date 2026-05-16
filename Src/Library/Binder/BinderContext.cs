@@ -40,12 +40,16 @@ public readonly struct BinderContext : IServiceResolverBase
     public bool DontAutoBindForms { get; init; }
 
     readonly IEnumerable<string> _requiredProperties;
-    internal List<string> BoundProperties { get; } = [];
+    internal List<string>? BoundProperties { get; }
+    internal bool HasRequiredProperties { get; }
 
     /// <summary>
     /// indicates which required properties were not bound due to missing input from the request.
     /// </summary>
-    public IEnumerable<string> UnboundRequiredProperties => _requiredProperties.Except(BoundProperties, StringComparer.OrdinalIgnoreCase);
+    public IEnumerable<string> UnboundRequiredProperties
+        => HasRequiredProperties
+               ? _requiredProperties.Except(BoundProperties ?? [], StringComparer.OrdinalIgnoreCase)
+               : [];
 
     /// <summary>
     /// constructor of the binder context
@@ -66,6 +70,13 @@ public readonly struct BinderContext : IServiceResolverBase
         JsonSerializerContext = jsonSerializerContext;
         DontAutoBindForms = dontAutoBindForms;
         _requiredProperties = bindRequiredProps;
+        HasRequiredProperties = bindRequiredProps switch
+        {
+            ICollection<string> collection => collection.Count > 0,
+            IReadOnlyCollection<string> collection => collection.Count > 0,
+            _ => bindRequiredProps.Any()
+        };
+        BoundProperties = HasRequiredProperties ? [] : null;
     }
 
     /// <inheritdoc />

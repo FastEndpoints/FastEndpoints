@@ -171,10 +171,10 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         _bindFormFields = true;
         _bindRouteValues = true;
         _bindQueryParams = true;
-        _bindUserClaims = true;
-        _bindHeaders = true;
-        _bindCookies = true;
-        _bindPermissions = true;
+        _bindUserClaims = _fromClaimProps.Count > 0;
+        _bindHeaders = _fromHeaderProps.Count > 0;
+        _bindCookies = _fromCookieProps.Count > 0;
+        _bindPermissions = _hasPermissionProps.Count > 0;
     }
 
     /// <summary>
@@ -187,10 +187,10 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         _bindFormFields = enabledSources.HasFlag(BindingSource.FormFields);
         _bindRouteValues = enabledSources.HasFlag(BindingSource.RouteValues);
         _bindQueryParams = enabledSources.HasFlag(BindingSource.QueryParams);
-        _bindUserClaims = enabledSources.HasFlag(BindingSource.UserClaims);
-        _bindHeaders = enabledSources.HasFlag(BindingSource.Headers);
-        _bindCookies = enabledSources.HasFlag(BindingSource.Cookies);
-        _bindPermissions = enabledSources.HasFlag(BindingSource.Permissions);
+        _bindUserClaims = enabledSources.HasFlag(BindingSource.UserClaims) && _fromClaimProps.Count > 0;
+        _bindHeaders = enabledSources.HasFlag(BindingSource.Headers) && _fromHeaderProps.Count > 0;
+        _bindCookies = enabledSources.HasFlag(BindingSource.Cookies) && _fromCookieProps.Count > 0;
+        _bindPermissions = enabledSources.HasFlag(BindingSource.Permissions) && _hasPermissionProps.Count > 0;
     }
 
     /// <summary>
@@ -231,8 +231,11 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         if (_bindPermissions)
             BindHasPermissionProps(req, ctx);
 
-        foreach (var reqProp in ctx.UnboundRequiredProperties)
-            ctx.ValidationFailures.Add(new(reqProp, "A value is required!"));
+        if (ctx.HasRequiredProperties)
+        {
+            foreach (var reqProp in ctx.UnboundRequiredProperties)
+                ctx.ValidationFailures.Add(new(reqProp, "A value is required!"));
+        }
 
         return ctx.ValidationFailures.Count == 0
                    ? req
@@ -318,7 +321,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             foreach (var kvp in form)
             {
                 Bind(req, kvp, ctx.ValidationFailures, Source.FormField);
-                ctx.BoundProperties.Add(kvp.Key);
+                ctx.BoundProperties?.Add(kvp.Key);
             }
         }
 
@@ -372,7 +375,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         foreach (var kvp in ctx.HttpContext.Request.RouteValues)
         {
             Bind(req, new(kvp.Key, kvp.Value?.ToString()), ctx.ValidationFailures, Source.RouteParam);
-            ctx.BoundProperties.Add(kvp.Key);
+            ctx.BoundProperties?.Add(kvp.Key);
         }
     }
 
@@ -384,7 +387,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         foreach (var kvp in ctx.HttpContext.Request.Query)
         {
             Bind(req, kvp, ctx.ValidationFailures, Source.QueryParam);
-            ctx.BoundProperties.Add(kvp.Key);
+            ctx.BoundProperties?.Add(kvp.Key);
         }
 
         if (_fromQueryProp is not null)

@@ -1,7 +1,9 @@
 using System.Security.Claims;
+using System.Text.Json;
 using FastEndpoints.Mcp;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
+using ModelContextProtocol;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 
@@ -46,20 +48,14 @@ public class McpToolDuplicateNameTests
 
         var options = provider.GetRequiredService<IOptions<McpServerOptions>>().Value;
 
-        var listEx = await Should.ThrowAsync<InvalidOperationException>(
-                         async () =>
-                             await options.Handlers.ListToolsHandler!(
-                                 McpToolVisibilityTests_Bridge.BuildListRequestContext(provider, BuildPrincipal(true)),
-                                 CancellationToken.None));
+        var listEx = await Should.ThrowAsync<InvalidOperationException>(async () =>
+            await options.Handlers.ListToolsHandler!(McpToolVisibilityTests_Bridge.BuildListRequestContext(provider, BuildPrincipal(true)), CancellationToken.None));
 
         listEx.Message.ShouldContain("Duplicate MCP tool names detected");
         listEx.Message.ShouldContain("'shared_tool'");
 
-        var callEx = await Should.ThrowAsync<InvalidOperationException>(
-                         async () =>
-                             await options.Handlers.CallToolHandler!(
-                                 McpToolVisibilityTests_Bridge.BuildCallRequestContext(provider, "shared_tool", BuildPrincipal(true)),
-                                 CancellationToken.None));
+        var callEx = await Should.ThrowAsync<InvalidOperationException>(async () =>
+            await options.Handlers.CallToolHandler!(McpToolVisibilityTests_Bridge.BuildCallRequestContext(provider, "shared_tool", BuildPrincipal(true)), CancellationToken.None));
 
         callEx.Message.ShouldContain("Duplicate MCP tool name 'shared_tool'");
     }
@@ -99,9 +95,9 @@ public class McpToolDuplicateNameTests
                 def.McpTool(
                     "shared_tool",
                     configure: info =>
-                               {
-                                   info.Title = secondDuplicateVisible ? "Second Visible Duplicate" : "Hidden Duplicate";
-                               });
+                    {
+                        info.Title = secondDuplicateVisible ? "Second Visible Duplicate" : "Hidden Duplicate";
+                    });
             }
         }
 
@@ -119,9 +115,7 @@ public class McpToolDuplicateNameTests
     {
         var options = provider.GetRequiredService<IOptions<McpServerOptions>>().Value;
 
-        return await options.Handlers.CallToolHandler!(
-                   McpToolVisibilityTests_Bridge.BuildCallRequestContext(provider, toolName, BuildPrincipal(authenticated)),
-                   CancellationToken.None);
+        return await options.Handlers.CallToolHandler!(McpToolVisibilityTests_Bridge.BuildCallRequestContext(provider, toolName, BuildPrincipal(authenticated)), CancellationToken.None);
     }
 
     static ClaimsPrincipal BuildPrincipal(bool authenticated)
@@ -157,7 +151,7 @@ public class McpToolDuplicateNameTests
 
     sealed class ToolRequest
     {
-        public string Value { get; } = "";
+        public string Value { get; set; } = "";
     }
 
     sealed class ToolResponse

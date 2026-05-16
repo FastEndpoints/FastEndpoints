@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using FluentValidation;
@@ -72,9 +73,7 @@ public class EndpointInvokerBindingTests
 
         var result = await Invoke<SerializerContextQueryEndpoint>(provider, new { filter = new { child_value = "ok" } });
 
-        result.Status.ShouldBe(
-            InvocationStatus.Success,
-            result.Exception?.ToString() ?? string.Join(", ", result.ValidationFailures.Select(f => $"{f.PropertyName}:{f.ErrorMessage}")));
+        result.Status.ShouldBe(InvocationStatus.Success, result.Exception?.ToString() ?? string.Join(", ", result.ValidationFailures.Select(f => $"{f.PropertyName}:{f.ErrorMessage}")));
         JsonDocument.Parse(result.Body).RootElement.GetProperty("value").GetString().ShouldBe("query-context:ok");
     }
 
@@ -142,7 +141,7 @@ public class EndpointInvokerBindingTests
         [RouteParam(IsRequired = true)]
         public int CustomerId { get; set; }
 
-        public string RequestId { get; } = "";
+        public string RequestId { get; set; } = "";
     }
 
     sealed class RouteBoundRequestValidator : Validator<RouteBoundRequest>
@@ -163,7 +162,7 @@ public class EndpointInvokerBindingTests
     sealed class QueryBoundRequest
     {
         [QueryParam]
-        public string Term { get; } = "";
+        public string Term { get; set; } = "";
 
         [QueryParam]
         public int Page { get; set; }
@@ -173,12 +172,10 @@ public class EndpointInvokerBindingTests
     sealed class RouteAndQueryReaderEndpoint : Endpoint<RouteAndQueryRequest, BindingResponse>
     {
         public override Task HandleAsync(RouteAndQueryRequest req, CancellationToken ct)
-            => Send.OkAsync(
-                new()
-                {
-                    Value = $"helpers:{req.OrderId}:{Query<int>("customerId")}"
-                },
-                ct);
+            => Send.OkAsync(new()
+            {
+                Value = $"helpers:{req.OrderId}:{Query<int>("customerId")}"
+            }, ct);
     }
 
     sealed class RouteAndQueryRequest
@@ -202,10 +199,10 @@ public class EndpointInvokerBindingTests
     sealed class CompositeRoutePathRequest
     {
         [RouteParam]
-        public string Name { get; } = "";
+        public string Name { get; set; } = "";
 
         [RouteParam]
-        public string Ext { get; } = "";
+        public string Ext { get; set; } = "";
     }
 
     public sealed class BindingResponse
@@ -239,6 +236,8 @@ public class EndpointInvokerBindingTests
     }
 }
 
-[JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.SnakeCaseLower), JsonSerializable(typeof(EndpointInvokerBindingTests.SerializerContextQueryRequest)),
- JsonSerializable(typeof(EndpointInvokerBindingTests.SerializerContextQueryFilter)), JsonSerializable(typeof(EndpointInvokerBindingTests.BindingResponse))]
+[JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.SnakeCaseLower)]
+[JsonSerializable(typeof(EndpointInvokerBindingTests.SerializerContextQueryRequest))]
+[JsonSerializable(typeof(EndpointInvokerBindingTests.SerializerContextQueryFilter))]
+[JsonSerializable(typeof(EndpointInvokerBindingTests.BindingResponse))]
 partial class AgentBindingSnakeCaseJsonContext : JsonSerializerContext;

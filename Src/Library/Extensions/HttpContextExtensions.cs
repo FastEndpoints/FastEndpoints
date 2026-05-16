@@ -112,8 +112,11 @@ public static class HttpContextExtensions
     /// </summary>
     /// <param name="response">the response dto instance</param>
     public static void PopulateResponseHeadersFromResponseDto(this HttpContext ctx, object? response)
+        => ctx.PopulateResponseHeadersFromResponseDto(response, null);
+
+    internal static void PopulateResponseHeadersFromResponseDto(this HttpContext ctx, object? response, ToHeaderProp[]? toHeaderProps)
     {
-        var toHeaderProps = ctx.Items[CtxKey.ToHeaderProps] as ToHeaderProp[] ?? [];
+        toHeaderProps ??= ctx.Items[CtxKey.ToHeaderProps] as ToHeaderProp[] ?? [];
 
         for (var i = 0; i < toHeaderProps.Length; i++)
         {

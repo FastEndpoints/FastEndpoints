@@ -316,7 +316,7 @@ public readonly struct ResponseSender<TRequest, TResponse>(Endpoint<TRequest, TR
 
         ep.Response = response;
 
-        return ep.HttpContext.Response.SendOkAsync(response, ep.Definition.SerializerContext, cancellation);
+        return ep.HttpContext.Response.SendOkAsync(response, ep.Definition.SerializerContext, cancellation, ep.Definition.ToHeaderProps);
     }
 
     /// <summary>
@@ -362,7 +362,7 @@ public readonly struct ResponseSender<TRequest, TResponse>(Endpoint<TRequest, TR
     {
         ep.Response = response;
 
-        return ep.HttpContext.Response.SendAsync(response, statusCode, ep.Definition.SerializerContext, cancellation);
+        return ep.HttpContext.Response.SendAsync(response, statusCode, ep.Definition.SerializerContext, cancellation, ep.Definition.ToHeaderProps);
     }
 
     /// <summary>

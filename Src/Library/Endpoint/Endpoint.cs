@@ -98,13 +98,16 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
             else
                 await HandleAsync(req, ct);
 
-            if (_response is null & HttpContext.Items.TryGetValue(Constants.FastEndpointsResponse, out var res) && res is TResponse r)
-                _response = r; // HttpResponse extensions set the response in HttpContext.Items
+            if (HttpContext.Items.TryGetValue(Constants.FastEndpointsResponse, out var res) && res is TResponse r)
+            {
+                if (_response is null)
+                    _response = r; // HttpResponse extensions set the response in HttpContext.Items
+            }
             else
                 HttpContext.Items[Constants.FastEndpointsResponse] = _response; // for third party libs to access the response
 
             if (!Definition.DontAutoSend && !ResponseStarted)
-                await AutoSendResponse(HttpContext, _response!, Definition.SerializerContext, ct);
+                await AutoSendResponse(HttpContext, _response!, Definition, ct);
 
             // ReSharper disable once MethodHasAsyncOverloadWithCancellation
             OnAfterHandle(req, _response!);

@@ -11,7 +11,11 @@ internal static class EndpointBootstrap
         epInstance.Definition = epDef;
         epInstance.HttpContext = ctx;
         ctx.Items[CtxKey.ValidationFailures] = epInstance.ValidationFailures;
-        ctx.Items[CtxKey.ToHeaderProps] = epDef.ToHeaderProps;
+
+        var toHeaderProps = epDef.ToHeaderProps;
+
+        if (toHeaderProps.Length > 0)
+            ctx.Items[CtxKey.ToHeaderProps] = toHeaderProps;
 
         return epInstance;
     }

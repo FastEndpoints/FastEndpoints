@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing"/>
+        <PackageReference Include="NBomber"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\FastEndpointsBench\FEBench.csproj"/>
+        <ProjectReference Include="..\MinimalApi\MinimalApi.csproj"/>
+        <ProjectReference Include="..\MvcControllers\MvcControllers.csproj"/>
+    </ItemGroup>
+
+</Project>

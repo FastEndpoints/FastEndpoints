@@ -29,3 +29,5 @@ TestHarness/NativeAotChecker/Generated/
 .idea/.idea.NativeAot/.idea/workspace.xml
 
 .opencode/
+
+reports/

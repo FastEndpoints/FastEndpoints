@@ -16,15 +16,15 @@ public abstract class CommandMiddlewareConfigBase
         {
             var tMiddleware = middlewareTypes[i];
 
-            if (!IsValid(tMiddleware))
+            if (!IsValid(tMiddleware, OpenGenericInterface))
                 throw new ArgumentException($"{tMiddleware.Name} must be an open generic type implementing {OpenGenericInterface.Name}");
 
             Middleware.Add((OpenGenericInterface, tMiddleware));
         }
     }
 
-    bool IsValid(Type type)
-        => type.IsGenericTypeDefinition &&
-           type.GetGenericArguments().Length == 2 &&
-           type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == OpenGenericInterface);
+    static bool IsValid(Type tMiddleware, Type openGenericInterface)
+        => tMiddleware.IsGenericTypeDefinition &&
+           tMiddleware.GetGenericArguments().Length == 2 &&
+           tMiddleware.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == openGenericInterface);
 }

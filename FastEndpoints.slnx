@@ -11,6 +11,8 @@
     <Folder Name="/Benchmark/">
         <File Path="Benchmark/Directory.Build.props"/>
         <Project Path="Benchmark/FastEndpointsBench/FEBench.csproj"/>
+        <File Path="Benchmark/LoadTests/README.md"/>
+        <Project Path="Benchmark/LoadTests/LoadTests.csproj"/>
         <Project Path="Benchmark/MinimalApi/MinimalApi.csproj"/>
         <Project Path="Benchmark/MvcControllers/MvcControllers.csproj"/>
         <Project Path="Benchmark/Runner/Runner.csproj"/>

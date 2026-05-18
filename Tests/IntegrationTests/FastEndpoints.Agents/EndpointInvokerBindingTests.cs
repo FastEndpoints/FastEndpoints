@@ -1,8 +1,9 @@
-using System.Net;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using FluentValidation;
 using FastEndpoints.Mcp;
+
+#pragma warning disable CS8618
 
 namespace FastEndpoints.Agents.Tests;
 
@@ -73,7 +74,9 @@ public class EndpointInvokerBindingTests
 
         var result = await Invoke<SerializerContextQueryEndpoint>(provider, new { filter = new { child_value = "ok" } });
 
-        result.Status.ShouldBe(InvocationStatus.Success, result.Exception?.ToString() ?? string.Join(", ", result.ValidationFailures.Select(f => $"{f.PropertyName}:{f.ErrorMessage}")));
+        result.Status.ShouldBe(
+            InvocationStatus.Success,
+            result.Exception?.ToString() ?? string.Join(", ", result.ValidationFailures.Select(f => $"{f.PropertyName}:{f.ErrorMessage}")));
         JsonDocument.Parse(result.Body).RootElement.GetProperty("value").GetString().ShouldBe("query-context:ok");
     }
 
@@ -141,7 +144,7 @@ public class EndpointInvokerBindingTests
         [RouteParam(IsRequired = true)]
         public int CustomerId { get; set; }
 
-        public string RequestId { get; set; } = "";
+        public string RequestId { get; set; }
     }
 
     sealed class RouteBoundRequestValidator : Validator<RouteBoundRequest>
@@ -162,7 +165,7 @@ public class EndpointInvokerBindingTests
     sealed class QueryBoundRequest
     {
         [QueryParam]
-        public string Term { get; set; } = "";
+        public string Term { get; set; }
 
         [QueryParam]
         public int Page { get; set; }
@@ -172,10 +175,12 @@ public class EndpointInvokerBindingTests
     sealed class RouteAndQueryReaderEndpoint : Endpoint<RouteAndQueryRequest, BindingResponse>
     {
         public override Task HandleAsync(RouteAndQueryRequest req, CancellationToken ct)
-            => Send.OkAsync(new()
-            {
-                Value = $"helpers:{req.OrderId}:{Query<int>("customerId")}"
-            }, ct);
+            => Send.OkAsync(
+                new()
+                {
+                    Value = $"helpers:{req.OrderId}:{Query<int>("customerId")}"
+                },
+                ct);
     }
 
     sealed class RouteAndQueryRequest
@@ -186,7 +191,7 @@ public class EndpointInvokerBindingTests
         [QueryParam]
         public int CustomerId { get; set; }
 
-        public string BodyValue { get; set; } = "";
+        public string BodyValue { get; set; }
     }
 
     [HttpGet("/agent-binding/files/{name}.{ext}")]
@@ -199,10 +204,10 @@ public class EndpointInvokerBindingTests
     sealed class CompositeRoutePathRequest
     {
         [RouteParam]
-        public string Name { get; set; } = "";
+        public string Name { get; set; }
 
         [RouteParam]
-        public string Ext { get; set; } = "";
+        public string Ext { get; set; }
     }
 
     public sealed class BindingResponse
@@ -225,7 +230,7 @@ public class EndpointInvokerBindingTests
 
     public sealed class SerializerContextQueryFilter
     {
-        public string ChildValue { get; set; } = "";
+        public string ChildValue { get; set; }
     }
 
     [HttpGet("/agent-binding/raw-query")]
@@ -236,8 +241,6 @@ public class EndpointInvokerBindingTests
     }
 }
 
-[JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.SnakeCaseLower)]
-[JsonSerializable(typeof(EndpointInvokerBindingTests.SerializerContextQueryRequest))]
-[JsonSerializable(typeof(EndpointInvokerBindingTests.SerializerContextQueryFilter))]
-[JsonSerializable(typeof(EndpointInvokerBindingTests.BindingResponse))]
+[JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.SnakeCaseLower), JsonSerializable(typeof(EndpointInvokerBindingTests.SerializerContextQueryRequest)),
+ JsonSerializable(typeof(EndpointInvokerBindingTests.SerializerContextQueryFilter)), JsonSerializable(typeof(EndpointInvokerBindingTests.BindingResponse))]
 partial class AgentBindingSnakeCaseJsonContext : JsonSerializerContext;

@@ -1,8 +1,6 @@
 using System.Text.Json;
-using FluentValidation;
 using FastEndpoints.Mcp;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace FastEndpoints.Agents.Tests;
 

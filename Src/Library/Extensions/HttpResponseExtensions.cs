@@ -79,17 +79,24 @@ public static class HttpResponseExtensions
         /// <param name="statusCode">optional custom http status code</param>
         /// <param name="jsonSerializerContext">json serializer context if code generation is used</param>
         /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-        public async Task<Void> SendAsync<TResponse>(TResponse response,
-                                                     int statusCode = 200,
-                                                     JsonSerializerContext? jsonSerializerContext = null,
-                                                     CancellationToken cancellation = default)
+        public Task<Void> SendAsync<TResponse>(TResponse response,
+                                               int statusCode = 200,
+                                               JsonSerializerContext? jsonSerializerContext = null,
+                                               CancellationToken cancellation = default)
+            => rsp.SendAsync(response, statusCode, null, jsonSerializerContext, cancellation);
+
+        internal async Task<Void> SendAsync<TResponse>(TResponse response,
+                                                       int statusCode,
+                                                       EndpointDefinition? epDef,
+                                                       JsonSerializerContext? jsonSerializerContext,
+                                                       CancellationToken cancellation)
         {
             rsp.HttpContext.MarkResponseStart();
             rsp.HttpContext.StoreResponse(response);
-            rsp.HttpContext.PopulateResponseHeadersFromResponseDto(response);
+            rsp.HttpContext.PopulateResponseHeadersFromResponseDto(response, epDef?.ToHeaderProps);
             rsp.StatusCode = statusCode;
             await rsp.ApplyGlobalResponseModifier();
-            await SerOpts.ResponseSerializer(rsp, response, "application/json", jsonSerializerContext, cancellation.IfDefault(rsp));
+            await SerOpts.ResponseSerializer(rsp, response, "application/json", jsonSerializerContext ?? epDef?.SerializerContext, cancellation.IfDefault(rsp));
 
             return Void.Instance;
         }
@@ -495,16 +502,20 @@ public static class HttpResponseExtensions
         /// <param name="response">the object to serialize to json</param>
         /// <param name="jsonSerializerContext">json serializer context if code generation is used</param>
         /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-        public async Task<Void> SendOkAsync<TResponse>(TResponse response,
-                                                       JsonSerializerContext? jsonSerializerContext = null,
-                                                       CancellationToken cancellation = default)
+        public Task<Void> SendOkAsync<TResponse>(TResponse response, JsonSerializerContext? jsonSerializerContext = null, CancellationToken cancellation = default)
+            => rsp.SendOkAsync(response, null, jsonSerializerContext, cancellation);
+
+        internal async Task<Void> SendOkAsync<TResponse>(TResponse response,
+                                                         EndpointDefinition? epDef,
+                                                         JsonSerializerContext? jsonSerializerContext,
+                                                         CancellationToken cancellation)
         {
             rsp.HttpContext.MarkResponseStart();
             rsp.HttpContext.StoreResponse(response);
-            rsp.HttpContext.PopulateResponseHeadersFromResponseDto(response);
+            rsp.HttpContext.PopulateResponseHeadersFromResponseDto(response, epDef?.ToHeaderProps);
             rsp.StatusCode = 200;
             await rsp.ApplyGlobalResponseModifier();
-            await SerOpts.ResponseSerializer(rsp, response, "application/json", jsonSerializerContext, cancellation.IfDefault(rsp));
+            await SerOpts.ResponseSerializer(rsp, response, "application/json", jsonSerializerContext ?? epDef?.SerializerContext, cancellation.IfDefault(rsp));
 
             return Void.Instance;
         }

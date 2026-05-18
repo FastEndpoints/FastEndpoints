@@ -76,6 +76,34 @@ public static class CommandExtensions
         return ((IStreamCommandHandlerExecutor<TResult>)def!.HandlerExecutor!).Execute(command, def.HandlerType, ct);
     }
 
+    static void InitGenericHandlerCore(ref CommandHandlerDefinition? def, Type tCommand, CommandHandlerRegistry registry, Type tTargetIfc)
+    {
+        var tGenCmd = tCommand.GetGenericTypeDefinition();
+
+        if (!registry.TryGetValue(tGenCmd, out var genDef))
+            throw new InvalidOperationException($"No generic handler registered for generic {Kind(tTargetIfc)} type: [{tGenCmd.FullName}]");
+
+        var tHnd = genDef.HandlerType.MakeGenericType(tCommand.GetGenericArguments());
+
+        if (!tHnd.IsAssignableTo(tTargetIfc))
+            throw new InvalidOperationException($"The registered generic handler for the generic {Kind(tTargetIfc)} [{tGenCmd.FullName}] is not the correct type!");
+
+        def = registry[tCommand] = new(tHnd);
+
+        static string Kind(Type t) => t.IsGenericType && t.GetGenericTypeDefinition() == Types.IStreamCommandHandlerOf2 ? "stream command" : "command";
+    }
+
+    static void PrepareExecution<TResult>(CommandHandlerDefinition? def, Type tCommand, Type tExecutorOpenGeneric, Type tHandlerInterface)
+    {
+        if (def is null)
+            throw new InvalidOperationException($"Unable to create an instance of the handler for command [{tCommand.FullName}]");
+
+        def.HandlerExecutor ??= ServiceResolver.Instance.CreateSingleton(tExecutorOpenGeneric.MakeGenericType(tCommand, typeof(TResult)));
+
+        if (TestHandlersPresent)
+            def.HandlerType = ServiceResolver.Instance.TryResolve(tHandlerInterface)?.GetType() ?? def.HandlerType;
+    }
+
     /// <summary>
     /// registers a fake command handler for unit testing purposes
     /// </summary>
@@ -85,7 +113,10 @@ public static class CommandExtensions
         => RegisterHandlerForTesting(
             typeof(TCommand),
             handler.GetType(),
-            new CommandHandlerExecutor<TCommand, Void>(ServiceResolver.Instance.Resolve<IEnumerable<ICommandMiddleware<TCommand, Void>>>()) { TestHandler = handler });
+            new CommandHandlerExecutor<TCommand, Void>(ServiceResolver.Instance.Resolve<IEnumerable<ICommandMiddleware<TCommand, Void>>>()) 
+            { 
+                TestHandler = handler 
+            });
 
     /// <summary>
     /// registers a fake command handler for unit testing purposes
@@ -97,7 +128,10 @@ public static class CommandExtensions
         => RegisterHandlerForTesting(
             typeof(TCommand),
             handler.GetType(),
-            new CommandHandlerExecutor<TCommand, TResult>(ServiceResolver.Instance.Resolve<IEnumerable<ICommandMiddleware<TCommand, TResult>>>()) { TestHandler = handler });
+            new CommandHandlerExecutor<TCommand, TResult>(ServiceResolver.Instance.Resolve<IEnumerable<ICommandMiddleware<TCommand, TResult>>>()) 
+            { 
+                TestHandler = handler 
+            });
 
     /// <summary>
     /// registers a fake stream command handler for unit testing purposes
@@ -109,7 +143,16 @@ public static class CommandExtensions
         => RegisterHandlerForTesting(
             typeof(TCommand),
             handler.GetType(),
-            new StreamCommandHandlerExecutor<TCommand, TResult>(ServiceResolver.Instance.Resolve<IEnumerable<IStreamCommandMiddleware<TCommand, TResult>>>()) { TestHandler = handler });
+            new StreamCommandHandlerExecutor<TCommand, TResult>(ServiceResolver.Instance.Resolve<IEnumerable<IStreamCommandMiddleware<TCommand, TResult>>>()) 
+            { 
+                TestHandler = handler 
+            });
+
+    static void RegisterHandlerForTesting(Type tCommand, Type tHandlerType, object executor)
+    => ServiceResolver.Instance.Resolve<CommandHandlerRegistry>()[tCommand] = new(tHandlerType)
+    {
+        HandlerExecutor = executor
+    };
 
     /// <param name="sp">the service provider</param>
     extension(IServiceProvider sp)
@@ -203,23 +246,6 @@ public static class CommandExtensions
         return AddMiddlewarePipeline(services, c, nameof(config));
     }
 
-    static void RegisterHandlerForTesting(Type tCommand, Type tHandlerType, object executor)
-        => ServiceResolver.Instance.Resolve<CommandHandlerRegistry>()[tCommand] = new(tHandlerType) 
-        { 
-            HandlerExecutor = executor 
-        };
-
-    static void PrepareExecution<TResult>(CommandHandlerDefinition? def, Type tCommand, Type tExecutorOpenGeneric, Type tHandlerInterface)
-    {
-        if (def is null)
-            throw new InvalidOperationException($"Unable to create an instance of the handler for command [{tCommand.FullName}]");
-
-        def.HandlerExecutor ??= ServiceResolver.Instance.CreateSingleton(tExecutorOpenGeneric.MakeGenericType(tCommand, typeof(TResult)));
-
-        if (TestHandlersPresent)
-            def.HandlerType = ServiceResolver.Instance.TryResolve(tHandlerInterface)?.GetType() ?? def.HandlerType;
-    }
-
     static IServiceCollection AddMiddlewarePipeline(IServiceCollection services, CommandMiddlewareConfigBase config, string paramName)
     {
         if (config.Middleware.Count == 0)
@@ -229,22 +255,5 @@ public static class CommandExtensions
             services.AddTransient(mw.tInterface, mw.tImplementation);
 
         return services;
-    }
-
-    static void InitGenericHandlerCore(ref CommandHandlerDefinition? def, Type tCommand, CommandHandlerRegistry registry, Type tTargetIfc)
-    {
-        var tGenCmd = tCommand.GetGenericTypeDefinition();
-
-        if (!registry.TryGetValue(tGenCmd, out var genDef))
-            throw new InvalidOperationException($"No generic handler registered for generic {Kind(tTargetIfc)} type: [{tGenCmd.FullName}]");
-
-        var tHnd = genDef.HandlerType.MakeGenericType(tCommand.GetGenericArguments());
-
-        if (!tHnd.IsAssignableTo(tTargetIfc))
-            throw new InvalidOperationException($"The registered generic handler for the generic {Kind(tTargetIfc)} [{tGenCmd.FullName}] is not the correct type!");
-
-        def = registry[tCommand] = new(tHnd);
-
-        static string Kind(Type t) => t.IsGenericType && t.GetGenericTypeDefinition() == Types.IStreamCommandHandlerOf2 ? "stream command" : "command";
     }
 }

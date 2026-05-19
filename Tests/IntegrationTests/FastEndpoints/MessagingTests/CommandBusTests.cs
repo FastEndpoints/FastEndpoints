@@ -1,5 +1,7 @@
-﻿using TestCases.CommandBusTest;
+﻿using System.Runtime.CompilerServices;
+using TestCases.CommandBusTest;
 using TestCases.CommandHandlerTest;
+using TestCases.StreamCommandBusTest;
 
 namespace Messaging;
 
@@ -90,6 +92,31 @@ public class CommandBusTests(Sut App) : TestBase<Sut>
     }
 
     [Fact]
+    public async Task Stream_Command_Returns_Items()
+    {
+        var (rsp, res) = await App.GuestClient.GETAsync<StreamCmdEndpoint, IEnumerable<int>>();
+        rsp.IsSuccessStatusCode.ShouldBeTrue();
+        res.ShouldBe([0, 1, 2, 3, 4]);
+    }
+
+    [Fact]
+    public async Task Generic_Stream_Command_Returns_Items()
+    {
+        var (rsp, res) = await App.GuestClient.GETAsync<GenericStreamCmdEndpoint, IEnumerable<Guid>>();
+        rsp.IsSuccessStatusCode.ShouldBeTrue();
+        res.Count().ShouldBe(3);
+        res.First().ShouldBe(Guid.Empty); // new Guid() == Guid.Empty
+    }
+
+    [Fact]
+    public async Task Stream_Command_Test_Handler_Is_Used()
+    {
+        var (rsp, _) = await App.Client.GETAsync<StreamCmdEndpoint, IEnumerable<int>>();
+        rsp.IsSuccessStatusCode.ShouldBeTrue();
+        TestStreamNumbersHandler.WasCalled.ShouldBeTrue();
+    }
+
+    [Fact]
     public async Task Scoped_Service_Instances_Are_Unique_To_Each_Request()
     {
         List<Guid> svcInstanceIds = [];
@@ -118,6 +145,24 @@ public class TestVoidCommandHandler : ICommandHandler<VoidCommand>
         FullName = command.FirstName + " " + command.LastName + " z";
 
         return Task.CompletedTask;
+    }
+}
+
+[DontRegister]
+public class TestStreamNumbersHandler : IStreamCommandHandler<StreamNumbersCommand, int>
+{
+    public static bool WasCalled;
+
+    public async IAsyncEnumerable<int> ExecuteAsync(StreamNumbersCommand cmd, [EnumeratorCancellation] CancellationToken ct)
+    {
+        WasCalled = true;
+
+        for (var i = 0; i < cmd.Count; i++)
+        {
+            await Task.Yield();
+
+            yield return i;
+        }
     }
 }
 

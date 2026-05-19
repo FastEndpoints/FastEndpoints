@@ -24,3 +24,13 @@ public abstract class CommandHandler<TCommand, TResult> : CommandHandlerBase<TCo
 {
     public abstract Task<TResult> ExecuteAsync(TCommand command, CancellationToken ct = default);
 }
+
+/// <summary>
+/// inherit this base class if you'd like to manipulate validation state of the calling endpoint from within the stream command handler.
+/// </summary>
+/// <typeparam name="TCommand">the type of the command that will be handled by this command handler</typeparam>
+/// <typeparam name="TResult">the type of the items in the result stream returned by this command handler</typeparam>
+public abstract class StreamCommandHandler<TCommand, TResult> : CommandHandlerBase<TCommand>, IStreamCommandHandler<TCommand, TResult> where TCommand : IStreamCommand<TResult>
+{
+    public abstract IAsyncEnumerable<TResult> ExecuteAsync(TCommand command, CancellationToken ct = default);
+}

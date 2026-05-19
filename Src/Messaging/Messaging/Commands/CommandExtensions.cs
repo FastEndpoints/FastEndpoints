@@ -68,10 +68,10 @@ public static class CommandExtensions
         var registry = ServiceResolver.Instance.Resolve<CommandHandlerRegistry>();
         registry.TryGetValue(tCommand, out var def);
 
+        var tHandlerInterface = Types.IStreamCommandHandlerOf2.MakeGenericType(tCommand, typeof(TResult));
         if (def is null && tCommand.IsGenericType)
-            InitGenericHandlerCore(ref def, tCommand, registry, Types.IStreamCommandHandlerOf2.MakeGenericType(tCommand, typeof(TResult)));
-
-        var tHandler = PrepareExecution<TResult>(def, tCommand, Types.StreamCommandHandlerExecutorOf2, Types.IStreamCommandHandlerOf2.MakeGenericType(tCommand, typeof(TResult)));
+            InitGenericHandlerCore(ref def, tCommand, registry, tHandlerInterface);
+        var tHandler = PrepareExecution<TResult>(def, tCommand, Types.StreamCommandHandlerExecutorOf2, tHandlerInterface);
 
         return ((IStreamCommandHandlerExecutor<TResult>)def!.HandlerExecutor!).Execute(command, tHandler, ct);
     }

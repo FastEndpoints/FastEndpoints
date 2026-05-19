@@ -1,5 +1,7 @@
 ﻿<linker>
     <assembly fullname="FastEndpoints.Messaging.Core">
         <type fullname="FastEndpoints.ICommand`1" preserve="all"/>
+        <type fullname="FastEndpoints.IStreamCommand`1" preserve="all"/>
+        <type fullname="FastEndpoints.IStreamCommandHandler`2" preserve="all"/>
     </assembly>
 </linker>

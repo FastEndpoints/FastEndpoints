@@ -77,6 +77,61 @@ public class CommandBusTests
     }
 
     [Fact]
+    public async Task Service_Registered_Test_Command_Handler_Is_Used()
+    {
+        Factory.RegisterTestServices(s => s.RegisterTestCommandHandler<ServiceRegisteredCmd, ServiceRegisteredTestHandler, string>());
+        ServiceResolver.Instance.Resolve<CommandHandlerRegistry>()[typeof(ServiceRegisteredCmd)] = new(typeof(ServiceRegisteredHandler));
+        CommandExtensions.TestCommandHandlerMarker ??= typeof(TestCommandHandlerMarker);
+
+        var result = await new ServiceRegisteredCmd().ExecuteAsync();
+
+        result.ShouldBe("test");
+    }
+
+    [Fact]
+    public async Task Service_Registered_Test_Void_Command_Handler_Is_Used()
+    {
+        ServiceRegisteredVoidTestHandler.Result = null;
+        Factory.RegisterTestServices(s => s.RegisterTestCommandHandler<ServiceRegisteredVoidCmd, ServiceRegisteredVoidTestHandler>());
+        ServiceResolver.Instance.Resolve<CommandHandlerRegistry>()[typeof(ServiceRegisteredVoidCmd)] = new(typeof(ServiceRegisteredVoidHandler));
+        CommandExtensions.TestCommandHandlerMarker ??= typeof(TestCommandHandlerMarker);
+
+        await new ServiceRegisteredVoidCmd().ExecuteAsync();
+
+        ServiceRegisteredVoidTestHandler.Result.ShouldBe("test");
+    }
+
+    [Fact]
+    public async Task Stream_Command_Fake_Handler_Works()
+    {
+        Factory.RegisterTestServices(_ => { });
+
+        var fakeHandler = A.Fake<IStreamCommandHandler<StreamCmd, int>>();
+        A.CallTo(() => fakeHandler.ExecuteAsync(A<StreamCmd>.Ignored, A<CancellationToken>.Ignored))
+         .Returns(new[] { 10, 20, 30 }.ToAsyncEnumerable());
+
+        fakeHandler.RegisterForTesting();
+
+        var results = new List<int>();
+        await foreach (var item in new StreamCmd(3).ExecuteAsync())
+            results.Add(item);
+
+        Assert.Equal([10, 20, 30], results);
+    }
+
+    [Fact]
+    public async Task Stream_Command_Direct_Execution()
+    {
+        var handler = new StreamCmdHandler();
+        var results = new List<int>();
+
+        await foreach (var item in handler.ExecuteAsync(new StreamCmd(3), CancellationToken.None))
+            results.Add(item);
+
+        Assert.Equal([0, 1, 2], results);
+    }
+
+    [Fact]
     public async Task CommandMiddlewareExecutesInCorrectOrder()
     {
         Factory.RegisterTestServices(
@@ -94,6 +149,30 @@ public class CommandBusTests
         var result = await new TestCmd().ExecuteAsync(TestContext.Current.CancellationToken);
 
         result.Output.ShouldBe("[ first-in >> second-in >> third-in >> [handler] << third-out << second-out << first-out ]");
+    }
+
+    [Fact]
+    public async Task StreamCommandMiddlewareExecutesInCorrectOrder()
+    {
+        Factory.RegisterTestServices(
+            s => s.AddStreamCommandMiddleware(
+                      c =>
+                      {
+                          c.Register<StreamCmd, int, FirstStreamMiddleware>();
+                          c.Register(typeof(SecondStreamMiddleware<,>), typeof(ThirdStreamMiddleware<,>));
+                      })
+                  .RegisterTestStreamCommandHandler<StreamCmd, StreamCmdHandler, int>());
+
+        var handler = new StreamCmdHandler();
+        handler.RegisterForTesting();
+
+        var results = new List<int>();
+        await foreach (var item in new StreamCmd(3).ExecuteAsync(TestContext.Current.CancellationToken))
+            results.Add(item);
+
+        // handler yields [0,1,2]; FirstStreamMiddleware multiplies by 10 → [0,10,20]
+        // Second and ThirdStreamMiddleware are identity pass-throughs (verify chain isn't broken)
+        results.ShouldBe([0, 10, 20]);
     }
 }
 
@@ -151,4 +230,81 @@ sealed class TestCmdHandler : ICommandHandler<TestCmd, TestResult>
 {
     public Task<TestResult> ExecuteAsync(TestCmd cmd, CancellationToken c)
         => Task.FromResult(new TestResult { Output = $"{cmd.Input}[handler] << " });
+}
+
+sealed class ServiceRegisteredCmd : ICommand<string>;
+
+sealed class ServiceRegisteredHandler : ICommandHandler<ServiceRegisteredCmd, string>
+{
+    public Task<string> ExecuteAsync(ServiceRegisteredCmd command, CancellationToken ct)
+        => Task.FromResult("real");
+}
+
+sealed class ServiceRegisteredTestHandler : ICommandHandler<ServiceRegisteredCmd, string>
+{
+    public Task<string> ExecuteAsync(ServiceRegisteredCmd command, CancellationToken ct)
+        => Task.FromResult("test");
+}
+
+sealed class ServiceRegisteredVoidCmd : ICommand;
+
+sealed class ServiceRegisteredVoidHandler : ICommandHandler<ServiceRegisteredVoidCmd>
+{
+    public Task ExecuteAsync(ServiceRegisteredVoidCmd command, CancellationToken ct)
+        => Task.CompletedTask;
+}
+
+sealed class ServiceRegisteredVoidTestHandler : ICommandHandler<ServiceRegisteredVoidCmd>
+{
+    public static string? Result;
+
+    public Task ExecuteAsync(ServiceRegisteredVoidCmd command, CancellationToken ct)
+    {
+        Result = "test";
+
+        return Task.CompletedTask;
+    }
+}
+
+public record StreamCmd(int Count) : IStreamCommand<int>;
+
+sealed class StreamCmdHandler : IStreamCommandHandler<StreamCmd, int>
+{
+    public async IAsyncEnumerable<int> ExecuteAsync(StreamCmd cmd, [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken ct)
+    {
+        for (var i = 0; i < cmd.Count; i++)
+        {
+            await Task.Yield();
+            yield return i;
+        }
+    }
+}
+
+sealed class FirstStreamMiddleware : IStreamCommandMiddleware<StreamCmd, int>
+{
+    public async IAsyncEnumerable<int> ExecuteAsync(StreamCmd cmd, StreamCommandDelegate<int> next, [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken ct)
+    {
+        await foreach (var item in next().WithCancellation(ct))
+            yield return item * 10;
+    }
+}
+
+sealed class SecondStreamMiddleware<TCommand, TResult> : IStreamCommandMiddleware<TCommand, TResult>
+    where TCommand : StreamCmd, IStreamCommand<TResult>
+{
+    public async IAsyncEnumerable<TResult> ExecuteAsync(TCommand cmd, StreamCommandDelegate<TResult> next, [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken ct)
+    {
+        await foreach (var item in next().WithCancellation(ct))
+            yield return item;
+    }
+}
+
+sealed class ThirdStreamMiddleware<TCommand, TResult> : IStreamCommandMiddleware<TCommand, TResult>
+    where TCommand : StreamCmd, IStreamCommand<TResult>
+{
+    public async IAsyncEnumerable<TResult> ExecuteAsync(TCommand cmd, StreamCommandDelegate<TResult> next, [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken ct)
+    {
+        await foreach (var item in next().WithCancellation(ct))
+            yield return item;
+    }
 }

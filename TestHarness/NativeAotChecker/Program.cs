@@ -20,6 +20,7 @@ bld.Services
            c.Register<MiddlewareTestCmd, MiddlewareTestResult, SecondMiddleware<MiddlewareTestCmd, MiddlewareTestResult>>();
            c.Register<MiddlewareTestCmd, MiddlewareTestResult, ThirdMiddleware<MiddlewareTestCmd, MiddlewareTestResult>>();
        })
+   .AddStreamCommandMiddleware(c => c.Register<StreamNumbersWithMiddlewareAotCommand, int, StreamNumbersAotMiddleware>())
    .OpenApiDocument(o => o.DocumentName = "v1");
 
 var app = bld.Build();
@@ -41,4 +42,6 @@ await app.ExportOpenApiDocsAndExitAsync("v1");
 app.MapScalarApiReference(o => o.AddDocument("v1"));
 app.UseJobQueues(o => o.StorageProbeDelay = TimeSpan.FromMilliseconds(50));
 app.Services.RegisterGenericCommand<AotGenericCommand<ProductData>, AotGenericResult<ProductData>, AotGenericCommandHandler<ProductData>>();
+app.Services.RegisterStreamCommand<StreamNumbersAotCommand, int, StreamNumbersAotCommandHandler>();
+app.Services.RegisterStreamCommand<StreamNumbersWithMiddlewareAotCommand, int, StreamNumbersWithMiddlewareAotCommandHandler>();
 app.Run();

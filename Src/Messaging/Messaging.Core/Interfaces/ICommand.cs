@@ -28,7 +28,12 @@ public interface ICommand : ICommand<Void>;
 public interface ICommand<out TResult> : ICommandBase;
 
 /// <summary>
+/// interface for a command that returns an async stream of <typeparamref name="TResult" />
 /// </summary>
+/// <typeparam name="TResult">the type of the items in the stream returned from the handler of this command (i.e. <see cref="IStreamCommandHandler{TCommand, TResult}" />)</typeparam>
+public interface IStreamCommand<out TResult> : ICommandBase;
+
+/// <summary />
 public interface IHasTrackingID
 {
     /// <summary>

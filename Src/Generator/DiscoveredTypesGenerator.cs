@@ -16,11 +16,13 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
         "FastEndpoints.IEndpoint",
         "FastEndpoints.IEventHandler",
         "FastEndpoints.ICommandHandler",
+        "FastEndpoints.IStreamCommandHandler<",
         "FastEndpoints.ISummary",
         "FastEndpoints.IJobStorageProvider<",
         "FastEndpoints.IPreProcessor<",
         "FastEndpoints.IPostProcessor<",
         "FastEndpoints.ICommandMiddleware<",
+        "FastEndpoints.IStreamCommandMiddleware<",
         "FastEndpoints.IMapper",
         "FluentValidation.IValidator"
     ];

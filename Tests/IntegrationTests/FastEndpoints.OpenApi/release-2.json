@@ -6706,6 +6706,26 @@
         }
       }
     },
+    "/api/tests/generic-stream-command": {
+      "get": {
+        "tags": [
+          "Tests"
+        ],
+        "operationId": "TestCasesStreamCommandBusTestGenericStreamCmdEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemCollectionsGenericIEnumerableOfSystemGuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/tests/iauth-injection": {
       "get": {
         "tags": [
@@ -6748,6 +6768,26 @@
                 "schema": {
                   "type": "string",
                   "format": "uuid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tests/stream-command": {
+      "get": {
+        "tags": [
+          "Tests"
+        ],
+        "operationId": "TestCasesStreamCommandBusTestStreamCmdEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemCollectionsGenericIEnumerableOfSystemInt32"
                 }
               }
             }

@@ -55,6 +55,7 @@ static class Types
     internal static readonly Type StringValues = typeof(StringValues);
     internal static readonly Type SummaryOf1 = typeof(Summary<>);
     internal static readonly Type SummaryOf2 = typeof(Summary<,>);
+    internal static readonly Type TestCommandHandlerMarker = typeof(TestCommandHandlerMarker);
     internal static readonly Type ToHeaderAttribute = typeof(ToHeaderAttribute);
     internal static readonly Type ValidatorOf1 = typeof(AbstractValidator<>);
     internal static readonly Type ValidationAttribute = typeof(System.ComponentModel.DataAnnotations.ValidationAttribute);

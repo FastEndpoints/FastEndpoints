@@ -77,6 +77,31 @@ public class CommandBusTests
     }
 
     [Fact]
+    public async Task Service_Registered_Test_Command_Handler_Is_Used()
+    {
+        Factory.RegisterTestServices(s => s.RegisterTestCommandHandler<ServiceRegisteredCmd, ServiceRegisteredTestHandler, string>());
+        ServiceResolver.Instance.Resolve<CommandHandlerRegistry>()[typeof(ServiceRegisteredCmd)] = new(typeof(ServiceRegisteredHandler));
+        CommandExtensions.TestCommandHandlerMarker ??= typeof(TestCommandHandlerMarker);
+
+        var result = await new ServiceRegisteredCmd().ExecuteAsync();
+
+        result.ShouldBe("test");
+    }
+
+    [Fact]
+    public async Task Service_Registered_Test_Void_Command_Handler_Is_Used()
+    {
+        ServiceRegisteredVoidTestHandler.Result = null;
+        Factory.RegisterTestServices(s => s.RegisterTestCommandHandler<ServiceRegisteredVoidCmd, ServiceRegisteredVoidTestHandler>());
+        ServiceResolver.Instance.Resolve<CommandHandlerRegistry>()[typeof(ServiceRegisteredVoidCmd)] = new(typeof(ServiceRegisteredVoidHandler));
+        CommandExtensions.TestCommandHandlerMarker ??= typeof(TestCommandHandlerMarker);
+
+        await new ServiceRegisteredVoidCmd().ExecuteAsync();
+
+        ServiceRegisteredVoidTestHandler.Result.ShouldBe("test");
+    }
+
+    [Fact]
     public async Task Stream_Command_Fake_Handler_Works()
     {
         Factory.RegisterTestServices(_ => { });
@@ -205,6 +230,40 @@ sealed class TestCmdHandler : ICommandHandler<TestCmd, TestResult>
 {
     public Task<TestResult> ExecuteAsync(TestCmd cmd, CancellationToken c)
         => Task.FromResult(new TestResult { Output = $"{cmd.Input}[handler] << " });
+}
+
+sealed class ServiceRegisteredCmd : ICommand<string>;
+
+sealed class ServiceRegisteredHandler : ICommandHandler<ServiceRegisteredCmd, string>
+{
+    public Task<string> ExecuteAsync(ServiceRegisteredCmd command, CancellationToken ct)
+        => Task.FromResult("real");
+}
+
+sealed class ServiceRegisteredTestHandler : ICommandHandler<ServiceRegisteredCmd, string>
+{
+    public Task<string> ExecuteAsync(ServiceRegisteredCmd command, CancellationToken ct)
+        => Task.FromResult("test");
+}
+
+sealed class ServiceRegisteredVoidCmd : ICommand;
+
+sealed class ServiceRegisteredVoidHandler : ICommandHandler<ServiceRegisteredVoidCmd>
+{
+    public Task ExecuteAsync(ServiceRegisteredVoidCmd command, CancellationToken ct)
+        => Task.CompletedTask;
+}
+
+sealed class ServiceRegisteredVoidTestHandler : ICommandHandler<ServiceRegisteredVoidCmd>
+{
+    public static string? Result;
+
+    public Task ExecuteAsync(ServiceRegisteredVoidCmd command, CancellationToken ct)
+    {
+        Result = "test";
+
+        return Task.CompletedTask;
+    }
 }
 
 public record StreamCmd(int Count) : IStreamCommand<int>;

@@ -204,7 +204,7 @@ public static class MainExtensions
                 throw new InvalidOperationException("Duplicate routes detected! See log for more details.");
         }
 
-        CommandExtensions.TestCommandHandlerMarker ??= typeof(TestCommandHandlerMarker);
+        CommandExtensions.TestCommandHandlerMarker ??= Types.TestCommandHandlerMarker;
 
         app.MapGet(
                "_test_url_cache_",

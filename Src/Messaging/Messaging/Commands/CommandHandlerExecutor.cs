@@ -42,9 +42,7 @@ interface IStreamCommandHandlerExecutor<TResult>
     IAsyncEnumerable<TResult> Execute(IStreamCommand<TResult> command, Type handlerType, CancellationToken ct);
 }
 
-sealed class StreamCommandHandlerExecutor<TCommand, TResult>(
-    IEnumerable<IStreamCommandMiddleware<TCommand, TResult>> m,
-    ICommandReceiver<TCommand>? commandReceiver = null)
+sealed class StreamCommandHandlerExecutor<TCommand, TResult>(IEnumerable<IStreamCommandMiddleware<TCommand, TResult>> m, ICommandReceiver<TCommand>? commandReceiver = null)
     : IStreamCommandHandlerExecutor<TResult> where TCommand : IStreamCommand<TResult>
 {
     internal IStreamCommandHandler<TCommand, TResult>? TestHandler { get; init; }

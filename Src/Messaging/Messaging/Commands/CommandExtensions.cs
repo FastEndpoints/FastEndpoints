@@ -46,6 +46,7 @@ public static class CommandExtensions
         var tHandlerInterface = tRes == Types.VoidResult
                                     ? Types.ICommandHandlerOf1.MakeGenericType(tCommand)
                                     : Types.ICommandHandlerOf2.MakeGenericType(tCommand, tRes);
+
         if (def is null && tCommand.IsGenericType)
             InitGenericHandlerCore(ref def, tCommand, registry, tHandlerInterface);
 
@@ -98,9 +99,9 @@ public static class CommandExtensions
         if (def is null)
             throw new InvalidOperationException($"Unable to create an instance of the handler for command [{tCommand.FullName}]");
 
-        def.HandlerExecutor ??= ServiceResolver.Instance.CreateSingleton(tExecutorOpenGeneric.MakeGenericType(tCommand, typeof(TResult)));
-
         var resolver = ServiceResolver.Instance;
+
+        def.HandlerExecutor ??= resolver.CreateSingleton(tExecutorOpenGeneric.MakeGenericType(tCommand, typeof(TResult)));
 
         return TestCommandHandlerMarker is not null && resolver.TryResolve(TestCommandHandlerMarker) is not null
                    ? resolver.TryResolve(tHandlerInterface)?.GetType() ?? def.HandlerType

@@ -33,8 +33,7 @@ public interface ICommand<out TResult> : ICommandBase;
 /// <typeparam name="TResult">the type of the items in the stream returned from the handler of this command (i.e. <see cref="IStreamCommandHandler{TCommand, TResult}" />)</typeparam>
 public interface IStreamCommand<out TResult> : ICommandBase;
 
-/// <summary>
-/// </summary>
+/// <summary />
 public interface IHasTrackingID
 {
     /// <summary>

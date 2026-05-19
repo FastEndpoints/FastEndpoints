@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace FastEndpoints;
 
 /// <summary>
@@ -15,7 +17,7 @@ public interface IStreamCommandMiddleware<in TCommand, TResult> where TCommand :
     /// <param name="next">the stream command delegate to execute next</param>
     /// <param name="ct">cancellation token</param>
 #pragma warning disable CS8424
-    IAsyncEnumerable<TResult> ExecuteAsync(TCommand command, StreamCommandDelegate<TResult> next, [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken ct);
+    IAsyncEnumerable<TResult> ExecuteAsync(TCommand command, StreamCommandDelegate<TResult> next, [EnumeratorCancellation] CancellationToken ct);
 #pragma warning restore CS8424
 }
 

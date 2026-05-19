@@ -1,4 +1,4 @@
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 
 namespace FastEndpoints;
 
@@ -80,7 +80,7 @@ public interface IClientStreamCommandHandler<T, TResult> where T : class where T
 /// </summary>
 /// <typeparam name="TCommand">the type of the input command</typeparam>
 /// <typeparam name="TResult">the type of the items in the returned stream</typeparam>
-public interface IStreamCommandHandler<in TCommand, TResult> : ICommandHandler where TCommand : IStreamCommand<TResult>
+public interface IStreamCommandHandler<in TCommand, out TResult> : ICommandHandler where TCommand : IStreamCommand<TResult>
 {
 #pragma warning disable CS8424
     /// <summary>

@@ -80,7 +80,11 @@ public static class JobQueueExtensions
             if (tCommand.ContainsGenericParameters)
                 continue; //NOTE: no open generic command support for jobs.
 
-            var tResult = tCommand.GetInterface(typeof(ICommand<>).Name)!.GetGenericArguments()[0];
+            var tCommandInterface = tCommand.GetInterface(typeof(ICommand<>).Name);
+            if (tCommandInterface is null)
+                continue; //NOTE: IStreamCommand<> types are not supported as jobs.
+
+            var tResult = tCommandInterface.GetGenericArguments()[0];
 
             var tHandler = provider.GetService(
                 tResult == Types.VoidResult

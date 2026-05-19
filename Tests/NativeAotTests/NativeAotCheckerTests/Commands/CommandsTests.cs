@@ -31,6 +31,17 @@ public class CommandsTests(App app) : TestBase<App>
     }
 
     [Fact]
+    public async Task Stream_Command_Execution()
+    {
+        var (rsp, res, err) = await app.Client.GETAsync<StreamCommandExecutionEndpoint, StreamCommandExecutionRequest, IEnumerable<int>>(new() { Count = 5 });
+
+        if (rsp.IsSuccessStatusCode)
+            res.ShouldBe([0, 1, 2, 3, 4]);
+        else
+            Assert.Fail(err);
+    }
+
+    [Fact]
     public async Task Generic_Command_Handler_Registration()
     {
         var req = new GenericCommandRequest

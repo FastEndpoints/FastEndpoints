@@ -95,5 +95,12 @@ public static class MessagingExtensions
                 tInterface.GetGenericArguments()[0],
                 new(t));
         }
+
+        if (tGeneric == Types.IStreamCommandHandlerOf2)
+        {
+            cmdHandlerRegistry.TryAdd(
+                tInterface.GetGenericArguments()[0],
+                new(t));
+        }
     }
 }

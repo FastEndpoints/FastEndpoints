@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -54,6 +54,20 @@ public static class TestingExtensions
         /// </summary>
         public IServiceCollection RegisterTestEventReceivers()
             => s.AddSingleton(typeof(IEventReceiver<>), typeof(EventReceiver<>));
+
+        /// <summary>
+        /// register test/fake/mock stream command handlers for integration testing commands that return a stream of results
+        /// </summary>
+        /// <typeparam name="TCommand">the type of the command model to register a test handler for</typeparam>
+        /// <typeparam name="THandler">the type of the test stream command handler</typeparam>
+        /// <typeparam name="TResult">the type of items in the result stream</typeparam>
+        public void RegisterTestStreamCommandHandler<TCommand, THandler, TResult>()
+            where TCommand : IStreamCommand<TResult>
+            where THandler : class, IStreamCommandHandler<TCommand, TResult>
+        {
+            s.TryAddSingleton<TestCommandHandlerMarker>();
+            s.AddSingleton<IStreamCommandHandler<TCommand, TResult>, THandler>();
+        }
 
         /// <summary>
         /// registers test command receivers for the purpose of testing receipt of commands.

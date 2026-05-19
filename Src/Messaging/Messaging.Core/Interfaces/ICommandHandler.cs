@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 
 namespace FastEndpoints;
 
@@ -73,4 +73,21 @@ public interface IClientStreamCommandHandler<T, TResult> where T : class where T
     /// <param name="stream">the stream of incoming items</param>
     /// <param name="ct">optional cancellation token</param>
     Task<TResult> ExecuteAsync(IAsyncEnumerable<T> stream, CancellationToken ct);
+}
+
+/// <summary>
+/// interface to be implemented by a command handler for a given command type that returns a stream of <typeparamref name="TResult" />
+/// </summary>
+/// <typeparam name="TCommand">the type of the input command</typeparam>
+/// <typeparam name="TResult">the type of the items in the returned stream</typeparam>
+public interface IStreamCommandHandler<in TCommand, TResult> : ICommandHandler where TCommand : IStreamCommand<TResult>
+{
+#pragma warning disable CS8424
+    /// <summary>
+    /// receives a command and returns a stream of <typeparamref name="TResult" />.
+    /// </summary>
+    /// <param name="command">the input command object</param>
+    /// <param name="ct">optional cancellation token</param>
+    IAsyncEnumerable<TResult> ExecuteAsync(TCommand command, [EnumeratorCancellation] CancellationToken ct);
+#pragma warning restore CS8424
 }

@@ -426,9 +426,6 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
     static void BindUserClaims(TRequest req, BinderContext ctx)
     {
-        if (_fromClaimProps.Count == 0)
-            return;
-
         var claimsDict = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
 
         foreach (var c in ctx.HttpContext.User.Claims)
@@ -530,9 +527,6 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
     static void BindHasPermissionProps(TRequest req, BinderContext ctx)
     {
-        if (_hasPermissionProps.Count == 0)
-            return;
-
         var permissionValues = new HashSet<string>(StringComparer.Ordinal);
 
         foreach (var claim in ctx.HttpContext.User.Claims)

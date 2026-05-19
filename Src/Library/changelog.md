@@ -18,6 +18,14 @@ There's no immediate need for you to switch to the new package if your projects 
 
 </details>
 
+<details><summary>Streaming command handlers for the command bus</summary>
+
+The in-process command bus can now execute commands that return `IAsyncEnumerable<T>` streams by implementing `IStreamCommand<TResult>` and `IStreamCommandHandler<TCommand, TResult>`.
+
+Streaming commands use the same `ExecuteAsync()` extension method as regular commands, support their own middleware pipeline via `IStreamCommandMiddleware<TCommand, TResult>`, and can be used with closed or generic command handler registrations.
+
+</details>
+
 <details><summary>x402 Payment support for endpoints</summary>
 
 Endpoints can now require x402 payments by calling `RequirePayment(...)` inside `Configure()`.

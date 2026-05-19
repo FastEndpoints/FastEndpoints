@@ -42,4 +42,6 @@ await app.ExportOpenApiDocsAndExitAsync("v1");
 app.MapScalarApiReference(o => o.AddDocument("v1"));
 app.UseJobQueues(o => o.StorageProbeDelay = TimeSpan.FromMilliseconds(50));
 app.Services.RegisterGenericCommand<AotGenericCommand<ProductData>, AotGenericResult<ProductData>, AotGenericCommandHandler<ProductData>>();
+app.Services.RegisterStreamCommand<StreamNumbersAotCommand, int, StreamNumbersAotCommandHandler>();
+app.Services.RegisterStreamCommand<StreamNumbersWithMiddlewareAotCommand, int, StreamNumbersWithMiddlewareAotCommandHandler>();
 app.Run();

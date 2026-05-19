@@ -42,75 +42,18 @@ interface IStreamCommandHandlerExecutor<TResult>
     IAsyncEnumerable<TResult> Execute(IStreamCommand<TResult> command, Type handlerType, CancellationToken ct);
 }
 
-sealed class StreamCommandHandlerExecutor<TResult> : IStreamCommandHandlerExecutor<TResult>
-{
-    public IAsyncEnumerable<TResult> Execute(IStreamCommand<TResult> command, Type tCommandHandler, CancellationToken ct)
-    {
-        var cmdHandler = ServiceResolver.Instance.CreateInstance(tCommandHandler);
-        var execMethod = tCommandHandler.GetMethod(nameof(IStreamCommandHandler<IStreamCommand<TResult>, TResult>.ExecuteAsync))!;
-
-        var tCommand = command.GetType();
-        var tMiddlewares = GetMiddlewareTypes(tCommand);
-
-        return InvokeMiddleware(0);
-
-        IAsyncEnumerable<TResult> InvokeMiddleware(int index)
-        {
-            if (index == tMiddlewares.Length)
-                return (IAsyncEnumerable<TResult>)execMethod.Invoke(cmdHandler, [command, ct])!;
-
-            var tMiddleware = tMiddlewares[index];
-            var middleware = ServiceResolver.Instance.CreateInstance(tMiddleware);
-            var mwExecMethod = tMiddleware.GetMethod(nameof(IStreamCommandMiddleware<IStreamCommand<TResult>, TResult>.ExecuteAsync))!;
-
-            return (IAsyncEnumerable<TResult>)mwExecMethod.Invoke(middleware, [command, (StreamCommandDelegate<TResult>)(() => InvokeMiddleware(index + 1)), ct])!;
-        }
-
-        static Type[] GetMiddlewareTypes(Type tCommand)
-        {
-            var definitions = CommandExtensions.StreamMiddlewareDefinitions;
-            if (definitions.Length == 0)
-                return [];
-
-            var tMiddlewares = new List<Type>(definitions.Length);
-
-            foreach (var def in definitions)
-            {
-                if (def.tInterface.IsGenericTypeDefinition)
-                    tMiddlewares.Add(def.tImplementation.MakeGenericType(tCommand, typeof(TResult)));
-                else if (def.tInterface.IsGenericType && def.tInterface.GetGenericArguments()[0] == tCommand)
-                    tMiddlewares.Add(def.tImplementation);
-            }
-
-            return [..tMiddlewares];
-        }
-    }
-}
-
-sealed class StreamCommandHandlerExecutor<TCommand, TResult> : IStreamCommandHandlerExecutor<TResult> where TCommand : IStreamCommand<TResult>
+sealed class StreamCommandHandlerExecutor<TCommand, TResult>(
+    IEnumerable<IStreamCommandMiddleware<TCommand, TResult>> m,
+    ICommandReceiver<TCommand>? commandReceiver = null)
+    : IStreamCommandHandlerExecutor<TResult> where TCommand : IStreamCommand<TResult>
 {
     internal IStreamCommandHandler<TCommand, TResult>? TestHandler { get; init; }
 
-    readonly ICommandReceiver<TCommand>? _commandReceiver;
-    readonly Type[] _tMiddlewares;
-
-    public StreamCommandHandlerExecutor()
-    {
-        _tMiddlewares = CommandExtensions.StreamMiddlewareDefinitions.Length > 0
-                            ? ServiceResolver.Instance.Resolve<IEnumerable<IStreamCommandMiddleware<TCommand, TResult>>>().Select(x => x.GetType()).ToArray()
-                            : [];
-        _commandReceiver = ServiceResolver.Instance.TryResolve<ICommandReceiver<TCommand>>();
-    }
-
-    internal StreamCommandHandlerExecutor(IEnumerable<IStreamCommandMiddleware<TCommand, TResult>> m, ICommandReceiver<TCommand>? commandReceiver = null)
-    {
-        _tMiddlewares = m.Select(x => x.GetType()).ToArray();
-        _commandReceiver = commandReceiver;
-    }
+    readonly Type[] _tMiddlewares = m.Select(x => x.GetType()).ToArray();
 
     public IAsyncEnumerable<TResult> Execute(IStreamCommand<TResult> command, Type tCommandHandler, CancellationToken ct)
     {
-        _commandReceiver?.AddCommand((TCommand)command);
+        commandReceiver?.AddCommand((TCommand)command);
 
         var cmdHandler = TestHandler ?? //TestHandler is not null for unit tests
                          (IStreamCommandHandler<TCommand, TResult>)ServiceResolver.Instance.CreateInstance(tCommandHandler);

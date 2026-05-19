@@ -20,8 +20,6 @@ internal sealed class CommandHandlerRegistry : ConcurrentDictionary<Type, Comman
 public static class CommandExtensions
 {
     internal static Type? TestCommandHandlerMarker;
-    internal static (Type tInterface, Type tImplementation)[] StreamMiddlewareDefinitions = [];
-    static readonly object _streamMiddlewareLock = new();
 
     /// <summary>
     /// executes the command that does not return a result
@@ -50,8 +48,9 @@ public static class CommandExtensions
                                     : Types.ICommandHandlerOf2.MakeGenericType(tCommand, tRes);
         if (def is null && tCommand.IsGenericType)
             InitGenericHandlerCore(ref def, tCommand, registry, tHandlerInterface);
-        
+
         var tHandler = PrepareExecution<TResult>(def, tCommand, Types.CommandHandlerExecutorOf2, tHandlerInterface);
+
         return ((ICommandHandlerExecutor<TResult>)def!.HandlerExecutor!).Execute(command, tHandler, ct);
     }
 
@@ -70,15 +69,9 @@ public static class CommandExtensions
         if (def is null && tCommand.IsGenericType)
             InitGenericHandlerCore(ref def, tCommand, registry, Types.IStreamCommandHandlerOf2.MakeGenericType(tCommand, typeof(TResult)));
 
-        if (def is null)
-            throw new InvalidOperationException($"Unable to create an instance of the handler for command [{tCommand.FullName}]");
+        var tHandler = PrepareExecution<TResult>(def, tCommand, Types.StreamCommandHandlerExecutorOf2, Types.IStreamCommandHandlerOf2.MakeGenericType(tCommand, typeof(TResult)));
 
-        def.HandlerExecutor ??= new StreamCommandHandlerExecutor<TResult>();
-        var tHandler = TestCommandHandlerMarker is not null && ServiceResolver.Instance.TryResolve(TestCommandHandlerMarker) is not null
-                           ? ServiceResolver.Instance.TryResolve(Types.IStreamCommandHandlerOf2.MakeGenericType(tCommand, typeof(TResult)))?.GetType() ?? def.HandlerType
-                           : def.HandlerType;
-
-        return ((IStreamCommandHandlerExecutor<TResult>)def.HandlerExecutor).Execute(command, tHandler, ct);
+        return ((IStreamCommandHandlerExecutor<TResult>)def!.HandlerExecutor!).Execute(command, tHandler, ct);
     }
 
     static void InitGenericHandlerCore(ref CommandHandlerDefinition? def, Type tCommand, CommandHandlerRegistry registry, Type tTargetIfc)
@@ -95,7 +88,8 @@ public static class CommandExtensions
 
         def = registry[tCommand] = new(tHnd);
 
-        static string Kind(Type t) => t.IsGenericType && t.GetGenericTypeDefinition() == Types.IStreamCommandHandlerOf2 ? "stream command" : "command";
+        static string Kind(Type t)
+            => t.IsGenericType && t.GetGenericTypeDefinition() == Types.IStreamCommandHandlerOf2 ? "stream command" : "command";
     }
 
     static Type PrepareExecution<TResult>(CommandHandlerDefinition? def, Type tCommand, Type tExecutorOpenGeneric, Type tHandlerInterface)
@@ -121,9 +115,9 @@ public static class CommandExtensions
         => RegisterHandlerForTesting(
             typeof(TCommand),
             handler.GetType(),
-            new CommandHandlerExecutor<TCommand, Void>(ServiceResolver.Instance.Resolve<IEnumerable<ICommandMiddleware<TCommand, Void>>>()) 
-            { 
-                TestHandler = handler 
+            new CommandHandlerExecutor<TCommand, Void>(ServiceResolver.Instance.Resolve<IEnumerable<ICommandMiddleware<TCommand, Void>>>())
+            {
+                TestHandler = handler
             });
 
     /// <summary>
@@ -136,9 +130,9 @@ public static class CommandExtensions
         => RegisterHandlerForTesting(
             typeof(TCommand),
             handler.GetType(),
-            new CommandHandlerExecutor<TCommand, TResult>(ServiceResolver.Instance.Resolve<IEnumerable<ICommandMiddleware<TCommand, TResult>>>()) 
-            { 
-                TestHandler = handler 
+            new CommandHandlerExecutor<TCommand, TResult>(ServiceResolver.Instance.Resolve<IEnumerable<ICommandMiddleware<TCommand, TResult>>>())
+            {
+                TestHandler = handler
             });
 
     /// <summary>
@@ -151,16 +145,16 @@ public static class CommandExtensions
         => RegisterHandlerForTesting(
             typeof(TCommand),
             handler.GetType(),
-            new StreamCommandHandlerExecutor<TCommand, TResult>(ServiceResolver.Instance.Resolve<IEnumerable<IStreamCommandMiddleware<TCommand, TResult>>>()) 
-            { 
-                TestHandler = handler 
+            new StreamCommandHandlerExecutor<TCommand, TResult>(ServiceResolver.Instance.Resolve<IEnumerable<IStreamCommandMiddleware<TCommand, TResult>>>())
+            {
+                TestHandler = handler
             });
 
     static void RegisterHandlerForTesting(Type tCommand, Type tHandlerType, object executor)
-    => ServiceResolver.Instance.Resolve<CommandHandlerRegistry>()[tCommand] = new(tHandlerType)
-    {
-        HandlerExecutor = executor
-    };
+        => ServiceResolver.Instance.Resolve<CommandHandlerRegistry>()[tCommand] = new(tHandlerType)
+        {
+            HandlerExecutor = executor
+        };
 
     /// <param name="sp">the service provider</param>
     extension(IServiceProvider sp)
@@ -220,6 +214,32 @@ public static class CommandExtensions
             => sp.RegisterGenericCommand(genericCommandType, genericHandlerType);
 
         /// <summary>
+        /// register a stream command handler for a closed generic stream command.
+        /// </summary>
+        /// <typeparam name="TCommand">the stream command type</typeparam>
+        /// <typeparam name="TResult">the type of items in the result stream</typeparam>
+        /// <typeparam name="THandler">the stream command handler type</typeparam>
+        public IServiceProvider RegisterStreamCommand<
+            [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
+            TCommand,
+            [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
+            TResult,
+            [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
+            THandler>() where TCommand : IStreamCommand<TResult> where THandler : IStreamCommandHandler<TCommand, TResult>
+        {
+            var registry = sp.GetRequiredService<CommandHandlerRegistry>();
+
+            registry[typeof(TCommand)] = new(typeof(THandler))
+            {
+                HandlerExecutor = new StreamCommandHandlerExecutor<TCommand, TResult>(
+                    sp.GetServices<IStreamCommandMiddleware<TCommand, TResult>>(),
+                    sp.GetService<ICommandReceiver<TCommand>>())
+            };
+
+            return sp;
+        }
+
+        /// <summary>
         /// register a generic command handler for a generic command
         /// </summary>
         /// <param name="genericCommandType">
@@ -237,37 +257,36 @@ public static class CommandExtensions
         }
     }
 
-    /// <summary>
-    /// register a common middleware pipeline for command handlers. the middleware can be created as open generic classes that implement the
-    /// <see cref="ICommandMiddleware{TCommand,TResult}" /> interface as well as closed generic classes implementing the same interface.
-    /// </summary>
     /// <param name="services">the service collection</param>
-    /// <param name="config">configuration action for adding middleware components to the pipeline</param>
-    /// <returns>the service collection for chaining</returns>
-    public static IServiceCollection AddCommandMiddleware(this IServiceCollection services, Action<CommandMiddlewareConfig> config)
+    extension(IServiceCollection services)
     {
-        var c = new CommandMiddlewareConfig();
-        config(c);
-        return AddMiddlewarePipeline(services, c, nameof(config));
-    }
+        /// <summary>
+        /// register a common middleware pipeline for command handlers. the middleware can be created as open generic classes that implement the
+        /// <see cref="ICommandMiddleware{TCommand,TResult}" /> interface as well as closed generic classes implementing the same interface.
+        /// </summary>
+        /// <param name="config">configuration action for adding middleware components to the pipeline</param>
+        /// <returns>the service collection for chaining</returns>
+        public IServiceCollection AddCommandMiddleware(Action<CommandMiddlewareConfig> config)
+        {
+            var c = new CommandMiddlewareConfig();
+            config(c);
 
-    /// <summary>
-    /// register a common middleware pipeline for stream command handlers. the middleware can be created as open generic classes that implement the
-    /// <see cref="IStreamCommandMiddleware{TCommand,TResult}" /> interface as well as closed generic classes implementing the same interface.
-    /// </summary>
-    /// <param name="services">the service collection</param>
-    /// <param name="config">configuration action for adding middleware components to the pipeline</param>
-    /// <returns>the service collection for chaining</returns>
-    public static IServiceCollection AddStreamCommandMiddleware(this IServiceCollection services, Action<StreamCommandMiddlewareConfig> config)
-    {
-        var c = new StreamCommandMiddlewareConfig();
-        config(c);
-        AddMiddlewarePipeline(services, c, nameof(config));
+            return AddMiddlewarePipeline(services, c, nameof(config));
+        }
 
-        lock (_streamMiddlewareLock)
-            StreamMiddlewareDefinitions = [..StreamMiddlewareDefinitions, ..c.Middleware];
+        /// <summary>
+        /// register a common middleware pipeline for stream command handlers. the middleware can be created as open generic classes that implement the
+        /// <see cref="IStreamCommandMiddleware{TCommand,TResult}" /> interface as well as closed generic classes implementing the same interface.
+        /// </summary>
+        /// <param name="config">configuration action for adding middleware components to the pipeline</param>
+        /// <returns>the service collection for chaining</returns>
+        public IServiceCollection AddStreamCommandMiddleware(Action<StreamCommandMiddlewareConfig> config)
+        {
+            var c = new StreamCommandMiddlewareConfig();
+            config(c);
 
-        return services;
+            return AddMiddlewarePipeline(services, c, nameof(config));
+        }
     }
 
     static IServiceCollection AddMiddlewarePipeline(IServiceCollection services, CommandMiddlewareConfigBase config, string paramName)

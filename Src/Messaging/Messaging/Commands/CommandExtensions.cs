@@ -66,6 +66,7 @@ public static class CommandExtensions
         var tCommand = command.GetType();
         var registry = ServiceResolver.Instance.Resolve<CommandHandlerRegistry>();
         registry.TryGetValue(tCommand, out var def);
+
         if (def is null && tCommand.IsGenericType)
             InitGenericHandlerCore(ref def, tCommand, registry, Types.IStreamCommandHandlerOf2.MakeGenericType(tCommand, typeof(TResult)));
 
@@ -188,32 +189,6 @@ public static class CommandExtensions
             => sp.RegisterGenericCommand(typeof(TCommand), typeof(THandler));
 
         /// <summary>
-        /// register a generic stream command handler for a generic command that returns a stream of results.
-        /// </summary>
-        /// <typeparam name="TCommand">the generic stream command type</typeparam>
-        /// <typeparam name="TResult">the type of items in the result stream</typeparam>
-        /// <typeparam name="THandler">the generic stream command handler type</typeparam>
-        public IServiceProvider RegisterGenericStreamCommand<
-            [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
-            TCommand,
-            [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
-            TResult,
-            [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
-            THandler>() where TCommand : IStreamCommand<TResult> where THandler : IStreamCommandHandler<TCommand, TResult>
-            => sp.RegisterGenericStreamCommand(typeof(TCommand), typeof(THandler));
-
-        /// <summary>
-        /// register a generic stream command handler for a generic stream command.
-        /// </summary>
-        /// <param name="genericCommandType">
-        /// the open generic type of the stream command. ex: <c> typeof(MyStreamCommand&lt;&gt;) </c>
-        /// </param>
-        /// <param name="genericHandlerType">the open generic type of the stream command handler. ex: <c> typeof(MyStreamCommandHandler&lt;&gt;) </c></param>
-        /// <returns>the service provider for chaining</returns>
-        public IServiceProvider RegisterGenericStreamCommand(Type genericCommandType, Type genericHandlerType)
-            => sp.RegisterGenericCommand(genericCommandType, genericHandlerType);
-
-        /// <summary>
         /// register a stream command handler for a closed generic stream command.
         /// </summary>
         /// <typeparam name="TCommand">the stream command type</typeparam>
@@ -238,6 +213,32 @@ public static class CommandExtensions
 
             return sp;
         }
+
+        /// <summary>
+        /// register a generic stream command handler for a generic command that returns a stream of results.
+        /// </summary>
+        /// <typeparam name="TCommand">the generic stream command type</typeparam>
+        /// <typeparam name="TResult">the type of items in the result stream</typeparam>
+        /// <typeparam name="THandler">the generic stream command handler type</typeparam>
+        public IServiceProvider RegisterGenericStreamCommand<
+            [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
+            TCommand,
+            [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
+            TResult,
+            [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
+            THandler>() where TCommand : IStreamCommand<TResult> where THandler : IStreamCommandHandler<TCommand, TResult>
+            => sp.RegisterGenericStreamCommand(typeof(TCommand), typeof(THandler));
+
+        /// <summary>
+        /// register a generic stream command handler for a generic stream command.
+        /// </summary>
+        /// <param name="genericCommandType">
+        /// the open generic type of the stream command. ex: <c> typeof(MyStreamCommand&lt;&gt;) </c>
+        /// </param>
+        /// <param name="genericHandlerType">the open generic type of the stream command handler. ex: <c> typeof(MyStreamCommandHandler&lt;&gt;) </c></param>
+        /// <returns>the service provider for chaining</returns>
+        public IServiceProvider RegisterGenericStreamCommand(Type genericCommandType, Type genericHandlerType)
+            => sp.RegisterGenericCommand(genericCommandType, genericHandlerType);
 
         /// <summary>
         /// register a generic command handler for a generic command

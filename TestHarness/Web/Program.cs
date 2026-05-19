@@ -242,7 +242,7 @@ if (!app.Environment.IsProduction())
 app.Services.RegisterGenericCommand(typeof(GenericCommand<>), typeof(GenericCommandHandler<>));
 app.Services.RegisterGenericCommand(typeof(GenericNoResultCommand<>), typeof(GenericNoResultCommandHandler<>));
 app.Services.RegisterGenericCommand<JobTestGenericCommand<SomeEvent>, JobTestGenericCommandHandler<SomeEvent>>();
-app.Services.RegisterGenericCommand(typeof(GenericStreamCommand<>), typeof(GenericStreamCommandHandler<>));
+app.Services.RegisterGenericStreamCommand(typeof(GenericStreamCommand<>), typeof(GenericStreamCommandHandler<>));
 
 app.MapHandlers(
     h =>

@@ -206,7 +206,18 @@ public static class CommandExtensions
             TResult,
             [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
             THandler>() where TCommand : IStreamCommand<TResult> where THandler : IStreamCommandHandler<TCommand, TResult>
-            => sp.RegisterGenericCommand(typeof(TCommand), typeof(THandler));
+            => sp.RegisterGenericStreamCommand(typeof(TCommand), typeof(THandler));
+
+        /// <summary>
+        /// register a generic stream command handler for a generic stream command.
+        /// </summary>
+        /// <param name="genericCommandType">
+        /// the open generic type of the stream command. ex: <c> typeof(MyStreamCommand&lt;&gt;) </c>
+        /// </param>
+        /// <param name="genericHandlerType">the open generic type of the stream command handler. ex: <c> typeof(MyStreamCommandHandler&lt;&gt;) </c></param>
+        /// <returns>the service provider for chaining</returns>
+        public IServiceProvider RegisterGenericStreamCommand(Type genericCommandType, Type genericHandlerType)
+            => sp.RegisterGenericCommand(genericCommandType, genericHandlerType);
 
         /// <summary>
         /// register a generic command handler for a generic command

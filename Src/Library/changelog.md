@@ -10,7 +10,7 @@ Due to low financial backing by the community, FastEndpoints will soon be going 
 
 ## New 🎉
 
-<details><summary>New 'FastEndpoints.OpenApi' package that uses 'Microsoft.AspNetCore.OpenApi'</summary>
+<details><summary>New 'FastEndpoints.OpenApi' package based on 'Microsoft.AspNetCore.OpenApi'</summary>
 
 Starting with `v8.2`, the FastEndpoints ecosystem has switched from `NSwag/Newtonsoft` based Swagger/OpenAPI document generation to the more modern and Native AOT friendly `Microsoft.AspNetCore.OpenApi` based document generation library. Integration is provided via a new `FastEndpoints.OpenApi` package which corrects a few issues with the MS package as well as doing a lot of post-processing on the document model to bring feature parity with the `FastEndpoints.Swagger` package.
 

@@ -17,7 +17,12 @@ public abstract class CommandMiddlewareConfigBase
             var tMiddleware = middlewareTypes[i];
 
             if (!IsValid(tMiddleware, OpenGenericInterface))
-                throw new ArgumentException($"{tMiddleware.Name} must be an open generic type implementing {OpenGenericInterface.Name}");
+            {
+                var args = OpenGenericInterface.GetGenericArguments();
+                var argNames = string.Join(", ", args.Select(a => a.Name));
+                var friendlyName = $"{OpenGenericInterface.Name.Split('`')[0]}<{argNames}>";
+                throw new ArgumentException($"{tMiddleware.Name} must be an open generic type implementing {friendlyName}");
+            }
 
             Middleware.Add((OpenGenericInterface, tMiddleware));
         }

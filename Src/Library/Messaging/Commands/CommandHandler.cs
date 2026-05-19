@@ -1,4 +1,6 @@
-﻿namespace FastEndpoints;
+using System.Runtime.CompilerServices;
+
+namespace FastEndpoints;
 
 /// <summary>
 /// the base class from which all <see cref="CommandHandler{TCommand}" /> classes inherit from
@@ -32,5 +34,7 @@ public abstract class CommandHandler<TCommand, TResult> : CommandHandlerBase<TCo
 /// <typeparam name="TResult">the type of the items in the result stream returned by this command handler</typeparam>
 public abstract class StreamCommandHandler<TCommand, TResult> : CommandHandlerBase<TCommand>, IStreamCommandHandler<TCommand, TResult> where TCommand : IStreamCommand<TResult>
 {
-    public abstract IAsyncEnumerable<TResult> ExecuteAsync(TCommand command, CancellationToken ct = default);
+#pragma warning disable CS8424
+    public abstract IAsyncEnumerable<TResult> ExecuteAsync(TCommand command, [EnumeratorCancellation] CancellationToken ct = default);
+#pragma warning restore CS8424
 }

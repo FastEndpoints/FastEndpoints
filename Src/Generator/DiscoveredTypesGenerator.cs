@@ -22,6 +22,7 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
         "FastEndpoints.IPreProcessor<",
         "FastEndpoints.IPostProcessor<",
         "FastEndpoints.ICommandMiddleware<",
+        "FastEndpoints.IStreamCommandMiddleware<",
         "FastEndpoints.IMapper",
         "FluentValidation.IValidator"
     ];

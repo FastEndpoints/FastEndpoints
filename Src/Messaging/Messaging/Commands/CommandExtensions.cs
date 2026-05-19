@@ -20,8 +20,8 @@ internal sealed class CommandHandlerRegistry : ConcurrentDictionary<Type, Comman
 public static class CommandExtensions
 {
     internal static Type? TestCommandHandlerMarker;
-    internal static bool OpenStreamCommandMiddlewarePresent;
-    internal static readonly ConcurrentDictionary<Type, byte> StreamCommandMiddlewareCommands = new();
+    internal static (Type tInterface, Type tImplementation)[] StreamMiddlewareDefinitions = [];
+    static readonly object _streamMiddlewareLock = new();
 
     /// <summary>
     /// executes the command that does not return a result
@@ -73,19 +73,12 @@ public static class CommandExtensions
         if (def is null)
             throw new InvalidOperationException($"Unable to create an instance of the handler for command [{tCommand.FullName}]");
 
-        if (!OpenStreamCommandMiddlewarePresent && !StreamCommandMiddlewareCommands.ContainsKey(tCommand))
-        {
-            def.HandlerExecutor ??= new StreamCommandHandlerExecutor<TResult>();
-            var tStreamHandler = TestCommandHandlerMarker is not null && ServiceResolver.Instance.TryResolve(TestCommandHandlerMarker) is not null
-                                     ? ServiceResolver.Instance.TryResolve(Types.IStreamCommandHandlerOf2.MakeGenericType(tCommand, typeof(TResult)))?.GetType() ?? def.HandlerType
-                                     : def.HandlerType;
+        def.HandlerExecutor ??= new StreamCommandHandlerExecutor<TResult>();
+        var tHandler = TestCommandHandlerMarker is not null && ServiceResolver.Instance.TryResolve(TestCommandHandlerMarker) is not null
+                           ? ServiceResolver.Instance.TryResolve(Types.IStreamCommandHandlerOf2.MakeGenericType(tCommand, typeof(TResult)))?.GetType() ?? def.HandlerType
+                           : def.HandlerType;
 
-            return ((IStreamCommandHandlerExecutor<TResult>)def.HandlerExecutor).Execute(command, tStreamHandler, ct);
-        }
-
-        var tHandler = PrepareExecution<TResult>(def, tCommand, Types.StreamCommandHandlerExecutorOf2, Types.IStreamCommandHandlerOf2.MakeGenericType(tCommand, typeof(TResult)));
-
-        return ((IStreamCommandHandlerExecutor<TResult>)def!.HandlerExecutor!).Execute(command, tHandler, ct);
+        return ((IStreamCommandHandlerExecutor<TResult>)def.HandlerExecutor).Execute(command, tHandler, ct);
     }
 
     static void InitGenericHandlerCore(ref CommandHandlerDefinition? def, Type tCommand, CommandHandlerRegistry registry, Type tTargetIfc)
@@ -260,13 +253,8 @@ public static class CommandExtensions
         config(c);
         AddMiddlewarePipeline(services, c, nameof(config));
 
-        foreach (var mw in c.Middleware)
-        {
-            if (mw.tInterface.IsGenericTypeDefinition)
-                OpenStreamCommandMiddlewarePresent = true;
-            else if (mw.tInterface.IsGenericType)
-                StreamCommandMiddlewareCommands.TryAdd(mw.tInterface.GetGenericArguments()[0], 0);
-        }
+        lock (_streamMiddlewareLock)
+            StreamMiddlewareDefinitions = [..StreamMiddlewareDefinitions, ..c.Middleware];
 
         return services;
     }

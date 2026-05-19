@@ -20,6 +20,7 @@ bld.Services
            c.Register<MiddlewareTestCmd, MiddlewareTestResult, SecondMiddleware<MiddlewareTestCmd, MiddlewareTestResult>>();
            c.Register<MiddlewareTestCmd, MiddlewareTestResult, ThirdMiddleware<MiddlewareTestCmd, MiddlewareTestResult>>();
        })
+   .AddStreamCommandMiddleware(c => c.Register<StreamNumbersWithMiddlewareAotCommand, int, StreamNumbersAotMiddleware>())
    .OpenApiDocument(o => o.DocumentName = "v1");
 
 var app = bld.Build();

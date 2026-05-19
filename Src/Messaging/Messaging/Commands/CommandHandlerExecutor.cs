@@ -49,7 +49,41 @@ sealed class StreamCommandHandlerExecutor<TResult> : IStreamCommandHandlerExecut
         var cmdHandler = ServiceResolver.Instance.CreateInstance(tCommandHandler);
         var execMethod = tCommandHandler.GetMethod(nameof(IStreamCommandHandler<IStreamCommand<TResult>, TResult>.ExecuteAsync))!;
 
-        return (IAsyncEnumerable<TResult>)execMethod.Invoke(cmdHandler, [command, ct])!;
+        var tCommand = command.GetType();
+        var tMiddlewares = GetMiddlewareTypes(tCommand);
+
+        return InvokeMiddleware(0);
+
+        IAsyncEnumerable<TResult> InvokeMiddleware(int index)
+        {
+            if (index == tMiddlewares.Length)
+                return (IAsyncEnumerable<TResult>)execMethod.Invoke(cmdHandler, [command, ct])!;
+
+            var tMiddleware = tMiddlewares[index];
+            var middleware = ServiceResolver.Instance.CreateInstance(tMiddleware);
+            var mwExecMethod = tMiddleware.GetMethod(nameof(IStreamCommandMiddleware<IStreamCommand<TResult>, TResult>.ExecuteAsync))!;
+
+            return (IAsyncEnumerable<TResult>)mwExecMethod.Invoke(middleware, [command, (StreamCommandDelegate<TResult>)(() => InvokeMiddleware(index + 1)), ct])!;
+        }
+
+        static Type[] GetMiddlewareTypes(Type tCommand)
+        {
+            var definitions = CommandExtensions.StreamMiddlewareDefinitions;
+            if (definitions.Length == 0)
+                return [];
+
+            var tMiddlewares = new List<Type>(definitions.Length);
+
+            foreach (var def in definitions)
+            {
+                if (def.tInterface.IsGenericTypeDefinition)
+                    tMiddlewares.Add(def.tImplementation.MakeGenericType(tCommand, typeof(TResult)));
+                else if (def.tInterface.IsGenericType && def.tInterface.GetGenericArguments()[0] == tCommand)
+                    tMiddlewares.Add(def.tImplementation);
+            }
+
+            return [..tMiddlewares];
+        }
     }
 }
 
@@ -62,7 +96,7 @@ sealed class StreamCommandHandlerExecutor<TCommand, TResult> : IStreamCommandHan
 
     public StreamCommandHandlerExecutor()
     {
-        _tMiddlewares = CommandExtensions.OpenStreamCommandMiddlewarePresent || CommandExtensions.StreamCommandMiddlewareCommands.ContainsKey(typeof(TCommand))
+        _tMiddlewares = CommandExtensions.StreamMiddlewareDefinitions.Length > 0
                             ? ServiceResolver.Instance.Resolve<IEnumerable<IStreamCommandMiddleware<TCommand, TResult>>>().Select(x => x.GetType()).ToArray()
                             : [];
         _commandReceiver = ServiceResolver.Instance.TryResolve<ICommandReceiver<TCommand>>();

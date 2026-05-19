@@ -11,6 +11,7 @@ public sealed class StreamNumbersHandler : IStreamCommandHandler<StreamNumbersCo
         for (var i = 0; i < cmd.Count; i++)
         {
             await Task.Yield();
+
             yield return i;
         }
     }
@@ -26,7 +27,8 @@ public sealed class GenericStreamCommandHandler<TItem> : IStreamCommandHandler<G
         for (var i = 0; i < cmd.Count; i++)
         {
             await Task.Yield();
-            yield return new TItem();
+
+            yield return new();
         }
     }
 }

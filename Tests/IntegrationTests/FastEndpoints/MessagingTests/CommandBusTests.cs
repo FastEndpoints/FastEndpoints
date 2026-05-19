@@ -108,7 +108,7 @@ public class CommandBusTests(Sut App) : TestBase<Sut>
         res.First().ShouldBe(Guid.Empty); // new Guid() == Guid.Empty
     }
 
-    [Fact, Trait("ExcludeInCiCd", "Yes")]
+    [Fact]
     public async Task Stream_Command_Test_Handler_Is_Used()
     {
         var (rsp, _) = await App.Client.GETAsync<StreamCmdEndpoint, IEnumerable<int>>();
@@ -156,9 +156,11 @@ public class TestStreamNumbersHandler : IStreamCommandHandler<StreamNumbersComma
     public async IAsyncEnumerable<int> ExecuteAsync(StreamNumbersCommand cmd, [EnumeratorCancellation] CancellationToken ct)
     {
         WasCalled = true;
+
         for (var i = 0; i < cmd.Count; i++)
         {
             await Task.Yield();
+
             yield return i;
         }
     }

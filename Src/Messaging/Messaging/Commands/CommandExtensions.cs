@@ -19,9 +19,7 @@ internal sealed class CommandHandlerRegistry : ConcurrentDictionary<Type, Comman
 [UnconditionalSuppressMessage("aot", "IL3050"), UnconditionalSuppressMessage("aot", "IL2055"), UnconditionalSuppressMessage("aot", "IL2077")]
 public static class CommandExtensions
 {
-#pragma warning disable CS0649 // Field is never assigned to
-    internal static bool TestHandlersPresent;
-#pragma warning restore CS0649
+    internal static Type? TestCommandHandlerMarker;
 
     /// <summary>
     /// executes the command that does not return a result
@@ -53,8 +51,8 @@ public static class CommandExtensions
             InitGenericHandlerCore(ref def, tCommand, registry, tTargetIfc);
         }
         
-        PrepareExecution<TResult>(def, tCommand, Types.CommandHandlerExecutorOf2, Types.ICommandHandlerOf2);
-        return ((ICommandHandlerExecutor<TResult>)def!.HandlerExecutor!).Execute(command, def.HandlerType, ct);
+        var tHandler = PrepareExecution<TResult>(def, tCommand, Types.CommandHandlerExecutorOf2, Types.ICommandHandlerOf2);
+        return ((ICommandHandlerExecutor<TResult>)def!.HandlerExecutor!).Execute(command, tHandler, ct);
     }
 
     /// <summary>
@@ -72,8 +70,12 @@ public static class CommandExtensions
         if (def is null && tCommand.IsGenericType)
             InitGenericHandlerCore(ref def, tCommand, registry, Types.IStreamCommandHandlerOf2.MakeGenericType(tCommand, typeof(TResult)));
         
-        PrepareExecution<TResult>(def, tCommand, Types.StreamCommandHandlerExecutorOf2, Types.IStreamCommandHandlerOf2);
-        return ((IStreamCommandHandlerExecutor<TResult>)def!.HandlerExecutor!).Execute(command, def.HandlerType, ct);
+        var tHandler = PrepareExecution<TResult>(
+            def,
+            tCommand,
+            Types.StreamCommandHandlerExecutorOf2,
+            Types.IStreamCommandHandlerOf2.MakeGenericType(tCommand, typeof(TResult)));
+        return ((IStreamCommandHandlerExecutor<TResult>)def!.HandlerExecutor!).Execute(command, tHandler, ct);
     }
 
     static void InitGenericHandlerCore(ref CommandHandlerDefinition? def, Type tCommand, CommandHandlerRegistry registry, Type tTargetIfc)
@@ -93,15 +95,18 @@ public static class CommandExtensions
         static string Kind(Type t) => t.IsGenericType && t.GetGenericTypeDefinition() == Types.IStreamCommandHandlerOf2 ? "stream command" : "command";
     }
 
-    static void PrepareExecution<TResult>(CommandHandlerDefinition? def, Type tCommand, Type tExecutorOpenGeneric, Type tHandlerInterface)
+    static Type PrepareExecution<TResult>(CommandHandlerDefinition? def, Type tCommand, Type tExecutorOpenGeneric, Type tHandlerInterface)
     {
         if (def is null)
             throw new InvalidOperationException($"Unable to create an instance of the handler for command [{tCommand.FullName}]");
 
         def.HandlerExecutor ??= ServiceResolver.Instance.CreateSingleton(tExecutorOpenGeneric.MakeGenericType(tCommand, typeof(TResult)));
 
-        if (TestHandlersPresent)
-            def.HandlerType = ServiceResolver.Instance.TryResolve(tHandlerInterface)?.GetType() ?? def.HandlerType;
+        var resolver = ServiceResolver.Instance;
+
+        return TestCommandHandlerMarker is not null && resolver.TryResolve(TestCommandHandlerMarker) is not null
+                   ? resolver.TryResolve(tHandlerInterface)?.GetType() ?? def.HandlerType
+                   : def.HandlerType;
     }
 
     /// <summary>

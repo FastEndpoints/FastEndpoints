@@ -94,6 +94,8 @@ public class AccessControlGenerator : IIncrementalGenerator
 
             """);
 
+        RenderInitPermissions(b, perms);
+
         RenderGroups(b, perms);
 
         RenderDescriptions(b, perms);
@@ -105,6 +107,46 @@ public class AccessControlGenerator : IIncrementalGenerator
             """);
 
         return b.ToString();
+
+        static void RenderInitPermissions(StringBuilder sb, Permission[] perms)
+        {
+            sb.w(
+                """
+
+                    private static partial void InitPermissions()
+                    {
+
+                """);
+
+            foreach (var p in perms)
+            {
+                sb.w(
+                    $"""
+                             _permNames["{p.Name}"] = "{p.Code}";
+
+                     """);
+            }
+
+            sb.w(
+                """
+
+                """);
+
+            foreach (var p in perms)
+            {
+                sb.w(
+                    $"""
+                             _permCodes["{p.Code}"] = "{p.Name}";
+
+                     """);
+            }
+
+            sb.w(
+                """
+                    }
+
+                """);
+        }
 
         static void RenderGroups(StringBuilder sb, IEnumerable<Permission> perms)
         {
@@ -196,7 +238,6 @@ public class AccessControlGenerator : IIncrementalGenerator
              #nullable enable
 
              using FastEndpoints;
-             using System.Reflection;
 
              namespace {{assemblyName?.ToValidNameSpace() ?? "Assembly"}}.Auth;
 
@@ -207,21 +248,18 @@ public class AccessControlGenerator : IIncrementalGenerator
 
                  static Allow()
                  {
-                     foreach (var f in typeof(Allow).GetFields(BindingFlags.Public | BindingFlags.Static).Where(t => !t.IsDefined(typeof(HideFromDocsAttribute))))
-                     {
-                         var val = f.GetValue(null)?.ToString() ?? string.Empty;
-                         _permNames[f.Name] = val;
-                         _permCodes[val] = f.Name;
-                     }
+                     InitPermissions();
                      Groups();
                      Describe();
                  }
+
+                 static partial void InitPermissions();
 
                  /// <summary>
                  /// implement this method to add custom permissions to the generated categories
                  /// </summary>
                  static partial void Groups();
-                 
+
                  /// <summary>
                  /// implement this method to add descriptions to your custom permissions
                  /// </summary>

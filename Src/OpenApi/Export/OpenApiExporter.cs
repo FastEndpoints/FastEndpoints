@@ -52,11 +52,12 @@ static class OpenApiExporter
 
     static async Task<string> ExportDocumentAsync(WebApplication app, string documentName, string destinationPath, CancellationToken ct)
     {
-        var provider = app.Services.GetRequiredKeyedService<IOpenApiDocumentProvider>(documentName);
-        var openApiVersion = app.Services.GetRequiredService<IOptionsMonitor<OpenApiOptions>>().Get(documentName).OpenApiVersion;
+        var normalizedDocumentName = documentName.ToLowerInvariant();
+        var provider = app.Services.GetRequiredKeyedService<IOpenApiDocumentProvider>(normalizedDocumentName);
+        var openApiVersion = app.Services.GetRequiredService<IOptionsMonitor<OpenApiOptions>>().Get(normalizedDocumentName).OpenApiVersion;
         var doc = await provider.GetOpenApiDocumentAsync(ct);
         var json = await doc.SerializeAsJsonAsync(openApiVersion, ct);
-        var filePath = Path.Combine(destinationPath, $"{documentName}.json");
+        var filePath = Path.Combine(destinationPath, $"{normalizedDocumentName}.json");
 
         await File.WriteAllTextAsync(filePath, json, ct);
 

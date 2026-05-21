@@ -212,19 +212,6 @@ public class AccessControlGenerator : IIncrementalGenerator
                 sb.w(
                     $"""
                              _permNames["{p.Name}"] = "{p.Code}";
-
-                     """);
-            }
-
-            sb.w(
-                """
-
-                """);
-
-            foreach (var p in perms)
-            {
-                sb.w(
-                    $"""
                              _permCodes["{p.Code}"] = "{p.Name}";
 
                      """);

@@ -23,34 +23,31 @@ sealed class EndpointData
 
     static EndpointDefinition[] BuildEndpointDefinitions(EndpointDiscoveryOptions opts, CommandHandlerRegistry cmdHandlerRegistry)
     {
-        if (opts.SourceGeneratorDiscoveredTypes.Count > 0 && opts.Assemblies?.Any() is true)
+        if (DiscoveredTypeRegistry.HasTypes && opts.Assemblies?.Any() is true)
         {
             throw new InvalidOperationException(
-                $"{nameof(opts.SourceGeneratorDiscoveredTypes)}' and `{nameof(opts.Assemblies)}` cannot be used together! Choose only one of these strategies.");
+                $"`FastEndpoints.Generator' and `{nameof(opts.Assemblies)}` cannot be used together! Choose only one of these strategies.");
         }
 
-        var discoveredTypes = opts.SourceGeneratorDiscoveredTypes.AsEnumerable();
-
-        if (!discoveredTypes.Any())
-        {
-            discoveredTypes = AssemblyScanner.ScanForTypes(
-                new()
-                {
-                    DisableAutoDiscovery = opts.DisableAutoDiscovery,
-                    Assemblies = opts.Assemblies,
-                    AssemblyFilter = opts.AssemblyFilter,
-                    TypeFilter = opts.Filter,
-                    ExcludeAttribute = Types.DontRegisterAttribute,
-                    InterfaceTypes =
-                    [
-                        Types.IEndpoint,
-                        Types.IEventHandler,
-                        Types.ICommandHandler,
-                        Types.ISummary,
-                        opts.IncludeAbstractValidators ? Types.IValidator : Types.IEndpointValidator
-                    ]
-                });
-        }
+        var discoveredTypes = DiscoveredTypeRegistry.HasTypes
+                                  ? DiscoveredTypeRegistry.All
+                                  : AssemblyScanner.ScanForTypes(
+                                          new()
+                                          {
+                                              DisableAutoDiscovery = opts.DisableAutoDiscovery,
+                                              Assemblies = opts.Assemblies,
+                                              AssemblyFilter = opts.AssemblyFilter,
+                                              TypeFilter = opts.Filter,
+                                              ExcludeAttribute = Types.DontRegisterAttribute,
+                                              InterfaceTypes =
+                                              [
+                                                  Types.IEndpoint,
+                                                  Types.IEventHandler,
+                                                  Types.ICommandHandler,
+                                                  Types.ISummary,
+                                                  opts.IncludeAbstractValidators ? Types.IValidator : Types.IEndpointValidator
+                                              ]
+                                          });
 
         //Endpoint<TRequest>
         //Validator<TRequest>

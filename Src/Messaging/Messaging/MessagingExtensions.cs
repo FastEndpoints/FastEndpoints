@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using FastEndpoints.Messaging;
 using Microsoft.Extensions.DependencyInjection;
@@ -26,16 +26,18 @@ public static class MessagingExtensions
             _ =>
             {
                 var cmdHandlerRegistry = new CommandHandlerRegistry();
-                var discoveredTypes = AssemblyScanner.ScanForTypes(
-                    new()
-                    {
-                        Assemblies = assemblies,
-                        InterfaceTypes =
-                        [
-                            Types.ICommandHandler,
-                            Types.IEventHandler
-                        ]
-                    });
+                var discoveredTypes = DiscoveredTypeRegistry.HasTypes
+                                          ? DiscoveredTypeRegistry.All
+                                          : AssemblyScanner.ScanForTypes(
+                                              new()
+                                              {
+                                                  Assemblies = assemblies,
+                                                  InterfaceTypes =
+                                                  [
+                                                      Types.ICommandHandler,
+                                                      Types.IEventHandler
+                                                  ]
+                                              });
 
                 foreach (var t in discoveredTypes)
                 {

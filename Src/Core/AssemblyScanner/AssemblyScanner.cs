@@ -34,7 +34,7 @@ internal static class AssemblyScanner
 #if NET8_0_OR_GREATER
     [UnconditionalSuppressMessage("aot", "IL2067"), UnconditionalSuppressMessage("aot", "IL2026"), UnconditionalSuppressMessage("aot", "IL2070")]
 #endif
-    internal static IEnumerable<Type> ScanForTypes(AssemblyScanOptions opts)
+    internal static List<Type> ScanForTypes(AssemblyScanOptions opts)
     {
         if (opts.DisableAutoDiscovery && opts.Assemblies?.Any() is false)
             throw new InvalidOperationException($"If '{nameof(opts.DisableAutoDiscovery)}' is true, a collection of assemblies must be provided!");
@@ -53,7 +53,8 @@ internal static class AssemblyScanner
         return assemblies
                .Where(a => !a.IsDynamic && (opts.Assemblies?.Contains(a) is true || !_exclusions.Any(x => a.FullName!.StartsWith(x))))
                .SelectMany(a => a.GetTypes())
-               .Where(t => IsTypeMatch(t, opts));
+               .Where(t => IsTypeMatch(t, opts))
+               .ToList();
 
         static bool IsTypeMatch(Type t, AssemblyScanOptions options)
         {

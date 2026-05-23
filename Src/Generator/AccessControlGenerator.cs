@@ -56,7 +56,7 @@ public class AccessControlGenerator : IIncrementalGenerator
         static bool QualifyCustom(SyntaxNode node, CancellationToken _)
             => node is FieldDeclarationSyntax field
                && field.Modifiers.Any(m => m.IsKind(SyntaxKind.PublicKeyword))
-               && field.Modifiers.Any(m => m.IsKind(SyntaxKind.ConstKeyword))
+               && (field.Modifiers.Any(m => m.IsKind(SyntaxKind.ConstKeyword)) || field.Modifiers.Any(m => m.IsKind(SyntaxKind.StaticKeyword)))
                && field.Declaration.Type is PredefinedTypeSyntax { Keyword.ValueText: "string" }
                && field.Parent is ClassDeclarationSyntax { Identifier.ValueText: "Allow" } cls
                && cls.Modifiers.Any(m => m.IsKind(SyntaxKind.StaticKeyword));
@@ -73,9 +73,9 @@ public class AccessControlGenerator : IIncrementalGenerator
             var hideFromDocs = ctx.SemanticModel.Compilation.GetTypeByMetadataName($"{nameof(FastEndpoints)}.{nameof(HideFromDocsAttribute)}");
             if (symbol.GetAttributes().Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, hideFromDocs)))
                 return default;
-            if (symbol.ConstantValue is not string code)
-                return default;
-            return new(variable.Identifier.ValueText, code);
+            return symbol.ConstantValue is string code
+                       ? new(variable.Identifier.ValueText, code)
+                       : new(variable.Identifier.ValueText, variable.Identifier.ValueText, $"{variable.Identifier.Text} ?? string.Empty");
         }
 
         static bool QualifyPartial(SyntaxNode node, CancellationToken _)
@@ -226,8 +226,8 @@ public class AccessControlGenerator : IIncrementalGenerator
             {
                 sb.w(
                     $"""
-                             _permNames[{CsString(p.Name)}] = {CsString(p.Code)};
-                             _permCodes[{CsString(p.Code)}] = {CsString(p.Name)};
+                             _permNames[{CsString(p.Name)}] = {p.CodeExpression};
+                             _permCodes[{p.CodeExpression}] = {CsString(p.Name)};
 
                      """);
             }
@@ -448,6 +448,7 @@ public class AccessControlGenerator : IIncrementalGenerator
         public string Name { get; }
         public string? Description { get; }
         public string Code { get; }
+        public string CodeExpression { get; }
         public string Endpoint { get; }
         public IEnumerable<string> Categories { get; }
 
@@ -465,16 +466,22 @@ public class AccessControlGenerator : IIncrementalGenerator
 
             Name = args.First();
             Code = GetAclHash(Name);
+            CodeExpression = CsString(Code);
             Endpoint = m.Endpoint!.ToDisplayString();
             Description = desc.Length == 0 ? null : desc.Substring(2).Trim();
             Categories = args.Skip(1);
         }
 
         internal Permission(string name, string code)
+            : this(name, code, CsString(code)) { }
+
+        internal Permission(string name, string code, string codeExpression)
         {
             Name = name;
             Code = code;
+            CodeExpression = codeExpression;
             Endpoint = string.Empty;
+            Description = null;
             Categories = [];
         }
 
@@ -482,6 +489,7 @@ public class AccessControlGenerator : IIncrementalGenerator
         {
             Name = name;
             Code = GetAclHash(name);
+            CodeExpression = CsString(Code);
             Endpoint = string.Empty;
             Description = null;
             Categories = [];
@@ -527,6 +535,7 @@ public class AccessControlGenerator : IIncrementalGenerator
         public bool Equals(Permission x, Permission y)
             => x.Name == y.Name &&
                x.Code == y.Code &&
+               x.CodeExpression == y.CodeExpression &&
                x.Endpoint == y.Endpoint &&
                x.Description == y.Description &&
                x.Categories.SequenceEqual(y.Categories);
@@ -536,6 +545,7 @@ public class AccessControlGenerator : IIncrementalGenerator
             var hash = 17;
             Add(obj.Name);
             Add(obj.Code);
+            Add(obj.CodeExpression);
             Add(obj.Endpoint);
             Add(obj.Description);
 

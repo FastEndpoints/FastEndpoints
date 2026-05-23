@@ -33,12 +33,14 @@ public class AccessControlGenerator : IIncrementalGenerator
         // picks up handwritten public static string fields in partial Allow class declarations
         var customFields = initCtx.SyntaxProvider
                                   .CreateSyntaxProvider(QualifyCustom, TransformCustom)
+                                  .Where(static p => p.IsValid)
                                   .WithComparer(PermissionComparer.Instance)
                                   .Collect();
 
         // picks up partial property declarations; generator provides implementing half with computed hash code
         var partialFields = initCtx.SyntaxProvider
                                    .CreateSyntaxProvider(QualifyPartial, TransformPartial)
+                                   .Where(static p => p.IsValid)
                                    .WithComparer(PermissionComparer.Instance)
                                    .Collect();
 
@@ -465,6 +467,7 @@ public class AccessControlGenerator : IIncrementalGenerator
         public string CodeExpression { get; }
         public string Endpoint { get; }
         public IEnumerable<string> Categories { get; }
+        public bool IsValid => Name is not null;
 
         internal Permission(Match m)
         {

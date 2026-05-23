@@ -56,7 +56,8 @@ public class AccessControlGenerator : IIncrementalGenerator
                && field.Modifiers.Any(m => m.IsKind(SyntaxKind.PublicKeyword))
                && field.Modifiers.Any(m => m.IsKind(SyntaxKind.ConstKeyword))
                && field.Declaration.Type is PredefinedTypeSyntax { Keyword.ValueText: "string" }
-               && field.Parent is ClassDeclarationSyntax { Identifier.ValueText: "Allow" };
+               && field.Parent is ClassDeclarationSyntax { Identifier.ValueText: "Allow" } cls
+               && cls.Modifiers.Any(m => m.IsKind(SyntaxKind.StaticKeyword));
 
         static Permission TransformCustom(GeneratorSyntaxContext ctx, CancellationToken _)
         {
@@ -64,6 +65,8 @@ public class AccessControlGenerator : IIncrementalGenerator
             var variable = field.Declaration.Variables.FirstOrDefault();
             if (variable is null) return default;
             if (ctx.SemanticModel.GetDeclaredSymbol(variable) is not IFieldSymbol symbol)
+                return default;
+            if (!IsGeneratedAllowType(symbol.ContainingType, ctx.SemanticModel.Compilation))
                 return default;
             var hideFromDocs = ctx.SemanticModel.Compilation.GetTypeByMetadataName($"{nameof(FastEndpoints)}.{nameof(HideFromDocsAttribute)}");
             if (symbol.GetAttributes().Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, hideFromDocs)))
@@ -76,6 +79,7 @@ public class AccessControlGenerator : IIncrementalGenerator
         static bool QualifyPartial(SyntaxNode node, CancellationToken _)
             => node is PropertyDeclarationSyntax prop
                && prop.Modifiers.Any(m => m.IsKind(SyntaxKind.PublicKeyword))
+               && prop.Modifiers.Any(m => m.IsKind(SyntaxKind.StaticKeyword))
                && prop.Modifiers.Any(m => m.ValueText == "partial")
                && prop.Type is PredefinedTypeSyntax { Keyword.ValueText: "string" }
                && prop.AccessorList?.Accessors.Count == 1
@@ -90,9 +94,18 @@ public class AccessControlGenerator : IIncrementalGenerator
             var prop = (PropertyDeclarationSyntax)ctx.Node;
             var hideFromDocs = ctx.SemanticModel.Compilation.GetTypeByMetadataName($"{nameof(FastEndpoints)}.{nameof(HideFromDocsAttribute)}");
             if (ctx.SemanticModel.GetDeclaredSymbol(prop) is IPropertySymbol symbol
-                && symbol.GetAttributes().Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, hideFromDocs)))
-                return default;
-            return new(prop.Identifier.ValueText);
+                && IsGeneratedAllowType(symbol.ContainingType, ctx.SemanticModel.Compilation)
+                && !symbol.GetAttributes().Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, hideFromDocs)))
+                return new(prop.Identifier.ValueText);
+            return default;
+        }
+
+        static bool IsGeneratedAllowType(INamedTypeSymbol? type, Compilation compilation)
+        {
+            var expectedNamespace = $"{compilation.AssemblyName?.ToValidNameSpace() ?? "Assembly"}.Auth";
+
+            return type is { Name: "Allow", IsStatic: true }
+                   && type.ContainingNamespace.ToDisplayString().Equals(expectedNamespace, StringComparison.Ordinal);
         }
     }
 

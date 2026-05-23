@@ -340,6 +340,9 @@ public class AccessControlGenerator : IIncrementalGenerator
              #nullable enable
 
              using FastEndpoints;
+             using System;
+             using System.Collections.Generic;
+             using System.Linq;
 
              namespace {{assemblyName?.ToValidNameSpace() ?? "Assembly"}}.Auth;
 

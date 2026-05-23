@@ -144,7 +144,7 @@ public class AccessControlGenerator : IIncrementalGenerator
                 $"""
 
                      /// <summary>{p.Description}</summary><remark>Generated from endpoint: <see cref="{p.Endpoint}"/></remark>
-                     public const string {p.Name} = "{p.Code}";
+                     public const string {p.Name} = {CsString(p.Code)};
                  """);
         }
         b.w(
@@ -185,7 +185,7 @@ public class AccessControlGenerator : IIncrementalGenerator
                 sb.w(
                     $$"""
 
-                         public static partial string {{p.Name}} { get => "{{p.Code}}"; }
+                         public static partial string {{p.Name}} { get => {{CsString(p.Code)}}; }
                      """);
             }
 
@@ -211,8 +211,8 @@ public class AccessControlGenerator : IIncrementalGenerator
             {
                 sb.w(
                     $"""
-                             _permNames["{p.Name}"] = "{p.Code}";
-                             _permCodes["{p.Code}"] = "{p.Name}";
+                             _permNames[{CsString(p.Name)}] = {CsString(p.Code)};
+                             _permCodes[{CsString(p.Code)}] = {CsString(p.Name)};
 
                      """);
             }
@@ -294,7 +294,7 @@ public class AccessControlGenerator : IIncrementalGenerator
                         $$"""
 
                                   //{{p.Name}}
-                                  { "{{p.Code}}", "{{p.Description}}" },
+                                  { {{CsString(p.Code)}}, {{CsString(p.Description)}} },
                           """);
                 }
             }
@@ -424,6 +424,9 @@ public class AccessControlGenerator : IIncrementalGenerator
                      => _permNames.Select(kv => new ValueTuple<string, string>(kv.Key, kv.Value));
              }
              """;
+
+    static string CsString(string value)
+        => SymbolDisplay.FormatLiteral(value, quote: true);
 
     readonly struct Permission
     {

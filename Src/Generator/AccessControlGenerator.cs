@@ -33,12 +33,14 @@ public class AccessControlGenerator : IIncrementalGenerator
         var customFields = initCtx.SyntaxProvider
                                   .CreateSyntaxProvider(QualifyCustom, TransformCustom)
                                   .Where(static p => p.Name is not null)
+                                  .WithComparer(PermissionComparer.Instance)
                                   .Collect();
 
         // picks up partial field declarations — generator provides implementing half with computed hash code
         var partialFields = initCtx.SyntaxProvider
                                    .CreateSyntaxProvider(QualifyPartial, TransformPartial)
                                    .Where(static p => p.Name is not null)
+                                   .WithComparer(PermissionComparer.Instance)
                                    .Collect();
 
         initCtx.RegisterSourceOutput(matches.Combine(customFields).Combine(partialFields).Combine(assemblyName), Generate);
@@ -514,5 +516,36 @@ public class AccessControlGenerator : IIncrementalGenerator
 
         public int GetHashCode(Match obj)
             => obj.Endpoint!.ToDisplayString().GetHashCode();
+    }
+
+    class PermissionComparer : IEqualityComparer<Permission>
+    {
+        internal static PermissionComparer Instance { get; } = new();
+
+        PermissionComparer() { }
+
+        public bool Equals(Permission x, Permission y)
+            => x.Name == y.Name &&
+               x.Code == y.Code &&
+               x.Endpoint == y.Endpoint &&
+               x.Description == y.Description &&
+               x.Categories.SequenceEqual(y.Categories);
+
+        public int GetHashCode(Permission obj)
+        {
+            var hash = 17;
+            Add(obj.Name);
+            Add(obj.Code);
+            Add(obj.Endpoint);
+            Add(obj.Description);
+
+            foreach (var category in obj.Categories)
+                Add(category);
+
+            return hash;
+
+            void Add(string? value)
+                => hash = unchecked(hash * 31 + (value is null ? 0 : StringComparer.Ordinal.GetHashCode(value)));
+        }
     }
 }

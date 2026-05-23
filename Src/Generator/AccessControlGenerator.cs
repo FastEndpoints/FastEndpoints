@@ -23,23 +23,22 @@ public class AccessControlGenerator : IIncrementalGenerator
             assemblyName,
             static (spc, assemblyName) => spc.AddSource("Allow.b.g.cs", SourceText.From(RenderBase(assemblyName), Encoding.UTF8)));
 
+        // picks up AccessControl(...) calls in endpoint declarations
         var matches = initCtx.SyntaxProvider
                              .CreateSyntaxProvider(Qualify, Transform)
                              .Where(static m => m.Endpoint is not null)
                              .WithComparer(MatchComparer.Instance)
                              .Collect();
 
-        // picks up hand-written public const string fields in partial Allow class declarations
+        // picks up handwritten public static string fields in partial Allow class declarations
         var customFields = initCtx.SyntaxProvider
                                   .CreateSyntaxProvider(QualifyCustom, TransformCustom)
-                                  .Where(static p => p.Name is not null)
                                   .WithComparer(PermissionComparer.Instance)
                                   .Collect();
 
-        // picks up partial field declarations — generator provides implementing half with computed hash code
+        // picks up partial property declarations; generator provides implementing half with computed hash code
         var partialFields = initCtx.SyntaxProvider
                                    .CreateSyntaxProvider(QualifyPartial, TransformPartial)
-                                   .Where(static p => p.Name is not null)
                                    .WithComparer(PermissionComparer.Instance)
                                    .Collect();
 
@@ -53,52 +52,62 @@ public class AccessControlGenerator : IIncrementalGenerator
         static Match Transform(GeneratorSyntaxContext ctx, CancellationToken _)
             => new(ctx.SemanticModel.GetDeclaredSymbol(ctx.Node.Parent!.Parent!.Parent!.Parent!), (InvocationExpressionSyntax)ctx.Node);
 
+        //executed per each keystroke
         static bool QualifyCustom(SyntaxNode node, CancellationToken _)
-            => node is FieldDeclarationSyntax field
-               && field.Modifiers.Any(m => m.IsKind(SyntaxKind.PublicKeyword))
-               && (field.Modifiers.Any(m => m.IsKind(SyntaxKind.ConstKeyword)) || field.Modifiers.Any(m => m.IsKind(SyntaxKind.StaticKeyword)))
-               && field.Declaration.Type is PredefinedTypeSyntax { Keyword.ValueText: "string" }
-               && field.Parent is ClassDeclarationSyntax { Identifier.ValueText: "Allow" } cls
-               && cls.Modifiers.Any(m => m.IsKind(SyntaxKind.StaticKeyword));
+            => node is FieldDeclarationSyntax field &&
+               field.Modifiers.Any(m => m.IsKind(SyntaxKind.PublicKeyword)) &&
+               (field.Modifiers.Any(m => m.IsKind(SyntaxKind.ConstKeyword)) || field.Modifiers.Any(m => m.IsKind(SyntaxKind.StaticKeyword))) &&
+               field.Declaration.Type is PredefinedTypeSyntax { Keyword.ValueText: "string" } &&
+               field.Parent is ClassDeclarationSyntax { Identifier.ValueText: "Allow" } cls &&
+               cls.Modifiers.Any(m => m.IsKind(SyntaxKind.StaticKeyword));
 
+        //executed per each keystroke but only for syntax nodes filtered by the Qualify method
         static Permission TransformCustom(GeneratorSyntaxContext ctx, CancellationToken _)
         {
             var field = (FieldDeclarationSyntax)ctx.Node;
             var variable = field.Declaration.Variables.FirstOrDefault();
-            if (variable is null) return default;
+
+            if (variable is null)
+                return default;
             if (ctx.SemanticModel.GetDeclaredSymbol(variable) is not IFieldSymbol symbol)
                 return default;
             if (!IsGeneratedAllowType(symbol.ContainingType, ctx.SemanticModel.Compilation))
                 return default;
+
             var hideFromDocs = ctx.SemanticModel.Compilation.GetTypeByMetadataName($"{nameof(FastEndpoints)}.{nameof(HideFromDocsAttribute)}");
+
             if (symbol.GetAttributes().Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, hideFromDocs)))
                 return default;
+
             return symbol.ConstantValue is string code
                        ? new(variable.Identifier.ValueText, code)
                        : new(variable.Identifier.ValueText, variable.Identifier.ValueText, $"{variable.Identifier.Text} ?? string.Empty");
         }
 
+        //executed per each keystroke
         static bool QualifyPartial(SyntaxNode node, CancellationToken _)
-            => node is PropertyDeclarationSyntax prop
-               && prop.Modifiers.Any(m => m.IsKind(SyntaxKind.PublicKeyword))
-               && prop.Modifiers.Any(m => m.IsKind(SyntaxKind.StaticKeyword))
-               && prop.Modifiers.Any(m => m.ValueText == "partial")
-               && prop.Type is PredefinedTypeSyntax { Keyword.ValueText: "string" }
-               && prop.AccessorList?.Accessors.Count == 1
-               && prop.AccessorList.Accessors[0].IsKind(SyntaxKind.GetAccessorDeclaration)
-               && prop.AccessorList.Accessors[0].Body is null
-               && prop.AccessorList.Accessors[0].ExpressionBody is null
-               && prop.ExpressionBody is null
-               && prop.Parent is ClassDeclarationSyntax { Identifier.ValueText: "Allow" };
+            => node is PropertyDeclarationSyntax prop &&
+               prop.Modifiers.Any(m => m.IsKind(SyntaxKind.PublicKeyword)) &&
+               prop.Modifiers.Any(m => m.IsKind(SyntaxKind.StaticKeyword)) &&
+               prop.Modifiers.Any(m => m.ValueText == "partial") &&
+               prop is { Type: PredefinedTypeSyntax { Keyword.ValueText: "string" }, AccessorList.Accessors.Count: 1 } &&
+               prop.AccessorList.Accessors[0].IsKind(SyntaxKind.GetAccessorDeclaration) &&
+               prop.AccessorList.Accessors[0].Body is null &&
+               prop.AccessorList.Accessors[0].ExpressionBody is null &&
+               prop.ExpressionBody is null &&
+               prop.Parent is ClassDeclarationSyntax { Identifier.ValueText: "Allow" };
 
+        //executed per each keystroke but only for syntax nodes filtered by the Qualify method
         static Permission TransformPartial(GeneratorSyntaxContext ctx, CancellationToken _)
         {
             var prop = (PropertyDeclarationSyntax)ctx.Node;
             var hideFromDocs = ctx.SemanticModel.Compilation.GetTypeByMetadataName($"{nameof(FastEndpoints)}.{nameof(HideFromDocsAttribute)}");
-            if (ctx.SemanticModel.GetDeclaredSymbol(prop) is IPropertySymbol symbol
-                && IsGeneratedAllowType(symbol.ContainingType, ctx.SemanticModel.Compilation)
-                && !symbol.GetAttributes().Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, hideFromDocs)))
+
+            if (ctx.SemanticModel.GetDeclaredSymbol(prop) is { } symbol &&
+                IsGeneratedAllowType(symbol.ContainingType, ctx.SemanticModel.Compilation) &&
+                !symbol.GetAttributes().Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, hideFromDocs)))
                 return new(prop.Identifier.ValueText);
+
             return default;
         }
 
@@ -106,17 +115,16 @@ public class AccessControlGenerator : IIncrementalGenerator
         {
             var expectedNamespace = $"{compilation.AssemblyName?.ToValidNameSpace() ?? "Assembly"}.Auth";
 
-            return type is { Name: "Allow", IsStatic: true }
-                   && type.ContainingNamespace.ToDisplayString().Equals(expectedNamespace, StringComparison.Ordinal);
+            return type is { Name: "Allow", IsStatic: true } && type.ContainingNamespace.ToDisplayString().Equals(expectedNamespace, StringComparison.Ordinal);
         }
     }
 
     //only executed if the equality comparer says the data is not what has been cached by roslyn
     void Generate(SourceProductionContext spc, (((ImmutableArray<Match>, ImmutableArray<Permission>), ImmutableArray<Permission>), string?) input)
     {
-        var (((matches, constCustom), partialPerms), asmName) = input;
+        var (((matches, customPerms), partialPerms), asmName) = input;
 
-        if (matches.Length == 0 && constCustom.Length == 0 && partialPerms.Length == 0)
+        if (matches.Length == 0 && customPerms.Length == 0 && partialPerms.Length == 0)
             return;
 
         var rootNamespace = asmName?.ToValidNameSpace() ?? "Assembly";
@@ -125,13 +133,15 @@ public class AccessControlGenerator : IIncrementalGenerator
                                    .OrderBy(p => p.Name)
                                    .ToArray();
 
-        var constCustomPerms = constCustom.OrderBy(p => p.Name).ToArray();
+        var sortedCustomPerms = customPerms.OrderBy(p => p.Name).ToArray();
 
         var sortedPartialPerms = partialPerms.OrderBy(p => p.Name).ToArray();
 
-        spc.AddSource("Allow.g.cs", SourceText.From(
-            RenderClass(rootNamespace, endpointPerms, constCustomPerms, sortedPartialPerms),
-            Encoding.UTF8));
+        spc.AddSource(
+            "Allow.g.cs",
+            SourceText.From(
+                RenderClass(rootNamespace, endpointPerms, sortedCustomPerms, sortedPartialPerms),
+                Encoding.UTF8));
     }
 
     string RenderClass(string rootNamespace, Permission[] endpointPerms, Permission[] constCustom, Permission[] partialPerms)
@@ -187,7 +197,8 @@ public class AccessControlGenerator : IIncrementalGenerator
 
         static void RenderPartialFields(StringBuilder sb, Permission[] perms)
         {
-            if (perms.Length == 0) return;
+            if (perms.Length == 0)
+                return;
 
             sb.w(
                 """
@@ -200,8 +211,8 @@ public class AccessControlGenerator : IIncrementalGenerator
                 sb.w(
                     $$"""
 
-                         public static partial string {{p.Name}} { get => {{CsString(p.Code)}}; }
-                     """);
+                          public static partial string {{p.Name}} { get => {{CsString(p.Code)}}; }
+                      """);
             }
 
             sb.w(

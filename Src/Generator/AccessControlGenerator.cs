@@ -473,17 +473,18 @@ public class AccessControlGenerator : IIncrementalGenerator
                         .Arguments
                         .Select(a => a.Expression)
                         .OfType<LiteralExpressionSyntax>()
-                        .Select(l => l.Token.ValueText.ToValidIdentifier("_"));
+                        .Select(l => l.Token.ValueText.ToValidIdentifier("_"))
+                        .ToArray();
 
             var desc = m.Invocation.ArgumentList.OpenParenToken.TrailingTrivia.SingleOrDefault(t => t.IsKind(SyntaxKind.SingleLineCommentTrivia))
                         .ToString();
 
-            Name = args.First();
-            Code = GetAclHash(Name);
+            Name = args[0].ToValidCSharpIdentifier("_");
+            Code = GetAclHash(args[0]);
             CodeExpression = CsString(Code);
             Endpoint = m.Endpoint!.ToDisplayString();
             Description = desc.Length == 0 ? null : desc.Substring(2).Trim();
-            Categories = args.Skip(1);
+            Categories = args.Skip(1).Select(static c => c.ToValidCSharpIdentifier("_")).ToArray();
         }
 
         internal Permission(string name, string code)

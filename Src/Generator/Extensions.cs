@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace FastEndpoints.Generator;
 
@@ -29,6 +30,16 @@ static class Extensions
     {
         internal string ToValidIdentifier(string replacement)
             => _identifierRegex.Replace(input, replacement);
+
+        internal string ToValidCSharpIdentifier(string replacement)
+        {
+            var identifier = input.ToValidIdentifier(replacement);
+
+            if (identifier.Length == 0 || char.IsDigit(identifier[0]) || SyntaxFacts.GetKeywordKind(identifier) is not SyntaxKind.None)
+                identifier = $"_{identifier}";
+
+            return identifier;
+        }
 
         internal string ToValidNameSpace(string replacement = "_")
             => _namespaceRegex.Replace(input, replacement);

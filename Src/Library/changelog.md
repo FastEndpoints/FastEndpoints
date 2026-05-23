@@ -106,6 +106,12 @@ This fixes nested `[FromQuery]` request DTO properties such as `DateOnly?` and `
 
 ## Improvements 🚀
 
+<details><summary>Access control permission lookup data is now source generated</summary>
+
+The `Allow` source generator now emits the permission name/code lookup initialization directly, avoiding runtime reflection when access control permissions are first used.
+
+</details>
+
 <details><summary>Source generated reflection data now avoids object factories for partial request DTOs</summary>
 
 The reflection source generator no longer emits direct object factory expressions for `partial` request DTO types. This avoids compile-time failures when another source generator augments the same partial type into an abstract base type, such as discriminated-union libraries that generate abstract union roots and concrete nested variants.

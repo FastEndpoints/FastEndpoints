@@ -1,8 +1,11 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
 
 namespace FastEndpoints.OpenApi;
@@ -64,6 +67,7 @@ public static class Extensions
                 // apply user's advanced configuration
                 opts.ConfigureOpenApi?.Invoke(apiOptions);
             });
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<JsonOptions>, FeOpenApiJsonOptions>());
 
         return services;
     }

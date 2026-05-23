@@ -639,7 +639,7 @@ public static class HttpClientExtensions
                     sb.Append(hasAny ? '&' : '?')
                       .Append(qp.Key)
                       .Append('=')
-                      .Append(value);
+                      .Append(WebUtility.UrlEncode(value));
 
                     hasAny = true;
                 }

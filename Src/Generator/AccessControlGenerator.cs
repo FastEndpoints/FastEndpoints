@@ -509,12 +509,11 @@ public class AccessControlGenerator : IIncrementalGenerator
             Categories = [];
         }
 
-        static readonly SHA256 _sha256 = SHA256.Create();
-
         static string GetAclHash(string input)
         {
             //NOTE: if modifying this algo, update FastEndpoints.Endpoint.Base.ToAclKey() method also!
-            var base64Hash = Convert.ToBase64String(_sha256.ComputeHash(Encoding.UTF8.GetBytes(input.ToUpperInvariant())));
+            using var sha256 = SHA256.Create();
+            var base64Hash = Convert.ToBase64String(sha256.ComputeHash(Encoding.UTF8.GetBytes(input.ToUpperInvariant())));
 
             return new(base64Hash.Where(char.IsLetterOrDigit).Take(3).Select(char.ToUpper).ToArray());
         }

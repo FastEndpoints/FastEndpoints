@@ -28,11 +28,16 @@ public static class MainExtensions
     /// <summary>
     /// adds the FastEndpoints services to the ASP.Net middleware pipeline
     /// </summary>
-    /// <param name="options">optionally specify the endpoint discovery options</param>
+    /// <param name="options">optionally specify the reflection-based endpoint discovery options</param>
     public static IServiceCollection AddFastEndpoints(this IServiceCollection services, Action<EndpointDiscoveryOptions>? options = null)
     {
-        var opts = new EndpointDiscoveryOptions();
-        options?.Invoke(opts);
+        EndpointDiscoveryOptions? opts = null;
+        if (options != null)
+        {
+            opts = new EndpointDiscoveryOptions();
+            options.Invoke(opts);
+        }
+
         var cmdHandlerRegistry = new CommandHandlerRegistry();
         var endpointData = new EndpointData(opts, cmdHandlerRegistry);
         services.AddSingleton(cmdHandlerRegistry);

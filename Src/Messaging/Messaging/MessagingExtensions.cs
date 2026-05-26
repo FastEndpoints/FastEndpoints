@@ -20,6 +20,12 @@ public static class MessagingExtensions
     /// <param name="assemblies">assemblies to scan for command handlers and event handlers, in addition to all loaded assemblies.</param>
     public static IServiceCollection AddMessaging(this IServiceCollection services, params Assembly[]? assemblies)
     {
+        if (DiscoveredTypeRegistry.HasTypes && assemblies?.Length > 0)
+        {
+            throw new InvalidOperationException(
+                $"`FastEndpoints.Generator' and `{nameof(assemblies)}` cannot be used together! Choose only one of these strategies.");
+        }
+
         services.TryAddSingleton<IServiceResolver, ServiceResolver>();
         services.TryAddSingleton(typeof(EventBus<>));
         services.TryAddSingleton<CommandHandlerRegistry>(

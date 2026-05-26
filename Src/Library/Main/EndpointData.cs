@@ -12,7 +12,7 @@ sealed class EndpointData
 
     internal EndpointDefinition[] Found { get; }
 
-    internal EndpointData(EndpointDiscoveryOptions options, CommandHandlerRegistry cmdHandlerRegistry)
+    internal EndpointData(EndpointDiscoveryOptions? options, CommandHandlerRegistry cmdHandlerRegistry)
     {
         Stopwatch.Start();
         Found = BuildEndpointDefinitions(options, cmdHandlerRegistry);
@@ -21,17 +21,19 @@ sealed class EndpointData
             throw new InvalidOperationException("FastEndpoints was unable to find any endpoint declarations!");
     }
 
-    static EndpointDefinition[] BuildEndpointDefinitions(EndpointDiscoveryOptions opts, CommandHandlerRegistry cmdHandlerRegistry)
+    static EndpointDefinition[] BuildEndpointDefinitions(EndpointDiscoveryOptions? opts, CommandHandlerRegistry cmdHandlerRegistry)
     {
-        if (DiscoveredTypeRegistry.HasTypes && opts.Assemblies?.Any() is true)
+        if (DiscoveredTypeRegistry.HasTypes && opts != null)
         {
             throw new InvalidOperationException(
-                $"`FastEndpoints.Generator' and `{nameof(opts.Assemblies)}` cannot be used together! Choose only one of these strategies.");
+                $"`FastEndpoints.Generator' and `{nameof(EndpointDiscoveryOptions)}` (used with reflection-based discovery) cannot be used together! Choose only one of these strategies.");
         }
 
-        var discoveredTypes = DiscoveredTypeRegistry.HasTypes
-                           ? DiscoveredTypeRegistry.All
-                           : AssemblyScanner.ScanForTypes(
+        var discoveredTypes = DiscoveredTypeRegistry.All;
+        if (!DiscoveredTypeRegistry.HasTypes)
+        {
+            opts ??= new EndpointDiscoveryOptions();
+            AssemblyScanner.ScanForTypes(
                                    new()
                                    {
                                        DisableAutoDiscovery = opts.DisableAutoDiscovery,
@@ -48,6 +50,7 @@ sealed class EndpointData
                                            opts.IncludeAbstractValidators ? Types.IValidator : Types.IEndpointValidator
                                        ]
                                    });
+        }
 
         //Endpoint<TRequest>
         //Validator<TRequest>

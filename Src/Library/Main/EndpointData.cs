@@ -29,25 +29,29 @@ sealed class EndpointData
                 $"`FastEndpoints.Generator' and `{nameof(opts.Assemblies)}` cannot be used together! Choose only one of these strategies.");
         }
 
-        var discoveredTypes = DiscoveredTypeRegistry.HasTypes
-                                  ? DiscoveredTypeRegistry.All
-                                  : AssemblyScanner.ScanForTypes(
-                                          new()
-                                          {
-                                              DisableAutoDiscovery = opts.DisableAutoDiscovery,
-                                              Assemblies = opts.Assemblies,
-                                              AssemblyFilter = opts.AssemblyFilter,
-                                              TypeFilter = opts.Filter,
-                                              ExcludeAttribute = Types.DontRegisterAttribute,
-                                              InterfaceTypes =
-                                              [
-                                                  Types.IEndpoint,
-                                                  Types.IEventHandler,
-                                                  Types.ICommandHandler,
-                                                  Types.ISummary,
-                                                  opts.IncludeAbstractValidators ? Types.IValidator : Types.IEndpointValidator
-                                              ]
-                                          });
+        var allTypes = DiscoveredTypeRegistry.HasTypes
+                           ? DiscoveredTypeRegistry.All
+                           : AssemblyScanner.ScanForTypes(
+                                   new()
+                                   {
+                                       DisableAutoDiscovery = opts.DisableAutoDiscovery,
+                                       Assemblies = opts.Assemblies,
+                                       AssemblyFilter = opts.AssemblyFilter,
+                                       TypeFilter = opts.Filter,
+                                       ExcludeAttribute = Types.DontRegisterAttribute,
+                                       InterfaceTypes =
+                                       [
+                                           Types.IEndpoint,
+                                           Types.IEventHandler,
+                                           Types.ICommandHandler,
+                                           Types.ISummary,
+                                           opts.IncludeAbstractValidators ? Types.IValidator : Types.IEndpointValidator
+                                       ]
+                                   });
+
+        var discoveredTypes = opts.Filter is null
+                                  ? allTypes
+                                  : allTypes.Where(opts.Filter);
 
         //Endpoint<TRequest>
         //Validator<TRequest>

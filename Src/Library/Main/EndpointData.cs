@@ -29,11 +29,11 @@ sealed class EndpointData
                 $"`FastEndpoints.Generator' and `{nameof(EndpointDiscoveryOptions)}` (used with reflection-based discovery) cannot be used together! Choose only one of these strategies.");
         }
 
-        var discoveredTypes = DiscoveredTypeRegistry.All;
+        IEnumerable<Type> discoveredTypes = DiscoveredTypeRegistry.All;
         if (!DiscoveredTypeRegistry.HasTypes)
         {
             opts ??= new EndpointDiscoveryOptions();
-            AssemblyScanner.ScanForTypes(
+            discoveredTypes = AssemblyScanner.ScanForTypes(
                                    new()
                                    {
                                        DisableAutoDiscovery = opts.DisableAutoDiscovery,

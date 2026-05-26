@@ -1,8 +1,9 @@
-﻿using System.Net;
+using System.Net;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Web.Services;
 
 namespace Binding;
 
@@ -29,6 +30,7 @@ public class MaxRequestBodyLimitTests : IAsyncLifetime
 
         var bld = WebApplication.CreateBuilder();
         bld.WebHost.ConfigureKestrel(o => o.ListenLocalhost(1024));
+        DiscoveredTypeRegistry.Override(); // Forces FastEndpoints to ignore the generator and use reflection to find endpoints
         bld.Services.AddFastEndpoints(o => o.Filter = t => t == typeof(Endpoint));
         var app = bld.Build();
         app.UseFastEndpoints(

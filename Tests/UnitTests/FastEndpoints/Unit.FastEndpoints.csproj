@@ -1,10 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp"/>
         <PackageReference Include="RichardSzalay.MockHttp"/>
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\..\Src\Generator\FastEndpoints.Generator.csproj"/>
         <ProjectReference Include="..\..\..\TestHarness\Web\Web.csproj"/>
     </ItemGroup>
 

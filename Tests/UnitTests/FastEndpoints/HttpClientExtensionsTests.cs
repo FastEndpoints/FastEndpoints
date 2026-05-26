@@ -109,7 +109,26 @@ public class HttpClientExtensionsTests
 
         var testUrl = http.GetTestUrlFor<DateTimeQueryParamEndpoint>(req);
 
-        testUrl.ShouldBe($"{DateTimeParamRoute}?{nameof(DateTimeParamRequest.QueryParam)}={DateTimeParamRequest.DateTime:o}");
+        testUrl.ShouldBe($"{DateTimeParamRoute}?{nameof(DateTimeParamRequest.QueryParam)}={System.Net.WebUtility.UrlEncode($"{DateTimeParamRequest.DateTime:o}")}");
+    }
+
+    [Fact]
+    public void GetTestUrlForUrlEncodesQueryParamValues()
+    {
+        MockHttpMessageHandler mockHttp = new();
+        var http = mockHttp.ToHttpClient();
+        http.BaseAddress = new("http://localhost");
+
+        IEndpoint.SetTestUrl(typeof(StringQueryParamEndpoint), NullParamRoute);
+
+        var req = new StringQueryParamRequest
+        {
+            QueryParam = "2026-05-21 08:56:33.684+0100"
+        };
+
+        var testUrl = http.GetTestUrlFor<StringQueryParamEndpoint>(req);
+
+        testUrl.ShouldBe($"{NullParamRoute}?{nameof(StringQueryParamRequest.QueryParam)}=2026-05-21+08%3A56%3A33.684%2B0100");
     }
 
     [Fact]
@@ -270,12 +289,20 @@ file class NullParamRequest
 
 file class DateTimeQueryParamEndpoint : Endpoint<DateTimeParamRequest>;
 
+file class StringQueryParamEndpoint : Endpoint<StringQueryParamRequest>;
+
 file class DateTimeParamRequest
 {
     public static DateTime DateTime { get; } = DateTime.UtcNow;
 
     [QueryParam]
     public DateTime? QueryParam { get; set; }
+}
+
+file class StringQueryParamRequest
+{
+    [QueryParam]
+    public string? QueryParam { get; set; }
 }
 
 file class HttpFallbackEndpoint : Endpoint<EmptyRequest>;

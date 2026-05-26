@@ -53,8 +53,7 @@ internal static class AssemblyScanner
         return assemblies
                .Where(a => !a.IsDynamic && (opts.Assemblies?.Contains(a) is true || !_exclusions.Any(x => a.FullName!.StartsWith(x))))
                .SelectMany(a => a.GetTypes())
-               .Where(t => IsTypeMatch(t, opts))
-               .ToList();
+               .Where(t => IsTypeMatch(t, opts));
 
         static bool IsTypeMatch(Type t, AssemblyScanOptions options)
         {

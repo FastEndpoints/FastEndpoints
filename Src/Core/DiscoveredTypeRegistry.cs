@@ -11,7 +11,7 @@ public static class DiscoveredTypeRegistry
     /// <summary>
     /// called from the <c>[ModuleInitializer]</c> emitted by <c>FastEndpoints.Generator</c> in each compiled assembly.
     /// </summary>
-    public static void AutoRegister(IEnumerable<Type> types)
+    public static void Register(IEnumerable<Type> types)
         => _types.AddRange(types);
 
     /// <summary>

@@ -154,7 +154,7 @@ public class GenericProcessorTypesGenerator : IIncrementalGenerator
 
                 [System.Runtime.CompilerServices.ModuleInitializer]
                 internal static void AutoRegister()
-                    => FastEndpoints.DiscoveredTypeRegistry.AutoRegister(All);
+                    => FastEndpoints.DiscoveredTypeRegistry.Register(All);
 
                 // this method instructs the native aot linker to not strip away metadata on a given type
                 static Type Preserve<

@@ -34,7 +34,7 @@ internal static class AssemblyScanner
 #if NET8_0_OR_GREATER
     [UnconditionalSuppressMessage("aot", "IL2067"), UnconditionalSuppressMessage("aot", "IL2026"), UnconditionalSuppressMessage("aot", "IL2070")]
 #endif
-    internal static List<Type> ScanForTypes(AssemblyScanOptions opts)
+    internal static IEnumerable<Type> ScanForTypes(AssemblyScanOptions opts)
     {
         if (opts.DisableAutoDiscovery && opts.Assemblies?.Any() is false)
             throw new InvalidOperationException($"If '{nameof(opts.DisableAutoDiscovery)}' is true, a collection of assemblies must be provided!");

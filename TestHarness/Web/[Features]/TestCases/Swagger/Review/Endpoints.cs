@@ -1125,3 +1125,70 @@ sealed class MissingSchemaEnumEndpoint : EndpointWithoutRequest
     public override Task HandleAsync(CancellationToken ct)
         => Send.OkAsync(ct);
 }
+
+// Regression test for cross-document child-validator cache: the same nested validator type must
+// produce schema constraints in every document that contains an endpoint referencing it,
+// not just in the first document generated during the process lifetime.
+
+sealed class MultiDocSharedOrderLine
+{
+    public required string Sku { get; init; }
+    public required int Qty { get; init; }
+}
+
+sealed class MultiDocSharedOrderLineValidator : AbstractValidator<MultiDocSharedOrderLine>
+{
+    public MultiDocSharedOrderLineValidator()
+    {
+        RuleFor(x => x.Sku).NotEmpty();
+        RuleFor(x => x.Qty).GreaterThan(0);
+    }
+}
+
+sealed class MultiDocOrderRequestA
+{
+    public List<MultiDocSharedOrderLine> Lines { get; init; } = [];
+}
+
+sealed class MultiDocOrderRequestAValidator : Validator<MultiDocOrderRequestA>
+{
+    public MultiDocOrderRequestAValidator()
+        => RuleForEach(x => x.Lines).SetValidator(new MultiDocSharedOrderLineValidator());
+}
+
+sealed class MultiDocOrderEndpointA : Endpoint<MultiDocOrderRequestA>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/multi-doc-order-a");
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(MultiDocOrderRequestA r, CancellationToken ct)
+        => Send.OkAsync(ct);
+}
+
+sealed class MultiDocOrderRequestB
+{
+    public List<MultiDocSharedOrderLine> Lines { get; init; } = [];
+}
+
+sealed class MultiDocOrderRequestBValidator : Validator<MultiDocOrderRequestB>
+{
+    public MultiDocOrderRequestBValidator()
+        => RuleForEach(x => x.Lines).SetValidator(new MultiDocSharedOrderLineValidator());
+}
+
+sealed class MultiDocOrderEndpointB : Endpoint<MultiDocOrderRequestB>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/multi-doc-order-b");
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(MultiDocOrderRequestB r, CancellationToken ct)
+        => Send.OkAsync(ct);
+}

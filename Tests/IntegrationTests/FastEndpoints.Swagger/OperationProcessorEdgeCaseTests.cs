@@ -89,6 +89,30 @@ public class OperationProcessorEdgeCaseTests(Fixture App) : TestBase<Fixture>
     }
 
     [Fact]
+    public async Task shared_nested_validator_constraints_survive_multi_document_generation()
+    {
+        var doc1 = await App.DocGenerator.GenerateAsync("Swagger Review");
+        var doc2 = await App.DocGenerator.GenerateAsync("Swagger Review Empty Schema");
+
+        var orderLineKey = JToken.Parse(doc1.ToJson())["components"]!["schemas"]!
+                                 .Children<JProperty>()
+                                 .First(p => p.Name.EndsWith("MultiDocSharedOrderLine"))
+                                 .Name;
+
+        static JToken GetOrderLineSchema(string json, string key)
+            => JToken.Parse(json)["components"]!["schemas"]![key]!;
+
+        var schema1 = GetOrderLineSchema(doc1.ToJson(), orderLineKey);
+        var schema2 = GetOrderLineSchema(doc2.ToJson(), orderLineKey);
+
+        schema1["properties"]!["sku"]!["minLength"]!.Value<int>().ShouldBe(1);
+        schema2["properties"]!["sku"]!["minLength"]!.Value<int>().ShouldBe(1);
+
+        schema1["properties"]!["qty"]!["exclusiveMinimum"]!.Value<bool>().ShouldBeTrue();
+        schema2["properties"]!["qty"]!["exclusiveMinimum"]!.Value<bool>().ShouldBeTrue();
+    }
+
+    [Fact]
     public async Task x402_headers_are_added_to_request_and_responses()
     {
         var doc = await App.DocGenerator.GenerateAsync("Release 2.0");

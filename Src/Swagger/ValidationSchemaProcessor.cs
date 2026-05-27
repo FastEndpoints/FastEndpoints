@@ -20,7 +20,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using FastEndpoints.Swagger.ValidationProcessor;
@@ -42,7 +41,6 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
     readonly ILogger<ValidationSchemaProcessor> _logger;
     static Type[]? _validatorTypes;
     readonly FluentValidationRule[] _rules;
-    readonly ConcurrentDictionary<string, IValidator> _childAdaptorValidators = new();
 
     public ValidationSchemaProcessor(IServiceResolver serviceResolver, ILogger<ValidationSchemaProcessor> logger)
     {
@@ -66,6 +64,7 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
 
         var tRequest = context.ContextualType;
         using var scope = _serviceResolver.CreateScope();
+        var childAdaptorValidators = new Dictionary<string, IValidator>();
 
         foreach (var tValidator in _validatorTypes)
         {
@@ -75,7 +74,7 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
                 {
                     var validator = _serviceResolver.CreateInstance(tValidator, scope.ServiceProvider) ??
                                     throw new InvalidOperationException($"Unable to instantiate validator {tValidator.Name}!");
-                    ApplyValidator(context.Schema, (IValidator)validator, "", scope.ServiceProvider);
+                    ApplyValidator(context.Schema, (IValidator)validator, "", scope.ServiceProvider, childAdaptorValidators);
 
                     break;
                 }
@@ -87,18 +86,19 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
         }
     }
 
-    void ApplyValidator(JsonSchema schema, IValidator validator, string propertyPrefix, IServiceProvider services)
+    void ApplyValidator(JsonSchema schema, IValidator validator, string propertyPrefix, IServiceProvider services, Dictionary<string, IValidator> childAdaptorValidators)
     {
         // Create dict of rules for this validator
         var rulesDict = validator.GetDictionaryOfRules();
-        ApplyRulesToSchema(schema, rulesDict, propertyPrefix, services);
-        ApplyRulesFromIncludedValidators(schema, validator, services);
+        ApplyRulesToSchema(schema, rulesDict, propertyPrefix, services, childAdaptorValidators);
+        ApplyRulesFromIncludedValidators(schema, validator, services, childAdaptorValidators);
     }
 
     void ApplyRulesToSchema(JsonSchema? schema,
                             ReadOnlyDictionary<string, List<IValidationRule>> rulesDict,
                             string propertyPrefix,
-                            IServiceProvider services)
+                            IServiceProvider services,
+                            Dictionary<string, IValidator> childAdaptorValidators)
     {
         if (schema is null)
             return;
@@ -107,15 +107,15 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
         if (schema.ActualProperties != null)
         {
             foreach (var schemaProperty in schema.ActualProperties.Keys)
-                TryApplyValidation(schema, rulesDict, schemaProperty, propertyPrefix, services);
+                TryApplyValidation(schema, rulesDict, schemaProperty, propertyPrefix, services, childAdaptorValidators);
         }
 
         // Add properties from base class
-        ApplyRulesToSchema(schema.InheritedSchema, rulesDict, propertyPrefix, services);
+        ApplyRulesToSchema(schema.InheritedSchema, rulesDict, propertyPrefix, services, childAdaptorValidators);
     }
 
     [DynamicDependency(DynamicallyAccessedMemberTypes.PublicMethods, typeof(ChildValidatorAdaptor<,>))]
-    void ApplyRulesFromIncludedValidators(JsonSchema schema, IValidator validator, IServiceProvider services)
+    void ApplyRulesFromIncludedValidators(JsonSchema schema, IValidator validator, IServiceProvider services, Dictionary<string, IValidator> childAdaptorValidators)
     {
         if (validator is not IEnumerable<IValidationRule> rules)
             return;
@@ -141,8 +141,8 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
             if (adapterMethod.Invoke(adapter, [validationContext, null!]) is not IValidator includeValidator)
                 break;
 
-            ApplyRulesToSchema(schema, includeValidator.GetDictionaryOfRules(), string.Empty, services);
-            ApplyRulesFromIncludedValidators(schema, includeValidator, services);
+            ApplyRulesToSchema(schema, includeValidator.GetDictionaryOfRules(), string.Empty, services, childAdaptorValidators);
+            ApplyRulesFromIncludedValidators(schema, includeValidator, services, childAdaptorValidators);
         }
     }
 
@@ -150,7 +150,8 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
                             ReadOnlyDictionary<string, List<IValidationRule>> rulesDict,
                             string propertyName,
                             string parameterPrefix,
-                            IServiceProvider services)
+                            IServiceProvider services,
+                            Dictionary<string, IValidator> childAdaptorValidators)
     {
         // Build the full property name with composition route: request.child.property
         var fullPropertyName = $"{parameterPrefix}{propertyName}";
@@ -160,17 +161,17 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
         {
             // Go through each rule and apply it to the schema
             foreach (var validationRule in validationRules)
-                ApplyValidationRule(schema, validationRule, propertyName, services);
+                ApplyValidationRule(schema, validationRule, propertyName, services, childAdaptorValidators);
         }
 
         // If the property is a child object, recursively apply validation to it adding prefix as we go down one level
         var property = schema.ActualProperties[propertyName];
         var propertySchema = property.ActualSchema;
         if (propertySchema.ActualProperties is not null && propertySchema.ActualProperties.Count > 0 && propertySchema != schema)
-            ApplyRulesToSchema(propertySchema, rulesDict, $"{fullPropertyName}.", services);
+            ApplyRulesToSchema(propertySchema, rulesDict, $"{fullPropertyName}.", services, childAdaptorValidators);
     }
 
-    void ApplyValidationRule(JsonSchema schema, IValidationRule validationRule, string propertyName, IServiceProvider services)
+    void ApplyValidationRule(JsonSchema schema, IValidationRule validationRule, string propertyName, IServiceProvider services, Dictionary<string, IValidator> childAdaptorValidators)
     {
         foreach (var ruleComponent in validationRule.Components)
         {
@@ -197,10 +198,10 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
                     throw new InvalidOperationException("ChildValidatorAdaptor.ValidatorType is null");
 
                 // Retrieve or create an instance of the validator
-                if (!validatorType.IsInterface &&                                                          //can't create instances of interfaces.
-                    !_childAdaptorValidators.TryGetValue(validatorType.FullName!, out var childValidator)) //avoid infinite recursions if child validator seen.
+                if (!validatorType.IsInterface &&                                                  //can't create instances of interfaces.
+                    !childAdaptorValidators.TryGetValue(validatorType.FullName!, out var childValidator))         //avoid infinite recursions if child validator seen.
                 {
-                    childValidator = _childAdaptorValidators[validatorType.FullName!] =
+                    childValidator = childAdaptorValidators[validatorType.FullName!] =
                                          (IValidator)_serviceResolver.CreateInstance(validatorType, services);
                 }
                 else
@@ -211,7 +212,7 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
 
                 // Check if it is an array (RuleForEach()). In this case we need to apply validator to an Item Schema
                 childSchema = childSchema.Type == JsonObjectType.Array ? childSchema.Item!.ActualSchema : childSchema;
-                ApplyValidator(childSchema, childValidator, string.Empty, services);
+                ApplyValidator(childSchema, childValidator, string.Empty, services, childAdaptorValidators);
 
                 continue;
             }

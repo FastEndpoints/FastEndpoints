@@ -10,6 +10,29 @@ Due to low financial backing by the community, FastEndpoints will soon be going 
 
 ## New 🎉
 
+<details><summary>Source-generated types are now auto-registered at startup</summary>
+
+When using the `FastEndpoints.Generator` package, discovered types are now automatically registered at application startup via a `[ModuleInitializer]` emitted by the source generator. There is no longer any need to manually wire up source-generated types in your startup code.
+
+**Before:**
+
+```csharp
+builder.Services.AddFastEndpoints(o =>
+{
+    o.SourceGeneratorDiscoveredTypes.AddRange(MyAssembly.DiscoveredTypes.All);
+});
+```
+
+**After:**
+
+```csharp
+builder.Services.AddFastEndpoints(); // types are auto-registered by the generator
+```
+
+The generator emits a `[ModuleInitializer]` method in each assembly that stores discovered types in a static class. Both endpoint discovery (`AddFastEndpoints`) and the messaging setup (`AddMessaging`) consume the this before falling back to reflection-based assembly scanning. Previously the messaging setup would always use reflection-based assembly scanning.
+
+</details>
+
 <details><summary>New 'FastEndpoints.OpenApi' package based on 'Microsoft.AspNetCore.OpenApi'</summary>
 
 Starting with `v8.2`, the FastEndpoints ecosystem has switched from `NSwag/Newtonsoft` based Swagger/OpenAPI document generation to the more modern and Native AOT friendly `Microsoft.AspNetCore.OpenApi` based document generation library. Integration is provided via a new `FastEndpoints.OpenApi` package which corrects a few issues with the MS package as well as doing a lot of post-processing on the document model to bring feature parity with the `FastEndpoints.Swagger` package.
@@ -244,6 +267,12 @@ The new `FastEndpoints.OpenApi*` packages are however .NET 10+ only. If you'd li
 </details>
 
 ## Minor Breaking Changes ⚠️
+
+<details><summary>'SourceGeneratorDiscoveredTypes' removed from 'EndpointDiscoveryOptions'</summary>
+
+The `EndpointDiscoveryOptions.SourceGeneratorDiscoveredTypes` property has been removed. Source-generated types are now registered automatically at startup via `[ModuleInitializer]` — see above. The remaining properties in `EndpointDiscoveryOptions` are all reflection related, therefore simply use builder.Services.AddFastEndpoints().
+
+</details>
 
 <details><summary>Dropped support for netstandard2.1</summary>
 

@@ -20,6 +20,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using FastEndpoints.Swagger.ValidationProcessor;
@@ -41,7 +42,7 @@ sealed class ValidationSchemaProcessor : ISchemaProcessor
     readonly ILogger<ValidationSchemaProcessor> _logger;
     static Type[]? _validatorTypes;
     readonly FluentValidationRule[] _rules;
-    readonly Dictionary<string, IValidator> _childAdaptorValidators = new();
+    readonly ConcurrentDictionary<string, IValidator> _childAdaptorValidators = new();
 
     public ValidationSchemaProcessor(IServiceResolver serviceResolver, ILogger<ValidationSchemaProcessor> logger)
     {

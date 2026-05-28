@@ -21,6 +21,21 @@ public static class JobQueueExtensions
     /// <typeparam name="TStorageRecord">the implementation type of the job storage record</typeparam>
     /// <typeparam name="TStorageProvider">the implementation type of the job storage provider</typeparam>
     /// <param name="svc"></param>
+    public static IServiceCollection AddJobQueues<TStorageRecord, TStorageProvider>(this IServiceCollection svc)
+        where TStorageRecord : class, IJobStorageRecord, new()
+        where TStorageProvider : class, IJobStorageProvider<TStorageRecord>
+    {
+        svc.AddMessaging((Assembly[]?)null);
+
+        return AddJobQueuesCore<TStorageRecord, TStorageProvider>(svc);
+    }
+
+    /// <summary>
+    /// add job queue functionality
+    /// </summary>
+    /// <typeparam name="TStorageRecord">the implementation type of the job storage record</typeparam>
+    /// <typeparam name="TStorageProvider">the implementation type of the job storage provider</typeparam>
+    /// <param name="svc"></param>
     /// <param name="assemblies">
     /// assemblies to scan for command handlers, in addition to all loaded assemblies.
     /// only applicable when using job queues as a standalone library.

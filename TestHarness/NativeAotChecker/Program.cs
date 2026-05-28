@@ -12,7 +12,7 @@ bld.Services
    .AddAuthenticationJwtBearer(o => o.SigningKey = bld.Configuration["Jwt-Secret"])
    .AddAuthorization()
    .AddFastEndpoints(DiscoveredTypes.All, GenericProcessorTypes.All)
-   .AddJobQueues<Job, JobStorage>(DiscoveredTypes.All)
+   .AddJobQueues<Job, JobStorage>()
    .AddCommandMiddleware(
        c =>
        {

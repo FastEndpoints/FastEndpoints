@@ -3,7 +3,6 @@ using FluentValidation.Results;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Web.Services;
 
 namespace Binding;
 

@@ -39,7 +39,7 @@ bld.Services
    .AddKeyedTransient<IKeyedService>("BBB", (_, _) => new MyKeyedService("BBB"))
    .AddScoped<IEmailService, EmailService>()
    .AddSingleton(new SingltonSVC(0))
-   .AddJobQueues<Job, JobStorage>(DiscoveredTypes.All)
+   .AddJobQueues<Job, JobStorage>()
    .RegisterServicesFromWeb()
    .AddAntiforgery()
    .OpenApiDocument(

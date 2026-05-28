@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;

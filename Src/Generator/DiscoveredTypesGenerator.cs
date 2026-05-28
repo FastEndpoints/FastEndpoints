@@ -99,12 +99,12 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
             """
 
                 ];
-
+                
                 // this method instructs the native aot linker to not strip away metadata on a given type
                 static Type Preserve<
                     [DynamicallyAccessedMembers(
-                        DynamicallyAccessedMemberTypes.PublicConstructors |
-                        DynamicallyAccessedMemberTypes.PublicMethods |
+                        DynamicallyAccessedMemberTypes.PublicConstructors | 
+                        DynamicallyAccessedMemberTypes.PublicMethods | 
                         DynamicallyAccessedMemberTypes.Interfaces)]T>() => typeof(T);
             }
             """);

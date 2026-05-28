@@ -10,6 +10,29 @@ Due to low financial backing by the community, FastEndpoints will soon be going 
 
 ## New 🎉
 
+<details><summary>Partial static properties in a partial Allow class are now auto-implemented by the Generator</summary>
+
+You can now declare `public static partial string` properties in a `partial Allow` class without providing an implementation. The `FastEndpoints.Generator` package detects these declarations and generates the property body with the same computed permission code that would be produced if the permission were defined directly on an endpoint via `AccessControl(...)`.
+
+```csharp
+public static partial class Allow
+{
+    public static partial string Inventory_Create { get; }
+    public static partial string Inventory_Update { get; }
+}
+```
+
+The generator emits the implementations automatically:
+
+```csharp
+public static partial string Inventory_Create { get => "A1B"; }
+public static partial string Inventory_Update { get => "C3D"; }
+```
+
+The generated permission codes are stable (derived from the property name via a SHA256-based hash), so they survive refactors as long as the property name stays the same.
+
+</details>
+
 <details><summary>Source-generated type lists can now also be passed directly to AddMessaging and AddJobQueues methods</summary>
 
 `AddFastEndpoints`, `AddMessaging`, and `AddJobQueues` now each have a new overload that accepts one or more `List<Type>` values — one per referenced assembly — making it possible to use the FastEndpoints.Generator package with the Messaging as well as the JobQueue package when the main FastEndpoint package is not used.

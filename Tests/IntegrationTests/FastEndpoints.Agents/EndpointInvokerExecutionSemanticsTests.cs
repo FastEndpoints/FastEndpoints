@@ -115,8 +115,7 @@ public class EndpointInvokerExecutionSemanticsTests
         services.AddHttpContextAccessor();
         services.AddSingleton<IHttpContextAccessor, TestHttpContextAccessor>();
         services.AddSingleton<InvocationProbe>();
-        DiscoveredTypeRegistry.Override(endpointTypes);
-        services.AddFastEndpoints();
+        services.AddFastEndpoints(new List<Type>(endpointTypes));
         services.AddMcp(o => o.ToolVisibilityFilter = static (_, _, _) => true);
 
         return services.BuildServiceProvider();

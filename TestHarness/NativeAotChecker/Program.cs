@@ -11,8 +11,8 @@ var bld = WebApplication.CreateSlimBuilder(args);
 bld.Services
    .AddAuthenticationJwtBearer(o => o.SigningKey = bld.Configuration["Jwt-Secret"])
    .AddAuthorization()
-   .AddFastEndpoints()
-   .AddJobQueues<Job, JobStorage>()
+   .AddFastEndpoints(DiscoveredTypes.All, GenericProcessorTypes.All)
+   .AddJobQueues<Job, JobStorage>(DiscoveredTypes.All)
    .AddCommandMiddleware(
        c =>
        {

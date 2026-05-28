@@ -28,7 +28,6 @@ public class MalformedMultipartTests : IAsyncLifetime
 
         var bld = WebApplication.CreateBuilder();
         bld.WebHost.ConfigureKestrel(o => o.Listen(IPAddress.Loopback, 0));
-        DiscoveredTypeRegistry.Override(); // Forces FastEndpoints to ignore the generator and use reflection to find endpoints
         bld.Services.AddFastEndpoints(o => o.Filter = t => t == typeof(Ep));
         var app = bld.Build();
         app.UseFastEndpoints(

@@ -138,8 +138,7 @@ public class McpToolNameValidationTests
 
         services.AddLogging();
         services.AddHttpContextAccessor();
-        DiscoveredTypeRegistry.Override(endpointTypes);
-        services.AddFastEndpoints();
+        services.AddFastEndpoints(new List<Type>(endpointTypes));
         services.AddMcp(o => o.ToolVisibilityFilter = static (_, _, _) => true);
 
         return services.BuildServiceProvider();

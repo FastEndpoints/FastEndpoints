@@ -80,11 +80,10 @@ public class McpToolDuplicateNameTests
 
         services.AddLogging();
         services.AddHttpContextAccessor();
-        Type[] types = includeSecondDuplicate
-            ? [typeof(VisibleDuplicateToolEndpoint), typeof(SecondDuplicateToolEndpoint)]
-            : [typeof(VisibleDuplicateToolEndpoint)];
-        DiscoveredTypeRegistry.Override(types);
-        services.AddFastEndpoints();
+        var types = includeSecondDuplicate
+            ? new List<Type> { typeof(VisibleDuplicateToolEndpoint), typeof(SecondDuplicateToolEndpoint) }
+            : new List<Type> { typeof(VisibleDuplicateToolEndpoint) };
+        services.AddFastEndpoints(types);
         services.AddMcp(o => o.ToolVisibilityFilter = visibilityFilter);
 
         var provider = services.BuildServiceProvider();

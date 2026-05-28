@@ -10,9 +10,9 @@ Due to low financial backing by the community, FastEndpoints will soon be going 
 
 ## New 🎉
 
-<details><summary>Source-generated types are now auto-registered at startup</summary>
+<details><summary>Source-generated type lists can now also be passed directly to AddMessaging and AddJobQueues methods</summary>
 
-When using the `FastEndpoints.Generator` package, discovered types are now automatically registered at application startup via a `[ModuleInitializer]` emitted by the source generator. There is no longer any need to manually wire up source-generated types in your startup code.
+`AddFastEndpoints`, `AddMessaging`, and `AddJobQueues` now each have a new overload that accepts one or more `List<Type>` values — one per referenced assembly — making it possible to use the FastEndpoints.Generator package with the Messaging as well as the JobQueue package when the main FastEndpoint package is not used.
 
 **Before:**
 
@@ -26,10 +26,26 @@ builder.Services.AddFastEndpoints(o =>
 **After:**
 
 ```csharp
-builder.Services.AddFastEndpoints(); // types are auto-registered by the generator
+// single assembly
+builder.Services.AddFastEndpoints(DiscoveredTypes.All);
+
+// multiple assemblies
+builder.Services.AddFastEndpoints(Lib1.DiscoveredTypes.All, Lib2.DiscoveredTypes.All);
 ```
 
-The generator emits a `[ModuleInitializer]` method in each assembly that stores discovered types in a static class. Both endpoint discovery (`AddFastEndpoints`) and the messaging setup (`AddMessaging`) consume the this before falling back to reflection-based assembly scanning. Previously the messaging setup would always use reflection-based assembly scanning.
+The same pattern applies when using Messaging or JobQueues as standalone libraries (i.e. without `AddFastEndpoints`):
+
+```csharp
+// Messaging only
+builder.Services.AddMessaging(DiscoveredTypes.All);
+
+// JobQueues only
+builder.Services.AddJobQueues<Job, JobStorage>(DiscoveredTypes.All);
+```
+
+The two overloads are intentionally separated since source-generated and reflection-based discovery are mutually exclusive strategies and prevents accidental use of both paths at once.
+
+If `AddFastEndpoints` is already called with the discovered types, `AddMessaging` and `AddJobQueues` do not need them passed again — use the parameterless overloads for those calls.
 
 </details>
 
@@ -270,7 +286,18 @@ The new `FastEndpoints.OpenApi*` packages are however .NET 10+ only. If you'd li
 
 <details><summary>'SourceGeneratorDiscoveredTypes' removed from 'EndpointDiscoveryOptions'</summary>
 
-The `EndpointDiscoveryOptions.SourceGeneratorDiscoveredTypes` property has been removed. Source-generated types are now registered automatically at startup via `[ModuleInitializer]` — see above. The remaining properties in `EndpointDiscoveryOptions` are all reflection related, therefore simply use builder.Services.AddFastEndpoints().
+The `EndpointDiscoveryOptions.SourceGeneratorDiscoveredTypes` property has been removed. Pass the source-generated type list directly to `AddFastEndpoints` instead — see above.
+
+```csharp
+// before
+builder.Services.AddFastEndpoints(o =>
+{
+    o.SourceGeneratorDiscoveredTypes.AddRange(DiscoveredTypes.All);
+});
+
+// after
+builder.Services.AddFastEndpoints(DiscoveredTypes.All);
+```
 
 </details>
 

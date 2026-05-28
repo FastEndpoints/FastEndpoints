@@ -294,25 +294,27 @@ public class McpToolDescriptorTests
         services.AddLogging();
         services.AddHttpContextAccessor();
         services.AddScoped<ScopedValidatorDependency>();
-        DiscoveredTypeRegistry.Override(
-            typeof(DescriptorToolEndpoint),
-            typeof(AttributeToolEndpoint),
-            typeof(AttributeFalseToolEndpoint),
-            typeof(AttributeOmittedHintsToolEndpoint),
-            typeof(SnakeCaseContextToolEndpoint),
-            typeof(KebabCaseContextToolEndpoint),
-            typeof(ValidatedContextToolEndpoint),
-            typeof(SerializerContextToolRequestValidator),
-            typeof(ScopedValidatorToolEndpoint),
-            typeof(ScopedValidatorToolRequestValidator),
-            typeof(PrincipalBoundToolEndpoint),
-            typeof(FaultedToolEndpoint),
-            typeof(HiddenTransportInputToolEndpoint),
-            typeof(ToHeaderOutputToolEndpoint),
-            typeof(MismatchedTypeOutputToolEndpoint),
-            typeof(MissingRequiredOutputToolEndpoint),
-            typeof(UnknownNestedOutputToolEndpoint));
-        services.AddFastEndpoints();
+        services.AddFastEndpoints(
+            new List<Type>
+            {
+                typeof(DescriptorToolEndpoint),
+                typeof(AttributeToolEndpoint),
+                typeof(AttributeFalseToolEndpoint),
+                typeof(AttributeOmittedHintsToolEndpoint),
+                typeof(SnakeCaseContextToolEndpoint),
+                typeof(KebabCaseContextToolEndpoint),
+                typeof(ValidatedContextToolEndpoint),
+                typeof(SerializerContextToolRequestValidator),
+                typeof(ScopedValidatorToolEndpoint),
+                typeof(ScopedValidatorToolRequestValidator),
+                typeof(PrincipalBoundToolEndpoint),
+                typeof(FaultedToolEndpoint),
+                typeof(HiddenTransportInputToolEndpoint),
+                typeof(ToHeaderOutputToolEndpoint),
+                typeof(MismatchedTypeOutputToolEndpoint),
+                typeof(MissingRequiredOutputToolEndpoint),
+                typeof(UnknownNestedOutputToolEndpoint)
+            });
         services.AddMcp(
             o =>
             {

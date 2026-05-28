@@ -112,14 +112,16 @@ public class EndpointInvokerBindingTests
 
         services.AddLogging();
         services.AddHttpContextAccessor();
-        DiscoveredTypeRegistry.Override(
-            typeof(RouteBoundEndpoint),
-            typeof(QueryBoundEndpoint),
-            typeof(RouteAndQueryReaderEndpoint),
-            typeof(CompositeRoutePathEndpoint),
-            typeof(SerializerContextQueryEndpoint),
-            typeof(RawQueryReaderEndpoint));
-        services.AddFastEndpoints();
+        services.AddFastEndpoints(
+            new List<Type>
+            {
+                typeof(RouteBoundEndpoint),
+                typeof(QueryBoundEndpoint),
+                typeof(RouteAndQueryReaderEndpoint),
+                typeof(CompositeRoutePathEndpoint),
+                typeof(SerializerContextQueryEndpoint),
+                typeof(RawQueryReaderEndpoint)
+            });
         services.AddMcp(o => o.ToolVisibilityFilter = static (_, _, _) => true);
 
         var provider = services.BuildServiceProvider();

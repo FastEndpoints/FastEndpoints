@@ -12,46 +12,43 @@ sealed class EndpointData
 
     internal EndpointDefinition[] Found { get; }
 
-    internal EndpointData(EndpointDiscoveryOptions? options, CommandHandlerRegistry cmdHandlerRegistry)
+    internal EndpointData(EndpointDiscoveryOptions opts, CommandHandlerRegistry cmdHandlerRegistry)
     {
         Stopwatch.Start();
-        Found = BuildEndpointDefinitions(options, cmdHandlerRegistry);
+        var discoveredTypes = AssemblyScanner.ScanForTypes(
+            new()
+            {
+                DisableAutoDiscovery = opts.DisableAutoDiscovery,
+                Assemblies = opts.Assemblies,
+                AssemblyFilter = opts.AssemblyFilter,
+                TypeFilter = opts.Filter,
+                ExcludeAttribute = Types.DontRegisterAttribute,
+                InterfaceTypes =
+                [
+                    Types.IEndpoint,
+                    Types.IEventHandler,
+                    Types.ICommandHandler,
+                    Types.ISummary,
+                    opts.IncludeAbstractValidators ? Types.IValidator : Types.IEndpointValidator
+                ]
+            });
+        Found = BuildEndpointDefinitions(discoveredTypes, cmdHandlerRegistry);
 
         if (Found.Length == 0)
             throw new InvalidOperationException("FastEndpoints was unable to find any endpoint declarations!");
     }
 
-    static EndpointDefinition[] BuildEndpointDefinitions(EndpointDiscoveryOptions? opts, CommandHandlerRegistry cmdHandlerRegistry)
+    internal EndpointData(IEnumerable<Type> discoveredTypes, CommandHandlerRegistry cmdHandlerRegistry)
     {
-        if (DiscoveredTypeRegistry.HasTypes && opts != null)
-        {
-            throw new InvalidOperationException(
-                $"`FastEndpoints.Generator' and `{nameof(EndpointDiscoveryOptions)}` (used with reflection-based discovery) cannot be used together! Choose only one of these strategies.");
-        }
+        Stopwatch.Start();
+        Found = BuildEndpointDefinitions(discoveredTypes, cmdHandlerRegistry);
 
-        IEnumerable<Type> discoveredTypes = DiscoveredTypeRegistry.All;
-        if (!DiscoveredTypeRegistry.HasTypes)
-        {
-            opts ??= new EndpointDiscoveryOptions();
-            discoveredTypes = AssemblyScanner.ScanForTypes(
-                                   new()
-                                   {
-                                       DisableAutoDiscovery = opts.DisableAutoDiscovery,
-                                       Assemblies = opts.Assemblies,
-                                       AssemblyFilter = opts.AssemblyFilter,
-                                       TypeFilter = opts.Filter,
-                                       ExcludeAttribute = Types.DontRegisterAttribute,
-                                       InterfaceTypes =
-                                       [
-                                           Types.IEndpoint,
-                                           Types.IEventHandler,
-                                           Types.ICommandHandler,
-                                           Types.ISummary,
-                                           opts.IncludeAbstractValidators ? Types.IValidator : Types.IEndpointValidator
-                                       ]
-                                   });
-        }
+        if (Found.Length == 0)
+            throw new InvalidOperationException("FastEndpoints was unable to find any endpoint declarations!");
+    }
 
+    static EndpointDefinition[] BuildEndpointDefinitions(IEnumerable<Type> discoveredTypes, CommandHandlerRegistry cmdHandlerRegistry)
+    {
         //Endpoint<TRequest>
         //Validator<TRequest>
 

@@ -134,8 +134,7 @@ public class McpToolVisibilityTests
 
         services.AddLogging();
         services.AddHttpContextAccessor();
-        DiscoveredTypeRegistry.Override(typeof(VisibleToolEndpoint));
-        services.AddFastEndpoints();
+        services.AddFastEndpoints(new List<Type> { typeof(VisibleToolEndpoint) });
         services.AddMcp(
             o =>
             {

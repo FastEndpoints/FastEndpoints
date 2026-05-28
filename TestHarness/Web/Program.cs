@@ -31,7 +31,7 @@ bld.Services
    .AddOutputCache()
    .AddIdempotency()
    .AddResponseCaching()
-   .AddFastEndpoints()
+   .AddFastEndpoints(DiscoveredTypes.All)
    .AddX402()
    .AddAuthenticationJwtBearer(s => s.SigningKey = bld.Configuration["TokenKey"]!)
    .AddAuthorization(o => o.AddPolicy("AdminOnly", b => b.RequireRole(Role.Admin)))
@@ -39,7 +39,7 @@ bld.Services
    .AddKeyedTransient<IKeyedService>("BBB", (_, _) => new MyKeyedService("BBB"))
    .AddScoped<IEmailService, EmailService>()
    .AddSingleton(new SingltonSVC(0))
-   .AddJobQueues<Job, JobStorage>()
+   .AddJobQueues<Job, JobStorage>(DiscoveredTypes.All)
    .RegisterServicesFromWeb()
    .AddAntiforgery()
    .OpenApiDocument(

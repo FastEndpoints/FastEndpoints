@@ -26,10 +26,16 @@ namespace FastEndpoints;
 public static class MainExtensions
 {
     /// <summary>
-    /// adds the FastEndpoints services to the ASP.Net middleware pipeline using reflection-based type discovery
+    /// adds the FastEndpoints services to the ASP.Net middleware pipeline using reflection-based type discovery.
+    /// </summary>
+    public static IServiceCollection AddFastEndpoints(this IServiceCollection services)
+        => AddFastEndpoints(services, (Action<EndpointDiscoveryOptions>?)null);
+
+    /// <summary>
+    /// adds the FastEndpoints services to the ASP.Net middleware pipeline using reflection-based type discovery.
     /// </summary>
     /// <param name="options">optionally specify the reflection-based type discovery options</param>
-    public static IServiceCollection AddFastEndpoints(this IServiceCollection services, Action<EndpointDiscoveryOptions>? options = null)
+    public static IServiceCollection AddFastEndpoints(this IServiceCollection services, Action<EndpointDiscoveryOptions>? options)
     {
         var opts = new EndpointDiscoveryOptions();
         options?.Invoke(opts);

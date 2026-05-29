@@ -16,7 +16,7 @@ public static class JobQueueExtensions
     static Type _tStorageProvider = null!;
 
     /// <summary>
-    /// add job queue functionality
+    /// add job queue functionality. when <c>.AddFastEndpoints()</c> is not in the pipeline, performs reflection-based type discovery of all loaded assemblies.
     /// </summary>
     /// <typeparam name="TStorageRecord">the implementation type of the job storage record</typeparam>
     /// <typeparam name="TStorageProvider">the implementation type of the job storage provider</typeparam>
@@ -25,13 +25,13 @@ public static class JobQueueExtensions
         where TStorageRecord : class, IJobStorageRecord, new()
         where TStorageProvider : class, IJobStorageProvider<TStorageRecord>
     {
-        svc.AddMessaging((Assembly[]?)null);
+        svc.AddMessaging();
 
         return AddJobQueuesCore<TStorageRecord, TStorageProvider>(svc);
     }
 
     /// <summary>
-    /// add job queue functionality
+    /// add job queue functionality using reflection-based type discovery.
     /// </summary>
     /// <typeparam name="TStorageRecord">the implementation type of the job storage record</typeparam>
     /// <typeparam name="TStorageProvider">the implementation type of the job storage provider</typeparam>

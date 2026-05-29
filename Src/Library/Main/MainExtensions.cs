@@ -66,16 +66,14 @@ public static class MainExtensions
         return app;
     }
 
+    static readonly object _serializerConfigLock = new();
+    static volatile bool _serializerConfigured;
+
     public static IEndpointRouteBuilder MapFastEndpoints(this IEndpointRouteBuilder app, Action<Cfg>? configAction = null)
     {
         ServiceResolver.Instance = app.ServiceProvider.GetRequiredService<IServiceResolver>();
 
-        var serializerOptions = app.ServiceProvider.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions;
-
-        if (serializerOptions is not null)
-            Cfg.SerOpts.Options = new(serializerOptions);
-
-        Cfg.SerOpts.Options.ConfigureSerializer(app.ServiceProvider.GetRequiredService<Cfg>(), configAction);
+        ConfigureSerializerOnce(app, configAction);
         Cfg.BndOpts.AddTypedHeaderValueParsers();
 
         if (Cfg.ValOpts.UsePropertyNamingPolicy && Cfg.SerOpts.Options.PropertyNamingPolicy is not null)
@@ -212,6 +210,30 @@ public static class MainExtensions
            .ExcludeFromDescription();
 
         return app;
+    }
+
+    /// <summary>
+    ///     Configures the process-wide serializer options (<see cref="SerializerOptions.Options" />) exactly once.
+    /// </summary>
+    static void ConfigureSerializerOnce(IEndpointRouteBuilder app, Action<Cfg>? configAction)
+    {
+        if (_serializerConfigured)
+            return;
+
+        lock (_serializerConfigLock)
+        {
+            if (_serializerConfigured)
+                return;
+
+            var serializerOptions = app.ServiceProvider.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions;
+
+            if (serializerOptions is not null)
+                Cfg.SerOpts.Options = new(serializerOptions);
+
+            Cfg.SerOpts.Options.ConfigureSerializer(app.ServiceProvider.GetRequiredService<Cfg>(), configAction);
+
+            _serializerConfigured = true;
+        }
     }
 
     internal static string BuildRoute(this StringBuilder builder, int epVersion, string route, string? prefixOverride)

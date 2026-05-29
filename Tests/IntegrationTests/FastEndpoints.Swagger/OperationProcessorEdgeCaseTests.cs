@@ -135,4 +135,61 @@ public class OperationProcessorEdgeCaseTests(Fixture App) : TestBase<Fixture>
                                                                                       .ShouldBe("#/components/schemas/FastEndpointsProblemDetails");
         responses["404"]!["description"]!.Value<string>().ShouldBe("Not Found");
     }
+
+    [Fact]
+    public async Task concurrent_document_generation_preserves_nested_validator_constraints()
+    {
+        var results = await Task.WhenAll(
+            App.DocGenerator.GenerateAsync("Swagger Review"),
+            App.DocGenerator.GenerateAsync("Swagger Review Empty Schema"),
+            App.DocGenerator.GenerateAsync("Release 2.0"));
+
+        foreach (var doc in results.Take(2)) // first two contain swagger_review endpoints
+        {
+            var json = doc.ToJson();
+
+            var orderLineKey = JToken.Parse(json)["components"]!["schemas"]!
+                                     .Children<JProperty>()
+                                     .First(p => p.Name.EndsWith("MultiDocSharedOrderLine"))
+                                     .Name;
+
+            var orderLineSchema = JToken.Parse(json)["components"]!["schemas"]![orderLineKey]!;
+            orderLineSchema["properties"]!["sku"]!["minLength"]!.Value<int>().ShouldBe(1);
+            orderLineSchema["properties"]!["qty"]!["exclusiveMinimum"]!.Value<bool>().ShouldBeTrue();
+
+            var addressKey = JToken.Parse(json)["components"]!["schemas"]!
+                                   .Children<JProperty>()
+                                   .First(p => p.Name.EndsWith("DualChildAddress") && !p.Name.EndsWith("DualChildAddressRequest"))
+                                   .Name;
+
+            var addressSchema = JToken.Parse(json)["components"]!["schemas"]![addressKey]!;
+            addressSchema["required"]!.Values<string>().ShouldContain("zip");
+            addressSchema["properties"]!["zip"]!["minLength"]!.Value<int>().ShouldBe(1);
+        }
+    }
+
+    [Fact]
+    public async Task repeated_same_child_validator_type_applies_constraints_to_all_properties()
+    {
+        var doc = await App.DocGenerator.GenerateAsync("Swagger Review");
+
+        var addressKey = JToken.Parse(doc.ToJson())["components"]!["schemas"]!
+                               .Children<JProperty>()
+                               .First(p => p.Name.EndsWith("DualChildAddress"))
+                               .Name;
+
+        var requestKey = JToken.Parse(doc.ToJson())["components"]!["schemas"]!
+                                .Children<JProperty>()
+                                .First(p => p.Name.EndsWith("DualChildAddressRequest"))
+                                .Name;
+
+        var addressSchema = JToken.Parse(doc.ToJson())["components"]!["schemas"]![addressKey]!;
+        var requestSchema = JToken.Parse(doc.ToJson())["components"]!["schemas"]![requestKey]!;
+
+        addressSchema["required"]!.Values<string>().ShouldContain("zip");
+        addressSchema["properties"]!["zip"]!["minLength"]!.Value<int>().ShouldBe(1);
+
+        requestSchema["properties"]!["billingAddress"]!["$ref"]!.Value<string>().ShouldEndWith(addressKey);
+        requestSchema["properties"]!["shippingAddress"]!["$ref"]!.Value<string>().ShouldEndWith(addressKey);
+    }
 }

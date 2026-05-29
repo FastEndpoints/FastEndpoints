@@ -1197,3 +1197,41 @@ sealed class MultiDocOrderEndpointB : Endpoint<MultiDocOrderRequestB>
     public override Task HandleAsync(MultiDocOrderRequestB r, CancellationToken ct)
         => Send.OkAsync(ct);
 }
+
+sealed class DualChildAddress
+{
+    public string Zip { get; init; } = string.Empty;
+}
+
+sealed class DualChildAddressValidator : Validator<DualChildAddress>
+{
+    public DualChildAddressValidator() => RuleFor(x => x.Zip).NotEmpty();
+}
+
+sealed class DualChildAddressRequest
+{
+    public DualChildAddress BillingAddress { get; init; } = new();
+    public DualChildAddress ShippingAddress { get; init; } = new();
+}
+
+sealed class DualChildAddressRequestValidator : Validator<DualChildAddressRequest>
+{
+    public DualChildAddressRequestValidator()
+    {
+        RuleFor(x => x.BillingAddress).SetValidator(new DualChildAddressValidator());
+        RuleFor(x => x.ShippingAddress).SetValidator(new DualChildAddressValidator());
+    }
+}
+
+sealed class DualChildAddressEndpoint : Endpoint<DualChildAddressRequest>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/dual-child-address");
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(DualChildAddressRequest r, CancellationToken ct)
+        => Send.OkAsync(ct);
+}

@@ -100,7 +100,7 @@ The root cause was that `ValidationSchemaProcessor` kept a `_childAdaptorValidat
 
 <details><summary>'ValidationSchemaProcessor' concurrency issue when generating multiple Swagger documents</summary>
 
-The `_childAdaptorValidators` instance field on the singleton `ValidationSchemaProcessor` was a plain non-thread-safe `Dictionary<string, IValidator>`. Concurrent Swagger document generation (e.g. multiple documents being built in parallel at startup) could cause race conditions on that shared dictionary. The field is now a local variable scoped to each `ProcessAsync` call, eliminating shared mutable state entirely.
+The `_childAdaptorValidators` instance field on the singleton `ValidationSchemaProcessor` was a plain non-thread-safe `Dictionary<string, IValidator>`. Concurrent Swagger document generation (e.g. multiple documents being built in parallel at startup) could cause race conditions on that shared dictionary. The field is now a local variable scoped to each `Process` call, eliminating shared mutable state entirely.
 
 </details>
 

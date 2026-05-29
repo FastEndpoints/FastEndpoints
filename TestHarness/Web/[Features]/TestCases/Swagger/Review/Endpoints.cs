@@ -1,6 +1,7 @@
 using FluentValidation;
-using FastEndpoints.OpenApi;
-using Microsoft.OpenApi;
+using FastEndpoints.Swagger;
+
+//using Microsoft.OpenApi;
 
 namespace TestCases.Swagger.Review;
 
@@ -298,32 +299,32 @@ sealed class DuplicateQueryNamingPolicyRequest
     public string FirstName { get; set; } = string.Empty;
 }
 
-sealed class DuplicateQueryNamingPolicyEndpoint : Endpoint<DuplicateQueryNamingPolicyRequest, string>
-{
-    public override void Configure()
-    {
-        Get("/swagger-review/duplicate-query-naming-policy");
-        Tags("swagger_review");
-        AllowAnonymous();
-        Description(
-            b => b.WithMetadata(
-                new OpenApiOperation
-                {
-                    Parameters =
-                    [
-                        new OpenApiParameter
-                        {
-                            Name = "firstName",
-                            In = ParameterLocation.Query,
-                            Schema = new OpenApiSchema { Type = JsonSchemaType.String }
-                        }
-                    ]
-                }));
-    }
-
-    public override Task HandleAsync(DuplicateQueryNamingPolicyRequest req, CancellationToken ct)
-        => Send.OkAsync(req.FirstName, ct);
-}
+// sealed class DuplicateQueryNamingPolicyEndpoint : Endpoint<DuplicateQueryNamingPolicyRequest, string>
+// {
+//     public override void Configure()
+//     {
+//         Get("/swagger-review/duplicate-query-naming-policy");
+//         Tags("swagger_review");
+//         AllowAnonymous();
+//         Description(
+//             b => b.WithMetadata(
+//                 new OpenApiOperation
+//                 {
+//                     Parameters =
+//                     [
+//                         new()
+//                         {
+//                             Name = "firstName",
+//                             In = ParameterLocation.Query,
+//                             Schema = new OpenApiSchema { Type = JsonSchemaType.String }
+//                         }
+//                     ]
+//                 }));
+//     }
+//
+//     public override Task HandleAsync(DuplicateQueryNamingPolicyRequest req, CancellationToken ct)
+//         => Send.OkAsync(req.FirstName, ct);
+// }
 
 sealed class BindFromQueryGetReviewRequest
 {
@@ -841,7 +842,7 @@ sealed class ExplicitResponseExampleReviewEndpoint : EndpointWithoutRequest<Resp
         Summary(
             s =>
             {
-                s.Response(200, example: new ResponseExampleMetadataReviewResponse { Message = "from response metadata" });
+                s.Response(example: new ResponseExampleMetadataReviewResponse { Message = "from response metadata" });
                 s.ResponseExamples[200] = new ResponseExampleMetadataReviewResponse { Message = "from explicit response examples" };
             });
     }
@@ -1153,7 +1154,9 @@ sealed class MultiDocOrderRequestA
 sealed class MultiDocOrderRequestAValidator : Validator<MultiDocOrderRequestA>
 {
     public MultiDocOrderRequestAValidator()
-        => RuleForEach(x => x.Lines).SetValidator(new MultiDocSharedOrderLineValidator());
+    {
+        RuleForEach(x => x.Lines).SetValidator(new MultiDocSharedOrderLineValidator());
+    }
 }
 
 sealed class MultiDocOrderEndpointA : Endpoint<MultiDocOrderRequestA>
@@ -1177,7 +1180,9 @@ sealed class MultiDocOrderRequestB
 sealed class MultiDocOrderRequestBValidator : Validator<MultiDocOrderRequestB>
 {
     public MultiDocOrderRequestBValidator()
-        => RuleForEach(x => x.Lines).SetValidator(new MultiDocSharedOrderLineValidator());
+    {
+        RuleForEach(x => x.Lines).SetValidator(new MultiDocSharedOrderLineValidator());
+    }
 }
 
 sealed class MultiDocOrderEndpointB : Endpoint<MultiDocOrderRequestB>

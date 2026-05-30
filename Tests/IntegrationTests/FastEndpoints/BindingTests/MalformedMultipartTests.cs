@@ -29,14 +29,12 @@ public class MalformedMultipartTests : IAsyncLifetime
         var bld = WebApplication.CreateBuilder();
         bld.WebHost.ConfigureKestrel(o => o.Listen(IPAddress.Loopback, 0));
         bld.Services.AddFastEndpoints(o => o.Filter = t => t == typeof(Ep));
+        Config.EpOpts.RoutePrefix = null;
+        Config.EpOpts.Filter = null;
+        Config.EpOpts.Configurator = null;
+
         var app = bld.Build();
-        app.UseFastEndpoints(
-            c =>
-            {
-                c.Endpoints.RoutePrefix = null;
-                c.Endpoints.Filter = null;
-                c.Endpoints.Configurator = null;
-            });
+        app.UseFastEndpoints();
         _app = app;
     }
 

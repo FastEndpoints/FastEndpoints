@@ -1,12 +1,5 @@
 using Microsoft.Net.Http.Headers;
 
-#if NET9_0_OR_GREATER
-using Lock = System.Threading.Lock;
-
-#else
-    using Lock = object;
-#endif
-
 namespace FastEndpoints;
 
 /// <summary>

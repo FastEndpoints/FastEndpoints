@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using FastEndpoints.Messaging;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,12 +13,45 @@ namespace FastEndpoints;
 public static class MessagingExtensions
 {
     /// <summary>
-    /// adds the messaging services (command bus and event bus) to the service collection.
+    /// adds the messaging services (command bus and event bus) to the service collection using reflection-based type discovery.
+    /// <para>TIP: You don't have to call this method if you already have <c>.AddFastEndpoints()</c> in your pipeline.</para>
+    /// </summary>
+    /// <param name="services"></param>
+    public static IServiceCollection AddMessaging(this IServiceCollection services)
+        => AddMessaging(services, (Assembly[]?)null);
+
+    /// <summary>
+    /// adds the messaging services (command bus and event bus) to the service collection using reflection-based type discovery.
     /// <para>TIP: You don't have to call this method if you already have <c>.AddFastEndpoints()</c> in your pipeline.</para>
     /// </summary>
     /// <param name="services"></param>
     /// <param name="assemblies">assemblies to scan for command handlers and event handlers, in addition to all loaded assemblies.</param>
     public static IServiceCollection AddMessaging(this IServiceCollection services, params Assembly[]? assemblies)
+        => AddMessagingCore(
+            services,
+            () => AssemblyScanner.ScanForTypes(
+                new()
+                {
+                    Assemblies = assemblies,
+                    InterfaceTypes =
+                    [
+                        Types.ICommandHandler,
+                        Types.IEventHandler
+                    ]
+                }));
+
+    /// <summary>
+    /// adds the messaging services (command bus and event bus) to the service collection using source-generated discovered types.
+    /// pass one <see cref="List{Type}" /> per referenced assembly, e.g.:
+    /// <c>AddMessaging(Lib1.DiscoveredTypes.All, Lib2.DiscoveredTypes.All)</c>
+    /// <para>TIP: You don't have to call this method if you already have <c>.AddFastEndpoints()</c> in your pipeline.</para>
+    /// </summary>
+    /// <param name="services"></param>
+    /// <param name="discoveredTypes">one or more lists of source-generated discovered types, one per referenced assembly</param>
+    public static IServiceCollection AddMessaging(this IServiceCollection services, params List<Type>[] discoveredTypes)
+        => AddMessagingCore(services, () => discoveredTypes.SelectMany(t => t));
+
+    static IServiceCollection AddMessagingCore(IServiceCollection services, Func<IEnumerable<Type>> getTypes)
     {
         services.TryAddSingleton<IServiceResolver, ServiceResolver>();
         services.TryAddSingleton(typeof(EventBus<>));
@@ -26,18 +59,8 @@ public static class MessagingExtensions
             _ =>
             {
                 var cmdHandlerRegistry = new CommandHandlerRegistry();
-                var discoveredTypes = AssemblyScanner.ScanForTypes(
-                    new()
-                    {
-                        Assemblies = assemblies,
-                        InterfaceTypes =
-                        [
-                            Types.ICommandHandler,
-                            Types.IEventHandler
-                        ]
-                    });
 
-                foreach (var t in discoveredTypes)
+                foreach (var t in getTypes())
                 {
                     foreach (var tInterface in t.GetInterfaces())
                     {

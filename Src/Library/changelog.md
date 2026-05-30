@@ -10,6 +10,68 @@ Due to low financial backing by the community, FastEndpoints will soon be going 
 
 ## New 🎉
 
+<details><summary>Partial static properties in a partial Allow class are now auto-implemented by the Generator</summary>
+
+You can now declare `public static partial string` properties in a `partial Allow` class without providing an implementation. The `FastEndpoints.Generator` package detects these declarations and generates the property body with the same computed permission code that would be produced if the permission were defined directly on an endpoint via `AccessControl(...)`.
+
+```csharp
+public static partial class Allow
+{
+    public static partial string Inventory_Create { get; }
+    public static partial string Inventory_Update { get; }
+}
+```
+
+The generator emits the implementations automatically:
+
+```csharp
+public static partial string Inventory_Create { get => "A1B"; }
+public static partial string Inventory_Update { get => "C3D"; }
+```
+
+The generated permission codes are stable (derived from the property name via a SHA256-based hash), so they survive refactors as long as the property name stays the same.
+
+</details>
+
+<details><summary>Source-generated type lists can now also be passed directly to AddMessaging and AddJobQueues methods</summary>
+
+`AddFastEndpoints`, `AddMessaging`, and `AddJobQueues` now each have a new overload that accepts one or more `List<Type>` values — one per referenced assembly — making it possible to use the FastEndpoints.Generator package with the Messaging as well as the JobQueue package when the main FastEndpoint package is not used.
+
+**Before:**
+
+```csharp
+builder.Services.AddFastEndpoints(o =>
+{
+    o.SourceGeneratorDiscoveredTypes.AddRange(MyAssembly.DiscoveredTypes.All);
+});
+```
+
+**After:**
+
+```csharp
+// single assembly
+builder.Services.AddFastEndpoints(DiscoveredTypes.All);
+
+// multiple assemblies
+builder.Services.AddFastEndpoints(Lib1.DiscoveredTypes.All, Lib2.DiscoveredTypes.All);
+```
+
+The same pattern applies when using Messaging or JobQueues as standalone libraries (i.e. without `AddFastEndpoints`):
+
+```csharp
+// Messaging only
+builder.Services.AddMessaging(DiscoveredTypes.All);
+
+// JobQueues only
+builder.Services.AddJobQueues<Job, JobStorage>(DiscoveredTypes.All);
+```
+
+The two overloads are intentionally separated since source-generated and reflection-based discovery are mutually exclusive strategies and prevents accidental use of both paths at once.
+
+If `AddFastEndpoints` is already called with the discovered types, `AddMessaging` and `AddJobQueues` do not need them passed again — use the parameterless overloads for those calls.
+
+</details>
+
 <details><summary>New 'FastEndpoints.OpenApi' package based on 'Microsoft.AspNetCore.OpenApi'</summary>
 
 Starting with `v8.2`, the FastEndpoints ecosystem has switched from `NSwag/Newtonsoft` based Swagger/OpenAPI document generation to the more modern and Native AOT friendly `Microsoft.AspNetCore.OpenApi` based document generation library. Integration is provided via a new `FastEndpoints.OpenApi` package which corrects a few issues with the MS package as well as doing a lot of post-processing on the document model to bring feature parity with the `FastEndpoints.Swagger` package.
@@ -252,6 +314,23 @@ The new `FastEndpoints.OpenApi*` packages are however .NET 10+ only. If you'd li
 </details>
 
 ## Minor Breaking Changes ⚠️
+
+<details><summary>'SourceGeneratorDiscoveredTypes' removed from 'EndpointDiscoveryOptions'</summary>
+
+The `EndpointDiscoveryOptions.SourceGeneratorDiscoveredTypes` property has been removed. Pass the source-generated type list directly to `AddFastEndpoints` instead — see above.
+
+```csharp
+// before
+builder.Services.AddFastEndpoints(o =>
+{
+    o.SourceGeneratorDiscoveredTypes.AddRange(DiscoveredTypes.All);
+});
+
+// after
+builder.Services.AddFastEndpoints(DiscoveredTypes.All);
+```
+
+</details>
 
 <details><summary>Dropped support for netstandard2.1</summary>
 

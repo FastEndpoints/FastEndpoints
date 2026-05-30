@@ -836,12 +836,7 @@ public class A2ASkillVisibilityTests
         var services = new ServiceCollection();
 
         services.AddLogging();
-        services.AddFastEndpoints(
-            o => o.SourceGeneratorDiscoveredTypes.AddRange(
-                [
-                    typeof(VisibleSkillEndpoint),
-                    typeof(HiddenSkillEndpoint)
-                ]));
+        services.AddFastEndpoints(new List<Type> { typeof(VisibleSkillEndpoint), typeof(HiddenSkillEndpoint) });
         services.AddA2A(
             o =>
             {
@@ -884,20 +879,20 @@ public class A2ASkillVisibilityTests
         var builder = WebApplication.CreateBuilder();
         builder.WebHost.UseTestServer();
         builder.Services.AddFastEndpoints(
-            o => o.SourceGeneratorDiscoveredTypes.AddRange(
-                [
-                    typeof(VisibleSkillEndpoint),
-                    typeof(HiddenSkillEndpoint),
-                    typeof(ForbiddenSkillEndpoint),
-                    typeof(NotFoundSkillEndpoint),
-                    typeof(BadRequestSkillEndpoint),
-                    typeof(StringErrorSkillEndpoint),
-                    typeof(JsonArrayResponseSkillEndpoint),
-                    typeof(TextDeclaredJsonResponseSkillEndpoint),
-                    typeof(ValidationSkillEndpoint),
-                    typeof(ValidationSkillEndpointValidator),
-                    typeof(FaultedSkillEndpoint)
-                ]));
+            new List<Type>
+            {
+                typeof(VisibleSkillEndpoint),
+                typeof(HiddenSkillEndpoint),
+                typeof(ForbiddenSkillEndpoint),
+                typeof(NotFoundSkillEndpoint),
+                typeof(BadRequestSkillEndpoint),
+                typeof(StringErrorSkillEndpoint),
+                typeof(JsonArrayResponseSkillEndpoint),
+                typeof(TextDeclaredJsonResponseSkillEndpoint),
+                typeof(ValidationSkillEndpoint),
+                typeof(ValidationSkillEndpointValidator),
+                typeof(FaultedSkillEndpoint)
+            });
         builder.Services.AddA2A(
             o =>
             {

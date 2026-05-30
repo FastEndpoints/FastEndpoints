@@ -26,15 +26,43 @@ namespace FastEndpoints;
 public static class MainExtensions
 {
     /// <summary>
-    /// adds the FastEndpoints services to the ASP.Net middleware pipeline
+    /// adds the FastEndpoints services to the ASP.Net middleware pipeline using reflection-based type discovery.
     /// </summary>
-    /// <param name="options">optionally specify the endpoint discovery options</param>
-    public static IServiceCollection AddFastEndpoints(this IServiceCollection services, Action<EndpointDiscoveryOptions>? options = null)
+    public static IServiceCollection AddFastEndpoints(this IServiceCollection services)
+        => AddFastEndpoints(services, (Action<EndpointDiscoveryOptions>?)null);
+
+    /// <summary>
+    /// adds the FastEndpoints services to the ASP.Net middleware pipeline using reflection-based type discovery.
+    /// </summary>
+    /// <param name="options">optionally specify the reflection-based type discovery options</param>
+    public static IServiceCollection AddFastEndpoints(this IServiceCollection services, Action<EndpointDiscoveryOptions>? options)
     {
         var opts = new EndpointDiscoveryOptions();
         options?.Invoke(opts);
+
         var cmdHandlerRegistry = new CommandHandlerRegistry();
         var endpointData = new EndpointData(opts, cmdHandlerRegistry);
+
+        return AddFastEndpointsCore(services, cmdHandlerRegistry, endpointData);
+    }
+
+    /// <summary>
+    /// adds the FastEndpoints services to the ASP.Net middleware pipeline using source-generated discovered types.
+    /// pass one <see cref="List{Type}" /> per referenced assembly, e.g.:
+    /// <c>AddFastEndpoints(Lib1.DiscoveredTypes.All, Lib2.DiscoveredTypes.All)</c>
+    /// </summary>
+    /// <param name="discoveredTypes">one or more lists of source-generated discovered types, one per referenced assembly</param>
+    public static IServiceCollection AddFastEndpoints(this IServiceCollection services, params List<Type>[] discoveredTypes)
+    {
+        var allTypes = discoveredTypes.SelectMany(t => t);
+        var cmdHandlerRegistry = new CommandHandlerRegistry();
+        var endpointData = new EndpointData(allTypes, cmdHandlerRegistry);
+
+        return AddFastEndpointsCore(services, cmdHandlerRegistry, endpointData);
+    }
+
+    static IServiceCollection AddFastEndpointsCore(IServiceCollection services, CommandHandlerRegistry cmdHandlerRegistry, EndpointData endpointData)
+    {
         services.AddSingleton(cmdHandlerRegistry);
         services.AddSingleton(endpointData);
         services.AddHttpContextAccessor();

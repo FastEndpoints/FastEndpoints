@@ -120,6 +120,14 @@ This fixes nested `[FromQuery]` request DTO properties such as `DateOnly?` and `
 
 ## Improvements 🚀
 
+<details><summary>Serializer options are now configured once per process during startup</summary>
+
+FastEndpoints now performs its process-wide serializer configuration under a one-time startup lock. This prevents parallel host creation in the same process, such as `WebApplicationFactory` based integration tests, from re-pointing and mutating the shared `JsonSerializerOptions` instance while another host is already serializing requests or responses.
+
+This keeps the existing process-global configuration model: the first FastEndpoints startup configures the shared serializer options and later hosts in the same process reuse that configuration instead of reconfiguring it.
+
+</details>
+
 <details><summary>Access control permission lookup data is now source generated</summary>
 
 The `Allow` source generator now emits the permission name/code lookup initialization directly, avoiding runtime reflection when access control permissions are first used.

@@ -31,7 +31,7 @@ bld.Services
    .AddOutputCache()
    .AddIdempotency()
    .AddResponseCaching()
-   .AddFastEndpoints(o => o.SourceGeneratorDiscoveredTypes = DiscoveredTypes.All)
+   .AddFastEndpoints(DiscoveredTypes.All)
    .AddX402()
    .AddAuthenticationJwtBearer(s => s.SigningKey = bld.Configuration["TokenKey"]!)
    .AddAuthorization(o => o.AddPolicy("AdminOnly", b => b.RequireRole(Role.Admin)))

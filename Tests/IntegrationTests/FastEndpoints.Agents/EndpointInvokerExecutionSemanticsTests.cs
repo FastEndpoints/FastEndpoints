@@ -11,8 +11,14 @@ public class EndpointInvokerExecutionSemanticsTests
     {
         using var provider = BuildServices(typeof(AccessorAwareEndpoint));
         var accessor = provider.GetRequiredService<IHttpContextAccessor>();
-        var outerContext = new DefaultHttpContext { RequestServices = provider };
-        outerContext.Request.Path = "/outer-transport";
+        var outerContext = new DefaultHttpContext
+        {
+            RequestServices = provider,
+            Request =
+            {
+                Path = "/outer-transport"
+            }
+        };
         accessor.HttpContext = outerContext;
 
         var result = await Invoke<AccessorAwareEndpoint>(provider, new { });
@@ -115,12 +121,7 @@ public class EndpointInvokerExecutionSemanticsTests
         services.AddHttpContextAccessor();
         services.AddSingleton<IHttpContextAccessor, TestHttpContextAccessor>();
         services.AddSingleton<InvocationProbe>();
-        services.AddFastEndpoints(
-            o =>
-            {
-                foreach (var endpointType in endpointTypes)
-                    o.SourceGeneratorDiscoveredTypes.Add(endpointType);
-            });
+        services.AddFastEndpoints([..endpointTypes]);
         services.AddMcp(o => o.ToolVisibilityFilter = static (_, _, _) => true);
 
         return services.BuildServiceProvider();
@@ -143,8 +144,10 @@ public class EndpointInvokerExecutionSemanticsTests
         public HttpContext? HttpContext { get; set; }
     }
 
+    // ReSharper disable once ClassNeverInstantiated.Local
     sealed class TestRequest
     {
+        // ReSharper disable once UnusedMember.Local
         public string? Value { get; set; }
     }
 

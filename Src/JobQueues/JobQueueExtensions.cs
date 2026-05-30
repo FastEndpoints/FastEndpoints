@@ -16,7 +16,22 @@ public static class JobQueueExtensions
     static Type _tStorageProvider = null!;
 
     /// <summary>
-    /// add job queue functionality
+    /// add job queue functionality. when <c>.AddFastEndpoints()</c> is not in the pipeline, performs reflection-based type discovery of all loaded assemblies.
+    /// </summary>
+    /// <typeparam name="TStorageRecord">the implementation type of the job storage record</typeparam>
+    /// <typeparam name="TStorageProvider">the implementation type of the job storage provider</typeparam>
+    /// <param name="svc"></param>
+    public static IServiceCollection AddJobQueues<TStorageRecord, TStorageProvider>(this IServiceCollection svc)
+        where TStorageRecord : class, IJobStorageRecord, new()
+        where TStorageProvider : class, IJobStorageProvider<TStorageRecord>
+    {
+        svc.AddMessaging();
+
+        return AddJobQueuesCore<TStorageRecord, TStorageProvider>(svc);
+    }
+
+    /// <summary>
+    /// add job queue functionality using reflection-based type discovery.
     /// </summary>
     /// <typeparam name="TStorageRecord">the implementation type of the job storage record</typeparam>
     /// <typeparam name="TStorageProvider">the implementation type of the job storage provider</typeparam>
@@ -29,6 +44,37 @@ public static class JobQueueExtensions
         where TStorageRecord : class, IJobStorageRecord, new()
         where TStorageProvider : class, IJobStorageProvider<TStorageRecord>
     {
+        svc.AddMessaging(assemblies);
+
+        return AddJobQueuesCore<TStorageRecord, TStorageProvider>(svc);
+    }
+
+    /// <summary>
+    /// add job queue functionality using source-generated discovered types.
+    /// pass one <see cref="List{Type}" /> per referenced assembly, e.g.:
+    /// <c>AddJobQueues&lt;TStorageRecord, TStorageProvider&gt;(Lib1.DiscoveredTypes.All, Lib2.DiscoveredTypes.All)</c>
+    /// <para>
+    /// TIP: You don't need to pass discovered types here if you already called
+    /// <c>.AddFastEndpoints(Lib1.DiscoveredTypes.All, ...)</c> — use <c>.AddJobQueues&lt;TStorageRecord, TStorageProvider&gt;()</c> instead.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TStorageRecord">the implementation type of the job storage record</typeparam>
+    /// <typeparam name="TStorageProvider">the implementation type of the job storage provider</typeparam>
+    /// <param name="svc"></param>
+    /// <param name="discoveredTypes">one or more lists of source-generated discovered types, one per referenced assembly</param>
+    public static IServiceCollection AddJobQueues<TStorageRecord, TStorageProvider>(this IServiceCollection svc, params List<Type>[] discoveredTypes)
+        where TStorageRecord : class, IJobStorageRecord, new()
+        where TStorageProvider : class, IJobStorageProvider<TStorageRecord>
+    {
+        svc.AddMessaging(discoveredTypes);
+
+        return AddJobQueuesCore<TStorageRecord, TStorageProvider>(svc);
+    }
+
+    static IServiceCollection AddJobQueuesCore<TStorageRecord, TStorageProvider>(IServiceCollection svc)
+        where TStorageRecord : class, IJobStorageRecord, new()
+        where TStorageProvider : class, IJobStorageProvider<TStorageRecord>
+    {
         _tStorageProvider = typeof(TStorageProvider);
         _tStorageRecord = typeof(TStorageRecord);
 
@@ -36,7 +82,6 @@ public static class JobQueueExtensions
             !_tStorageRecord.IsAssignableTo(Types.IJobResultStorage))
             throw new InvalidOperationException($"Job storage record: [{typeof(TStorageRecord).FullName}] must implement [{nameof(IJobResultStorage)}]!");
 
-        svc.AddMessaging(assemblies);
         svc.AddSingleton<TStorageProvider>();
         svc.AddSingleton(typeof(IJobTracker<>), typeof(JobTracker<>));
         svc.AddSingleton(typeof(JobQueue<,,,>));
@@ -81,6 +126,7 @@ public static class JobQueueExtensions
                 continue; //NOTE: no open generic command support for jobs.
 
             var tCommandInterface = tCommand.GetInterface(typeof(ICommand<>).Name);
+
             if (tCommandInterface is null)
                 continue; //NOTE: IStreamCommand<> types are not supported as jobs.
 

@@ -1,5 +1,4 @@
 extern alias A2AAsm;
-
 using System.Net;
 using System.Security.Claims;
 using System.Net.Http.Json;
@@ -145,10 +144,7 @@ public class A2ASkillVisibilityTests
         ex.Message.ShouldContain("shared");
     }
 
-    [Theory]
-    [InlineData("bad id")]
-    [InlineData("bad.id")]
-    [InlineData("")]
+    [Theory, InlineData("bad id"), InlineData("bad.id"), InlineData("")]
     public void Explicit_invalid_skill_ids_fail_with_clear_exception(string invalidId)
     {
         using var provider = BuildServices(visibleSkillId: invalidId);
@@ -195,7 +191,7 @@ public class A2ASkillVisibilityTests
         using var provider = BuildServices(visibleSkillId: "shared", hiddenSkillId: "shared");
         var ctx = BuildContext(provider);
 
-        System.Threading.Interlocked.Exchange(ref VisibleSkillEndpoint.ExecutionCount, 0);
+        Interlocked.Exchange(ref VisibleSkillEndpoint.ExecutionCount, 0);
 
         var ex = await Should.ThrowAsync<InvalidOperationException>(() => Dispatch(provider, "shared", ctx));
 
@@ -268,36 +264,36 @@ public class A2ASkillVisibilityTests
         var client = app.GetTestClient();
 
         var success = await client.PostAsync(
-            "/a2a",
-            new StringContent(
-                """
-                {
-                  "jsonrpc": "2.0",
-                  "id": 1,
-                  "method": "SendMessage",
-                  "params": {
-                    "message": {
-                      "messageId": "client-message-1",
-                      "role": "user",
-                      "parts": [
-                        { "data": { "Value": "ping" } }
-                      ]
-                    }
-                  }
-                }
-                """,
-                System.Text.Encoding.UTF8,
-                "application/json"),
-            CancellationToken.None);
+                          "/a2a",
+                          new StringContent(
+                              """
+                              {
+                                "jsonrpc": "2.0",
+                                "id": 1,
+                                "method": "SendMessage",
+                                "params": {
+                                  "message": {
+                                    "messageId": "client-message-1",
+                                    "role": "user",
+                                    "parts": [
+                                      { "data": { "Value": "ping" } }
+                                    ]
+                                  }
+                                }
+                              }
+                              """,
+                              System.Text.Encoding.UTF8,
+                              "application/json"),
+                          CancellationToken.None);
         var successJson = await success.Content.ReadFromJsonAsync<JsonElement>(CancellationToken.None);
 
         successJson.GetProperty("result").GetProperty("message").GetProperty("parts")[0].GetProperty("data").GetProperty("Value").GetString().ShouldBe("visible:ping");
         successJson.TryGetProperty("error", out _).ShouldBeFalse();
 
         var failure = await client.PostAsJsonAsync(
-            "/a2a",
-            new { jsonrpc = "2.0", id = 2, method = "MissingMethod", @params = new { } },
-            CancellationToken.None);
+                          "/a2a",
+                          new { jsonrpc = "2.0", id = 2, method = "MissingMethod", @params = new { } },
+                          CancellationToken.None);
         var failureJson = await failure.Content.ReadFromJsonAsync<JsonElement>(CancellationToken.None);
 
         failureJson.GetProperty("error").GetProperty("code").GetInt32().ShouldBe(-32601);
@@ -311,7 +307,7 @@ public class A2ASkillVisibilityTests
         await app.StartAsync(CancellationToken.None);
         var client = app.GetTestClient();
 
-        System.Threading.Interlocked.Exchange(ref VisibleSkillEndpoint.ExecutionCount, 0);
+        Interlocked.Exchange(ref VisibleSkillEndpoint.ExecutionCount, 0);
 
         using var request = new HttpRequestMessage(HttpMethod.Post, "/a2a");
         request.Headers.TryAddWithoutValidation("A2A-Version", "2.0");
@@ -348,48 +344,46 @@ public class A2ASkillVisibilityTests
         await app.StartAsync(CancellationToken.None);
         var client = app.GetTestClient();
 
-        System.Threading.Interlocked.Exchange(ref VisibleSkillEndpoint.ExecutionCount, 0);
+        Interlocked.Exchange(ref VisibleSkillEndpoint.ExecutionCount, 0);
 
         var response = await client.PostAsync(
-            "/a2a",
-            new StringContent(
-                """
-                {
-                  "jsonrpc": "2.0",
-                  "method": "SendMessage",
-                  "params": {
-                    "message": {
-                      "messageId": "client-message-1",
-                      "role": "user",
-                      "parts": [
-                        { "data": { "Value": "ping" } }
-                      ]
-                    }
-                  }
-                }
-                """,
-                System.Text.Encoding.UTF8,
-                "application/json"),
-            CancellationToken.None);
+                           "/a2a",
+                           new StringContent(
+                               """
+                               {
+                                 "jsonrpc": "2.0",
+                                 "method": "SendMessage",
+                                 "params": {
+                                   "message": {
+                                     "messageId": "client-message-1",
+                                     "role": "user",
+                                     "parts": [
+                                       { "data": { "Value": "ping" } }
+                                     ]
+                                   }
+                                 }
+                               }
+                               """,
+                               System.Text.Encoding.UTF8,
+                               "application/json"),
+                           CancellationToken.None);
 
         response.StatusCode.ShouldBe(HttpStatusCode.NoContent);
         (await response.Content.ReadAsStringAsync(CancellationToken.None)).ShouldBe(string.Empty);
         VisibleSkillEndpoint.ExecutionCount.ShouldBe(1);
     }
 
-    [Theory]
-    [InlineData("[]", "batch JSON-RPC requests are not supported")]
-    [InlineData("[{}]", "batch JSON-RPC requests are not supported")]
-    [InlineData("123", "invalid JSON-RPC request")]
-    [InlineData("{ \"jsonrpc\": \"2.0\", \"id\": { \"bad\": true }, \"method\": \"SendMessage\", \"params\": {} }", "invalid JSON-RPC id")]
-    [InlineData("{ \"jsonrpc\": \"2.0\", \"id\": [1], \"method\": \"SendMessage\", \"params\": {} }", "invalid JSON-RPC id")]
+    [Theory, InlineData("[]", "batch JSON-RPC requests are not supported"), InlineData("[{}]", "batch JSON-RPC requests are not supported"),
+     InlineData("123", "invalid JSON-RPC request"),
+     InlineData("{ \"jsonrpc\": \"2.0\", \"id\": { \"bad\": true }, \"method\": \"SendMessage\", \"params\": {} }", "invalid JSON-RPC id"),
+     InlineData("{ \"jsonrpc\": \"2.0\", \"id\": [1], \"method\": \"SendMessage\", \"params\": {} }", "invalid JSON-RPC id")]
     public async Task Http_rejects_invalid_json_rpc_envelopes(string payload, string expectedMessage)
     {
         await using var app = BuildHttpApp(skillFilter: def => def.EndpointType == typeof(VisibleSkillEndpoint));
         await app.StartAsync(CancellationToken.None);
         var client = app.GetTestClient();
 
-        System.Threading.Interlocked.Exchange(ref VisibleSkillEndpoint.ExecutionCount, 0);
+        Interlocked.Exchange(ref VisibleSkillEndpoint.ExecutionCount, 0);
 
         var response = await client.PostAsync("/a2a", new StringContent(payload, System.Text.Encoding.UTF8, "application/json"), CancellationToken.None);
         var json = await response.Content.ReadFromJsonAsync<JsonElement>(CancellationToken.None);
@@ -401,10 +395,7 @@ public class A2ASkillVisibilityTests
         VisibleSkillEndpoint.ExecutionCount.ShouldBe(0);
     }
 
-    [Theory]
-    [InlineData("null")]
-    [InlineData("1")]
-    [InlineData("\"abc\"")]
+    [Theory, InlineData("null"), InlineData("1"), InlineData("\"abc\"")]
     public async Task Http_accepts_valid_json_rpc_id_kinds(string id)
     {
         await using var app = BuildHttpApp(skillFilter: def => def.EndpointType == typeof(VisibleSkillEndpoint));
@@ -412,27 +403,27 @@ public class A2ASkillVisibilityTests
         var client = app.GetTestClient();
 
         var response = await client.PostAsync(
-            "/a2a",
-            new StringContent(
-                $$"""
-                {
-                  "jsonrpc": "2.0",
-                  "id": {{id}},
-                  "method": "SendMessage",
-                  "params": {
-                    "message": {
-                      "messageId": "client-message-1",
-                      "role": "ROLE_USER",
-                      "parts": [
-                        { "data": { "Value": "ping" } }
-                      ]
-                    }
-                  }
-                }
-                """,
-                System.Text.Encoding.UTF8,
-                "application/json"),
-            CancellationToken.None);
+                           "/a2a",
+                           new StringContent(
+                               $$"""
+                                 {
+                                   "jsonrpc": "2.0",
+                                   "id": {{id}},
+                                   "method": "SendMessage",
+                                   "params": {
+                                     "message": {
+                                       "messageId": "client-message-1",
+                                       "role": "ROLE_USER",
+                                       "parts": [
+                                         { "data": { "Value": "ping" } }
+                                       ]
+                                     }
+                                   }
+                                 }
+                                 """,
+                               System.Text.Encoding.UTF8,
+                               "application/json"),
+                           CancellationToken.None);
         var json = await response.Content.ReadFromJsonAsync<JsonElement>(CancellationToken.None);
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
@@ -447,27 +438,27 @@ public class A2ASkillVisibilityTests
         await app.StartAsync(CancellationToken.None);
         var client = app.GetTestClient();
 
-        System.Threading.Interlocked.Exchange(ref VisibleSkillEndpoint.ExecutionCount, 0);
+        Interlocked.Exchange(ref VisibleSkillEndpoint.ExecutionCount, 0);
 
         var response = await client.PostAsJsonAsync(
-            "/a2a",
-            new
-            {
-                jsonrpc = "2.0",
-                id = 1,
-                method = "SendMessage",
-                @params = new
-                {
-                    message = new
-                    {
-                        messageId = "client-message-1",
-                        role = "user",
-                        parts = new[] { new { data = new { Value = "ping" } } }
-                    },
-                    configuration = new { acceptedOutputModes = new[] { "text/plain" } }
-                }
-            },
-            CancellationToken.None);
+                           "/a2a",
+                           new
+                           {
+                               jsonrpc = "2.0",
+                               id = 1,
+                               method = "SendMessage",
+                               @params = new
+                               {
+                                   message = new
+                                   {
+                                       messageId = "client-message-1",
+                                       role = "user",
+                                       parts = new[] { new { data = new { Value = "ping" } } }
+                                   },
+                                   configuration = new { acceptedOutputModes = new[] { "text/plain" } }
+                               }
+                           },
+                           CancellationToken.None);
         var json = await response.Content.ReadFromJsonAsync<JsonElement>(CancellationToken.None);
 
         json.GetProperty("error").GetProperty("code").GetInt32().ShouldBe(-32602);
@@ -482,27 +473,27 @@ public class A2ASkillVisibilityTests
         await app.StartAsync(CancellationToken.None);
         var client = app.GetTestClient();
 
-        System.Threading.Interlocked.Exchange(ref TextDeclaredJsonResponseSkillEndpoint.ExecutionCount, 0);
+        Interlocked.Exchange(ref TextDeclaredJsonResponseSkillEndpoint.ExecutionCount, 0);
 
         var response = await client.PostAsJsonAsync(
-            "/a2a",
-            new
-            {
-                jsonrpc = "2.0",
-                id = 1,
-                method = "SendMessage",
-                @params = new
-                {
-                    message = new
-                    {
-                        messageId = "client-message-1",
-                        role = "user",
-                        parts = new[] { new { data = new { Value = "ping" } } }
-                    },
-                    configuration = new { acceptedOutputModes = new[] { "text/plain" } }
-                }
-            },
-            CancellationToken.None);
+                           "/a2a",
+                           new
+                           {
+                               jsonrpc = "2.0",
+                               id = 1,
+                               method = "SendMessage",
+                               @params = new
+                               {
+                                   message = new
+                                   {
+                                       messageId = "client-message-1",
+                                       role = "user",
+                                       parts = new[] { new { data = new { Value = "ping" } } }
+                                   },
+                                   configuration = new { acceptedOutputModes = new[] { "text/plain" } }
+                               }
+                           },
+                           CancellationToken.None);
         var json = await response.Content.ReadFromJsonAsync<JsonElement>(CancellationToken.None);
 
         json.GetProperty("error").GetProperty("code").GetInt32().ShouldBe(-32602);
@@ -519,23 +510,23 @@ public class A2ASkillVisibilityTests
         var client = app.GetTestClient();
 
         var response = await client.PostAsJsonAsync(
-            "/a2a",
-            new
-            {
-                jsonrpc = "2.0",
-                id = 1,
-                method = "SendMessage",
-                @params = new
-                {
-                    message = new
-                    {
-                        messageId = "client-message-1",
-                        role = "user",
-                        parts = new[] { new { data = new { Value = "ping" } } }
-                    }
-                }
-            },
-            CancellationToken.None);
+                           "/a2a",
+                           new
+                           {
+                               jsonrpc = "2.0",
+                               id = 1,
+                               method = "SendMessage",
+                               @params = new
+                               {
+                                   message = new
+                                   {
+                                       messageId = "client-message-1",
+                                       role = "user",
+                                       parts = new[] { new { data = new { Value = "ping" } } }
+                                   }
+                               }
+                           },
+                           CancellationToken.None);
         var json = await response.Content.ReadFromJsonAsync<JsonElement>(CancellationToken.None);
         var part = json.GetProperty("result").GetProperty("message").GetProperty("parts")[0];
 
@@ -553,24 +544,24 @@ public class A2ASkillVisibilityTests
         var client = app.GetTestClient();
 
         var response = await client.PostAsJsonAsync(
-            "/a2a",
-            new
-            {
-                jsonrpc = "2.0",
-                id = 1,
-                method = "SendMessage",
-                @params = new
-                {
-                    message = new
-                    {
-                        messageId = "client-message-1",
-                        contextId = "ctx-1",
-                        role = "ROLE_USER",
-                        parts = new[] { new { data = new { Value = "ping" } } }
-                    }
-                }
-            },
-            CancellationToken.None);
+                           "/a2a",
+                           new
+                           {
+                               jsonrpc = "2.0",
+                               id = 1,
+                               method = "SendMessage",
+                               @params = new
+                               {
+                                   message = new
+                                   {
+                                       messageId = "client-message-1",
+                                       contextId = "ctx-1",
+                                       role = "ROLE_USER",
+                                       parts = new[] { new { data = new { Value = "ping" } } }
+                                   }
+                               }
+                           },
+                           CancellationToken.None);
         var json = await response.Content.ReadFromJsonAsync<JsonElement>(CancellationToken.None);
         var message = json.GetProperty("result").GetProperty("message");
 
@@ -586,27 +577,27 @@ public class A2ASkillVisibilityTests
         await app.StartAsync(CancellationToken.None);
         var client = app.GetTestClient();
 
-        System.Threading.Interlocked.Exchange(ref VisibleSkillEndpoint.ExecutionCount, 0);
+        Interlocked.Exchange(ref VisibleSkillEndpoint.ExecutionCount, 0);
 
         var response = await client.PostAsJsonAsync(
-            "/a2a",
-            new
-            {
-                jsonrpc = "2.0",
-                id = 1,
-                method = "SendMessage",
-                @params = new
-                {
-                    message = new
-                    {
-                        messageId = "client-message-1",
-                        taskId = "task-1",
-                        role = "ROLE_USER",
-                        parts = new[] { new { data = new { Value = "ping" } } }
-                    }
-                }
-            },
-            CancellationToken.None);
+                           "/a2a",
+                           new
+                           {
+                               jsonrpc = "2.0",
+                               id = 1,
+                               method = "SendMessage",
+                               @params = new
+                               {
+                                   message = new
+                                   {
+                                       messageId = "client-message-1",
+                                       taskId = "task-1",
+                                       role = "ROLE_USER",
+                                       parts = new[] { new { data = new { Value = "ping" } } }
+                                   }
+                               }
+                           },
+                           CancellationToken.None);
         var json = await response.Content.ReadFromJsonAsync<JsonElement>(CancellationToken.None);
 
         json.GetProperty("error").GetProperty("code").GetInt32().ShouldBe(-32001);
@@ -621,26 +612,26 @@ public class A2ASkillVisibilityTests
         await app.StartAsync(CancellationToken.None);
         var client = app.GetTestClient();
 
-        System.Threading.Interlocked.Exchange(ref VisibleSkillEndpoint.ExecutionCount, 0);
+        Interlocked.Exchange(ref VisibleSkillEndpoint.ExecutionCount, 0);
 
         var response = await client.PostAsJsonAsync(
-            "/a2a",
-            new
-            {
-                jsonrpc = "2.0",
-                id = 1,
-                method = "SendMessage",
-                @params = new
-                {
-                    message = new
-                    {
-                        messageId = "client-message-1",
-                        role = "ROLE_USER",
-                        parts = new[] { new { text = "hello", mediaType = "text/plain" } }
-                    }
-                }
-            },
-            CancellationToken.None);
+                           "/a2a",
+                           new
+                           {
+                               jsonrpc = "2.0",
+                               id = 1,
+                               method = "SendMessage",
+                               @params = new
+                               {
+                                   message = new
+                                   {
+                                       messageId = "client-message-1",
+                                       role = "ROLE_USER",
+                                       parts = new[] { new { text = "hello", mediaType = "text/plain" } }
+                                   }
+                               }
+                           },
+                           CancellationToken.None);
         var json = await response.Content.ReadFromJsonAsync<JsonElement>(CancellationToken.None);
 
         json.GetProperty("error").GetProperty("code").GetInt32().ShouldBe(-32005);
@@ -648,45 +639,41 @@ public class A2ASkillVisibilityTests
         VisibleSkillEndpoint.ExecutionCount.ShouldBe(0);
     }
 
-    [Theory]
-    [InlineData("forbidden", 403, "application/json", false, "")]
-    [InlineData("not_found", 404, "application/json", true, "missing")]
-    [InlineData("bad_request", 400, "application/json", true, "bad-request")]
-    [InlineData("string_error", 500, "text/plain", false, "boom")]
-    public async Task Http_SendMessage_maps_endpoint_non_2xx_responses_to_json_rpc_error(
-        string skill,
-        int expectedStatus,
-        string expectedContentType,
-        bool expectJsonBody,
-        string expectedBodyValue)
+    [Theory, InlineData("forbidden", 403, "application/json", false, ""), InlineData("not_found", 404, "application/json", true, "missing"),
+     InlineData("bad_request", 400, "application/json", true, "bad-request"), InlineData("string_error", 500, "text/plain", false, "boom")]
+    public async Task Http_SendMessage_maps_endpoint_non_2xx_responses_to_json_rpc_error(string skill,
+                                                                                         int expectedStatus,
+                                                                                         string expectedContentType,
+                                                                                         bool expectJsonBody,
+                                                                                         string expectedBodyValue)
     {
         await using var app = BuildHttpApp(
             skillFilter: def => def.EndpointType == typeof(ForbiddenSkillEndpoint) ||
-                               def.EndpointType == typeof(NotFoundSkillEndpoint) ||
-                               def.EndpointType == typeof(BadRequestSkillEndpoint) ||
-                               def.EndpointType == typeof(StringErrorSkillEndpoint));
+                                def.EndpointType == typeof(NotFoundSkillEndpoint) ||
+                                def.EndpointType == typeof(BadRequestSkillEndpoint) ||
+                                def.EndpointType == typeof(StringErrorSkillEndpoint));
         await app.StartAsync(CancellationToken.None);
         var client = app.GetTestClient();
 
         var response = await client.PostAsJsonAsync(
-            "/a2a",
-            new
-            {
-                jsonrpc = "2.0",
-                id = 1,
-                method = "SendMessage",
-                @params = new
-                {
-                    message = new
-                    {
-                        messageId = "client-message-1",
-                        role = "user",
-                        parts = new[] { new { data = new { Value = "ping" } } }
-                    },
-                    metadata = new { skill }
-                }
-            },
-            CancellationToken.None);
+                           "/a2a",
+                           new
+                           {
+                               jsonrpc = "2.0",
+                               id = 1,
+                               method = "SendMessage",
+                               @params = new
+                               {
+                                   message = new
+                                   {
+                                       messageId = "client-message-1",
+                                       role = "user",
+                                       parts = new[] { new { data = new { Value = "ping" } } }
+                                   },
+                                   metadata = new { skill }
+                               }
+                           },
+                           CancellationToken.None);
         var json = await response.Content.ReadFromJsonAsync<JsonElement>(CancellationToken.None);
         var error = json.GetProperty("error");
         var data = error.GetProperty("data");
@@ -707,13 +694,9 @@ public class A2ASkillVisibilityTests
         }
 
         if (expectJsonBody)
-        {
             data.GetProperty("body").ToString().ShouldContain(expectedBodyValue);
-        }
         else
-        {
             data.GetProperty("body").ValueKind.ShouldBe(JsonValueKind.Null);
-        }
     }
 
     [Fact]
@@ -724,24 +707,24 @@ public class A2ASkillVisibilityTests
         var client = app.GetTestClient();
 
         var response = await client.PostAsJsonAsync(
-            "/a2a",
-            new
-            {
-                jsonrpc = "2.0",
-                id = 1,
-                method = "SendMessage",
-                @params = new
-                {
-                    message = new
-                    {
-                        messageId = "client-message-1",
-                        role = "user",
-                        parts = new[] { new { data = new { Value = "" } } }
-                    },
-                    metadata = new { skill = "validation" }
-                }
-            },
-            CancellationToken.None);
+                           "/a2a",
+                           new
+                           {
+                               jsonrpc = "2.0",
+                               id = 1,
+                               method = "SendMessage",
+                               @params = new
+                               {
+                                   message = new
+                                   {
+                                       messageId = "client-message-1",
+                                       role = "user",
+                                       parts = new[] { new { data = new { Value = "" } } }
+                                   },
+                                   metadata = new { skill = "validation" }
+                               }
+                           },
+                           CancellationToken.None);
         var json = await response.Content.ReadFromJsonAsync<JsonElement>(CancellationToken.None);
 
         json.TryGetProperty("result", out _).ShouldBeFalse();
@@ -794,21 +777,21 @@ public class A2ASkillVisibilityTests
 
         foreach (var invalidParam in invalidParams)
         {
-            System.Threading.Interlocked.Exchange(ref VisibleSkillEndpoint.ExecutionCount, 0);
+            Interlocked.Exchange(ref VisibleSkillEndpoint.ExecutionCount, 0);
             var response = await client.PostAsync(
-                "/a2a",
-                new StringContent(
-                    $$"""
-                    {
-                      "jsonrpc": "2.0",
-                      "id": 1,
-                      "method": "SendMessage",
-                      "params": {{invalidParam}}
-                    }
-                    """,
-                    System.Text.Encoding.UTF8,
-                    "application/json"),
-                CancellationToken.None);
+                               "/a2a",
+                               new StringContent(
+                                   $$"""
+                                     {
+                                       "jsonrpc": "2.0",
+                                       "id": 1,
+                                       "method": "SendMessage",
+                                       "params": {{invalidParam}}
+                                     }
+                                     """,
+                                   System.Text.Encoding.UTF8,
+                                   "application/json"),
+                               CancellationToken.None);
 
             var json = await response.Content.ReadFromJsonAsync<JsonElement>(CancellationToken.None);
 
@@ -821,11 +804,10 @@ public class A2ASkillVisibilityTests
     static bool HideHiddenSkill(EndpointDefinition def, ClaimsPrincipal _, HttpContext __)
         => def.EndpointType != typeof(HiddenSkillEndpoint);
 
-    static ServiceProvider BuildServices(
-        Func<EndpointDefinition, ClaimsPrincipal, HttpContext, bool>? visibilityFilter = null,
-        Func<EndpointDefinition, bool>? skillFilter = null,
-        string visibleSkillId = "visible",
-        string hiddenSkillId = "hidden")
+    static ServiceProvider BuildServices(Func<EndpointDefinition, ClaimsPrincipal, HttpContext, bool>? visibilityFilter = null,
+                                         Func<EndpointDefinition, bool>? skillFilter = null,
+                                         string visibleSkillId = "visible",
+                                         string hiddenSkillId = "hidden")
     {
         Factory.RegisterTestServices(
             s =>
@@ -836,7 +818,7 @@ public class A2ASkillVisibilityTests
         var services = new ServiceCollection();
 
         services.AddLogging();
-        services.AddFastEndpoints(new List<Type> { typeof(VisibleSkillEndpoint), typeof(HiddenSkillEndpoint) });
+        services.AddFastEndpoints([typeof(VisibleSkillEndpoint), typeof(HiddenSkillEndpoint)]);
         services.AddA2A(
             o =>
             {
@@ -879,20 +861,20 @@ public class A2ASkillVisibilityTests
         var builder = WebApplication.CreateBuilder();
         builder.WebHost.UseTestServer();
         builder.Services.AddFastEndpoints(
-            new List<Type>
-            {
-                typeof(VisibleSkillEndpoint),
-                typeof(HiddenSkillEndpoint),
-                typeof(ForbiddenSkillEndpoint),
-                typeof(NotFoundSkillEndpoint),
-                typeof(BadRequestSkillEndpoint),
-                typeof(StringErrorSkillEndpoint),
-                typeof(JsonArrayResponseSkillEndpoint),
-                typeof(TextDeclaredJsonResponseSkillEndpoint),
-                typeof(ValidationSkillEndpoint),
-                typeof(ValidationSkillEndpointValidator),
-                typeof(FaultedSkillEndpoint)
-            });
+        [
+            typeof(VisibleSkillEndpoint),
+            typeof(HiddenSkillEndpoint),
+            typeof(ForbiddenSkillEndpoint),
+            typeof(NotFoundSkillEndpoint),
+            typeof(BadRequestSkillEndpoint),
+            typeof(StringErrorSkillEndpoint),
+            typeof(JsonArrayResponseSkillEndpoint),
+            typeof(TextDeclaredJsonResponseSkillEndpoint),
+            typeof(ValidationSkillEndpoint),
+            typeof(ValidationSkillEndpointValidator),
+
+            typeof(FaultedSkillEndpoint)
+        ]);
         builder.Services.AddA2A(
             o =>
             {
@@ -938,11 +920,13 @@ public class A2ASkillVisibilityTests
             RequestServices = provider,
             User = authenticated
                        ? new(new ClaimsIdentity([new("sub", "caller")], "test"))
-                       : new(new ClaimsIdentity())
+                       : new(new ClaimsIdentity()),
+            Request =
+            {
+                Scheme = "http",
+                Host = new("localhost")
+            }
         };
-
-        ctx.Request.Scheme = "http";
-        ctx.Request.Host = new("localhost");
 
         return ctx;
     }
@@ -952,10 +936,10 @@ public class A2ASkillVisibilityTests
         var metadata = skill is null
                            ? "{}"
                            : $$"""
-                             {
-                               "skill": "{{skill}}"
-                             }
-                             """;
+                               {
+                                 "skill": "{{skill}}"
+                               }
+                               """;
 
         using var parameters = JsonDocument.Parse(
             $$"""
@@ -969,7 +953,7 @@ public class A2ASkillVisibilityTests
                     }
                   ]
                 },
-                "metadata": {{metadata}}
+                "metadata":{{metadata}}
               }
               """);
 
@@ -984,24 +968,24 @@ public class A2ASkillVisibilityTests
         var client = app.GetTestClient();
 
         var response = await client.PostAsJsonAsync(
-            "/a2a",
-            new
-            {
-                jsonrpc = "2.0",
-                id = 1,
-                method = "SendMessage",
-                @params = new
-                {
-                    message = new
-                    {
-                        messageId = "client-message-1",
-                        role = "user",
-                        parts = new[] { new { data = new { Value = "ping" } } }
-                    },
-                    metadata = new { skill = "faulted" }
-                }
-            },
-            CancellationToken.None);
+                           "/a2a",
+                           new
+                           {
+                               jsonrpc = "2.0",
+                               id = 1,
+                               method = "SendMessage",
+                               @params = new
+                               {
+                                   message = new
+                                   {
+                                       messageId = "client-message-1",
+                                       role = "user",
+                                       parts = new[] { new { data = new { Value = "ping" } } }
+                                   },
+                                   metadata = new { skill = "faulted" }
+                               }
+                           },
+                           CancellationToken.None);
         var json = await response.Content.ReadFromJsonAsync<JsonElement>(CancellationToken.None);
         var error = json.GetProperty("error");
 
@@ -1018,7 +1002,7 @@ public class A2ASkillVisibilityTests
 
         public override async Task HandleAsync(SkillRequest req, CancellationToken ct)
         {
-            System.Threading.Interlocked.Increment(ref ExecutionCount);
+            Interlocked.Increment(ref ExecutionCount);
 
             await Send.OkAsync(new() { Value = "visible:" + req.Value }, ct);
         }
@@ -1073,12 +1057,13 @@ public class A2ASkillVisibilityTests
 
         public override Task HandleAsync(SkillRequest req, CancellationToken ct)
         {
-            System.Threading.Interlocked.Increment(ref ExecutionCount);
+            Interlocked.Increment(ref ExecutionCount);
 
             return Send.OkAsync(new() { Value = "json:" + req.Value }, ct);
         }
     }
 
+    // ReSharper disable once ClassNeverInstantiated.Local
     sealed class ValidationSkillRequest
     {
         public string? Value { get; set; }
@@ -1106,6 +1091,7 @@ public class A2ASkillVisibilityTests
             => throw new InvalidOperationException("faulted skill");
     }
 
+    // ReSharper disable once ClassNeverInstantiated.Local
     sealed class SkillRequest
     {
         public string? Value { get; set; }

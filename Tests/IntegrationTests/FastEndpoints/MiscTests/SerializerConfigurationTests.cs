@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Reflection;
-using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -102,7 +101,7 @@ public class SerializerConfigurationTests
     {
         var builder = WebApplication.CreateBuilder();
         builder.WebHost.ConfigureKestrel(o => o.Listen(IPAddress.Loopback, 0));
-        builder.Services.AddFastEndpoints(o => o.SourceGeneratorDiscoveredTypes.Add(typeof(SerializerRaceEndpoint)));
+        builder.Services.AddFastEndpoints([typeof(SerializerRaceEndpoint)]);
 
         return builder.Build();
     }

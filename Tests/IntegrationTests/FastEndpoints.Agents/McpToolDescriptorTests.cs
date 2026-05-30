@@ -68,17 +68,17 @@ public class McpToolDescriptorTests
 
         var tool = BuildTool(provider, "hidden_transport_input_tool");
         var result = await tool.InvokeAsync(
-            BuildRequestContext(
-                provider,
-                tool,
-                authenticated: true,
-                new()
-                {
-                    ["InternalHeader"] = JsonSerializer.SerializeToElement("spoofed-header"),
-                    ["InternalCookie"] = JsonSerializer.SerializeToElement("spoofed-cookie"),
-                    ["Value"] = JsonSerializer.SerializeToElement("ping")
-                }),
-            CancellationToken.None);
+                         BuildRequestContext(
+                             provider,
+                             tool,
+                             authenticated: true,
+                             new()
+                             {
+                                 ["InternalHeader"] = JsonSerializer.SerializeToElement("spoofed-header"),
+                                 ["InternalCookie"] = JsonSerializer.SerializeToElement("spoofed-cookie"),
+                                 ["Value"] = JsonSerializer.SerializeToElement("ping")
+                             }),
+                         CancellationToken.None);
 
         result.StructuredContent!.Value.GetProperty("Value").GetString().ShouldBe("none:none:ping");
     }
@@ -158,10 +158,7 @@ public class McpToolDescriptorTests
         ((TextContentBlock)result.Content[0]).Text.ShouldContain("visible:ping");
     }
 
-    [Theory]
-    [InlineData("mismatched_type_output_tool")]
-    [InlineData("missing_required_output_tool")]
-    [InlineData("unknown_nested_output_tool")]
+    [Theory, InlineData("mismatched_type_output_tool"), InlineData("missing_required_output_tool"), InlineData("unknown_nested_output_tool")]
     public async Task Structured_content_is_omitted_when_response_violates_output_schema(string toolName)
     {
         using var provider = BuildServices();
@@ -194,11 +191,11 @@ public class McpToolDescriptorTests
         kebabOutputProps.TryGetProperty("response-value", out _).ShouldBeTrue();
 
         var snakeResult = await snakeTool.InvokeAsync(
-            BuildRequestContext(provider, snakeTool, authenticated: true, new() { ["request_value"] = JsonSerializer.SerializeToElement("snake") }),
-            CancellationToken.None);
+                              BuildRequestContext(provider, snakeTool, authenticated: true, new() { ["request_value"] = JsonSerializer.SerializeToElement("snake") }),
+                              CancellationToken.None);
         var kebabResult = await kebabTool.InvokeAsync(
-            BuildRequestContext(provider, kebabTool, authenticated: true, new() { ["request-value"] = JsonSerializer.SerializeToElement("kebab") }),
-            CancellationToken.None);
+                              BuildRequestContext(provider, kebabTool, authenticated: true, new() { ["request-value"] = JsonSerializer.SerializeToElement("kebab") }),
+                              CancellationToken.None);
 
         snakeResult.StructuredContent!.Value.GetProperty("response_value").GetString().ShouldBe("snake");
         kebabResult.StructuredContent!.Value.GetProperty("response-value").GetString().ShouldBe("kebab");
@@ -248,19 +245,19 @@ public class McpToolDescriptorTests
             required.EnumerateArray().Select(x => x.GetString()).ShouldNotContain("TenantId");
 
         var result = await tool.InvokeAsync(
-            McpToolVisibilityTests_Bridge.BuildCallRequestContext(
-                provider,
-                tool.ProtocolTool.Name,
-                principal,
-                new()
-                {
-                    ["TenantId"] = JsonSerializer.SerializeToElement("spoofed"),
-                    ["OptionalTenantId"] = JsonSerializer.SerializeToElement("fallback"),
-                    ["CanEdit"] = JsonSerializer.SerializeToElement(true),
-                    ["Value"] = JsonSerializer.SerializeToElement("ping")
-                },
-                tool),
-            CancellationToken.None);
+                         McpToolVisibilityTestsBridge.BuildCallRequestContext(
+                             provider,
+                             tool.ProtocolTool.Name,
+                             principal,
+                             new()
+                             {
+                                 ["TenantId"] = JsonSerializer.SerializeToElement("spoofed"),
+                                 ["OptionalTenantId"] = JsonSerializer.SerializeToElement("fallback"),
+                                 ["CanEdit"] = JsonSerializer.SerializeToElement(true),
+                                 ["Value"] = JsonSerializer.SerializeToElement("ping")
+                             },
+                             tool),
+                         CancellationToken.None);
 
         result.StructuredContent!.Value.GetProperty("Value").GetString().ShouldBe("actual:fallback:False:ping");
     }
@@ -295,26 +292,26 @@ public class McpToolDescriptorTests
         services.AddHttpContextAccessor();
         services.AddScoped<ScopedValidatorDependency>();
         services.AddFastEndpoints(
-            new List<Type>
-            {
-                typeof(DescriptorToolEndpoint),
-                typeof(AttributeToolEndpoint),
-                typeof(AttributeFalseToolEndpoint),
-                typeof(AttributeOmittedHintsToolEndpoint),
-                typeof(SnakeCaseContextToolEndpoint),
-                typeof(KebabCaseContextToolEndpoint),
-                typeof(ValidatedContextToolEndpoint),
-                typeof(SerializerContextToolRequestValidator),
-                typeof(ScopedValidatorToolEndpoint),
-                typeof(ScopedValidatorToolRequestValidator),
-                typeof(PrincipalBoundToolEndpoint),
-                typeof(FaultedToolEndpoint),
-                typeof(HiddenTransportInputToolEndpoint),
-                typeof(ToHeaderOutputToolEndpoint),
-                typeof(MismatchedTypeOutputToolEndpoint),
-                typeof(MissingRequiredOutputToolEndpoint),
-                typeof(UnknownNestedOutputToolEndpoint)
-            });
+        [
+            typeof(DescriptorToolEndpoint),
+            typeof(AttributeToolEndpoint),
+            typeof(AttributeFalseToolEndpoint),
+            typeof(AttributeOmittedHintsToolEndpoint),
+            typeof(SnakeCaseContextToolEndpoint),
+            typeof(KebabCaseContextToolEndpoint),
+            typeof(ValidatedContextToolEndpoint),
+            typeof(SerializerContextToolRequestValidator),
+            typeof(ScopedValidatorToolEndpoint),
+            typeof(ScopedValidatorToolRequestValidator),
+
+            typeof(PrincipalBoundToolEndpoint),
+            typeof(FaultedToolEndpoint),
+            typeof(HiddenTransportInputToolEndpoint),
+            typeof(ToHeaderOutputToolEndpoint),
+            typeof(MismatchedTypeOutputToolEndpoint),
+            typeof(MissingRequiredOutputToolEndpoint),
+            typeof(UnknownNestedOutputToolEndpoint)
+        ]);
         services.AddMcp(
             o =>
             {
@@ -399,7 +396,7 @@ public class McpToolDescriptorTests
                        ? new ClaimsPrincipal(new ClaimsIdentity([new("sub", "caller")], "test"))
                        : new ClaimsPrincipal(new ClaimsIdentity());
 
-        return McpToolVisibilityTests_Bridge.BuildCallRequestContext(provider, tool.ProtocolTool.Name, user, arguments, tool);
+        return McpToolVisibilityTestsBridge.BuildCallRequestContext(provider, tool.ProtocolTool.Name, user, arguments, tool);
     }
 
     static void SetUser(IServiceProvider provider, bool authenticated)
@@ -408,7 +405,7 @@ public class McpToolDescriptorTests
         {
             RequestServices = provider,
             User = authenticated
-                       ? new ClaimsPrincipal(new ClaimsIdentity([new("sub", "caller")], "test"))
+                       ? new(new ClaimsIdentity([new("sub", "caller")], "test"))
                        : new ClaimsPrincipal(new ClaimsIdentity())
         };
     }
@@ -420,30 +417,29 @@ public class McpToolDescriptorTests
             => await Send.OkAsync(new() { Value = "visible:" + req.Value }, ct);
     }
 
-    [McpTool("attribute_tool", Description = "Writes to an external system.", Title = "Attribute Tool", ReadOnly = true, Idempotent = true, Destructive = true, OpenWorld = true)]
-    [HttpPost("/attribute-tool")]
+    [McpTool("attribute_tool", Description = "Writes to an external system.", Title = "Attribute Tool", ReadOnly = true, Idempotent = true, Destructive = true, OpenWorld = true),
+     HttpPost("/attribute-tool")]
     sealed class AttributeToolEndpoint : Endpoint<ToolRequest, ToolResponse>
     {
         public override async Task HandleAsync(ToolRequest req, CancellationToken ct)
             => await Send.OkAsync(new() { Value = "attribute:" + req.Value }, ct);
     }
 
-    [McpTool("attribute_false_tool", Description = "Explicit false hints.", Destructive = false, OpenWorld = false)]
-    [HttpPost("/attribute-false-tool")]
+    [McpTool("attribute_false_tool", Description = "Explicit false hints.", Destructive = false, OpenWorld = false), HttpPost("/attribute-false-tool")]
     sealed class AttributeFalseToolEndpoint : Endpoint<ToolRequest, ToolResponse>
     {
         public override async Task HandleAsync(ToolRequest req, CancellationToken ct)
             => await Send.OkAsync(new() { Value = "attribute-false:" + req.Value }, ct);
     }
 
-    [McpTool("attribute_omitted_tool", Description = "Hints omitted.")]
-    [HttpPost("/attribute-omitted-tool")]
+    [McpTool("attribute_omitted_tool", Description = "Hints omitted."), HttpPost("/attribute-omitted-tool")]
     sealed class AttributeOmittedHintsToolEndpoint : Endpoint<ToolRequest, ToolResponse>
     {
         public override async Task HandleAsync(ToolRequest req, CancellationToken ct)
             => await Send.OkAsync(new() { Value = "attribute-omitted:" + req.Value }, ct);
     }
 
+    // ReSharper disable once ClassNeverInstantiated.Local
     sealed class ToolRequest
     {
         public string Value { get; set; } = "";
@@ -482,8 +478,10 @@ public class McpToolDescriptorTests
             => Send.OkAsync(new() { Value = req.Value }, ct);
     }
 
+    // ReSharper disable once ClassNeverInstantiated.Local
     sealed class ScopedValidatorToolRequest
     {
+        // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
         public string Value { get; set; } = "";
     }
 
@@ -506,9 +504,12 @@ public class McpToolDescriptorTests
             => Send.OkAsync(new() { Value = $"{req.TenantId}:{req.OptionalTenantId}:{req.CanEdit}:{req.Value}" }, ct);
     }
 
+    // ReSharper disable once ClassNeverInstantiated.Local
     sealed class PrincipalBoundToolRequest
     {
         [FromClaim("tenant_id")]
+
+        // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
         public string TenantId { get; set; } = "";
 
         [FromClaim("optional_tenant", isRequired: false)]
@@ -517,6 +518,7 @@ public class McpToolDescriptorTests
         [HasPermission("Edit_Item", isRequired: false)]
         public bool CanEdit { get; set; }
 
+        // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
         public string Value { get; set; } = "";
     }
 
@@ -537,6 +539,7 @@ public class McpToolDescriptorTests
             => string.IsNullOrEmpty(value) ? "none" : value;
     }
 
+    // ReSharper disable once ClassNeverInstantiated.Local
     sealed class HiddenTransportInputToolRequest
     {
         [FromHeader("x-internal", isRequired: false, removeFromSchema: true)]
@@ -545,6 +548,7 @@ public class McpToolDescriptorTests
         [FromCookie("internal", isRequired: false, removeFromSchema: true)]
         public string? InternalCookie { get; set; }
 
+        // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
         public string Value { get; set; } = "";
     }
 
@@ -577,8 +581,10 @@ public class McpToolDescriptorTests
             => Send.StringAsync("{}", 200, "application/json", ct);
     }
 
+    // ReSharper disable once ClassNeverInstantiated.Local
     sealed class RequiredOutputResponse
     {
+        // ReSharper disable once UnusedMember.Local
         public required string Value { get; set; }
     }
 
@@ -589,13 +595,16 @@ public class McpToolDescriptorTests
             => Send.StringAsync("""{"Nested":{"Value":"ok","Secret":"leak"}}""", 200, "application/json", ct);
     }
 
+    // ReSharper disable once ClassNeverInstantiated.Local
     sealed class NestedOutputResponse
     {
+        // ReSharper disable once UnusedMember.Local
         public NestedOutputValue Nested { get; set; } = new();
     }
 
     sealed class NestedOutputValue
     {
+        // ReSharper disable once UnusedMember.Local
         public string? Value { get; set; }
     }
 }
@@ -618,20 +627,18 @@ sealed class SerializerContextToolRequestValidator : Validator<SerializerContext
     }
 }
 
-[JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.SnakeCaseLower)]
-[JsonSerializable(typeof(SerializerContextToolRequest))]
-[JsonSerializable(typeof(SerializerContextToolResponse))]
+[JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.SnakeCaseLower), JsonSerializable(typeof(SerializerContextToolRequest)),
+ JsonSerializable(typeof(SerializerContextToolResponse))]
 partial class SnakeCaseMcpJsonContext : JsonSerializerContext;
 
-[JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.KebabCaseLower)]
-[JsonSerializable(typeof(SerializerContextToolRequest))]
-[JsonSerializable(typeof(SerializerContextToolResponse))]
+[JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.KebabCaseLower), JsonSerializable(typeof(SerializerContextToolRequest)),
+ JsonSerializable(typeof(SerializerContextToolResponse))]
 partial class KebabCaseMcpJsonContext : JsonSerializerContext;
 
-static class McpToolVisibilityTests_Bridge
+static class McpToolVisibilityTestsBridge
 {
     public static RequestContext<CallToolRequestParams> BuildRequestContext(IServiceProvider provider, McpServerTool tool, ClaimsPrincipal user)
-        => BuildCallRequestContext(provider, tool.ProtocolTool.Name, user, new Dictionary<string, JsonElement> { ["Value"] = JsonSerializer.SerializeToElement("ping") }, tool);
+        => BuildCallRequestContext(provider, tool.ProtocolTool.Name, user, new() { ["Value"] = JsonSerializer.SerializeToElement("ping") }, tool);
 
     public static RequestContext<CallToolRequestParams> BuildCallRequestContext(IServiceProvider provider,
                                                                                 string toolName,
@@ -641,10 +648,10 @@ static class McpToolVisibilityTests_Bridge
     {
         var request = new JsonRpcRequest
         {
-            Id = new RequestId(1),
+            Id = new(1),
             Method = RequestMethods.ToolsCall
         };
-        var server = McpServer.Create(new TestTransport(), new McpServerOptions(), Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory.Instance, provider);
+        var server = McpServer.Create(new TestTransport(), new(), Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory.Instance, provider);
 
         return new(
             server,
@@ -665,15 +672,15 @@ static class McpToolVisibilityTests_Bridge
     {
         var request = new JsonRpcRequest
         {
-            Id = new RequestId(1),
+            Id = new(1),
             Method = RequestMethods.ToolsList
         };
-        var server = McpServer.Create(new TestTransport(), new McpServerOptions(), Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory.Instance, provider);
+        var server = McpServer.Create(new TestTransport(), new(), Microsoft.Extensions.Logging.Abstractions.NullLoggerFactory.Instance, provider);
 
         return new(
             server,
             request,
-            new ListToolsRequestParams())
+            new())
         {
             Services = provider,
             User = user

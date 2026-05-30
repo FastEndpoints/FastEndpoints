@@ -53,8 +53,10 @@ public static class JobQueueExtensions
     /// add job queue functionality using source-generated discovered types.
     /// pass one <see cref="List{Type}" /> per referenced assembly, e.g.:
     /// <c>AddJobQueues&lt;TStorageRecord, TStorageProvider&gt;(Lib1.DiscoveredTypes.All, Lib2.DiscoveredTypes.All)</c>
-    /// <para>TIP: You don't need to pass discovered types here if you already called
-    /// <c>.AddFastEndpoints(Lib1.DiscoveredTypes.All, ...)</c> — use <c>.AddJobQueues&lt;TStorageRecord, TStorageProvider&gt;()</c> instead.</para>
+    /// <para>
+    /// TIP: You don't need to pass discovered types here if you already called
+    /// <c>.AddFastEndpoints(Lib1.DiscoveredTypes.All, ...)</c> — use <c>.AddJobQueues&lt;TStorageRecord, TStorageProvider&gt;()</c> instead.
+    /// </para>
     /// </summary>
     /// <typeparam name="TStorageRecord">the implementation type of the job storage record</typeparam>
     /// <typeparam name="TStorageProvider">the implementation type of the job storage provider</typeparam>
@@ -124,6 +126,7 @@ public static class JobQueueExtensions
                 continue; //NOTE: no open generic command support for jobs.
 
             var tCommandInterface = tCommand.GetInterface(typeof(ICommand<>).Name);
+
             if (tCommandInterface is null)
                 continue; //NOTE: IStreamCommand<> types are not supported as jobs.
 

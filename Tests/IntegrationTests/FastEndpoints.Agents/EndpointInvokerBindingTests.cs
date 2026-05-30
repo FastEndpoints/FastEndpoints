@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using FluentValidation;
@@ -113,15 +114,14 @@ public class EndpointInvokerBindingTests
         services.AddLogging();
         services.AddHttpContextAccessor();
         services.AddFastEndpoints(
-            new List<Type>
-            {
-                typeof(RouteBoundEndpoint),
-                typeof(QueryBoundEndpoint),
-                typeof(RouteAndQueryReaderEndpoint),
-                typeof(CompositeRoutePathEndpoint),
-                typeof(SerializerContextQueryEndpoint),
-                typeof(RawQueryReaderEndpoint)
-            });
+        [
+            typeof(RouteBoundEndpoint),
+            typeof(QueryBoundEndpoint),
+            typeof(RouteAndQueryReaderEndpoint),
+            typeof(CompositeRoutePathEndpoint),
+            typeof(SerializerContextQueryEndpoint),
+            typeof(RawQueryReaderEndpoint)
+        ]);
         services.AddMcp(o => o.ToolVisibilityFilter = static (_, _, _) => true);
 
         var provider = services.BuildServiceProvider();
@@ -139,6 +139,7 @@ public class EndpointInvokerBindingTests
             => Send.OkAsync(new() { Value = $"route:{req.CustomerId}:{req.RequestId}" }, ct);
     }
 
+    // ReSharper disable once ClassNeverInstantiated.Local
     sealed class RouteBoundRequest
     {
         [RouteParam(IsRequired = true)]
@@ -162,6 +163,7 @@ public class EndpointInvokerBindingTests
             => Send.OkAsync(new() { Value = $"query:{req.Term}:{req.Page}" }, ct);
     }
 
+    // ReSharper disable once ClassNeverInstantiated.Local
     sealed class QueryBoundRequest
     {
         [QueryParam]
@@ -183,6 +185,8 @@ public class EndpointInvokerBindingTests
                 ct);
     }
 
+    // ReSharper disable once ClassNeverInstantiated.Local
+    [SuppressMessage("ReSharper", "UnusedMember.Local")]
     sealed class RouteAndQueryRequest
     {
         [RouteParam]
@@ -201,6 +205,7 @@ public class EndpointInvokerBindingTests
             => Send.OkAsync(new() { Value = $"{HttpContext.Request.Path}:{req.Name}:{req.Ext}" }, ct);
     }
 
+    // ReSharper disable once ClassNeverInstantiated.Local
     sealed class CompositeRoutePathRequest
     {
         [RouteParam]

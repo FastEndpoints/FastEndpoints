@@ -134,7 +134,7 @@ public class McpToolVisibilityTests
 
         services.AddLogging();
         services.AddHttpContextAccessor();
-        services.AddFastEndpoints(new List<Type> { typeof(VisibleToolEndpoint) });
+        services.AddFastEndpoints([typeof(VisibleToolEndpoint)]);
         services.AddMcp(
             o =>
             {
@@ -162,22 +162,22 @@ public class McpToolVisibilityTests
         var handler = options.Handlers.ListToolsHandler;
         handler.ShouldNotBeNull();
 
-        return await handler!(McpToolVisibilityTests_Bridge.BuildListRequestContext(provider, BuildPrincipal(authenticated)), CancellationToken.None);
+        return await handler(McpToolVisibilityTestsBridge.BuildListRequestContext(provider, BuildPrincipal(authenticated)), CancellationToken.None);
     }
 
-    static async Task<CallToolResult> CallTool(IServiceProvider provider, string toolName, bool authenticated)
+    static async Task CallTool(IServiceProvider provider, string toolName, bool authenticated)
     {
         var options = provider.GetRequiredService<IOptions<McpServerOptions>>().Value;
         var handler = options.Handlers.CallToolHandler;
         handler.ShouldNotBeNull();
 
-        return await handler!(McpToolVisibilityTests_Bridge.BuildCallRequestContext(provider, toolName, BuildPrincipal(authenticated)), CancellationToken.None);
+        await handler(McpToolVisibilityTestsBridge.BuildCallRequestContext(provider, toolName, BuildPrincipal(authenticated)), CancellationToken.None);
     }
 
     static async Task<ListToolsResult> ListToolsWithoutRequestContextUser(IServiceProvider provider)
     {
         var options = provider.GetRequiredService<IOptions<McpServerOptions>>().Value;
-        var ctx = McpToolVisibilityTests_Bridge.BuildListRequestContext(provider, BuildPrincipal(authenticated: false));
+        var ctx = McpToolVisibilityTestsBridge.BuildListRequestContext(provider, BuildPrincipal(authenticated: false));
         ctx.User = null!;
 
         return await options.Handlers.ListToolsHandler!(ctx, CancellationToken.None);
@@ -186,7 +186,7 @@ public class McpToolVisibilityTests
     static async Task<CallToolResult> CallToolWithoutRequestContextUser(IServiceProvider provider, string toolName)
     {
         var options = provider.GetRequiredService<IOptions<McpServerOptions>>().Value;
-        var ctx = McpToolVisibilityTests_Bridge.BuildCallRequestContext(provider, toolName, BuildPrincipal(authenticated: false));
+        var ctx = McpToolVisibilityTestsBridge.BuildCallRequestContext(provider, toolName, BuildPrincipal(authenticated: false));
         ctx.User = null!;
 
         return await options.Handlers.CallToolHandler!(ctx, CancellationToken.None);
@@ -197,10 +197,10 @@ public class McpToolVisibilityTests
         var user = BuildPrincipal(authenticated);
         var request = new JsonRpcRequest
         {
-            Id = new RequestId(1),
+            Id = new(1),
             Method = RequestMethods.ToolsCall
         };
-        var server = McpServer.Create(new TestTransport(), new McpServerOptions(), NullLoggerFactory.Instance, provider);
+        var server = McpServer.Create(new TestTransport(), new(), NullLoggerFactory.Instance, provider);
         var ctx = new RequestContext<CallToolRequestParams>(
             server,
             request,
@@ -265,8 +265,10 @@ public class McpToolVisibilityTests
             => await Send.OkAsync(new() { Value = "visible:" + req.Value }, ct);
     }
 
+    // ReSharper disable once ClassNeverInstantiated.Local
     sealed class ToolRequest
     {
+        // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
         public string Value { get; set; } = "";
     }
 

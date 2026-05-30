@@ -60,15 +60,13 @@ public class McpToolSchemaRootTests
         ((TextContentBlock)result.Content[0]).Text.ShouldBe("[\"value:ping\"]");
     }
 
-    [Theory]
-    [InlineData(typeof(ArrayRequestEndpoint), "array_request")]
-    [InlineData(typeof(StringRequestEndpoint), "string_request")]
+    [Theory, InlineData(typeof(ArrayRequestEndpoint), "array_request"), InlineData(typeof(StringRequestEndpoint), "string_request")]
     public void Scalar_or_array_request_schema_is_rejected(Type endpointType, string toolName)
     {
         using var provider = BuildServices(endpointType);
         var source = provider.GetRequiredService<EndpointMcpToolSource>();
 
-        var ex = Should.Throw<InvalidOperationException>(() => source.BuildTools());
+        var ex = Should.Throw<InvalidOperationException>(source.BuildTools);
 
         ex.Message.ShouldContain($"MCP tool '{toolName}' cannot use input schema generated from");
         ex.Message.ShouldContain("MCP tools require an object root schema");
@@ -106,7 +104,7 @@ public class McpToolSchemaRootTests
 
         services.AddLogging();
         services.AddHttpContextAccessor();
-        services.AddFastEndpoints(new List<Type>(endpointTypes));
+        services.AddFastEndpoints([..endpointTypes]);
         services.AddMcp(o => o.ToolVisibilityFilter = static (_, _, _) => true);
 
         var provider = services.BuildServiceProvider();
@@ -146,7 +144,7 @@ public class McpToolSchemaRootTests
         => provider.GetRequiredService<EndpointMcpToolSource>().BuildTools().Single(t => t.ProtocolTool.Name == name);
 
     static RequestContext<CallToolRequestParams> BuildRequestContext(IServiceProvider provider, McpServerTool tool, Dictionary<string, JsonElement> arguments)
-        => McpToolVisibilityTests_Bridge.BuildCallRequestContext(provider, tool.ProtocolTool.Name, BuildPrincipal(true), arguments, tool);
+        => McpToolVisibilityTestsBridge.BuildCallRequestContext(provider, tool.ProtocolTool.Name, BuildPrincipal(true), arguments, tool);
 
     static Dictionary<string, JsonElement> BuildObjectArguments()
         => new() { ["Value"] = JsonSerializer.SerializeToElement("ping") };
@@ -200,8 +198,10 @@ public class McpToolSchemaRootTests
             => Send.OkAsync(new() { Value = req }, ct);
     }
 
+    // ReSharper disable once ClassNeverInstantiated.Local
     sealed class ObjectRequest
     {
+        // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
         public string Value { get; set; } = "";
     }
 

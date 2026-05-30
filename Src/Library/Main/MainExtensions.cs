@@ -29,7 +29,7 @@ public static class MainExtensions
     /// adds the FastEndpoints services to the ASP.Net middleware pipeline using reflection-based type discovery.
     /// </summary>
     public static IServiceCollection AddFastEndpoints(this IServiceCollection services)
-        => AddFastEndpoints(services, (Action<EndpointDiscoveryOptions>?)null);
+        => services.AddFastEndpoints((Action<EndpointDiscoveryOptions>?)null);
 
     /// <summary>
     /// adds the FastEndpoints services to the ASP.Net middleware pipeline using reflection-based type discovery.

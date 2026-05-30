@@ -66,13 +66,12 @@ public static class MainExtensions
         return app;
     }
 
-    static readonly object _serializerConfigLock = new();
+    static readonly Lock _serializerConfigLock = new();
     static volatile bool _serializerConfigured;
 
     public static IEndpointRouteBuilder MapFastEndpoints(this IEndpointRouteBuilder app, Action<Cfg>? configAction = null)
     {
         ServiceResolver.Instance = app.ServiceProvider.GetRequiredService<IServiceResolver>();
-
         ConfigureSerializerOnce(app, configAction);
         Cfg.BndOpts.AddTypedHeaderValueParsers();
 
@@ -212,14 +211,8 @@ public static class MainExtensions
         return app;
     }
 
-    /// <summary>
-    ///     Configures the process-wide serializer options (<see cref="SerializerOptions.Options" />) exactly once.
-    /// </summary>
     static void ConfigureSerializerOnce(IEndpointRouteBuilder app, Action<Cfg>? configAction)
     {
-        if (_serializerConfigured)
-            return;
-
         lock (_serializerConfigLock)
         {
             if (_serializerConfigured)

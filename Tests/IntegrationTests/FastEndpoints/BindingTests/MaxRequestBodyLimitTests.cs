@@ -30,15 +30,13 @@ public class MaxRequestBodyLimitTests : IAsyncLifetime
         var bld = WebApplication.CreateBuilder();
         bld.WebHost.ConfigureKestrel(o => o.ListenLocalhost(1024));
         bld.Services.AddFastEndpoints(o => o.Filter = t => t == typeof(Endpoint));
+        Config.EpOpts.RoutePrefix = null;
+        Config.EpOpts.Filter = null;
+        Config.EpOpts.Configurator = ep => ep.MaxRequestBodySize(100);
+        Config.BndOpts.FormExceptionTransformer = ex => new("formErrors", ex.Message);
+
         var app = bld.Build();
-        app.UseFastEndpoints(
-            c =>
-            {
-                c.Endpoints.RoutePrefix = null;
-                c.Endpoints.Filter = null;
-                c.Endpoints.Configurator = ep => ep.MaxRequestBodySize(100);
-                c.Binding.FormExceptionTransformer = ex => new("formErrors", ex.Message);
-            });
+        app.UseFastEndpoints();
         _app = app;
     }
 

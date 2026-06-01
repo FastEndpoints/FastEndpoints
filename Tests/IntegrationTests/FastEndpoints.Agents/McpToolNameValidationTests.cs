@@ -10,10 +10,7 @@ namespace FastEndpoints.Agents.Tests;
 
 public class McpToolNameValidationTests
 {
-    [Theory]
-    [InlineData("bad name")]
-    [InlineData("bad.name")]
-    [InlineData("")]
+    [Theory, InlineData("bad name"), InlineData("bad.name"), InlineData("")]
     public void Explicit_invalid_tool_names_fail_with_clear_exception(string invalidName)
     {
         using var provider = BuildServices(typeof(ExplicitInvalidNameEndpoint));
@@ -67,11 +64,11 @@ public class McpToolNameValidationTests
     public void Summary_derived_name_is_truncated_to_protocol_limit()
     {
         using var provider = BuildServices(typeof(SummaryDerivedNameEndpoint));
-        ConfigureGeneratedTool<SummaryDerivedNameEndpoint>(provider, new string('a', 70));
+        ConfigureGeneratedTool<SummaryDerivedNameEndpoint>(provider, new('a', 70));
 
         var tool = provider.GetRequiredService<EndpointMcpToolSource>().BuildTools().Single();
 
-        tool.ProtocolTool.Name.ShouldBe(new string('a', 64));
+        tool.ProtocolTool.Name.ShouldBe(new('a', 64));
     }
 
     [Fact]
@@ -138,12 +135,7 @@ public class McpToolNameValidationTests
 
         services.AddLogging();
         services.AddHttpContextAccessor();
-        services.AddFastEndpoints(
-            o =>
-            {
-                foreach (var endpointType in endpointTypes)
-                    o.SourceGeneratorDiscoveredTypes.Add(endpointType);
-            });
+        services.AddFastEndpoints([..endpointTypes]);
         services.AddMcp(o => o.ToolVisibilityFilter = static (_, _, _) => true);
 
         return services.BuildServiceProvider();
@@ -163,14 +155,16 @@ public class McpToolNameValidationTests
     {
         var options = provider.GetRequiredService<IOptions<McpServerOptions>>().Value;
 
-        return await options.Handlers.ListToolsHandler!(McpToolVisibilityTests_Bridge.BuildListRequestContext(provider, BuildPrincipal()), CancellationToken.None);
+        return await options.Handlers.ListToolsHandler!(McpToolVisibilityTestsBridge.BuildListRequestContext(provider, BuildPrincipal()), CancellationToken.None);
     }
 
     static async Task<CallToolResult> CallTool(IServiceProvider provider, string toolName)
     {
         var options = provider.GetRequiredService<IOptions<McpServerOptions>>().Value;
 
-        return await options.Handlers.CallToolHandler!(McpToolVisibilityTests_Bridge.BuildCallRequestContext(provider, toolName, BuildPrincipal(), BuildArguments()), CancellationToken.None);
+        return await options.Handlers.CallToolHandler!(
+                   McpToolVisibilityTestsBridge.BuildCallRequestContext(provider, toolName, BuildPrincipal(), BuildArguments()),
+                   CancellationToken.None);
     }
 
     static Dictionary<string, JsonElement> BuildArguments()
@@ -205,8 +199,7 @@ public class McpToolNameValidationTests
             => Send.OkAsync(new() { Value = "summary:" + req.Value }, ct);
     }
 
-    [McpTool("bad.name")]
-    [HttpPost("/attribute-invalid-name")]
+    [McpTool("bad.name"), HttpPost("/attribute-invalid-name")]
     sealed class AttributeInvalidNameEndpoint : Endpoint<ToolRequest, ToolResponse>
     {
         public override Task HandleAsync(ToolRequest req, CancellationToken ct)
@@ -234,8 +227,10 @@ public class McpToolNameValidationTests
             => Send.OkAsync(new() { Value = "second:" + req.Value }, ct);
     }
 
+    // ReSharper disable once ClassNeverInstantiated.Local
     sealed class ToolRequest
     {
+        // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
         public string Value { get; set; } = "";
     }
 

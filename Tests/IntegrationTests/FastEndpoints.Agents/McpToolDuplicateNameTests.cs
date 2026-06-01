@@ -17,7 +17,7 @@ public class McpToolDuplicateNameTests
         using var provider = BuildServices((_, _, _) => true, includeSecondDuplicate: true, secondDuplicateVisible: true);
         var source = provider.GetRequiredService<EndpointMcpToolSource>();
 
-        var ex = Should.Throw<InvalidOperationException>(() => source.BuildTools());
+        var ex = Should.Throw<InvalidOperationException>(source.BuildTools);
 
         ex.Message.ShouldContain("Duplicate MCP tool names detected");
         ex.Message.ShouldContain("'shared_tool'");
@@ -51,7 +51,7 @@ public class McpToolDuplicateNameTests
         var listEx = await Should.ThrowAsync<InvalidOperationException>(
                          async () =>
                              await options.Handlers.ListToolsHandler!(
-                                 McpToolVisibilityTests_Bridge.BuildListRequestContext(provider, BuildPrincipal(true)),
+                                 McpToolVisibilityTestsBridge.BuildListRequestContext(provider, BuildPrincipal(true)),
                                  CancellationToken.None));
 
         listEx.Message.ShouldContain("Duplicate MCP tool names detected");
@@ -60,7 +60,7 @@ public class McpToolDuplicateNameTests
         var callEx = await Should.ThrowAsync<InvalidOperationException>(
                          async () =>
                              await options.Handlers.CallToolHandler!(
-                                 McpToolVisibilityTests_Bridge.BuildCallRequestContext(provider, "shared_tool", BuildPrincipal(true)),
+                                 McpToolVisibilityTestsBridge.BuildCallRequestContext(provider, "shared_tool", BuildPrincipal(true)),
                                  CancellationToken.None));
 
         callEx.Message.ShouldContain("Duplicate MCP tool name 'shared_tool'");
@@ -80,13 +80,10 @@ public class McpToolDuplicateNameTests
 
         services.AddLogging();
         services.AddHttpContextAccessor();
-        services.AddFastEndpoints(
-            o =>
-            {
-                o.SourceGeneratorDiscoveredTypes.Add(typeof(VisibleDuplicateToolEndpoint));
-                if (includeSecondDuplicate)
-                    o.SourceGeneratorDiscoveredTypes.Add(typeof(SecondDuplicateToolEndpoint));
-            });
+        var types = includeSecondDuplicate
+                        ? new List<Type> { typeof(VisibleDuplicateToolEndpoint), typeof(SecondDuplicateToolEndpoint) }
+                        : new List<Type> { typeof(VisibleDuplicateToolEndpoint) };
+        services.AddFastEndpoints(types);
         services.AddMcp(o => o.ToolVisibilityFilter = visibilityFilter);
 
         var provider = services.BuildServiceProvider();
@@ -114,7 +111,7 @@ public class McpToolDuplicateNameTests
     {
         var options = provider.GetRequiredService<IOptions<McpServerOptions>>().Value;
 
-        return await options.Handlers.ListToolsHandler!(McpToolVisibilityTests_Bridge.BuildListRequestContext(provider, BuildPrincipal(authenticated)), CancellationToken.None);
+        return await options.Handlers.ListToolsHandler!(McpToolVisibilityTestsBridge.BuildListRequestContext(provider, BuildPrincipal(authenticated)), CancellationToken.None);
     }
 
     static async Task<CallToolResult> CallTool(IServiceProvider provider, string toolName, bool authenticated)
@@ -122,7 +119,7 @@ public class McpToolDuplicateNameTests
         var options = provider.GetRequiredService<IOptions<McpServerOptions>>().Value;
 
         return await options.Handlers.CallToolHandler!(
-                   McpToolVisibilityTests_Bridge.BuildCallRequestContext(provider, toolName, BuildPrincipal(authenticated)),
+                   McpToolVisibilityTestsBridge.BuildCallRequestContext(provider, toolName, BuildPrincipal(authenticated)),
                    CancellationToken.None);
     }
 
@@ -157,6 +154,7 @@ public class McpToolDuplicateNameTests
             => Send.OkAsync(new() { Value = "duplicate:" + req.Value }, ct);
     }
 
+    // ReSharper disable once ClassNeverInstantiated.Local
     sealed class ToolRequest
     {
         public string Value { get; set; }

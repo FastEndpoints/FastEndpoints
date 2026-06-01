@@ -8,7 +8,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi"/>
-        <PackageReference Include="Microsoft.OpenApi.Kiota.Builder"/>
+        <PackageReference Include="Microsoft.OpenApi.Kiota.Builder" PrivateAssets="All"/>
         <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
     </ItemGroup>
 

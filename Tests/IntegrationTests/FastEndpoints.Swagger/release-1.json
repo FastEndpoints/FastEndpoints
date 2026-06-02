@@ -1,5 +1,5 @@
 {
-  "x-generator": "NSwag v14.6.3.0 (NJsonSchema v11.5.2.0 (Newtonsoft.Json v13.0.0.0))",
+  "x-generator": "NSwag v14.7.1.0 (NJsonSchema v11.6.1.0 (Newtonsoft.Json v13.0.0.0))",
   "openapi": "3.0.0",
   "info": {
     "title": "Web API",
@@ -31,7 +31,23 @@
           "200": {
             "description": "all good",
             "headers": {
-              "x-some-custom-header": {}
+              "x-some-custom-header": {
+                "description": "my custom header",
+                "schema": {
+                  "title": "<>f__AnonymousType0OfString",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "prop1": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  }
+                },
+                "example": {
+                  "prop1": "prop1 val"
+                }
+              }
             },
             "content": {
               "application/json": {
@@ -73,7 +89,23 @@
           "200": {
             "description": "all good",
             "headers": {
-              "x-some-custom-header": {}
+              "x-some-custom-header": {
+                "description": "my custom header",
+                "schema": {
+                  "title": "<>f__AnonymousType0OfString",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "prop1": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  }
+                },
+                "example": {
+                  "prop1": "prop1 val"
+                }
+              }
             },
             "content": {
               "application/json": {
@@ -115,7 +147,23 @@
           "200": {
             "description": "all good",
             "headers": {
-              "x-some-custom-header": {}
+              "x-some-custom-header": {
+                "description": "my custom header",
+                "schema": {
+                  "title": "<>f__AnonymousType0OfString",
+                  "type": "object",
+                  "additionalProperties": false,
+                  "properties": {
+                    "prop1": {
+                      "type": "string",
+                      "nullable": true
+                    }
+                  }
+                },
+                "example": {
+                  "prop1": "prop1 val"
+                }
+              }
             },
             "content": {
               "application/json": {
@@ -1874,7 +1922,7 @@
               }
             },
             "example": [
-              ""
+              "ca21737c-a20d-4400-9e33-588665bc5d78"
             ]
           },
           {
@@ -2429,7 +2477,7 @@
               }
             },
             "example": [
-              ""
+              "91e6c5cd-1883-4391-b629-31cdb470f82f"
             ]
           },
           {
@@ -3095,7 +3143,7 @@
               }
             },
             "example": [
-              ""
+              "3dc3e0cb-7a39-4c38-adf9-72aac0220c6b"
             ]
           },
           {
@@ -3456,6 +3504,68 @@
         ]
       }
     },
+    "/api/api/test-cases/circular-fromform-binding-test": {
+      "post": {
+        "tags": [
+          "Api"
+        ],
+        "operationId": "TestCasesNestedFromFormBindingTestCircularEndpoint",
+        "requestBody": {
+          "x-name": "data",
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesNestedFromFormBindingTestCircularFormData"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesNestedFromFormBindingTestCircularResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/api/test-cases/nested-fromform-binding-test": {
+      "post": {
+        "tags": [
+          "Api"
+        ],
+        "operationId": "TestCasesNestedFromFormBindingTestEndpoint",
+        "requestBody": {
+          "x-name": "data",
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesNestedFromFormBindingTestRequest_FormData"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesNestedFromFormBindingTestResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/test-cases/on-before-on-after-validate": {
       "post": {
         "tags": [
@@ -3765,6 +3875,47 @@
         }
       }
     },
+    "/api/test-cases/circular-query-object-binding-test": {
+      "get": {
+        "tags": [
+          "TestCases"
+        ],
+        "operationId": "TestCasesQueryObjectBindingTestCircularEndpoint",
+        "parameters": [
+          {
+            "name": "data",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/TestCasesQueryObjectBindingTestCircularQueryData"
+                }
+              ]
+            },
+            "example": {
+              "name": "name",
+              "child": {
+                "name": "name",
+                "child": null
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesQueryObjectBindingTestCircularResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/test-cases/query-object-binding-test": {
       "get": {
         "tags": [
@@ -3842,26 +3993,28 @@
               ]
             },
             "example": {
-              "id": "id",
+              "id": "73f9c357-9939-4e57-9ac5-c98ff98ce346",
               "name": "name",
               "age": 0,
               "child": {
-                "id": "id",
+                "id": "16b6e623-47d4-4644-aa32-e50b45c6a354",
                 "name": "name",
                 "age": 0,
+                "birthDate": "2026-05-29",
+                "wakeUpTime": "wakeUpTime",
                 "strings": [
                   ""
                 ],
                 "favoriteDays": [
-                  0
+                  "Sunday"
                 ],
                 "isHidden": false
               },
               "numbers": [
                 0
               ],
-              "favoriteDay": 0,
-              "byteEnum": 0,
+              "favoriteDay": "Sunday",
+              "byteEnum": "Check",
               "isHidden": false
             }
           }
@@ -3909,7 +4062,7 @@
                     "int": 0,
                     "long": 0,
                     "double": 0.0,
-                    "enum": 0
+                    "enum": "Sunday"
                   }
                 ]
               },
@@ -3920,7 +4073,7 @@
                   "int": 0,
                   "long": 0,
                   "double": 0.0,
-                  "enum": 0
+                  "enum": "Sunday"
                 }
               ]
             }
@@ -4166,11 +4319,11 @@
               ]
             },
             "example": {
-              "id": "id",
+              "id": "a47cd036-24ed-4c5f-aa34-0aa0a42c7dd0",
               "name": "name",
               "age": 0,
               "child": {
-                "id": "id",
+                "id": "cff7a8e7-c158-4af9-b2e3-ca1ca2e96e59",
                 "name": "name",
                 "age": 0,
                 "strings": [
@@ -4462,6 +4615,54 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/TestCasesSTJInfiniteRecursionTestResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tests/generic-stream-command": {
+      "get": {
+        "tags": [
+          "Tests"
+        ],
+        "operationId": "TestCasesStreamCommandBusTestGenericStreamCmdEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "format": "guid"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/tests/stream-command": {
+      "get": {
+        "tags": [
+          "Tests"
+        ],
+        "operationId": "TestCasesStreamCommandBusTestStreamCmdEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "integer",
+                    "format": "int32"
+                  }
                 }
               }
             }
@@ -5363,6 +5564,92 @@
             "x-position": 1
           }
         ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/non-fe-auth": {
+      "get": {
+        "tags": [
+          "non-fe-auth"
+        ],
+        "operationId": "GetNonFeAuth",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "JWTBearerAuth": []
+          },
+          {
+            "ApiKey": []
+          }
+        ]
+      }
+    },
+    "/non-fe-auth-anon": {
+      "get": {
+        "tags": [
+          "non-fe-auth"
+        ],
+        "operationId": "GetNonFeAuthAnon",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/filtered-shared-path": {
+      "get": {
+        "tags": [
+          "exclude"
+        ],
+        "operationId": "GetFilteredSharedPath",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "shared-path"
+        ],
+        "operationId": "PostFilteredSharedPath",
         "responses": {
           "200": {
             "description": "",
@@ -6461,6 +6748,192 @@
         "type": "object",
         "additionalProperties": false
       },
+      "TestCasesNestedFromFormBindingTestCircularResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "childName": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "TestCasesNestedFromFormBindingTestCircularRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/TestCasesNestedFromFormBindingTestCircularFormData"
+          }
+        }
+      },
+      "TestCasesNestedFromFormBindingTestCircularFormData": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "child": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/TestCasesNestedFromFormBindingTestCircularFormData"
+              }
+            ]
+          }
+        }
+      },
+      "TestCasesNestedFromFormBindingTestResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "customName": {
+            "type": "string"
+          },
+          "fileName": {
+            "type": "string"
+          },
+          "documentFileNames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "detailsTitle": {
+            "type": "string"
+          },
+          "detailsImageFileName": {
+            "type": "string"
+          },
+          "galleryFileNames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "firstItemDescription": {
+            "type": "string"
+          },
+          "firstItemAttachmentFileName": {
+            "type": "string"
+          },
+          "numbersSum": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "TestCasesNestedFromFormBindingTestRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "data"
+        ],
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/TestCasesNestedFromFormBindingTestRequest_FormData"
+          }
+        }
+      },
+      "TestCasesNestedFromFormBindingTestRequest_FormData": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "customName",
+          "file",
+          "documents",
+          "details",
+          "items",
+          "numbers"
+        ],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "customName": {
+            "type": "string"
+          },
+          "file": {
+            "type": "string",
+            "format": "binary"
+          },
+          "documents": {
+            "type": "array",
+            "items": {}
+          },
+          "details": {
+            "$ref": "#/components/schemas/TestCasesNestedFromFormBindingTestRequest_Details"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TestCasesNestedFromFormBindingTestRequest_Item"
+            }
+          },
+          "numbers": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        }
+      },
+      "TestCasesNestedFromFormBindingTestRequest_Details": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "title",
+          "image",
+          "gallery"
+        ],
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "image": {
+            "type": "string",
+            "format": "binary"
+          },
+          "gallery": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "binary"
+            }
+          }
+        }
+      },
+      "TestCasesNestedFromFormBindingTestRequest_Item": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "description",
+          "attachment"
+        ],
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "attachment": {
+            "type": "string",
+            "format": "binary"
+          }
+        }
+      },
       "TestCasesOnBeforeAfterValidationTestResponse": {
         "type": "object",
         "additionalProperties": false,
@@ -6485,7 +6958,7 @@
         }
       },
       "FastEndpointsHttp": {
-        "type": "integer",
+        "type": "string",
         "description": "enum for specifying a http verb",
         "x-enumNames": [
           "GET",
@@ -6499,15 +6972,15 @@
           "TRACE"
         ],
         "enum": [
-          1,
-          2,
-          3,
-          4,
-          5,
-          6,
-          7,
-          8,
-          9
+          "GET",
+          "POST",
+          "PUT",
+          "PATCH",
+          "DELETE",
+          "HEAD",
+          "OPTIONS",
+          "CONNECT",
+          "TRACE"
         ]
       },
       "TestCasesPlainTextRequestTestResponse": {
@@ -6594,6 +7067,42 @@
         "type": "object",
         "additionalProperties": false
       },
+      "TestCasesQueryObjectBindingTestCircularResponse": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "childName": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "TestCasesQueryObjectBindingTestCircularRequest": {
+        "type": "object",
+        "additionalProperties": false
+      },
+      "TestCasesQueryObjectBindingTestCircularQueryData": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "child": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/TestCasesQueryObjectBindingTestCircularQueryData"
+              }
+            ]
+          }
+        }
+      },
       "TestCasesQueryObjectBindingTestResponse": {
         "type": "object",
         "additionalProperties": false,
@@ -6628,7 +7137,7 @@
         }
       },
       "SystemDayOfWeek": {
-        "type": "integer",
+        "type": "string",
         "description": "",
         "x-enumNames": [
           "Sunday",
@@ -6640,13 +7149,13 @@
           "Saturday"
         ],
         "enum": [
-          0,
-          1,
-          2,
-          3,
-          4,
-          5,
-          6
+          "Sunday",
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday"
         ]
       },
       "TestCasesQueryObjectBindingTestPerson": {
@@ -6700,6 +7209,16 @@
             "type": "integer",
             "format": "int32"
           },
+          "birthDate": {
+            "type": "string",
+            "format": "date",
+            "nullable": true
+          },
+          "wakeUpTime": {
+            "type": "string",
+            "format": "time",
+            "nullable": true
+          },
           "strings": {
             "type": "array",
             "items": {
@@ -6718,7 +7237,7 @@
         }
       },
       "TestCasesQueryObjectBindingTestByteEnum": {
-        "type": "integer",
+        "type": "string",
         "description": "",
         "x-enumNames": [
           "Check",
@@ -6726,9 +7245,9 @@
           "AnotherCheck"
         ],
         "enum": [
-          0,
-          1,
-          2
+          "Check",
+          "Test",
+          "AnotherCheck"
         ]
       },
       "TestCasesQueryObjectBindingTestRequest": {
@@ -7046,11 +7565,12 @@
             "nullable": true
           },
           "stringOverride": {
-            "type": "string"
+            "type": "integer",
+            "format": "int64"
           },
           "stringOverrideNullable": {
-            "type": "string",
-            "nullable": true
+            "type": "integer",
+            "format": "int64"
           },
           "fromBody": {
             "type": "string",
@@ -7200,7 +7720,7 @@
       },
       "FastEndpointsProblemDetails": {
         "type": "object",
-        "description": "RFC7807 compatible problem details/ error response class. this can be used by configuring startup like so:\napp.UseFastEndpoints(c => c.Errors.UseProblemDetails())",
+        "description": "RFC9457 compatible problem details/ error response class. this can be used by configuring startup like so:\napp.UseFastEndpoints(c => c.Errors.UseProblemDetails())",
         "additionalProperties": false,
         "properties": {
           "type": {

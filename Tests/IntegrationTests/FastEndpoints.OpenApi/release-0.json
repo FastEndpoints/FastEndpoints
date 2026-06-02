@@ -1917,6 +1917,39 @@
         }
       }
     },
+    "/api/swagger-review/dual-child-address": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewDualChildAddressEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSwaggerReviewDualChildAddressRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/swagger-review/duplicate-examples": {
       "post": {
         "tags": [
@@ -2625,6 +2658,72 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/TestCasesSwaggerReviewMissingSchemaPrimitiveResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/multi-doc-order-a": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewMultiDocOrderEndpointA",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSwaggerReviewMultiDocOrderRequestA"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/multi-doc-order-b": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewMultiDocOrderEndpointB",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSwaggerReviewMultiDocOrderRequestB"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsErrorResponse"
                 }
               }
             }
@@ -7764,6 +7863,12 @@
           "$ref": "#/components/schemas/TestCasesQueryObjectWithObjectsArrayBindingTestObjectInArray"
         }
       },
+      "SystemCollectionsGenericListOfTestCasesSwaggerReviewMultiDocSharedOrderLine": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/TestCasesSwaggerReviewMultiDocSharedOrderLine"
+        }
+      },
       "SystemCollectionsGenericListOfTestCasesSwaggerReviewUniqueItemsReviewChild": {
         "uniqueItems": true,
         "type": "array",
@@ -9251,6 +9356,29 @@
           }
         }
       },
+      "TestCasesSwaggerReviewDualChildAddress": {
+        "required": [
+          "zip"
+        ],
+        "type": "object",
+        "properties": {
+          "zip": {
+            "minLength": 1,
+            "type": "string"
+          }
+        }
+      },
+      "TestCasesSwaggerReviewDualChildAddressRequest": {
+        "type": "object",
+        "properties": {
+          "billingAddress": {
+            "$ref": "#/components/schemas/TestCasesSwaggerReviewDualChildAddress"
+          },
+          "shippingAddress": {
+            "$ref": "#/components/schemas/TestCasesSwaggerReviewDualChildAddress"
+          }
+        }
+      },
       "TestCasesSwaggerReviewDuplicateRequestExamplesRequest": {
         "type": "object",
         "properties": {
@@ -9391,6 +9519,40 @@
           },
           "effectiveOn": {
             "$ref": "#/components/schemas/SystemDateOnly"
+          }
+        }
+      },
+      "TestCasesSwaggerReviewMultiDocOrderRequestA": {
+        "type": "object",
+        "properties": {
+          "lines": {
+            "$ref": "#/components/schemas/SystemCollectionsGenericListOfTestCasesSwaggerReviewMultiDocSharedOrderLine"
+          }
+        }
+      },
+      "TestCasesSwaggerReviewMultiDocOrderRequestB": {
+        "type": "object",
+        "properties": {
+          "lines": {
+            "$ref": "#/components/schemas/SystemCollectionsGenericListOfTestCasesSwaggerReviewMultiDocSharedOrderLine"
+          }
+        }
+      },
+      "TestCasesSwaggerReviewMultiDocSharedOrderLine": {
+        "required": [
+          "sku",
+          "qty"
+        ],
+        "type": "object",
+        "properties": {
+          "sku": {
+            "minLength": 1,
+            "type": "string"
+          },
+          "qty": {
+            "exclusiveMinimum": 0,
+            "type": "integer",
+            "format": "int32"
           }
         }
       },

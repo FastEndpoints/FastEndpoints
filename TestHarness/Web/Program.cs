@@ -1,7 +1,5 @@
 using System.Globalization;
-using FastEndpoints.OpenApi;
-using Microsoft.OpenApi;
-using Scalar.AspNetCore;
+using FastEndpoints.Swagger;
 using TestCases.ClientStreamingTest;
 using TestCases.CommandBusTest;
 using TestCases.CommandHandlerTest;
@@ -20,10 +18,6 @@ using Web;
 using Web.PipelineBehaviors.PreProcessors;
 using Web.Services;
 
-Func<EndpointDefinition, bool> excludeReleaseVersioning = ep => ep.EndpointTags?.Contains("release_versioning") is not true;
-Func<EndpointDefinition, bool> includeReleaseVersioning = ep => ep.EndpointTags?.Contains("release_versioning") is true;
-Func<EndpointDefinition, bool> includeSwaggerReview = ep => ep.EndpointTags?.Contains("swagger_review") is true;
-
 var bld = WebApplication.CreateBuilder(args);
 bld.AddHandlerServer();
 bld.Services
@@ -41,117 +35,10 @@ bld.Services
    .AddSingleton(new SingltonSVC(0))
    .AddJobQueues<Job, JobStorage>()
    .RegisterServicesFromWeb()
-   .AddAntiforgery()
-   .OpenApiDocument(
-       o =>
-       {
-           o.EndpointFilter = excludeReleaseVersioning;
-           o.DocumentName = "Initial Release";
-           o.Title = "Web API";
-           o.Version = "v0.0";
-           o.TagCase = TagCase.TitleCase;
-           o.TagStripSymbols = true;
-       })
-   .OpenApiDocument(
-       o =>
-       {
-           o.EndpointFilter = excludeReleaseVersioning;
-           o.DocumentName = "Release 1.0";
-           o.Title = "Web API";
-           o.Version = "v1.0";
-           o.AddAuth(
-               "ApiKey",
-               new()
-               {
-                   Name = "api_key",
-                   In = ParameterLocation.Header,
-                   Type = SecuritySchemeType.ApiKey
-               });
-           o.MaxEndpointVersion = 1;
-           o.TagStripSymbols = true;
-       })
-   .OpenApiDocument(
-       o =>
-       {
-           o.EndpointFilter = excludeReleaseVersioning;
-           o.DocumentName = "Release 2.0";
-           o.Title = "FastEndpoints Sandbox";
-           o.Version = "v2.0";
-           o.MaxEndpointVersion = 2;
-           o.ShowDeprecatedOps = true;
-           o.TagStripSymbols = true;
-       })
-   .OpenApiDocument(
-       o => //only ver3 & only FastEndpoints
-       {
-           o.EndpointFilter = excludeReleaseVersioning;
-           o.DocumentName = "Release 3.0";
-           o.Title = "FastEndpoints Sandbox ver3 only";
-           o.Version = "v3.0";
-           o.MinEndpointVersion = 3;
-           o.MaxEndpointVersion = 3;
-           o.ExcludeNonFastEndpoints = true;
-       })
+   .AddAntiforgery();
 
-   //used for release versioning tests
-   .OpenApiDocument(
-       o =>
-       {
-           o.ExcludeNonFastEndpoints = true;
-           o.EndpointFilter = includeReleaseVersioning;
-           o.Title = "Web API";
-           o.DocumentName = "ReleaseVersioning - v0";
-           o.ReleaseVersion = 0;
-           o.ShowDeprecatedOps = true;
-       })
-   .OpenApiDocument(
-       o =>
-       {
-           o.ExcludeNonFastEndpoints = true;
-           o.EndpointFilter = includeReleaseVersioning;
-           o.Title = "Web API";
-           o.DocumentName = "ReleaseVersioning - v1";
-           o.ReleaseVersion = 1;
-           o.ShowDeprecatedOps = true;
-       })
-   .OpenApiDocument(
-       o =>
-       {
-           o.ExcludeNonFastEndpoints = true;
-           o.EndpointFilter = includeReleaseVersioning;
-           o.Title = "Web API";
-           o.DocumentName = "ReleaseVersioning - v2";
-           o.ReleaseVersion = 2;
-           o.ShowDeprecatedOps = true;
-       })
-   .OpenApiDocument(
-       o =>
-       {
-           o.ExcludeNonFastEndpoints = true;
-           o.EndpointFilter = includeReleaseVersioning;
-           o.Title = "Web API";
-           o.DocumentName = "ReleaseVersioning - v3";
-           o.ReleaseVersion = 3;
-           o.ShowDeprecatedOps = true;
-       })
-   .OpenApiDocument(
-       o =>
-       {
-           o.ExcludeNonFastEndpoints = true;
-           o.EndpointFilter = includeSwaggerReview;
-           o.Title = "Web API";
-           o.DocumentName = "Swagger Review";
-           o.TagStripSymbols = true;
-       })
-   .OpenApiDocument(
-       o =>
-       {
-           o.ExcludeNonFastEndpoints = true;
-           o.EndpointFilter = includeSwaggerReview;
-           o.Title = "Web API";
-           o.DocumentName = "Swagger Review Empty Schema";
-           o.TagStripSymbols = true;
-       });
+//bld.Services.AddOpenApiDocuments();
+bld.Services.AddSwaggerDocuments();
 
 if (bld.Environment.EnvironmentName == "Testing")
     bld.Services.AddSingleton<IX402FacilitatorClient, FakeFacilitatorClient>();
@@ -230,15 +117,16 @@ app.UseRequestLocalization(
 
 if (!app.Environment.IsProduction())
 {
-    app.MapOpenApi();
-    app.MapScalarApiReference(
-        o =>
-        {
-            o.AddDocuments("Initial Release", "Release 1.0", "Release 2.0", "Release 3.0");
-            o.OperationTitleSource = OperationTitleSource.Path;
-        });
-}
+    app.UseSwaggerGen();
 
+    // app.MapOpenApi();
+    // app.MapScalarApiReference(
+    //     o =>
+    //     {
+    //         o.AddDocuments("Initial Release", "Release 1.0", "Release 2.0", "Release 3.0");
+    //         o.OperationTitleSource = OperationTitleSource.Path;
+    //     });
+}
 app.Services.RegisterGenericCommand(typeof(GenericCommand<>), typeof(GenericCommandHandler<>));
 app.Services.RegisterGenericCommand(typeof(GenericNoResultCommand<>), typeof(GenericNoResultCommandHandler<>));
 app.Services.RegisterGenericCommand<JobTestGenericCommand<SomeEvent>, JobTestGenericCommandHandler<SomeEvent>>();

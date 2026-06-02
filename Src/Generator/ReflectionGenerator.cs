@@ -151,7 +151,7 @@ public class ReflectionGenerator : IIncrementalGenerator
                     b.w(
                         prop.IsInitOnly
                             ? " new()"
-                            : $" new() {{ Setter = (dto, val) => {BuildPropCast(tInfo)}.{prop.PropName} = ({prop.PropertyType})val! }}");
+                            : $" new() {{ Setter = (dto, val) => {BuildPropCast(tInfo)}.{prop.PropName} = ({prop.PropertyType})val!{BuildServiceKey(prop)} }}");
                     b.w("),");
                 }
 
@@ -207,6 +207,9 @@ public class ReflectionGenerator : IIncrementalGenerator
             => t.IsValueType
                    ? $"Unsafe.Unbox<{t.TypeAlias}>(dto)"
                    : $"(({t.TypeAlias})dto)";
+
+        static string BuildServiceKey(TypeInfo.Prop p)
+            => p.ServiceKey is null ? string.Empty : $", ServiceKey = \"{p.ServiceKey}\"";
 
         static string BuildTryParseArgs(bool? isIParsable)
             => isIParsable is true
@@ -332,7 +335,7 @@ public class ReflectionGenerator : IIncrementalGenerator
                             if ((HasDontInjectAttribute(prop) || HasUnconditionalJsonIgnoreAttribute(prop)) && prop.IsRequired is false)
                                 break;
 
-                            Properties.Add(new(prop));
+                            Properties.Add(new(prop, noRecursion));
 
                             break;
                     }
@@ -408,13 +411,18 @@ public class ReflectionGenerator : IIncrementalGenerator
             return false;
         }
 
-        internal readonly struct Prop(IPropertySymbol prop)
+        internal readonly struct Prop(IPropertySymbol prop, bool isEndpointClass = false)
         {
             public ITypeSymbol Symbol { get; } = prop.Type;
             public string PropName { get; } = prop.Name;
             public string PropertyType { get; } = prop.Type.ToDisplayString();
             public bool IsInitOnly { get; } = prop.SetMethod?.IsInitOnly is true;
             public bool IsRequired { get; } = prop.IsRequired;
+            public string? ServiceKey { get; } = isEndpointClass
+                ? prop.GetAttributes()
+                      .FirstOrDefault(a => a.AttributeClass?.Name == nameof(KeyedServiceAttribute))
+                      ?.ConstructorArguments.FirstOrDefault().Value as string
+                : null;
         }
     }
 

@@ -46,4 +46,9 @@ public sealed class PropertyDefinition
     /// action used for setting the value of a property on a class
     /// </summary>
     public Action<object, object?>? Setter { get; set; }
+
+    /// <summary>
+    /// the keyed-service key when this property is decorated with <see cref="KeyedServiceAttribute"/>, otherwise null.
+    /// </summary>
+    public string? ServiceKey { get; set; }
 }

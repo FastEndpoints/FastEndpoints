@@ -134,8 +134,7 @@ static class DocumentRegistration
 
     // public static IServiceCollection AddSwaggerDocuments(this IServiceCollection services)
     // {
-    //     Func<EndpointDefinition, bool> excludeReviewAndReleaseVersioning = ep => ep.EndpointTags?.Contains("release_versioning") is not true &&
-    //                                                                              ep.EndpointTags?.Contains("swagger_review") is not true;
+    //     Func<EndpointDefinition, bool> excludeReleaseVersioning = ep => ep.EndpointTags?.Contains("release_versioning") is not true;
     //     Func<EndpointDefinition, bool> includeReleaseVersioning = ep => ep.EndpointTags?.Contains("release_versioning") is true;
     //     Func<EndpointDefinition, bool> includeSwaggerReview = ep => ep.EndpointTags?.Contains("swagger_review") is true;
     //
@@ -143,7 +142,7 @@ static class DocumentRegistration
     //         services,
     //         o =>
     //         {
-    //             o.EndpointFilter = excludeReviewAndReleaseVersioning;
+    //             o.EndpointFilter = excludeReleaseVersioning;
     //             ConfigureSwaggerDocument(o, "Initial Release", "Web API", "v0.0");
     //             o.TagCase = FastEndpoints.Swagger.TagCase.TitleCase;
     //             o.TagStripSymbols = true;
@@ -152,7 +151,7 @@ static class DocumentRegistration
     //         services,
     //         o =>
     //         {
-    //             o.EndpointFilter = excludeReviewAndReleaseVersioning;
+    //             o.EndpointFilter = excludeReleaseVersioning;
     //             ConfigureSwaggerDocument(
     //                 o,
     //                 "Release 1.0",
@@ -174,7 +173,7 @@ static class DocumentRegistration
     //         services,
     //         o =>
     //         {
-    //             o.EndpointFilter = excludeReviewAndReleaseVersioning;
+    //             o.EndpointFilter = excludeReleaseVersioning;
     //             ConfigureSwaggerDocument(o, "Release 2.0", "FastEndpoints Sandbox", "v2.0");
     //             o.MaxEndpointVersion = 2;
     //             o.ShowDeprecatedOps = true;
@@ -184,7 +183,7 @@ static class DocumentRegistration
     //         services,
     //         o => //only ver3 & only FastEndpoints
     //         {
-    //             o.EndpointFilter = excludeReviewAndReleaseVersioning;
+    //             o.EndpointFilter = excludeReleaseVersioning;
     //             ConfigureSwaggerDocument(o, "Release 3.0", "FastEndpoints Sandbox ver3 only", "v3.0");
     //             o.MinEndpointVersion = 3;
     //             o.MaxEndpointVersion = 3;

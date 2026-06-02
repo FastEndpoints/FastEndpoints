@@ -4,8 +4,7 @@ static class DocumentRegistration
 {
     public static IServiceCollection AddOpenApiDocuments(this IServiceCollection services)
     {
-        Func<EndpointDefinition, bool> excludeReviewAndReleaseVersioning = ep => ep.EndpointTags?.Contains("release_versioning") is not true &&
-                                                                                 ep.EndpointTags?.Contains("swagger_review") is not true;
+        Func<EndpointDefinition, bool> excludeReleaseVersioning = ep => ep.EndpointTags?.Contains("release_versioning") is not true;
         Func<EndpointDefinition, bool> includeReleaseVersioning = ep => ep.EndpointTags?.Contains("release_versioning") is true;
         Func<EndpointDefinition, bool> includeSwaggerReview = ep => ep.EndpointTags?.Contains("swagger_review") is true;
 
@@ -13,7 +12,7 @@ static class DocumentRegistration
             services,
             o =>
             {
-                o.EndpointFilter = excludeReviewAndReleaseVersioning;
+                o.EndpointFilter = excludeReleaseVersioning;
                 o.DocumentName = "Initial Release";
                 o.Title = "Web API";
                 o.Version = "v0.0";
@@ -24,7 +23,7 @@ static class DocumentRegistration
             services,
             o =>
             {
-                o.EndpointFilter = excludeReviewAndReleaseVersioning;
+                o.EndpointFilter = excludeReleaseVersioning;
                 o.DocumentName = "Release 1.0";
                 o.Title = "Web API";
                 o.Version = "v1.0";
@@ -43,7 +42,7 @@ static class DocumentRegistration
             services,
             o =>
             {
-                o.EndpointFilter = excludeReviewAndReleaseVersioning;
+                o.EndpointFilter = excludeReleaseVersioning;
                 o.DocumentName = "Release 2.0";
                 o.Title = "FastEndpoints Sandbox";
                 o.Version = "v2.0";
@@ -55,7 +54,7 @@ static class DocumentRegistration
             services,
             o => //only ver3 & only FastEndpoints
             {
-                o.EndpointFilter = excludeReviewAndReleaseVersioning;
+                o.EndpointFilter = excludeReleaseVersioning;
                 o.DocumentName = "Release 3.0";
                 o.Title = "FastEndpoints Sandbox ver3 only";
                 o.Version = "v3.0";

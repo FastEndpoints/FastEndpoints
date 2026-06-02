@@ -1,4 +1,5 @@
 using FastEndpoints;
+using TestCases.KeyedServicesTests;
 using Xunit;
 
 namespace Unit.FastEndpoints;
@@ -46,6 +47,23 @@ public class ServiceBoundEpPropsTests
         props.Length.ShouldBe(2);
         props.ShouldContain(p => p.PropertyInfo.Name == nameof(SourceGenKeyedEp.ServiceA) && p.ServiceKey == "CACHED_A");
         props.ShouldContain(p => p.PropertyInfo.Name == nameof(SourceGenKeyedEp.ServiceB) && p.ServiceKey == "CACHED_B");
+    }
+
+    [Fact]
+    public void generated_path_populates_keyed_service_endpoint_from_test_harness()
+    {
+        // Verify that AddFromWeb (the source-generated extension from TestHarness\Web) registers
+        // the KeyedService endpoint and carries the correct service key — proving Fix #1:
+        // the generator now processes endpoint property injection even when the request DTO is
+        // absent (EndpointWithoutRequest / EmptyRequest, which is blacklisted).
+        var cache = new ReflectionCache();
+        Web.GeneratedReflection.AddFromWeb(cache);
+
+        cache.TryGetValue(typeof(Endpoint), out var typeDef).ShouldBeTrue();
+        typeDef!.Properties.ShouldNotBeNull();
+
+        var prop = typeDef.Properties.Single(kv => kv.Key.Name == nameof(Endpoint.KeyedService));
+        prop.Value.ServiceKey.ShouldBe("AAA");
     }
 }
 

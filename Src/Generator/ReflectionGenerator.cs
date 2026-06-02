@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.Text;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
@@ -209,7 +210,7 @@ public class ReflectionGenerator : IIncrementalGenerator
                    : $"(({t.TypeAlias})dto)";
 
         static string BuildServiceKey(TypeInfo.Prop p)
-            => p.ServiceKey is null ? string.Empty : $", ServiceKey = \"{p.ServiceKey}\"";
+            => p.ServiceKey is null ? string.Empty : $", ServiceKey = {SymbolDisplay.FormatLiteral(p.ServiceKey, quote: true)}";
 
         static string BuildTryParseArgs(bool? isIParsable)
             => isIParsable is true
@@ -265,10 +266,20 @@ public class ReflectionGenerator : IIncrementalGenerator
             IsValueType = type.IsValueType;
 
             if (TypeBlacklist.Contains(UnderlyingTypeName))
+            {
+                if (isEndpoint)
+                    _ = new TypeInfo(ref collector, symbol: symbol, isEndpoint: false, noRecursion: true);
+
                 return;
+            }
 
             if (collector.CollectedTypes.Contains(this)) //need to have TypeName set before this
+            {
+                if (isEndpoint)
+                    _ = new TypeInfo(ref collector, symbol: symbol, isEndpoint: false, noRecursion: true);
+
                 return;
+            }
 
             foreach (var ifcName in type.AllInterfaces.Select(ifc => ifc.ToDisplayString()))
             {
@@ -283,6 +294,9 @@ public class ReflectionGenerator : IIncrementalGenerator
 
                     if (tElement is not null)
                         _ = new TypeInfo(ref collector, tElement, false);
+
+                    if (isEndpoint)
+                        _ = new TypeInfo(ref collector, symbol: symbol, isEndpoint: false, noRecursion: true);
 
                     return;
                 }
@@ -368,7 +382,7 @@ public class ReflectionGenerator : IIncrementalGenerator
                 }
             }
 
-            if (isEndpoint && Properties.Count > 0)                                                    //create entry for endpoint class to support property injection
+            if (isEndpoint)                                                                             //create entry for endpoint class to support property injection
                 _ = new TypeInfo(ref collector, symbol: symbol, isEndpoint: false, noRecursion: true); //process the endpoint as a regular class without recursion
             else
             {

@@ -29,10 +29,10 @@
         <Project Path="Src/ClientGen/FastEndpoints.ClientGen.csproj"/>
         <Project Path="Src/Swagger/FastEndpoints.Swagger.csproj"/>
     </Folder>
-    <Folder Name="/Legacy/Tests/">
-        <Project Path="Tests/IntegrationTests/FastEndpoints.Swagger/Int.Swagger.csproj"/>
-        <Project Path="Tests/UnitTests/FastEndpoints.Swagger/Unit.Swagger.csproj"/>
-    </Folder>
+    <!-- <Folder Name="/Legacy/Tests/"> -->
+    <!--     <Project Path="Tests/IntegrationTests/FastEndpoints.Swagger/Int.Swagger.csproj"/> -->
+    <!--     <Project Path="Tests/UnitTests/FastEndpoints.Swagger/Unit.Swagger.csproj"/> -->
+    <!-- </Folder> -->
     <Folder Name="/TestHarnesses/">
         <Project Path="TestHarness/OData/OData.csproj"/>
         <Project Path="TestHarness/OpenApi.Kiota/OpenApi.Kiota.csproj"/>
@@ -44,8 +44,8 @@
     </Folder>
     <Folder Name="/Tests/IntegrationTests/">
         <Project Path="Tests/IntegrationTests/FastEndpoints.Agents/Int.Agents.csproj"/>
-        <!-- <Project Path="Tests/IntegrationTests/FastEndpoints.OpenApi.Kiota/Int.OpenApi.Kiota.csproj"/> -->
-        <!-- <Project Path="Tests/IntegrationTests/FastEndpoints.OpenApi/Int.OpenApi.csproj"/> -->
+        <Project Path="Tests/IntegrationTests/FastEndpoints.OpenApi.Kiota/Int.OpenApi.Kiota.csproj"/>
+        <Project Path="Tests/IntegrationTests/FastEndpoints.OpenApi/Int.OpenApi.csproj"/>
         <Project Path="Tests/IntegrationTests/FastEndpoints/Int.FastEndpoints.csproj"/>
         <Project Path="Tests/IntegrationTests/FastEndpoints.OData/Int.OData.csproj"/>
     </Folder>

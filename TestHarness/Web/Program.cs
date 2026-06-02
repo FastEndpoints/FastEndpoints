@@ -1,5 +1,5 @@
 using System.Globalization;
-using FastEndpoints.Swagger;
+using Scalar.AspNetCore;
 using TestCases.ClientStreamingTest;
 using TestCases.CommandBusTest;
 using TestCases.CommandHandlerTest;
@@ -17,6 +17,8 @@ using TestCases.X402;
 using Web;
 using Web.PipelineBehaviors.PreProcessors;
 using Web.Services;
+
+//using FastEndpoints.Swagger;
 
 var bld = WebApplication.CreateBuilder(args);
 bld.AddHandlerServer();
@@ -37,8 +39,9 @@ bld.Services
    .RegisterServicesFromWeb()
    .AddAntiforgery();
 
-//bld.Services.AddOpenApiDocuments();
-bld.Services.AddSwaggerDocuments();
+bld.Services.AddOpenApiDocuments();
+
+//bld.Services.AddSwaggerDocuments();
 
 if (bld.Environment.EnvironmentName == "Testing")
     bld.Services.AddSingleton<IX402FacilitatorClient, FakeFacilitatorClient>();
@@ -117,15 +120,15 @@ app.UseRequestLocalization(
 
 if (!app.Environment.IsProduction())
 {
-    app.UseSwaggerGen();
+    //app.UseSwaggerGen();
 
-    // app.MapOpenApi();
-    // app.MapScalarApiReference(
-    //     o =>
-    //     {
-    //         o.AddDocuments("Initial Release", "Release 1.0", "Release 2.0", "Release 3.0");
-    //         o.OperationTitleSource = OperationTitleSource.Path;
-    //     });
+    app.MapOpenApi();
+    app.MapScalarApiReference(
+        o =>
+        {
+            o.AddDocuments("Initial Release", "Release 1.0", "Release 2.0", "Release 3.0");
+            o.OperationTitleSource = OperationTitleSource.Path;
+        });
 }
 app.Services.RegisterGenericCommand(typeof(GenericCommand<>), typeof(GenericCommandHandler<>));
 app.Services.RegisterGenericCommand(typeof(GenericNoResultCommand<>), typeof(GenericNoResultCommandHandler<>));

@@ -1,7 +1,8 @@
+using FastEndpoints.OpenApi;
 using FluentValidation;
-using FastEndpoints.Swagger;
+using Microsoft.OpenApi;
 
-//using Microsoft.OpenApi;
+//using FastEndpoints.Swagger;
 
 namespace TestCases.Swagger.Review;
 
@@ -299,32 +300,32 @@ sealed class DuplicateQueryNamingPolicyRequest
     public string FirstName { get; set; } = string.Empty;
 }
 
-// sealed class DuplicateQueryNamingPolicyEndpoint : Endpoint<DuplicateQueryNamingPolicyRequest, string>
-// {
-//     public override void Configure()
-//     {
-//         Get("/swagger-review/duplicate-query-naming-policy");
-//         Tags("swagger_review");
-//         AllowAnonymous();
-//         Description(
-//             b => b.WithMetadata(
-//                 new OpenApiOperation
-//                 {
-//                     Parameters =
-//                     [
-//                         new()
-//                         {
-//                             Name = "firstName",
-//                             In = ParameterLocation.Query,
-//                             Schema = new OpenApiSchema { Type = JsonSchemaType.String }
-//                         }
-//                     ]
-//                 }));
-//     }
-//
-//     public override Task HandleAsync(DuplicateQueryNamingPolicyRequest req, CancellationToken ct)
-//         => Send.OkAsync(req.FirstName, ct);
-// }
+sealed class DuplicateQueryNamingPolicyEndpoint : Endpoint<DuplicateQueryNamingPolicyRequest, string>
+{
+    public override void Configure()
+    {
+        Get("/swagger-review/duplicate-query-naming-policy");
+        Tags("swagger_review");
+        AllowAnonymous();
+        Description(
+            b => b.WithMetadata(
+                new OpenApiOperation
+                {
+                    Parameters =
+                    [
+                        new OpenApiParameter
+                        {
+                            Name = "firstName",
+                            In = ParameterLocation.Query,
+                            Schema = new OpenApiSchema { Type = JsonSchemaType.String }
+                        }
+                    ]
+                }));
+    }
+
+    public override Task HandleAsync(DuplicateQueryNamingPolicyRequest req, CancellationToken ct)
+        => Send.OkAsync(req.FirstName, ct);
+}
 
 sealed class BindFromQueryGetReviewRequest
 {
@@ -1205,7 +1206,10 @@ sealed class DualChildAddress
 
 sealed class DualChildAddressValidator : Validator<DualChildAddress>
 {
-    public DualChildAddressValidator() => RuleFor(x => x.Zip).NotEmpty();
+    public DualChildAddressValidator()
+    {
+        RuleFor(x => x.Zip).NotEmpty();
+    }
 }
 
 sealed class DualChildAddressRequest

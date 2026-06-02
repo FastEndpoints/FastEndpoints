@@ -152,14 +152,6 @@ If `AddFastEndpoints` is already called with the discovered types, `AddMessaging
 
 ## Fixes 🪲
 
-<details><summary>Nested validator property-level constraints missing from Swagger schema</summary>
-
-When a request DTO used a child validator (via `SetValidator(...)` / `RuleFor(x => x.Child).SetValidator(...)`), the property-level constraints defined in that child validator (such as `NotEmpty`, `MaxLength`, `InclusiveBetween`, etc.) were silently dropped from the generated Swagger schema for any request type processed after the first one that shared the same nested validator type.
-
-The root cause was that `ValidationSchemaProcessor` kept a `_childAdaptorValidators` dictionary as a singleton-level instance field. This dictionary is used to track already-seen child validator types to prevent infinite recursion. Because it was shared across all schema processing calls, a nested validator type recorded while processing request type `A` would be treated as "already seen" when encountered again during processing of request type `B`, and its rules would not be applied to `B`'s schema.
-
-</details>
-
 <details><summary>'ValidationSchemaProcessor' concurrency issue when generating multiple Swagger documents</summary>
 
 The `_childAdaptorValidators` instance field on the singleton `ValidationSchemaProcessor` was a plain non-thread-safe `Dictionary<string, IValidator>`. Concurrent Swagger document generation (e.g. multiple documents being built in parallel at startup) could cause race conditions on that shared dictionary. The field is now a local variable scoped to each `Process` call, eliminating shared mutable state entirely.
@@ -177,6 +169,14 @@ Updating asymmetric JWT signing keys at runtime no longer keeps undisposed RSA i
 Complex query/form binding now treats `DateOnly`, `TimeOnly`, `Half`, `Int128`, `UInt128`, `BigInteger`, `IPAddress`, and `IPEndPoint` as scalar values instead of recursively binding them as complex objects.
 
 This fixes nested `[FromQuery]` request DTO properties such as `DateOnly?` and `TimeOnly?` being left at their default values (`0001-01-01`, `00:00:00`, etc.) even when valid query string values were supplied.
+
+</details>
+
+<details><summary>'FastEndpoints.Swagger' nested validator issue</summary>
+
+When a request DTO used a child validator (via `SetValidator(...)` / `RuleFor(x => x.Child).SetValidator(...)`), the property-level constraints defined in that child validator (such as `NotEmpty`, `MaxLength`, `InclusiveBetween`, etc.) were silently dropped from the generated Swagger schema for any request type processed after the first one that shared the same nested validator type.
+
+The root cause was that `ValidationSchemaProcessor` kept a `_childAdaptorValidators` dictionary as a singleton-level instance field. This dictionary is used to track already-seen child validator types to prevent infinite recursion. Because it was shared across all schema processing calls, a nested validator type recorded while processing request type `A` would be treated as "already seen" when encountered again during processing of request type `B`, and its rules would not be applied to `B`'s schema.
 
 </details>
 

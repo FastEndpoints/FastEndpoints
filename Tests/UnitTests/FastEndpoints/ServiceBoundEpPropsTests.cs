@@ -65,6 +65,29 @@ public class ServiceBoundEpPropsTests
         var prop = typeDef.Properties.Single(kv => kv.Key.Name == nameof(Endpoint.KeyedService));
         prop.Value.ServiceKey.ShouldBe("AAA");
     }
+
+    [Fact]
+    public void Init_Property_Cache_Entry_Returns_Correct_Service_Key()
+    {
+        // Simulates what the fixed generator emits for an init-only keyed property:
+        // a PropertyDefinition with ServiceKey set but no Setter.
+        var epType = typeof(InitKeyedEp);
+        var prop = epType.GetProperty(nameof(InitKeyedEp.Service))!;
+
+        Config.BndOpts.ReflectionCache.TryAdd(
+            epType,
+            new TypeDefinition
+            {
+                Properties = new([new(prop, new PropertyDefinition { ServiceKey = "KEY" })])
+            });
+
+        var epDef = new EndpointDefinition(epType, typeof(EmptyRequest), typeof(EmptyResponse));
+        var props = epDef.ServiceBoundEpProps;
+
+        props.Length.ShouldBe(1);
+        props[0].PropertyInfo.Name.ShouldBe(nameof(InitKeyedEp.Service));
+        props[0].ServiceKey.ShouldBe("KEY");
+    }
 }
 
 // Unique file-scoped types ensure no cross-test ReflectionCache pollution.
@@ -81,4 +104,10 @@ file sealed class SourceGenKeyedEp
 {
     public object ServiceA { get; set; } = default!;
     public object ServiceB { get; set; } = default!;
+}
+
+file sealed class InitKeyedEp
+{
+    [KeyedService("KEY")]
+    public object Service { get; init; } = default!;
 }

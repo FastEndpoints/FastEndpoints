@@ -151,7 +151,7 @@ public class ReflectionGenerator : IIncrementalGenerator
                          """);
                     b.w(
                         prop.IsInitOnly
-                            ? " new()"
+                            ? $" new(){BuildInitServiceKey(prop)}"
                             : $" new() {{ Setter = (dto, val) => {BuildPropCast(tInfo)}.{prop.PropName} = ({prop.PropertyType})val!{BuildServiceKey(prop)} }}");
                     b.w("),");
                 }
@@ -211,6 +211,9 @@ public class ReflectionGenerator : IIncrementalGenerator
 
         static string BuildServiceKey(TypeInfo.Prop p)
             => p.ServiceKey is null ? string.Empty : $", ServiceKey = {SymbolDisplay.FormatLiteral(p.ServiceKey, quote: true)}";
+
+        static string BuildInitServiceKey(TypeInfo.Prop p)
+            => p.ServiceKey is null ? string.Empty : $" {{ ServiceKey = {SymbolDisplay.FormatLiteral(p.ServiceKey, quote: true)} }}";
 
         static string BuildTryParseArgs(bool? isIParsable)
             => isIParsable is true

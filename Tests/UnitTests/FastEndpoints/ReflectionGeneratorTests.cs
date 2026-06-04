@@ -9,8 +9,6 @@ namespace Generator;
 
 public class ReflectionGeneratorTests
 {
-    // ── Fix #1: endpoint-without-request has [KeyedService] property ──────────
-
     [Fact]
     public void endpoint_without_request_keyed_service_property_is_emitted()
     {
@@ -37,8 +35,6 @@ public class ReflectionGeneratorTests
         generated.ShouldContain("ServiceKey = \"A\"");
         generated.ShouldContain("MyEndpoint");
     }
-
-    // ── Fix #1: request DTO has zero bindable properties ─────────────────────
 
     [Fact]
     public void endpoint_with_propertyless_dto_keyed_service_is_emitted()
@@ -71,7 +67,33 @@ public class ReflectionGeneratorTests
         generated.ShouldContain("MyEndpoint");
     }
 
-    // ── Fix #2: keys containing characters that require C# literal escaping ──
+    [Fact]
+    public void keyed_init_property_emits_service_key_without_setter()
+    {
+        const string source =
+            """
+            using System.Threading;
+            using System.Threading.Tasks;
+            using FastEndpoints;
+
+            namespace TestApp;
+
+            public class MyEndpoint : EndpointWithoutRequest<string>
+            {
+                [KeyedService("KEY")]
+                public object Service { get; init; } = default!;
+
+                public override Task HandleAsync(CancellationToken ct) => Task.CompletedTask;
+            }
+            """;
+
+        var generated = RunGenerator(source, out var diagnostics);
+
+        diagnostics.ShouldBeEmpty();
+        generated.ShouldContain("ServiceKey = \"KEY\"");
+        generated.ShouldNotContain("Setter =");
+        generated.ShouldContain("MyEndpoint");
+    }
 
     [Fact]
     public void service_key_with_embedded_quote_is_escaped_in_generated_code()

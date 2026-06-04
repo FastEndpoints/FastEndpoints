@@ -309,6 +309,64 @@ public class ServiceResolverTests
     }
 
     [Fact]
+    public void TryResolve_Generic_WithActiveRequestScope_DoesNotFallBackToDisposedRootProvider()
+    {
+        // simulates a torn-down host whose resolver still lingers in the static ServiceResolver.Instance:
+        // the captured root provider is disposed, yet a request scope is active.
+        var rootProvider = new ServiceCollection().BuildServiceProvider();
+        rootProvider.Dispose();
+
+        var requestServices = new ServiceCollection().BuildServiceProvider();
+        var httpContext = new DefaultHttpContext { RequestServices = requestServices };
+        var ctxAccessor = A.Fake<IHttpContextAccessor>();
+        A.CallTo(() => ctxAccessor.HttpContext).Returns(httpContext);
+
+        var resolver = new ServiceResolver(rootProvider, ctxAccessor);
+
+        // resolving an unregistered service must come back null from the request scope,
+        // not throw ObjectDisposedException by falling back to the disposed root provider.
+        var resolve = () => resolver.TryResolve<ITestService>();
+
+        resolve.ShouldNotThrow().ShouldBeNull();
+    }
+
+    [Fact]
+    public void TryResolve_NonGeneric_WithActiveRequestScope_DoesNotFallBackToDisposedRootProvider()
+    {
+        var rootProvider = new ServiceCollection().BuildServiceProvider();
+        rootProvider.Dispose();
+
+        var requestServices = new ServiceCollection().BuildServiceProvider();
+        var httpContext = new DefaultHttpContext { RequestServices = requestServices };
+        var ctxAccessor = A.Fake<IHttpContextAccessor>();
+        A.CallTo(() => ctxAccessor.HttpContext).Returns(httpContext);
+
+        var resolver = new ServiceResolver(rootProvider, ctxAccessor);
+
+        var resolve = () => resolver.TryResolve(typeof(ITestService));
+
+        resolve.ShouldNotThrow().ShouldBeNull();
+    }
+
+    [Fact]
+    public void TryResolve_GenericWithKeyName_WithActiveRequestScope_DoesNotFallBackToDisposedRootProvider()
+    {
+        var rootProvider = new ServiceCollection().BuildServiceProvider();
+        rootProvider.Dispose();
+
+        var requestServices = new ServiceCollection().BuildServiceProvider();
+        var httpContext = new DefaultHttpContext { RequestServices = requestServices };
+        var ctxAccessor = A.Fake<IHttpContextAccessor>();
+        A.CallTo(() => ctxAccessor.HttpContext).Returns(httpContext);
+
+        var resolver = new ServiceResolver(rootProvider, ctxAccessor);
+
+        var resolve = () => resolver.TryResolve<ITestService>("myKey");
+
+        resolve.ShouldNotThrow().ShouldBeNull();
+    }
+
+    [Fact]
     public void TryResolve_GenericWithKeyName_ReturnsKeyedServiceWhenRegistered()
     {
         var services = new ServiceCollection();

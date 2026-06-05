@@ -271,16 +271,14 @@ public class ReflectionGenerator : IIncrementalGenerator
 
             if (TypeBlacklist.Contains(UnderlyingTypeName))
             {
-                if (isEndpoint)
-                    _ = new TypeInfo(ref collector, symbol: symbol, isEndpoint: false, noRecursion: true);
+                CollectEndpointClassForPropertyInjectionIfNeeded(ref collector, symbol, isEndpoint);
 
                 return;
             }
 
             if (collector.CollectedTypes.Contains(this)) //need to have TypeName set before this
             {
-                if (isEndpoint)
-                    _ = new TypeInfo(ref collector, symbol: symbol, isEndpoint: false, noRecursion: true);
+                CollectEndpointClassForPropertyInjectionIfNeeded(ref collector, symbol, isEndpoint);
 
                 return;
             }
@@ -299,8 +297,7 @@ public class ReflectionGenerator : IIncrementalGenerator
                     if (tElement is not null)
                         _ = new TypeInfo(ref collector, tElement, false);
 
-                    if (isEndpoint)
-                        _ = new TypeInfo(ref collector, symbol: symbol, isEndpoint: false, noRecursion: true);
+                    CollectEndpointClassForPropertyInjectionIfNeeded(ref collector, symbol, isEndpoint);
 
                     return;
                 }
@@ -386,11 +383,11 @@ public class ReflectionGenerator : IIncrementalGenerator
                 }
             }
 
-            if (isEndpoint)                                                                             //create entry for endpoint class to support property injection
-                _ = new TypeInfo(ref collector, symbol: symbol, isEndpoint: false, noRecursion: true); //process the endpoint as a regular class without recursion
+            if (isEndpoint)
+                CollectEndpointClassForPropertyInjectionIfNeeded(ref collector, symbol, isEndpoint);
             else
             {
-                if (noRecursion) // noRecursion is only true for endpoint classes when treated as regular classes by if condition above
+                if (noRecursion) // noRecursion is only true for endpoint classes when treated as regular classes by CollectEndpointClassForPropertyInjectionIfNeeded()
                     return;
 
                 TypeAlias = $"t{(collector.Counter++).ToString()}";
@@ -398,12 +395,19 @@ public class ReflectionGenerator : IIncrementalGenerator
             }
         }
 
+        static void CollectEndpointClassForPropertyInjectionIfNeeded(ref TypeCollector collector, ITypeSymbol symbol, bool isEndpoint)
+        {
+            if (isEndpoint)
+                _ = new TypeInfo(ref collector, symbol: symbol, isEndpoint: false, noRecursion: true);
+        }
+
         static bool HasDontInjectAttribute(IPropertySymbol prop)
             => prop.GetAttributes().Any(a => a.AttributeClass!.Name == DontInjectAttribute);
 
         static bool IsPartial(ITypeSymbol type)
-            => type.DeclaringSyntaxReferences.Any(static r => r.GetSyntax() is TypeDeclarationSyntax t &&
-                                                              t.Modifiers.Any(static m => m.ValueText == "partial"));
+            => type.DeclaringSyntaxReferences.Any(
+                static r => r.GetSyntax() is TypeDeclarationSyntax t &&
+                            t.Modifiers.Any(static m => m.ValueText == "partial"));
 
         static bool HasUnconditionalJsonIgnoreAttribute(IPropertySymbol prop)
         {
@@ -436,11 +440,12 @@ public class ReflectionGenerator : IIncrementalGenerator
             public string PropertyType { get; } = prop.Type.ToDisplayString();
             public bool IsInitOnly { get; } = prop.SetMethod?.IsInitOnly is true;
             public bool IsRequired { get; } = prop.IsRequired;
+
             public string? ServiceKey { get; } = isEndpointClass
-                ? prop.GetAttributes()
-                      .FirstOrDefault(a => a.AttributeClass?.ToDisplayString() == KeyedServiceAttribute)
-                      ?.ConstructorArguments.FirstOrDefault().Value as string
-                : null;
+                                                     ? prop.GetAttributes()
+                                                           .FirstOrDefault(a => a.AttributeClass?.ToDisplayString() == KeyedServiceAttribute)?.ConstructorArguments
+                                                           .FirstOrDefault().Value as string
+                                                     : null;
         }
     }
 

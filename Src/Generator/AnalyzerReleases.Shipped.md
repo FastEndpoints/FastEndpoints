@@ -1,6 +1,6 @@
 ; Shipped analyzer releases
 
-## Release 8.2.0-beta.42
+## Release 8.2.0
 
 ### New Rules
 

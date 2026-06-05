@@ -178,6 +178,41 @@ public class ReflectionGeneratorTests
                          .ShouldBeEmpty();
     }
 
+    [Fact]
+    public void unrelated_keyed_service_attribute_is_ignored()
+    {
+        const string source =
+            """
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+            using FastEndpoints;
+
+            namespace Other
+            {
+                [AttributeUsage(AttributeTargets.Property)]
+                public sealed class KeyedServiceAttribute(string keyName) : Attribute;
+            }
+
+            namespace TestApp
+            {
+                public class MyEndpoint : EndpointWithoutRequest<string>
+                {
+                    [Other.KeyedService("NOT_FASTENDPOINTS")]
+                    public object MyService { get; set; } = default!;
+
+                    public override Task HandleAsync(CancellationToken ct) => Task.CompletedTask;
+                }
+            }
+            """;
+
+        var generated = RunGenerator(source, out var diagnostics);
+
+        diagnostics.ShouldBeEmpty();
+        generated.ShouldNotContain("NOT_FASTENDPOINTS");
+        generated.ShouldContain("MyEndpoint");
+    }
+
     // ── helpers ───────────────────────────────────────────────────────────────
 
     static string RunGenerator(string source, out ImmutableArray<Diagnostic> generatorDiagnostics)

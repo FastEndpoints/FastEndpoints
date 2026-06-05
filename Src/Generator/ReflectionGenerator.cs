@@ -20,6 +20,7 @@ public class ReflectionGenerator : IIncrementalGenerator
     const string IEnumerable = "System.Collections.IEnumerable";
     const string IParsable = "System.IParsable<";
     const string JsonIgnoreAttribute = "System.Text.Json.Serialization.JsonIgnoreAttribute";
+    const string KeyedServiceAttribute = "FastEndpoints.KeyedServiceAttribute";
 
     readonly StringBuilder b = new();
     readonly StringBuilder _initArgsBuilder = new();
@@ -437,7 +438,7 @@ public class ReflectionGenerator : IIncrementalGenerator
             public bool IsRequired { get; } = prop.IsRequired;
             public string? ServiceKey { get; } = isEndpointClass
                 ? prop.GetAttributes()
-                      .FirstOrDefault(a => a.AttributeClass?.Name == nameof(KeyedServiceAttribute))
+                      .FirstOrDefault(a => a.AttributeClass?.ToDisplayString() == KeyedServiceAttribute)
                       ?.ConstructorArguments.FirstOrDefault().Value as string
                 : null;
         }

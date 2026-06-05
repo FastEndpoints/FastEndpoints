@@ -13,6 +13,14 @@ public class AccessControlGenerator : IIncrementalGenerator
 {
     const string AccessControl = "AccessControl";
 
+    static readonly DiagnosticDescriptor _duplicatePermissionCode = new(
+        id: "FEAC001",
+        title: "Duplicate permission code",
+        messageFormat: "Permission code '{0}' is assigned to multiple permissions: {1}. Rename one of the permissions so each permission code is unique.",
+        category: "FastEndpoints.AccessControl",
+        defaultSeverity: DiagnosticSeverity.Error,
+        isEnabledByDefault: true);
+
     // ReSharper disable once InconsistentNaming
     readonly StringBuilder b = new();
 
@@ -83,7 +91,7 @@ public class AccessControlGenerator : IIncrementalGenerator
 
             return symbol.ConstantValue is string code
                        ? new(variable.Identifier.ValueText, code)
-                       : new(variable.Identifier.ValueText, variable.Identifier.ValueText, $"{variable.Identifier.Text} ?? string.Empty");
+                       : new(variable.Identifier.ValueText, variable.Identifier.ValueText, $"{variable.Identifier.Text} ?? string.Empty", isCodeKnown: false);
         }
 
         //executed per each keystroke
@@ -139,11 +147,29 @@ public class AccessControlGenerator : IIncrementalGenerator
 
         var sortedPartialPerms = partialPerms.OrderBy(p => p.Name).ToArray();
 
+        ReportDuplicatePermissionCodes(spc, [..endpointPerms, ..sortedCustomPerms, ..sortedPartialPerms]);
+
         spc.AddSource(
             "Allow.g.cs",
             SourceText.From(
                 RenderClass(rootNamespace, endpointPerms, sortedCustomPerms, sortedPartialPerms),
                 Encoding.UTF8));
+    }
+
+    static void ReportDuplicatePermissionCodes(SourceProductionContext spc, Permission[] perms)
+    {
+        var duplicates = perms.Where(static p => p.IsCodeKnown)
+                              .GroupBy(static p => p.Code)
+                              .Select(
+                                  static g => new
+                                  {
+                                      Code = g.Key,
+                                      Names = g.Select(static p => p.Name).Distinct().OrderBy(static n => n).ToArray()
+                                  })
+                              .Where(static g => g.Names.Length > 1);
+
+        foreach (var duplicate in duplicates)
+            spc.ReportDiagnostic(Diagnostic.Create(_duplicatePermissionCode, Location.None, duplicate.Code, string.Join(", ", duplicate.Names)));
     }
 
     string RenderClass(string rootNamespace, Permission[] endpointPerms, Permission[] constCustom, Permission[] partialPerms)
@@ -467,6 +493,7 @@ public class AccessControlGenerator : IIncrementalGenerator
         public string CodeExpression { get; }
         public string Endpoint { get; }
         public IEnumerable<string> Categories { get; }
+        public bool IsCodeKnown { get; }
         public bool IsValid => Name is not null;
 
         internal Permission(Match m)
@@ -488,12 +515,13 @@ public class AccessControlGenerator : IIncrementalGenerator
             Endpoint = m.Endpoint!.ToDisplayString();
             Description = desc.Length == 0 ? null : desc.Substring(2).Trim();
             Categories = args.Skip(1).Select(static c => c.ToValidCSharpIdentifier("_")).ToArray();
+            IsCodeKnown = true;
         }
 
         internal Permission(string name, string code)
             : this(name, code, CsString(code)) { }
 
-        internal Permission(string name, string code, string codeExpression)
+        internal Permission(string name, string code, string codeExpression, bool isCodeKnown = true)
         {
             Name = name;
             Code = code;
@@ -501,6 +529,7 @@ public class AccessControlGenerator : IIncrementalGenerator
             Endpoint = string.Empty;
             Description = null;
             Categories = [];
+            IsCodeKnown = isCodeKnown;
         }
 
         internal Permission(string name)
@@ -511,6 +540,7 @@ public class AccessControlGenerator : IIncrementalGenerator
             Endpoint = string.Empty;
             Description = null;
             Categories = [];
+            IsCodeKnown = true;
         }
 
         static string GetAclHash(string input)
@@ -555,6 +585,7 @@ public class AccessControlGenerator : IIncrementalGenerator
                x.CodeExpression == y.CodeExpression &&
                x.Endpoint == y.Endpoint &&
                x.Description == y.Description &&
+               x.IsCodeKnown == y.IsCodeKnown &&
                x.Categories.SequenceEqual(y.Categories);
 
         public int GetHashCode(Permission obj)
@@ -565,6 +596,7 @@ public class AccessControlGenerator : IIncrementalGenerator
             Add(obj.CodeExpression);
             Add(obj.Endpoint);
             Add(obj.Description);
+            hash = unchecked(hash * 31 + obj.IsCodeKnown.GetHashCode());
 
             foreach (var category in obj.Categories)
                 Add(category);

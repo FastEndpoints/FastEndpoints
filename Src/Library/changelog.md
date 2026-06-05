@@ -150,6 +150,14 @@ If `AddFastEndpoints` is already called with the discovered types, `AddMessaging
 
 </details>
 
+<details><summary>Keyed service support for source generated endpoint property injection</summary>
+
+Endpoint properties decorated with `[KeyedService]` are now supported when using source generated reflection metadata.
+
+The generator records the keyed-service key for endpoint property injection, allowing generated reflection caches to resolve those properties with `GetRequiredKeyedService(...)` instead of falling back to the unkeyed service registration.
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>'ValidationSchemaProcessor' concurrency issue when generating multiple Swagger documents</summary>

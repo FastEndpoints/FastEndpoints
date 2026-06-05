@@ -367,6 +367,24 @@ public class ServiceResolverTests
     }
 
     [Fact]
+    public void TryResolve_NonGenericWithKeyName_WithActiveRequestScope_DoesNotFallBackToDisposedRootProvider()
+    {
+        var rootProvider = new ServiceCollection().BuildServiceProvider();
+        rootProvider.Dispose();
+
+        var requestServices = new ServiceCollection().BuildServiceProvider();
+        var httpContext = new DefaultHttpContext { RequestServices = requestServices };
+        var ctxAccessor = A.Fake<IHttpContextAccessor>();
+        A.CallTo(() => ctxAccessor.HttpContext).Returns(httpContext);
+
+        var resolver = new ServiceResolver(rootProvider, ctxAccessor);
+
+        var resolve = () => resolver.TryResolve(typeof(ITestService), "myKey");
+
+        resolve.ShouldNotThrow().ShouldBeNull();
+    }
+
+    [Fact]
     public void TryResolve_GenericWithKeyName_ReturnsKeyedServiceWhenRegistered()
     {
         var services = new ServiceCollection();

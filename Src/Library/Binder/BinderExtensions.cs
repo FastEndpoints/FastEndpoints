@@ -178,7 +178,10 @@ static class BinderExtensions
                                  p.GetGetMethod()?.IsPublic is true &&
                                  p.GetCustomAttribute<JsonIgnoreAttribute>()?.Condition != JsonIgnoreCondition.Always &&
                                  !p.IsDefined(Types.DontInjectAttribute))
-                        .Select(p => new KeyValuePair<PropertyInfo, PropertyDefinition>(p, new()));
+                        .Select(
+                            p => new KeyValuePair<PropertyInfo, PropertyDefinition>(
+                                p,
+                                new() { ServiceKey = p.GetCustomAttribute<KeyedServiceAttribute>()?.Key }));
             }
         }
     }

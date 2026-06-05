@@ -21,6 +21,20 @@ public class ServiceBoundEpPropsTests
     }
 
     [Fact]
+    public void Reflection_Path_Returns_Service_Keys_After_Cache_Was_Primed()
+    {
+        var firstEpDef = new EndpointDefinition(typeof(CachePrimedReflectionKeyedEp), typeof(EmptyRequest), typeof(EmptyResponse));
+        _ = firstEpDef.ServiceBoundEpProps;
+
+        var secondEpDef = new EndpointDefinition(typeof(CachePrimedReflectionKeyedEp), typeof(EmptyRequest), typeof(EmptyResponse));
+        var props = secondEpDef.ServiceBoundEpProps;
+
+        props.Length.ShouldBe(1);
+        props[0].PropertyInfo.Name.ShouldBe(nameof(CachePrimedReflectionKeyedEp.Service));
+        props[0].ServiceKey.ShouldBe("KEY_CACHED_BY_REFLECTION");
+    }
+
+    [Fact]
     public void Source_Gen_Path_Returns_Service_Keys_From_Cache()
     {
         // Simulate what the source generator does: populate ReflectionCache for the endpoint
@@ -98,6 +112,12 @@ file sealed class ReflectionKeyedEp
     public object ServiceA { get; set; } = default!;
 
     public object ServiceB { get; set; } = default!; // intentionally no key
+}
+
+file sealed class CachePrimedReflectionKeyedEp
+{
+    [KeyedService("KEY_CACHED_BY_REFLECTION")]
+    public object Service { get; set; } = default!;
 }
 
 file sealed class SourceGenKeyedEp

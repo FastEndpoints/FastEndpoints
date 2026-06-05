@@ -47,6 +47,25 @@ public class AccessControlGeneratorTests
         allowSource.ShouldContain("private static void AddTo_class");
     }
 
+    [Fact]
+    public void duplicate_generated_permission_codes_emit_diagnostic()
+    {
+        RunGenerator(
+            out _,
+            out var generatorDiagnostics,
+            """
+            AccessControl("Perm61");
+            AccessControl("Perm217");
+            """);
+
+        var diagnostic = generatorDiagnostics.ShouldHaveSingleItem();
+        diagnostic.Id.ShouldBe("FEAC001");
+        diagnostic.Severity.ShouldBe(DiagnosticSeverity.Error);
+        diagnostic.GetMessage().ShouldContain("JCA");
+        diagnostic.GetMessage().ShouldContain("Perm61");
+        diagnostic.GetMessage().ShouldContain("Perm217");
+    }
+
     static GeneratorDriverRunResult RunGenerator(
         out Compilation outputCompilation,
         out ImmutableArray<Diagnostic> generatorDiagnostics,

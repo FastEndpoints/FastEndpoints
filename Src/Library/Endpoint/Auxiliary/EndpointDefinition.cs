@@ -839,9 +839,14 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
         => $"{ReqDtoType.BindableProps().FirstOrDefault(p => p.IsDefined(Types.FromBodyAttribute))?.Name}.";
 
     ServiceBoundEpProp[] GetServiceBoundEpProps()
-        => EndpointType.BindableProps()
-                       .Select(p => new ServiceBoundEpProp(p, p.GetCustomAttribute<KeyedServiceAttribute>()?.Key))
-                       .ToArray();
+    {
+        if (Cfg.BndOpts.ReflectionCache.TryGetValue(EndpointType, out var typeDef) && typeDef.Properties is not null)
+            return typeDef.Properties.Select(kv => new ServiceBoundEpProp(kv.Key, kv.Value.ServiceKey)).ToArray();
+
+        return EndpointType.BindableProps()
+                           .Select(p => new ServiceBoundEpProp(p, p.GetCustomAttribute<KeyedServiceAttribute>()?.Key))
+                           .ToArray();
+    }
 
     ToHeaderProp[] GetToHeaderProps()
     {

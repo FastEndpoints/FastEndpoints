@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using System.Text;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
@@ -150,8 +151,8 @@ public class ReflectionGenerator : IIncrementalGenerator
                          """);
                     b.w(
                         prop.IsInitOnly
-                            ? " new()"
-                            : $" new() {{ Setter = (dto, val) => {BuildPropCast(tInfo)}.{prop.PropName} = ({prop.PropertyType})val! }}");
+                            ? $" new(){BuildInitServiceKey(prop)}"
+                            : $" new() {{ Setter = (dto, val) => {BuildPropCast(tInfo)}.{prop.PropName} = ({prop.PropertyType})val!{BuildServiceKey(prop)} }}");
                     b.w("),");
                 }
 
@@ -208,6 +209,12 @@ public class ReflectionGenerator : IIncrementalGenerator
                    ? $"Unsafe.Unbox<{t.TypeAlias}>(dto)"
                    : $"(({t.TypeAlias})dto)";
 
+        static string BuildServiceKey(TypeInfo.Prop p)
+            => p.ServiceKey is null ? string.Empty : $", ServiceKey = {SymbolDisplay.FormatLiteral(p.ServiceKey, quote: true)}";
+
+        static string BuildInitServiceKey(TypeInfo.Prop p)
+            => p.ServiceKey is null ? string.Empty : $" {{ ServiceKey = {SymbolDisplay.FormatLiteral(p.ServiceKey, quote: true)} }}";
+
         static string BuildTryParseArgs(bool? isIParsable)
             => isIParsable is true
                    ? "input, CultureInfo.InvariantCulture, out var result"
@@ -262,10 +269,20 @@ public class ReflectionGenerator : IIncrementalGenerator
             IsValueType = type.IsValueType;
 
             if (TypeBlacklist.Contains(UnderlyingTypeName))
+            {
+                if (isEndpoint)
+                    _ = new TypeInfo(ref collector, symbol: symbol, isEndpoint: false, noRecursion: true);
+
                 return;
+            }
 
             if (collector.CollectedTypes.Contains(this)) //need to have TypeName set before this
+            {
+                if (isEndpoint)
+                    _ = new TypeInfo(ref collector, symbol: symbol, isEndpoint: false, noRecursion: true);
+
                 return;
+            }
 
             foreach (var ifcName in type.AllInterfaces.Select(ifc => ifc.ToDisplayString()))
             {
@@ -280,6 +297,9 @@ public class ReflectionGenerator : IIncrementalGenerator
 
                     if (tElement is not null)
                         _ = new TypeInfo(ref collector, tElement, false);
+
+                    if (isEndpoint)
+                        _ = new TypeInfo(ref collector, symbol: symbol, isEndpoint: false, noRecursion: true);
 
                     return;
                 }
@@ -332,7 +352,7 @@ public class ReflectionGenerator : IIncrementalGenerator
                             if ((HasDontInjectAttribute(prop) || HasUnconditionalJsonIgnoreAttribute(prop)) && prop.IsRequired is false)
                                 break;
 
-                            Properties.Add(new(prop));
+                            Properties.Add(new(prop, noRecursion));
 
                             break;
                     }
@@ -365,7 +385,7 @@ public class ReflectionGenerator : IIncrementalGenerator
                 }
             }
 
-            if (isEndpoint && Properties.Count > 0)                                                    //create entry for endpoint class to support property injection
+            if (isEndpoint)                                                                             //create entry for endpoint class to support property injection
                 _ = new TypeInfo(ref collector, symbol: symbol, isEndpoint: false, noRecursion: true); //process the endpoint as a regular class without recursion
             else
             {
@@ -408,13 +428,18 @@ public class ReflectionGenerator : IIncrementalGenerator
             return false;
         }
 
-        internal readonly struct Prop(IPropertySymbol prop)
+        internal readonly struct Prop(IPropertySymbol prop, bool isEndpointClass = false)
         {
             public ITypeSymbol Symbol { get; } = prop.Type;
             public string PropName { get; } = prop.Name;
             public string PropertyType { get; } = prop.Type.ToDisplayString();
             public bool IsInitOnly { get; } = prop.SetMethod?.IsInitOnly is true;
             public bool IsRequired { get; } = prop.IsRequired;
+            public string? ServiceKey { get; } = isEndpointClass
+                ? prop.GetAttributes()
+                      .FirstOrDefault(a => a.AttributeClass?.Name == nameof(KeyedServiceAttribute))
+                      ?.ConstructorArguments.FirstOrDefault().Value as string
+                : null;
         }
     }
 

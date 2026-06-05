@@ -64,17 +64,27 @@ sealed class ServiceResolver(IServiceProvider provider, IHttpContextAccessor? ct
         => ctxAccessor?.HttpContext?.RequestServices.GetRequiredService(typeOfService) ??
            provider.GetRequiredService(typeOfService);
 
+    //when a request scope is active, resolve solely from it instead of falling back to the captured root 'provider'.
+    //the request scope is a child of the root, so it already sees every registered service; the '?? provider' fallback
+    //would only ever return null for an unregistered service anyway. but 'provider' is a process-wide captured root, and
+    //in multi-host setups (e.g. several WebApplicationFactory instances in one test run) the static ServiceResolver.Instance
+    //can outlive the host that set it - querying that disposed root throws ObjectDisposedException. only fall back to the
+    //root when there is no active request scope (background command/event execution or unit-test setup).
+
     public TService? TryResolve<TService>() where TService : class
-        => ctxAccessor?.HttpContext?.RequestServices.GetService<TService>() ??
-           provider.GetService<TService>();
+        => ctxAccessor?.HttpContext?.RequestServices is { } rs
+               ? rs.GetService<TService>()
+               : provider.GetService<TService>();
 
     public object? TryResolve(Type typeOfService)
-        => ctxAccessor?.HttpContext?.RequestServices.GetService(typeOfService) ??
-           provider.GetService(typeOfService);
+        => ctxAccessor?.HttpContext?.RequestServices is { } rs
+               ? rs.GetService(typeOfService)
+               : provider.GetService(typeOfService);
 
     public TService? TryResolve<TService>(string keyName) where TService : class
-        => ctxAccessor?.HttpContext?.RequestServices.GetKeyedService<TService>(keyName) ??
-           provider.GetKeyedService<TService>(keyName);
+        => ctxAccessor?.HttpContext?.RequestServices is { } rs
+               ? rs.GetKeyedService<TService>(keyName)
+               : provider.GetKeyedService<TService>(keyName);
 
     public object? TryResolve(Type typeOfService, string keyName)
     {

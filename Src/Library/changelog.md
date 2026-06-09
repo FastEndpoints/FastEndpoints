@@ -190,6 +190,12 @@ The root cause was that `ValidationSchemaProcessor` kept a `_childAdaptorValidat
 
 ## Improvements 🚀
 
+<details><summary>Job queue scheduling now rejects impossible execution windows</summary>
+
+Queued jobs now fail fast with an `ArgumentException` when the effective expiration time is not later than the scheduled execution time. This includes the default 4-hour expiration window, preventing deferred jobs from being stored with an empty eligibility window where they could never be picked up for execution before becoming stale.
+
+</details>
+
 <details><summary>Serializer options are now configured once per process during startup</summary>
 
 FastEndpoints now performs its process-wide serializer configuration under a one-time startup lock. This prevents parallel host creation in the same process, such as `WebApplicationFactory` based integration tests, from re-pointing and mutating the shared `JsonSerializerOptions` instance while another host is already serializing requests or responses.

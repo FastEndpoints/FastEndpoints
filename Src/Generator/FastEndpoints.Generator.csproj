@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;</TargetFrameworks>
+        <TargetFrameworks>netstandard2.0</TargetFrameworks> <!-- disable multi targeting from Directory.Build.Props -->
         <Description>Source generator library for FastEndpoints.</Description>
 
         <!-- see PR #1091 why this is being done -->

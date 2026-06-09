@@ -8,9 +8,9 @@ public class JobQueueTests(Sut App) : TestBase<Sut>
     public static readonly TheoryData<DateTime?, DateTime?> JobCreateCases = new()
     {
         { null, null },
-        { null, DateTime.UtcNow },
+        { null, DateTime.UtcNow.AddHours(1) },
         { DateTime.UtcNow, null },
-        { DateTime.UtcNow, DateTime.UtcNow }
+        { DateTime.UtcNow, DateTime.UtcNow.AddHours(1) }
     };
 
     [Theory, MemberData(nameof(JobCreateCases)), Priority(1)]
@@ -36,7 +36,11 @@ public class JobQueueTests(Sut App) : TestBase<Sut>
     {
         { DateTime.Now, DateTime.Now },
         { DateTime.Now, null },
-        { null, DateTime.Now }
+        { null, DateTime.Now },
+        { DateTime.UtcNow.AddHours(5), null },
+        { null, DateTime.UtcNow.AddHours(-1) },
+        { new DateTime(2026, 1, 1, 1, 0, 0, DateTimeKind.Utc), new DateTime(2026, 1, 1, 1, 0, 0, DateTimeKind.Utc) },
+        { new DateTime(2026, 1, 1, 1, 0, 0, DateTimeKind.Utc), new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc) }
     };
 
     [Theory, MemberData(nameof(JobCreateExceptionCases)), Priority(2)]
@@ -90,7 +94,8 @@ public class JobQueueTests(Sut App) : TestBase<Sut>
                 Id = i,
                 ShouldThrow = i == 0
             };
-            await cmd.QueueJobAsync(executeAfter: i == 1 ? DateTime.UtcNow.AddDays(1) : DateTime.UtcNow, ct: cts.Token);
+            var executeAfter = i == 1 ? DateTime.UtcNow.AddDays(1) : DateTime.UtcNow;
+            await cmd.QueueJobAsync(executeAfter: executeAfter, expireOn: i == 1 ? executeAfter.AddDays(1) : null, ct: cts.Token);
         }
 
         while (!cts.IsCancellationRequested && JobTestCommand.CompletedIDs.Count < 9)
@@ -114,7 +119,8 @@ public class JobQueueTests(Sut App) : TestBase<Sut>
                 Id = i,
                 ShouldThrow = i == 0
             };
-            var job = cmd.CreateJob<Job>(executeAfter: i == 1 ? DateTime.UtcNow.AddDays(1) : DateTime.UtcNow);
+            var executeAfter = i == 1 ? DateTime.UtcNow.AddDays(1) : DateTime.UtcNow;
+            var job = cmd.CreateJob<Job>(executeAfter: executeAfter, expireOn: i == 1 ? executeAfter.AddDays(1) : null);
             JobStorage.Jobs.Add(job);
         }
 

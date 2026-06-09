@@ -150,6 +150,14 @@ If `AddFastEndpoints` is already called with the discovered types, `AddMessaging
 
 </details>
 
+<details><summary>Keyed service support for source generated endpoint property injection</summary>
+
+Endpoint properties decorated with `[KeyedService]` are now supported when using source generated reflection metadata.
+
+The generator records the keyed-service key for endpoint property injection, allowing generated reflection caches to resolve those properties with `GetRequiredKeyedService(...)` instead of falling back to the unkeyed service registration.
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>'ValidationSchemaProcessor' concurrency issue when generating multiple Swagger documents</summary>
@@ -181,6 +189,12 @@ The root cause was that `ValidationSchemaProcessor` kept a `_childAdaptorValidat
 </details>
 
 ## Improvements 🚀
+
+<details><summary>Job queue scheduling now rejects impossible execution windows</summary>
+
+Queued jobs now fail fast with an `ArgumentException` when the effective expiration time is not later than the scheduled execution time. This includes the default 4-hour expiration window, preventing deferred jobs from being stored with an empty eligibility window where they could never be picked up for execution before becoming stale.
+
+</details>
 
 <details><summary>Serializer options are now configured once per process during startup</summary>
 

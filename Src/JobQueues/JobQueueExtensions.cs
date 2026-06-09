@@ -158,7 +158,7 @@ public static class JobQueueExtensions
         /// <param name="executeAfter">if set, the job won't be executed before this date/time. if unspecified, execution is attempted as soon as possible.</param>
         /// <param name="expireOn">if set, job will be considered stale/expired after this date/time. if unspecified, jobs expire after 4 hours of creation.</param>
         /// <returns>the new job object</returns>
-        /// <exception cref="ArgumentException">thrown if the <paramref name="executeAfter" /> and <paramref name="expireOn" /> arguments are not UTC values</exception>
+        /// <exception cref="ArgumentException">thrown if the <paramref name="executeAfter" /> and <paramref name="expireOn" /> arguments are not UTC values, or if the effective expiration time is not later than the effective execution time</exception>
         public TStorageRecord CreateJob<TStorageRecord>(DateTime? executeAfter = null, DateTime? expireOn = null)
             where TStorageRecord : class, IJobStorageRecord, new()
             => JobQueueBase.CreateJob<TStorageRecord>(cmd, executeAfter, expireOn);
@@ -184,7 +184,7 @@ public static class JobQueueExtensions
     /// <param name="executeAfter">if set, the job won't be executed before this date/time. if unspecified, execution is attempted as soon as possible.</param>
     /// <param name="expireOn">if set, job will be considered stale/expired after this date/time. if unspecified, jobs expire after 4 hours of creation.</param>
     /// <param name="ct">cancellation token</param>
-    /// <exception cref="ArgumentException">thrown if the <paramref name="executeAfter" /> and <paramref name="expireOn" /> arguments are not UTC values</exception>
+    /// <exception cref="ArgumentException">thrown if the <paramref name="executeAfter" /> and <paramref name="expireOn" /> arguments are not UTC values, or if the effective expiration time is not later than the effective execution time</exception>
     public static Task<Guid> QueueJobAsync(this ICommandBase cmd, DateTime? executeAfter = null, DateTime? expireOn = null, CancellationToken ct = default)
         => JobQueueBase.AddToQueueAsync(cmd, executeAfter, expireOn, ct);
 }

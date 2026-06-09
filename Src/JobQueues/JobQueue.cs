@@ -76,12 +76,18 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
             throw new ArgumentException($"Only UTC dates are accepted for '{nameof(executeAfter)}' & '{nameof(expireOn)}' parameters!");
 
         var now = DateTime.UtcNow; //capture current time to avoid discrepancies
+        var executeOn = executeAfter ?? now;
+        var expireAt = expireOn ?? now.AddHours(4);
+
+        if (executeOn >= expireAt)
+            throw new ArgumentException($"'{nameof(expireOn)}' must be later than '{nameof(executeAfter)}'.");
+
         var job = new TStorageRecord
         {
             TrackingID = Guid.NewGuid(),
             QueueID = QueueID,
-            ExecuteAfter = executeAfter ?? now,
-            ExpireOn = expireOn ?? now.AddHours(4)
+            ExecuteAfter = executeOn,
+            ExpireOn = expireAt
         };
 
         if (job is IHasCommandType jct)

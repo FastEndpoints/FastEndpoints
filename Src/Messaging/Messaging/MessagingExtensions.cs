@@ -94,9 +94,21 @@ public static class MessagingExtensions
     {
         ServiceResolver.Instance = provider.GetService<IServiceResolver>() ?? throw new InvalidOperationException(ErrMsg);
 
-        return provider.GetService<CommandHandlerRegistry>() is null //this causes either the above factory method to run or resolve an existing instance
-                   ? throw new InvalidOperationException(ErrMsg)
-                   : provider;
+        if (provider.GetService<CommandHandlerRegistry>() is null) //this causes either the above factory method to run or resolve an existing instance
+            throw new InvalidOperationException(ErrMsg);
+
+        WarmupMessaging(provider);
+
+        return provider;
+    }
+
+    internal static void WarmupMessaging(IServiceProvider provider)
+    {
+        foreach (var tEvent in EventBase.HandlerDict.Keys)
+        {
+            var eventBusType = typeof(EventBus<>).MakeGenericType(tEvent);
+            provider.GetService(eventBusType);
+        }
     }
 
     internal static void RegisterHandler(Type tGeneric, Type tInterface, Type t, CommandHandlerRegistry cmdHandlerRegistry)

@@ -7,7 +7,7 @@ internal static class EndpointBootstrap
 {
     internal static BaseEndpoint CreateEndpoint(HttpContext ctx, EndpointDefinition epDef)
     {
-        var epInstance = ctx.RequestServices.GetRequiredService<IEndpointFactory>().Create(epDef, ctx);
+        var epInstance = ctx.RequestServices.GetRequiredService<IEndpointFactory>().Create(epDef, ctx.RequestServices);
         epInstance.Definition = epDef;
         epInstance.HttpContext = ctx;
         ctx.Items[CtxKey.ValidationFailures] = epInstance.ValidationFailures;

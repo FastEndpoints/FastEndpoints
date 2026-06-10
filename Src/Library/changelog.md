@@ -10,9 +10,9 @@ Due to low financial backing by the community, FastEndpoints will soon be going 
 
 ## New 🎉
 
-<details><summary>Startup warmup for endpoints, validators, mappers, and event buses</summary>
+<details><summary>Opt-in startup warmup for endpoints, validators, mappers, and event buses</summary>
 
-`UseFastEndpoints` now runs a warmup pass after route registration that eagerly resolves validators, mappers, request binders, compiled property setter delegates, and event bus instances so the first real requests do not pay the JIT/cold-start cost.
+Endpoint warmup is now opt-in. Call `WarmUp()` from `UseFastEndpoints(...)` to eagerly initialize validators, mappers, request binders, and compiled property setter delegates so the first real requests do not pay the cold-start cost.
 
 Warmup can be scoped to a subset of endpoints via the new `WarmupFilter` predicate on `EndpointOptions`:
 
@@ -20,10 +20,17 @@ Warmup can be scoped to a subset of endpoints via the new `WarmupFilter` predica
 app.UseFastEndpoints(c =>
 {
     c.Endpoints.WarmupFilter = def => def.EndpointType.Namespace?.StartsWith("MyApp.CriticalEndpoints") is true;
+    c.Endpoints.WarmUp();
 });
 ```
 
-When `WarmupFilter` is not set, all registered endpoints are warmed up. Set it to `_ => false` to disable warmup entirely.
+When `WarmupFilter` is not set, all registered endpoints are warmed up after `WarmUp()` is called. Set it to `_ => false` to skip endpoint warmup entirely.
+
+Messaging warmup is also opt-in. Call `WarmUp()` from `UseMessaging(...)` to eagerly resolve event bus instances:
+
+```csharp
+app.Services.UseMessaging(o => o.WarmUp());
+```
 
 </details>
 

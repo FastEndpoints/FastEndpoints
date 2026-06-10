@@ -89,15 +89,20 @@ public static class MessagingExtensions
     /// <para>TIP: You don't have to call this method if you already have <c>.UseFastEndpoints()</c> in your pipeline.</para>
     /// </summary>
     /// <param name="provider">the service provider</param>
+    /// <param name="options">optionally configure messaging startup behavior</param>
     /// <returns>the service provider for chaining</returns>
-    public static IServiceProvider UseMessaging(this IServiceProvider provider)
+    public static IServiceProvider UseMessaging(this IServiceProvider provider, Action<MessagingOptions>? options = null)
     {
         ServiceResolver.Instance = provider.GetService<IServiceResolver>() ?? throw new InvalidOperationException(ErrMsg);
 
         if (provider.GetService<CommandHandlerRegistry>() is null) //this causes either the above factory method to run or resolve an existing instance
             throw new InvalidOperationException(ErrMsg);
 
-        WarmupMessaging(provider);
+        var opts = new MessagingOptions();
+        options?.Invoke(opts);
+
+        if (opts.WarmupRequested)
+            WarmupMessaging(provider);
 
         return provider;
     }
@@ -139,4 +144,19 @@ public static class MessagingExtensions
                 new(t));
         }
     }
+}
+
+/// <summary>
+/// messaging startup options
+/// </summary>
+public sealed class MessagingOptions
+{
+    internal bool WarmupRequested { get; private set; }
+
+    /// <summary>
+    /// pre-initialize event bus instances during startup.
+    /// messaging warmup is lazy by default and only runs when this method is called from <c>UseMessaging(...)</c>.
+    /// </summary>
+    public void WarmUp()
+        => WarmupRequested = true;
 }

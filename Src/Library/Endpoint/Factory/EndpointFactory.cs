@@ -1,4 +1,3 @@
-﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FastEndpoints;
@@ -13,37 +12,27 @@ public sealed class EndpointFactory : IEndpointFactory
     /// this method is called per each request.
     /// </summary>
     /// <param name="definition">the endpoint definition</param>
-    /// <param name="ctx">the http context for the current request</param>
-    public BaseEndpoint Create(EndpointDefinition definition, HttpContext ctx)
+    /// <param name="sp">the service provider for the current request</param>
+    public BaseEndpoint Create(EndpointDefinition definition, IServiceProvider sp)
     {
         //note: if the default factory is being called, that means it's ok to use HttpContext.RequestServices below since the default MS DI is being used
 
-        var epInstance = (BaseEndpoint)ServiceResolver.Instance.CreateInstance(definition.EndpointType, ctx.RequestServices);
+        var epInstance = (BaseEndpoint)ServiceResolver.Instance.CreateInstance(definition.EndpointType, sp);
 
         for (var i = 0; i < definition.ServiceBoundEpProps.Length; i++)
         {
             var p = definition.ServiceBoundEpProps[i];
             p.PropSetter ??= definition.EndpointType.SetterForProp(p.PropertyInfo);
-            p.PropSetter(epInstance, ResolveService(ctx, p));
+            p.PropSetter(epInstance, ResolveService(sp, p));
         }
 
         return epInstance;
     }
 
-    static object ResolveService(HttpContext ctx, ServiceBoundEpProp p)
+    static object ResolveService(IServiceProvider sp, ServiceBoundEpProp p)
         => p.ServiceKey switch
         {
-            not null => ctx.RequestServices.GetRequiredKeyedService(p.PropertyInfo.PropertyType, p.ServiceKey),
-            _ => ctx.RequestServices.GetRequiredService(p.PropertyInfo.PropertyType)
+            not null => sp.GetRequiredKeyedService(p.PropertyInfo.PropertyType, p.ServiceKey),
+            _ => sp.GetRequiredService(p.PropertyInfo.PropertyType)
         };
-
-    // static object ResolveService(HttpContext ctx, ServiceBoundEpProp prop)
-    // {
-    //     // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-    //     var isAppStartup = ctx.Connection.Id == null;
-    //
-    //     return isAppStartup
-    //                ? ctx.RequestServices.GetRequiredService(prop.PropType)
-    //                : ctx.Resolve(prop.PropType);
-    // }
 }

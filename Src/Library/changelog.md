@@ -10,6 +10,23 @@ Due to low financial backing by the community, FastEndpoints will soon be going 
 
 ## New 🎉
 
+<details><summary>Startup warmup for endpoints, validators, mappers, and event buses</summary>
+
+`UseFastEndpoints` now runs a warmup pass after route registration that eagerly resolves validators, mappers, request binders, compiled property setter delegates, and event bus instances so the first real requests do not pay the JIT/cold-start cost.
+
+Warmup can be scoped to a subset of endpoints via the new `WarmupFilter` predicate on `EndpointOptions`:
+
+```csharp
+app.UseFastEndpoints(c =>
+{
+    c.Endpoints.WarmupFilter = def => def.EndpointType.Namespace?.StartsWith("MyApp.CriticalEndpoints") is true;
+});
+```
+
+When `WarmupFilter` is not set, all registered endpoints are warmed up. Set it to `_ => false` to disable warmup entirely.
+
+</details>
+
 <details><summary>New 'FastEndpoints.OpenApi' package based on 'Microsoft.AspNetCore.OpenApi'</summary>
 
 Starting with `v8.2`, the FastEndpoints ecosystem has switched from `NSwag/Newtonsoft` based Swagger/OpenAPI document generation to the more modern and Native AOT friendly `Microsoft.AspNetCore.OpenApi` based document generation library. Integration is provided via a new `FastEndpoints.OpenApi` package which corrects a few issues with the MS package as well as doing a lot of post-processing on the document model to bring feature parity with the `FastEndpoints.Swagger` package.

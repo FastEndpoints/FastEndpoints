@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 
 namespace FastEndpoints;
 
@@ -49,6 +49,13 @@ public sealed class EndpointOptions
     /// this function will execute for each endpoint that has been discovered during startup.
     /// </summary>
     public Func<EndpointDefinition, bool>? Filter { internal get; set; }
+
+    /// <summary>
+    /// a predicate to filter which endpoints pre-initialize their validators, mappers, request binders, and compiled property setter delegates during warmup.
+    /// return 'true' to include an endpoint in warmup, 'false' to skip it.
+    /// when not set, all registered endpoints are warmed up.
+    /// </summary>
+    public Func<EndpointDefinition, bool>? WarmupFilter { internal get; set; }
 
     /// <summary>
     /// a configuration action to be performed on each endpoint definition during startup.

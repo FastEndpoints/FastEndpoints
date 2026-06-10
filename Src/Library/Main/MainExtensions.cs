@@ -90,8 +90,32 @@ public static class MainExtensions
             throw new InvalidCastException($"Cannot cast [{nameof(app)}] to IEndpointRouteBuilder");
 
         routeBuilder.MapFastEndpoints(configAction);
+        Warmup(app.ApplicationServices);
 
         return app;
+    }
+
+    internal static void Warmup(IServiceProvider sp)
+    {
+        var endpoint = sp.GetRequiredService<EndpointData>();
+        var endpointFactory = sp.GetRequiredService<IEndpointFactory>();
+
+        foreach (var def in endpoint.Found)
+        {
+            if (Cfg.EpOpts.WarmupFilter is not null && !Cfg.EpOpts.WarmupFilter(def))
+                continue;
+
+            _ = sp.GetService(typeof(IRequestBinder<>).MakeGenericType(def.ReqDtoType));
+            _ = def.ExecuteAsyncReturnsIResult;
+            _ = def.GetMapper();
+            _ = def.GetValidator();
+            _ = def.ReqDtoFromBodyPropName;
+            _ = def.ReqDtoType.IsValidatable();
+            _ = def.ReqDtoType.ObjectFactory();
+            _ = def.ServiceBoundEpProps;
+            _ = def.ToHeaderProps;
+            _ = endpointFactory.Create(def, sp);
+        }
     }
 
     static readonly Lock _serializerConfigLock = new();
@@ -131,7 +155,7 @@ public static class MainExtensions
 
         foreach (var def in endpoints.Found)
         {
-            var ep = epFactory.Create(def, httpCtx);
+            var ep = epFactory.Create(def, httpCtx.RequestServices);
             def.Initialize(ep, httpCtx);
 
             if (Cfg.EpOpts.Filter is not null && !Cfg.EpOpts.Filter(def))

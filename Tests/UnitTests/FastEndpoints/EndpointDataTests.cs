@@ -49,7 +49,7 @@ public class EndpointDataTests
         using var scope = sp.CreateScope();
         var httpCtx = new DefaultHttpContext { RequestServices = scope.ServiceProvider };
         var epDef = new EndpointDefinition(typeof(PreProcessorRegistration), typeof(EmptyRequest), typeof(EmptyResponse));
-        var baseEp = epFactory.Create(epDef, httpCtx);
+        var baseEp = epFactory.Create(epDef, httpCtx.RequestServices);
         epDef.ImplementsConfigure = true; // Override as there's no EndpointData resolver
         epDef.Initialize(baseEp, httpCtx);
 

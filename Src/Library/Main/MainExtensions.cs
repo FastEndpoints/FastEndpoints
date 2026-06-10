@@ -91,7 +91,34 @@ public static class MainExtensions
 
         routeBuilder.MapFastEndpoints(configAction);
 
+        if (Cfg.EpOpts.WarmupRequested)
+            Warmup(app.ApplicationServices);
+
         return app;
+    }
+
+    internal static void Warmup(IServiceProvider sp)
+    {
+        var endpoint = sp.GetRequiredService<EndpointData>();
+
+        foreach (var def in endpoint.Found)
+        {
+            if (Cfg.EpOpts.Filter is not null && !Cfg.EpOpts.Filter(def))
+                continue;
+
+            if (Cfg.EpOpts.WarmupFilter is not null && !Cfg.EpOpts.WarmupFilter(def))
+                continue;
+
+            _ = sp.GetService(typeof(IRequestBinder<>).MakeGenericType(def.ReqDtoType));
+            _ = def.ExecuteAsyncReturnsIResult;
+            _ = def.GetMapper();
+            _ = def.GetValidator();
+            _ = def.ReqDtoFromBodyPropName;
+            _ = def.ReqDtoType.IsValidatable();
+            _ = def.ReqDtoType.ObjectFactory();
+            _ = def.ServiceBoundEpProps;
+            _ = def.ToHeaderProps;
+        }
     }
 
     static readonly Lock _serializerConfigLock = new();

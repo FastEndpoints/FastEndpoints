@@ -95,7 +95,7 @@ public static class MainExtensions
         return app;
     }
 
-    static void Warmup(IServiceProvider sp)
+    internal static void Warmup(IServiceProvider sp)
     {
         var endpoint = sp.GetRequiredService<EndpointData>();
         var endpointFactory = sp.GetRequiredService<IEndpointFactory>();

@@ -53,9 +53,18 @@ public sealed class EndpointOptions
     /// <summary>
     /// a predicate to filter which endpoints pre-initialize their validators, mappers, request binders, and compiled property setter delegates during warmup.
     /// return 'true' to include an endpoint in warmup, 'false' to skip it.
-    /// when not set, all registered endpoints are warmed up.
+    /// only used when <see cref="WarmUp" /> is called. when not set, all registered endpoints are warmed up.
     /// </summary>
     public Func<EndpointDefinition, bool>? WarmupFilter { internal get; set; }
+
+    internal bool WarmupRequested { get; set; }
+
+    /// <summary>
+    /// pre-initialize endpoint validators, mappers, request binders, and compiled delegates during startup.
+    /// endpoint warmup is lazy by default and only runs when this method is called from <c>UseFastEndpoints(...)</c>.
+    /// </summary>
+    public void WarmUp()
+        => WarmupRequested = true;
 
     /// <summary>
     /// a configuration action to be performed on each endpoint definition during startup.

@@ -90,7 +90,9 @@ public static class MainExtensions
             throw new InvalidCastException($"Cannot cast [{nameof(app)}] to IEndpointRouteBuilder");
 
         routeBuilder.MapFastEndpoints(configAction);
-        Warmup(app.ApplicationServices);
+
+        if (Cfg.EpOpts.WarmupRequested)
+            Warmup(app.ApplicationServices);
 
         return app;
     }
@@ -98,10 +100,12 @@ public static class MainExtensions
     internal static void Warmup(IServiceProvider sp)
     {
         var endpoint = sp.GetRequiredService<EndpointData>();
-        var endpointFactory = sp.GetRequiredService<IEndpointFactory>();
 
         foreach (var def in endpoint.Found)
         {
+            if (Cfg.EpOpts.Filter is not null && !Cfg.EpOpts.Filter(def))
+                continue;
+
             if (Cfg.EpOpts.WarmupFilter is not null && !Cfg.EpOpts.WarmupFilter(def))
                 continue;
 
@@ -114,7 +118,6 @@ public static class MainExtensions
             _ = def.ReqDtoType.ObjectFactory();
             _ = def.ServiceBoundEpProps;
             _ = def.ToHeaderProps;
-            _ = endpointFactory.Create(def, new DefaultHttpContext { RequestServices = sp });
         }
     }
 

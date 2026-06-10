@@ -10,23 +10,34 @@ public class WarmupTests : IDisposable
 {
     public void Dispose()
     {
-        // Reset global warmup filter so other tests are not affected.
+        Config.EpOpts.Filter = null;
         Config.EpOpts.WarmupFilter = null;
+        Config.EpOpts.WarmupRequested = false;
+        CountingBinder.Reset();
     }
 
     [Fact]
-    public void WarmupFilter_Null_WarmsAllEndpoints()
+    public void WarmUp_SetsWarmupRequested()
     {
-        Config.EpOpts.WarmupFilter = null;
+        var opts = new EndpointOptions();
+
+        opts.WarmupRequested.ShouldBeFalse();
+
+        opts.WarmUp();
+
+        opts.WarmupRequested.ShouldBeTrue();
+    }
+
+    [Fact]
+    public void WarmupFilter_Null_WarmsAllEndpointsWithoutInstantiatingEndpoints()
+    {
         var factory = A.Fake<IEndpointFactory>();
         var sp = BuildServiceProvider(factory, [typeof(WarmupEpA), typeof(WarmupEpB)]);
 
         MainExtensions.Warmup(sp);
 
-        A.CallTo(() => factory.Create(A<EndpointDefinition>.That.Matches(d => d.EndpointType == typeof(WarmupEpA)), A<HttpContext>.That.Matches(c => c.RequestServices == sp)))
-            .MustHaveHappenedOnceExactly();
-        A.CallTo(() => factory.Create(A<EndpointDefinition>.That.Matches(d => d.EndpointType == typeof(WarmupEpB)), A<HttpContext>.That.Matches(c => c.RequestServices == sp)))
-            .MustHaveHappenedOnceExactly();
+        CountingBinder.InstanceCount.ShouldBe(2);
+        A.CallTo(() => factory.Create(A<EndpointDefinition>._, A<HttpContext>._)).MustNotHaveHappened();
     }
 
     [Fact]
@@ -38,10 +49,21 @@ public class WarmupTests : IDisposable
 
         MainExtensions.Warmup(sp);
 
-        A.CallTo(() => factory.Create(A<EndpointDefinition>.That.Matches(d => d.EndpointType == typeof(WarmupEpA)), A<HttpContext>.That.Matches(c => c.RequestServices == sp)))
-            .MustHaveHappenedOnceExactly();
-        A.CallTo(() => factory.Create(A<EndpointDefinition>.That.Matches(d => d.EndpointType == typeof(WarmupEpB)), A<HttpContext>.That.Matches(c => c.RequestServices == sp)))
-            .MustNotHaveHappened();
+        CountingBinder.InstanceCount.ShouldBe(1);
+        A.CallTo(() => factory.Create(A<EndpointDefinition>._, A<HttpContext>._)).MustNotHaveHappened();
+    }
+
+    [Fact]
+    public void EndpointFilter_ReturnsFalseForEndpoint_SkipsItsWarmup()
+    {
+        Config.EpOpts.Filter = def => def.EndpointType == typeof(WarmupEpA);
+        var factory = A.Fake<IEndpointFactory>();
+        var sp = BuildServiceProvider(factory, [typeof(WarmupEpA), typeof(WarmupEpB)]);
+
+        MainExtensions.Warmup(sp);
+
+        CountingBinder.InstanceCount.ShouldBe(1);
+        A.CallTo(() => factory.Create(A<EndpointDefinition>._, A<HttpContext>._)).MustNotHaveHappened();
     }
 
     [Fact]
@@ -53,6 +75,7 @@ public class WarmupTests : IDisposable
 
         MainExtensions.Warmup(sp);
 
+        CountingBinder.InstanceCount.ShouldBe(0);
         A.CallTo(() => factory.Create(A<EndpointDefinition>._, A<HttpContext>._)).MustNotHaveHappened();
     }
 
@@ -62,8 +85,27 @@ public class WarmupTests : IDisposable
         var services = new ServiceCollection();
         services.AddSingleton(endpointData);
         services.AddSingleton(factory);
+        services.AddTransient(typeof(IRequestBinder<>), typeof(CountingBinder<>));
         return services.BuildServiceProvider();
     }
+}
+
+file sealed class CountingBinder<TRequest> : IRequestBinder<TRequest>
+    where TRequest : notnull
+{
+    public CountingBinder()
+        => CountingBinder.InstanceCount++;
+
+    public ValueTask<TRequest> BindAsync(BinderContext ctx, CancellationToken ct)
+        => ValueTask.FromResult(default(TRequest)!);
+}
+
+file static class CountingBinder
+{
+    public static int InstanceCount { get; set; }
+
+    public static void Reset()
+        => InstanceCount = 0;
 }
 
 file sealed class WarmupEpA : EndpointWithoutRequest

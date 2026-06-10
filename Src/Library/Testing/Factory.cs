@@ -43,7 +43,7 @@ public static class Factory
         if (ctorDependencies.Length > 0)
             ep = (BaseEndpoint)Activator.CreateInstance(tEndpoint, ctorDependencies)!; //ctor injection only
         else
-            ep = _epFactory.Create(epDef, httpContext.RequestServices!); //ctor & property injection
+            ep = _epFactory.Create(epDef, httpContext); //ctor & property injection
 
         //https://github.com/FastEndpoints/FastEndpoints/issues/569
         epDef.EndpointAttributes = epDef.EndpointType.GetCustomAttributes(true);

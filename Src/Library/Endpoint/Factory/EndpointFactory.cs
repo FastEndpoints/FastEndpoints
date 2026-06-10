@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FastEndpoints;
@@ -12,18 +13,18 @@ public sealed class EndpointFactory : IEndpointFactory
     /// this method is called per each request.
     /// </summary>
     /// <param name="definition">the endpoint definition</param>
-    /// <param name="sp">the service provider for the current request</param>
-    public BaseEndpoint Create(EndpointDefinition definition, IServiceProvider sp)
+    /// <param name="ctx">the http context for the current request</param>
+    public BaseEndpoint Create(EndpointDefinition definition, HttpContext ctx)
     {
         //note: if the default factory is being called, that means it's ok to use HttpContext.RequestServices below since the default MS DI is being used
 
-        var epInstance = (BaseEndpoint)ServiceResolver.Instance.CreateInstance(definition.EndpointType, sp);
+        var epInstance = (BaseEndpoint)ServiceResolver.Instance.CreateInstance(definition.EndpointType, ctx.RequestServices);
 
         for (var i = 0; i < definition.ServiceBoundEpProps.Length; i++)
         {
             var p = definition.ServiceBoundEpProps[i];
             p.PropSetter ??= definition.EndpointType.SetterForProp(p.PropertyInfo);
-            p.PropSetter(epInstance, ResolveService(sp, p));
+            p.PropSetter(epInstance, ResolveService(ctx.RequestServices, p));
         }
 
         return epInstance;

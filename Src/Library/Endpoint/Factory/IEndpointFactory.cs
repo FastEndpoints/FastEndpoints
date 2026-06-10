@@ -11,6 +11,6 @@ public interface IEndpointFactory
     /// returns the instantiated fast endpoint from a given <see cref="EndpointDefinition" /> and <see cref="HttpContext" />
     /// </summary>
     /// <param name="definition">the endpoint definition for the current request</param>
-    /// <param name="provider">the service provider for the current request</param>
-    BaseEndpoint Create(EndpointDefinition definition, IServiceProvider provider);
+    /// <param name="ctx">the http context for the current request</param>
+    BaseEndpoint Create(EndpointDefinition definition, HttpContext ctx);
 }

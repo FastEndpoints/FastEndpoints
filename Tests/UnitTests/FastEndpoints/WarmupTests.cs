@@ -1,5 +1,6 @@
 using FakeItEasy;
 using FastEndpoints;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -22,9 +23,9 @@ public class WarmupTests : IDisposable
 
         MainExtensions.Warmup(sp);
 
-        A.CallTo(() => factory.Create(A<EndpointDefinition>.That.Matches(d => d.EndpointType == typeof(WarmupEpA)), sp))
+        A.CallTo(() => factory.Create(A<EndpointDefinition>.That.Matches(d => d.EndpointType == typeof(WarmupEpA)), A<HttpContext>.That.Matches(c => c.RequestServices == sp)))
             .MustHaveHappenedOnceExactly();
-        A.CallTo(() => factory.Create(A<EndpointDefinition>.That.Matches(d => d.EndpointType == typeof(WarmupEpB)), sp))
+        A.CallTo(() => factory.Create(A<EndpointDefinition>.That.Matches(d => d.EndpointType == typeof(WarmupEpB)), A<HttpContext>.That.Matches(c => c.RequestServices == sp)))
             .MustHaveHappenedOnceExactly();
     }
 
@@ -37,9 +38,9 @@ public class WarmupTests : IDisposable
 
         MainExtensions.Warmup(sp);
 
-        A.CallTo(() => factory.Create(A<EndpointDefinition>.That.Matches(d => d.EndpointType == typeof(WarmupEpA)), sp))
+        A.CallTo(() => factory.Create(A<EndpointDefinition>.That.Matches(d => d.EndpointType == typeof(WarmupEpA)), A<HttpContext>.That.Matches(c => c.RequestServices == sp)))
             .MustHaveHappenedOnceExactly();
-        A.CallTo(() => factory.Create(A<EndpointDefinition>.That.Matches(d => d.EndpointType == typeof(WarmupEpB)), sp))
+        A.CallTo(() => factory.Create(A<EndpointDefinition>.That.Matches(d => d.EndpointType == typeof(WarmupEpB)), A<HttpContext>.That.Matches(c => c.RequestServices == sp)))
             .MustNotHaveHappened();
     }
 
@@ -52,7 +53,7 @@ public class WarmupTests : IDisposable
 
         MainExtensions.Warmup(sp);
 
-        A.CallTo(() => factory.Create(A<EndpointDefinition>._, A<IServiceProvider>._)).MustNotHaveHappened();
+        A.CallTo(() => factory.Create(A<EndpointDefinition>._, A<HttpContext>._)).MustNotHaveHappened();
     }
 
     static IServiceProvider BuildServiceProvider(IEndpointFactory factory, IEnumerable<Type> endpointTypes)

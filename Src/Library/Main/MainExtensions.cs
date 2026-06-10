@@ -114,7 +114,7 @@ public static class MainExtensions
             _ = def.ReqDtoType.ObjectFactory();
             _ = def.ServiceBoundEpProps;
             _ = def.ToHeaderProps;
-            _ = endpointFactory.Create(def, sp);
+            _ = endpointFactory.Create(def, new DefaultHttpContext { RequestServices = sp });
         }
     }
 
@@ -155,7 +155,7 @@ public static class MainExtensions
 
         foreach (var def in endpoints.Found)
         {
-            var ep = epFactory.Create(def, httpCtx.RequestServices);
+            var ep = epFactory.Create(def, httpCtx);
             def.Initialize(ep, httpCtx);
 
             if (Cfg.EpOpts.Filter is not null && !Cfg.EpOpts.Filter(def))

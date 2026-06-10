@@ -1,7 +1,9 @@
 using FakeItEasy;
 using FastEndpoints;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using System.Text.Json;
 using Xunit;
 
 namespace Warmup;
@@ -13,7 +15,9 @@ public class WarmupTests : IDisposable
         Config.EpOpts.Filter = null;
         Config.EpOpts.WarmupFilter = null;
         Config.EpOpts.WarmupRequested = false;
+        Config.SerOpts.Options = new JsonSerializerOptions();
         CountingBinder.Reset();
+        ResetServiceResolver();
     }
 
     [Fact]
@@ -80,6 +84,36 @@ public class WarmupTests : IDisposable
 
         CountingBinder.InstanceCount.ShouldBe(0);
         A.CallTo(() => factory.Create(A<EndpointDefinition>._, A<HttpContext>._)).MustNotHaveHappened();
+    }
+
+    [Fact]
+    public async Task UseFastEndpoints_WarmUpFilter_WarmsOnlyMatchingEndpoints()
+    {
+        var builder = WebApplication.CreateBuilder();
+        builder.Services.AddTransient(typeof(IRequestBinder<>), typeof(CountingBinder<>));
+        builder.Services.AddFastEndpoints([typeof(WarmupEpA), typeof(WarmupEpB)]);
+        var app = builder.Build();
+
+        try
+        {
+            app.UseFastEndpoints(c => c.Endpoints.WarmUp(def => def.EndpointType == typeof(WarmupEpB)));
+
+            CountingBinder.InstanceCount.ShouldBe(1);
+        }
+        finally
+        {
+            ResetServiceResolver();
+            await app.DisposeAsync();
+        }
+    }
+
+    static void ResetServiceResolver()
+    {
+        var testingProvider = new ServiceCollection().AddHttpContextAccessor().BuildServiceProvider();
+        ServiceResolver.Instance = new ServiceResolver(
+            provider: testingProvider,
+            ctxAccessor: testingProvider.GetRequiredService<IHttpContextAccessor>(),
+            isUnitTestMode: true);
     }
 
     static IServiceProvider BuildServiceProvider(IEndpointFactory factory, IEnumerable<Type> endpointTypes)

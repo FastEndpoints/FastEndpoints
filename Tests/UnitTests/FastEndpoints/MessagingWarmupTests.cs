@@ -55,6 +55,36 @@ public class MessagingWarmupTests : IDisposable
     }
 
     [Fact]
+    public void UseMessaging_WarmUp_ResolvesActualEventBusInstancesFromServiceProvider()
+    {
+        var services = new ServiceCollection();
+        var resolvedBuses = new List<object>();
+        services.AddHttpContextAccessor();
+        services.AddMessaging([typeof(WarmupEventHandlerA), typeof(WarmupEventHandlerB)]);
+        services.AddSingleton(
+            sp =>
+            {
+                var bus = ActivatorUtilities.CreateInstance<EventBus<WarmupEventA>>(sp);
+                resolvedBuses.Add(bus);
+                return bus;
+            });
+        services.AddSingleton(
+            sp =>
+            {
+                var bus = ActivatorUtilities.CreateInstance<EventBus<WarmupEventB>>(sp);
+                resolvedBuses.Add(bus);
+                return bus;
+            });
+        using var provider = services.BuildServiceProvider();
+
+        provider.UseMessaging(o => o.WarmUp());
+
+        resolvedBuses.ShouldContain(provider.GetRequiredService<EventBus<WarmupEventA>>());
+        resolvedBuses.ShouldContain(provider.GetRequiredService<EventBus<WarmupEventB>>());
+        resolvedBuses.Count.ShouldBe(2);
+    }
+
+    [Fact]
     public void WarmupMessaging_DoesNothingWhenNoEventHandlersAreRegistered()
     {
         var provider = new RecordingServiceProvider();

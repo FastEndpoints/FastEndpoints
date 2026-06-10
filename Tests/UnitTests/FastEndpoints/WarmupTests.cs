@@ -17,19 +17,22 @@ public class WarmupTests : IDisposable
     }
 
     [Fact]
-    public void WarmUp_SetsWarmupRequested()
+    public void WarmUp_SetsWarmupRequestedAndFilter()
     {
         var opts = new EndpointOptions();
+        static bool Filter(EndpointDefinition _) => true;
 
         opts.WarmupRequested.ShouldBeFalse();
+        opts.WarmupFilter.ShouldBeNull();
 
-        opts.WarmUp();
+        opts.WarmUp(Filter);
 
         opts.WarmupRequested.ShouldBeTrue();
+        opts.WarmupFilter.ShouldBe(Filter);
     }
 
     [Fact]
-    public void WarmupFilter_Null_WarmsAllEndpointsWithoutInstantiatingEndpoints()
+    public void WarmUp_FilterNull_WarmsAllEndpointsWithoutInstantiatingEndpoints()
     {
         var factory = A.Fake<IEndpointFactory>();
         var sp = BuildServiceProvider(factory, [typeof(WarmupEpA), typeof(WarmupEpB)]);
@@ -41,9 +44,9 @@ public class WarmupTests : IDisposable
     }
 
     [Fact]
-    public void WarmupFilter_ReturnsFalseForEndpoint_SkipsItsWarmup()
+    public void WarmUp_FilterReturnsFalseForEndpoint_SkipsItsWarmup()
     {
-        Config.EpOpts.WarmupFilter = def => def.EndpointType == typeof(WarmupEpA);
+        Config.EpOpts.WarmUp(def => def.EndpointType == typeof(WarmupEpA));
         var factory = A.Fake<IEndpointFactory>();
         var sp = BuildServiceProvider(factory, [typeof(WarmupEpA), typeof(WarmupEpB)]);
 
@@ -67,9 +70,9 @@ public class WarmupTests : IDisposable
     }
 
     [Fact]
-    public void WarmupFilter_AlwaysFalse_SkipsAllEndpoints()
+    public void WarmUp_FilterAlwaysFalse_SkipsAllEndpoints()
     {
-        Config.EpOpts.WarmupFilter = _ => false;
+        Config.EpOpts.WarmUp(_ => false);
         var factory = A.Fake<IEndpointFactory>();
         var sp = BuildServiceProvider(factory, [typeof(WarmupEpA), typeof(WarmupEpB)]);
 

@@ -10,30 +10,6 @@ Due to low financial backing by the community, FastEndpoints will soon be going 
 
 ## New 🎉
 
-<details><summary>Opt-in startup warmup for endpoints, validators, mappers, and event buses</summary>
-
-Endpoint warmup is now opt-in. Call `WarmUp()` from `UseFastEndpoints(...)` to eagerly initialize validators, mappers, request binders, and compiled property setter delegates so the first real requests do not pay the cold-start cost.
-
-Warmup can be scoped to a subset of endpoints via the new `WarmupFilter` predicate on `EndpointOptions`:
-
-```csharp
-app.UseFastEndpoints(c =>
-{
-    c.Endpoints.WarmupFilter = def => def.EndpointType.Namespace?.StartsWith("MyApp.CriticalEndpoints") is true;
-    c.Endpoints.WarmUp();
-});
-```
-
-When `WarmupFilter` is not set, all registered endpoints are warmed up after `WarmUp()` is called. Set it to `_ => false` to skip endpoint warmup entirely.
-
-Messaging warmup is also opt-in. Call `WarmUp()` from `UseMessaging(...)` to eagerly resolve event bus instances:
-
-```csharp
-app.Services.UseMessaging(o => o.WarmUp());
-```
-
-</details>
-
 <details><summary>New 'FastEndpoints.OpenApi' package based on 'Microsoft.AspNetCore.OpenApi'</summary>
 
 Starting with `v8.2`, the FastEndpoints ecosystem has switched from `NSwag/Newtonsoft` based Swagger/OpenAPI document generation to the more modern and Native AOT friendly `Microsoft.AspNetCore.OpenApi` based document generation library. Integration is provided via a new `FastEndpoints.OpenApi` package which corrects a few issues with the MS package as well as doing a lot of post-processing on the document model to bring feature parity with the `FastEndpoints.Swagger` package.
@@ -179,6 +155,29 @@ If `AddFastEndpoints` is already called with the discovered types, `AddMessaging
 Endpoint properties decorated with `[KeyedService]` are now supported when using source generated reflection metadata.
 
 The generator records the keyed-service key for endpoint property injection, allowing generated reflection caches to resolve those properties with `GetRequiredKeyedService(...)` instead of falling back to the unkeyed service registration.
+
+</details>
+
+<details><summary>Opt-in startup warmup for endpoints, validators, mappers, and event buses</summary>
+
+Call `WarmUp()` from `UseFastEndpoints(...)` to eagerly initialize validators, mappers, request binders, and compiled property setter delegates so the first real requests do not pay the cold-start cost.
+
+Warmup can be scoped to a subset of endpoints with the optional filter argument:
+
+```csharp
+app.UseFastEndpoints(c =>
+{
+    c.Endpoints.WarmUp(def => def.EndpointType.Namespace?.StartsWith("MyApp.CriticalEndpoints") is true);
+});
+```
+
+When a filter is not provided, all registered endpoints are warmed up after `WarmUp()` is called. Pass `_ => false` to skip endpoint warmup entirely.
+
+Messaging warmup is also opt-in. Call `WarmUp()` from `UseMessaging(...)` to eagerly resolve event bus instances:
+
+```csharp
+app.Services.UseMessaging(o => o.WarmUp());
+```
 
 </details>
 

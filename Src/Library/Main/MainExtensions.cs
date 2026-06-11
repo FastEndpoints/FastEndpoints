@@ -95,7 +95,7 @@ public static class MainExtensions
     }
 
     static readonly Lock _serializerConfigLock = new();
-    static volatile bool _serializerConfigured;
+    internal static volatile bool SerializerConfigured;
 
     public static IEndpointRouteBuilder MapFastEndpoints(this IEndpointRouteBuilder app, Action<Cfg>? configAction = null)
     {
@@ -148,9 +148,7 @@ public static class MainExtensions
                 throw new InvalidOperationException("AntiForgery middleware setup is incorrect!");
 
             if (Cfg.EpOpts.WarmupRequested && (Cfg.EpOpts.WarmupFilter is null || Cfg.EpOpts.WarmupFilter(def)))
-            {
                 Warmup(def, scope.ServiceProvider);
-            }
 
             AddSecurityPolicy(authOptions, def);
 
@@ -248,7 +246,7 @@ public static class MainExtensions
     {
         lock (_serializerConfigLock)
         {
-            if (_serializerConfigured)
+            if (SerializerConfigured)
                 return;
 
             var serializerOptions = app.ServiceProvider.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions;
@@ -258,7 +256,7 @@ public static class MainExtensions
 
             Cfg.SerOpts.Options.ConfigureSerializer(app.ServiceProvider.GetRequiredService<Cfg>(), configAction);
 
-            _serializerConfigured = true;
+            SerializerConfigured = true;
         }
     }
 

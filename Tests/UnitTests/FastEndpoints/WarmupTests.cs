@@ -7,14 +7,55 @@ using Xunit;
 
 namespace Warmup;
 
+[CollectionDefinition(Name, DisableParallelization = true)]
+public class WarmupTestCollection
+{
+    public const string Name = nameof(WarmupTestCollection);
+}
+
+[Collection(WarmupTestCollection.Name)]
 public class WarmupTests : IDisposable
 {
+    static readonly SemaphoreSlim _testLock = new(1, 1);
+
+    readonly Func<EndpointDefinition, bool>? _previousEndpointFilter;
+    readonly Func<EndpointDefinition, bool>? _previousWarmupFilter;
+    readonly bool _previousWarmupRequested;
+    readonly JsonSerializerOptions _previousSerializerOptions;
+    readonly bool _previousSerializerConfigured;
+
+    public WarmupTests()
+    {
+        _testLock.Wait();
+
+        _previousEndpointFilter = Config.EpOpts.Filter;
+        _previousWarmupFilter = Config.EpOpts.WarmupFilter;
+        _previousWarmupRequested = Config.EpOpts.WarmupRequested;
+        _previousSerializerOptions = Config.SerOpts.Options;
+        _previousSerializerConfigured = MainExtensions.SerializerConfigured;
+
+        ResetState();
+    }
+
     public void Dispose()
+    {
+        Config.EpOpts.Filter = _previousEndpointFilter;
+        Config.EpOpts.WarmupFilter = _previousWarmupFilter;
+        Config.EpOpts.WarmupRequested = _previousWarmupRequested;
+        Config.SerOpts.Options = _previousSerializerOptions;
+        MainExtensions.SerializerConfigured = _previousSerializerConfigured;
+        CountingBinder.Reset();
+        ResetServiceResolver();
+        _testLock.Release();
+    }
+
+    static void ResetState()
     {
         Config.EpOpts.Filter = null;
         Config.EpOpts.WarmupFilter = null;
         Config.EpOpts.WarmupRequested = false;
-        Config.SerOpts.Options = new JsonSerializerOptions();
+        Config.SerOpts.Options = new();
+        MainExtensions.SerializerConfigured = false;
         CountingBinder.Reset();
         ResetServiceResolver();
     }
@@ -23,7 +64,9 @@ public class WarmupTests : IDisposable
     public void Warmup_SetsWarmupRequestedAndFilter()
     {
         var opts = new EndpointOptions();
-        static bool Filter(EndpointDefinition _) => true;
+
+        static bool Filter(EndpointDefinition _)
+            => true;
 
         opts.WarmupRequested.ShouldBeFalse();
         opts.WarmupFilter.ShouldBeNull();
@@ -84,11 +127,12 @@ public class WarmupTests : IDisposable
 
         try
         {
-            app.UseFastEndpoints(c =>
-            {
-                c.Endpoints.Filter = def => def.EndpointType == typeof(WarmupEpA);
-                c.Endpoints.Warmup();
-            });
+            app.UseFastEndpoints(
+                c =>
+                {
+                    c.Endpoints.Filter = def => def.EndpointType == typeof(WarmupEpA);
+                    c.Endpoints.Warmup();
+                });
 
             CountingBinder.InstanceCount.ShouldBe(1);
         }
@@ -152,7 +196,9 @@ file sealed class CountingBinder<TRequest> : IRequestBinder<TRequest>
     where TRequest : notnull
 {
     public CountingBinder()
-        => CountingBinder.InstanceCount++;
+    {
+        CountingBinder.InstanceCount++;
+    }
 
     public ValueTask<TRequest> BindAsync(BinderContext ctx, CancellationToken ct)
         => ValueTask.FromResult(default(TRequest)!);
@@ -168,12 +214,18 @@ file static class CountingBinder
 
 file sealed class WarmupEpA : EndpointWithoutRequest
 {
-    public override void Configure() => Get("warmup-ep-a");
-    public override Task HandleAsync(CancellationToken ct) => Task.CompletedTask;
+    public override void Configure()
+        => Get("warmup-ep-a");
+
+    public override Task HandleAsync(CancellationToken ct)
+        => Task.CompletedTask;
 }
 
 file sealed class WarmupEpB : EndpointWithoutRequest
 {
-    public override void Configure() => Get("warmup-ep-b");
-    public override Task HandleAsync(CancellationToken ct) => Task.CompletedTask;
+    public override void Configure()
+        => Get("warmup-ep-b");
+
+    public override Task HandleAsync(CancellationToken ct)
+        => Task.CompletedTask;
 }

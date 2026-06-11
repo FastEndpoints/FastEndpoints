@@ -31,6 +31,7 @@ app.UseStaticFiles()
    .UseFastEndpoints(
        c =>
        {
+           c.Endpoints.Warmup();
            c.Serializer.Options.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
            c.Serializer.Options.AddSerializerContextsFromNativeAotChecker();
            c.Binding.ReflectionCache.AddFromNativeAotChecker();

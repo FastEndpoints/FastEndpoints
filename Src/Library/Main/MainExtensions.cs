@@ -365,7 +365,9 @@ public static class MainExtensions
 
     internal static void Warmup(EndpointDefinition def, IServiceProvider sp)
     {
-        _ = sp.GetService(typeof(IRequestBinder<>).MakeGenericType(def.ReqDtoType));
+        if (!def.ReqDtoType.IsValueType) // native aot cannot instantiate value type generic binders
+            _ = sp.GetService(Types.IRequestBinderOf1.MakeGenericType(def.ReqDtoType));
+
         _ = def.ExecuteAsyncReturnsIResult;
         _ = def.GetMapper();
         _ = def.GetValidator();

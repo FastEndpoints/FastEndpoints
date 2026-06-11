@@ -41,7 +41,7 @@ public class MessagingWarmupTests : IDisposable
     }
 
     [Fact]
-    public void UseMessaging_WarmUp_ResolvesEventBusForEachEventWithHandlers()
+    public void UseMessaging_Warmup_ResolvesEventBusForEachEventWithHandlers()
     {
         EventBase.HandlerDict[typeof(WarmupEventA)] = [typeof(WarmupEventHandlerA)];
         EventBase.HandlerDict[typeof(WarmupEventB)] = [typeof(WarmupEventHandlerB)];
@@ -55,7 +55,7 @@ public class MessagingWarmupTests : IDisposable
     }
 
     [Fact]
-    public void UseMessaging_WarmUp_ResolvesActualEventBusInstancesFromServiceProvider()
+    public void UseMessaging_Warmup_ResolvesActualEventBusInstancesFromServiceProvider()
     {
         var services = new ServiceCollection();
         var resolvedBuses = new List<object>();

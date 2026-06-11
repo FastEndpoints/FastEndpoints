@@ -149,7 +149,7 @@ public static class MainExtensions
 
             if (Cfg.EpOpts.WarmupRequested && (Cfg.EpOpts.WarmupFilter is null || Cfg.EpOpts.WarmupFilter(def)))
             {
-                Warmup(def, app.ServiceProvider);
+                Warmup(def, scope.ServiceProvider);
             }
 
             AddSecurityPolicy(authOptions, def);

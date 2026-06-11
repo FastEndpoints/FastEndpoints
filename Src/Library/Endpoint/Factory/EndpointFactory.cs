@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FastEndpoints;
@@ -24,26 +24,16 @@ public sealed class EndpointFactory : IEndpointFactory
         {
             var p = definition.ServiceBoundEpProps[i];
             p.PropSetter ??= definition.EndpointType.SetterForProp(p.PropertyInfo);
-            p.PropSetter(epInstance, ResolveService(ctx, p));
+            p.PropSetter(epInstance, ResolveService(ctx.RequestServices, p));
         }
 
         return epInstance;
     }
 
-    static object ResolveService(HttpContext ctx, ServiceBoundEpProp p)
+    static object ResolveService(IServiceProvider sp, ServiceBoundEpProp p)
         => p.ServiceKey switch
         {
-            not null => ctx.RequestServices.GetRequiredKeyedService(p.PropertyInfo.PropertyType, p.ServiceKey),
-            _ => ctx.RequestServices.GetRequiredService(p.PropertyInfo.PropertyType)
+            not null => sp.GetRequiredKeyedService(p.PropertyInfo.PropertyType, p.ServiceKey),
+            _ => sp.GetRequiredService(p.PropertyInfo.PropertyType)
         };
-
-    // static object ResolveService(HttpContext ctx, ServiceBoundEpProp prop)
-    // {
-    //     // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-    //     var isAppStartup = ctx.Connection.Id == null;
-    //
-    //     return isAppStartup
-    //                ? ctx.RequestServices.GetRequiredService(prop.PropType)
-    //                : ctx.Resolve(prop.PropType);
-    // }
 }

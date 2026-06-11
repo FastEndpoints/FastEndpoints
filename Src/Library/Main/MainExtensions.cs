@@ -147,6 +147,11 @@ public static class MainExtensions
             if (def.AntiforgeryEnabled && (app.ServiceProvider.GetService<IAntiforgery>() is null || AntiforgeryMiddleware.IsRegistered is false))
                 throw new InvalidOperationException("AntiForgery middleware setup is incorrect!");
 
+            if (Cfg.EpOpts.WarmupRequested && (Cfg.EpOpts.WarmupFilter is null || Cfg.EpOpts.WarmupFilter(def)))
+            {
+                Warmup(def, app.ServiceProvider);
+            }
+
             AddSecurityPolicy(authOptions, def);
 
             var routeNum = 0;
@@ -358,6 +363,18 @@ public static class MainExtensions
 
                 return attr;
             }).ToArray();
+    }
+
+    internal static void Warmup(EndpointDefinition def, IServiceProvider sp)
+    {
+        _ = sp.GetService(typeof(IRequestBinder<>).MakeGenericType(def.ReqDtoType));
+        _ = def.ExecuteAsyncReturnsIResult;
+        _ = def.GetMapper();
+        _ = def.GetValidator();
+        _ = def.ReqDtoFromBodyPropName;
+        _ = def.ReqDtoType.IsValidatable();
+        _ = def.ReqDtoType.ObjectFactory();
+        _ = def.ToHeaderProps;
     }
 
     static void AddSecurityPolicy(AuthorizationOptions opts, EndpointDefinition ep)

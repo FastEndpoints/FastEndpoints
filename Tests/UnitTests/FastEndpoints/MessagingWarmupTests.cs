@@ -18,13 +18,13 @@ public class MessagingWarmupTests : IDisposable
     }
 
     [Fact]
-    public void WarmUp_SetsWarmupRequested()
+    public void Warmup_SetsWarmupRequested()
     {
         var opts = new MessagingOptions();
 
         opts.WarmupRequested.ShouldBeFalse();
 
-        opts.WarmUp();
+        opts.Warmup();
 
         opts.WarmupRequested.ShouldBeTrue();
     }
@@ -47,7 +47,7 @@ public class MessagingWarmupTests : IDisposable
         EventBase.HandlerDict[typeof(WarmupEventB)] = [typeof(WarmupEventHandlerB)];
         var provider = new RecordingServiceProvider();
 
-        provider.UseMessaging(o => o.WarmUp());
+        provider.UseMessaging(o => o.Warmup());
 
         provider.RequestedTypes.ShouldContain(typeof(EventBus<WarmupEventA>));
         provider.RequestedTypes.ShouldContain(typeof(EventBus<WarmupEventB>));
@@ -77,7 +77,7 @@ public class MessagingWarmupTests : IDisposable
             });
         using var provider = services.BuildServiceProvider();
 
-        provider.UseMessaging(o => o.WarmUp());
+        provider.UseMessaging(o => o.Warmup());
 
         resolvedBuses.ShouldContain(provider.GetRequiredService<EventBus<WarmupEventA>>());
         resolvedBuses.ShouldContain(provider.GetRequiredService<EventBus<WarmupEventB>>());

@@ -157,6 +157,6 @@ public sealed class MessagingOptions
     /// pre-initialize event bus instances during startup.
     /// messaging warmup is lazy by default and only runs when this method is called from <c>UseMessaging(...)</c>.
     /// </summary>
-    public void WarmUp()
+    public void Warmup()
         => WarmupRequested = true;
 }

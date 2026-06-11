@@ -111,7 +111,7 @@ The generated permission codes are stable (derived from the property name via a 
 
 </details>
 
-<details><summary>Supply source generated type lists directly to 'AddMessaging' and 'AddJobQueues' methods</summary>
+<details><summary>Supply source generated type lists directly to startup configuration methods</summary>
 
 `AddFastEndpoints`, `AddMessaging`, and `AddJobQueues` now each have a new overload that accepts one or more `List<Type>` values (one per referenced assembly), making it possible to use the `FastEndpoints.Generator` package with the Messaging as well as the JobQueue package when the main FastEndpoint package is not used.
 

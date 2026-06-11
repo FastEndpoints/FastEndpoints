@@ -160,23 +160,23 @@ The generator records the keyed-service key for endpoint property injection, all
 
 <details><summary>Opt-in startup warmup for endpoints, validators, mappers, and event buses</summary>
 
-Call `WarmUp()` from `UseFastEndpoints(...)` to eagerly initialize validators, mappers, request binders, and compiled property setter delegates so the first real requests do not pay the cold-start cost.
+Call `Warmup()` from `UseFastEndpoints(...)` to eagerly initialize validators, mappers, request binders, and compiled property setter delegates so the first real requests do not pay the cold-start cost.
 
 Warmup can be scoped to a subset of endpoints with the optional filter argument:
 
 ```csharp
 app.UseFastEndpoints(c =>
 {
-    c.Endpoints.WarmUp(def => def.EndpointType.Namespace?.StartsWith("MyApp.CriticalEndpoints") is true);
+    c.Endpoints.Warmup(def => def.EndpointType.Namespace?.StartsWith("MyApp.CriticalEndpoints") is true);
 });
 ```
 
-When a filter is not provided, all registered endpoints are warmed up after `WarmUp()` is called. Pass `_ => false` to skip endpoint warmup entirely.
+When a filter is not provided, all registered endpoints are warmed up after `Warmup()` is called. Pass `_ => false` to skip endpoint warmup entirely.
 
-Messaging warmup is also opt-in. Call `WarmUp()` from `UseMessaging(...)` to eagerly resolve event bus instances:
+Messaging warmup is also opt-in. Call `Warmup()` from `UseMessaging(...)` to eagerly resolve event bus instances:
 
 ```csharp
-app.Services.UseMessaging(o => o.WarmUp());
+app.Services.UseMessaging(o => o.Warmup());
 ```
 
 </details>

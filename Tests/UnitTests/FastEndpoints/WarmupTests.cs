@@ -1,4 +1,3 @@
-using FakeItEasy;
 using FastEndpoints;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -21,7 +20,7 @@ public class WarmupTests : IDisposable
     }
 
     [Fact]
-    public void WarmUp_SetsWarmupRequestedAndFilter()
+    public void Warmup_SetsWarmupRequestedAndFilter()
     {
         var opts = new EndpointOptions();
         static bool Filter(EndpointDefinition _) => true;
@@ -29,65 +28,14 @@ public class WarmupTests : IDisposable
         opts.WarmupRequested.ShouldBeFalse();
         opts.WarmupFilter.ShouldBeNull();
 
-        opts.WarmUp(Filter);
+        opts.Warmup(Filter);
 
         opts.WarmupRequested.ShouldBeTrue();
         opts.WarmupFilter.ShouldBe(Filter);
     }
 
     [Fact]
-    public void WarmUp_FilterNull_WarmsAllEndpointsWithoutInstantiatingEndpoints()
-    {
-        var factory = A.Fake<IEndpointFactory>();
-        var sp = BuildServiceProvider(factory, [typeof(WarmupEpA), typeof(WarmupEpB)]);
-
-        MainExtensions.Warmup(sp);
-
-        CountingBinder.InstanceCount.ShouldBe(2);
-        A.CallTo(() => factory.Create(A<EndpointDefinition>._, A<HttpContext>._)).MustNotHaveHappened();
-    }
-
-    [Fact]
-    public void WarmUp_FilterReturnsFalseForEndpoint_SkipsItsWarmup()
-    {
-        Config.EpOpts.WarmUp(def => def.EndpointType == typeof(WarmupEpA));
-        var factory = A.Fake<IEndpointFactory>();
-        var sp = BuildServiceProvider(factory, [typeof(WarmupEpA), typeof(WarmupEpB)]);
-
-        MainExtensions.Warmup(sp);
-
-        CountingBinder.InstanceCount.ShouldBe(1);
-        A.CallTo(() => factory.Create(A<EndpointDefinition>._, A<HttpContext>._)).MustNotHaveHappened();
-    }
-
-    [Fact]
-    public void EndpointFilter_ReturnsFalseForEndpoint_SkipsItsWarmup()
-    {
-        Config.EpOpts.Filter = def => def.EndpointType == typeof(WarmupEpA);
-        var factory = A.Fake<IEndpointFactory>();
-        var sp = BuildServiceProvider(factory, [typeof(WarmupEpA), typeof(WarmupEpB)]);
-
-        MainExtensions.Warmup(sp);
-
-        CountingBinder.InstanceCount.ShouldBe(1);
-        A.CallTo(() => factory.Create(A<EndpointDefinition>._, A<HttpContext>._)).MustNotHaveHappened();
-    }
-
-    [Fact]
-    public void WarmUp_FilterAlwaysFalse_SkipsAllEndpoints()
-    {
-        Config.EpOpts.WarmUp(_ => false);
-        var factory = A.Fake<IEndpointFactory>();
-        var sp = BuildServiceProvider(factory, [typeof(WarmupEpA), typeof(WarmupEpB)]);
-
-        MainExtensions.Warmup(sp);
-
-        CountingBinder.InstanceCount.ShouldBe(0);
-        A.CallTo(() => factory.Create(A<EndpointDefinition>._, A<HttpContext>._)).MustNotHaveHappened();
-    }
-
-    [Fact]
-    public async Task UseFastEndpoints_WarmUpFilter_WarmsOnlyMatchingEndpoints()
+    public async Task Warmup_FilterNull_WarmsAllEndpoints()
     {
         var builder = WebApplication.CreateBuilder();
         builder.Services.AddTransient(typeof(IRequestBinder<>), typeof(CountingBinder<>));
@@ -96,13 +44,96 @@ public class WarmupTests : IDisposable
 
         try
         {
-            app.UseFastEndpoints(c => c.Endpoints.WarmUp(def => def.EndpointType == typeof(WarmupEpB)));
+            app.UseFastEndpoints(c => c.Endpoints.Warmup());
+
+            CountingBinder.InstanceCount.ShouldBe(2);
+        }
+        finally
+        {
+            await app.DisposeAsync();
+        }
+    }
+
+    [Fact]
+    public async Task Warmup_FilterReturnsTrueForEndpoint_WarmsOnlyThatEndpoint()
+    {
+        var builder = WebApplication.CreateBuilder();
+        builder.Services.AddTransient(typeof(IRequestBinder<>), typeof(CountingBinder<>));
+        builder.Services.AddFastEndpoints([typeof(WarmupEpA), typeof(WarmupEpB)]);
+        var app = builder.Build();
+
+        try
+        {
+            app.UseFastEndpoints(c => c.Endpoints.Warmup(def => def.EndpointType == typeof(WarmupEpA)));
 
             CountingBinder.InstanceCount.ShouldBe(1);
         }
         finally
         {
-            ResetServiceResolver();
+            await app.DisposeAsync();
+        }
+    }
+
+    [Fact]
+    public async Task EndpointFilter_ExcludesEndpoint_SkipsItsWarmup()
+    {
+        var builder = WebApplication.CreateBuilder();
+        builder.Services.AddTransient(typeof(IRequestBinder<>), typeof(CountingBinder<>));
+        builder.Services.AddFastEndpoints([typeof(WarmupEpA), typeof(WarmupEpB)]);
+        var app = builder.Build();
+
+        try
+        {
+            app.UseFastEndpoints(c =>
+            {
+                c.Endpoints.Filter = def => def.EndpointType == typeof(WarmupEpA);
+                c.Endpoints.Warmup();
+            });
+
+            CountingBinder.InstanceCount.ShouldBe(1);
+        }
+        finally
+        {
+            await app.DisposeAsync();
+        }
+    }
+
+    [Fact]
+    public async Task Warmup_FilterAlwaysFalse_SkipsAllEndpoints()
+    {
+        var builder = WebApplication.CreateBuilder();
+        builder.Services.AddTransient(typeof(IRequestBinder<>), typeof(CountingBinder<>));
+        builder.Services.AddFastEndpoints([typeof(WarmupEpA), typeof(WarmupEpB)]);
+        var app = builder.Build();
+
+        try
+        {
+            app.UseFastEndpoints(c => c.Endpoints.Warmup(_ => false));
+
+            CountingBinder.InstanceCount.ShouldBe(0);
+        }
+        finally
+        {
+            await app.DisposeAsync();
+        }
+    }
+
+    [Fact]
+    public async Task UseFastEndpoints_WarmupFilter_WarmsOnlyMatchingEndpoints()
+    {
+        var builder = WebApplication.CreateBuilder();
+        builder.Services.AddTransient(typeof(IRequestBinder<>), typeof(CountingBinder<>));
+        builder.Services.AddFastEndpoints([typeof(WarmupEpA), typeof(WarmupEpB)]);
+        var app = builder.Build();
+
+        try
+        {
+            app.UseFastEndpoints(c => c.Endpoints.Warmup(def => def.EndpointType == typeof(WarmupEpB)));
+
+            CountingBinder.InstanceCount.ShouldBe(1);
+        }
+        finally
+        {
             await app.DisposeAsync();
         }
     }
@@ -114,16 +145,6 @@ public class WarmupTests : IDisposable
             provider: testingProvider,
             ctxAccessor: testingProvider.GetRequiredService<IHttpContextAccessor>(),
             isUnitTestMode: true);
-    }
-
-    static IServiceProvider BuildServiceProvider(IEndpointFactory factory, IEnumerable<Type> endpointTypes)
-    {
-        var endpointData = new EndpointData(endpointTypes, new());
-        var services = new ServiceCollection();
-        services.AddSingleton(endpointData);
-        services.AddSingleton(factory);
-        services.AddTransient(typeof(IRequestBinder<>), typeof(CountingBinder<>));
-        return services.BuildServiceProvider();
     }
 }
 

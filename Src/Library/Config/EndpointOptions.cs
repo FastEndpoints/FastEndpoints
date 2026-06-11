@@ -63,7 +63,7 @@ public sealed class EndpointOptions
     /// return 'true' to include an endpoint in warmup, 'false' to skip it.
     /// when not set, all registered endpoints are warmed up.
     /// </param>
-    public void WarmUp(Func<EndpointDefinition, bool>? filter = null)
+    public void Warmup(Func<EndpointDefinition, bool>? filter = null)
     {
         WarmupRequested = true;
         WarmupFilter = filter;

@@ -3,16 +3,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
-namespace Messaging;
+namespace JobQueues;
 
-[CollectionDefinition(MessagingWarmupCollection.Name, DisableParallelization = true)]
-public class MessagingWarmupCollection
-{
-    public const string Name = nameof(MessagingWarmupCollection);
-}
-
-[Collection(MessagingWarmupCollection.Name)]
-public class MessagingWarmupTests : IDisposable
+[Collection(Messaging.MessagingWarmupCollection.Name)]
+public class JobQueueWarmupTests : IDisposable
 {
     public void Dispose()
     {
@@ -27,7 +21,7 @@ public class MessagingWarmupTests : IDisposable
     [Fact]
     public void Warmup_SetsWarmupRequested()
     {
-        var opts = new MessagingOptions();
+        var opts = new JobQueueOptions();
 
         opts.WarmupRequested.ShouldBeFalse();
 
@@ -37,79 +31,28 @@ public class MessagingWarmupTests : IDisposable
     }
 
     [Fact]
-    public void UseMessaging_DoesNotWarmupByDefault()
+    public void UseJobQueues_DoesNotWarmupByDefault()
     {
         EventBase.HandlerDict[typeof(WarmupEventA)] = [typeof(WarmupEventHandlerA)];
         var provider = new RecordingServiceProvider();
 
-        provider.UseMessaging();
+        provider.UseJobQueues();
 
         provider.RequestedTypes.ShouldBeEmpty();
     }
 
     [Fact]
-    public void UseMessaging_Warmup_ResolvesEventBusForEachEventWithHandlers()
+    public void UseJobQueues_Warmup_ResolvesEventBusForEachEventWithHandlers()
     {
         EventBase.HandlerDict[typeof(WarmupEventA)] = [typeof(WarmupEventHandlerA)];
         EventBase.HandlerDict[typeof(WarmupEventB)] = [typeof(WarmupEventHandlerB)];
         var provider = new RecordingServiceProvider();
 
-        provider.UseMessaging(o => o.Warmup());
+        provider.UseJobQueues(o => o.Warmup());
 
         provider.RequestedTypes.ShouldContain(typeof(EventBus<WarmupEventA>));
         provider.RequestedTypes.ShouldContain(typeof(EventBus<WarmupEventB>));
         provider.RequestedTypes.Count.ShouldBe(2);
-    }
-
-    [Fact]
-    public void UseMessaging_Warmup_ResolvesActualEventBusInstancesFromServiceProvider()
-    {
-        var services = new ServiceCollection();
-        var resolvedBuses = new List<object>();
-        services.AddHttpContextAccessor();
-        services.AddMessaging([typeof(WarmupEventHandlerA), typeof(WarmupEventHandlerB)]);
-        services.AddSingleton(
-            sp =>
-            {
-                var bus = ActivatorUtilities.CreateInstance<EventBus<WarmupEventA>>(sp);
-                resolvedBuses.Add(bus);
-                return bus;
-            });
-        services.AddSingleton(
-            sp =>
-            {
-                var bus = ActivatorUtilities.CreateInstance<EventBus<WarmupEventB>>(sp);
-                resolvedBuses.Add(bus);
-                return bus;
-            });
-        using var provider = services.BuildServiceProvider();
-
-        provider.UseMessaging(o => o.Warmup());
-
-        resolvedBuses.ShouldContain(provider.GetRequiredService<EventBus<WarmupEventA>>());
-        resolvedBuses.ShouldContain(provider.GetRequiredService<EventBus<WarmupEventB>>());
-        resolvedBuses.Count.ShouldBe(2);
-    }
-
-    [Fact]
-    public void WarmupMessaging_DoesNothingWhenNoEventHandlersAreRegistered()
-    {
-        var provider = new RecordingServiceProvider();
-
-        MessagingExtensions.WarmupMessaging(provider);
-
-        provider.RequestedTypes.ShouldBeEmpty();
-    }
-
-    [Fact]
-    public void WarmupMessaging_DoesNotThrowWhenEventBusServiceIsMissing()
-    {
-        EventBase.HandlerDict[typeof(WarmupEventA)] = [typeof(WarmupEventHandlerA)];
-        var provider = new RecordingServiceProvider();
-
-        Should.NotThrow(() => MessagingExtensions.WarmupMessaging(provider));
-
-        provider.RequestedTypes.ShouldHaveSingleItem().ShouldBe(typeof(EventBus<WarmupEventA>));
     }
 }
 
@@ -120,10 +63,15 @@ file sealed class RecordingServiceProvider : IServiceProvider
     readonly IServiceResolver _serviceResolver;
 
     public RecordingServiceProvider()
-        => _serviceResolver = new ServiceResolver(
+    {
+        foreach (var (tEvent, handlers) in EventBase.HandlerDict)
+            _commandHandlerRegistry[tEvent] = new CommandHandlerDefinition(handlers.First());
+
+        _serviceResolver = new ServiceResolver(
             provider: _rootProvider,
             ctxAccessor: _rootProvider.GetRequiredService<IHttpContextAccessor>(),
             isUnitTestMode: true);
+    }
 
     public List<Type> RequestedTypes { get; } = [];
 

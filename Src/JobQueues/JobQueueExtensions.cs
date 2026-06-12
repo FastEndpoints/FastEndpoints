@@ -145,6 +145,9 @@ public static class JobQueueExtensions
             opts.SetLimits(tCommand, (JobQueueBase)jobQ);
         }
 
+        if (opts.WarmupRequested)
+            MessagingExtensions.WarmupMessaging(provider);
+
         return provider;
     }
 

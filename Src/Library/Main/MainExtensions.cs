@@ -148,7 +148,7 @@ public static class MainExtensions
                 throw new InvalidOperationException("AntiForgery middleware setup is incorrect!");
 
             if (Cfg.EpOpts.WarmupRequested && (Cfg.EpOpts.WarmupFilter is null || Cfg.EpOpts.WarmupFilter(def)))
-                Warmup(def, scope.ServiceProvider);
+                WarmupEndpoint(def, scope.ServiceProvider);
 
             AddSecurityPolicy(authOptions, def);
 
@@ -209,6 +209,9 @@ public static class MainExtensions
                 def.IsLocked = true;
             }
         }
+
+        if (Cfg.EpOpts.WarmupRequested)
+            MessagingExtensions.WarmupMessaging(app.ServiceProvider);
 
         app.ServiceProvider.GetRequiredService<ILogger<StartupTimer>>().EndpointsRegistered(totalEndpointCount, endpoints.Stopwatch.ElapsedMilliseconds.ToString("N0"));
 
@@ -363,7 +366,7 @@ public static class MainExtensions
             }).ToArray();
     }
 
-    internal static void Warmup(EndpointDefinition def, IServiceProvider sp)
+    internal static void WarmupEndpoint(EndpointDefinition def, IServiceProvider sp)
     {
         if (!def.ReqDtoType.IsValueType) // native aot cannot instantiate value type generic binders
             _ = sp.GetService(Types.IRequestBinderOf1.MakeGenericType(def.ReqDtoType));

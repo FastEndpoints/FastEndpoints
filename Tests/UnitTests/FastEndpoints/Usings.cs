@@ -1,1 +1,1 @@
-﻿global using Shouldly;
+global using Shouldly;

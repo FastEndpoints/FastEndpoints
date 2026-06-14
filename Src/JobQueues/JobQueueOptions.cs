@@ -50,6 +50,15 @@ public class JobQueueOptions
         _limitOverrides[typeof(TCommand)] = new(maxConcurrency, timeLimit);
     }
 
+    internal bool WarmupRequested { get; private set; }
+
+    /// <summary>
+    /// pre-initialize event bus instances during startup.
+    /// messaging warmup is lazy by default and only runs when this method is called from <c>UseJobQueues(...)</c>.
+    /// </summary>
+    public void Warmup()
+        => WarmupRequested = true;
+
     internal void SetLimits(Type tCommand, JobQueueBase jobQueue)
     {
         if (_limitOverrides.TryGetValue(tCommand, out var limits))

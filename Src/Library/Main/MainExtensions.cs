@@ -95,7 +95,7 @@ public static class MainExtensions
     }
 
     static readonly Lock _serializerConfigLock = new();
-    static volatile bool _serializerConfigured;
+    internal static volatile bool SerializerConfigured;
 
     public static IEndpointRouteBuilder MapFastEndpoints(this IEndpointRouteBuilder app, Action<Cfg>? configAction = null)
     {
@@ -146,6 +146,9 @@ public static class MainExtensions
 
             if (def.AntiforgeryEnabled && (app.ServiceProvider.GetService<IAntiforgery>() is null || AntiforgeryMiddleware.IsRegistered is false))
                 throw new InvalidOperationException("AntiForgery middleware setup is incorrect!");
+
+            if (Cfg.EpOpts.WarmupRequested && (Cfg.EpOpts.WarmupFilter is null || Cfg.EpOpts.WarmupFilter(def)))
+                WarmupEndpoint(def, scope.ServiceProvider);
 
             AddSecurityPolicy(authOptions, def);
 
@@ -207,6 +210,9 @@ public static class MainExtensions
             }
         }
 
+        if (Cfg.EpOpts.WarmupRequested)
+            MessagingExtensions.WarmupMessaging(app.ServiceProvider);
+
         app.ServiceProvider.GetRequiredService<ILogger<StartupTimer>>().EndpointsRegistered(totalEndpointCount, endpoints.Stopwatch.ElapsedMilliseconds.ToString("N0"));
 
         endpoints.Stopwatch.Stop();
@@ -243,7 +249,7 @@ public static class MainExtensions
     {
         lock (_serializerConfigLock)
         {
-            if (_serializerConfigured)
+            if (SerializerConfigured)
                 return;
 
             var serializerOptions = app.ServiceProvider.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions;
@@ -253,7 +259,7 @@ public static class MainExtensions
 
             Cfg.SerOpts.Options.ConfigureSerializer(app.ServiceProvider.GetRequiredService<Cfg>(), configAction);
 
-            _serializerConfigured = true;
+            SerializerConfigured = true;
         }
     }
 
@@ -358,6 +364,20 @@ public static class MainExtensions
 
                 return attr;
             }).ToArray();
+    }
+
+    internal static void WarmupEndpoint(EndpointDefinition def, IServiceProvider sp)
+    {
+        if (!def.ReqDtoType.IsValueType) // native aot cannot instantiate value type generic binders
+            _ = sp.GetService(Types.IRequestBinderOf1.MakeGenericType(def.ReqDtoType));
+
+        _ = def.ExecuteAsyncReturnsIResult;
+        _ = def.GetMapper();
+        _ = def.GetValidator();
+        _ = def.ReqDtoFromBodyPropName;
+        _ = def.ReqDtoType.IsValidatable();
+        _ = def.ReqDtoType.ObjectFactory();
+        _ = def.ToHeaderProps;
     }
 
     static void AddSecurityPolicy(AuthorizationOptions opts, EndpointDefinition ep)

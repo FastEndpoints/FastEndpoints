@@ -19,7 +19,7 @@ public class SerializerConfigurationTests
     [Fact]
     public async Task Serializer_Configuration_Is_Process_Wide_And_Race_Free_When_Hosts_Start_In_Parallel()
     {
-        var previousSerializerConfigured = SerializerConfigured;
+        var previousSerializerConfigured = MainExtensions.SerializerConfigured;
         var previousSerializerOptions = Config.SerOpts.Options;
         var previousServiceResolver = ServiceResolver.InstanceNotSet ? null : ServiceResolver.Instance;
         var previousRoutePrefix = Config.EpOpts.RoutePrefix;
@@ -34,7 +34,7 @@ public class SerializerConfigurationTests
         Config.EpOpts.RoutePrefix = null;
         Config.EpOpts.Filter = null;
         Config.EpOpts.Configurator = null;
-        SerializerConfigured = false;
+        MainExtensions.SerializerConfigured = false;
 
         try
         {
@@ -91,7 +91,7 @@ public class SerializerConfigurationTests
             Config.EpOpts.RoutePrefix = previousRoutePrefix;
             Config.EpOpts.Filter = previousEndpointFilter;
             Config.EpOpts.Configurator = previousEndpointConfigurator;
-            SerializerConfigured = previousSerializerConfigured;
+            MainExtensions.SerializerConfigured = previousSerializerConfigured;
             SetServiceResolver(previousServiceResolver);
             ResetTestState();
         }
@@ -127,15 +127,6 @@ public class SerializerConfigurationTests
 
         config.Serializer.Options.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
     }
-
-    static bool SerializerConfigured
-    {
-        get => (bool)SerializerConfiguredField.GetValue(null)!;
-        set => SerializerConfiguredField.SetValue(null, value);
-    }
-
-    static FieldInfo SerializerConfiguredField { get; } =
-        typeof(MainExtensions).GetField("_serializerConfigured", BindingFlags.NonPublic | BindingFlags.Static)!;
 
     static FieldInfo ServiceResolverInstanceField { get; } =
         typeof(ServiceResolver).GetField("_instance", BindingFlags.NonPublic | BindingFlags.Static)!;

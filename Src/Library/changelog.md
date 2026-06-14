@@ -111,7 +111,7 @@ The generated permission codes are stable (derived from the property name via a 
 
 </details>
 
-<details><summary>Supply source generated type lists directly to 'AddMessaging' and 'AddJobQueues' methods</summary>
+<details><summary>Supply source generated type lists directly to startup configuration methods</summary>
 
 `AddFastEndpoints`, `AddMessaging`, and `AddJobQueues` now each have a new overload that accepts one or more `List<Type>` values (one per referenced assembly), making it possible to use the `FastEndpoints.Generator` package with the Messaging as well as the JobQueue package when the main FastEndpoint package is not used.
 
@@ -155,6 +155,35 @@ If `AddFastEndpoints` is already called with the discovered types, `AddMessaging
 Endpoint properties decorated with `[KeyedService]` are now supported when using source generated reflection metadata.
 
 The generator records the keyed-service key for endpoint property injection, allowing generated reflection caches to resolve those properties with `GetRequiredKeyedService(...)` instead of falling back to the unkeyed service registration.
+
+</details>
+
+<details><summary>Opt-in startup warmup for endpoints, validators, mappers, and event buses</summary>
+
+Call `Warmup()` from `UseFastEndpoints(...)` to eagerly initialize validators, mappers, request binders, and compiled property setter delegates so the first real requests do not pay the cold-start cost.
+
+Warmup can be scoped to a subset of endpoints with the optional filter argument:
+
+```csharp
+app.UseFastEndpoints(c =>
+{
+    c.Endpoints.Warmup(def => def.EndpointType.Namespace?.StartsWith("MyApp.CriticalEndpoints") is true);
+});
+```
+
+When a filter is not provided, all registered endpoints are warmed up after `Warmup()` is called. Pass `_ => false` to skip endpoint warmup entirely.
+
+Messaging warmup is also opt-in. Call `Warmup()` from `UseMessaging(...)` to eagerly resolve event bus instances:
+
+```csharp
+app.Services.UseMessaging(o => o.Warmup());
+```
+
+Job queue startup can request the same messaging warmup through `UseJobQueues(...)`:
+
+```csharp
+app.UseJobQueues(o => o.Warmup());
+```
 
 </details>
 

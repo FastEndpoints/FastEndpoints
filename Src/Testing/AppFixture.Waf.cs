@@ -187,13 +187,21 @@ public abstract partial class AppFixture<TProgram> : BaseFixture, IAsyncLifetime
         {
             await PreSetupAsync();
 
-            return new WafWrapper(ConfigureAppHost).WithWebHostBuilder(
+            var waf = new WafWrapper(ConfigureAppHost).WithWebHostBuilder(
                 b =>
                 {
                     b.UseEnvironment("Testing");
                     b.ConfigureTestServices(ConfigureServices);
                     ConfigureApp(b);
                 });
+
+            // Build the single host HERE, while still inside the AsyncLazy, so it is serialized across all fixture
+            // instances. Without this, each instance's `_wafInstance.CreateClient()` triggers the lazy host build, and
+            // those builds are not serialized across parallel first callers — N test classes build the host
+            // concurrently, racing on shared System.Text.Json config in MapFastEndpoints.
+            _ = waf.Server;
+
+            return waf;
         }
     }
 

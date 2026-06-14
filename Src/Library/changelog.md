@@ -179,6 +179,12 @@ Messaging warmup is also opt-in. Call `Warmup()` from `UseMessaging(...)` to eag
 app.Services.UseMessaging(o => o.Warmup());
 ```
 
+Job queue startup can request the same messaging warmup through `UseJobQueues(...)`:
+
+```csharp
+app.UseJobQueues(o => o.Warmup());
+```
+
 </details>
 
 ## Fixes 🪲

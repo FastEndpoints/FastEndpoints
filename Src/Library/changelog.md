@@ -1,8 +1,8 @@
 ---
 
-## ⚠️ Sponsorship Level Critically Low ⚠️
+## ⚠️ Goal Sponsorship Level Not Yet Met ⚠️
 
-Due to low financial backing by the community, FastEndpoints will soon be going into "Bugfix Only" mode until the situation improves. Please [join the discussion here](https://github.com/FastEndpoints/FastEndpoints/issues/1042) and help out if you can.
+Please [join the discussion here](https://github.com/FastEndpoints/FastEndpoints/issues/1042) and help out if you can.
 
 ---
 

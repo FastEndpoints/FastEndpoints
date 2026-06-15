@@ -187,13 +187,18 @@ public abstract partial class AppFixture<TProgram> : BaseFixture, IAsyncLifetime
         {
             await PreSetupAsync();
 
-            return new WafWrapper(ConfigureAppHost).WithWebHostBuilder(
+            var waf = new WafWrapper(ConfigureAppHost).WithWebHostBuilder(
                 b =>
                 {
                     b.UseEnvironment("Testing");
                     b.ConfigureTestServices(ConfigureServices);
                     ConfigureApp(b);
                 });
+
+            // build the single host inside the cached initializer to serialize parallel first callers.
+            _ = waf.Services;
+
+            return waf;
         }
     }
 

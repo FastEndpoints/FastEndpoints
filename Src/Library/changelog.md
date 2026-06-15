@@ -189,6 +189,12 @@ app.UseJobQueues(o => o.Warmup());
 
 ## Fixes 🪲
 
+<details><summary>'AppFixture' concurrent WebApplicationFactory host build issue</summary>
+
+`AppFixture` now builds the cached `WebApplicationFactory` host while the shared initializer is still serialized. This prevents parallel first-use test fixtures from each triggering their own lazy host build through `CreateClient()`, avoiding races during FastEndpoints startup configuration.
+
+</details>
+
 <details><summary>'ValidationSchemaProcessor' concurrency issue when generating multiple Swagger documents</summary>
 
 The `_childAdaptorValidators` instance field on the singleton `ValidationSchemaProcessor` was a plain non-thread-safe `Dictionary<string, IValidator>`. Concurrent Swagger document generation (e.g. multiple documents being built in parallel at startup) could cause race conditions on that shared dictionary. The field is now a local variable scoped to each `Process` call, eliminating shared mutable state entirely.

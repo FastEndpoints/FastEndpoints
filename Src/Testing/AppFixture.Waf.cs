@@ -199,7 +199,7 @@ public abstract partial class AppFixture<TProgram> : BaseFixture, IAsyncLifetime
             // instances. Without this, each instance's `_wafInstance.CreateClient()` triggers the lazy host build, and
             // those builds are not serialized across parallel first callers — N test classes build the host
             // concurrently, racing on shared System.Text.Json config in MapFastEndpoints.
-            _ = waf.Server;
+            _ = waf.Services;
 
             return waf;
         }

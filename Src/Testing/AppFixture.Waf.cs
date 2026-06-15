@@ -195,10 +195,7 @@ public abstract partial class AppFixture<TProgram> : BaseFixture, IAsyncLifetime
                     ConfigureApp(b);
                 });
 
-            // Build the single host HERE, while still inside the AsyncLazy, so it is serialized across all fixture
-            // instances. Without this, each instance's `_wafInstance.CreateClient()` triggers the lazy host build, and
-            // those builds are not serialized across parallel first callers — N test classes build the host
-            // concurrently, racing on shared System.Text.Json config in MapFastEndpoints.
+            // build the single host inside the cached initializer to serialize parallel first callers.
             _ = waf.Services;
 
             return waf;

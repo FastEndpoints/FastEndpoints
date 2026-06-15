@@ -966,6 +966,46 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
     }
 
     [Fact]
+    public void schema_example_normalization_handles_nested_arrays_without_reparenting()
+    {
+        var schema = new OpenApiSchema
+        {
+            Type = JsonSchemaType.Object,
+            Properties = new Dictionary<string, IOpenApiSchema>
+            {
+                ["items"] = new OpenApiSchema
+                {
+                    Type = JsonSchemaType.Array,
+                    Items = new OpenApiSchema
+                    {
+                        Type = JsonSchemaType.Object,
+                        Properties = new Dictionary<string, IOpenApiSchema>
+                        {
+                            ["id"] = new OpenApiSchema { Type = JsonSchemaType.String },
+                            ["value"] = new OpenApiSchema { Type = JsonSchemaType.Integer }
+                        }
+                    }
+                }
+            }
+        };
+        var example = JsonNode.Parse("""
+                                     {
+                                       "items": [
+                                         {
+                                           "id": "a",
+                                           "value": 1
+                                         }
+                                       ]
+                                     }
+                                     """)!;
+
+        var normalized = NormalizeSchemaExample(example, schema)!;
+
+        normalized["items"]![0]!["id"]!.GetValue<string>().ShouldBe("a");
+        normalized["items"]![0]!["value"]!.GetValue<int>().ShouldBe(1);
+    }
+
+    [Fact]
     public void empty_request_dto_validation_rejects_dtos_without_bindable_properties()
     {
         var ex = Should.Throw<NotSupportedException>(() => ValidateRequestDto(typeof(EmptyOpenApiRequest), false));

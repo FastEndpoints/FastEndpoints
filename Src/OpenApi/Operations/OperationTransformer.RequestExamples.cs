@@ -135,7 +135,11 @@ sealed partial class RequestOperationTransformer
                 fallbackKeys?.TryGetValue(key, out fallbackKey);
                 var fallbackNode = fallbackKey is not null ? fallback![fallbackKey] : null;
 
-                example[key] = NormalizeExampleNode(example[key], propertySchema, fallbackNode);
+                var currentNode = example[key];
+                var normalizedNode = NormalizeExampleNode(currentNode, propertySchema, fallbackNode);
+
+                if (!ReferenceEquals(currentNode, normalizedNode))
+                    example[key] = normalizedNode;
             }
 
             return example;
@@ -151,7 +155,13 @@ sealed partial class RequestOperationTransformer
             var fallbackNode = fallback is { Count: > 0 } ? fallback[0] : null;
 
             for (var i = 0; i < example.Count; i++)
-                example[i] = NormalizeExampleNode(example[i], itemSchema, fallbackNode);
+            {
+                var currentNode = example[i];
+                var normalizedNode = NormalizeExampleNode(currentNode, itemSchema, fallbackNode);
+
+                if (!ReferenceEquals(currentNode, normalizedNode))
+                    example[i] = normalizedNode;
+            }
 
             return example;
         }

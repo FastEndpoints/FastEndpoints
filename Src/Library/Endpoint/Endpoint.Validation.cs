@@ -56,7 +56,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : IValidationErrors<
 
                 foreach (var property in tObject.BindableProps())
                 {
-                    var propertyValue = property.GetValue(obj); // todo: use a cached compiled expression
+                    var propertyValue = tObject.GetterForProp(property)(obj);
 
                     if (propertyValue is null)
                         continue;

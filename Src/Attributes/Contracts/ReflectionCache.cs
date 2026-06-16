@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Reflection;
 using Microsoft.Extensions.Primitives;
 
@@ -42,6 +42,11 @@ public sealed class TypeDefinition
 /// </summary>
 public sealed class PropertyDefinition
 {
+    /// <summary>
+    /// func used for getting the value of a property from a class
+    /// </summary>
+    public Func<object, object?>? Getter { get; set; }
+
     /// <summary>
     /// action used for setting the value of a property on a class
     /// </summary>

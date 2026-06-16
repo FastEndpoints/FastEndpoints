@@ -371,11 +371,18 @@ public static class MainExtensions
         if (!def.ReqDtoType.IsValueType) // native aot cannot instantiate value type generic binders
             _ = sp.GetService(Types.IRequestBinderOf1.MakeGenericType(def.ReqDtoType));
 
+        if (def.ReqDtoType.IsValidatable())
+        {
+            // NOTE: this only pre-compiles getters for the top-level request DTO
+            // nested child objects encountered during recursive validation still get their getters compiled lazily on first use.
+            foreach (var prop in def.ReqDtoType.BindableProps())
+                _ = def.ReqDtoType.GetterForProp(prop);
+        }
+
         _ = def.ExecuteAsyncReturnsIResult;
         _ = def.GetMapper();
         _ = def.GetValidator();
         _ = def.ReqDtoFromBodyPropName;
-        _ = def.ReqDtoType.IsValidatable();
         _ = def.ReqDtoType.ObjectFactory();
         _ = def.ToHeaderProps;
     }

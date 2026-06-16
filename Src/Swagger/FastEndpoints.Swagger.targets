@@ -22,7 +22,7 @@ internal static class SwaggerExportPathInitializer
 }
             </_SwaggerInitFileContent>
         </PropertyGroup>
-        <WriteLinesToFile File="$(_SwaggerInitFile)" Lines="$(_SwaggerInitFileContent)" Overwrite="true"/>
+        <WriteLinesToFile File="$(_SwaggerInitFile)" Lines="$(_SwaggerInitFileContent)" Overwrite="true" WriteOnlyWhenDifferent="true"/>
         <ItemGroup>
             <Compile Include="$(_SwaggerInitFile)"/>
         </ItemGroup>

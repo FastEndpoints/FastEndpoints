@@ -362,7 +362,10 @@
             "in": "query",
             "description": "the name of the cutomer goes here",
             "schema": {
-              "type": "string"
+              "type": [
+                "null",
+                "string"
+              ]
             }
           },
           {
@@ -473,7 +476,10 @@
             "in": "query",
             "description": "the name of the cutomer goes here",
             "schema": {
-              "type": "string"
+              "type": [
+                "null",
+                "string"
+              ]
             }
           },
           {
@@ -566,7 +572,10 @@
             "in": "query",
             "description": "the name of the cutomer goes here",
             "schema": {
-              "type": "string"
+              "type": [
+                "null",
+                "string"
+              ]
             }
           },
           {
@@ -711,7 +720,10 @@
             "in": "query",
             "description": "the name of the cutomer goes here",
             "schema": {
-              "type": "string"
+              "type": [
+                "null",
+                "string"
+              ]
             }
           },
           {
@@ -937,7 +949,10 @@
             "in": "query",
             "description": "the name of the cutomer goes here",
             "schema": {
-              "type": "string"
+              "type": [
+                "null",
+                "string"
+              ]
             }
           },
           {
@@ -1056,7 +1071,10 @@
             "in": "query",
             "description": "the name of the cutomer goes here",
             "schema": {
-              "type": "string"
+              "type": [
+                "null",
+                "string"
+              ]
             }
           },
           {
@@ -2063,7 +2081,10 @@
             "name": "PAYMENT-SIGNATURE",
             "in": "header",
             "schema": {
-              "type": "string"
+              "type": [
+                "null",
+                "string"
+              ]
             }
           }
         ],
@@ -2831,14 +2852,20 @@
             "in": "query",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": [
+                "null",
+                "string"
+              ]
             }
           },
           {
             "name": "filter",
             "in": "query",
             "schema": {
-              "type": "string"
+              "type": [
+                "null",
+                "string"
+              ]
             }
           }
         ],
@@ -3210,7 +3237,10 @@
             "name": "name",
             "in": "query",
             "schema": {
-              "type": "string"
+              "type": [
+                "null",
+                "string"
+              ]
             }
           }
         ],
@@ -4268,7 +4298,10 @@
             "name": "testProp",
             "in": "query",
             "schema": {
-              "type": "string"
+              "type": [
+                "null",
+                "string"
+              ]
             }
           }
         ],
@@ -4299,7 +4332,10 @@
             "in": "header",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": [
+                "null",
+                "string"
+              ]
             }
           }
         ],
@@ -4329,7 +4365,10 @@
             "name": "tenantID",
             "in": "header",
             "schema": {
-              "type": "string"
+              "type": [
+                "null",
+                "string"
+              ]
             }
           }
         ],
@@ -4607,7 +4646,10 @@
             "name": "child.objects[0].int",
             "in": "query",
             "schema": {
-              "type": "integer",
+              "type": [
+                "null",
+                "integer"
+              ],
               "format": "int32"
             }
           },
@@ -4657,7 +4699,10 @@
             "name": "objects[0].int",
             "in": "query",
             "schema": {
-              "type": "integer",
+              "type": [
+                "null",
+                "integer"
+              ],
               "format": "int32"
             }
           },
@@ -4732,7 +4777,10 @@
             "name": "int",
             "in": "query",
             "schema": {
-              "type": "integer",
+              "type": [
+                "null",
+                "integer"
+              ],
               "format": "int32"
             }
           },
@@ -4818,7 +4866,10 @@
             "name": "child.birthDate",
             "in": "query",
             "schema": {
-              "type": "string",
+              "type": [
+                "null",
+                "string"
+              ],
               "format": "date"
             }
           },
@@ -4826,7 +4877,10 @@
             "name": "child.wakeUpTime",
             "in": "query",
             "schema": {
-              "type": "string",
+              "type": [
+                "null",
+                "string"
+              ],
               "format": "time"
             }
           },
@@ -4955,7 +5009,10 @@
             "name": "first",
             "in": "query",
             "schema": {
-              "type": "string"
+              "type": [
+                "null",
+                "string"
+              ]
             }
           },
           {
@@ -4986,7 +5043,10 @@
             "name": "some",
             "in": "query",
             "schema": {
-              "type": "string"
+              "type": [
+                "null",
+                "string"
+              ]
             }
           }
         ],
@@ -5087,7 +5147,10 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "integer",
+              "type": [
+                "null",
+                "integer"
+              ],
               "format": "int32"
             }
           },
@@ -5256,7 +5319,10 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": [
+                "null",
+                "string"
+              ]
             }
           }
         ],
@@ -5843,7 +5909,10 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": [
+                "null",
+                "string"
+              ]
             }
           },
           {
@@ -5867,14 +5936,20 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "boolean"
+              "type": [
+                "null",
+                "boolean"
+              ]
             }
           },
           {
             "name": "hasPermission",
             "in": "query",
             "schema": {
-              "type": "boolean"
+              "type": [
+                "null",
+                "boolean"
+              ]
             }
           },
           {
@@ -5936,7 +6011,10 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": [
+                "null",
+                "string"
+              ]
             }
           },
           {
@@ -5960,14 +6038,20 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "boolean"
+              "type": [
+                "null",
+                "boolean"
+              ]
             }
           },
           {
             "name": "hasPermission",
             "in": "query",
             "schema": {
-              "type": "boolean"
+              "type": [
+                "null",
+                "boolean"
+              ]
             }
           },
           {
@@ -6029,7 +6113,10 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": [
+                "null",
+                "string"
+              ]
             }
           },
           {
@@ -6053,14 +6140,20 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "boolean"
+              "type": [
+                "null",
+                "boolean"
+              ]
             }
           },
           {
             "name": "hasPermission",
             "in": "query",
             "schema": {
-              "type": "boolean"
+              "type": [
+                "null",
+                "boolean"
+              ]
             }
           },
           {
@@ -6122,7 +6215,10 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": [
+                "null",
+                "string"
+              ]
             }
           },
           {
@@ -6146,14 +6242,20 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "boolean"
+              "type": [
+                "null",
+                "boolean"
+              ]
             }
           },
           {
             "name": "hasPermission",
             "in": "query",
             "schema": {
-              "type": "boolean"
+              "type": [
+                "null",
+                "boolean"
+              ]
             }
           },
           {
@@ -6215,7 +6317,10 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "string"
+              "type": [
+                "null",
+                "string"
+              ]
             }
           },
           {
@@ -6239,14 +6344,20 @@
             "in": "path",
             "required": true,
             "schema": {
-              "type": "boolean"
+              "type": [
+                "null",
+                "boolean"
+              ]
             }
           },
           {
             "name": "hasPermission",
             "in": "query",
             "schema": {
-              "type": "boolean"
+              "type": [
+                "null",
+                "boolean"
+              ]
             }
           },
           {

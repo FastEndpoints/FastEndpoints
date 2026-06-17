@@ -33,7 +33,7 @@ static class BinderExtensions
             if (type == Types.EmptyRequest)
                 return _emptyRequestInitializer;
 
-            return Cfg.BndOpts.ReflectionCache.GetOrAdd(type, new TypeDefinition())
+            return Cfg.BndOpts.ReflectionCache.GetOrAdd(type, static _ => new())
                       .ObjectFactory ??= CompileFactory(type);
 
             static Func<object> CompileFactory(Type t)
@@ -69,7 +69,7 @@ static class BinderExtensions
             if (classDef.Properties is null)
                 throw new InvalidOperationException($"Reflection data not found for properties of: [{type.FullName}]");
 
-            return classDef.Properties.GetOrAdd(prop, static _ => new PropertyDefinition())
+            return classDef.Properties.GetOrAdd(prop, static _ => new())
                            .Getter ??= CompileGetter(type, prop);
 
             static Func<object, object?> CompileGetter(Type tParent, PropertyInfo p)
@@ -90,7 +90,7 @@ static class BinderExtensions
             if (classDef.Properties is null)
                 throw new InvalidOperationException($"Reflection data not found for properties of: [{type.FullName}]");
 
-            return classDef.Properties.GetOrAdd(prop, static _ => new PropertyDefinition())
+            return classDef.Properties.GetOrAdd(prop, static _ => new())
                            .Setter ??= CompileSetter(type, prop);
 
             static Action<object, object?> CompileSetter(Type tParent, PropertyInfo p)
@@ -110,7 +110,7 @@ static class BinderExtensions
             //user may have already registered a parser func for a given type via config at startup.
             //or reflection source generator may have already populated the cache.
             //if it's not there, compile the func at runtime.
-            return Cfg.BndOpts.ReflectionCache.GetOrAdd(type.GetUnderlyingType(), new TypeDefinition()).ValueParser
+            return Cfg.BndOpts.ReflectionCache.GetOrAdd(type.GetUnderlyingType(), static _ => new()).ValueParser
                        ??= GetOrCompileParser(type);
 
             static Func<StringValues, ParseResult> GetOrCompileParser(Type type)
@@ -188,7 +188,7 @@ static class BinderExtensions
 
         internal ICollection<PropertyInfo> BindableProps()
         {
-            return (Cfg.BndOpts.ReflectionCache.GetOrAdd(type, new TypeDefinition())
+            return (Cfg.BndOpts.ReflectionCache.GetOrAdd(type, static _ => new())
                        .Properties ??= new(GetProperties(type))).Keys;
 
             static IEnumerable<KeyValuePair<PropertyInfo, PropertyDefinition>> GetProperties(Type t)

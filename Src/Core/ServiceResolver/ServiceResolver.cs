@@ -36,19 +36,21 @@ sealed class ServiceResolver(IServiceProvider provider, IHttpContextAccessor? ct
 
     public object CreateInstance(Type type, IServiceProvider? serviceProvider = null)
     {
-        var factory = _factoryCache.GetOrAdd(type, FactoryInitializer);
-
-        //WARNING: DO NOT DO THIS!!! it results in a perf degradation. no idea why.
-        // var factory = _factoryCache.GetOrAdd(type, ActivatorUtilities.CreateFactory(type, Type.EmptyTypes));
+        var factory = _factoryCache.GetOrAdd(type, ValueFactory);
 
         return factory(serviceProvider ?? ctxAccessor?.HttpContext?.RequestServices ?? provider, null);
 
-        static ObjectFactory FactoryInitializer(Type t)
+        static ObjectFactory ValueFactory(Type t)
             => ActivatorUtilities.CreateFactory(t, Type.EmptyTypes);
     }
 
     public object CreateSingleton(Type type)
-        => _singletonCache.GetOrAdd(type, ActivatorUtilities.GetServiceOrCreateInstance(ctxAccessor?.HttpContext?.RequestServices ?? provider, type));
+    {
+        return _singletonCache.GetOrAdd(type, ValueFactory, (ctxAccessor, provider));
+
+        static object ValueFactory(Type t, (IHttpContextAccessor? ctxAccessor, IServiceProvider provider) args)
+            => ActivatorUtilities.GetServiceOrCreateInstance(args.ctxAccessor?.HttpContext?.RequestServices ?? args.provider, t);
+    }
 
     public IServiceScope CreateScope()
         => isUnitTestMode

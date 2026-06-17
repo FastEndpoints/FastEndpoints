@@ -160,7 +160,7 @@ The generator records the keyed-service key for endpoint property injection, all
 
 <details><summary>Opt-in startup warmup for endpoints, validators, mappers, and event buses</summary>
 
-Call `Warmup()` from `UseFastEndpoints(...)` to eagerly initialize validators, mappers, request binders, and compiled property setter delegates so the first real requests do not pay the cold-start cost.
+Call `Warmup()` from `UseFastEndpoints(...)` to eagerly initialize validators, mappers, request binders, and compiled property setter/getter delegates so the first real requests do not pay the cold-start cost.
 
 Warmup can be scoped to a subset of endpoints with the optional filter argument:
 

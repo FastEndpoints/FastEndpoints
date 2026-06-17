@@ -61,6 +61,27 @@ static class BinderExtensions
             }
         }
 
+        internal Func<object, object?> GetterForProp(PropertyInfo prop)
+        {
+            if (!Cfg.BndOpts.ReflectionCache.TryGetValue(type, out var classDef))
+                throw new InvalidOperationException($"Reflection data not found for: [{type.FullName}]");
+
+            if (classDef.Properties is null)
+                throw new InvalidOperationException($"Reflection data not found for properties of: [{type.FullName}]");
+
+            return classDef.Properties.GetOrAdd(prop, static _ => new PropertyDefinition())
+                           .Getter ??= CompileGetter(type, prop);
+
+            static Func<object, object?> CompileGetter(Type tParent, PropertyInfo p)
+            {
+                //(object parent) => (object?)((TParent)parent).property;
+                var parent = Expression.Parameter(Types.Object);
+                var body = Expression.Convert(Expression.Property(Expression.Convert(parent, tParent), p.Name), Types.Object);
+
+                return Expression.Lambda<Func<object, object?>>(body, parent).Compile();
+            }
+        }
+
         internal Action<object, object?> SetterForProp(PropertyInfo prop)
         {
             if (!Cfg.BndOpts.ReflectionCache.TryGetValue(type, out var classDef))
@@ -69,7 +90,7 @@ static class BinderExtensions
             if (classDef.Properties is null)
                 throw new InvalidOperationException($"Reflection data not found for properties of: [{type.FullName}]");
 
-            return classDef.Properties.GetOrAdd(prop, new PropertyDefinition())
+            return classDef.Properties.GetOrAdd(prop, static _ => new PropertyDefinition())
                            .Setter ??= CompileSetter(type, prop);
 
             static Action<object, object?> CompileSetter(Type tParent, PropertyInfo p)

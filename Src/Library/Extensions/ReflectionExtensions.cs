@@ -91,7 +91,7 @@ static class ReflectionExtensions
 
         internal bool IsValidatable()
         {
-            var typeDef = Cfg.BndOpts.ReflectionCache.GetOrAdd(source, new TypeDefinition());
+            var typeDef = Cfg.BndOpts.ReflectionCache.GetOrAdd(source, static _ => new TypeDefinition());
 
             if (typeDef.IsValidatable is null) // was never initialized
             {

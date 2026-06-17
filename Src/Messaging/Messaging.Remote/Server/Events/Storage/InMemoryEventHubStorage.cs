@@ -18,7 +18,7 @@ public sealed class InMemoryEventHubStorage : IEventHubStorageProvider<InMemoryE
 
         foreach (var r in records)
         {
-            var q = _subscribers.GetOrAdd(GetQueueKey(r.SubscriberID, r.EventType), new InMemEventQueue());
+            var q = _subscribers.GetOrAdd(GetQueueKey(r.SubscriberID, r.EventType), static _ => new InMemEventQueue());
 
             if (!q.IsStale)
                 q.Records.Enqueue(r);
@@ -34,7 +34,7 @@ public sealed class InMemoryEventHubStorage : IEventHubStorageProvider<InMemoryE
 
     public ValueTask<IEnumerable<InMemoryEventStorageRecord>> GetNextBatchAsync(PendingRecordSearchParams<InMemoryEventStorageRecord> p)
     {
-        var q = _subscribers.GetOrAdd(GetQueueKey(p.SubscriberID, p.EventType), new InMemEventQueue());
+        var q = _subscribers.GetOrAdd(GetQueueKey(p.SubscriberID, p.EventType), static _ => new InMemEventQueue());
 
         q.Records.TryDequeue(out var e);
         q.LastDequeAt = DateTime.UtcNow;

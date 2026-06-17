@@ -11,7 +11,7 @@ sealed class InMemoryEventSubscriberStorage : IEventSubscriberStorageProvider<In
 
     public ValueTask StoreEventAsync(InMemoryEventStorageRecord e, CancellationToken _)
     {
-        var q = _subscribers.GetOrAdd(GetQueueKey(e.SubscriberID, e.EventType), QueueInitializer());
+        var q = _subscribers.GetOrAdd(GetQueueKey(e.SubscriberID, e.EventType), QueueInitializer);
 
         if (q.Count >= InMemoryEventQueue.MaxLimit)
             throw new OverflowException("In-memory event receive queue limit reached!");
@@ -23,7 +23,7 @@ sealed class InMemoryEventSubscriberStorage : IEventSubscriberStorageProvider<In
 
     public ValueTask<IEnumerable<InMemoryEventStorageRecord>> GetNextBatchAsync(PendingRecordSearchParams<InMemoryEventStorageRecord> p)
     {
-        var q = _subscribers.GetOrAdd(GetQueueKey(p.SubscriberID, p.EventType), QueueInitializer());
+        var q = _subscribers.GetOrAdd(GetQueueKey(p.SubscriberID, p.EventType), QueueInitializer);
         q.TryDequeue(out var e);
 
         return new(e is null ? [] : [e]);
@@ -35,7 +35,7 @@ sealed class InMemoryEventSubscriberStorage : IEventSubscriberStorageProvider<In
     public ValueTask PurgeStaleRecordsAsync(StaleRecordSearchParams<InMemoryEventStorageRecord> parameters)
         => throw new NotImplementedException();
 
-    static ConcurrentQueue<InMemoryEventStorageRecord> QueueInitializer()
+    static ConcurrentQueue<InMemoryEventStorageRecord> QueueInitializer(string _)
         => new();
 
     static string GetQueueKey(string subscriberId, string eventType)

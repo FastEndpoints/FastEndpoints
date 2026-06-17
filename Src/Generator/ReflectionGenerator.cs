@@ -145,6 +145,8 @@ public class ReflectionGenerator : IIncrementalGenerator
 
                 foreach (var prop in tInfo.Properties)
                 {
+                    var getter = $"Getter = dto => {BuildPropCast(tInfo)}.{prop.PropName}";
+
                     b.w(
                         $"""
 
@@ -152,8 +154,8 @@ public class ReflectionGenerator : IIncrementalGenerator
                          """);
                     b.w(
                         prop.IsInitOnly
-                            ? $" new(){BuildInitServiceKey(prop)}"
-                            : $" new() {{ Setter = (dto, val) => {BuildPropCast(tInfo)}.{prop.PropName} = ({prop.PropertyType})val!{BuildServiceKey(prop)} }}");
+                            ? $" new() {{ {getter}{BuildServiceKey(prop)} }}"
+                            : $" new() {{ {getter}, Setter = (dto, val) => {BuildPropCast(tInfo)}.{prop.PropName} = ({prop.PropertyType})val!{BuildServiceKey(prop)} }}");
                     b.w("),");
                 }
 
@@ -212,9 +214,6 @@ public class ReflectionGenerator : IIncrementalGenerator
 
         static string BuildServiceKey(TypeInfo.Prop p)
             => p.ServiceKey is null ? string.Empty : $", ServiceKey = {SymbolDisplay.FormatLiteral(p.ServiceKey, quote: true)}";
-
-        static string BuildInitServiceKey(TypeInfo.Prop p)
-            => p.ServiceKey is null ? string.Empty : $" {{ ServiceKey = {SymbolDisplay.FormatLiteral(p.ServiceKey, quote: true)} }}";
 
         static string BuildTryParseArgs(bool? isIParsable)
             => isIParsable is true

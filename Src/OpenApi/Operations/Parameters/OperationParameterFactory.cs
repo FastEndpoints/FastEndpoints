@@ -50,6 +50,10 @@ sealed class OperationParameterFactory(DocumentOptions docOpts, SharedContext sh
             OperationSchemaHelpers.ApplyUniqueItems(concreteSchema, propType, prop);
 
         var isNullable = prop is not null && OperationReflectionCache.IsNullable(prop);
+
+        if (isNullable)
+            ApplyNullable(schema);
+
         var hasCtorDefault = prop?.GetParentCtorDefaultValue() is not null;
         var required = isRequired ?? (!hasCtorDefault && !isNullable);
 
@@ -61,6 +65,12 @@ sealed class OperationParameterFactory(DocumentOptions docOpts, SharedContext sh
         var propType = explicitType ?? prop?.PropertyType ?? typeof(string);
 
         return propType.GetOpenApiParameterType();
+    }
+
+    static void ApplyNullable(IOpenApiSchema? schema)
+    {
+        if (schema is OpenApiSchema { Type: { } schemaType } concreteSchema)
+            concreteSchema.Type = schemaType | JsonSchemaType.Null;
     }
 
     void ApplyRequiredExample(OpenApiParameter param, PropertyInfo prop, Type propType)

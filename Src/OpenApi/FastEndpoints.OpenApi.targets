@@ -22,7 +22,7 @@ internal static class OpenApiExportPathInitializer
 }
             </_OpenApiInitFileContent>
         </PropertyGroup>
-        <WriteLinesToFile File="$(_OpenApiInitFile)" Lines="$(_OpenApiInitFileContent)" Overwrite="true"/>
+        <WriteLinesToFile File="$(_OpenApiInitFile)" Lines="$(_OpenApiInitFileContent)" Overwrite="true" WriteOnlyWhenDifferent="true"/>
         <ItemGroup>
             <Compile Include="$(_OpenApiInitFile)"/>
         </ItemGroup>

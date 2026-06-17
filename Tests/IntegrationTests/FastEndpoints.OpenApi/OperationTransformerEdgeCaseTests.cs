@@ -196,6 +196,16 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         requiredSearch["in"]!.Value<string>().ShouldBe("query");
         requiredSearch["required"]!.Value<bool>().ShouldBeTrue();
         optionalFilter["required"].ShouldBeNull();
+
+        var requiredSearchType = requiredSearch["schema"]!["type"]!;
+        requiredSearchType.Type.ShouldBe(JTokenType.Array);
+        requiredSearchType.Values<string>().ShouldContain("string");
+        requiredSearchType.Values<string>().ShouldContain("null");
+
+        var optionalFilterType = optionalFilter["schema"]!["type"]!;
+        optionalFilterType.Type.ShouldBe(JTokenType.Array);
+        optionalFilterType.Values<string>().ShouldContain("string");
+        optionalFilterType.Values<string>().ShouldContain("null");
     }
 
     [Fact]

@@ -10,6 +10,74 @@ namespace Generator;
 public class ReflectionGeneratorTests
 {
     [Fact]
+    public void request_dto_property_emits_getter_delegate()
+    {
+        const string source =
+            """
+            using System.Threading;
+            using System.Threading.Tasks;
+            using FastEndpoints;
+
+            namespace TestApp;
+
+            public class MyRequest
+            {
+                public string Name { get; set; } = string.Empty;
+            }
+
+            public class MyEndpoint : Endpoint<MyRequest, string>
+            {
+                public override void Configure() { }
+
+                public override Task HandleAsync(MyRequest req, CancellationToken ct) => Task.CompletedTask;
+            }
+            """;
+
+        var generated = RunGenerator(source, out var diagnostics, out var outputCompilation);
+
+        diagnostics.ShouldBeEmpty();
+        outputCompilation.GetDiagnostics()
+                         .Where(d => d.Severity == DiagnosticSeverity.Error)
+                         .ShouldBeEmpty();
+        generated.ShouldContain("Getter = dto => ((t0)dto).Name");
+        generated.ShouldContain("Setter = (dto, val) => ((t0)dto).Name = (string)val!");
+    }
+
+    [Fact]
+    public void init_only_request_dto_property_emits_getter_without_setter()
+    {
+        const string source =
+            """
+            using System.Threading;
+            using System.Threading.Tasks;
+            using FastEndpoints;
+
+            namespace TestApp;
+
+            public class MyRequest
+            {
+                public string Name { get; init; } = string.Empty;
+            }
+
+            public class MyEndpoint : Endpoint<MyRequest, string>
+            {
+                public override void Configure() { }
+
+                public override Task HandleAsync(MyRequest req, CancellationToken ct) => Task.CompletedTask;
+            }
+            """;
+
+        var generated = RunGenerator(source, out var diagnostics, out var outputCompilation);
+
+        diagnostics.ShouldBeEmpty();
+        outputCompilation.GetDiagnostics()
+                         .Where(d => d.Severity == DiagnosticSeverity.Error)
+                         .ShouldBeEmpty();
+        generated.ShouldContain("Getter = dto => ((t0)dto).Name");
+        generated.ShouldNotContain("Setter =");
+    }
+
+    [Fact]
     public void endpoint_without_request_keyed_service_property_is_emitted()
     {
         const string source =

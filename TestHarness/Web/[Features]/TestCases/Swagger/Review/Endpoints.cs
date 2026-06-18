@@ -1239,3 +1239,35 @@ sealed class DualChildAddressEndpoint : Endpoint<DualChildAddressRequest>
     public override Task HandleAsync(DualChildAddressRequest r, CancellationToken ct)
         => Send.OkAsync(ct);
 }
+
+sealed class BodylessReviewRequest
+{
+    public string? Name { get; set; }
+    public int? Page { get; set; }
+}
+
+sealed class GetBodylessReviewEndpoint : Endpoint<BodylessReviewRequest>
+{
+    public override void Configure()
+    {
+        Get("/swagger-review/bodyless-query-params");
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(BodylessReviewRequest r, CancellationToken ct)
+        => Send.OkAsync(ct);
+}
+
+sealed class HeadBodylessReviewEndpoint : Endpoint<BodylessReviewRequest>
+{
+    public override void Configure()
+    {
+        Head("/swagger-review/bodyless-query-params");
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(BodylessReviewRequest r, CancellationToken ct)
+        => Send.OkAsync(ct);
+}

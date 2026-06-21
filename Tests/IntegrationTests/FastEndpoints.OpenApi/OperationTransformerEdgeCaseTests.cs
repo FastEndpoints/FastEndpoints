@@ -832,4 +832,32 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
 
         return suffixIndex < 0 ? refId : refId[..suffixIndex];
     }
+
+    [Fact]
+    public async Task get_request_has_no_request_body_and_uses_query_parameters()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var op = JToken.Parse(json)["paths"]!["/api/swagger-review/bodyless-query-params"]!["get"]!;
+
+        op.ShouldNotBeNull();
+        op["requestBody"].ShouldBeNull();
+
+        var parameters = op["parameters"]!.ToArray();
+        parameters.ShouldContain(p => p["name"]!.Value<string>() == "name" && p["in"]!.Value<string>() == "query");
+        parameters.ShouldContain(p => p["name"]!.Value<string>() == "page" && p["in"]!.Value<string>() == "query");
+    }
+
+    [Fact]
+    public async Task head_request_has_no_request_body_and_uses_query_parameters()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var op = JToken.Parse(json)["paths"]!["/api/swagger-review/bodyless-query-params"]!["head"]!;
+
+        op.ShouldNotBeNull();
+        op["requestBody"].ShouldBeNull();
+
+        var parameters = op["parameters"]!.ToArray();
+        parameters.ShouldContain(p => p["name"]!.Value<string>() == "name" && p["in"]!.Value<string>() == "query");
+        parameters.ShouldContain(p => p["name"]!.Value<string>() == "page" && p["in"]!.Value<string>() == "query");
+    }
 }

@@ -52,7 +52,9 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
 
         if (requestDtoType != Types.EmptyRequest)
         {
-            var isGetRequest = context.Description.HttpMethod == "GET";
+            var isBodylessRequest = context.Description.HttpMethod is "GET" or "HEAD";
+            var useQueryParamsForBodylessRequest = context.Description.HttpMethod is "HEAD" ||
+                                                   (context.Description.HttpMethod is "GET" && !docOpts.EnableGetRequestsWithBody);
             var requestDtoIsList = requestDtoType.IsCollection();
             var requestDtoProps = requestDtoIsList
                                       ? null
@@ -63,11 +65,11 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
             if (requestDtoProps is not null)
             {
                 RemoveHiddenProperties(operation, requestDtoProps, state, operationKey);
-                AddBoundParameters(operation, requestDtoProps, routeParameterLookup, isGetRequest, state, operationKey);
+                AddBoundParameters(operation, requestDtoProps, routeParameterLookup, useQueryParamsForBodylessRequest, state, operationKey);
             }
 
-            // remove request body if GET request (unless explicitly enabled) or if empty
-            if ((isGetRequest && !docOpts.EnableGetRequestsWithBody) || operation.IsRequestBodyEmpty(sharedCtx))
+            // remove request body if GET (unless explicitly enabled), HEAD, or empty
+            if (useQueryParamsForBodylessRequest || operation.IsRequestBodyEmpty(sharedCtx))
             {
                 if (!requestDtoIsList)
                     operation.RequestBody = null;
@@ -286,7 +288,7 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
     void AddBoundParameters(OpenApiOperation operation,
                             List<PropertyInfo> requestDtoProps,
                             Dictionary<string, RouteParameterInfo> routeParameters,
-                            bool isGetRequest,
+                            bool useQueryParamsForBodylessRequest,
                             RequestTransformState state,
                             string operationKey)
     {
@@ -300,7 +302,7 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
 
             var queryParamName = _parameterNameResolver.GetQueryName(p);
 
-            if (ShouldAddQueryParam(p, metadata, operation, queryParamName, isGetRequest && !docOpts.EnableGetRequestsWithBody))
+            if (ShouldAddQueryParam(p, metadata, operation, queryParamName, useQueryParamsForBodylessRequest))
             {
                 operation.RemovePropFromRequestBody(p, sharedCtx, operationKey, docOpts, NamingPolicy, state.PropsRemovedFromBody);
 
@@ -390,7 +392,7 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
                                     PropertyMetadata metadata,
                                     OpenApiOperation operation,
                                     string queryParamName,
-                                    bool isGetRequest)
+                                    bool isBodylessRequest)
     {
         if (metadata.FromHeader is not null || metadata.FromCookie is not null)
             return false;
@@ -407,6 +409,6 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
         if (operation.Parameters?.Any(p => string.Equals(p.Name, queryParamName, StringComparison.OrdinalIgnoreCase)) == true)
             return false;
 
-        return isGetRequest || prop.IsDefined(Types.QueryParamAttribute);
+        return isBodylessRequest || prop.IsDefined(Types.QueryParamAttribute);
     }
 }

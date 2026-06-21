@@ -156,7 +156,9 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
 
         state.RequestDtoType = state.ApiDescription.ParameterDescriptions.FirstOrDefault()?.Type;
         state.RequestDtoIsList = state.RequestDtoType?.GetInterfaces().Contains(Types.IEnumerable) is true;
-        state.IsGetRequest = state.ApiDescription.HttpMethod == "GET";
+        state.IsBodylessRequest = state.ApiDescription.HttpMethod is "GET" or "HEAD";
+        state.UseQueryParamsForBodylessRequest = state.ApiDescription.HttpMethod is "HEAD" ||
+                                                 (state.ApiDescription.HttpMethod is "GET" && !docOpts.EnableGetRequestsWithBody);
         state.RequestDtoProps =
             state.RequestDtoIsList
                 ? null
@@ -266,8 +268,8 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
                                    p => ShouldAddQueryParam(
                                        p,
                                        requestParams,
-                                       state.IsGetRequest && !docOpts.EnableGetRequestsWithBody,
-                                       docOpts)) //user wants body in GET requests
+                                       state.UseQueryParamsForBodylessRequest,
+                                       docOpts))
                                .Select(
                                    p =>
                                    {
@@ -395,21 +397,17 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
 
     void FinalizeRequestBody(ProcessingState state)
     {
-        //remove request body if this is a GET request (swagger ui/fetch client doesn't support GET with body).
-        //note: user can decide to allow GET requests with body via EnableGetRequestsWithBody setting.
-        //or if there are no properties left on the request dto after above operations.
-        //only if the request dto is not a list.
-        if ((state.IsGetRequest && !docOpts.EnableGetRequestsWithBody) || state.RequestContent?.HasNoProperties() is true)
+        //only applies when the request dto is not a list.
+        //remove request body for GET (unless explicitly enabled), HEAD, or when no properties remain.
+        if (!state.RequestDtoIsList &&
+            (state.UseQueryParamsForBodylessRequest || state.RequestContent?.HasNoProperties() is true))
         {
-            if (!state.RequestDtoIsList)
-            {
-                state.Operation.RequestBody = null;
+            state.Operation.RequestBody = null;
 
-                for (var i = state.Operation.Parameters.Count - 1; i >= 0; i--)
-                {
-                    if (state.Operation.Parameters[i].Kind == OpenApiParameterKind.Body)
-                        state.Operation.Parameters.RemoveAt(i);
-                }
+            for (var i = state.Operation.Parameters.Count - 1; i >= 0; i--)
+            {
+                if (state.Operation.Parameters[i].Kind == OpenApiParameterKind.Body)
+                    state.Operation.Parameters.RemoveAt(i);
             }
         }
 
@@ -443,7 +441,7 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
                    : null;
     }
 
-    static bool ShouldAddQueryParam(PropertyInfo prop, List<OpenApiParameter> reqParams, bool isGetRequest, DocumentOptions docOpts)
+    static bool ShouldAddQueryParam(PropertyInfo prop, List<OpenApiParameter> reqParams, bool isBodylessRequest, DocumentOptions docOpts)
     {
         var paramName = prop.Name.ApplyPropNamingPolicy(docOpts);
 
@@ -466,8 +464,8 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
 
         return
 
-            //it's a GET request and request params already has it. so don't add
-            (isGetRequest && !reqParams.Any(rp => rp.Name.Equals(paramName, StringComparison.OrdinalIgnoreCase))) ||
+            //it's a GET or HEAD request and request params already has it. so don't add
+            (isBodylessRequest && !reqParams.Any(rp => rp.Name.Equals(paramName, StringComparison.OrdinalIgnoreCase))) ||
 
             //this prop is marked with [QueryParam], so add. applies to all verbs.
             prop.IsDefined(Types.QueryParamAttribute);
@@ -1047,7 +1045,8 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
 
         public Type? RequestDtoType { get; set; }
         public bool RequestDtoIsList { get; set; }
-        public bool IsGetRequest { get; set; }
+        public bool IsBodylessRequest { get; set; }
+        public bool UseQueryParamsForBodylessRequest { get; set; }
         public List<PropertyInfo>? RequestDtoProps { get; set; }
         public Dictionary<string, ParamDescription> RequestParamDescriptions { get; set; } = new(StringComparer.OrdinalIgnoreCase);
         public ParamCreationContext ParamCtx { get; set; }

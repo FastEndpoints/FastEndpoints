@@ -157,6 +157,8 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
         state.RequestDtoType = state.ApiDescription.ParameterDescriptions.FirstOrDefault()?.Type;
         state.RequestDtoIsList = state.RequestDtoType?.GetInterfaces().Contains(Types.IEnumerable) is true;
         state.IsBodylessRequest = state.ApiDescription.HttpMethod is "GET" or "HEAD";
+        state.UseQueryParamsForBodylessRequest = state.ApiDescription.HttpMethod is "HEAD" ||
+                                                 (state.ApiDescription.HttpMethod is "GET" && !docOpts.EnableGetRequestsWithBody);
         state.RequestDtoProps =
             state.RequestDtoIsList
                 ? null
@@ -266,8 +268,8 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
                                    p => ShouldAddQueryParam(
                                        p,
                                        requestParams,
-                                       state.IsBodylessRequest && !docOpts.EnableGetRequestsWithBody,
-                                       docOpts)) //user wants body in GET or HEAD requests
+                                       state.UseQueryParamsForBodylessRequest,
+                                       docOpts))
                                .Select(
                                    p =>
                                    {
@@ -396,9 +398,9 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
     void FinalizeRequestBody(ProcessingState state)
     {
         //only applies when the request dto is not a list.
-        //remove request body for GET or HEAD methods unless explicitly enabled, or when no properties remain.
+        //remove request body for GET (unless explicitly enabled), HEAD, or when no properties remain.
         if (!state.RequestDtoIsList &&
-            ((state.IsBodylessRequest && !docOpts.EnableGetRequestsWithBody) || state.RequestContent?.HasNoProperties() is true))
+            (state.UseQueryParamsForBodylessRequest || state.RequestContent?.HasNoProperties() is true))
         {
             state.Operation.RequestBody = null;
 
@@ -1044,6 +1046,7 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
         public Type? RequestDtoType { get; set; }
         public bool RequestDtoIsList { get; set; }
         public bool IsBodylessRequest { get; set; }
+        public bool UseQueryParamsForBodylessRequest { get; set; }
         public List<PropertyInfo>? RequestDtoProps { get; set; }
         public Dictionary<string, ParamDescription> RequestParamDescriptions { get; set; } = new(StringComparer.OrdinalIgnoreCase);
         public ParamCreationContext ParamCtx { get; set; }

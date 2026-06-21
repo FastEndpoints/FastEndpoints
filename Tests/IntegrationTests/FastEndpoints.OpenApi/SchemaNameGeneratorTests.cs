@@ -42,13 +42,14 @@ public class SchemaNameGeneratorTests
     }
 
     [Fact]
-    public void short_schema_names_keep_short_generic_argument_names()
+    public void short_schema_name_collisions_get_suffixes()
     {
-        var userFromApiA = SchemaNameGenerator.GetReferenceId(typeof(ApiA.Page<ApiA.User>), shortSchemaNames: true);
-        var userFromApiB = SchemaNameGenerator.GetReferenceId(typeof(ApiA.Page<ApiB.User>), shortSchemaNames: true);
+        var registry = new SchemaNameRegistry();
+        var userFromApiA = SchemaNameGenerator.GetReferenceId(typeof(ApiA.Page<ApiA.User>), shortSchemaNames: true, registry);
+        var userFromApiB = SchemaNameGenerator.GetReferenceId(typeof(ApiA.Page<ApiB.User>), shortSchemaNames: true, registry);
 
         userFromApiA.ShouldBe("ApiA_PageOfUser");
-        userFromApiB.ShouldBe("ApiA_PageOfUser");
+        userFromApiB.ShouldBe("ApiA_PageOfUser2");
     }
 
     [Fact]

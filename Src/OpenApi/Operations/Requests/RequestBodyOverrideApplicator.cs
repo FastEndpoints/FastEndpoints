@@ -40,7 +40,7 @@ sealed class RequestBodyOverrideApplicator(DocumentOptions docOpts, SharedContex
             }
         }
 
-        if (promoted && SchemaNameGenerator.GetReferenceId(requestDtoType, docOpts.ShortSchemaNames) is { } refId)
+        if (promoted && SchemaNameGenerator.GetReferenceId(requestDtoType, docOpts.ShortSchemaNames, sharedCtx.SchemaNames) is { } refId)
             sharedCtx.PromotedRequestWrapperSchemaRefs.TryAdd(refId, 0);
 
         if (promoted && fromFormProp is not null)

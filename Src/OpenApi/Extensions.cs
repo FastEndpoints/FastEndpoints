@@ -49,7 +49,7 @@ public static class Extensions
             apiOptions =>
             {
                 // schema naming
-                apiOptions.CreateSchemaReferenceId = SchemaNameGenerator.Create(opts.ShortSchemaNames);
+                apiOptions.CreateSchemaReferenceId = SchemaNameGenerator.Create(opts.ShortSchemaNames, sharedCtx.SchemaNames);
 
                 // add transformers
                 apiOptions.AddOperationTransformer(new OperationTransformer(opts, sharedCtx));

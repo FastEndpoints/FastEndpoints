@@ -5,61 +5,66 @@ namespace FastEndpoints.OpenApi;
 
 static partial class OperationSchemaHelpers
 {
+    static readonly SchemaNameRegistry _defaultSchemaNameRegistry = new();
+
     extension(Type type)
     {
         internal IOpenApiSchema GetSchemaForType(bool shortSchemaNames = false)
-        {
-            var actualType = Nullable.GetUnderlyingType(type) ?? type;
-
-            if (actualType == typeof(byte[]))
-                return ByteArraySchema();
-
-            if (TryGetDictionaryValueType(actualType) is { } dictionaryValueType)
-            {
-                return new OpenApiSchema
-                {
-                    Type = JsonSchemaType.Object,
-                    AdditionalProperties = dictionaryValueType.GetSchemaForType(shortSchemaNames)
-                };
-            }
-
-            if (actualType != typeof(string))
-            {
-                var elementType = TryGetCollectionElementType(actualType);
-
-                if (elementType is not null)
-                {
-                    var schema = new OpenApiSchema
-                    {
-                        Type = JsonSchemaType.Array,
-                        Items = elementType.GetSchemaForType(shortSchemaNames)
-                    };
-
-                    ApplyUniqueItems(schema, actualType);
-
-                    return schema;
-                }
-            }
-
-            if (TryCreatePrimitiveSchema(actualType) is { } primitiveSchema)
-                return primitiveSchema;
-
-            var refId = SchemaNameGenerator.GetReferenceId(actualType, shortSchemaNames);
-
-            if (refId is not null)
-                return new OpenApiSchemaReference(refId);
-
-            return StringSchema();
-        }
+            => GetSchemaForTypeCore(type, _defaultSchemaNameRegistry, shortSchemaNames);
 
         internal IOpenApiSchema GetSchemaForType(SharedContext sharedCtx, bool shortSchemaNames = false)
         {
-            var schema = type.GetSchemaForType(shortSchemaNames);
+            var schema = GetSchemaForTypeCore(type, sharedCtx.SchemaNames, shortSchemaNames);
 
             RegisterMissingSchemaTypes(type, schema, sharedCtx);
 
             return schema;
         }
+    }
+
+    static IOpenApiSchema GetSchemaForTypeCore(Type type, SchemaNameRegistry schemaNames, bool shortSchemaNames)
+    {
+        var actualType = Nullable.GetUnderlyingType(type) ?? type;
+
+        if (actualType == typeof(byte[]))
+            return ByteArraySchema();
+
+        if (TryGetDictionaryValueType(actualType) is { } dictionaryValueType)
+        {
+            return new OpenApiSchema
+            {
+                Type = JsonSchemaType.Object,
+                AdditionalProperties = GetSchemaForTypeCore(dictionaryValueType, schemaNames, shortSchemaNames)
+            };
+        }
+
+        if (actualType != typeof(string))
+        {
+            var elementType = TryGetCollectionElementType(actualType);
+
+            if (elementType is not null)
+            {
+                var schema = new OpenApiSchema
+                {
+                    Type = JsonSchemaType.Array,
+                    Items = GetSchemaForTypeCore(elementType, schemaNames, shortSchemaNames)
+                };
+
+                ApplyUniqueItems(schema, actualType);
+
+                return schema;
+            }
+        }
+
+        if (TryCreatePrimitiveSchema(actualType) is { } primitiveSchema)
+            return primitiveSchema;
+
+        var refId = SchemaNameGenerator.GetReferenceId(actualType, shortSchemaNames, schemaNames);
+
+        if (refId is not null)
+            return new OpenApiSchemaReference(refId);
+
+        return StringSchema();
     }
 
     static void RegisterMissingSchemaTypes(Type type, IOpenApiSchema schema, SharedContext sharedCtx)

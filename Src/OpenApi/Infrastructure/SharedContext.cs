@@ -19,6 +19,8 @@ internal class SharedContext
     internal JsonNamingPolicy? ResolveNamingPolicy()
         => NamingPolicy ??= ResolveSerializerOptions().PropertyNamingPolicy;
 
+    internal SchemaNameRegistry SchemaNames { get; } = new();
+
     /// <summary>
     /// key: "METHOD:/path", value: metadata about the operation
     /// </summary>

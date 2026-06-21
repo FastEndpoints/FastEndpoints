@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using System.Text;
 using System.Text.Json.Serialization.Metadata;
 
@@ -28,19 +27,22 @@ static class SchemaNameGenerator
         typeof(Guid)
     ];
 
-    static readonly ConcurrentDictionary<SchemaReferenceIdKey, string> _referenceIdCache = new();
+    static readonly SchemaNameRegistry _defaultRegistry = new();
 
-    internal static Func<JsonTypeInfo, string?> Create(bool shortSchemaNames)
-        => typeInfo => GetReferenceId(typeInfo.Type, shortSchemaNames);
+    internal static Func<JsonTypeInfo, string?> Create(bool shortSchemaNames, SchemaNameRegistry registry)
+        => typeInfo => GetReferenceId(typeInfo.Type, shortSchemaNames, registry);
 
     internal static string? GetReferenceId(Type type, bool shortSchemaNames)
+        => GetReferenceId(type, shortSchemaNames, _defaultRegistry);
+
+    internal static string? GetReferenceId(Type type, bool shortSchemaNames, SchemaNameRegistry registry)
     {
         if (type.GetUnderlyingType() is { IsEnum: true } enumType)
             type = enumType;
 
         return ShouldInlineType(type)
                    ? null
-                   : _referenceIdCache.GetOrAdd(new(type, shortSchemaNames), static key => Generate(key.Type, key.ShortSchemaNames));
+                   : registry.GetOrAdd(type, shortSchemaNames);
     }
 
     static bool ShouldInlineType(Type type)
@@ -65,7 +67,7 @@ static class SchemaNameGenerator
         => type.FullName is "Microsoft.AspNetCore.Http.IFormFile" or "Microsoft.AspNetCore.Http.IFormFileCollection" ||
            (type.IsGenericType && type.GetGenericArguments().Any(static arg => arg.FullName == "Microsoft.AspNetCore.Http.IFormFile"));
 
-    static string Generate(Type type, bool shortNames)
+    internal static string Generate(Type type, bool shortNames)
     {
         if (type.IsArray)
             return TypeNameWithoutGenericArgs(type.GetElementType()!, shortNames) + "Array";
@@ -149,6 +151,61 @@ static class SchemaNameGenerator
 
         return sb.ToString();
     }
+}
+
+sealed class SchemaNameRegistry
+{
+    readonly Lock _lock = new();
+    readonly Dictionary<SchemaReferenceIdKey, string> _referenceIds = [];
+    readonly Dictionary<SchemaReferenceNameKey, Type> _schemaNameOwners = [];
+
+    internal string GetOrAdd(Type type, bool shortSchemaNames)
+    {
+        var cacheKey = new SchemaReferenceIdKey(type, shortSchemaNames);
+
+        lock (_lock)
+        {
+            if (_referenceIds.TryGetValue(cacheKey, out var existingRefId))
+                return existingRefId;
+
+            var refId = CreateAvailableReferenceId(type, shortSchemaNames);
+            _referenceIds[cacheKey] = refId;
+
+            return refId;
+        }
+    }
+
+    string CreateAvailableReferenceId(Type type, bool shortSchemaNames)
+    {
+        var baseRefId = SchemaNameGenerator.Generate(type, shortSchemaNames);
+
+        if (TryClaim(baseRefId, type, shortSchemaNames))
+            return baseRefId;
+
+        for (var suffix = 2;; suffix++)
+        {
+            var candidate = baseRefId + suffix;
+
+            if (TryClaim(candidate, type, shortSchemaNames))
+                return candidate;
+        }
+    }
+
+    bool TryClaim(string refId, Type type, bool shortSchemaNames)
+    {
+        var key = new SchemaReferenceNameKey(refId, shortSchemaNames);
+
+        if (_schemaNameOwners.TryGetValue(key, out var owner))
+            return owner == type;
+
+        _schemaNameOwners[key] = type;
+
+        return true;
+    }
+
+    // ReSharper disable  NotAccessedPositionalProperty.Local
 
     readonly record struct SchemaReferenceIdKey(Type Type, bool ShortSchemaNames);
+
+    readonly record struct SchemaReferenceNameKey(string ReferenceId, bool ShortSchemaNames);
 }

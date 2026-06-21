@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
@@ -39,6 +40,7 @@ static partial class OperationSchemaHelpers
         }
     }
 
+    [UnconditionalSuppressMessage("aot", "IL2026"), UnconditionalSuppressMessage("aot", "IL3050")]
     static JsonNode? TrySerializeToNode(object value, Type? valueType = null, JsonSerializerOptions? serializerOptions = null)
     {
         try

@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -88,6 +89,7 @@ static partial class OperationSchemaHelpers
         return _collectionElementTypeCache.GetOrAdd(type, static t => new(ResolveCollectionElementType(t))).Type;
     }
 
+    [UnconditionalSuppressMessage("aot", "IL2070")]
     static Type? ResolveCollectionElementType(Type type)
     {
         type = type.GetUnderlyingType();
@@ -189,6 +191,7 @@ static partial class OperationSchemaHelpers
         return IsSetLikeCollectionType(type) && !elementType.GetUnderlyingType().IsComplexType();
     }
 
+    [UnconditionalSuppressMessage("aot", "IL2070")]
     static bool IsSetLikeCollectionType(Type type)
     {
         if (MatchesSetLikeType(type))

@@ -6,8 +6,6 @@ using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 
-//#pragma warning disable , , , ,
-
 namespace FastEndpoints;
 
 //WARNING: request binders are singletons. do not maintain instance state!
@@ -64,7 +62,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                 if (!matcher(prop))
                     continue;
 
-                Cfg.BndOpts.ReflectionCache.GetOrAdd(prop.PropertyType, static _ => new TypeDefinition()).ValueParser =
+                Cfg.BndOpts.ReflectionCache.GetOrAdd(prop.PropertyType, static _ => new()).ValueParser =
                     input => parser(input, prop.PropertyType);
 
                 break;

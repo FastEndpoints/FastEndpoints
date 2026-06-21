@@ -22,7 +22,7 @@ namespace FastEndpoints;
 /// <summary>
 /// provides extensions to easily bootstrap fastendpoints in the asp.net middleware pipeline
 /// </summary>
-[UnconditionalSuppressMessage("aot", "IL2026"), UnconditionalSuppressMessage("aot", "IL3050")]
+[UnconditionalSuppressMessage("aot", "IL2026"), UnconditionalSuppressMessage("aot", "IL3050"), UnconditionalSuppressMessage("aot", "IL2055")]
 public static class MainExtensions
 {
     /// <summary>

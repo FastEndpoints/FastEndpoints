@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace FastEndpoints.OpenApi;
@@ -10,6 +11,7 @@ sealed class HiddenPropertySchemaTransformer(DocumentOptions docOpts, SharedCont
     protected override IReadOnlyList<PropertyInfo> GetPropertiesToRemove(Type type)
         => _hiddenPropertiesCache.GetOrAdd(type, GetHiddenProperties);
 
+    [UnconditionalSuppressMessage("aot", "IL2070")]
     static PropertyInfo[] GetHiddenProperties(Type type)
         => type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
                .Where(static prop => prop.IsDefined(Types.HideFromDocsAttribute))

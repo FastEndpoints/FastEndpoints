@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace FastEndpoints.OpenApi;
@@ -20,6 +21,7 @@ static class ConstructorDefaultExtensions
         return constructorDefaults.GetValueOrDefault(property.Name);
     }
 
+    [UnconditionalSuppressMessage("aot", "IL2070")]
     static IReadOnlyDictionary<string, object?> CreateConstructorDefaultMap(Type type)
     {
         var parameters = type.GetConstructors()

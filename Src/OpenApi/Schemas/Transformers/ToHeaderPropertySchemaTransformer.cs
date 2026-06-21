@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace FastEndpoints.OpenApi;
@@ -15,6 +16,7 @@ sealed class ToHeaderPropertySchemaTransformer(DocumentOptions docOpts, SharedCo
     protected override IReadOnlyList<PropertyInfo> GetPropertiesToRemove(Type type)
         => _toHeaderPropertiesCache.GetOrAdd(type, GetToHeaderProperties);
 
+    [UnconditionalSuppressMessage("aot", "IL2070")]
     static PropertyInfo[] GetToHeaderProperties(Type type)
         => type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
                .Where(static prop => prop.IsDefined(typeof(ToHeaderAttribute), true))

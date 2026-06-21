@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
@@ -11,6 +12,7 @@ static class PropertyNameResolver
     static readonly ConcurrentDictionary<PropertyLookupKey, PropertyLookupResult> _propertyLookupCache = new();
 
     readonly record struct PropertyLookupKey(Type Type, string MemberName);
+
     readonly record struct PropertyLookupResult(PropertyInfo? Property);
 
     internal static string GetSchemaPropertyName(PropertyInfo property, JsonNamingPolicy? namingPolicy = null, bool usePropertyNamingPolicy = true)
@@ -76,6 +78,7 @@ static class PropertyNameResolver
                                    .Property;
     }
 
+    [UnconditionalSuppressMessage("aot", "IL2070"), UnconditionalSuppressMessage("aot", "IL2075")]
     static PropertyInfo? ResolvePropertyCore(Type currentType, string memberName)
     {
         var property = currentType.GetProperty(memberName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);

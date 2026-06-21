@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text.Json.Nodes;
 using Microsoft.OpenApi;
@@ -198,6 +199,7 @@ static partial class OperationSchemaHelpers
         return clone;
     }
 
+    [UnconditionalSuppressMessage("aot", "IL2070")]
     static PropertyInfo[] GetCloneableProperties(Type type)
         => _cloneablePropertiesCache.GetOrAdd(
             type,
@@ -301,7 +303,6 @@ static partial class OperationSchemaHelpers
 
         return type.IsValueType || value is string or Type or Uri;
     }
-
 }
 
 readonly record struct OperationSchemaMutationContext(SharedContext SharedContext, string OperationKey);

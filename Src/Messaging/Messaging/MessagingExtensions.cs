@@ -9,7 +9,7 @@ namespace FastEndpoints;
 /// <summary>
 /// extension methods for registering messaging services
 /// </summary>
-[UnconditionalSuppressMessage("aot", "IL2075")]
+[UnconditionalSuppressMessage("aot", "IL2075"), UnconditionalSuppressMessage("aot", "IL3050")]
 public static class MessagingExtensions
 {
     /// <param name="services"></param>

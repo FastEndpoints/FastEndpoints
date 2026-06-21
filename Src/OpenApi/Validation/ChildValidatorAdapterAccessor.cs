@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -16,6 +17,7 @@ sealed class ChildValidatorAdapterAccessor
     public static ChildValidatorAdapterAccessor Get(Type adapterType)
         => _cache.GetOrAdd(adapterType, Create);
 
+    [UnconditionalSuppressMessage("aot", "IL2070"), UnconditionalSuppressMessage("aot", "IL2075")]
     static ChildValidatorAdapterAccessor Create(Type adapterType)
     {
         var getValidatorMethod = adapterType.GetMethod("GetValidator", PublicInstance);

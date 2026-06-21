@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text.Json.Serialization;
 
@@ -56,6 +57,7 @@ static class OperationReflectionCache
     internal static bool IsNullable(PropertyInfo prop)
         => _nullablePropertyCache.GetOrAdd(prop, static property => new NullabilityInfoContext().Create(property).WriteState is NullabilityState.Nullable);
 
+    [UnconditionalSuppressMessage("aot", "IL2070")]
     static TypeMetadata CreateTypeMetadata(Type type)
     {
         var properties = type.GetProperties(PublicInstanceHierarchy);

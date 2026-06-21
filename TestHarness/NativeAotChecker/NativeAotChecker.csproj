@@ -5,6 +5,7 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <NoDefaultLaunchSettingsFile>true</NoDefaultLaunchSettingsFile>
+        <EnableRequestDelegateGenerator>true</EnableRequestDelegateGenerator>
         <InvariantGlobalization>true</InvariantGlobalization>
         <PublishAot>true</PublishAot>
         <IsPackable>false</IsPackable>

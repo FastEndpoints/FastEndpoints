@@ -1,9 +1,11 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 
 namespace FastEndpoints.OpenApi.ValidationProcessor.Extensions;
 
 static class ReflectionExtension
 {
+    [UnconditionalSuppressMessage("aot", "IL2070"), UnconditionalSuppressMessage("aot", "IL2075")]
     internal static bool IsSubClassOfGeneric(this Type? child, Type parent)
     {
         if (child == parent)

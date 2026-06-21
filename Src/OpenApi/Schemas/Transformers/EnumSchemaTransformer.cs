@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.OpenApi;
@@ -10,6 +11,7 @@ namespace FastEndpoints.OpenApi;
 /// </summary>
 sealed class EnumSchemaTransformer(SharedContext sharedCtx) : IOpenApiSchemaTransformer
 {
+    [UnconditionalSuppressMessage("aot", "IL2026"), UnconditionalSuppressMessage("aot", "IL3050")]
     public Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context, CancellationToken ct)
     {
         var type = context.JsonTypeInfo.Type.GetUnderlyingType();

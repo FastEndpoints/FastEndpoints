@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -12,6 +13,7 @@ static partial class OperationSchemaHelpers
 
     extension(Type type)
     {
+        [UnconditionalSuppressMessage("aot", "IL3050")]
         internal object? GetSampleValue(string? propertyName = null)
         {
             var underlying = Nullable.GetUnderlyingType(type) ?? type;
@@ -112,6 +114,7 @@ static partial class OperationSchemaHelpers
         }
     }
 
+    [UnconditionalSuppressMessage("aot", "IL2070")]
     static PropertyInfo[] GetSampleJsonProperties(Type type)
     {
         type = Nullable.GetUnderlyingType(type) ?? type;

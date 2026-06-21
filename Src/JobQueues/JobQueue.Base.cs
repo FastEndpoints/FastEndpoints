@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace FastEndpoints;
 
-[UnconditionalSuppressMessage("aot", "IL2090")]
+[UnconditionalSuppressMessage("aot", "IL2090"), UnconditionalSuppressMessage("aot", "IL2070")]
 abstract class JobQueueBase
 {
     //key: tCommand

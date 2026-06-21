@@ -168,6 +168,7 @@ sealed class ChildValidatorResolver(IServiceResolver serviceResolver,
         }
     }
 
+    [UnconditionalSuppressMessage("aot", "IL2075")]
     bool TryCreateChildValidator(IPropertyValidator propertyValidator,
                                  HashSet<Type> activeChildValidators,
                                  [NotNullWhen(true)] out Type? validatorType,

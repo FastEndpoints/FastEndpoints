@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.OpenApi;
 
 namespace FastEndpoints.OpenApi;
@@ -120,6 +121,7 @@ static partial class OperationSchemaHelpers
         return _dictionaryValueTypeCache.GetOrAdd(type.GetUnderlyingType(), static t => new(ResolveDictionaryValueType(t))).Type;
     }
 
+    [UnconditionalSuppressMessage("aot", "IL2070")]
     static Type? ResolveDictionaryValueType(Type type)
     {
         type = type.GetUnderlyingType();

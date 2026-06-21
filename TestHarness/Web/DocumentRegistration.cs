@@ -7,6 +7,7 @@ static class DocumentRegistration
         Func<EndpointDefinition, bool> excludeReleaseVersioning = ep => ep.EndpointTags?.Contains("release_versioning") is not true;
         Func<EndpointDefinition, bool> includeReleaseVersioning = ep => ep.EndpointTags?.Contains("release_versioning") is true;
         Func<EndpointDefinition, bool> includeSwaggerReview = ep => ep.EndpointTags?.Contains("swagger_review") is true;
+        Func<EndpointDefinition, bool> includeNullableOneOfRepro = ep => ep.EndpointTags?.Contains("nullable_oneOf_repro") is true;
 
         FastEndpoints.OpenApi.Extensions.OpenApiDocument(
             services,
@@ -126,6 +127,16 @@ static class DocumentRegistration
                 o.EndpointFilter = includeSwaggerReview;
                 o.Title = "Web API";
                 o.DocumentName = "Swagger Review Empty Schema";
+                o.TagStripSymbols = true;
+            });
+        FastEndpoints.OpenApi.Extensions.OpenApiDocument(
+            services,
+            o =>
+            {
+                o.ExcludeNonFastEndpoints = true;
+                o.EndpointFilter = includeNullableOneOfRepro;
+                o.Title = "Web API";
+                o.DocumentName = "Nullable OneOf Repro";
                 o.TagStripSymbols = true;
             });
 

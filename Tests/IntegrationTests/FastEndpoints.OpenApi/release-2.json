@@ -3103,6 +3103,26 @@
         }
       }
     },
+    "/api/swagger-review/nullable-ref-property": {
+      "get": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "nullable_oneOf_repro_TestCasesSwaggerReviewNullableRefPropertyEndpoint",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesSwaggerReviewNullableRefPropertyResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/swagger-review/promoted-body-validation/{id}": {
       "post": {
         "tags": [
@@ -7705,10 +7725,11 @@
         "type": "object",
         "properties": {
           "customers": {
+            "type": [
+              "null",
+              "array"
+            ],
             "oneOf": [
-              {
-                "type": "null"
-              },
               {
                 "$ref": "#/components/schemas/SystemCollectionsGenericIEnumerableOfSystemCollectionsGenericKeyValuePairOfSystemStringAndSystemInt32"
               }
@@ -8439,10 +8460,11 @@
             "type": "string"
           },
           "product": {
+            "type": [
+              "null",
+              "object"
+            ],
             "oneOf": [
-              {
-                "type": "null"
-              },
               {
                 "$ref": "#/components/schemas/TestCasesCustomRequestBinderProduct"
               }
@@ -8460,10 +8482,11 @@
             "type": "string"
           },
           "product": {
+            "type": [
+              "null",
+              "object"
+            ],
             "oneOf": [
-              {
-                "type": "null"
-              },
               {
                 "$ref": "#/components/schemas/TestCasesCustomRequestBinderProduct"
               }
@@ -9078,10 +9101,11 @@
             ]
           },
           "child": {
+            "type": [
+              "null",
+              "object"
+            ],
             "oneOf": [
-              {
-                "type": "null"
-              },
               {
                 "$ref": "#/components/schemas/TestCasesNestedFromFormBindingTestCircularFormData"
               }
@@ -9351,20 +9375,22 @@
             "format": "int32"
           },
           "birthDate": {
+            "type": [
+              "null",
+              "string"
+            ],
             "oneOf": [
-              {
-                "type": "null"
-              },
               {
                 "$ref": "#/components/schemas/SystemNullableOfSystemDateOnly"
               }
             ]
           },
           "wakeUpTime": {
+            "type": [
+              "null",
+              "string"
+            ],
             "oneOf": [
-              {
-                "type": "null"
-              },
               {
                 "$ref": "#/components/schemas/SystemNullableOfSystemTimeOnly"
               }
@@ -9720,10 +9746,11 @@
             "format": "int32"
           },
           "res": {
+            "type": [
+              "null",
+              "object"
+            ],
             "oneOf": [
-              {
-                "type": "null"
-              },
               {
                 "$ref": "#/components/schemas/TestCasesSTJInfiniteRecursionTestResponse"
               }
@@ -10024,6 +10051,30 @@
           "leakId": {
             "type": "string",
             "description": "response leak id"
+          }
+        }
+      },
+      "TestCasesSwaggerReviewNullableRefChild": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "TestCasesSwaggerReviewNullableRefPropertyResponse": {
+        "type": "object",
+        "properties": {
+          "nullableObj": {
+            "type": [
+              "null",
+              "object"
+            ],
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/TestCasesSwaggerReviewNullableRefChild"
+              }
+            ]
           }
         }
       },
@@ -10349,10 +10400,11 @@
             "format": "binary"
           },
           "file3": {
+            "type": [
+              "null",
+              "string"
+            ],
             "oneOf": [
-              {
-                "type": "null"
-              },
               {
                 "type": "string",
                 "format": "binary"
@@ -10360,10 +10412,11 @@
             ]
           },
           "file4": {
+            "type": [
+              "null",
+              "string"
+            ],
             "oneOf": [
-              {
-                "type": "null"
-              },
               {
                 "type": "string",
                 "format": "binary"

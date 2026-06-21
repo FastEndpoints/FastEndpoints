@@ -814,6 +814,31 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         offenders.ShouldBeEmpty();
     }
 
+    [Fact]
+    public async Task nullable_ref_property_should_not_have_null_placeholder_in_oneOf()
+    {
+        var json = await App.GetDocumentJsonAsync("Nullable OneOf Repro");
+        var nullableObjSchema = JToken.Parse(json)["components"]!["schemas"]!["TestCasesSwaggerReviewNullableRefPropertyResponse"]!
+                                  ["properties"]!["nullableObj"]!;
+        var oneOf = nullableObjSchema["oneOf"] as JArray ?? [];
+
+        oneOf.ShouldNotBeEmpty();
+        oneOf.FirstOrDefault(s => s["type"]?.Value<string>() == "null")
+             .ShouldBeNull("null should be promoted to the parent schema, not left as a placeholder inside oneOf");
+    }
+
+    [Fact]
+    public async Task nullable_ref_property_oneOf_should_only_contain_referenced_schema()
+    {
+        var json = await App.GetDocumentJsonAsync("Nullable OneOf Repro");
+        var nullableObjSchema = JToken.Parse(json)["components"]!["schemas"]!["TestCasesSwaggerReviewNullableRefPropertyResponse"]!
+                                  ["properties"]!["nullableObj"]!;
+        var oneOf = nullableObjSchema["oneOf"] as JArray ?? [];
+
+        oneOf.Select(s => s["$ref"]?.Value<string>())
+             .ShouldBe(["#/components/schemas/TestCasesSwaggerReviewNullableRefChild"]);
+    }
+
     static JToken ResolveSchema(JToken document, JToken schema)
     {
         var refValue = schema["$ref"]?.Value<string>();

@@ -1271,3 +1271,26 @@ sealed class HeadBodylessReviewEndpoint : Endpoint<BodylessReviewRequest>
     public override Task HandleAsync(BodylessReviewRequest r, CancellationToken ct)
         => Send.OkAsync(ct);
 }
+
+sealed class NullableRefChild
+{
+    public string Name { get; set; } = "";
+}
+
+sealed class NullableRefPropertyResponse
+{
+    public NullableRefChild? NullableObj { get; set; }
+}
+
+sealed class NullableRefPropertyEndpoint : EndpointWithoutRequest<NullableRefPropertyResponse>
+{
+    public override void Configure()
+    {
+        Get("/swagger-review/nullable-ref-property");
+        Tags("nullable_oneOf_repro");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(CancellationToken ct)
+        => Send.OkAsync(new(), ct);
+}

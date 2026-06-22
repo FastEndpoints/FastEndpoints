@@ -5,13 +5,15 @@ using System.Reflection;
 namespace FastEndpoints;
 
 //lives as a singleton in each DI container instance
-[UnconditionalSuppressMessage("aot", "IL2080"), UnconditionalSuppressMessage("aot", "IL2067"), UnconditionalSuppressMessage("aot", "IL2075")]
 sealed class EndpointData
 {
+    const string AotWarning = "Reflection-based endpoint discovery is not supported. Use AddFastEndpoints(DiscoveredTypes.All) with the source generator.";
+
     internal Stopwatch Stopwatch { get; } = new();
 
     internal EndpointDefinition[] Found { get; }
 
+    [RequiresUnreferencedCode(AotWarning), RequiresDynamicCode(AotWarning)]
     internal EndpointData(EndpointDiscoveryOptions opts, CommandHandlerRegistry cmdHandlerRegistry)
     {
         Stopwatch.Start();
@@ -47,6 +49,7 @@ sealed class EndpointData
             throw new InvalidOperationException("FastEndpoints was unable to find any endpoint declarations!");
     }
 
+    [UnconditionalSuppressMessage("aot", "IL2075"), UnconditionalSuppressMessage("aot", "IL2080"), UnconditionalSuppressMessage("aot", "IL2067")]
     static EndpointDefinition[] BuildEndpointDefinitions(IEnumerable<Type> discoveredTypes, CommandHandlerRegistry cmdHandlerRegistry)
     {
         //Endpoint<TRequest>

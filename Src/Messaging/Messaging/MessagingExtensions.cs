@@ -9,9 +9,10 @@ namespace FastEndpoints;
 /// <summary>
 /// extension methods for registering messaging services
 /// </summary>
-[UnconditionalSuppressMessage("aot", "IL2075"), UnconditionalSuppressMessage("aot", "IL3050")]
 public static class MessagingExtensions
 {
+    private const string AotWarning = "Reflection-based messaging discovery is not trim compatible. Use AddMessaging(DiscoveredTypes.All) with the source generator.";
+
     /// <param name="services"></param>
     extension(IServiceCollection services)
     {
@@ -19,6 +20,7 @@ public static class MessagingExtensions
         /// adds the messaging services (command bus and event bus) to the service collection using reflection-based type discovery.
         /// <para>TIP: You don't have to call this method if you already have <c>.AddFastEndpoints()</c> in your pipeline.</para>
         /// </summary>
+        [RequiresUnreferencedCode(AotWarning), RequiresDynamicCode(AotWarning)]
         public IServiceCollection AddMessaging()
             => services.AddMessaging((Assembly[]?)null);
 
@@ -27,6 +29,7 @@ public static class MessagingExtensions
         /// <para>TIP: You don't have to call this method if you already have <c>.AddFastEndpoints()</c> in your pipeline.</para>
         /// </summary>
         /// <param name="assemblies">assemblies to scan for command handlers and event handlers, in addition to all loaded assemblies.</param>
+        [RequiresUnreferencedCode(AotWarning), RequiresDynamicCode(AotWarning)]
         public IServiceCollection AddMessaging(params Assembly[]? assemblies)
             => AddMessagingCore(
                 services,
@@ -52,6 +55,7 @@ public static class MessagingExtensions
             => AddMessagingCore(services, () => discoveredTypes.SelectMany(t => t));
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2075")]
     static IServiceCollection AddMessagingCore(IServiceCollection services, Func<IEnumerable<Type>> getTypes)
     {
         services.TryAddSingleton<IServiceResolver, ServiceResolver>();
@@ -107,6 +111,7 @@ public static class MessagingExtensions
         return provider;
     }
 
+    [UnconditionalSuppressMessage("AOT", "IL3050")]
     internal static void WarmupMessaging(IServiceProvider provider)
     {
         foreach (var tEvent in EventBase.HandlerDict.Keys)

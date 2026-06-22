@@ -11,7 +11,6 @@ class ExceptionHandler;
 /// <summary>
 /// extensions for global exception handling
 /// </summary>
-[UnconditionalSuppressMessage("aot", "IL2026"), UnconditionalSuppressMessage("aot", "IL3050")]
 public static class ExceptionHandlerExtensions
 {
     /// <summary>
@@ -26,6 +25,7 @@ public static class ExceptionHandlerExtensions
     /// <param name="logStructuredException">set to true if you'd like to log the error in a structured manner</param>
     /// <param name="useGenericReason">set to true if you don't want to expose the actual exception reason in the json response sent to the client</param>
     /// <param name="useProblemDetails">use the RFC compatible <see cref="ProblemDetails" /> response shape</param>
+    [UnconditionalSuppressMessage("AOT", "IL2026"), UnconditionalSuppressMessage("AOT", "IL3050")]
     public static IApplicationBuilder UseDefaultExceptionHandler(this IApplicationBuilder app,
                                                                  ILogger? logger = null,
                                                                  bool logStructuredException = false,

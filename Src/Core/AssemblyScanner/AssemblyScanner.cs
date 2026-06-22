@@ -1,7 +1,5 @@
 using System.Reflection;
-#if NET8_0_OR_GREATER
 using System.Diagnostics.CodeAnalysis;
-#endif
 
 namespace FastEndpoints;
 
@@ -31,9 +29,7 @@ internal static class AssemblyScanner
         "YamlDotNet"
     ];
 
-#if NET8_0_OR_GREATER
     [UnconditionalSuppressMessage("aot", "IL2067"), UnconditionalSuppressMessage("aot", "IL2026"), UnconditionalSuppressMessage("aot", "IL2070")]
-#endif
     internal static IEnumerable<Type> ScanForTypes(AssemblyScanOptions opts)
     {
         if (opts.DisableAutoDiscovery && opts.Assemblies?.Any() is false)

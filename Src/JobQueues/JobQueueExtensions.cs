@@ -8,10 +8,10 @@ namespace FastEndpoints;
 /// <summary>
 /// extension methods for job queues
 /// </summary>
-[UnconditionalSuppressMessage("Trimming", "IL2091"), UnconditionalSuppressMessage("Trimming", "IL2075"), UnconditionalSuppressMessage("Trimming", "IL2055"),
- UnconditionalSuppressMessage("AOT", "IL3050")]
 public static class JobQueueExtensions
 {
+    const string AotWarning = "Reflection-based discovery is not supported. Use AddJobQueues<>(DiscoveredTypes.All) with the source generator.";
+
     static Type _tStorageRecord = null!;
     static Type _tStorageProvider = null!;
 
@@ -21,6 +21,7 @@ public static class JobQueueExtensions
     /// <typeparam name="TStorageRecord">the implementation type of the job storage record</typeparam>
     /// <typeparam name="TStorageProvider">the implementation type of the job storage provider</typeparam>
     /// <param name="svc"></param>
+    [UnconditionalSuppressMessage("aot", "IL2026"), UnconditionalSuppressMessage("aot", "IL3050")]
     public static IServiceCollection AddJobQueues<TStorageRecord, TStorageProvider>(this IServiceCollection svc)
         where TStorageRecord : class, IJobStorageRecord, new()
         where TStorageProvider : class, IJobStorageProvider<TStorageRecord>
@@ -40,6 +41,7 @@ public static class JobQueueExtensions
     /// assemblies to scan for command handlers, in addition to all loaded assemblies.
     /// only applicable when using job queues as a standalone library.
     /// </param>
+    [RequiresUnreferencedCode(AotWarning), RequiresDynamicCode(AotWarning)]
     public static IServiceCollection AddJobQueues<TStorageRecord, TStorageProvider>(this IServiceCollection svc, params Assembly[]? assemblies)
         where TStorageRecord : class, IJobStorageRecord, new()
         where TStorageProvider : class, IJobStorageProvider<TStorageRecord>
@@ -71,6 +73,7 @@ public static class JobQueueExtensions
         return AddJobQueuesCore<TStorageRecord, TStorageProvider>(svc);
     }
 
+    [UnconditionalSuppressMessage("Trimming", "IL2091")]
     static IServiceCollection AddJobQueuesCore<TStorageRecord, TStorageProvider>(IServiceCollection svc)
         where TStorageRecord : class, IJobStorageRecord, new()
         where TStorageProvider : class, IJobStorageProvider<TStorageRecord>
@@ -108,6 +111,7 @@ public static class JobQueueExtensions
     /// <param name="provider"></param>
     /// <param name="options">specify settings/execution limits for each job queue type</param>
     /// <exception cref="InvalidOperationException">thrown when no commands/handlers have been detected</exception>
+    [UnconditionalSuppressMessage("Trimming", "IL2075"), UnconditionalSuppressMessage("Trimming", "IL2055"), UnconditionalSuppressMessage("AOT", "IL3050")]
     public static IServiceProvider UseJobQueues(this IServiceProvider provider, Action<JobQueueOptions>? options = null)
     {
         provider.UseMessaging();
@@ -161,7 +165,10 @@ public static class JobQueueExtensions
         /// <param name="executeAfter">if set, the job won't be executed before this date/time. if unspecified, execution is attempted as soon as possible.</param>
         /// <param name="expireOn">if set, job will be considered stale/expired after this date/time. if unspecified, jobs expire after 4 hours of creation.</param>
         /// <returns>the new job object</returns>
-        /// <exception cref="ArgumentException">thrown if the <paramref name="executeAfter" /> and <paramref name="expireOn" /> arguments are not UTC values, or if the effective expiration time is not later than the effective execution time</exception>
+        /// <exception cref="ArgumentException">
+        /// thrown if the <paramref name="executeAfter" /> and <paramref name="expireOn" /> arguments are not UTC values, or if the effective expiration
+        /// time is not later than the effective execution time
+        /// </exception>
         public TStorageRecord CreateJob<TStorageRecord>(DateTime? executeAfter = null, DateTime? expireOn = null)
             where TStorageRecord : class, IJobStorageRecord, new()
             => JobQueueBase.CreateJob<TStorageRecord>(cmd, executeAfter, expireOn);
@@ -187,7 +194,10 @@ public static class JobQueueExtensions
     /// <param name="executeAfter">if set, the job won't be executed before this date/time. if unspecified, execution is attempted as soon as possible.</param>
     /// <param name="expireOn">if set, job will be considered stale/expired after this date/time. if unspecified, jobs expire after 4 hours of creation.</param>
     /// <param name="ct">cancellation token</param>
-    /// <exception cref="ArgumentException">thrown if the <paramref name="executeAfter" /> and <paramref name="expireOn" /> arguments are not UTC values, or if the effective expiration time is not later than the effective execution time</exception>
+    /// <exception cref="ArgumentException">
+    /// thrown if the <paramref name="executeAfter" /> and <paramref name="expireOn" /> arguments are not UTC values, or if the effective expiration
+    /// time is not later than the effective execution time
+    /// </exception>
     public static Task<Guid> QueueJobAsync(this ICommandBase cmd, DateTime? executeAfter = null, DateTime? expireOn = null, CancellationToken ct = default)
         => JobQueueBase.AddToQueueAsync(cmd, executeAfter, expireOn, ct);
 }

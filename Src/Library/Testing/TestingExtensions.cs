@@ -7,9 +7,10 @@ namespace FastEndpoints;
 /// <summary>
 /// extension methods for registering fake/test/mock command and event handlers for integration testing
 /// </summary>
-[UnconditionalSuppressMessage("aot", "IL2091")]
 public static class TestingExtensions
 {
+    const string AotWarning = "Testing helpers are not trim/AOT compatible.";
+
     extension(IServiceCollection s)
     {
         /// <summary>
@@ -17,6 +18,7 @@ public static class TestingExtensions
         /// </summary>
         /// <typeparam name="TCommand">the type of the command model to register a test handler for</typeparam>
         /// <typeparam name="THandler">the type of the test command handler</typeparam>
+        [RequiresUnreferencedCode(AotWarning)]
         public void RegisterTestCommandHandler<TCommand, THandler>()
             where TCommand : ICommand
             where THandler : class, ICommandHandler<TCommand>
@@ -31,6 +33,7 @@ public static class TestingExtensions
         /// <typeparam name="TCommand">the type of the command model to register a test handler for</typeparam>
         /// <typeparam name="THandler">the type of the test command handler</typeparam>
         /// <typeparam name="TResult">the type of the result</typeparam>
+        [RequiresUnreferencedCode(AotWarning)]
         public void RegisterTestCommandHandler<TCommand, THandler, TResult>()
             where TCommand : ICommand<TResult>
             where THandler : class, ICommandHandler<TCommand, TResult>
@@ -44,6 +47,7 @@ public static class TestingExtensions
         /// </summary>
         /// <typeparam name="TEvent">the type of the event model to register a test handler for</typeparam>
         /// <typeparam name="THandler">the type of the test event handler</typeparam>
+        [RequiresUnreferencedCode(AotWarning)]
         public void RegisterTestEventHandler<TEvent, THandler>()
             where TEvent : IEvent
             where THandler : class, IEventHandler<TEvent>
@@ -61,6 +65,7 @@ public static class TestingExtensions
         /// <typeparam name="TCommand">the type of the command model to register a test handler for</typeparam>
         /// <typeparam name="THandler">the type of the test stream command handler</typeparam>
         /// <typeparam name="TResult">the type of items in the result stream</typeparam>
+        [RequiresUnreferencedCode(AotWarning)]
         public void RegisterTestStreamCommandHandler<TCommand, THandler, TResult>()
             where TCommand : IStreamCommand<TResult>
             where THandler : class, IStreamCommandHandler<TCommand, TResult>

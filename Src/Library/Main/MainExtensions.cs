@@ -22,12 +22,14 @@ namespace FastEndpoints;
 /// <summary>
 /// provides extensions to easily bootstrap fastendpoints in the asp.net middleware pipeline
 /// </summary>
-[UnconditionalSuppressMessage("aot", "IL2026"), UnconditionalSuppressMessage("aot", "IL3050"), UnconditionalSuppressMessage("aot", "IL2055")]
 public static class MainExtensions
 {
+    const string AotWarning = "Reflection-based endpoint discovery is not supported. Use AddFastEndpoints(DiscoveredTypes.All) with the source generator.";
+
     /// <summary>
     /// adds the FastEndpoints services to the ASP.Net middleware pipeline using reflection-based type discovery.
     /// </summary>
+    [RequiresUnreferencedCode(AotWarning), RequiresDynamicCode(AotWarning)]
     public static IServiceCollection AddFastEndpoints(this IServiceCollection services)
         => services.AddFastEndpoints((Action<EndpointDiscoveryOptions>?)null);
 
@@ -35,6 +37,7 @@ public static class MainExtensions
     /// adds the FastEndpoints services to the ASP.Net middleware pipeline using reflection-based type discovery.
     /// </summary>
     /// <param name="options">optionally specify the reflection-based type discovery options</param>
+    [RequiresUnreferencedCode(AotWarning), RequiresDynamicCode(AotWarning)]
     public static IServiceCollection AddFastEndpoints(this IServiceCollection services, Action<EndpointDiscoveryOptions>? options)
     {
         var opts = new EndpointDiscoveryOptions();
@@ -97,6 +100,7 @@ public static class MainExtensions
     static readonly Lock _serializerConfigLock = new();
     internal static volatile bool SerializerConfigured;
 
+    [UnconditionalSuppressMessage("aot", "IL2026"), UnconditionalSuppressMessage("aot", "IL3050")]
     public static IEndpointRouteBuilder MapFastEndpoints(this IEndpointRouteBuilder app, Action<Cfg>? configAction = null)
     {
         ServiceResolver.Instance = app.ServiceProvider.GetRequiredService<IServiceResolver>();
@@ -366,6 +370,7 @@ public static class MainExtensions
             }).ToArray();
     }
 
+    [UnconditionalSuppressMessage("aot", "IL2055"), UnconditionalSuppressMessage("aot", "IL3050")]
     internal static void WarmupEndpoint(EndpointDefinition def, IServiceProvider sp)
     {
         if (!def.ReqDtoType.IsValueType) // native aot cannot instantiate value type generic binders

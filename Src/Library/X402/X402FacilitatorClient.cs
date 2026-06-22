@@ -1,4 +1,6 @@
 using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 
 namespace FastEndpoints;
 
@@ -27,19 +29,23 @@ public interface IX402FacilitatorClient
 sealed class X402FacilitatorClient(HttpClient client) : IX402FacilitatorClient
 {
     public async Task<VerificationResponse> VerifyAsync(VerificationRequest request, CancellationToken ct)
-        => await PostAsync<VerificationRequest, VerificationResponse>("verify", request, ct);
+        => await PostAsync("verify", request, X402Serializer.Context.VerificationRequest, X402Serializer.Context.VerificationResponse, ct);
 
     public async Task<SettlementResponse> SettleAsync(SettlementRequest request, CancellationToken ct)
-        => await PostAsync<SettlementRequest, SettlementResponse>("settle", request, ct);
+        => await PostAsync("settle", request, X402Serializer.Context.SettlementRequest, X402Serializer.Context.SettlementResponse, ct);
 
-    async Task<TResponse> PostAsync<TRequest, TResponse>(string path, TRequest request, CancellationToken ct)
+    async Task<TResponse> PostAsync<TRequest, TResponse>(string path,
+                                                         TRequest request,
+                                                         JsonTypeInfo<TRequest> requestTypeInfo,
+                                                         JsonTypeInfo<TResponse> responseTypeInfo,
+                                                         CancellationToken ct)
     {
-        using var res = await client.PostAsJsonAsync(BuildUri(path), request, X402Serializer.Options, ct);
+        using var res = await client.PostAsJsonAsync(BuildUri(path), request, requestTypeInfo, ct);
         var body = await res.Content.ReadAsStringAsync(ct);
 
         if (res.IsSuccessStatusCode)
         {
-            return System.Text.Json.JsonSerializer.Deserialize<TResponse>(body, X402Serializer.Options) ??
+            return JsonSerializer.Deserialize(body, responseTypeInfo) ??
                    throw new InvalidOperationException($"facilitator returned an empty [{typeof(TResponse).Name}] response!");
         }
 
@@ -49,9 +55,9 @@ sealed class X402FacilitatorClient(HttpClient client) : IX402FacilitatorClient
 
             try
             {
-                settlement = System.Text.Json.JsonSerializer.Deserialize<SettlementResponse>(body, X402Serializer.Options);
+                settlement = JsonSerializer.Deserialize(body, X402Serializer.Context.SettlementResponse);
             }
-            catch (System.Text.Json.JsonException) { }
+            catch (JsonException) { }
 
             if (settlement is not null)
                 return (TResponse)(object)settlement;
@@ -63,9 +69,9 @@ sealed class X402FacilitatorClient(HttpClient client) : IX402FacilitatorClient
 
             try
             {
-                verification = System.Text.Json.JsonSerializer.Deserialize<VerificationResponse>(body, X402Serializer.Options);
+                verification = JsonSerializer.Deserialize(body, X402Serializer.Context.VerificationResponse);
             }
-            catch (System.Text.Json.JsonException) { }
+            catch (JsonException) { }
 
             if (verification is not null)
                 return (TResponse)(object)verification;

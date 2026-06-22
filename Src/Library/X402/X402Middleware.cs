@@ -33,7 +33,7 @@ sealed class X402Middleware(RequestDelegate next)
 
         try
         {
-            payload = X402Serializer.FromBase64<PaymentPayload>(signature!);
+            payload = X402Serializer.FromBase64(signature!, X402Serializer.Context.PaymentPayload);
         }
         catch
         {
@@ -76,13 +76,13 @@ sealed class X402Middleware(RequestDelegate next)
 
             if (!settlement.Success)
             {
-                ctx.Response.Headers[X402Constants.PaymentResponseHeader] = X402Serializer.ToBase64(settlement);
+                ctx.Response.Headers[X402Constants.PaymentResponseHeader] = X402Serializer.ToBase64(settlement, X402Serializer.Context.SettlementResponse);
                 await SendPaymentRequiredAsync(ctx, resolved, requirements, settlement.ErrorReason);
 
                 return;
             }
 
-            ctx.Response.Headers[X402Constants.PaymentResponseHeader] = X402Serializer.ToBase64(settlement);
+            ctx.Response.Headers[X402Constants.PaymentResponseHeader] = X402Serializer.ToBase64(settlement, X402Serializer.Context.SettlementResponse);
             await next(ctx);
 
             return;
@@ -111,13 +111,13 @@ sealed class X402Middleware(RequestDelegate next)
             if (!settlement.Success)
             {
                 ctx.Response.Clear();
-                ctx.Response.Headers[X402Constants.PaymentResponseHeader] = X402Serializer.ToBase64(settlement);
+                ctx.Response.Headers[X402Constants.PaymentResponseHeader] = X402Serializer.ToBase64(settlement, X402Serializer.Context.SettlementResponse);
                 await SendPaymentRequiredAsync(ctx, resolved, requirements, settlement.ErrorReason);
 
                 return;
             }
 
-            ctx.Response.Headers[X402Constants.PaymentResponseHeader] = X402Serializer.ToBase64(settlement);
+            ctx.Response.Headers[X402Constants.PaymentResponseHeader] = X402Serializer.ToBase64(settlement, X402Serializer.Context.SettlementResponse);
             await bufferedBody.CopyToInnerAsync(ctx.RequestAborted);
         }
         finally
@@ -274,7 +274,7 @@ sealed class X402Middleware(RequestDelegate next)
 
         ctx.Response.StatusCode = 402;
         ctx.Response.Headers.CacheControl = "no-store";
-        ctx.Response.Headers[X402Constants.PaymentRequiredHeader] = X402Serializer.ToBase64(paymentRequired);
+        ctx.Response.Headers[X402Constants.PaymentRequiredHeader] = X402Serializer.ToBase64(paymentRequired, X402Serializer.Context.PaymentRequiredResponse);
         await ctx.Response.StartAsync(ctx.RequestAborted);
     }
 }

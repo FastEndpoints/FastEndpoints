@@ -3,6 +3,7 @@
     <PropertyGroup>
         <NoWarn>CS1591</NoWarn>
         <Description>Core componets of the FastEndpoints remote messaging library</Description>
+        <IsAotCompatible>false</IsAotCompatible> <!-- todo: make lib aot compatible -->
     </PropertyGroup>
 
     <ItemGroup>

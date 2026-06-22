@@ -3,6 +3,7 @@
     <PropertyGroup>
         <NoWarn>CS1591</NoWarn>
         <Description>Standalone messaging library for Command Bus/Event Bus implementations on .NET 8 and newer.</Description>
+        <IsAotCompatible>true</IsAotCompatible>
     </PropertyGroup>
 
     <ItemGroup>

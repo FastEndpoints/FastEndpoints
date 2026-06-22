@@ -3,6 +3,7 @@
     <PropertyGroup>
         <NoWarn>CS1591</NoWarn>
         <Description>GRPC based Remote-Procedure-Calls for FastEndpoints.</Description>
+        <IsAotCompatible>false</IsAotCompatible> <!-- todo: make lib aot compatible -->
     </PropertyGroup>
 
     <ItemGroup>

@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Asp.Versioning;
 using Asp.Versioning.ApiExplorer;
 using Microsoft.AspNetCore.Builder;
@@ -13,6 +14,7 @@ public static class Extensions
     /// </summary>
     /// <param name="versioningOptions">action for configuring the verioning options</param>
     /// <param name="apiExplorerOptions">action for configuring the api explorer options</param>
+    [UnconditionalSuppressMessage("aot", "IL2026")]
     public static IServiceCollection AddVersioning(this IServiceCollection services,
                                                    Action<ApiVersioningOptions>? versioningOptions = null,
                                                    Action<ApiExplorerOptions>? apiExplorerOptions = null)

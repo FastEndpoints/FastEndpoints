@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.IO.Compression;
 using System.Text;
 using Kiota.Builder;
@@ -18,6 +19,7 @@ namespace FastEndpoints.OpenApi.Kiota;
 
 public static class Extensions
 {
+    const string AotWarning = "This method does not support trimming/native aot!";
     const string TempFolder = "KiotaClientGen";
     const string ApiClientGenerationKey = "generateclients";
     const string OpenApiJsonExportKey = "exportopenapijson";
@@ -29,6 +31,7 @@ public static class Extensions
     /// <param name="route">the route to register</param>
     /// <param name="config">client generation configuration</param>
     /// <param name="options">endpoint options</param>
+    [RequiresUnreferencedCode(AotWarning), RequiresDynamicCode(AotWarning)]
     public static IEndpointRouteBuilder MapApiClientEndpoint(this IEndpointRouteBuilder builder,
                                                              string route,
                                                              Action<ClientGenConfig> config,

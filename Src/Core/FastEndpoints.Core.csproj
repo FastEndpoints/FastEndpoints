@@ -2,6 +2,7 @@
 
     <PropertyGroup>
         <Description>Core service resolution and other shared functionality of FastEndpoints.</Description>
+        <IsAotCompatible>true</IsAotCompatible>
     </PropertyGroup>
 
     <ItemGroup>

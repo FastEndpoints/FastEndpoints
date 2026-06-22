@@ -1,10 +1,9 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Json;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 
@@ -40,30 +39,44 @@ sealed class ServiceHealthChecksStartupFilter(IOptions<ServiceHealthChecksOption
                next(app);
            };
 
-    static readonly JsonSerializerOptions _defaultSerializerOpts = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-
     static Task WriteJson(HttpContext ctx, HealthReport report)
     {
         ctx.Response.ContentType = "application/json; charset=utf-8";
 
-        var payload = new
+        var payload = new HealthCheckResponse
         {
-            status = report.Status.ToString(),
-            totalDurationMs = report.TotalDuration.TotalMilliseconds,
-            checks = report.Entries.Select(
-                e => new
+            Status = report.Status.ToString(),
+            TotalDurationMs = report.TotalDuration.TotalMilliseconds,
+            Checks = report.Entries.Select(
+                e => new HealthCheckEntryResponse
                 {
-                    name = e.Key,
-                    status = e.Value.Status.ToString(),
-                    description = e.Value.Description,
-                    durationMs = e.Value.Duration.TotalMilliseconds,
-                    exception = e.Value.Exception?.Message
-                })
+                    Name = e.Key,
+                    Status = e.Value.Status.ToString(),
+                    Description = e.Value.Description,
+                    DurationMs = e.Value.Duration.TotalMilliseconds,
+                    Exception = e.Value.Exception?.Message
+                }).ToArray()
         };
 
-        return ctx.Response.WriteAsync(
-            JsonSerializer.Serialize(
-                payload,
-                ctx.RequestServices.GetService<IOptions<JsonOptions>>()?.Value.SerializerOptions ?? _defaultSerializerOpts));
+        return ctx.Response.WriteAsync(JsonSerializer.Serialize(payload, HealthChecksJsonContext.Default.HealthCheckResponse));
     }
 }
+
+sealed class HealthCheckResponse
+{
+    public string Status { get; set; } = null!;
+    public double TotalDurationMs { get; set; }
+    public HealthCheckEntryResponse[] Checks { get; set; } = [];
+}
+
+sealed class HealthCheckEntryResponse
+{
+    public string Name { get; set; } = null!;
+    public string Status { get; set; } = null!;
+    public string? Description { get; set; }
+    public double DurationMs { get; set; }
+    public string? Exception { get; set; }
+}
+
+[JsonSerializable(typeof(HealthCheckResponse)), JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
+sealed partial class HealthChecksJsonContext : JsonSerializerContext;

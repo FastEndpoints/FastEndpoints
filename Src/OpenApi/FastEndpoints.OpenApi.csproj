@@ -4,6 +4,7 @@
         <TargetFrameworks>net10.0</TargetFrameworks> <!-- disable multi targeting from Directory.Build.Props -->
         <NoWarn>1701;1702;CS1591;CS1573</NoWarn>
         <Description>OpenAPI support for FastEndpoints using Microsoft.AspNetCore.OpenApi</Description>
+        <IsAotCompatible>true</IsAotCompatible>
     </PropertyGroup>
 
     <ItemGroup>

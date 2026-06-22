@@ -3,6 +3,7 @@
     <PropertyGroup>
         <NoWarn>1701;1702;CS1591;CS1573</NoWarn>
         <Description>Asp.Versioning.Http package integration for FastEndpoints.</Description>
+        <IsAotCompatible>true</IsAotCompatible>
     </PropertyGroup>
 
     <ItemGroup>

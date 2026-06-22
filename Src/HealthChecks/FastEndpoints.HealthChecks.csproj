@@ -2,6 +2,7 @@
 
     <PropertyGroup>
         <Description>Health checks extension for FastEndpoints. Provides liveness and readiness probe endpoints for orchestrators like Kubernetes and .NET Aspire.</Description>
+        <IsAotCompatible>true</IsAotCompatible>
     </PropertyGroup>
 
     <ItemGroup>

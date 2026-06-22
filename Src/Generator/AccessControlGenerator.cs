@@ -545,7 +545,7 @@ public class AccessControlGenerator : IIncrementalGenerator
 
         static string GetAclHash(string input)
         {
-            //NOTE: if modifying this algo, update FastEndpoints.Endpoint.Base.ToAclKey() method also!
+            //NOTE: if modifying this algo, update FastEndpoints.Endpoint.Base.GetAclHash() method also!
             using var sha256 = SHA256.Create();
             var base64Hash = Convert.ToBase64String(sha256.ComputeHash(Encoding.UTF8.GetBytes(input.ToUpperInvariant())));
 

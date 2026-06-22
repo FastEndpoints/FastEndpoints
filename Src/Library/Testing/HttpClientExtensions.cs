@@ -891,12 +891,11 @@ public static class HttpClientExtensions
         if (value is null)
             return null;
 
-        var toStringMethod = type.GetMethod("ToString", Type.EmptyTypes);
-        var isRecord = type.GetMethod("<Clone>$") is not null;
-
-        //use overridden ToString() method except for records
-        if (toStringMethod is not null && toStringMethod.DeclaringType != Types.Object && !isRecord)
+        if (!type.GetUnderlyingType().IsComplexType())
             return ToInvariantIsoString(value);
+
+        if (TryGetParsableString(value, type) is { } stringValue)
+            return stringValue;
 
         var json = JsonSerializer.Serialize(value, SerOpts.Options);
 
@@ -906,6 +905,18 @@ public static class HttpClientExtensions
 
         //this is either a json array or object
         return json;
+
+        static string? TryGetParsableString(object value, Type type)
+        {
+            var stringValue = value.ToString();
+
+            if (stringValue is null || stringValue == type.ToString())
+                return null;
+
+            return type.ValueParser()(stringValue).IsSuccess
+                       ? stringValue
+                       : null;
+        }
 
         static string? ToInvariantIsoString(object value)
         {

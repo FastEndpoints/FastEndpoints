@@ -4,12 +4,14 @@ namespace FastEndpoints;
 
 public abstract class CommandMiddlewareConfigBase
 {
+    const string AotWarning = "open-generic middleware registration is not compatible with native aot/trimming. " +
+                              "use the generic Register<TCommand, TResult, TMiddleware>() method instead.";
+
     internal List<(Type tInterface, Type tImplementation)> Middleware { get; } = [];
 
     protected abstract Type OpenGenericInterface { get; }
 
-    [RequiresUnreferencedCode(
-        "open-generic middleware registration is not compatible with native aot/trimming. use the generic Register<TCommand, TResult, TMiddleware>() method instead.")]
+    [RequiresUnreferencedCode(AotWarning)]
     public void Register(params Type[] middlewareTypes)
     {
         for (var i = 0; i < middlewareTypes.Length; i++)
@@ -21,6 +23,7 @@ public abstract class CommandMiddlewareConfigBase
                 var args = OpenGenericInterface.GetGenericArguments();
                 var argNames = string.Join(", ", args.Select(a => a.Name));
                 var friendlyName = $"{OpenGenericInterface.Name.Split('`')[0]}<{argNames}>";
+
                 throw new ArgumentException($"{tMiddleware.Name} must be an open generic type implementing {friendlyName}");
             }
 
@@ -28,7 +31,7 @@ public abstract class CommandMiddlewareConfigBase
         }
     }
 
-    static bool IsValid(Type tMiddleware, Type openGenericInterface)
+    static bool IsValid([DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces)] Type tMiddleware, Type openGenericInterface)
         => tMiddleware.IsGenericTypeDefinition &&
            tMiddleware.GetGenericArguments().Length == 2 &&
            tMiddleware.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == openGenericInterface);

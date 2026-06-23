@@ -20,7 +20,7 @@ There's no immediate need for you to switch to the new package if your projects 
 
 <details><summary>Streaming command handlers for the command bus</summary>
 
-The in-process command bus can now execute commands that return `IAsyncEnumerable<T>` streams by implementing `IStreamCommand<TResult>` and `IStreamCommandHandler<TCommand, TResult>`.
+The in-process command bus can now execute commands that return `IAsyncEnumerable<T>` streams by implementing `IStreamCommand<TResult>` and `IStreamCommandHandler<TCommand, TResult>`. 
 
 Streaming commands use the same `ExecuteAsync()` extension method as regular commands, support their own middleware pipeline via `IStreamCommandMiddleware<TCommand, TResult>`, and can be used with closed or generic command handler registrations.
 
@@ -36,17 +36,19 @@ Global x402 defaults are configured with `builder.AddX402()` and `app.UseX402(..
 
 <details><summary>New 'FastEndpoints.Mcp' and 'FastEndpoints.A2A' agent integration packages</summary>
 
-Two new beta packages are now available for exposing your existing FastEndpoints endpoints to AI agent runtimes without having to build separate agent-specific controllers or handlers.
+Two new beta packages are now available for exposing your existing FE endpoints to AI agent runtimes without having to build separate agent-specific controllers or handlers.
 
-`FastEndpoints.Mcp` exposes opt-in endpoints as Model Context Protocol (MCP) tools over HTTP using the official MCP ASP.NET Core transport. `FastEndpoints.A2A` exposes opt-in endpoints as A2A skills with an agent card and JSON-RPC `SendMessage` dispatcher.
+`FastEndpoints.Mcp` exposes opt-in endpoints as Model Context Protocol (MCP) tools over HTTP using the official MCP ASP.NET Core transport. 
+
+`FastEndpoints.A2A` exposes opt-in endpoints as A2A skills with an agent card and JSON-RPC `SendMessage` dispatcher.
 
 Both addons execute the normal FastEndpoints pipeline in-process, including binding, validation, pre/post processors and response serialization. Nothing is exposed by default. Endpoints must explicitly opt in via `this.McpTool(...)`, `[McpTool]`, `this.A2ASkill(...)`, or `[A2ASkill]`, and each package has separate agent-facing visibility filters so REST authorization and agent visibility can be configured independently.
 
 ```csharp
-builder.Services
-       .AddFastEndpoints()
-       .AddMcp()
-       .AddA2A();
+bld.Services
+   .AddFastEndpoints()
+   .AddMcp()
+   .AddA2A();
 
 app.UseFastEndpoints()
    .UseMcp()
@@ -405,7 +407,7 @@ builder.Services.AddFastEndpoints(DiscoveredTypes.All);
 
 <details><summary>Undefined enum values are no longer accepted by default for non-STJ model binding</summary>
 
-The default behavior for non-JSON model binding has changed. Previously, enum values were accepted as long as `Enum.TryParse()` succeeded, which meant undefined numeric values such as `99` could still bind successfully. The new default rejects enum values unless they are explicitly defined by the target enum type.
+The default behavior for non-JSON model binding has changed. Previously, enum values were accepted as long as `Enum.TryParse()` succeeded, which meant undefined numeric values could still bind successfully. The new default rejects enum values unless they are explicitly defined by the target enum type.
 
 This may break existing endpoints that rely on accepting undefined numeric enum values from route/query/form/header/cookie/claim inputs.
 

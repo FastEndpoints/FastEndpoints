@@ -18,10 +18,12 @@ namespace FastEndpoints;
 /// <summary>
 /// a set of extensions to the httpclient in order to facilitate route-less integration testing
 /// </summary>
-[UnconditionalSuppressMessage("aot", "IL2026"), UnconditionalSuppressMessage("aot", "IL3050"), UnconditionalSuppressMessage("aot", "IL2075")]
+[UnconditionalSuppressMessage("aot", "IL2026"), UnconditionalSuppressMessage("aot", "IL3050"), UnconditionalSuppressMessage("aot", "IL2075"),
+ UnconditionalSuppressMessage("aot", "IL2070")]
 public static class HttpClientExtensions
 {
     static readonly ConcurrentDictionary<string, string> _testUrlCache = new();
+    static readonly ConcurrentDictionary<(Type Request, Type Endpoint), bool> _dtoShapeCache = new();
     static readonly JsonSerializerOptions _errSerOpts = new(SerOpts.Options) { UnmappedMemberHandling = SerOpts.TestResponseUnmappedMemberHandling };
 
     extension(HttpClient client)
@@ -518,7 +520,7 @@ public static class HttpClientExtensions
         /// obtains a url for a given endpoint type for testing purposes.
         /// </summary>
         /// <param name="request">a populated request dto. route/query params values will be taken from this dto instance when constructing the final test url.</param>
-        /// <param name="skipDtoTypeValidation">skips request dto type validation which checks if the supplied dto type is the correct one for the endpoint.</param>
+        /// <param name="skipDtoTypeValidation">skips request dto validation which checks if the supplied dto structure is compatible with the endpoint dto.</param>
         /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
         public string GetTestUrlFor<TEndpoint>(object request, bool skipDtoTypeValidation = false) where TEndpoint : IEndpoint
         {
@@ -526,8 +528,8 @@ public static class HttpClientExtensions
             var epTypeName = tEndpoint.FullName ?? throw new InvalidOperationException("Unable to determine endpoint type name!");
             var tRequest = tEndpoint.GetGenericArgumentsOfType(Types.EndpointOf2)?[0] ?? Types.EmptyRequest;
 
-            if (request.GetType() != tRequest && !skipDtoTypeValidation)
-                throw new ArgumentException("The request object is not the correct DTO type for the endpoint!");
+            if (!skipDtoTypeValidation && !HasCompatibleDtoShape(request.GetType(), tRequest))
+                throw new ArgumentException("The request object is not the correct DTO shape for the endpoint!");
 
             if (!_testUrlCache.ContainsKey(epTypeName))
             {
@@ -646,6 +648,81 @@ public static class HttpClientExtensions
             }
 
             return sb.ToString();
+        }
+    }
+
+    static bool HasCompatibleDtoShape(Type requestType, Type endpointRequestType)
+    {
+        return _dtoShapeCache.GetOrAdd((requestType, endpointRequestType), static key => HasCompatibleShape(key.Request, key.Endpoint, []));
+
+        static bool HasCompatibleShape(Type requestType, Type endpointRequestType, HashSet<(Type Request, Type Endpoint)> visited)
+        {
+            if (requestType == endpointRequestType)
+                return true;
+
+            requestType = requestType.GetUnderlyingType();
+            endpointRequestType = endpointRequestType.GetUnderlyingType();
+
+            var requestElementType = GetCollectionElementType(requestType);
+            var endpointElementType = GetCollectionElementType(endpointRequestType);
+
+            if (requestElementType is not null || endpointElementType is not null)
+                return requestElementType is not null && endpointElementType is not null && HasCompatibleShape(requestElementType, endpointElementType, visited);
+
+            var requestIsComplex = requestType.IsComplexType();
+            var endpointIsComplex = endpointRequestType.IsComplexType();
+
+            if (!requestIsComplex || !endpointIsComplex)
+                return !requestIsComplex && !endpointIsComplex && requestType == endpointRequestType;
+
+            if (!visited.Add((requestType, endpointRequestType)))
+                return true;
+
+            var requestProps = requestType.BindableProps();
+            var endpointProps = endpointRequestType.BindableProps();
+
+            if (requestProps.Count != endpointProps.Count ||
+                !TryBuildDtoPropertyMap(requestProps, out var requestPropMap) ||
+                !TryBuildDtoPropertyMap(endpointProps, out var endpointPropMap))
+                return false;
+
+            foreach (var endpointProp in endpointPropMap)
+            {
+                if (!requestPropMap.TryGetValue(endpointProp.Key, out var requestProp) ||
+                    !HasCompatibleShape(requestProp.PropertyType, endpointProp.Value.PropertyType, visited))
+                    return false;
+            }
+
+            return true;
+
+            static Type? GetCollectionElementType(Type type)
+            {
+                if (type == Types.String)
+                    return null;
+
+                if (type.IsArray)
+                    return type.GetElementType();
+
+                if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                    return type.GetGenericArguments()[0];
+
+                return type.GetInterfaces()
+                           .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                           ?.GetGenericArguments()[0];
+            }
+
+            static bool TryBuildDtoPropertyMap(ICollection<PropertyInfo> props, out Dictionary<string, PropertyInfo> map)
+            {
+                map = new(StringComparer.OrdinalIgnoreCase);
+
+                foreach (var prop in props)
+                {
+                    if (!map.TryAdd(prop.FieldName(), prop))
+                        return false;
+                }
+
+                return true;
+            }
         }
     }
 

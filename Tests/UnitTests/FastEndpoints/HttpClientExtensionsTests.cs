@@ -148,14 +148,47 @@ public class HttpClientExtensionsTests
     }
 
     [Fact]
-    public void GetTestUrlForThrowsWhenRequestDtoTypeDoesNotMatchEndpoint()
+    public void GetTestUrlForAcceptsStructurallyCompatibleRequestDto()
+    {
+        MockHttpMessageHandler mockHttp = new();
+        var http = mockHttp.ToHttpClient();
+        http.BaseAddress = new("http://localhost");
+
+        IEndpoint.SetTestUrl(typeof(DateTimeQueryParamEndpoint), DateTimeParamRoute);
+
+        var req = new AlternativeDateTimeParamRequest
+        {
+            QueryParam = DateTimeParamRequest.DateTime
+        };
+
+        var testUrl = http.GetTestUrlFor<DateTimeQueryParamEndpoint>(req);
+
+        testUrl.ShouldBe($"{DateTimeParamRoute}?{nameof(DateTimeParamRequest.QueryParam)}={System.Net.WebUtility.UrlEncode($"{DateTimeParamRequest.DateTime:o}")}");
+    }
+
+    [Fact]
+    public void GetTestUrlForAcceptsStructurallyCompatibleNestedRequestDto()
+    {
+        MockHttpMessageHandler mockHttp = new();
+        var http = mockHttp.ToHttpClient();
+        http.BaseAddress = new("http://localhost");
+
+        IEndpoint.SetTestUrl(typeof(NestedShapeEndpoint), "nested/shape");
+
+        var testUrl = http.GetTestUrlFor<NestedShapeEndpoint>(new AlternativeNestedShapeRequest());
+
+        testUrl.ShouldBe("nested/shape");
+    }
+
+    [Fact]
+    public void GetTestUrlForThrowsWhenRequestDtoShapeDoesNotMatchEndpoint()
     {
         MockHttpMessageHandler mockHttp = new();
         var http = mockHttp.ToHttpClient();
         http.BaseAddress = new("http://localhost");
 
         Should.Throw<ArgumentException>(() => http.GetTestUrlFor<DateTimeQueryParamEndpoint>(new NullParamRequest()))
-              .Message.ShouldBe("The request object is not the correct DTO type for the endpoint!");
+              .Message.ShouldBe("The request object is not the correct DTO shape for the endpoint!");
     }
 
     [Fact]
@@ -297,6 +330,46 @@ file class DateTimeParamRequest
 
     [QueryParam]
     public DateTime? QueryParam { get; set; }
+}
+
+file class AlternativeDateTimeParamRequest
+{
+    [QueryParam]
+    public DateTime? QueryParam { get; set; }
+}
+
+file class NestedShapeEndpoint : Endpoint<NestedShapeRequest>;
+
+file class NestedShapeRequest
+{
+    public NestedShapeChild? Child { get; set; }
+    public List<NestedShapeItem>? Items { get; set; }
+}
+
+file class NestedShapeChild
+{
+    public string? Name { get; set; }
+}
+
+file class NestedShapeItem
+{
+    public int Id { get; set; }
+}
+
+file class AlternativeNestedShapeRequest
+{
+    public AlternativeNestedShapeChild? Child { get; set; }
+    public List<AlternativeNestedShapeItem>? Items { get; set; }
+}
+
+file class AlternativeNestedShapeChild
+{
+    public string? Name { get; set; }
+}
+
+file class AlternativeNestedShapeItem
+{
+    public int Id { get; set; }
 }
 
 file class StringQueryParamRequest

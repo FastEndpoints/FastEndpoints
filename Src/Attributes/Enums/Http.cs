@@ -50,5 +50,10 @@ public enum Http
     /// <summary>
     /// perform a message loop-back test for debugging purposes
     /// </summary>
-    TRACE = 9
+    TRACE = 9,
+
+    /// <summary>
+    /// perform a safe, idempotent request with a body
+    /// </summary>
+    QUERY = 10
 }

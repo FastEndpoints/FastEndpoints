@@ -23,11 +23,11 @@
         <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.9"/>
         <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.9"/>
         <PackageVersion Include="Microsoft.Extensions.Primitives" Version="10.0.9"/>
-        <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.6.0"/>
+        <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.7.0"/>
         <PackageVersion Include="Microsoft.OpenApi.Kiota.Builder" Version="[1.29.0]"/><!-- latest kiota uses Microsoft.OpenApi 3.x but Microsoft.AspNetCore.OpenApi still uses 2.x -->
         <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.300"/>
         <PackageVersion Include="RichardSzalay.MockHttp" Version="7.0.0"/>
-        <PackageVersion Include="Scalar.AspNetCore" Version="2.16.3"/>
+        <PackageVersion Include="Scalar.AspNetCore" Version="2.16.5"/>
         <PackageVersion Include="Shouldly" Version="4.3.0"/>
         <PackageVersion Include="xunit.v3" Version="3.2.2"/>
         <PackageVersion Include="xunit.v3.extensibility.core" Version="3.2.2"/>

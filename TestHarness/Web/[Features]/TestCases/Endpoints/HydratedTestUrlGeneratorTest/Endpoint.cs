@@ -4,7 +4,7 @@ public class Endpoint : Endpoint<Request, string>
 {
     public override void Configure()
     {
-        Verbs(Http.GET, Http.POST, Http.PUT, Http.PATCH, Http.DELETE);
+        Verbs(Http.GET, Http.POST, Http.PUT, Http.PATCH, Http.DELETE, Http.QUERY);
         Routes("/test/hydrated-test-url-generator-test/{id}/{guid:guid}/{stringBindFrom}/{nullableString}/{fromClaim}/{fromHeader}/{hasPermission}");
         AllowAnonymous();
     }

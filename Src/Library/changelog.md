@@ -20,7 +20,7 @@ There's no immediate need for you to switch to the new package if your projects 
 
 <details><summary>Streaming command handlers for the command bus</summary>
 
-The in-process command bus can now execute commands that return `IAsyncEnumerable<T>` streams by implementing `IStreamCommand<TResult>` and `IStreamCommandHandler<TCommand, TResult>`. 
+The in-process command bus can now execute commands that return `IAsyncEnumerable<T>` streams by implementing `IStreamCommand<TResult>` and `IStreamCommandHandler<TCommand, TResult>`.
 
 Streaming commands use the same `ExecuteAsync()` extension method as regular commands, support their own middleware pipeline via `IStreamCommandMiddleware<TCommand, TResult>`, and can be used with closed or generic command handler registrations.
 
@@ -38,7 +38,7 @@ Global x402 defaults are configured with `builder.AddX402()` and `app.UseX402(..
 
 Two new beta packages are now available for exposing your existing FE endpoints to AI agent runtimes without having to build separate agent-specific controllers or handlers.
 
-`FastEndpoints.Mcp` exposes opt-in endpoints as Model Context Protocol (MCP) tools over HTTP using the official MCP ASP.NET Core transport. 
+`FastEndpoints.Mcp` exposes opt-in endpoints as Model Context Protocol (MCP) tools over HTTP using the official MCP ASP.NET Core transport.
 
 `FastEndpoints.A2A` exposes opt-in endpoints as A2A skills with an agent card and JSON-RPC `SendMessage` dispatcher.
 
@@ -186,6 +186,16 @@ Job queue startup can request the same messaging warmup through `UseJobQueues(..
 ```csharp
 app.UseJobQueues(o => o.Warmup());
 ```
+
+</details>
+
+<details><summary>HTTP QUERY method support</summary>
+
+Endpoints can now be configured for the RFC 10008 `QUERY` method using the fluent `Query(...)` setup helper, the new `[HttpQuery(...)]` attribute, or `Verbs(Http.QUERY)`.
+
+`QUERY` endpoints are registered with the literal `QUERY` HTTP method and bind request bodies like `POST`/`PUT`/`PATCH`. Body DTOs default to `application/json`, so missing or unsupported `Content-Type` values use the existing 415 validation path. `QUERY` is treated as a safe method by antiforgery middleware.
+
+Testing extensions also include `QUERYAsync(...)` helpers. OpenAPI document generation remains valid. Current OpenAPI 3.x tooling drops unknown `QUERY` operations, so `QUERY` endpoints are omitted from generated documents until the underlying OpenAPI stack can represent them.
 
 </details>
 

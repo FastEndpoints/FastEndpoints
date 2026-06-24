@@ -12,6 +12,15 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     }
 
     [Fact]
+    public async Task query_method_endpoint_is_omitted_when_openapi_tooling_drops_unknown_method()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var doc = JToken.Parse(json);
+
+        doc["paths"]!["/api/swagger-review/query-method"].ShouldBeNull();
+    }
+
+    [Fact]
     public async Task auto_tag_override_uses_override_value()
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review");

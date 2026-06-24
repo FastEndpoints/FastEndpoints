@@ -18,6 +18,7 @@ sealed class AntiforgeryMiddleware(RequestDelegate next, IAntiforgery antiforger
             ctx.Request.Method == HttpMethods.Trace ||
             ctx.Request.Method == HttpMethods.Options ||
             ctx.Request.Method == HttpMethods.Head ||
+            ctx.Request.Method == "QUERY" ||
             SkipFilter?.Invoke(ctx) is true)
         {
             await next(ctx);

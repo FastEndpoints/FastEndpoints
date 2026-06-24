@@ -261,6 +261,35 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
     }
 
     /// <summary>
+    /// specify to listen for QUERY requests on one or more routes.
+    /// </summary>
+    protected void Query([StringSyntax("Route")] [RouteTemplate] params string[] routePatterns)
+    {
+        Verbs(Http.QUERY);
+        Routes(routePatterns);
+    }
+
+    /// <summary>
+    /// specify a QUERY route pattern using a replacement expression.
+    /// </summary>
+    /// <param name="routePattern">
+    /// the words prefixed with @ will be replaced by property names of the `new` expression in the order they are specified.
+    /// the replacement words do not have to match the request dto property names.
+    /// <para>
+    ///     <c>/invoice/{@id}/print/{@pageNum}</c>
+    /// </para>
+    /// </param>
+    /// <param name="members">
+    ///     <c>r => new { r.InvoiceID, r.PageNumber }</c>
+    /// </param>
+    protected void Query([StringSyntax("Route")] [RouteTemplate] string routePattern,
+                         Expression<Func<TRequest, object>> members)
+    {
+        Verbs(Http.QUERY);
+        Routes(members.BuildRoute(routePattern));
+    }
+
+    /// <summary>
     /// if this endpoint is part of an endpoint group, specify the type of the <see cref="FastEndpoints.Group" /> concrete class where the common
     /// configuration for the group is specified.
     /// <para>

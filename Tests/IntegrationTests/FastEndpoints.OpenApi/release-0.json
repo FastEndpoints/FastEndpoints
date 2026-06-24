@@ -7525,7 +7525,8 @@
           "HEAD",
           "OPTIONS",
           "CONNECT",
-          "TRACE"
+          "TRACE",
+          "QUERY"
         ],
         "type": "string",
         "description": "enum for specifying a http verb"

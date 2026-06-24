@@ -360,6 +360,94 @@ public static class HttpClientExtensions
             => client.GETAsync<TEndpoint, EmptyRequest, TResponse>(EmptyRequest.Instance);
 
         /// <summary>
+        /// make a QUERY request using a request dto and get back a <see cref="TestResult{TResponse}" /> containing the <see cref="HttpResponseMessage" /> as well
+        /// as the <typeparamref name="TResponse" /> dto.
+        /// </summary>
+        /// <typeparam name="TRequest">type of the request dto</typeparam>
+        /// <typeparam name="TResponse">type of the response dto</typeparam>
+        /// <param name="requestUri">the route url to query</param>
+        /// <param name="request">the request dto</param>
+        /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
+        /// <param name="populateHeaders">
+        /// when set to false, headers will not be automatically added to the http request from request dto properties decorated with the
+        /// [FromHeader] attribute.
+        /// </param>
+        /// <param name="populateCookies">
+        /// when set to false, cookies will not be automatically added to the http request from request dto properties decorated with the
+        /// [FromCookie] attribute.
+        /// </param>
+        public Task<TestResult<TResponse>> QUERYAsync<TRequest, TResponse>(string requestUri,
+                                                                           TRequest request,
+                                                                           bool sendAsFormData = false,
+                                                                           bool populateHeaders = true,
+                                                                           bool populateCookies = true) where TRequest : notnull
+            => client.SENDAsync<TRequest, TResponse>(new("QUERY"), requestUri, request, sendAsFormData, populateHeaders, populateCookies);
+
+        /// <summary>
+        /// make a QUERY request to an endpoint using auto route discovery using a request dto and get back a <see cref="TestResult{TResponse}" /> containing the
+        /// <see cref="HttpResponseMessage" /> as well as the <typeparamref name="TResponse" /> dto.
+        /// </summary>
+        /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
+        /// <typeparam name="TRequest">the type of the request dto</typeparam>
+        /// <typeparam name="TResponse">the type of the response dto</typeparam>
+        /// <param name="request">the request dto</param>
+        /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
+        /// <param name="populateHeaders">
+        /// when set to false, headers will not be automatically added to the http request from request dto properties decorated with the
+        /// [FromHeader] attribute.
+        /// </param>
+        /// <param name="populateCookies">
+        /// when set to false, cookies will not be automatically added to the http request from request dto properties decorated with the
+        /// [FromCookie] attribute.
+        /// </param>
+        public Task<TestResult<TResponse>> QUERYAsync<TEndpoint, TRequest, TResponse>(TRequest request,
+                                                                                      bool sendAsFormData = false,
+                                                                                      bool populateHeaders = true,
+                                                                                      bool populateCookies = true)
+            where TEndpoint : IEndpoint where TRequest : notnull
+            => client.QUERYAsync<TRequest, TResponse>(
+                client.GetTestUrlFor<TEndpoint>(request),
+                request,
+                sendAsFormData,
+                populateHeaders,
+                populateCookies);
+
+        /// <summary>
+        /// make a QUERY request to an endpoint using auto route discovery using a request dto that does not send back a response dto.
+        /// </summary>
+        /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
+        /// <typeparam name="TRequest">the type of the request dto</typeparam>
+        /// <param name="request">the request dto</param>
+        /// <param name="sendAsFormData">when set to true, the request dto will be automatically converted to a <see cref="MultipartFormDataContent" /></param>
+        /// <param name="populateHeaders">
+        /// when set to false, headers will not be automatically added to the http request from request dto properties decorated with the
+        /// [FromHeader] attribute.
+        /// </param>
+        /// <param name="populateCookies">
+        /// when set to false, cookies will not be automatically added to the http request from request dto properties decorated with the
+        /// [FromCookie] attribute.
+        /// </param>
+        public async Task<HttpResponseMessage> QUERYAsync<TEndpoint, TRequest>(TRequest request,
+                                                                               bool sendAsFormData = false,
+                                                                               bool populateHeaders = true,
+                                                                               bool populateCookies = true)
+            where TEndpoint : IEndpoint where TRequest : notnull
+        {
+            var (rsp, _) = await client.QUERYAsync<TEndpoint, TRequest, EmptyResponse>(request, sendAsFormData, populateHeaders, populateCookies);
+
+            return rsp;
+        }
+
+        /// <summary>
+        /// make a QUERY request to an endpoint using auto route discovery without a request dto and get back a <see cref="TestResult{TResponse}" /> containing
+        /// the <see cref="HttpResponseMessage" /> as well as the <typeparamref name="TResponse" /> dto.
+        /// </summary>
+        /// <typeparam name="TEndpoint">the type of the endpoint</typeparam>
+        /// <typeparam name="TResponse">the type of the response dto</typeparam>
+        public Task<TestResult<TResponse>> QUERYAsync<TEndpoint, TResponse>() where TEndpoint : IEndpoint
+            => client.QUERYAsync<TEndpoint, EmptyRequest, TResponse>(EmptyRequest.Instance);
+
+        /// <summary>
         /// make a DELETE request using a request dto and get back a <see cref="TestResult{TResponse}" /> containing the <see cref="HttpResponseMessage" /> as
         /// well as the <typeparamref name="TResponse" /> DTO.
         /// </summary>

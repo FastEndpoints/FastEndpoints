@@ -94,6 +94,9 @@ public class EndpointTests(Sut App) : TestBase<Sut>
         var deleteResp = await App.AdminClient
                                   .DELETEAsync<TestCases.HydratedTestUrlGeneratorTest.Endpoint, TestCases.HydratedTestUrlGeneratorTest.Request, string>(req);
 
+        var queryResp = await App.AdminClient
+                                 .QUERYAsync<TestCases.HydratedTestUrlGeneratorTest.Endpoint, TestCases.HydratedTestUrlGeneratorTest.Request, string>(req);
+
         // Assert
         var expectedPath = "/api/test/hydrated-test-url-generator-test/123/00000000-0000-0000-0000-000000000000/string/null/{fromClaim}/{fromHeader}/true";
         getResp.Result.ShouldBeEquivalentTo(expectedPath);
@@ -101,6 +104,7 @@ public class EndpointTests(Sut App) : TestBase<Sut>
         putResp.Result.ShouldBeEquivalentTo(expectedPath);
         patchResp.Result.ShouldBeEquivalentTo(expectedPath);
         deleteResp.Result.ShouldBeEquivalentTo(expectedPath);
+        queryResp.Result.ShouldBeEquivalentTo(expectedPath);
     }
 
     [Fact]

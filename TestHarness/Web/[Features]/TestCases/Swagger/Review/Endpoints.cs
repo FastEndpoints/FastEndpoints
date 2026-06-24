@@ -1294,3 +1294,24 @@ sealed class NullableRefPropertyEndpoint : EndpointWithoutRequest<NullableRefPro
     public override Task HandleAsync(CancellationToken ct)
         => Send.OkAsync(new(), ct);
 }
+
+sealed class QueryMethodReviewRequest
+{
+    public string Name { get; set; } = string.Empty;
+
+    [QueryParam]
+    public string? Filter { get; set; }
+}
+
+sealed class QueryMethodReviewEndpoint : Endpoint<QueryMethodReviewRequest, string>
+{
+    public override void Configure()
+    {
+        Query("/swagger-review/query-method");
+        Tags("swagger_review");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(QueryMethodReviewRequest req, CancellationToken ct)
+        => Send.OkAsync(req.Name, ct);
+}

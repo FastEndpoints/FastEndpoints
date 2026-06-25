@@ -6,6 +6,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\..\Src\CommandRules\FastEndpoints.CommandRules.csproj"/>
         <ProjectReference Include="..\..\..\Src\Generator\FastEndpoints.Generator.csproj"/>
         <ProjectReference Include="..\..\..\TestHarness\Web\Web.csproj"/>
     </ItemGroup>

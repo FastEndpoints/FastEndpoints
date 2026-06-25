@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/REFs/">
     <Project Path="Src/Attributes/FastEndpoints.Attributes.csproj" />
+    <Project Path="Src/CommandRules/FastEndpoints.CommandRules.csproj" />
     <Project Path="Src/Core/FastEndpoints.Core.csproj" />
     <Project Path="Src/Generator.Cli/FastEndpoints.Generator.Cli.csproj" />
     <Project Path="Src/Generator/FastEndpoints.Generator.csproj" />

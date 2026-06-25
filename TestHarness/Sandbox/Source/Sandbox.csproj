@@ -18,6 +18,7 @@
 
     <ItemGroup>
         <PackageReference Include="Scalar.AspNetCore"/>
+        <ProjectReference Include="..\..\..\Src\CommandRules\FastEndpoints.CommandRules.csproj"/>
         <ProjectReference Include="..\..\..\Src\Library\FastEndpoints.csproj"/>
         <ProjectReference Include="..\..\..\Src\Attributes\FastEndpoints.Attributes.csproj"/>
         <ProjectReference Include="..\..\..\Src\Generator\FastEndpoints.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>

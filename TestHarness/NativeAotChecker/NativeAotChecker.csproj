@@ -34,6 +34,7 @@
 
         <ProjectReference Include="..\..\Src\Generator\FastEndpoints.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
         <ProjectReference Include="..\..\Src\Library\FastEndpoints.csproj"/>
+        <ProjectReference Include="..\..\Src\CommandRules\FastEndpoints.CommandRules.csproj"/>
         <ProjectReference Include="..\..\Src\Security\FastEndpoints.Security.csproj"/>
         <ProjectReference Include="..\..\Src\OpenApi\FastEndpoints.OpenApi.csproj"/>
         <ProjectReference Include="..\Sandbox\Contracts\Contracts.csproj"/>

@@ -4,6 +4,7 @@
     <Project Path="../../Src/Attributes/FastEndpoints.Attributes.csproj" />
     <Project Path="../../Src/ClientGen.Kiota/FastEndpoints.ClientGen.Kiota.csproj" />
     <Project Path="../../Src/ClientGen/FastEndpoints.ClientGen.csproj" />
+    <Project Path="../../Src/CommandRules/FastEndpoints.CommandRules.csproj" />
     <Project Path="../../Src/Generator/FastEndpoints.Generator.csproj" />
     <Project Path="../../Src/Library/FastEndpoints.csproj" />
     <Project Path="../../Src/OData/FastEndpoints.OData.csproj" />

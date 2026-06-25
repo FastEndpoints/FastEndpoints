@@ -2,6 +2,7 @@ using System.Text.Json;
 using FastEndpoints.OpenApi;
 using FastEndpoints.Security;
 using NativeAotChecker;
+using NativeAotChecker.Endpoints.CommandRules;
 using NativeAotChecker.Endpoints.Commands;
 using NativeAotChecker.Endpoints.Jobs;
 using NativeAotChecker.Endpoints.Processors;
@@ -12,6 +13,19 @@ bld.Services
    .AddAuthenticationJwtBearer(o => o.SigningKey = bld.Configuration["Jwt-Secret"])
    .AddAuthorization()
    .AddFastEndpoints(DiscoveredTypes.All, GenericProcessorTypes.All)
+   .AddCommandRules(
+       o =>
+       {
+           o.MatchMode = CommandRuleMatchMode.All;
+           o.UnhandledBehavior = UnhandledRuleBehavior.NoOp;
+           o.DefaultMode = CommandDispatchMode.ExecuteNow;
+           o.FailureBehavior = CommandDispatchFailureBehavior.Continue;
+       })
+   .AddCommandRule<CommandRulesRequest, FirstCommandRule>()
+   .AddCommandRule<CommandRulesRequest, SecondCommandRule>()
+   .AddCommandRule<CommandRulesRequest, ExecuteNowCommandRule>()
+   .AddCommandRule<CommandRulesRequest, QueueJobCommandRule>()
+   .AddCommandRule<CommandRulesRequest, UnsupportedCommandRule>()
    .AddJobQueues<Job, JobStorage>()
    .AddCommandMiddleware(
        c =>

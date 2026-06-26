@@ -20,12 +20,12 @@ bld.Services
            o.UnhandledBehavior = UnhandledRuleBehavior.NoOp;
            o.DefaultMode = CommandDispatchMode.ExecuteNow;
            o.FailureBehavior = CommandDispatchFailureBehavior.Continue;
+           o.Register<CommandRulesRequest, FirstCommandRule>();
+           o.Register<CommandRulesRequest, SecondCommandRule>();
+           o.Register<CommandRulesRequest, ExecuteNowCommandRule>();
+           o.Register<CommandRulesRequest, QueueJobCommandRule>();
+           o.Register<CommandRulesRequest, UnsupportedCommandRule>();
        })
-   .AddCommandRule<CommandRulesRequest, FirstCommandRule>()
-   .AddCommandRule<CommandRulesRequest, SecondCommandRule>()
-   .AddCommandRule<CommandRulesRequest, ExecuteNowCommandRule>()
-   .AddCommandRule<CommandRulesRequest, QueueJobCommandRule>()
-   .AddCommandRule<CommandRulesRequest, UnsupportedCommandRule>()
    .AddJobQueues<Job, JobStorage>()
    .AddCommandMiddleware(
        c =>

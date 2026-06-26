@@ -29,8 +29,12 @@ public class CommandRulesTests : IDisposable
     public async Task RuleEngine_Aggregates_All_Matches_In_Order()
     {
         var services = new ServiceCollection();
-        services.AddCommandRule<Input, HighOrderRule>();
-        services.AddCommandRule<Input, LowOrderRule>();
+        services.AddCommandRules(
+            o =>
+            {
+                o.Register<Input, HighOrderRule>();
+                o.Register<Input, LowOrderRule>();
+            });
 
         await using var provider = services.BuildServiceProvider();
         var engine = provider.GetRequiredService<ICommandRuleEngine<Input>>();
@@ -45,8 +49,12 @@ public class CommandRulesTests : IDisposable
     public async Task RuleEngine_Preserves_Registration_Order_For_Equal_Order_Rules()
     {
         var services = new ServiceCollection();
-        services.AddCommandRule<Input, FirstEqualOrderRule>();
-        services.AddCommandRule<Input, SecondEqualOrderRule>();
+        services.AddCommandRules(
+            o =>
+            {
+                o.Register<Input, FirstEqualOrderRule>();
+                o.Register<Input, SecondEqualOrderRule>();
+            });
 
         await using var provider = services.BuildServiceProvider();
         var engine = provider.GetRequiredService<ICommandRuleEngine<Input>>();
@@ -74,9 +82,13 @@ public class CommandRulesTests : IDisposable
     public async Task RuleEngine_Stops_After_First_Match_When_Configured()
     {
         var services = new ServiceCollection();
-        services.AddCommandRules(o => o.MatchMode = CommandRuleMatchMode.First);
-        services.AddCommandRule<Input, HighOrderRule>();
-        services.AddCommandRule<Input, LowOrderRule>();
+        services.AddCommandRules(
+            o =>
+            {
+                o.MatchMode = CommandRuleMatchMode.First;
+                o.Register<Input, HighOrderRule>();
+                o.Register<Input, LowOrderRule>();
+            });
 
         await using var provider = services.BuildServiceProvider();
         var engine = provider.GetRequiredService<ICommandRuleEngine<Input>>();
@@ -91,7 +103,7 @@ public class CommandRulesTests : IDisposable
     public async Task RuleEngine_Distinguishes_Matched_Empty_Rule_From_No_Match()
     {
         var services = new ServiceCollection();
-        services.AddCommandRule<Input, EmptyRule>();
+        services.AddCommandRules(o => o.Register<Input, EmptyRule>());
 
         await using var provider = services.BuildServiceProvider();
         var engine = provider.GetRequiredService<ICommandRuleEngine<Input>>();
@@ -152,8 +164,12 @@ public class CommandRulesTests : IDisposable
     public async Task RuleEngine_Throws_When_No_Rule_Matches_And_Configured()
     {
         var services = new ServiceCollection();
-        services.AddCommandRules(o => o.UnhandledBehavior = UnhandledRuleBehavior.Throw);
-        services.AddCommandRule<Input, LowOrderRule>();
+        services.AddCommandRules(
+            o =>
+            {
+                o.UnhandledBehavior = UnhandledRuleBehavior.Throw;
+                o.Register<Input, LowOrderRule>();
+            });
 
         await using var provider = services.BuildServiceProvider();
         var engine = provider.GetRequiredService<ICommandRuleEngine<Input>>();
@@ -169,7 +185,7 @@ public class CommandRulesTests : IDisposable
         var planned = new PlannedCommand(new ExecutedCommand()) { Mode = CommandDispatchMode.QueueAsJob };
         var services = new ServiceCollection();
         services.AddMessaging(new[] { new List<Type> { typeof(ExecutedCommandHandler) } });
-        services.AddCommandRules();
+        services.AddCommandRules(_ => { });
         services.AddSingleton<ICommandRuleEngine<Input>>(new StaticRuleEngine(new CommandRulePlan(1, [planned])));
 
         await using var provider = services.BuildServiceProvider();
@@ -190,8 +206,7 @@ public class CommandRulesTests : IDisposable
 
         var services = new ServiceCollection();
         services.AddMessaging(new[] { new List<Type> { typeof(ExecutedCommandHandler) } });
-        services.AddCommandRules();
-        services.AddCommandRule<Input, ExecuteRule>();
+        services.AddCommandRules(o => o.Register<Input, ExecuteRule>());
 
         await using var provider = services.BuildServiceProvider();
         provider.UseMessaging();

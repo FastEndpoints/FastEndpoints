@@ -17,8 +17,10 @@ A new `FastEndpoints.CommandRules` package is now available for turning arbitrar
 It's useful when an application event, webhook payload, request DTO, or domain object needs to fan out into different command-bus actions without putting branching logic in endpoints or handlers. Rules evaluate the input, build a command plan, and the dispatcher executes the selected commands immediately or queues them as jobs.
 
 ```csharp
-bld.Services.AddCommandRule<OrderPlaced, OrderPlacedRule>();
+// map input model to a rule
+bld.Services.AddCommandRules(o => o.Register<OrderPlaced, OrderPlacedRule>());
 
+// define the rule to specify which commands should ececute
 sealed class OrderPlacedRule : CommandRule<OrderPlaced>
 {
     public override bool CanHandle(OrderPlaced input)

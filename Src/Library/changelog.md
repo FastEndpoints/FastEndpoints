@@ -47,4 +47,12 @@ await dispatcher.DispatchAsync(orderPlaced, ct);
 
 ## Improvements 🚀
 
+<details><summary>Relaxed A2A skill id validation</summary>
+
+A2A skill ids now allow dots and forward slashes, so path/version-style identifiers such as `users/read.v1` can be published without renaming.
+
+MCP tool names keep the stricter validation rules to preserve compatibility with MCP clients and providers.
+
+</details>
+
 ## Breaking Changes ⚠️

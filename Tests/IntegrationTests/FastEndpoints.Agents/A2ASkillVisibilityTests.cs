@@ -32,6 +32,23 @@ public class A2ASkillVisibilityTests
     }
 
     [Fact]
+    public async Task Explicit_skill_id_allows_dots_and_forward_slashes()
+    {
+        const string skillId = "users/read.v1";
+        using var provider = BuildServices(HideHiddenSkill, visibleSkillId: skillId);
+        var ctx = BuildContext(provider);
+
+        var card = provider.GetRequiredService<AgentCardBuilder>().Build(ctx);
+
+        card.Skills.Select(s => s.Id).ShouldContain(skillId);
+
+        var result = await Dispatch(provider, skillId, ctx);
+        var resultJson = JsonSerializer.SerializeToElement(result, Config.SerOpts.Options);
+
+        resultJson.GetProperty("message").GetProperty("parts")[0].GetProperty("data").GetProperty("Value").GetString().ShouldBe("visible:ping");
+    }
+
+    [Fact]
     public void Hidden_skill_is_omitted_from_agent_card()
     {
         using var provider = BuildServices(HideHiddenSkill);
@@ -144,7 +161,7 @@ public class A2ASkillVisibilityTests
         ex.Message.ShouldContain("shared");
     }
 
-    [Theory, InlineData("bad id"), InlineData("bad.id"), InlineData("")]
+    [Theory, InlineData("bad id"), InlineData("bad:id"), InlineData("")]
     public void Explicit_invalid_skill_ids_fail_with_clear_exception(string invalidId)
     {
         using var provider = BuildServices(visibleSkillId: invalidId);

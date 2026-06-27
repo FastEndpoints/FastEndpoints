@@ -10,7 +10,7 @@ namespace FastEndpoints.Agents.Tests;
 
 public class McpToolNameValidationTests
 {
-    [Theory, InlineData("bad name"), InlineData("bad.name"), InlineData("")]
+    [Theory, InlineData("bad name"), InlineData("bad.name"), InlineData("bad/name"), InlineData("")]
     public void Explicit_invalid_tool_names_fail_with_clear_exception(string invalidName)
     {
         using var provider = BuildServices(typeof(ExplicitInvalidNameEndpoint));

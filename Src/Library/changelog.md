@@ -55,4 +55,10 @@ MCP tool names keep the stricter validation rules to preserve compatibility with
 
 </details>
 
+<details><summary>Refresh token service support for union-type returning endpoints</summary>
+
+A new `CreateTokenWith<TService, TTokenResponse>()` overload lets endpoints that return a union-type result (e.g. `Results<Ok<TokenResponse>, UnauthorizedHttpResult>`) create access/refresh token pairs, by decoupling the token response type from the endpoint's response type.
+
+</details>
+
 ## Breaking Changes ⚠️

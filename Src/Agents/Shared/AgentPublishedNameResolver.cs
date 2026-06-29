@@ -5,28 +5,24 @@ namespace FastEndpoints.Agents;
 static class AgentPublishedNameResolver
 {
     const int MaxNameLength = 64;
-    const string ValidNamePattern = "^[A-Za-z0-9_-]{1,64}$";
-    const string ValidPathNamePattern = "^[A-Za-z0-9_./-]{1,64}$";
+    const string ValidNamePattern = "^[A-Za-z0-9_./-]{1,64}$";
 
     internal static string Resolve(EndpointDefinition def,
                                    string? explicitValue,
                                    string valueLabel,
-                                   string pluralValueLabel,
-                                   bool allowPathSeparators = false)
+                                   string pluralValueLabel)
     {
-        var validNamePattern = allowPathSeparators ? ValidPathNamePattern : ValidNamePattern;
-
         if (explicitValue is not null)
-            return ValidateExplicit(def.EndpointType, explicitValue, valueLabel, pluralValueLabel, validNamePattern, allowPathSeparators);
+            return ValidateExplicit(def.EndpointType, explicitValue, valueLabel, pluralValueLabel);
 
         var generatedSource = !string.IsNullOrWhiteSpace(def.EndpointSummary?.Summary)
                                   ? def.EndpointSummary!.Summary
                                   : def.EndpointType.Name;
-        var normalizedValue = SanitizeGenerated(NamingHelpers.ToSnakeCase(generatedSource), allowPathSeparators);
+        var normalizedValue = SanitizeGenerated(NamingHelpers.ToSnakeCase(generatedSource));
 
         if (normalizedValue.Length == 0)
             throw new InvalidOperationException(
-                $"Generated {valueLabel} for endpoint '{FormatEndpointType(def.EndpointType)}' is empty after normalization. Bad value: '{generatedSource}'. Set an explicit {valueLabel} matching {validNamePattern}.");
+                $"Generated {valueLabel} for endpoint '{FormatEndpointType(def.EndpointType)}' is empty after normalization. Bad value: '{generatedSource}'. Set an explicit {valueLabel} matching {ValidNamePattern}.");
 
         return normalizedValue;
     }
@@ -34,25 +30,23 @@ static class AgentPublishedNameResolver
     static string ValidateExplicit(Type endpointType,
                                    string value,
                                    string valueLabel,
-                                   string pluralValueLabel,
-                                   string validNamePattern,
-                                   bool allowPathSeparators)
+                                   string pluralValueLabel)
     {
-        if (!IsValid(value, allowPathSeparators))
+        if (!IsValid(value))
             throw new InvalidOperationException(
-                $"Invalid explicit {valueLabel} '{value}' for endpoint '{FormatEndpointType(endpointType)}'. Explicit {pluralValueLabel} must match {validNamePattern}.");
+                $"Invalid explicit {valueLabel} '{value}' for endpoint '{FormatEndpointType(endpointType)}'. Explicit {pluralValueLabel} must match {ValidNamePattern}.");
 
         return value;
     }
 
-    static string SanitizeGenerated(string value, bool allowPathSeparators)
+    static string SanitizeGenerated(string value)
     {
         var builder = new StringBuilder(value.Length);
         var previousWasSeparator = false;
 
         foreach (var c in value)
         {
-            if (IsValidChar(c, allowPathSeparators))
+            if (IsValidChar(c))
             {
                 var isSeparator = c is '_' or '-';
 
@@ -84,11 +78,11 @@ static class AgentPublishedNameResolver
         return builder.ToString();
     }
 
-    static bool IsValid(string value, bool allowPathSeparators)
-        => value.Length is > 0 and <= MaxNameLength && value.All(c => IsValidChar(c, allowPathSeparators));
+    static bool IsValid(string value)
+        => value.Length is > 0 and <= MaxNameLength && value.All(IsValidChar);
 
-    static bool IsValidChar(char c, bool allowPathSeparators)
-        => char.IsAsciiLetterOrDigit(c) || c is '_' or '-' || (allowPathSeparators && (c is '.' or '/'));
+    static bool IsValidChar(char c)
+        => char.IsAsciiLetterOrDigit(c) || c is '_' or '-' or '.' or '/';
 
     static string FormatEndpointType(Type endpointType)
         => endpointType.FullName ?? endpointType.Name;

@@ -44,59 +44,55 @@ static class DocumentSchemaNormalizer
     }
 
     static void RemoveBareNullOneOfOptions(this OpenApiDocument document)
-        => OpenApiSchemaGraphTransformer.TransformDocumentSchemas(document, schema =>
-        {
-            if (schema is OpenApiSchema concreteSchema)
-                RemoveBareNullOneOfOptions(concreteSchema);
+        => OpenApiSchemaGraphTransformer.TransformDocumentSchemas(document, RemoveBareNullOneOfOptions);
 
+    static IOpenApiSchema? RemoveBareNullOneOfOptions(IOpenApiSchema? schema)
+    {
+        if (schema is not OpenApiSchema concreteSchema || concreteSchema.OneOf is not { Count: > 0 } oneOf)
             return schema;
-        });
 
-    static void RemoveBareNullOneOfOptions(OpenApiSchema schema)
-    {
-        if (schema.OneOf is not { Count: > 0 } oneOf)
-            return;
-
-        var removedNullOption = false;
-
-        for (var i = oneOf.Count - 1; i >= 0; i--)
-        {
-            if (!IsBareNullSchema(oneOf[i]))
-                continue;
-
-            oneOf.RemoveAt(i);
-            removedNullOption = true;
-        }
-
-        if (!removedNullOption)
-            return;
-
-        if (schema.Type.HasValue)
-            schema.Type = schema.Type.Value | JsonSchemaType.Null;
-        else if (oneOf.Count == 0)
-            schema.Type = JsonSchemaType.Null;
-        else if (InferOneOfSchemaType(oneOf) is { } inferredType)
-            schema.Type = inferredType | JsonSchemaType.Null;
-
-        if (oneOf.Count == 0)
-            schema.OneOf = null;
-    }
-
-    static JsonSchemaType? InferOneOfSchemaType(IEnumerable<IOpenApiSchema> oneOf)
-    {
-        JsonSchemaType? inferredType = null;
+        var nullOptionCount = 0;
+        var nonNullOptions = new List<IOpenApiSchema>(oneOf.Count);
 
         foreach (var option in oneOf)
         {
-            if (GetNonNullSchemaType(option) is not { } optionType)
-                continue;
-
-            inferredType = inferredType.HasValue
-                               ? inferredType.Value | optionType
-                               : optionType;
+            if (IsBareNullSchema(option))
+                nullOptionCount++;
+            else
+                nonNullOptions.Add(option);
         }
 
-        return inferredType;
+        if (nullOptionCount == 0)
+            return concreteSchema;
+
+        if (nonNullOptions.Count == 0)
+        {
+            concreteSchema.Type = JsonSchemaType.Null;
+            concreteSchema.OneOf = null;
+
+            return concreteSchema;
+        }
+
+        if (nullOptionCount == 1 && nonNullOptions.Count == 1 && TryCreateNullableArraySchema(nonNullOptions[0]) is { } nullableArraySchema)
+            return nullableArraySchema;
+
+        if (concreteSchema.Type.HasValue)
+            concreteSchema.Type = concreteSchema.Type.Value | JsonSchemaType.Null;
+
+        return concreteSchema;
+    }
+
+    static OpenApiSchema? TryCreateNullableArraySchema(IOpenApiSchema schema)
+    {
+        var arraySchema = schema.CloneAsConcreteSchema();
+
+        if (arraySchema is null || GetNonNullSchemaType(arraySchema) is not { } schemaType || !schemaType.HasFlag(JsonSchemaType.Array))
+            return null;
+
+        arraySchema.Type = schemaType | JsonSchemaType.Null;
+        arraySchema.OneOf = null;
+
+        return arraySchema;
     }
 
     static JsonSchemaType? GetNonNullSchemaType(IOpenApiSchema? schema)

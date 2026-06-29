@@ -45,6 +45,14 @@ await dispatcher.DispatchAsync(orderPlaced, ct);
 
 ## Fixes 🪲
 
+<details><summary>Nullable OpenAPI schemas with composition now emit valid null branches</summary>
+
+`FastEndpoints.OpenApi` now emits valid OpenAPI 3.1 schemas for nullable arrays and nullable object references when composition keywords such as `oneOf` are involved.
+
+Nullable arrays now inline the referenced array schema instead of combining `type: ["null", "array"]` with a non-null `oneOf`, and nullable object references now preserve null validity with an explicit null branch.
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Relaxed agent name validation</summary>

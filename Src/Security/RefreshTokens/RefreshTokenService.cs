@@ -58,7 +58,8 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
     /// </summary>
     /// <param name="jwtOptions">jwt token creation options which you can modify per request</param>
     /// <param name="request">
-    /// the request dto. maybe null unless you supply it to the <see cref="Endpoint{TRequest,TResponse}.CreateTokenWith{TService}" /> method.
+    /// the request dto. maybe null unless you supply it to the <see cref="Endpoint{TRequest,TResponse}.CreateTokenWith{TService}" /> method
+    /// or the <see cref="Endpoint{TRequest,TResponse}.CreateTokenWith{TService,TTokenResponse}" /> overload for union-response endpoints.
     /// </param>
     [SuppressMessage("ReSharper", "UnusedParameter.Global")]
     public virtual Task OnBeforeInitialTokenCreationAsync(JwtCreationOptions jwtOptions, object? request)
@@ -68,7 +69,8 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
     /// a hook for modifying the created token response when a login request comes in.
     /// </summary>
     /// <param name="request">
-    /// the request dto. maybe null unless you supply it to the <see cref="Endpoint{TRequest,TResponse}.CreateTokenWith{TService}" /> method.
+    /// the request dto. maybe null unless you supply it to the <see cref="Endpoint{TRequest,TResponse}.CreateTokenWith{TService}" /> method
+    /// or the <see cref="Endpoint{TRequest,TResponse}.CreateTokenWith{TService,TTokenResponse}" /> overload for union-response endpoints.
     /// </param>
     /// <param name="response">the token response dto that is created</param>
     [SuppressMessage("ReSharper", "UnusedParameter.Global")]
@@ -81,7 +83,8 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
     /// </summary>
     /// <param name="jwtOptions">jwt token creation options which you can modify per request</param>
     /// <param name="request">
-    /// the request dto. maybe null unless you supply it to the <see cref="Endpoint{TRequest,TResponse}.CreateTokenWith{TService}" /> method.
+    /// the request dto. maybe null unless you supply it to the <see cref="Endpoint{TRequest,TResponse}.CreateTokenWith{TService}" /> method
+    /// or the <see cref="Endpoint{TRequest,TResponse}.CreateTokenWith{TService,TTokenResponse}" /> overload for union-response endpoints.
     /// </param>
     [SuppressMessage("ReSharper", "UnusedParameter.Global")]
     public virtual Task OnBeforeRenewalTokenCreationAsync(JwtCreationOptions jwtOptions, TRequest? request)
@@ -91,7 +94,8 @@ public abstract class RefreshTokenService<TRequest, TResponse> : Endpoint<TReque
     /// a hook for modifying the created token response when a renewal request comes in.
     /// </summary>
     /// <param name="request">
-    /// the request dto. maybe null unless you supply it to the <see cref="Endpoint{TRequest,TResponse}.CreateTokenWith{TService}" /> method.
+    /// the request dto. maybe null unless you supply it to the <see cref="Endpoint{TRequest,TResponse}.CreateTokenWith{TService}" /> method
+    /// or the <see cref="Endpoint{TRequest,TResponse}.CreateTokenWith{TService,TTokenResponse}" /> overload for union-response endpoints.
     /// </param>
     /// <param name="response">the token response dto that is created</param>
     [SuppressMessage("ReSharper", "UnusedParameter.Global")]

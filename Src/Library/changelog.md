@@ -45,13 +45,21 @@ await dispatcher.DispatchAsync(orderPlaced, ct);
 
 ## Fixes 🪲
 
+<details><summary>Nullable OpenAPI schemas with composition now emit valid null branches</summary>
+
+`FastEndpoints.OpenApi` now emits valid OpenAPI 3.1 schemas for nullable arrays and nullable object references when composition keywords such as `oneOf` are involved.
+
+Nullable arrays now inline the referenced array schema instead of combining `type: ["null", "array"]` with a non-null `oneOf`, and nullable object references now preserve null validity with an explicit null branch.
+
+</details>
+
 ## Improvements 🚀
 
-<details><summary>Relaxed A2A skill id validation</summary>
+<details><summary>Relaxed agent name validation</summary>
 
-A2A skill ids now allow dots and forward slashes, so path/version-style identifiers such as `users/read.v1` can be published without renaming.
+A2A skill ids and MCP tool names now allow dots and forward slashes, so path/version-style identifiers such as `users/read.v1` can be published without renaming.
 
-MCP tool names keep the stricter validation rules to preserve compatibility with MCP clients and providers.
+Some external MCP adapters may still apply OpenAI-style function-name validation and reject dots or slashes.
 
 </details>
 

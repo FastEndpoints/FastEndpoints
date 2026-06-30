@@ -10,7 +10,7 @@ namespace FastEndpoints.Agents.Tests;
 
 public class McpToolNameValidationTests
 {
-    [Theory, InlineData("bad name"), InlineData("bad.name"), InlineData("bad/name"), InlineData("")]
+    [Theory, InlineData("bad name"), InlineData(""), InlineData("bad:name")]
     public void Explicit_invalid_tool_names_fail_with_clear_exception(string invalidName)
     {
         using var provider = BuildServices(typeof(ExplicitInvalidNameEndpoint));
@@ -23,6 +23,20 @@ public class McpToolNameValidationTests
         ex.Message.ShouldContain(typeof(ExplicitInvalidNameEndpoint).FullName!);
     }
 
+    [Theory, InlineData("good.name"), InlineData("good/name"), InlineData("admin.tools/list_v1")]
+    public async Task Explicit_tool_names_allow_dots_and_slashes(string validName)
+    {
+        using var provider = BuildServices(typeof(ExplicitInvalidNameEndpoint));
+        GetDefinition<ExplicitInvalidNameEndpoint>(provider).McpTool(validName);
+        SetUser(provider);
+
+        var tools = await ListTools(provider);
+        var result = await CallTool(provider, validName);
+
+        tools.Tools.Select(x => x.Name).ShouldBe([validName]);
+        ((TextContentBlock)result.Content[0]).Text.ShouldContain("explicit:ping");
+    }
+
     [Fact]
     public void Attribute_invalid_tool_name_fails_with_clear_exception()
     {
@@ -31,7 +45,7 @@ public class McpToolNameValidationTests
         var ex = Should.Throw<InvalidOperationException>(() => provider.GetRequiredService<EndpointMcpToolSource>().BuildTools());
 
         ex.Message.ShouldContain("Invalid explicit MCP tool name");
-        ex.Message.ShouldContain("'bad.name'");
+        ex.Message.ShouldContain("'bad name'");
         ex.Message.ShouldContain(typeof(AttributeInvalidNameEndpoint).FullName!);
     }
 
@@ -45,7 +59,7 @@ public class McpToolNameValidationTests
         var ex = Should.Throw<InvalidOperationException>(() => provider.GetRequiredService<EndpointMcpToolSource>().BuildTools());
 
         ex.Message.ShouldContain("Invalid explicit MCP tool name");
-        ex.Message.ShouldContain("^[A-Za-z0-9_-]{1,64}$");
+        ex.Message.ShouldContain("^[A-Za-z0-9_./-]{1,64}$");
         ex.Message.ShouldContain(typeof(ExplicitInvalidNameEndpoint).FullName!);
     }
 
@@ -88,7 +102,7 @@ public class McpToolNameValidationTests
     public void Different_inputs_that_normalize_to_same_final_name_fail_duplicate_check()
     {
         using var provider = BuildServices(typeof(FirstDuplicateGeneratedNameEndpoint), typeof(SecondDuplicateGeneratedNameEndpoint));
-        ConfigureGeneratedTool<FirstDuplicateGeneratedNameEndpoint>(provider, "Hello.World");
+        ConfigureGeneratedTool<FirstDuplicateGeneratedNameEndpoint>(provider, "Hello World");
         ConfigureGeneratedTool<SecondDuplicateGeneratedNameEndpoint>(provider, "Hello:World");
 
         var ex = Should.Throw<InvalidOperationException>(() => provider.GetRequiredService<EndpointMcpToolSource>().BuildTools());
@@ -199,7 +213,7 @@ public class McpToolNameValidationTests
             => Send.OkAsync(new() { Value = "summary:" + req.Value }, ct);
     }
 
-    [McpTool("bad.name"), HttpPost("/attribute-invalid-name")]
+    [McpTool("bad name"), HttpPost("/attribute-invalid-name")]
     sealed class AttributeInvalidNameEndpoint : Endpoint<ToolRequest, ToolResponse>
     {
         public override Task HandleAsync(ToolRequest req, CancellationToken ct)

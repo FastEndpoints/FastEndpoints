@@ -824,28 +824,69 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     }
 
     [Fact]
-    public async Task nullable_ref_property_should_not_have_null_placeholder_in_oneOf()
+    public async Task nullable_collection_property_inlines_array_items_and_accepts_null()
     {
-        var json = await App.GetDocumentJsonAsync("Nullable OneOf Repro");
-        var nullableObjSchema = JToken.Parse(json)["components"]!["schemas"]!["TestCasesSwaggerReviewNullableRefPropertyResponse"]!
-                                  ["properties"]!["nullableObj"]!;
-        var oneOf = nullableObjSchema["oneOf"] as JArray ?? [];
+        var json = await App.GetDocumentJsonAsync("Initial Release");
+        var doc = JToken.Parse(json);
+        var customersSchema = doc["components"]!["schemas"]!["CustomersListRecentResponse"]!["properties"]!["customers"]!;
 
-        oneOf.ShouldNotBeEmpty();
-        oneOf.FirstOrDefault(s => s["type"]?.Value<string>() == "null")
-             .ShouldBeNull("null should be promoted to the parent schema, not left as a placeholder inside oneOf");
+        SchemaTypeContains(customersSchema, "null").ShouldBeTrue();
+        SchemaTypeContains(customersSchema, "array").ShouldBeTrue();
+        customersSchema["items"].ShouldNotBeNull();
+        customersSchema["oneOf"].ShouldBeNull();
+        customersSchema["anyOf"].ShouldBeNull();
+        SchemaAcceptsNull(doc, customersSchema).ShouldBeTrue();
     }
 
     [Fact]
-    public async Task nullable_ref_property_oneOf_should_only_contain_referenced_schema()
+    public async Task nullable_ref_property_oneOf_preserves_null_and_reference_branches()
     {
         var json = await App.GetDocumentJsonAsync("Nullable OneOf Repro");
         var nullableObjSchema = JToken.Parse(json)["components"]!["schemas"]!["TestCasesSwaggerReviewNullableRefPropertyResponse"]!
                                   ["properties"]!["nullableObj"]!;
         var oneOf = nullableObjSchema["oneOf"] as JArray ?? [];
 
+        oneOf.Count.ShouldBe(2);
+        oneOf.Count(s => SchemaTypeContains(s, "null")).ShouldBe(1);
         oneOf.Select(s => s["$ref"]?.Value<string>())
+             .Where(static r => r is not null)
              .ShouldBe(["#/components/schemas/TestCasesSwaggerReviewNullableRefChild"]);
+    }
+
+    [Fact]
+    public async Task nullable_ref_property_schema_accepts_null()
+    {
+        var json = await App.GetDocumentJsonAsync("Nullable OneOf Repro");
+        var doc = JToken.Parse(json);
+        var nullableObjSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewNullableRefPropertyResponse"]!["properties"]!["nullableObj"]!;
+
+        SchemaAcceptsNull(doc, nullableObjSchema).ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task nullable_typed_schemas_with_composition_must_accept_null()
+    {
+        var offenders = new List<string>();
+
+        foreach (var documentName in new[] { "Initial Release", "Nullable OneOf Repro" })
+        {
+            var json = await App.GetDocumentJsonAsync(documentName);
+            var doc = JToken.Parse(json);
+
+            foreach (var schema in DescendantObjects(doc))
+            {
+                if (!SchemaTypeContains(schema, "null"))
+                    continue;
+
+                if (schema["oneOf"] is JArray oneOf && oneOf.Count > 0 && !OneOfAcceptsNull(doc, oneOf))
+                    offenders.Add($"{documentName}: {schema.Path}.oneOf");
+
+                if (schema["anyOf"] is JArray anyOf && anyOf.Count > 0 && !AnyOfAcceptsNull(doc, anyOf))
+                    offenders.Add($"{documentName}: {schema.Path}.anyOf");
+            }
+        }
+
+        offenders.ShouldBeEmpty();
     }
 
     static JToken ResolveSchema(JToken document, JToken schema)
@@ -858,6 +899,68 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         var schemaKey = refValue[(refValue.LastIndexOf('/') + 1)..];
 
         return document["components"]!["schemas"]![schemaKey]!;
+    }
+
+    static bool SchemaAcceptsNull(JToken document, JToken schema)
+        => SchemaAcceptsNull(document, schema, []);
+
+    static bool SchemaAcceptsNull(JToken document, JToken schema, HashSet<string> visitedRefs)
+    {
+        var refValue = schema["$ref"]?.Value<string>();
+
+        if (refValue is not null)
+        {
+            if (!visitedRefs.Add(refValue))
+                return false;
+
+            return SchemaAcceptsNull(document, ResolveSchema(document, schema), visitedRefs);
+        }
+
+        if (schema["allOf"] is JArray allOf && allOf.Count > 0 && allOf.Any(s => !SchemaAcceptsNull(document, s, new(visitedRefs, StringComparer.Ordinal))))
+            return false;
+
+        if (schema["oneOf"] is JArray oneOf && oneOf.Count > 0 && !OneOfAcceptsNull(document, oneOf, visitedRefs))
+            return false;
+
+        if (schema["anyOf"] is JArray anyOf && anyOf.Count > 0 && !AnyOfAcceptsNull(document, anyOf, visitedRefs))
+            return false;
+
+        if (schema["not"] is { } not && SchemaAcceptsNull(document, not, new(visitedRefs, StringComparer.Ordinal)))
+            return false;
+
+        return schema["type"] is null || SchemaTypeContains(schema, "null");
+    }
+
+    static bool OneOfAcceptsNull(JToken document, JArray oneOf)
+        => OneOfAcceptsNull(document, oneOf, []);
+
+    static bool OneOfAcceptsNull(JToken document, JArray oneOf, HashSet<string> visitedRefs)
+        => oneOf.Count(s => SchemaAcceptsNull(document, s, new(visitedRefs, StringComparer.Ordinal))) == 1;
+
+    static bool AnyOfAcceptsNull(JToken document, JArray anyOf)
+        => AnyOfAcceptsNull(document, anyOf, []);
+
+    static bool AnyOfAcceptsNull(JToken document, JArray anyOf, HashSet<string> visitedRefs)
+        => anyOf.Any(s => SchemaAcceptsNull(document, s, new(visitedRefs, StringComparer.Ordinal)));
+
+    static bool SchemaTypeContains(JToken schema, string type)
+        => schema["type"] switch
+        {
+            JArray types => types.Values<string>().Contains(type, StringComparer.Ordinal),
+            JValue value => string.Equals(value.Value<string>(), type, StringComparison.Ordinal),
+            _ => false
+        };
+
+    static IEnumerable<JObject> DescendantObjects(JToken token)
+    {
+        if (token is JObject obj)
+            yield return obj;
+
+        foreach (var child in token.Children())
+        {
+            foreach (var descendant in DescendantObjects(child))
+                yield return descendant;
+        }
     }
 
     static string GetVariantSourceRefId(string refId)

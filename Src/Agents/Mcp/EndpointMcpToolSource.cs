@@ -154,7 +154,7 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
             },
             new()
             {
-                Name = name,
+                Name = name.Replace('/', '_'),
                 Description = description,
                 Title = info.Title,
                 ReadOnly = info.Hints.ReadOnly,
@@ -166,6 +166,9 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
                 SerializerOptions = protocolSerializerOptions
             });
 
+        // The current MCP SDK rejects forward slashes during tool construction even though the spec allows them.
+        // Publish the resolved protocol name after construction so FastEndpoints can follow the spec.
+        tool.ProtocolTool.Name = name;
         tool.ProtocolTool.InputSchema = JsonSerializer.SerializeToElement(inputSchema, protocolSerializerOptions);
 
         return tool;

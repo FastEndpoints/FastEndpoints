@@ -2,6 +2,8 @@ namespace OpenApi;
 
 public class Fixture : AppFixture<Web.Program>
 {
+    static readonly SemaphoreSlim DocumentGenerationLock = new(1, 1);
+
     public HttpClient DocClient { get; set; } = default!;
 
     protected override ValueTask SetupAsync()
@@ -13,10 +15,19 @@ public class Fixture : AppFixture<Web.Program>
 
     public async Task<string> GetDocumentJsonAsync(string documentName)
     {
-        var url = $"/openapi/{Uri.EscapeDataString(documentName)}.json";
-        var response = await DocClient.GetAsync(url);
-        response.EnsureSuccessStatusCode();
+        await DocumentGenerationLock.WaitAsync();
 
-        return await response.Content.ReadAsStringAsync();
+        try
+        {
+            var url = $"/openapi/{Uri.EscapeDataString(documentName)}.json";
+            using var response = await DocClient.GetAsync(url);
+            response.EnsureSuccessStatusCode();
+
+            return await response.Content.ReadAsStringAsync();
+        }
+        finally
+        {
+            DocumentGenerationLock.Release();
+        }
     }
 }

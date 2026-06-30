@@ -7145,6 +7145,36 @@
         }
       }
     },
+    "/api/tokens/union-login": {
+      "post": {
+        "tags": [
+          "Tokens"
+        ],
+        "operationId": "TestCasesRefreshTokensTestUnionLoginEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesRefreshTokensTestUnionLoginRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FastEndpointsSecurityTokenResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/uploads/image/save": {
       "post": {
         "tags": [
@@ -9560,6 +9590,14 @@
             ],
             "description": "optional other id",
             "format": "int32"
+          }
+        }
+      },
+      "TestCasesRefreshTokensTestUnionLoginRequest": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string"
           }
         }
       },

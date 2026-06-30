@@ -166,4 +166,39 @@ public class SecurityTests(Sut App) : TestBase<Sut>
         rsp.IsSuccessStatusCode.ShouldBeTrue();
         res.ShouldBeFalse();
     }
+
+    //refresh tokens - issue #597 - union-type returning login endpoint
+    [Fact]
+    public async Task UnionLoginEndpointGeneratesCorrectToken()
+    {
+        var (rsp, res) = await App.GuestClient.POSTAsync<RefreshTest.UnionLoginEndpoint, RefreshTest.UnionLoginRequest, TokenResponse>(
+                             new()
+                             {
+                                 Username = "usr001"
+                             });
+
+        rsp.StatusCode.ShouldBe(HttpStatusCode.OK);
+        res.UserId.ShouldBe("usr001");
+        Guid.TryParse(res.RefreshToken, out _).ShouldBeTrue();
+
+        var token = new JwtSecurityTokenHandler().ReadJwtToken(res.AccessToken);
+        token.Claims.Single(c => c.Type == "claim1").Value.ShouldBe("val1");
+        token.Claims.Single(c => c.Type == "role").Value.ShouldBe("role1");
+        token.Claims.Single(c => c.Type == "permissions").Value.ShouldBe("perm1");
+
+        //login path must not run the renewal hook (SetRenewalPrivilegesAsync adds "new-claim")
+        token.Claims.Any(c => c.Type == "new-claim").ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task UnionLoginEndpointReturnsUnauthorizedBranch()
+    {
+        var rsp = await App.GuestClient.POSTAsync<RefreshTest.UnionLoginEndpoint, RefreshTest.UnionLoginRequest>(
+                      new()
+                      {
+                          Username = "wrong-user"
+                      });
+
+        rsp.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+    }
 }

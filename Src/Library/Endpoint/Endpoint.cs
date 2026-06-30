@@ -315,7 +315,21 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
     /// <param name="userPrivileges">the user privileges to be embedded in the jwt such as roles/claims/permissions</param>
     protected Task<TResponse> CreateTokenWith<TService>(string userId, Action<UserPrivileges> userPrivileges, TRequest? request = default)
         where TService : IRefreshTokenService<TResponse>
-        => ((IRefreshTokenService<TResponse>)
+        => CreateTokenWith<TService, TResponse>(userId, userPrivileges, request);
+
+    /// <summary>
+    /// create the access/refresh token pair response with a given refresh-token service, decoupled from the endpoint's response type.
+    /// use this overload when the endpoint returns a union-type result (e.g. <c>Results&lt;Ok&lt;TokenResponse&gt;, UnauthorizedHttpResult&gt;</c>)
+    /// where the endpoint's <typeparamref name="TResponse" /> is not the token response type.
+    /// </summary>
+    /// <typeparam name="TService">the type of the token service</typeparam>
+    /// <typeparam name="TTokenResponse">the token response type produced by the service</typeparam>
+    /// <param name="userId">the id of the user for which the tokens will be generated for</param>
+    /// <param name="userPrivileges">the user privileges to be embedded in the jwt such as roles/claims/permissions</param>
+    /// <param name="request">the request dto, made available to the token creation hooks</param>
+    protected Task<TTokenResponse> CreateTokenWith<TService, TTokenResponse>(string userId, Action<UserPrivileges> userPrivileges, object? request = null)
+        where TService : IRefreshTokenService<TTokenResponse>
+        => ((IRefreshTokenService<TTokenResponse>)
                ServiceResolver.Instance.CreateInstance(typeof(TService), HttpContext.RequestServices)).CreateToken(userId, userPrivileges, false, request);
 
     /// <summary>

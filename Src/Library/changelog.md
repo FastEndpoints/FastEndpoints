@@ -63,4 +63,10 @@ Some external MCP adapters may still apply OpenAI-style function-name validation
 
 </details>
 
+<details><summary>Refresh token service support for union-type returning endpoints</summary>
+
+A new `CreateTokenWith<TService, TTokenResponse>()` overload lets endpoints that return a union-type result (e.g. `Results<Ok<TokenResponse>, UnauthorizedHttpResult>`) create access/refresh token pairs, by decoupling the token response type from the endpoint's response type.
+
+</details>
+
 ## Breaking Changes ⚠️

@@ -37,6 +37,17 @@ sealed class TestAssemblyRunner : XunitTestAssemblyRunner
         return result;
     }
 
+    protected override async ValueTask<bool> OnTestAssemblyFinished(XunitTestAssemblyRunnerContext ctx, RunSummary summary)
+    {
+        ArgumentNullException.ThrowIfNull(ctx);
+
+        var result = await base.OnTestAssemblyFinished(ctx, summary);
+
+        await ctx.Aggregator.RunAsync(async () => await BaseFixture.DisposeWafCacheAsync(ctx.TestAssembly.Assembly));
+
+        return result;
+    }
+
     protected override List<(IXunitTestCollection Collection, List<IXunitTestCase> TestCases)> OrderTestCollections(XunitTestAssemblyRunnerContext ctx)
     {
         ArgumentNullException.ThrowIfNull(ctx);

@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using Bogus;
 using Microsoft.AspNetCore.Hosting;
@@ -18,6 +19,7 @@ namespace FastEndpoints.Testing;
 public abstract class BaseFixture : IFaker
 {
     static readonly Faker _faker = new();
+    static readonly ConcurrentDictionary<Type, Func<ValueTask>> _wafDisposedHooks = new();
 
     public Faker Fake => _faker;
 
@@ -28,6 +30,54 @@ public abstract class BaseFixture : IFaker
 
     //we're using an async friendly lazy wrapper to ensure that no more than 1 waf instance is ever created per derived AppFixture type in a high concurrency situation.
     protected static readonly ConcurrentDictionary<Type, AsyncLazy<object>> WafCache = new();
+
+    internal static async ValueTask DisposeWafCacheAsync(Assembly assembly)
+    {
+        ArgumentNullException.ThrowIfNull(assembly);
+
+        List<Exception>? exceptions = null;
+
+        foreach (var fixtureType in WafCache.Keys.Where(t => t.Assembly == assembly).ToArray())
+        {
+            if (!WafCache.TryRemove(fixtureType, out var wafLazy))
+                continue;
+
+            _wafDisposedHooks.TryRemove(fixtureType, out var onWafDisposed);
+
+            try
+            {
+                await DisposeWafAsync(await wafLazy);
+
+                if (onWafDisposed is not null)
+                    await onWafDisposed();
+            }
+            catch (Exception ex)
+            {
+                (exceptions ??= []).Add(ex);
+            }
+        }
+
+        if (exceptions is { Count: > 0 })
+            throw new AggregateException(exceptions);
+
+        static async ValueTask DisposeWafAsync(object waf)
+        {
+            switch (waf)
+            {
+                case IAsyncDisposable asyncDisposable:
+                    await asyncDisposable.DisposeAsync();
+
+                    break;
+                case IDisposable disposable:
+                    disposable.Dispose();
+
+                    break;
+            }
+        }
+    }
+
+    internal static void RegisterWafDisposedHook(Type fixtureType, Func<ValueTask> hook)
+        => _wafDisposedHooks[fixtureType] = hook;
 
     protected sealed class AsyncLazy<T>(Func<Task<T>> taskFactory) : Lazy<Task<T>>(() => Task.Factory.StartNew(taskFactory).Unwrap())
     {
@@ -88,6 +138,14 @@ public abstract partial class AppFixture<TProgram> : BaseFixture, IAsyncLifetime
     /// it is run after all test-methods have executed.
     /// </summary>
     protected virtual ValueTask TearDownAsync()
+        => ValueTask.CompletedTask;
+
+    /// <summary>
+    /// override this method if you'd like to run teardown once when the cached <see cref="WebApplicationFactory{TEntryPoint}" /> for this fixture type is disposed.
+    /// it is run after all fixture users in the test assembly are done and the cached WAF has been disposed.
+    /// <para>NOTE: the automatic final hook only runs for cached WAF mode and requires <c>[assembly: EnableAdvancedTesting]</c>.</para>
+    /// </summary>
+    protected virtual ValueTask OnCachedWafDisposedAsync()
         => ValueTask.CompletedTask;
 
     /// <summary>
@@ -175,7 +233,15 @@ public abstract partial class AppFixture<TProgram> : BaseFixture, IAsyncLifetime
         if (tDerivedFixture.IsDefined(typeof(DisableWafCacheAttribute), true))
             _wafInstance = (WebApplicationFactory<TProgram>)await WafInitializer();
         else
-            _wafInstance = (WebApplicationFactory<TProgram>)await WafCache.GetOrAdd(tDerivedFixture, _ => new(WafInitializer));
+        {
+            var wafLazy = new AsyncLazy<object>(WafInitializer);
+            var cachedWaf = WafCache.GetOrAdd(tDerivedFixture, wafLazy);
+
+            if (ReferenceEquals(cachedWaf, wafLazy))
+                RegisterWafDisposedHook(tDerivedFixture, OnCachedWafDisposedAsync);
+
+            _wafInstance = (WebApplicationFactory<TProgram>)await cachedWaf;
+        }
 
         Client = _wafInstance.CreateClient();
 

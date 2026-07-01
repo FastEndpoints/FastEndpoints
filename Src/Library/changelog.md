@@ -43,6 +43,24 @@ await dispatcher.DispatchAsync(orderPlaced, ct);
 
 </details>
 
+<details><summary>Cached 'AppFixture' WAF disposal hook</summary>
+
+`AppFixture<TProgram>` can now run final teardown once when its cached `WebApplicationFactory<TProgram>` is disposed at the end of a test assembly.
+
+Override `OnCachedWafDisposedAsync()` in your fixture to clean up resources tied to the shared WAF instance. The hook runs after all fixture users are done, and requires cached WAF mode with `[assembly: EnableAdvancedTesting]`.
+
+```csharp
+sealed class App : AppFixture<Program>
+{
+    protected override async ValueTask OnCachedWafDisposedAsync()
+    {
+        await ResetExternalResourceAsync();
+    }
+}
+```
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>Nullable OpenAPI schemas with composition now emit valid null branches</summary>

@@ -1272,6 +1272,60 @@ sealed class HeadBodylessReviewEndpoint : Endpoint<BodylessReviewRequest>
         => Send.OkAsync(ct);
 }
 
+
+sealed class RootCollectionBodyReviewItem
+{
+    public string Name { get; set; } = string.Empty;
+}
+
+sealed class GetRootListBodyReviewEndpoint : Endpoint<List<RootCollectionBodyReviewItem>>
+{
+    public override void Configure()
+    {
+        Get("/swagger-review/root-list-body");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(List<RootCollectionBodyReviewItem> r, CancellationToken ct)
+        => Send.OkAsync(ct);
+}
+
+sealed class HeadRootListBodyReviewEndpoint : Endpoint<List<RootCollectionBodyReviewItem>>
+{
+    public override void Configure()
+    {
+        Head("/swagger-review/root-list-body");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(List<RootCollectionBodyReviewItem> r, CancellationToken ct)
+        => Send.OkAsync(ct);
+}
+
+sealed class GetRootArrayBodyReviewEndpoint : Endpoint<RootCollectionBodyReviewItem[]>
+{
+    public override void Configure()
+    {
+        Get("/swagger-review/root-array-body");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(RootCollectionBodyReviewItem[] r, CancellationToken ct)
+        => Send.OkAsync(ct);
+}
+
+sealed class PostRootListBodyReviewEndpoint : Endpoint<List<RootCollectionBodyReviewItem>>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/root-list-body");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(List<RootCollectionBodyReviewItem> r, CancellationToken ct)
+        => Send.OkAsync(ct);
+}
+
 sealed class NullableRefChild
 {
     public string Name { get; set; } = "";

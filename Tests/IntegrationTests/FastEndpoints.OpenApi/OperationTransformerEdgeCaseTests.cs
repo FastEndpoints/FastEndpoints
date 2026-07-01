@@ -843,7 +843,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     {
         var json = await App.GetDocumentJsonAsync("Nullable OneOf Repro");
         var nullableObjSchema = JToken.Parse(json)["components"]!["schemas"]!["TestCasesSwaggerReviewNullableRefPropertyResponse"]!
-                                  ["properties"]!["nullableObj"]!;
+            ["properties"]!["nullableObj"]!;
         var oneOf = nullableObjSchema["oneOf"] as JArray ?? [];
 
         oneOf.Count.ShouldBe(2);
@@ -996,5 +996,33 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         var parameters = op["parameters"]!.ToArray();
         parameters.ShouldContain(p => p["name"]!.Value<string>() == "name" && p["in"]!.Value<string>() == "query");
         parameters.ShouldContain(p => p["name"]!.Value<string>() == "page" && p["in"]!.Value<string>() == "query");
+    }
+
+    [Theory, InlineData("/api/swagger-review/root-list-body", "get"), InlineData("/api/swagger-review/root-list-body", "head"),
+     InlineData("/api/swagger-review/root-array-body", "get")]
+    public async Task bodyless_root_collection_request_body_is_optional_and_keeps_array_schema(string path, string method)
+    {
+        var json = await App.GetDocumentJsonAsync("Initial Release");
+        var document = JToken.Parse(json);
+        var requestBody = document["paths"]![path]![method]!["requestBody"]!;
+
+        requestBody.ShouldNotBeNull();
+        (requestBody["required"]?.Value<bool>() ?? false).ShouldBeFalse();
+
+        var content = requestBody["content"]!;
+        var mediaType = content["application/json"] ?? content["*/*"] ?? content.Children<JProperty>().First().Value;
+        var schema = ResolveSchema(document, mediaType["schema"]!);
+        schema["type"]!.Value<string>().ShouldBe("array");
+        schema["items"].ShouldNotBeNull();
+    }
+
+    [Fact]
+    public async Task post_root_collection_request_body_remains_required()
+    {
+        var json = await App.GetDocumentJsonAsync("Initial Release");
+        var requestBody = JToken.Parse(json)["paths"]!["/api/swagger-review/root-list-body"]!["post"]!["requestBody"]!;
+
+        requestBody.ShouldNotBeNull();
+        requestBody["required"]!.Value<bool>().ShouldBeTrue();
     }
 }

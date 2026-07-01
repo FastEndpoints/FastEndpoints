@@ -3257,6 +3257,101 @@
         }
       }
     },
+    "/api/swagger-review/root-array-body": {
+      "get": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "TestCasesSwaggerReviewGetRootArrayBodyReviewEndpoint",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSwaggerReviewRootCollectionBodyReviewItemArray"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
+    "/api/swagger-review/root-list-body": {
+      "get": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "TestCasesSwaggerReviewGetRootListBodyReviewEndpoint",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/SystemCollectionsGenericListOfTestCasesSwaggerReviewRootCollectionBodyReviewItem"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SystemCollectionsGenericListOfTestCasesSwaggerReviewRootCollectionBodyReviewItem"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      },
+      "head": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "TestCasesSwaggerReviewHeadRootListBodyReviewEndpoint",
+        "requestBody": {
+          "content": {
+            "*/*": {
+              "schema": {
+                "$ref": "#/components/schemas/SystemCollectionsGenericListOfTestCasesSwaggerReviewRootCollectionBodyReviewItem"
+              }
+            },
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SystemCollectionsGenericListOfTestCasesSwaggerReviewRootCollectionBodyReviewItem"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "TestCasesSwaggerReviewPostRootListBodyReviewEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SystemCollectionsGenericListOfTestCasesSwaggerReviewRootCollectionBodyReviewItem"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
     "/api/swagger-review/shared-nested-validation-alpha": {
       "post": {
         "tags": [
@@ -8375,6 +8470,12 @@
           "$ref": "#/components/schemas/TestCasesSwaggerReviewMultiDocSharedOrderLine"
         }
       },
+      "SystemCollectionsGenericListOfTestCasesSwaggerReviewRootCollectionBodyReviewItem": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/TestCasesSwaggerReviewRootCollectionBodyReviewItem"
+        }
+      },
       "SystemCollectionsGenericListOfTestCasesSwaggerReviewUniqueItemsReviewChild": {
         "uniqueItems": true,
         "type": "array",
@@ -10153,6 +10254,20 @@
           "message": {
             "type": "string"
           }
+        }
+      },
+      "TestCasesSwaggerReviewRootCollectionBodyReviewItem": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "TestCasesSwaggerReviewRootCollectionBodyReviewItemArray": {
+        "type": "array",
+        "items": {
+          "$ref": "#/components/schemas/TestCasesSwaggerReviewRootCollectionBodyReviewItem"
         }
       },
       "TestCasesSwaggerReviewSharedNestedValidationAddress": {

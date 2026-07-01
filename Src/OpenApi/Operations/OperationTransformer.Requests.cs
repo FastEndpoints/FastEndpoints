@@ -74,6 +74,9 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
                 if (!requestDtoIsList)
                     operation.RequestBody = null;
             }
+
+            if (isBodylessRequest && IsSupportedOptionalRootCollection(requestDtoType) && operation.RequestBody is OpenApiRequestBody requestBody)
+                requestBody.Required = false;
         }
 
         _routeParameterApplicator.EnsureRouteParameters(operation, routeParameters);
@@ -387,6 +390,10 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
             $"Offending Endpoint: [{epDef.EndpointType.FullName}] " +
             $"Offending DTO type: [{requestDtoType.FullName}]");
     }
+
+    static bool IsSupportedOptionalRootCollection(Type requestDtoType)
+        => requestDtoType.IsArray ||
+           (requestDtoType.IsGenericType && requestDtoType.GetGenericTypeDefinition() == Types.ListOf1);
 
     static bool ShouldAddQueryParam(PropertyInfo prop,
                                     PropertyMetadata metadata,

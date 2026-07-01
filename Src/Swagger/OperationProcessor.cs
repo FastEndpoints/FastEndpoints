@@ -198,6 +198,11 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
         }
     }
 
+    static bool IsSupportedOptionalRootCollection(Type? requestDtoType)
+        => requestDtoType is not null &&
+           (requestDtoType.IsArray ||
+            (requestDtoType.IsGenericType && requestDtoType.GetGenericTypeDefinition() == Types.ListOf1));
+
     void RemoveHiddenRequestProperties(ProcessingState state)
     {
         if (state.RequestDtoProps is null)
@@ -410,6 +415,9 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
                     state.Operation.Parameters.RemoveAt(i);
             }
         }
+
+        if (state.IsBodylessRequest && IsSupportedOptionalRootCollection(state.RequestDtoType) && state.Operation.RequestBody is not null)
+            state.Operation.RequestBody.IsRequired = false;
 
         if (docOpts.RemoveEmptyRequestSchema)
             RemoveEmptyRequestSchemas(state.OpCtx.Document.Components.Schemas);

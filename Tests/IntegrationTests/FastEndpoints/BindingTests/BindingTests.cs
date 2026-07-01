@@ -173,6 +173,82 @@ public class BindingTests(Sut App) : TestBase<Sut>
     }
 
     [Fact]
+    public async Task GetRootListBindsJsonBody()
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Get, "/api/test-cases/root-collection-body-binding/list")
+        {
+            Content = JsonContent.Create(
+                new[]
+                {
+                    new { Name = "one" },
+                    new { Name = "two" }
+                })
+        };
+
+        using var response = await App.Client.SendAsync(request);
+        var result = await response.Content.ReadFromJsonAsync<RootCollectionCountResponse>();
+
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        result!.Count.ShouldBe(2);
+    }
+
+    [Fact]
+    public async Task GetRootListWithoutBodyBindsEmptyCollection()
+    {
+        var result = await App.Client.GetFromJsonAsync<RootCollectionCountResponse>(
+            "/api/test-cases/root-collection-body-binding/list");
+
+        result!.Count.ShouldBe(0);
+    }
+
+    [Fact]
+    public async Task HeadRootListBindsJsonBody()
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Head, "/api/test-cases/root-collection-body-binding/list")
+        {
+            Content = JsonContent.Create(
+                new[]
+                {
+                    new { Name = "one" },
+                    new { Name = "two" }
+                })
+        };
+
+        using var response = await App.Client.SendAsync(request);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        response.Headers.GetValues("x-bound-count").Single().ShouldBe("2");
+    }
+
+    [Fact]
+    public async Task HeadRootListWithoutBodyBindsEmptyCollection()
+    {
+        using var request = new HttpRequestMessage(HttpMethod.Head, "/api/test-cases/root-collection-body-binding/list");
+
+        using var response = await App.Client.SendAsync(request);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        response.Headers.GetValues("x-bound-count").Single().ShouldBe("0");
+    }
+
+    [Fact]
+    public async Task PostRootListWithoutBodyReturnsUnsupportedMediaType()
+    {
+        using var response = await App.Client.PostAsync("/api/test-cases/json-array-binding-to-list-of-models", null);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.UnsupportedMediaType);
+    }
+
+    [Fact]
+    public async Task QueryStringDoesNotPopulateRootList()
+    {
+        var result = await App.Client.GetFromJsonAsync<RootCollectionCountResponse>(
+            "/api/test-cases/root-collection-body-binding/list?name=one&name=two&[0].name=three");
+
+        result!.Count.ShouldBe(0);
+    }
+
+    [Fact]
     public async Task JsonArrayBindingToIEnumerableDto()
     {
         var req = new TestCases.JsonArrayBindingToIEnumerableDto.Request
@@ -990,6 +1066,11 @@ public class BindingTests(Sut App) : TestBase<Sut>
         rsp.IsSuccessStatusCode.ShouldBeTrue();
         res.Name.ShouldBe("root");
         res.ChildName.ShouldBe("child");
+    }
+
+    sealed class RootCollectionCountResponse
+    {
+        public int Count { get; set; }
     }
 
     sealed class CircularFormRequest

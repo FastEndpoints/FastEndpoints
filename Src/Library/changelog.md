@@ -53,6 +53,14 @@ Nullable arrays now inline the referenced array schema instead of combining `typ
 
 </details>
 
+<details><summary>GET/HEAD root collection request bodies are optional in OpenAPI</summary>
+
+`FastEndpoints.OpenApi` and `FastEndpoints.Swagger` now mark root collection request bodies (`List<T>` and `T[]`) as optional for `GET` and `HEAD` endpoints while preserving the generated array schema.
+
+This matches runtime binding behavior where omitted `GET`/`HEAD` request bodies bind as empty collections, while non-collection request DTOs and other HTTP methods remain unchanged.
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Relaxed agent name validation</summary>

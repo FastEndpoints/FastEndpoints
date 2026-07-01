@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Diagnostics.CodeAnalysis;
@@ -12,8 +13,8 @@ static class XmlDocLookup
     // dynamic/in-memory assemblies that share an empty Location string.
     // the value is a pre-indexed dictionary of extracted xml member text keyed by member id
     // (e.g. "P:Namespace.Type.Prop") so per-property lookup is O(1) without retaining the xml DOM.
-    static readonly ConditionalWeakTable<Assembly, Dictionary<string, XmlMemberInfo>> _xmlDocCache = new();
-    static readonly Dictionary<string, XmlMemberInfo> _emptyMembers = new(StringComparer.Ordinal);
+    static readonly ConditionalWeakTable<Assembly, FrozenDictionary<string, XmlMemberInfo>> _xmlDocCache = new();
+    static readonly FrozenDictionary<string, XmlMemberInfo> _emptyMembers = FrozenDictionary<string, XmlMemberInfo>.Empty;
 
     readonly record struct XmlMemberInfo(string? Summary, string? Remarks, string? Example);
 
@@ -122,11 +123,11 @@ static class XmlDocLookup
         return fullName.Replace('+', '.');
     }
 
-    static Dictionary<string, XmlMemberInfo> GetXmlDoc(Assembly assembly)
+    static FrozenDictionary<string, XmlMemberInfo> GetXmlDoc(Assembly assembly)
         => _xmlDocCache.GetValue(assembly, LoadXmlDoc);
 
     [UnconditionalSuppressMessage("SingleFile", "IL3000", Justification = "XML doc lookup is optional when assembly paths are unavailable.")]
-    static Dictionary<string, XmlMemberInfo> LoadXmlDoc(Assembly assembly)
+    static FrozenDictionary<string, XmlMemberInfo> LoadXmlDoc(Assembly assembly)
     {
         var location = assembly.Location;
 
@@ -169,7 +170,7 @@ static class XmlDocLookup
             index[name] = new(summary, remarks, example);
         }
 
-        return index;
+        return index.ToFrozenDictionary(StringComparer.Ordinal);
 
         static string? GetSummary(XElement member)
         {

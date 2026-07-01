@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.OpenApi;
@@ -9,7 +10,7 @@ sealed class ResponseOperationTransformer(DocumentOptions docOpts, SharedContext
 {
     readonly ResponseHeaderFactory _headerFactory = new(docOpts, sharedCtx);
 
-    static readonly Dictionary<string, string> _defaultDescriptions = new()
+    static readonly FrozenDictionary<string, string> _defaultDescriptions = new Dictionary<string, string>
     {
         { "200", "Success" },
         { "201", "Created" },
@@ -24,7 +25,7 @@ sealed class ResponseOperationTransformer(DocumentOptions docOpts, SharedContext
         { "406", "Not Acceptable" },
         { "429", "Too Many Requests" },
         { "500", "Server Error" }
-    };
+    }.ToFrozenDictionary();
 
     JsonNamingPolicy? NamingPolicy => sharedCtx.NamingPolicy;
     JsonSerializerOptions SerializerOptions => sharedCtx.SerializerOptions ?? Cfg.SerOpts.Options;

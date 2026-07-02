@@ -152,6 +152,8 @@ public class EndpointTests(Sut App) : TestBase<Sut>
         using var response = await App.Client.PostAsync("/api/test-cases/routing/user/12345", null);
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var content = await response.Content.ReadFromJsonAsync<string>();
+        content.ShouldBe("12345");
     }
 
     [Fact]
@@ -160,6 +162,8 @@ public class EndpointTests(Sut App) : TestBase<Sut>
         using var response = await App.Client.PostAsync("/api/test-cases/routing/offer/blah", null);
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var content = await response.Content.ReadFromJsonAsync<string>();
+        content.ShouldBe("blah");
     }
 
     [Fact]
@@ -168,6 +172,8 @@ public class EndpointTests(Sut App) : TestBase<Sut>
         using var response = await App.Client.PutAsync("/api/test-cases/routing/constrained/123", null);
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var content = await response.Content.ReadFromJsonAsync<int>();
+        content.ShouldBe(123);
     }
 
     [Fact]
@@ -176,6 +182,18 @@ public class EndpointTests(Sut App) : TestBase<Sut>
         using var response = await App.Client.PutAsync("/api/test-cases/routing/withdefault/hello", null);
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var content = await response.Content.ReadFromJsonAsync<string>();
+        content.ShouldBe("hello");
+    }
+
+    [Fact]
+    public async Task DefaultValueRouteParamCanBeOmittedWithoutContentType()
+    {
+        using var response = await App.Client.PutAsync("/api/test-cases/routing/withdefault", null);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var content = await response.Content.ReadFromJsonAsync<string>();
+        content.ShouldBe("World");
     }
 
     [Fact]
@@ -184,6 +202,8 @@ public class EndpointTests(Sut App) : TestBase<Sut>
         using var response = await App.Client.PutAsync("/api/test-cases/routing/catchall/foo/bar/baz", null);
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var content = await response.Content.ReadFromJsonAsync<string>();
+        content.ShouldBe("foo/bar/baz");
     }
 
     [Fact]
@@ -193,6 +213,8 @@ public class EndpointTests(Sut App) : TestBase<Sut>
         using var response = await App.Client.PutAsync("/api/test-cases/routing/multiroute/full/1/bob", null);
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var content = await response.Content.ReadFromJsonAsync<string>();
+        content.ShouldBe("1:bob");
     }
 
     [Fact]
@@ -215,6 +237,8 @@ public class EndpointTests(Sut App) : TestBase<Sut>
         using var response = await App.Client.PutAsync("/api/test-cases/routing/regexconstraint/123", null);
 
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var content = await response.Content.ReadFromJsonAsync<string>();
+        content.ShouldBe("123");
     }
 
     [Fact]

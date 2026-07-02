@@ -550,10 +550,10 @@ public static class MainExtensions
 
     static bool AllPropsAreNonJsonSourced(this Type tRequest, string route)
     {
-        //a prop with no binding attribute is still non-json-sourced if its name matches a route
-        //parameter of this specific route, because the binder implicitly binds route values to
-        //same-named properties. an endpoint can have multiple routes with differing param sets,
-        //so this must be evaluated per-route rather than unioning params across all of them.
+        //a prop with no binding attribute is still non-json-sourced if its binding field name
+        //matches a route parameter of this specific route, because the binder implicitly binds
+        //route values to same-named fields. an endpoint can have multiple routes with differing
+        //param sets, so this must be evaluated per-route rather than unioning params across all of them.
         HashSet<string>? routeParamNames = null;
 
         foreach (var prop in tRequest.BindableProps())
@@ -563,7 +563,7 @@ public static class MainExtensions
 
             routeParamNames ??= RouteParamNames(route);
 
-            if (!routeParamNames.Contains(prop.Name))
+            if (!routeParamNames.Contains(prop.FieldName()))
                 return false;
         }
 

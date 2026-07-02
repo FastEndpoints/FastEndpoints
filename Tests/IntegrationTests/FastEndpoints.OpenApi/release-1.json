@@ -5626,6 +5626,151 @@
         }
       }
     },
+    "/api/test-cases/routing/catchall/{rest}": {
+      "put": {
+        "tags": [
+          "TestCases"
+        ],
+        "operationId": "TestCasesRoutingCatchAllRouteParamTest",
+        "parameters": [
+          {
+            "name": "rest",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/test-cases/routing/constrained/{id}": {
+      "put": {
+        "tags": [
+          "TestCases"
+        ],
+        "operationId": "TestCasesRoutingConstrainedRouteParamTest",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/test-cases/routing/multiroute/full/{id}/{name}": {
+      "put": {
+        "tags": [
+          "TestCases"
+        ],
+        "operationId": "TestCasesRoutingMultiRouteDifferingParamsTest1",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "name",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": [
+                "null",
+                "string"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/test-cases/routing/multiroute/partial/{id}": {
+      "put": {
+        "tags": [
+          "TestCases"
+        ],
+        "operationId": "TestCasesRoutingMultiRouteDifferingParamsTest2",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesRoutingMultiRouteDifferingParamsTest_Request"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/test-cases/routing/offer/{offerId}": {
       "post": {
         "tags": [
@@ -5668,6 +5813,36 @@
         "parameters": [
           {
             "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/test-cases/routing/withdefault/{name}": {
+      "put": {
+        "tags": [
+          "TestCases"
+        ],
+        "operationId": "TestCasesRoutingDefaultValueRouteParamTest",
+        "parameters": [
+          {
+            "name": "name",
             "in": "path",
             "required": true,
             "schema": {
@@ -9739,6 +9914,20 @@
           },
           "person": {
             "$ref": "#/components/schemas/TestCasesRouteBindingTestPerson"
+          }
+        }
+      },
+      "TestCasesRoutingMultiRouteDifferingParamsTest_Request": {
+        "required": [
+          "name"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         }
       },

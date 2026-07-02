@@ -79,6 +79,23 @@ This matches runtime binding behavior where omitted `GET`/`HEAD` request bodies 
 
 </details>
 
+<details><summary>'415 Unsupported Media Type' responses for endpoints with implicitly-bound route params</summary>
+
+Endpoints whose request DTO properties are bound to route values by name match alone (no `[RouteParam]` attribute) no longer receive a `415 Unsupported Media Type` response for `PUT`/`POST`/`PATCH` requests sent without a body or `Content-Type` header.
+
+```csharp
+public override void Configure() => Put("bookings/{BookingId}/pause");
+
+public sealed class PauseBookingRequest
+{
+    public long BookingId { get; set; }
+}
+```
+
+Previously, only properties decorated with `[RouteParam]` (or another attribute deriving from `NonJsonBindingAttribute`) were recognized as not requiring a JSON body, so a route-param-only DTO like the one above incorrectly demanded a `Content-Type` header.
+
+</details>
+
 ## Improvements 🚀
 
 <details><summary>Relaxed agent name validation</summary>

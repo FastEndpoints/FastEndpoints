@@ -2,6 +2,8 @@ using FastEndpoints.OpenApi;
 using FluentValidation;
 using Microsoft.OpenApi;
 
+#pragma warning disable CS1574, CS1584, CS1581, CS1580, CS1734
+
 //using FastEndpoints.Swagger;
 
 namespace TestCases.Swagger.Review;
@@ -1271,7 +1273,6 @@ sealed class HeadBodylessReviewEndpoint : Endpoint<BodylessReviewRequest>
     public override Task HandleAsync(BodylessReviewRequest r, CancellationToken ct)
         => Send.OkAsync(ct);
 }
-
 
 sealed class RootCollectionBodyReviewItem
 {

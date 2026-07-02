@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.Net.Http.Headers;
 using static FastEndpoints.Config;
 
@@ -11,7 +12,8 @@ internal sealed class FeRequestHandler : IResult
 
     public Task ExecuteAsync(HttpContext ctx)
     {
-        var epDef = ((IEndpointFeature)ctx.Features[Types.IEndpointFeature]!).Endpoint!.Metadata.GetMetadata<EndpointDefinition>()!;
+        var endpoint = ((IEndpointFeature)ctx.Features[Types.IEndpointFeature]!).Endpoint!;
+        var epDef = endpoint.Metadata.GetMetadata<EndpointDefinition>()!;
 
         if (epDef.HitCounter is not null)
         {
@@ -37,19 +39,29 @@ internal sealed class FeRequestHandler : IResult
             }
         }
 
-        if (!ctx.Request.Headers.ContainsKey(HeaderNames.ContentType) && epDef is { AcceptsMetaDataPresent: true, AcceptsAnyContentType: false })
+        if (!ctx.Request.Headers.ContainsKey(HeaderNames.ContentType))
         {
             // if all 3 conditions are true:
             //   1.) request doesn't contain any content-type headers
-            //   2.) endpoint declares accepts metadata
-            //   3.) endpoint doesn't declare wildcard accepts metadata
+            //   2.) the matched endpoint declares accepts metadata
+            //   3.) that metadata doesn't declare wildcard content-type support
             // then a 415 response needs to be sent to the client.
             // we don't need to check for mismatched content-types (between request and endpoint)
             // because routing middleware already takes care of that.
+            //
+            // read this from the matched endpoint's own metadata (rather than a value cached on the
+            // shared EndpointDefinition) because a single EndpointDefinition can back multiple routes
+            // that each declare different accepts requirements - e.g. one route's DTO properties are
+            // all satisfied by that route's own {placeholders} while another route lacks some of them
+            // and therefore still needs a JSON body.
+            var acceptsMeta = endpoint.Metadata.GetMetadata<IAcceptsMetadata>();
 
-            ctx.Response.StatusCode = 415;
+            if (acceptsMeta is not null && !acceptsMeta.ContentTypes.Contains("*/*"))
+            {
+                ctx.Response.StatusCode = 415;
 
-            return ctx.Response.StartAsync(ctx.RequestAborted);
+                return ctx.Response.StartAsync(ctx.RequestAborted);
+            }
         }
 
         var epInstance = EndpointBootstrap.CreateEndpoint(ctx, epDef);

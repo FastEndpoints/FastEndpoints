@@ -182,7 +182,7 @@ public static class MainExtensions
                     if (def.AttribsToForward is not null)
                         hb.WithMetadata(def.AttribsToForward.ToArray());
 
-                    hb.AddSwaggerDefaults(def); //always do this first here
+                    hb.AddSwaggerDefaults(def, route); //always do this first here
 
                     if (def.AnonymousVerbs?.Contains(verb) is true)
                         hb.AllowAnonymous();
@@ -203,7 +203,6 @@ public static class MainExtensions
                     }
 
                     def.UserConfigAction?.Invoke(hb); //always do this last - allow user to override everything done above
-                    def.InitAcceptsMetaData(hb);      //must come after UserConfigAction
 
                     var key = $"{verb}:{finalRoute}";
                     routeToHandlerCounts.AddOrUpdate(key, 1, (_, c) => c + 1);
@@ -462,7 +461,7 @@ public static class MainExtensions
 
     extension(RouteHandlerBuilder b)
     {
-        void AddSwaggerDefaults(EndpointDefinition ep)
+        void AddSwaggerDefaults(EndpointDefinition ep, string route)
         {
             //clearing all produces metadata before proceeding - https://github.com/FastEndpoints/FastEndpoints/issues/833
             //this is possibly related to .net 9+ only, but we'll be covering all bases this way.
@@ -488,7 +487,7 @@ public static class MainExtensions
 
             if (ep.ReqDtoType != Types.EmptyRequest)
             {
-                if (ep.ReqDtoType.AllPropsAreNonJsonSourced())
+                if (ep.ReqDtoType.AllPropsAreNonJsonSourced(route))
                     b.Accepts(ep.ReqDtoType, "*/*");
                 else if (ep.Verbs.Any(m => m is "GET" or "HEAD" or "DELETE"))
                     b.Accepts(ep.ReqDtoType, "*/*", "application/json");
@@ -549,8 +548,60 @@ public static class MainExtensions
         }
     }
 
-    static bool AllPropsAreNonJsonSourced(this Type tRequest)
-        => tRequest.BindableProps().All(p => p.CustomAttributes.Any(a => Types.NonJsonBindingAttribute.IsAssignableFrom(a.AttributeType)));
+    static bool AllPropsAreNonJsonSourced(this Type tRequest, string route)
+    {
+        //a prop with no binding attribute is still non-json-sourced if its name matches a route
+        //parameter of this specific route, because the binder implicitly binds route values to
+        //same-named properties. an endpoint can have multiple routes with differing param sets,
+        //so this must be evaluated per-route rather than unioning params across all of them.
+        var routeParamNames = RouteParamNames(route);
+
+        return tRequest.BindableProps()
+                       .All(
+                           p => p.CustomAttributes.Any(a => Types.NonJsonBindingAttribute.IsAssignableFrom(a.AttributeType)) ||
+                                routeParamNames.Contains(p.Name));
+    }
+
+    static HashSet<string> RouteParamNames(string route)
+    {
+        var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var start = -1;
+
+        for (var i = 0; i < route.Length; i++)
+        {
+            var c = route[i];
+
+            if (c is not ('{' or '}'))
+                continue;
+
+            if (i + 1 < route.Length && route[i + 1] == c)
+            {
+                //a doubled brace ("{{" or "}}") is route-template escaping for a literal brace
+                //(e.g. a {{n}} quantifier inside a `:regex(...)` constraint) - not a delimiter.
+                i++;
+
+                continue;
+            }
+
+            if (c == '{')
+            {
+                start = i;
+            }
+            else if (start >= 0)
+            {
+                var content = route[(start + 1)..i];
+                var splitIdx = content.IndexOfAny(['?', ':', '=']);
+                var name = (splitIdx >= 0 ? content[..splitIdx] : content).TrimStart('*');
+
+                if (name.Length > 0)
+                    names.Add(name);
+
+                start = -1;
+            }
+        }
+
+        return names;
+    }
 }
 
 sealed class StartupTimer;

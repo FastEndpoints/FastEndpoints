@@ -60,8 +60,6 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     public X402PaymentMetadata? X402PaymentMetadata { get; private set; }
 
     //only accessible to internal code
-    internal bool AcceptsAnyContentType;
-    internal bool AcceptsMetaDataPresent;
     internal List<object>? AttribsToForward;
     internal readonly bool Disposable = endpointType.IsAssignableTo(typeof(IDisposable));
     internal readonly bool DisposableAsync = endpointType.IsAssignableTo(typeof(IAsyncDisposable));
@@ -765,24 +763,6 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     {
         if (IsLocked)
             throw new InvalidOperationException($"Not allowed to configure endpoints after startup! Culprit: [{callerName}()]");
-    }
-
-    internal void InitAcceptsMetaData(RouteHandlerBuilder hb)
-    {
-        //this work is added as a convention due to: https://github.com/FastEndpoints/FastEndpoints/issues/661
-        //downside of doing this here is it's executed at startup (instead of at first request), adding a minor perf hit.
-        hb.Add(
-            b =>
-            {
-                for (var i = 0; i < b.Metadata.Count; i++)
-                {
-                    if (b.Metadata[i] is not IAcceptsMetadata meta)
-                        continue;
-
-                    AcceptsMetaDataPresent = true;
-                    AcceptsAnyContentType = meta.ContentTypes.Contains("*/*");
-                }
-            });
     }
 
     object? _mapper;

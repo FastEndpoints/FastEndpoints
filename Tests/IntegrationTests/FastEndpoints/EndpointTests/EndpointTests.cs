@@ -147,6 +147,77 @@ public class EndpointTests(Sut App) : TestBase<Sut>
     }
 
     [Fact]
+    public async Task NonOptionalRouteParamWithoutContentTypeDoesNotReturnUnsupportedMediaType()
+    {
+        using var response = await App.Client.PostAsync("/api/test-cases/routing/user/12345", null);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+    }
+
+    [Fact]
+    public async Task OptionalRouteParamWithoutContentTypeDoesNotReturnUnsupportedMediaType()
+    {
+        using var response = await App.Client.PostAsync("/api/test-cases/routing/offer/blah", null);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+    }
+
+    [Fact]
+    public async Task ConstrainedRouteParamWithoutContentTypeDoesNotReturnUnsupportedMediaType()
+    {
+        using var response = await App.Client.PutAsync("/api/test-cases/routing/constrained/123", null);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+    }
+
+    [Fact]
+    public async Task DefaultValueRouteParamWithoutContentTypeDoesNotReturnUnsupportedMediaType()
+    {
+        using var response = await App.Client.PutAsync("/api/test-cases/routing/withdefault/hello", null);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+    }
+
+    [Fact]
+    public async Task CatchAllRouteParamWithoutContentTypeDoesNotReturnUnsupportedMediaType()
+    {
+        using var response = await App.Client.PutAsync("/api/test-cases/routing/catchall/foo/bar/baz", null);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+    }
+
+    [Fact]
+    public async Task MultiRouteEndpointWhereRouteMatchesAllPropsDoesNotReturnUnsupportedMediaType()
+    {
+        //the "full" route exposes both Id and Name as route params, so no body should be required
+        using var response = await App.Client.PutAsync("/api/test-cases/routing/multiroute/full/1/bob", null);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+    }
+
+    [Fact]
+    public async Task MultiRouteEndpointWhereRouteDoesNotMatchAllPropsStillRequiresContentType()
+    {
+        //the "partial" route only exposes Id, not Name, so a body is genuinely required for Name.
+        //this must still 415 - it guards against a fix that unions route params across ALL of an
+        //endpoint's routes instead of evaluating each route's own params independently.
+        using var response = await App.Client.PutAsync("/api/test-cases/routing/multiroute/partial/1", null);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.UnsupportedMediaType);
+    }
+
+    [Fact]
+    public async Task RegexConstraintWithEscapedBracesRouteParamWithoutContentTypeDoesNotReturnUnsupportedMediaType()
+    {
+        //the route's regex constraint contains escaped "{{3}}" braces (a literal "{3}" quantifier).
+        //this guards against a naive brace scanner mistaking the escaped pair for the param delimiter
+        //and failing to recognize "Code" as a route param.
+        using var response = await App.Client.PutAsync("/api/test-cases/routing/regexconstraint/123", null);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+    }
+
+    [Fact]
     public async Task OptionalRouteParamWithNullValueReturnsDefaultValue()
     {
         var request = new OptionalRouteParamTest.Request(null);

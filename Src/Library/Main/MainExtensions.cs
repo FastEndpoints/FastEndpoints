@@ -182,7 +182,7 @@ public static class MainExtensions
                     if (def.AttribsToForward is not null)
                         hb.WithMetadata(def.AttribsToForward.ToArray());
 
-                    hb.AddSwaggerDefaults(def, route); //always do this first here
+                    hb.AddSwaggerDefaults(def, finalRoute); //always do this first here
 
                     if (def.AnonymousVerbs?.Contains(verb) is true)
                         hb.AllowAnonymous();

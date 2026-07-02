@@ -112,4 +112,4 @@ A new `CreateTokenWith<TService, TTokenResponse>()` overload lets endpoints that
 
 </details>
 
-## Breaking Changes ⚠️
+[//]: # (## Breaking Changes ⚠️)

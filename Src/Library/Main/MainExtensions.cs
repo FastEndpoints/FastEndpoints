@@ -554,12 +554,20 @@ public static class MainExtensions
         //parameter of this specific route, because the binder implicitly binds route values to
         //same-named properties. an endpoint can have multiple routes with differing param sets,
         //so this must be evaluated per-route rather than unioning params across all of them.
-        var routeParamNames = RouteParamNames(route);
+        HashSet<string>? routeParamNames = null;
 
-        return tRequest.BindableProps()
-                       .All(
-                           p => p.CustomAttributes.Any(a => Types.NonJsonBindingAttribute.IsAssignableFrom(a.AttributeType)) ||
-                                routeParamNames.Contains(p.Name));
+        foreach (var prop in tRequest.BindableProps())
+        {
+            if (prop.CustomAttributes.Any(a => Types.NonJsonBindingAttribute.IsAssignableFrom(a.AttributeType)))
+                continue;
+
+            routeParamNames ??= RouteParamNames(route);
+
+            if (!routeParamNames.Contains(prop.Name))
+                return false;
+        }
+
+        return true;
     }
 
     static HashSet<string> RouteParamNames(string route)
@@ -584,17 +592,21 @@ public static class MainExtensions
             }
 
             if (c == '{')
-            {
                 start = i;
-            }
             else if (start >= 0)
             {
-                var content = route[(start + 1)..i];
-                var splitIdx = content.IndexOfAny(['?', ':', '=']);
-                var name = (splitIdx >= 0 ? content[..splitIdx] : content).TrimStart('*');
+                var nameStart = start + 1;
 
-                if (name.Length > 0)
-                    names.Add(name);
+                while (nameStart < i && route[nameStart] == '*')
+                    nameStart++;
+
+                var nameEnd = nameStart;
+
+                while (nameEnd < i && route[nameEnd] is not ('?' or ':' or '='))
+                    nameEnd++;
+
+                if (nameEnd > nameStart)
+                    names.Add(route[nameStart..nameEnd]);
 
                 start = -1;
             }

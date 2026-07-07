@@ -1,3 +1,4 @@
+using System.Collections.Frozen;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Text.Json;
@@ -25,8 +26,8 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     static PropCache? _fromFormProp;
     static PropCache? _fromBodyProp;
     static PropCache? _fromQueryProp;
-    static readonly Dictionary<string, PrimaryPropCacheEntry> _primaryProps = new(StringComparer.OrdinalIgnoreCase); //key: property name
-    static readonly Dictionary<string, PropCache> _formFileCollectionProps = new(StringComparer.OrdinalIgnoreCase);
+    static readonly FrozenDictionary<string, PrimaryPropCacheEntry> _primaryProps; //key: property name
+    static readonly FrozenDictionary<string, PropCache> _formFileCollectionProps;
     static readonly List<SecondaryPropCacheEntry> _fromClaimProps = [];
     static readonly List<SecondaryPropCacheEntry> _fromHeaderProps = [];
     static readonly List<SecondaryPropCacheEntry> _fromCookieProps = [];
@@ -34,14 +35,19 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
     static RequestBinder()
     {
-        if (_skipModelBinding)
-            return;
-
         // if the request dto type is an IEnumerable such as List<T>, or any class that implements IEnumerable,
         // it will be deserialized by STJ. so skip setup for this dto type.
         // otherwise, a request dto such as MyRequest<T> - which is not IEnumerable can have a value parser, so allow to proceed.
-        if (_tRequest.GetInterfaces().Contains(Types.IEnumerable))
+        if (_skipModelBinding || _tRequest.GetInterfaces().Contains(Types.IEnumerable))
+        {
+            _primaryProps = FrozenDictionary<string, PrimaryPropCacheEntry>.Empty;
+            _formFileCollectionProps = FrozenDictionary<string, PropCache>.Empty;
+
             return;
+        }
+
+        var primaryProps = new Dictionary<string, PrimaryPropCacheEntry>(StringComparer.OrdinalIgnoreCase);
+        var formFileCollectionProps = new Dictionary<string, PropCache>(StringComparer.OrdinalIgnoreCase);
 
         var dtoProps = _tRequest.BindableProps();
 
@@ -139,16 +145,19 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
             if (prop.PropertyType.IsAssignableTo(Types.IEnumerableOfIFormFile))
             {
-                AddFormFileCollectionPropCacheEntry(fieldName, prop, propSetter);
+                AddFormFileCollectionPropCacheEntry(fieldName, prop, propSetter, formFileCollectionProps);
 
                 continue;
             }
 
             {
                 if (addPrimary)
-                    AddPrimaryPropCacheEntry(fieldName, prop, propSetter, disabledSources);
+                    AddPrimaryPropCacheEntry(fieldName, prop, propSetter, disabledSources, primaryProps);
             }
         }
+
+        _primaryProps = primaryProps.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
+        _formFileCollectionProps = formFileCollectionProps.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
     }
 
     readonly bool _bindJsonBody;
@@ -620,9 +629,13 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         return false; // don't allow binding from any other sources
     }
 
-    static void AddPrimaryPropCacheEntry(string? fieldName, PropertyInfo propInfo, Action<object, object?> compiledSetter, Source? disabledSources)
+    static void AddPrimaryPropCacheEntry(string? fieldName,
+                                         PropertyInfo propInfo,
+                                         Action<object, object?> compiledSetter,
+                                         Source? disabledSources,
+                                         Dictionary<string, PrimaryPropCacheEntry> primaryProps)
     {
-        _primaryProps.Add(
+        primaryProps.Add(
             fieldName ?? propInfo.FieldName(),
             new()
             {
@@ -633,9 +646,12 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             });
     }
 
-    static void AddFormFileCollectionPropCacheEntry(string? fieldName, PropertyInfo propInfo, Action<object, object?> compiledSetter)
+    static void AddFormFileCollectionPropCacheEntry(string? fieldName,
+                                                    PropertyInfo propInfo,
+                                                    Action<object, object?> compiledSetter,
+                                                    Dictionary<string, PropCache> formFileCollectionProps)
     {
-        _formFileCollectionProps.Add(
+        formFileCollectionProps.Add(
             fieldName ?? propInfo.FieldName(),
             new()
             {

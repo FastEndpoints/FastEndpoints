@@ -256,7 +256,7 @@ public class AccessControlGenerator : IIncrementalGenerator
             sb.w(
                 """
 
-                    static partial void InitPermissions()
+                    static partial void InitPermissions(Dictionary<string, string> permNames, Dictionary<string, string> permCodes)
                     {
 
                 """);
@@ -265,8 +265,8 @@ public class AccessControlGenerator : IIncrementalGenerator
             {
                 sb.w(
                     $"""
-                             _permNames[{CsString(p.Name)}] = {p.CodeExpression};
-                             _permCodes[{p.CodeExpression}] = {CsString(p.Name)};
+                             permNames[{CsString(p.Name)}] = {p.CodeExpression};
+                             permCodes[{p.CodeExpression}] = {CsString(p.Name)};
 
                      """);
             }
@@ -369,6 +369,7 @@ public class AccessControlGenerator : IIncrementalGenerator
 
              using FastEndpoints;
              using System;
+             using System.Collections.Frozen;
              using System.Collections.Generic;
              using System.Linq;
 
@@ -376,17 +377,21 @@ public class AccessControlGenerator : IIncrementalGenerator
 
              public static partial class Allow
              {
-                 private static readonly Dictionary<string, string> _permNames = new();
-                 private static readonly Dictionary<string, string> _permCodes = new();
+                 private static readonly FrozenDictionary<string, string> _permNames;
+                 private static readonly FrozenDictionary<string, string> _permCodes;
 
                  static Allow()
                  {
-                     InitPermissions();
+                     var permNames = new Dictionary<string, string>();
+                     var permCodes = new Dictionary<string, string>();
+                     InitPermissions(permNames, permCodes);
+                     _permNames = permNames.ToFrozenDictionary();
+                     _permCodes = permCodes.ToFrozenDictionary();
                      Groups();
                      Describe();
                  }
 
-                 static partial void InitPermissions();
+                 static partial void InitPermissions(Dictionary<string, string> permNames, Dictionary<string, string> permCodes);
 
                  /// <summary>
                  /// implement this method to add custom permissions to the generated categories

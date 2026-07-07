@@ -36,9 +36,7 @@ static class ConstructorDefaultExtensions
         var defaults = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
 
         foreach (var parameter in parameters)
-        {
             defaults[parameter.Name!] = parameter.DefaultValue;
-        }
 
         return defaults.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
     }

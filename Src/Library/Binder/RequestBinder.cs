@@ -629,7 +629,11 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         return false; // don't allow binding from any other sources
     }
 
-    static void AddPrimaryPropCacheEntry(string? fieldName, PropertyInfo propInfo, Action<object, object?> compiledSetter, Source? disabledSources, Dictionary<string, PrimaryPropCacheEntry> primaryProps)
+    static void AddPrimaryPropCacheEntry(string? fieldName,
+                                         PropertyInfo propInfo,
+                                         Action<object, object?> compiledSetter,
+                                         Source? disabledSources,
+                                         Dictionary<string, PrimaryPropCacheEntry> primaryProps)
     {
         primaryProps.Add(
             fieldName ?? propInfo.FieldName(),
@@ -642,7 +646,10 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             });
     }
 
-    static void AddFormFileCollectionPropCacheEntry(string? fieldName, PropertyInfo propInfo, Action<object, object?> compiledSetter, Dictionary<string, PropCache> formFileCollectionProps)
+    static void AddFormFileCollectionPropCacheEntry(string? fieldName,
+                                                    PropertyInfo propInfo,
+                                                    Action<object, object?> compiledSetter,
+                                                    Dictionary<string, PropCache> formFileCollectionProps)
     {
         formFileCollectionProps.Add(
             fieldName ?? propInfo.FieldName(),

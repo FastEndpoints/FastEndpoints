@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Frozen;
 using System.ComponentModel;
 using System.Globalization;
 using System.Reflection;
@@ -38,7 +39,7 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
     [GeneratedRegex("(?<={)([^?:}]+)[^}]*(?=})")]
     private static partial Regex RouteConstraintsRegex();
 
-    static readonly Dictionary<string, string> _defaultDescriptions = new()
+    static readonly FrozenDictionary<string, string> _defaultDescriptions = new Dictionary<string, string>
     {
         { "200", "Success" },
         { "201", "Created" },
@@ -53,7 +54,7 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
         { "406", "Not Acceptable" },
         { "429", "Too Many Requests" },
         { "500", "Server Error" }
-    };
+    }.ToFrozenDictionary();
 
     public bool Process(OperationProcessorContext ctx)
     {

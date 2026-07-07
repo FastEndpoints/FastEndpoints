@@ -98,17 +98,23 @@ Previously, only properties decorated with `[RouteParam]` (or another attribute 
 
 ## Improvements 🚀
 
+<details><summary>Refresh token service support for union-type returning endpoints</summary>
+
+A new `CreateTokenWith<TService, TTokenResponse>()` overload lets endpoints that return a union-type result (e.g. `Results<Ok<TokenResponse>, UnauthorizedHttpResult>`) create access/refresh token pairs, by decoupling the token response type from the endpoint's response type.
+
+</details>
+
+<details><summary>Frozen lookup caches for hot paths</summary>
+
+Several read-mostly internal lookup tables now use `FrozenDictionary` after startup construction, improving repeated lookup performance in request binding, access-control generation, and OpenAPI/Swagger metadata processing without changing public APIs.
+
+</details>
+
 <details><summary>Relaxed agent name validation</summary>
 
 A2A skill ids and MCP tool names now allow dots and forward slashes, so path/version-style identifiers such as `users/read.v1` can be published without renaming.
 
 Some external MCP adapters may still apply OpenAI-style function-name validation and reject dots or slashes.
-
-</details>
-
-<details><summary>Refresh token service support for union-type returning endpoints</summary>
-
-A new `CreateTokenWith<TService, TTokenResponse>()` overload lets endpoints that return a union-type result (e.g. `Results<Ok<TokenResponse>, UnauthorizedHttpResult>`) create access/refresh token pairs, by decoupling the token response type from the endpoint's response type.
 
 </details>
 

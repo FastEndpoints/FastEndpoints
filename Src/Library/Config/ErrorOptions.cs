@@ -1,5 +1,4 @@
-﻿using System.Collections.Frozen;
-using FluentValidation.Results;
+﻿using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Metadata;
 
@@ -79,7 +78,8 @@ public sealed class ErrorOptions
         /// <summary>
         /// the built-in map that ties together status codes to the relevant title and type values.
         /// </summary>
-        public FrozenDictionary<int, (string Title, string Url)> Map => _codeMap;
+        // Don't convert this to FrozenDictionary: it's a public API and consumers may assign/mutate the returned Dictionary.
+        public Dictionary<int, (string Title, string Url)> Map => _codeMap;
     #pragma warning restore CA1822
 
         /// <summary>
@@ -137,7 +137,7 @@ public sealed class ErrorOptions
                    ? p.Errors.First().Reason
                    : null;
 
-        static readonly FrozenDictionary<int, (string Title, string Url)> _codeMap = new Dictionary<int, (string Title, string Url)>
+        static readonly Dictionary<int, (string Title, string Url)> _codeMap = new()
         {
             { 400, ("Bad Request", "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1") },
             { 401, ("Unauthorized", "https://www.rfc-editor.org/rfc/rfc7235#section-3.1") },
@@ -169,6 +169,6 @@ public sealed class ErrorOptions
             { 431, ("Request Header Fields Too Large", "https://www.rfc-editor.org/rfc/rfc6585#section-5") },
             { 451, ("Unavailable For Legal Reasons", "https://www.rfc-editor.org/rfc/rfc7725#section-3") },
             { 500, ("Internal Server Error", "https://www.rfc-editor.org/rfc/rfc7231#section-6.6.1") }
-        }.ToFrozenDictionary();
+        };
     }
 }

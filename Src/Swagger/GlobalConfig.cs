@@ -1,5 +1,4 @@
 global using Cfg = FastEndpoints.Config;
-using System.Collections.Frozen;
 
 namespace FastEndpoints.Swagger;
 
@@ -32,7 +31,8 @@ public static class GlobalConfig
     /// this route constraint type map will be used to determine the type for a route parameter if there's no matching property on the request dto.
     /// the dictionary key is the name of the constraint and the value is the  corresponding <see cref="System.Type" />
     /// </summary>
-    public static FrozenDictionary<string, Type> RouteConstraintMap { get; } = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase)
+    // Don't convert this to FrozenDictionary: it's a public API and consumers may add custom route constraint mappings.
+    public static Dictionary<string, Type> RouteConstraintMap { get; } = new(StringComparer.OrdinalIgnoreCase)
     {
         { "int", typeof(int) },
         { "bool", typeof(bool) },
@@ -45,5 +45,5 @@ public static class GlobalConfig
         { "min", typeof(long) },
         { "max", typeof(long) },
         { "range", typeof(long) }
-    }.ToFrozenDictionary();
+    };
 }

@@ -431,7 +431,7 @@ public static class MainExtensions
                         b.RequireAssertion(
                             x => x.User.Claims.Any(
                                 c => string.Equals(c.Type, Cfg.SecOpts.ScopeClaimType, StringComparison.OrdinalIgnoreCase) &&
-                                     Cfg.SecOpts.ScopeParser(c.Value).Any(s => allowedScopes.Contains(s))));
+                                     Cfg.SecOpts.ScopeParser(c.Value).Any(allowedScopes.Contains)));
                     }
                     else
                     {
@@ -449,16 +449,13 @@ public static class MainExtensions
 
                 if (ep.AllowedClaimTypes?.Count > 0)
                 {
-                    
                     if (ep.AllowAnyClaim)
                     {
                         var allowedClaimTypes = ep.AllowedClaimTypes.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
                         b.RequireAssertion(x => x.User.Claims.Any(c => allowedClaimTypes.Contains(c.Type)));
                     }
                     else
-                    {
                         b.RequireAssertion(x => ep.AllowedClaimTypes.All(t => x.User.Claims.Any(c => string.Equals(c.Type, t, StringComparison.OrdinalIgnoreCase))));
-                    }
                 }
 
                 ep.PolicyBuilder?.Invoke(b);

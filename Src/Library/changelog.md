@@ -106,7 +106,9 @@ A new `CreateTokenWith<TService, TTokenResponse>()` overload lets endpoints that
 
 <details><summary>Frozen lookup caches for hot paths</summary>
 
-Several read-mostly internal lookup tables now use `FrozenDictionary` after startup construction, improving repeated lookup performance in request binding, access-control generation, and OpenAPI/Swagger metadata processing without changing public APIs.
+Several read-mostly internal lookup tables now use `FrozenDictionary`/`FrozenSet` after startup construction, improving repeated lookup performance in request binding, access-control generation, and OpenAPI/Swagger metadata processing without changing public APIs.
+
+Endpoint security policies now build a `FrozenSet` of allowed permissions/scopes/claim types once when the policy is constructed, instead of scanning the backing collection on every authorization check.
 
 </details>
 

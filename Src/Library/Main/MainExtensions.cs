@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Collections.Frozen;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.Json.Serialization;
@@ -406,10 +407,11 @@ public static class MainExtensions
                 {
                     if (ep.AllowAnyPermission)
                     {
+                        var allowedPermissions = ep.AllowedPermissions.ToFrozenSet(StringComparer.Ordinal);
                         b.RequireAssertion(
                             x => x.User.Claims.Any(
                                 c => string.Equals(c.Type, Cfg.SecOpts.PermissionsClaimType, StringComparison.OrdinalIgnoreCase) &&
-                                     ep.AllowedPermissions.Contains(c.Value, StringComparer.Ordinal)));
+                                     allowedPermissions.Contains(c.Value)));
                     }
                     else
                     {
@@ -425,10 +427,11 @@ public static class MainExtensions
                 {
                     if (ep.AllowAnyScope)
                     {
+                        var allowedScopes = ep.AllowedScopes.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
                         b.RequireAssertion(
                             x => x.User.Claims.Any(
                                 c => string.Equals(c.Type, Cfg.SecOpts.ScopeClaimType, StringComparison.OrdinalIgnoreCase) &&
-                                     Cfg.SecOpts.ScopeParser(c.Value).Any(s => ep.AllowedScopes.Contains(s, StringComparer.OrdinalIgnoreCase))));
+                                     Cfg.SecOpts.ScopeParser(c.Value).Any(allowedScopes.Contains)));
                     }
                     else
                     {
@@ -447,7 +450,10 @@ public static class MainExtensions
                 if (ep.AllowedClaimTypes?.Count > 0)
                 {
                     if (ep.AllowAnyClaim)
-                        b.RequireAssertion(x => x.User.Claims.Any(c => ep.AllowedClaimTypes.Contains(c.Type, StringComparer.OrdinalIgnoreCase)));
+                    {
+                        var allowedClaimTypes = ep.AllowedClaimTypes.ToFrozenSet(StringComparer.OrdinalIgnoreCase);
+                        b.RequireAssertion(x => x.User.Claims.Any(c => allowedClaimTypes.Contains(c.Type)));
+                    }
                     else
                         b.RequireAssertion(x => ep.AllowedClaimTypes.All(t => x.User.Claims.Any(c => string.Equals(c.Type, t, StringComparison.OrdinalIgnoreCase))));
                 }

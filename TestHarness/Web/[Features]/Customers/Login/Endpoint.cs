@@ -18,6 +18,7 @@ public class Endpoint : EndpointWithoutRequest
                     Allow.Customers_Retrieve,
                     Allow.Sales_Order_Create
                 ]);
+                o.User.Permissions.Add("CasePerm"); //for permission value casing tests
                 o.User.Roles.Add(Role.Customer);
                 o.User[Claim.CustomerID] = "CST001";
                 o.User["scope"] = "one two three";

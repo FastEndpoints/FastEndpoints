@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Http;
 using RefreshTest = TestCases.RefreshTokensTest;
+using TestCases.ComparerSemanticsTest;
 using TestCases.MissingClaimTest;
 using TestCases.ScopesTest;
 
@@ -41,6 +42,33 @@ public class SecurityTests(Sut App) : TestBase<Sut>
         var (rsp, _) = await App.CustomerClient.GETAsync<ScopeTestAllFailEndpoint, EmptyResponse>();
         rsp.IsSuccessStatusCode.ShouldBeFalse();
         rsp.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
+    public async Task PermissionMatchingIsCaseSensitive()
+    {
+        var (rsp, res) = await App.CustomerClient.GETAsync<PermissionCasingExactEndpoint, string>();
+        rsp.IsSuccessStatusCode.ShouldBeTrue();
+        res.ShouldBe("ok!");
+
+        var (rspMismatch, _) = await App.CustomerClient.GETAsync<PermissionCasingMismatchEndpoint, ErrorResponse>();
+        rspMismatch.StatusCode.ShouldBe(HttpStatusCode.Forbidden);
+    }
+
+    [Fact]
+    public async Task ScopeMatchingIsCaseInsensitive()
+    {
+        var (rsp, res) = await App.CustomerClient.GETAsync<ScopeCasingMismatchEndpoint, string>();
+        rsp.IsSuccessStatusCode.ShouldBeTrue();
+        res.ShouldBe("ok!");
+    }
+
+    [Fact]
+    public async Task ClaimTypeMatchingIsCaseInsensitive()
+    {
+        var (rsp, res) = await App.CustomerClient.GETAsync<ClaimTypeCasingMismatchEndpoint, string>();
+        rsp.IsSuccessStatusCode.ShouldBeTrue();
+        res.ShouldBe("ok!");
     }
 
     [Fact]

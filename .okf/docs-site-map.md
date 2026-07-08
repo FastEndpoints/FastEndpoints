@@ -9,7 +9,7 @@ tags: [docs, navigation, external]
 
 ## Purpose
 
-Use this map when code changes affect public docs, examples, generated documentation, or user-facing behavior. The docs source lives outside this repository at `/home/SOURCE-CONTROL/FE-Docs/src/content/docs/`.
+Use this map when code changes affect public docs, examples, generated documentation, or user-facing behavior. The docs source lives outside this repository at `../FE-Docs/src/content/docs/`.
 
 ## Page map
 
@@ -52,4 +52,4 @@ Use this map when code changes affect public docs, examples, generated documenta
 
 ## Sources
 
-- `/home/SOURCE-CONTROL/FE-Docs/src/content/docs/*.md`
+- `../FE-Docs/src/content/docs/*.md`

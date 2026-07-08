@@ -78,6 +78,7 @@ public sealed class ErrorOptions
         /// <summary>
         /// the built-in map that ties together status codes to the relevant title and type values.
         /// </summary>
+        // Don't convert this to FrozenDictionary: it's a public API and consumers may assign/mutate the returned Dictionary.
         public Dictionary<int, (string Title, string Url)> Map => _codeMap;
     #pragma warning restore CA1822
 

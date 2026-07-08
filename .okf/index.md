@@ -24,6 +24,7 @@ This directory contains compact operational knowledge for agents working in Fast
 - [Operations](operations.md) - CI/release, NuGet publishing, benchmarks, and runtime harness notes.
 - [Gotchas](gotchas.md) - Practical traps and non-obvious constraints.
 - [Maintenance](maintenance.md) - Rules for keeping OKF conformant and current.
+- [Docs Site Map](docs-site-map.md) - External FE-Docs page map for locating user-facing documentation.
 
 ## Authority rule
 

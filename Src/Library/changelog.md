@@ -120,4 +120,20 @@ Some external MCP adapters may still apply OpenAI-style function-name validation
 
 </details>
 
+<details><summary>Connection-level subscriber ids for remote event subscriptions</summary>
+
+Remote connections can now set `SubscriberID` once and use it as the default subscriber id for event subscriptions on that connection.
+
+```csharp
+app.MapRemote("http://localhost:6000", c =>
+{
+    c.SubscriberID = "worker-a";
+    c.Subscribe<SomethingHappened, WhenSomethingHappens>();
+});
+```
+
+Subscription-specific ids still take precedence, so `SubscribeWithExplicitId(...)` can override the connection-level default when needed.
+
+</details>
+
 [//]: # (## Breaking Changes ⚠️)

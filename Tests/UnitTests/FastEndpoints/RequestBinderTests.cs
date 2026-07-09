@@ -96,6 +96,66 @@ public class RequestBinderTests
         ex.Failures!.ShouldContain(f => f.PropertyName == "admin");
     }
 
+    [Fact]
+    public async Task FromClaimBindsSingleValue()
+    {
+        var hCtx = new DefaultHttpContext
+        {
+            User = new(new ClaimsIdentity([new("dept", "sales"), new("unrelated-claim", "xyz")]))
+        };
+        var binder = new RequestBinder<ClaimRequest>();
+        var ctx = new BinderContext(hCtx, [], null, false, ((IRequestBinder<ClaimRequest>)binder).RequiredProps);
+
+        var res = await binder.BindAsync(ctx, default);
+
+        res.Department.ShouldBe("sales");
+    }
+
+    [Fact]
+    public async Task FromClaimBindsMultipleValuesToCollectionProp()
+    {
+        var hCtx = new DefaultHttpContext
+        {
+            User = new(new ClaimsIdentity([new("role", "admin"), new("role", "manager")]))
+        };
+        var binder = new RequestBinder<ClaimRequest>();
+        var ctx = new BinderContext(hCtx, [], null, false, ((IRequestBinder<ClaimRequest>)binder).RequiredProps);
+
+        var res = await binder.BindAsync(ctx, default);
+
+        res.Roles.ShouldBe(["admin", "manager"]);
+    }
+
+    [Fact]
+    public async Task FromClaimBindsTwoPropsFromSameClaimType()
+    {
+        var hCtx = new DefaultHttpContext
+        {
+            User = new(new ClaimsIdentity([new("dept", "sales")]))
+        };
+        var binder = new RequestBinder<DuplicateClaimTypeRequest>();
+        var ctx = new BinderContext(hCtx, [], null, false, ((IRequestBinder<DuplicateClaimTypeRequest>)binder).RequiredProps);
+
+        var res = await binder.BindAsync(ctx, default);
+
+        res.DepartmentA.ShouldBe("sales");
+        res.DepartmentB.ShouldBe("sales");
+    }
+
+    [Fact]
+    public async Task RequiredFromClaimFailsWhenMissing()
+    {
+        var hCtx = new DefaultHttpContext
+        {
+            User = new(new ClaimsIdentity([]))
+        };
+        var binder = new RequestBinder<RequiredClaimRequest>();
+        var ctx = new BinderContext(hCtx, [], null, false, ((IRequestBinder<RequiredClaimRequest>)binder).RequiredProps);
+
+        var ex = Should.Throw<ValidationFailureException>(async () => await binder.BindAsync(ctx, default));
+        ex.Failures!.ShouldContain(f => f.PropertyName == "dept");
+    }
+
     // ReSharper disable once ClassNeverInstantiated.Local
     sealed class RequestClass(int intgr, int optionalProp = 678)
     {
@@ -146,6 +206,30 @@ public class RequestBinderTests
     {
         [HasPermission("admin")]
         public bool HasAdminPermission { get; set; }
+    }
+
+    sealed class ClaimRequest
+    {
+        [FromClaim("dept", isRequired: false)]
+        public string? Department { get; set; }
+
+        [FromClaim("role", isRequired: false)]
+        public List<string>? Roles { get; set; }
+    }
+
+    sealed class DuplicateClaimTypeRequest
+    {
+        [FromClaim("dept", isRequired: false)]
+        public string? DepartmentA { get; set; }
+
+        [FromClaim("dept", isRequired: false)]
+        public string? DepartmentB { get; set; }
+    }
+
+    sealed class RequiredClaimRequest
+    {
+        [FromClaim("dept")]
+        public string? Department { get; set; }
     }
 
 }

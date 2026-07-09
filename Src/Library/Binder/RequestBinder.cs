@@ -32,6 +32,8 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     static readonly List<SecondaryPropCacheEntry> _fromHeaderProps = [];
     static readonly List<SecondaryPropCacheEntry> _fromCookieProps = [];
     static readonly List<SecondaryPropCacheEntry> _hasPermissionProps = [];
+    static FrozenDictionary<string, int[]> _claimTypeToPropIndices = FrozenDictionary<string, int[]>.Empty; //key: claim type (OrdinalIgnoreCase); value: indices into _fromClaimProps
+    static FrozenDictionary<string, int[]> _permissionToPropIndices = FrozenDictionary<string, int[]>.Empty; //key: permission value (Ordinal); value: indices into _hasPermissionProps
 
     static RequestBinder()
     {
@@ -158,6 +160,26 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
         _primaryProps = primaryProps.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
         _formFileCollectionProps = formFileCollectionProps.ToFrozenDictionary(StringComparer.OrdinalIgnoreCase);
+        _claimTypeToPropIndices = BuildPropIndex(_fromClaimProps, StringComparer.OrdinalIgnoreCase);
+        _permissionToPropIndices = BuildPropIndex(_hasPermissionProps, StringComparer.Ordinal);
+
+        static FrozenDictionary<string, int[]> BuildPropIndex(List<SecondaryPropCacheEntry> props, IEqualityComparer<string> comparer)
+        {
+            if (props.Count == 0)
+                return FrozenDictionary<string, int[]>.Empty;
+
+            var map = new Dictionary<string, List<int>>(comparer);
+
+            for (var i = 0; i < props.Count; i++)
+            {
+                if (!map.TryGetValue(props[i].Identifier, out var indices))
+                    map[props[i].Identifier] = indices = [];
+
+                indices.Add(i);
+            }
+
+            return map.ToFrozenDictionary(kvp => kvp.Key, kvp => kvp.Value.ToArray(), comparer);
+        }
     }
 
     readonly bool _bindJsonBody;
@@ -433,25 +455,24 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
     static void BindUserClaims(TRequest req, BinderContext ctx)
     {
-        var claimsDict = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
+        var claimValues = new List<string>?[_fromClaimProps.Count];
 
         foreach (var c in ctx.HttpContext.User.Claims)
         {
-            if (!claimsDict.TryGetValue(c.Type, out var list))
-            {
-                list = [];
-                claimsDict[c.Type] = list;
-            }
+            if (!_claimTypeToPropIndices.TryGetValue(c.Type, out var indices))
+                continue;
 
-            list.Add(c.Value);
+            for (var j = 0; j < indices.Length; j++)
+                (claimValues[indices[j]] ??= []).Add(c.Value);
         }
 
         for (var i = 0; i < _fromClaimProps.Count; i++)
         {
             var prop = _fromClaimProps[i];
+            var values = claimValues[i];
             StringValues claimVal = default;
 
-            if (claimsDict.TryGetValue(prop.Identifier, out var values))
+            if (values is not null)
             {
                 claimVal = prop.IsCollection || values.Count > 1
                                ? values.ToArray()
@@ -534,18 +555,22 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
 
     static void BindHasPermissionProps(TRequest req, BinderContext ctx)
     {
-        var permissionValues = new HashSet<string>(StringComparer.Ordinal);
+        var matched = new bool[_hasPermissionProps.Count];
 
         foreach (var claim in ctx.HttpContext.User.Claims)
         {
-            if (string.Equals(claim.Type, Cfg.SecOpts.PermissionsClaimType, StringComparison.OrdinalIgnoreCase))
-                permissionValues.Add(claim.Value);
+            if (!string.Equals(claim.Type, Cfg.SecOpts.PermissionsClaimType, StringComparison.OrdinalIgnoreCase) ||
+                !_permissionToPropIndices.TryGetValue(claim.Value, out var indices))
+                continue;
+
+            for (var j = 0; j < indices.Length; j++)
+                matched[indices[j]] = true;
         }
 
         for (var i = 0; i < _hasPermissionProps.Count; i++)
         {
             var prop = _hasPermissionProps[i];
-            var hasPerm = permissionValues.Contains(prop.Identifier);
+            var hasPerm = matched[i];
 
             switch (hasPerm)
             {

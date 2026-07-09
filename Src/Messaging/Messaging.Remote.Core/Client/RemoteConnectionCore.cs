@@ -62,6 +62,11 @@ public class RemoteConnectionCore
     /// </summary>
     public string RemoteAddress { get; }
 
+    /// <summary>
+    /// the default explicit subscriber id to use for event subscriptions on this remote connection when a subscription-specific id is not supplied.
+    /// </summary>
+    public string? SubscriberID { get; set; }
+
     readonly IServiceProvider _serviceProvider;
     readonly CancellationToken _appCancellation;
     protected readonly string? UnixSocketPath;
@@ -234,9 +239,10 @@ public class RemoteConnectionCore
 
         var tHandler = _serviceProvider.GetService<IEventHandler<TEvent>>()?.GetType() ?? typeof(TEventHandler);
         var tEventSubscriber = typeof(EventSubscriber<,,,>).MakeGenericType(typeof(TEvent), tHandler, StorageRecordType, StorageProviderType);
-        var eventSubscriber = (ICommandExecutor)(subscriberID is null
+        var effectiveSubscriberID = subscriberID ?? SubscriberID;
+        var eventSubscriber = (ICommandExecutor)(effectiveSubscriberID is null
                                                      ? ActivatorUtilities.CreateInstance(_serviceProvider, tEventSubscriber, Channel!, clientIdentifier)
-                                                     : ActivatorUtilities.CreateInstance(_serviceProvider, tEventSubscriber, Channel!, clientIdentifier, subscriberID));
+                                                     : ActivatorUtilities.CreateInstance(_serviceProvider, tEventSubscriber, Channel!, clientIdentifier, effectiveSubscriberID));
 
         ExecutorMap[tEventHandler] = eventSubscriber;
 

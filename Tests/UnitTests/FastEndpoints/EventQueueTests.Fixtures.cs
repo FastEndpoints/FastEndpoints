@@ -32,6 +32,12 @@ public partial class EventQueueTests
             => Task.CompletedTask;
     }
 
+    sealed class TestRemoteConnectionCore(string address, IServiceProvider serviceProvider) : RemoteConnectionCore(address, serviceProvider)
+    {
+        public object GetExecutor(Type executorType)
+            => ExecutorMap[executorType];
+    }
+
     class KnownSubscriberEvent : IEvent
     {
         public int EventID { get; set; }

@@ -41,6 +41,7 @@ FastEndpoints is a multi-package .NET library repo. The main library exposes ASP
 - Request binding and validation integrate with FluentValidation; data annotations can be enabled in runtime config.
 - OpenAPI/Swagger targets can generate module initializer files in `obj/` to propagate document export paths at runtime.
 - Serializer context generation is opt-in via `GenerateSerializerContexts=true` and writes generated source to `Generated/FastEndpoints` by default.
+- Remote messaging event subscriptions derive subscriber ids by default, can use per-subscription explicit ids, or can fall back to a `RemoteConnectionCore.SubscriberID` default configured on the remote connection.
 
 ## Invariants
 

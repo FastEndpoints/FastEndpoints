@@ -58,6 +58,36 @@ public partial class EventQueueTests
     }
 
     [Fact]
+    public void connection_level_subscriber_id_is_used_when_subscription_has_no_explicit_id()
+    {
+        var provider = CreateServiceProvider();
+        var connection = new TestRemoteConnectionCore("http://localhost:5001", provider)
+        {
+            SubscriberID = "connection-sub-1"
+        };
+
+        connection.Subscribe<ExplicitSubscriberIdEvent, ExplicitSubscriberIdHandler>(new CancellationToken(true));
+
+        var subscriber = connection.GetExecutor(typeof(ExplicitSubscriberIdHandler));
+        GetEventSubscriberID(subscriber).ShouldBe("connection-sub-1");
+    }
+
+    [Fact]
+    public void subscription_specific_subscriber_id_overrides_connection_level_subscriber_id()
+    {
+        var provider = CreateServiceProvider();
+        var connection = new TestRemoteConnectionCore("http://localhost:5001", provider)
+        {
+            SubscriberID = "connection-sub-1"
+        };
+
+        connection.SubscribeWithExplicitId<ExplicitSubscriberIdEvent, ExplicitSubscriberIdHandler>("subscription-sub-1", new CancellationToken(true));
+
+        var subscriber = connection.GetExecutor(typeof(ExplicitSubscriberIdHandler));
+        GetEventSubscriberID(subscriber).ShouldBe("subscription-sub-1");
+    }
+
+    [Fact]
     public void subscriber_id_is_derived_when_no_explicit_id_is_supplied()
     {
         var provider = CreateServiceProvider();

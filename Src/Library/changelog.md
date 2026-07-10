@@ -110,6 +110,8 @@ Several read-mostly internal lookup tables now use `FrozenDictionary`/`FrozenSet
 
 Endpoint security policies now build a `FrozenSet` of allowed permissions/scopes/claim types once when the policy is constructed, instead of scanning the backing collection on every authorization check.
 
+`RequestBinder<TRequest>` now indexes `[FromClaim]` / `[HasPermission]` properties once per DTO type and matches principal claims against those indices, instead of building per-request claim dictionaries or permission sets sized to the full principal.
+
 </details>
 
 <details><summary>Relaxed agent name validation</summary>

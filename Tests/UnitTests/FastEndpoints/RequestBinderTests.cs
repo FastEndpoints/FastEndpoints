@@ -156,6 +156,37 @@ public class RequestBinderTests
         ex.Failures!.ShouldContain(f => f.PropertyName == "dept");
     }
 
+    [Fact]
+    public async Task FromClaimBindsWithDifferentClaimTypeCasing()
+    {
+        var hCtx = new DefaultHttpContext
+        {
+            User = new(new ClaimsIdentity([new("DEPT", "sales")]))
+        };
+        var binder = new RequestBinder<ClaimRequest>();
+        var ctx = new BinderContext(hCtx, [], null, false, ((IRequestBinder<ClaimRequest>)binder).RequiredProps);
+
+        var res = await binder.BindAsync(ctx, default);
+
+        res.Department.ShouldBe("sales");
+    }
+
+    [Fact]
+    public async Task HasPermissionBindsTwoPropsFromSamePermission()
+    {
+        var hCtx = new DefaultHttpContext
+        {
+            User = new(new ClaimsIdentity([new("permissions", "Admin")]))
+        };
+        var binder = new RequestBinder<DuplicatePermissionRequest>();
+        var ctx = new BinderContext(hCtx, [], null, false, ((IRequestBinder<DuplicatePermissionRequest>)binder).RequiredProps);
+
+        var res = await binder.BindAsync(ctx, default);
+
+        res.HasAdminPermissionA.ShouldBeTrue();
+        res.HasAdminPermissionB.ShouldBeTrue();
+    }
+
     // ReSharper disable once ClassNeverInstantiated.Local
     sealed class RequestClass(int intgr, int optionalProp = 678)
     {
@@ -230,6 +261,15 @@ public class RequestBinderTests
     {
         [FromClaim("dept")]
         public string? Department { get; set; }
+    }
+
+    sealed class DuplicatePermissionRequest
+    {
+        [HasPermission("Admin", isRequired: false)]
+        public bool HasAdminPermissionA { get; set; }
+
+        [HasPermission("Admin", isRequired: false)]
+        public bool HasAdminPermissionB { get; set; }
     }
 
 }

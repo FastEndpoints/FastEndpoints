@@ -1,49 +1,62 @@
 ---
 type: Reference
 title: Project Overview
-description: Purpose, scope, package families, and glossary for FastEndpoints.
-tags: [overview, scope]
+description: FastEndpoints is a REPR-pattern ASP.NET library monorepo published as multiple NuGet packages.
+tags: [overview]
+resource: README.md
 ---
 
 # Project Overview
 
 ## Purpose
-
-FastEndpoints is a .NET library family for building ASP.NET APIs with minimal boilerplate. The main package is positioned as a developer-friendly alternative to Minimal APIs and MVC that nudges applications toward the REPR pattern: Request, Endpoint, Response.
+**FastEndpoints** is a developer-oriented alternative to Minimal APIs and MVC for ASP.NET Core. It implements the **REPR** pattern (Request–Endpoint–Response) with low boilerplate. Public docs: https://fast-endpoints.com
 
 ## Scope
+This repo is the multi-package source for:
 
-- Core API framework for endpoint classes, request binding, validation, response helpers, filters/processors, versioning, throttling, antiforgery, idempotency, and security metadata.
-- Messaging libraries for command bus, event bus, job queues, and remote gRPC/MessagePack-style RPC helpers.
-- Add-on packages for OpenAPI, legacy NSwag Swagger/client generation, OData, ASP.NET API versioning, JWT/security helpers, health checks, testing helpers, source generation, and AI protocols (MCP/A2A).
-- Test harnesses and benchmarks that exercise library behavior against ASP.NET hosts.
+| Area | Packages (examples) |
+| --- | --- |
+| Core HTTP framework | `FastEndpoints`, `FastEndpoints.Attributes`, `FastEndpoints.Core` |
+| Messaging / jobs | `FastEndpoints.Messaging*`, `FastEndpoints.JobQueues`, `FastEndpoints.CommandRules` |
+| Security | `FastEndpoints.Security` |
+| Docs / clients | `FastEndpoints.OpenApi`, `FastEndpoints.OpenApi.Kiota`, legacy `Swagger` / `ClientGen*` |
+| Tooling / AOT | `FastEndpoints.Generator`, `FastEndpoints.Generator.Cli` |
+| Testing helpers | `FastEndpoints.Testing`, remote messaging testing |
+| Addons (independent versioning) | `FastEndpoints.Mcp`, `FastEndpoints.A2A` (under `Src/Agents/`) |
+| Integrations | `AspVersioning`, `OData`, `HealthChecks` |
 
 ## Consumers
+- Library authors and app developers targeting ASP.NET Core **net8.0 / net9.0 / net10.0**
+- NuGet consumers; not an application service deployed from this repo
 
-- Library users building ASP.NET APIs on .NET 8+.
-- Package consumers using FastEndpoints extension packages from NuGet.
-- Maintainers validating behavior across unit, integration, native AOT, and benchmark projects.
+## Capabilities
+- Endpoint discovery (reflection or source-generated `DiscoveredTypes`)
+- FluentValidation integration, pre/post processors, mappers
+- Command/event bus (in-process) and gRPC remote messaging
+- Job queues with storage provider abstraction
+- JWT/cookie auth helpers, OpenAPI (Microsoft.AspNetCore.OpenApi), AOT-oriented generation
 
-## Status and maturity
+## Status
+- Library version (shared `Src/Directory.Build.props`): **8.3.0-beta.10** (verify before citing)
+- Agents addons versioned separately (e.g. **1.0.0-beta.3**)
+- Agents projects currently **commented out** of `FastEndpoints.slnx` but present under `Src/Agents/`
+- Primary solution: `FastEndpoints.slnx`; AOT solution: `NativeAot.slnx`
 
-- Published NuGet package family with release automation on `v*` tags.
-- Current shared source package version is in `Src/Directory.Build.props`.
-- Main source projects multi-target `net8.0`, `net9.0`, and `net10.0`; tests and benchmarks target `net10.0` unless overridden.
+## Non-goals
+- Not a hosted product/API of its own
+- Product roadmap, sponsorship, and full public API catalog live outside OKF (docs site / changelog)
+- Public doc **pages** are maintained in sibling `../FE-Docs/` (see [workflows.md](workflows.md)); OKF only records that obligation and paths, not page content
 
 ## Glossary
-
-- **REPR**: Request-Endpoint-Response pattern used by endpoint implementations.
-- **Endpoint**: A class deriving from FastEndpoints endpoint base classes and usually implementing `Configure()` plus `HandleAsync()`/`ExecuteAsync()`.
-- **Processor**: Pre/post request pipeline component registered globally or per endpoint.
-- **Job queue**: Command-based background queueing with scheduling/tracking support.
-- **OpenApi**: New Microsoft.AspNetCore.OpenApi-based support in `Src/OpenApi/`.
-- **Swagger**: Legacy NSwag-based support in `Src/Swagger/` and related legacy client generation projects.
-- **Native AOT**: Ahead-of-time publish scenario validated through `NativeAot.slnx` and the native AOT harness/tests.
+| Term | Meaning |
+| --- | --- |
+| REPR | Request–Endpoint–Response endpoint design |
+| SUT / harness | Sample apps under `TestHarness/` used by integration tests |
+| WAF | `WebApplicationFactory` path via `FastEndpoints.Testing.AppFixture` |
+| DiscoveredTypes | Source-generated type list for AOT-friendly registration |
 
 ## Sources
-
 - `README.md`
-- `FastEndpoints.slnx`
-- `NativeAot.slnx`
 - `Src/Directory.Build.props`
-- `Src/**/*.csproj`
+- `FastEndpoints.slnx`
+- `Src/Library/FastEndpoints.csproj`

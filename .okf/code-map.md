@@ -1,74 +1,71 @@
 ---
 type: Reference
 title: Code Map
-description: Repository layout, important source/test locations, generated outputs, and edit guidance.
-tags: [code-map, navigation]
+description: Top-level layout and where endpoints, packages, tests, and generators live.
+tags: [layout]
 ---
 
 # Code Map
 
-## Top-level layout
+## Layout
 
 | Path | Purpose |
 | --- | --- |
-| `README.md` | Public project summary and docs site link. |
-| `FastEndpoints.slnx` | Main solution for packages, harnesses, benchmarks, and most tests. |
-| `NativeAot.slnx` | Native AOT harness/test solution. |
-| `Directory.Packages.props` | Central NuGet package versions and compatibility comments. |
-| `Src/` | Product source packages. |
-| `Tests/` | Unit, integration, and native AOT test projects. |
-| `TestHarness/` | ASP.NET sample/harness apps and native AOT checker used by tests. |
-| `Benchmark/` | BenchmarkDotNet and load-test projects. |
-| `.github/workflows/publish-to-nuget.yml` | GitHub release workflow. |
-| `azure-pipeline.yml` | Azure test pipeline. |
-| `clean.sh` | Deletes `bin` and `obj` directories. |
+| `Src/` | All shippable library packages |
+| `Src/Library/` | Main `FastEndpoints` package (HTTP REPR runtime) |
+| `Src/Core/` | `FastEndpoints.Core` (service resolver, assembly scanner) |
+| `Src/Attributes/` | Attributes + small contracts for generators/consumers |
+| `Src/Messaging/` | Messaging.Core, Messaging, Messaging.Remote*, testing helpers |
+| `Src/JobQueues/` | Job queue package |
+| `Src/CommandRules/` | Rule-based command dispatch package |
+| `Src/Security/` | JWT/cookie/refresh/revocation |
+| `Src/OpenApi/`, `Src/OpenApi.Kiota/` | OpenAPI + Kiota client gen |
+| `Src/Swagger/`, `Src/ClientGen*` | Legacy NSwag-era packages (slnx “Legacy” folder) |
+| `Src/Generator/`, `Src/Generator.Cli/` | Roslyn generators + CLI |
+| `Src/Testing/` | `FastEndpoints.Testing` |
+| `Src/Agents/` | Mcp / A2A addons + Shared linked sources |
+| `Src/*/Generated/` | Often empty placeholders or build outputs — prefer not hand-edit |
+| `TestHarness/` | Sample apps: `Web`, `OData`, `OpenApi.Kiota`, `Sandbox`, `NativeAotChecker` |
+| `Tests/UnitTests/` | Unit tests (xunit v3) |
+| `Tests/IntegrationTests/` | WAF/integration tests against harnesses |
+| `Tests/NativeAotTests/` | AOT publish/check tests |
+| `Benchmark/` | BenchmarkDotNet + load tests |
+| `Directory.Packages.props` | Central NuGet versions |
+| `Src/Directory.Build.props` | Shared version, TFMs, signing, package metadata |
+| `FastEndpoints.slnx` | Primary solution |
+| `NativeAot.slnx` | AOT-focused solution |
+| `azure-pipeline.yml` | Azure DevOps test pipeline (tag-triggered pack path differs) |
+| `.github/workflows/publish-to-nuget.yml` | Tag `v*` test → pack → push NuGet → GH release |
+| `../FE-Docs/` (sibling) | Public docs site source; content under `src/content/docs/` — not in this solution |
 
-## Source package map
+## Modules (Library internals)
 
-| Path | Purpose |
+| Folder under `Src/Library/` | Concern |
 | --- | --- |
-| `Src/Library/` | Main `FastEndpoints` package. Key areas: `Endpoint/`, `Binder/`, `Validation/`, `Auth/`, `Middleware/`, `Messaging/`, `Testing/`, `X402/`. |
-| `Src/Core/` | Shared service resolver and assembly scanner infrastructure. |
-| `Src/Attributes/` | Attribute package used by runtime/generator/consumers. |
-| `Src/Messaging/` | Messaging packages split into core, local messaging, remote RPC, and remote test helpers. |
-| `Src/JobQueues/` | Command-backed job queue package. |
-| `Src/CommandRules/` | Command rule dispatching package. |
-| `Src/OpenApi/` | Microsoft OpenAPI integration, schemas, operations, validation processors, export target. |
-| `Src/OpenApi.Kiota/` | Kiota client generation support for new OpenAPI path. |
-| `Src/Swagger/` | Legacy NSwag Swagger integration and MSBuild export target. |
-| `Src/ClientGen*/` | Legacy NSwag/Kiota client generators. |
-| `Src/Generator/` | Roslyn generator package and analyzer release tracking files. |
-| `Src/Generator.Cli/` | CLI for serializer-context generation. |
-| `Src/Agents/` | MCP and A2A add-on packages; not currently included as active projects in `FastEndpoints.slnx`. |
+| `Main/` | `AddFastEndpoints`, `UseFastEndpoints`, discovery, bootstrap |
+| `Endpoint/` | Endpoint base, setup, send, validation, processors, mappers |
+| `Binder/` | Request binding |
+| `Config/` | Global `Config` options |
+| `Validation/` | FluentValidation wrappers |
+| `Messaging/` | Command handlers living in Library surface |
+| `Middleware/` | e.g. antiforgery |
+| `Auth/`, `X402/` | Auth hooks / payment protocol support |
+| `Testing/` | Lightweight test helpers shipped with main package |
 
-## Tests and harnesses
+## Entry points
+- **Consumer app:** `services.AddFastEndpoints(...)` then `app.UseFastEndpoints(...)` or `MapFastEndpoints`.
+- **Test harness Web:** `TestHarness/Web/Program.cs` — full feature surface for integration tests.
+- **Integration SUT fixture:** `Tests/IntegrationTests/FastEndpoints/Sut.cs` → `AppFixture<Web.Program>`.
+- **Pack/publish:** `dotnet pack FastEndpoints.slnx -c Release`; push `Src/**/*.nupkg`.
 
-| Path | Purpose |
-| --- | --- |
-| `Tests/UnitTests/FastEndpoints/` | Main framework unit tests. |
-| `Tests/UnitTests/FastEndpoints.Swagger/` | Legacy Swagger unit tests; solution entries are currently commented. |
-| `Tests/UnitTests/FastEndpoints.Testing/` | Testing helper unit tests. |
-| `Tests/IntegrationTests/FastEndpoints/` | Main integration tests using `TestHarness/Web/`. |
-| `Tests/IntegrationTests/FastEndpoints.*` | Integration tests for Agents, OData, OpenAPI, OpenAPI.Kiota, and legacy Swagger. |
-| `Tests/NativeAotTests/` | Native AOT checker tests. |
-| `TestHarness/Web/` | Broad ASP.NET harness with feature folders under `[Features]/`. |
-| `TestHarness/Sandbox/` | Sandbox source/contracts/tests solution. |
-| `TestHarness/NativeAotChecker/` | Native AOT validation app. |
+## Feature samples
+Harness features under `TestHarness/Web/[Features]/…` (e.g. `Admin/Login/Endpoint.cs`) show canonical endpoint layout: namespace-per-feature, `Endpoint : Endpoint<Request, Response>`, `Configure()` + handle methods.
 
-## Generated and build output guidance
-
-- Do not edit `bin/` or `obj/`; they are ignored build outputs.
-- `Src/*/Generated/` directories exist for generated source but may be empty in the repo.
-- Serializer context generation defaults to `Generated/FastEndpoints` and may produce `SerializerContexts.g.cs`, `SerializerContextExtensions.g.cs`, and `.fastendpoints-generator-cache`.
-- OpenAPI/Swagger targets generate module initializer files under intermediate output paths (`obj/`) and export docs under `wwwroot/openapi` during configured AOT publish workflows.
-- `TestHarness/NativeAotChecker/Generated/` is ignored by `.gitignore` and should be treated as generated output unless a task explicitly targets generation behavior.
+## Generated code
+See [generated-code.md](generated-code.md). Generators: discovered types, access-control constants, reflection cache, service registration, generic processor types; CLI emits STJ serializer contexts when `GenerateSerializerContexts=true`.
 
 ## Sources
-
 - `FastEndpoints.slnx`
-- `NativeAot.slnx`
-- `.gitignore`
-- `Src/Generator.Cli/README.md`
-- `Src/Generator/FastEndpoints.Generator.targets`
-- `Src/OpenApi/FastEndpoints.OpenApi.targets`
-- `Src/Swagger/FastEndpoints.Swagger.targets`
+- `Src/Library/`
+- `TestHarness/Web/Program.cs`
+- `Tests/IntegrationTests/FastEndpoints/Sut.cs`

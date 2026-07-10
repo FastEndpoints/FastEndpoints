@@ -1,59 +1,57 @@
 ---
 type: Reference
 title: Conventions
-description: Coding, endpoint, package, and validation conventions used in the repository.
-tags: [conventions, style]
+description: Coding, naming, and design conventions used across FastEndpoints packages.
+tags: [conventions]
 ---
 
 # Conventions
 
-## C# and formatting
+## Naming
+- Public API namespace: mostly flat `FastEndpoints` (file-scoped / namespace-per-file patterns common).
+- Endpoint types often named `Endpoint` inside a feature namespace (see harness), not `FooEndpoint`.
+- Private fields: camelCase with `_` prefix (editorconfig / ReSharper rules).
+- Parameters: camelCase; private constants: PascalCase.
+- Packages: `FastEndpoints.<Area>` NuGet IDs matching project folders.
 
-- Use UTF-8, LF line endings, spaces, and 4-space indentation from `.editorconfig`.
-- C# uses latest language version, nullable enabled, and implicit usings for source/test projects via props files.
-- Prefer `var` where apparent/built-in per `.editorconfig` suggestions.
-- Accessibility modifiers are not required by style (`dotnet_style_require_accessibility_modifiers = never:error`).
-- Many ReSharper formatter settings are encoded in `.editorconfig`; preserve existing formatting in touched files.
+## Style
+- C# latest language version; **nullable enable**; implicit usings.
+- Indent 4 spaces; LF; UTF-8 (`.editorconfig`).
+- Prefer existing partial-class splits for large types (`Endpoint.*.cs`).
+- XML docs generated for packages (`GenerateDocumentationFile`); suppress noise via project `NoWarn`.
+- Accessibility modifiers: editorconfig prefers not requiring explicit modifiers in some cases — follow neighboring code.
+- `CS8618` suppressed for `*Request.cs`, `*Response.cs`, `*Model*.cs`, `*Endpoint.cs` patterns.
 
-## Naming and layout
+## Errors and validation
+- Request validation: FluentValidation via `Validator<TRequest>` / endpoint `Validator` configuration.
+- Validation failures flow through endpoint pipeline; error response shape controlled by `Config.Errors` (including ProblemDetails helpers).
+- Prefer framework hooks (`OnBeforeValidate`, send helpers) over ad-hoc MVC filters.
 
-- Private field naming is underscore camelCase where configured; private constants are PascalCase.
-- Feature/harness endpoint folders commonly use `Endpoint`, `Request`, `Response`, `Models`, and `Validator` classes under feature namespaces, e.g. `Uploads.Image.Save`.
-- Keep feature-specific request/response/validator/model code near the endpoint when following test harness patterns.
-- Keep package code inside its owning `Src/<Package>/` directory; avoid cross-package source sharing that bypasses `.csproj` references.
+## APIs and data
+- REPR: Request DTO + Endpoint + optional Response DTO; configure routes/verbs/auth in `Configure()`.
+- Pre/post processors: `IPreProcessor<TRequest>`, `IPostProcessor<TRequest,TResponse>`.
+- Mappers: `IMapper` / request-response mappers — **stateless** (singleton lifetime expectation).
+- Commands/events: implement `ICommand` / `IEvent` (+ handlers); job queue builds on commands.
+- Optional attributes: `DontRegister`, `DontInject`, `HideFromDocs`, `RegisterService`, etc. in Attributes package.
 
-## Endpoint design
+## Config and DI
+- Global options: `UseFastEndpoints(c => { c.Serializer…; c.Endpoints…; })` → `FastEndpoints.Config` (`Cfg` alias).
+- Endpoint ctor DI supported; property injection possible with attributes/options.
+- Service registration generator can emit registration from attributes when generator is referenced.
+- Central package versions only in `Directory.Packages.props`; do not hardcode versions in csproj except intentional `VersionOverride` / constrained ranges already present.
 
-- Endpoint classes derive from FastEndpoints base classes such as `Endpoint<TRequest>`, `Endpoint<TRequest,TResponse>`, or no-request variants.
-- Endpoint setup is expressed through the DSL in `Configure()`/endpoint definition: verbs, routes, auth, claims/permissions/scopes, validators, processors, summary/metadata, versioning, throttling, serializer contexts, and response behavior.
-- Runtime applications register with `AddFastEndpoints(...)` and map/use with `UseFastEndpoints(...)` or `MapFastEndpoints(...)`.
-- Maintain REPR intent: request DTO, endpoint behavior, and response DTO remain explicit and easy to locate.
+## Testing conventions
+- Integration: `AppFixture<TProgram>` / collection fixtures from `FastEndpoints.Testing`.
+- Prefer typed HTTP helpers (`POSTAsync<TEndpoint, TRequest, TResponse>`) over raw URLs when endpoint types exist.
+- Mark flaky/heavy tests with `[Trait("ExcludeInCiCd", "Yes")]` to match CI filter.
 
-## Validation and error behavior
-
-- FluentValidation is a primary dependency of the main library.
-- Validators usually derive from `Validator<TRequest>`.
-- Data annotations are optional runtime configuration, not the default assumption for all endpoints.
-- Preserve existing validation-failure behavior and tests when touching binding, validators, processors, or response serialization.
-
-## Package and API discipline
-
-- Centralize NuGet version changes in `Directory.Packages.props`.
-- Package metadata and target frameworks mostly come from `Src/Directory.Build.props`; use project-level overrides only when required.
-- Public package APIs need tests and compatibility awareness across `net8.0`, `net9.0`, and `net10.0`.
-- Do not update Roslyn or Kiota dependencies without checking comments in `Directory.Packages.props`.
-
-## Simplicity
-
-- Prefer focused changes that follow nearby patterns.
-- Avoid broad refactors across packages unless the task requires coordinated API/behavior changes.
-- Do not edit generated files or build outputs manually.
+## YAGNI
+- Keep changes minimal and consistent with surrounding package boundaries.
+- Do not reintroduce NSwag/Swagger paths as default when OpenApi is the active harness path unless task is legacy package work.
 
 ## Sources
-
 - `.editorconfig`
-- `Src/Directory.Build.props`
-- `Tests/Directory.Build.props`
-- `TestHarness/Web/[Features]/Uploads/Image/Save/Endpoint.cs`
-- `TestHarness/Web/[Features]/Uploads/Image/Save/Models.cs`
-- `Src/Library/Endpoint/Endpoint.Setup.cs`
+- `Src/Library/Endpoint/`
+- `Src/Library/Config/Config.cs`
+- `Src/Testing/`
+- `TestHarness/Web/[Features]/`

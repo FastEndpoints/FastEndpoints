@@ -1,69 +1,58 @@
 ---
-type: Reference
+type: Playbook
 title: Testing
-description: Test layout, frameworks, commands, fixtures, and validation expectations.
-tags: [testing, validation]
+description: xUnit v3 layout, harnesses, AppFixture, and CI filter conventions.
+tags: [test]
 ---
 
 # Testing
 
-## Frameworks
-
-- xUnit v3 is the test framework.
-- Shouldly is the main assertion library.
-- FakeItEasy is available for tests and analyzer coverage.
-- ASP.NET integration tests use Microsoft.AspNetCore.Mvc.Testing/TestHost through project references and `FastEndpoints.Testing`.
-
-## Test layout
-
-| Path | Purpose |
+## Frameworks and layout
+| Piece | Detail |
 | --- | --- |
-| `Tests/UnitTests/FastEndpoints/` | Unit coverage for core framework behavior, queues, messaging, binding, route prefixes, service resolver, X402, warmup, generators. |
-| `Tests/IntegrationTests/FastEndpoints/` | Main integration coverage against `TestHarness/Web/`. |
-| `Tests/IntegrationTests/FastEndpoints.OpenApi/` | New OpenAPI integration tests. |
-| `Tests/IntegrationTests/FastEndpoints.OpenApi.Kiota/` | Kiota/OpenAPI integration tests. |
-| `Tests/IntegrationTests/FastEndpoints.OData/` | OData integration tests. |
-| `Tests/IntegrationTests/FastEndpoints.Agents/` | MCP/A2A integration tests. |
-| `Tests/IntegrationTests/FastEndpoints.Swagger/` | Legacy Swagger integration tests; currently commented out of main solution. |
-| `Tests/UnitTests/FastEndpoints.Swagger/` | Legacy Swagger unit tests; currently commented out of main solution. |
-| `Tests/UnitTests/FastEndpoints.Testing/` | Testing helper tests. |
-| `Tests/NativeAotTests/` | Native AOT validation tests. |
-| `TestHarness/Web/` | Broad ASP.NET harness and feature test endpoints. |
+| Framework | **xunit.v3**, Shouldly, FakeItEasy |
+| Test TFM | **net10.0** (`Tests/Directory.Build.props`) |
+| Unit | `Tests/UnitTests/FastEndpoints`, `…/FastEndpoints.Testing` (+ legacy Swagger unit commented in slnx) |
+| Integration | `Tests/IntegrationTests/FastEndpoints` (main), OpenApi, OpenApi.Kiota, OData, Agents |
+| AOT | `Tests/NativeAotTests/NativeAotCheckerTests` + `NativeAot.slnx` |
+| Helpers package | `Src/Testing` → `FastEndpoints.Testing` (`AppFixture`, fixtures, Bogus) |
+| Main SUT | `TestHarness/Web` (`Web.Program`) |
+| Other SUTs | OData, OpenApi.Kiota, Sandbox, NativeAotChecker |
+
+Integration projects reference harness + `FastEndpoints.Testing` + often remote messaging testing helpers.
 
 ## Commands
-
-Main release-style validation:
-
 ```bash
+# Full solution tests (matches GitHub publish workflow)
 dotnet test FastEndpoints.slnx -c Release --verbosity minimal --filter "ExcludeInCiCd!=Yes"
-```
 
-Targeted examples:
+# By tree (Azure pipeline workingDirectory Tests)
+dotnet test Tests/**/*.csproj -c Release --filter "ExcludeInCiCd!=Yes"
 
-```bash
+# Targeted
 dotnet test Tests/UnitTests/FastEndpoints/Unit.FastEndpoints.csproj
-dotnet test Tests/IntegrationTests/FastEndpoints/Int.FastEndpoints.csproj
-dotnet test NativeAot.slnx -c Release
+dotnet test Tests/IntegrationTests/FastEndpoints/Int.FastEndpoints.csproj --filter FullyQualifiedName~BindingTests
 ```
 
-## xUnit runner behavior
+AOT tests: use `NativeAot.slnx` (publish workflow currently has AOT test step commented out — re-check before assuming CI runs AOT).
 
-- `Tests/Directory.Build.props` sets shared test properties and references xUnit v3, Shouldly, FakeItEasy, Microsoft.NET.Test.Sdk, and the Visual Studio runner.
-- Integration xUnit runner configs commonly set `parallelizeTestCollections` to `false`.
-- Azure CI overwrites `Tests/IntegrationTests/FastEndpoints/xunit.runner.json` to disable assembly and collection parallelization before running tests.
+## Integration and data
+- **WAF caching:** `AppFixture` caches one factory per fixture type for concurrency; dispose hooks on assembly cleanup.
+- **Sut pattern:** derive `AppFixture<Web.Program>`, override `ConfigureServices` / `SetupAsync` for clients and test doubles (`RegisterTestCommandHandler`, event receivers, etc.).
+- **Auth clients:** e.g. Admin/Customer JWT obtained via login endpoints in `Sut.SetupAsync`.
+- **Traits:** `[Trait("ExcludeInCiCd", "Yes")]` skips in CI (job queue timing, some binding/Kiota cases).
+- Integration xunit runner: CI may rewrite `Tests/IntegrationTests/FastEndpoints/xunit.runner.json` to disable parallelization (Azure pipeline step).
+- No external DB required for core suite; job storage tests use in-memory/test providers in harness/tests.
 
-## What to test
-
-- Binding, validation, serialization, endpoint setup DSL, processor ordering/state, auth/security metadata, and response behavior need integration coverage when behavior is user-visible.
-- Package-specific changes should target that package's unit/integration project and any harness app it depends on.
-- API or package dependency changes should validate the main solution and, when relevant, `NativeAot.slnx`.
-- Generator changes should cover Roslyn/source-generation behavior and serializer context CLI/MSBuild paths where practical.
+## Expectations
+- New public behavior: unit tests when pure logic; integration tests against `TestHarness/Web` (or domain harness) when pipeline/HTTP involved.
+- Prefer endpoint-typed client extensions over magic strings.
+- Generator behavior: unit tests reference Generator project and harness where needed (`Unit.FastEndpoints` references Generator + Web).
+- Keep assemblies signed consistently when using `InternalsVisibleTo` (public key in props).
 
 ## Sources
-
 - `Tests/Directory.Build.props`
-- `Tests/IntegrationTests/FastEndpoints/xunit.runner.json`
-- `FastEndpoints.slnx`
-- `NativeAot.slnx`
-- `azure-pipeline.yml`
+- `Src/Testing/AppFixture.Waf.cs`
+- `Tests/IntegrationTests/FastEndpoints/Sut.cs`
+- `Tests/IntegrationTests/FastEndpoints/Int.FastEndpoints.csproj`
 - `.github/workflows/publish-to-nuget.yml`

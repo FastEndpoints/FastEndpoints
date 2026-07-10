@@ -32,8 +32,12 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
     static readonly List<SecondaryPropCacheEntry> _fromHeaderProps = [];
     static readonly List<SecondaryPropCacheEntry> _fromCookieProps = [];
     static readonly List<SecondaryPropCacheEntry> _hasPermissionProps = [];
-    static FrozenDictionary<string, int[]> _claimTypeToPropIndices = FrozenDictionary<string, int[]>.Empty; //key: claim type (OrdinalIgnoreCase); value: indices into _fromClaimProps
-    static FrozenDictionary<string, int[]> _permissionToPropIndices = FrozenDictionary<string, int[]>.Empty; //key: permission value (Ordinal); value: indices into _hasPermissionProps
+
+    //key: claim type (OrdinalIgnoreCase); value: indices into _fromClaimProps
+    static readonly FrozenDictionary<string, int[]> _claimTypeToPropIndices = FrozenDictionary<string, int[]>.Empty;
+
+    //key: permission value (Ordinal); value: indices into _hasPermissionProps
+    static readonly FrozenDictionary<string, int[]> _permissionToPropIndices = FrozenDictionary<string, int[]>.Empty;
 
     static RequestBinder()
     {

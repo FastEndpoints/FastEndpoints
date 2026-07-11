@@ -654,11 +654,11 @@ public static class HttpResponseExtensions
             return Void.Instance;
         }
 
-        async Task ApplyGlobalResponseModifier()
+        Task ApplyGlobalResponseModifier()
         {
             EpOpts.GlobalResponseModifier?.Invoke(rsp.HttpContext, null);
-            if (EpOpts.GlobalResponseModifierAsync is not null)
-                await EpOpts.GlobalResponseModifierAsync(rsp.HttpContext, null);
+
+            return EpOpts.GlobalResponseModifierAsync?.Invoke(rsp.HttpContext, null) ?? Task.CompletedTask;
         }
     }
 

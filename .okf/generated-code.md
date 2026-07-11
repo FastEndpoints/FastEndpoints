@@ -11,7 +11,7 @@ tags: [layout]
 | Generator | Purpose |
 | --- | --- |
 | `DiscoveredTypesGenerator` | Emits discovered endpoint/handler/validator/etc. type lists (`DiscoveredTypes`) for AOT-friendly `AddFastEndpoints` |
-| `AccessControlGenerator` | Permission constants from `AccessControl(...)` calls |
+| `AccessControlGenerator` | Permission constants/groups from `AccessControl(...)` calls; category args resolve as string literals or compile-time string constants (`const`, `nameof`, etc.) via semantic model |
 | `ReflectionGenerator` | Reflection cache support for reduced runtime reflection |
 | `ServiceRegistrationGenerator` | DI registration from attributes |
 | `GenericProcessorTypesGenerator` | Generic pre/post processor type materialization |

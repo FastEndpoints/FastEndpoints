@@ -98,6 +98,27 @@ Previously, only properties decorated with `[RouteParam]` (or another attribute 
 
 ## Improvements 🚀
 
+<details><summary>AccessControl group names resolve compile-time constants</summary>
+
+The source generator that builds `Allow` permission groups from `AccessControl(...)` calls now accepts compile-time string constants for group names (`const` fields, `nameof(...)`, etc.), not only string literals.
+
+```csharp
+static class PermissionGroup
+{
+    internal const string Admin = nameof(Admin);
+}
+
+public override void Configure()
+{
+    Put("/inventory/manage/update");
+    AccessControl("Inventory_Update_Item", PermissionGroup.Admin);
+}
+```
+
+Previously, non-literal group arguments were ignored, so the generated permission was omitted from groups such as `Allow.Admin`.
+
+</details>
+
 <details><summary>Refresh token service support for union-type returning endpoints</summary>
 
 A new `CreateTokenWith<TService, TTokenResponse>()` overload lets endpoints that return a union-type result (e.g. `Results<Ok<TokenResponse>, UnauthorizedHttpResult>`) create access/refresh token pairs, by decoupling the token response type from the endpoint's response type.

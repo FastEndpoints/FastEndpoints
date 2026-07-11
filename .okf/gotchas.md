@@ -9,6 +9,7 @@ tags: [gotcha]
 
 - **AOT discovery:** reflection `AddFastEndpoints()` is not supported under AOT — use `AddFastEndpoints(DiscoveredTypes.All)` + Generator analyzer (`MainExtensions` / `EndpointData` warnings).
 - **Generator package shape:** builds to `analyzers/dotnet/cs`; `DevelopmentDependency` is false for a reason (see Generator csproj / PR notes). Reference as analyzer, not normal library code.
+- **AccessControl categories:** generator resolves string literals and compile-time string constants (`const`, `nameof`, etc.). Runtime/non-constant expressions for permission name or groups are ignored (no group membership).
 - **Serializer contexts:** `GenerateSerializerContexts=true` pulls Generator.Cli (local dll in dev, `dotnet tool` when packaged). Dev path expects CLI built under `Generator.Cli/bin/.../net8.0/`.
 - **Central versions pinned:** do not casually bump `Microsoft.CodeAnalysis.CSharp` (net8) or `Microsoft.OpenApi.Kiota.Builder` (OpenAPI 2 vs 3 clash) — comments in `Directory.Packages.props`.
 - **Agents independent versioning:** `Src/Agents/Directory.Build.props` must `Import` parent props (MSBuild stops at first Directory.Build.props). Shared agent code is **linked compile**, not a NuGet.

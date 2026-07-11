@@ -63,6 +63,14 @@ sealed class App : AppFixture<Program>
 
 ## Fixes 🪲
 
+<details><summary>Form file schemas are consistently emitted as binary in OpenAPI</summary>
+
+`FastEndpoints.OpenApi` now emits `IFormFile` properties as `type: string` with `format: binary`, including items in `IFormFileCollection`, `IEnumerable<IFormFile>`, `List<IFormFile>`, and array schemas.
+
+Suffixed or otherwise non-exact `IFormFile` schema references are also normalized before their components are removed, preventing dangling references in the generated document.
+
+</details>
+
 <details><summary>Nullable OpenAPI schemas with composition now emit valid null branches</summary>
 
 `FastEndpoints.OpenApi` now emits valid OpenAPI 3.1 schemas for nullable arrays and nullable object references when composition keywords such as `oneOf` are involved.

@@ -53,7 +53,7 @@ static class DocumentSchemaHelpers
 
         foreach (var key in document.Components.Schemas.Keys.ToArray())
         {
-            if (key.Contains("IFormFile", StringComparison.Ordinal))
+            if (IsFormFileRefId(key) || IsFormFileCollectionRefId(key))
                 document.Components.Schemas.Remove(key);
         }
     }
@@ -304,16 +304,23 @@ static class DocumentSchemaHelpers
     }
 
     static bool IsFormFileRef(IOpenApiSchema? schema)
-        => schema is OpenApiSchemaReference schemaRef && schemaRef.GetReferenceId() is "IFormFile";
+        => schema is OpenApiSchemaReference schemaRef &&
+           schemaRef.GetReferenceId() is { } refId &&
+           IsFormFileRefId(refId);
+
+    static bool IsFormFileRefId(string refId)
+        => refId.StartsWith("IFormFile", StringComparison.Ordinal);
 
     static bool IsFormFileCollectionRef(IOpenApiSchema? schema)
         => schema is OpenApiSchemaReference schemaRef &&
            schemaRef.GetReferenceId() is { } refId &&
-           (refId is "IFormFileCollection" ||
-            refId.Contains("IFormFileCollection", StringComparison.Ordinal) ||
-            refId.Contains("IEnumerableOfIFormFile", StringComparison.Ordinal) ||
-            refId.Contains("ListOfIFormFile", StringComparison.Ordinal) ||
-            refId.Contains("IFormFile[]", StringComparison.Ordinal));
+           IsFormFileCollectionRefId(refId);
+
+    static bool IsFormFileCollectionRefId(string refId)
+        => refId.Contains("IFormFileCollection", StringComparison.Ordinal) ||
+           refId.Contains("IEnumerableOfIFormFile", StringComparison.Ordinal) ||
+           refId.Contains("ListOfIFormFile", StringComparison.Ordinal) ||
+           refId.Contains("IFormFile[]", StringComparison.Ordinal);
 
     static OpenApiSchema FormFileBinarySchema()
         => new() { Type = JsonSchemaType.String, Format = "binary" };

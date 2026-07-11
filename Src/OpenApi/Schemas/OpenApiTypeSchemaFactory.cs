@@ -30,6 +30,9 @@ static partial class OperationSchemaHelpers
         if (actualType == typeof(byte[]))
             return ByteArraySchema();
 
+        if (actualType.FullName == "Microsoft.AspNetCore.Http.IFormFile")
+            return FormFileBinarySchema();
+
         if (TryGetDictionaryValueType(actualType) is { } dictionaryValueType)
         {
             return new OpenApiSchema
@@ -96,6 +99,9 @@ static partial class OperationSchemaHelpers
 
     static OpenApiSchema ByteArraySchema()
         => new() { Type = JsonSchemaType.String, Format = "byte" };
+
+    static OpenApiSchema FormFileBinarySchema()
+        => new() { Type = JsonSchemaType.String, Format = "binary" };
 
     static OpenApiSchema? TryCreatePrimitiveSchema(Type type)
         => type switch

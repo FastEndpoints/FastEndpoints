@@ -51,7 +51,15 @@ public abstract partial class BaseEndpoint : IEndpoint
         //NOTE: if modifying this algo, update FastEndpoints.Generator.AccessControlGenerator.Permission.GetAclHash() method also!
         var base64Hash = Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(Sanitize(input).ToUpperInvariant())));
 
-        return new(base64Hash.Where(char.IsLetterOrDigit).Take(3).Select(char.ToUpper).ToArray());
+        Span<char> code = stackalloc char[3];
+        var count = 0;
+
+        for (var i = 0; i < base64Hash.Length && count < code.Length; i++)
+        {
+            if (char.IsLetterOrDigit(base64Hash[i]))
+                code[count++] = char.ToUpper(base64Hash[i]);
+        }
+        return new(code[..count]);
 
         static string Sanitize(string input)
             => LetterOrDigitRegex().Replace(input, "_");

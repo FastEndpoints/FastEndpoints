@@ -23,7 +23,7 @@ static partial class Extensions
         }
     }
 
-    [GeneratedRegex("[^a-zA-Z0-9]+", RegexOptions.Compiled)]
+    [GeneratedRegex("[^a-zA-Z0-9]+")]
     private static partial Regex SanitizationRegex();
 
     internal static string Sanitize(this string input, string replacement = "_")

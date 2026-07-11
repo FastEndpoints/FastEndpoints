@@ -23,7 +23,7 @@ static class ReflectionExtensions
 
                            return m.Member.IsDefined(typeof(BindFromAttribute))
                                       ? m.Member.GetCustomAttribute<BindFromAttribute>()!.Name
-                                      : a.ToString().Split('.')[1];
+                                      : m.Member.Name;
                        });
     }
 

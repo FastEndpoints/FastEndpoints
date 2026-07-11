@@ -1,66 +1,85 @@
 ---
 type: Architecture
 title: Architecture
-description: High-level module boundaries, runtime model, dependency directions, and invariants.
-tags: [architecture, boundaries]
+description: REPR endpoint pipeline, multi-package dependency graph, messaging, and discovery invariants.
+tags: [architecture]
 ---
 
 # Architecture
 
 ## Style
+- **Library monorepo** of ASP.NET Core packages (not a multi-service deployable).
+- **REPR**: one endpoint class owns Configure + Handle for a request (and optional response) DTO.
+- Vertical-slice friendly: features group Request/Endpoint/Validator/Mapper; no MVC controllers required.
+- Dual registration modes: **reflection scan** (dev default) vs **source-generated type lists** (AOT / trimmed).
 
-FastEndpoints is a multi-package .NET library repo. The main library exposes ASP.NET Core registration/middleware extensions and endpoint base classes. Applications define feature-oriented endpoint classes; FastEndpoints discovers endpoint types, builds endpoint definitions, registers routes, binds/validates requests, and executes endpoint handlers.
+## Components
 
-## Major components
+```
+Attributes / Messaging.Core
+        │
+        ▼
+      Core  ◄── Messaging  ◄── JobQueues / CommandRules
+        │
+        ▼
+    Library (FastEndpoints) ──► Security, OpenApi, OData, AspVersioning, HealthChecks, Agents.*
+        │
+        ▼
+    Generator (analyzer) + Generator.Cli (serializer contexts)
+```
 
-| Area | Location | Role |
-| --- | --- | --- |
-| Main framework | `Src/Library/` | Endpoint base types, setup DSL, binding, validation, auth/security metadata, middleware, response helpers, testing hooks, X402 support. |
-| Core utilities | `Src/Core/` | Shared service resolution and assembly scanning functionality used by other packages. |
-| Attributes | `Src/Attributes/` | Attribute package shared with generators/consumers. |
-| Messaging | `Src/Messaging/` | Messaging interfaces, command/event bus, remote messaging, and test helpers. |
-| Job queues | `Src/JobQueues/` | Background command queueing and scheduling. |
-| Command rules | `Src/CommandRules/` | Composable command rule dispatching over messaging/job queues. |
-| OpenAPI | `Src/OpenApi/`, `Src/OpenApi.Kiota/` | Microsoft.AspNetCore.OpenApi document generation and Kiota client support. |
-| Legacy OpenAPI/clients | `Src/Swagger/`, `Src/ClientGen/`, `Src/ClientGen.Kiota/` | NSwag-based Swagger and client generation; solution marks several as legacy. |
-| Integrations | `Src/AspVersioning/`, `Src/OData/`, `Src/Security/`, `Src/HealthChecks/`, `Src/Testing/`, `Src/Agents/` | Optional packages layered on the main framework. |
-| Generators | `Src/Generator/`, `Src/Generator.Cli/` | Roslyn source generator and CLI/MSBuild targets for serializer context generation. |
+| Layer | Role |
+| --- | --- |
+| `FastEndpoints.Attributes` | Shared attributes/contracts; multi-TFM including netstandard2.0 for generator |
+| `FastEndpoints.Core` | Service resolution, assembly scanning shared plumbing |
+| `FastEndpoints.Messaging.Core` | `ICommand` / `IEvent` / handler interfaces |
+| `FastEndpoints.Messaging` | In-process command/event bus |
+| `FastEndpoints.JobQueues` | Background jobs over commands + storage SPI |
+| `FastEndpoints` (Library) | HTTP endpoints, binding, validation, middleware, config |
+| `FastEndpoints.Security` | JWT bearer helpers, cookies, refresh/revocation |
+| `FastEndpoints.OpenApi` | Microsoft.AspNetCore.OpenApi document pipeline |
+| `FastEndpoints.Generator` | Roslyn generators (discovered types, ACL, reflection cache, service registration, generic processors) |
+| `FastEndpoints.Generator.Cli` | Build-time JSON serializer context generation |
+| `FastEndpoints.Testing` | `AppFixture`, collection fixtures, WAF cache for integration tests |
+| Messaging.Remote* | gRPC RPC for remote command/event execution (MessagePack) |
+
+**Request path (simplified):** `AddFastEndpoints` registers discovery data → `UseFastEndpoints`/`MapFastEndpoints` maps routes → `FeRequestHandler` resolves endpoint instance → bind → validate → pre-processors → `HandleAsync` → post-processors → send response.
 
 ## Dependency rules
+- **Allowed:** higher packages reference lower foundation packages (`Attributes`, `Core`, `Messaging.Core`).
+- **Library** references Attributes, JobQueues, Messaging (not Security/OpenApi — those are optional consumer packages).
+- **Security/OpenApi/OData/AspVersioning** reference Library (addons on top of core HTTP).
+- **Generator** references Attributes only (analyzer package); consumers reference Generator as analyzer.
+- **Agents** (`Mcp`, `A2A`) reference Library; share internal types via linked `Src/Agents/Shared/*.cs` (not a separate NuGet).
+- **Forbidden for agents:** invent reverse deps (e.g. Core → Library) or ship Agents.Shared as a public package unless code changes deliberately.
 
-- Keep package dependencies layered through project references declared in each `.csproj`; do not introduce cycles.
-- `Src/Library/FastEndpoints.csproj` depends on `Attributes`, `JobQueues`, and `Messaging`, and carries the main ASP.NET framework reference plus FluentValidation.
-- Optional packages should depend on `Src/Library/` only when they extend endpoint/framework behavior.
-- `Src/Generator/` targets `netstandard2.0` and references `Attributes`; preserve generator compatibility and analyzer packaging rules.
-- `Src/Agents/Directory.Build.props` explicitly imports `Src/Directory.Build.props`; keep that import because MSBuild stops at the nearest props file.
+## Communication
+- **HTTP:** endpoints mapped into ASP.NET routing; config via `UseFastEndpoints(c => …)` (`Config` / `Cfg`).
+- **In-process messaging:** command/event handlers registered from discovery or DI helpers.
+- **Remote:** gRPC handler server (`AddHandlerServer` / remote client connection) with MessagePack marshalling.
+- **Jobs:** `AddJobQueues<TJob, TStorage>()`; storage provider is app-supplied.
 
-## Runtime model
+## Persistence
+- Framework does **not** own an app DB. Job queues require consumer `IJobStorageProvider` / `IJobStorageRecord` implementations.
+- No EF/migrations in this repo.
 
-- Apps typically call `AddFastEndpoints(...)` during service registration and `UseFastEndpoints(...)`/`MapFastEndpoints(...)` during pipeline setup.
-- Endpoint classes configure route verbs, routes, auth/permissions/claims/scopes, validation, processors, serializer contexts, response metadata, versioning, throttling, and other metadata through the endpoint setup DSL.
-- Request binding and validation integrate with FluentValidation; data annotations can be enabled in runtime config.
-- OpenAPI/Swagger targets can generate module initializer files in `obj/` to propagate document export paths at runtime.
-- Serializer context generation is opt-in via `GenerateSerializerContexts=true` and writes generated source to `Generated/FastEndpoints` by default.
-- Remote messaging event subscriptions derive subscriber ids by default, can use per-subscription explicit ids, or can fall back to a `RemoteConnectionCore.SubscriberID` default configured on the remote connection.
+## Security / auth (boundary summary)
+- Auth is ASP.NET Core middleware + `FastEndpoints.Security` helpers.
+- Endpoint-level `Permissions` / `Roles` / `AccessControl` (generator can emit permission constants).
+- See [security.md](security.md) for operational detail.
 
 ## Invariants
-
-- Public API changes affect NuGet consumers; preserve backward compatibility unless intentionally making a breaking release.
-- Multi-targeting for source packages is part of compatibility: `net8.0;net9.0;net10.0` from `Src/Directory.Build.props` except explicit overrides such as the generator.
-- Strong-name signing is enabled for source and test projects through props files; avoid changing signing inputs casually.
-- Keep Native AOT behavior in mind for framework, OpenAPI export, Swagger export, and serializer-context changes.
-- Prefer source/test/manifest facts over prose docs when behavior is ambiguous.
+1. Endpoint types implement `IEndpoint`; public base is `Endpoint<TRequest[, TResponse]>`.
+2. AOT: do **not** rely on reflection discovery — use `AddFastEndpoints(DiscoveredTypes.All)` (+ generator).
+3. Mappers/validators discovered types are typically treated as singletons for performance — no per-request state in mappers.
+4. Shared library TFMs: **net8.0;net9.0;net10.0** (exceptions: Generator netstandard2.0; Attributes multi-TFM; Agents often net9+net10).
+5. Strong-name signing via `FastEndpoints.snk` (public key in Directory.Build.props / InternalsVisibleTo).
+6. Central package versions: root `Directory.Packages.props` (`ManagePackageVersionsCentrally`).
+7. Agents addons version **independently** of core (`Src/Agents/Directory.Build.props` imports parent then overrides).
 
 ## Sources
-
-- `Src/Directory.Build.props`
-- `Src/Library/FastEndpoints.csproj`
 - `Src/Library/Main/MainExtensions.cs`
 - `Src/Library/Endpoint/Endpoint.cs`
-- `Src/Library/Endpoint/Endpoint.Setup.cs`
-- `Src/Library/Endpoint/Auxiliary/EndpointDefinition.cs`
-- `Src/Generator/FastEndpoints.Generator.csproj`
-- `Src/Generator/FastEndpoints.Generator.targets`
-- `Src/OpenApi/FastEndpoints.OpenApi.targets`
-- `Src/Swagger/FastEndpoints.Swagger.targets`
-- `FastEndpoints.slnx`
+- `Src/Library/FastEndpoints.csproj`
+- `Src/Generator/DiscoveredTypesGenerator.cs`
+- `Src/Agents/Directory.Build.props`

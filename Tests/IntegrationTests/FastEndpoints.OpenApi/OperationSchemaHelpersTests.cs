@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using FastEndpoints;
 using FastEndpoints.OpenApi;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
@@ -881,6 +882,61 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
         ((OpenApiSchema)query.Schema!).Format.ShouldBe("int64");
         header.Schema.ShouldBeOfType<OpenApiSchema>().Type.ShouldBe(JsonSchemaType.Integer);
         ((OpenApiSchema)header.Schema!).Format.ShouldBe("int32");
+    }
+
+    [Theory]
+    [InlineData(typeof(IFormFile), false)]
+    [InlineData(typeof(IFormFileCollection), true)]
+    [InlineData(typeof(IEnumerable<IFormFile>), true)]
+    [InlineData(typeof(List<IFormFile>), true)]
+    [InlineData(typeof(IFormFile[]), true)]
+    public void form_file_schemas_use_binary_strings(Type type, bool isCollection)
+    {
+        var schema = type.GetSchemaForType().ShouldBeOfType<OpenApiSchema>();
+
+        if (isCollection)
+        {
+            schema.Type.ShouldBe(JsonSchemaType.Array);
+            schema = schema.Items.ShouldBeOfType<OpenApiSchema>();
+        }
+
+        schema.Type.ShouldBe(JsonSchemaType.String);
+        schema.Format.ShouldBe("binary");
+    }
+
+    [Fact]
+    public void form_file_schema_cleanup_rewrites_suffixed_refs_before_removing_components()
+    {
+        var requestSchema = new OpenApiSchema
+        {
+            Properties = new Dictionary<string, IOpenApiSchema>
+            {
+                ["file"] = new OpenApiSchemaReference("IFormFile2"),
+                ["metadata"] = new OpenApiSchemaReference("MyIFormFileMetadata")
+            }
+        };
+        var document = new OpenApiDocument
+        {
+            Components = new()
+            {
+                Schemas = new Dictionary<string, IOpenApiSchema>
+                {
+                    ["Request"] = requestSchema,
+                    ["IFormFile2"] = new OpenApiSchema(),
+                    ["MyIFormFileMetadata"] = new OpenApiSchema()
+                }
+            }
+        };
+
+        document.RemoveFormFileSchemas();
+
+        var fileSchema = requestSchema.Properties["file"].ShouldBeOfType<OpenApiSchema>();
+        fileSchema.Type.ShouldBe(JsonSchemaType.String);
+        fileSchema.Format.ShouldBe("binary");
+        requestSchema.Properties["metadata"].ShouldBeOfType<OpenApiSchemaReference>();
+        document.Components.Schemas.Keys.ShouldNotContain(static key => key.StartsWith("IFormFile", StringComparison.Ordinal));
+        document.Components.Schemas.Keys.ShouldContain("MyIFormFileMetadata");
+        document.GetReferencedSchemaRefs().ShouldNotContain(static refId => refId.StartsWith("IFormFile", StringComparison.Ordinal));
     }
 
     [Fact]

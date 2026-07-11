@@ -1,39 +1,41 @@
 ---
 type: Reference
-title: OKF Maintenance
-description: Rules for keeping OKF synchronized and conformant.
-tags: [okf, maintenance]
+title: Maintenance
+description: How to keep the OKF set conformant and when to update it.
+tags: [maintain]
 ---
 
-# OKF Maintenance
+# Maintenance
 
-Preserve OKF v0.1 conformance:
+## Conformance
+- OKF v0.1: non-reserved `.md` files need YAML frontmatter with non-empty `type` (closed list), `title`, `description`.
+- Bundle-root `index.md` is the router; only it may set `okf_version: "0.1"`.
+- Do not invent `type` values; use `Reference` if unsure.
+- No secrets in OKF. Prefer `## Sources` for multi-source claims.
+- Soft target ~50–150 lines per file; split by topic when scanning suffers.
 
-- Every non-reserved `.md` file needs YAML frontmatter with a non-empty `type` field.
-- `index.md` and `log.md` are reserved filenames.
-- Only the bundle-root `.okf/index.md` may include frontmatter, and only for `okf_version`.
-- Do not create empty placeholder files.
+## Update triggers
+Sync OKF when changes hit:
+- architecture / package boundaries / dependency directions
+- public APIs, endpoint pipeline contracts, messaging/job contracts
+- persistence SPIs (e.g. job storage interfaces)
+- deps / TFMs / central package management
+- build, test, pack, publish, codegen commands
+- testing strategy or harness layout
+- security/auth surfaces
+- config/env/ops assumptions
+- conventions, layout, gotchas
+- docs maintenance workflow / FE-Docs paths (not the full docs body)
 
-Update OKF when changing:
+**Public docs (FE-Docs):** user-visible library changes also require updates in sibling `../FE-Docs/` (see [workflows.md](workflows.md)). That is separate from OKF sync—do both when both apply.
 
-- architecture, package boundaries, project references, or module ownership;
-- public APIs, endpoint behavior, route/metadata semantics, contracts, or generated docs behavior;
-- binding, validation, serialization, authentication/authorization, X402, messaging, job queue, or processor behavior;
-- generator outputs, generated-file locations, OpenAPI/Swagger export workflows, or Native AOT behavior;
-- target frameworks, package versions, central props/targets, signing, or packaging metadata;
-- build, test, pack, release, benchmark, cleanup, or local development commands;
-- test layout, fixtures, runner configuration, CI filters, or required validation steps;
-- repository layout, code conventions, or known gotchas.
+If unaffected, state why in the final response (`OKF unaffected (non-behavioral edit)` for pure comment/typo/format).
 
-If OKF conflicts with code/tests/config:
-
-1. Verify current behavior from authoritative project sources.
-2. Update the stale OKF file.
-3. Mention the correction in the final response.
-
-Before finishing any future task, decide whether OKF was affected. If no OKF update is needed, state that explicitly in the final response.
+## Conflicts
+1. Prefer source, tests, generated artifacts, lockfiles, manifests over OKF prose.
+2. Fix OKF when wrong.
+3. Mention the correction in the agent final response.
 
 ## Sources
-
-- `.okf/index.md`
-- Repository source, tests, manifests, and workflows listed throughout OKF.
+- This repository’s `.okf/` set
+- Skill/spec: OKF v0.1 (repo agent instructions)

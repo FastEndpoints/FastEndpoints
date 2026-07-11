@@ -63,6 +63,14 @@ sealed class App : AppFixture<Program>
 
 ## Fixes 🪲
 
+<details><summary>Form file schemas are consistently emitted as binary in OpenAPI</summary>
+
+`FastEndpoints.OpenApi` now emits `IFormFile` properties as `type: string` with `format: binary`, including items in `IFormFileCollection`, `IEnumerable<IFormFile>`, `List<IFormFile>`, and array schemas.
+
+Suffixed or otherwise non-exact `IFormFile` schema references are also normalized before their components are removed, preventing dangling references in the generated document.
+
+</details>
+
 <details><summary>Nullable OpenAPI schemas with composition now emit valid null branches</summary>
 
 `FastEndpoints.OpenApi` now emits valid OpenAPI 3.1 schemas for nullable arrays and nullable object references when composition keywords such as `oneOf` are involved.
@@ -98,6 +106,27 @@ Previously, only properties decorated with `[RouteParam]` (or another attribute 
 
 ## Improvements 🚀
 
+<details><summary>AccessControl group names resolve compile-time constants</summary>
+
+The source generator that builds `Allow` permission groups from `AccessControl(...)` calls now accepts compile-time string constants for group names (`const` fields, `nameof(...)`, etc.), not only string literals.
+
+```csharp
+static class PermissionGroup
+{
+    internal const string Admin = nameof(Admin);
+}
+
+public override void Configure()
+{
+    Put("/inventory/manage/update");
+    AccessControl("Inventory_Update_Item", PermissionGroup.Admin);
+}
+```
+
+Previously, non-literal group arguments were ignored, so the generated permission was omitted from groups such as `Allow.Admin`.
+
+</details>
+
 <details><summary>Refresh token service support for union-type returning endpoints</summary>
 
 A new `CreateTokenWith<TService, TTokenResponse>()` overload lets endpoints that return a union-type result (e.g. `Results<Ok<TokenResponse>, UnauthorizedHttpResult>`) create access/refresh token pairs, by decoupling the token response type from the endpoint's response type.
@@ -109,6 +138,8 @@ A new `CreateTokenWith<TService, TTokenResponse>()` overload lets endpoints that
 Several read-mostly internal lookup tables now use `FrozenDictionary`/`FrozenSet` after startup construction, improving repeated lookup performance in request binding, access-control generation, and OpenAPI/Swagger metadata processing without changing public APIs.
 
 Endpoint security policies now build a `FrozenSet` of allowed permissions/scopes/claim types once when the policy is constructed, instead of scanning the backing collection on every authorization check.
+
+`RequestBinder<TRequest>` now indexes `[FromClaim]` / `[HasPermission]` properties once per DTO type and matches principal claims against those indices, instead of building per-request claim dictionaries or permission sets sized to the full principal.
 
 </details>
 

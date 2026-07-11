@@ -10,12 +10,16 @@ public class Endpoint : Endpoint<Request>
         Permissions(
             Allow.Inventory_Create_Item,
             Allow.Inventory_Update_Item);
-        AccessControl("Inventory_Update_Item", "Admin");
+        AccessControl("Inventory_Update_Item", PermissionGroup.Admin);
     }
 
     public override Task HandleAsync(Request req, CancellationToken ct)
-    {
+
         //this is a test case for checking security policy restrictions
-        return Send.OkAsync();
-    }
+        => Send.OkAsync();
+}
+
+static class PermissionGroup
+{
+    internal const string Admin = nameof(Admin);
 }

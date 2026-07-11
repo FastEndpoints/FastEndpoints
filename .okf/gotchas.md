@@ -1,32 +1,34 @@
 ---
 type: Reference
 title: Gotchas
-description: Practical traps and non-obvious constraints for FastEndpoints work.
-tags: [gotchas, constraints]
+description: Non-obvious traps for agents working in the FastEndpoints monorepo.
+tags: [gotcha]
 ---
 
 # Gotchas
 
-- Main solutions are `.slnx`; if a tool cannot load `.slnx`, load the relevant `.csproj` directly.
-- `Src/Agents/Directory.Build.props` must import `../Directory.Build.props`; without it, shared source properties disappear because MSBuild stops at the nearest props file.
-- `Src/Generator/` intentionally targets `netstandard2.0`; do not inherit source multi-targeting there.
-- Roslyn `Microsoft.CodeAnalysis.CSharp` is pinned at `[4.11.0]` for net8 compatibility.
-- Kiota builder is pinned at `[1.29.0]` because newer Kiota expects Microsoft.OpenApi 3.x while ASP.NET OpenAPI still uses 2.x.
-- NSwag projects/packages are legacy and marked for future deprecation; prefer `Src/OpenApi/` for new OpenAPI work unless the task targets legacy Swagger/client generation.
-- `FastEndpoints.slnx` currently comments out Agents package projects and legacy Swagger test folders even though files exist.
-- Integration test parallelization differs locally vs CI; Azure rewrites `Tests/IntegrationTests/FastEndpoints/xunit.runner.json` before testing.
-- OpenAPI/Swagger AOT export targets intentionally run a JIT build before Native AOT publish.
-- Generated output belongs in `obj/`, `Generated/FastEndpoints`, `wwwroot/openapi`, or ignored Native AOT harness paths; do not hand-edit generated output unless testing generation itself.
-- Strong-name signing is enabled via props using repo key files; changing signing affects package identity/compatibility.
-- The main package exposes broad public APIs; changing endpoint setup/binding/validation behavior usually needs both unit and integration tests.
+- **AOT discovery:** reflection `AddFastEndpoints()` is not supported under AOT — use `AddFastEndpoints(DiscoveredTypes.All)` + Generator analyzer (`MainExtensions` / `EndpointData` warnings).
+- **Generator package shape:** builds to `analyzers/dotnet/cs`; `DevelopmentDependency` is false for a reason (see Generator csproj / PR notes). Reference as analyzer, not normal library code.
+- **AccessControl categories:** generator resolves string literals and compile-time string constants (`const`, `nameof`, etc.). Runtime/non-constant expressions for permission name or groups are ignored (no group membership).
+- **Serializer contexts:** `GenerateSerializerContexts=true` pulls Generator.Cli (local dll in dev, `dotnet tool` when packaged). Dev path expects CLI built under `Generator.Cli/bin/.../net8.0/`.
+- **Central versions pinned:** do not casually bump `Microsoft.CodeAnalysis.CSharp` (net8) or `Microsoft.OpenApi.Kiota.Builder` (OpenAPI 2 vs 3 clash) — comments in `Directory.Packages.props`.
+- **Agents independent versioning:** `Src/Agents/Directory.Build.props` must `Import` parent props (MSBuild stops at first Directory.Build.props). Shared agent code is **linked compile**, not a NuGet.
+- **Agents not in main slnx:** A2A/Mcp projects may be commented out of `FastEndpoints.slnx` — still real packages; check solution before assuming build inclusion.
+- **Legacy vs modern OpenAPI:** harness prefers `FastEndpoints.OpenApi` + Scalar; NSwag Swagger/ClientGen live under Legacy and may have tests commented out.
+- **OpenAPI form files:** `FastEndpoints.OpenApi` normalizes `IFormFile` and form-file collections to inline binary string schemas and removes generated `IFormFile*` components; preserve rewrite-before-removal ordering to avoid dangling refs.
+- **CI filter:** tests with `Trait("ExcludeInCiCd","Yes")` never run in publish/Azure pipelines — don't rely on them as merge gates.
+- **WAF cache:** one cached factory per `AppFixture` type; misuse of static state across tests can leak. Use fixture `ConfigureServices` for doubles.
+- **Mappers are singletons:** no request state in mapper classes.
+- **Signing / InternalsVisibleTo:** must use full public key from props; unsigned local hacks break friend assemblies.
+- **User DotSettings:** `*.sln.DotSettings.user` is personal — don't treat as repo policy.
+- **Do not commit secrets:** NuGet keys, JWT signing material for real envs.
+- **Generated harness folders:** e.g. NativeAotChecker `Generated/`, `wwwroot/openapi/`, `aot/` are gitignored or build outputs — regenerate, don't hand-maintain.
+- **Version citation:** always read `Src/Directory.Build.props` rather than OKF for current package version.
+- **Docs are outside this repo:** user-facing docs are `../FE-Docs/src/content/docs/`. Library PRs that change public behavior without a FE-Docs update leave the site stale; OKF only points at docs, it does not replace them.
 
 ## Sources
-
-- `FastEndpoints.slnx`
+- `Src/Library/Main/MainExtensions.cs`
 - `Directory.Packages.props`
 - `Src/Agents/Directory.Build.props`
-- `Src/Generator/FastEndpoints.Generator.csproj`
-- `Src/OpenApi/FastEndpoints.OpenApi.targets`
-- `Src/Swagger/FastEndpoints.Swagger.targets`
-- `azure-pipeline.yml`
-- `.gitignore`
+- `Src/Generator/FastEndpoints.Generator.targets`
+- `FastEndpoints.slnx`

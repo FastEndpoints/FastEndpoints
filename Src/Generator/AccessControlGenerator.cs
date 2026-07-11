@@ -34,7 +34,7 @@ public class AccessControlGenerator : IIncrementalGenerator
         // picks up AccessControl(...) calls in endpoint declarations
         var matches = initCtx.SyntaxProvider
                              .CreateSyntaxProvider(Qualify, Transform)
-                             .Where(static m => m.Endpoint is not null)
+                             .Where(static m => m is { Endpoint: not null, PermissionName: not null })
                              .WithComparer(MatchComparer.Instance)
                              .Collect();
 
@@ -60,7 +60,52 @@ public class AccessControlGenerator : IIncrementalGenerator
 
         //executed per each keystroke but only for syntax nodes filtered by the Qualify method
         static Match Transform(GeneratorSyntaxContext ctx, CancellationToken _)
-            => new(ctx.SemanticModel.GetDeclaredSymbol(ctx.Node.Parent!.Parent!.Parent!.Parent!), (InvocationExpressionSyntax)ctx.Node);
+        {
+            var invocation = (InvocationExpressionSyntax)ctx.Node;
+            var arguments = invocation.ArgumentList.Arguments;
+            var permissionArg = arguments.FirstOrDefault(static a => a.NameColon?.Name.Identifier.ValueText == "keyName") ?? arguments[0];
+            var permissionName = TryGetStringConstant(ctx.SemanticModel, permissionArg.Expression);
+            var groupNames = arguments.Where(a => a != permissionArg)
+                                      .SelectMany(a => GetStringConstants(ctx.SemanticModel, a.Expression))
+                                      .ToArray();
+
+            return new(ctx.SemanticModel.GetDeclaredSymbol(ctx.Node.Parent!.Parent!.Parent!.Parent!), invocation, permissionName, groupNames);
+        }
+
+        // resolves string literals, const fields, nameof(...), and other compile-time string constants
+        static string? TryGetStringConstant(SemanticModel model, ExpressionSyntax expression)
+        {
+            if (expression is LiteralExpressionSyntax { Token.Value: string literal })
+                return literal;
+
+            var constant = model.GetConstantValue(expression);
+
+            return constant is { HasValue: true, Value: string value }
+                       ? value
+                       : null;
+        }
+
+        static IEnumerable<string> GetStringConstants(SemanticModel model, ExpressionSyntax expression)
+        {
+            if (TryGetStringConstant(model, expression) is { } value)
+            {
+                yield return value;
+
+                yield break;
+            }
+
+            IEnumerable<ExpressionSyntax> elements = expression switch
+            {
+                ArrayCreationExpressionSyntax { Initializer: { } initializer } => initializer.Expressions,
+                ImplicitArrayCreationExpressionSyntax { Initializer: { } initializer } => initializer.Expressions,
+                CollectionExpressionSyntax collection => collection.Elements.OfType<ExpressionElementSyntax>().Select(static e => e.Expression),
+                _ => []
+            };
+
+            foreach (var element in elements)
+                foreach (var constant in GetStringConstants(model, element))
+                    yield return constant;
+        }
 
         //executed per each keystroke
         static bool QualifyCustom(SyntaxNode node, CancellationToken _)
@@ -503,23 +548,17 @@ public class AccessControlGenerator : IIncrementalGenerator
 
         internal Permission(Match m)
         {
-            var args = m.Invocation
-                        .ArgumentList
-                        .Arguments
-                        .Select(a => a.Expression)
-                        .OfType<LiteralExpressionSyntax>()
-                        .Select(l => l.Token.ValueText.ToValidIdentifier("_"))
-                        .ToArray();
+            var permissionName = m.PermissionName!.ToValidIdentifier("_");
 
             var desc = m.Invocation.ArgumentList.OpenParenToken.TrailingTrivia.SingleOrDefault(t => t.IsKind(SyntaxKind.SingleLineCommentTrivia))
                         .ToString();
 
-            Name = args[0].ToValidCSharpIdentifier("_");
-            Code = GetAclHash(args[0]);
+            Name = permissionName.ToValidCSharpIdentifier("_");
+            Code = GetAclHash(permissionName);
             CodeExpression = CsString(Code);
             Endpoint = m.Endpoint!.ToDisplayString();
             Description = desc.Length == 0 ? null : desc.Substring(2).Trim();
-            Categories = args.Skip(1).Select(static c => c.ToValidCSharpIdentifier("_")).ToArray();
+            Categories = m.GroupNames.Select(static c => c.ToValidIdentifier("_").ToValidCSharpIdentifier("_")).ToArray();
             IsCodeKnown = true;
         }
 
@@ -558,10 +597,12 @@ public class AccessControlGenerator : IIncrementalGenerator
         }
     }
 
-    readonly struct Match(ISymbol? endpoint, InvocationExpressionSyntax invocation)
+    readonly struct Match(ISymbol? endpoint, InvocationExpressionSyntax invocation, string? permissionName, string[] groupNames)
     {
         public ISymbol? Endpoint { get; } = endpoint;
         public InvocationExpressionSyntax Invocation { get; } = invocation;
+        public string? PermissionName { get; } = permissionName;
+        public string[] GroupNames { get; } = groupNames;
     }
 
     class MatchComparer : IEqualityComparer<Match>
@@ -572,7 +613,9 @@ public class AccessControlGenerator : IIncrementalGenerator
 
         public bool Equals(Match x, Match y)
             => x.Endpoint!.ToDisplayString().Equals(y.Endpoint!.ToDisplayString()) &&
-               x.Invocation.IsEquivalentTo(y.Invocation);
+               x.Invocation.IsEquivalentTo(y.Invocation) &&
+               x.PermissionName == y.PermissionName &&
+               x.GroupNames.SequenceEqual(y.GroupNames);
 
         public int GetHashCode(Match obj)
             => obj.Endpoint!.ToDisplayString().GetHashCode();

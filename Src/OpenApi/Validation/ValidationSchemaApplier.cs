@@ -207,9 +207,12 @@ sealed class ValidationSchemaApplier : IDisposable
                              OpenApiSchema? propertySchema,
                              HashSet<Type> activeChildValidators)
     {
+        var ruleHasCondition = !validationRule.HasNoCondition();
+
         foreach (var ruleComponent in validationRule.Components)
         {
             var propertyValidator = ruleComponent.Validator;
+            var hasCondition = ruleHasCondition || ruleComponent.HasCondition();
 
             if (propertyValidator.Name == "ChildValidatorAdaptor")
             {
@@ -225,7 +228,7 @@ sealed class ValidationSchemaApplier : IDisposable
 
                 try
                 {
-                    rule.Apply(new(schema, propertyName, propertyValidator, ruleComponent.HasCondition(), propertySchema));
+                    rule.Apply(new(schema, propertyName, propertyValidator, hasCondition, propertySchema));
                 }
                 catch (Exception ex)
                 {

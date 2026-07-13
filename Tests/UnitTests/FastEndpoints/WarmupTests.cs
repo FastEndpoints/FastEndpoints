@@ -2,6 +2,7 @@ using FastEndpoints;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using Xunit;
 
@@ -182,6 +183,34 @@ public class WarmupTests : IDisposable
         }
     }
 
+    [Fact]
+    public async Task Warmup_PrecompilesNestedComplexAndCollectionElementTypeAccessors()
+    {
+        var builder = WebApplication.CreateBuilder();
+        builder.Services.AddFastEndpoints([typeof(WarmupNestedEp)]);
+        var app = builder.Build();
+
+        try
+        {
+            app.UseFastEndpoints(c => c.Endpoints.Warmup());
+
+            Config.BndOpts.ReflectionCache.TryGetValue(typeof(NestedDto), out var nestedDef).ShouldBeTrue();
+            nestedDef!.ObjectFactory.ShouldNotBeNull();
+            nestedDef.Properties!.TryGetValue(typeof(NestedDto).GetProperty(nameof(NestedDto.City))!, out var cityDef).ShouldBeTrue();
+            cityDef!.Getter.ShouldNotBeNull();
+            cityDef.Setter.ShouldNotBeNull();
+
+            Config.BndOpts.ReflectionCache.TryGetValue(typeof(NestedItemDto), out var itemDef).ShouldBeTrue();
+            itemDef!.Properties!.TryGetValue(typeof(NestedItemDto).GetProperty(nameof(NestedItemDto.Qty))!, out var qtyDef).ShouldBeTrue();
+            qtyDef!.Getter.ShouldNotBeNull();
+            qtyDef.Setter.ShouldNotBeNull();
+        }
+        finally
+        {
+            await app.DisposeAsync();
+        }
+    }
+
     static void ResetServiceResolver()
     {
         var testingProvider = new ServiceCollection().AddHttpContextAccessor().BuildServiceProvider();
@@ -227,5 +256,36 @@ file sealed class WarmupEpB : EndpointWithoutRequest
         => Get("warmup-ep-b");
 
     public override Task HandleAsync(CancellationToken ct)
+        => Task.CompletedTask;
+}
+
+file sealed class WarmupNestedRequest
+{
+    [Required]
+    public string? Name { get; set; }
+
+    public NestedDto? Nested { get; set; }
+
+    public List<NestedItemDto>? Items { get; set; }
+}
+
+file sealed class NestedDto
+{
+    [Required]
+    public string? City { get; set; }
+}
+
+file sealed class NestedItemDto
+{
+    [Range(1, 10)]
+    public int Qty { get; set; }
+}
+
+file sealed class WarmupNestedEp : Endpoint<WarmupNestedRequest>
+{
+    public override void Configure()
+        => Post("warmup-nested-ep");
+
+    public override Task HandleAsync(WarmupNestedRequest req, CancellationToken ct)
         => Task.CompletedTask;
 }

@@ -83,6 +83,9 @@ static class ReflectionExtensions
         internal bool IsCollection()
             => Types.IEnumerable.IsAssignableFrom(source) && source != Types.String;
 
+        internal Type? GetCollectionElementType()
+            => source.IsArray ? source.GetElementType() : source.GetGenericArguments().FirstOrDefault();
+
         internal bool IsFormFileProp()
             => Types.IFormFile.IsAssignableFrom(source);
 

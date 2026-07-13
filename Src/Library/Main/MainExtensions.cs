@@ -376,13 +376,7 @@ public static class MainExtensions
         if (!def.ReqDtoType.IsValueType) // native aot cannot instantiate value type generic binders
             _ = sp.GetService(Types.IRequestBinderOf1.MakeGenericType(def.ReqDtoType));
 
-        if (def.ReqDtoType.IsValidatable())
-        {
-            // NOTE: this only pre-compiles getters for the top-level request DTO
-            // nested child objects encountered during recursive validation still get their getters compiled lazily on first use.
-            foreach (var prop in def.ReqDtoType.BindableProps())
-                _ = def.ReqDtoType.GetterForProp(prop);
-        }
+        PrecompileValidatableType(def.ReqDtoType, []);
 
         _ = def.ExecuteAsyncReturnsIResult;
         _ = def.GetMapper();
@@ -390,6 +384,27 @@ public static class MainExtensions
         _ = def.ReqDtoFromBodyPropName;
         _ = def.ReqDtoType.ObjectFactory();
         _ = def.ToHeaderProps;
+    }
+
+    static void PrecompileValidatableType(Type type, HashSet<Type> visited)
+    {
+        if (!type.IsValidatable() || !visited.Add(type))
+            return;
+
+        _ = type.ObjectFactory();
+
+        foreach (var prop in type.BindableProps())
+        {
+            _ = type.GetterForProp(prop);
+            _ = type.SetterForProp(prop);
+
+            var nested = prop.PropertyType.IsCollection()
+                             ? prop.PropertyType.GetCollectionElementType()
+                             : prop.PropertyType;
+
+            if (nested is not null)
+                PrecompileValidatableType(nested, visited);
+        }
     }
 
     static void AddSecurityPolicy(AuthorizationOptions opts, EndpointDefinition ep)

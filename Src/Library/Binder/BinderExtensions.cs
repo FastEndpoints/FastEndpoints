@@ -147,7 +147,7 @@ static class BinderExtensions
                     var interfaces = type.GetInterfaces();
 
                     return interfaces.Contains(Types.IEnumerable) && !interfaces.Contains(Types.IDictionary) //dictionaries should be deserialized as json objects
-                               ? (type.GetElementType() ?? type.GetGenericArguments().FirstOrDefault()) == Types.Byte
+                               ? type.GetCollectionElementType() == Types.Byte
                                      ? input => new(TryParseByteArray(input, out var res), res)
                                      : input => new(TryParseCollection(input, type, out var res), res)
                                : input => new(TryParseObject(input, type, out var res), res);

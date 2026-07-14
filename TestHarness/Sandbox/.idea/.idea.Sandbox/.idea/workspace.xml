@@ -7,12 +7,31 @@
     <projectFile>Tests/Tests.csproj</projectFile>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="06a5338e-2717-452d-b782-24c242d848af" name="Changes" comment="" />
+    <list default="true" id="06a5338e-2717-452d-b782-24c242d848af" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/Source/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Source/Program.cs" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
+  <component name="Git.Settings">
+    <option name="PREVIEW_PUSH_ON_COMMIT_AND_PUSH" value="false" />
+    <option name="PUSH_AUTO_UPDATE" value="true" />
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../.." />
+  </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "dj-nitehawk"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/FastEndpoints/FastEndpoints.git",
+    "accountId": "9b5e5ae3-0aa2-4a18-9caf-83af35f2b90f"
+  }
+}]]></component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/37791dcbe13a4c46887a85dfd565d4b1ed7530/7c/d3bb79c2/RuntimeAssembly.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/fedc734060362621f773271c3514c4566a4d5a062deb797fc8fdda7c9ff735/JsonPatchDocumentOfT.cs" root0="FORCE_HIGHLIGHTING" />
@@ -30,19 +49,21 @@
     <option name="openDirectoriesWithSingleClick" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;.NET Launch Settings Profile.Sandbox: http.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;dotnet-watch.Watch.executor&quot;: &quot;Run&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/SOURCE-CONTROL/FastEndpoints/Src/OpenApi/FastEndpoints.OpenApi.csproj&quot;,
-    &quot;rider.code.cleanup.on.save&quot;: &quot;true&quot;,
-    &quot;rider.code.cleanup.on.save.profile&quot;: &quot;clean-on-save&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;actions.on.save&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    ".NET Launch Settings Profile.Sandbox: http.executor": "Run",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "dotnet-watch.Watch.executor": "Run",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "/home/SOURCE-CONTROL/FastEndpoints/Src/OpenApi/FastEndpoints.OpenApi.csproj",
+    "rider.code.cleanup.on.save": "true",
+    "rider.code.cleanup.on.save.profile": "clean-on-save",
+    "settings.editor.selected.configurable": "actions.on.save"
   }
-}</component>
+}]]></component>
   <component name="RunManager" selected=".NET Launch Settings Profile.Sandbox: http">
     <configuration name="Tests" type="DotNetProject" factoryName=".NET Project">
       <option name="EXE_PATH" value="" />

@@ -16,6 +16,7 @@ tags: [gotcha]
 - **Agents not in main slnx:** A2A/Mcp projects may be commented out of `FastEndpoints.slnx` — still real packages; check solution before assuming build inclusion.
 - **Legacy vs modern OpenAPI:** harness prefers `FastEndpoints.OpenApi` + Scalar; NSwag Swagger/ClientGen live under Legacy and may have tests commented out.
 - **OpenAPI form files:** `FastEndpoints.OpenApi` normalizes `IFormFile` and form-file collections to inline binary string schemas and removes generated `IFormFile*` components; preserve rewrite-before-removal ordering to avoid dangling refs.
+- **OpenAPI conditional validation:** FluentValidation presence rules (`NotNull`/`NotEmpty`) under rule- or component-level synchronous/asynchronous conditions must not emit unconditional `required`, non-null, or minimum-length/item constraints. Independent unconditional presence rules still apply.
 - **CI filter:** tests with `Trait("ExcludeInCiCd","Yes")` never run in publish/Azure pipelines — don't rely on them as merge gates.
 - **WAF cache:** one cached factory per `AppFixture` type; misuse of static state across tests can leak. Use fixture `ConfigureServices` for doubles.
 - **Mappers are singletons:** no request state in mapper classes.

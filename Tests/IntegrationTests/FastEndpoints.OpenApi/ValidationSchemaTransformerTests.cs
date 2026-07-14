@@ -112,6 +112,104 @@ public class ValidationSchemaTransformerTests
     }
 
     [Fact]
+    public void outer_when_does_not_make_nullable_collection_unconditionally_required_or_non_empty()
+    {
+        var schema = CreateConditionalRulesSchema();
+
+        ApplyValidatorToSchema(schema, new ConditionalRulesValidator());
+
+        (schema.Required?.Contains("conditionalItems") ?? false).ShouldBeFalse();
+        var propertySchema = GetPropertySchema(schema, "conditionalItems");
+        propertySchema.Type!.Value.HasFlag(JsonSchemaType.Null).ShouldBeTrue();
+        propertySchema.MinItems.ShouldBeNull();
+    }
+
+    [Fact]
+    public void outer_when_does_not_make_nullable_property_unconditionally_required_or_non_null()
+    {
+        var schema = CreateConditionalRulesSchema();
+
+        ApplyValidatorToSchema(schema, new ConditionalRulesValidator());
+
+        (schema.Required?.Contains("conditionalName") ?? false).ShouldBeFalse();
+        GetPropertySchema(schema, "conditionalName").Type!.Value.HasFlag(JsonSchemaType.Null).ShouldBeTrue();
+    }
+
+    [Fact]
+    public void outer_when_async_does_not_make_nullable_property_unconditionally_required_or_non_null()
+    {
+        var schema = CreateConditionalRulesSchema();
+
+        ApplyValidatorToSchema(schema, new ConditionalRulesValidator());
+
+        (schema.Required?.Contains("asyncName") ?? false).ShouldBeFalse();
+        GetPropertySchema(schema, "asyncName").Type!.Value.HasFlag(JsonSchemaType.Null).ShouldBeTrue();
+    }
+
+    [Fact]
+    public void outer_unless_does_not_make_nullable_property_unconditionally_required_or_non_null()
+    {
+        var schema = CreateConditionalRulesSchema();
+
+        ApplyValidatorToSchema(schema, new ConditionalRulesValidator());
+
+        (schema.Required?.Contains("unlessName") ?? false).ShouldBeFalse();
+        GetPropertySchema(schema, "unlessName").Type!.Value.HasFlag(JsonSchemaType.Null).ShouldBeTrue();
+    }
+
+    [Fact]
+    public void current_validator_condition_only_conditions_that_component()
+    {
+        var schema = CreateConditionalRulesSchema();
+
+        ApplyValidatorToSchema(schema, new ConditionalRulesValidator());
+
+        (schema.Required?.Contains("componentName") ?? false).ShouldBeFalse();
+        var propertySchema = GetPropertySchema(schema, "componentName");
+        propertySchema.Type!.Value.HasFlag(JsonSchemaType.Null).ShouldBeTrue();
+        propertySchema.MinLength.ShouldBe(5);
+    }
+
+    [Fact]
+    public void unconditional_not_empty_keeps_existing_required_non_null_and_minimum_behavior()
+    {
+        var schema = CreateConditionalRulesSchema();
+
+        ApplyValidatorToSchema(schema, new ConditionalRulesValidator());
+
+        schema.Required!.ShouldContain("requiredItems");
+        var propertySchema = GetPropertySchema(schema, "requiredItems");
+        propertySchema.Type!.Value.HasFlag(JsonSchemaType.Null).ShouldBeFalse();
+        propertySchema.MinItems.ShouldBe(1);
+    }
+
+    [Fact]
+    public void independent_unconditional_presence_rule_still_makes_property_required()
+    {
+        var schema = CreateConditionalRulesSchema();
+
+        ApplyValidatorToSchema(schema, new ConditionalRulesValidator());
+
+        schema.Required!.ShouldContain("mixedItems");
+        var propertySchema = GetPropertySchema(schema, "mixedItems");
+        propertySchema.Type!.Value.HasFlag(JsonSchemaType.Null).ShouldBeFalse();
+        propertySchema.MinItems.ShouldBeNull();
+    }
+
+    [Fact]
+    public void conditional_not_empty_with_child_rules_does_not_make_parent_collection_required()
+    {
+        var schema = CreateConditionalRulesSchema();
+
+        ApplyValidatorToSchema(schema, new ConditionalRulesValidator());
+
+        (schema.Required?.Contains("connectedTools") ?? false).ShouldBeFalse();
+        var propertySchema = GetPropertySchema(schema, "connectedTools");
+        propertySchema.Type!.Value.HasFlag(JsonSchemaType.Null).ShouldBeTrue();
+        propertySchema.MinItems.ShouldBeNull();
+    }
+
+    [Fact]
     public void validator_does_not_inline_referenced_leaf_schema_without_applicable_rules()
     {
         var document = new OpenApiDocument
@@ -171,6 +269,49 @@ public class ValidationSchemaTransformerTests
         return includedRules.Length;
     }
 
+    static OpenApiSchema CreateConditionalRulesSchema()
+        => new()
+        {
+            Type = JsonSchemaType.Object,
+            Properties = new Dictionary<string, IOpenApiSchema>
+            {
+                ["conditionalItems"] = new OpenApiSchema
+                {
+                    Type = JsonSchemaType.Array | JsonSchemaType.Null,
+                    Items = new OpenApiSchema { Type = JsonSchemaType.String }
+                },
+                ["conditionalName"] = new OpenApiSchema { Type = JsonSchemaType.String | JsonSchemaType.Null },
+                ["asyncName"] = new OpenApiSchema { Type = JsonSchemaType.String | JsonSchemaType.Null },
+                ["unlessName"] = new OpenApiSchema { Type = JsonSchemaType.String | JsonSchemaType.Null },
+                ["componentName"] = new OpenApiSchema { Type = JsonSchemaType.String | JsonSchemaType.Null },
+                ["requiredItems"] = new OpenApiSchema
+                {
+                    Type = JsonSchemaType.Array | JsonSchemaType.Null,
+                    Items = new OpenApiSchema { Type = JsonSchemaType.String }
+                },
+                ["mixedItems"] = new OpenApiSchema
+                {
+                    Type = JsonSchemaType.Array | JsonSchemaType.Null,
+                    Items = new OpenApiSchema { Type = JsonSchemaType.String }
+                },
+                ["connectedTools"] = new OpenApiSchema
+                {
+                    Type = JsonSchemaType.Array | JsonSchemaType.Null,
+                    Items = new OpenApiSchema
+                    {
+                        Type = JsonSchemaType.Object,
+                        Properties = new Dictionary<string, IOpenApiSchema>
+                        {
+                            ["toolName"] = new OpenApiSchema { Type = JsonSchemaType.String | JsonSchemaType.Null }
+                        }
+                    }
+                }
+            }
+        };
+
+    static OpenApiSchema GetPropertySchema(OpenApiSchema schema, string propertyName)
+        => (OpenApiSchema)schema.Properties![propertyName];
+
     static void ApplyValidatorToSchema(OpenApiSchema schema, IValidator validator, bool localizeReferencedSchemas = false)
     {
         var applierType = typeof(FastEndpoints.OpenApi.Extensions)
@@ -203,6 +344,90 @@ public class ValidationSchemaTransformerTests
 
         applierType.GetMethod("ApplyValidator", BindingFlags.Instance | BindingFlags.NonPublic)!
                    .Invoke(applier, [schema, validator, string.Empty, new HashSet<Type>()]);
+    }
+
+    sealed class ConditionalRulesRequest
+    {
+        [JsonPropertyName("conditionalItems")]
+        public List<string>? ConditionalItems { get; init; }
+
+        [JsonPropertyName("conditionalName")]
+        public string? ConditionalName { get; init; }
+
+        [JsonPropertyName("asyncName")]
+        public string? AsyncName { get; init; }
+
+        [JsonPropertyName("unlessName")]
+        public string? UnlessName { get; init; }
+
+        public bool SkipUnlessRule { get; init; }
+
+        [JsonPropertyName("componentName")]
+        public string? ComponentName { get; init; }
+
+        [JsonPropertyName("requiredItems")]
+        public List<string>? RequiredItems { get; init; }
+
+        [JsonPropertyName("mixedItems")]
+        public List<string>? MixedItems { get; init; }
+
+        [JsonPropertyName("connectedTools")]
+        public List<ConnectedTool>? ConnectedTools { get; init; }
+    }
+
+    sealed class ConnectedTool
+    {
+        [JsonPropertyName("toolName")]
+        public string? ToolName { get; init; }
+    }
+
+    sealed class ConditionalRulesValidator : Validator<ConditionalRulesRequest>
+    {
+        public ConditionalRulesValidator()
+        {
+            When(x => x.ConditionalItems is not null, () =>
+            {
+                RuleFor(x => x.ConditionalItems).NotEmpty();
+            });
+
+            When(x => x.ConditionalName is not null, () =>
+            {
+                RuleFor(x => x.ConditionalName).NotNull();
+            });
+
+            WhenAsync((x, _) => Task.FromResult(x.AsyncName is not null), () =>
+            {
+                RuleFor(x => x.AsyncName).NotNull();
+            });
+
+            Unless(x => x.SkipUnlessRule, () =>
+            {
+                RuleFor(x => x.UnlessName).NotNull();
+            });
+
+            RuleFor(x => x.ComponentName)
+                .MinimumLength(5)
+                .NotEmpty()
+                .When(x => x.ComponentName is not null, ApplyConditionTo.CurrentValidator);
+
+            RuleFor(x => x.RequiredItems).NotEmpty();
+
+            When(x => x.MixedItems is not null, () =>
+            {
+                RuleFor(x => x.MixedItems).NotEmpty();
+            });
+            RuleFor(x => x.MixedItems).NotNull();
+
+            When(x => x.ConnectedTools is not null, () =>
+            {
+                RuleFor(x => x.ConnectedTools).NotEmpty();
+                RuleForEach(x => x.ConnectedTools)
+                    .ChildRules(tool =>
+                    {
+                        tool.RuleFor(x => x.ToolName).NotEmpty();
+                    });
+            });
+        }
     }
 
     sealed class JsonPropertyNameRulePathRequest

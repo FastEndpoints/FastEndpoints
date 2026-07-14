@@ -63,6 +63,14 @@ sealed class App : AppFixture<Program>
 
 ## Fixes 🪲
 
+<details><summary>Conditional FluentValidation presence rules no longer make OpenAPI properties required</summary>
+
+`FastEndpoints.OpenApi` now preserves optional and nullable schema properties when `NotNull()` or `NotEmpty()` is guarded by a synchronous or asynchronous `When(...)`/`Unless(...)` condition.
+
+Independent unconditional presence rules still mark the property as required and non-null as before.
+
+</details>
+
 <details><summary>Form file schemas are consistently emitted as binary in OpenAPI</summary>
 
 `FastEndpoints.OpenApi` now emits `IFormFile` properties as `type: string` with `format: binary`, including items in `IFormFileCollection`, `IEnumerable<IFormFile>`, `List<IFormFile>`, and array schemas.

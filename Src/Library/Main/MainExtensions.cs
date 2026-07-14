@@ -388,15 +388,15 @@ public static class MainExtensions
 
     static void PrecompileValidatableType(Type type, HashSet<Type> visited)
     {
+        // Only precompile what ValidateRecursively uses: bindable props + getters.
+        // Nested ObjectFactory/setters belong to binding and can fail for abstract /
+        // non-constructible declared types that runtime validation still supports.
         if (!type.IsValidatable() || !visited.Add(type))
             return;
-
-        _ = type.ObjectFactory();
 
         foreach (var prop in type.BindableProps())
         {
             _ = type.GetterForProp(prop);
-            _ = type.SetterForProp(prop);
 
             var nested = prop.PropertyType.IsCollection()
                              ? prop.PropertyType.GetCollectionElementType()

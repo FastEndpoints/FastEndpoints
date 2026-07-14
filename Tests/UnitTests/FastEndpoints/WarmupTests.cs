@@ -195,15 +195,67 @@ public class WarmupTests : IDisposable
             app.UseFastEndpoints(c => c.Endpoints.Warmup());
 
             Config.BndOpts.ReflectionCache.TryGetValue(typeof(NestedDto), out var nestedDef).ShouldBeTrue();
-            nestedDef!.ObjectFactory.ShouldNotBeNull();
-            nestedDef.Properties!.TryGetValue(typeof(NestedDto).GetProperty(nameof(NestedDto.City))!, out var cityDef).ShouldBeTrue();
+            nestedDef!.Properties!.TryGetValue(typeof(NestedDto).GetProperty(nameof(NestedDto.City))!, out var cityDef).ShouldBeTrue();
             cityDef!.Getter.ShouldNotBeNull();
-            cityDef.Setter.ShouldNotBeNull();
 
             Config.BndOpts.ReflectionCache.TryGetValue(typeof(NestedItemDto), out var itemDef).ShouldBeTrue();
             itemDef!.Properties!.TryGetValue(typeof(NestedItemDto).GetProperty(nameof(NestedItemDto.Qty))!, out var qtyDef).ShouldBeTrue();
             qtyDef!.Getter.ShouldNotBeNull();
-            qtyDef.Setter.ShouldNotBeNull();
+        }
+        finally
+        {
+            await app.DisposeAsync();
+        }
+    }
+
+    [Fact]
+    public async Task Warmup_DoesNotInstantiateAbstractNestedValidatableType()
+    {
+        var builder = WebApplication.CreateBuilder();
+        builder.Services.AddFastEndpoints([typeof(WarmupAbstractNestedEp)]);
+        var app = builder.Build();
+
+        try
+        {
+            app.UseFastEndpoints(c => c.Endpoints.Warmup());
+
+            Config.BndOpts.ReflectionCache.TryGetValue(typeof(WarmupAbstractNestedRequest), out var reqDef).ShouldBeTrue();
+            reqDef!.Properties!.TryGetValue(
+                    typeof(WarmupAbstractNestedRequest).GetProperty(nameof(WarmupAbstractNestedRequest.Child))!,
+                    out var childProp)
+                .ShouldBeTrue();
+            childProp!.Getter.ShouldNotBeNull();
+
+            // Abstract declared type may be cached for IsValidatable, but must not require a factory.
+            if (Config.BndOpts.ReflectionCache.TryGetValue(typeof(AbstractNestedDto), out var nestedDef))
+                nestedDef!.ObjectFactory.ShouldBeNull();
+        }
+        finally
+        {
+            await app.DisposeAsync();
+        }
+    }
+
+    [Fact]
+    public async Task Warmup_DoesNotInstantiateNestedTypeWithoutPublicConstructor()
+    {
+        var builder = WebApplication.CreateBuilder();
+        builder.Services.AddFastEndpoints([typeof(WarmupNoPublicCtorNestedEp)]);
+        var app = builder.Build();
+
+        try
+        {
+            app.UseFastEndpoints(c => c.Endpoints.Warmup());
+
+            Config.BndOpts.ReflectionCache.TryGetValue(typeof(WarmupNoPublicCtorNestedRequest), out var reqDef).ShouldBeTrue();
+            reqDef!.Properties!.TryGetValue(
+                    typeof(WarmupNoPublicCtorNestedRequest).GetProperty(nameof(WarmupNoPublicCtorNestedRequest.Child))!,
+                    out var childProp)
+                .ShouldBeTrue();
+            childProp!.Getter.ShouldNotBeNull();
+
+            if (Config.BndOpts.ReflectionCache.TryGetValue(typeof(NoPublicCtorNestedDto), out var nestedDef))
+                nestedDef!.ObjectFactory.ShouldBeNull();
         }
         finally
         {
@@ -287,5 +339,56 @@ file sealed class WarmupNestedEp : Endpoint<WarmupNestedRequest>
         => Post("warmup-nested-ep");
 
     public override Task HandleAsync(WarmupNestedRequest req, CancellationToken ct)
+        => Task.CompletedTask;
+}
+
+file sealed class WarmupAbstractNestedRequest
+{
+    [Required]
+    public string? Name { get; set; }
+
+    public AbstractNestedDto? Child { get; set; }
+}
+
+file abstract class AbstractNestedDto
+{
+    [Required]
+    public string? City { get; set; }
+}
+
+file sealed class WarmupAbstractNestedEp : Endpoint<WarmupAbstractNestedRequest>
+{
+    public override void Configure()
+        => Post("warmup-abstract-nested-ep");
+
+    public override Task HandleAsync(WarmupAbstractNestedRequest req, CancellationToken ct)
+        => Task.CompletedTask;
+}
+
+file sealed class WarmupNoPublicCtorNestedRequest
+{
+    [Required]
+    public string? Name { get; set; }
+
+    public NoPublicCtorNestedDto? Child { get; set; }
+}
+
+file sealed class NoPublicCtorNestedDto
+{
+    NoPublicCtorNestedDto() { }
+
+    public static NoPublicCtorNestedDto Create(string city)
+        => new() { City = city };
+
+    [Required]
+    public string? City { get; set; }
+}
+
+file sealed class WarmupNoPublicCtorNestedEp : Endpoint<WarmupNoPublicCtorNestedRequest>
+{
+    public override void Configure()
+        => Post("warmup-no-public-ctor-nested-ep");
+
+    public override Task HandleAsync(WarmupNoPublicCtorNestedRequest req, CancellationToken ct)
         => Task.CompletedTask;
 }

@@ -39,6 +39,9 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
     [GeneratedRegex("(?<={)([^?:}]+)[^}]*(?=})")]
     private static partial Regex RouteConstraintsRegex();
 
+    [GeneratedRegex("[^a-zA-Z0-9]")]
+    private static partial Regex NonAlphaNumericRegex();
+
     static readonly FrozenDictionary<string, string> _defaultDescriptions = new Dictionary<string, string>
     {
         { "200", "Success" },
@@ -535,7 +538,7 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
             });
 
         string StripSymbols(string val)
-            => stripSymbols ? Regex.Replace(val, "[^a-zA-Z0-9]", "") : val;
+            => stripSymbols ? NonAlphaNumericRegex().Replace(val, "") : val;
     }
 
     static OpenApiParameter CreateParam(ParamCreationContext ctx,

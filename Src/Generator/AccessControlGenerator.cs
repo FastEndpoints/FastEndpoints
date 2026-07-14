@@ -593,7 +593,16 @@ public class AccessControlGenerator : IIncrementalGenerator
             using var sha256 = SHA256.Create();
             var base64Hash = Convert.ToBase64String(sha256.ComputeHash(Encoding.UTF8.GetBytes(input.ToUpperInvariant())));
 
-            return new(base64Hash.Where(char.IsLetterOrDigit).Take(3).Select(char.ToUpper).ToArray());
+            var code = new char[3];
+            var count = 0;
+
+            for (var i = 0; i < base64Hash.Length && count < code.Length; i++)
+            {
+                if (char.IsLetterOrDigit(base64Hash[i]))
+                    code[count++] = char.ToUpper(base64Hash[i]);
+            }
+
+            return new(code, 0, count);
         }
     }
 

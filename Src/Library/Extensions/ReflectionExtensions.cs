@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Linq.Expressions;
 using System.Reflection;
 
 namespace FastEndpoints;
@@ -82,6 +83,23 @@ static class ReflectionExtensions
 
         internal bool IsCollection()
             => Types.IEnumerable.IsAssignableFrom(source) && source != Types.String;
+
+        [UnconditionalSuppressMessage("aot", "IL2070")]
+        internal Type? GetCollectionElementType()
+        {
+            if (source == Types.String)
+                return null;
+
+            if (source.IsArray)
+                return source.GetElementType();
+
+            if (source.IsGenericType && source.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                return source.GetGenericArguments()[0];
+
+            return source.GetInterfaces()
+                         .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+                         ?.GetGenericArguments()[0];
+        }
 
         internal bool IsFormFileProp()
             => Types.IFormFile.IsAssignableFrom(source);

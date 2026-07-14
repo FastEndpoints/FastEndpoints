@@ -2,6 +2,7 @@ using FastEndpoints;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using Xunit;
 
@@ -182,6 +183,110 @@ public class WarmupTests : IDisposable
         }
     }
 
+    [Fact]
+    public async Task Warmup_PrecompilesNestedComplexAndCollectionElementTypeAccessors()
+    {
+        var builder = WebApplication.CreateBuilder();
+        builder.Services.AddFastEndpoints([typeof(WarmupNestedEp)]);
+        var app = builder.Build();
+
+        try
+        {
+            app.UseFastEndpoints(c => c.Endpoints.Warmup());
+
+            Config.BndOpts.ReflectionCache.TryGetValue(typeof(NestedDto), out var nestedDef).ShouldBeTrue();
+            nestedDef!.Properties!.TryGetValue(typeof(NestedDto).GetProperty(nameof(NestedDto.City))!, out var cityDef).ShouldBeTrue();
+            cityDef!.Getter.ShouldNotBeNull();
+
+            Config.BndOpts.ReflectionCache.TryGetValue(typeof(NestedItemDto), out var itemDef).ShouldBeTrue();
+            itemDef!.Properties!.TryGetValue(typeof(NestedItemDto).GetProperty(nameof(NestedItemDto.Qty))!, out var qtyDef).ShouldBeTrue();
+            qtyDef!.Getter.ShouldNotBeNull();
+        }
+        finally
+        {
+            await app.DisposeAsync();
+        }
+    }
+
+    [Fact]
+    public async Task Warmup_DoesNotInstantiateAbstractNestedValidatableType()
+    {
+        var builder = WebApplication.CreateBuilder();
+        builder.Services.AddFastEndpoints([typeof(WarmupAbstractNestedEp)]);
+        var app = builder.Build();
+
+        try
+        {
+            app.UseFastEndpoints(c => c.Endpoints.Warmup());
+
+            Config.BndOpts.ReflectionCache.TryGetValue(typeof(WarmupAbstractNestedRequest), out var reqDef).ShouldBeTrue();
+            reqDef!.Properties!.TryGetValue(
+                    typeof(WarmupAbstractNestedRequest).GetProperty(nameof(WarmupAbstractNestedRequest.Child))!,
+                    out var childProp)
+                .ShouldBeTrue();
+            childProp!.Getter.ShouldNotBeNull();
+
+            // Abstract declared type may be cached for IsValidatable, but must not require a factory.
+            if (Config.BndOpts.ReflectionCache.TryGetValue(typeof(AbstractNestedDto), out var nestedDef))
+                nestedDef!.ObjectFactory.ShouldBeNull();
+        }
+        finally
+        {
+            await app.DisposeAsync();
+        }
+    }
+
+    [Fact]
+    public async Task Warmup_DoesNotInstantiateNestedTypeWithoutPublicConstructor()
+    {
+        var builder = WebApplication.CreateBuilder();
+        builder.Services.AddFastEndpoints([typeof(WarmupNoPublicCtorNestedEp)]);
+        var app = builder.Build();
+
+        try
+        {
+            app.UseFastEndpoints(c => c.Endpoints.Warmup());
+
+            Config.BndOpts.ReflectionCache.TryGetValue(typeof(WarmupNoPublicCtorNestedRequest), out var reqDef).ShouldBeTrue();
+            reqDef!.Properties!.TryGetValue(
+                    typeof(WarmupNoPublicCtorNestedRequest).GetProperty(nameof(WarmupNoPublicCtorNestedRequest.Child))!,
+                    out var childProp)
+                .ShouldBeTrue();
+            childProp!.Getter.ShouldNotBeNull();
+
+            if (Config.BndOpts.ReflectionCache.TryGetValue(typeof(NoPublicCtorNestedDto), out var nestedDef))
+                nestedDef!.ObjectFactory.ShouldBeNull();
+        }
+        finally
+        {
+            await app.DisposeAsync();
+        }
+    }
+
+    [Fact]
+    public async Task Warmup_PrecompilesDerivedCollectionElementTypeAccessors()
+    {
+        var builder = WebApplication.CreateBuilder();
+        builder.Services.AddFastEndpoints([typeof(WarmupDerivedCollectionEp)]);
+        var app = builder.Build();
+
+        try
+        {
+            app.UseFastEndpoints(c => c.Endpoints.Warmup());
+
+            Config.BndOpts.ReflectionCache.TryGetValue(typeof(DerivedCollectionItemDto), out var itemDef).ShouldBeTrue();
+            itemDef!.Properties!.TryGetValue(
+                    typeof(DerivedCollectionItemDto).GetProperty(nameof(DerivedCollectionItemDto.Label))!,
+                    out var labelDef)
+                .ShouldBeTrue();
+            labelDef!.Getter.ShouldNotBeNull();
+        }
+        finally
+        {
+            await app.DisposeAsync();
+        }
+    }
+
     static void ResetServiceResolver()
     {
         var testingProvider = new ServiceCollection().AddHttpContextAccessor().BuildServiceProvider();
@@ -229,3 +334,111 @@ file sealed class WarmupEpB : EndpointWithoutRequest
     public override Task HandleAsync(CancellationToken ct)
         => Task.CompletedTask;
 }
+
+file sealed class WarmupNestedRequest
+{
+    [Required]
+    public string? Name { get; set; }
+
+    public NestedDto? Nested { get; set; }
+
+    public List<NestedItemDto>? Items { get; set; }
+}
+
+file sealed class NestedDto
+{
+    [Required]
+    public string? City { get; set; }
+}
+
+file sealed class NestedItemDto
+{
+    [Range(1, 10)]
+    public int Qty { get; set; }
+}
+
+file sealed class WarmupNestedEp : Endpoint<WarmupNestedRequest>
+{
+    public override void Configure()
+        => Post("warmup-nested-ep");
+
+    public override Task HandleAsync(WarmupNestedRequest req, CancellationToken ct)
+        => Task.CompletedTask;
+}
+
+file sealed class WarmupAbstractNestedRequest
+{
+    [Required]
+    public string? Name { get; set; }
+
+    public AbstractNestedDto? Child { get; set; }
+}
+
+file abstract class AbstractNestedDto
+{
+    [Required]
+    public string? City { get; set; }
+}
+
+file sealed class WarmupAbstractNestedEp : Endpoint<WarmupAbstractNestedRequest>
+{
+    public override void Configure()
+        => Post("warmup-abstract-nested-ep");
+
+    public override Task HandleAsync(WarmupAbstractNestedRequest req, CancellationToken ct)
+        => Task.CompletedTask;
+}
+
+file sealed class WarmupNoPublicCtorNestedRequest
+{
+    [Required]
+    public string? Name { get; set; }
+
+    public NoPublicCtorNestedDto? Child { get; set; }
+}
+
+file sealed class NoPublicCtorNestedDto
+{
+    NoPublicCtorNestedDto() { }
+
+    public static NoPublicCtorNestedDto Create(string city)
+        => new() { City = city };
+
+    [Required]
+    public string? City { get; set; }
+}
+
+file sealed class WarmupNoPublicCtorNestedEp : Endpoint<WarmupNoPublicCtorNestedRequest>
+{
+    public override void Configure()
+        => Post("warmup-no-public-ctor-nested-ep");
+
+    public override Task HandleAsync(WarmupNoPublicCtorNestedRequest req, CancellationToken ct)
+        => Task.CompletedTask;
+}
+
+file sealed class WarmupDerivedCollectionRequest
+{
+    [Required]
+    public string? Name { get; set; }
+
+    public NestedItemCollection? Items { get; set; }
+}
+
+file sealed class NestedItemCollection : List<DerivedCollectionItemDto>;
+
+file sealed class DerivedCollectionItemDto
+{
+    [Required]
+    public string? Label { get; set; }
+}
+
+file sealed class WarmupDerivedCollectionEp : Endpoint<WarmupDerivedCollectionRequest>
+{
+    public override void Configure()
+        => Post("warmup-derived-collection-ep");
+
+    public override Task HandleAsync(WarmupDerivedCollectionRequest req, CancellationToken ct)
+        => Task.CompletedTask;
+}
+

@@ -263,6 +263,30 @@ public class WarmupTests : IDisposable
         }
     }
 
+    [Fact]
+    public async Task Warmup_PrecompilesDerivedCollectionElementTypeAccessors()
+    {
+        var builder = WebApplication.CreateBuilder();
+        builder.Services.AddFastEndpoints([typeof(WarmupDerivedCollectionEp)]);
+        var app = builder.Build();
+
+        try
+        {
+            app.UseFastEndpoints(c => c.Endpoints.Warmup());
+
+            Config.BndOpts.ReflectionCache.TryGetValue(typeof(DerivedCollectionItemDto), out var itemDef).ShouldBeTrue();
+            itemDef!.Properties!.TryGetValue(
+                    typeof(DerivedCollectionItemDto).GetProperty(nameof(DerivedCollectionItemDto.Label))!,
+                    out var labelDef)
+                .ShouldBeTrue();
+            labelDef!.Getter.ShouldNotBeNull();
+        }
+        finally
+        {
+            await app.DisposeAsync();
+        }
+    }
+
     static void ResetServiceResolver()
     {
         var testingProvider = new ServiceCollection().AddHttpContextAccessor().BuildServiceProvider();
@@ -392,3 +416,29 @@ file sealed class WarmupNoPublicCtorNestedEp : Endpoint<WarmupNoPublicCtorNested
     public override Task HandleAsync(WarmupNoPublicCtorNestedRequest req, CancellationToken ct)
         => Task.CompletedTask;
 }
+
+file sealed class WarmupDerivedCollectionRequest
+{
+    [Required]
+    public string? Name { get; set; }
+
+    public NestedItemCollection? Items { get; set; }
+}
+
+file sealed class NestedItemCollection : List<DerivedCollectionItemDto>;
+
+file sealed class DerivedCollectionItemDto
+{
+    [Required]
+    public string? Label { get; set; }
+}
+
+file sealed class WarmupDerivedCollectionEp : Endpoint<WarmupDerivedCollectionRequest>
+{
+    public override void Configure()
+        => Post("warmup-derived-collection-ep");
+
+    public override Task HandleAsync(WarmupDerivedCollectionRequest req, CancellationToken ct)
+        => Task.CompletedTask;
+}
+

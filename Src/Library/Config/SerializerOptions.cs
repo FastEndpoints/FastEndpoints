@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Http;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -12,6 +12,10 @@ namespace FastEndpoints;
 [UnconditionalSuppressMessage("aot", "IL2026"), UnconditionalSuppressMessage("aot", "IL3050")]
 public sealed class SerializerOptions
 {
+    string? _characterEncoding = "utf-8";
+    string _jsonContentType = "application/json; charset=utf-8";
+    string _problemJsonContentType = "application/problem+json; charset=utf-8";
+
     /// <summary>
     /// the json serializer options
     /// </summary>
@@ -27,7 +31,16 @@ public sealed class SerializerOptions
     /// the charset used for responses. this will be appended to the content-type header when the <see cref="ResponseSerializer" /> func is used.
     /// defaults to <c>utf-8</c>. set to <c>null</c> to disable appending a charset.
     /// </summary>
-    public string? CharacterEncoding { internal get; set; } = "utf-8";
+    public string? CharacterEncoding
+    {
+        internal get => _characterEncoding;
+        set
+        {
+            _characterEncoding = value;
+            _jsonContentType = value is null ? "application/json" : $"application/json; charset={value}";
+            _problemJsonContentType = value is null ? "application/problem+json" : $"application/problem+json; charset={value}";
+        }
+    }
 
     /// <summary>
     /// controls how the routeless integration test helpers handle unmapped json members when deserializing response dto bodies.
@@ -80,6 +93,14 @@ public sealed class SerializerOptions
                      : rsp.WriteAsJsonAsync(
                          value: dto,
                          options: jCtx?.Options ?? SerOpts.Options,
-                         contentType: SerOpts.CharacterEncoding is null ? contentType : $"{contentType}; charset={SerOpts.CharacterEncoding}",
+                         contentType: GetContentTypeWithCharset(contentType),
                          cancellationToken: cancellation);
+
+    static string GetContentTypeWithCharset(string contentType)
+        => contentType switch
+        {
+            "application/json" => SerOpts._jsonContentType,
+            "application/problem+json" => SerOpts._problemJsonContentType,
+            _ => SerOpts._characterEncoding is null ? contentType : $"{contentType}; charset={SerOpts._characterEncoding}"
+        };
 }

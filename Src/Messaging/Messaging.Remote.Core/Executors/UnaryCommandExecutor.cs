@@ -7,8 +7,8 @@ interface IUnaryCommandExecutor<TResult> : ICommandExecutor where TResult : clas
     Task<TResult> ExecuteUnary(ICommand<TResult> command, CallOptions opts);
 }
 
-sealed class UnaryCommandExecutor<TCommand, TResult>(ChannelBase channel)
-    : BaseCommandExecutor<TCommand, TResult>(channel: channel, methodType: MethodType.Unary), IUnaryCommandExecutor<TResult>
+sealed class UnaryCommandExecutor<TCommand, TResult>(ChannelBase channel, IRpcMarshallerFactory marshaller)
+    : BaseCommandExecutor<TCommand, TResult>(channel: channel, methodType: MethodType.Unary, marshaller: marshaller), IUnaryCommandExecutor<TResult>
     where TCommand : class, ICommand<TResult>
     where TResult : class
 {

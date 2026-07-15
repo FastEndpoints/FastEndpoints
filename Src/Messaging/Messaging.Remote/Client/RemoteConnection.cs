@@ -61,7 +61,7 @@ public sealed class RemoteConnection : RemoteConnectionCore
         var tEvent = typeof(TEvent);
         RemoteMap[tEvent] = this;
         Channel ??= GrpcChannel.ForAddress(RemoteAddress, ChannelOptions);
-        ExecutorMap[tEvent] = new EventPublisher<TEvent>(Channel);
+        ExecutorMap[tEvent] = new EventPublisher<TEvent>(Channel, MarshallerFactory);
     }
 
     internal Task PublishEvent(IEvent evnt, Type tEvent, CallOptions opts)

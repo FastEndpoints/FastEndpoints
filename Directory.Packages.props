@@ -12,6 +12,7 @@
         <PackageVersion Include="Grpc.AspNetCore.Server" Version="2.80.0"/>
         <PackageVersion Include="Grpc.Net.Client" Version="2.80.0"/>
         <PackageVersion Include="Grpc.Net.Client.Web" Version="2.80.0"/>
+        <PackageVersion Include="Grpc.Reflection" Version="2.80.0"/>
         <PackageVersion Include="MessagePack" Version="3.1.7"/>
         <PackageVersion Include="Microsoft.AspNetCore.JsonPatch.SystemTextJson" Version="10.0.9"/>
         <PackageVersion Include="Microsoft.AspNetCore.OData" Version="9.4.1"/>
@@ -26,6 +27,7 @@
         <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.7.0"/>
         <PackageVersion Include="Microsoft.OpenApi.Kiota.Builder" Version="[1.29.0]"/><!-- latest kiota uses Microsoft.OpenApi 3.x but Microsoft.AspNetCore.OpenApi still uses 2.x -->
         <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.300"/>
+        <PackageVersion Include="protobuf-net" Version="3.2.56"/>
         <PackageVersion Include="RichardSzalay.MockHttp" Version="7.0.0"/>
         <PackageVersion Include="Scalar.AspNetCore" Version="2.16.5"/>
         <PackageVersion Include="Shouldly" Version="4.3.0"/>

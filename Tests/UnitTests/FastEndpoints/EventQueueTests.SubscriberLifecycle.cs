@@ -52,7 +52,8 @@ public partial class EventQueueTests
             channel,
             clientIdentifier: "client-a",
             subscriberID: "known-sub-1",
-            serviceProvider: provider);
+            serviceProvider: provider,
+            marshaller: MessagePackMarshallerFactory.Instance);
 
         GetEventSubscriberID(subscriber).ShouldBe("known-sub-1");
     }
@@ -97,7 +98,8 @@ public partial class EventQueueTests
             channel,
             clientIdentifier: "client-b",
             subscriberID: null,
-            serviceProvider: provider);
+            serviceProvider: provider,
+            marshaller: MessagePackMarshallerFactory.Instance);
 
         var expectedSubscriberId = SubscriberIDFactory.Create(null, "client-b", subscriber.GetType(), channel.Target);
 

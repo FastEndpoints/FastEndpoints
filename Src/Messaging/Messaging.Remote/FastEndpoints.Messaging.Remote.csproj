@@ -11,6 +11,8 @@
 
         <PackageReference Include="Grpc.Net.Client"/>
         <PackageReference Include="Grpc.AspNetCore.Server"/>
+        <PackageReference Include="Grpc.Reflection"/>
+        <PackageReference Include="protobuf-net"/>
         <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
     </ItemGroup>
 

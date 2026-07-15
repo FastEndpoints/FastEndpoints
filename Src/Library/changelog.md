@@ -10,6 +10,39 @@ Please [join the discussion here](https://github.com/FastEndpoints/FastEndpoints
 
 ## New 🎉
 
+<details><summary>gRPC reflection support for remote command handlers</summary>
+
+Remote command handlers can now be discovered and described via standard gRPC server reflection, so tooling such as grpcurl and Postman works against a handler server without a hand-authored `.proto` file, and any protoc/buf toolchain can generate clients for non-dotnet consumers.
+
+Reflection describes a protobuf schema, so it requires the handler server to be using the protobuf wire format instead of the default MessagePack. The wire format is now pluggable via `IRpcMarshallerFactory`, and a `ProtobufMarshallerFactory` is included. Command and result types need no protobuf attributes: their public properties are mapped alphabetically and numbered from 1, mirroring the contractless shape of the MessagePack format. The descriptors published by reflection are generated from the very same model that serializes the wire, so the published schema can't drift from the bytes.
+
+```csharp
+// server: opt in to the protobuf wire format + reflection
+bld.AddHandlerServer(marshaller: new ProtobufMarshallerFactory());
+bld.Services.AddHandlerReflection();
+
+app.MapHandlers(h => h.Register<MyCommand, MyCommandHandler, MyResult>());
+app.MapHandlerReflection();
+
+// client: use the matching wire format
+app.MapRemote("http://localhost:6000", c =>
+{
+    c.MarshallerFactory = new ProtobufMarshallerFactory(); // set before registering
+    c.Register<MyCommand, MyResult>();
+});
+```
+
+```sh
+grpcurl -plaintext localhost:6000 list
+grpcurl -plaintext -d '{"FirstName":"johnny"}' localhost:6000 My.Namespace.MyCommand/Execute
+```
+
+The default MessagePack format and everything about existing servers/clients is unchanged. Note that protobuf descriptors cannot represent an empty method name, which is what FastEndpoints has always bound commands under, so protobuf-mode commands are bound under a real method name (`Execute`) on both the server and the client. This only applies when the protobuf marshaller is opted into.
+
+Current limitations of the protobuf format: commands with primitive results (e.g. `ICommand<string>`) and event hubs need a wrapper message and are not supported yet, and `DateTime`/`TimeSpan`/`decimal`/`Guid` properties are not described yet.
+
+</details>
+
 <details><summary>'FastEndpoints.CommandRules' package for rule-based command dispatch</summary>
 
 A new `FastEndpoints.CommandRules` package is now available for turning arbitrary input into one or more commands using small, ordered rules.

@@ -10,34 +10,6 @@ Please [join the discussion here](https://github.com/FastEndpoints/FastEndpoints
 
 ## New 🎉
 
-<details><summary>gRPC reflection support for remote command handlers</summary>
-
-Remote command handlers can now be discovered and described via standard gRPC server reflection, so grpcurl and Postman work against a handler server without a hand-authored `.proto`, and any protoc/buf toolchain can generate clients for non-dotnet consumers. It lives in the new opt-in `FastEndpoints.Messaging.Remote.Reflection` package.
-
-Reflection describes a protobuf schema, so the server has to be speaking protobuf rather than the default MessagePack. The wire format is now pluggable via `IRpcMarshallerFactory`, and `ProtobufMarshallerFactory` is included. Command types need no protobuf attributes — their public properties are mapped alphabetically and numbered from 1 — and the descriptors are generated from the very same model that serializes the wire, so the published schema can't drift from the bytes.
-
-```csharp
-// server: opt in to the protobuf wire format + reflection
-bld.AddHandlerServer(marshaller: new ProtobufMarshallerFactory());
-bld.Services.AddHandlerReflection();
-
-app.MapHandlers(h => h.Register<MyCommand, MyCommandHandler, MyResult>());
-app.MapHandlerReflection(); // returns a builder, so .RequireAuthorization() can be chained
-
-// client: the matching wire format, set before registering anything
-app.MapRemote("http://localhost:6000", c =>
-{
-    c.MarshallerFactory = new ProtobufMarshallerFactory();
-    c.Register<MyCommand, MyResult>();
-});
-```
-
-The default MessagePack format is untouched. Protobuf descriptors can't express an empty method name, which is what commands have always been bound under, so protobuf-mode commands bind as `Execute` on both sides — MessagePack keeps the empty name, so existing clients are unaffected.
-
-Attribute-free field numbers are positional: adding or renaming a property renumbers the ones after it and breaks already-generated clients. Annotate `[ProtoContract]`/`[ProtoMember(n)]` to pin a contract that has to survive changes — an explicit contract is honoured as authored. `DateTime`/`TimeSpan`/`decimal`/`Guid` properties aren't described yet; such a command is skipped with a warning and still executes normally.
-
-</details>
-
 <details><summary>'FastEndpoints.CommandRules' package for rule-based command dispatch</summary>
 
 A new `FastEndpoints.CommandRules` package is now available for turning arbitrary input into one or more commands using small, ordered rules.
@@ -129,6 +101,30 @@ var trackingId = await new ProcessOrderCommand { OrderId = "ORD-42" }.QueueJobAs
 ```
 
 Null/empty/whitespace keys from the selector are treated as no key and are not deduped. Uniqueness lasts until the row is purged. After delete, the same key may be reused.
+
+</details>
+
+<details><summary>gRPC reflection support for remote command handlers</summary>
+
+Remote command handlers can now be discovered and described via standard gRPC server reflection, so grpcurl and Postman work against a handler server without a hand-authored `.proto`, and any protoc/buf toolchain can generate clients for non-dotnet consumers. It lives in the new opt-in `FastEndpoints.Messaging.Remote.Reflection` package.
+
+Reflection describes a protobuf schema, so the server has to be speaking protobuf rather than the default MessagePack. The wire format is now pluggable via `IRpcMarshallerFactory`, and `ProtobufMarshallerFactory` is included. Command types need no protobuf attributes, and their public properties are mapped alphabetically and numbered from 1. The descriptors are generated from the very same model that serializes to the wire, so the published schema can't drift from the bytes.
+
+```csharp
+// server: opt in to the protobuf wire format + reflection
+bld.AddHandlerServer(marshaller: new ProtobufMarshallerFactory());
+bld.Services.AddHandlerReflection();
+
+app.MapHandlers(h => h.Register<MyCommand, MyCommandHandler, MyResult>());
+app.MapHandlerReflection(); // returns a builder, so .RequireAuthorization() can be chained
+
+// client: the matching wire format, set before registering anything
+app.MapRemote("http://localhost:6000", c =>
+{
+    c.MarshallerFactory = new ProtobufMarshallerFactory();
+    c.Register<MyCommand, MyResult>();
+});
+```
 
 </details>
 

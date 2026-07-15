@@ -66,13 +66,28 @@ static class CommandDescriptorFactory
 
     static void CollectMessages(Type t, string prefix, Dictionary<Type, string> names, ProtobufMarshallerFactory protobuf)
     {
-        if (!names.TryAdd(t, $"{prefix}__{t.Name}"))
+        if (!names.TryAdd(t, MessageName(prefix, t)))
             return;
 
         protobuf.EnsureRegistered(t);
 
         foreach (var member in protobuf.Model[t].GetFields().Select(f => f.ItemType ?? f.MemberType).Where(ProtobufMarshallerFactory.IsMessage))
             CollectMessages(member, prefix, names, protobuf);
+    }
+
+    //messages are prefixed with the command's simple name so two services in one namespace can't collide on a shared type,
+    //and so no message can shadow the service itself. the namespace is folded in because two types with the same simple name
+    //in different namespaces would otherwise collide, and generic arity ticks aren't legal proto identifiers.
+    static string MessageName(string prefix, Type t)
+        => $"{prefix}__{Sanitize(t.FullName ?? t.Name)}";
+
+    static string Sanitize(string name)
+    {
+        Span<char> buffer = stackalloc char[name.Length];
+        for (var i = 0; i < name.Length; i++)
+            buffer[i] = char.IsLetterOrDigit(name[i]) ? name[i] : '_';
+
+        return new(buffer);
     }
 
     static DescriptorProto BuildMessage(Type t, string name, string package, Dictionary<Type, string> names, ProtobufMarshallerFactory protobuf)

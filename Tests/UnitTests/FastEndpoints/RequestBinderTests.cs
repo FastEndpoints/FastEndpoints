@@ -1,4 +1,4 @@
-﻿using FastEndpoints;
+using FastEndpoints;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 using Xunit;
@@ -187,6 +187,48 @@ public class RequestBinderTests
         res.HasAdminPermissionB.ShouldBeTrue();
     }
 
+    [Fact]
+    public async Task ByteCollectionBindsAsBase64NotJsonArray()
+    {
+        var hCtx = new DefaultHttpContext();
+        hCtx.Request.QueryString = new($"?Data={Uri.EscapeDataString(Convert.ToBase64String([1, 2, 3]))}");
+        var binder = new RequestBinder<ByteArrayRequest>();
+        var ctx = new BinderContext(hCtx, [], null, false, ((IRequestBinder<ByteArrayRequest>)binder).RequiredProps);
+
+        var res = await binder.BindAsync(ctx, default);
+
+        res.Data.ShouldNotBeNull();
+        res.Data!.ShouldBe([1, 2, 3]);
+    }
+
+    [Fact]
+    public async Task ListByteCollectionBindsAsJsonArrayNotBase64()
+    {
+        var hCtx = new DefaultHttpContext();
+        hCtx.Request.QueryString = new($"?Data={Uri.EscapeDataString("[1,2,3]")}");
+        var binder = new RequestBinder<ListByteRequest>();
+        var ctx = new BinderContext(hCtx, [], null, false, ((IRequestBinder<ListByteRequest>)binder).RequiredProps);
+
+        var res = await binder.BindAsync(ctx, default);
+
+        res.Data.ShouldNotBeNull();
+        res.Data!.ShouldBe([1, 2, 3]);
+    }
+
+    [Fact]
+    public async Task DerivedByteCollectionBindsAsJsonArrayNotBase64()
+    {
+        var hCtx = new DefaultHttpContext();
+        hCtx.Request.QueryString = new($"?Data={Uri.EscapeDataString("[1,2,3]")}");
+        var binder = new RequestBinder<ByteBufferRequest>();
+        var ctx = new BinderContext(hCtx, [], null, false, ((IRequestBinder<ByteBufferRequest>)binder).RequiredProps);
+
+        var res = await binder.BindAsync(ctx, default);
+
+        res.Data.ShouldNotBeNull();
+        res.Data!.ToArray().ShouldBe([1, 2, 3]);
+    }
+
     // ReSharper disable once ClassNeverInstantiated.Local
     sealed class RequestClass(int intgr, int optionalProp = 678)
     {
@@ -271,5 +313,22 @@ public class RequestBinderTests
         [HasPermission("Admin", isRequired: false)]
         public bool HasAdminPermissionB { get; set; }
     }
+
+    sealed class ByteArrayRequest
+    {
+        public byte[]? Data { get; set; }
+    }
+
+    sealed class ListByteRequest
+    {
+        public List<byte>? Data { get; set; }
+    }
+
+    sealed class ByteBufferRequest
+    {
+        public ByteBuffer? Data { get; set; }
+    }
+
+    sealed class ByteBuffer : List<byte>;
 
 }

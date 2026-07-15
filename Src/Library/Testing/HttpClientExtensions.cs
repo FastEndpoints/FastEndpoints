@@ -751,8 +751,8 @@ public static class HttpClientExtensions
             requestType = requestType.GetUnderlyingType();
             endpointRequestType = endpointRequestType.GetUnderlyingType();
 
-            var requestElementType = GetCollectionElementType(requestType);
-            var endpointElementType = GetCollectionElementType(endpointRequestType);
+            var requestElementType = requestType.GetCollectionElementType();
+            var endpointElementType = endpointRequestType.GetCollectionElementType();
 
             if (requestElementType is not null || endpointElementType is not null)
                 return requestElementType is not null && endpointElementType is not null && HasCompatibleShape(requestElementType, endpointElementType, visited);
@@ -782,22 +782,6 @@ public static class HttpClientExtensions
             }
 
             return true;
-
-            static Type? GetCollectionElementType(Type type)
-            {
-                if (type == Types.String)
-                    return null;
-
-                if (type.IsArray)
-                    return type.GetElementType();
-
-                if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-                    return type.GetGenericArguments()[0];
-
-                return type.GetInterfaces()
-                           .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-                           ?.GetGenericArguments()[0];
-            }
 
             static bool TryBuildDtoPropertyMap(ICollection<PropertyInfo> props, out Dictionary<string, PropertyInfo> map)
             {

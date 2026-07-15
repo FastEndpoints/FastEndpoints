@@ -1,4 +1,4 @@
-using FastEndpoints.Messaging.Remote;
+using FastEndpoints.Messaging.Remote.Reflection;
 using Google.Protobuf;
 using Google.Protobuf.Reflection;
 using Grpc.Core;

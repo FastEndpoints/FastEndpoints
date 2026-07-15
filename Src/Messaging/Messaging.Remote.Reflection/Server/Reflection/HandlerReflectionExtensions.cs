@@ -1,4 +1,3 @@
-using FastEndpoints.Messaging.Remote;
 using Grpc.Reflection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;

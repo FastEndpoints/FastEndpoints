@@ -2,15 +2,15 @@
 
     <PropertyGroup>
         <NoWarn>CS1591</NoWarn>
-        <Description>GRPC based Remote-Procedure-Calls for FastEndpoints.</Description>
+        <Description>gRPC server reflection and protobuf wire format for FastEndpoints remote command handlers.</Description>
         <IsAotCompatible>false</IsAotCompatible> <!-- todo: make lib aot compatible -->
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Messaging.Remote.Core\FastEndpoints.Messaging.Remote.Core.csproj"/>
+        <ProjectReference Include="..\Messaging.Remote\FastEndpoints.Messaging.Remote.csproj"/>
 
-        <PackageReference Include="Grpc.Net.Client"/>
-        <PackageReference Include="Grpc.AspNetCore.Server"/>
+        <PackageReference Include="Grpc.Reflection"/>
+        <PackageReference Include="protobuf-net"/>
         <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
     </ItemGroup>
 

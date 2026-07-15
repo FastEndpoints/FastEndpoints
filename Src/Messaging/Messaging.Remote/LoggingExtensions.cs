@@ -21,11 +21,4 @@ static partial class LoggingExtensions
 
     [LoggerMessage(5, LogLevel.Error, "Event hub exception receiver fault during operation for ({tEvent}).")]
     public static partial void EventHubExceptionReceiverFault(this ILogger l, Exception ex, string tEvent);
-
-    [LoggerMessage(
-        6,
-        LogLevel.Warning,
-        "Command [{tCommand}] cannot be described for gRPC reflection and will not be listed: {reason}. " +
-        "The handler itself is unaffected and still executes normally.")]
-    public static partial void CommandNotDescribable(this ILogger l, string tCommand, string reason);
 }

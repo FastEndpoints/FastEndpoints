@@ -31,4 +31,7 @@ static partial class LoggingExtensions
     [LoggerMessage(9, LogLevel.Warning,
                    "Job storage 'get-job-result' error for [queue-id:{queueID}]({tCommand}): {msg}. Continuing failure handling without the stored intermediate result.")]
     public static partial void StorageGetJobResultError(this ILogger l, string queueID, string tCommand, string msg);
+
+    [LoggerMessage(10, LogLevel.Warning, "Job [{tCommand}] with idempotency key [{key}] was discarded as a duplicate of tracking id [{trackingId}].")]
+    public static partial void DuplicateJobDiscarded(this ILogger l, string tCommand, string? key, Guid trackingId);
 }

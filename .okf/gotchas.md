@@ -26,6 +26,7 @@ tags: [gotcha]
 - **Generated harness folders:** e.g. NativeAotChecker `Generated/`, `wwwroot/openapi/`, `aot/` are gitignored or build outputs — regenerate, don't hand-maintain.
 - **Version citation:** always read `Src/Directory.Build.props` rather than OKF for current package version.
 - **Docs are outside this repo:** user-facing docs are `../FE-Docs/src/content/docs/`. Library PRs that change public behavior without a FE-Docs update leave the site stale; OKF only points at docs, it does not replace them.
+- **Job queue idempotency:** `IdempotencyKeyFor<TCommand>(Func<TCommand,string?>)` requires storage record `IHasIdempotencyKey` (validated at `UseJobQueues`). Uniqueness lasts until row purge (completed rows still block). Providers must throw `DuplicateJobException` with existing `TrackingID` on unique violation — library does not catch raw DB unique errors. Null/empty/whitespace keys from the selector skip dedupe.
 
 ## Sources
 - `Src/Library/Main/MainExtensions.cs`

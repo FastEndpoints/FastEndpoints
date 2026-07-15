@@ -1279,4 +1279,266 @@ public partial class JobQueueTests
         foreach (var job in jobs)
             await storage.StoreJobAsync(job, CancellationToken.None);
     }
+
+    sealed class IdempotentTestCommand : ICommand, IHasTrackingID
+    {
+        public required string OrderId { get; init; }
+        public string? Payload { get; init; }
+        public Guid TrackingID { get; set; }
+    }
+
+    sealed class IdempotentOtherCommand : ICommand
+    {
+        public required string OrderId { get; init; }
+    }
+
+    sealed class IdempotentTestHandler : ICommandHandler<IdempotentTestCommand>
+    {
+        public static int ExecutionCount;
+
+        public Task ExecuteAsync(IdempotentTestCommand command, CancellationToken ct)
+        {
+            Interlocked.Increment(ref ExecutionCount);
+
+            return Task.CompletedTask;
+        }
+
+        public static void Reset()
+            => ExecutionCount = 0;
+    }
+
+    sealed class IdempotentOtherHandler : ICommandHandler<IdempotentOtherCommand>
+    {
+        public Task ExecuteAsync(IdempotentOtherCommand command, CancellationToken ct)
+            => Task.CompletedTask;
+    }
+
+    sealed class IdempotentTestRecord : IJobStorageRecord, IHasIdempotencyKey
+    {
+        public string QueueID { get; set; } = "";
+        public Guid TrackingID { get; set; }
+        public object Command { get; set; } = null!;
+        public DateTime ExecuteAfter { get; set; }
+        public DateTime ExpireOn { get; set; }
+        public bool IsComplete { get; set; }
+        public string? IdempotencyKey { get; set; }
+    }
+
+    sealed class IdempotentTestRecordWithoutKey : IJobStorageRecord
+    {
+        public string QueueID { get; set; } = "";
+        public Guid TrackingID { get; set; }
+        public object Command { get; set; } = null!;
+        public DateTime ExecuteAfter { get; set; }
+        public DateTime ExpireOn { get; set; }
+        public bool IsComplete { get; set; }
+    }
+
+    sealed class IdempotentTestStorage : IJobStorageProvider<IdempotentTestRecord>
+    {
+        readonly Lock _lock = new();
+        readonly List<IdempotentTestRecord> _jobs = [];
+
+        public bool DistributedJobProcessingEnabled => false;
+        public int StoreCount { get; private set; }
+
+        public IReadOnlyList<IdempotentTestRecord> Snapshot()
+        {
+            lock (_lock)
+                return _jobs.ToArray();
+        }
+
+        public Task StoreJobAsync(IdempotentTestRecord record, CancellationToken ct)
+        {
+            lock (_lock)
+            {
+                if (record is IHasIdempotencyKey { IdempotencyKey: { Length: > 0 } key })
+                {
+                    var existing = _jobs.FirstOrDefault(j => j.QueueID == record.QueueID && j.IdempotencyKey == key);
+
+                    if (existing is not null)
+                        throw new DuplicateJobException(existing.TrackingID, key, record.QueueID);
+                }
+
+                _jobs.Add(record);
+                StoreCount++;
+            }
+
+            return Task.CompletedTask;
+        }
+
+        public Task<ICollection<IdempotentTestRecord>> GetNextBatchAsync(PendingJobSearchParams<IdempotentTestRecord> parameters)
+        {
+            var match = parameters.Match.Compile();
+
+            lock (_lock)
+            {
+                return Task.FromResult<ICollection<IdempotentTestRecord>>(
+                    _jobs.Where(match)
+                         .OrderBy(r => r.ExecuteAfter)
+                         .Take(parameters.Limit)
+                         .ToArray());
+            }
+        }
+
+        public Task MarkJobAsCompleteAsync(IdempotentTestRecord record, CancellationToken ct)
+        {
+            lock (_lock)
+            {
+                var job = _jobs.Single(j => j.TrackingID == record.TrackingID);
+                job.IsComplete = true;
+            }
+
+            return Task.CompletedTask;
+        }
+
+        public Task CancelJobAsync(Guid trackingId, CancellationToken ct)
+        {
+            lock (_lock)
+            {
+                var job = _jobs.Single(j => j.TrackingID == trackingId);
+                job.IsComplete = true;
+            }
+
+            return Task.CompletedTask;
+        }
+
+        public Task OnHandlerExecutionFailureAsync(IdempotentTestRecord record, Exception exception, CancellationToken ct)
+            => Task.CompletedTask;
+
+        public Task PurgeStaleJobsAsync(StaleJobSearchParams<IdempotentTestRecord> parameters)
+        {
+            var match = parameters.Match.Compile();
+
+            lock (_lock)
+                _jobs.RemoveAll(j => match(j));
+
+            return Task.CompletedTask;
+        }
+
+        public Task RemoveByTrackingIdAsync(Guid trackingId)
+        {
+            lock (_lock)
+                _jobs.RemoveAll(j => j.TrackingID == trackingId);
+
+            return Task.CompletedTask;
+        }
+
+        public Task<bool> WaitForCompletionAsync(Guid trackingId, TimeSpan timeout)
+            => WaitUntilAsync(
+                () =>
+                {
+                    lock (_lock)
+                        return _jobs.Any(j => j.TrackingID == trackingId && j.IsComplete);
+                },
+                timeout);
+    }
+
+    /// <summary>
+    /// shared in-memory store used to prove uniqueness is composite on (QueueID, IdempotencyKey).
+    /// </summary>
+    sealed class SharedIdempotentStorage
+    {
+        readonly Lock _lock = new();
+        readonly List<IdempotentTestRecord> _jobs = [];
+
+        public IReadOnlyList<IdempotentTestRecord> Snapshot()
+        {
+            lock (_lock)
+                return _jobs.ToArray();
+        }
+
+        public Task StoreJobAsync(IdempotentTestRecord record)
+        {
+            lock (_lock)
+            {
+                if (record is IHasIdempotencyKey { IdempotencyKey: { Length: > 0 } key })
+                {
+                    var existing = _jobs.FirstOrDefault(j => j.QueueID == record.QueueID && j.IdempotencyKey == key);
+
+                    if (existing is not null)
+                        throw new DuplicateJobException(existing.TrackingID, key, record.QueueID);
+                }
+
+                _jobs.Add(record);
+            }
+
+            return Task.CompletedTask;
+        }
+    }
+
+    sealed class IdempotentOtherStorage(SharedIdempotentStorage shared) : IJobStorageProvider<IdempotentTestRecord>
+    {
+        public bool DistributedJobProcessingEnabled => false;
+
+        public IReadOnlyList<IdempotentTestRecord> Snapshot()
+            => shared.Snapshot();
+
+        public Task StoreJobAsync(IdempotentTestRecord record, CancellationToken ct)
+            => shared.StoreJobAsync(record);
+
+        public Task<ICollection<IdempotentTestRecord>> GetNextBatchAsync(PendingJobSearchParams<IdempotentTestRecord> parameters)
+            => Task.FromResult<ICollection<IdempotentTestRecord>>([]);
+
+        public Task MarkJobAsCompleteAsync(IdempotentTestRecord record, CancellationToken ct)
+            => Task.CompletedTask;
+
+        public Task CancelJobAsync(Guid trackingId, CancellationToken ct)
+            => Task.CompletedTask;
+
+        public Task OnHandlerExecutionFailureAsync(IdempotentTestRecord record, Exception exception, CancellationToken ct)
+            => Task.CompletedTask;
+
+        public Task PurgeStaleJobsAsync(StaleJobSearchParams<IdempotentTestRecord> parameters)
+            => Task.CompletedTask;
+    }
+
+    sealed class SharedIdempotentPrimaryStorage(SharedIdempotentStorage shared) : IJobStorageProvider<IdempotentTestRecord>
+    {
+        public bool DistributedJobProcessingEnabled => false;
+
+        public IReadOnlyList<IdempotentTestRecord> Snapshot()
+            => shared.Snapshot();
+
+        public Task StoreJobAsync(IdempotentTestRecord record, CancellationToken ct)
+            => shared.StoreJobAsync(record);
+
+        public Task<ICollection<IdempotentTestRecord>> GetNextBatchAsync(PendingJobSearchParams<IdempotentTestRecord> parameters)
+            => Task.FromResult<ICollection<IdempotentTestRecord>>([]);
+
+        public Task MarkJobAsCompleteAsync(IdempotentTestRecord record, CancellationToken ct)
+            => Task.CompletedTask;
+
+        public Task CancelJobAsync(Guid trackingId, CancellationToken ct)
+            => Task.CompletedTask;
+
+        public Task OnHandlerExecutionFailureAsync(IdempotentTestRecord record, Exception exception, CancellationToken ct)
+            => Task.CompletedTask;
+
+        public Task PurgeStaleJobsAsync(StaleJobSearchParams<IdempotentTestRecord> parameters)
+            => Task.CompletedTask;
+    }
+
+    sealed class IdempotentNoKeyStorage : IJobStorageProvider<IdempotentTestRecordWithoutKey>
+    {
+        public bool DistributedJobProcessingEnabled => false;
+
+        public Task StoreJobAsync(IdempotentTestRecordWithoutKey record, CancellationToken ct)
+            => Task.CompletedTask;
+
+        public Task<ICollection<IdempotentTestRecordWithoutKey>> GetNextBatchAsync(PendingJobSearchParams<IdempotentTestRecordWithoutKey> parameters)
+            => Task.FromResult<ICollection<IdempotentTestRecordWithoutKey>>([]);
+
+        public Task MarkJobAsCompleteAsync(IdempotentTestRecordWithoutKey record, CancellationToken ct)
+            => Task.CompletedTask;
+
+        public Task CancelJobAsync(Guid trackingId, CancellationToken ct)
+            => Task.CompletedTask;
+
+        public Task OnHandlerExecutionFailureAsync(IdempotentTestRecordWithoutKey record, Exception exception, CancellationToken ct)
+            => Task.CompletedTask;
+
+        public Task PurgeStaleJobsAsync(StaleJobSearchParams<IdempotentTestRecordWithoutKey> parameters)
+            => Task.CompletedTask;
+    }
 }

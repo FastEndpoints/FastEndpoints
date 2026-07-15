@@ -1,6 +1,6 @@
 namespace TestCases.JobQueueTest;
 
-public class Job : IJobStorageRecord, IHasCommandType, IJobResultStorage
+public class Job : IJobStorageRecord, IHasCommandType, IJobResultStorage, IHasIdempotencyKey
 {
     public Guid ID { get; set; } = Guid.NewGuid();
     public string QueueID { get; set; }
@@ -11,6 +11,7 @@ public class Job : IJobStorageRecord, IHasCommandType, IJobResultStorage
     public DateTime ExpireOn { get; set; }
     public bool IsComplete { get; set; }
     public object? Result { get; set; }
+    public string? IdempotencyKey { get; set; }
 }
 
 public class JobStorage : IJobStorageProvider<Job>, IJobResultProvider
@@ -24,7 +25,17 @@ public class JobStorage : IJobStorageProvider<Job>, IJobResultProvider
     public Task StoreJobAsync(Job r, CancellationToken ct)
     {
         lock (_lock)
+        {
+            if (r is IHasIdempotencyKey { IdempotencyKey: { Length: > 0 } key })
+            {
+                var existing = Jobs.FirstOrDefault(j => j.QueueID == r.QueueID && j.IdempotencyKey == key);
+
+                if (existing is not null)
+                    throw new DuplicateJobException(existing.TrackingID, key, r.QueueID);
+            }
+
             Jobs.Add(r);
+        }
 
         return Task.CompletedTask;
     }

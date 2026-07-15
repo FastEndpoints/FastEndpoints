@@ -124,3 +124,20 @@ public interface IHasCommandType
     /// </summary>
     string CommandType { get; set; }
 }
+
+/// <summary>
+/// implement this interface on your job storage record to support business-key idempotency for queued commands.
+/// you don't need to set the value yourself as it will be automatically set by the system when
+/// <see cref="JobQueueOptions.IdempotencyKeyFor{TCommand}"/> is configured for the command type.
+/// </summary>
+public interface IHasIdempotencyKey
+{
+    /// <summary>
+    /// business idempotency key derived from the command.
+    /// null/empty means this job is not subject to idempotent dedupe.
+    /// providers should create a unique index on (<see cref="IJobStorageRecord.QueueID"/>, <see cref="IdempotencyKey"/>)
+    /// for non-null keys. uniqueness lasts while the row exists (including completed).
+    /// after purge/delete, the same key may be reused.
+    /// </summary>
+    string? IdempotencyKey { get; set; }
+}

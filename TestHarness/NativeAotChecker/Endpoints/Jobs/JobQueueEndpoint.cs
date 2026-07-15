@@ -43,7 +43,7 @@ public sealed class EchoGuidCommandHandler : ICommandHandler<EchoGuidCommand, st
         => Task.FromResult(cmd.Id.ToString());
 }
 
-public sealed class Job : IJobStorageRecord, IJobResultStorage
+public sealed class Job : IJobStorageRecord, IJobResultStorage, IHasIdempotencyKey
 {
     public Guid ID { get; set; } = Guid.NewGuid();
     public string QueueID { get; set; } = null!;
@@ -53,6 +53,7 @@ public sealed class Job : IJobStorageRecord, IJobResultStorage
     public DateTime ExpireOn { get; set; }
     public bool IsComplete { get; set; }
     public object? Result { get; set; }
+    public string? IdempotencyKey { get; set; }
 }
 
 public sealed class JobStorage : IJobStorageProvider<Job>, IJobResultProvider
@@ -62,10 +63,26 @@ public sealed class JobStorage : IJobStorageProvider<Job>, IJobResultProvider
 
     public bool DistributedJobProcessingEnabled => false;
 
+    public static int CountByIdempotencyKey(string key)
+    {
+        lock (_lock)
+            return _jobs.Count(j => j.IdempotencyKey == key);
+    }
+
     public Task StoreJobAsync(Job r, CancellationToken ct)
     {
         lock (_lock)
+        {
+            if (r is IHasIdempotencyKey { IdempotencyKey: { Length: > 0 } key })
+            {
+                var existing = _jobs.FirstOrDefault(j => j.QueueID == r.QueueID && j.IdempotencyKey == key);
+
+                if (existing is not null)
+                    throw new DuplicateJobException(existing.TrackingID, key, r.QueueID);
+            }
+
             _jobs.Add(r);
+        }
 
         return Task.CompletedTask;
     }

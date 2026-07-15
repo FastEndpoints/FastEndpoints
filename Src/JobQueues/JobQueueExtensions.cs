@@ -124,6 +124,12 @@ public static class JobQueueExtensions
         var opts = new JobQueueOptions();
         options?.Invoke(opts);
 
+        if (opts.HasAnyIdempotencyConfig && !_tStorageRecord.IsAssignableTo(Types.IHasIdempotencyKey))
+        {
+            throw new InvalidOperationException(
+                $"Job storage record: [{_tStorageRecord.FullName}] must implement [{nameof(IHasIdempotencyKey)}] when job idempotency is configured!");
+        }
+
         foreach (var tCommand in registry.Keys.Where(t => t.IsAssignableTo(Types.ICommandBase)))
         {
             if (tCommand.ContainsGenericParameters)

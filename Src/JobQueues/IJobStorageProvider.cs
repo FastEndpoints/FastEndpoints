@@ -15,6 +15,16 @@ public interface IJobStorageProvider<TStorageRecord> where TStorageRecord : IJob
 
     /// <summary>
     /// store the job storage record however you please. ideally on a nosql database.
+    /// <para>
+    /// when the record implements <see cref="IHasIdempotencyKey"/> and <see cref="IHasIdempotencyKey.IdempotencyKey"/> is non-null/non-empty,
+    /// the insert must be unique on (<see cref="IJobStorageRecord.QueueID"/>, <see cref="IHasIdempotencyKey.IdempotencyKey"/>) for as long as the
+    /// row exists (including completed jobs). after purge/delete, the same key may be reused. null/empty keys are not subject to uniqueness.
+    /// </para>
+    /// <para>
+    /// on unique-constraint violation, look up the existing row's <see cref="IJobStorageRecord.TrackingID"/> and throw
+    /// <see cref="DuplicateJobException"/> with that id (and optionally the key/queue id). the library returns that tracking id to
+    /// <c>QueueJobAsync</c> callers and does not rethrow. raw storage uniqueness errors must not bubble unwrapped.
+    /// </para>
     /// </summary>
     /// <param name="r">the job storage record which contains the actual command object as well as some metadata</param>
     /// <param name="ct"></param>

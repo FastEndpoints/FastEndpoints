@@ -26,6 +26,8 @@ abstract class JobQueueBase
 
     internal abstract void SetLimits(int concurrencyLimit, TimeSpan executionTimeLimit, TimeSpan semWaitLimit, TimeSpan? retryDelay = null);
 
+    internal abstract void SetIdempotencyKeyExtractor(Func<object, string?> extractor);
+
     static JobQueueBase GetQueue(Type tCommand)
         => JobQueues.TryGetValue(tCommand, out var queue)
                ? queue

@@ -43,6 +43,8 @@ AOT tests: use `NativeAot.slnx` (publish workflow currently has AOT test step co
 - **Traits:** `[Trait("ExcludeInCiCd", "Yes")]` skips in CI (job queue timing, some binding/Kiota cases).
 - Integration xunit runner: CI may rewrite `Tests/IntegrationTests/FastEndpoints/xunit.runner.json` to disable parallelization (Azure pipeline step).
 - No external DB required for core suite; job storage tests use in-memory/test providers in harness/tests.
+- Job queue idempotency unit coverage: `Tests/UnitTests/FastEndpoints/JobQueueTests.Idempotency.cs` (+ fixtures in `JobQueueTests.Fixtures.cs`). Harness `TestStorageProvider` implements `IHasIdempotencyKey` and throws `DuplicateJobException`.
+- NativeAotChecker AOT/harness coverage: `UseJobQueues(... IdempotencyKeyFor<IdempotentEchoCommand>(c => c.OrderId))`, endpoint `job-queue/idempotent`, test `Tests/NativeAotTests/NativeAotCheckerTests/Jobs/JobQueueIdempotencyTests.cs`.
 
 ## Expectations
 - New public behavior: unit tests when pure logic; integration tests against `TestHarness/Web` (or domain harness) when pipeline/HTTP involved.

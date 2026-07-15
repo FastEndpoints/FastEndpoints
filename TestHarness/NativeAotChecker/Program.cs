@@ -55,7 +55,12 @@ app.UseStaticFiles()
 await app.ExportOpenApiDocsAndExitAsync("v1");
 
 app.MapScalarApiReference(o => o.AddDocument("v1"));
-app.UseJobQueues(o => o.StorageProbeDelay = TimeSpan.FromMilliseconds(50));
+app.UseJobQueues(
+    o =>
+    {
+        o.StorageProbeDelay = TimeSpan.FromMilliseconds(50);
+        o.IdempotencyKeyFor<IdempotentEchoCommand>(c => c.OrderId);
+    });
 app.Services.RegisterGenericCommand<AotGenericCommand<ProductData>, AotGenericResult<ProductData>, AotGenericCommandHandler<ProductData>>();
 app.Services.RegisterStreamCommand<StreamNumbersAotCommand, int, StreamNumbersAotCommandHandler>();
 app.Services.RegisterStreamCommand<StreamNumbersWithMiddlewareAotCommand, int, StreamNumbersWithMiddlewareAotCommandHandler>();

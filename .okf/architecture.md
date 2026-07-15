@@ -57,10 +57,11 @@ Attributes / Messaging.Core
 - **HTTP:** endpoints mapped into ASP.NET routing; config via `UseFastEndpoints(c => …)` (`Config` / `Cfg`).
 - **In-process messaging:** command/event handlers registered from discovery or DI helpers.
 - **Remote:** gRPC handler server (`AddHandlerServer` / remote client connection) with MessagePack marshalling.
-- **Jobs:** `AddJobQueues<TJob, TStorage>()`; storage provider is app-supplied.
+- **Jobs:** `AddJobQueues<TJob, TStorage>()`; storage provider is app-supplied. Optional business-key idempotency via `JobQueueOptions.IdempotencyKeyFor<TCommand>(Func<TCommand,string?>)` + storage record `IHasIdempotencyKey` + provider uniqueness / `DuplicateJobException`.
 
 ## Persistence
 - Framework does **not** own an app DB. Job queues require consumer `IJobStorageProvider` / `IJobStorageRecord` implementations.
+- Job idempotency is storage-enforced on `(QueueID, IdempotencyKey)` while the row exists (including completed); not filtered to incomplete-only.
 - No EF/migrations in this repo.
 
 ## Security / auth (boundary summary)

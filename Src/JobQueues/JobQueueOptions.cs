@@ -9,6 +9,10 @@ public class JobQueueOptions
     //val: value tuple of concurrency and execution time limit
     readonly Dictionary<Type, (int concurrency, TimeSpan timeLimit)> _limitOverrides = new();
 
+    //key: tCommand
+    //val: extracts a formatted idempotency key from a command instance (null/empty = no key)
+    readonly Dictionary<Type, Func<object, string?>> _idempotencyExtractors = new();
+
     /// <summary>
     /// the default max concurrency per job type. default value is the number of logical processors of the computer.
     /// you can specify per queue type overrides using <see cref="LimitsFor{TCommand}(int, TimeSpan)" />
@@ -50,6 +54,39 @@ public class JobQueueOptions
         _limitOverrides[typeof(TCommand)] = new(maxConcurrency, timeLimit);
     }
 
+    /// <summary>
+    /// enable storage-enforced idempotency for a command type using a function that returns the business key string.
+    /// when the same non-empty key is queued again for that command type (same <see cref="IJobStorageRecord.QueueID"/>),
+    /// the duplicate is discarded and the existing job's tracking id is returned.
+    /// <para>
+    /// null/empty/whitespace return values are treated as "no key" and are not deduped.
+    /// format non-string values yourself (e.g. <c>c =&gt; c.PaymentId.ToString("D")</c>).
+    /// </para>
+    /// <para>
+    /// requires the storage record to implement <see cref="IHasIdempotencyKey"/> and the storage provider to enforce a unique
+    /// index on (<see cref="IJobStorageRecord.QueueID"/>, <see cref="IHasIdempotencyKey.IdempotencyKey"/>) while the row exists.
+    /// </para>
+    /// </summary>
+    /// <typeparam name="TCommand">command type to make idempotent</typeparam>
+    /// <param name="keySelector">function that extracts the business key string from the command</param>
+    public void IdempotencyKeyFor<TCommand>(Func<TCommand, string?> keySelector) where TCommand : class, ICommandBase
+    {
+        ArgumentNullException.ThrowIfNull(keySelector);
+
+        _idempotencyExtractors[typeof(TCommand)] = cmd =>
+        {
+            var key = keySelector((TCommand)cmd);
+
+            return string.IsNullOrWhiteSpace(key) ? null : key;
+        };
+    }
+
+    internal bool HasAnyIdempotencyConfig
+        => _idempotencyExtractors.Count > 0;
+
+    internal bool TryGetIdempotencyExtractor(Type tCommand, out Func<object, string?> extractor)
+        => _idempotencyExtractors.TryGetValue(tCommand, out extractor!);
+
     internal bool WarmupRequested { get; private set; }
 
     /// <summary>
@@ -65,5 +102,8 @@ public class JobQueueOptions
             jobQueue.SetLimits(limits.concurrency, limits.timeLimit, StorageProbeDelay, RetryDelay);
         else
             jobQueue.SetLimits(MaxConcurrency, ExecutionTimeLimit, StorageProbeDelay, RetryDelay);
+
+        if (TryGetIdempotencyExtractor(tCommand, out var extractor))
+            jobQueue.SetIdempotencyKeyExtractor(extractor);
     }
 }

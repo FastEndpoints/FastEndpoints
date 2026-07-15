@@ -61,6 +61,49 @@ sealed class App : AppFixture<Program>
 
 </details>
 
+<details><summary>Idempotency support for job queues</summary>
+
+Job queues can now enforce business-key idempotency so the same logical action is only stored once. Configure a key selector per command type. When a non-empty key collides on the same queue, the duplicate is discarded with a warning log and `QueueJobAsync` returns the existing tracking id.
+
+Requires the storage record to implement `IHasIdempotencyKey` and the storage provider to enforce uniqueness on `QueueID + IdempotencyKey` while the row exists (including completed jobs). On unique violation, throw `DuplicateJobException` with the existing tracking id. The library does not unwrap raw storage errors.
+
+```csharp
+// enable idempotency for selected command types
+app.UseJobQueues(o =>
+{
+    o.IdempotencyKeyFor<ProcessOrderCommand>(c => c.OrderId);
+    o.IdempotencyKeyFor<ChargeCustomerCommand>(c => c.PaymentId.ToString("D"));
+});
+
+// storage record must implement IHasIdempotencyKey
+sealed class JobRecord : IJobStorageRecord, IHasIdempotencyKey
+{
+    public string? IdempotencyKey { get; set; }
+    ...
+}
+
+// provider throws DuplicateJobException on unique violation
+public async Task StoreJobAsync(JobRecord job, CancellationToken ct)
+{
+    try
+    {
+        await db.SaveAsync(job, ct);
+    }
+    catch (/* unique index violation */)
+    {
+        var existing = await db.FindByQueueAndKeyAsync(job.QueueID, job.IdempotencyKey!, ct);
+        throw new DuplicateJobException(existing.TrackingID, job.IdempotencyKey, job.QueueID);
+    }
+}
+
+// first call stores the job; retries return the same tracking id
+var trackingId = await new ProcessOrderCommand { OrderId = "ORD-42" }.QueueJobAsync();
+```
+
+Null/empty/whitespace keys from the selector are treated as no key and are not deduped. Uniqueness lasts until the row is purged. After delete, the same key may be reused.
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>Conditional FluentValidation presence rules no longer make OpenAPI properties required</summary>

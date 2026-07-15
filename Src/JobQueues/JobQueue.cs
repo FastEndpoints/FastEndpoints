@@ -47,6 +47,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
     TimeSpan _executionTimeLimit;
     TimeSpan _semWaitLimit;
     TimeSpan _retryDelay = TimeSpan.FromSeconds(5);
+    Func<object, string?>? _idempotencyKeyExtractor;
 
     public JobQueue(TStorageProvider storageProvider, IHostApplicationLifetime appLife, ILogger<JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider>> logger)
     {
@@ -68,6 +69,9 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
         _retryDelay = retryDelay ?? TimeSpan.FromSeconds(5);
         ExecutorTask = CommandExecutorTask();
     }
+
+    internal override void SetIdempotencyKeyExtractor(Func<object, string?> extractor)
+        => _idempotencyKeyExtractor = extractor;
 
     protected override TStorageRecord CreateJob(ICommandBase command, DateTime? executeAfter, DateTime? expireOn)
     {
@@ -93,8 +97,16 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
         if (job is IHasCommandType jct)
             jct.CommandType = _commandTypeName;
 
-        if (command is IHasTrackingID cti)
-            cti.TrackingID = job.TrackingID;
+        if (command is IHasTrackingID jti)
+            jti.TrackingID = job.TrackingID;
+
+        if (_idempotencyKeyExtractor is not null && job is IHasIdempotencyKey jik)
+        {
+            var key = _idempotencyKeyExtractor(command);
+
+            if (!string.IsNullOrWhiteSpace(key))
+                jik.IdempotencyKey = key;
+        }
 
         job.SetCommand((TCommand)command);
 
@@ -110,7 +122,28 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
     protected override async Task<Guid> StoreJobAsync(ICommandBase command, DateTime? executeAfter, DateTime? expireOn, CancellationToken ct)
     {
         var job = CreateJob(command, executeAfter, expireOn);
-        await _storage.StoreJobAsync(job, ct);
+
+        try
+        {
+            await _storage.StoreJobAsync(job, ct);
+        }
+        catch (DuplicateJobException d)
+        {
+            if (d.ExistingTrackingID == Guid.Empty)
+            {
+                throw new InvalidOperationException(
+                    $"Storage provider threw {nameof(DuplicateJobException)} with an empty {nameof(DuplicateJobException.ExistingTrackingID)}.",
+                    d);
+            }
+
+            if (command is IHasTrackingID cti)
+                cti.TrackingID = d.ExistingTrackingID;
+
+            _log.DuplicateJobDiscarded(_commandTypeName, d.IdempotencyKey ?? (job as IHasIdempotencyKey)?.IdempotencyKey, d.ExistingTrackingID);
+
+            return d.ExistingTrackingID;
+        }
+
         TriggerJob();
 
         return job.TrackingID;

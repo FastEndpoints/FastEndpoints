@@ -1,6 +1,6 @@
-using FastEndpoints;
 using System.Collections.Concurrent;
 using System.Reflection;
+using FastEndpoints;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using QueueTesting;
@@ -115,6 +115,64 @@ public partial class JobQueueTests
             storage,
             new TestHostLifetime(appStopping.Token),
             logger ?? NullLogger<JobQueue<BatchFailureTestCommand, FastEndpoints.Void, BatchFailureTestRecord, BatchFailureTestStorage>>.Instance);
+
+    static JobQueue<IdempotentTestCommand, FastEndpoints.Void, IdempotentTestRecord, IdempotentTestStorage> CreateIdempotentQueue(
+        IdempotentTestStorage storage,
+        CancellationTokenSource appStopping,
+        ILogger<JobQueue<IdempotentTestCommand, FastEndpoints.Void, IdempotentTestRecord, IdempotentTestStorage>>? logger = null)
+    {
+        Factory.RegisterTestServices(_ => { });
+        new IdempotentTestHandler().RegisterForTesting();
+
+        var queue = new JobQueue<IdempotentTestCommand, FastEndpoints.Void, IdempotentTestRecord, IdempotentTestStorage>(
+            storage,
+            new TestHostLifetime(appStopping.Token),
+            logger ?? NullLogger<JobQueue<IdempotentTestCommand, FastEndpoints.Void, IdempotentTestRecord, IdempotentTestStorage>>.Instance);
+
+        return queue;
+    }
+
+    static JobQueue<IdempotentOtherCommand, FastEndpoints.Void, IdempotentTestRecord, IdempotentOtherStorage> CreateIdempotentOtherQueue(
+        IdempotentOtherStorage storage,
+        CancellationTokenSource appStopping)
+    {
+        Factory.RegisterTestServices(_ => { });
+        new IdempotentOtherHandler().RegisterForTesting();
+
+        return new(
+            storage,
+            new TestHostLifetime(appStopping.Token),
+            NullLogger<JobQueue<IdempotentOtherCommand, FastEndpoints.Void, IdempotentTestRecord, IdempotentOtherStorage>>.Instance);
+    }
+
+    static JobQueue<IdempotentTestCommand, FastEndpoints.Void, IdempotentTestRecord, SharedIdempotentPrimaryStorage> CreateSharedIdempotentPrimaryQueue(
+        SharedIdempotentPrimaryStorage storage,
+        CancellationTokenSource appStopping)
+    {
+        Factory.RegisterTestServices(_ => { });
+        new IdempotentTestHandler().RegisterForTesting();
+
+        return new(
+            storage,
+            new TestHostLifetime(appStopping.Token),
+            NullLogger<JobQueue<IdempotentTestCommand, FastEndpoints.Void, IdempotentTestRecord, SharedIdempotentPrimaryStorage>>.Instance);
+    }
+
+    static void ConfigureIdempotency(JobQueueBase queue, Func<IdempotentTestCommand, string?>? selector = null)
+    {
+        var opts = new JobQueueOptions();
+        opts.IdempotencyKeyFor(selector ?? (c => c.OrderId));
+        opts.TryGetIdempotencyExtractor(typeof(IdempotentTestCommand), out var extractor).ShouldBeTrue();
+        queue.SetIdempotencyKeyExtractor(extractor);
+    }
+
+    static void ConfigureIdempotencyOther(JobQueueBase queue)
+    {
+        var opts = new JobQueueOptions();
+        opts.IdempotencyKeyFor<IdempotentOtherCommand>(c => c.OrderId);
+        opts.TryGetIdempotencyExtractor(typeof(IdempotentOtherCommand), out var extractor).ShouldBeTrue();
+        queue.SetIdempotencyKeyExtractor(extractor);
+    }
 
     static async Task QueueJobsAsync(params ICommand[] commands)
     {

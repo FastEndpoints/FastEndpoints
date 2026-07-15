@@ -71,7 +71,7 @@ static class CommandDescriptorFactory
 
         protobuf.EnsureRegistered(t);
 
-        foreach (var member in protobuf.Model[t].GetFields().Select(f => f.ItemType ?? f.MemberType).Where(ProtobufMarshallerFactory.IsMessage))
+        foreach (var member in protobuf.Model[t].GetFields().Select(ProtobufMarshallerFactory.MemberType).Where(ProtobufMarshallerFactory.IsMessage))
             CollectMessages(member, prefix, names, protobuf);
     }
 
@@ -97,7 +97,7 @@ static class CommandDescriptorFactory
         foreach (var vm in protobuf.Model[t].GetFields())
         {
             var repeated = vm.ItemType is not null;
-            var member = vm.ItemType ?? vm.MemberType;
+            var member = ProtobufMarshallerFactory.MemberType(vm);
 
             var field = new FieldDescriptorProto
             {

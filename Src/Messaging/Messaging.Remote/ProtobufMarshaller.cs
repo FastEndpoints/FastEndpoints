@@ -74,8 +74,15 @@ public sealed class ProtobufMarshallerFactory : IRpcMarshallerFactory
 
         //nested/repeated member types need registering too, and must be added before anything serializes this type
         foreach (var vm in Model[t].GetFields())
-            Register(vm.ItemType ?? vm.MemberType);
+            Register(MemberType(vm));
     }
+
+    //the type a member actually carries: the item type for a collection, unwrapped of Nullable<>
+    internal static Type MemberType(ValueMember vm)
+        => Unwrap(vm.ItemType ?? vm.MemberType);
+
+    internal static Type Unwrap(Type t)
+        => Nullable.GetUnderlyingType(t) ?? t;
 
     //mirrors the shape messagepack's contractless resolver produces: public read/write instance properties, alphabetical
     internal static IEnumerable<PropertyInfo> MessageProperties(Type t)

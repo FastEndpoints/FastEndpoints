@@ -1,3 +1,4 @@
+using System.Buffers;
 using Grpc.Core;
 using Grpc.Net.Client;
 using Grpc.Reflection.V1Alpha;
@@ -76,6 +77,72 @@ public class GrpcReflection(ITestOutputHelper output)
         method.OutputType.Fields.InFieldNumberOrder().Select(f => f.Name).ShouldBe(["FullName"]);
     }
 
+    //shapes that a hand-rolled CLR->proto mapping gets wrong. each of these was a confirmed failure before being fixed.
+    [Fact]
+    public void Describes_Awkward_Property_Shapes()
+    {
+        var registry = new RpcSchemaRegistry();
+        registry.Add(typeof(AwkwardCommand).FullName!, MethodType.Unary, typeof(AwkwardCommand), typeof(ReflectedResult));
+
+        var svc = CommandDescriptorFactory.Build(registry, new ProtobufMarshallerFactory()).ShouldHaveSingleItem();
+        var fields = svc.Methods.ShouldHaveSingleItem().InputType.Fields.InFieldNumberOrder().ToList();
+
+        //a nullable struct used to blow up descriptor generation AND corrupt the wire (Nullable<T> was never registered)
+        fields.Single(f => f.Name == nameof(AwkwardCommand.Location)).FieldType.ShouldBe(Google.Protobuf.Reflection.FieldType.Message);
+
+        //a generic member's CLR name carries an arity tick, which is not a legal proto identifier
+        fields.Single(f => f.Name == nameof(AwkwardCommand.Envelope)).FieldType.ShouldBe(Google.Protobuf.Reflection.FieldType.Message);
+
+        //collections must be described as repeated, not as a single message
+        fields.Single(f => f.Name == nameof(AwkwardCommand.Tags)).IsRepeated.ShouldBeTrue();
+    }
+
+    //two types with the same simple name in different namespaces used to collide on one proto symbol
+    [Fact]
+    public void Describes_Same_Named_Types_From_Different_Namespaces()
+    {
+        var registry = new RpcSchemaRegistry();
+        registry.Add(typeof(CollidingCommand).FullName!, MethodType.Unary, typeof(CollidingCommand), typeof(ReflectedResult));
+
+        var svc = CommandDescriptorFactory.Build(registry, new ProtobufMarshallerFactory()).ShouldHaveSingleItem();
+        var fields = svc.Methods.ShouldHaveSingleItem().InputType.Fields.InFieldNumberOrder().ToList();
+
+        fields.Select(f => f.Name).ShouldBe([nameof(CollidingCommand.Billing), nameof(CollidingCommand.Shipping)]);
+        fields[0].MessageType.FullName.ShouldNotBe(fields[1].MessageType.FullName); //distinct symbols, not one shadowing the other
+    }
+
+    //a scalar has no top-level protobuf message. this is what an event hub's subscriber id and ICommand<string> hit.
+    [Fact]
+    public void Wraps_Scalar_Payloads_Instead_Of_Throwing()
+    {
+        var marshaller = new ProtobufMarshallerFactory().Create<string>();
+
+        RoundTrip(marshaller, "johnny").ShouldBe("johnny");
+    }
+
+    static T RoundTrip<T>(Marshaller<T> m, T value)
+    {
+        var buffer = new ArrayBufferWriter<byte>();
+        var sc = new FakeSerializationContext(buffer);
+        m.ContextualSerializer(value, sc);
+
+        return m.ContextualDeserializer(new FakeDeserializationContext(new(buffer.WrittenMemory)));
+    }
+
+    sealed class FakeSerializationContext(IBufferWriter<byte> writer) : SerializationContext
+    {
+        public override IBufferWriter<byte> GetBufferWriter() => writer;
+        public override void Complete() { }
+        public override void Complete(byte[] payload) { }
+    }
+
+    sealed class FakeDeserializationContext(ReadOnlySequence<byte> payload) : DeserializationContext
+    {
+        public override int PayloadLength => (int)payload.Length;
+        public override ReadOnlySequence<byte> PayloadAsReadOnlySequence() => payload;
+        public override byte[] PayloadAsNewBuffer() => payload.ToArray();
+    }
+
     [Fact]
     public void Reflection_Needs_The_Protobuf_Wire_Format()
     {
@@ -132,6 +199,30 @@ public class ReflectedCommand : ICommand<ReflectedResult>
 public class ReflectedResult
 {
     public string FullName { get; set; } = "";
+}
+
+public class AwkwardCommand : ICommand<ReflectedResult>
+{
+    public Envelope<string>? Envelope { get; set; }
+    public Point? Location { get; set; }
+    public List<string> Tags { get; set; } = [];
+}
+
+public class Envelope<T>
+{
+    public T? Body { get; set; }
+}
+
+public struct Point
+{
+    public int X { get; set; }
+    public int Y { get; set; }
+}
+
+public class CollidingCommand : ICommand<ReflectedResult>
+{
+    public Billing.Address? Billing { get; set; }
+    public Shipping.Address? Shipping { get; set; }
 }
 
 public class ReflectedCommandHandler : ICommandHandler<ReflectedCommand, ReflectedResult>

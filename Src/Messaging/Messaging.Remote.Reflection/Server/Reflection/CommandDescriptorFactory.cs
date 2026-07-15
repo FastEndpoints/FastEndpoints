@@ -182,9 +182,9 @@ static class CommandDescriptorFactory
             TypeCode.Single => FieldDescriptorProto.Types.Type.Float,
             _ when t == typeof(byte[]) => FieldDescriptorProto.Types.Type.Bytes,
 
-            //DateTime/TimeSpan/decimal/Guid are serialized by protobuf-net as its own bcl.* messages, which would need
-            //those descriptors published alongside. describing them faithfully is the next increment - fail loudly
-            //rather than publish a schema that doesn't match the wire.
+            //BCL types excluded from IsMessage (DateTime/DateTimeOffset/DateOnly/TimeOnly/TimeSpan/decimal/Guid/Uri/...) are
+            //either protobuf-net bcl.* messages or other non-proto3 scalars. describing them faithfully is the next
+            //increment - fail loudly rather than publish a schema that doesn't match the wire (or an empty nested message).
             _ => throw new NotSupportedException(
                      $"gRPC reflection cannot yet describe the property type [{t.Name}]. Supported: string, bool, integral/floating types, " +
                      "enums, byte[], nested message types and collections of those.")

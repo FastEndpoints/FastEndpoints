@@ -73,9 +73,25 @@ public sealed class ProtobufMarshallerFactory : IRpcMarshallerFactory
                 meta.Add(number++, p.Name);
         }
 
-        //nested/repeated member types need registering too, and must be added before anything serializes this type
+        //nested/repeated member types need registering too, and must be added before anything serializes this type.
+        //non-message leaves (BCL scalars, collections' elements that aren't messages) are only valid when protobuf-net
+        //already has a serializer for them - otherwise we'd either write an empty sub-message (silent data loss) or
+        //blow up later on first serialize. fail here so handler bind / client Register surfaces the gap at startup.
         foreach (var vm in Model[t].GetFields())
-            Register(MemberType(vm));
+        {
+            var member = MemberType(vm);
+
+            if (IsMessage(member))
+                Register(member);
+            else if (!Model.CanSerialize(member))
+            {
+                throw new NotSupportedException(
+                    $"Protobuf marshaller cannot serialize property type [{member.FullName}] on [{t.FullName}]. " +
+                    "Use a type protobuf-net already supports (string, bool, integral/floating types, decimal, DateTime, " +
+                    "DateOnly, TimeOnly, TimeSpan, Guid, byte[], Uri, enums, nested messages and collections of those), " +
+                    "or annotate a supported surrogate with [ProtoContract]/[ProtoMember].");
+            }
+        }
     }
 
     //the type a member actually carries: the item type for a collection, unwrapped of Nullable<>
@@ -94,6 +110,29 @@ public sealed class ProtobufMarshallerFactory : IRpcMarshallerFactory
     internal static bool HasExplicitContract(Type t)
         => t.IsDefined(typeof(ProtoBuf.ProtoContractAttribute), false) || t.IsDefined(typeof(DataContractAttribute), false);
 
+    //BCL / framework types that must never be registered as empty attribute-free messages. several of these (DateTimeOffset,
+    //Version, Half, Int128, UInt128) have no public r/w properties, so Model.Add + zero fields used to serialize as 0A00 and
+    //deserialize as default - silent data loss. others (DateOnly/TimeOnly/Uri/DateTime/...) have inbuilt protobuf-net
+    //serializers and must stay non-messages so those serializers are used instead of a hollow contract.
+    static readonly HashSet<Type> _nonMessageTypes =
+    [
+        typeof(string),
+        typeof(decimal),
+        typeof(DateTime),
+        typeof(DateTimeOffset),
+        typeof(TimeSpan),
+        typeof(DateOnly),
+        typeof(TimeOnly),
+        typeof(Guid),
+        typeof(byte[]),
+        typeof(Uri),
+        typeof(Version),
+        typeof(Half),
+        typeof(Int128),
+        typeof(UInt128),
+        typeof(object)
+    ];
+
     //a "message" is a type protobuf can express as a top-level message. scalars, collections and nullable structs are not.
     //KeyValuePair is excluded on purpose: protobuf-net writes a dictionary as map entries, but its Key/Value are getter-only
     //so we'd describe it as an empty message. treating it as a non-message makes ProtoType throw, which skips the command
@@ -103,12 +142,7 @@ public sealed class ProtobufMarshallerFactory : IRpcMarshallerFactory
            Nullable.GetUnderlyingType(t) is null &&
            !t.IsPrimitive &&
            !t.IsEnum &&
-           t != typeof(string) &&
-           t != typeof(decimal) &&
-           t != typeof(DateTime) &&
-           t != typeof(TimeSpan) &&
-           t != typeof(Guid) &&
-           t != typeof(byte[]) &&
+           !_nonMessageTypes.Contains(t) &&
            ElementType(t) is null &&
            (t.IsClass || t.IsValueType);
 

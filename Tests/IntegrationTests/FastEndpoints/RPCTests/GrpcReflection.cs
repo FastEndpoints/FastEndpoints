@@ -1,4 +1,5 @@
 using System.Buffers;
+using System.Reflection;
 using Grpc.Core;
 using Grpc.Net.Client;
 using Grpc.Reflection.V1Alpha;
@@ -239,6 +240,68 @@ public class GrpcReflection
         RoundTrip(marshaller, [new() { FullName = "johnny" }]).ShouldHaveSingleItem().FullName.ShouldBe("johnny");
     }
 
+    //BCL types protobuf-net already serializes must round-trip through the attribute-free model - registering them as
+    //empty messages used to either silent-drop (DateTimeOffset) or blow up at Add (DateOnly/TimeOnly/Uri).
+    [Fact]
+    public void Marshals_Supported_Bcl_Property_Types()
+    {
+        var marshaller = new ProtobufMarshallerFactory().Create<SupportedBclCommand>();
+        var original = new SupportedBclCommand
+        {
+            Day = new(2024, 6, 15),
+            PlacedAt = new(2024, 6, 15, 12, 30, 0, DateTimeKind.Utc),
+            Id = Guid.Parse("11111111-2222-3333-4444-555555555555"),
+            Link = new("https://example.com/x"),
+            Amount = 123.45m,
+            Duration = TimeSpan.FromHours(1.5),
+            Time = new(12, 30, 0)
+        };
+
+        var back = RoundTrip(marshaller, original);
+
+        back.Day.ShouldBe(original.Day);
+        back.PlacedAt.ShouldBe(original.PlacedAt);
+        back.Id.ShouldBe(original.Id);
+        back.Link.ShouldBe(original.Link);
+        back.Amount.ShouldBe(original.Amount);
+        back.Duration.ShouldBe(original.Duration);
+        back.Time.ShouldBe(original.Time);
+    }
+
+    //DateTimeOffset (and similar BCL types with no public r/w props) used to be registered as empty messages: wire 0A00,
+    //deserialize default, no error. fail at Create/Register instead so FE↔FE traffic cannot silently drop data.
+    [Theory]
+    [InlineData(typeof(DateTimeOffsetCommand))]
+    [InlineData(typeof(HalfCommand))]
+    [InlineData(typeof(Int128Command))]
+    [InlineData(typeof(UInt128Command))]
+    [InlineData(typeof(VersionCommand))]
+    public void Unsupported_Bcl_Property_Types_Fail_At_Marshaller_Creation(Type commandType)
+    {
+        var create = typeof(ProtobufMarshallerFactory).GetMethod(nameof(ProtobufMarshallerFactory.Create))!
+                                                      .MakeGenericMethod(commandType);
+
+        Should.Throw<TargetInvocationException>(() => create.Invoke(new ProtobufMarshallerFactory(), null))
+              .InnerException.ShouldBeOfType<NotSupportedException>()
+              .Message.ShouldContain("cannot serialize property type");
+    }
+
+    //same denylist drives descriptors: these must be skipped with CommandNotDescribable, never published as empty nested messages.
+    [Theory]
+    [InlineData(typeof(DateTimeOffsetCommand))]
+    [InlineData(typeof(HalfCommand))]
+    [InlineData(typeof(Int128Command))]
+    [InlineData(typeof(UInt128Command))]
+    [InlineData(typeof(VersionCommand))]
+    [InlineData(typeof(SupportedBclCommand))] //DateTime/DateOnly/etc. still undescribable even though the wire works
+    public void Unsupported_Bcl_Shapes_Are_Skipped_Rather_Than_Mis_Described(Type tCommand)
+    {
+        var registry = new RpcSchemaRegistry();
+        registry.Add(tCommand.FullName!, MethodType.Unary, tCommand, typeof(ReflectedResult));
+
+        CommandDescriptorFactory.Build(registry, new ProtobufMarshallerFactory(), NullLogger.Instance).ShouldBeEmpty();
+    }
+
     [Fact]
     public void Reflection_Needs_The_Protobuf_Wire_Format()
     {
@@ -325,6 +388,44 @@ public class CollidingCommand : ICommand<ReflectedResult>
 public class UndescribableCommand : ICommand<ReflectedResult>
 {
     public DateTime PlacedOn { get; set; }
+}
+
+//wire works via protobuf-net inbuilts; descriptors still skip (bcl.* / non-proto3 scalars not published yet)
+public class SupportedBclCommand : ICommand<ReflectedResult>
+{
+    public decimal Amount { get; set; }
+    public DateOnly Day { get; set; }
+    public TimeSpan Duration { get; set; }
+    public Guid Id { get; set; }
+    public Uri? Link { get; set; }
+    public DateTime PlacedAt { get; set; }
+    public TimeOnly Time { get; set; }
+}
+
+//these used to silent-drop as empty messages; marshaller Create must throw instead
+public class DateTimeOffsetCommand : ICommand<ReflectedResult>
+{
+    public DateTimeOffset When { get; set; }
+}
+
+public class HalfCommand : ICommand<ReflectedResult>
+{
+    public Half Value { get; set; }
+}
+
+public class Int128Command : ICommand<ReflectedResult>
+{
+    public Int128 Value { get; set; }
+}
+
+public class UInt128Command : ICommand<ReflectedResult>
+{
+    public UInt128 Value { get; set; }
+}
+
+public class VersionCommand : ICommand<ReflectedResult>
+{
+    public Version? Value { get; set; }
 }
 
 public class ScalarResultCommand : ICommand<string>

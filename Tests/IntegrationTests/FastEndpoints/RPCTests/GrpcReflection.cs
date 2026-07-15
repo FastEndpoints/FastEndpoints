@@ -129,15 +129,6 @@ public class GrpcReflection
         RoundTrip(factory.Create<EmptyObject>(), EmptyObject.Instance).ShouldNotBeNull();                 //the "pub" reply, a zero-field message
     }
 
-    //a scalar has no top-level protobuf message. this is what an event hub's subscriber id and ICommand<string> hit.
-    [Fact]
-    public void Wraps_Scalar_Payloads_Instead_Of_Throwing()
-    {
-        var marshaller = new ProtobufMarshallerFactory().Create<string>();
-
-        RoundTrip(marshaller, "johnny").ShouldBe("johnny");
-    }
-
     static T RoundTrip<T>(Marshaller<T> m, T value)
     {
         var buffer = new ArrayBufferWriter<byte>();

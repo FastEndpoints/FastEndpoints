@@ -37,16 +37,11 @@ public sealed class ProtobufMarshallerFactory : IRpcMarshallerFactory
     /// <inheritdoc />
     public Marshaller<T> Create<T>() where T : class
     {
-        //protobuf has no top-level scalar, so an event hub's subscriber id or an ICommand<string> result is wrapped in a message
-        if (!IsMessage(typeof(T)))
-        {
-            //a collection payload (ICommand<List<Dto>>) is wrapped too, but the model still has to learn its element type
-            EnsureRegistered(ElementType(typeof(T)) ?? typeof(T));
-
-            return new ScalarMarshaller<T>(Model);
-        }
-
-        EnsureRegistered(typeof(T));
+        //protobuf has no top-level scalar, but protobuf-net already writes one (an event hub's subscriber id, an
+        //ICommand<string> result) as field 1 of an implicit message - so no explicit wrapper is needed here. the descriptor
+        //has to describe that same shape though, which CommandDescriptorFactory.BuildMessage does.
+        //a collection payload (ICommand<List<Dto>>) is wrapped the same way, but the model still has to learn its element type.
+        EnsureRegistered(ElementType(typeof(T)) ?? typeof(T));
 
         return new ProtobufMarshaller<T>(Model);
     }
@@ -144,26 +139,4 @@ sealed class ProtobufMarshaller<T>(RuntimeTypeModel model) : Marshaller<T>(Seria
 
     static Func<DeserializationContext, T> Deserialize(RuntimeTypeModel model)
         => ctx => model.Deserialize<T>(ctx.PayloadAsReadOnlySequence());
-}
-
-//carries a scalar (e.g. an event hub's subscriber id, or an ICommand<string> result) inside a one-field message, since
-//protobuf has no top-level scalar. client and server both go through this, so the wire stays symmetrical.
-sealed class ScalarMarshaller<T>(RuntimeTypeModel model) : Marshaller<T>(Serialize(model), Deserialize(model)) where T : class
-{
-    static Action<T, SerializationContext> Serialize(RuntimeTypeModel model)
-        => (value, ctx) =>
-           {
-               model.Serialize(ctx.GetBufferWriter(), new Scalar<T> { Value = value });
-               ctx.Complete();
-           };
-
-    static Func<DeserializationContext, T> Deserialize(RuntimeTypeModel model)
-        => ctx => model.Deserialize<Scalar<T>>(ctx.PayloadAsReadOnlySequence()).Value!;
-}
-
-[ProtoBuf.ProtoContract(Name = "Scalar")] //explicit contract - the name is fixed so the generated descriptor doesn't leak a generic arity suffix
-sealed class Scalar<T>
-{
-    [ProtoBuf.ProtoMember(1)]
-    public T? Value { get; set; }
 }

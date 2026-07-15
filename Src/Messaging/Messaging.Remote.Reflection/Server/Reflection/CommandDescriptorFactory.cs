@@ -92,7 +92,7 @@ static class CommandDescriptorFactory
         if (!names.TryAdd(t, MessageName(prefix, t)))
             return;
 
-        //a scalar command/result travels inside a one-field wrapper (see ScalarMarshaller), so there is no graph to walk
+        //a scalar command/result travels as field 1 of an implicit message, so there is no graph to walk
         if (!ProtobufMarshallerFactory.IsMessage(t))
             return;
 
@@ -122,13 +122,14 @@ static class CommandDescriptorFactory
     {
         var msg = new DescriptorProto { Name = name };
 
-        //mirrors the Scalar<T> wrapper ScalarMarshaller actually puts on the wire for a scalar command/result
+        //protobuf has no top-level scalar, so protobuf-net writes a scalar/collection command or result as field 1 of an
+        //implicit message. describe that same shape, or the payload can't be built from the published schema.
         if (!ProtobufMarshallerFactory.IsMessage(t))
         {
             msg.Field.Add(
                 new FieldDescriptorProto
                 {
-                    Name = nameof(Scalar<object>.Value),
+                    Name = "Value",
                     Number = 1,
                     Label = FieldDescriptorProto.Types.Label.Optional,
                     Type = ProtoType(t)

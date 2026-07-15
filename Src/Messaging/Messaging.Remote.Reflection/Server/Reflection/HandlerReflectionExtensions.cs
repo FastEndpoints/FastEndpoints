@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using ServiceDescriptor = Google.Protobuf.Reflection.ServiceDescriptor;
 
@@ -74,4 +73,3 @@ sealed class RpcDescriptors(RpcSchemaRegistry registry, IRpcMarshallerFactory ma
 {
     internal IReadOnlyList<ServiceDescriptor> Services { get; } = CommandDescriptorFactory.Build(registry, marshaller, logger);
 }
-

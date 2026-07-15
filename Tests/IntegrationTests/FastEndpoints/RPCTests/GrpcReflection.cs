@@ -3,7 +3,6 @@ using Grpc.Core;
 using Grpc.Net.Client;
 using Grpc.Reflection.V1Alpha;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -124,9 +123,9 @@ public class GrpcReflection
     {
         var factory = new ProtobufMarshallerFactory();
 
-        RoundTrip(factory.Create<string>(), "subscriber-1").ShouldBe("subscriber-1");                     //the "sub" request
-        RoundTrip(factory.Create<ReflectedEvent>(), new() { Message = "hi" }).Message.ShouldBe("hi");     //the streamed event
-        RoundTrip(factory.Create<EmptyObject>(), EmptyObject.Instance).ShouldNotBeNull();                 //the "pub" reply, a zero-field message
+        RoundTrip(factory.Create<string>(), "subscriber-1").ShouldBe("subscriber-1");                 //the "sub" request
+        RoundTrip(factory.Create<ReflectedEvent>(), new() { Message = "hi" }).Message.ShouldBe("hi"); //the streamed event
+        RoundTrip(factory.Create<EmptyObject>(), EmptyObject.Instance).ShouldNotBeNull();             //the "pub" reply, a zero-field message
     }
 
     static T RoundTrip<T>(Marshaller<T> m, T value)
@@ -140,7 +139,9 @@ public class GrpcReflection
 
     sealed class FakeSerializationContext(IBufferWriter<byte> writer) : SerializationContext
     {
-        public override IBufferWriter<byte> GetBufferWriter() => writer;
+        public override IBufferWriter<byte> GetBufferWriter()
+            => writer;
+
         public override void Complete() { }
         public override void Complete(byte[] payload) { }
     }
@@ -148,8 +149,12 @@ public class GrpcReflection
     sealed class FakeDeserializationContext(ReadOnlySequence<byte> payload) : DeserializationContext
     {
         public override int PayloadLength => (int)payload.Length;
-        public override ReadOnlySequence<byte> PayloadAsReadOnlySequence() => payload;
-        public override byte[] PayloadAsNewBuffer() => payload.ToArray();
+
+        public override ReadOnlySequence<byte> PayloadAsReadOnlySequence()
+            => payload;
+
+        public override byte[] PayloadAsNewBuffer()
+            => payload.ToArray();
     }
 
     //a command that can't be described must not take every other handler's schema down with it. all descriptors used to be
@@ -198,9 +203,7 @@ public class GrpcReflection
 
     //shapes the wire handles but the descriptor can't map. they must be skipped with a warning, never mis-described:
     //a dictionary used to be published as a "repeated empty message" while the wire carried real entries.
-    [Theory]
-    [InlineData(typeof(DictionaryCommand))]
-    [InlineData(typeof(Outer.NestedCommand))]
+    [Theory, InlineData(typeof(DictionaryCommand)), InlineData(typeof(Outer.NestedCommand))]
     public void Undescribable_Shapes_Are_Skipped_Rather_Than_Mis_Described(Type tCommand)
     {
         var registry = new RpcSchemaRegistry();
@@ -211,11 +214,8 @@ public class GrpcReflection
 
     //the descriptor has to describe the streaming shape the handler is actually bound with, or grpcurl and every generated
     //client get the call semantics wrong. nothing asserted these flags, so they could have been inverted unnoticed.
-    [Theory]
-    [InlineData(MethodType.Unary, false, false)]
-    [InlineData(MethodType.ServerStreaming, false, true)]
-    [InlineData(MethodType.ClientStreaming, true, false)]
-    [InlineData(MethodType.DuplexStreaming, true, true)]
+    [Theory, InlineData(MethodType.Unary, false, false), InlineData(MethodType.ServerStreaming, false, true), InlineData(MethodType.ClientStreaming, true, false),
+     InlineData(MethodType.DuplexStreaming, true, true)]
     public void Describes_The_Streaming_Shape_Of_A_Handler(MethodType methodType, bool clientStreaming, bool serverStreaming)
     {
         var registry = new RpcSchemaRegistry();
@@ -269,9 +269,9 @@ public class GrpcReflection
     {
         var channel = GrpcChannel.ForAddress(
             "http://localhost", //ignored - the in-memory test handler does the transport
-            new GrpcChannelOptions { HttpHandler = server.GetTestServer().CreateHandler() });
+            new() { HttpHandler = server.GetTestServer().CreateHandler() });
 
-        return new ServerReflection.ServerReflectionClient(channel);
+        return new(channel);
     }
 
     static async Task<ServerReflectionResponse> SingleAsync(ServerReflection.ServerReflectionClient client, ServerReflectionRequest req)

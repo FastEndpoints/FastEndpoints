@@ -12,9 +12,9 @@ Please [join the discussion here](https://github.com/FastEndpoints/FastEndpoints
 
 <details><summary>gRPC reflection support for remote command handlers</summary>
 
-Remote command handlers can now be discovered and described via standard gRPC server reflection, so tooling such as grpcurl and Postman works against a handler server without a hand-authored `.proto` file, and any protoc/buf toolchain can generate clients for non-dotnet consumers.
+Remote command handlers can now be discovered and described via standard gRPC server reflection, so grpcurl and Postman work against a handler server without a hand-authored `.proto`, and any protoc/buf toolchain can generate clients for non-dotnet consumers. It lives in the new opt-in `FastEndpoints.Messaging.Remote.Reflection` package.
 
-Reflection describes a protobuf schema, so it requires the handler server to be using the protobuf wire format instead of the default MessagePack. The wire format is now pluggable via `IRpcMarshallerFactory`, and a `ProtobufMarshallerFactory` is included. Command and result types need no protobuf attributes: their public properties are mapped alphabetically and numbered from 1, mirroring the contractless shape of the MessagePack format. The descriptors published by reflection are generated from the very same model that serializes the wire, so the published schema can't drift from the bytes.
+Reflection describes a protobuf schema, so the server has to be speaking protobuf rather than the default MessagePack. The wire format is now pluggable via `IRpcMarshallerFactory`, and `ProtobufMarshallerFactory` is included. Command types need no protobuf attributes — their public properties are mapped alphabetically and numbered from 1 — and the descriptors are generated from the very same model that serializes the wire, so the published schema can't drift from the bytes.
 
 ```csharp
 // server: opt in to the protobuf wire format + reflection
@@ -22,24 +22,19 @@ bld.AddHandlerServer(marshaller: new ProtobufMarshallerFactory());
 bld.Services.AddHandlerReflection();
 
 app.MapHandlers(h => h.Register<MyCommand, MyCommandHandler, MyResult>());
-app.MapHandlerReflection();
+app.MapHandlerReflection(); // returns a builder, so .RequireAuthorization() can be chained
 
-// client: use the matching wire format
+// client: the matching wire format, set before registering anything
 app.MapRemote("http://localhost:6000", c =>
 {
-    c.MarshallerFactory = new ProtobufMarshallerFactory(); // set before registering
+    c.MarshallerFactory = new ProtobufMarshallerFactory();
     c.Register<MyCommand, MyResult>();
 });
 ```
 
-```sh
-grpcurl -plaintext localhost:6000 list
-grpcurl -plaintext -d '{"FirstName":"johnny"}' localhost:6000 My.Namespace.MyCommand/Execute
-```
+The default MessagePack format is untouched. Protobuf descriptors can't express an empty method name, which is what commands have always been bound under, so protobuf-mode commands bind as `Execute` on both sides — MessagePack keeps the empty name, so existing clients are unaffected.
 
-The default MessagePack format and everything about existing servers/clients is unchanged. Note that protobuf descriptors cannot represent an empty method name, which is what FastEndpoints has always bound commands under, so protobuf-mode commands are bound under a real method name (`Execute`) on both the server and the client. This only applies when the protobuf marshaller is opted into.
-
-Current limitations of the protobuf format: commands with primitive results (e.g. `ICommand<string>`) and event hubs need a wrapper message and are not supported yet, and `DateTime`/`TimeSpan`/`decimal`/`Guid` properties are not described yet.
+Attribute-free field numbers are positional: adding or renaming a property renumbers the ones after it and breaks already-generated clients. Annotate `[ProtoContract]`/`[ProtoMember(n)]` to pin a contract that has to survive changes — an explicit contract is honoured as authored. `DateTime`/`TimeSpan`/`decimal`/`Guid` properties aren't described yet; such a command is skipped with a warning and still executes normally.
 
 </details>
 

@@ -44,6 +44,7 @@ AOT tests: use `NativeAot.slnx` (publish workflow currently has AOT test step co
 - Integration xunit runner: CI may rewrite `Tests/IntegrationTests/FastEndpoints/xunit.runner.json` to disable parallelization (Azure pipeline step).
 - No external DB required for core suite; job storage tests use in-memory/test providers in harness/tests.
 - Job queue idempotency unit coverage: `Tests/UnitTests/FastEndpoints/JobQueueTests.Idempotency.cs` (+ fixtures in `JobQueueTests.Fixtures.cs`). Harness `TestStorageProvider` implements `IHasIdempotencyKey` and throws `DuplicateJobException`.
+- gRPC reflection coverage: `Tests/IntegrationTests/FastEndpoints/RPCTests/GrpcReflection.cs` (+ same-simple-name fixtures in `GrpcReflection.Fixtures.cs`). Descriptor generation is asserted directly; only the list/describe and protobuf round-trip tests stand up a server. Do not add a live event hub there — see gotchas.
 - NativeAotChecker AOT/harness coverage: `UseJobQueues(... IdempotencyKeyFor<IdempotentEchoCommand>(c => c.OrderId))`, endpoint `job-queue/idempotent`, test `Tests/NativeAotTests/NativeAotCheckerTests/Jobs/JobQueueIdempotencyTests.cs`.
 
 ## Expectations

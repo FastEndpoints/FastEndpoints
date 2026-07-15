@@ -175,6 +175,79 @@ public class GrpcReflection
         descriptors.ShouldHaveSingleItem().FullName.ShouldBe(typeof(ReflectedCommand).FullName);
     }
 
+    //ICommand<string> travels inside the Scalar<T> wrapper, so the descriptor has to publish that same wrapper.
+    //it used to be dropped from the listing entirely: the model has no entry for a scalar, so building the file threw.
+    [Fact]
+    public void Describes_A_Command_With_A_Scalar_Result()
+    {
+        var registry = new RpcSchemaRegistry();
+        registry.Add(typeof(ScalarResultCommand).FullName!, MethodType.Unary, typeof(ScalarResultCommand), typeof(string));
+
+        var svc = CommandDescriptorFactory.Build(registry, new ProtobufMarshallerFactory(), NullLogger.Instance).ShouldHaveSingleItem();
+        var output = svc.Methods.ShouldHaveSingleItem().OutputType;
+
+        //matches what ScalarMarshaller actually writes: a one-field wrapper
+        output.Fields.InFieldNumberOrder().Select(f => f.Name).ShouldBe(["Value"]);
+    }
+
+    //the generated message names must not carry the assembly version, or a version bump renames every generic symbol
+    //and breaks already-generated clients
+    [Fact]
+    public void Generic_Message_Names_Are_Version_Independent()
+    {
+        var registry = new RpcSchemaRegistry();
+        registry.Add(typeof(AwkwardCommand).FullName!, MethodType.Unary, typeof(AwkwardCommand), typeof(ReflectedResult));
+
+        var svc = CommandDescriptorFactory.Build(registry, new ProtobufMarshallerFactory(), NullLogger.Instance).ShouldHaveSingleItem();
+        var envelope = svc.Methods.ShouldHaveSingleItem().InputType.Fields.InFieldNumberOrder().Single(f => f.Name == nameof(AwkwardCommand.Envelope));
+
+        envelope.MessageType.FullName.ShouldNotContain("Version");
+        envelope.MessageType.FullName.ShouldNotContain("PublicKeyToken");
+    }
+
+    //shapes the wire handles but the descriptor can't map. they must be skipped with a warning, never mis-described:
+    //a dictionary used to be published as a "repeated empty message" while the wire carried real entries.
+    [Theory]
+    [InlineData(typeof(DictionaryCommand))]
+    [InlineData(typeof(Outer.NestedCommand))]
+    public void Undescribable_Shapes_Are_Skipped_Rather_Than_Mis_Described(Type tCommand)
+    {
+        var registry = new RpcSchemaRegistry();
+        registry.Add(tCommand.FullName!, MethodType.Unary, tCommand, typeof(ReflectedResult));
+
+        CommandDescriptorFactory.Build(registry, new ProtobufMarshallerFactory(), NullLogger.Instance).ShouldBeEmpty();
+    }
+
+    //the descriptor has to describe the streaming shape the handler is actually bound with, or grpcurl and every generated
+    //client get the call semantics wrong. nothing asserted these flags, so they could have been inverted unnoticed.
+    [Theory]
+    [InlineData(MethodType.Unary, false, false)]
+    [InlineData(MethodType.ServerStreaming, false, true)]
+    [InlineData(MethodType.ClientStreaming, true, false)]
+    [InlineData(MethodType.DuplexStreaming, true, true)]
+    public void Describes_The_Streaming_Shape_Of_A_Handler(MethodType methodType, bool clientStreaming, bool serverStreaming)
+    {
+        var registry = new RpcSchemaRegistry();
+        registry.Add(typeof(ReflectedCommand).FullName!, methodType, typeof(ReflectedCommand), typeof(ReflectedResult));
+
+        var method = CommandDescriptorFactory.Build(registry, new ProtobufMarshallerFactory(), NullLogger.Instance)
+                                             .ShouldHaveSingleItem()
+                                             .Methods.ShouldHaveSingleItem();
+
+        method.IsClientStreaming.ShouldBe(clientStreaming);
+        method.IsServerStreaming.ShouldBe(serverStreaming);
+    }
+
+    //ICommand<List<Dto>> is wrapped like any other scalar, but the model still has to learn the element type or every
+    //call fails at runtime with "no serializer for Dto"
+    [Fact]
+    public void Marshals_A_Collection_Payload()
+    {
+        var marshaller = new ProtobufMarshallerFactory().Create<List<ReflectedResult>>();
+
+        RoundTrip(marshaller, [new() { FullName = "johnny" }]).ShouldHaveSingleItem().FullName.ShouldBe("johnny");
+    }
+
     [Fact]
     public void Reflection_Needs_The_Protobuf_Wire_Format()
     {
@@ -261,6 +334,26 @@ public class CollidingCommand : ICommand<ReflectedResult>
 public class UndescribableCommand : ICommand<ReflectedResult>
 {
     public DateTime PlacedOn { get; set; }
+}
+
+public class ScalarResultCommand : ICommand<string>
+{
+    public string Name { get; set; } = "";
+}
+
+//a dictionary round-trips fine on the wire, but KeyValuePair's Key/Value are getter-only so it can't be described
+public class DictionaryCommand : ICommand<ReflectedResult>
+{
+    public Dictionary<string, string> Meta { get; set; } = [];
+}
+
+public class Outer
+{
+    //a nested type's FullName is "Ns.Outer+NestedCommand" and '+' is not a legal protobuf identifier
+    public class NestedCommand : ICommand<ReflectedResult>
+    {
+        public string Name { get; set; } = "";
+    }
 }
 
 public class ReflectedCommandHandler : ICommandHandler<ReflectedCommand, ReflectedResult>

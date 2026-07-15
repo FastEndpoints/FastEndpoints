@@ -48,13 +48,20 @@ public static class HandlerReflectionExtensions
     /// <param name="b"></param>
     public static IEndpointConventionBuilder MapHandlerReflection(this IEndpointRouteBuilder b)
     {
-        //surface an unusable configuration (e.g. reflection without the protobuf marshaller) while the app is starting,
-        //instead of on some user's first grpcurl call.
-        b.ServiceProvider.GetRequiredService<IHostApplicationLifetime>()
-         .ApplicationStarted.Register(() => b.ServiceProvider.GetRequiredService<RpcDescriptors>());
+        //fail here rather than on some user's first grpcurl call. checked eagerly on the startup path, because the
+        //descriptor build itself has to stay lazy (the registry is only filled as handlers bind) and anything thrown from
+        //an ApplicationStarted callback is swallowed and merely logged.
+        if (b.ServiceProvider.GetRequiredService<IRpcMarshallerFactory>() is not ProtobufMarshallerFactory)
+        {
+            throw new InvalidOperationException(
+                $"gRPC reflection needs a protobuf wire format. Supply a [{nameof(ProtobufMarshallerFactory)}] via AddHandlerServer(marshaller: ...). " +
+                "The default messagepack format has no protobuf descriptors to publish.");
+        }
 
         //both versions are mapped: modern grpcurl asks for v1 and falls back to v1alpha for older servers.
-        return new CompositeEndpointConventionBuilder(
+        //RouteHandlerBuilder is just the BCL's fan-out over several convention builders, so conventions
+        //(.RequireAuthorization() etc.) reach both endpoints.
+        return new RouteHandlerBuilder(
         [
             b.MapGrpcService<ReflectionServiceImpl>(),
             b.MapGrpcService<ReflectionV1ServiceImpl>()
@@ -68,17 +75,3 @@ sealed class RpcDescriptors(RpcSchemaRegistry registry, IRpcMarshallerFactory ma
     internal IReadOnlyList<ServiceDescriptor> Services { get; } = CommandDescriptorFactory.Build(registry, marshaller, logger);
 }
 
-sealed class CompositeEndpointConventionBuilder(IReadOnlyList<IEndpointConventionBuilder> builders) : IEndpointConventionBuilder
-{
-    public void Add(Action<EndpointBuilder> convention)
-    {
-        foreach (var b in builders)
-            b.Add(convention);
-    }
-
-    public void Finally(Action<EndpointBuilder> finalConvention)
-    {
-        foreach (var b in builders)
-            b.Finally(finalConvention);
-    }
-}

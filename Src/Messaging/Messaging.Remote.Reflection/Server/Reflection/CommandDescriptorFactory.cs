@@ -31,9 +31,14 @@ static class CommandDescriptorFactory
             {
                 descriptors.AddRange(FileDescriptor.BuildFromByteStrings([BuildFile(svc, protobuf).ToByteString()])[0].Services);
             }
+            catch (NotSupportedException ex)
+            {
+                logger.CommandNotDescribable(svc.ServiceName, ex.Message); //a shape we knowingly don't map yet
+            }
             catch (Exception ex)
             {
-                logger.CommandNotDescribable(svc.ServiceName, ex.Message);
+                //not an expected gap. still skipped so one command can't take the rest down, but logged as the bug it is.
+                logger.CommandDescriptorFailure(ex, svc.ServiceName);
             }
         }
 
@@ -42,6 +47,11 @@ static class CommandDescriptorFactory
 
     static FileDescriptorProto BuildFile(RpcServiceSchema svc, ProtobufMarshallerFactory protobuf)
     {
+        //a nested type's FullName is "Ns.Outer+Inner", and '+' can't appear in a protobuf identifier. describing it as
+        //"Ns.Inner" would publish a service name the server never bound, so skip it rather than lie about the route.
+        if (svc.CommandType.IsNested)
+            throw new NotSupportedException($"Nested command types can't be described: [{svc.ServiceName}] has no legal protobuf equivalent.");
+
         var package = svc.CommandType.Namespace ?? "";
 
         var fdp = new FileDescriptorProto
@@ -82,6 +92,10 @@ static class CommandDescriptorFactory
         if (!names.TryAdd(t, MessageName(prefix, t)))
             return;
 
+        //a scalar command/result travels inside a one-field wrapper (see ScalarMarshaller), so there is no graph to walk
+        if (!ProtobufMarshallerFactory.IsMessage(t))
+            return;
+
         protobuf.EnsureRegistered(t);
 
         foreach (var member in protobuf.Model[t].GetFields().Select(ProtobufMarshallerFactory.MemberType).Where(ProtobufMarshallerFactory.IsMessage))
@@ -90,22 +104,38 @@ static class CommandDescriptorFactory
 
     //messages are prefixed with the command's simple name so two services in one namespace can't collide on a shared type,
     //and so no message can shadow the service itself. the namespace is folded in because two types with the same simple name
-    //in different namespaces would otherwise collide, and generic arity ticks aren't legal proto identifiers.
+    //in different namespaces would otherwise collide.
     static string MessageName(string prefix, Type t)
-        => $"{prefix}__{Sanitize(t.FullName ?? t.Name)}";
+        => $"{prefix}__{Sanitize(TypeName(t))}";
+
+    //deliberately not Type.FullName: for a generic that includes assembly-qualified arguments, so every message symbol would
+    //be renamed by an assembly version bump and break already-generated clients.
+    static string TypeName(Type t)
+        => t.IsGenericType
+               ? $"{t.Namespace}.{t.Name}.{string.Join('.', t.GetGenericArguments().Select(TypeName))}"
+               : $"{t.Namespace}.{t.Name}";
 
     static string Sanitize(string name)
-    {
-        Span<char> buffer = stackalloc char[name.Length];
-        for (var i = 0; i < name.Length; i++)
-            buffer[i] = char.IsLetterOrDigit(name[i]) ? name[i] : '_';
-
-        return new(buffer);
-    }
+        => new([.. name.Select(c => char.IsLetterOrDigit(c) ? c : '_')]);
 
     static DescriptorProto BuildMessage(Type t, string name, string package, Dictionary<Type, string> names, ProtobufMarshallerFactory protobuf)
     {
         var msg = new DescriptorProto { Name = name };
+
+        //mirrors the Scalar<T> wrapper ScalarMarshaller actually puts on the wire for a scalar command/result
+        if (!ProtobufMarshallerFactory.IsMessage(t))
+        {
+            msg.Field.Add(
+                new FieldDescriptorProto
+                {
+                    Name = nameof(Scalar<object>.Value),
+                    Number = 1,
+                    Label = FieldDescriptorProto.Types.Label.Optional,
+                    Type = ProtoType(t)
+                });
+
+            return msg;
+        }
 
         foreach (var vm in protobuf.Model[t].GetFields())
         {

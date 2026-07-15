@@ -21,8 +21,9 @@ namespace FastEndpoints;
 /// </summary>
 public sealed class ProtobufMarshallerFactory : IRpcMarshallerFactory
 {
-    //the single source of truth for field numbers - grpc reflection descriptors are generated from this same model,
-    //so the bytes on the wire and the published schema cannot drift apart.
+    //the single source of truth for field numbers: reflection descriptors read their numbers back out of this same model.
+    //note that only the *numbering* is shared - the CLR->proto type mapping in CommandDescriptorFactory is separate, so a
+    //type it can't map is skipped there rather than mis-described.
     internal RuntimeTypeModel Model { get; } = RuntimeTypeModel.Create();
 
     readonly object _lock = new();
@@ -38,7 +39,12 @@ public sealed class ProtobufMarshallerFactory : IRpcMarshallerFactory
     {
         //protobuf has no top-level scalar, so an event hub's subscriber id or an ICommand<string> result is wrapped in a message
         if (!IsMessage(typeof(T)))
+        {
+            //a collection payload (ICommand<List<Dto>>) is wrapped too, but the model still has to learn its element type
+            EnsureRegistered(ElementType(typeof(T)) ?? typeof(T));
+
             return new ScalarMarshaller<T>(Model);
+        }
 
         EnsureRegistered(typeof(T));
 
@@ -94,8 +100,12 @@ public sealed class ProtobufMarshallerFactory : IRpcMarshallerFactory
         => t.IsDefined(typeof(ProtoBuf.ProtoContractAttribute), false) || t.IsDefined(typeof(DataContractAttribute), false);
 
     //a "message" is a type protobuf can express as a top-level message. scalars, collections and nullable structs are not.
+    //KeyValuePair is excluded on purpose: protobuf-net writes a dictionary as map entries, but its Key/Value are getter-only
+    //so we'd describe it as an empty message. treating it as a non-message makes ProtoType throw, which skips the command
+    //loudly rather than publishing a schema that says "list of empty objects".
     internal static bool IsMessage(Type t)
-        => Nullable.GetUnderlyingType(t) is null &&
+        => !(t.IsGenericType && t.GetGenericTypeDefinition() == typeof(KeyValuePair<,>)) &&
+           Nullable.GetUnderlyingType(t) is null &&
            !t.IsPrimitive &&
            !t.IsEnum &&
            t != typeof(string) &&

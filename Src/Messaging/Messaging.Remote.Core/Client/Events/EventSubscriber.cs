@@ -28,11 +28,11 @@ sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProv
     readonly string _subscriberID;
     readonly TimeSpan _eventRecordExpiry;
 
-    public EventSubscriber(ChannelBase channel, string clientIdentifier, IServiceProvider serviceProvider)
-        : this(channel, clientIdentifier, null, serviceProvider) { }
+    public EventSubscriber(ChannelBase channel, string clientIdentifier, IServiceProvider serviceProvider, IRpcMarshallerFactory marshaller)
+        : this(channel, clientIdentifier, null, serviceProvider, marshaller) { }
 
-    public EventSubscriber(ChannelBase channel, string clientIdentifier, string? subscriberID, IServiceProvider serviceProvider)
-        : base(channel: channel, methodType: MethodType.ServerStreaming, endpointName: $"{_eventTypeName}/sub")
+    public EventSubscriber(ChannelBase channel, string clientIdentifier, string? subscriberID, IServiceProvider serviceProvider, IRpcMarshallerFactory marshaller)
+        : base(channel: channel, methodType: MethodType.ServerStreaming, marshaller: marshaller, endpointName: $"{_eventTypeName}/sub")
     {
         _subscriberID = SubscriberIDFactory.Create(subscriberID, clientIdentifier, GetType(), channel.Target);
         _serviceProvider = serviceProvider;

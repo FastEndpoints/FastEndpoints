@@ -104,6 +104,30 @@ Null/empty/whitespace keys from the selector are treated as no key and are not d
 
 </details>
 
+<details><summary>gRPC reflection support for remote command handlers</summary>
+
+Remote command handlers can now be discovered and described via standard gRPC server reflection, so grpcurl and Postman work against a handler server without a hand-authored `.proto`, and any protoc/buf toolchain can generate clients for non-dotnet consumers. It lives in the new opt-in `FastEndpoints.Messaging.Remote.Reflection` package.
+
+Reflection describes a protobuf schema, so the server has to be speaking protobuf rather than the default MessagePack. The wire format is now pluggable via `IRpcMarshallerFactory`, and `ProtobufMarshallerFactory` is included. Command types need no protobuf attributes, and their public properties are mapped alphabetically and numbered from 1. The descriptors are generated from the very same model that serializes to the wire, so the published schema can't drift from the bytes.
+
+```csharp
+// server: opt in to the protobuf wire format + reflection
+bld.AddHandlerServer(marshaller: new ProtobufMarshallerFactory());
+bld.Services.AddHandlerReflection();
+
+app.MapHandlers(h => h.Register<MyCommand, MyCommandHandler, MyResult>());
+app.MapHandlerReflection(); // returns a builder, so .RequireAuthorization() can be chained
+
+// client: the matching wire format, set before registering anything
+app.MapRemote("http://localhost:6000", c =>
+{
+    c.MarshallerFactory = new ProtobufMarshallerFactory();
+    c.Register<MyCommand, MyResult>();
+});
+```
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>Conditional FluentValidation presence rules no longer make OpenAPI properties required</summary>

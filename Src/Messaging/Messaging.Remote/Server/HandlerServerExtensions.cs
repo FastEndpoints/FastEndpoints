@@ -21,8 +21,9 @@ public static class HandlerServerExtensions
     /// </summary>
     /// <param name="bld"></param>
     /// <param name="o">optional grpc service settings</param>
-    public static IGrpcServerBuilder AddHandlerServer(this WebApplicationBuilder bld, Action<GrpcServiceOptions>? o = null)
-        => AddHandlerServer(bld.Services, o);
+    /// <param name="marshaller">optional wire-format marshaller factory. defaults to messagepack. supply a custom one (e.g. protobuf) for cross-ecosystem interop.</param>
+    public static IGrpcServerBuilder AddHandlerServer(this WebApplicationBuilder bld, Action<GrpcServiceOptions>? o = null, IRpcMarshallerFactory? marshaller = null)
+        => AddHandlerServer(bld.Services, o, marshaller);
 
     /// <summary>
     /// configure the handler server which will host a collection of command handlers. this should only be called once per application.
@@ -33,7 +34,8 @@ public static class HandlerServerExtensions
     /// </summary>
     /// <param name="sc"></param>
     /// <param name="o">optional grpc service settings</param>
-    public static IGrpcServerBuilder AddHandlerServer(this IServiceCollection sc, Action<GrpcServiceOptions>? o = null)
+    /// <param name="marshaller">optional wire-format marshaller factory. defaults to messagepack. supply a custom one (e.g. protobuf) for cross-ecosystem interop.</param>
+    public static IGrpcServerBuilder AddHandlerServer(this IServiceCollection sc, Action<GrpcServiceOptions>? o = null, IRpcMarshallerFactory? marshaller = null)
     {
         sc.TryAddSingleton(typeof(VoidHandlerExecutor<,>));
         sc.TryAddSingleton(typeof(UnaryHandlerExecutor<,,>));
@@ -42,6 +44,13 @@ public static class HandlerServerExtensions
         sc.AddHostedService<EventHubInitializer>();
         sc.TryAddSingleton(typeof(EventHub<,,>));
         sc.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IServiceMethodProvider<>), typeof(ServiceMethodProvider<>)));
+
+        if (marshaller is not null)
+            sc.AddSingleton(marshaller);
+
+        sc.TryAddSingleton<IRpcMarshallerFactory>(MessagePackMarshallerFactory.Instance); //no-ops when a factory was supplied or pre-registered
+
+        sc.TryAddSingleton<RpcSchemaRegistry>(); //populated as each handler binds; read by grpc reflection
 
         return sc.AddGrpc(DefaultOpts + o);
 

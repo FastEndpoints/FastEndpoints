@@ -105,7 +105,9 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
 
     static readonly string[] _httPost = ["POST"];
 
-    public void Bind(ServiceMethodProviderContext<EventHub<TEvent, TStorageRecord, TStorageProvider>> ctx)
+    //note: event hubs are not added to the schema registry - the "sub" method takes a bare subscriber id string, which has
+    //no top-level protobuf message equivalent, so grpc reflection does not describe hubs.
+    public void Bind(ServiceMethodProviderContext<EventHub<TEvent, TStorageRecord, TStorageProvider>> ctx, IRpcMarshallerFactory marshaller, RpcSchemaRegistry schema)
     {
         // ReSharper disable once UseSymbolAlias
         var metadata = new List<object>();
@@ -118,8 +120,8 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
             type: MethodType.ServerStreaming,
             serviceName: _tEvent.FullName!,
             name: "sub",
-            requestMarshaller: new MessagePackMarshaller<string>(),
-            responseMarshaller: new MessagePackMarshaller<TEvent>());
+            requestMarshaller: marshaller.Create<string>(),
+            responseMarshaller: marshaller.Create<TEvent>());
 
         ctx.AddServerStreamingMethod(sub, metadata, OnSubscriberConnected);
 
@@ -130,8 +132,8 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
             type: MethodType.Unary,
             serviceName: _tEvent.FullName!,
             name: "pub",
-            requestMarshaller: new MessagePackMarshaller<TEvent>(),
-            responseMarshaller: new MessagePackMarshaller<EmptyObject>());
+            requestMarshaller: marshaller.Create<TEvent>(),
+            responseMarshaller: marshaller.Create<EmptyObject>());
 
         ctx.AddUnaryMethod(pub, metadata, OnEventReceived);
     }

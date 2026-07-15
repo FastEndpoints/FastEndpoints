@@ -7,8 +7,8 @@ interface IClientStreamCommandExecutor<in TCommand, TResult> : ICommandExecutor 
     Task<TResult> ExecuteClientStream(IAsyncEnumerable<TCommand> commands, CallOptions opts);
 }
 
-sealed class ClientStreamCommandExecutor<TCommand, TResult>(ChannelBase channel)
-    : BaseCommandExecutor<TCommand, TResult>(channel: channel, methodType: MethodType.ClientStreaming), IClientStreamCommandExecutor<TCommand, TResult>
+sealed class ClientStreamCommandExecutor<TCommand, TResult>(ChannelBase channel, IRpcMarshallerFactory marshaller)
+    : BaseCommandExecutor<TCommand, TResult>(channel: channel, methodType: MethodType.ClientStreaming, marshaller: marshaller), IClientStreamCommandExecutor<TCommand, TResult>
     where TCommand : class
     where TResult : class
 {

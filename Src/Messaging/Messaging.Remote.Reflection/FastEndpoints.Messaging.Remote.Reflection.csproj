@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <NoWarn>CS1591</NoWarn>
+        <Description>gRPC server reflection and protobuf wire format for FastEndpoints remote command handlers.</Description>
+        <IsAotCompatible>false</IsAotCompatible> <!-- todo: make lib aot compatible -->
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Messaging.Remote\FastEndpoints.Messaging.Remote.csproj"/>
+
+        <PackageReference Include="Grpc.Reflection"/>
+        <PackageReference Include="protobuf-net"/>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\..\icon.png" Pack="true" PackagePath="\" Link="Content\Icon" Visible="false"/>
+    </ItemGroup>
+
+</Project>

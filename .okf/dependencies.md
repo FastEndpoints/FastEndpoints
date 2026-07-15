@@ -27,7 +27,8 @@ tags: [deps]
 | Microsoft.AspNetCore.OpenApi / Scalar.AspNetCore | OpenAPI docs (modern path) |
 | NSwag.* | Legacy Swagger/ClientGen (deprecate note in Directory.Packages.props) |
 | Grpc.AspNetCore.Server / Grpc.Net.Client* | Remote messaging |
-| MessagePack | RPC marshalling |
+| MessagePack | Default RPC marshalling |
+| protobuf-net / Grpc.Reflection | Protobuf wire format + gRPC reflection (Messaging.Remote.Reflection only) |
 | Microsoft.AspNetCore.OData | OData package |
 | ModelContextProtocol.AspNetCore | Agents MCP |
 | Microsoft.CodeAnalysis.CSharp **[4.11.0]** | Generators — pinned for net8 compatibility (comment in props) |

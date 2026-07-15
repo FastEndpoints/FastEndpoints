@@ -41,7 +41,7 @@ Attributes / Messaging.Core
 | `FastEndpoints.Generator` | Roslyn generators (discovered types, ACL, reflection cache, service registration, generic processors) |
 | `FastEndpoints.Generator.Cli` | Build-time JSON serializer context generation |
 | `FastEndpoints.Testing` | `AppFixture`, collection fixtures, WAF cache for integration tests |
-| Messaging.Remote* | gRPC RPC for remote command/event execution (MessagePack) |
+| Messaging.Remote* | gRPC RPC for remote command/event execution (MessagePack by default; wire format pluggable) |
 
 **Request path (simplified):** `AddFastEndpoints` registers discovery data → `UseFastEndpoints`/`MapFastEndpoints` maps routes → `FeRequestHandler` resolves endpoint instance → bind → validate → pre-processors → `HandleAsync` → post-processors → send response.
 
@@ -56,7 +56,13 @@ Attributes / Messaging.Core
 ## Communication
 - **HTTP:** endpoints mapped into ASP.NET routing; config via `UseFastEndpoints(c => …)` (`Config` / `Cfg`).
 - **In-process messaging:** command/event handlers registered from discovery or DI helpers.
-- **Remote:** gRPC handler server (`AddHandlerServer` / remote client connection) with MessagePack marshalling.
+- **Remote:** gRPC handler server (`AddHandlerServer` / remote client connection). The wire format is chosen by an
+  `IRpcMarshallerFactory` and defaults to MessagePack. `AddHandlerServer(marshaller:)` sets it server-side;
+  `RemoteConnection.MarshallerFactory` sets it per client connection. Both sides also take the bound gRPC method name from
+  the factory, so they always agree (MessagePack keeps the historical empty name).
+- **Remote reflection:** `FastEndpoints.Messaging.Remote.Reflection` is an opt-in satellite package holding the protobuf wire
+  format and gRPC server reflection (`AddHandlerReflection` / `MapHandlerReflection`). It generates Google.Protobuf descriptors
+  from the command CLR types, so protobuf/reflection dependencies stay out of `Messaging.Remote`.
 - **Jobs:** `AddJobQueues<TJob, TStorage>()`; storage provider is app-supplied. Optional business-key idempotency via `JobQueueOptions.IdempotencyKeyFor<TCommand>(Func<TCommand,string?>)` + storage record `IHasIdempotencyKey` + provider uniqueness / `DuplicateJobException`.
 
 ## Persistence

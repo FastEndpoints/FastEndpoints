@@ -67,6 +67,31 @@ public class RemoteConnectionCore
     /// </summary>
     public string? SubscriberID { get; set; }
 
+    // ReSharper disable once MemberCanBeProtected.Global
+    /// <summary>
+    /// the wire-format marshaller factory for this connection. defaults to the DI-registered <see cref="IRpcMarshallerFactory" /> or messagepack.
+    /// set this to use a different wire format such as protobuf. it must be set before any command/event is registered, since
+    /// each registration captures the wire format at that moment.
+    /// </summary>
+    /// <exception cref="InvalidOperationException">thrown when set after a command/event has already been registered</exception>
+    public IRpcMarshallerFactory MarshallerFactory
+    {
+        get => _marshallerFactory;
+        set
+        {
+            if (ExecutorMap.Count > 0)
+            {
+                throw new InvalidOperationException(
+                    "The wire format must be set before registering commands/events on this connection. Anything already registered would " +
+                    "keep talking the previous format, which the remote server won't understand.");
+            }
+
+            _marshallerFactory = value;
+        }
+    }
+
+    IRpcMarshallerFactory _marshallerFactory = MessagePackMarshallerFactory.Instance;
+
     readonly IServiceProvider _serviceProvider;
     readonly CancellationToken _appCancellation;
     protected readonly string? UnixSocketPath;
@@ -74,6 +99,7 @@ public class RemoteConnectionCore
     internal RemoteConnectionCore(string address, IServiceProvider serviceProvider)
     {
         _serviceProvider = serviceProvider;
+        MarshallerFactory = serviceProvider.GetService<IRpcMarshallerFactory>() ?? MessagePackMarshallerFactory.Instance;
         _appCancellation = serviceProvider.GetService<IHostApplicationLifetime>()?.ApplicationStopping ?? CancellationToken.None; //could be null on browser
 
         if (address.StartsWith("http", StringComparison.OrdinalIgnoreCase))
@@ -97,7 +123,7 @@ public class RemoteConnectionCore
         var tCommand = typeof(TCommand);
         RemoteMap[tCommand] = this;
         Channel ??= GrpcChannel.ForAddress(RemoteAddress, ChannelOptions);
-        ExecutorMap[tCommand] = new VoidCommandExecutor<TCommand>(Channel);
+        ExecutorMap[tCommand] = new VoidCommandExecutor<TCommand>(Channel, MarshallerFactory);
     }
 
     internal Task ExecuteVoid(ICommand cmd, Type tCommand, CallOptions opts)
@@ -115,7 +141,7 @@ public class RemoteConnectionCore
         var tCommand = typeof(TCommand);
         RemoteMap[tCommand] = this;
         Channel ??= GrpcChannel.ForAddress(RemoteAddress, ChannelOptions);
-        ExecutorMap[tCommand] = new UnaryCommandExecutor<TCommand, TResult>(Channel);
+        ExecutorMap[tCommand] = new UnaryCommandExecutor<TCommand, TResult>(Channel, MarshallerFactory);
     }
 
     internal Task<TResult> ExecuteUnary<TResult>(ICommand<TResult> cmd, Type tCommand, CallOptions opts) where TResult : class
@@ -133,7 +159,7 @@ public class RemoteConnectionCore
         var tCommand = typeof(TCommand);
         RemoteMap[tCommand] = this;
         Channel ??= GrpcChannel.ForAddress(RemoteAddress, ChannelOptions);
-        ExecutorMap[tCommand] = new ServerStreamCommandExecutor<TCommand, TResult>(Channel);
+        ExecutorMap[tCommand] = new ServerStreamCommandExecutor<TCommand, TResult>(Channel, MarshallerFactory);
     }
 
     internal IAsyncStreamReader<TResult> ExecuteServerStream<TResult>(IServerStreamCommand<TResult> cmd, Type tCommand, CallOptions opts)
@@ -152,7 +178,7 @@ public class RemoteConnectionCore
         var tCommand = typeof(IAsyncEnumerable<T>);
         RemoteMap[tCommand] = this;
         Channel ??= GrpcChannel.ForAddress(RemoteAddress, ChannelOptions);
-        ExecutorMap[tCommand] = new ClientStreamCommandExecutor<T, TResult>(Channel);
+        ExecutorMap[tCommand] = new ClientStreamCommandExecutor<T, TResult>(Channel, MarshallerFactory);
     }
 
     internal Task<TResult> ExecuteClientStream<T, TResult>(IAsyncEnumerable<T> cmd, Type tCommand, CallOptions opts) where T : class where TResult : class
@@ -241,8 +267,14 @@ public class RemoteConnectionCore
         var tEventSubscriber = typeof(EventSubscriber<,,,>).MakeGenericType(typeof(TEvent), tHandler, StorageRecordType, StorageProviderType);
         var effectiveSubscriberID = subscriberID ?? SubscriberID;
         var eventSubscriber = (ICommandExecutor)(effectiveSubscriberID is null
-                                                     ? ActivatorUtilities.CreateInstance(_serviceProvider, tEventSubscriber, Channel!, clientIdentifier)
-                                                     : ActivatorUtilities.CreateInstance(_serviceProvider, tEventSubscriber, Channel!, clientIdentifier, effectiveSubscriberID));
+                                                     ? ActivatorUtilities.CreateInstance(_serviceProvider, tEventSubscriber, Channel!, clientIdentifier, MarshallerFactory)
+                                                     : ActivatorUtilities.CreateInstance(
+                                                         _serviceProvider,
+                                                         tEventSubscriber,
+                                                         Channel!,
+                                                         clientIdentifier,
+                                                         effectiveSubscriberID,
+                                                         MarshallerFactory));
 
         ExecutorMap[tEventHandler] = eventSubscriber;
 

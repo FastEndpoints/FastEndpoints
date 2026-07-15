@@ -32,16 +32,19 @@ abstract class BaseHandlerExecutor<TCommand, THandler, TResult, TSelf> : IMethod
 
     static readonly string[] _httpPost = ["POST"];
 
-    public void Bind(ServiceMethodProviderContext<TSelf> ctx)
+    public void Bind(ServiceMethodProviderContext<TSelf> ctx, IRpcMarshallerFactory marshaller, RpcSchemaRegistry schema)
     {
         var tExecutor = typeof(TSelf);
+        var serviceName = typeof(TCommand).FullName!;
 
         var method = new Method<TCommand, TResult>(
             type: MethodType(),
-            serviceName: typeof(TCommand).FullName!,
-            name: "",
-            requestMarshaller: new MessagePackMarshaller<TCommand>(),
-            responseMarshaller: new MessagePackMarshaller<TResult>());
+            serviceName: serviceName,
+            name: marshaller.MethodName,
+            requestMarshaller: marshaller.Create<TCommand>(),
+            responseMarshaller: marshaller.Create<TResult>());
+
+        schema.Add(serviceName, MethodType(), typeof(TCommand), typeof(TResult)); //so grpc reflection can describe this handler
 
         var metadata = new List<object>();
         var handlerAttributes = HandlerExecMethodAttributes(tExecutor);

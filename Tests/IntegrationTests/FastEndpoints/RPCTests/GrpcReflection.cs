@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 namespace RemoteProcedureCalls;
 
-public class GrpcReflection(ITestOutputHelper output)
+public class GrpcReflection
 {
     [Fact]
     public async Task Reflection_Lists_And_Describes_A_Command_Handler()
@@ -20,9 +20,6 @@ public class GrpcReflection(ITestOutputHelper output)
 
         var listed = await SingleAsync(client, new() { ListServices = "" });
         var services = listed.ListServicesResponse.Service.Select(s => s.Name).ToList();
-
-        foreach (var s in services)
-            output.WriteLine(s);
 
         //the handler is discoverable under the very service name it's bound to
         services.ShouldContain(typeof(ReflectedCommand).FullName!);
@@ -69,9 +66,9 @@ public class GrpcReflection(ITestOutputHelper output)
 
         var method = svc.Methods.ShouldHaveSingleItem();
 
-        //the descriptor describes the method that's actually bound - both read the name off the same factory,
-        //so a grpcurl `describe` and a grpcurl `invoke` line up
-        method.Name.ShouldBe(new ProtobufMarshallerFactory().MethodName);
+        //the descriptor must describe the method that's actually bound, so a grpcurl `describe` and `invoke` line up.
+        //asserted against the literal rather than the factory, which would just be the generator agreeing with itself.
+        method.Name.ShouldBe("Execute");
 
         //no attributes on the command: public props, alphabetical, numbered from 1
         method.InputType.Fields.InFieldNumberOrder().Select(f => f.Name).ShouldBe(["FirstName", "LastName"]);
@@ -110,6 +107,26 @@ public class GrpcReflection(ITestOutputHelper output)
 
         fields.Select(f => f.Name).ShouldBe([nameof(CollidingCommand.Billing), nameof(CollidingCommand.Shipping)]);
         fields[0].MessageType.FullName.ShouldNotBe(fields[1].MessageType.FullName); //distinct symbols, not one shadowing the other
+    }
+
+    //the default wire format must keep binding commands under an empty method name, or every existing client breaks.
+    //this is the wire-compat guarantee that makes the protobuf method name safe to introduce at all.
+    [Fact]
+    public void Default_Wire_Format_Still_Binds_An_Empty_Method_Name()
+        => ((IRpcMarshallerFactory)MessagePackMarshallerFactory.Instance).MethodName.ShouldBe("");
+
+    //an event hub's "sub" method carries a bare subscriber id string, which used to throw and stop the server booting
+    [Fact]
+    public async Task Protobuf_Wire_Format_Supports_Event_Hubs()
+    {
+        var bld = WebApplication.CreateBuilder();
+        bld.WebHost.UseTestServer();
+        bld.Services.AddHandlerServer(marshaller: new ProtobufMarshallerFactory());
+
+        await using var app = bld.Build();
+        app.MapHandlers(h => h.RegisterEventHub<ReflectedEvent>());
+
+        await Should.NotThrowAsync(app.StartAsync());
     }
 
     //a scalar has no top-level protobuf message. this is what an event hub's subscriber id and ICommand<string> hit.
@@ -250,4 +267,9 @@ public class ReflectedCommandHandler : ICommandHandler<ReflectedCommand, Reflect
 {
     public Task<ReflectedResult> ExecuteAsync(ReflectedCommand cmd, CancellationToken ct)
         => Task.FromResult(new ReflectedResult { FullName = $"{cmd.FirstName} {cmd.LastName}" });
+}
+
+public class ReflectedEvent : IEvent
+{
+    public string Message { get; set; } = "";
 }

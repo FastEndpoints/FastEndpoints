@@ -115,18 +115,18 @@ public class GrpcReflection
     public void Default_Wire_Format_Still_Binds_An_Empty_Method_Name()
         => ((IRpcMarshallerFactory)MessagePackMarshallerFactory.Instance).MethodName.ShouldBe("");
 
-    //an event hub's "sub" method carries a bare subscriber id string, which used to throw and stop the server booting
+    //every marshaller EventHub.Bind asks for. the subscriber id used to throw here, which stopped the server booting
+    //outright for any app that had a hub. driven through the marshaller rather than a live hub on purpose: EventHub's
+    //ctor writes to EventHubStorage<,>.Provider, a static shared by every hub using the same storage types, so standing
+    //one up in-process trashes the shared test harness's provider and fails ~70 unrelated tests at random.
     [Fact]
-    public async Task Protobuf_Wire_Format_Supports_Event_Hubs()
+    public void Marshals_Every_Payload_An_Event_Hub_Binds()
     {
-        var bld = WebApplication.CreateBuilder();
-        bld.WebHost.UseTestServer();
-        bld.Services.AddHandlerServer(marshaller: new ProtobufMarshallerFactory());
+        var factory = new ProtobufMarshallerFactory();
 
-        await using var app = bld.Build();
-        app.MapHandlers(h => h.RegisterEventHub<ReflectedEvent>());
-
-        await Should.NotThrowAsync(app.StartAsync());
+        RoundTrip(factory.Create<string>(), "subscriber-1").ShouldBe("subscriber-1");                     //the "sub" request
+        RoundTrip(factory.Create<ReflectedEvent>(), new() { Message = "hi" }).Message.ShouldBe("hi");     //the streamed event
+        RoundTrip(factory.Create<EmptyObject>(), EmptyObject.Instance).ShouldNotBeNull();                 //the "pub" reply, a zero-field message
     }
 
     //a scalar has no top-level protobuf message. this is what an event hub's subscriber id and ICommand<string> hit.

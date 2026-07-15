@@ -202,10 +202,24 @@ public class RequestBinderTests
     }
 
     [Fact]
+    public async Task ListByteCollectionBindsAsJsonArrayNotBase64()
+    {
+        var hCtx = new DefaultHttpContext();
+        hCtx.Request.QueryString = new($"?Data={Uri.EscapeDataString("[1,2,3]")}");
+        var binder = new RequestBinder<ListByteRequest>();
+        var ctx = new BinderContext(hCtx, [], null, false, ((IRequestBinder<ListByteRequest>)binder).RequiredProps);
+
+        var res = await binder.BindAsync(ctx, default);
+
+        res.Data.ShouldNotBeNull();
+        res.Data!.ShouldBe([1, 2, 3]);
+    }
+
+    [Fact]
     public async Task DerivedByteCollectionBindsAsJsonArrayNotBase64()
     {
         var hCtx = new DefaultHttpContext();
-        hCtx.Request.QueryString = new($"?Data={Uri.EscapeDataString(Convert.ToBase64String([1, 2, 3]))}");
+        hCtx.Request.QueryString = new($"?Data={Uri.EscapeDataString("[1,2,3]")}");
         var binder = new RequestBinder<ByteBufferRequest>();
         var ctx = new BinderContext(hCtx, [], null, false, ((IRequestBinder<ByteBufferRequest>)binder).RequiredProps);
 
@@ -303,6 +317,11 @@ public class RequestBinderTests
     sealed class ByteArrayRequest
     {
         public byte[]? Data { get; set; }
+    }
+
+    sealed class ListByteRequest
+    {
+        public List<byte>? Data { get; set; }
     }
 
     sealed class ByteBufferRequest

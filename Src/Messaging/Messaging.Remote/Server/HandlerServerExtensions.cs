@@ -45,9 +45,10 @@ public static class HandlerServerExtensions
         sc.TryAddSingleton(typeof(EventHub<,,>));
         sc.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IServiceMethodProvider<>), typeof(ServiceMethodProvider<>)));
 
-        sc.TryAddSingleton<IRpcMarshallerFactory>(MessagePackMarshallerFactory.Instance); //default; a pre-registered factory wins
         if (marshaller is not null)
-            sc.AddSingleton(marshaller); //explicit argument wins over the default/pre-registered
+            sc.AddSingleton(marshaller);
+
+        sc.TryAddSingleton<IRpcMarshallerFactory>(MessagePackMarshallerFactory.Instance); //no-ops when a factory was supplied or pre-registered
 
         sc.TryAddSingleton<RpcSchemaRegistry>(); //populated as each handler binds; read by grpc reflection
 

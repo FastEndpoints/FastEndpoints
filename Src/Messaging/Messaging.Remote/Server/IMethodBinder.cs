@@ -1,4 +1,4 @@
-using Grpc.AspNetCore.Server.Model;
+﻿using Grpc.AspNetCore.Server.Model;
 
 namespace FastEndpoints;
 

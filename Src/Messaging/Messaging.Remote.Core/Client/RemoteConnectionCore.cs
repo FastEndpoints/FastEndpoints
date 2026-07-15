@@ -70,9 +70,27 @@ public class RemoteConnectionCore
     // ReSharper disable once MemberCanBeProtected.Global
     /// <summary>
     /// the wire-format marshaller factory for this connection. defaults to the DI-registered <see cref="IRpcMarshallerFactory" /> or messagepack.
-    /// set this (before registering commands/events) to use a different wire format such as protobuf.
+    /// set this to use a different wire format such as protobuf. it must be set before any command/event is registered, since
+    /// each registration captures the wire format at that moment.
     /// </summary>
-    public IRpcMarshallerFactory MarshallerFactory { get; set; }
+    /// <exception cref="InvalidOperationException">thrown when set after a command/event has already been registered</exception>
+    public IRpcMarshallerFactory MarshallerFactory
+    {
+        get => _marshallerFactory;
+        set
+        {
+            if (ExecutorMap.Count > 0)
+            {
+                throw new InvalidOperationException(
+                    "The wire format must be set before registering commands/events on this connection. Anything already registered would " +
+                    "keep talking the previous format, which the remote server won't understand.");
+            }
+
+            _marshallerFactory = value;
+        }
+    }
+
+    IRpcMarshallerFactory _marshallerFactory = MessagePackMarshallerFactory.Instance;
 
     readonly IServiceProvider _serviceProvider;
     readonly CancellationToken _appCancellation;

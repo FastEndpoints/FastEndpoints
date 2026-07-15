@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace RemoteProcedureCalls;
 
@@ -61,7 +62,7 @@ public class GrpcReflection(ITestOutputHelper output)
         var registry = new RpcSchemaRegistry();
         registry.Add(typeof(ReflectedCommand).FullName!, MethodType.Unary, typeof(ReflectedCommand), typeof(ReflectedResult));
 
-        var descriptors = CommandDescriptorFactory.Build(registry, new ProtobufMarshallerFactory());
+        var descriptors = CommandDescriptorFactory.Build(registry, new ProtobufMarshallerFactory(), NullLogger.Instance);
 
         var svc = descriptors.ShouldHaveSingleItem();
         svc.FullName.ShouldBe(typeof(ReflectedCommand).FullName); //the service name FE binds the handler under
@@ -84,7 +85,7 @@ public class GrpcReflection(ITestOutputHelper output)
         var registry = new RpcSchemaRegistry();
         registry.Add(typeof(AwkwardCommand).FullName!, MethodType.Unary, typeof(AwkwardCommand), typeof(ReflectedResult));
 
-        var svc = CommandDescriptorFactory.Build(registry, new ProtobufMarshallerFactory()).ShouldHaveSingleItem();
+        var svc = CommandDescriptorFactory.Build(registry, new ProtobufMarshallerFactory(), NullLogger.Instance).ShouldHaveSingleItem();
         var fields = svc.Methods.ShouldHaveSingleItem().InputType.Fields.InFieldNumberOrder().ToList();
 
         //a nullable struct used to blow up descriptor generation AND corrupt the wire (Nullable<T> was never registered)
@@ -104,7 +105,7 @@ public class GrpcReflection(ITestOutputHelper output)
         var registry = new RpcSchemaRegistry();
         registry.Add(typeof(CollidingCommand).FullName!, MethodType.Unary, typeof(CollidingCommand), typeof(ReflectedResult));
 
-        var svc = CommandDescriptorFactory.Build(registry, new ProtobufMarshallerFactory()).ShouldHaveSingleItem();
+        var svc = CommandDescriptorFactory.Build(registry, new ProtobufMarshallerFactory(), NullLogger.Instance).ShouldHaveSingleItem();
         var fields = svc.Methods.ShouldHaveSingleItem().InputType.Fields.InFieldNumberOrder().ToList();
 
         fields.Select(f => f.Name).ShouldBe([nameof(CollidingCommand.Billing), nameof(CollidingCommand.Shipping)]);
@@ -143,6 +144,20 @@ public class GrpcReflection(ITestOutputHelper output)
         public override byte[] PayloadAsNewBuffer() => payload.ToArray();
     }
 
+    //a command that can't be described must not take every other handler's schema down with it. all descriptors used to be
+    //built into one pool, so a single unmapped property type killed reflection for the whole server.
+    [Fact]
+    public void An_Undescribable_Command_Is_Skipped_Not_Fatal()
+    {
+        var registry = new RpcSchemaRegistry();
+        registry.Add(typeof(ReflectedCommand).FullName!, MethodType.Unary, typeof(ReflectedCommand), typeof(ReflectedResult));
+        registry.Add(typeof(UndescribableCommand).FullName!, MethodType.Unary, typeof(UndescribableCommand), typeof(ReflectedResult));
+
+        var descriptors = CommandDescriptorFactory.Build(registry, new ProtobufMarshallerFactory(), NullLogger.Instance);
+
+        descriptors.ShouldHaveSingleItem().FullName.ShouldBe(typeof(ReflectedCommand).FullName);
+    }
+
     [Fact]
     public void Reflection_Needs_The_Protobuf_Wire_Format()
     {
@@ -150,7 +165,7 @@ public class GrpcReflection(ITestOutputHelper output)
         registry.Add(typeof(ReflectedCommand).FullName!, MethodType.Unary, typeof(ReflectedCommand), typeof(ReflectedResult));
 
         //messagepack has no protobuf descriptors to publish, so this fails loudly instead of serving a schema that lies
-        Should.Throw<InvalidOperationException>(() => CommandDescriptorFactory.Build(registry, MessagePackMarshallerFactory.Instance))
+        Should.Throw<InvalidOperationException>(() => CommandDescriptorFactory.Build(registry, MessagePackMarshallerFactory.Instance, NullLogger.Instance))
               .Message.ShouldContain(nameof(ProtobufMarshallerFactory));
     }
 
@@ -223,6 +238,12 @@ public class CollidingCommand : ICommand<ReflectedResult>
 {
     public Billing.Address? Billing { get; set; }
     public Shipping.Address? Shipping { get; set; }
+}
+
+//protobuf-net serializes DateTime as its own bcl message, which isn't described yet - this handler still executes fine
+public class UndescribableCommand : ICommand<ReflectedResult>
+{
+    public DateTime PlacedOn { get; set; }
 }
 
 public class ReflectedCommandHandler : ICommandHandler<ReflectedCommand, ReflectedResult>

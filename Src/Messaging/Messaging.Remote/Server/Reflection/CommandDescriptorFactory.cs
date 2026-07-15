@@ -1,6 +1,8 @@
+using FastEndpoints.Messaging.Remote;
 using Google.Protobuf;
 using Google.Protobuf.Reflection;
 using Grpc.Core;
+using Microsoft.Extensions.Logging;
 using ServiceDescriptor = Google.Protobuf.Reflection.ServiceDescriptor;
 
 namespace FastEndpoints;
@@ -10,7 +12,7 @@ namespace FastEndpoints;
 //that does the serializing), so the published schema and the bytes on the wire cannot drift apart.
 static class CommandDescriptorFactory
 {
-    internal static IReadOnlyList<ServiceDescriptor> Build(RpcSchemaRegistry registry, IRpcMarshallerFactory marshaller)
+    internal static IReadOnlyList<ServiceDescriptor> Build(RpcSchemaRegistry registry, IRpcMarshallerFactory marshaller, ILogger logger)
     {
         if (marshaller is not ProtobufMarshallerFactory protobuf)
         {
@@ -19,12 +21,23 @@ static class CommandDescriptorFactory
                 "The default messagepack format has no protobuf descriptors to publish.");
         }
 
-        var files = registry.Services
-                            .OrderBy(s => s.ServiceName, StringComparer.Ordinal)
-                            .Select(s => BuildFile(s, protobuf).ToByteString())
-                            .ToArray();
+        var descriptors = new List<ServiceDescriptor>();
 
-        return FileDescriptor.BuildFromByteStrings(files).SelectMany(f => f.Services).ToArray();
+        //each command gets its own self-contained file, built in isolation. a command that can't be described (an
+        //unmapped property type, say) is skipped with a warning instead of taking every other handler's schema down with it.
+        foreach (var svc in registry.Services.OrderBy(s => s.ServiceName, StringComparer.Ordinal))
+        {
+            try
+            {
+                descriptors.AddRange(FileDescriptor.BuildFromByteStrings([BuildFile(svc, protobuf).ToByteString()])[0].Services);
+            }
+            catch (Exception ex)
+            {
+                logger.CommandNotDescribable(svc.ServiceName, ex.Message);
+            }
+        }
+
+        return descriptors;
     }
 
     static FileDescriptorProto BuildFile(RpcServiceSchema svc, ProtobufMarshallerFactory protobuf)

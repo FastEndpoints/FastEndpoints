@@ -94,6 +94,7 @@ public static class Extensions
     }
 
     const string OpenApiJsonExportKey = "export-openapi-docs";
+    const string OpenApiHttpExportKey = "export-http-files";
 
     extension(IHost app)
     {
@@ -108,6 +109,18 @@ public static class Extensions
         /// </summary>
         public bool IsNotJsonExportMode()
             => !app.IsJsonExportMode();
+
+        /// <summary>
+        /// returns true if the app is being launched just to export '.http' files.
+        /// </summary>
+        public bool IsHttpExportMode()
+            => string.Equals(app.Services.GetRequiredService<IConfiguration>()[OpenApiHttpExportKey], "true", StringComparison.Ordinal);
+
+        /// <summary>
+        /// returns true if the app is running normally and not launched for the purpose of exporting '.http' files.
+        /// </summary>
+        public bool IsNotHttpExportMode()
+            => !app.IsHttpExportMode();
     }
 
     extension(IHostApplicationBuilder bld)
@@ -123,6 +136,18 @@ public static class Extensions
         /// </summary>
         public bool IsNotJsonExportMode()
             => !bld.IsJsonExportMode();
+
+        /// <summary>
+        /// returns true if the app is being launched just to export '.http' files.
+        /// </summary>
+        public bool IsHttpExportMode()
+            => string.Equals(bld.Configuration[OpenApiHttpExportKey], "true", StringComparison.Ordinal);
+
+        /// <summary>
+        /// returns true if the app is running normally and not launched for the purpose of exporting '.http' files.
+        /// </summary>
+        public bool IsNotHttpExportMode()
+            => !bld.IsHttpExportMode();
     }
 
     /// <summary>
@@ -154,4 +179,34 @@ public static class Extensions
     /// <param name="documentNames">the openapi document names to export. these must match the names used in <c>.OpenApiDocument()</c> configuration.</param>
     public static Task ExportOpenApiDocsAndExitAsync(this WebApplication app, params string[] documentNames)
         => OpenApiExporter.ExportDocsAndExitAsync(app, documentNames);
+
+    /// <summary>
+    /// exports '.http' files (REST Client / HTTP Client format) to disk and exits the program.
+    /// <para>HINT: make sure to place the call straight after <c>app.UseFastEndpoints()</c></para>
+    /// <para>
+    /// to enable automatic export during AOT publish builds, add this to your .csproj:
+    /// <code>
+    /// &lt;PropertyGroup&gt;
+    ///     &lt;ExportHttpFiles&gt;true&lt;/ExportHttpFiles&gt;
+    /// &lt;/PropertyGroup&gt;
+    /// </code>
+    /// </para>
+    /// <para>
+    /// to customize the export path, add this to your .csproj:
+    /// <code>
+    /// &lt;PropertyGroup&gt;
+    ///     &lt;OpenApiExportPath&gt;wwwroot/openapi&lt;/OpenApiExportPath&gt;
+    /// &lt;/PropertyGroup&gt;
+    /// </code>
+    /// </para>
+    /// <para>
+    /// to force generate '.http' files outside an AOT publish, run the following in a terminal:
+    /// <code>dotnet run --export-http-files true -p:PublishAot=false</code>
+    /// optionally specify the output folder:
+    /// <code>dotnet run --export-http-files true -p:PublishAot=false -p:OpenApiExportPath=wwwroot/openapi</code>
+    /// </para>
+    /// </summary>
+    /// <param name="documentNames">the openapi document names to export. these must match the names used in <c>.OpenApiDocument()</c> configuration.</param>
+    public static Task ExportHttpFilesAndExitAsync(this WebApplication app, params string[] documentNames)
+        => OpenApiExporter.ExportHttpFilesAndExitAsync(app, documentNames);
 }

@@ -21,6 +21,15 @@ static partial class LoggingExtensions
 
     [LoggerMessage(7, LogLevel.Warning, "Failed to apply FluentValidation rule for property '{propertyName}' using validator '{validatorName}'")]
     public static partial void FailedToApplyValidationRule(this ILogger l, Exception ex, string propertyName, string validatorName);
+
+    [LoggerMessage(8, LogLevel.Information, "Exporting '.http' file for document: {documentName}")]
+    public static partial void ExportingHttpFile(this ILogger l, string documentName);
+
+    [LoggerMessage(9, LogLevel.Information, "'.http' file for document '{documentName}' exported successfully to {filePath}")]
+    public static partial void HttpFileExportSuccessful(this ILogger l, string documentName, string filePath);
+
+    [LoggerMessage(10, LogLevel.Error, "Failed to export '.http' file for document '{documentName}'")]
+    public static partial void HttpFileExportFailed(this ILogger l, Exception ex, string documentName);
 }
 
 /// <summary>

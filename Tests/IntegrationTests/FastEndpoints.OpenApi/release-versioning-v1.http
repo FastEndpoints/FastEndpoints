@@ -1,0 +1,17 @@
+@baseUrl = https://localhost:5001
+
+### release_versioning_TestCasesSwaggerReleaseVersioningEndpointA
+GET {{baseUrl}}/api/release-versioning/endpoint-a
+Accept: application/json
+
+
+### release_versioning_TestCasesSwaggerReleaseVersioningEndpointA_V1
+GET {{baseUrl}}/api/release-versioning/endpoint-a/ver1
+Accept: application/json
+
+
+### release_versioning_TestCasesSwaggerReleaseVersioningEndpointB
+GET {{baseUrl}}/api/release-versioning/endpoint-b
+Accept: application/json
+
+

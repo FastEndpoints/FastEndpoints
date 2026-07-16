@@ -53,7 +53,10 @@ static partial class HttpFileExporter
         sb.Append("Accept: application/json\n\n");
 
         if (mediaType?.Schema is not null)
-            sb.Append(BuildPlaceholder(mediaType.Schema, [])?.ToJsonString(_jsonOpts) ?? "null").Append('\n');
+        {
+            var placeholder = BuildPlaceholder(mediaType.Schema, []) ?? new JsonObject(); // never emit a literal 'null' body
+            sb.Append(placeholder.ToJsonString(_jsonOpts)).Append('\n');
+        }
 
         sb.Append('\n');
     }

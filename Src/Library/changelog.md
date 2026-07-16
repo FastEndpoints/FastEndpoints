@@ -10,20 +10,6 @@ Please [join the discussion here](https://github.com/FastEndpoints/FastEndpoints
 
 ## New 🎉
 
-<details><summary>Export OpenAPI documents as '.http' files</summary>
-
-The **FastEndpoints.OpenApi** package can now export generated OpenAPI documents as REST Client `.http` files, alongside the existing `.json` export, for quick manual testing of endpoints without leaving the editor.
-
-```csharp
-await app.ExportHttpFilesAndExitAsync("v1"); // doc name should match .OpenApiDocument() config
-```
-
-```
-dotnet run --export-http-files true
-```
-
-</details>
-
 <details><summary>'FastEndpoints.CommandRules' package for rule-based command dispatch</summary>
 
 A new `FastEndpoints.CommandRules` package is now available for turning arbitrary input into one or more commands using small, ordered rules.
@@ -138,6 +124,20 @@ app.MapRemote("http://localhost:6000", c =>
     c.MarshallerFactory = new ProtobufMarshallerFactory();
     c.Register<MyCommand, MyResult>();
 });
+```
+
+</details>
+
+<details><summary>Export OpenAPI documents as '.http' files</summary>
+
+The **FastEndpoints.OpenApi** package can now export generated OpenAPI documents as REST Client `.http` files, alongside the existing `.json` export, for quick manual testing of endpoints without leaving the editor.
+
+```csharp
+await app.ExportHttpFilesAndExitAsync("v1"); // doc name should match .OpenApiDocument() config
+```
+
+```
+dotnet run --export-http-files true
 ```
 
 </details>

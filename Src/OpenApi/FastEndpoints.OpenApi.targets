@@ -65,4 +65,43 @@ internal static class OpenApiExportPathInitializer
               SkipUnchangedFiles="true"/>
     </Target>
 
+    <!-- Export '.http' files via JIT build before AOT publish -->
+    <Target Name="ExportHttpFilesBeforeAotPublish"
+            BeforeTargets="PrepareForILLink"
+            Condition="'$(ExportHttpFiles)' == 'true' AND '$(PublishAot)' == 'true' AND '$(_HttpFilesExporting)' != 'true'">
+
+        <PropertyGroup>
+            <_HttpFilesExportDir>$(IntermediateOutputPath)http_export\</_HttpFilesExportDir>
+        </PropertyGroup>
+
+        <Message Text="Exporting '.http' files before Native AOT compilation..." Importance="high"/>
+        <Message Text="'.http' export path: $(OpenApiExportPath)" Importance="high"/>
+
+        <!-- Build JIT version (non-AOT) with OpenApiExportPath explicitly passed -->
+        <MSBuild Projects="$(MSBuildProjectFullPath)"
+                 Targets="Build"
+                 Properties="PublishAot=false;_HttpFilesExporting=true;OpenApiExportPath=$(OpenApiExportPath);OutputPath=$(_HttpFilesExportDir)"/>
+
+        <!-- Run the JIT build to export '.http' files -->
+        <Exec Command="dotnet exec $(_HttpFilesExportDir)$(AssemblyName).dll --export-http-files true"
+              WorkingDirectory="$(MSBuildProjectDirectory)"
+              IgnoreExitCode="true">
+            <Output TaskParameter="ExitCode" PropertyName="_HttpFilesExportExitCode"/>
+        </Exec>
+
+        <Warning Text="'.http' file export failed with exit code $(_HttpFilesExportExitCode)"
+                 Condition="'$(_HttpFilesExportExitCode)' != '0'"/>
+        <Message Text="'.http' files exported successfully" Importance="high"
+                 Condition="'$(_HttpFilesExportExitCode)' == '0'"/>
+
+        <!-- Copy exported files to publish directory -->
+        <ItemGroup Condition="'$(_HttpFilesExportExitCode)' == '0' AND '$(PublishDir)' != ''">
+            <_HttpFiles Include="$(MSBuildProjectDirectory)\$(OpenApiExportPath)\**\*.http"/>
+        </ItemGroup>
+        <Copy SourceFiles="@(_HttpFiles)"
+              DestinationFolder="$(PublishDir)$(OpenApiExportPath)\%(RecursiveDir)"
+              Condition="'@(_HttpFiles)' != ''"
+              SkipUnchangedFiles="true"/>
+    </Target>
+
 </Project>

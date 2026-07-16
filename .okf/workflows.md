@@ -59,7 +59,7 @@ Azure `azure-pipeline.yml`: tag `v*` trigger; runs tests under `Tests/` with sam
 ## Codegen and migrations
 - **Roslyn generators:** reference `FastEndpoints.Generator` as analyzer (`OutputItemType=Analyzer` in project refs).
 - **Serializer contexts (AOT):** set `GenerateSerializerContexts=true` (optional `SerializerContextOutputPath`, `GeneratorCliVersion`). Targets in `Src/Generator/FastEndpoints.Generator.targets` run CLI before compile.
-- **OpenAPI export (harness/AOT):** `ExportOpenApiDocs` / targets from OpenApi package (see NativeAotChecker).
+- **OpenAPI export (harness/AOT):** `ExportOpenApiDocs` (.json) / `ExportHttpFiles` (.http) / targets from OpenApi package (see NativeAotChecker).
 - No DB migrations in-repo.
 
 ## Public documentation

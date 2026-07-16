@@ -565,7 +565,7 @@ Accept: application/json
   ],
   "explicitChildren": [
     {
-      "name": null
+      "name": ""
     }
   ]
 }
@@ -643,7 +643,11 @@ Accept: application/json
 
 {
   "id": "",
-  "product": {},
+  "product": {
+    "id": 0,
+    "name": "",
+    "price": 0
+  },
   "customerID": ""
 }
 
@@ -761,19 +765,37 @@ Accept: application/json
     },
     "otherAddresses": [
       {
-        "street": null,
-        "mainImage": null,
-        "alternativeImages": null
+        "street": "",
+        "mainImage": "",
+        "alternativeImages": [
+          ""
+        ]
       }
     ]
   },
   "coAuthors": [
     {
-      "name": null,
-      "profileImage": null,
-      "documentFiles": null,
-      "mainAddress": null,
-      "otherAddresses": null
+      "name": "",
+      "profileImage": "",
+      "documentFiles": [
+        ""
+      ],
+      "mainAddress": {
+        "street": "",
+        "mainImage": "",
+        "alternativeImages": [
+          ""
+        ]
+      },
+      "otherAddresses": [
+        {
+          "street": "",
+          "mainImage": "",
+          "alternativeImages": [
+            ""
+          ]
+        }
+      ]
     }
   ],
   "barCodes": [

@@ -78,43 +78,63 @@ static partial class HttpFileExporter
         => RouteParamRegex().Replace(path, "{{$1}}");
 
     // turns a schema into a placeholder JSON value keyed by property name, so the generated request body is fillable rather than an opaque '{}'.
+    // 'seen' tracks the schemas on the CURRENT recursion path (not every schema ever visited), so a DTO referenced twice in
+    // sibling branches (e.g. the same Address type used by both 'mainAddress' and 'otherAddresses') is still walked properly -
+    // only a schema that recurses into itself is short-circuited.
     static JsonNode? BuildPlaceholder(IOpenApiSchema schema, HashSet<IOpenApiSchema> seen)
     {
         if (!seen.Add(schema))
-            return null; // breaks cycles on self-referencing schemas
+            return null; // true cycle: this schema is already being walked further up the same path
 
-        if (schema.OneOf?.Count > 0 || schema.AnyOf?.Count > 0 || schema.AllOf?.Count > 0)
-            return new JsonObject(); // composed/polymorphic schemas aren't walked, fall back to an empty object
-
-        var type = schema.Type;
-
-        if (type?.HasFlag(JsonSchemaType.Array) == true)
-            return schema.Items is null ? new JsonArray() : new JsonArray(BuildPlaceholder(schema.Items, seen));
-
-        if (schema.Properties is { Count: > 0 } props && (type is null || type.Value.HasFlag(JsonSchemaType.Object)))
+        try
         {
-            var obj = new JsonObject();
+            if (schema.OneOf?.Count > 0 || schema.AnyOf?.Count > 0 || schema.AllOf?.Count > 0)
+            {
+                // the common "nullable $ref" idiom is encoded as a oneOf/anyOf with exactly one non-null branch - that's not
+                // real polymorphism, so unwrap it and walk the referenced schema instead of falling back to an empty object.
+                var branches = schema.OneOf ?? schema.AnyOf ?? schema.AllOf!;
+                var nonNullBranches = branches.Where(b => b.Type != JsonSchemaType.Null).ToList();
 
-            foreach (var (name, propSchema) in props)
-                obj[name] = propSchema is null ? null : BuildPlaceholder(propSchema, seen);
+                if (nonNullBranches.Count == 1)
+                    return BuildPlaceholder(nonNullBranches[0], seen);
 
-            return obj;
+                return new JsonObject(); // genuinely composed/polymorphic schema, fall back to an empty object
+            }
+
+            var type = schema.Type;
+
+            if (type?.HasFlag(JsonSchemaType.Array) == true)
+                return schema.Items is null ? new JsonArray() : new JsonArray(BuildPlaceholder(schema.Items, seen));
+
+            if (schema.Properties is { Count: > 0 } props && (type is null || type.Value.HasFlag(JsonSchemaType.Object)))
+            {
+                var obj = new JsonObject();
+
+                foreach (var (name, propSchema) in props)
+                    obj[name] = propSchema is null ? null : BuildPlaceholder(propSchema, seen);
+
+                return obj;
+            }
+
+            if (type?.HasFlag(JsonSchemaType.String) == true)
+            {
+                return schema.Enum?.FirstOrDefault() is JsonValue enumValue && enumValue.TryGetValue<string>(out var s)
+                           ? JsonValue.Create(s)
+                           : JsonValue.Create("");
+            }
+
+            if (type?.HasFlag(JsonSchemaType.Integer) == true || type?.HasFlag(JsonSchemaType.Number) == true)
+                return JsonValue.Create(0);
+
+            if (type?.HasFlag(JsonSchemaType.Boolean) == true)
+                return JsonValue.Create(false);
+
+            return type?.HasFlag(JsonSchemaType.Object) == true ? new JsonObject() : null;
         }
-
-        if (type?.HasFlag(JsonSchemaType.String) == true)
+        finally
         {
-            return schema.Enum?.FirstOrDefault() is JsonValue enumValue && enumValue.TryGetValue<string>(out var s)
-                       ? JsonValue.Create(s)
-                       : JsonValue.Create("");
+            seen.Remove(schema);
         }
-
-        if (type?.HasFlag(JsonSchemaType.Integer) == true || type?.HasFlag(JsonSchemaType.Number) == true)
-            return JsonValue.Create(0);
-
-        if (type?.HasFlag(JsonSchemaType.Boolean) == true)
-            return JsonValue.Create(false);
-
-        return type?.HasFlag(JsonSchemaType.Object) == true ? new JsonObject() : null;
     }
 
     [GeneratedRegex(@"\{([^{}]+)\}")]

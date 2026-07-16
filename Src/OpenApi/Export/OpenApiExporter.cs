@@ -46,50 +46,61 @@ static class OpenApiExporter
         Environment.Exit(exportFailed ? 1 : 0);
     }
 
-    static async Task<bool> ExportJsonDocumentAsync(WebApplication app, string documentName, string destinationPath, ILogger logger, CancellationToken ct)
+    static Task<bool> ExportJsonDocumentAsync(WebApplication app, string documentName, string destinationPath, ILogger logger, CancellationToken ct)
     {
-        try
-        {
-            logger.ExportingOpenApiDoc(documentName);
-            var normalizedDocumentName = documentName.ToLowerInvariant();
-            var provider = app.Services.GetRequiredKeyedService<IOpenApiDocumentProvider>(normalizedDocumentName);
-            var openApiVersion = app.Services.GetRequiredService<IOptionsMonitor<OpenApiOptions>>().Get(normalizedDocumentName).OpenApiVersion;
-            var doc = await provider.GetOpenApiDocumentAsync(ct);
-            var json = await doc.SerializeAsJsonAsync(openApiVersion, ct);
-            var filePath = Path.Combine(destinationPath, $"{normalizedDocumentName}.json");
+        logger.ExportingOpenApiDoc(documentName);
+        var normalizedDocumentName = documentName.ToLowerInvariant();
 
-            await File.WriteAllTextAsync(filePath, json, ct);
-            logger.OpenApiDocExportSuccessful(documentName, filePath);
+        return WriteExportAsync(
+            documentName, normalizedDocumentName, destinationPath, ".json", logger.OpenApiDocExportSuccessful, logger.OpenApiDocExportFailed, ct,
+            async () =>
+            {
+                var provider = app.Services.GetRequiredKeyedService<IOpenApiDocumentProvider>(normalizedDocumentName);
+                var openApiVersion = app.Services.GetRequiredService<IOptionsMonitor<OpenApiOptions>>().Get(normalizedDocumentName).OpenApiVersion;
+                var doc = await provider.GetOpenApiDocumentAsync(ct);
 
-            return true;
-        }
-        catch (Exception ex)
-        {
-            logger.OpenApiDocExportFailed(ex, documentName);
-
-            return false;
-        }
+                return await doc.SerializeAsJsonAsync(openApiVersion, ct);
+            });
     }
 
-    static async Task<bool> ExportHttpDocumentAsync(WebApplication app, string documentName, string destinationPath, ILogger logger, CancellationToken ct)
+    static Task<bool> ExportHttpDocumentAsync(WebApplication app, string documentName, string destinationPath, ILogger logger, CancellationToken ct)
+    {
+        logger.ExportingHttpFile(documentName);
+        var normalizedDocumentName = documentName.ToLowerInvariant();
+
+        return WriteExportAsync(
+            documentName, normalizedDocumentName, destinationPath, ".http", logger.HttpFileExportSuccessful, logger.HttpFileExportFailed, ct,
+            async () =>
+            {
+                var provider = app.Services.GetRequiredKeyedService<IOpenApiDocumentProvider>(normalizedDocumentName);
+                var doc = await provider.GetOpenApiDocumentAsync(ct);
+
+                return HttpFileExporter.ToHttpFileContent(doc, normalizedDocumentName);
+            });
+    }
+
+    static async Task<bool> WriteExportAsync(string documentName,
+                                              string normalizedDocumentName,
+                                              string destinationPath,
+                                              string extension,
+                                              Action<string, string> logSuccess,
+                                              Action<Exception, string> logFailure,
+                                              CancellationToken ct,
+                                              Func<Task<string>> produceContent)
     {
         try
         {
-            logger.ExportingHttpFile(documentName);
-            var normalizedDocumentName = documentName.ToLowerInvariant();
-            var provider = app.Services.GetRequiredKeyedService<IOpenApiDocumentProvider>(normalizedDocumentName);
-            var doc = await provider.GetOpenApiDocumentAsync(ct);
-            var http = HttpFileExporter.ToHttpFileContent(doc, normalizedDocumentName);
-            var filePath = Path.Combine(destinationPath, $"{normalizedDocumentName}.http");
+            var content = await produceContent();
+            var filePath = Path.Combine(destinationPath, $"{normalizedDocumentName}{extension}");
 
-            await File.WriteAllTextAsync(filePath, http, ct);
-            logger.HttpFileExportSuccessful(documentName, filePath);
+            await File.WriteAllTextAsync(filePath, content, ct);
+            logSuccess(documentName, filePath);
 
             return true;
         }
         catch (Exception ex)
         {
-            logger.HttpFileExportFailed(ex, documentName);
+            logFailure(ex, documentName);
 
             return false;
         }

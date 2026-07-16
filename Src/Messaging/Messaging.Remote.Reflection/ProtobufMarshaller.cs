@@ -73,26 +73,46 @@ public sealed class ProtobufMarshallerFactory : IRpcMarshallerFactory
                 meta.Add(number++, p.Name);
         }
 
-        //nested/repeated member types need registering too, and must be added before anything serializes this type.
+        //nested/repeated/map member types need registering too, and must be added before anything serializes this type.
         //non-message leaves (BCL scalars, collections' elements that aren't messages) are only valid when protobuf-net
         //already has a serializer for them - otherwise we'd either write an empty sub-message (silent data loss) or
         //blow up later on first serialize. fail here so handler bind / client Register surfaces the gap at startup.
+        //maps are special: protobuf-net exposes ItemType as KeyValuePair<K,V>, IsMessage(KVP) is deliberately false
+        //(descriptor path must not publish empty map entries), and CanSerialize(KVP) is false until K/V are known - so
+        //walk the key/value types first instead of rejecting the pair.
         foreach (var vm in Model[t].GetFields())
         {
-            var member = MemberType(vm);
-
-            if (IsMessage(member))
-                Register(member);
-            else if (!Model.CanSerialize(member))
+            if (MapEntryType(vm) is { } mapEntry)
             {
-                throw new NotSupportedException(
-                    $"Protobuf marshaller cannot serialize property type [{member.FullName}] on [{t.FullName}]. " +
-                    "Use a type protobuf-net already supports (string, bool, integral/floating types, decimal, DateTime, " +
-                    "DateOnly, TimeOnly, TimeSpan, Guid, byte[], Uri, enums, nested messages and collections of those), " +
-                    "or annotate a supported surrogate with [ProtoContract]/[ProtoMember].");
+                foreach (var arg in mapEntry.GetGenericArguments())
+                    EnsureMemberSerializable(Unwrap(arg), t);
+
+                continue;
             }
+
+            EnsureMemberSerializable(MemberType(vm), t);
         }
     }
+
+    void EnsureMemberSerializable(Type member, Type owner)
+    {
+        if (IsMessage(member))
+            Register(member);
+        else if (!Model.CanSerialize(member))
+        {
+            throw new NotSupportedException(
+                $"Protobuf marshaller cannot serialize property type [{member.FullName}] on [{owner.FullName}]. " +
+                "Use a type protobuf-net already supports (string, bool, integral/floating types, decimal, DateTime, " +
+                "DateOnly, TimeOnly, TimeSpan, Guid, byte[], Uri, enums, nested messages and collections of those), " +
+                "or annotate a supported surrogate with [ProtoContract]/[ProtoMember].");
+        }
+    }
+
+    //protobuf-net represents a dictionary field as map entries whose ItemType is KeyValuePair<K,V>
+    static Type? MapEntryType(ValueMember vm)
+        => vm.ItemType is { IsGenericType: true } it && it.GetGenericTypeDefinition() == typeof(KeyValuePair<,>)
+               ? it
+               : null;
 
     //the type a member actually carries: the item type for a collection, unwrapped of Nullable<>
     internal static Type MemberType(ValueMember vm)

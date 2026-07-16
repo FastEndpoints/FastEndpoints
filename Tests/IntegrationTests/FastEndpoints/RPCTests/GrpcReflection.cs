@@ -1,5 +1,8 @@
 using System.Buffers;
+using System.Net;
 using System.Reflection;
+using System.Text;
+using System.Text.Json;
 using Grpc.Core;
 using Grpc.Net.Client;
 using Grpc.Reflection.V1Alpha;
@@ -322,14 +325,32 @@ public class GrpcReflection
         back.Time.ShouldBe(original.Time);
     }
 
-    //DateTimeOffset (and similar BCL types with no public r/w props) used to be registered as empty messages: wire 0A00,
-    //deserialize default, no error. fail at Create/Register instead so FE↔FE traffic cannot silently drop data.
+    //System.Type is denylisted as a non-message so protobuf-net's assembly-qualified-name serializer is used rather than
+    //a hollow attribute-free contract. Create must succeed and the value must round-trip.
+    [Fact]
+    public void Marshals_System_Type_Property()
+    {
+        var marshaller = new ProtobufMarshallerFactory().Create<TypeCommand>();
+        var original = new TypeCommand { Kind = typeof(string) };
+
+        RoundTrip(marshaller, original).Kind.ShouldBe(typeof(string));
+    }
+
+    //DateTimeOffset/JsonElement/StringBuilder (and similar BCL types with no useful public r/w payload props) used to be
+    //registered as empty/hollow messages: wire 0A00 or metadata-only, deserialize default/corrupted, no error. fail at
+    //Create/Register instead so FE↔FE traffic cannot silently drop data.
     [Theory]
     [InlineData(typeof(DateTimeOffsetCommand))]
     [InlineData(typeof(HalfCommand))]
     [InlineData(typeof(Int128Command))]
     [InlineData(typeof(UInt128Command))]
     [InlineData(typeof(VersionCommand))]
+    [InlineData(typeof(JsonElementCommand))]
+    [InlineData(typeof(StringBuilderCommand))]
+    [InlineData(typeof(TimeZoneInfoCommand))]
+    [InlineData(typeof(IPAddressCommand))]
+    [InlineData(typeof(ExceptionCommand))]
+    [InlineData(typeof(MemoryStreamCommand))]
     public void Unsupported_Bcl_Property_Types_Fail_At_Marshaller_Creation(Type commandType)
     {
         var create = typeof(ProtobufMarshallerFactory).GetMethod(nameof(ProtobufMarshallerFactory.Create))!
@@ -347,6 +368,13 @@ public class GrpcReflection
     [InlineData(typeof(Int128Command))]
     [InlineData(typeof(UInt128Command))]
     [InlineData(typeof(VersionCommand))]
+    [InlineData(typeof(JsonElementCommand))]
+    [InlineData(typeof(StringBuilderCommand))]
+    [InlineData(typeof(TimeZoneInfoCommand))]
+    [InlineData(typeof(IPAddressCommand))]
+    [InlineData(typeof(ExceptionCommand))]
+    [InlineData(typeof(MemoryStreamCommand))]
+    [InlineData(typeof(TypeCommand))]
     [InlineData(typeof(SupportedBclCommand))] //DateTime/DateOnly/etc. still undescribable even though the wire works
     public void Unsupported_Bcl_Shapes_Are_Skipped_Rather_Than_Mis_Described(Type tCommand)
     {
@@ -480,6 +508,42 @@ public class UInt128Command : ICommand<ReflectedResult>
 public class VersionCommand : ICommand<ReflectedResult>
 {
     public Version? Value { get; set; }
+}
+
+//open JSON / builder / framework shapes that used to hollow-register (empty or metadata-only contracts)
+public class JsonElementCommand : ICommand<ReflectedResult>
+{
+    public JsonElement Payload { get; set; }
+}
+
+public class StringBuilderCommand : ICommand<ReflectedResult>
+{
+    public StringBuilder? Text { get; set; }
+}
+
+public class TimeZoneInfoCommand : ICommand<ReflectedResult>
+{
+    public TimeZoneInfo? Zone { get; set; }
+}
+
+public class IPAddressCommand : ICommand<ReflectedResult>
+{
+    public IPAddress? Addr { get; set; }
+}
+
+public class ExceptionCommand : ICommand<ReflectedResult>
+{
+    public Exception? Error { get; set; }
+}
+
+public class MemoryStreamCommand : ICommand<ReflectedResult>
+{
+    public MemoryStream? Body { get; set; }
+}
+
+public class TypeCommand : ICommand<ReflectedResult>
+{
+    public Type? Kind { get; set; }
 }
 
 public class ScalarResultCommand : ICommand<string>

@@ -1,5 +1,8 @@
+using System.Net;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Text;
+using System.Text.Json;
 using Grpc.Core;
 using ProtoBuf.Meta;
 
@@ -131,9 +134,10 @@ public sealed class ProtobufMarshallerFactory : IRpcMarshallerFactory
         => t.IsDefined(typeof(ProtoBuf.ProtoContractAttribute), false) || t.IsDefined(typeof(DataContractAttribute), false);
 
     //BCL / framework types that must never be registered as empty attribute-free messages. several of these (DateTimeOffset,
-    //Version, Half, Int128, UInt128) have no public r/w properties, so Model.Add + zero fields used to serialize as 0A00 and
-    //deserialize as default - silent data loss. others (DateOnly/TimeOnly/Uri/DateTime/...) have inbuilt protobuf-net
-    //serializers and must stay non-messages so those serializers are used instead of a hollow contract.
+    //Version, Half, Int128, UInt128, JsonElement) have no useful public r/w payload props, so Model.Add + zero/metadata
+    //fields used to serialize as 0A00 (or hollow Capacity/Length) and deserialize as default - silent data loss. others
+    //(DateOnly/TimeOnly/Uri/DateTime/...) have inbuilt protobuf-net serializers and must stay non-messages so those
+    //serializers are used instead of a hollow contract. hierarchies (Exception/Stream/...) are handled by IsNonMessageType.
     static readonly HashSet<Type> _nonMessageTypes =
     [
         typeof(string),
@@ -150,8 +154,27 @@ public sealed class ProtobufMarshallerFactory : IRpcMarshallerFactory
         typeof(Half),
         typeof(Int128),
         typeof(UInt128),
-        typeof(object)
+        typeof(object),
+        typeof(JsonElement),
+        typeof(JsonDocument),
+        typeof(StringBuilder),
+        typeof(TimeZoneInfo),
+        typeof(IPAddress),
+        typeof(Array)
     ];
+
+    //exact denylist plus framework hierarchies that cannot be meaningful attribute-free messages
+    static bool IsNonMessageType(Type t)
+        => _nonMessageTypes.Contains(t) ||
+           typeof(Exception).IsAssignableFrom(t) ||
+           typeof(Stream).IsAssignableFrom(t) ||
+           typeof(TextReader).IsAssignableFrom(t) ||
+           typeof(TextWriter).IsAssignableFrom(t) ||
+           typeof(EndPoint).IsAssignableFrom(t) ||
+           typeof(Delegate).IsAssignableFrom(t) ||
+           typeof(MemberInfo).IsAssignableFrom(t) || //covers Type
+           typeof(Assembly).IsAssignableFrom(t) ||
+           typeof(Module).IsAssignableFrom(t);
 
     //a "message" is a type protobuf can express as a top-level message. scalars, collections and nullable structs are not.
     //KeyValuePair is excluded on purpose: protobuf-net writes a dictionary as map entries, but its Key/Value are getter-only
@@ -162,7 +185,7 @@ public sealed class ProtobufMarshallerFactory : IRpcMarshallerFactory
            Nullable.GetUnderlyingType(t) is null &&
            !t.IsPrimitive &&
            !t.IsEnum &&
-           !_nonMessageTypes.Contains(t) &&
+           !IsNonMessageType(t) &&
            ElementType(t) is null &&
            (t.IsClass || t.IsValueType);
 

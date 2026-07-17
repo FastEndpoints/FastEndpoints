@@ -13,6 +13,7 @@ tags: [maintain]
 - Do not invent `type` values; use `Reference` if unsure.
 - No secrets in OKF. Prefer `## Sources` for multi-source claims.
 - Soft target ~50–150 lines per file; split by topic when scanning suffers.
+- Day-to-day OKF finish gate is normative in `AGENTS.md`; this file is the trigger inventory + conformance reminder.
 
 ## Update triggers
 Sync OKF when changes hit:

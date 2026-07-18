@@ -205,7 +205,7 @@ static partial class HttpFileExporter
     // only a schema that recurses into itself is short-circuited.
     static JsonNode? BuildPlaceholder(IOpenApiSchema schema, HashSet<IOpenApiSchema> seen, IDictionary<string, IOpenApiSchema>? components)
     {
-        var resolved = ResolveForExport(schema, components);
+        var resolved = schema.ResolveSchema(components);
 
         if (resolved is null)
             return null; // unresolved ref with no concrete fallback
@@ -268,31 +268,9 @@ static partial class HttpFileExporter
         }
     }
 
-    static OpenApiSchema? ResolveForExport(IOpenApiSchema schema, IDictionary<string, IOpenApiSchema>? components)
-    {
-        var resolved = schema.ResolveSchema();
-
-        if (resolved is not null)
-            return resolved;
-
-        if (schema is OpenApiSchema concrete)
-            return concrete;
-
-        // HostDocument can be unset on some refs after document generation; fall back to the export document's components.
-        if (schema is OpenApiSchemaReference schemaRef &&
-            components is not null &&
-            schemaRef.GetReferenceId() is { Length: > 0 } refId &&
-            components.TryGetValue(refId, out var componentSchema))
-        {
-            return componentSchema as OpenApiSchema ?? componentSchema.ResolveSchema();
-        }
-
-        return null;
-    }
-
     static bool IsNullSchema(IOpenApiSchema schema, IDictionary<string, IOpenApiSchema>? components)
     {
-        var resolved = ResolveForExport(schema, components);
+        var resolved = schema.ResolveSchema(components);
 
         return resolved?.Type == JsonSchemaType.Null ||
                (resolved is null && schema.Type == JsonSchemaType.Null);

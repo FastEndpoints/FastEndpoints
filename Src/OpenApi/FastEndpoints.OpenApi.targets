@@ -26,82 +26,69 @@ internal static class OpenApiExportPathInitializer
         </ItemGroup>
     </Target>
 
-    <!-- Export OpenAPI docs via JIT build before AOT publish -->
-    <Target Name="ExportOpenApiDocsBeforeAotPublish"
+    <!--
+      AOT pre-publish export descriptors.
+      Enable via ExportOpenApiDocs / ExportHttpFiles (and shared OpenApiExportPath).
+      Each format still gets its own JIT build + exec; alias target names kept for discoverability.
+    -->
+    <ItemGroup Condition="'$(PublishAot)' == 'true' AND '$(_OpenApiArtifactsExporting)' != 'true'">
+        <_FeAotExport Include="OpenApiDocs" Condition="'$(ExportOpenApiDocs)' == 'true'">
+            <IntermediateDir>$(IntermediateOutputPath)openapi_export\</IntermediateDir>
+            <CliArg>--export-openapi-docs true</CliArg>
+            <IncludeGlob>**\*</IncludeGlob>
+            <DisplayName>OpenAPI documents</DisplayName>
+            <QuotedName>OpenAPI documents</QuotedName>
+        </_FeAotExport>
+        <_FeAotExport Include="HttpFiles" Condition="'$(ExportHttpFiles)' == 'true'">
+            <IntermediateDir>$(IntermediateOutputPath)http_export\</IntermediateDir>
+            <CliArg>--export-http-files true</CliArg>
+            <IncludeGlob>**\*.http</IncludeGlob>
+            <DisplayName>'.http' files</DisplayName>
+            <QuotedName>'.http' files</QuotedName>
+        </_FeAotExport>
+    </ItemGroup>
+
+    <!-- Export OpenAPI artifacts via JIT build before AOT publish (batched per format) -->
+    <Target Name="ExportOpenApiArtifactsBeforeAotPublish"
             BeforeTargets="PrepareForILLink"
-            Condition="'$(ExportOpenApiDocs)' == 'true' AND '$(PublishAot)' == 'true' AND '$(_OpenApiDocsExporting)' != 'true'">
+            Condition="'@(_FeAotExport)' != ''"
+            Outputs="%(_FeAotExport.Identity)">
 
-        <PropertyGroup>
-            <_OpenApiExportDir>$(IntermediateOutputPath)openapi_export\</_OpenApiExportDir>
-        </PropertyGroup>
-
-        <Message Text="Exporting OpenAPI documents before Native AOT compilation..." Importance="high"/>
-        <Message Text="OpenAPI export path: $(OpenApiExportPath)" Importance="high"/>
+        <Message Text="Exporting %(_FeAotExport.DisplayName) before Native AOT compilation..." Importance="high"/>
+        <Message Text="%(_FeAotExport.QuotedName) export path: $(OpenApiExportPath)" Importance="high"/>
 
         <!-- Build JIT version (non-AOT) with OpenApiExportPath explicitly passed -->
         <MSBuild Projects="$(MSBuildProjectFullPath)"
                  Targets="Build"
-                 Properties="PublishAot=false;_OpenApiDocsExporting=true;OpenApiExportPath=$(OpenApiExportPath);OutputPath=$(_OpenApiExportDir)"/>
+                 Properties="PublishAot=false;_OpenApiArtifactsExporting=true;OpenApiExportPath=$(OpenApiExportPath);OutputPath=%(_FeAotExport.IntermediateDir)"/>
 
-        <!-- Run the JIT build to export openapi docs -->
-        <Exec Command="dotnet exec $(_OpenApiExportDir)$(AssemblyName).dll --export-openapi-docs true"
+        <!-- Run the JIT build to export artifacts -->
+        <Exec Command="dotnet exec %(_FeAotExport.IntermediateDir)$(AssemblyName).dll %(_FeAotExport.CliArg)"
               WorkingDirectory="$(MSBuildProjectDirectory)"
               IgnoreExitCode="true">
-            <Output TaskParameter="ExitCode" PropertyName="_OpenApiExportExitCode"/>
+            <Output TaskParameter="ExitCode" PropertyName="_FeAotExportExitCode"/>
         </Exec>
 
-        <Warning Text="OpenAPI document export failed with exit code $(_OpenApiExportExitCode)"
-                 Condition="'$(_OpenApiExportExitCode)' != '0'"/>
-        <Message Text="OpenAPI documents exported successfully" Importance="high"
-                 Condition="'$(_OpenApiExportExitCode)' == '0'"/>
+        <Warning Text="%(_FeAotExport.QuotedName) export failed with exit code $(_FeAotExportExitCode)"
+                 Condition="'$(_FeAotExportExitCode)' != '0'"/>
+        <Message Text="%(_FeAotExport.QuotedName) exported successfully" Importance="high"
+                 Condition="'$(_FeAotExportExitCode)' == '0'"/>
 
         <!-- Copy exported files to publish directory -->
-        <ItemGroup Condition="'$(_OpenApiExportExitCode)' == '0' AND '$(PublishDir)' != ''">
-            <_OpenApiFiles Include="$(MSBuildProjectDirectory)\$(OpenApiExportPath)\**\*"/>
+        <ItemGroup Condition="'$(_FeAotExportExitCode)' == '0' AND '$(PublishDir)' != ''">
+            <_FeAotExportFiles Include="$(MSBuildProjectDirectory)\$(OpenApiExportPath)\%(_FeAotExport.IncludeGlob)"/>
         </ItemGroup>
-        <Copy SourceFiles="@(_OpenApiFiles)"
+        <Copy SourceFiles="@(_FeAotExportFiles)"
               DestinationFolder="$(PublishDir)$(OpenApiExportPath)\%(RecursiveDir)"
-              Condition="'@(_OpenApiFiles)' != ''"
+              Condition="'@(_FeAotExportFiles)' != ''"
               SkipUnchangedFiles="true"/>
+        <ItemGroup>
+            <_FeAotExportFiles Remove="@(_FeAotExportFiles)"/>
+        </ItemGroup>
     </Target>
 
-    <!-- Export '.http' files via JIT build before AOT publish -->
-    <Target Name="ExportHttpFilesBeforeAotPublish"
-            BeforeTargets="PrepareForILLink"
-            Condition="'$(ExportHttpFiles)' == 'true' AND '$(PublishAot)' == 'true' AND '$(_HttpFilesExporting)' != 'true'">
-
-        <PropertyGroup>
-            <_HttpFilesExportDir>$(IntermediateOutputPath)http_export\</_HttpFilesExportDir>
-        </PropertyGroup>
-
-        <Message Text="Exporting '.http' files before Native AOT compilation..." Importance="high"/>
-        <Message Text="'.http' export path: $(OpenApiExportPath)" Importance="high"/>
-
-        <!-- Build JIT version (non-AOT) with OpenApiExportPath explicitly passed -->
-        <MSBuild Projects="$(MSBuildProjectFullPath)"
-                 Targets="Build"
-                 Properties="PublishAot=false;_HttpFilesExporting=true;OpenApiExportPath=$(OpenApiExportPath);OutputPath=$(_HttpFilesExportDir)"/>
-
-        <!-- Run the JIT build to export '.http' files -->
-        <Exec Command="dotnet exec $(_HttpFilesExportDir)$(AssemblyName).dll --export-http-files true"
-              WorkingDirectory="$(MSBuildProjectDirectory)"
-              IgnoreExitCode="true">
-            <Output TaskParameter="ExitCode" PropertyName="_HttpFilesExportExitCode"/>
-        </Exec>
-
-        <Warning Text="'.http' file export failed with exit code $(_HttpFilesExportExitCode)"
-                 Condition="'$(_HttpFilesExportExitCode)' != '0'"/>
-        <Message Text="'.http' files exported successfully" Importance="high"
-                 Condition="'$(_HttpFilesExportExitCode)' == '0'"/>
-
-        <!-- Copy exported files to publish directory -->
-        <ItemGroup Condition="'$(_HttpFilesExportExitCode)' == '0' AND '$(PublishDir)' != ''">
-            <_HttpFiles Include="$(MSBuildProjectDirectory)\$(OpenApiExportPath)\**\*.http"/>
-        </ItemGroup>
-        <Copy SourceFiles="@(_HttpFiles)"
-              DestinationFolder="$(PublishDir)$(OpenApiExportPath)\%(RecursiveDir)"
-              Condition="'@(_HttpFiles)' != ''"
-              SkipUnchangedFiles="true"/>
-    </Target>
+    <!-- Alias targets (discoverability / explicit DependsOn) -->
+    <Target Name="ExportOpenApiDocsBeforeAotPublish" DependsOnTargets="ExportOpenApiArtifactsBeforeAotPublish"/>
+    <Target Name="ExportHttpFilesBeforeAotPublish" DependsOnTargets="ExportOpenApiArtifactsBeforeAotPublish"/>
 
 </Project>

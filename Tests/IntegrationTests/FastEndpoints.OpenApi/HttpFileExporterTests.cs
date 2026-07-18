@@ -26,7 +26,7 @@ public class HttpFileExporterTests
                 }
             });
 
-        var body = ExtractJsonBody(HttpFileExporter.ToHttpFileContent(document, "test"), "Login");
+        var body = ExtractJsonBody(HttpFileExporter.ToHttpFileContent(document), "Login");
 
         body["userName"]!.GetValue<string>().ShouldBe("");
         body["password"]!.GetValue<string>().ShouldBe("");
@@ -60,7 +60,7 @@ public class HttpFileExporterTests
                 }
             });
 
-        var body = ExtractJsonBody(HttpFileExporter.ToHttpFileContent(document, "test"), "DualChild");
+        var body = ExtractJsonBody(HttpFileExporter.ToHttpFileContent(document), "DualChild");
 
         body["billingAddress"]!["zip"]!.GetValue<string>().ShouldBe("");
         body["shippingAddress"]!["zip"]!.GetValue<string>().ShouldBe("");
@@ -100,7 +100,7 @@ public class HttpFileExporterTests
                 }
             });
 
-        var body = ExtractJsonBody(HttpFileExporter.ToHttpFileContent(document, "test"), "NullableRef");
+        var body = ExtractJsonBody(HttpFileExporter.ToHttpFileContent(document), "NullableRef");
 
         body["address"]!["street"]!.GetValue<string>().ShouldBe("");
     }
@@ -124,7 +124,7 @@ public class HttpFileExporterTests
                 ["Node"] = nodeSchema
             });
 
-        var http = HttpFileExporter.ToHttpFileContent(document, "test");
+        var http = HttpFileExporter.ToHttpFileContent(document);
         var body = ExtractJsonBody(http, "Cycle");
 
         // cycle short-circuits the recursive property to null; root remains an object (never literal null body)
@@ -143,7 +143,7 @@ public class HttpFileExporterTests
             inlineBodySchema: new OpenApiSchema { Type = JsonSchemaType.Object },
             schemas: new Dictionary<string, IOpenApiSchema>());
 
-        var body = ExtractJsonBody(HttpFileExporter.ToHttpFileContent(document, "test"), "Empty");
+        var body = ExtractJsonBody(HttpFileExporter.ToHttpFileContent(document), "Empty");
 
         body.ShouldNotBeNull();
         body.AsObject().Count.ShouldBe(0);
@@ -180,7 +180,7 @@ public class HttpFileExporterTests
             },
             schemas: new Dictionary<string, IOpenApiSchema>());
 
-        var body = ExtractJsonBody(HttpFileExporter.ToHttpFileContent(document, "test"), "Poly");
+        var body = ExtractJsonBody(HttpFileExporter.ToHttpFileContent(document), "Poly");
 
         body.ShouldNotBeNull();
         body.AsObject().Count.ShouldBe(0);
@@ -204,7 +204,7 @@ public class HttpFileExporterTests
             }
         };
 
-        var http = HttpFileExporter.ToHttpFileContent(document, "test");
+        var http = HttpFileExporter.ToHttpFileContent(document);
 
         http.ShouldStartWith("@baseUrl = http://localhost\n");
     }
@@ -246,7 +246,7 @@ public class HttpFileExporterTests
             }
         };
 
-        var http = HttpFileExporter.ToHttpFileContent(document, "test");
+        var http = HttpFileExporter.ToHttpFileContent(document);
 
         http.ShouldContain("Content-Type: multipart/form-data");
         http.ShouldContain("# body omitted (multipart/form-data); provide form fields in the client");
@@ -283,7 +283,7 @@ public class HttpFileExporterTests
             }
         };
 
-        var http = HttpFileExporter.ToHttpFileContent(document, "test");
+        var http = HttpFileExporter.ToHttpFileContent(document);
 
         http.ShouldContain("Content-Type: text/plain");
         http.ShouldContain("{{body}}");
@@ -323,7 +323,7 @@ public class HttpFileExporterTests
             }
         };
 
-        var http = HttpFileExporter.ToHttpFileContent(document, "test");
+        var http = HttpFileExporter.ToHttpFileContent(document);
 
         http.ShouldContain("Content-Type: application/json-patch+json");
         http.ShouldContain("[\n  {}\n]");
@@ -362,7 +362,7 @@ public class HttpFileExporterTests
             }
         };
 
-        var http = HttpFileExporter.ToHttpFileContent(document, "test");
+        var http = HttpFileExporter.ToHttpFileContent(document);
 
         http.ShouldContain("Cookie: session_id={{session_id}}; theme={{theme}}");
     }
@@ -406,7 +406,7 @@ public class HttpFileExporterTests
             }
         };
 
-        var http = HttpFileExporter.ToHttpFileContent(document, "test");
+        var http = HttpFileExporter.ToHttpFileContent(document);
 
         http.ShouldContain("Authorization: Bearer {{bearerToken}}");
     }
@@ -457,7 +457,7 @@ public class HttpFileExporterTests
             }
         };
 
-        var http = HttpFileExporter.ToHttpFileContent(document, "test");
+        var http = HttpFileExporter.ToHttpFileContent(document);
 
         http.ShouldContain("Authorization: {{Authorization}}");
         http.ShouldNotContain("Bearer {{bearerToken}}");
@@ -509,7 +509,7 @@ public class HttpFileExporterTests
             }
         };
 
-        var body = ExtractJsonBody(HttpFileExporter.ToHttpFileContent(document, "test"), "LoginNoHost");
+        var body = ExtractJsonBody(HttpFileExporter.ToHttpFileContent(document), "LoginNoHost");
 
         body["userName"]!.GetValue<string>().ShouldBe("");
         body["password"]!.GetValue<string>().ShouldBe("");

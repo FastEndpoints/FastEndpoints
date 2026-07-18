@@ -44,7 +44,7 @@ public class Fixture : AppFixture<Web.Program>
             var provider = Services.GetRequiredKeyedService<IOpenApiDocumentProvider>(normalizedDocumentName);
             var doc = await provider.GetOpenApiDocumentAsync(ct);
 
-            return HttpFileExporter.ToHttpFileContent(doc, normalizedDocumentName);
+            return HttpFileExporter.ToHttpFileContent(doc);
         }
         finally
         {

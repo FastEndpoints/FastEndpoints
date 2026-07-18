@@ -12,7 +12,7 @@ static partial class HttpFileExporter
 
     const string DefaultBaseUrl = "https://localhost:5001";
 
-    public static string ToHttpFileContent(OpenApiDocument document, string documentName)
+    public static string ToHttpFileContent(OpenApiDocument document)
     {
         var sb = new StringBuilder();
         sb.Append("@baseUrl = ").Append(ResolveBaseUrl(document)).Append("\n\n");

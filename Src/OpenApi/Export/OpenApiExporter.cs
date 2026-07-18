@@ -75,7 +75,7 @@ static class OpenApiExporter
                 var provider = app.Services.GetRequiredKeyedService<IOpenApiDocumentProvider>(normalizedDocumentName);
                 var doc = await provider.GetOpenApiDocumentAsync(ct);
 
-                return HttpFileExporter.ToHttpFileContent(doc, normalizedDocumentName);
+                return HttpFileExporter.ToHttpFileContent(doc);
             });
     }
 

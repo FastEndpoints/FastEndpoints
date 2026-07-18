@@ -140,7 +140,7 @@ await app.ExportHttpFilesAndExitAsync("v1"); // doc name should match .OpenApiDo
 dotnet run --export-http-files true
 ```
 
-Each file has one placeholder request per operation: `@baseUrl` (from document servers when present), `{{param}}` for path/query/header/cookie, optional `Authorization: Bearer {{bearerToken}}` for JWT/bearer security, and JSON bodies as property-keyed schema skeletons (including `$ref` schemas). Form media types omit a structured body; other non-JSON types use `{{body}}`. MSBuild: `ExportHttpFiles` + shared `OpenApiExportPath`.
+Each file has one placeholder request per operation: `@baseUrl` (from document servers when present), `{{param}}` for path/query/header/cookie, optional `Authorization: Bearer {{bearerToken}}` for JWT/bearer security, and JSON bodies as property-keyed schema skeletons (including `$ref` schemas). Form media types omit a structured body; other non-JSON types use `{{body}}`. MSBuild: `ExportHttpFiles` + shared `OpenApiExportPath`. When both JSON and `.http` export flags are set, call both `Export*AndExitAsync` APIs in sequence — one process, one AOT JIT export pass.
 
 </details>
 

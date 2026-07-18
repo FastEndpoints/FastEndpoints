@@ -9,93 +9,106 @@ namespace FastEndpoints.OpenApi;
 
 static class OpenApiExporter
 {
-    // Process-scoped state for multi-format export: start host once, exit after every requested format runs.
-    static bool _hostStarted;
-    static bool _exportFailed;
-    static bool _jsonAttempted;
-    static bool _httpAttempted;
-
-    public static Task ExportDocsAndExitAsync(WebApplication app, string[] documentNames)
-        => app.IsNotJsonExportMode()
-               ? Task.CompletedTask
-               : RunFormatExportAsync(app, documentNames, ExportJsonDocumentAsync, jsonFormat: true);
-
-    public static Task ExportHttpFilesAndExitAsync(WebApplication app, string[] documentNames)
-        => app.IsNotHttpExportMode()
-               ? Task.CompletedTask
-               : RunFormatExportAsync(app, documentNames, ExportHttpDocumentAsync, jsonFormat: false);
-
-    static async Task RunFormatExportAsync(WebApplication app,
-                                           string[] documentNames,
-                                           Func<WebApplication, string, string, ILogger, CancellationToken, Task<bool>> exportOneAsync,
-                                           bool jsonFormat)
+    /// <summary>
+    /// exports every CLI-requested format and exits the process.
+    /// no-ops when neither <c>--export-openapi-docs</c> nor <c>--export-http-files</c> is set.
+    /// </summary>
+    public static async Task ExportRequestedFormatsAndExitAsync(WebApplication app, string[] documentNames)
     {
-        if (documentNames.Length == 0)
+        var exitCode = await ExportRequestedFormatsAsync(app, documentNames);
+
+        if (exitCode is null)
             return;
+
+        Environment.Exit(exitCode.Value);
+    }
+
+    /// <summary>
+    /// core multi-format export orchestrator. returns null when not in any export mode;
+    /// otherwise 0 on success / 1 on any failure (does not call <see cref="Environment.Exit"/>).
+    /// </summary>
+    internal static async Task<int?> ExportRequestedFormatsAsync(WebApplication app, string[] documentNames)
+    {
+        var exportJson = app.IsJsonExportMode();
+        var exportHttp = app.IsHttpExportMode();
+
+        if (!exportJson && !exportHttp)
+            return null;
+
+        // empty name list still exits cleanly so dual-flag / single-call apps cannot hang
+        if (documentNames.Length == 0)
+            return 0;
 
         var destinationPath = Path.Combine(app.Environment.ContentRootPath, DocumentOptions.OpenApiExportPath);
         var logger = app.Services.GetRequiredService<ILogger<OpenApiExportRunner>>();
+        var failed = false;
 
-        if (!_hostStarted)
+        await app.StartAsync();
+
+        try
         {
-            await app.StartAsync();
-            _hostStarted = true;
             Directory.CreateDirectory(destinationPath);
-        }
 
-        foreach (var docName in documentNames)
+            foreach (var documentName in documentNames)
+            {
+                var normalizedDocumentName = documentName.ToLowerInvariant();
+                OpenApiDocument? doc = null;
+                Exception? loadError = null;
+
+                try
+                {
+                    var provider = app.Services.GetRequiredKeyedService<IOpenApiDocumentProvider>(normalizedDocumentName);
+                    doc = await provider.GetOpenApiDocumentAsync(CancellationToken.None);
+                }
+                catch (Exception ex)
+                {
+                    loadError = ex;
+                }
+
+                if (exportJson)
+                {
+                    logger.ExportingOpenApiDoc(documentName);
+
+                    if (!await WriteExportAsync(
+                            documentName, normalizedDocumentName, destinationPath, ".json",
+                            logger.OpenApiDocExportSuccessful, logger.OpenApiDocExportFailed, CancellationToken.None,
+                            async () =>
+                            {
+                                if (loadError is not null)
+                                    throw loadError;
+
+                                var openApiVersion = app.Services.GetRequiredService<IOptionsMonitor<OpenApiOptions>>()
+                                                                .Get(normalizedDocumentName).OpenApiVersion;
+
+                                return await doc!.SerializeAsJsonAsync(openApiVersion, CancellationToken.None);
+                            }))
+                        failed = true;
+                }
+
+                if (exportHttp)
+                {
+                    logger.ExportingHttpFile(documentName);
+
+                    if (!await WriteExportAsync(
+                            documentName, normalizedDocumentName, destinationPath, ".http",
+                            logger.HttpFileExportSuccessful, logger.HttpFileExportFailed, CancellationToken.None,
+                            () =>
+                            {
+                                if (loadError is not null)
+                                    throw loadError;
+
+                                return Task.FromResult(HttpFileExporter.ToHttpFileContent(doc!));
+                            }))
+                        failed = true;
+                }
+            }
+        }
+        finally
         {
-            if (!await exportOneAsync(app, docName, destinationPath, logger, CancellationToken.None))
-                _exportFailed = true;
+            await app.StopAsync();
         }
 
-        if (jsonFormat)
-            _jsonAttempted = true;
-        else
-            _httpAttempted = true;
-
-        // Wait until every format requested via CLI flags has been attempted (call both Export* APIs when both flags are set).
-        if (app.IsJsonExportMode() && !_jsonAttempted)
-            return;
-
-        if (app.IsHttpExportMode() && !_httpAttempted)
-            return;
-
-        await app.StopAsync();
-        Environment.Exit(_exportFailed ? 1 : 0);
-    }
-
-    static Task<bool> ExportJsonDocumentAsync(WebApplication app, string documentName, string destinationPath, ILogger logger, CancellationToken ct)
-    {
-        logger.ExportingOpenApiDoc(documentName);
-        var normalizedDocumentName = documentName.ToLowerInvariant();
-
-        return WriteExportAsync(
-            documentName, normalizedDocumentName, destinationPath, ".json", logger.OpenApiDocExportSuccessful, logger.OpenApiDocExportFailed, ct,
-            async () =>
-            {
-                var provider = app.Services.GetRequiredKeyedService<IOpenApiDocumentProvider>(normalizedDocumentName);
-                var openApiVersion = app.Services.GetRequiredService<IOptionsMonitor<OpenApiOptions>>().Get(normalizedDocumentName).OpenApiVersion;
-                var doc = await provider.GetOpenApiDocumentAsync(ct);
-
-                return await doc.SerializeAsJsonAsync(openApiVersion, ct);
-            });
-    }
-
-    static Task<bool> ExportHttpDocumentAsync(WebApplication app, string documentName, string destinationPath, ILogger logger, CancellationToken ct)
-    {
-        logger.ExportingHttpFile(documentName);
-        var normalizedDocumentName = documentName.ToLowerInvariant();
-
-        return WriteExportAsync(
-            documentName, normalizedDocumentName, destinationPath, ".http", logger.HttpFileExportSuccessful, logger.HttpFileExportFailed, ct,
-            async () =>
-            {
-                var provider = app.Services.GetRequiredKeyedService<IOpenApiDocumentProvider>(normalizedDocumentName);
-                var doc = await provider.GetOpenApiDocumentAsync(ct);
-
-                return HttpFileExporter.ToHttpFileContent(doc);
-            });
+        return failed ? 1 : 0;
     }
 
     static async Task<bool> WriteExportAsync(string documentName,

@@ -151,13 +151,46 @@ public static class Extensions
     }
 
     /// <summary>
-    /// exports openapi .json files to disk and exits the program.
+    /// exports openapi artifacts (JSON and/or '.http') for every CLI-requested format and exits the program.
     /// <para>HINT: make sure to place the call straight after <c>app.UseFastEndpoints()</c></para>
     /// <para>
-    /// when both <c>--export-openapi-docs</c> and <c>--export-http-files</c> are set, call
-    /// <see cref="ExportOpenApiDocsAndExitAsync"/> and <see cref="ExportHttpFilesAndExitAsync"/> in sequence;
-    /// the process starts once and exits after the last requested format finishes.
+    /// format selection is driven solely by CLI/MSBuild flags:
+    /// <c>--export-openapi-docs</c> / <c>ExportOpenApiDocs</c> and
+    /// <c>--export-http-files</c> / <c>ExportHttpFiles</c>.
+    /// a single call exports every requested format (shared document load, one host start/stop).
     /// </para>
+    /// <para>
+    /// to enable automatic export during AOT publish builds, add this to your .csproj:
+    /// <code>
+    /// &lt;PropertyGroup&gt;
+    ///     &lt;ExportOpenApiDocs&gt;true&lt;/ExportOpenApiDocs&gt;
+    ///     &lt;ExportHttpFiles&gt;true&lt;/ExportHttpFiles&gt;
+    /// &lt;/PropertyGroup&gt;
+    /// </code>
+    /// </para>
+    /// <para>
+    /// to customize the export path, add this to your .csproj:
+    /// <code>
+    /// &lt;PropertyGroup&gt;
+    ///     &lt;OpenApiExportPath&gt;wwwroot/openapi&lt;/OpenApiExportPath&gt;
+    /// &lt;/PropertyGroup&gt;
+    /// </code>
+    /// </para>
+    /// <para>
+    /// to force generate artifacts outside an AOT publish:
+    /// <code>dotnet run --export-openapi-docs true --export-http-files true -p:PublishAot=false</code>
+    /// optionally specify the output folder:
+    /// <code>dotnet run --export-openapi-docs true -p:PublishAot=false -p:OpenApiExportPath=wwwroot/openapi</code>
+    /// </para>
+    /// </summary>
+    /// <param name="documentNames">the openapi document names to export. these must match the names used in <c>.OpenApiDocument()</c> configuration.</param>
+    public static Task ExportOpenApiArtifactsAndExitAsync(this WebApplication app, params string[] documentNames)
+        => OpenApiExporter.ExportRequestedFormatsAndExitAsync(app, documentNames);
+
+    /// <summary>
+    /// exports openapi .json files to disk (and any other CLI-requested formats) and exits the program.
+    /// <para>prefer <see cref="ExportOpenApiArtifactsAndExitAsync"/>; this method is an alias that exports every flag-requested format.</para>
+    /// <para>HINT: make sure to place the call straight after <c>app.UseFastEndpoints()</c></para>
     /// <para>
     /// to enable automatic export during AOT publish builds, add this to your .csproj:
     /// <code>
@@ -183,16 +216,12 @@ public static class Extensions
     /// </summary>
     /// <param name="documentNames">the openapi document names to export. these must match the names used in <c>.OpenApiDocument()</c> configuration.</param>
     public static Task ExportOpenApiDocsAndExitAsync(this WebApplication app, params string[] documentNames)
-        => OpenApiExporter.ExportDocsAndExitAsync(app, documentNames);
+        => OpenApiExporter.ExportRequestedFormatsAndExitAsync(app, documentNames);
 
     /// <summary>
-    /// exports '.http' files (REST Client / HTTP Client format) to disk and exits the program.
+    /// exports '.http' files (REST Client / HTTP Client format) to disk (and any other CLI-requested formats) and exits the program.
+    /// <para>prefer <see cref="ExportOpenApiArtifactsAndExitAsync"/>; this method is an alias that exports every flag-requested format.</para>
     /// <para>HINT: make sure to place the call straight after <c>app.UseFastEndpoints()</c></para>
-    /// <para>
-    /// when both <c>--export-openapi-docs</c> and <c>--export-http-files</c> are set, call
-    /// <see cref="ExportOpenApiDocsAndExitAsync"/> and <see cref="ExportHttpFilesAndExitAsync"/> in sequence;
-    /// the process starts once and exits after the last requested format finishes.
-    /// </para>
     /// <para>
     /// to enable automatic export during AOT publish builds, add this to your .csproj:
     /// <code>
@@ -218,5 +247,5 @@ public static class Extensions
     /// </summary>
     /// <param name="documentNames">the openapi document names to export. these must match the names used in <c>.OpenApiDocument()</c> configuration.</param>
     public static Task ExportHttpFilesAndExitAsync(this WebApplication app, params string[] documentNames)
-        => OpenApiExporter.ExportHttpFilesAndExitAsync(app, documentNames);
+        => OpenApiExporter.ExportRequestedFormatsAndExitAsync(app, documentNames);
 }

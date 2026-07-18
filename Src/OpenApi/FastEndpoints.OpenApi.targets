@@ -29,7 +29,7 @@ internal static class OpenApiExportPathInitializer
     <!--
       Single JIT build + one process for all enabled AOT export formats.
       Enable via ExportOpenApiDocs and/or ExportHttpFiles (shared OpenApiExportPath).
-      When both are true, pass both CLI flags; app must call both Export*AndExitAsync APIs in sequence.
+      When both are true, pass both CLI flags; one Export*AndExitAsync call exports every requested format.
       Alias target names kept for discoverability.
     -->
     <Target Name="ExportOpenApiArtifactsBeforeAotPublish"

@@ -50,6 +50,7 @@ AOT tests: use `NativeAot.slnx` (publish workflow currently has AOT test step co
 ## OpenAPI `.http` export snapshots
 - Goldens: `Tests/IntegrationTests/FastEndpoints.OpenApi/release-*.http` compared by `HttpSnapshotTests`.
 - Focused walker/security coverage: `HttpFileExporterTests` + `HttpExportRegressionTests` (not snapshots alone).
+- Multi-format export orchestration: `OpenApiExporterTests` (in-process via `ExportRequestedFormatsAsync`, fake `IOpenApiDocumentProvider`; no `Environment.Exit`).
 - To regenerate goldens: set `_updateSnapshots = true` in `HttpSnapshotTests.cs`, run  
   `dotnet test Tests/IntegrationTests/FastEndpoints.OpenApi/Int.OpenApi.csproj --filter FullyQualifiedName~HttpSnapshotTests`,  
   set `_updateSnapshots = false`, re-run the same filter (must pass 7/7). Spot-check admin login, inventory create, dual-child-address bodies.

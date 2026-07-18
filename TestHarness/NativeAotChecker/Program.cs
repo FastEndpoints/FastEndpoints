@@ -52,8 +52,7 @@ app.UseStaticFiles()
            c.Endpoints.Configurator = ep => { ep.PreProcessors(Order.Before, typeof(OpenGenericGlobalPreProcessor<>)); };
        });
 
-await app.ExportOpenApiDocsAndExitAsync("v1");
-await app.ExportHttpFilesAndExitAsync("v1");
+await app.ExportOpenApiArtifactsAndExitAsync("v1");
 
 app.MapScalarApiReference(o => o.AddDocument("v1"));
 app.UseJobQueues(

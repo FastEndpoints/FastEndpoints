@@ -14,6 +14,7 @@ static partial class HttpFileExporter
     {
         var sb = new StringBuilder();
         sb.Append("@baseUrl = https://localhost:5001\n\n");
+        var components = document.Components?.Schemas;
 
         foreach (var pathEntry in document.Paths)
         {
@@ -21,13 +22,17 @@ static partial class HttpFileExporter
                 continue;
 
             foreach (var opEntry in pathItem.Operations ?? [])
-                AppendOperation(sb, opEntry.Key.Method, pathEntry.Key, opEntry.Value);
+                AppendOperation(sb, opEntry.Key.Method, pathEntry.Key, opEntry.Value, components);
         }
 
         return sb.ToString();
     }
 
-    static void AppendOperation(StringBuilder sb, string method, string path, OpenApiOperation operation)
+    static void AppendOperation(StringBuilder sb,
+                                string method,
+                                string path,
+                                OpenApiOperation operation,
+                                IDictionary<string, IOpenApiSchema>? components)
     {
         var parameters = operation.Parameters ?? [];
         var queryParams = parameters.Where(p => p.In == ParameterLocation.Query).ToList();
@@ -54,7 +59,8 @@ static partial class HttpFileExporter
 
         if (mediaType?.Schema is not null)
         {
-            var placeholder = BuildPlaceholder(mediaType.Schema, []) ?? new JsonObject(); // never emit a literal 'null' body
+            // never emit a literal 'null' body
+            var placeholder = BuildPlaceholder(mediaType.Schema, [], components) ?? new JsonObject();
             sb.Append(placeholder.ToJsonString(_jsonOpts)).Append('\n');
         }
 
@@ -78,47 +84,57 @@ static partial class HttpFileExporter
         => RouteParamRegex().Replace(path, "{{$1}}");
 
     // turns a schema into a placeholder JSON value keyed by property name, so the generated request body is fillable rather than an opaque '{}'.
-    // 'seen' tracks the schemas on the CURRENT recursion path (not every schema ever visited), so a DTO referenced twice in
-    // sibling branches (e.g. the same Address type used by both 'mainAddress' and 'otherAddresses') is still walked properly -
+    // always resolve $ref (Microsoft.OpenApi 2.0 OpenApiSchemaReference often has null Properties/Type until Target/components are resolved).
+    // 'seen' tracks the resolved schemas on the CURRENT recursion path (not every schema ever visited), so a DTO referenced twice in
+    // sibling branches (e.g. the same Address type used by both 'billingAddress' and 'shippingAddress') is still walked properly -
     // only a schema that recurses into itself is short-circuited.
-    static JsonNode? BuildPlaceholder(IOpenApiSchema schema, HashSet<IOpenApiSchema> seen)
+    static JsonNode? BuildPlaceholder(IOpenApiSchema schema, HashSet<IOpenApiSchema> seen, IDictionary<string, IOpenApiSchema>? components)
     {
-        if (!seen.Add(schema))
+        var resolved = ResolveForExport(schema, components);
+
+        if (resolved is null)
+            return null; // unresolved ref with no concrete fallback
+
+        if (!seen.Add(resolved))
             return null; // true cycle: this schema is already being walked further up the same path
 
         try
         {
-            if (schema.OneOf?.Count > 0 || schema.AnyOf?.Count > 0 || schema.AllOf?.Count > 0)
+            if (resolved.OneOf?.Count > 0 || resolved.AnyOf?.Count > 0 || resolved.AllOf?.Count > 0)
             {
                 // the common "nullable $ref" idiom is encoded as a oneOf/anyOf with exactly one non-null branch - that's not
                 // real polymorphism, so unwrap it and walk the referenced schema instead of falling back to an empty object.
-                var branches = schema.OneOf ?? schema.AnyOf ?? schema.AllOf!;
-                var nonNullBranches = branches.Where(b => b.Type != JsonSchemaType.Null).ToList();
+                var branches = resolved.OneOf ?? resolved.AnyOf ?? resolved.AllOf!;
+                var nonNullBranches = branches.Where(b => !IsNullSchema(b, components)).ToList();
 
                 if (nonNullBranches.Count == 1)
-                    return BuildPlaceholder(nonNullBranches[0], seen);
+                    return BuildPlaceholder(nonNullBranches[0], seen, components);
 
                 return new JsonObject(); // genuinely composed/polymorphic schema, fall back to an empty object
             }
 
-            var type = schema.Type;
+            var type = resolved.Type;
 
             if (type?.HasFlag(JsonSchemaType.Array) == true)
-                return schema.Items is null ? new JsonArray() : new JsonArray(BuildPlaceholder(schema.Items, seen));
+            {
+                return resolved.Items is null
+                           ? new JsonArray()
+                           : new JsonArray(BuildPlaceholder(resolved.Items, seen, components));
+            }
 
-            if (schema.Properties is { Count: > 0 } props && (type is null || type.Value.HasFlag(JsonSchemaType.Object)))
+            if (resolved.Properties is { Count: > 0 } props && (type is null || type.Value.HasFlag(JsonSchemaType.Object)))
             {
                 var obj = new JsonObject();
 
                 foreach (var (name, propSchema) in props)
-                    obj[name] = propSchema is null ? null : BuildPlaceholder(propSchema, seen);
+                    obj[name] = propSchema is null ? null : BuildPlaceholder(propSchema, seen, components);
 
                 return obj;
             }
 
             if (type?.HasFlag(JsonSchemaType.String) == true)
             {
-                return schema.Enum?.FirstOrDefault() is JsonValue enumValue && enumValue.TryGetValue<string>(out var s)
+                return resolved.Enum?.FirstOrDefault() is JsonValue enumValue && enumValue.TryGetValue<string>(out var s)
                            ? JsonValue.Create(s)
                            : JsonValue.Create("");
             }
@@ -133,8 +149,38 @@ static partial class HttpFileExporter
         }
         finally
         {
-            seen.Remove(schema);
+            seen.Remove(resolved);
         }
+    }
+
+    static OpenApiSchema? ResolveForExport(IOpenApiSchema schema, IDictionary<string, IOpenApiSchema>? components)
+    {
+        var resolved = schema.ResolveSchema();
+
+        if (resolved is not null)
+            return resolved;
+
+        if (schema is OpenApiSchema concrete)
+            return concrete;
+
+        // HostDocument can be unset on some refs after document generation; fall back to the export document's components.
+        if (schema is OpenApiSchemaReference schemaRef &&
+            components is not null &&
+            schemaRef.GetReferenceId() is { Length: > 0 } refId &&
+            components.TryGetValue(refId, out var componentSchema))
+        {
+            return componentSchema as OpenApiSchema ?? componentSchema.ResolveSchema();
+        }
+
+        return null;
+    }
+
+    static bool IsNullSchema(IOpenApiSchema schema, IDictionary<string, IOpenApiSchema>? components)
+    {
+        var resolved = ResolveForExport(schema, components);
+
+        return resolved?.Type == JsonSchemaType.Null ||
+               (resolved is null && schema.Type == JsonSchemaType.Null);
     }
 
     [GeneratedRegex(@"\{([^{}]+)\}")]

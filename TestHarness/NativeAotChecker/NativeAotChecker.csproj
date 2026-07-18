@@ -14,6 +14,7 @@
         <SerializerContextOutputPath>Generated/SerializerCtx</SerializerContextOutputPath>
 
         <ExportOpenApiDocs>true</ExportOpenApiDocs>
+        <ExportHttpFiles>true</ExportHttpFiles>
         <OpenApiExportPath>wwwroot/openapi</OpenApiExportPath>
     </PropertyGroup>
 

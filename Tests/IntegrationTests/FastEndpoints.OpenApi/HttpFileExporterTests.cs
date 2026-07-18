@@ -187,6 +187,149 @@ public class HttpFileExporterTests
     }
 
     [Fact]
+    public void base_url_comes_from_document_servers()
+    {
+        var document = new OpenApiDocument
+        {
+            Servers = [new OpenApiServer { Url = "http://localhost/" }],
+            Paths = new()
+            {
+                ["/ping"] = new OpenApiPathItem
+                {
+                    Operations = new()
+                    {
+                        [HttpMethod.Get] = new OpenApiOperation { OperationId = "Ping" }
+                    }
+                }
+            }
+        };
+
+        var http = HttpFileExporter.ToHttpFileContent(document, "test");
+
+        http.ShouldStartWith("@baseUrl = http://localhost\n");
+    }
+
+    [Fact]
+    public void multipart_form_data_omits_json_body()
+    {
+        var document = new OpenApiDocument
+        {
+            Paths = new()
+            {
+                ["/upload"] = new OpenApiPathItem
+                {
+                    Operations = new()
+                    {
+                        [HttpMethod.Post] = new OpenApiOperation
+                        {
+                            OperationId = "Upload",
+                            RequestBody = new OpenApiRequestBody
+                            {
+                                Content = new Dictionary<string, OpenApiMediaType>
+                                {
+                                    ["multipart/form-data"] = new()
+                                    {
+                                        Schema = new OpenApiSchema
+                                        {
+                                            Type = JsonSchemaType.Object,
+                                            Properties = new Dictionary<string, IOpenApiSchema>
+                                            {
+                                                ["file"] = new OpenApiSchema { Type = JsonSchemaType.String }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        var http = HttpFileExporter.ToHttpFileContent(document, "test");
+
+        http.ShouldContain("Content-Type: multipart/form-data");
+        http.ShouldContain("# body omitted (multipart/form-data); provide form fields in the client");
+        http.ShouldNotContain("\"file\"");
+    }
+
+    [Fact]
+    public void text_plain_body_uses_body_variable()
+    {
+        var document = new OpenApiDocument
+        {
+            Paths = new()
+            {
+                ["/text"] = new OpenApiPathItem
+                {
+                    Operations = new()
+                    {
+                        [HttpMethod.Post] = new OpenApiOperation
+                        {
+                            OperationId = "TextBody",
+                            RequestBody = new OpenApiRequestBody
+                            {
+                                Content = new Dictionary<string, OpenApiMediaType>
+                                {
+                                    ["text/plain"] = new()
+                                    {
+                                        Schema = new OpenApiSchema { Type = JsonSchemaType.String }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        var http = HttpFileExporter.ToHttpFileContent(document, "test");
+
+        http.ShouldContain("Content-Type: text/plain");
+        http.ShouldContain("{{body}}");
+    }
+
+    [Fact]
+    public void plus_json_content_type_still_builds_json_skeleton()
+    {
+        var document = new OpenApiDocument
+        {
+            Paths = new()
+            {
+                ["/patch"] = new OpenApiPathItem
+                {
+                    Operations = new()
+                    {
+                        [HttpMethod.Patch] = new OpenApiOperation
+                        {
+                            OperationId = "JsonPatch",
+                            RequestBody = new OpenApiRequestBody
+                            {
+                                Content = new Dictionary<string, OpenApiMediaType>
+                                {
+                                    ["application/json-patch+json"] = new()
+                                    {
+                                        Schema = new OpenApiSchema
+                                        {
+                                            Type = JsonSchemaType.Array,
+                                            Items = new OpenApiSchema { Type = JsonSchemaType.Object }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        };
+
+        var http = HttpFileExporter.ToHttpFileContent(document, "test");
+
+        http.ShouldContain("Content-Type: application/json-patch+json");
+        http.ShouldContain("[\n  {}\n]");
+    }
+
+    [Fact]
     public void cookie_parameters_emit_cookie_header()
     {
         var document = new OpenApiDocument

@@ -70,40 +70,14 @@ POST {{baseUrl}}/api/api/test-cases/circular-fromform-binding-test
 Content-Type: multipart/form-data
 Accept: application/json
 
-{
-  "name": "",
-  "child": null
-}
+# body omitted (multipart/form-data); provide form fields in the client
 
 ### TestCasesNestedFromFormBindingTestEndpoint
 POST {{baseUrl}}/api/api/test-cases/nested-fromform-binding-test
 Content-Type: multipart/form-data
 Accept: application/json
 
-{
-  "name": "",
-  "customName": "",
-  "file": "",
-  "documents": [
-    ""
-  ],
-  "details": {
-    "title": "",
-    "image": "",
-    "gallery": [
-      ""
-    ]
-  },
-  "items": [
-    {
-      "description": "",
-      "attachment": ""
-    }
-  ],
-  "numbers": [
-    0
-  ]
-}
+# body omitted (multipart/form-data); provide form fields in the client
 
 ### CustomersListRecentEndpoint
 GET {{baseUrl}}/api/customer/list/recent
@@ -697,11 +671,7 @@ GET {{baseUrl}}/api/swagger-review/root-array-body
 Content-Type: */*
 Accept: application/json
 
-[
-  {
-    "name": ""
-  }
-]
+{{body}}
 
 ### TestCasesSwaggerReviewGetRootListBodyReviewEndpoint
 GET {{baseUrl}}/api/swagger-review/root-list-body
@@ -835,13 +805,7 @@ POST {{baseUrl}}/api/test-cases/antiforgery/validate
 Content-Type: multipart/form-data
 Accept: application/json
 
-{
-  "file": "",
-  "tokenResponse": {
-    "tokenName": "",
-    "value": ""
-  }
-}
+# body omitted (multipart/form-data); provide form fields in the client
 
 ### TestCasesValidationErrorTestArrayValidationErrorTestEndpoint
 POST {{baseUrl}}/api/test-cases/array-validation-error-test
@@ -990,128 +954,14 @@ POST {{baseUrl}}/api/test-cases/form-binding-complex-dtos
 Content-Type: multipart/form-data
 Accept: application/json
 
-{
-  "title": "",
-  "coverImage": "",
-  "sourceFiles": [
-    ""
-  ],
-  "mainAuthor": {
-    "name": "",
-    "profileImage": "",
-    "documentFiles": [
-      ""
-    ],
-    "mainAddress": {
-      "street": "",
-      "mainImage": "",
-      "alternativeImages": [
-        ""
-      ]
-    },
-    "otherAddresses": [
-      {
-        "street": "",
-        "mainImage": "",
-        "alternativeImages": [
-          ""
-        ]
-      }
-    ]
-  },
-  "coAuthors": [
-    {
-      "name": "",
-      "profileImage": "",
-      "documentFiles": [
-        ""
-      ],
-      "mainAddress": {
-        "street": "",
-        "mainImage": "",
-        "alternativeImages": [
-          ""
-        ]
-      },
-      "otherAddresses": [
-        {
-          "street": "",
-          "mainImage": "",
-          "alternativeImages": [
-            ""
-          ]
-        }
-      ]
-    }
-  ],
-  "barCodes": [
-    0
-  ]
-}
+# body omitted (multipart/form-data); provide form fields in the client
 
 ### TestCasesFormBindingComplexDtosToFormEndpoint
 PUT {{baseUrl}}/api/test-cases/form-binding-complex-dtos
 Content-Type: multipart/form-data
 Accept: application/json
 
-{
-  "title": "",
-  "coverImage": "",
-  "sourceFiles": [
-    ""
-  ],
-  "mainAuthor": {
-    "name": "",
-    "profileImage": "",
-    "documentFiles": [
-      ""
-    ],
-    "mainAddress": {
-      "street": "",
-      "mainImage": "",
-      "alternativeImages": [
-        ""
-      ]
-    },
-    "otherAddresses": [
-      {
-        "street": "",
-        "mainImage": "",
-        "alternativeImages": [
-          ""
-        ]
-      }
-    ]
-  },
-  "coAuthors": [
-    {
-      "name": "",
-      "profileImage": "",
-      "documentFiles": [
-        ""
-      ],
-      "mainAddress": {
-        "street": "",
-        "mainImage": "",
-        "alternativeImages": [
-          ""
-        ]
-      },
-      "otherAddresses": [
-        {
-          "street": "",
-          "mainImage": "",
-          "alternativeImages": [
-            ""
-          ]
-        }
-      ]
-    }
-  ],
-  "barCodes": [
-    0
-  ]
-}
+# body omitted (multipart/form-data); provide form fields in the client
 
 ### TestCasesFormFileBindingTestEndpoint
 POST {{baseUrl}}/api/test-cases/form-file-collection-binding
@@ -1119,19 +969,7 @@ Authorization: Bearer {{bearerToken}}
 Content-Type: multipart/form-data
 Accept: application/json
 
-{
-  "id": "",
-  "width": 0,
-  "height": 0,
-  "file1": "",
-  "file2": "",
-  "cars": [
-    ""
-  ],
-  "jets": [
-    ""
-  ]
-}
+# body omitted (multipart/form-data); provide form fields in the client
 
 ### TestCasesFromBodyJsonBindingEndpoint
 POST {{baseUrl}}/api/test-cases/from-body-binding/{{id}}
@@ -1269,9 +1107,7 @@ Authorization: Bearer {{bearerToken}}
 Content-Type: */*
 Accept: application/json
 
-{
-  "tenantID": ""
-}
+{{body}}
 
 ### TestCasesValidationErrorTestObjectArrayValidationErrorTestEndpoint
 POST {{baseUrl}}/api/test-cases/object-array-validation-error-test
@@ -1631,11 +1467,7 @@ POST {{baseUrl}}/api/uploads/image/save
 Content-Type: multipart/form-data
 Accept: application/json
 
-{
-  "id": "",
-  "width": 0,
-  "height": 0
-}
+# body omitted (multipart/form-data); provide form fields in the client
 
 ### PutUploadsImageSaveEndpoint
 PUT {{baseUrl}}/api/uploads/image/save
@@ -1643,33 +1475,14 @@ Authorization: Bearer {{bearerToken}}
 Content-Type: multipart/form-data
 Accept: application/json
 
-{
-  "id": "",
-  "width": 0,
-  "height": 0
-}
+# body omitted (multipart/form-data); provide form fields in the client
 
 ### PostUploadsImageSaveTypedEndpoint
 POST {{baseUrl}}/api/uploads/image/save-typed
 Content-Type: multipart/form-data
 Accept: application/json
 
-{
-  "id": "",
-  "width": 0,
-  "height": 0,
-  "guidId": "",
-  "file1": "",
-  "file2": "",
-  "file3": "",
-  "file4": "",
-  "cars": [
-    ""
-  ],
-  "jets": [
-    ""
-  ]
-}
+# body omitted (multipart/form-data); provide form fields in the client
 
 ### PutUploadsImageSaveTypedEndpoint
 PUT {{baseUrl}}/api/uploads/image/save-typed
@@ -1677,22 +1490,7 @@ Authorization: Bearer {{bearerToken}}
 Content-Type: multipart/form-data
 Accept: application/json
 
-{
-  "id": "",
-  "width": 0,
-  "height": 0,
-  "guidId": "",
-  "file1": "",
-  "file2": "",
-  "file3": "",
-  "file4": "",
-  "cars": [
-    ""
-  ],
-  "jets": [
-    ""
-  ]
-}
+# body omitted (multipart/form-data); provide form fields in the client
 
 ### swagger_review_TestCasesSwaggerReviewBareRouteSubstringReviewEndpoint
 GET {{baseUrl}}/apiary/ver0/status

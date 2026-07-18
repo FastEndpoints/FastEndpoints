@@ -10,10 +10,12 @@ static partial class HttpFileExporter
 {
     static readonly JsonSerializerOptions _jsonOpts = new() { WriteIndented = true };
 
+    const string DefaultBaseUrl = "https://localhost:5001";
+
     public static string ToHttpFileContent(OpenApiDocument document, string documentName)
     {
         var sb = new StringBuilder();
-        sb.Append("@baseUrl = https://localhost:5001\n\n");
+        sb.Append("@baseUrl = ").Append(ResolveBaseUrl(document)).Append("\n\n");
         var components = document.Components?.Schemas;
 
         foreach (var pathEntry in document.Paths)
@@ -26,6 +28,16 @@ static partial class HttpFileExporter
         }
 
         return sb.ToString();
+    }
+
+    static string ResolveBaseUrl(OpenApiDocument document)
+    {
+        var serverUrl = document.Servers?.FirstOrDefault()?.Url;
+
+        if (string.IsNullOrWhiteSpace(serverUrl))
+            return DefaultBaseUrl;
+
+        return serverUrl.TrimEnd('/');
     }
 
     static void AppendOperation(StringBuilder sb,
@@ -68,15 +80,50 @@ static partial class HttpFileExporter
 
         sb.Append("Accept: application/json\n\n");
 
-        if (mediaType?.Schema is not null)
-        {
-            // never emit a literal 'null' body
-            var placeholder = BuildPlaceholder(mediaType.Schema, [], components) ?? new JsonObject();
-            sb.Append(placeholder.ToJsonString(_jsonOpts)).Append('\n');
-        }
+        AppendRequestBody(sb, contentType, mediaType, components);
 
         sb.Append('\n');
     }
+
+    static void AppendRequestBody(StringBuilder sb,
+                                  string? contentType,
+                                  OpenApiMediaType? mediaType,
+                                  IDictionary<string, IOpenApiSchema>? components)
+    {
+        if (contentType is null || mediaType is null)
+            return;
+
+        if (IsJsonContentType(contentType))
+        {
+            if (mediaType.Schema is not null)
+            {
+                // never emit a literal 'null' body
+                var placeholder = BuildPlaceholder(mediaType.Schema, [], components) ?? new JsonObject();
+                sb.Append(placeholder.ToJsonString(_jsonOpts)).Append('\n');
+            }
+
+            return;
+        }
+
+        if (IsFormContentType(contentType))
+        {
+            // REST Client has no first-class form body syntax; omit misleading JSON skeleton.
+            sb.Append("# body omitted (").Append(contentType).Append("); provide form fields in the client\n");
+
+            return;
+        }
+
+        // text/plain and other non-JSON media types
+        sb.Append("{{body}}\n");
+    }
+
+    static bool IsJsonContentType(string contentType)
+        => contentType.Equals("application/json", StringComparison.OrdinalIgnoreCase) ||
+           contentType.EndsWith("+json", StringComparison.OrdinalIgnoreCase);
+
+    static bool IsFormContentType(string contentType)
+        => contentType.Equals("multipart/form-data", StringComparison.OrdinalIgnoreCase) ||
+           contentType.Equals("application/x-www-form-urlencoded", StringComparison.OrdinalIgnoreCase);
 
     static bool HasAuthorizationHeader(List<IOpenApiParameter> headerParams)
         => headerParams.Any(p => string.Equals(p.Name, "Authorization", StringComparison.OrdinalIgnoreCase));
@@ -136,6 +183,12 @@ static partial class HttpFileExporter
 
         if (content.TryGetValue("application/json", out var json))
             return ("application/json", json);
+
+        // prefer vendor/structured JSON (e.g. application/json-patch+json) over form/text when both exist
+        var plusJson = content.FirstOrDefault(static kv => kv.Key.EndsWith("+json", StringComparison.OrdinalIgnoreCase));
+
+        if (plusJson.Key is not null)
+            return (plusJson.Key, plusJson.Value);
 
         var first = content.First();
 

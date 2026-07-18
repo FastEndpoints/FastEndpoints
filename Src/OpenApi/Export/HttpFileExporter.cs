@@ -34,18 +34,10 @@ static partial class HttpFileExporter
     {
         var serverUrl = document.Servers?.FirstOrDefault()?.Url;
 
-        if (string.IsNullOrWhiteSpace(serverUrl))
-            return DefaultBaseUrl;
-
-        return serverUrl.TrimEnd('/');
+        return string.IsNullOrWhiteSpace(serverUrl) ? DefaultBaseUrl : serverUrl.TrimEnd('/');
     }
 
-    static void AppendOperation(StringBuilder sb,
-                                OpenApiDocument document,
-                                string method,
-                                string path,
-                                OpenApiOperation operation,
-                                IDictionary<string, IOpenApiSchema>? components)
+    static void AppendOperation(StringBuilder sb, OpenApiDocument document, string method, string path, OpenApiOperation operation, IDictionary<string, IOpenApiSchema>? components)
     {
         var parameters = operation.Parameters ?? [];
         var queryParams = parameters.Where(p => p.In == ParameterLocation.Query).ToList();
@@ -85,10 +77,7 @@ static partial class HttpFileExporter
         sb.Append('\n');
     }
 
-    static void AppendRequestBody(StringBuilder sb,
-                                  string? contentType,
-                                  OpenApiMediaType? mediaType,
-                                  IDictionary<string, IOpenApiSchema>? components)
+    static void AppendRequestBody(StringBuilder sb, string? contentType, OpenApiMediaType? mediaType, IDictionary<string, IOpenApiSchema>? components)
     {
         if (contentType is null || mediaType is null)
             return;
@@ -242,7 +231,7 @@ static partial class HttpFileExporter
                 var obj = new JsonObject();
 
                 foreach (var (name, propSchema) in props)
-                    obj[name] = propSchema is null ? null : BuildPlaceholder(propSchema, seen, components);
+                    obj[name] = BuildPlaceholder(propSchema, seen, components);
 
                 return obj;
             }

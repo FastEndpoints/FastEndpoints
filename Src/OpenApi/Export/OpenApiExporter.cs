@@ -25,7 +25,7 @@ static class OpenApiExporter
 
     /// <summary>
     /// core multi-format export orchestrator. returns null when not in any export mode;
-    /// otherwise 0 on success / 1 on any failure (does not call <see cref="Environment.Exit"/>).
+    /// otherwise 0 on success / 1 on any failure (does not call <see cref="Environment.Exit" />).
     /// </summary>
     internal static async Task<int?> ExportRequestedFormatsAsync(WebApplication app, string[] documentNames)
     {
@@ -70,18 +70,22 @@ static class OpenApiExporter
                     logger.ExportingOpenApiDoc(documentName);
 
                     if (!await WriteExportAsync(
-                            documentName, normalizedDocumentName, destinationPath, ".json",
-                            logger.OpenApiDocExportSuccessful, logger.OpenApiDocExportFailed, CancellationToken.None,
-                            async () =>
-                            {
-                                if (loadError is not null)
-                                    throw loadError;
+                             documentName,
+                             normalizedDocumentName,
+                             destinationPath,
+                             ".json",
+                             logger.OpenApiDocExportSuccessful,
+                             logger.OpenApiDocExportFailed,
+                             async () =>
+                             {
+                                 if (loadError is not null)
+                                     throw loadError;
 
-                                var openApiVersion = app.Services.GetRequiredService<IOptionsMonitor<OpenApiOptions>>()
-                                                                .Get(normalizedDocumentName).OpenApiVersion;
+                                 var openApiVersion = app.Services.GetRequiredService<IOptionsMonitor<OpenApiOptions>>().Get(normalizedDocumentName).OpenApiVersion;
 
-                                return await doc!.SerializeAsJsonAsync(openApiVersion, CancellationToken.None);
-                            }))
+                                 return await doc!.SerializeAsJsonAsync(openApiVersion, CancellationToken.None);
+                             },
+                             CancellationToken.None))
                         failed = true;
                 }
 
@@ -90,15 +94,14 @@ static class OpenApiExporter
                     logger.ExportingHttpFile(documentName);
 
                     if (!await WriteExportAsync(
-                            documentName, normalizedDocumentName, destinationPath, ".http",
-                            logger.HttpFileExportSuccessful, logger.HttpFileExportFailed, CancellationToken.None,
-                            () =>
-                            {
-                                if (loadError is not null)
-                                    throw loadError;
-
-                                return Task.FromResult(HttpFileExporter.ToHttpFileContent(doc!));
-                            }))
+                             documentName,
+                             normalizedDocumentName,
+                             destinationPath,
+                             ".http",
+                             logger.HttpFileExportSuccessful,
+                             logger.HttpFileExportFailed,
+                             () => loadError is not null ? throw loadError : Task.FromResult(HttpFileExporter.ToHttpFileContent(doc!)),
+                             CancellationToken.None))
                         failed = true;
                 }
             }
@@ -112,13 +115,13 @@ static class OpenApiExporter
     }
 
     static async Task<bool> WriteExportAsync(string documentName,
-                                              string normalizedDocumentName,
-                                              string destinationPath,
-                                              string extension,
-                                              Action<string, string> logSuccess,
-                                              Action<Exception, string> logFailure,
-                                              CancellationToken ct,
-                                              Func<Task<string>> produceContent)
+                                             string normalizedDocumentName,
+                                             string destinationPath,
+                                             string extension,
+                                             Action<string, string> logSuccess,
+                                             Action<Exception, string> logFailure,
+                                             Func<Task<string>> produceContent,
+                                             CancellationToken ct)
     {
         try
         {

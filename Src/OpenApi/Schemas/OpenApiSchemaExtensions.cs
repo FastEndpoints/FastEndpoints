@@ -15,12 +15,36 @@ static partial class OperationSchemaHelpers
     extension(IOpenApiSchema? schema)
     {
         internal OpenApiSchema? ResolveSchema()
-            => schema switch
+            => schema.ResolveSchema(components: null);
+
+        /// <summary>
+        /// Resolve a schema, optionally falling back to <paramref name="components"/> when
+        /// <c>HostDocument</c> is unset on the reference (e.g. post-generation export walks).
+        /// </summary>
+        internal OpenApiSchema? ResolveSchema(IDictionary<string, IOpenApiSchema>? components)
+        {
+            // Target / HostDocument first (same as parameterless historically).
+            var resolved = schema switch
             {
                 OpenApiSchemaReference schemaRef => ResolveSchemaReference(schemaRef) as OpenApiSchema,
                 OpenApiSchema concreteSchema => concreteSchema,
                 _ => null
             };
+
+            if (resolved is not null)
+                return resolved;
+
+            // HostDocument can be unset after document generation; fall back to supplied components.
+            if (schema is OpenApiSchemaReference unresolvedRef &&
+                components is not null &&
+                unresolvedRef.GetReferenceId() is { Length: > 0 } refId &&
+                components.TryGetValue(refId, out var componentSchema))
+            {
+                return componentSchema as OpenApiSchema ?? componentSchema.ResolveSchema();
+            }
+
+            return null;
+        }
 
         internal OpenApiSchema? ResolveSchema(SharedContext sharedCtx)
             => schema switch
@@ -269,7 +293,8 @@ static partial class OperationSchemaHelpers
             _ => schema
         };
 
-    static IOpenApiSchema? ResolveSchemaReference(OpenApiSchemaReference schemaRef)
+    static IOpenApiSchema? ResolveSchemaReference(OpenApiSchemaReference schemaRef,
+                                                   IDictionary<string, IOpenApiSchema>? components = null)
     {
         if (schemaRef.Target is { } target)
             return target;
@@ -279,9 +304,14 @@ static partial class OperationSchemaHelpers
         if (string.IsNullOrEmpty(refId) || schemaRef.Reference.IsExternal)
             return null;
 
-        return schemaRef.Reference.HostDocument?.Components?.Schemas?.TryGetValue(refId, out var schema) == true
-                   ? schema
-                   : null;
+        if (schemaRef.Reference.HostDocument?.Components?.Schemas?.TryGetValue(refId, out var schema) == true)
+            return schema;
+
+        // HostDocument can be unset after document generation (e.g. .http export); fall back to supplied components.
+        if (components is not null && components.TryGetValue(refId, out var componentSchema))
+            return componentSchema;
+
+        return null;
     }
 
     static List<JsonNode>? CloneJsonNodeList(IList<JsonNode>? nodes)

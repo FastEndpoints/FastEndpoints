@@ -1,0 +1,1493 @@
+@baseUrl = https://localhost:5001
+
+### PostAdminLoginEndpoint
+POST {{baseUrl}}/api/admin/login
+Content-Type: application/json
+Accept: application/json
+
+{
+  "userName": "",
+  "password": ""
+}
+
+### PutAdminLoginEndpoint
+PUT {{baseUrl}}/api/admin/login
+Content-Type: application/json
+Accept: application/json
+
+{
+  "userName": "",
+  "password": ""
+}
+
+### PatchAdminLoginEndpoint
+PATCH {{baseUrl}}/api/admin/login
+Content-Type: application/json
+Accept: application/json
+
+{
+  "userName": "",
+  "password": ""
+}
+
+### TestCasesNestedFromFormBindingTestCircularEndpoint
+POST {{baseUrl}}/api/api/test-cases/circular-fromform-binding-test
+Content-Type: multipart/form-data
+Accept: application/json
+
+# body omitted (multipart/form-data); provide form fields in the client
+
+### TestCasesNestedFromFormBindingTestEndpoint
+POST {{baseUrl}}/api/api/test-cases/nested-fromform-binding-test
+Content-Type: multipart/form-data
+Accept: application/json
+
+# body omitted (multipart/form-data); provide form fields in the client
+
+### CustomersListRecentEndpoint
+GET {{baseUrl}}/api/customer/list/recent
+Authorization: Bearer {{bearerToken}}
+Accept: application/json
+
+
+### CustomersLoginEndpoint
+GET {{baseUrl}}/api/customer/login
+Accept: application/json
+
+
+### PostCustomersCreateWithPropertiesDIEndpoint1
+POST {{baseUrl}}/api/customer/new/2{{refererID}}
+Authorization: Bearer {{bearerToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "cID": "",
+  "customerName": "",
+  "phoneNumbers": [
+    ""
+  ]
+}
+
+### GetCustomersCreateWithPropertiesDIEndpoint1
+GET {{baseUrl}}/api/customer/new/2{{refererID}}?cID={{cID}}&customerName={{customerName}}&phoneNumbers={{phoneNumbers}}
+Authorization: Bearer {{bearerToken}}
+Accept: application/json
+
+
+### PostCustomersCreateEndpoint1
+POST {{baseUrl}}/api/customer/new/{{refererID}}
+Authorization: Bearer {{bearerToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "cID": "",
+  "customerName": "",
+  "phoneNumbers": [
+    ""
+  ]
+}
+
+### GetCustomersCreateEndpoint1
+GET {{baseUrl}}/api/customer/new/{{refererID}}?cID={{cID}}&customerName={{customerName}}&phoneNumbers={{phoneNumbers}}
+Authorization: Bearer {{bearerToken}}
+Accept: application/json
+
+
+### PostCustomersCreateEndpoint3
+POST {{baseUrl}}/api/customer/save
+Authorization: Bearer {{bearerToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "cID": "",
+  "customerName": "",
+  "phoneNumbers": [
+    ""
+  ]
+}
+
+### GetCustomersCreateEndpoint3
+GET {{baseUrl}}/api/customer/save?cID={{cID}}&customerName={{customerName}}&phoneNumbers={{phoneNumbers}}
+Authorization: Bearer {{bearerToken}}
+Accept: application/json
+
+
+### CustomersUpdateEndpoint2
+PUT {{baseUrl}}/api/customer/save?customerID={{customerID}}&name={{name}}
+Authorization: Bearer {{bearerToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "age": 0,
+  "address": ""
+}
+
+### PostCustomersCreateWithPropertiesDIEndpoint3
+POST {{baseUrl}}/api/customer/save2
+Authorization: Bearer {{bearerToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "cID": "",
+  "customerName": "",
+  "phoneNumbers": [
+    ""
+  ]
+}
+
+### GetCustomersCreateWithPropertiesDIEndpoint3
+GET {{baseUrl}}/api/customer/save2?cID={{cID}}&customerName={{customerName}}&phoneNumbers={{phoneNumbers}}
+Authorization: Bearer {{bearerToken}}
+Accept: application/json
+
+
+### CustomersUpdateEndpoint1
+PUT {{baseUrl}}/api/customer/update?customerID={{customerID}}&name={{name}}
+Authorization: Bearer {{bearerToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "age": 0,
+  "address": ""
+}
+
+### CustomersUpdateWithHeaderEndpoint
+PUT {{baseUrl}}/api/customer/update-with-header
+customerID: {{customerID}}
+tenant-id: {{tenant-id}}
+Authorization: Bearer {{bearerToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "",
+  "age": 0,
+  "address": ""
+}
+
+### PostCustomersCreateEndpoint2
+POST {{baseUrl}}/api/customer/{{cID}}/new/{{sourceID}}
+Authorization: Bearer {{bearerToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "customerName": "",
+  "phoneNumbers": [
+    ""
+  ]
+}
+
+### GetCustomersCreateEndpoint2
+GET {{baseUrl}}/api/customer/{{cID}}/new/{{sourceID}}?customerName={{customerName}}&phoneNumbers={{phoneNumbers}}
+Authorization: Bearer {{bearerToken}}
+Accept: application/json
+
+
+### PostCustomersCreateWithPropertiesDIEndpoint2
+POST {{baseUrl}}/api/customer/{{cID}}/new2/{{sourceID}}
+Authorization: Bearer {{bearerToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "customerName": "",
+  "phoneNumbers": [
+    ""
+  ]
+}
+
+### GetCustomersCreateWithPropertiesDIEndpoint2
+GET {{baseUrl}}/api/customer/{{cID}}/new2/{{sourceID}}?customerName={{customerName}}&phoneNumbers={{phoneNumbers}}
+Authorization: Bearer {{bearerToken}}
+Accept: application/json
+
+
+### swagger_review_TestCasesSwaggerReviewSharedPathFastEndpoint
+POST {{baseUrl}}/api/filtered-shared-path
+Accept: application/json
+
+
+### InventoryGetProductEndpoint
+GET {{baseUrl}}/api/inventory/get-product/{{productID}}
+Accept: application/json
+
+
+### InventoryListRecentEndpoint
+GET {{baseUrl}}/api/inventory/list/recent/{{categoryID}}
+Accept: application/json
+
+
+### CreateInventoryItem
+POST {{baseUrl}}/api/inventory/manage/create
+Authorization: Bearer {{bearerToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "id": 0,
+  "name": "",
+  "description": "",
+  "price": 0,
+  "qtyOnHand": 0,
+  "modifiedBy": "",
+  "generateFullUrl": false
+}
+
+### InventoryManageDeleteEndpoint
+DELETE {{baseUrl}}/api/inventory/manage/delete/{{itemID}}
+Accept: application/json
+
+
+### InventoryManageUpdateEndpoint
+PUT {{baseUrl}}/api/inventory/manage/update
+Authorization: Bearer {{bearerToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "id": 0,
+  "name": "",
+  "description": "",
+  "price": 0,
+  "qtyOnHand": 0,
+  "modifiedBy": ""
+}
+
+### TestCasesSwaggerJsonPatchRequestBodyTestEndpoint
+PATCH {{baseUrl}}/api/json-patch-test/{{id}}
+Content-Type: application/json-patch+json
+Accept: application/json
+
+[
+  {}
+]
+
+### TestCasesTypedResultTestMultiResultEndpoint
+POST {{baseUrl}}/api/multi-test
+Content-Type: application/json
+Accept: application/json
+
+{
+  "id": 0
+}
+
+### Orders_SalesOrdersCreateEndpoint2
+POST {{baseUrl}}/api/sales/orders/create
+Authorization: Bearer {{bearerToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "customerID": 0,
+  "productID": 0,
+  "quantity": 0,
+  "guidTest": ""
+}
+
+### Orders_SalesOrdersCreateEndpoint1
+POST {{baseUrl}}/api/sales/orders/create/{{guidTest}}
+Authorization: Bearer {{bearerToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "customerID": 0,
+  "productID": 0,
+  "quantity": 0
+}
+
+### Orders_SalesOrdersRetrieveEndpoint
+GET {{baseUrl}}/api/sales/orders/retrieve/{{orderID}}
+tenant-id: {{tenant-id}}
+Accept: application/json
+
+
+### swagger_review_TestCasesSwaggerReviewAutoTagOverrideEndpoint
+GET {{baseUrl}}/api/swagger-review/auto-tag-override
+Accept: application/json
+
+
+### swagger_review_TestCasesSwaggerReviewBindFromQueryGetReviewEndpoint
+GET {{baseUrl}}/api/swagger-review/bindfrom-query-get?id={{id}}
+Accept: application/json
+
+
+### swagger_review_TestCasesSwaggerReviewBindFromQueryPostReviewEndpoint
+POST {{baseUrl}}/api/swagger-review/bindfrom-query-post?id={{id}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "bodyValue": ""
+}
+
+### swagger_review_TestCasesSwaggerReviewGetBodylessReviewEndpoint
+GET {{baseUrl}}/api/swagger-review/bodyless-query-params?name={{name}}&page={{page}}
+Accept: application/json
+
+
+### swagger_review_TestCasesSwaggerReviewHeadBodylessReviewEndpoint
+HEAD {{baseUrl}}/api/swagger-review/bodyless-query-params?name={{name}}&page={{page}}
+Accept: application/json
+
+
+### swagger_review_TestCasesSwaggerReviewCatchAllRouteReviewEndpoint
+GET {{baseUrl}}/api/swagger-review/catch-all/{{slug}}
+Accept: application/json
+
+
+### swagger_review_TestCasesSwaggerReviewChildValidatorReviewEndpoint
+POST {{baseUrl}}/api/swagger-review/child-validator
+Content-Type: application/json
+Accept: application/json
+
+{
+  "child": {
+    "score": 0
+  }
+}
+
+### swagger_review_TestCasesSwaggerReviewCollectionLengthReviewEndpoint
+POST {{baseUrl}}/api/swagger-review/collection-length
+Content-Type: application/json
+Accept: application/json
+
+{
+  "tags": [
+    ""
+  ]
+}
+
+### swagger_review_TestCasesSwaggerReviewCookieGetReviewEndpoint
+GET {{baseUrl}}/api/swagger-review/cookie-get
+Cookie: session_id={{session_id}}
+Accept: application/json
+
+
+### swagger_review_TestCasesSwaggerReviewDeepNestedValidatorReviewEndpoint
+POST {{baseUrl}}/api/swagger-review/deep-nested-validator
+Content-Type: application/json
+Accept: application/json
+
+{
+  "child": {
+    "subChild": {
+      "field": ""
+    }
+  }
+}
+
+### swagger_review_TestCasesSwaggerReviewDefaultRouteValueReviewEndpoint
+GET {{baseUrl}}/api/swagger-review/default-route-value/{{id}}
+Accept: application/json
+
+
+### swagger_review_TestCasesSwaggerReviewDefaultValueSchemaReviewEndpoint
+POST {{baseUrl}}/api/swagger-review/default-value-schema
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "",
+  "count": 0
+}
+
+### swagger_review_TestCasesSwaggerReviewDualChildAddressEndpoint
+POST {{baseUrl}}/api/swagger-review/dual-child-address
+Content-Type: application/json
+Accept: application/json
+
+{
+  "billingAddress": {
+    "zip": ""
+  },
+  "shippingAddress": {
+    "zip": ""
+  }
+}
+
+### swagger_review_TestCasesSwaggerReviewDuplicateRequestExamplesEndpoint
+POST {{baseUrl}}/api/swagger-review/duplicate-examples
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": ""
+}
+
+### swagger_review_TestCasesSwaggerReviewDuplicateIdempotencyHeaderEndpoint
+POST {{baseUrl}}/api/swagger-review/duplicate-idempotency-header
+Idempotency-Key: {{Idempotency-Key}}
+Accept: application/json
+
+
+### swagger_review_TestCasesSwaggerReviewDuplicateQueryNamingPolicyEndpoint
+GET {{baseUrl}}/api/swagger-review/duplicate-query-naming-policy?firstName={{firstName}}
+Accept: application/json
+
+
+### swagger_review_TestCasesSwaggerReviewDuplicateX402HeaderEndpoint
+GET {{baseUrl}}/api/swagger-review/duplicate-x402-header
+PAYMENT-SIGNATURE: {{PAYMENT-SIGNATURE}}
+Accept: application/json
+
+
+### swagger_review_TestCasesSwaggerReviewEmptySchemaCleanupEndpoint
+POST {{baseUrl}}/api/swagger-review/empty-schema-cleanup
+x-review-header: {{x-review-header}}
+Accept: application/json
+
+
+### swagger_review_TestCasesSwaggerReviewEndpointSummaryOverridesXmlDocReviewEndpoint
+GET {{baseUrl}}/api/swagger-review/endpoint-summary-overrides-xml-doc
+Accept: application/json
+
+
+### swagger_review_TestCasesSwaggerReviewEndpointXmlDocReviewEndpoint
+GET {{baseUrl}}/api/swagger-review/endpoint-xml-doc
+Accept: application/json
+
+
+### swagger_review_TestCasesSwaggerReviewExplicitResponseExampleReviewEndpoint
+POST {{baseUrl}}/api/swagger-review/explicit-response-example
+Accept: application/json
+
+
+### swagger_review_TestCasesSwaggerReviewGenericXmlDocReviewEndpoint
+POST {{baseUrl}}/api/swagger-review/generic-xml-doc
+Content-Type: application/json
+Accept: application/json
+
+{
+  "value": ""
+}
+
+### swagger_review_TestCasesSwaggerReviewHiddenSchemaReviewEndpoint
+POST {{baseUrl}}/api/swagger-review/hidden-schema
+Content-Type: application/json
+Accept: application/json
+
+{
+  "visibleValue": ""
+}
+
+### swagger_review_TestCasesSwaggerReviewIdempotencyAnonymousExampleEndpoint
+POST {{baseUrl}}/api/swagger-review/idempotency-anonymous-example
+Idempotency-Key: {{Idempotency-Key}}
+Accept: application/json
+
+
+### swagger_review_TestCasesSwaggerReviewIllegalHeadersEndpoint
+POST {{baseUrl}}/api/swagger-review/illegal-headers
+Content-Type: application/json
+Accept: application/json
+
+{
+  "bodyValue": ""
+}
+
+### swagger_review_TestCasesSwaggerReviewInlineMarkupXmlDocReviewEndpoint
+POST {{baseUrl}}/api/swagger-review/inline-markup-xml-doc
+Content-Type: application/json
+Accept: application/json
+
+{
+  "userId": ""
+}
+
+### swagger_review_TestCasesSwaggerReviewInterfaceDictionaryReviewEndpoint
+GET {{baseUrl}}/api/swagger-review/interface-dictionary?metadata={{metadata}}
+Accept: application/json
+
+
+### swagger_review_TestCasesSwaggerReviewIntermediateBaseValidatorReviewEndpoint
+POST {{baseUrl}}/api/swagger-review/intermediate-base-validator
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": ""
+}
+
+### swagger_review_TestCasesSwaggerReviewJsonNamedQueryMetadataReviewEndpoint
+GET {{baseUrl}}/api/swagger-review/json-named-query-metadata?customerId={{customerId}}
+Accept: application/json
+
+
+### swagger_review_TestCasesSwaggerReviewJsonPropertyNameTransformerReviewEndpoint
+POST {{baseUrl}}/api/swagger-review/json-property-name-transformers
+Content-Type: application/json
+Accept: application/json
+
+{
+  "x_coord": 0
+}
+
+### swagger_review_TestCasesSwaggerReviewManualSchemaIdempotencyHeaderEndpoint
+POST {{baseUrl}}/api/swagger-review/manual-complex-idempotency-header
+Idempotency-Key: {{Idempotency-Key}}
+Accept: application/json
+
+
+### swagger_review_TestCasesSwaggerReviewManualSchemaQueryEndpoint
+GET {{baseUrl}}/api/swagger-review/manual-complex-query?filter={{filter}}
+Accept: application/json
+
+
+### swagger_review_TestCasesSwaggerReviewManualSchemaResponseHeaderEndpoint
+GET {{baseUrl}}/api/swagger-review/manual-complex-response-header
+Accept: application/json
+
+
+### swagger_review_TestCasesSwaggerReviewMissingSchemaEnumEndpoint
+GET {{baseUrl}}/api/swagger-review/missing-schema-enum
+Accept: application/json
+
+
+### swagger_review_TestCasesSwaggerReviewMissingSchemaPrimitiveEndpoint
+GET {{baseUrl}}/api/swagger-review/missing-schema-primitives
+Accept: application/json
+
+
+### swagger_review_TestCasesSwaggerReviewMultiDocOrderEndpointA
+POST {{baseUrl}}/api/swagger-review/multi-doc-order-a
+Content-Type: application/json
+Accept: application/json
+
+{
+  "lines": [
+    {
+      "sku": "",
+      "qty": 0
+    }
+  ]
+}
+
+### swagger_review_TestCasesSwaggerReviewMultiDocOrderEndpointB
+POST {{baseUrl}}/api/swagger-review/multi-doc-order-b
+Content-Type: application/json
+Accept: application/json
+
+{
+  "lines": [
+    {
+      "sku": "",
+      "qty": 0
+    }
+  ]
+}
+
+### swagger_review_TestCasesSwaggerReviewNoRequestMetadataLeakEndpoint
+GET {{baseUrl}}/api/swagger-review/no-request-metadata-leak/{{leakId}}
+Accept: application/json
+
+
+### nullable_oneOf_repro_TestCasesSwaggerReviewNullableRefPropertyEndpoint
+GET {{baseUrl}}/api/swagger-review/nullable-ref-property
+Accept: application/json
+
+
+### swagger_review_TestCasesSwaggerReviewPromotedBodyValidationReviewEndpoint
+POST {{baseUrl}}/api/swagger-review/promoted-body-validation/{{id}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "",
+  "child": {
+    "code": ""
+  }
+}
+
+### swagger_review_TestCasesSwaggerReviewRequiredQueryParamReviewEndpoint
+POST {{baseUrl}}/api/swagger-review/required-query-param?search={{search}}&filter={{filter}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "bodyValue": ""
+}
+
+### swagger_review_TestCasesSwaggerReviewResponseExampleMetadataReviewEndpoint
+POST {{baseUrl}}/api/swagger-review/response-metadata-example
+Accept: application/json
+
+
+### TestCasesSwaggerReviewGetRootArrayBodyReviewEndpoint
+GET {{baseUrl}}/api/swagger-review/root-array-body
+Content-Type: */*
+Accept: application/json
+
+{{body}}
+
+### TestCasesSwaggerReviewGetRootListBodyReviewEndpoint
+GET {{baseUrl}}/api/swagger-review/root-list-body
+Content-Type: application/json
+Accept: application/json
+
+[
+  {
+    "name": ""
+  }
+]
+
+### TestCasesSwaggerReviewHeadRootListBodyReviewEndpoint
+HEAD {{baseUrl}}/api/swagger-review/root-list-body
+Content-Type: application/json
+Accept: application/json
+
+[
+  {
+    "name": ""
+  }
+]
+
+### TestCasesSwaggerReviewPostRootListBodyReviewEndpoint
+POST {{baseUrl}}/api/swagger-review/root-list-body
+Content-Type: application/json
+Accept: application/json
+
+[
+  {
+    "name": ""
+  }
+]
+
+### swagger_review_TestCasesSwaggerReviewSharedNestedValidationAlphaEndpoint
+POST {{baseUrl}}/api/swagger-review/shared-nested-validation-alpha
+Content-Type: application/json
+Accept: application/json
+
+{
+  "address": {
+    "zip": ""
+  }
+}
+
+### swagger_review_TestCasesSwaggerReviewSharedNestedValidationBetaEndpoint
+POST {{baseUrl}}/api/swagger-review/shared-nested-validation-beta
+Content-Type: application/json
+Accept: application/json
+
+{
+  "address": {
+    "zip": ""
+  }
+}
+
+### swagger_review_TestCasesSwaggerReviewSharedRequestMetadataAlphaEndpoint
+POST {{baseUrl}}/api/swagger-review/shared-request-metadata-alpha
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": ""
+}
+
+### swagger_review_TestCasesSwaggerReviewSharedRequestMetadataBetaEndpoint
+POST {{baseUrl}}/api/swagger-review/shared-request-metadata-beta
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": ""
+}
+
+### swagger_review_TestCasesSwaggerReviewUlongEnumReviewEndpoint
+GET {{baseUrl}}/api/swagger-review/ulong-enum
+Accept: application/json
+
+
+### swagger_review_TestCasesSwaggerReviewUniqueItemsReviewEndpoint
+POST {{baseUrl}}/api/swagger-review/unique-items
+Content-Type: application/json
+Accept: application/json
+
+{
+  "autoTags": [
+    ""
+  ],
+  "autoChildren": [
+    {
+      "name": ""
+    }
+  ],
+  "explicitChildren": [
+    {
+      "name": ""
+    }
+  ]
+}
+
+### swagger_review_TestCasesSwaggerReviewVersionPrefilterInitialEndpoint
+POST {{baseUrl}}/api/swagger-review/version-prefilter-initial
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": ""
+}
+
+### antiforgery_TestCasesAntiforgeryTestRenderFormHtml
+GET {{baseUrl}}/api/test-cases/antiforgery/render-form
+Accept: application/json
+
+
+### antiforgery_TestCasesAntiforgeryTestGetAfTokenEndpoint
+GET {{baseUrl}}/api/test-cases/antiforgery/token
+Accept: application/json
+
+
+### antiforgery_TestCasesAntiforgeryTestVerifyAfToken
+POST {{baseUrl}}/api/test-cases/antiforgery/validate
+Content-Type: multipart/form-data
+Accept: application/json
+
+# body omitted (multipart/form-data); provide form fields in the client
+
+### TestCasesValidationErrorTestArrayValidationErrorTestEndpoint
+POST {{baseUrl}}/api/test-cases/array-validation-error-test
+Authorization: Bearer {{bearerToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "stringArray": [
+    ""
+  ]
+}
+
+### TestCasesQueryObjectBindingTestCircularEndpoint
+GET {{baseUrl}}/api/test-cases/circular-query-object-binding-test?name={{name}}
+Accept: application/json
+
+
+### TestCasesComparerSemanticsTestClaimTypeCasingMismatchEndpoint
+GET {{baseUrl}}/api/test-cases/comparer-tests/claim-type-casing-mismatch
+Authorization: Bearer {{bearerToken}}
+Accept: application/json
+
+
+### TestCasesComparerSemanticsTestPermissionCasingExactEndpoint
+GET {{baseUrl}}/api/test-cases/comparer-tests/permission-casing-exact
+Authorization: Bearer {{bearerToken}}
+Accept: application/json
+
+
+### TestCasesComparerSemanticsTestPermissionCasingMismatchEndpoint
+GET {{baseUrl}}/api/test-cases/comparer-tests/permission-casing-mismatch
+Authorization: Bearer {{bearerToken}}
+Accept: application/json
+
+
+### TestCasesComparerSemanticsTestScopeCasingMismatchEndpoint
+GET {{baseUrl}}/api/test-cases/comparer-tests/scope-casing-mismatch
+Authorization: Bearer {{bearerToken}}
+Accept: application/json
+
+
+### TestCasesCustomRequestBinderEndpoint
+POST {{baseUrl}}/api/test-cases/custom-request-binder
+Authorization: Bearer {{bearerToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "id": "",
+  "product": {
+    "id": 0,
+    "name": "",
+    "price": 0
+  },
+  "customerID": ""
+}
+
+### TestCasesDataAnnotationCompliantEndpoint
+POST {{baseUrl}}/api/test-cases/data-annotation
+Content-Type: application/json
+Accept: application/json
+
+{
+  "id": 0,
+  "name": "",
+  "meta": {
+    "gender": "",
+    "age": 0
+  },
+  "children": [
+    {
+      "name": "",
+      "age": 0,
+      "gender": ""
+    }
+  ]
+}
+
+### TestCasesValidationErrorTestDictionaryValidationErrorTestEndpoint
+POST {{baseUrl}}/api/test-cases/dictionary-validation-error-test
+Authorization: Bearer {{bearerToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "stringDictionary": {}
+}
+
+### TestCasesDontBindAttributeTestEndpoint
+POST {{baseUrl}}/api/test-cases/dont-bind-attribute-test/{{name}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "id": 0
+}
+
+### TestCasesDupeParamBindingForIEnumerablePropsEndpoint
+GET {{baseUrl}}/api/test-cases/dupe-param-binding-for-ienumerable-props?strings={{strings}}&moreStrings={{moreStrings}}&doubles={{doubles}}&ints={{ints}}&guids={{guids}}&dates={{dates}}&persons={{persons}}
+Accept: application/json
+
+
+### TestCasesEmptyRequestTestEmptyRequestEndpoint
+GET {{baseUrl}}/api/test-cases/empty-request-test
+Authorization: Bearer {{bearerToken}}
+Accept: application/json
+
+
+### TestCasesMetadataRegistrationTestEndpoint
+GET {{baseUrl}}/api/test-cases/endpoint-metadata-reg-test
+Accept: application/json
+
+
+### TestCasesQueryParamBindingInEpWithoutReqEpWithoutReqQueryParamBindingTest
+GET {{baseUrl}}/api/test-cases/ep-witout-req-query-param-binding-test
+Accept: application/json
+
+
+### TestCasesRouteBindingInEpWithoutReqEpWithoutReqRouteBindingTest
+GET {{baseUrl}}/api/test-cases/ep-witout-req-route-binding-test/{{customerID}}/{{otherID}}
+Accept: application/json
+
+
+### TestCasesEventBusTestEndpoint
+GET {{baseUrl}}/api/test-cases/event-bus-test
+Accept: application/json
+
+
+### TestCasesEventStreamTestEventStreamEndpoint
+POST {{baseUrl}}/api/test-cases/event-stream
+Content-Type: application/json
+Accept: application/json
+
+{
+  "eventName": "",
+  "notifications": [
+    {
+      "name": ""
+    }
+  ]
+}
+
+### TestCasesFormBindingComplexDtosEndpoint
+POST {{baseUrl}}/api/test-cases/form-binding-complex-dtos
+Content-Type: multipart/form-data
+Accept: application/json
+
+# body omitted (multipart/form-data); provide form fields in the client
+
+### TestCasesFormBindingComplexDtosToFormEndpoint
+PUT {{baseUrl}}/api/test-cases/form-binding-complex-dtos
+Content-Type: multipart/form-data
+Accept: application/json
+
+# body omitted (multipart/form-data); provide form fields in the client
+
+### TestCasesFormFileBindingTestEndpoint
+POST {{baseUrl}}/api/test-cases/form-file-collection-binding
+Authorization: Bearer {{bearerToken}}
+Content-Type: multipart/form-data
+Accept: application/json
+
+# body omitted (multipart/form-data); provide form fields in the client
+
+### TestCasesFromBodyJsonBindingEndpoint
+POST {{baseUrl}}/api/test-cases/from-body-binding/{{id}}
+customerID: {{customerID}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "id": 0,
+  "name": "",
+  "price": 0
+}
+
+### TestCasesFromCookieRequestBindingTestEndpoint
+POST {{baseUrl}}/api/test-cases/from-cookie-binding-test/{{id}}
+Cookie: someCookie={{someCookie}}
+Accept: application/json
+
+
+### TestCasesRateLimitTestsGlobalErrorResponseTest
+GET {{baseUrl}}/api/test-cases/global-throttle-error-response
+Accept: application/json
+
+
+### TestCasesIdempotencyEndpoint
+GET {{baseUrl}}/api/test-cases/idempotency/{{id}}?content={{content}}
+Idempotency-Key: {{Idempotency-Key}}
+Accept: application/json
+
+
+### TestCasesIncludedValidatorTestEndpoint
+POST {{baseUrl}}/api/test-cases/included-validator
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "",
+  "id": 0
+}
+
+### TestCasesJsonArrayBindingForIEnumerablePropsEndpoint
+GET {{baseUrl}}/api/test-cases/json-array-binding-for-ienumerable-props?doubles={{doubles}}&ints={{ints}}&guids={{guids}}&dates={{dates}}&steven={{steven}}&dict={{dict}}
+Accept: application/json
+
+
+### TestCasesJsonArrayBindingToIEnumerableDtoEndpoint
+POST {{baseUrl}}/api/test-cases/json-array-binding-to-ienumerable-dto
+Content-Type: application/json
+Accept: application/json
+
+[
+  {
+    "id": 0,
+    "name": ""
+  }
+]
+
+### TestCasesJsonArrayBindingToListOfModelsEndpoint
+POST {{baseUrl}}/api/test-cases/json-array-binding-to-list-of-models
+Content-Type: application/json
+Accept: application/json
+
+[
+  {
+    "name": ""
+  }
+]
+
+### TestCasesKeyedServicesTestsEndpoint
+GET {{baseUrl}}/api/test-cases/keyed-services-test
+Accept: application/json
+
+
+### TestCasesValidationErrorTestListInListValidationErrorTestEndpoint
+POST {{baseUrl}}/api/test-cases/list-in-list-validation-error-test
+Authorization: Bearer {{bearerToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "numbersList": [
+    [
+      0
+    ]
+  ]
+}
+
+### TestCasesValidationErrorTestListValidationErrorTestEndpoint
+POST {{baseUrl}}/api/test-cases/list-validation-error-test
+Authorization: Bearer {{bearerToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "numbersList": [
+    0
+  ]
+}
+
+### TestCasesMapperTestEndpoint
+POST {{baseUrl}}/api/test-cases/mapper-test
+Authorization: Bearer {{bearerToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "firstName": "",
+  "lastName": "",
+  "age": 0
+}
+
+### TestCasesMissingClaimTestThrowIfMissingEndpoint
+POST {{baseUrl}}/api/test-cases/missing-claim-test
+Authorization: Bearer {{bearerToken}}
+Accept: application/json
+
+
+### TestCasesMissingClaimTestDontThrowIfMissingEndpoint
+POST {{baseUrl}}/api/test-cases/missing-claim-test/dont-throw?testProp={{testProp}}
+Authorization: Bearer {{bearerToken}}
+Accept: application/json
+
+
+### TestCasesMissingHeaderTestThrowIfMissingEndpoint
+POST {{baseUrl}}/api/test-cases/missing-header-test
+tenantID: {{tenantID}}
+Authorization: Bearer {{bearerToken}}
+Accept: application/json
+
+
+### TestCasesMissingHeaderTestDontThrowIfMissingEndpoint
+POST {{baseUrl}}/api/test-cases/missing-header-test/dont-throw
+tenantID: {{tenantID}}
+Authorization: Bearer {{bearerToken}}
+Content-Type: */*
+Accept: application/json
+
+{{body}}
+
+### TestCasesValidationErrorTestObjectArrayValidationErrorTestEndpoint
+POST {{baseUrl}}/api/test-cases/object-array-validation-error-test
+Authorization: Bearer {{bearerToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "objectArray": [
+    {
+      "test": ""
+    }
+  ]
+}
+
+### TestCasesOnBeforeAfterValidationTestEndpoint
+POST {{baseUrl}}/api/test-cases/on-before-on-after-validate
+Authorization: Bearer {{bearerToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "verb": "GET",
+  "host": ""
+}
+
+### TestCasesEndpointsCacheBypassTestCachedOutputEndpoint
+GET {{baseUrl}}/api/test-cases/output-cache-bypass-test?id={{id}}
+Accept: application/json
+
+
+### TestCasesPreProcessorIsRunOnValidationFailureEndpoint
+POST {{baseUrl}}/api/test-cases/pre-processor-is-run-on-validation-failure
+Authorization: Bearer {{bearerToken}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "firstName": "",
+  "failureCount": 0
+}
+
+### TestCasesProcessorAttributesTestEndpoint
+POST {{baseUrl}}/api/test-cases/processor-attributes-test
+Content-Type: application/json
+Accept: application/json
+
+{
+  "values": [
+    ""
+  ]
+}
+
+### TestCasesProcessorStateTestEndpoint
+GET {{baseUrl}}/api/test-cases/processor-state-sharing?id={{id}}
+Accept: application/json
+
+
+### QueryArraysOfObjectsBindingTest
+GET {{baseUrl}}/api/test-cases/query-arrays-of-objects-binding-test?child.objects[0].string={{child.objects[0].string}}&child.objects[0].bool={{child.objects[0].bool}}&child.objects[0].int={{child.objects[0].int}}&child.objects[0].long={{child.objects[0].long}}&child.objects[0].double={{child.objects[0].double}}&child.objects[0].enum={{child.objects[0].enum}}&objects[0].string={{objects[0].string}}&objects[0].bool={{objects[0].bool}}&objects[0].int={{objects[0].int}}&objects[0].long={{objects[0].long}}&objects[0].double={{objects[0].double}}&objects[0].enum={{objects[0].enum}}
+Accept: application/json
+
+
+### QueryObjectBindingTest
+GET {{baseUrl}}/api/test-cases/query-object-binding-test?string={{string}}&bool={{bool}}&int={{int}}&long={{long}}&double={{double}}&enum={{enum}}&id={{id}}&name={{name}}&age={{age}}&child.id={{child.id}}&child.name={{child.name}}&child.age={{child.age}}&child.birthDate={{child.birthDate}}&child.wakeUpTime={{child.wakeUpTime}}&child.strings={{child.strings}}&child.favoriteDays={{child.favoriteDays}}&child.isHidden={{child.isHidden}}&numbers={{numbers}}&favoriteDay={{favoriteDay}}&byteEnum={{byteEnum}}&isHidden={{isHidden}}
+Accept: application/json
+
+
+### TestCasesHydratedQueryParamGeneratorTestEndpoint
+GET {{baseUrl}}/api/test-cases/query-param-creation-from-test-helpers/{{complexId}}/{{complexIdString}}?first={{first}}&last={{last}}&guids={{guids}}&some={{some}}
+Accept: application/json
+
+
+### TestCasesRangeHandlingTestEndpoint
+GET {{baseUrl}}/api/test-cases/range
+Accept: application/json
+
+
+### TestCasesEndpointsCacheBypassTestCachedResponseEndpoint
+GET {{baseUrl}}/api/test-cases/response-cache-bypass-test?id={{id}}
+Accept: application/json
+
+
+### RouteBindingTest
+POST {{baseUrl}}/api/test-cases/route-binding-test/{{string}}/{{bool}}/{{int}}/{{long}}/{{double}}/{{decimal}}?id={{id}}&name={{name}}&age={{age}}&child.id={{child.id}}&child.name={{child.name}}&child.age={{child.age}}&child.strings={{child.strings}}&numbers={{numbers}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "url": "",
+  "custom": {
+    "value": 0
+  },
+  "customList": [
+    0
+  ],
+  "blank": 0,
+  "stringOverride": 0,
+  "stringOverrideNullable": 0,
+  "fromBody": ""
+}
+
+### TestCasesRoutingCatchAllRouteParamTest
+PUT {{baseUrl}}/api/test-cases/routing/catchall/{{rest}}
+Accept: application/json
+
+
+### TestCasesRoutingConstrainedRouteParamTest
+PUT {{baseUrl}}/api/test-cases/routing/constrained/{{id}}
+Accept: application/json
+
+
+### TestCasesRoutingMultiRouteDifferingParamsTest1
+PUT {{baseUrl}}/api/test-cases/routing/multiroute/full/{{id}}/{{name}}
+Accept: application/json
+
+
+### TestCasesRoutingMultiRouteDifferingParamsTest2
+PUT {{baseUrl}}/api/test-cases/routing/multiroute/partial/{{id}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": ""
+}
+
+### TestCasesRoutingOptionalRouteParamTest
+POST {{baseUrl}}/api/test-cases/routing/offer/{{offerId}}
+Accept: application/json
+
+
+### TestCasesRoutingNonOptionalRouteParamTest
+POST {{baseUrl}}/api/test-cases/routing/user/{{userId}}
+Accept: application/json
+
+
+### TestCasesRoutingDefaultValueRouteParamTest
+PUT {{baseUrl}}/api/test-cases/routing/withdefault/{{name}}
+Accept: application/json
+
+
+### TestCasesScopesTestScopeTestAllFailEndpoint
+GET {{baseUrl}}/api/test-cases/scope-tests/all-scope-fail
+Authorization: Bearer {{bearerToken}}
+Accept: application/json
+
+
+### TestCasesScopesTestScopeTestAllPassEndpoint
+GET {{baseUrl}}/api/test-cases/scope-tests/all-scope-pass
+Authorization: Bearer {{bearerToken}}
+Accept: application/json
+
+
+### TestCasesScopesTestScopeTestAnyFailEndpoint
+GET {{baseUrl}}/api/test-cases/scope-tests/any-scope-fail
+Authorization: Bearer {{bearerToken}}
+Accept: application/json
+
+
+### TestCasesScopesTestScopeTestAnyPassEndpoint
+GET {{baseUrl}}/api/test-cases/scope-tests/any-scope-pass
+Authorization: Bearer {{bearerToken}}
+Accept: application/json
+
+
+### TestCasesServiceRegistrationGeneratorTestEndpoint
+GET {{baseUrl}}/api/test-cases/service-reg-gen-test
+Accept: application/json
+
+
+### TestCasesStronglyTypedRouteParamTestMyEndpoint
+POST {{baseUrl}}/api/test-cases/strong-route-params/{{platformKitUid}}/blah/{{name}}
+Accept: application/json
+
+
+### TestCasesTypedHeaderBindingTestMyEndpoint
+POST {{baseUrl}}/api/test-cases/typed-header-binding-test
+Content-Disposition: {{Content-Disposition}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "content": ""
+}
+
+### TestCasesUnitTestConcurrencyTestEndpoint
+GET {{baseUrl}}/api/test-cases/unit-test-concurrency?id={{id}}
+Accept: application/json
+
+
+### TestCasesX402FailureEndpoint
+GET {{baseUrl}}/api/test-cases/x402/failure
+PAYMENT-SIGNATURE: {{PAYMENT-SIGNATURE}}
+Accept: application/json
+
+
+### TestCasesX402OverrideEndpoint
+GET {{baseUrl}}/api/test-cases/x402/override
+PAYMENT-SIGNATURE: {{PAYMENT-SIGNATURE}}
+Accept: application/json
+
+
+### TestCasesX402PreSettledEndpoint
+GET {{baseUrl}}/api/test-cases/x402/pre-settled
+PAYMENT-SIGNATURE: {{PAYMENT-SIGNATURE}}
+Accept: application/json
+
+
+### TestCasesX402SuccessEndpoint
+GET {{baseUrl}}/api/test-cases/x402/success
+PAYMENT-SIGNATURE: {{PAYMENT-SIGNATURE}}
+Accept: application/json
+
+
+### TestCasesDontCatchExceptionsEndpoint
+GET {{baseUrl}}/api/test-cases/{{number}}
+Accept: application/json
+
+
+### GetTestCasesHydratedTestUrlGeneratorTestEndpoint
+GET {{baseUrl}}/api/test/hydrated-test-url-generator-test/{{id}}/{{guid}}/{{stringBindFrom}}/{{nullableString}}/{{fromClaim}}/{{fromHeader}}/{{hasPermission}}?hasPermission={{hasPermission}}
+tenant-id: {{tenant-id}}
+Accept: application/json
+
+
+### PostTestCasesHydratedTestUrlGeneratorTestEndpoint
+POST {{baseUrl}}/api/test/hydrated-test-url-generator-test/{{id}}/{{guid}}/{{stringBindFrom}}/{{nullableString}}/{{fromClaim}}/{{fromHeader}}/{{hasPermission}}?hasPermission={{hasPermission}}
+tenant-id: {{tenant-id}}
+Accept: application/json
+
+
+### PutTestCasesHydratedTestUrlGeneratorTestEndpoint
+PUT {{baseUrl}}/api/test/hydrated-test-url-generator-test/{{id}}/{{guid}}/{{stringBindFrom}}/{{nullableString}}/{{fromClaim}}/{{fromHeader}}/{{hasPermission}}?hasPermission={{hasPermission}}
+tenant-id: {{tenant-id}}
+Accept: application/json
+
+
+### PatchTestCasesHydratedTestUrlGeneratorTestEndpoint
+PATCH {{baseUrl}}/api/test/hydrated-test-url-generator-test/{{id}}/{{guid}}/{{stringBindFrom}}/{{nullableString}}/{{fromClaim}}/{{fromHeader}}/{{hasPermission}}?hasPermission={{hasPermission}}
+tenant-id: {{tenant-id}}
+Accept: application/json
+
+
+### DeleteTestCasesHydratedTestUrlGeneratorTestEndpoint
+DELETE {{baseUrl}}/api/test/hydrated-test-url-generator-test/{{id}}/{{guid}}/{{stringBindFrom}}/{{nullableString}}/{{fromClaim}}/{{fromHeader}}/{{hasPermission}}?hasPermission={{hasPermission}}
+tenant-id: {{tenant-id}}
+Accept: application/json
+
+
+### TestCasesGlobalGenericProcessorTestEndpoint
+POST {{baseUrl}}/api/testcases/global-generic-processors
+Content-Type: application/json
+Accept: application/json
+
+{
+  "preProcRan": false,
+  "postProcRan": false
+}
+
+### TestCasesPostProcessorTestEndpoint
+GET {{baseUrl}}/api/testcases/post-processor-handles-exception?id={{id}}
+Accept: application/json
+
+
+### TestCasesPostProcessorTestEpNoPostProcessor
+GET {{baseUrl}}/api/testcases/post-processor-handles-exception/no-post-processor
+Accept: application/json
+
+
+### TestCasesPreProcessorShortWhileValidatorFailsEndpoint
+GET {{baseUrl}}/api/testcases/pre-processor-shortcircuit-while-validator-fails?id={{id}}
+Accept: application/json
+
+
+### TestCasesSTJInfiniteRecursionTestEndpoint
+GET {{baseUrl}}/api/testcases/stj-infinite-recursion
+Accept: application/json
+
+
+### TestCasesCommandHandlerTestConcreteCmdEndpoint
+GET {{baseUrl}}/api/tests/command-handler
+Accept: application/json
+
+
+### TestCasesCommandHandlerTestGetCommandHandlerHashCodes
+GET {{baseUrl}}/api/tests/command-handler-hashcodes
+Accept: application/json
+
+
+### TestCasesCommandBusTestReceiverEndpoint
+GET {{baseUrl}}/api/tests/command/receivers?name={{name}}
+Accept: application/json
+
+
+### TestCasesCommandBusTestEndpoint
+GET {{baseUrl}}/api/tests/commands
+Accept: application/json
+
+
+### TestCasesCommandHandlerTestGenericCmdEndpoint
+GET {{baseUrl}}/api/tests/generic-command-handler
+Accept: application/json
+
+
+### TestCasesCommandHandlerTestGenericCmdWithoutResultEndpoint
+GET {{baseUrl}}/api/tests/generic-command-handler-without-result
+Accept: application/json
+
+
+### TestCasesStreamCommandBusTestGenericStreamCmdEndpoint
+GET {{baseUrl}}/api/tests/generic-stream-command
+Accept: application/json
+
+
+### TestCasesIAuthorizationServiceInjectionTestEndpoint
+GET {{baseUrl}}/api/tests/iauth-injection
+Authorization: Bearer {{bearerToken}}
+Accept: application/json
+
+
+### TestCasesCommandHandlerTestScopedServiceCheckEndpoint
+GET {{baseUrl}}/api/tests/scoped-service-check
+Accept: application/json
+
+
+### TestCasesStreamCommandBusTestStreamCmdEndpoint
+GET {{baseUrl}}/api/tests/stream-command
+Accept: application/json
+
+
+### TestCasesRefreshTokensTestLoginEndpoint
+GET {{baseUrl}}/api/tokens/login
+Accept: application/json
+
+
+### TestCasesRefreshTokensTestTokenService
+POST {{baseUrl}}/api/tokens/refresh-token
+Content-Type: application/json
+Accept: application/json
+
+{
+  "userId": "",
+  "refreshToken": ""
+}
+
+### TestCasesRefreshTokensTestUnionLoginEndpoint
+POST {{baseUrl}}/api/tokens/union-login
+Content-Type: application/json
+Accept: application/json
+
+{
+  "username": ""
+}
+
+### PostUploadsImageSaveEndpoint
+POST {{baseUrl}}/api/uploads/image/save
+Content-Type: multipart/form-data
+Accept: application/json
+
+# body omitted (multipart/form-data); provide form fields in the client
+
+### PutUploadsImageSaveEndpoint
+PUT {{baseUrl}}/api/uploads/image/save
+Authorization: Bearer {{bearerToken}}
+Content-Type: multipart/form-data
+Accept: application/json
+
+# body omitted (multipart/form-data); provide form fields in the client
+
+### PostUploadsImageSaveTypedEndpoint
+POST {{baseUrl}}/api/uploads/image/save-typed
+Content-Type: multipart/form-data
+Accept: application/json
+
+# body omitted (multipart/form-data); provide form fields in the client
+
+### PutUploadsImageSaveTypedEndpoint
+PUT {{baseUrl}}/api/uploads/image/save-typed
+Authorization: Bearer {{bearerToken}}
+Content-Type: multipart/form-data
+Accept: application/json
+
+# body omitted (multipart/form-data); provide form fields in the client
+
+### swagger_review_TestCasesSwaggerReviewBareRouteSubstringReviewEndpoint
+GET {{baseUrl}}/apiary/ver0/status
+Accept: application/json
+
+
+### GET /filtered-shared-path
+GET {{baseUrl}}/filtered-shared-path
+Accept: application/json
+
+
+### POST /filtered-shared-path
+POST {{baseUrl}}/filtered-shared-path
+Accept: application/json
+
+
+### TestCasesGlobalRoutePrefixOverrideTestEndpoint
+POST {{baseUrl}}/mobile/api/test-cases/global-prefix-override/{{id}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "content": ""
+}
+
+### GET /non-fe-auth
+GET {{baseUrl}}/non-fe-auth
+Authorization: Bearer {{bearerToken}}
+Accept: application/json
+
+
+### GET /non-fe-auth-anon
+GET {{baseUrl}}/non-fe-auth-anon
+Accept: application/json
+
+
+### GET /test
+GET {{baseUrl}}/test
+Accept: application/json
+
+
+### TestCasesPlainTextRequestTestEndpoint
+POST {{baseUrl}}/test-cases/plaintext/{{id}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "content": ""
+}
+
+### GET /test/{testId}
+GET {{baseUrl}}/test/{{testId}}
+Accept: application/json
+
+

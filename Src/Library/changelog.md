@@ -128,6 +128,20 @@ app.MapRemote("http://localhost:6000", c =>
 
 </details>
 
+<details><summary>Export OpenAPI documents as '.http' files</summary>
+
+The **FastEndpoints.OpenApi** package can now export generated OpenAPI documents as REST Client `.http` files, alongside the existing `.json` export, for quick manual testing of endpoints without leaving the editor.
+
+```csharp
+await app.ExportHttpFilesAndExitAsync("v1"); // doc name should match .OpenApiDocument() config
+```
+
+```
+dotnet run --export-http-files true
+```
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>Conditional FluentValidation presence rules no longer make OpenAPI properties required</summary>

@@ -47,6 +47,14 @@ AOT tests: use `NativeAot.slnx` (publish workflow currently has AOT test step co
 - gRPC reflection coverage: `Tests/IntegrationTests/FastEndpoints/RPCTests/GrpcReflection.cs` (+ same-simple-name fixtures in `GrpcReflection.Fixtures.cs`). Descriptor generation is asserted directly; only the list/describe and protobuf round-trip tests stand up a server. Do not add a live event hub there — see gotchas.
 - NativeAotChecker AOT/harness coverage: `UseJobQueues(... IdempotencyKeyFor<IdempotentEchoCommand>(c => c.OrderId))`, endpoint `job-queue/idempotent`, test `Tests/NativeAotTests/NativeAotCheckerTests/Jobs/JobQueueIdempotencyTests.cs`.
 
+## OpenAPI `.http` export snapshots
+- Goldens: `Tests/IntegrationTests/FastEndpoints.OpenApi/release-*.http` compared by `HttpSnapshotTests`.
+- Focused walker/security coverage: `HttpFileExporterTests` + `HttpExportRegressionTests` (not snapshots alone).
+- Multi-format export orchestration: `OpenApiExporterTests` (in-process via `ExportRequestedFormatsAsync`, fake `IOpenApiDocumentProvider`; no `Environment.Exit`).
+- To regenerate goldens: set `_updateSnapshots = true` in `HttpSnapshotTests.cs`, run  
+  `dotnet test Tests/IntegrationTests/FastEndpoints.OpenApi/Int.OpenApi.csproj --filter FullyQualifiedName~HttpSnapshotTests`,  
+  set `_updateSnapshots = false`, re-run the same filter (must pass 7/7). Spot-check admin login, inventory create, dual-child-address bodies.
+
 ## Expectations
 - New public behavior: unit tests when pure logic; integration tests against `TestHarness/Web` (or domain harness) when pipeline/HTTP involved.
 - Prefer endpoint-typed client extensions over magic strings.

@@ -15,6 +15,13 @@
         <Content Include="release-versioning-v1.json" CopyToOutputDirectory="Always"/>
         <Content Include="release-versioning-v2.json" CopyToOutputDirectory="Always"/>
         <Content Include="release-versioning-v3.json" CopyToOutputDirectory="Always"/>
+        <Content Include="release-0.http" CopyToOutputDirectory="Always"/>
+        <Content Include="release-1.http" CopyToOutputDirectory="Always"/>
+        <Content Include="release-2.http" CopyToOutputDirectory="Always"/>
+        <Content Include="release-versioning-v0.http" CopyToOutputDirectory="Always"/>
+        <Content Include="release-versioning-v1.http" CopyToOutputDirectory="Always"/>
+        <Content Include="release-versioning-v2.http" CopyToOutputDirectory="Always"/>
+        <Content Include="release-versioning-v3.http" CopyToOutputDirectory="Always"/>
     </ItemGroup>
 
 </Project>

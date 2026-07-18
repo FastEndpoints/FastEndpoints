@@ -53,6 +53,7 @@ app.UseStaticFiles()
        });
 
 await app.ExportOpenApiDocsAndExitAsync("v1");
+await app.ExportHttpFilesAndExitAsync("v1");
 
 app.MapScalarApiReference(o => o.AddDocument("v1"));
 app.UseJobQueues(

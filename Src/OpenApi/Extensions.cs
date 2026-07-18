@@ -154,6 +154,11 @@ public static class Extensions
     /// exports openapi .json files to disk and exits the program.
     /// <para>HINT: make sure to place the call straight after <c>app.UseFastEndpoints()</c></para>
     /// <para>
+    /// when both <c>--export-openapi-docs</c> and <c>--export-http-files</c> are set, call
+    /// <see cref="ExportOpenApiDocsAndExitAsync"/> and <see cref="ExportHttpFilesAndExitAsync"/> in sequence;
+    /// the process starts once and exits after the last requested format finishes.
+    /// </para>
+    /// <para>
     /// to enable automatic export during AOT publish builds, add this to your .csproj:
     /// <code>
     /// &lt;PropertyGroup&gt;
@@ -183,6 +188,11 @@ public static class Extensions
     /// <summary>
     /// exports '.http' files (REST Client / HTTP Client format) to disk and exits the program.
     /// <para>HINT: make sure to place the call straight after <c>app.UseFastEndpoints()</c></para>
+    /// <para>
+    /// when both <c>--export-openapi-docs</c> and <c>--export-http-files</c> are set, call
+    /// <see cref="ExportOpenApiDocsAndExitAsync"/> and <see cref="ExportHttpFilesAndExitAsync"/> in sequence;
+    /// the process starts once and exits after the last requested format finishes.
+    /// </para>
     /// <para>
     /// to enable automatic export during AOT publish builds, add this to your .csproj:
     /// <code>

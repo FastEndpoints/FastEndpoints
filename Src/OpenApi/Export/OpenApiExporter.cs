@@ -9,15 +9,26 @@ namespace FastEndpoints.OpenApi;
 
 static class OpenApiExporter
 {
+    // Process-scoped state for multi-format export: start host once, exit after every requested format runs.
+    static bool _hostStarted;
+    static bool _exportFailed;
+    static bool _jsonAttempted;
+    static bool _httpAttempted;
+
     public static Task ExportDocsAndExitAsync(WebApplication app, string[] documentNames)
-        => app.IsNotJsonExportMode() ? Task.CompletedTask : RunExportAsync(app, documentNames, ExportJsonDocumentAsync);
+        => app.IsNotJsonExportMode()
+               ? Task.CompletedTask
+               : RunFormatExportAsync(app, documentNames, ExportJsonDocumentAsync, jsonFormat: true);
 
     public static Task ExportHttpFilesAndExitAsync(WebApplication app, string[] documentNames)
-        => app.IsNotHttpExportMode() ? Task.CompletedTask : RunExportAsync(app, documentNames, ExportHttpDocumentAsync);
+        => app.IsNotHttpExportMode()
+               ? Task.CompletedTask
+               : RunFormatExportAsync(app, documentNames, ExportHttpDocumentAsync, jsonFormat: false);
 
-    static async Task RunExportAsync(WebApplication app,
-                                      string[] documentNames,
-                                      Func<WebApplication, string, string, ILogger, CancellationToken, Task<bool>> exportOneAsync)
+    static async Task RunFormatExportAsync(WebApplication app,
+                                           string[] documentNames,
+                                           Func<WebApplication, string, string, ILogger, CancellationToken, Task<bool>> exportOneAsync,
+                                           bool jsonFormat)
     {
         if (documentNames.Length == 0)
             return;
@@ -25,25 +36,33 @@ static class OpenApiExporter
         var destinationPath = Path.Combine(app.Environment.ContentRootPath, DocumentOptions.OpenApiExportPath);
         var logger = app.Services.GetRequiredService<ILogger<OpenApiExportRunner>>();
 
-        await app.StartAsync();
-        var exportFailed = false;
-
-        try
+        if (!_hostStarted)
         {
+            await app.StartAsync();
+            _hostStarted = true;
             Directory.CreateDirectory(destinationPath);
-
-            foreach (var docName in documentNames)
-            {
-                if (!await exportOneAsync(app, docName, destinationPath, logger, CancellationToken.None))
-                    exportFailed = true;
-            }
         }
-        finally
+
+        foreach (var docName in documentNames)
         {
-            await app.StopAsync();
+            if (!await exportOneAsync(app, docName, destinationPath, logger, CancellationToken.None))
+                _exportFailed = true;
         }
 
-        Environment.Exit(exportFailed ? 1 : 0);
+        if (jsonFormat)
+            _jsonAttempted = true;
+        else
+            _httpAttempted = true;
+
+        // Wait until every format requested via CLI flags has been attempted (call both Export* APIs when both flags are set).
+        if (app.IsJsonExportMode() && !_jsonAttempted)
+            return;
+
+        if (app.IsHttpExportMode() && !_httpAttempted)
+            return;
+
+        await app.StopAsync();
+        Environment.Exit(_exportFailed ? 1 : 0);
     }
 
     static Task<bool> ExportJsonDocumentAsync(WebApplication app, string documentName, string destinationPath, ILogger logger, CancellationToken ct)

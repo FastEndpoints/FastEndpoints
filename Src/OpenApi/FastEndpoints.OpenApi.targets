@@ -27,64 +27,58 @@ internal static class OpenApiExportPathInitializer
     </Target>
 
     <!--
-      AOT pre-publish export descriptors.
-      Enable via ExportOpenApiDocs / ExportHttpFiles (and shared OpenApiExportPath).
-      Each format still gets its own JIT build + exec; alias target names kept for discoverability.
+      Single JIT build + one process for all enabled AOT export formats.
+      Enable via ExportOpenApiDocs and/or ExportHttpFiles (shared OpenApiExportPath).
+      When both are true, pass both CLI flags; app must call both Export*AndExitAsync APIs in sequence.
+      Alias target names kept for discoverability.
     -->
-    <ItemGroup Condition="'$(PublishAot)' == 'true' AND '$(_OpenApiArtifactsExporting)' != 'true'">
-        <_FeAotExport Include="OpenApiDocs" Condition="'$(ExportOpenApiDocs)' == 'true'">
-            <IntermediateDir>$(IntermediateOutputPath)openapi_export\</IntermediateDir>
-            <CliArg>--export-openapi-docs true</CliArg>
-            <IncludeGlob>**\*</IncludeGlob>
-            <DisplayName>OpenAPI documents</DisplayName>
-            <QuotedName>OpenAPI documents</QuotedName>
-        </_FeAotExport>
-        <_FeAotExport Include="HttpFiles" Condition="'$(ExportHttpFiles)' == 'true'">
-            <IntermediateDir>$(IntermediateOutputPath)http_export\</IntermediateDir>
-            <CliArg>--export-http-files true</CliArg>
-            <IncludeGlob>**\*.http</IncludeGlob>
-            <DisplayName>'.http' files</DisplayName>
-            <QuotedName>'.http' files</QuotedName>
-        </_FeAotExport>
-    </ItemGroup>
-
-    <!-- Export OpenAPI artifacts via JIT build before AOT publish (batched per format) -->
     <Target Name="ExportOpenApiArtifactsBeforeAotPublish"
             BeforeTargets="PrepareForILLink"
-            Condition="'@(_FeAotExport)' != ''"
-            Outputs="%(_FeAotExport.Identity)">
+            Condition="'$(PublishAot)' == 'true' AND '$(_OpenApiArtifactsExporting)' != 'true' AND ('$(ExportOpenApiDocs)' == 'true' OR '$(ExportHttpFiles)' == 'true')">
 
-        <Message Text="Exporting %(_FeAotExport.DisplayName) before Native AOT compilation..." Importance="high"/>
-        <Message Text="%(_FeAotExport.QuotedName) export path: $(OpenApiExportPath)" Importance="high"/>
+        <PropertyGroup>
+            <_FeAotExportDir>$(IntermediateOutputPath)openapi_export\</_FeAotExportDir>
+            <_FeAotCliArgs></_FeAotCliArgs>
+            <_FeAotCliArgs Condition="'$(ExportOpenApiDocs)' == 'true'">$(_FeAotCliArgs) --export-openapi-docs true</_FeAotCliArgs>
+            <_FeAotCliArgs Condition="'$(ExportHttpFiles)' == 'true'">$(_FeAotCliArgs) --export-http-files true</_FeAotCliArgs>
+            <_FeAotDisplayName Condition="'$(ExportOpenApiDocs)' == 'true' AND '$(ExportHttpFiles)' == 'true'">OpenAPI documents and '.http' files</_FeAotDisplayName>
+            <_FeAotDisplayName Condition="'$(ExportOpenApiDocs)' == 'true' AND '$(ExportHttpFiles)' != 'true'">OpenAPI documents</_FeAotDisplayName>
+            <_FeAotDisplayName Condition="'$(ExportOpenApiDocs)' != 'true' AND '$(ExportHttpFiles)' == 'true'">'.http' files</_FeAotDisplayName>
+        </PropertyGroup>
 
-        <!-- Build JIT version (non-AOT) with OpenApiExportPath explicitly passed -->
+        <Message Text="Exporting $(_FeAotDisplayName) before Native AOT compilation..." Importance="high"/>
+        <Message Text="OpenAPI export path: $(OpenApiExportPath)" Importance="high"/>
+
+        <!-- Build JIT version (non-AOT) once for all requested formats -->
         <MSBuild Projects="$(MSBuildProjectFullPath)"
                  Targets="Build"
-                 Properties="PublishAot=false;_OpenApiArtifactsExporting=true;OpenApiExportPath=$(OpenApiExportPath);OutputPath=%(_FeAotExport.IntermediateDir)"/>
+                 Properties="PublishAot=false;_OpenApiArtifactsExporting=true;OpenApiExportPath=$(OpenApiExportPath);OutputPath=$(_FeAotExportDir)"/>
 
-        <!-- Run the JIT build to export artifacts -->
-        <Exec Command="dotnet exec %(_FeAotExport.IntermediateDir)$(AssemblyName).dll %(_FeAotExport.CliArg)"
+        <!-- Run the JIT build once; both CLI flags may be present -->
+        <Exec Command="dotnet exec $(_FeAotExportDir)$(AssemblyName).dll$(_FeAotCliArgs)"
               WorkingDirectory="$(MSBuildProjectDirectory)"
               IgnoreExitCode="true">
             <Output TaskParameter="ExitCode" PropertyName="_FeAotExportExitCode"/>
         </Exec>
 
-        <Warning Text="%(_FeAotExport.QuotedName) export failed with exit code $(_FeAotExportExitCode)"
+        <Warning Text="$(_FeAotDisplayName) export failed with exit code $(_FeAotExportExitCode)"
                  Condition="'$(_FeAotExportExitCode)' != '0'"/>
-        <Message Text="%(_FeAotExport.QuotedName) exported successfully" Importance="high"
+        <Message Text="$(_FeAotDisplayName) exported successfully" Importance="high"
                  Condition="'$(_FeAotExportExitCode)' == '0'"/>
 
         <!-- Copy exported files to publish directory -->
         <ItemGroup Condition="'$(_FeAotExportExitCode)' == '0' AND '$(PublishDir)' != ''">
-            <_FeAotExportFiles Include="$(MSBuildProjectDirectory)\$(OpenApiExportPath)\%(_FeAotExport.IncludeGlob)"/>
+            <!-- JSON export (or both): copy everything under the export path -->
+            <_FeAotExportFiles Include="$(MSBuildProjectDirectory)\$(OpenApiExportPath)\**\*"
+                               Condition="'$(ExportOpenApiDocs)' == 'true'"/>
+            <!-- HTTP-only: only .http files -->
+            <_FeAotExportFiles Include="$(MSBuildProjectDirectory)\$(OpenApiExportPath)\**\*.http"
+                               Condition="'$(ExportOpenApiDocs)' != 'true' AND '$(ExportHttpFiles)' == 'true'"/>
         </ItemGroup>
         <Copy SourceFiles="@(_FeAotExportFiles)"
               DestinationFolder="$(PublishDir)$(OpenApiExportPath)\%(RecursiveDir)"
               Condition="'@(_FeAotExportFiles)' != ''"
               SkipUnchangedFiles="true"/>
-        <ItemGroup>
-            <_FeAotExportFiles Remove="@(_FeAotExportFiles)"/>
-        </ItemGroup>
     </Target>
 
     <!-- Alias targets (discoverability / explicit DependsOn) -->

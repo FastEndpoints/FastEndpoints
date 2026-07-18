@@ -5,35 +5,70 @@ POST {{baseUrl}}/api/admin/login
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "userName": "",
+  "password": ""
+}
 
 ### PutAdminLoginEndpoint
 PUT {{baseUrl}}/api/admin/login
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "userName": "",
+  "password": ""
+}
 
 ### PatchAdminLoginEndpoint
 PATCH {{baseUrl}}/api/admin/login
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "userName": "",
+  "password": ""
+}
 
 ### TestCasesNestedFromFormBindingTestCircularEndpoint
 POST {{baseUrl}}/api/api/test-cases/circular-fromform-binding-test
 Content-Type: multipart/form-data
 Accept: application/json
 
-{}
+{
+  "name": "",
+  "child": null
+}
 
 ### TestCasesNestedFromFormBindingTestEndpoint
 POST {{baseUrl}}/api/api/test-cases/nested-fromform-binding-test
 Content-Type: multipart/form-data
 Accept: application/json
 
-{}
+{
+  "name": "",
+  "customName": "",
+  "file": "",
+  "documents": [
+    ""
+  ],
+  "details": {
+    "title": "",
+    "image": "",
+    "gallery": [
+      ""
+    ]
+  },
+  "items": [
+    {
+      "description": "",
+      "attachment": ""
+    }
+  ],
+  "numbers": [
+    0
+  ]
+}
 
 ### CustomersListRecentEndpoint
 GET {{baseUrl}}/api/customer/list/recent
@@ -50,7 +85,13 @@ POST {{baseUrl}}/api/customer/new/2{{refererID}}
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "cID": "",
+  "customerName": "",
+  "phoneNumbers": [
+    ""
+  ]
+}
 
 ### GetCustomersCreateWithPropertiesDIEndpoint1
 GET {{baseUrl}}/api/customer/new/2{{refererID}}?cID={{cID}}&customerName={{customerName}}&phoneNumbers={{phoneNumbers}}
@@ -62,7 +103,13 @@ POST {{baseUrl}}/api/customer/new/{{refererID}}
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "cID": "",
+  "customerName": "",
+  "phoneNumbers": [
+    ""
+  ]
+}
 
 ### GetCustomersCreateEndpoint1
 GET {{baseUrl}}/api/customer/new/{{refererID}}?cID={{cID}}&customerName={{customerName}}&phoneNumbers={{phoneNumbers}}
@@ -74,7 +121,13 @@ POST {{baseUrl}}/api/customer/save
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "cID": "",
+  "customerName": "",
+  "phoneNumbers": [
+    ""
+  ]
+}
 
 ### GetCustomersCreateEndpoint3
 GET {{baseUrl}}/api/customer/save?cID={{cID}}&customerName={{customerName}}&phoneNumbers={{phoneNumbers}}
@@ -86,14 +139,23 @@ PUT {{baseUrl}}/api/customer/save?customerID={{customerID}}&name={{name}}
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "age": 0,
+  "address": ""
+}
 
 ### PostCustomersCreateWithPropertiesDIEndpoint3
 POST {{baseUrl}}/api/customer/save2
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "cID": "",
+  "customerName": "",
+  "phoneNumbers": [
+    ""
+  ]
+}
 
 ### GetCustomersCreateWithPropertiesDIEndpoint3
 GET {{baseUrl}}/api/customer/save2?cID={{cID}}&customerName={{customerName}}&phoneNumbers={{phoneNumbers}}
@@ -105,7 +167,10 @@ PUT {{baseUrl}}/api/customer/update?customerID={{customerID}}&name={{name}}
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "age": 0,
+  "address": ""
+}
 
 ### CustomersUpdateWithHeaderEndpoint
 PUT {{baseUrl}}/api/customer/update-with-header
@@ -114,14 +179,23 @@ tenant-id: {{tenant-id}}
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "name": "",
+  "age": 0,
+  "address": ""
+}
 
 ### PostCustomersCreateEndpoint2
 POST {{baseUrl}}/api/customer/{{cID}}/new/{{sourceID}}
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "customerName": "",
+  "phoneNumbers": [
+    ""
+  ]
+}
 
 ### GetCustomersCreateEndpoint2
 GET {{baseUrl}}/api/customer/{{cID}}/new/{{sourceID}}?customerName={{customerName}}&phoneNumbers={{phoneNumbers}}
@@ -133,7 +207,12 @@ POST {{baseUrl}}/api/customer/{{cID}}/new2/{{sourceID}}
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "customerName": "",
+  "phoneNumbers": [
+    ""
+  ]
+}
 
 ### GetCustomersCreateWithPropertiesDIEndpoint2
 GET {{baseUrl}}/api/customer/{{cID}}/new2/{{sourceID}}?customerName={{customerName}}&phoneNumbers={{phoneNumbers}}
@@ -160,7 +239,15 @@ POST {{baseUrl}}/api/inventory/manage/create
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "id": 0,
+  "name": "",
+  "description": "",
+  "price": 0,
+  "qtyOnHand": 0,
+  "modifiedBy": "",
+  "generateFullUrl": false
+}
 
 ### InventoryManageDeleteEndpoint
 DELETE {{baseUrl}}/api/inventory/manage/delete/{{itemID}}
@@ -172,14 +259,23 @@ PUT {{baseUrl}}/api/inventory/manage/update
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "id": 0,
+  "name": "",
+  "description": "",
+  "price": 0,
+  "qtyOnHand": 0,
+  "modifiedBy": ""
+}
 
 ### TestCasesSwaggerJsonPatchRequestBodyTestEndpoint
 PATCH {{baseUrl}}/api/json-patch-test/{{id}}
 Content-Type: application/json-patch+json
 Accept: application/json
 
-{}
+[
+  {}
+]
 
 ### TestCasesTypedResultTestMultiResultEndpoint
 POST {{baseUrl}}/api/multi-test
@@ -207,7 +303,11 @@ POST {{baseUrl}}/api/sales/orders/create/{{guidTest}}
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "customerID": 0,
+  "productID": 0,
+  "quantity": 0
+}
 
 ### Orders_SalesOrdersRetrieveEndpoint
 GET {{baseUrl}}/api/sales/orders/retrieve/{{orderID}}
@@ -230,7 +330,9 @@ POST {{baseUrl}}/api/swagger-review/bindfrom-query-post?id={{id}}
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "bodyValue": ""
+}
 
 ### swagger_review_TestCasesSwaggerReviewGetBodylessReviewEndpoint
 GET {{baseUrl}}/api/swagger-review/bodyless-query-params?name={{name}}&page={{page}}
@@ -252,14 +354,22 @@ POST {{baseUrl}}/api/swagger-review/child-validator
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "child": {
+    "score": 0
+  }
+}
 
 ### swagger_review_TestCasesSwaggerReviewCollectionLengthReviewEndpoint
 POST {{baseUrl}}/api/swagger-review/collection-length
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "tags": [
+    ""
+  ]
+}
 
 ### swagger_review_TestCasesSwaggerReviewCookieGetReviewEndpoint
 GET {{baseUrl}}/api/swagger-review/cookie-get
@@ -271,7 +381,13 @@ POST {{baseUrl}}/api/swagger-review/deep-nested-validator
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "child": {
+    "subChild": {
+      "field": ""
+    }
+  }
+}
 
 ### swagger_review_TestCasesSwaggerReviewDefaultRouteValueReviewEndpoint
 GET {{baseUrl}}/api/swagger-review/default-route-value/{{id}}
@@ -283,21 +399,33 @@ POST {{baseUrl}}/api/swagger-review/default-value-schema
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "name": "",
+  "count": 0
+}
 
 ### swagger_review_TestCasesSwaggerReviewDualChildAddressEndpoint
 POST {{baseUrl}}/api/swagger-review/dual-child-address
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "billingAddress": {
+    "zip": ""
+  },
+  "shippingAddress": {
+    "zip": ""
+  }
+}
 
 ### swagger_review_TestCasesSwaggerReviewDuplicateRequestExamplesEndpoint
 POST {{baseUrl}}/api/swagger-review/duplicate-examples
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "name": ""
+}
 
 ### swagger_review_TestCasesSwaggerReviewDuplicateIdempotencyHeaderEndpoint
 POST {{baseUrl}}/api/swagger-review/duplicate-idempotency-header
@@ -351,7 +479,9 @@ POST {{baseUrl}}/api/swagger-review/hidden-schema
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "visibleValue": ""
+}
 
 ### swagger_review_TestCasesSwaggerReviewIdempotencyAnonymousExampleEndpoint
 POST {{baseUrl}}/api/swagger-review/idempotency-anonymous-example
@@ -364,7 +494,9 @@ POST {{baseUrl}}/api/swagger-review/illegal-headers
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "bodyValue": ""
+}
 
 ### swagger_review_TestCasesSwaggerReviewInlineMarkupXmlDocReviewEndpoint
 POST {{baseUrl}}/api/swagger-review/inline-markup-xml-doc
@@ -385,7 +517,9 @@ POST {{baseUrl}}/api/swagger-review/intermediate-base-validator
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "name": ""
+}
 
 ### swagger_review_TestCasesSwaggerReviewJsonNamedQueryMetadataReviewEndpoint
 GET {{baseUrl}}/api/swagger-review/json-named-query-metadata?customerId={{customerId}}
@@ -397,7 +531,9 @@ POST {{baseUrl}}/api/swagger-review/json-property-name-transformers
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "x_coord": 0
+}
 
 ### swagger_review_TestCasesSwaggerReviewManualSchemaIdempotencyHeaderEndpoint
 POST {{baseUrl}}/api/swagger-review/manual-complex-idempotency-header
@@ -430,14 +566,28 @@ POST {{baseUrl}}/api/swagger-review/multi-doc-order-a
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "lines": [
+    {
+      "sku": "",
+      "qty": 0
+    }
+  ]
+}
 
 ### swagger_review_TestCasesSwaggerReviewMultiDocOrderEndpointB
 POST {{baseUrl}}/api/swagger-review/multi-doc-order-b
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "lines": [
+    {
+      "sku": "",
+      "qty": 0
+    }
+  ]
+}
 
 ### swagger_review_TestCasesSwaggerReviewNoRequestMetadataLeakEndpoint
 GET {{baseUrl}}/api/swagger-review/no-request-metadata-leak/{{leakId}}
@@ -454,14 +604,21 @@ POST {{baseUrl}}/api/swagger-review/promoted-body-validation/{{id}}
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "name": "",
+  "child": {
+    "code": ""
+  }
+}
 
 ### swagger_review_TestCasesSwaggerReviewRequiredQueryParamReviewEndpoint
 POST {{baseUrl}}/api/swagger-review/required-query-param?search={{search}}&filter={{filter}}
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "bodyValue": ""
+}
 
 ### swagger_review_TestCasesSwaggerReviewResponseExampleMetadataReviewEndpoint
 POST {{baseUrl}}/api/swagger-review/response-metadata-example
@@ -517,7 +674,11 @@ POST {{baseUrl}}/api/swagger-review/shared-nested-validation-alpha
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "address": {
+    "zip": ""
+  }
+}
 
 ### swagger_review_TestCasesSwaggerReviewSharedNestedValidationBetaEndpoint
 POST {{baseUrl}}/api/swagger-review/shared-nested-validation-beta
@@ -535,14 +696,18 @@ POST {{baseUrl}}/api/swagger-review/shared-request-metadata-alpha
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "name": ""
+}
 
 ### swagger_review_TestCasesSwaggerReviewSharedRequestMetadataBetaEndpoint
 POST {{baseUrl}}/api/swagger-review/shared-request-metadata-beta
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "name": ""
+}
 
 ### swagger_review_TestCasesSwaggerReviewUlongEnumReviewEndpoint
 GET {{baseUrl}}/api/swagger-review/ulong-enum
@@ -575,7 +740,9 @@ POST {{baseUrl}}/api/swagger-review/version-prefilter-initial
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "name": ""
+}
 
 ### antiforgery_TestCasesAntiforgeryTestRenderFormHtml
 GET {{baseUrl}}/api/test-cases/antiforgery/render-form
@@ -686,7 +853,9 @@ POST {{baseUrl}}/api/test-cases/dont-bind-attribute-test/{{name}}
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "id": 0
+}
 
 ### TestCasesDupeParamBindingForIEnumerablePropsEndpoint
 GET {{baseUrl}}/api/test-cases/dupe-param-binding-for-ienumerable-props?strings={{strings}}&moreStrings={{moreStrings}}&doubles={{doubles}}&ints={{ints}}&guids={{guids}}&dates={{dates}}&persons={{persons}}
@@ -737,7 +906,64 @@ POST {{baseUrl}}/api/test-cases/form-binding-complex-dtos
 Content-Type: multipart/form-data
 Accept: application/json
 
-{}
+{
+  "title": "",
+  "coverImage": "",
+  "sourceFiles": [
+    ""
+  ],
+  "mainAuthor": {
+    "name": "",
+    "profileImage": "",
+    "documentFiles": [
+      ""
+    ],
+    "mainAddress": {
+      "street": "",
+      "mainImage": "",
+      "alternativeImages": [
+        ""
+      ]
+    },
+    "otherAddresses": [
+      {
+        "street": "",
+        "mainImage": "",
+        "alternativeImages": [
+          ""
+        ]
+      }
+    ]
+  },
+  "coAuthors": [
+    {
+      "name": "",
+      "profileImage": "",
+      "documentFiles": [
+        ""
+      ],
+      "mainAddress": {
+        "street": "",
+        "mainImage": "",
+        "alternativeImages": [
+          ""
+        ]
+      },
+      "otherAddresses": [
+        {
+          "street": "",
+          "mainImage": "",
+          "alternativeImages": [
+            ""
+          ]
+        }
+      ]
+    }
+  ],
+  "barCodes": [
+    0
+  ]
+}
 
 ### TestCasesFormBindingComplexDtosToFormEndpoint
 PUT {{baseUrl}}/api/test-cases/form-binding-complex-dtos
@@ -828,7 +1054,11 @@ customerID: {{customerID}}
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "id": 0,
+  "name": "",
+  "price": 0
+}
 
 ### TestCasesFromCookieRequestBindingTestEndpoint
 POST {{baseUrl}}/api/test-cases/from-cookie-binding-test/{{id}}
@@ -851,7 +1081,10 @@ POST {{baseUrl}}/api/test-cases/included-validator
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "name": "",
+  "id": 0
+}
 
 ### TestCasesJsonArrayBindingForIEnumerablePropsEndpoint
 GET {{baseUrl}}/api/test-cases/json-array-binding-for-ienumerable-props?doubles={{doubles}}&ints={{ints}}&guids={{guids}}&dates={{dates}}&steven={{steven}}&dict={{dict}}
@@ -965,7 +1198,10 @@ POST {{baseUrl}}/api/test-cases/on-before-on-after-validate
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "verb": "GET",
+  "host": ""
+}
 
 ### TestCasesEndpointsCacheBypassTestCachedOutputEndpoint
 GET {{baseUrl}}/api/test-cases/output-cache-bypass-test?id={{id}}
@@ -977,7 +1213,10 @@ POST {{baseUrl}}/api/test-cases/pre-processor-is-run-on-validation-failure
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "firstName": "",
+  "failureCount": 0
+}
 
 ### TestCasesProcessorAttributesTestEndpoint
 POST {{baseUrl}}/api/test-cases/processor-attributes-test
@@ -1025,7 +1264,19 @@ POST {{baseUrl}}/api/test-cases/route-binding-test/{{string}}/{{bool}}/{{int}}/{
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "url": "",
+  "custom": {
+    "value": 0
+  },
+  "customList": [
+    0
+  ],
+  "blank": 0,
+  "stringOverride": 0,
+  "stringOverrideNullable": 0,
+  "fromBody": ""
+}
 
 ### TestCasesRoutingCatchAllRouteParamTest
 PUT {{baseUrl}}/api/test-cases/routing/catchall/{{rest}}
@@ -1047,7 +1298,9 @@ PUT {{baseUrl}}/api/test-cases/routing/multiroute/partial/{{id}}
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "name": ""
+}
 
 ### TestCasesRoutingOptionalRouteParamTest
 POST {{baseUrl}}/api/test-cases/routing/offer/{{offerId}}
@@ -1100,7 +1353,9 @@ Content-Disposition: {{Content-Disposition}}
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "content": ""
+}
 
 ### TestCasesUnitTestConcurrencyTestEndpoint
 GET {{baseUrl}}/api/test-cases/unit-test-concurrency?id={{id}}
@@ -1275,28 +1530,66 @@ POST {{baseUrl}}/api/uploads/image/save
 Content-Type: multipart/form-data
 Accept: application/json
 
-{}
+{
+  "id": "",
+  "width": 0,
+  "height": 0
+}
 
 ### PutUploadsImageSaveEndpoint
 PUT {{baseUrl}}/api/uploads/image/save
 Content-Type: multipart/form-data
 Accept: application/json
 
-{}
+{
+  "id": "",
+  "width": 0,
+  "height": 0
+}
 
 ### PostUploadsImageSaveTypedEndpoint
 POST {{baseUrl}}/api/uploads/image/save-typed
 Content-Type: multipart/form-data
 Accept: application/json
 
-{}
+{
+  "id": "",
+  "width": 0,
+  "height": 0,
+  "guidId": "",
+  "file1": "",
+  "file2": "",
+  "file3": "",
+  "file4": "",
+  "cars": [
+    ""
+  ],
+  "jets": [
+    ""
+  ]
+}
 
 ### PutUploadsImageSaveTypedEndpoint
 PUT {{baseUrl}}/api/uploads/image/save-typed
 Content-Type: multipart/form-data
 Accept: application/json
 
-{}
+{
+  "id": "",
+  "width": 0,
+  "height": 0,
+  "guidId": "",
+  "file1": "",
+  "file2": "",
+  "file3": "",
+  "file4": "",
+  "cars": [
+    ""
+  ],
+  "jets": [
+    ""
+  ]
+}
 
 ### swagger_review_TestCasesSwaggerReviewBareRouteSubstringReviewEndpoint
 GET {{baseUrl}}/apiary/ver0/status
@@ -1318,7 +1611,9 @@ POST {{baseUrl}}/mobile/api/test-cases/global-prefix-override/{{id}}
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "content": ""
+}
 
 ### GET /non-fe-auth
 GET {{baseUrl}}/non-fe-auth
@@ -1340,7 +1635,9 @@ POST {{baseUrl}}/test-cases/plaintext/{{id}}
 Content-Type: application/json
 Accept: application/json
 
-{}
+{
+  "content": ""
+}
 
 ### GET /test/{testId}
 GET {{baseUrl}}/test/{{testId}}

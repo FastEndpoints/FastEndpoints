@@ -37,7 +37,7 @@ This repo is the multi-package source for:
 - JWT/cookie auth helpers, OpenAPI (Microsoft.AspNetCore.OpenApi), AOT-oriented generation
 
 ## Status
-- Library version (shared `Src/Directory.Build.props`): **8.3.0-beta.10** (verify before citing)
+- Library version (shared `Src/Directory.Build.props`): **8.3.0-beta.15** (verify before citing)
 - Agents addons versioned separately (e.g. **1.0.0-beta.3**)
 - Agents projects currently **commented out** of `FastEndpoints.slnx` but present under `Src/Agents/`
 - Primary solution: `FastEndpoints.slnx`; AOT solution: `NativeAot.slnx`

@@ -1,5 +1,8 @@
 using System.Buffers;
+using System.Net;
 using System.Reflection;
+using System.Text;
+using System.Text.Json;
 using Grpc.Core;
 using Grpc.Net.Client;
 using Grpc.Reflection.V1Alpha;
@@ -240,6 +243,60 @@ public class GrpcReflection
         RoundTrip(marshaller, [new() { FullName = "johnny" }]).ShouldHaveSingleItem().FullName.ShouldBe("johnny");
     }
 
+    //Dictionary<K, message> used to fail at Create: MemberType is KeyValuePair<K,V>, IsMessage(KVP) is false by design
+    //(descriptor path), and CanSerialize(KVP) is false until V is registered - but Register never walked into map values.
+    [Fact]
+    public void Marshals_A_Dictionary_Of_Messages()
+    {
+        var factory = new ProtobufMarshallerFactory();
+
+        //bind order is Create<TCommand>() then Create<TResult>() - command registration must not depend on result first
+        var commandMarshaller = factory.Create<MapOfMessagesCommand>();
+        _ = factory.Create<ReflectedResult>();
+
+        var back = RoundTrip(
+            commandMarshaller,
+            new MapOfMessagesCommand
+            {
+                Items =
+                {
+                    ["a"] = new() { FullName = "alice" },
+                    ["b"] = new() { FullName = "bob" }
+                },
+                Nested =
+                {
+                    [1] = new() { Tags = ["x", "y"], Body = new() { FullName = "nested" } }
+                }
+            });
+
+        back.Items.Count.ShouldBe(2);
+        back.Items["a"].FullName.ShouldBe("alice");
+        back.Items["b"].FullName.ShouldBe("bob");
+        back.Nested.ShouldHaveSingleItem().Value.Tags.ShouldBe(["x", "y"]);
+        back.Nested[1].Body!.FullName.ShouldBe("nested");
+    }
+
+    //scalar maps already worked; keep that path covered so the KeyValuePair special-case does not regress them
+    [Fact]
+    public void Marshals_A_Dictionary_Of_Scalars()
+    {
+        var marshaller = new ProtobufMarshallerFactory().Create<DictionaryCommand>();
+
+        var back = RoundTrip(marshaller, new DictionaryCommand { Meta = { ["k"] = "v", ["n"] = "1" } });
+
+        back.Meta.Count.ShouldBe(2);
+        back.Meta["k"].ShouldBe("v");
+        back.Meta["n"].ShouldBe("1");
+    }
+
+    //unsupported map *value* types must still fail at Create with the same startup-time NotSupportedException
+    [Fact]
+    public void Unsupported_Dictionary_Value_Types_Fail_At_Marshaller_Creation()
+    {
+        Should.Throw<NotSupportedException>(() => new ProtobufMarshallerFactory().Create<MapOfUnsupportedCommand>())
+              .Message.ShouldContain("cannot serialize property type");
+    }
+
     //BCL types protobuf-net already serializes must round-trip through the attribute-free model - registering them as
     //empty messages used to either silent-drop (DateTimeOffset) or blow up at Add (DateOnly/TimeOnly/Uri).
     [Fact]
@@ -268,14 +325,32 @@ public class GrpcReflection
         back.Time.ShouldBe(original.Time);
     }
 
-    //DateTimeOffset (and similar BCL types with no public r/w props) used to be registered as empty messages: wire 0A00,
-    //deserialize default, no error. fail at Create/Register instead so FE↔FE traffic cannot silently drop data.
+    //System.Type is denylisted as a non-message so protobuf-net's assembly-qualified-name serializer is used rather than
+    //a hollow attribute-free contract. Create must succeed and the value must round-trip.
+    [Fact]
+    public void Marshals_System_Type_Property()
+    {
+        var marshaller = new ProtobufMarshallerFactory().Create<TypeCommand>();
+        var original = new TypeCommand { Kind = typeof(string) };
+
+        RoundTrip(marshaller, original).Kind.ShouldBe(typeof(string));
+    }
+
+    //DateTimeOffset/JsonElement/StringBuilder (and similar BCL types with no useful public r/w payload props) used to be
+    //registered as empty/hollow messages: wire 0A00 or metadata-only, deserialize default/corrupted, no error. fail at
+    //Create/Register instead so FE↔FE traffic cannot silently drop data.
     [Theory]
     [InlineData(typeof(DateTimeOffsetCommand))]
     [InlineData(typeof(HalfCommand))]
     [InlineData(typeof(Int128Command))]
     [InlineData(typeof(UInt128Command))]
     [InlineData(typeof(VersionCommand))]
+    [InlineData(typeof(JsonElementCommand))]
+    [InlineData(typeof(StringBuilderCommand))]
+    [InlineData(typeof(TimeZoneInfoCommand))]
+    [InlineData(typeof(IPAddressCommand))]
+    [InlineData(typeof(ExceptionCommand))]
+    [InlineData(typeof(MemoryStreamCommand))]
     public void Unsupported_Bcl_Property_Types_Fail_At_Marshaller_Creation(Type commandType)
     {
         var create = typeof(ProtobufMarshallerFactory).GetMethod(nameof(ProtobufMarshallerFactory.Create))!
@@ -293,6 +368,13 @@ public class GrpcReflection
     [InlineData(typeof(Int128Command))]
     [InlineData(typeof(UInt128Command))]
     [InlineData(typeof(VersionCommand))]
+    [InlineData(typeof(JsonElementCommand))]
+    [InlineData(typeof(StringBuilderCommand))]
+    [InlineData(typeof(TimeZoneInfoCommand))]
+    [InlineData(typeof(IPAddressCommand))]
+    [InlineData(typeof(ExceptionCommand))]
+    [InlineData(typeof(MemoryStreamCommand))]
+    [InlineData(typeof(TypeCommand))]
     [InlineData(typeof(SupportedBclCommand))] //DateTime/DateOnly/etc. still undescribable even though the wire works
     public void Unsupported_Bcl_Shapes_Are_Skipped_Rather_Than_Mis_Described(Type tCommand)
     {
@@ -428,6 +510,42 @@ public class VersionCommand : ICommand<ReflectedResult>
     public Version? Value { get; set; }
 }
 
+//open JSON / builder / framework shapes that used to hollow-register (empty or metadata-only contracts)
+public class JsonElementCommand : ICommand<ReflectedResult>
+{
+    public JsonElement Payload { get; set; }
+}
+
+public class StringBuilderCommand : ICommand<ReflectedResult>
+{
+    public StringBuilder? Text { get; set; }
+}
+
+public class TimeZoneInfoCommand : ICommand<ReflectedResult>
+{
+    public TimeZoneInfo? Zone { get; set; }
+}
+
+public class IPAddressCommand : ICommand<ReflectedResult>
+{
+    public IPAddress? Addr { get; set; }
+}
+
+public class ExceptionCommand : ICommand<ReflectedResult>
+{
+    public Exception? Error { get; set; }
+}
+
+public class MemoryStreamCommand : ICommand<ReflectedResult>
+{
+    public MemoryStream? Body { get; set; }
+}
+
+public class TypeCommand : ICommand<ReflectedResult>
+{
+    public Type? Kind { get; set; }
+}
+
 public class ScalarResultCommand : ICommand<string>
 {
     public string Name { get; set; } = "";
@@ -437,6 +555,25 @@ public class ScalarResultCommand : ICommand<string>
 public class DictionaryCommand : ICommand<ReflectedResult>
 {
     public Dictionary<string, string> Meta { get; set; } = [];
+}
+
+//message-valued maps must register the value type during Create - used to throw NotSupportedException on KeyValuePair<,>
+public class MapOfMessagesCommand : ICommand<ReflectedResult>
+{
+    public Dictionary<string, ReflectedResult> Items { get; set; } = [];
+    public Dictionary<int, NestedMapValue> Nested { get; set; } = [];
+}
+
+public class NestedMapValue
+{
+    public List<string> Tags { get; set; } = [];
+    public ReflectedResult? Body { get; set; }
+}
+
+//DateTimeOffset has no inbuilt protobuf-net serializer and is denylisted - map values of it must still fail at Create
+public class MapOfUnsupportedCommand : ICommand<ReflectedResult>
+{
+    public Dictionary<string, DateTimeOffset> When { get; set; } = [];
 }
 
 public class Outer

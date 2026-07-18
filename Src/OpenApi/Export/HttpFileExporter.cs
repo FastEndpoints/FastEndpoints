@@ -22,13 +22,14 @@ static partial class HttpFileExporter
                 continue;
 
             foreach (var opEntry in pathItem.Operations ?? [])
-                AppendOperation(sb, opEntry.Key.Method, pathEntry.Key, opEntry.Value, components);
+                AppendOperation(sb, document, opEntry.Key.Method, pathEntry.Key, opEntry.Value, components);
         }
 
         return sb.ToString();
     }
 
     static void AppendOperation(StringBuilder sb,
+                                OpenApiDocument document,
                                 string method,
                                 string path,
                                 OpenApiOperation operation,
@@ -37,6 +38,7 @@ static partial class HttpFileExporter
         var parameters = operation.Parameters ?? [];
         var queryParams = parameters.Where(p => p.In == ParameterLocation.Query).ToList();
         var headerParams = parameters.Where(p => p.In == ParameterLocation.Header).ToList();
+        var cookieParams = parameters.Where(p => p.In == ParameterLocation.Cookie).ToList();
 
         sb.Append("### ").Append(operation.OperationId ?? $"{method} {path}").Append('\n');
 
@@ -49,6 +51,15 @@ static partial class HttpFileExporter
 
         foreach (var p in headerParams)
             sb.Append(p.Name).Append(": {{").Append(p.Name).Append("}}\n");
+
+        if (cookieParams.Count > 0)
+        {
+            var cookieHeader = string.Join("; ", cookieParams.Select(p => $"{p.Name}={{{{{p.Name}}}}}"));
+            sb.Append("Cookie: ").Append(cookieHeader).Append('\n');
+        }
+
+        if (!HasAuthorizationHeader(headerParams) && RequiresBearerToken(operation, document))
+            sb.Append("Authorization: Bearer {{bearerToken}}\n");
 
         var (contentType, mediaType) = ResolveRequestMediaType(operation.RequestBody);
 
@@ -66,6 +77,57 @@ static partial class HttpFileExporter
 
         sb.Append('\n');
     }
+
+    static bool HasAuthorizationHeader(List<IOpenApiParameter> headerParams)
+        => headerParams.Any(p => string.Equals(p.Name, "Authorization", StringComparison.OrdinalIgnoreCase));
+
+    static bool RequiresBearerToken(OpenApiOperation operation, OpenApiDocument document)
+    {
+        var requirements = operation.Security is { Count: > 0 }
+                               ? operation.Security
+                               : document.Security;
+
+        if (requirements is not { Count: > 0 })
+            return false;
+
+        var schemes = document.Components?.SecuritySchemes;
+
+        foreach (var requirement in requirements)
+        {
+            foreach (var schemeRef in requirement.Keys)
+            {
+                if (IsBearerScheme(schemeRef, schemes))
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    static bool IsBearerScheme(OpenApiSecuritySchemeReference schemeRef, IDictionary<string, IOpenApiSecurityScheme>? schemes)
+    {
+        // OpenApiSecuritySchemeReference proxies Type/Scheme from Target when resolved
+        if (schemeRef.Type == SecuritySchemeType.Http &&
+            string.Equals(schemeRef.Scheme, "Bearer", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        var schemeName = schemeRef.Reference?.Id;
+
+        if (!string.IsNullOrEmpty(schemeName) &&
+            schemes?.TryGetValue(schemeName, out var componentScheme) == true &&
+            componentScheme is OpenApiSecurityScheme concrete &&
+            IsHttpBearer(concrete))
+            return true;
+
+        // known JWT/bearer scheme names when scheme definition is missing
+        return !string.IsNullOrEmpty(schemeName) &&
+               (schemeName.Contains("JWT", StringComparison.OrdinalIgnoreCase) ||
+                schemeName.Contains("Bearer", StringComparison.OrdinalIgnoreCase));
+    }
+
+    static bool IsHttpBearer(OpenApiSecurityScheme scheme)
+        => scheme.Type == SecuritySchemeType.Http &&
+           string.Equals(scheme.Scheme, "Bearer", StringComparison.OrdinalIgnoreCase);
 
     static (string? ContentType, OpenApiMediaType? MediaType) ResolveRequestMediaType(IOpenApiRequestBody? requestBody)
     {

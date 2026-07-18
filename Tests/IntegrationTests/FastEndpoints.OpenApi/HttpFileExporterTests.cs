@@ -187,6 +187,140 @@ public class HttpFileExporterTests
     }
 
     [Fact]
+    public void cookie_parameters_emit_cookie_header()
+    {
+        var document = new OpenApiDocument
+        {
+            Paths = new()
+            {
+                ["/cookie-get"] = new OpenApiPathItem
+                {
+                    Operations = new()
+                    {
+                        [HttpMethod.Get] = new OpenApiOperation
+                        {
+                            OperationId = "CookieGet",
+                            Parameters =
+                            [
+                                new OpenApiParameter
+                                {
+                                    Name = "session_id",
+                                    In = ParameterLocation.Cookie
+                                },
+                                new OpenApiParameter
+                                {
+                                    Name = "theme",
+                                    In = ParameterLocation.Cookie
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        };
+
+        var http = HttpFileExporter.ToHttpFileContent(document, "test");
+
+        http.ShouldContain("Cookie: session_id={{session_id}}; theme={{theme}}");
+    }
+
+    [Fact]
+    public void bearer_security_emits_authorization_placeholder()
+    {
+        var document = new OpenApiDocument
+        {
+            Paths = new()
+            {
+                ["/secure"] = new OpenApiPathItem
+                {
+                    Operations = new()
+                    {
+                        [HttpMethod.Post] = new OpenApiOperation
+                        {
+                            OperationId = "SecureOp",
+                            Security =
+                            [
+                                new OpenApiSecurityRequirement
+                                {
+                                    [new OpenApiSecuritySchemeReference("JWTBearerAuth")] = []
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            Components = new()
+            {
+                SecuritySchemes = new Dictionary<string, IOpenApiSecurityScheme>
+                {
+                    ["JWTBearerAuth"] = new OpenApiSecurityScheme
+                    {
+                        Type = SecuritySchemeType.Http,
+                        Scheme = "Bearer",
+                        BearerFormat = "JWT"
+                    }
+                }
+            }
+        };
+
+        var http = HttpFileExporter.ToHttpFileContent(document, "test");
+
+        http.ShouldContain("Authorization: Bearer {{bearerToken}}");
+    }
+
+    [Fact]
+    public void existing_authorization_header_parameter_skips_bearer_placeholder()
+    {
+        var document = new OpenApiDocument
+        {
+            Paths = new()
+            {
+                ["/secure"] = new OpenApiPathItem
+                {
+                    Operations = new()
+                    {
+                        [HttpMethod.Get] = new OpenApiOperation
+                        {
+                            OperationId = "SecureWithHeader",
+                            Parameters =
+                            [
+                                new OpenApiParameter
+                                {
+                                    Name = "Authorization",
+                                    In = ParameterLocation.Header
+                                }
+                            ],
+                            Security =
+                            [
+                                new OpenApiSecurityRequirement
+                                {
+                                    [new OpenApiSecuritySchemeReference("JWTBearerAuth")] = []
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            Components = new()
+            {
+                SecuritySchemes = new Dictionary<string, IOpenApiSecurityScheme>
+                {
+                    ["JWTBearerAuth"] = new OpenApiSecurityScheme
+                    {
+                        Type = SecuritySchemeType.Http,
+                        Scheme = "Bearer"
+                    }
+                }
+            }
+        };
+
+        var http = HttpFileExporter.ToHttpFileContent(document, "test");
+
+        http.ShouldContain("Authorization: {{Authorization}}");
+        http.ShouldNotContain("Bearer {{bearerToken}}");
+    }
+
+    [Fact]
     public void components_fallback_expands_ref_when_host_document_unset()
     {
         // OpenApiSchemaReference without HostDocument — ResolveSchema alone fails; exporter components fallback must still expand.
@@ -337,5 +471,23 @@ public class HttpExportRegressionTests(Fixture App) : TestBase<Fixture>
 
         body["billingAddress"]!["zip"]!.GetValue<string>().ShouldBe("");
         body["shippingAddress"]!["zip"]!.GetValue<string>().ShouldBe("");
+    }
+
+    [Fact]
+    public async Task cookie_get_emits_cookie_header()
+    {
+        var http = await App.GetHttpFileContentAsync("Initial Release", Cancellation);
+        var section = HttpFileExporterTests.ExtractOperationSection(http, "swagger_review_TestCasesSwaggerReviewCookieGetReviewEndpoint");
+
+        section.ShouldContain("Cookie: session_id={{session_id}}");
+    }
+
+    [Fact]
+    public async Task create_inventory_item_emits_bearer_authorization()
+    {
+        var http = await App.GetHttpFileContentAsync("Initial Release", Cancellation);
+        var section = HttpFileExporterTests.ExtractOperationSection(http, "CreateInventoryItem");
+
+        section.ShouldContain("Authorization: Bearer {{bearerToken}}");
     }
 }

@@ -72,6 +72,7 @@ Accept: application/json
 
 ### CustomersListRecentEndpoint
 GET {{baseUrl}}/api/customer/list/recent
+Authorization: Bearer {{bearerToken}}
 Accept: application/json
 
 
@@ -82,6 +83,7 @@ Accept: application/json
 
 ### PostCustomersCreateWithPropertiesDIEndpoint1
 POST {{baseUrl}}/api/customer/new/2{{refererID}}
+Authorization: Bearer {{bearerToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -95,11 +97,13 @@ Accept: application/json
 
 ### GetCustomersCreateWithPropertiesDIEndpoint1
 GET {{baseUrl}}/api/customer/new/2{{refererID}}?cID={{cID}}&customerName={{customerName}}&phoneNumbers={{phoneNumbers}}
+Authorization: Bearer {{bearerToken}}
 Accept: application/json
 
 
 ### PostCustomersCreateEndpoint1
 POST {{baseUrl}}/api/customer/new/{{refererID}}
+Authorization: Bearer {{bearerToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -113,11 +117,13 @@ Accept: application/json
 
 ### GetCustomersCreateEndpoint1
 GET {{baseUrl}}/api/customer/new/{{refererID}}?cID={{cID}}&customerName={{customerName}}&phoneNumbers={{phoneNumbers}}
+Authorization: Bearer {{bearerToken}}
 Accept: application/json
 
 
 ### PostCustomersCreateEndpoint3
 POST {{baseUrl}}/api/customer/save
+Authorization: Bearer {{bearerToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -131,11 +137,13 @@ Accept: application/json
 
 ### GetCustomersCreateEndpoint3
 GET {{baseUrl}}/api/customer/save?cID={{cID}}&customerName={{customerName}}&phoneNumbers={{phoneNumbers}}
+Authorization: Bearer {{bearerToken}}
 Accept: application/json
 
 
 ### CustomersUpdateEndpoint2
 PUT {{baseUrl}}/api/customer/save?customerID={{customerID}}&name={{name}}
+Authorization: Bearer {{bearerToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -146,6 +154,7 @@ Accept: application/json
 
 ### PostCustomersCreateWithPropertiesDIEndpoint3
 POST {{baseUrl}}/api/customer/save2
+Authorization: Bearer {{bearerToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -159,11 +168,13 @@ Accept: application/json
 
 ### GetCustomersCreateWithPropertiesDIEndpoint3
 GET {{baseUrl}}/api/customer/save2?cID={{cID}}&customerName={{customerName}}&phoneNumbers={{phoneNumbers}}
+Authorization: Bearer {{bearerToken}}
 Accept: application/json
 
 
 ### CustomersUpdateEndpoint1
 PUT {{baseUrl}}/api/customer/update?customerID={{customerID}}&name={{name}}
+Authorization: Bearer {{bearerToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -176,6 +187,7 @@ Accept: application/json
 PUT {{baseUrl}}/api/customer/update-with-header
 customerID: {{customerID}}
 tenant-id: {{tenant-id}}
+Authorization: Bearer {{bearerToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -187,6 +199,7 @@ Accept: application/json
 
 ### PostCustomersCreateEndpoint2
 POST {{baseUrl}}/api/customer/{{cID}}/new/{{sourceID}}
+Authorization: Bearer {{bearerToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -199,11 +212,13 @@ Accept: application/json
 
 ### GetCustomersCreateEndpoint2
 GET {{baseUrl}}/api/customer/{{cID}}/new/{{sourceID}}?customerName={{customerName}}&phoneNumbers={{phoneNumbers}}
+Authorization: Bearer {{bearerToken}}
 Accept: application/json
 
 
 ### PostCustomersCreateWithPropertiesDIEndpoint2
 POST {{baseUrl}}/api/customer/{{cID}}/new2/{{sourceID}}
+Authorization: Bearer {{bearerToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -216,6 +231,7 @@ Accept: application/json
 
 ### GetCustomersCreateWithPropertiesDIEndpoint2
 GET {{baseUrl}}/api/customer/{{cID}}/new2/{{sourceID}}?customerName={{customerName}}&phoneNumbers={{phoneNumbers}}
+Authorization: Bearer {{bearerToken}}
 Accept: application/json
 
 
@@ -236,6 +252,7 @@ Accept: application/json
 
 ### CreateInventoryItem
 POST {{baseUrl}}/api/inventory/manage/create
+Authorization: Bearer {{bearerToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -256,6 +273,7 @@ Accept: application/json
 
 ### InventoryManageUpdateEndpoint
 PUT {{baseUrl}}/api/inventory/manage/update
+Authorization: Bearer {{bearerToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -288,6 +306,7 @@ Accept: application/json
 
 ### Orders_SalesOrdersCreateEndpoint2
 POST {{baseUrl}}/api/sales/orders/create
+Authorization: Bearer {{bearerToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -300,6 +319,7 @@ Accept: application/json
 
 ### Orders_SalesOrdersCreateEndpoint1
 POST {{baseUrl}}/api/sales/orders/create/{{guidTest}}
+Authorization: Bearer {{bearerToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -373,6 +393,7 @@ Accept: application/json
 
 ### swagger_review_TestCasesSwaggerReviewCookieGetReviewEndpoint
 GET {{baseUrl}}/api/swagger-review/cookie-get
+Cookie: session_id={{session_id}}
 Accept: application/json
 
 
@@ -769,6 +790,7 @@ Accept: application/json
 
 ### TestCasesValidationErrorTestArrayValidationErrorTestEndpoint
 POST {{baseUrl}}/api/test-cases/array-validation-error-test
+Authorization: Bearer {{bearerToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -785,26 +807,31 @@ Accept: application/json
 
 ### TestCasesComparerSemanticsTestClaimTypeCasingMismatchEndpoint
 GET {{baseUrl}}/api/test-cases/comparer-tests/claim-type-casing-mismatch
+Authorization: Bearer {{bearerToken}}
 Accept: application/json
 
 
 ### TestCasesComparerSemanticsTestPermissionCasingExactEndpoint
 GET {{baseUrl}}/api/test-cases/comparer-tests/permission-casing-exact
+Authorization: Bearer {{bearerToken}}
 Accept: application/json
 
 
 ### TestCasesComparerSemanticsTestPermissionCasingMismatchEndpoint
 GET {{baseUrl}}/api/test-cases/comparer-tests/permission-casing-mismatch
+Authorization: Bearer {{bearerToken}}
 Accept: application/json
 
 
 ### TestCasesComparerSemanticsTestScopeCasingMismatchEndpoint
 GET {{baseUrl}}/api/test-cases/comparer-tests/scope-casing-mismatch
+Authorization: Bearer {{bearerToken}}
 Accept: application/json
 
 
 ### TestCasesCustomRequestBinderEndpoint
 POST {{baseUrl}}/api/test-cases/custom-request-binder
+Authorization: Bearer {{bearerToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -841,6 +868,7 @@ Accept: application/json
 
 ### TestCasesValidationErrorTestDictionaryValidationErrorTestEndpoint
 POST {{baseUrl}}/api/test-cases/dictionary-validation-error-test
+Authorization: Bearer {{bearerToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -864,6 +892,7 @@ Accept: application/json
 
 ### TestCasesEmptyRequestTestEmptyRequestEndpoint
 GET {{baseUrl}}/api/test-cases/empty-request-test
+Authorization: Bearer {{bearerToken}}
 Accept: application/json
 
 
@@ -1031,6 +1060,7 @@ Accept: application/json
 
 ### TestCasesFormFileBindingTestEndpoint
 POST {{baseUrl}}/api/test-cases/form-file-collection-binding
+Authorization: Bearer {{bearerToken}}
 Content-Type: multipart/form-data
 Accept: application/json
 
@@ -1062,6 +1092,7 @@ Accept: application/json
 
 ### TestCasesFromCookieRequestBindingTestEndpoint
 POST {{baseUrl}}/api/test-cases/from-cookie-binding-test/{{id}}
+Cookie: someCookie={{someCookie}}
 Accept: application/json
 
 
@@ -1121,6 +1152,7 @@ Accept: application/json
 
 ### TestCasesValidationErrorTestListInListValidationErrorTestEndpoint
 POST {{baseUrl}}/api/test-cases/list-in-list-validation-error-test
+Authorization: Bearer {{bearerToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -1134,6 +1166,7 @@ Accept: application/json
 
 ### TestCasesValidationErrorTestListValidationErrorTestEndpoint
 POST {{baseUrl}}/api/test-cases/list-validation-error-test
+Authorization: Bearer {{bearerToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -1145,6 +1178,7 @@ Accept: application/json
 
 ### TestCasesMapperTestEndpoint
 POST {{baseUrl}}/api/test-cases/mapper-test
+Authorization: Bearer {{bearerToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -1156,23 +1190,27 @@ Accept: application/json
 
 ### TestCasesMissingClaimTestThrowIfMissingEndpoint
 POST {{baseUrl}}/api/test-cases/missing-claim-test
+Authorization: Bearer {{bearerToken}}
 Accept: application/json
 
 
 ### TestCasesMissingClaimTestDontThrowIfMissingEndpoint
 POST {{baseUrl}}/api/test-cases/missing-claim-test/dont-throw?testProp={{testProp}}
+Authorization: Bearer {{bearerToken}}
 Accept: application/json
 
 
 ### TestCasesMissingHeaderTestThrowIfMissingEndpoint
 POST {{baseUrl}}/api/test-cases/missing-header-test
 tenantID: {{tenantID}}
+Authorization: Bearer {{bearerToken}}
 Accept: application/json
 
 
 ### TestCasesMissingHeaderTestDontThrowIfMissingEndpoint
 POST {{baseUrl}}/api/test-cases/missing-header-test/dont-throw
 tenantID: {{tenantID}}
+Authorization: Bearer {{bearerToken}}
 Content-Type: */*
 Accept: application/json
 
@@ -1182,6 +1220,7 @@ Accept: application/json
 
 ### TestCasesValidationErrorTestObjectArrayValidationErrorTestEndpoint
 POST {{baseUrl}}/api/test-cases/object-array-validation-error-test
+Authorization: Bearer {{bearerToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -1195,6 +1234,7 @@ Accept: application/json
 
 ### TestCasesOnBeforeAfterValidationTestEndpoint
 POST {{baseUrl}}/api/test-cases/on-before-on-after-validate
+Authorization: Bearer {{bearerToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -1210,6 +1250,7 @@ Accept: application/json
 
 ### TestCasesPreProcessorIsRunOnValidationFailureEndpoint
 POST {{baseUrl}}/api/test-cases/pre-processor-is-run-on-validation-failure
+Authorization: Bearer {{bearerToken}}
 Content-Type: application/json
 Accept: application/json
 
@@ -1319,21 +1360,25 @@ Accept: application/json
 
 ### TestCasesScopesTestScopeTestAllFailEndpoint
 GET {{baseUrl}}/api/test-cases/scope-tests/all-scope-fail
+Authorization: Bearer {{bearerToken}}
 Accept: application/json
 
 
 ### TestCasesScopesTestScopeTestAllPassEndpoint
 GET {{baseUrl}}/api/test-cases/scope-tests/all-scope-pass
+Authorization: Bearer {{bearerToken}}
 Accept: application/json
 
 
 ### TestCasesScopesTestScopeTestAnyFailEndpoint
 GET {{baseUrl}}/api/test-cases/scope-tests/any-scope-fail
+Authorization: Bearer {{bearerToken}}
 Accept: application/json
 
 
 ### TestCasesScopesTestScopeTestAnyPassEndpoint
 GET {{baseUrl}}/api/test-cases/scope-tests/any-scope-pass
+Authorization: Bearer {{bearerToken}}
 Accept: application/json
 
 
@@ -1488,6 +1533,7 @@ Accept: application/json
 
 ### TestCasesIAuthorizationServiceInjectionTestEndpoint
 GET {{baseUrl}}/api/tests/iauth-injection
+Authorization: Bearer {{bearerToken}}
 Accept: application/json
 
 
@@ -1538,6 +1584,7 @@ Accept: application/json
 
 ### PutUploadsImageSaveEndpoint
 PUT {{baseUrl}}/api/uploads/image/save
+Authorization: Bearer {{bearerToken}}
 Content-Type: multipart/form-data
 Accept: application/json
 
@@ -1571,6 +1618,7 @@ Accept: application/json
 
 ### PutUploadsImageSaveTypedEndpoint
 PUT {{baseUrl}}/api/uploads/image/save-typed
+Authorization: Bearer {{bearerToken}}
 Content-Type: multipart/form-data
 Accept: application/json
 
@@ -1617,6 +1665,7 @@ Accept: application/json
 
 ### GET /non-fe-auth
 GET {{baseUrl}}/non-fe-auth
+Authorization: Bearer {{bearerToken}}
 Accept: application/json
 
 

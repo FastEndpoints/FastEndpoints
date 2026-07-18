@@ -2,11 +2,13 @@
 
 ### release_versioning_TestCasesSwaggerReleaseVersioningEndpointA
 GET {{baseUrl}}/api/release-versioning/endpoint-a
+Authorization: Bearer {{bearerToken}}
 Accept: application/json
 
 
 ### release_versioning_TestCasesSwaggerReleaseVersioningEndpointB
 GET {{baseUrl}}/api/release-versioning/endpoint-b
+Authorization: Bearer {{bearerToken}}
 Accept: application/json
 
 

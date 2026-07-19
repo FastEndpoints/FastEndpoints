@@ -6,8 +6,8 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "userName": "",
-  "password": ""
+  "userName": "custom example user name from summary",
+  "password": "custom example password from summary"
 }
 
 ### PutAdminLoginEndpoint_V1
@@ -16,8 +16,8 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "userName": "",
-  "password": ""
+  "userName": "custom example user name from summary",
+  "password": "custom example password from summary"
 }
 
 ### PatchAdminLoginEndpoint_V1
@@ -26,8 +26,8 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "userName": "",
-  "password": ""
+  "userName": "custom example user name from summary",
+  "password": "custom example password from summary"
 }
 
 ### TestCasesNestedFromFormBindingTestCircularEndpoint
@@ -230,12 +230,12 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "id": 0,
-  "name": "",
-  "description": "",
-  "price": 0,
-  "qtyOnHand": 0,
-  "modifiedBy": "",
+  "id": 1,
+  "name": "first name",
+  "description": "first description",
+  "price": 10,
+  "qtyOnHand": 10,
+  "modifiedBy": "modifiedBy",
   "generateFullUrl": false
 }
 
@@ -394,8 +394,8 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "name": "",
-  "count": 0
+  "name": "schema-default",
+  "count": 7
 }
 
 ### swagger_review_TestCasesSwaggerReviewDualChildAddressEndpoint
@@ -418,7 +418,7 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "name": ""
+  "name": "first"
 }
 
 ### swagger_review_TestCasesSwaggerReviewDuplicateIdempotencyHeaderEndpoint
@@ -465,7 +465,7 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "value": ""
+  "value": "wrapped example"
 }
 
 ### swagger_review_TestCasesSwaggerReviewHiddenSchemaReviewEndpoint
@@ -599,9 +599,9 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "name": "",
+  "name": "example name",
   "child": {
-    "code": ""
+    "code": "xy"
   }
 }
 
@@ -687,7 +687,7 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "name": ""
+  "name": "alpha example"
 }
 
 ### swagger_review_TestCasesSwaggerReviewSharedRequestMetadataBetaEndpoint
@@ -696,7 +696,7 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "name": ""
+  "name": "beta example"
 }
 
 ### swagger_review_TestCasesSwaggerReviewUlongEnumReviewEndpoint
@@ -931,9 +931,9 @@ Content-Type: application/json
 Accept: application/json
 
 {
-  "id": 0,
-  "name": "",
-  "price": 0
+  "id": 201,
+  "name": "test product name",
+  "price": 200.22
 }
 
 ### TestCasesFromCookieRequestBindingTestEndpoint

@@ -84,12 +84,14 @@ static partial class HttpFileExporter
 
         if (IsJsonContentType(contentType))
         {
-            if (mediaType.Schema is not null)
-            {
-                // never emit a literal 'null' body
-                var placeholder = SchemaPlaceholderBuilder.Build(mediaType.Schema, [], components) ?? new JsonObject();
-                sb.Append(placeholder.ToJsonString(_jsonOpts)).Append('\n');
-            }
+            // media-type example is authoritative (full replace); else schema Example/Default via builder; never emit literal null root
+            var node = mediaType.Example?.DeepClone() ??
+                       FirstNamedExample(mediaType.Examples) ??
+                       (mediaType.Schema is null
+                            ? null
+                            : SchemaPlaceholderBuilder.Build(mediaType.Schema, [], components));
+
+            sb.Append((node ?? new JsonObject()).ToJsonString(_jsonOpts)).Append('\n');
 
             return;
         }
@@ -104,6 +106,21 @@ static partial class HttpFileExporter
 
         // text/plain and other non-JSON media types
         sb.Append("{{body}}\n");
+    }
+
+    // first named example with a non-null Value (insertion order); ExternalValue is ignored in v1
+    static JsonNode? FirstNamedExample(IDictionary<string, IOpenApiExample>? examples)
+    {
+        if (examples is null)
+            return null;
+
+        foreach (var ex in examples.Values)
+        {
+            if (ex.Value is not null)
+                return ex.Value.DeepClone();
+        }
+
+        return null;
     }
 
     static bool IsJsonContentType(string contentType)

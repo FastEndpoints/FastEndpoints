@@ -25,6 +25,13 @@ static class SchemaPlaceholderBuilder
 
         try
         {
+            // prefer document-authored sample data over type placeholders (media-type examples are handled by the exporter)
+            if (resolved.Example is not null)
+                return resolved.Example.DeepClone();
+
+            if (resolved.Default is not null)
+                return resolved.Default.DeepClone();
+
             if (resolved.OneOf?.Count > 0 || resolved.AnyOf?.Count > 0 || resolved.AllOf?.Count > 0)
             {
                 // the common "nullable $ref" idiom is encoded as a oneOf/anyOf with exactly one non-null branch - that's not

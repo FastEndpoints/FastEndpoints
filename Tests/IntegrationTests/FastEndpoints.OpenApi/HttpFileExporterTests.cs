@@ -13,7 +13,7 @@ public class HttpFileExporterTests
             operationId: "Login",
             path: "/login",
             bodySchemaRef: "LoginRequest",
-            schemas: new Dictionary<string, IOpenApiSchema>
+            schemas: new()
             {
                 ["LoginRequest"] = new OpenApiSchema
                 {
@@ -39,7 +39,7 @@ public class HttpFileExporterTests
             operationId: "DualChild",
             path: "/dual-child",
             bodySchemaRef: "DualChildRequest",
-            schemas: new Dictionary<string, IOpenApiSchema>
+            schemas: new()
             {
                 ["DualChildAddress"] = new OpenApiSchema
                 {
@@ -73,7 +73,7 @@ public class HttpFileExporterTests
             operationId: "NullableRef",
             path: "/nullable-ref",
             bodySchemaRef: "Wrapper",
-            schemas: new Dictionary<string, IOpenApiSchema>
+            schemas: new()
             {
                 ["Address"] = new OpenApiSchema
                 {
@@ -119,7 +119,7 @@ public class HttpFileExporterTests
             operationId: "Cycle",
             path: "/cycle",
             bodySchemaRef: "Node",
-            schemas: new Dictionary<string, IOpenApiSchema>
+            schemas: new()
             {
                 ["Node"] = nodeSchema
             });
@@ -141,7 +141,7 @@ public class HttpFileExporterTests
             path: "/empty",
             bodySchemaRef: null,
             inlineBodySchema: new OpenApiSchema { Type = JsonSchemaType.Object },
-            schemas: new Dictionary<string, IOpenApiSchema>());
+            schemas: new());
 
         var body = ExtractJsonBody(HttpFileExporter.ToHttpFileContent(document), "Empty");
 
@@ -178,7 +178,7 @@ public class HttpFileExporterTests
                     }
                 ]
             },
-            schemas: new Dictionary<string, IOpenApiSchema>());
+            schemas: new());
 
         var body = ExtractJsonBody(HttpFileExporter.ToHttpFileContent(document), "Poly");
 
@@ -191,14 +191,14 @@ public class HttpFileExporterTests
     {
         var document = new OpenApiDocument
         {
-            Servers = [new OpenApiServer { Url = "http://localhost/" }],
+            Servers = [new() { Url = "http://localhost/" }],
             Paths = new()
             {
                 ["/ping"] = new OpenApiPathItem
                 {
                     Operations = new()
                     {
-                        [HttpMethod.Get] = new OpenApiOperation { OperationId = "Ping" }
+                        [HttpMethod.Get] = new() { OperationId = "Ping" }
                     }
                 }
             }
@@ -220,7 +220,7 @@ public class HttpFileExporterTests
                 {
                     Operations = new()
                     {
-                        [HttpMethod.Post] = new OpenApiOperation
+                        [HttpMethod.Post] = new()
                         {
                             OperationId = "Upload",
                             RequestBody = new OpenApiRequestBody
@@ -264,7 +264,7 @@ public class HttpFileExporterTests
                 {
                     Operations = new()
                     {
-                        [HttpMethod.Post] = new OpenApiOperation
+                        [HttpMethod.Post] = new()
                         {
                             OperationId = "TextBody",
                             RequestBody = new OpenApiRequestBody
@@ -300,7 +300,7 @@ public class HttpFileExporterTests
                 {
                     Operations = new()
                     {
-                        [HttpMethod.Patch] = new OpenApiOperation
+                        [HttpMethod.Patch] = new()
                         {
                             OperationId = "JsonPatch",
                             RequestBody = new OpenApiRequestBody
@@ -340,7 +340,7 @@ public class HttpFileExporterTests
                 {
                     Operations = new()
                     {
-                        [HttpMethod.Get] = new OpenApiOperation
+                        [HttpMethod.Get] = new()
                         {
                             OperationId = "CookieGet",
                             Parameters =
@@ -378,14 +378,14 @@ public class HttpFileExporterTests
                 {
                     Operations = new()
                     {
-                        [HttpMethod.Post] = new OpenApiOperation
+                        [HttpMethod.Post] = new()
                         {
                             OperationId = "SecureOp",
                             Security =
                             [
-                                new OpenApiSecurityRequirement
+                                new()
                                 {
-                                    [new OpenApiSecuritySchemeReference("JWTBearerAuth")] = []
+                                    [new("JWTBearerAuth")] = []
                                 }
                             ]
                         }
@@ -422,7 +422,7 @@ public class HttpFileExporterTests
                 {
                     Operations = new()
                     {
-                        [HttpMethod.Get] = new OpenApiOperation
+                        [HttpMethod.Get] = new()
                         {
                             OperationId = "SecureWithHeader",
                             Parameters =
@@ -435,9 +435,9 @@ public class HttpFileExporterTests
                             ],
                             Security =
                             [
-                                new OpenApiSecurityRequirement
+                                new()
                                 {
-                                    [new OpenApiSecuritySchemeReference("JWTBearerAuth")] = []
+                                    [new("JWTBearerAuth")] = []
                                 }
                             ]
                         }
@@ -475,7 +475,7 @@ public class HttpFileExporterTests
                 {
                     Operations = new()
                     {
-                        [HttpMethod.Post] = new OpenApiOperation
+                        [HttpMethod.Post] = new()
                         {
                             OperationId = "LoginNoHost",
                             RequestBody = new OpenApiRequestBody
@@ -515,11 +515,198 @@ public class HttpFileExporterTests
         body["password"]!.GetValue<string>().ShouldBe("");
     }
 
+    [Fact]
+    public void media_type_example_used_as_full_body()
+    {
+        var document = CreateDocument(
+            operationId: "MediaExample",
+            path: "/media-example",
+            bodySchemaRef: "LoginRequest",
+            schemas: LoginRequestSchemas(),
+            mediaExample: JsonNode.Parse("""{"userName":"a","password":"b"}"""));
+
+        var body = ExtractJsonBody(HttpFileExporter.ToHttpFileContent(document), "MediaExample");
+
+        body["userName"]!.GetValue<string>().ShouldBe("a");
+        body["password"]!.GetValue<string>().ShouldBe("b");
+    }
+
+    [Fact]
+    public void media_type_named_examples_first_value_used_when_example_null()
+    {
+        var document = CreateDocument(
+            operationId: "NamedExamples",
+            path: "/named-examples",
+            bodySchemaRef: "LoginRequest",
+            schemas: LoginRequestSchemas(),
+            mediaExamples: new Dictionary<string, IOpenApiExample>
+            {
+                ["good"] = new OpenApiExample { Value = JsonNode.Parse("""{"userName":"good","password":"g"}""") },
+                ["bad"] = new OpenApiExample { Value = JsonNode.Parse("""{"userName":"bad","password":"b"}""") }
+            });
+
+        var body = ExtractJsonBody(HttpFileExporter.ToHttpFileContent(document), "NamedExamples");
+
+        body["userName"]!.GetValue<string>().ShouldBe("good");
+        body["password"]!.GetValue<string>().ShouldBe("g");
+    }
+
+    [Fact]
+    public void schema_example_used_when_media_has_no_example()
+    {
+        var schemas = LoginRequestSchemas();
+        ((OpenApiSchema)schemas["LoginRequest"]).Example = JsonNode.Parse("""{"userName":"schema","password":"ex"}""");
+
+        var document = CreateDocument(
+            operationId: "SchemaExample",
+            path: "/schema-example",
+            bodySchemaRef: "LoginRequest",
+            schemas: schemas);
+
+        var body = ExtractJsonBody(HttpFileExporter.ToHttpFileContent(document), "SchemaExample");
+
+        body["userName"]!.GetValue<string>().ShouldBe("schema");
+        body["password"]!.GetValue<string>().ShouldBe("ex");
+    }
+
+    [Fact]
+    public void property_default_fills_field_when_no_examples()
+    {
+        var document = CreateDocument(
+            operationId: "PropDefault",
+            path: "/prop-default",
+            bodySchemaRef: "LoginRequest",
+            schemas: new()
+            {
+                ["LoginRequest"] = new OpenApiSchema
+                {
+                    Type = JsonSchemaType.Object,
+                    Properties = new Dictionary<string, IOpenApiSchema>
+                    {
+                        ["userName"] = new OpenApiSchema { Type = JsonSchemaType.String, Default = JsonValue.Create("x") },
+                        ["password"] = new OpenApiSchema { Type = JsonSchemaType.String }
+                    }
+                }
+            });
+
+        var body = ExtractJsonBody(HttpFileExporter.ToHttpFileContent(document), "PropDefault");
+
+        body["userName"]!.GetValue<string>().ShouldBe("x");
+        body["password"]!.GetValue<string>().ShouldBe("");
+    }
+
+    [Fact]
+    public void property_example_wins_over_property_default()
+    {
+        var document = CreateDocument(
+            operationId: "PropExampleWins",
+            path: "/prop-example-wins",
+            bodySchemaRef: "LoginRequest",
+            schemas: new()
+            {
+                ["LoginRequest"] = new OpenApiSchema
+                {
+                    Type = JsonSchemaType.Object,
+                    Properties = new Dictionary<string, IOpenApiSchema>
+                    {
+                        ["userName"] = new OpenApiSchema
+                        {
+                            Type = JsonSchemaType.String,
+                            Example = JsonValue.Create("from-example"),
+                            Default = JsonValue.Create("from-default")
+                        },
+                        ["password"] = new OpenApiSchema { Type = JsonSchemaType.String }
+                    }
+                }
+            });
+
+        var body = ExtractJsonBody(HttpFileExporter.ToHttpFileContent(document), "PropExampleWins");
+
+        body["userName"]!.GetValue<string>().ShouldBe("from-example");
+    }
+
+    [Fact]
+    public void media_example_wins_over_property_defaults()
+    {
+        var document = CreateDocument(
+            operationId: "MediaBeatsProps",
+            path: "/media-beats-props",
+            bodySchemaRef: "LoginRequest",
+            schemas: new()
+            {
+                ["LoginRequest"] = new OpenApiSchema
+                {
+                    Type = JsonSchemaType.Object,
+                    Properties = new Dictionary<string, IOpenApiSchema>
+                    {
+                        ["userName"] = new OpenApiSchema { Type = JsonSchemaType.String, Default = JsonValue.Create("default-user") },
+                        ["password"] = new OpenApiSchema { Type = JsonSchemaType.String, Default = JsonValue.Create("default-pass") }
+                    }
+                }
+            },
+            mediaExample: JsonNode.Parse("""{"userName":"media-user","password":"media-pass"}"""));
+
+        var body = ExtractJsonBody(HttpFileExporter.ToHttpFileContent(document), "MediaBeatsProps");
+
+        body["userName"]!.GetValue<string>().ShouldBe("media-user");
+        body["password"]!.GetValue<string>().ShouldBe("media-pass");
+    }
+
+    [Fact]
+    public void dual_sibling_refs_both_get_target_property_example()
+    {
+        var document = CreateDocument(
+            operationId: "DualChildExample",
+            path: "/dual-child-example",
+            bodySchemaRef: "DualChildRequest",
+            schemas: new()
+            {
+                ["DualChildAddress"] = new OpenApiSchema
+                {
+                    Type = JsonSchemaType.Object,
+                    Properties = new Dictionary<string, IOpenApiSchema>
+                    {
+                        ["zip"] = new OpenApiSchema { Type = JsonSchemaType.String, Example = JsonValue.Create("90210") }
+                    }
+                },
+                ["DualChildRequest"] = new OpenApiSchema
+                {
+                    Type = JsonSchemaType.Object,
+                    Properties = new Dictionary<string, IOpenApiSchema>
+                    {
+                        ["billingAddress"] = new OpenApiSchemaReference("DualChildAddress"),
+                        ["shippingAddress"] = new OpenApiSchemaReference("DualChildAddress")
+                    }
+                }
+            });
+
+        var body = ExtractJsonBody(HttpFileExporter.ToHttpFileContent(document), "DualChildExample");
+
+        body["billingAddress"]!["zip"]!.GetValue<string>().ShouldBe("90210");
+        body["shippingAddress"]!["zip"]!.GetValue<string>().ShouldBe("90210");
+    }
+
+    static Dictionary<string, IOpenApiSchema> LoginRequestSchemas()
+        => new()
+        {
+            ["LoginRequest"] = new OpenApiSchema
+            {
+                Type = JsonSchemaType.Object,
+                Properties = new Dictionary<string, IOpenApiSchema>
+                {
+                    ["userName"] = new OpenApiSchema { Type = JsonSchemaType.String },
+                    ["password"] = new OpenApiSchema { Type = JsonSchemaType.String }
+                }
+            }
+        };
+
     static OpenApiDocument CreateDocument(string operationId,
                                           string path,
                                           string? bodySchemaRef,
                                           Dictionary<string, IOpenApiSchema> schemas,
-                                          IOpenApiSchema? inlineBodySchema = null)
+                                          IOpenApiSchema? inlineBodySchema = null,
+                                          JsonNode? mediaExample = null,
+                                          IDictionary<string, IOpenApiExample>? mediaExamples = null)
     {
         var document = new OpenApiDocument
         {
@@ -527,20 +714,25 @@ public class HttpFileExporterTests
             Components = new() { Schemas = schemas }
         };
 
-        IOpenApiSchema bodySchema = inlineBodySchema ?? new OpenApiSchemaReference(bodySchemaRef!, document);
+        var bodySchema = inlineBodySchema ?? new OpenApiSchemaReference(bodySchemaRef!, document);
 
         document.Paths[path] = new OpenApiPathItem
         {
             Operations = new()
             {
-                [HttpMethod.Post] = new OpenApiOperation
+                [HttpMethod.Post] = new()
                 {
                     OperationId = operationId,
                     RequestBody = new OpenApiRequestBody
                     {
                         Content = new Dictionary<string, OpenApiMediaType>
                         {
-                            ["application/json"] = new() { Schema = bodySchema }
+                            ["application/json"] = new()
+                            {
+                                Schema = bodySchema,
+                                Example = mediaExample,
+                                Examples = mediaExamples
+                            }
                         }
                     }
                 }
@@ -583,8 +775,8 @@ public class HttpExportRegressionTests(Fixture App) : TestBase<Fixture>
         var http = await App.GetHttpFileContentAsync("Initial Release", Cancellation);
         var body = HttpFileExporterTests.ExtractJsonBody(http, "PostAdminLoginEndpoint");
 
-        body["userName"]!.GetValue<string>().ShouldBe("");
-        body["password"]!.GetValue<string>().ShouldBe("");
+        body["userName"]!.GetValue<string>().ShouldBe("custom example user name from summary");
+        body["password"]!.GetValue<string>().ShouldBe("custom example password from summary");
     }
 
     [Fact]
@@ -600,9 +792,12 @@ public class HttpExportRegressionTests(Fixture App) : TestBase<Fixture>
         body.ContainsKey("qtyOnHand").ShouldBeTrue();
         body.ContainsKey("modifiedBy").ShouldBeTrue();
         body.ContainsKey("generateFullUrl").ShouldBeTrue();
-        body["id"]!.GetValue<int>().ShouldBe(0);
-        body["name"]!.GetValue<string>().ShouldBe("");
-        body["price"]!.GetValue<int>().ShouldBe(0);
+        body["id"]!.GetValue<int>().ShouldBe(1);
+        body["name"]!.GetValue<string>().ShouldBe("first name");
+        body["description"]!.GetValue<string>().ShouldBe("first description");
+        body["price"]!.GetValue<int>().ShouldBe(10);
+        body["qtyOnHand"]!.GetValue<int>().ShouldBe(10);
+        body["modifiedBy"]!.GetValue<string>().ShouldBe("modifiedBy");
         body["generateFullUrl"]!.GetValue<bool>().ShouldBeFalse();
     }
 

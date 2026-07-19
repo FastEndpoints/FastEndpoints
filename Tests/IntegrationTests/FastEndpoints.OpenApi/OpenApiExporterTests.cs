@@ -80,6 +80,42 @@ public class OpenApiExporterTests
         File.Exists(Path.Combine(ctx.ExportDir, "missing.http")).ShouldBeFalse();
     }
 
+    [Theory]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    public void is_export_mode_true_when_either_flag_set(bool exportJson, bool exportHttp)
+    {
+        var config = BuildConfig(exportJson, exportHttp);
+
+        OpenApiExportMode.IsAny(config).ShouldBeTrue();
+        OpenApiExportMode.IsJson(config).ShouldBe(exportJson);
+        OpenApiExportMode.IsHttp(config).ShouldBe(exportHttp);
+    }
+
+    [Fact]
+    public void is_export_mode_false_when_neither_flag_set()
+    {
+        var config = BuildConfig(exportJson: false, exportHttp: false);
+
+        OpenApiExportMode.IsAny(config).ShouldBeFalse();
+        OpenApiExportMode.IsJson(config).ShouldBeFalse();
+        OpenApiExportMode.IsHttp(config).ShouldBeFalse();
+    }
+
+    static IConfiguration BuildConfig(bool exportJson, bool exportHttp)
+    {
+        var values = new Dictionary<string, string?>();
+
+        if (exportJson)
+            values[OpenApiExportMode.JsonExportKey] = "true";
+
+        if (exportHttp)
+            values[OpenApiExportMode.HttpExportKey] = "true";
+
+        return new ConfigurationBuilder().AddInMemoryCollection(values).Build();
+    }
+
     sealed class ExportTestContext : IAsyncDisposable
     {
         public required WebApplication App { get; init; }
@@ -99,10 +135,10 @@ public class OpenApiExporterTests
             var config = new Dictionary<string, string?>();
 
             if (exportJson)
-                config["export-openapi-docs"] = "true";
+                config[OpenApiExportMode.JsonExportKey] = "true";
 
             if (exportHttp)
-                config["export-http-files"] = "true";
+                config[OpenApiExportMode.HttpExportKey] = "true";
 
             var bld = WebApplication.CreateBuilder(new WebApplicationOptions { ContentRootPath = contentRoot });
             bld.Configuration.AddInMemoryCollection(config);

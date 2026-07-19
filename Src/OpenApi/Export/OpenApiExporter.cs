@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.OpenApi;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -29,10 +30,11 @@ static class OpenApiExporter
     /// </summary>
     internal static async Task<int?> ExportRequestedFormatsAsync(WebApplication app, string[] documentNames)
     {
-        var exportJson = app.IsJsonExportMode();
-        var exportHttp = app.IsHttpExportMode();
+        var config = app.Services.GetRequiredService<IConfiguration>();
+        var exportJson = OpenApiExportMode.IsJson(config);
+        var exportHttp = OpenApiExportMode.IsHttp(config);
 
-        if (!exportJson && !exportHttp)
+        if (!OpenApiExportMode.IsAny(config))
             return null;
 
         // empty name list still exits cleanly so dual-flag / single-call apps cannot hang

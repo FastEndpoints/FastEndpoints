@@ -93,16 +93,25 @@ public static class Extensions
         return rule.When(_ => true, applyConditionTo);
     }
 
-    const string OpenApiJsonExportKey = "export-openapi-docs";
-    const string OpenApiHttpExportKey = "export-http-files";
-
     extension(IHost app)
     {
+        /// <summary>
+        /// returns true if the app is being launched to export openapi artifacts (JSON and/or '.http').
+        /// </summary>
+        public bool IsExportMode()
+            => OpenApiExportMode.IsAny(app.Services.GetRequiredService<IConfiguration>());
+
+        /// <summary>
+        /// returns true if the app is running normally and not launched for openapi artifact export.
+        /// </summary>
+        public bool IsNotExportMode()
+            => !app.IsExportMode();
+
         /// <summary>
         /// returns true if the app is being launched just to export openapi json files.
         /// </summary>
         public bool IsJsonExportMode()
-            => string.Equals(app.Services.GetRequiredService<IConfiguration>()[OpenApiJsonExportKey], "true", StringComparison.Ordinal);
+            => OpenApiExportMode.IsJson(app.Services.GetRequiredService<IConfiguration>());
 
         /// <summary>
         /// returns true if the app is running normally and not launched for the purpose of exporting openapi json files.
@@ -114,7 +123,7 @@ public static class Extensions
         /// returns true if the app is being launched just to export '.http' files.
         /// </summary>
         public bool IsHttpExportMode()
-            => string.Equals(app.Services.GetRequiredService<IConfiguration>()[OpenApiHttpExportKey], "true", StringComparison.Ordinal);
+            => OpenApiExportMode.IsHttp(app.Services.GetRequiredService<IConfiguration>());
 
         /// <summary>
         /// returns true if the app is running normally and not launched for the purpose of exporting '.http' files.
@@ -126,10 +135,22 @@ public static class Extensions
     extension(IHostApplicationBuilder bld)
     {
         /// <summary>
+        /// returns true if the app is being launched to export openapi artifacts (JSON and/or '.http').
+        /// </summary>
+        public bool IsExportMode()
+            => OpenApiExportMode.IsAny(bld.Configuration);
+
+        /// <summary>
+        /// returns true if the app is running normally and not launched for openapi artifact export.
+        /// </summary>
+        public bool IsNotExportMode()
+            => !bld.IsExportMode();
+
+        /// <summary>
         /// returns true if the app is being launched just to export openapi json files.
         /// </summary>
         public bool IsJsonExportMode()
-            => string.Equals(bld.Configuration[OpenApiJsonExportKey], "true", StringComparison.Ordinal);
+            => OpenApiExportMode.IsJson(bld.Configuration);
 
         /// <summary>
         /// returns true if the app is running normally and not launched for the purpose of exporting openapi json files.
@@ -141,7 +162,7 @@ public static class Extensions
         /// returns true if the app is being launched just to export '.http' files.
         /// </summary>
         public bool IsHttpExportMode()
-            => string.Equals(bld.Configuration[OpenApiHttpExportKey], "true", StringComparison.Ordinal);
+            => OpenApiExportMode.IsHttp(bld.Configuration);
 
         /// <summary>
         /// returns true if the app is running normally and not launched for the purpose of exporting '.http' files.

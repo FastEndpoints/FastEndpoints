@@ -30,6 +30,9 @@ static partial class LoggingExtensions
 
     [LoggerMessage(10, LogLevel.Error, "Failed to export '.http' file for document '{documentName}'")]
     public static partial void HttpFileExportFailed(this ILogger l, Exception ex, string documentName);
+
+    [LoggerMessage(11, LogLevel.Error, "Failed to load OpenAPI document '{documentName}'")]
+    public static partial void OpenApiDocumentLoadFailed(this ILogger l, Exception ex, string documentName);
 }
 
 /// <summary>

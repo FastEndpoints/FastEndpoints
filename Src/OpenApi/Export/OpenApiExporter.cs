@@ -52,8 +52,7 @@ static class OpenApiExporter
             foreach (var documentName in documentNames)
             {
                 var normalizedDocumentName = documentName.ToLowerInvariant();
-                OpenApiDocument? doc = null;
-                Exception? loadError = null;
+                OpenApiDocument doc;
 
                 try
                 {
@@ -62,7 +61,10 @@ static class OpenApiExporter
                 }
                 catch (Exception ex)
                 {
-                    loadError = ex;
+                    logger.OpenApiDocumentLoadFailed(ex, documentName);
+                    failed = true;
+
+                    continue;
                 }
 
                 if (exportJson)
@@ -78,12 +80,9 @@ static class OpenApiExporter
                              logger.OpenApiDocExportFailed,
                              async () =>
                              {
-                                 if (loadError is not null)
-                                     throw loadError;
-
                                  var openApiVersion = app.Services.GetRequiredService<IOptionsMonitor<OpenApiOptions>>().Get(normalizedDocumentName).OpenApiVersion;
 
-                                 return await doc!.SerializeAsJsonAsync(openApiVersion, CancellationToken.None);
+                                 return await doc.SerializeAsJsonAsync(openApiVersion, CancellationToken.None);
                              },
                              CancellationToken.None))
                         failed = true;
@@ -100,7 +99,7 @@ static class OpenApiExporter
                              ".http",
                              logger.HttpFileExportSuccessful,
                              logger.HttpFileExportFailed,
-                             () => loadError is not null ? throw loadError : Task.FromResult(HttpFileExporter.ToHttpFileContent(doc!)),
+                             () => Task.FromResult(HttpFileExporter.ToHttpFileContent(doc)),
                              CancellationToken.None))
                         failed = true;
                 }

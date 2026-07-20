@@ -47,7 +47,7 @@ Attributes / Messaging.Core
 
 ## Dependency rules
 - **Allowed:** higher packages reference lower foundation packages (`Attributes`, `Core`, `Messaging.Core`).
-- **Library** references Attributes, JobQueues, Messaging (not Security/OpenApi — those are optional consumer packages).
+- **Library** references Attributes, JobQueues, Messaging (not Security/OpenApi; those are optional consumer packages).
 - **Security/OpenApi/OData/AspVersioning** reference Library (addons on top of core HTTP).
 - **Generator** references Attributes only (analyzer package); consumers reference Generator as analyzer.
 - **Agents** (`Mcp`, `A2A`) reference Library; share internal types via linked `Src/Agents/Shared/*.cs` (not a separate NuGet).
@@ -77,8 +77,8 @@ Attributes / Messaging.Core
 
 ## Invariants
 1. Endpoint types implement `IEndpoint`; public base is `Endpoint<TRequest[, TResponse]>`.
-2. AOT: do **not** rely on reflection discovery — use `AddFastEndpoints(DiscoveredTypes.All)` (+ generator).
-3. Mappers/validators discovered types are typically treated as singletons for performance — no per-request state in mappers.
+2. AOT: do **not** rely on reflection discovery; use `AddFastEndpoints(DiscoveredTypes.All)` (+ generator).
+3. Mappers/validators discovered types are typically treated as singletons for performance; no per-request state in mappers.
 4. Shared library TFMs: **net8.0;net9.0;net10.0** (exceptions: Generator netstandard2.0; Attributes multi-TFM; Agents often net9+net10).
 5. Strong-name signing via `FastEndpoints.snk` (public key in Directory.Build.props / InternalsVisibleTo).
 6. Central package versions: root `Directory.Packages.props` (`ManagePackageVersionsCentrally`).

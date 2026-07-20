@@ -51,7 +51,7 @@ One root `.okf/` covers the whole repo. Packages are NuGet libraries, not separa
 - **Agents line:** per-csproj `<Version>` under `Src/Agents/` (props file documents independence).
 
 ## Test / harness projects (non-pack or IsPackable false)
-- `Tests/**`, `TestHarness/**`, `Benchmark/**` — development only.
+- `Tests/**`, `TestHarness/**`, `Benchmark/**`: development only.
 
 ## Sources
 - `FastEndpoints.slnx`

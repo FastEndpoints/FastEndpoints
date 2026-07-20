@@ -19,16 +19,16 @@ tags: [security]
 
 ## Signing / trust
 - Assemblies strong-named with `FastEndpoints.snk`; public key embedded in Directory.Build.props and InternalsVisibleTo.
-- Do not strip signing for “convenience” commits — breaks friend test assemblies and package expectations.
+- Do not strip signing for “convenience” commits; breaks friend test assemblies and package expectations.
 
 ## Secrets handling
 - CI: `NUGET_API_KEY` / `NUGET_AUTH_TOKEN` for publish only.
-- Sample JWT keys in harness configuration are for tests — never treat as production secrets.
+- Sample JWT keys in harness configuration are for tests; never treat as production secrets.
 - OKF and commits: names of config keys only, never values.
 
 ## Threat notes for agents
-- No need to open network ports or disable auth in library code for tests — use `FastEndpoints.Testing` and test doubles.
-- Remote messaging uses MessagePack over gRPC — treat as trusted-network RPC unless consumer adds auth layers.
+- No need to open network ports or disable auth in library code for tests; use `FastEndpoints.Testing` and test doubles.
+- Remote messaging uses MessagePack over gRPC; treat as trusted-network RPC unless consumer adds auth layers.
 
 ## Sources
 - `Src/Security/`

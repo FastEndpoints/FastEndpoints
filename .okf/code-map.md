@@ -24,7 +24,7 @@ tags: [layout]
 | `Src/Generator/`, `Src/Generator.Cli/` | Roslyn generators + CLI |
 | `Src/Testing/` | `FastEndpoints.Testing` |
 | `Src/Agents/` | Mcp / A2A addons + Shared linked sources |
-| `Src/*/Generated/` | Often empty placeholders or build outputs — prefer not hand-edit |
+| `Src/*/Generated/` | Often empty placeholders or build outputs; prefer not hand-edit |
 | `TestHarness/` | Sample apps: `Web`, `OData`, `OpenApi.Kiota`, `Sandbox`, `NativeAotChecker` |
 | `Tests/UnitTests/` | Unit tests (xunit v3) |
 | `Tests/IntegrationTests/` | WAF/integration tests against harnesses |
@@ -36,7 +36,7 @@ tags: [layout]
 | `NativeAot.slnx` | AOT-focused solution |
 | `azure-pipeline.yml` | Azure DevOps test pipeline (tag-triggered pack path differs) |
 | `.github/workflows/publish-to-nuget.yml` | Tag `v*` test → pack → push NuGet → GH release |
-| `../FE-Docs/` (sibling) | Public docs site source; content under `src/content/docs/` — not in this solution |
+| `../FE-Docs/` (sibling) | Public docs site source; content under `src/content/docs/`; not in this solution |
 
 ## Modules (Library internals)
 
@@ -54,7 +54,7 @@ tags: [layout]
 
 ## Entry points
 - **Consumer app:** `services.AddFastEndpoints(...)` then `app.UseFastEndpoints(...)` or `MapFastEndpoints`.
-- **Test harness Web:** `TestHarness/Web/Program.cs` — full feature surface for integration tests.
+- **Test harness Web:** `TestHarness/Web/Program.cs`; full feature surface for integration tests.
 - **Integration SUT fixture:** `Tests/IntegrationTests/FastEndpoints/Sut.cs` → `AppFixture<Web.Program>`.
 - **Pack/publish:** `dotnet pack FastEndpoints.slnx -c Release`; push `Src/**/*.nupkg`.
 

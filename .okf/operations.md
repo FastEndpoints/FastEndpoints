@@ -21,7 +21,7 @@ tags: [ops]
 GitHub workflow installs SDKs 8/9/10, runs filtered tests on `FastEndpoints.slnx`, packs solution, pushes `Src/**/*.nupkg` using `NUGET_API_KEY` secret.
 
 ## Services and ports
-- No production services. Local harnesses are Kestrel web apps (`TestHarness/Web`, etc.) — default ASP.NET ports when run.
+- No production services. Local harnesses are Kestrel web apps (`TestHarness/Web`, etc.); default ASP.NET ports when run.
 - Remote messaging tests may spin gRPC handler server in-process via harness (`AddHandlerServer`).
 
 ## Data stores
@@ -30,11 +30,11 @@ GitHub workflow installs SDKs 8/9/10, runs filtered tests on `FastEndpoints.slnx
 ## Config and observability
 - Package metadata: ProjectUrl `https://fast-endpoints.com/`, MIT license, SourceLink.
 - Changelog for releases: `Src/Library/changelog.md`.
-- Secrets: only CI NuGet API key name documented — never commit values.
+- Secrets: only CI NuGet API key name documented; never commit values.
 - Harness configuration files: `TestHarness/Web/appsettings*.json` (keys only; treat as samples).
 
 ## Caveats
-- Agents packages may be omitted from main slnx (commented) while still present in tree — pack inventory follows solution inclusion.
+- Agents packages may be omitted from main slnx (commented) while still present in tree; pack inventory follows solution inclusion.
 - AOT test step in publish workflow may be commented; do not assume AOT gate on every release without checking workflow.
 - Beta tags skip GitHub Release creation (`!contains(github.ref, 'beta')`).
 

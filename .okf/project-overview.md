@@ -9,7 +9,7 @@ resource: README.md
 # Project Overview
 
 ## Purpose
-**FastEndpoints** is a developer-oriented alternative to Minimal APIs and MVC for ASP.NET Core. It implements the **REPR** pattern (Request–Endpoint–Response) with low boilerplate. Public docs: https://fast-endpoints.com
+**FastEndpoints** is a developer-oriented alternative to Minimal APIs and MVC for ASP.NET Core. It implements the **REPR** pattern (Request-Endpoint-Response) with low boilerplate. Public docs: https://fast-endpoints.com
 
 ## Scope
 This repo is the multi-package source for:
@@ -37,7 +37,7 @@ This repo is the multi-package source for:
 - JWT/cookie auth helpers, OpenAPI (Microsoft.AspNetCore.OpenApi), AOT-oriented generation
 
 ## Status
-- Library version (shared `Src/Directory.Build.props`): **8.3.0-beta.15** (verify before citing)
+- Library version (shared `Src/Directory.Build.props`): **8.3.0-beta.16** (verify before citing)
 - Agents addons versioned separately (e.g. **1.0.0-beta.3**)
 - Agents projects currently **commented out** of `FastEndpoints.slnx` but present under `Src/Agents/`
 - Primary solution: `FastEndpoints.slnx`; AOT solution: `NativeAot.slnx`
@@ -50,7 +50,7 @@ This repo is the multi-package source for:
 ## Glossary
 | Term | Meaning |
 | --- | --- |
-| REPR | Request–Endpoint–Response endpoint design |
+| REPR | Request-Endpoint-Response endpoint design |
 | SUT / harness | Sample apps under `TestHarness/` used by integration tests |
 | WAF | `WebApplicationFactory` path via `FastEndpoints.Testing.AppFixture` |
 | DiscoveredTypes | Source-generated type list for AOT-friendly registration |

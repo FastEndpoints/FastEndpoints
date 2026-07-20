@@ -19,7 +19,7 @@ tags: [conventions]
 - Indent 4 spaces; LF; UTF-8 (`.editorconfig`).
 - Prefer existing partial-class splits for large types (`Endpoint.*.cs`).
 - XML docs generated for packages (`GenerateDocumentationFile`); suppress noise via project `NoWarn`.
-- Accessibility modifiers: editorconfig prefers not requiring explicit modifiers in some cases — follow neighboring code.
+- Accessibility modifiers: editorconfig prefers not requiring explicit modifiers in some cases; follow neighboring code.
 - `CS8618` suppressed for `*Request.cs`, `*Response.cs`, `*Model*.cs`, `*Endpoint.cs` patterns.
 
 ## Errors and validation
@@ -30,7 +30,7 @@ tags: [conventions]
 ## APIs and data
 - REPR: Request DTO + Endpoint + optional Response DTO; configure routes/verbs/auth in `Configure()`.
 - Pre/post processors: `IPreProcessor<TRequest>`, `IPostProcessor<TRequest,TResponse>`.
-- Mappers: `IMapper` / request-response mappers — **stateless** (singleton lifetime expectation).
+- Mappers: `IMapper` / request-response mappers; **stateless** (singleton lifetime expectation).
 - Commands/events: implement `ICommand` / `IEvent` (+ handlers); job queue builds on commands.
 - Optional attributes: `DontRegister`, `DontInject`, `HideFromDocs`, `RegisterService`, etc. in Attributes package.
 

@@ -50,7 +50,7 @@ GitHub Actions (`.github/workflows/publish-to-nuget.yml`): on tag `v*`:
 3. pack + push with `secrets.NUGET_API_KEY`
 4. non-beta tags: GH release body from `Src/Library/changelog.md`
 
-Azure `azure-pipeline.yml`: tag `v*` trigger; runs tests under `Tests/` with same filter (pack steps not in the snippet beyond test — verify file when changing release process).
+Azure `azure-pipeline.yml`: tag `v*` trigger; runs tests under `Tests/` with same filter (pack steps not in the snippet beyond test; verify file when changing release process).
 
 ## Lint and format
 - Style primarily via `.editorconfig` + ReSharper/Rider DotSettings (`FastEndpoints.sln.DotSettings.user` is user-local).

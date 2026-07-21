@@ -9,7 +9,7 @@ using Microsoft.OpenApi;
 
 namespace OpenApi;
 
-public class ValidationSchemaTransformerTests
+public class ValidationSchemaTransformerTests : DefaultPropertyNameResolverTestBase
 {
     [Fact]
     public void validator_rule_paths_use_json_property_name_attributes()

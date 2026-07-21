@@ -3,8 +3,10 @@ using FastEndpoints.OpenApi;
 
 namespace OpenApi;
 
-public class GlobalConfigTests
+public class GlobalConfigTests : IDisposable
 {
+    readonly string? _routePrefix = Config.EpOpts.RoutePrefix;
+
     [Fact]
     public void endpoint_route_prefix_trims_surrounding_slashes()
     {
@@ -19,5 +21,11 @@ public class GlobalConfigTests
         Config.EpOpts.RoutePrefix = string.Empty;
 
         GlobalConfig.EndpointRoutePrefix.ShouldBeNull();
+    }
+
+    public void Dispose()
+    {
+        Config.EpOpts.RoutePrefix = _routePrefix;
+        GC.SuppressFinalize(this);
     }
 }

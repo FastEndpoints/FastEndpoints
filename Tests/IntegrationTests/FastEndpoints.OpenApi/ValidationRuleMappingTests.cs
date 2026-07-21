@@ -1,12 +1,43 @@
 using System.Reflection;
 using FastEndpoints.OpenApi.ValidationProcessor;
 using FluentValidation;
+using FluentValidation.Internal;
 using FluentValidation.Validators;
 using Microsoft.OpenApi;
 
 namespace OpenApi;
 
-public class ValidationRuleMappingTests
+public abstract class DefaultPropertyNameResolverTestBase : IDisposable
+{
+    readonly Action _restorePropertyNameResolver;
+
+    protected DefaultPropertyNameResolverTestBase()
+    {
+        var propertyNameResolver = ValidatorOptions.Global.PropertyNameResolver;
+        _restorePropertyNameResolver = () => ValidatorOptions.Global.PropertyNameResolver = propertyNameResolver;
+        ValidatorOptions.Global.PropertyNameResolver =
+            (_, memberInfo, expression) =>
+            {
+                if (memberInfo is null)
+                    return null;
+
+                if (expression is null)
+                    return memberInfo.Name;
+
+                var chain = PropertyChain.FromExpression(expression);
+
+                return chain.Count > 0 ? chain.ToString() : memberInfo.Name;
+            };
+    }
+
+    public void Dispose()
+    {
+        _restorePropertyNameResolver();
+        GC.SuppressFinalize(this);
+    }
+}
+
+public class ValidationRuleMappingTests : DefaultPropertyNameResolverTestBase
 {
     [Fact]
     public void not_empty_uses_min_items_for_array_schemas()

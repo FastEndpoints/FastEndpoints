@@ -44,7 +44,7 @@ jobs:
         uses: NuGet/login@v1.2.0
         id: login
         with:
-          user: dj-nitehawk
+          user: FastEndpoints
 
       - name: Publish To Nuget
         run: dotnet nuget push "Src/**/*.nupkg" --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json

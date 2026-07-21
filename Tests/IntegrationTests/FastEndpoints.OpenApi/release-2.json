@@ -3848,6 +3848,37 @@
         ]
       }
     },
+    "/api/test-cases/continue-handler-if-response-started": {
+      "post": {
+        "tags": [
+          "TestCases"
+        ],
+        "summary": "default behavior: handler still runs after OnBeforeHandle sends a response.",
+        "operationId": "TestCasesSkipHandlerIfResponseStartedContinueEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSkipHandlerIfResponseStartedRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesSkipHandlerIfResponseStartedResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/test-cases/custom-request-binder": {
       "post": {
         "tags": [
@@ -6272,6 +6303,37 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SystemStringArray"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/test-cases/skip-handler-if-response-started": {
+      "post": {
+        "tags": [
+          "TestCases"
+        ],
+        "summary": "opt-in short-circuit: handler is skipped when OnBeforeHandle sends a response.",
+        "operationId": "TestCasesSkipHandlerIfResponseStartedSkipEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSkipHandlerIfResponseStartedRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesSkipHandlerIfResponseStartedResponse"
                 }
               }
             }
@@ -10175,6 +10237,29 @@
               "null",
               "string"
             ]
+          }
+        }
+      },
+      "TestCasesSkipHandlerIfResponseStartedRequest": {
+        "type": "object",
+        "properties": {
+          "shortCircuit": {
+            "type": "boolean"
+          },
+          "correlationId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        }
+      },
+      "TestCasesSkipHandlerIfResponseStartedResponse": {
+        "type": "object",
+        "properties": {
+          "source": {
+            "type": "string"
+          },
+          "handlerRan": {
+            "type": "boolean"
           }
         }
       },

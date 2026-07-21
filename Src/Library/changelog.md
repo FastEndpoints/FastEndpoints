@@ -142,6 +142,26 @@ dotnet run --export-http-files true
 
 </details>
 
+<details><summary>Skip executing endpoint handler if response already started</summary>
+
+Endpoints can opt in to skip **HandleAsync**/**ExecuteAsync** (and **OnAfterHandle**) when a response has already been started, for example from **OnBeforeHandle\***. Post-processors still run. Pre-processors already short-circuit without this setting.
+
+```csharp
+public override void Configure()
+{
+    Get("/resources");
+    DontExecuteHandlerIfResponseStarted();
+}
+
+// or globally:
+app.UseFastEndpoints(c => c.Endpoints.Configurator = ep =>
+{
+    ep.DontExecuteHandlerIfResponseStarted();
+});
+```
+
+</details>
+
 ## Fixes 🪲
 
 <details><summary>Conditional FluentValidation presence rules no longer make OpenAPI properties required</summary>

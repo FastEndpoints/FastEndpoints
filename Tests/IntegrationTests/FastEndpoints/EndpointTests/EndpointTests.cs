@@ -50,6 +50,57 @@ public class EndpointTests(Sut App) : TestBase<Sut>
     }
 
     [Fact]
+    public async Task SkipHandlerIfResponseStarted_ShortCircuitsHandler()
+    {
+        var (rsp, res) = await App.Client.POSTAsync<
+                             TestCases.SkipHandlerIfResponseStarted.SkipEndpoint,
+                             TestCases.SkipHandlerIfResponseStarted.Request,
+                             TestCases.SkipHandlerIfResponseStarted.Response>(
+                             new() { ShortCircuit = true });
+
+        rsp.StatusCode.ShouldBe(HttpStatusCode.OK);
+        res.Source.ShouldBe("before-handle");
+        res.HandlerRan.ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task SkipHandlerIfResponseStarted_RunsHandlerWhenNoResponseStarted()
+    {
+        var (rsp, res) = await App.Client.POSTAsync<
+                             TestCases.SkipHandlerIfResponseStarted.SkipEndpoint,
+                             TestCases.SkipHandlerIfResponseStarted.Request,
+                             TestCases.SkipHandlerIfResponseStarted.Response>(
+                             new() { ShortCircuit = false });
+
+        rsp.StatusCode.ShouldBe(HttpStatusCode.OK);
+        res.Source.ShouldBe("handler");
+        res.HandlerRan.ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task DefaultBehavior_RunsHandlerEvenIfResponseStarted()
+    {
+        var correlationId = Guid.NewGuid();
+
+        var (rsp, res) = await App.Client.POSTAsync<
+                             TestCases.SkipHandlerIfResponseStarted.ContinueEndpoint,
+                             TestCases.SkipHandlerIfResponseStarted.Request,
+                             TestCases.SkipHandlerIfResponseStarted.Response>(
+                             new()
+                             {
+                                 ShortCircuit = true,
+                                 CorrelationId = correlationId
+                             });
+
+        rsp.StatusCode.ShouldBe(HttpStatusCode.OK);
+        res.Source.ShouldBe("before-handle");
+        TestCases.SkipHandlerIfResponseStarted.ContinueEndpoint.HandlerExecutions
+                 .TryRemove(correlationId, out var handlerRan)
+                 .ShouldBeTrue();
+        handlerRan.ShouldBeTrue();
+    }
+
+    [Fact]
     public async Task GlobalRoutePrefixOverride()
     {
         using var stringContent = new StringContent("this is the body content");

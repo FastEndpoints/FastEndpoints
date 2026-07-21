@@ -211,6 +211,14 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
         => Definition.DontCatchExceptions();
 
     /// <summary>
+    /// if a response has already been started (for example by <c>OnBeforeHandle*</c>), skip
+    /// <c>HandleAsync</c>/<c>ExecuteAsync</c> and <c>OnAfterHandle*</c>.
+    /// post-processors still run. pre-processors already short-circuit without this setting.
+    /// </summary>
+    protected void DontExecuteHandlerIfResponseStarted()
+        => Definition.DontExecuteHandlerIfResponseStarted();
+
+    /// <summary>
     /// disable auto validation failure responses (400 bad request with error details) for this endpoint.
     /// <para>HINT: this only applies to request dto validation.</para>
     /// </summary>

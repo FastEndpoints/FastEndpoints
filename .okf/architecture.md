@@ -43,7 +43,7 @@ Attributes / Messaging.Core
 | `FastEndpoints.Testing` | `AppFixture`, collection fixtures, WAF cache for integration tests |
 | Messaging.Remote* | gRPC RPC for remote command/event execution (MessagePack by default; wire format pluggable) |
 
-**Request path (simplified):** `AddFastEndpoints` registers discovery data → `UseFastEndpoints`/`MapFastEndpoints` maps routes → `FeRequestHandler` resolves endpoint instance → bind → validate → pre-processors → `HandleAsync` → post-processors → send response.
+**Request path (simplified):** `AddFastEndpoints` registers discovery data → `UseFastEndpoints`/`MapFastEndpoints` maps routes → `FeRequestHandler` resolves endpoint instance → bind → validate → pre-processors → (`ResponseStarted` short-circuit) → `OnBeforeHandle` → optional `SkipHandlerIfResponseStarted` short-circuit → `HandleAsync`/`ExecuteAsync` → post-processors → send response.
 
 ## Dependency rules
 - **Allowed:** higher packages reference lower foundation packages (`Attributes`, `Core`, `Messaging.Core`).

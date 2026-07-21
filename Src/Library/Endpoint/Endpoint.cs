@@ -88,6 +88,9 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
             OnBeforeHandle(req);
             await OnBeforeHandleAsync(req, ct);
 
+            if (Definition.SkipHandlerIfResponseStarted && ResponseStarted)
+                return; // response already sent (most likely from OnBeforeHandle*)
+
             if (Definition.ExecuteAsyncImplemented)
             {
                 _response = await ExecuteAsync(req, ct);

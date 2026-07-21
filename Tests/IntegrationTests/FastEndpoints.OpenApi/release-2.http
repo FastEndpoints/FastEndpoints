@@ -848,6 +848,16 @@ Authorization: Bearer {{bearerToken}}
 Accept: application/json
 
 
+### TestCasesSkipHandlerIfResponseStartedContinueEndpoint
+POST {{baseUrl}}/api/test-cases/continue-handler-if-response-started
+Content-Type: application/json
+Accept: application/json
+
+{
+  "shortCircuit": false,
+  "correlationId": ""
+}
+
 ### TestCasesCustomRequestBinderEndpoint
 POST {{baseUrl}}/api/test-cases/custom-request-binder
 Authorization: Bearer {{bearerToken}}
@@ -1277,6 +1287,16 @@ Accept: application/json
 GET {{baseUrl}}/api/test-cases/service-reg-gen-test
 Accept: application/json
 
+
+### TestCasesSkipHandlerIfResponseStartedSkipEndpoint
+POST {{baseUrl}}/api/test-cases/skip-handler-if-response-started
+Content-Type: application/json
+Accept: application/json
+
+{
+  "shortCircuit": false,
+  "correlationId": ""
+}
 
 ### TestCasesStronglyTypedRouteParamTestMyEndpoint
 POST {{baseUrl}}/api/test-cases/strong-route-params/{{platformKitUid}}/blah/{{name}}

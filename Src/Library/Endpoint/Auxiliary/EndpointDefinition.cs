@@ -47,6 +47,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     public bool DontAutoTagEndpoints { get; private set; }
     public bool DontBindFormData { get; private set; }
     public bool DoNotCatchExceptions { get; private set; }
+    public bool SkipHandlerIfResponseStarted { get; private set; }
     public object[]? EndpointAttributes { get; internal set; }
     public EndpointSummary? EndpointSummary { get; private set; }
     public List<string>? EndpointTags { get; private set; }
@@ -262,6 +263,17 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     {
         ThrowIfLocked();
         DoNotCatchExceptions = true;
+    }
+
+    /// <summary>
+    /// if a response has already been started (for example by <c>OnBeforeHandle*</c>), skip
+    /// <c>HandleAsync</c>/<c>ExecuteAsync</c> and <c>OnAfterHandle*</c>.
+    /// post-processors still run. pre-processors already short-circuit without this setting.
+    /// </summary>
+    public void DontExecuteHandlerIfResponseStarted()
+    {
+        ThrowIfLocked();
+        SkipHandlerIfResponseStarted = true;
     }
 
     /// <summary>

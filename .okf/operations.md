@@ -18,7 +18,7 @@ tags: [ops]
 | `.github/workflows/publish-to-nuget.yml` | push tag `v*` | test → pack → nuget push → optional GH release |
 | `azure-pipeline.yml` | tags `v*` (branches excluded) | UseDotNet 10.x; adjust xunit runner; `dotnet test` under `Tests/` |
 
-GitHub workflow installs SDKs 8/9/10, runs filtered tests on `FastEndpoints.slnx`, packs solution, pushes `Src/**/*.nupkg` using `NUGET_API_KEY` secret.
+GitHub workflow installs SDKs 8/9/10, runs filtered tests on `FastEndpoints.slnx`, packs solution, obtains a short-lived API key via `NuGet/login` (GitHub OIDC / trusted publishing; nuget.org user `dj-nitehawk` in workflow YAML), pushes `Src/**/*.nupkg`. Requires nuget.org trusted publishing policy for workflow `publish-to-nuget.yml`.
 
 ## Services and ports
 - No production services. Local harnesses are Kestrel web apps (`TestHarness/Web`, etc.); default ASP.NET ports when run.
@@ -30,7 +30,7 @@ GitHub workflow installs SDKs 8/9/10, runs filtered tests on `FastEndpoints.slnx
 ## Config and observability
 - Package metadata: ProjectUrl `https://fast-endpoints.com/`, MIT license, SourceLink.
 - Changelog for releases: `Src/Library/changelog.md`.
-- Secrets: only CI NuGet API key name documented; never commit values.
+- Secrets: NuGet publish is secretless (OIDC trusted publishing). nuget.org username is in workflow YAML, not a secret. Never commit API keys or other secret values.
 - Harness configuration files: `TestHarness/Web/appsettings*.json` (keys only; treat as samples).
 
 ## Caveats

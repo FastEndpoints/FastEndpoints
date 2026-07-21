@@ -22,7 +22,7 @@ tags: [security]
 - Do not strip signing for “convenience” commits; breaks friend test assemblies and package expectations.
 
 ## Secrets handling
-- CI: `NUGET_API_KEY` / `NUGET_AUTH_TOKEN` for publish only.
+- CI publish: NuGet trusted publishing (GitHub OIDC → short-lived API key via `NuGet/login`). nuget.org username `dj-nitehawk` is set in the workflow; no API key secret.
 - Sample JWT keys in harness configuration are for tests; never treat as production secrets.
 - OKF and commits: names of config keys only, never values.
 

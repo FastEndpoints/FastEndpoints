@@ -35,7 +35,7 @@ tags: [layout]
 | `FastEndpoints.slnx` | Primary solution |
 | `NativeAot.slnx` | AOT-focused solution |
 | `azure-pipeline.yml` | Azure DevOps test pipeline (tag-triggered pack path differs) |
-| `.github/workflows/publish-to-nuget.yml` | Tag `v*` test → pack → push NuGet → GH release |
+| `.github/workflows/publish-to-nuget.yml` | Tag `v*` test → pack → OIDC NuGet login → push → GH release |
 | `../FE-Docs/` (sibling) | Public docs site source; content under `src/content/docs/`; not in this solution |
 
 ## Modules (Library internals)

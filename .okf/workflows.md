@@ -47,8 +47,14 @@ dotnet nuget push "Src/**/*.nupkg" -k <NUGET_API_KEY> -s https://api.nuget.org/v
 GitHub Actions (`.github/workflows/publish-to-nuget.yml`): on tag `v*`:
 1. setup SDKs 8/9/10
 2. `dotnet test FastEndpoints.slnx -c Release --filter ExcludeInCiCd!=Yes`
-3. pack + push with `secrets.NUGET_API_KEY`
-4. non-beta tags: GH release body from `Src/Library/changelog.md`
+3. pack
+4. `NuGet/login@v1` exchanges GitHub OIDC for a short-lived nuget.org API key (`user: dj-nitehawk` hardcoded in workflow)
+5. push with that temp key (trusted publishing; no long-lived API key secret)
+6. non-beta tags: GH release body from `Src/Library/changelog.md`
+
+Job permissions: `id-token: write` (OIDC), `contents: write` (GH release).
+
+Trusted publishing policy on nuget.org must match: owner `FastEndpoints`, repo `FastEndpoints`, workflow file `publish-to-nuget.yml` (filename only).
 
 Azure `azure-pipeline.yml`: tag `v*` trigger; runs tests under `Tests/` with same filter (pack steps not in the snippet beyond test; verify file when changing release process).
 
@@ -86,8 +92,9 @@ Docs are not built/tested by `FastEndpoints.slnx` or NuGet publish workflows.
 ## Env vars / secrets (names only)
 | Name | Use |
 | --- | --- |
-| `NUGET_AUTH_TOKEN` / `NUGET_API_KEY` | NuGet push (CI secret) |
 | App config keys e.g. `TokenKey` | Harness JWT signing (configuration, not committed secrets) |
+
+NuGet publish uses trusted publishing (OIDC); no NuGet API key or username secret. Username `dj-nitehawk` is set in the workflow.
 
 ## Sources
 - `.github/workflows/publish-to-nuget.yml`

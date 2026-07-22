@@ -28,7 +28,7 @@ public sealed class McpToolInfo
     public string? Title { get; set; }
 
     /// <summary>
-    /// hints that describe the behavior of this tool — used by MCP clients to reason about
+    /// hints that describe the behavior of this tool, used by MCP clients to reason about
     /// side effects before invoking it. all fields are advisory; the server itself enforces nothing.
     /// </summary>
     public McpToolBehaviorHints Hints { get; set; } = new();

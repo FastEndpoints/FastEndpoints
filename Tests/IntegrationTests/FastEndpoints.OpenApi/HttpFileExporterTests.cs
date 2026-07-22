@@ -466,7 +466,7 @@ public class HttpFileExporterTests
     [Fact]
     public void components_fallback_expands_ref_when_host_document_unset()
     {
-        // OpenApiSchemaReference without HostDocument — ResolveSchema alone fails; exporter components fallback must still expand.
+        // OpenApiSchemaReference without HostDocument: ResolveSchema alone fails; exporter components fallback must still expand.
         var document = new OpenApiDocument
         {
             Paths = new()

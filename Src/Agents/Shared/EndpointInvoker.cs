@@ -7,7 +7,7 @@ namespace FastEndpoints.Agents;
 
 /// <summary>
 /// invokes a single <see cref="EndpointDefinition" /> in-process, bypassing HTTP routing. the full
-/// FastEndpoints pipeline — binder, validator, pre-/post-processors, <c>ExecuteAsync</c>/<c>HandleAsync</c> —
+/// FastEndpoints pipeline (binder, validator, pre-/post-processors, <c>ExecuteAsync</c>/<c>HandleAsync</c>)
 /// runs exactly as it would for a real request. this is the engine shared by <c>FastEndpoints.Mcp</c>
 /// and <c>FastEndpoints.A2A</c>.
 /// </summary>

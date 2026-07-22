@@ -21,7 +21,7 @@ static class JsonSchemaBuilder
     /// </summary>
     /// <param name="type">the CLR type to describe.</param>
     /// <param name="options">the serializer options whose <see cref="JsonSerializerOptions.TypeInfoResolver" /> is used.</param>
-    /// <returns>a fresh clone of the cached schema node — callers may mutate it freely.</returns>
+    /// <returns>a fresh clone of the cached schema node. callers may mutate it freely.</returns>
     public static JsonNode Build(Type type, JsonSerializerOptions options)
     {
         var cached = _cache.GetOrAdd(

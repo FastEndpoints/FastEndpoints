@@ -57,7 +57,7 @@ public static class JobQueueExtensions
     /// <c>AddJobQueues&lt;TStorageRecord, TStorageProvider&gt;(Lib1.DiscoveredTypes.All, Lib2.DiscoveredTypes.All)</c>
     /// <para>
     /// TIP: You don't need to pass discovered types here if you already called
-    /// <c>.AddFastEndpoints(Lib1.DiscoveredTypes.All, ...)</c> — use <c>.AddJobQueues&lt;TStorageRecord, TStorageProvider&gt;()</c> instead.
+    /// <c>.AddFastEndpoints(Lib1.DiscoveredTypes.All, ...)</c>. use <c>.AddJobQueues&lt;TStorageRecord, TStorageProvider&gt;()</c> instead.
     /// </para>
     /// </summary>
     /// <typeparam name="TStorageRecord">the implementation type of the job storage record</typeparam>

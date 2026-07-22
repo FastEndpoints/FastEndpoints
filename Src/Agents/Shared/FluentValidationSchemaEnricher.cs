@@ -21,7 +21,7 @@ static class FluentValidationSchemaEnricher
     /// <summary>
     /// mutates <paramref name="schema" /> in place by applying every rule in <paramref name="validator" />
     /// that can be expressed in JSON Schema. rules that cannot be expressed (e.g. <c>Must</c> predicates,
-    /// cross-property rules) are silently ignored — they still run at request time via the normal
+    /// cross-property rules) are silently ignored. they still run at request time via the normal
     /// endpoint validation pipeline.
     /// </summary>
     public static void Enrich(JsonNode schema, IValidator validator)

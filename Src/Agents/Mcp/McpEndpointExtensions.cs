@@ -6,12 +6,12 @@ namespace FastEndpoints.Mcp;
 /// opt-in extension methods for exposing FastEndpoints endpoints as MCP tools. add
 /// <c>using FastEndpoints.Mcp;</c> to your endpoint file and call <c>this.McpTool(...)</c>
 /// inside <c>Configure()</c>. the <c>this.</c> prefix is required by the C# language for an
-/// extension method call on the enclosing instance — it is not a style preference, bare
+/// extension method call on the enclosing instance. it is not a style preference; bare
 /// <c>McpTool(...)</c> will not resolve. the alternative, <c>Definition.McpTool(...)</c>, is
 /// useful when composing configuration from helpers that only see the endpoint definition.
 /// <para>
 /// the addon stores a single <see cref="McpToolInfo" /> instance on the endpoint's public
-/// <see cref="EndpointDefinition.EndpointMetadata" /> bag — no modification to the core library
+/// <see cref="EndpointDefinition.EndpointMetadata" /> bag. no modification to the core library
 /// is needed. repeat calls mutate the same instance.
 /// </para>
 /// </summary>
@@ -20,7 +20,7 @@ public static class McpEndpointExtensions
     /// <summary>
     /// opt this endpoint in to being exposed as a Model Context Protocol (MCP) tool via the
     /// <c>FastEndpoints.Mcp</c> addon. without an opt-in call the endpoint is invisible to MCP
-    /// clients — the safe default.
+    /// clients (the safe default).
     /// </summary>
     /// <param name="ep">the endpoint (this parameter). call as <c>this.McpTool(...)</c> inside <c>Configure()</c>.</param>
     /// <param name="name">tool name seen by MCP clients. <c>null</c> uses the endpoint type name converted to <c>snake_case</c>.</param>
@@ -33,8 +33,8 @@ public static class McpEndpointExtensions
     {
         /// <summary>
         /// opt this endpoint in to being exposed as a Model Context Protocol (MCP) tool. identical to the
-        /// <see cref="BaseEndpoint" /> overload but targets the <see cref="EndpointDefinition" /> directly
-        /// — useful when composing configuration from helpers that only see the definition.
+        /// <see cref="BaseEndpoint" /> overload but targets the <see cref="EndpointDefinition" /> directly.
+        /// useful when composing configuration from helpers that only see the definition.
         /// </summary>
         public void McpTool(string? name = null,
                             string? description = null,

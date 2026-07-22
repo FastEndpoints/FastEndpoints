@@ -143,7 +143,7 @@ public class OpenApiExporterTests
             var bld = WebApplication.CreateBuilder(new WebApplicationOptions { ContentRootPath = contentRoot });
             bld.Configuration.AddInMemoryCollection(config);
 
-            // isolated fake provider — avoid harness endpoint discovery / global Config pollution
+            // isolated fake provider: avoid harness endpoint discovery / global Config pollution
             var document = new OpenApiDocument
             {
                 Info = new OpenApiInfo { Title = "export-test", Version = "1.0.0" },

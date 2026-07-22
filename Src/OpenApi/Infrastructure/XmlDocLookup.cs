@@ -147,7 +147,7 @@ static class XmlDocLookup
         }
         catch
         {
-            // malformed XML or IO failure — fall back to an empty index rather than crashing the transform
+            // malformed XML or IO failure: fall back to an empty index rather than crashing the transform
             return _emptyMembers;
         }
 

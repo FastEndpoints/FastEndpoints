@@ -67,7 +67,7 @@ public class ServiceBoundEpPropsTests
     public void generated_path_populates_keyed_service_endpoint_from_test_harness()
     {
         // Verify that AddFromWeb (the source-generated extension from TestHarness\Web) registers
-        // the KeyedService endpoint and carries the correct service key — proving Fix #1:
+        // the KeyedService endpoint and carries the correct service key, proving Fix #1:
         // the generator now processes endpoint property injection even when the request DTO is
         // absent (EndpointWithoutRequest / EmptyRequest, which is blacklisted).
         var cache = new ReflectionCache();

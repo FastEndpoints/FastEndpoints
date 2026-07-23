@@ -769,7 +769,7 @@ public static class HttpClientExtensions
             var requestProps = requestType.BindableProps();
             var endpointProps = endpointRequestType.BindableProps();
 
-            if (requestProps.Count != endpointProps.Count ||
+            if (requestProps.Length != endpointProps.Length ||
                 !TryBuildDtoPropertyMap(requestProps, out var requestPropMap) ||
                 !TryBuildDtoPropertyMap(endpointProps, out var endpointPropMap))
                 return false;

@@ -27,6 +27,14 @@ public sealed class TypeDefinition
     public ConcurrentDictionary<PropertyInfo, PropertyDefinition>? Properties { get; set; }
 
     /// <summary>
+    /// materialized snapshot of <see cref="Properties"/>' keys, cached so the bindable-props hot path (complex binders +
+    /// data-annotation validation recursion) doesn't allocate a fresh <c>List&lt;PropertyInfo&gt;</c> from
+    /// <see cref="ConcurrentDictionary{TKey,TValue}.Keys"/> on every call. assumes no post-startup key additions to
+    /// <see cref="Properties"/> (which the public api does not do).
+    /// </summary>
+    internal PropertyInfo[]? BindableProps { get; set; }
+
+    /// <summary>
     /// a func used for converting string values to the respective type by calling it's <c>TryParse()</c> method.
     /// </summary>
     public Func<StringValues, ParseResult>? ValueParser { get; set; }

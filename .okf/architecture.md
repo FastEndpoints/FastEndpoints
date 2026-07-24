@@ -51,6 +51,7 @@ Attributes / Messaging.Core
 - **Security/OpenApi/OData/AspVersioning** reference Library (addons on top of core HTTP).
 - **Generator** references Attributes only (analyzer package); consumers reference Generator as analyzer.
 - **Agents** (`Mcp`, `A2A`) reference Library; share internal types via linked `Src/Agents/Shared/*.cs` (not a separate NuGet).
+- **Agents friend internals:** Library exposes selected internals to `FastEndpoints.Mcp` / `FastEndpoints.A2A` via `InternalsVisibleTo` (`Src/Library/Metadata.cs`). Those members are an effective binary contract across independently versioned packages; see stock in [gotchas.md](gotchas.md).
 - **Forbidden for agents:** invent reverse deps (e.g. Core → Library) or ship Agents.Shared as a public package unless code changes deliberately.
 
 ## Communication
@@ -83,10 +84,12 @@ Attributes / Messaging.Core
 5. Strong-name signing via `FastEndpoints.snk` (public key in Directory.Build.props / InternalsVisibleTo).
 6. Central package versions: root `Directory.Packages.props` (`ManagePackageVersionsCentrally`).
 7. Agents addons version **independently** of core (`Src/Agents/Directory.Build.props` imports parent then overrides).
+8. Do not rename, retype, or remove Library internals listed in the Agents friend-assembly stock ([gotchas.md](gotchas.md)) without checking published agent package compatibility and restocking OKF.
 
 ## Sources
 - `Src/Library/Main/MainExtensions.cs`
 - `Src/Library/Endpoint/Endpoint.cs`
 - `Src/Library/FastEndpoints.csproj`
+- `Src/Library/Metadata.cs`
 - `Src/Generator/DiscoveredTypesGenerator.cs`
 - `Src/Agents/Directory.Build.props`

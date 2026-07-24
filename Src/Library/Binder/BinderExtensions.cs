@@ -186,10 +186,11 @@ static class BinderExtensions
             }
         }
 
-        internal ICollection<PropertyInfo> BindableProps()
+        internal PropertyInfo[] BindableProps()
         {
-            return (Cfg.BndOpts.ReflectionCache.GetOrAdd(type, static _ => new())
-                       .Properties ??= new(GetProperties(type))).Keys;
+            var typeDef = Cfg.BndOpts.ReflectionCache.GetOrAdd(type, static _ => new());
+
+            return typeDef.BindableProps ??= (typeDef.Properties ??= new(GetProperties(type))).Keys.ToArray();
 
             static IEnumerable<KeyValuePair<PropertyInfo, PropertyDefinition>> GetProperties(Type t)
             {

@@ -19,6 +19,7 @@ tags: [maintain]
 Sync OKF when changes hit:
 - architecture / package boundaries / dependency directions
 - public APIs, endpoint pipeline contracts, messaging/job contracts
+- **Agents friend-assembly surface:** Library `internal` members consumed by `FastEndpoints.Mcp` / `FastEndpoints.A2A` via `InternalsVisibleTo` (stock in [gotchas.md](gotchas.md); summary in [monorepo-packages.md](monorepo-packages.md)). Restock when agents gain/drop internal core calls, or when those core members change signature/shape.
 - persistence SPIs (e.g. job storage interfaces)
 - deps / TFMs / central package management
 - build, test, pack, publish, codegen commands

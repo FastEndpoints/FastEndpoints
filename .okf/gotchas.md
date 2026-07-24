@@ -14,6 +14,24 @@ tags: [gotcha]
 - **Central versions pinned:** do not casually bump `Microsoft.CodeAnalysis.CSharp` (net8) or `Microsoft.OpenApi.Kiota.Builder` (OpenAPI 2 vs 3 clash); comments in `Directory.Packages.props`.
 - **Agents independent versioning:** `Src/Agents/Directory.Build.props` must `Import` parent props (MSBuild stops at first Directory.Build.props). Shared agent code is **linked compile**, not a NuGet.
 - **Agents not in main slnx:** A2A/Mcp projects may be commented out of `FastEndpoints.slnx`; still real packages; check solution before assuming build inclusion.
+- **Agents friend-assembly binary contract:** `Src/Library/Metadata.cs` grants `InternalsVisibleTo` to `FastEndpoints.Mcp` and `FastEndpoints.A2A`. Those packages are versioned independently of core, so recompiling add-ons against HEAD in this monorepo does **not** prove shipped NuGet binaries stay loadable. Changing an **internal** core member's name, arity, parameter types, or return type is a potential `MissingMethodException` / type-load break for already-published add-ons. Treat the stock below as a hard notice surface: if you touch any of these in `FastEndpoints` (Library), stop and check agent packages (rebuild + consider coordinated Agents release / version bump / dual overload when needed).
+  - **Reflection / binding helpers** (`Src/Library/Binder/BinderExtensions.cs`, `Src/Library/Extensions/ReflectionExtensions.cs`):
+    - `Type.BindableProps()` (return type is part of the CLR signature; e.g. `ICollection<PropertyInfo>` vs `PropertyInfo[]`)
+    - `PropertyInfo.FieldName()`
+    - `Type.IsComplexType()`
+    - `Type.IsCollection()`
+  - **Endpoint bootstrap / discovery** (`Src/Library/Main/EndpointBootstrap.cs`, `Src/Library/Main/EndpointData.cs`):
+    - `EndpointBootstrap.CreateEndpoint(HttpContext, EndpointDefinition)`
+    - `EndpointData.Found`
+  - **EndpointDefinition internal fields** (`Src/Library/Endpoint/Auxiliary/EndpointDefinition.cs`):
+    - `SerializerContext`
+    - `Disposable`
+    - `DisposableAsync`
+  - **Config / type tokens** (`Src/Library/Config/Config.cs`, `Src/Library/Types.cs`):
+    - `Config.SerOpts` (also via `using static FastEndpoints.Config` → `SerOpts.Options`)
+    - `Types` class + fields used by agents: `EmptyRequest`, `FromBodyAttribute`, `ToHeaderAttribute`, `String`
+  - **Primary agent call sites** (verify when restocking): `Src/Agents/Shared/AgentRequestBuilder.cs`, `AgentJsonPropertyNames.cs`, `AgentHttpContextFactory.cs`, `EndpointInvoker.cs`, `AgentEndpointCatalog.cs`; `Src/Agents/Mcp/McpToolSchemaFactory.cs`, `EndpointMcpToolSource.cs`; `Src/Agents/A2A/A2AJsonRpcEndpoint.cs`, `A2ASkillDispatcher.cs`, `Extensions.cs`.
+  - **Restock rule:** when agents gain or drop an internal core call, update this bullet (and [monorepo-packages.md](monorepo-packages.md) agents section) in the same change.
 - **Legacy vs modern OpenAPI:** harness prefers `FastEndpoints.OpenApi` + Scalar; NSwag Swagger/ClientGen live under Legacy and may have tests commented out.
 - **OpenAPI form files:** `FastEndpoints.OpenApi` normalizes `IFormFile` and form-file collections to inline binary string schemas and removes generated `IFormFile*` components; preserve rewrite-before-removal ordering to avoid dangling refs.
 - **OpenAPI schema `$ref` walking (Microsoft.OpenApi 2.x):** `OpenApiSchemaReference` often has null `Properties`/`Type` until resolved. Always `ResolveSchema()` before reading properties/composition; pass document `Components.Schemas` when `HostDocument` may be unset (e.g. `.http` export `SchemaPlaceholderBuilder`). Path-scoped cycle sets must key on the **resolved** schema so dual sibling refs to the same component both expand.
@@ -22,7 +40,7 @@ tags: [gotcha]
 - **CI filter:** tests with `Trait("ExcludeInCiCd","Yes")` never run in publish/Azure pipelines; don't rely on them as merge gates.
 - **WAF cache:** one cached factory per `AppFixture` type; misuse of static state across tests can leak. Use fixture `ConfigureServices` for doubles.
 - **Mappers are singletons:** no request state in mapper classes.
-- **Signing / InternalsVisibleTo:** must use full public key from props; unsigned local hacks break friend assemblies.
+- **Signing / InternalsVisibleTo:** must use full public key from props; unsigned local hacks break friend assemblies. Agent packages rely on signed friend access (see **Agents friend-assembly binary contract** above).
 - **User DotSettings:** `*.sln.DotSettings.user` is personal; don't treat as repo policy.
 - **Do not commit secrets:** NuGet keys, JWT signing material for real envs.
 - **Generated harness folders:** e.g. NativeAotChecker `Generated/`, `wwwroot/openapi/`, `aot/` are gitignored or build outputs; regenerate, don't hand-maintain.
@@ -37,8 +55,11 @@ tags: [gotcha]
 - **Handler short-circuit is opt-in:** pre-processors always skip the handler when `ResponseStarted` is true. `OnBeforeHandle*` does not, unless `DontExecuteHandlerIfResponseStarted()` is set (property `SkipHandlerIfResponseStarted`). Early return also skips `OnAfterHandle*`; post-processors still run.
 
 ## Sources
-- `Src/Library/Main/MainExtensions.cs`
-- `Directory.Packages.props`
+- `Src/Library/Metadata.cs`
+- `Src/Library/Binder/BinderExtensions.cs`
+- `Src/Library/Extensions/ReflectionExtensions.cs`
+- `Src/Library/Main/EndpointBootstrap.cs`
+- `Src/Agents/Shared/` · `Src/Agents/Mcp/` · `Src/Agents/A2A/`
 - `Src/Agents/Directory.Build.props`
-- `Src/Generator/FastEndpoints.Generator.targets`
+- `Directory.Packages.props`
 - `FastEndpoints.slnx`

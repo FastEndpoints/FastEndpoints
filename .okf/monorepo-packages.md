@@ -50,6 +50,11 @@ One root `.okf/` covers the whole repo. Packages are NuGet libraries, not separa
 - **Core line:** `Src/Directory.Build.props` `<Version>` (all standard Src packages unless overridden).
 - **Agents line:** per-csproj `<Version>` under `Src/Agents/` (props file documents independence).
 
+## Agents ↔ core friend surface
+`FastEndpoints.Mcp` / `FastEndpoints.A2A` reference Library with project refs in-repo, but are independently versioned NuGets. Core grants them friend access via `InternalsVisibleTo` in `Src/Library/Metadata.cs`. Shared agent plumbing is linked compile from `Src/Agents/Shared/*.cs` into each addon assembly (not a third NuGet).
+
+**When editing Library internals**, consult the **Agents friend-assembly binary contract** stock in [gotchas.md](gotchas.md). Signature changes to those internals can break already-published agent packages even when monorepo rebuilds succeed. Restock that list when agent packages add/remove internal core calls.
+
 ## Test / harness projects (non-pack or IsPackable false)
 - `Tests/**`, `TestHarness/**`, `Benchmark/**`: development only.
 
@@ -57,4 +62,5 @@ One root `.okf/` covers the whole repo. Packages are NuGet libraries, not separa
 - `FastEndpoints.slnx`
 - `Src/Directory.Build.props`
 - `Src/Agents/Directory.Build.props`
+- `Src/Library/Metadata.cs`
 - `Src/**/*.csproj`

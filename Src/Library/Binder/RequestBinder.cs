@@ -346,7 +346,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
                 BindFiles(form);
             }
             else
-                ComplexFormBinder.Bind(_fromFormProp, req, form, ctx.ValidationFailures);
+                ComplexSourceBinder.Bind(_fromFormProp, req, form, ctx.ValidationFailures);
         }
 
         void BindFormFields(IFormCollection form)
@@ -424,7 +424,7 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         }
 
         if (_fromQueryProp is not null)
-            ComplexQueryBinder.Bind(_fromQueryProp, req, ctx.HttpContext.Request.Query, ctx.ValidationFailures);
+            ComplexSourceBinder.Bind(_fromQueryProp, req, ctx.HttpContext.Request.Query, ctx.ValidationFailures);
     }
 
     static void Bind(TRequest req, KeyValuePair<string, StringValues> kvp, List<ValidationFailure> failures, Source source)

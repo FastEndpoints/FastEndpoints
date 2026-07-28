@@ -6,44 +6,54 @@ using Microsoft.AspNetCore.Http;
 
 namespace FastEndpoints;
 
-static class ComplexFormBinder
+static class ComplexSourceBinder
 {
-    internal static void Bind(PropCache fromFormProp, object requestDto, IFormCollection forms, List<ValidationFailure> failures)
+    internal static void Bind(PropCache propCache, object requestDto, IFormCollection form, List<ValidationFailure> failures)
+        => Bind(propCache, requestDto, new FormValueSource(form), failures);
+
+    internal static void Bind(PropCache propCache, object requestDto, IQueryCollection query, List<ValidationFailure> failures)
+        => Bind(propCache, requestDto, new QueryValueSource(query), failures);
+
+    static void Bind<TSource>(PropCache propCache, object requestDto, TSource source, List<ValidationFailure> failures)
+        where TSource : IPrefixedValueSource
     {
-        var propValue = fromFormProp.PropType.ObjectFactory()();
-        BindPropertiesRecursively(propValue, string.Empty, forms, failures);
-        fromFormProp.PropSetter(requestDto, propValue);
+        var propValue = propCache.PropType.ObjectFactory()();
+        BindPropertiesRecursively(propValue, string.Empty, source, failures);
+        propCache.PropSetter(requestDto, propValue);
     }
 
-    static bool BindPropertiesRecursively(object parent, string prefix, IFormCollection form, List<ValidationFailure> failures)
+    static bool BindPropertiesRecursively<TSource>(object parent, string prefix, TSource source, List<ValidationFailure> failures)
+        where TSource : IPrefixedValueSource
     {
-        var tObject = parent.GetType();
-        var properties = tObject.BindableProps();
+        var tParent = parent.GetType();
+        var properties = tParent.BindableProps();
         var bound = false;
 
         foreach (var prop in properties)
         {
             var tProp = prop.PropertyType.GetUnderlyingType();
             var fieldName = prop.FieldName();
-            var key = string.IsNullOrEmpty(prefix) ? fieldName : $"{prefix}.{fieldName}";
+            var key = string.IsNullOrEmpty(prefix)
+                          ? fieldName
+                          : $"{prefix}.{fieldName}";
 
-            if (tProp.IsFormFileProp())
-                bound = BindFormFileProp(parent, tObject, prop, key, form) || bound;
-            else if (tProp.IsFormFileCollectionProp())
-                bound = BindFormFileCollectionProp(parent, tObject, prop, key, form) || bound;
+            if (source.SupportsFiles && tProp.IsFormFileProp())
+                bound = BindFormFileProp(parent, tParent, prop, key, source) || bound;
+            else if (source.SupportsFiles && tProp.IsFormFileCollectionProp())
+                bound = BindFormFileCollectionProp(parent, tParent, prop, key, source) || bound;
             else if (tProp.IsComplexType() && !tProp.IsCollection())
-                bound = BindComplexType(parent, tObject, prop, tProp, key, form, failures) || bound;
+                bound = BindComplexType(parent, tParent, prop, tProp, key, source, failures) || bound;
             else if (tProp.IsCollection())
-                bound = BindCollectionType(parent, tObject, prop, tProp, key, form, failures) || bound;
+                bound = BindCollectionType(parent, tParent, prop, tProp, key, source, failures) || bound;
             else
-                bound = BindSimpleType(parent, tObject, prop, tProp, key, form, failures) || bound;
+                bound = BindSimpleType(parent, tParent, prop, tProp, key, source, failures) || bound;
         }
 
         return bound;
 
-        static bool BindFormFileProp(object parent, Type tParent, PropertyInfo prop, string key, IFormCollection form)
+        static bool BindFormFileProp(object parent, Type tParent, PropertyInfo prop, string key, TSource source)
         {
-            if (form.Files.GetFile(key) is not { } file)
+            if (source.GetFile(key) is not { } file)
                 return false;
 
             tParent.SetterForProp(prop)(parent, file);
@@ -51,12 +61,12 @@ static class ComplexFormBinder
             return true;
         }
 
-        static bool BindFormFileCollectionProp(object parent, Type tParent, PropertyInfo prop, string key, IFormCollection form)
+        static bool BindFormFileCollectionProp(object parent, Type tParent, PropertyInfo prop, string key, TSource source)
         {
             if (!prop.PropertyType.IsAssignableFrom(Types.FormFileCollection))
             {
                 throw new NotSupportedException(
-                    $"'{prop.PropertyType.Name}' type properties are not supported for complex form binding! " +
+                    $"'{prop.PropertyType.Name}' type properties are not supported for complex {source.SourceName} binding! " +
                     $"Offender: [{tParent.FullName}.{key}]");
             }
 
@@ -69,7 +79,7 @@ static class ComplexFormBinder
                                      ? key
                                      : $"{key}[{index}]";
 
-                var files = form.Files.GetFiles(indexedKey);
+                var files = source.GetFiles(indexedKey);
 
                 if (files.Count == 0 && index > -1)
                     break;
@@ -86,13 +96,19 @@ static class ComplexFormBinder
             return true;
         }
 
-        static bool BindComplexType(object parent, Type tParent, PropertyInfo prop, Type tProp, string key, IFormCollection form, List<ValidationFailure> failures)
+        static bool BindComplexType(object parent,
+                                    Type tParent,
+                                    PropertyInfo prop,
+                                    Type tProp,
+                                    string key,
+                                    TSource source,
+                                    List<ValidationFailure> failures)
         {
-            if (!HasFormDataForPrefix(key, form))
+            if (!source.HasDataForPrefix(key))
                 return false;
 
             var propVal = tProp.ObjectFactory()();
-            var bound = BindPropertiesRecursively(propVal, key, form, failures);
+            var bound = BindPropertiesRecursively(propVal, key, source, failures);
             tParent.SetterForProp(prop)(parent, propVal);
 
             return bound;
@@ -104,10 +120,12 @@ static class ComplexFormBinder
                                        PropertyInfo prop,
                                        Type tProp,
                                        string key,
-                                       IFormCollection form,
+                                       TSource source,
                                        List<ValidationFailure> failures)
         {
-            var tElement = tProp.IsGenericType ? tProp.GetGenericArguments()[0] : tProp.GetElementType();
+            var tElement = tProp.IsGenericType
+                               ? tProp.GetGenericArguments()[0]
+                               : tProp.GetElementType();
 
             if (tElement is null)
                 return false;
@@ -118,19 +136,19 @@ static class ComplexFormBinder
             if (!tProp.IsAssignableFrom(tList))
             {
                 throw new NotSupportedException(
-                    $"'{tProp.Name}' type properties are not supported for complex form binding! Offender: " +
+                    $"'{tProp.Name}' type properties are not supported for complex {source.SourceName} binding! Offender: " +
                     $"[{tParent.FullName}.{key.Replace("[0]", "")}]");
             }
 
             var bound = tElement.IsComplexType()
-                            ? BindComplexCollection(list, tElement, key, form, failures)
-                            : BindSimpleCollection(list, tElement, key, form, failures);
+                            ? BindComplexCollection(list, tElement, key, source, failures)
+                            : BindSimpleCollection(list, tElement, key, source, failures);
 
             tParent.SetterForProp(prop)(parent, list);
 
             return bound;
 
-            static bool BindComplexCollection(IList list, Type tElement, string key, IFormCollection form, List<ValidationFailure> failures)
+            static bool BindComplexCollection(IList list, Type tElement, string key, TSource source, List<ValidationFailure> failures)
             {
                 var index = 0;
                 var bound = false;
@@ -140,7 +158,7 @@ static class ComplexFormBinder
                     var indexedKey = $"{key}[{index}]";
                     var item = tElement.ObjectFactory()();
 
-                    if (BindPropertiesRecursively(item, indexedKey, form, failures))
+                    if (BindPropertiesRecursively(item, indexedKey, source, failures))
                     {
                         list.Add(item);
                         index++;
@@ -153,7 +171,7 @@ static class ComplexFormBinder
                 return bound;
             }
 
-            static bool BindSimpleCollection(IList list, Type tElement, string key, IFormCollection form, List<ValidationFailure> failures)
+            static bool BindSimpleCollection(IList list, Type tElement, string key, TSource source, List<ValidationFailure> failures)
             {
                 var bound = false;
                 var index = -1;
@@ -164,7 +182,7 @@ static class ComplexFormBinder
                                          ? key
                                          : $"{key}[{index}]";
 
-                    if (!form.TryGetValue(indexedKey, out var val) && index > -1)
+                    if (!source.TryGetValues(indexedKey, out var val) && index > -1)
                         break;
 
                     foreach (var v in val)
@@ -189,9 +207,15 @@ static class ComplexFormBinder
             }
         }
 
-        static bool BindSimpleType(object parent, Type tParent, PropertyInfo prop, Type tProp, string key, IFormCollection form, List<ValidationFailure> failures)
+        static bool BindSimpleType(object parent,
+                                   Type tParent,
+                                   PropertyInfo prop,
+                                   Type tProp,
+                                   string key,
+                                   TSource source,
+                                   List<ValidationFailure> failures)
         {
-            if (!form.TryGetValue(key, out var val))
+            if (!source.TryGetValues(key, out var val))
                 return false;
 
             var res = tProp.ValueParser()(val);
@@ -206,18 +230,6 @@ static class ComplexFormBinder
             tParent.SetterForProp(prop)(parent, res.Value);
 
             return true;
-        }
-
-        static bool HasFormDataForPrefix(string key, IFormCollection form)
-        {
-            var dottedPrefix = $"{key}.";
-            var indexedPrefix = $"{key}[";
-
-            return form.Keys.Any(MatchesPrefix) || form.Files.Any(f => MatchesPrefix(f.Name));
-
-            bool MatchesPrefix(string candidate)
-                => candidate.StartsWith(dottedPrefix, StringComparison.OrdinalIgnoreCase) ||
-                   candidate.StartsWith(indexedPrefix, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

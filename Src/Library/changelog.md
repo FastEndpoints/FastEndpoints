@@ -144,7 +144,7 @@ dotnet run --export-http-files true
 
 <details><summary>Skip executing endpoint handler if response already started</summary>
 
-Endpoints can opt in to skip **HandleAsync**/**ExecuteAsync** (and **OnAfterHandle**) when a response has already been started, for example from **OnBeforeHandle\***. Post-processors still run. Pre-processors already short-circuit without this setting.
+Endpoints can opt in to skip **HandleAsync**/ **ExecuteAsync** (and **OnAfterHandle**) when a response has already been started, for example from **OnBeforeHandle\***. Post-processors still run. Pre-processors already short-circuit without this setting.
 
 ```csharp
 public override void Configure()
@@ -273,6 +273,12 @@ app.MapRemote("http://localhost:6000", c =>
 ```
 
 Subscription-specific ids still take precedence, so `SubscribeWithExplicitId(...)` can override the connection-level default when needed.
+
+</details>
+
+<details><summary>Unified complex form and query binding</summary>
+
+Complex `[FromForm]` and `[FromQuery]` object binding now share a single recursive binder (`ComplexSourceBinder`) with small source adapters for form fields/files and query params. Behavior is unchanged for nested objects, collections, form files, and validation failures. The old split implementations are removed so edge-case fixes land in one place.
 
 </details>
 

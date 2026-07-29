@@ -20,9 +20,10 @@ tags: [gotcha]
     - `PropertyInfo.FieldName()`
     - `Type.IsComplexType()`
     - `Type.IsCollection()`
-  - **Endpoint bootstrap / discovery** (`Src/Library/Main/EndpointBootstrap.cs`, `Src/Library/Main/EndpointData.cs`):
+  - **Endpoint bootstrap / discovery** (`Src/Library/Main/EndpointBootstrap.cs`, `Src/Library/Main/EndpointData.cs`, `Src/Library/Main/MainExtensions.cs`):
     - `EndpointBootstrap.CreateEndpoint(HttpContext, EndpointDefinition)`
     - `EndpointData.Found`
+    - `MainExtensions.BuildRoute(StringBuilder, int, string, string?)` (extension; OpenApi + Agents route finalization)
   - **EndpointDefinition internal fields** (`Src/Library/Endpoint/Auxiliary/EndpointDefinition.cs`):
     - `SerializerContext`
     - `Disposable`

@@ -45,6 +45,8 @@ Attributes / Messaging.Core
 
 **Request path (simplified):** `AddFastEndpoints` registers discovery data → `UseFastEndpoints`/`MapFastEndpoints` maps routes → `FeRequestHandler` resolves endpoint instance → bind → validate → pre-processors → (`ResponseStarted` short-circuit) → `OnBeforeHandle` → optional `SkipHandlerIfResponseStarted` short-circuit → `HandleAsync`/`ExecuteAsync` → post-processors → send response.
 
+**Startup/mapping split (`Src/Library/Main/`):** public facades stay on `MainExtensions` (`AddFastEndpoints` / `UseFastEndpoints` / `MapFastEndpoints`, plus internal `BuildRoute` for OpenApi/Agents friend usage). Mapping orchestration is `EndpointRouteMapper`; auth policy materialization is `EndpointSecurityPolicies`; accepts/produces API explorer defaults are `EndpointProducesMetadata`; binder/validator precompile is `EndpointWarmup`. Request execution remains `FeRequestHandler` → `EndpointBootstrap` → `Endpoint.ExecAsync`.
+
 ## Dependency rules
 - **Allowed:** higher packages reference lower foundation packages (`Attributes`, `Core`, `Messaging.Core`).
 - **Library** references Attributes, JobQueues, Messaging (not Security/OpenApi; those are optional consumer packages).
@@ -88,6 +90,10 @@ Attributes / Messaging.Core
 
 ## Sources
 - `Src/Library/Main/MainExtensions.cs`
+- `Src/Library/Main/EndpointRouteMapper.cs`
+- `Src/Library/Main/EndpointSecurityPolicies.cs`
+- `Src/Library/Main/EndpointProducesMetadata.cs`
+- `Src/Library/Main/EndpointWarmup.cs`
 - `Src/Library/Endpoint/Endpoint.cs`
 - `Src/Library/FastEndpoints.csproj`
 - `Src/Library/Metadata.cs`

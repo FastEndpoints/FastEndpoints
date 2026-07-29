@@ -42,7 +42,7 @@ tags: [layout]
 
 | Folder under `Src/Library/` | Concern |
 | --- | --- |
-| `Main/` | `AddFastEndpoints`, `UseFastEndpoints`, discovery, bootstrap |
+| `Main/` | Startup facades + collaborators: `MainExtensions` (public entry), `EndpointData`/`EndpointDiscoveryOptions`, `EndpointBootstrap`, `FeRequestHandler`, `EndpointRouteMapper`, `EndpointSecurityPolicies`, `EndpointProducesMetadata`, `EndpointWarmup`, `ResponseCacheExecutor` |
 | `Endpoint/` | Endpoint base, setup, send, validation, processors, mappers |
 | `Binder/` | Request binding |
 | `Config/` | Global `Config` options |

@@ -282,4 +282,10 @@ Complex `[FromForm]` and `[FromQuery]` object binding now share a single recursi
 
 </details>
 
+<details><summary>Cached metadata for complex form/query binding</summary>
+
+`ComplexSourceBinder` now lazily caches per-property binding metadata (field names, type kind flags, setters, value parsers, and `List<T>` factories) on the existing reflection cache. Nested form and query graphs no longer re-run attribute lookup, type classification, or `MakeGenericType` on every request. Behavior is unchanged; only the hot path is cheaper after first use.
+
+</details>
+
 [//]: # (## Breaking Changes ⚠️)

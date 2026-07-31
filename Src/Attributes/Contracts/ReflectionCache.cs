@@ -64,4 +64,55 @@ public sealed class PropertyDefinition
     /// the keyed-service key when this property is decorated with <see cref="KeyedServiceAttribute"/>, otherwise null.
     /// </summary>
     public string? ServiceKey { get; set; }
+
+    /// <summary>
+    /// field name used for request binding (from <c>BindFrom</c> or the configured naming policy).
+    /// populated lazily on first complex form/query bind; non-null means complex-bind metadata is initialized.
+    /// </summary>
+    internal string? FieldName { get; set; }
+
+    /// <summary>
+    /// underlying (nullable-stripped) property type for complex binding.
+    /// </summary>
+    internal Type? UnderlyingType { get; set; }
+
+    /// <summary>
+    /// whether the underlying property type is a complex (non-simple) type.
+    /// </summary>
+    internal bool IsComplex { get; set; }
+
+    /// <summary>
+    /// whether the underlying property type is a collection (excluding <see cref="string"/>).
+    /// </summary>
+    internal bool IsCollection { get; set; }
+
+    /// <summary>
+    /// whether the underlying property type is an <c>IFormFile</c>.
+    /// </summary>
+    internal bool IsFormFile { get; set; }
+
+    /// <summary>
+    /// whether the underlying property type is an <c>IEnumerable&lt;IFormFile&gt;</c>.
+    /// </summary>
+    internal bool IsFormFileCollection { get; set; }
+
+    /// <summary>
+    /// element type when <see cref="IsCollection"/> is true; otherwise null.
+    /// </summary>
+    internal Type? ElementType { get; set; }
+
+    /// <summary>
+    /// whether collection elements are complex types (only meaningful when <see cref="IsCollection"/>).
+    /// </summary>
+    internal bool ElementIsComplex { get; set; }
+
+    /// <summary>
+    /// factory that creates a <c>List&lt;TElement&gt;</c> for collection binding.
+    /// </summary>
+    internal Func<object>? ListFactory { get; set; }
+
+    /// <summary>
+    /// value parser for simple property types, or simple collection element types.
+    /// </summary>
+    internal Func<StringValues, ParseResult>? ValueParser { get; set; }
 }

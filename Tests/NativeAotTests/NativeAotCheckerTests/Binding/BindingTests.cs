@@ -1,4 +1,5 @@
 using System.Net;
+using Microsoft.AspNetCore.Http;
 using NativeAotChecker.Endpoints.Binding;
 
 namespace NativeAotCheckerTests;
@@ -115,6 +116,69 @@ public class BindingTests(App app) : TestBase<App>
         res.Authors[0].Name.ShouldBe("Author One");
         res.Authors[1].Id.ShouldBe(author2Id);
         res.Authors[1].Name.ShouldBe("Author Two");
+    }
+
+    [Fact]
+    public async Task Complex_Form_Binding_FromForm_Attribute()
+    {
+        var editorId = Guid.NewGuid();
+        var author1Id = Guid.NewGuid();
+        var author2Id = Guid.NewGuid();
+
+        await using var coverStream = new MemoryStream("cover-image-bytes"u8.ToArray());
+        var coverImage = new FormFile(coverStream, 0, coverStream.Length, "CoverImage", "cover.png")
+        {
+            Headers = new HeaderDictionary(),
+            ContentType = "image/png"
+        };
+
+        var req = new ComplexFormBindingRequest
+        {
+            Book = new()
+            {
+                Title = "Test Book Title",
+                BarCodes = [12345, 54321],
+                Editor = new()
+                {
+                    Id = editorId,
+                    Name = "John Doe"
+                },
+                Authors =
+                [
+                    new()
+                    {
+                        Id = author1Id,
+                        Name = "Author One"
+                    },
+                    new()
+                    {
+                        Id = author2Id,
+                        Name = "Author Two"
+                    }
+                ],
+                CoverImage = coverImage
+            }
+        };
+
+        var (rsp, res, err) = await app.Client.POSTAsync<ComplexFormBindingEndpoint, ComplexFormBindingRequest, ComplexFormBindingResponse>(
+                                  req,
+                                  sendAsFormData: true);
+
+        if (!rsp.IsSuccessStatusCode)
+            Assert.Fail(err);
+
+        res.Title.ShouldBe("Test Book Title");
+        res.BarCodes.Count.ShouldBe(2);
+        res.BarCodes[0].ShouldBe(12345);
+        res.BarCodes[1].ShouldBe(54321);
+        res.Editor.Id.ShouldBe(editorId);
+        res.Editor.Name.ShouldBe("John Doe");
+        res.Authors.Count.ShouldBe(2);
+        res.Authors[0].Id.ShouldBe(author1Id);
+        res.Authors[0].Name.ShouldBe("Author One");
+        res.Authors[1].Id.ShouldBe(author2Id);
+        res.Authors[1].Name.ShouldBe("Author Two");
+        res.CoverImageFileName.ShouldBe("cover.png");
     }
 
     [Fact]

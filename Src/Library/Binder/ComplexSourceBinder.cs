@@ -1,8 +1,8 @@
 ﻿using System.Collections;
-using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
 
 namespace FastEndpoints;
 
@@ -31,37 +31,42 @@ static class ComplexSourceBinder
 
         foreach (var prop in properties)
         {
-            var tProp = prop.PropertyType.GetUnderlyingType();
-            var fieldName = prop.FieldName();
+            var meta = tParent.ComplexBindMeta(prop);
+            var fieldName = meta.FieldName!;
             var key = string.IsNullOrEmpty(prefix)
                           ? fieldName
                           : $"{prefix}.{fieldName}";
 
-            if (source.SupportsFiles && tProp.IsFormFileProp())
-                bound = BindFormFileProp(parent, tParent, prop, key, source) || bound;
-            else if (source.SupportsFiles && tProp.IsFormFileCollectionProp())
-                bound = BindFormFileCollectionProp(parent, tParent, prop, key, source) || bound;
-            else if (tProp.IsComplexType() && !tProp.IsCollection())
-                bound = BindComplexType(parent, tParent, prop, tProp, key, source, failures) || bound;
-            else if (tProp.IsCollection())
-                bound = BindCollectionType(parent, tParent, prop, tProp, key, source, failures) || bound;
+            if (source.SupportsFiles && meta.IsFormFile)
+                bound = BindFormFileProp(parent, meta, key, source) || bound;
+            else if (source.SupportsFiles && meta.IsFormFileCollection)
+                bound = BindFormFileCollectionProp(parent, tParent, prop, meta, key, source) || bound;
+            else if (meta.IsComplex && !meta.IsCollection)
+                bound = BindComplexType(parent, meta, key, source, failures) || bound;
+            else if (meta.IsCollection)
+                bound = BindCollectionType(parent, tParent, meta, key, source, failures) || bound;
             else
-                bound = BindSimpleType(parent, tParent, prop, tProp, key, source, failures) || bound;
+                bound = BindSimpleType(parent, meta, key, source, failures) || bound;
         }
 
         return bound;
 
-        static bool BindFormFileProp(object parent, Type tParent, PropertyInfo prop, string key, TSource source)
+        static bool BindFormFileProp(object parent, PropertyDefinition meta, string key, TSource source)
         {
             if (source.GetFile(key) is not { } file)
                 return false;
 
-            tParent.SetterForProp(prop)(parent, file);
+            meta.Setter!(parent, file);
 
             return true;
         }
 
-        static bool BindFormFileCollectionProp(object parent, Type tParent, PropertyInfo prop, string key, TSource source)
+        static bool BindFormFileCollectionProp(object parent,
+                                               Type tParent,
+                                               PropertyInfo prop,
+                                               PropertyDefinition meta,
+                                               string key,
+                                               TSource source)
         {
             if (!prop.PropertyType.IsAssignableFrom(Types.FormFileCollection))
             {
@@ -91,15 +96,13 @@ static class ComplexSourceBinder
             if (collection.Count == 0)
                 return false;
 
-            tParent.SetterForProp(prop)(parent, collection);
+            meta.Setter!(parent, collection);
 
             return true;
         }
 
         static bool BindComplexType(object parent,
-                                    Type tParent,
-                                    PropertyInfo prop,
-                                    Type tProp,
+                                    PropertyDefinition meta,
                                     string key,
                                     TSource source,
                                     List<ValidationFailure> failures)
@@ -107,44 +110,41 @@ static class ComplexSourceBinder
             if (!source.HasDataForPrefix(key))
                 return false;
 
-            var propVal = tProp.ObjectFactory()();
+            var propVal = meta.UnderlyingType!.ObjectFactory()();
             var bound = BindPropertiesRecursively(propVal, key, source, failures);
-            tParent.SetterForProp(prop)(parent, propVal);
+            meta.Setter!(parent, propVal);
 
             return bound;
         }
 
-        [UnconditionalSuppressMessage("aot", "IL2055"), UnconditionalSuppressMessage("aot", "IL3050")]
         static bool BindCollectionType(object parent,
                                        Type tParent,
-                                       PropertyInfo prop,
-                                       Type tProp,
+                                       PropertyDefinition meta,
                                        string key,
                                        TSource source,
                                        List<ValidationFailure> failures)
         {
-            var tElement = tProp.IsGenericType
-                               ? tProp.GetGenericArguments()[0]
-                               : tProp.GetElementType();
+            var tElement = meta.ElementType;
 
+            // non-generic / unresolvable element type: same silent skip as the pre-cache binder
             if (tElement is null)
                 return false;
 
-            var tList = Types.ListOf1.MakeGenericType(tElement);
-            var list = (IList)tList.ObjectFactory()();
-
-            if (!tProp.IsAssignableFrom(tList))
+            // element known but List<T> is not assignable to the property (e.g. T[]): fail like the original check
+            if (meta.ListFactory is null)
             {
                 throw new NotSupportedException(
-                    $"'{tProp.Name}' type properties are not supported for complex {source.SourceName} binding! Offender: " +
+                    $"'{meta.UnderlyingType!.Name}' type properties are not supported for complex {source.SourceName} binding! Offender: " +
                     $"[{tParent.FullName}.{key.Replace("[0]", "")}]");
             }
 
-            var bound = tElement.IsComplexType()
-                            ? BindComplexCollection(list, tElement, key, source, failures)
-                            : BindSimpleCollection(list, tElement, key, source, failures);
+            var list = (IList)meta.ListFactory();
 
-            tParent.SetterForProp(prop)(parent, list);
+            var bound = meta.ElementIsComplex
+                            ? BindComplexCollection(list, tElement, key, source, failures)
+                            : BindSimpleCollection(list, tElement, meta.ValueParser!, key, source, failures);
+
+            meta.Setter!(parent, list);
 
             return bound;
 
@@ -171,7 +171,12 @@ static class ComplexSourceBinder
                 return bound;
             }
 
-            static bool BindSimpleCollection(IList list, Type tElement, string key, TSource source, List<ValidationFailure> failures)
+            static bool BindSimpleCollection(IList list,
+                                             Type tElement,
+                                             Func<StringValues, ParseResult> parser,
+                                             string key,
+                                             TSource source,
+                                             List<ValidationFailure> failures)
             {
                 var bound = false;
                 var index = -1;
@@ -187,7 +192,7 @@ static class ComplexSourceBinder
 
                     foreach (var v in val)
                     {
-                        var res = tElement.ValueParser()(v);
+                        var res = parser(v);
 
                         if (!res.IsSuccess)
                         {
@@ -208,9 +213,7 @@ static class ComplexSourceBinder
         }
 
         static bool BindSimpleType(object parent,
-                                   Type tParent,
-                                   PropertyInfo prop,
-                                   Type tProp,
+                                   PropertyDefinition meta,
                                    string key,
                                    TSource source,
                                    List<ValidationFailure> failures)
@@ -218,16 +221,16 @@ static class ComplexSourceBinder
             if (!source.TryGetValues(key, out var val))
                 return false;
 
-            var res = tProp.ValueParser()(val);
+            var res = meta.ValueParser!(val);
 
             if (!res.IsSuccess)
             {
-                failures.Add(new(key, Cfg.BndOpts.FailureMessage(tProp, key, val)));
+                failures.Add(new(key, Cfg.BndOpts.FailureMessage(meta.UnderlyingType!, key, val)));
 
                 return false;
             }
 
-            tParent.SetterForProp(prop)(parent, res.Value);
+            meta.Setter!(parent, res.Value);
 
             return true;
         }

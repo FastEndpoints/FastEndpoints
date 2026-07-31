@@ -203,6 +203,74 @@ static class BinderExtensions
                         .Select(p => new KeyValuePair<PropertyInfo, PropertyDefinition>(p, new() { ServiceKey = p.GetCustomAttribute<KeyedServiceAttribute>()?.Key }));
             }
         }
+
+        /// <summary>
+        /// returns the <see cref="PropertyDefinition"/> for <paramref name="prop"/> with complex form/query bind metadata
+        /// (field name, type kind, list factory, value parser, setter) populated on first use.
+        /// </summary>
+        [UnconditionalSuppressMessage("aot", "IL2055"), UnconditionalSuppressMessage("aot", "IL3050")]
+        internal PropertyDefinition ComplexBindMeta(PropertyInfo prop)
+        {
+            if (!Cfg.BndOpts.ReflectionCache.TryGetValue(type, out var classDef) || classDef.Properties is null)
+            {
+                _ = type.BindableProps(); // materializes Properties + BindableProps
+                classDef = Cfg.BndOpts.ReflectionCache[type];
+            }
+
+            var propDef = classDef.Properties!.GetOrAdd(prop, static _ => new());
+
+            // FieldName is the publication sentinel: non-null means the rest of the complex-bind fields are visible.
+            if (propDef.FieldName is not null)
+                return propDef;
+
+            // propDef is shared across concurrent requests; serialize first-time multi-field init so no reader sees a half-filled entry.
+            lock (propDef)
+            {
+                if (propDef.FieldName is not null)
+                    return propDef;
+
+                var tProp = prop.PropertyType.GetUnderlyingType();
+                propDef.UnderlyingType = tProp;
+                propDef.IsFormFile = tProp.IsFormFileProp();
+                propDef.IsFormFileCollection = tProp.IsFormFileCollectionProp();
+                propDef.IsCollection = tProp.IsCollection();
+                propDef.IsComplex = tProp.IsComplexType();
+                propDef.Setter ??= type.SetterForProp(prop);
+
+                if (propDef.IsCollection)
+                {
+                    // same element discovery as the pre-cache binder (generic arg or array element)
+                    var tElement = tProp.IsGenericType
+                                       ? tProp.GetGenericArguments()[0]
+                                       : tProp.GetElementType();
+
+                    propDef.ElementType = tElement;
+
+                    if (tElement is not null)
+                    {
+                        propDef.ElementIsComplex = tElement.IsComplexType();
+
+                        // only cache a List<T> factory when the property type can accept List<T> (matches original tProp.IsAssignableFrom(tList))
+                        var tList = Types.ListOf1.MakeGenericType(tElement);
+
+                        if (tProp.IsAssignableFrom(tList))
+                        {
+                            propDef.ListFactory = tList.ObjectFactory();
+
+                            if (!propDef.ElementIsComplex)
+                                propDef.ValueParser = tElement.ValueParser();
+                        }
+                    }
+                }
+                else if (!propDef.IsComplex) // includes form-file props when SupportsFiles is false (simple-bind fallback)
+                    propDef.ValueParser = tProp.ValueParser();
+
+                // publish last under the lock so concurrent readers never observe a half-filled entry
+                propDef.FieldName = prop.FieldName();
+            }
+
+            return propDef;
+        }
     }
 
     static bool TryParseObject(StringValues input, Type tProp, out object? result)

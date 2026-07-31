@@ -46,6 +46,7 @@ AOT tests: use `NativeAot.slnx` (publish workflow currently has AOT test step co
 - Job queue idempotency unit coverage: `Tests/UnitTests/FastEndpoints/JobQueueTests.Idempotency.cs` (+ fixtures in `JobQueueTests.Fixtures.cs`). Harness `TestStorageProvider` implements `IHasIdempotencyKey` and throws `DuplicateJobException`.
 - gRPC reflection coverage: `Tests/IntegrationTests/FastEndpoints/RPCTests/GrpcReflection.cs` (+ same-simple-name fixtures in `GrpcReflection.Fixtures.cs`). Descriptor generation is asserted directly; only the list/describe and protobuf round-trip tests stand up a server. Do not add a live event hub there; see gotchas.
 - NativeAotChecker AOT/harness coverage: `UseJobQueues(... IdempotencyKeyFor<IdempotentEchoCommand>(c => c.OrderId))`, endpoint `job-queue/idempotent`, test `Tests/NativeAotTests/NativeAotCheckerTests/Jobs/JobQueueIdempotencyTests.cs`.
+- Complex form binding under AOT: endpoint `complex-form-binding` (`[FromForm]` nested DTO + simple/complex collections + `IFormFile`), test `Complex_Form_Binding_FromForm_Attribute` in `Tests/NativeAotTests/NativeAotCheckerTests/Binding/BindingTests.cs` (complements existing `complex-query-binding` `[FromQuery]` coverage).
 
 ## OpenAPI `.http` export snapshots
 - Goldens: `Tests/IntegrationTests/FastEndpoints.OpenApi/release-*.http` compared by `HttpSnapshotTests`.

@@ -288,4 +288,12 @@ Complex `[FromForm]` and `[FromQuery]` object binding now share a single recursi
 
 </details>
 
+<details><summary>Shared service-resolver facade for endpoints, mappers, and validators</summary>
+
+The eight `Resolve` / `TryResolve` / `CreateScope` pass-throughs that were duplicated on `Endpoint`, `Group`, mappers, `Validator`, `BinderContext`, and `HttpContext` extensions now live in a single Core type, `ServiceResolverClient` (with an internal static `Forward` helper for types that cannot inherit it).
+
+Public resolve APIs and behavior are unchanged. Only the ownership of the default DI facade is centralized so future resolver changes land in one place.
+
+</details>
+
 [//]: # (## Breaking Changes ⚠️)

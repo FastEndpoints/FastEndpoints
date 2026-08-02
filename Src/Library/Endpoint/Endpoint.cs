@@ -6,7 +6,6 @@ using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Net.Http.Headers;
 
 // ReSharper disable UnusedParameter.Global
@@ -51,7 +50,7 @@ public abstract class EndpointWithMapper<TRequest, TMapper> : Endpoint<TRequest,
 /// <typeparam name="TRequest">the type of the request dto</typeparam>
 /// <typeparam name="TResponse">the type of the response dto</typeparam>
 [UsedImplicitly(ImplicitUseTargetFlags.WithInheritors)]
-public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEventBus, IServiceResolverBase where TRequest : notnull
+public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEventBus where TRequest : notnull
 {
     internal override async Task ExecAsync(CancellationToken ct)
     {
@@ -176,42 +175,6 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
     [NotImplemented]
     public virtual Task<TResponse> ExecuteAsync(TRequest req, CancellationToken ct)
         => throw new NotImplementedException();
-
-    /// <inheritdoc />
-    public TService? TryResolve<TService>() where TService : class
-        => ServiceResolver.Instance.TryResolve<TService>();
-
-    /// <inheritdoc />
-    public object? TryResolve(Type typeOfService)
-        => ServiceResolver.Instance.TryResolve(typeOfService);
-
-    /// <inheritdoc />
-    public TService Resolve<TService>() where TService : class
-        => ServiceResolver.Instance.Resolve<TService>();
-
-    /// <inheritdoc />
-    public object Resolve(Type typeOfService)
-        => ServiceResolver.Instance.Resolve(typeOfService);
-
-    /// <inheritdoc />
-    public IServiceScope CreateScope()
-        => ServiceResolver.Instance.CreateScope();
-
-    /// <inheritdoc />
-    public TService? TryResolve<TService>(string keyName) where TService : class
-        => ServiceResolver.Instance.TryResolve<TService>(keyName);
-
-    /// <inheritdoc />
-    public object? TryResolve(Type typeOfService, string keyName)
-        => ServiceResolver.Instance.TryResolve(typeOfService, keyName);
-
-    /// <inheritdoc />
-    public TService Resolve<TService>(string keyName) where TService : class
-        => ServiceResolver.Instance.Resolve<TService>(keyName);
-
-    /// <inheritdoc />
-    public object Resolve(Type typeOfService, string keyName)
-        => ServiceResolver.Instance.Resolve(typeOfService, keyName);
 
     /// <summary>
     /// get the value of a given route parameter by specifying the resulting type and param name.

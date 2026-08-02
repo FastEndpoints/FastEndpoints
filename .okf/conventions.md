@@ -37,6 +37,7 @@ tags: [conventions]
 ## Config and DI
 - Global options: `UseFastEndpoints(c => { c.Serializer…; c.Endpoints…; })` → `FastEndpoints.Config` (`Cfg` alias).
 - Endpoint ctor DI supported; property injection possible with attributes/options.
+- Manual resolve façade: `Endpoint`/`Group`/`Mapper` inherit `ServiceResolverClient`; `Validator`/`BinderContext`/`HttpContext` extensions forward via `ServiceResolverClient.Forward` (do not re-copy the eight Resolve methods).
 - Service registration generator can emit registration from attributes when generator is referenced.
 - Central package versions only in `Directory.Packages.props`; do not hardcode versions in csproj except intentional `VersionOverride` / constrained ranges already present.
 

@@ -31,7 +31,7 @@ Attributes / Messaging.Core
 | Layer | Role |
 | --- | --- |
 | `FastEndpoints.Attributes` | Shared attributes/contracts; multi-TFM including netstandard2.0 for generator |
-| `FastEndpoints.Core` | Service resolution, assembly scanning shared plumbing |
+| `FastEndpoints.Core` | Service resolution (`IServiceResolver`, `ServiceResolverClient` shared resolve façade), assembly scanning |
 | `FastEndpoints.Messaging.Core` | `ICommand` / `IEvent` / handler interfaces |
 | `FastEndpoints.Messaging` | In-process command/event bus |
 | `FastEndpoints.JobQueues` | Background jobs over commands + storage SPI |

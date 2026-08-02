@@ -10,7 +10,7 @@ namespace FastEndpoints;
 /// <summary>
 /// the base class all fast endpoints inherit from
 /// </summary>
-public abstract partial class BaseEndpoint : IEndpoint
+public abstract partial class BaseEndpoint : ServiceResolverClient, IEndpoint
 {
     List<ValidationFailure>? _failures;
 

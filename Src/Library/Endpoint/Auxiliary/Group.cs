@@ -1,12 +1,10 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-
-namespace FastEndpoints;
+﻿namespace FastEndpoints;
 
 /// <summary>
 /// common configuration for a group of endpoints can be specified by implementing this abstract class and calling
 /// <see cref="Configure(string, Action{EndpointDefinition})" /> in the constructor.
 /// </summary>
-public abstract class Group : IServiceResolverBase
+public abstract class Group : ServiceResolverClient
 {
     internal Action<EndpointDefinition> Action { get; set; } = null!;
 
@@ -31,42 +29,6 @@ public abstract class Group : IServiceResolverBase
                    e.Routes[i] = routePrefix + slash + route;
                }
            };
-
-    /// <inheritdoc />
-    public TService? TryResolve<TService>() where TService : class
-        => ServiceResolver.Instance.TryResolve<TService>();
-
-    /// <inheritdoc />
-    public object? TryResolve(Type typeOfService)
-        => ServiceResolver.Instance.TryResolve(typeOfService);
-
-    /// <inheritdoc />
-    public TService Resolve<TService>() where TService : class
-        => ServiceResolver.Instance.Resolve<TService>();
-
-    /// <inheritdoc />
-    public object Resolve(Type typeOfService)
-        => ServiceResolver.Instance.Resolve(typeOfService);
-
-    /// <inheritdoc />
-    public IServiceScope CreateScope()
-        => ServiceResolver.Instance.CreateScope();
-
-    /// <inheritdoc />
-    public TService? TryResolve<TService>(string keyName) where TService : class
-        => ServiceResolver.Instance.TryResolve<TService>(keyName);
-
-    /// <inheritdoc />
-    public object? TryResolve(Type typeOfService, string keyName)
-        => ServiceResolver.Instance.TryResolve(typeOfService, keyName);
-
-    /// <inheritdoc />
-    public TService Resolve<TService>(string keyName) where TService : class
-        => ServiceResolver.Instance.Resolve<TService>(keyName);
-
-    /// <inheritdoc />
-    public object Resolve(Type typeOfService, string keyName)
-        => ServiceResolver.Instance.Resolve(typeOfService, keyName);
 }
 
 /// <summary>

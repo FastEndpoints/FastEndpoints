@@ -14,43 +14,42 @@ sealed class EndpointData
     internal EndpointDefinition[] Found { get; }
 
     [RequiresUnreferencedCode(AotWarning), RequiresDynamicCode(AotWarning)]
-    internal EndpointData(EndpointDiscoveryOptions opts, CommandHandlerRegistry cmdHandlerRegistry)
+    internal EndpointData(EndpointDiscoveryOptions opts) : this(DiscoverTypes(opts)) { }
+
+    internal EndpointData(IEnumerable<Type> discoveredTypes)
     {
         Stopwatch.Start();
-        var discoveredTypes = AssemblyScanner.ScanForTypes(
-            new()
-            {
-                DisableAutoDiscovery = opts.DisableAutoDiscovery,
-                Assemblies = opts.Assemblies,
-                AssemblyFilter = opts.AssemblyFilter,
-                TypeFilter = opts.Filter,
-                ExcludeAttribute = Types.DontRegisterAttribute,
-                InterfaceTypes =
-                [
-                    Types.IEndpoint,
-                    Types.IEventHandler,
-                    Types.ICommandHandler,
-                    Types.ISummary,
-                    opts.IncludeAbstractValidators ? Types.IValidator : Types.IEndpointValidator
-                ]
-            });
-        Found = BuildEndpointDefinitions(discoveredTypes, cmdHandlerRegistry);
+        Found = BuildEndpointDefinitions(discoveredTypes);
 
         if (Found.Length == 0)
             throw new InvalidOperationException("FastEndpoints was unable to find any endpoint declarations!");
     }
 
-    internal EndpointData(IEnumerable<Type> discoveredTypes, CommandHandlerRegistry cmdHandlerRegistry)
-    {
-        Stopwatch.Start();
-        Found = BuildEndpointDefinitions(discoveredTypes, cmdHandlerRegistry);
-
-        if (Found.Length == 0)
-            throw new InvalidOperationException("FastEndpoints was unable to find any endpoint declarations!");
-    }
+    [RequiresUnreferencedCode(AotWarning), RequiresDynamicCode(AotWarning)]
+    internal static List<Type> DiscoverTypes(EndpointDiscoveryOptions opts)
+        =>
+        [
+            .. AssemblyScanner.ScanForTypes(
+                new()
+                {
+                    DisableAutoDiscovery = opts.DisableAutoDiscovery,
+                    Assemblies = opts.Assemblies,
+                    AssemblyFilter = opts.AssemblyFilter,
+                    TypeFilter = opts.Filter,
+                    ExcludeAttribute = Types.DontRegisterAttribute,
+                    InterfaceTypes =
+                    [
+                        Types.IEndpoint,
+                        Types.IEventHandler,
+                        Types.ICommandHandler,
+                        Types.ISummary,
+                        opts.IncludeAbstractValidators ? Types.IValidator : Types.IEndpointValidator
+                    ]
+                })
+        ];
 
     [UnconditionalSuppressMessage("aot", "IL2075"), UnconditionalSuppressMessage("aot", "IL2080"), UnconditionalSuppressMessage("aot", "IL2067")]
-    static EndpointDefinition[] BuildEndpointDefinitions(IEnumerable<Type> discoveredTypes, CommandHandlerRegistry cmdHandlerRegistry)
+    static EndpointDefinition[] BuildEndpointDefinitions(IEnumerable<Type> discoveredTypes)
     {
         //Endpoint<TRequest>
         //Validator<TRequest>
@@ -111,13 +110,7 @@ sealed class EndpointData
                     continue;
 
                 if (tGeneric == Types.IHasMapperOf1) // IsAssignableTo() is no good here if the user inherits the interface.
-                {
                     mapperDict[t] = tInterface.GetGenericArguments()[0];
-
-                    continue;
-                }
-
-                MessagingExtensions.RegisterHandler(tGeneric, tInterface, t, cmdHandlerRegistry);
             }
         }
 

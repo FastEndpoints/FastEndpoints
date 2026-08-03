@@ -17,37 +17,37 @@ public abstract class Validator<TRequest> : AbstractValidator<TRequest>, IServic
 {
     /// <inheritdoc />
     public TService? TryResolve<TService>() where TService : class
-        => ServiceResolver.Instance.TryResolve<TService>();
+        => ServiceResolverClient.Forward.TryResolve<TService>();
 
     /// <inheritdoc />
     public object? TryResolve(Type typeOfService)
-        => ServiceResolver.Instance.TryResolve(typeOfService);
+        => ServiceResolverClient.Forward.TryResolve(typeOfService);
 
     /// <inheritdoc />
     public TService Resolve<TService>() where TService : class
-        => ServiceResolver.Instance.Resolve<TService>();
+        => ServiceResolverClient.Forward.Resolve<TService>();
 
     /// <inheritdoc />
     public object Resolve(Type typeOfService)
-        => ServiceResolver.Instance.Resolve(typeOfService);
+        => ServiceResolverClient.Forward.Resolve(typeOfService);
 
     /// <inheritdoc />
     public IServiceScope CreateScope()
-        => ServiceResolver.Instance.CreateScope();
+        => ServiceResolverClient.Forward.CreateScope();
 
     /// <inheritdoc />
     public TService? TryResolve<TService>(string keyName) where TService : class
-        => ServiceResolver.Instance.TryResolve<TService>(keyName);
+        => ServiceResolverClient.Forward.TryResolve<TService>(keyName);
 
     /// <inheritdoc />
     public object? TryResolve(Type typeOfService, string keyName)
-        => ServiceResolver.Instance.TryResolve(typeOfService, keyName);
+        => ServiceResolverClient.Forward.TryResolve(typeOfService, keyName);
 
     /// <inheritdoc />
     public TService Resolve<TService>(string keyName) where TService : class
-        => ServiceResolver.Instance.Resolve<TService>(keyName);
+        => ServiceResolverClient.Forward.Resolve<TService>(keyName);
 
     /// <inheritdoc />
     public object Resolve(Type typeOfService, string keyName)
-        => ServiceResolver.Instance.Resolve(typeOfService, keyName);
+        => ServiceResolverClient.Forward.Resolve(typeOfService, keyName);
 }

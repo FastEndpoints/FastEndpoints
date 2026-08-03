@@ -14,6 +14,31 @@ static class ComplexSourceBinder
     internal static void Bind(PropCache propCache, object requestDto, IQueryCollection query, List<ValidationFailure> failures)
         => Bind(propCache, requestDto, new QueryValueSource(query), failures);
 
+    /// <summary>Builds <c>prefix.fieldName</c>, or returns <paramref name="fieldName"/> when prefix is empty (no alloc).</summary>
+    static string NestedKey(string prefix, string fieldName)
+        => prefix.Length == 0
+               ? fieldName
+               : string.Concat(prefix, ".", fieldName);
+
+    /// <summary>Builds <c>key[index]</c> with a single result string (no intermediate format allocations).</summary>
+    static string IndexedKey(string key, int index)
+    {
+        Span<char> digits = stackalloc char[11]; // enough for int.MinValue
+        index.TryFormat(digits, out var digitCount);
+
+        return string.Create(
+            key.Length + 2 + digitCount,
+            (key, index, digitCount),
+            static (span, state) =>
+            {
+                state.key.AsSpan().CopyTo(span);
+                var pos = state.key.Length;
+                span[pos++] = '[';
+                state.index.TryFormat(span[pos..], out _);
+                span[pos + state.digitCount] = ']';
+            });
+    }
+
     static void Bind<TSource>(PropCache propCache, object requestDto, TSource source, List<ValidationFailure> failures)
         where TSource : IPrefixedValueSource
     {
@@ -33,9 +58,7 @@ static class ComplexSourceBinder
         {
             var meta = tParent.ComplexBindMeta(prop);
             var fieldName = meta.FieldName!;
-            var key = string.IsNullOrEmpty(prefix)
-                          ? fieldName
-                          : $"{prefix}.{fieldName}";
+            var key = NestedKey(prefix, fieldName);
 
             if (source.SupportsFiles && meta.IsFormFile)
                 bound = BindFormFileProp(parent, meta, key, source) || bound;
@@ -82,7 +105,7 @@ static class ComplexSourceBinder
             {
                 var indexedKey = index == -1
                                      ? key
-                                     : $"{key}[{index}]";
+                                     : IndexedKey(key, index);
 
                 var files = source.GetFiles(indexedKey);
 
@@ -155,7 +178,12 @@ static class ComplexSourceBinder
 
                 while (true)
                 {
-                    var indexedKey = $"{key}[{index}]";
+                    var indexedKey = IndexedKey(key, index);
+
+                    // No child keys under items[i] → end of collection (skip empty element alloc/walk).
+                    if (!source.HasDataForPrefix(indexedKey))
+                        break;
+
                     var item = tElement.ObjectFactory()();
 
                     if (BindPropertiesRecursively(item, indexedKey, source, failures))
@@ -185,7 +213,7 @@ static class ComplexSourceBinder
                 {
                     var indexedKey = index == -1
                                          ? key
-                                         : $"{key}[{index}]";
+                                         : IndexedKey(key, index);
 
                     if (!source.TryGetValues(indexedKey, out var val) && index > -1)
                         break;

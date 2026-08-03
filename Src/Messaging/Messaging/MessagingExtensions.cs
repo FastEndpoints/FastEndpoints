@@ -64,21 +64,7 @@ public static class MessagingExtensions
             _ =>
             {
                 var cmdHandlerRegistry = new CommandHandlerRegistry();
-
-                foreach (var t in getTypes())
-                {
-                    foreach (var tInterface in t.GetInterfaces())
-                    {
-                        var tGeneric = tInterface.IsGenericType
-                                           ? tInterface.GetGenericTypeDefinition()
-                                           : null;
-
-                        if (tGeneric is null)
-                            continue;
-
-                        RegisterHandler(tGeneric, tInterface, t, cmdHandlerRegistry);
-                    }
-                }
+                RegisterHandlers(getTypes(), cmdHandlerRegistry);
 
                 return cmdHandlerRegistry;
             });
@@ -118,6 +104,28 @@ public static class MessagingExtensions
         {
             var eventBusType = typeof(EventBus<>).MakeGenericType(tEvent);
             provider.GetService(eventBusType);
+        }
+    }
+
+    /// <summary>
+    /// registers command, stream-command, and event handlers from a set of discovered types into the given registry.
+    /// </summary>
+    [UnconditionalSuppressMessage("Trimming", "IL2075")]
+    internal static void RegisterHandlers(IEnumerable<Type> types, CommandHandlerRegistry cmdHandlerRegistry)
+    {
+        foreach (var t in types)
+        {
+            foreach (var tInterface in t.GetInterfaces())
+            {
+                var tGeneric = tInterface.IsGenericType
+                                   ? tInterface.GetGenericTypeDefinition()
+                                   : null;
+
+                if (tGeneric is null)
+                    continue;
+
+                RegisterHandler(tGeneric, tInterface, t, cmdHandlerRegistry);
+            }
         }
     }
 

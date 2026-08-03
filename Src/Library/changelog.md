@@ -288,6 +288,26 @@ Complex `[FromForm]` and `[FromQuery]` object binding now share a single recursi
 
 </details>
 
+<details><summary>Shared service-resolver facade for endpoints, mappers, and validators</summary>
+
+The eight `Resolve` / `TryResolve` / `CreateScope` pass-throughs that were duplicated on `Endpoint`, `Group`, mappers, `Validator`, `BinderContext`, and `HttpContext` extensions now live in a single Core type, `ServiceResolverClient` (with an internal static `Forward` helper for types that cannot inherit it).
+
+Public resolve APIs and behavior are unchanged. Only the ownership of the default DI facade is centralized so future resolver changes land in one place.
+
+</details>
+
+<details><summary>Fewer allocations in complex query and form binding</summary>
+
+Complex `[FromQuery]` / `[FromForm]` binding allocates less on each request:
+
+- `ParentPrefixIndex` (used to skip nested objects with no matching keys) no longer materializes every parent path substring into a `HashSet`. It indexes spans into the original query/form keys in a single pass (capacity from key count, grows on unique prefixes only), keeping O(1) prefix checks without per-segment string allocations.
+- Nested and indexed key construction (`prefix.field`, `key[i]`) uses `string.Concat` / `string.Create` instead of repeated interpolations.
+- Complex collection binding stops at the first missing `items[i]` prefix without allocating empty element instances.
+
+Behavior is unchanged for nested DTOs, collections, form files, and validation failures. The win shows up as lower gen-0 traffic on nested query/form graphs (for example the query-binding benchmark path).
+
+</details>
+
 <details><summary>One less allocation per request in the endpoint execution path</summary>
 
 The internal `ValidationFailed` helper in the endpoint execution path no longer closes over the enclosing locals, which previously made the compiler heap allocate a closure on every request even though the helper only runs when binding or validation fails. Measured saving is 48 bytes per request on 64 bit. Behavior is unchanged.

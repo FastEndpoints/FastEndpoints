@@ -13,7 +13,7 @@ tags: [layout]
 | --- | --- |
 | `Src/` | All shippable library packages |
 | `Src/Library/` | Main `FastEndpoints` package (HTTP REPR runtime) |
-| `Src/Core/` | `FastEndpoints.Core` (service resolver, assembly scanner) |
+| `Src/Core/` | `FastEndpoints.Core` (service resolver, `ServiceResolverClient` DI façade base, assembly scanner) |
 | `Src/Attributes/` | Attributes + small contracts for generators/consumers |
 | `Src/Messaging/` | Messaging.Core, Messaging, Messaging.Remote*, testing helpers |
 | `Src/JobQueues/` | Job queue package (`IJobStorageRecord` addons, `JobQueueOptions`, providers SPI, `DuplicateJobException`) |
@@ -42,7 +42,7 @@ tags: [layout]
 
 | Folder under `Src/Library/` | Concern |
 | --- | --- |
-| `Main/` | Startup facades + collaborators: `MainExtensions` (public entry), `EndpointData`/`EndpointDiscoveryOptions`, `EndpointBootstrap`, `FeRequestHandler`, `EndpointRouteMapper`, `EndpointSecurityPolicies`, `EndpointProducesMetadata`, `EndpointWarmup`, `ResponseCacheExecutor` |
+| `Main/` | Startup facades + collaborators: `MainExtensions` (public entry; wires discovery + messaging registration), `EndpointData` (HTTP definition catalog only)/`EndpointDiscoveryOptions`, `EndpointBootstrap`, `FeRequestHandler`, `EndpointRouteMapper`, `EndpointSecurityPolicies`, `EndpointProducesMetadata`, `EndpointWarmup`, `ResponseCacheExecutor` |
 | `Endpoint/` | Endpoint base, setup, send, validation, processors, mappers |
 | `Binder/` | Request binding |
 | `Config/` | Global `Config` options |

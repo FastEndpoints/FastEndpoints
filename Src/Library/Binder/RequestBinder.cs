@@ -417,10 +417,15 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
         if (ctx.HttpContext.Request.Query.Count == 0)
             return;
 
-        foreach (var kvp in ctx.HttpContext.Request.Query)
+        // skip flat primary-prop pass when none exist (e.g. pure [FromQuery] complex DTO);
+        // form path already short-circuits the same way via _fromFormProp.
+        if (_primaryProps.Count > 0)
         {
-            Bind(req, kvp, ctx.ValidationFailures, Source.QueryParam);
-            ctx.BoundProperties?.Add(kvp.Key);
+            foreach (var kvp in ctx.HttpContext.Request.Query)
+            {
+                Bind(req, kvp, ctx.ValidationFailures, Source.QueryParam);
+                ctx.BoundProperties?.Add(kvp.Key);
+            }
         }
 
         if (_fromQueryProp is not null)

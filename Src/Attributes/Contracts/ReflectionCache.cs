@@ -107,6 +107,12 @@ public sealed class PropertyDefinition
     internal bool ElementIsComplex { get; set; }
 
     /// <summary>
+    /// whether collection elements are themselves collections (only meaningful when <see cref="IsCollection"/>).
+    /// nested collections such as <c>List&lt;List&lt;T&gt;&gt;</c> are not a supported complex binding shape.
+    /// </summary>
+    internal bool ElementIsCollection { get; set; }
+
+    /// <summary>
     /// factory that creates a <c>List&lt;TElement&gt;</c> for collection binding.
     /// </summary>
     internal Func<object>? ListFactory { get; set; }

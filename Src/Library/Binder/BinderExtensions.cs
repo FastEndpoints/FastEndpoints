@@ -196,7 +196,10 @@ static class BinderExtensions
             {
                 return t.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
                         .Where(
-                            p => p.GetSetMethod()?.IsPublic is true &&
+                            //indexers (e.g. List<T>.Item) have no bindable field name and no compilable getter/setter -
+                            //including them makes SetterForProp/GetterForProp throw for any type that declares one.
+                            p => p.GetIndexParameters().Length == 0 &&
+                                 p.GetSetMethod()?.IsPublic is true &&
                                  p.GetGetMethod()?.IsPublic is true &&
                                  p.GetCustomAttribute<JsonIgnoreAttribute>()?.Condition != JsonIgnoreCondition.Always &&
                                  !p.IsDefined(Types.DontInjectAttribute))
@@ -249,6 +252,7 @@ static class BinderExtensions
                     if (tElement is not null)
                     {
                         propDef.ElementIsComplex = tElement.IsComplexType();
+                        propDef.ElementIsCollection = tElement.IsCollection();
 
                         // only cache a List<T> factory when the property type can accept List<T> (matches original tProp.IsAssignableFrom(tList))
                         var tList = Types.ListOf1.MakeGenericType(tElement);

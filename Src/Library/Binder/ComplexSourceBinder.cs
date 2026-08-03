@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Reflection;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
@@ -159,6 +159,15 @@ static class ComplexSourceBinder
                 throw new NotSupportedException(
                     $"'{meta.UnderlyingType!.Name}' type properties are not supported for complex {source.SourceName} binding! Offender: " +
                     $"[{tParent.FullName}.{key.Replace("[0]", "")}]");
+            }
+
+            // nested collections (e.g. List<List<T>>) have no key convention here - BindComplexCollection binds each
+            // element as an object with named properties, never as another collection. fail loudly rather than
+            // silently binding an empty list. simple-parsed elements (byte[] etc.) don't take that path.
+            if (meta is { ElementIsCollection: true, ElementIsComplex: true })
+            {
+                throw new NotSupportedException(
+                    $"Collection elements of type '{tElement.Name}' are not supported for complex {source.SourceName} binding, because they are themselves collections! Offender: [{tParent.FullName}.{key.Replace("[0]", "")}]");
             }
 
             var list = (IList)meta.ListFactory();

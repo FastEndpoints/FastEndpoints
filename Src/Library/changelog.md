@@ -308,4 +308,10 @@ Behavior is unchanged for nested DTOs, collections, form files, and validation f
 
 </details>
 
+<details><summary>One less allocation per request in the endpoint execution path</summary>
+
+The internal `ValidationFailed` helper in the endpoint execution path no longer closes over the enclosing locals, which previously made the compiler heap allocate a closure on every request even though the helper only runs when binding or validation fails. Measured saving is 48 bytes per request on 64 bit. Behavior is unchanged.
+
+</details>
+
 [//]: # (## Breaking Changes ⚠️)

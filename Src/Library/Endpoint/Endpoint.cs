@@ -121,11 +121,11 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
                 throw;
 
             ValidationFailures.Add(Cfg.BndOpts.JsonExceptionTransformer(x));
-            await ValidationFailed(x, Cfg.BndOpts.JsonExceptionStatusCode);
+            await HandleValidationFailure(x, Cfg.BndOpts.JsonExceptionStatusCode, req, ranPreProcessors, ct);
         }
         catch (ValidationFailureException x)
         {
-            await ValidationFailed(x, x.StatusCode ?? Cfg.ErrOpts.StatusCode);
+            await HandleValidationFailure(x, x.StatusCode ?? Cfg.ErrOpts.StatusCode, req, ranPreProcessors, ct);
         }
         catch (Exception x)
         {
@@ -140,22 +140,27 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
             if (edi is not null && !HttpContext.EdiIsHandled())
                 edi.Throw();
         }
+    }
 
-        async Task ValidationFailed(Exception x, int statusCode)
-        {
-            if (!ranPreProcessors) //avoid running pre-procs twice
-                await RunPreprocessors(Definition.PreProcessorList, req, HttpContext, ValidationFailures, ct);
+    //NOTE: this is deliberately a private method instead of a local function inside ExecAsync above.
+    //an async local function that captures enclosing locals forces the compiler to heap allocate a display class
+    //on every single request, even though this only ever runs on the two failure paths in ExecAsync.
+    //keeping it a separate method makes that impossible to reintroduce by accident.
+    //it cannot be named ValidationFailed, since that is already a public property of this partial class.
+    async Task HandleValidationFailure(Exception x, int statusCode, TRequest req, bool ranPreProcessors, CancellationToken ct)
+    {
+        if (!ranPreProcessors) //avoid running pre-procs twice
+            await RunPreprocessors(Definition.PreProcessorList, req, HttpContext, ValidationFailures, ct);
 
-            // ReSharper disable once MethodHasAsyncOverloadWithCancellation
-            OnValidationFailed();
-            await OnValidationFailedAsync(ct);
+        // ReSharper disable once MethodHasAsyncOverloadWithCancellation
+        OnValidationFailed();
+        await OnValidationFailedAsync(ct);
 
-            if (Definition.DoNotCatchExceptions)
-                throw x;
+        if (Definition.DoNotCatchExceptions)
+            throw x;
 
-            if (!ResponseStarted) //pre-processors may have already sent a response
-                await Send.ErrorsAsync(statusCode, ct);
-        }
+        if (!ResponseStarted) //pre-processors may have already sent a response
+            await Send.ErrorsAsync(statusCode, ct);
     }
 
     /// <summary>

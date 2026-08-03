@@ -296,4 +296,16 @@ Public resolve APIs and behavior are unchanged. Only the ownership of the defaul
 
 </details>
 
+<details><summary>Fewer allocations in complex query and form binding</summary>
+
+Complex `[FromQuery]` / `[FromForm]` binding allocates less on each request:
+
+- `ParentPrefixIndex` (used to skip nested objects with no matching keys) no longer materializes every parent path substring into a `HashSet`. It indexes spans into the original query/form keys in a single pass (capacity from key count, grows on unique prefixes only), keeping O(1) prefix checks without per-segment string allocations.
+- Nested and indexed key construction (`prefix.field`, `key[i]`) uses `string.Concat` / `string.Create` instead of repeated interpolations.
+- Complex collection binding stops at the first missing `items[i]` prefix without allocating empty element instances.
+
+Behavior is unchanged for nested DTOs, collections, form files, and validation failures. The win shows up as lower gen-0 traffic on nested query/form graphs (for example the query-binding benchmark path).
+
+</details>
+
 [//]: # (## Breaking Changes ⚠️)

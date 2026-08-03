@@ -38,7 +38,8 @@ public static class Extensions
         services.AddSingleton<EndpointInvoker>();
         services.AddSingleton<EndpointMcpToolSource>();
         services.AddMcpServer()
-                .WithHttpTransport()
+                .WithHttpTransport() // stateless by default (SDK 2.0+/2026-07-28 spec); fine here since caller
+                                      // context and tool visibility are already re-resolved per request, not per session
                 .WithListToolsHandler(ListToolsAsync)
                 .WithCallToolHandler(CallToolAsync);
 

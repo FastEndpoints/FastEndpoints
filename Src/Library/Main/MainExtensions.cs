@@ -19,42 +19,48 @@ public static class MainExtensions
 {
     const string AotWarning = "Reflection-based endpoint discovery is not supported. Use AddFastEndpoints(DiscoveredTypes.All) with the source generator.";
 
-    /// <summary>
-    /// adds the FastEndpoints services to the ASP.Net middleware pipeline using reflection-based type discovery.
-    /// </summary>
-    [RequiresUnreferencedCode(AotWarning), RequiresDynamicCode(AotWarning)]
-    public static IServiceCollection AddFastEndpoints(this IServiceCollection services)
-        => services.AddFastEndpoints((Action<EndpointDiscoveryOptions>?)null);
-
-    /// <summary>
-    /// adds the FastEndpoints services to the ASP.Net middleware pipeline using reflection-based type discovery.
-    /// </summary>
-    /// <param name="options">optionally specify the reflection-based type discovery options</param>
-    [RequiresUnreferencedCode(AotWarning), RequiresDynamicCode(AotWarning)]
-    public static IServiceCollection AddFastEndpoints(this IServiceCollection services, Action<EndpointDiscoveryOptions>? options)
+    extension(IServiceCollection services)
     {
-        var opts = new EndpointDiscoveryOptions();
-        options?.Invoke(opts);
+        /// <summary>
+        /// adds the FastEndpoints services to the ASP.Net middleware pipeline using reflection-based type discovery.
+        /// </summary>
+        [RequiresUnreferencedCode(AotWarning), RequiresDynamicCode(AotWarning)]
+        public IServiceCollection AddFastEndpoints()
+            => services.AddFastEndpoints((Action<EndpointDiscoveryOptions>?)null);
 
-        var cmdHandlerRegistry = new CommandHandlerRegistry();
-        var endpointData = new EndpointData(opts, cmdHandlerRegistry);
+        /// <summary>
+        /// adds the FastEndpoints services to the ASP.Net middleware pipeline using reflection-based type discovery.
+        /// </summary>
+        /// <param name="options">optionally specify the reflection-based type discovery options</param>
+        [RequiresUnreferencedCode(AotWarning), RequiresDynamicCode(AotWarning)]
+        public IServiceCollection AddFastEndpoints(Action<EndpointDiscoveryOptions>? options)
+        {
+            var opts = new EndpointDiscoveryOptions();
+            options?.Invoke(opts);
 
-        return AddFastEndpointsCore(services, cmdHandlerRegistry, endpointData);
-    }
+            var discoveredTypes = EndpointData.DiscoverTypes(opts);
+            var cmdHandlerRegistry = new CommandHandlerRegistry();
+            MessagingExtensions.RegisterHandlers(discoveredTypes, cmdHandlerRegistry);
+            var endpointData = new EndpointData(discoveredTypes);
 
-    /// <summary>
-    /// adds the FastEndpoints services to the ASP.Net middleware pipeline using source-generated discovered types.
-    /// pass one <see cref="List{Type}" /> per referenced assembly, e.g.:
-    /// <c>AddFastEndpoints(Lib1.DiscoveredTypes.All, Lib2.DiscoveredTypes.All)</c>
-    /// </summary>
-    /// <param name="discoveredTypes">one or more lists of source-generated discovered types, one per referenced assembly</param>
-    public static IServiceCollection AddFastEndpoints(this IServiceCollection services, params List<Type>[] discoveredTypes)
-    {
-        var allTypes = discoveredTypes.SelectMany(t => t);
-        var cmdHandlerRegistry = new CommandHandlerRegistry();
-        var endpointData = new EndpointData(allTypes, cmdHandlerRegistry);
+            return AddFastEndpointsCore(services, cmdHandlerRegistry, endpointData);
+        }
 
-        return AddFastEndpointsCore(services, cmdHandlerRegistry, endpointData);
+        /// <summary>
+        /// adds the FastEndpoints services to the ASP.Net middleware pipeline using source-generated discovered types.
+        /// pass one <see cref="List{Type}" /> per referenced assembly, e.g.:
+        /// <c>AddFastEndpoints(Lib1.DiscoveredTypes.All, Lib2.DiscoveredTypes.All)</c>
+        /// </summary>
+        /// <param name="discoveredTypes">one or more lists of source-generated discovered types, one per referenced assembly</param>
+        public IServiceCollection AddFastEndpoints(params List<Type>[] discoveredTypes)
+        {
+            var allTypes = discoveredTypes.SelectMany(t => t).ToList();
+            var cmdHandlerRegistry = new CommandHandlerRegistry();
+            MessagingExtensions.RegisterHandlers(allTypes, cmdHandlerRegistry);
+            var endpointData = new EndpointData(allTypes);
+
+            return AddFastEndpointsCore(services, cmdHandlerRegistry, endpointData);
+        }
     }
 
     static IServiceCollection AddFastEndpointsCore(IServiceCollection services, CommandHandlerRegistry cmdHandlerRegistry, EndpointData endpointData)

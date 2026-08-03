@@ -47,6 +47,8 @@ Attributes / Messaging.Core
 
 **Startup/mapping split (`Src/Library/Main/`):** public facades stay on `MainExtensions` (`AddFastEndpoints` / `UseFastEndpoints` / `MapFastEndpoints`, plus internal `BuildRoute` for OpenApi/Agents friend usage). Mapping orchestration is `EndpointRouteMapper`; auth policy materialization is `EndpointSecurityPolicies`; accepts/produces API explorer defaults are `EndpointProducesMetadata`; binder/validator precompile is `EndpointWarmup`. Request execution remains `FeRequestHandler` → `EndpointBootstrap` → `Endpoint.ExecAsync`.
 
+**Discovery ownership:** `AddFastEndpoints` resolves the type list once (`EndpointData.DiscoverTypes` for reflection, or source-generated `DiscoveredTypes`). `EndpointData` builds the HTTP endpoint definition catalog only (`Found`). Messaging handler registration is owned by `MessagingExtensions.RegisterHandlers` into `CommandHandlerRegistry` (same path used by standalone `AddMessaging`). Skip `AddMessaging` when `AddFastEndpoints` already ran; both must not invent a second registration owner.
+
 ## Dependency rules
 - **Allowed:** higher packages reference lower foundation packages (`Attributes`, `Core`, `Messaging.Core`).
 - **Library** references Attributes, JobQueues, Messaging (not Security/OpenApi; those are optional consumer packages).
@@ -58,7 +60,7 @@ Attributes / Messaging.Core
 
 ## Communication
 - **HTTP:** endpoints mapped into ASP.NET routing; config via `UseFastEndpoints(c => …)` (`Config` / `Cfg`).
-- **In-process messaging:** command/event handlers registered from discovery or DI helpers.
+- **In-process messaging:** command/event/stream handlers registered via `MessagingExtensions.RegisterHandlers` (from `AddMessaging` or as a side path of `AddFastEndpoints`), or DI/test helpers.
 - **Remote:** gRPC handler server (`AddHandlerServer` / remote client connection). The wire format is chosen by an
   `IRpcMarshallerFactory` and defaults to MessagePack. `AddHandlerServer(marshaller:)` sets it server-side;
   `RemoteConnection.MarshallerFactory` sets it per client connection. Both sides also take the bound gRPC method name from

@@ -24,6 +24,7 @@ static class Types
     internal static readonly Type FromBodyAttribute = typeof(FromBodyAttribute);
     internal static readonly Type FromFormAttribute = typeof(FromFormAttribute);
     internal static readonly Type FromHeaderAttribute = typeof(FromHeaderAttribute);
+    internal static readonly Type FromQueryAttribute = typeof(FromQueryAttribute);
     internal static readonly Type HideFromDocsAttribute = typeof(HideFromDocsAttribute);
     internal static readonly Type Http = typeof(Http);
     internal static readonly Type ICommandHandler = typeof(ICommandHandler);

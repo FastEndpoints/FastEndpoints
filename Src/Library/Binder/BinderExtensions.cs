@@ -196,7 +196,8 @@ static class BinderExtensions
             {
                 return t.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
                         .Where(
-                            p => p.GetSetMethod()?.IsPublic is true &&
+                            p => p.GetIndexParameters().Length == 0 && // exclude indexers (e.g. List<T>.Item)
+                                 p.GetSetMethod()?.IsPublic is true &&
                                  p.GetGetMethod()?.IsPublic is true &&
                                  p.GetCustomAttribute<JsonIgnoreAttribute>()?.Condition != JsonIgnoreCondition.Always &&
                                  !p.IsDefined(Types.DontInjectAttribute))
@@ -205,7 +206,7 @@ static class BinderExtensions
         }
 
         /// <summary>
-        /// returns the <see cref="PropertyDefinition"/> for <paramref name="prop"/> with complex form/query bind metadata
+        /// returns the <see cref="PropertyDefinition" /> for <paramref name="prop" /> with complex form/query bind metadata
         /// (field name, type kind, list factory, value parser, setter) populated on first use.
         /// </summary>
         [UnconditionalSuppressMessage("aot", "IL2055"), UnconditionalSuppressMessage("aot", "IL3050")]
@@ -249,6 +250,7 @@ static class BinderExtensions
                     if (tElement is not null)
                     {
                         propDef.ElementIsComplex = tElement.IsComplexType();
+                        propDef.ElementIsCollection = tElement.IsCollection();
 
                         // only cache a List<T> factory when the property type can accept List<T> (matches original tProp.IsAssignableFrom(tList))
                         var tList = Types.ListOf1.MakeGenericType(tElement);

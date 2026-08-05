@@ -342,6 +342,7 @@ public class ReflectionGenerator : IIncrementalGenerator
                         {
                             DeclaredAccessibility: Accessibility.Public,
                             IsStatic: false,
+                            IsIndexer: false, //indexers aren't bindable and can't be emitted as a property accessor
                             GetMethod.DeclaredAccessibility : Accessibility.Public,
                             SetMethod.DeclaredAccessibility: Accessibility.Public
                         } prop:

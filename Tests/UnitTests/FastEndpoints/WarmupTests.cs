@@ -287,6 +287,197 @@ public class WarmupTests : IDisposable
         }
     }
 
+    [Fact]
+    public async Task Warmup_PrecompilesComplexFormBindGraph()
+    {
+        var builder = WebApplication.CreateBuilder();
+        builder.Services.AddFastEndpoints([typeof(WarmupComplexFormEp)]);
+        var app = builder.Build();
+
+        try
+        {
+            app.UseFastEndpoints(c => c.Endpoints.Warmup());
+
+            // the [FromForm] prop type itself is new'd up on every request
+            Config.BndOpts.ReflectionCache.TryGetValue(typeof(ComplexFormDto), out var formDef).ShouldBeTrue();
+            formDef!.ObjectFactory.ShouldNotBeNull();
+
+            // nested complex node: factory + the setter ComplexBindMeta compiles (the binder's own ctor only does top level dto props)
+            Config.BndOpts.ReflectionCache.TryGetValue(typeof(FormNestedDto), out var nestedDef).ShouldBeTrue();
+            nestedDef!.ObjectFactory.ShouldNotBeNull();
+            nestedDef.Properties!.TryGetValue(typeof(FormNestedDto).GetProperty(nameof(FormNestedDto.City))!, out var cityDef).ShouldBeTrue();
+            cityDef!.Setter.ShouldNotBeNull();
+
+            // complex collection element node
+            Config.BndOpts.ReflectionCache.TryGetValue(typeof(FormItemDto), out var itemDef).ShouldBeTrue();
+            itemDef!.ObjectFactory.ShouldNotBeNull();
+            itemDef.Properties!.TryGetValue(typeof(FormItemDto).GetProperty(nameof(FormItemDto.Qty))!, out var qtyDef).ShouldBeTrue();
+            qtyDef!.Setter.ShouldNotBeNull();
+
+            // simple + simple-collection props of the root node
+            formDef.Properties!.TryGetValue(typeof(ComplexFormDto).GetProperty(nameof(ComplexFormDto.Name))!, out var nameDef).ShouldBeTrue();
+            nameDef!.Setter.ShouldNotBeNull();
+            nameDef.ValueParser.ShouldNotBeNull();
+            formDef.Properties.TryGetValue(typeof(ComplexFormDto).GetProperty(nameof(ComplexFormDto.Tags))!, out var tagsDef).ShouldBeTrue();
+            tagsDef!.Setter.ShouldNotBeNull();
+            tagsDef.ListFactory.ShouldNotBeNull();  // the MakeGenericType the commit is about
+            tagsDef.ValueParser.ShouldNotBeNull();  // element parser for the simple collection
+
+            // the complex collection's List<T> factory, and no element parser (elements are bound recursively)
+            formDef.Properties.TryGetValue(typeof(ComplexFormDto).GetProperty(nameof(ComplexFormDto.Items))!, out var itemsDef).ShouldBeTrue();
+            itemsDef!.ListFactory.ShouldNotBeNull();
+            itemsDef.ElementIsComplex.ShouldBeTrue();
+            itemsDef.ElementType.ShouldBe(typeof(FormItemDto));
+
+            // FieldName is ComplexBindMeta's publication sentinel: non-null on every prop in the graph == fully preloaded
+            AssertGraphFullyPublished(typeof(ComplexFormDto), []);
+        }
+        finally
+        {
+            await app.DisposeAsync();
+        }
+    }
+
+    [Fact]
+    public async Task Warmup_PrecompilesComplexQueryBindGraph()
+    {
+        var builder = WebApplication.CreateBuilder();
+        builder.Services.AddFastEndpoints([typeof(WarmupComplexQueryEp)]);
+        var app = builder.Build();
+
+        try
+        {
+            app.UseFastEndpoints(c => c.Endpoints.Warmup());
+
+            Config.BndOpts.ReflectionCache.TryGetValue(typeof(ComplexQueryDto), out var queryDef).ShouldBeTrue();
+            queryDef!.ObjectFactory.ShouldNotBeNull();
+
+            Config.BndOpts.ReflectionCache.TryGetValue(typeof(QueryNestedDto), out var nestedDef).ShouldBeTrue();
+            nestedDef!.ObjectFactory.ShouldNotBeNull();
+            nestedDef.Properties!.TryGetValue(typeof(QueryNestedDto).GetProperty(nameof(QueryNestedDto.Zip))!, out var zipDef).ShouldBeTrue();
+            zipDef!.Setter.ShouldNotBeNull();
+            zipDef.FieldName.ShouldNotBeNull();
+
+            AssertGraphFullyPublished(typeof(ComplexQueryDto), []);
+        }
+        finally
+        {
+            await app.DisposeAsync();
+        }
+    }
+
+    [Fact]
+    public async Task Warmup_ComplexBindGraph_DoesNotInstantiateAbstractOrFormFileNodes()
+    {
+        var builder = WebApplication.CreateBuilder();
+        builder.Services.AddFastEndpoints([typeof(WarmupUnconstructibleFormEp)]);
+        var app = builder.Build();
+
+        try
+        {
+            // must not throw at startup - the binder only instantiates these nodes if data is actually posted for them
+            app.UseFastEndpoints(c => c.Endpoints.Warmup());
+
+            if (Config.BndOpts.ReflectionCache.TryGetValue(typeof(AbstractFormNestedDto), out var abstractDef))
+                abstractDef!.ObjectFactory.ShouldBeNull();
+
+            if (Config.BndOpts.ReflectionCache.TryGetValue(typeof(IFormFile), out var fileDef))
+                fileDef!.ObjectFactory.ShouldBeNull();
+
+            // the constructible sibling in the same graph still gets warmed
+            Config.BndOpts.ReflectionCache.TryGetValue(typeof(FormNestedDto), out var nestedDef).ShouldBeTrue();
+            nestedDef!.ObjectFactory.ShouldNotBeNull();
+        }
+        finally
+        {
+            await app.DisposeAsync();
+        }
+    }
+
+    [Fact]
+    public async Task Warmup_ComplexBindGraph_HandlesSelfReferencingNode()
+    {
+        var builder = WebApplication.CreateBuilder();
+        builder.Services.AddFastEndpoints([typeof(WarmupRecursiveFormEp)]);
+        var app = builder.Build();
+
+        try
+        {
+            app.UseFastEndpoints(c => c.Endpoints.Warmup());
+
+            Config.BndOpts.ReflectionCache.TryGetValue(typeof(RecursiveFormDto), out var recursiveDef).ShouldBeTrue();
+            recursiveDef!.ObjectFactory.ShouldNotBeNull();
+            recursiveDef.Properties!.TryGetValue(typeof(RecursiveFormDto).GetProperty(nameof(RecursiveFormDto.Child))!, out var childDef).ShouldBeTrue();
+            childDef!.Setter.ShouldNotBeNull();
+        }
+        finally
+        {
+            await app.DisposeAsync();
+        }
+    }
+
+    [Fact]
+    public async Task Warmup_ComplexBindGraph_HandlesIndexersAndNestedCollections()
+    {
+        var builder = WebApplication.CreateBuilder();
+        builder.Services.AddFastEndpoints([typeof(WarmupIndexerFormEp)]);
+        var app = builder.Build();
+
+        try
+        {
+            // neither a node declaring an indexer nor an unsupported List<List<T>> may fail startup - the binder
+            // rejects the latter at bind time, and warmup must not escalate that into a boot failure.
+            var ex = Record.Exception(() => app.UseFastEndpoints(c => c.Endpoints.Warmup()));
+            ex.ShouldBeNull();
+
+            // the rest of the graph is still warmed
+            Config.BndOpts.ReflectionCache.TryGetValue(typeof(IndexerFormDto), out var formDef).ShouldBeTrue();
+            formDef!.Properties!.TryGetValue(typeof(IndexerFormDto).GetProperty(nameof(IndexerFormDto.Name))!, out var nameDef).ShouldBeTrue();
+            nameDef!.FieldName.ShouldNotBeNull();
+        }
+        finally
+        {
+            await app.DisposeAsync();
+        }
+    }
+
+    /// <summary>
+    /// walks the graph the same way <c>ComplexSourceBinder</c> does and asserts every property it would touch at request
+    /// time already has its metadata published (<c>FieldName</c> is the sentinel <c>ComplexBindMeta</c> sets last).
+    /// </summary>
+    static void AssertGraphFullyPublished(Type type, HashSet<Type> visited)
+    {
+        if (!visited.Add(type))
+            return;
+
+        Config.BndOpts.ReflectionCache.TryGetValue(type, out var typeDef).ShouldBeTrue($"no reflection cache entry for [{type.Name}]");
+
+        foreach (var prop in type.GetProperties())
+        {
+            if (prop.GetSetMethod()?.IsPublic is not true)
+                continue;
+
+            typeDef!.Properties!.TryGetValue(prop, out var propDef).ShouldBeTrue($"no prop entry for [{type.Name}.{prop.Name}]");
+            propDef!.FieldName.ShouldNotBeNull($"complex bind metadata not preloaded for [{type.Name}.{prop.Name}]");
+            propDef.Setter.ShouldNotBeNull($"setter not preloaded for [{type.Name}.{prop.Name}]");
+
+            if (propDef.IsFormFile || propDef.IsFormFileCollection)
+                continue;
+
+            if (propDef.IsCollection)
+            {
+                if (propDef is { ElementIsComplex: true, ElementType: { } tElement })
+                    AssertGraphFullyPublished(tElement, visited);
+                else
+                    propDef.ValueParser.ShouldNotBeNull($"element parser not preloaded for [{type.Name}.{prop.Name}]");
+            }
+            else if (propDef.IsComplex)
+                AssertGraphFullyPublished(propDef.UnderlyingType!, visited);
+            else
+                propDef.ValueParser.ShouldNotBeNull($"parser not preloaded for [{type.Name}.{prop.Name}]");
+        }
+    }
+
     static void ResetServiceResolver()
     {
         var testingProvider = new ServiceCollection().AddHttpContextAccessor().BuildServiceProvider();
@@ -439,6 +630,169 @@ file sealed class WarmupDerivedCollectionEp : Endpoint<WarmupDerivedCollectionRe
         => Post("warmup-derived-collection-ep");
 
     public override Task HandleAsync(WarmupDerivedCollectionRequest req, CancellationToken ct)
+        => Task.CompletedTask;
+}
+
+file sealed class WarmupComplexFormRequest
+{
+    [FromForm]
+    public ComplexFormDto? Form { get; set; }
+}
+
+file sealed class ComplexFormDto
+{
+    public string? Name { get; set; }
+
+    public List<string>? Tags { get; set; }
+
+    public FormNestedDto? Nested { get; set; }
+
+    public List<FormItemDto>? Items { get; set; }
+
+    public IFormFile? File { get; set; }
+
+    public IEnumerable<IFormFile>? Files { get; set; }
+}
+
+file sealed class FormNestedDto
+{
+    public string? City { get; set; }
+}
+
+file sealed class FormItemDto
+{
+    public int Qty { get; set; }
+}
+
+file sealed class WarmupComplexFormEp : Endpoint<WarmupComplexFormRequest>
+{
+    public override void Configure()
+    {
+        Post("warmup-complex-form-ep");
+        AllowFormData();
+    }
+
+    public override Task HandleAsync(WarmupComplexFormRequest req, CancellationToken ct)
+        => Task.CompletedTask;
+}
+
+file sealed class WarmupComplexQueryRequest
+{
+    [FromQuery]
+    public ComplexQueryDto? Query { get; set; }
+}
+
+file sealed class ComplexQueryDto
+{
+    public string? Term { get; set; }
+
+    public QueryNestedDto? Nested { get; set; }
+}
+
+file sealed class QueryNestedDto
+{
+    public string? Zip { get; set; }
+}
+
+file sealed class WarmupComplexQueryEp : Endpoint<WarmupComplexQueryRequest>
+{
+    public override void Configure()
+        => Get("warmup-complex-query-ep");
+
+    public override Task HandleAsync(WarmupComplexQueryRequest req, CancellationToken ct)
+        => Task.CompletedTask;
+}
+
+file sealed class WarmupUnconstructibleFormRequest
+{
+    [FromForm]
+    public UnconstructibleFormDto? Form { get; set; }
+}
+
+file sealed class UnconstructibleFormDto
+{
+    public AbstractFormNestedDto? Abstract { get; set; }
+
+    public FormNestedDto? Nested { get; set; }
+}
+
+file abstract class AbstractFormNestedDto
+{
+    public string? City { get; set; }
+}
+
+file sealed class WarmupUnconstructibleFormEp : Endpoint<WarmupUnconstructibleFormRequest>
+{
+    public override void Configure()
+    {
+        Post("warmup-unconstructible-form-ep");
+        AllowFormData();
+    }
+
+    public override Task HandleAsync(WarmupUnconstructibleFormRequest req, CancellationToken ct)
+        => Task.CompletedTask;
+}
+
+file sealed class WarmupRecursiveFormRequest
+{
+    [FromForm]
+    public RecursiveFormDto? Form { get; set; }
+}
+
+file sealed class RecursiveFormDto
+{
+    public string? Name { get; set; }
+
+    public RecursiveFormDto? Child { get; set; }
+}
+
+file sealed class WarmupIndexerFormRequest
+{
+    [FromForm]
+    public IndexerFormDto? Form { get; set; }
+}
+
+file sealed class IndexerFormDto
+{
+    public string? Name { get; set; }
+
+    public List<List<FormItemDto>>? Matrix { get; set; } // element type List<T> exposes a public Item[int] indexer
+
+    public SelfIndexingDto? Indexed { get; set; }
+}
+
+file sealed class SelfIndexingDto
+{
+    public string? Label { get; set; }
+
+    public string this[int i]
+    {
+        get => Label!;
+        set => Label = value;
+    }
+}
+
+file sealed class WarmupIndexerFormEp : Endpoint<WarmupIndexerFormRequest>
+{
+    public override void Configure()
+    {
+        Post("warmup-indexer-form-ep");
+        AllowFormData();
+    }
+
+    public override Task HandleAsync(WarmupIndexerFormRequest req, CancellationToken ct)
+        => Task.CompletedTask;
+}
+
+file sealed class WarmupRecursiveFormEp : Endpoint<WarmupRecursiveFormRequest>
+{
+    public override void Configure()
+    {
+        Post("warmup-recursive-form-ep");
+        AllowFormData();
+    }
+
+    public override Task HandleAsync(WarmupRecursiveFormRequest req, CancellationToken ct)
         => Task.CompletedTask;
 }
 

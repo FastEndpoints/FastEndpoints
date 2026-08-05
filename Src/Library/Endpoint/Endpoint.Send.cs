@@ -198,7 +198,7 @@ public readonly struct ResponseSender<TRequest, TResponse>(Endpoint<TRequest, TR
         => ep.HttpContext.Response.SendEmptyJsonObject(null, cancellation);
 
     /// <summary>
-    /// send a 400 bad request with error details of the current validation failures
+    /// send a response with error details of the current validation failures (default status code 400)
     /// </summary>
     /// <param name="statusCode">the status code for the error response</param>
     /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used</param>

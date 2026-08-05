@@ -285,7 +285,7 @@ public static class HttpResponseExtensions
         }
 
         /// <summary>
-        /// send a 400 bad request with error details of the current validation failures
+        /// send a response with error details of the current validation failures (default status code 400)
         /// </summary>
         /// <param name="failures">the collection of failures</param>
         /// <param name="statusCode">the http status code for the error response</param>

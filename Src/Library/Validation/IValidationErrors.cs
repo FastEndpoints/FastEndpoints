@@ -34,15 +34,15 @@ public interface IValidationErrors
 
     // ReSharper disable once UnusedMemberInSuper.Global
     /// <summary>
-    /// interrupt the flow of handler execution and send a 400 bad request with error details if there are any validation failures in the current request. if
-    /// there are no validation failures, execution will continue past this call.
+    /// interrupt the flow of handler execution and send a validation error response if there are any validation failures in the current request. if
+    /// there are no validation failures, execution will continue past this call. the default status code comes from error options when not specified.
     /// </summary>
     /// <param name="statusCode">an optional status code to be used when building the error response</param>
     void ThrowIfAnyErrors(int? statusCode = null);
 
     /// <summary>
-    /// adds a <see cref="ValidationFailure" /> to the validation failure collection of the endpoint and send back a 400 bad request with error details
-    /// immediately interrupting handler execution flow. i.e. execution will not continue past this call.
+    /// adds a <see cref="ValidationFailure" /> to the validation failure collection of the endpoint and sends back a validation error response
+    /// immediately interrupting handler execution flow. i.e. execution will not continue past this call. the default status code comes from error options when not specified.
     /// </summary>
     /// <param name="failure">the validation failure to add</param>
     /// <param name="statusCode">an optional status code to be used when building the error response</param>
@@ -50,8 +50,8 @@ public interface IValidationErrors
     void ThrowError(ValidationFailure failure, int? statusCode = null);
 
     /// <summary>
-    /// adds a "GeneralError" to the validation failure list and sends back a 400 bad request with error details immediately interrupting handler execution
-    /// flow. i.e. execution will not continue past this call.
+    /// adds a "GeneralError" to the validation failure list and sends back a validation error response immediately interrupting handler execution
+    /// flow. i.e. execution will not continue past this call. the default status code comes from error options when not specified.
     /// </summary>
     /// <param name="message">the error message</param>
     /// <param name="statusCode">an optional status code to be used when building the error response</param>
@@ -59,8 +59,8 @@ public interface IValidationErrors
     void ThrowError(string message, int? statusCode = null);
 
     /// <summary>
-    /// adds a "GeneralError" to the validation failure list and sends back a 400 bad request with error details immediately interrupting handler execution
-    /// flow. i.e. execution will not continue past this call.
+    /// adds a "GeneralError" to the validation failure list and sends back a validation error response immediately interrupting handler execution
+    /// flow. i.e. execution will not continue past this call. the default status code comes from error options when not specified.
     /// </summary>
     /// <param name="message">the error message</param>
     /// <param name="errorCode">the error code associated with the error</param>
@@ -82,8 +82,8 @@ public interface IValidationErrors<T> : IValidationErrors
     void AddError(Expression<Func<T, object?>> property, string errorMessage, string? errorCode = null, Severity severity = Severity.Error);
 
     /// <summary>
-    /// adds an error message for the specified property of the request dto and sends back a 400 bad request with error details immediately interrupting
-    /// handler execution flow. no execution will continue past this call.
+    /// adds an error message for the specified property of the request dto and sends back a validation error response immediately interrupting
+    /// handler execution flow. no execution will continue past this call. the default status code comes from error options when not specified.
     /// </summary>
     /// <param name="property">the property to add the error message for</param>
     /// <param name="errorMessage">the error message</param>
@@ -92,8 +92,8 @@ public interface IValidationErrors<T> : IValidationErrors
     void ThrowError(Expression<Func<T, object?>> property, string errorMessage, int? statusCode = null);
 
     /// <summary>
-    /// adds an error message for the specified property of the request dto and sends back a 400 bad request with error details immediately interrupting
-    /// handler execution flow. no execution will continue past this call.
+    /// adds an error message for the specified property of the request dto and sends back a validation error response immediately interrupting
+    /// handler execution flow. no execution will continue past this call. the default status code comes from error options when not specified.
     /// </summary>
     /// <param name="property">the property to add the error message for</param>
     /// <param name="errorMessage">the error message</param>

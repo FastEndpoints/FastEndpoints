@@ -30,7 +30,7 @@ tags: [deps]
 | MessagePack | Default RPC marshalling |
 | protobuf-net / Grpc.Reflection | Protobuf wire format + gRPC reflection (Messaging.Remote.Reflection only) |
 | Microsoft.AspNetCore.OData | OData package |
-| ModelContextProtocol.AspNetCore | Agents MCP |
+| ModelContextProtocol.AspNetCore | Agents MCP; v2.x targets the 2026-07-28 MCP spec (stateless-by-default transport, backward compatible with the addon's v1-style handler wiring) |
 | Microsoft.CodeAnalysis.CSharp **[4.11.0]** | Generators; pinned for net8 compatibility (comment in props) |
 | Microsoft.OpenApi.Kiota.Builder **[1.29.0]** | Pinned; Kiota OpenAPI 3.x vs AspNetCore.OpenApi 2.x mismatch |
 | xunit.v3, Shouldly, FakeItEasy, Bogus | Test stack |

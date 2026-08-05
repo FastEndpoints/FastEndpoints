@@ -93,10 +93,9 @@ public class VersioningStrategyTests(Fixture App) : TestBase<Fixture>
     async Task<HashSet<string>> GetPathsAsync(string documentName)
     {
         var json = await App.GetDocumentJsonAsync(documentName);
-        var doc = JToken.Parse(json);
-        var paths = doc["paths"] as JObject;
+        var paths = JsonNode.Parse(json)!["paths"] as JsonObject;
 
-        return paths?.Properties().Select(p => p.Name).ToHashSet(StringComparer.Ordinal)
+        return paths?.Select(p => p.Key).ToHashSet(StringComparer.Ordinal)
                ?? new HashSet<string>(StringComparer.Ordinal);
     }
 }

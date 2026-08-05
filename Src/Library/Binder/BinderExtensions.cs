@@ -196,9 +196,7 @@ static class BinderExtensions
             {
                 return t.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
                         .Where(
-                            //indexers (e.g. List<T>.Item) have no bindable field name and no compilable getter/setter -
-                            //including them makes SetterForProp/GetterForProp throw for any type that declares one.
-                            p => p.GetIndexParameters().Length == 0 &&
+                            p => p.GetIndexParameters().Length == 0 && // exclude indexers (e.g. List<T>.Item)
                                  p.GetSetMethod()?.IsPublic is true &&
                                  p.GetGetMethod()?.IsPublic is true &&
                                  p.GetCustomAttribute<JsonIgnoreAttribute>()?.Condition != JsonIgnoreCondition.Always &&
@@ -208,7 +206,7 @@ static class BinderExtensions
         }
 
         /// <summary>
-        /// returns the <see cref="PropertyDefinition"/> for <paramref name="prop"/> with complex form/query bind metadata
+        /// returns the <see cref="PropertyDefinition" /> for <paramref name="prop" /> with complex form/query bind metadata
         /// (field name, type kind, list factory, value parser, setter) populated on first use.
         /// </summary>
         [UnconditionalSuppressMessage("aot", "IL2055"), UnconditionalSuppressMessage("aot", "IL3050")]

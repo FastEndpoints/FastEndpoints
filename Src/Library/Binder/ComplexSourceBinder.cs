@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Reflection;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
@@ -14,7 +14,7 @@ static class ComplexSourceBinder
     internal static void Bind(PropCache propCache, object requestDto, IQueryCollection query, List<ValidationFailure> failures)
         => Bind(propCache, requestDto, new QueryValueSource(query), failures);
 
-    /// <summary>Builds <c>prefix.fieldName</c>, or returns <paramref name="fieldName"/> when prefix is empty (no alloc).</summary>
+    /// <summary>Builds <c>prefix.fieldName</c>, or returns <paramref name="fieldName" /> when prefix is empty (no alloc).</summary>
     static string NestedKey(string prefix, string fieldName)
         => prefix.Length == 0
                ? fieldName

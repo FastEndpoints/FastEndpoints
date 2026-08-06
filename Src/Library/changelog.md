@@ -215,30 +215,9 @@ Previously, only properties decorated with `[RouteParam]` (or another attribute 
 
 <details><summary>Indexer properties no longer break request binding and validation</summary>
 
-Types declaring a public indexer are now handled correctly. Indexers are excluded from the internal bindable-property set, since they have no bindable field name and no compilable accessor.
+Public indexers are excluded from the bindable-property set (and from the reflection source generator cache), so types that declare one no longer throw when compiling getters/setters.
 
-```csharp
-// previously threw when the endpoint was registered
-sealed class MyRequest
-{
-    public string? Label { get; set; }
-
-    public string this[int i]
-    {
-        get => Label!;
-        set => Label = value;
-    }
-}
-```
-
-Previously an indexer was treated as a bindable property, and compiling its getter/setter threw `ArgumentException: Incorrect number of arguments supplied for call to method 'get_Item'`. The impact was wider than complex binding:
-
-- request DTOs declaring an indexer failed at endpoint registration, in `RequestBinder<TRequest>`'s static constructor
-- nested `[FromForm]`/`[FromQuery]` objects declaring one threw at bind time
-- data-annotation validation recursion threw when it reached one
-- `List<List<T>>` properties threw, because the element type `List<T>` exposes a public `Item[int]` indexer
-
-The reflection source generator now skips indexers as well, so a pre-populated cache matches the runtime behavior.
+Previously an indexer was treated as a bindable property, which failed endpoint registration, nested `[FromForm]`/`[FromQuery]` binding, data-annotation validation recursion, and shapes such as `List<List<T>>` whose element type exposes `Item[int]`.
 
 </details>
 
@@ -329,7 +308,7 @@ Public resolve APIs and behavior are unchanged. Only the ownership of the defaul
 
 Complex `[FromQuery]` / `[FromForm]` binding allocates less on each request:
 
-- `ParentPrefixIndex` (used to skip nested objects with no matching keys) no longer materializes every parent path substring into a `HashSet`. It indexes spans into the original query/form keys in a single pass (capacity from key count, grows on unique prefixes only), keeping O(1) prefix checks without per-segment string allocations.
+- `ParentPrefixIndex` (used to skip nested objects with no matching keys) no longer materializes every parent path substring into a `HashSet`. It indexes spans into the original query/form keys in a single pass (capacity from key count, grows on unique prefixes only), keeping O (1) prefix checks without per-segment string allocations.
 - Nested and indexed key construction (`prefix.field`, `key[i]`) uses `string.Concat` / `string.Create` instead of repeated interpolations.
 - Complex collection binding stops at the first missing `items[i]` prefix without allocating empty element instances.
 
@@ -345,29 +324,18 @@ The internal `ValidationFailed` helper in the endpoint execution path no longer 
 
 <details><summary>Warmup precompiles complex form/query binding metadata</summary>
 
-`Endpoints.Warmup()` now precompiles the per-property metadata that `ComplexSourceBinder` caches lazily — field names, type kind flags, setters, value parsers, and `List<T>` factories — for the entire object graph rooted at a `[FromForm]` / `[FromQuery]` property, along with the object factory of each nested node.
+`Endpoints.Warmup()` now precompiles `ComplexSourceBinder` metadata (setters, parsers, factories, type flags) for the full object graph under each `[FromForm]` / `[FromQuery]` property, not only the request DTO's own properties and validation getters.
 
-Previously only the request DTO's own properties and validation getters were warmed, so the first request to a complex form/query endpoint still paid attribute lookup, type classification, setter/value-parser compilation, and `MakeGenericType` for every node in the graph. Warming the metadata up front also removes first-request lock contention, since the per-property initialization lock is no longer taken while requests are being served.
-
-Graph roots are discovered from the request DTO itself rather than from `RequestBinder<TRequest>`, so warmup still covers them when a custom `IRequestBinder<TRequest>` is registered.
+Roots are taken from the request DTO itself, so warmup still covers them when a custom `IRequestBinder<TRequest>` is registered. First-request lock contention on the per-property cache is avoided as a result.
 
 </details>
 
-## Breaking Changes ⚠️
+## Minor Breaking Changes ⚠️
 
 <details><summary>Nested collections are rejected in complex form/query binding</summary>
 
-Complex `[FromForm]` / `[FromQuery]` binding now throws `NotSupportedException` when a collection property's element type is itself a complex collection, instead of silently binding an empty list.
+Complex `[FromForm]` / `[FromQuery]` binding now throws `NotSupportedException` when a collection's element type is itself a complex collection (e.g. `List<List<Item>>`, `List<byte[]>`, `List<Dictionary<TKey, TValue>>`), instead of returning an empty list or failing with an unrelated indexer error.
 
-```csharp
-sealed class MyForm
-{
-    public List<List<Item>>? Matrix { get; set; } // now throws NotSupportedException
-}
-```
-
-This shape has no key convention — elements of a complex collection are bound as objects with named properties, never as another collection — so it never bound data. `List<byte[]>` and `List<Dictionary<TKey, TValue>>` are affected for the same reason, since their element types are also treated as complex collections.
-
-`List<List<T>>` previously threw an unrelated `ArgumentException` from the indexer bug described under Fixes; the other shapes silently produced an empty list. Simple collections such as `List<string>` and `List<int>`, and any collection whose element type is parseable, are unaffected.
+These shapes have no key convention and never bound data. Simple collections such as `List<string>` and `List<int>` are unaffected.
 
 </details>

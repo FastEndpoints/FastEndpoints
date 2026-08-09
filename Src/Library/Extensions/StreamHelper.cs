@@ -68,22 +68,19 @@ static class StreamHelper
                                               long rangeLength,
                                               CancellationToken cancellation)
     {
-        await using (stream)
+        try //the stream is disposed by the caller (HttpResponseExtensions.SendStreamAsync)
         {
-            try
+            if (range is null)
+                await StreamCopyOperation.CopyToAsync(stream, ctx.Response.Body, null, 64 * 1024, cancellation);
+            else
             {
-                if (range is null)
-                    await StreamCopyOperation.CopyToAsync(stream, ctx.Response.Body, null, 64 * 1024, cancellation);
-                else
-                {
-                    stream.Seek(range.From!.Value, SeekOrigin.Begin);
-                    await StreamCopyOperation.CopyToAsync(stream, ctx.Response.Body, rangeLength, 64 * 1024, cancellation);
-                }
+                stream.Seek(range.From!.Value, SeekOrigin.Begin);
+                await StreamCopyOperation.CopyToAsync(stream, ctx.Response.Body, rangeLength, 64 * 1024, cancellation);
             }
-            catch (OperationCanceledException)
-            {
-                ctx.Abort();
-            }
+        }
+        catch (OperationCanceledException)
+        {
+            ctx.Abort();
         }
     }
 
@@ -96,8 +93,6 @@ static class StreamHelper
 
     static Precondition PreconditionState(RequestHeaders httpRequestHeaders, DateTimeOffset? lastModified)
     {
-        const Precondition ifMatchState = Precondition.Unspecified;
-        const Precondition ifNoneMatchState = Precondition.Unspecified;
         var ifModifiedSinceState = Precondition.Unspecified;
         var ifUnmodifiedSinceState = Precondition.Unspecified;
 
@@ -119,7 +114,7 @@ static class StreamHelper
             ifUnmodifiedSinceState = unmodified ? Precondition.ShouldProcess : Precondition.PreconditionFailed;
         }
 
-        return MaxPreconditionState(ifMatchState, ifNoneMatchState, ifModifiedSinceState, ifUnmodifiedSinceState);
+        return MaxPreconditionState(ifModifiedSinceState, ifUnmodifiedSinceState);
     }
 
     static (RangeItemHeaderValue? range, long rangeLength, bool serveBody)
@@ -161,24 +156,13 @@ static class StreamHelper
 
     static void SetLastModified(HttpResponse response, DateTimeOffset? lastModified)
     {
-        var rspHeaders = response.GetTypedHeaders();
-
         if (lastModified is not null)
-            rspHeaders.LastModified = lastModified;
+            response.GetTypedHeaders().LastModified = lastModified;
     }
 
-    static Precondition MaxPreconditionState(params Precondition[] states)
-    {
-        var max = Precondition.Unspecified;
-
-        for (var i = 0; i < states.Length; i++)
-        {
-            if (states[i] > max)
-                max = states[i];
-        }
-
-        return max;
-    }
+    //if-match/if-none-match states are never set, and Precondition.Unspecified is the lowest value, so only these two can win.
+    static Precondition MaxPreconditionState(Precondition ifModifiedSinceState, Precondition ifUnmodifiedSinceState)
+        => ifModifiedSinceState > ifUnmodifiedSinceState ? ifModifiedSinceState : ifUnmodifiedSinceState;
 
     static DateTimeOffset RoundDownToWholeSeconds(DateTimeOffset dateTimeOffset)
     {

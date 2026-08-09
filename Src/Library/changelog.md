@@ -268,6 +268,12 @@ Some external MCP adapters may still apply OpenAI-style function-name validation
 
 </details>
 
+<details><summary>Reduced allocations when sending streams and files</summary>
+
+`Send.StreamAsync()` and `Send.FileAsync()` no longer allocate a typed response-header wrapper when no `lastModified` value is supplied, no longer allocate an array to compute the request's precondition state, and no longer build a second stream-disposal state machine, since the stream is already disposed by `Send.StreamAsync()` itself.
+
+</details>
+
 <details><summary>Connection-level subscriber ids for remote event subscriptions</summary>
 
 Remote connections can now set `SubscriberID` once and use it as the default subscriber id for event subscriptions on that connection.

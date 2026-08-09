@@ -15,6 +15,8 @@ namespace FastEndpoints;
 
 public static class HttpResponseExtensions
 {
+    static readonly JsonObject _emptyJsonObject = new();
+
     extension(HttpResponse rsp)
     {
         /// <summary>
@@ -193,25 +195,20 @@ public static class HttpResponseExtensions
         /// <param name="lastModified">optional last modified date-time-offset for the data stream</param>
         /// <param name="enableRangeProcessing">optional switch for enabling range processing</param>
         /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
-        public async Task<Void> SendBytesAsync(byte[] bytes,
-                                               string? fileName = null,
-                                               string contentType = "application/octet-stream",
-                                               DateTimeOffset? lastModified = null,
-                                               bool enableRangeProcessing = false,
-                                               CancellationToken cancellation = default)
-        {
-            using var memoryStream = new MemoryStream(bytes);
-            await rsp.SendStreamAsync(
-                memoryStream,
+        public Task<Void> SendBytesAsync(byte[] bytes,
+                                         string? fileName = null,
+                                         string contentType = "application/octet-stream",
+                                         DateTimeOffset? lastModified = null,
+                                         bool enableRangeProcessing = false,
+                                         CancellationToken cancellation = default)
+            => rsp.SendStreamAsync( //the stream is disposed by SendStreamAsync itself
+                new MemoryStream(bytes),
                 fileName,
                 bytes.Length,
                 contentType,
                 lastModified,
                 enableRangeProcessing,
                 cancellation);
-
-            return Void.Instance;
-        }
 
         /// <summary>
         /// send a 201 created response with a location header containing where the resource can be retrieved from.
@@ -279,7 +276,7 @@ public static class HttpResponseExtensions
             rsp.HttpContext.MarkResponseStart();
             rsp.StatusCode = 200;
             await rsp.ApplyGlobalResponseModifier();
-            await SerOpts.ResponseSerializer(rsp, new JsonObject(), "application/json", jsonSerializerContext, cancellation.IfDefault(rsp));
+            await SerOpts.ResponseSerializer(rsp, _emptyJsonObject, "application/json", jsonSerializerContext, cancellation.IfDefault(rsp));
 
             return Void.Instance;
         }

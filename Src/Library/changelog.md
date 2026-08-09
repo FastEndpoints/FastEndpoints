@@ -322,6 +322,23 @@ The internal `ValidationFailed` helper in the endpoint execution path no longer 
 
 </details>
 
+<details><summary>Allocation-free event bus dispatch for the common case</summary>
+
+`EventBus<TEvent>` no longer dispatches through `Parallel.ForEachAsync`, which allocated internal loop state, a linked `CancellationTokenSource`, a completion task, and a redundant async state machine per handler on every publish. Handlers are now invoked directly and awaited with `Task.WhenAll`, with a fast path for the overwhelmingly common single-handler case.
+
+Measured with `GC.GetTotalAllocatedBytes` over 500k publishes of an event whose handlers complete synchronously:
+
+| publish | before | after |
+| --- | --- | --- |
+| `WaitForAll`, 1 handler (the default) | 467 bytes | 0 bytes |
+| `WaitForAll`, 3 handlers | 598 bytes | 120 bytes |
+| `WaitForNone`, 1 handler | 461 bytes | 272 bytes |
+| `WaitForAny`, 1 handler | 568 bytes | 424 bytes |
+
+Note: handlers are no longer throttled to `Environment.ProcessorCount`. Every handler subscribed to an event now starts immediately on publish. This is only observable for events with more subscribed handlers than the machine has cores. `WaitForNone` remains fire and forget: handlers are still offloaded, so a slow or synchronously throwing handler cannot block or throw at the publisher.
+
+</details>
+
 <details><summary>Warmup precompiles complex form/query binding metadata</summary>
 
 `Endpoints.Warmup()` now precompiles `ComplexSourceBinder` metadata (setters, parsers, factories, type flags) for the full object graph under each `[FromForm]` / `[FromQuery]` property, not only the request DTO's own properties and validation getters.

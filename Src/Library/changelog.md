@@ -324,21 +324,7 @@ The internal `ValidationFailed` helper in the endpoint execution path no longer 
 
 <details><summary>Allocation-free event bus dispatch for the common case</summary>
 
-`EventBus<TEvent>` no longer dispatches through `Parallel.ForEachAsync`, which allocated internal loop state, a linked `CancellationTokenSource`, a completion task, and a redundant async state machine per handler on every publish. Handlers are now invoked directly and awaited with `Task.WhenAll`, with a fast path for the overwhelmingly common single-handler case.
-
-Measured with `GC.GetTotalAllocatedBytes` over 500k publishes of an event whose handlers complete synchronously:
-
-| publish | before | after |
-| --- | --- | --- |
-| `WaitForAll`, 1 handler (the default) | 467 bytes | 0 bytes |
-| `WaitForAll`, 3 handlers | 598 bytes | 120 bytes |
-| `WaitForNone`, 1 handler | 461 bytes | 272 bytes |
-| `WaitForAny`, 1 handler | 568 bytes | 368 bytes |
-| `PublishFilteredAsync` identity filter, 1 handler | (n/a) | 0 bytes |
-
-Single-handler `WaitForAny` skips the temporary `Task[1]` from multi-handler offload (still uses `Task.WhenAny` so faults are not capturable). `PublishFilteredAsync` no longer builds a LINQ iterator/array when the predicate keeps every handler (reuses the registered array) or matches none.
-
-Note: handlers are no longer throttled to `Environment.ProcessorCount`. Every handler subscribed to an event now starts immediately on publish. This is only observable for events with more subscribed handlers than the machine has cores. `WaitForNone` remains fire and forget: handlers are still offloaded, so a slow or synchronously throwing handler cannot block or throw at the publisher.
+`EventBus<TEvent>` no longer dispatches via `Parallel.ForEachAsync`; handlers are invoked directly and awaited with `Task.WhenAll`, with a single-handler fast path that is allocation-free for the default `WaitForAll` case. Multi-handler and `WaitForNone`/`WaitForAny` paths also allocate less; `PublishFilteredAsync` reuses the registered array for identity/empty filters. Handlers are no longer capped at `Environment.ProcessorCount` (all start immediately). `WaitForNone` remains fire-and-forget (offloaded).
 
 </details>
 

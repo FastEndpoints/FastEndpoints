@@ -322,6 +322,12 @@ The internal `ValidationFailed` helper in the endpoint execution path no longer 
 
 </details>
 
+<details><summary>Allocation-free event bus dispatch for the common case</summary>
+
+`EventBus<TEvent>` no longer dispatches via `Parallel.ForEachAsync`; handlers are invoked directly and awaited with `Task.WhenAll`, with a single-handler fast path that is allocation-free for the default `WaitForAll` case. Multi-handler and `WaitForNone`/`WaitForAny` paths also allocate less; `PublishFilteredAsync` reuses the registered array for identity/empty filters. Handlers are no longer capped at `Environment.ProcessorCount` (all start immediately). `WaitForNone` remains fire-and-forget (offloaded).
+
+</details>
+
 <details><summary>Warmup precompiles complex form/query binding metadata</summary>
 
 `Endpoints.Warmup()` now precompiles `ComplexSourceBinder` metadata (setters, parsers, factories, type flags) for the full object graph under each `[FromForm]` / `[FromQuery]` property, not only the request DTO's own properties and validation getters.

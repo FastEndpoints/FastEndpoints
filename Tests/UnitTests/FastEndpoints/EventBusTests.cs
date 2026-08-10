@@ -94,6 +94,18 @@ public class EventBusTests
     }
 
     [Fact]
+    public async Task PublishFilteredIdentityPredicateInvokesAllHandlers()
+    {
+        //predicate keeps every handler; Filter must still dispatch all (identity reuse path)
+        var evnt = new TrackedEvent();
+
+        await new EventBus<TrackedEvent>([new HandlerA(), new HandlerB()])
+            .PublishFilteredAsync(evnt, _ => true, Mode.WaitForAll, TestContext.Current.CancellationToken);
+
+        evnt.Visited.OrderBy(x => x).ShouldBe(["A", "B"]);
+    }
+
+    [Fact]
     public async Task WaitForNoneDoesNotSurfaceHandlerExceptions()
     {
         var evnt = new TrackedEvent();

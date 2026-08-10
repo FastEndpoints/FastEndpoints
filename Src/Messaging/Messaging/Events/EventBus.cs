@@ -126,7 +126,35 @@ public sealed class EventBus<TEvent> : EventBase where TEvent : notnull
     }
 
     static IEventHandler<TEvent>[] Filter(IEventHandler<TEvent>[] handlers, Func<Type, bool> handlerFilter)
-        => [.. handlers.Where(h => handlerFilter(h.GetType()))];
+    {
+        var len = handlers.Length;
+        var matchCount = 0;
+
+        for (var i = 0; i < len; i++)
+        {
+            if (handlerFilter(handlers[i].GetType()))
+                matchCount++;
+        }
+
+        if (matchCount == 0)
+            return [];
+
+        if (matchCount == len)
+            return handlers; //identity filter: reuse the registered array (zero alloc)
+
+        var filtered = new IEventHandler<TEvent>[matchCount];
+        var j = 0;
+
+        for (var i = 0; i < len; i++)
+        {
+            var h = handlers[i];
+
+            if (handlerFilter(h.GetType()))
+                filtered[j++] = h;
+        }
+
+        return filtered;
+    }
 
     //keep offload lambdas out of Execute so Roslyn does not hoist a display class onto the zero-alloc WaitForAll path
     static Task OffloadOne(IEventHandler<TEvent> h, TEvent eventModel, CancellationToken ct)

@@ -1,4 +1,4 @@
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 
 namespace FastEndpoints;
 
@@ -102,7 +102,10 @@ public sealed class EventBus<TEvent> : EventBase where TEvent : notnull
                 return Task.CompletedTask;
 
             case Mode.WaitForAny:
-                return Task.WhenAny(OffloadAll(handlers, eventModel, ct));
+                //single-handler: skip OffloadAll's Task[1]; still WhenAny so faults are not surfaced (Mode docs)
+                return handlers.Length == 1
+                           ? Task.WhenAny(OffloadOne(handlers[0], eventModel, ct))
+                           : Task.WhenAny(OffloadAll(handlers, eventModel, ct));
 
             case Mode.WaitForAll:
             {
@@ -123,7 +126,11 @@ public sealed class EventBus<TEvent> : EventBase where TEvent : notnull
     }
 
     static IEventHandler<TEvent>[] Filter(IEventHandler<TEvent>[] handlers, Func<Type, bool> handlerFilter)
-        => handlers.Where(h => handlerFilter(h.GetType())).ToArray();
+        => [.. handlers.Where(h => handlerFilter(h.GetType()))];
+
+    //keep offload lambdas out of Execute so Roslyn does not hoist a display class onto the zero-alloc WaitForAll path
+    static Task OffloadOne(IEventHandler<TEvent> h, TEvent eventModel, CancellationToken ct)
+        => Task.Run(() => h.HandleAsync(eventModel, ct), ct);
 
     //fire and forget. the handlers are offloaded so that a slow or synchronously throwing handler can neither block nor throw at the publisher.
     static void Offload(IEventHandler<TEvent>[] handlers, TEvent eventModel, CancellationToken ct)

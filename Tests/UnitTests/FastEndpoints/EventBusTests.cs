@@ -108,6 +108,18 @@ public class EventBusTests
     }
 
     [Fact]
+    public async Task WaitForAnySingleHandlerDoesNotSurfaceSyncExceptions()
+    {
+        //same isolation as WaitForNone: Task.Run keeps a sync throw off the publisher thread
+        var task = new EventBus<TrackedEvent>([new ThrowingHandler()])
+            .PublishAsync(new TrackedEvent(), Mode.WaitForAny, TestContext.Current.CancellationToken);
+
+        //WhenAny/offload returns a non-faulted task to the publisher; exceptions are not capturable
+        await task;
+        task.IsCompletedSuccessfully.ShouldBeTrue();
+    }
+
+    [Fact]
     public async Task RegisterFakeEventHandlerAndPublish()
     {
         var fakeHandler = new FakeEventHandler();

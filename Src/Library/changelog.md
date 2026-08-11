@@ -266,6 +266,14 @@ Endpoint security policies now build a `FrozenSet` of allowed permissions/scopes
 
 </details>
 
+<details><summary>Reduced allocations when sending byte arrays and empty json objects</summary>
+
+`Send.BytesAsync()` no longer builds its own `async` state machine and `Task<Void>`, since it simply forwards to `Send.StreamAsync()`, which already owns disposal of the supplied stream.
+
+`Send.EmptyJsonObject()` now serializes a shared empty `JsonObject` instead of allocating a new one per call. The response still goes through the configured response serializer, so custom serializer hooks are unaffected.
+
+</details>
+
 <details><summary>Relaxed agent name validation</summary>
 
 A2A skill ids and MCP tool names now allow dots and forward slashes, so path/version-style identifiers such as `users/read.v1` can be published without renaming.

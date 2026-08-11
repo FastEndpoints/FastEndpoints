@@ -223,6 +223,12 @@ Previously an indexer was treated as a bindable property, which failed endpoint 
 
 ## Improvements 🚀
 
+<details><summary>MCP addon targets Model Context Protocol SDK v2</summary>
+
+`FastEndpoints.Mcp` now depends on `ModelContextProtocol.AspNetCore` **2.0** (2026-07-28 MCP spec). HTTP transport is stateless by default; existing `AddMcp()` / tool wiring is unchanged.
+
+</details>
+
 <details><summary>AccessControl group names resolve compile-time constants</summary>
 
 The source generator that builds `Allow` permission groups from `AccessControl(...)` calls now accepts compile-time string constants for group names (`const` fields, `nameof(...)`, etc.), not only string literals.
@@ -257,6 +263,14 @@ Several read-mostly internal lookup tables now use `FrozenDictionary`/`FrozenSet
 Endpoint security policies now build a `FrozenSet` of allowed permissions/scopes/claim types once when the policy is constructed, instead of scanning the backing collection on every authorization check.
 
 `RequestBinder<TRequest>` now indexes `[FromClaim]` / `[HasPermission]` properties once per DTO type and matches principal claims against those indices, instead of building per-request claim dictionaries or permission sets sized to the full principal.
+
+</details>
+
+<details><summary>Reduced allocations when sending byte arrays and empty json objects</summary>
+
+`Send.BytesAsync()` no longer builds its own `async` state machine and `Task<Void>`, since it simply forwards to `Send.StreamAsync()`, which already owns disposal of the supplied stream.
+
+`Send.EmptyJsonObject()` now serializes a shared empty `JsonObject` instead of allocating a new one per call. The response still goes through the configured response serializer, so custom serializer hooks are unaffected.
 
 </details>
 
@@ -325,6 +339,12 @@ Behavior is unchanged for nested DTOs, collections, form files, and validation f
 <details><summary>One less allocation per request in the endpoint execution path</summary>
 
 The internal `ValidationFailed` helper in the endpoint execution path no longer closes over the enclosing locals, which previously made the compiler heap allocate a closure on every request even though the helper only runs when binding or validation fails. Measured saving is 48 bytes per request on 64 bit. Behavior is unchanged.
+
+</details>
+
+<details><summary>Allocation-free event bus dispatch for the common case</summary>
+
+`EventBus<TEvent>` no longer dispatches via `Parallel.ForEachAsync`; handlers are invoked directly and awaited with `Task.WhenAll`, with a single-handler fast path that is allocation-free for the default `WaitForAll` case. Multi-handler and `WaitForNone`/`WaitForAny` paths also allocate less; `PublishFilteredAsync` reuses the registered array for identity/empty filters. Handlers are no longer capped at `Environment.ProcessorCount` (all start immediately). `WaitForNone` remains fire-and-forget (offloaded).
 
 </details>
 

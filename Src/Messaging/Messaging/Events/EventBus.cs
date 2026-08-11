@@ -18,7 +18,7 @@ public abstract class EventBase
 /// <typeparam name="TEvent">the type of notification event dto</typeparam>
 public sealed class EventBus<TEvent> : EventBase where TEvent : notnull
 {
-    readonly IEnumerable<IEventHandler<TEvent>> _handlers = [];
+    readonly IEventHandler<TEvent>[] _handlers = [];
     readonly IEventReceiver<TEvent>? _testEventReceiver;
 
     /// <summary>
@@ -28,9 +28,15 @@ public sealed class EventBus<TEvent> : EventBase where TEvent : notnull
     /// <param name="testEventReceiver">a test event receiver that can be used to assert receipt of events</param>
     public EventBus(IEnumerable<IEventHandler<TEvent>>? eventHandlers = null, IEventReceiver<TEvent>? testEventReceiver = null)
     {
-        if (eventHandlers?.Any() is true)
-            _handlers = eventHandlers;
-        else if (HandlerDict.TryGetValue(typeof(TEvent), out var hndlrs) && hndlrs.Count > 0)
+        if (eventHandlers is not null)
+        {
+            var hndlrArray = eventHandlers as IEventHandler<TEvent>[] ?? eventHandlers.ToArray();
+
+            if (hndlrArray.Length > 0)
+                _handlers = hndlrArray;
+        }
+
+        if (_handlers.Length == 0 && HandlerDict.TryGetValue(typeof(TEvent), out var hndlrs) && hndlrs.Count > 0)
             _handlers = hndlrs.Select(ServiceResolver.Instance.CreateSingleton).Cast<IEventHandler<TEvent>>().ToArray(); //ToArray() is essential here!!!
 
         _testEventReceiver = testEventReceiver;
@@ -70,7 +76,7 @@ public sealed class EventBus<TEvent> : EventBase where TEvent : notnull
     public Task PublishFilteredAsync(TEvent eventModel, Func<Type, bool> handlerFilter, Mode waitMode = Mode.WaitForAll, CancellationToken cancellation = default)
         => Execute(_handlers, eventModel, waitMode, handlerFilter, _testEventReceiver, cancellation);
 
-    static Task Execute(IEnumerable<IEventHandler<TEvent>> handlers,
+    static Task Execute(IEventHandler<TEvent>[] handlers,
                         TEvent eventModel,
                         Mode waitMode,
                         Func<Type, bool>? handlerFilter,
@@ -80,26 +86,97 @@ public sealed class EventBus<TEvent> : EventBase where TEvent : notnull
         testEventReceiver?.AddEvent(eventModel);
 
         if (handlerFilter is not null)
-            handlers = handlers.Where(h => handlerFilter(h.GetType())).ToArray();
+            handlers = Filter(handlers, handlerFilter);
 
-        if (!handlers.Any())
+        if (handlers.Length == 0)
             return Task.CompletedTask;
 
+        //note: the lambdas needed by the offloading modes live in their own methods on purpose. inlining them here makes roslyn
+        //      hoist the display class to the top of this method, which would allocate it on every publish, including the
+        //      zero allocation single handler fast path below. see .okf/gotchas.md
         switch (waitMode)
         {
             case Mode.WaitForNone:
-                _ = Parallel.ForEachAsync(handlers, ct, async (h, c) => await h.HandleAsync(eventModel, c));
+                Offload(handlers, eventModel, ct);
 
                 return Task.CompletedTask;
 
             case Mode.WaitForAny:
-                return Task.WhenAny(handlers.Select(h => Task.Run(() => h.HandleAsync(eventModel, ct), ct)));
+                //single-handler: skip OffloadAll's Task[1]; still WhenAny so faults are not surfaced (Mode docs)
+                return handlers.Length == 1
+                           ? Task.WhenAny(OffloadOne(handlers[0], eventModel, ct))
+                           : Task.WhenAny(OffloadAll(handlers, eventModel, ct));
 
             case Mode.WaitForAll:
-                return Parallel.ForEachAsync(handlers, ct, async (h, c) => await h.HandleAsync(eventModel, c));
+            {
+                if (handlers.Length == 1)
+                    return handlers[0].HandleAsync(eventModel, ct);
+
+                var tasks = new Task[handlers.Length];
+
+                for (var i = 0; i < handlers.Length; i++)
+                    tasks[i] = handlers[i].HandleAsync(eventModel, ct);
+
+                return Task.WhenAll(tasks);
+            }
 
             default:
                 return Task.CompletedTask;
         }
+    }
+
+    static IEventHandler<TEvent>[] Filter(IEventHandler<TEvent>[] handlers, Func<Type, bool> handlerFilter)
+    {
+        var len = handlers.Length;
+        var matchCount = 0;
+
+        for (var i = 0; i < len; i++)
+        {
+            if (handlerFilter(handlers[i].GetType()))
+                matchCount++;
+        }
+
+        if (matchCount == 0)
+            return [];
+
+        if (matchCount == len)
+            return handlers; //identity filter: reuse the registered array (zero alloc)
+
+        var filtered = new IEventHandler<TEvent>[matchCount];
+        var j = 0;
+
+        for (var i = 0; i < len; i++)
+        {
+            var h = handlers[i];
+
+            if (handlerFilter(h.GetType()))
+                filtered[j++] = h;
+        }
+
+        return filtered;
+    }
+
+    //keep offload lambdas out of Execute so Roslyn does not hoist a display class onto the zero-alloc WaitForAll path
+    static Task OffloadOne(IEventHandler<TEvent> h, TEvent eventModel, CancellationToken ct)
+        => Task.Run(() => h.HandleAsync(eventModel, ct), ct);
+
+    //fire and forget. the handlers are offloaded so that a slow or synchronously throwing handler can neither block nor throw at the publisher.
+    static void Offload(IEventHandler<TEvent>[] handlers, TEvent eventModel, CancellationToken ct)
+    {
+        foreach (var h in handlers)
+            _ = Task.Run(() => h.HandleAsync(eventModel, ct), ct);
+    }
+
+    static Task[] OffloadAll(IEventHandler<TEvent>[] handlers, TEvent eventModel, CancellationToken ct)
+    {
+        var tasks = new Task[handlers.Length];
+
+        for (var i = 0; i < handlers.Length; i++)
+        {
+            var h = handlers[i];
+            tasks[i] = Task.Run(() => h.HandleAsync(eventModel, ct), ct);
+        }
+
+        return tasks;
     }
 }

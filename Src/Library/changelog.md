@@ -223,6 +223,12 @@ Previously an indexer was treated as a bindable property, which failed endpoint 
 
 ## Improvements 🚀
 
+<details><summary>MCP addon targets Model Context Protocol SDK v2</summary>
+
+`FastEndpoints.Mcp` now depends on `ModelContextProtocol.AspNetCore` **2.0** (2026-07-28 MCP spec). HTTP transport is stateless by default; existing `AddMcp()` / tool wiring is unchanged.
+
+</details>
+
 <details><summary>AccessControl group names resolve compile-time constants</summary>
 
 The source generator that builds `Allow` permission groups from `AccessControl(...)` calls now accepts compile-time string constants for group names (`const` fields, `nameof(...)`, etc.), not only string literals.

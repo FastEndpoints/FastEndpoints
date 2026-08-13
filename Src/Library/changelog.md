@@ -223,6 +223,12 @@ Previously an indexer was treated as a bindable property, which failed endpoint 
 
 ## Improvements 🚀
 
+<details><summary>Response cache header value is built once per endpoint</summary>
+
+The `Cache-Control` value of a response cached endpoint is no longer re-interpolated on every request. Both of its inputs (the configured `ResponseCacheLocation` and duration) are fixed after startup, so the value is now built on the first request to the endpoint and reused, removing a string interpolation plus an `int.ToString()` per request. The emitted headers are unchanged.
+
+</details>
+
 <details><summary>MCP addon targets Model Context Protocol SDK v2</summary>
 
 `FastEndpoints.Mcp` now depends on `ModelContextProtocol.AspNetCore` **2.0** (2026-07-28 MCP spec). HTTP transport is stateless by default; existing `AddMcp()` / tool wiring is unchanged.

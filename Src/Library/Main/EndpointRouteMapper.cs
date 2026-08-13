@@ -101,9 +101,9 @@ static class EndpointRouteMapper
                     routeToHandlerCounts.AddOrUpdate(key, 1, (_, c) => c + 1);
                     totalEndpointCount++;
                 }
-                def.AttribsToForward = null;
-                def.IsLocked = true;
             }
+            def.AttribsToForward = null;
+            def.IsLocked = true;
         }
 
         if (Cfg.EpOpts.WarmupRequested)

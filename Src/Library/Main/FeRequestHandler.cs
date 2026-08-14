@@ -72,7 +72,7 @@ internal sealed class FeRequestHandler : IResult
         if (epDef.DisposableAsync)
             ctx.Response.RegisterForDisposeAsync((IAsyncDisposable)epInstance); // ReSharper restore SuspiciousTypeConversion.Global
 
-        ResponseCacheExecutor.Execute(ctx, epDef.ResponseCacheSettings);
+        ResponseCacheExecutor.Execute(ctx, epDef);
 
         return epInstance.ExecAsync(ctx.RequestAborted);
     }

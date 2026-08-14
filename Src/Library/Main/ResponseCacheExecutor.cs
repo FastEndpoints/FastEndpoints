@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.ResponseCaching;
 using Microsoft.Net.Http.Headers;
@@ -7,8 +7,10 @@ namespace FastEndpoints;
 
 static class ResponseCacheExecutor
 {
-    public static void Execute(HttpContext context, ResponseCacheAttribute? attrib)
+    public static void Execute(HttpContext context, EndpointDefinition epDef)
     {
+        var attrib = epDef.ResponseCacheSettings;
+
         switch (attrib)
         {
             case null:
@@ -46,31 +48,23 @@ static class ResponseCacheExecutor
         }
         else
         {
-            string? cacheControlValue;
+            if (attrib.Location == ResponseCacheLocation.None)
+                headers.Pragma = "no-cache";
 
-            switch (attrib.Location)
-            {
-                case ResponseCacheLocation.Any:
-                    cacheControlValue = "public,";
-
-                    break;
-                case ResponseCacheLocation.Client:
-                    cacheControlValue = "private,";
-
-                    break;
-                case ResponseCacheLocation.None:
-                    cacheControlValue = "no-cache,";
-                    headers.Pragma = "no-cache";
-
-                    break;
-                default:
-                    cacheControlValue = null;
-
-                    break;
-            }
-
-            cacheControlValue = $"{cacheControlValue}max-age={attrib.Duration}";
-            headers.CacheControl = cacheControlValue;
+            headers.CacheControl = epDef.ResponseCacheControl ??= BuildCacheControlValue(attrib);
         }
+    }
+
+    static string BuildCacheControlValue(ResponseCacheAttribute attrib)
+    {
+        var location = attrib.Location switch
+        {
+            ResponseCacheLocation.Any => "public,",
+            ResponseCacheLocation.Client => "private,",
+            ResponseCacheLocation.None => "no-cache,",
+            _ => null
+        };
+
+        return $"{location}max-age={attrib.Duration}";
     }
 }

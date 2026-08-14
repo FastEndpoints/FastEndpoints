@@ -102,6 +102,8 @@ static class EndpointRouteMapper
                     totalEndpointCount++;
                 }
             }
+
+            //must stay outside the route loop. indent is already past the verb loop, so check braces before moving these.
             def.AttribsToForward = null;
             def.IsLocked = true;
         }

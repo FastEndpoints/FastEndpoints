@@ -25,7 +25,7 @@
         <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.10"/>
         <PackageVersion Include="Microsoft.Extensions.Primitives" Version="10.0.10"/>
         <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.8.1"/>
-        <PackageVersion Include="Microsoft.OpenApi.Kiota.Builder" Version="[1.29.0]"/><!-- latest kiota uses Microsoft.OpenApi 3.x but Microsoft.AspNetCore.OpenApi still uses 2.x -->
+        <PackageVersion Include="Microsoft.OpenApi.Kiota.Builder" Version="[1.29.1]"/><!-- latest kiota uses Microsoft.OpenApi 3.x but Microsoft.AspNetCore.OpenApi still uses 2.x -->
         <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.301"/>
         <PackageVersion Include="protobuf-net" Version="3.2.56"/>
         <PackageVersion Include="RichardSzalay.MockHttp" Version="7.0.0"/>

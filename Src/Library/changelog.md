@@ -164,6 +164,20 @@ app.UseFastEndpoints(c => c.Endpoints.Configurator = ep =>
 
 ## Fixes 🪲
 
+<details><summary>Attribute decorations are forwarded to every route of a multi-route endpoint</summary>
+
+Class-level attributes that FastEndpoints doesn't interpret itself (such as `[EnableCors]`, `[EnableRateLimiting]`, `[RequestFormLimits]`, or your own metadata attributes) are forwarded to the mapped endpoint's metadata so that ASP.NET middleware can see them. On an attribute-configured endpoint declaring more than one route, only the first route received them.
+
+```csharp
+[HttpGet("orders/{id}", "purchases/{id}")] //the second route used to lose the attribute below
+[EnableRateLimiting("fixed")]
+sealed class MyEndpoint : EndpointWithoutRequest { ... }
+```
+
+Endpoints configured with a `Configure()` method were never affected. The endpoint definition is also no longer locked until all of its routes have been mapped.
+
+</details>
+
 <details><summary>Conditional FluentValidation presence rules no longer make OpenAPI properties required</summary>
 
 `FastEndpoints.OpenApi` now preserves optional and nullable schema properties when `NotNull()` or `NotEmpty()` is guarded by a synchronous or asynchronous `When(...)`/`Unless(...)` condition.

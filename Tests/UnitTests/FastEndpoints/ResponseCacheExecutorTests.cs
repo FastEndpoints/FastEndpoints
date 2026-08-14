@@ -18,7 +18,7 @@ public class ResponseCacheExecutorTests
         ResponseCacheExecutor.Execute(ctx, def);
 
         ctx.Response.Headers.CacheControl.Count.ShouldBe(0);
-        def.CachedCacheControl.ShouldBeNull();
+        def.ResponseCacheControl.ShouldBeNull();
     }
 
     [Fact]
@@ -71,7 +71,7 @@ public class ResponseCacheExecutorTests
 
         ctx.Response.Headers.CacheControl.ToString().ShouldBe("no-store");
         ctx.Response.Headers.Pragma.Count.ShouldBe(0);
-        def.CachedCacheControl.ShouldBeNull(); //the no-store branch emits constants, so nothing needs caching
+        def.ResponseCacheControl.ShouldBeNull(); //the no-store branch emits constants, so nothing needs caching
     }
 
     [Fact]
@@ -111,7 +111,7 @@ public class ResponseCacheExecutorTests
         first.Features.Set<IResponseCachingFeature>(A.Fake<IResponseCachingFeature>());
         ResponseCacheExecutor.Execute(first, def);
 
-        var cached = def.CachedCacheControl;
+        var cached = def.ResponseCacheControl;
         cached.ShouldBe("private,max-age=60");
 
         var second = NewContext();
@@ -119,7 +119,7 @@ public class ResponseCacheExecutorTests
 
         //the same string instance is handed to every subsequent request instead of being interpolated again
         ReferenceEquals(second.Response.Headers.CacheControl.ToString(), cached).ShouldBeTrue();
-        def.CachedCacheControl.ShouldBeSameAs(cached);
+        def.ResponseCacheControl.ShouldBeSameAs(cached);
     }
 
     [Fact]

@@ -51,7 +51,7 @@ static class ResponseCacheExecutor
             if (attrib.Location == ResponseCacheLocation.None)
                 headers.Pragma = "no-cache";
 
-            headers.CacheControl = epDef.CachedCacheControl ??= BuildCacheControlValue(attrib);
+            headers.CacheControl = epDef.ResponseCacheControl ??= BuildCacheControlValue(attrib);
         }
     }
 

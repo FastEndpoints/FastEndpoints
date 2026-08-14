@@ -85,7 +85,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     internal ServiceBoundEpProp[] ServiceBoundEpProps => _serviceBoundEpProps ??= GetServiceBoundEpProps();
     internal JsonSerializerContext? SerializerContext;
     internal ResponseCacheAttribute? ResponseCacheSettings { get; private set; }
-    internal string? CachedCacheControl;
+    internal string? ResponseCacheControl;
     internal IResponseInterceptor? ResponseIntrcptr { get; private set; }
     ToHeaderProp[]? _toHeaderProps;
     internal ToHeaderProp[] ToHeaderProps => _toHeaderProps ??= GetToHeaderProps();

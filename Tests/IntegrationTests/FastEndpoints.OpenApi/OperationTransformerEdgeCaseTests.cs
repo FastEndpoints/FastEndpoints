@@ -126,7 +126,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         var json = await App.GetDocumentJsonAsync("Swagger Review");
         var doc = JsonNode.Parse(json)!;
         var operation = doc["paths"]!["/api/swagger-review/catch-all/{slug}"]!["get"]!;
-        var pathParam = operation["parameters"]!.AsArray().First(p => p["in"]!.GetValue<string>() == "path");
+        var pathParam = operation["parameters"].ArrayItems().First(p => p["in"]!.GetValue<string>() == "path");
 
         doc["paths"]!["/api/swagger-review/catch-all/{*slug}"].ShouldBeNull();
         pathParam["name"]!.GetValue<string>().ShouldBe("slug");
@@ -137,7 +137,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review");
         var operation = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/duplicate-query-naming-policy"]!["get"]!;
-        var firstNameParams = operation["parameters"]!.AsArray()
+        var firstNameParams = operation["parameters"].ArrayItems()
                               .Where(p => p["in"]!.GetValue<string>() == "query" && p["name"]!.GetValue<string>() == "firstName")
                               .ToArray();
 
@@ -149,10 +149,10 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review");
         var operation = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/bindfrom-query-get"]!["get"]!;
-        var queryParam = operation["parameters"]!.AsArray().First(p => p["in"]!.GetValue<string>() == "query");
+        var queryParam = operation["parameters"].ArrayItems().First(p => p["in"]!.GetValue<string>() == "query");
 
         queryParam["name"]!.GetValue<string>().ShouldBe("id");
-        operation["parameters"]!.AsArray().Any(p => p["name"]!.GetValue<string>() == "customerID").ShouldBeFalse();
+        operation["parameters"].ArrayItems().Any(p => p["name"]!.GetValue<string>() == "customerID").ShouldBeFalse();
     }
 
     [Fact]
@@ -160,10 +160,10 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review");
         var operation = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/bindfrom-query-post"]!["post"]!;
-        var queryParam = operation["parameters"]!.AsArray().First(p => p["in"]!.GetValue<string>() == "query");
+        var queryParam = operation["parameters"].ArrayItems().First(p => p["in"]!.GetValue<string>() == "query");
 
         queryParam["name"]!.GetValue<string>().ShouldBe("id");
-        operation["parameters"]!.AsArray().Any(p => p["name"]!.GetValue<string>() == "customerID").ShouldBeFalse();
+        operation["parameters"].ArrayItems().Any(p => p["name"]!.GetValue<string>() == "customerID").ShouldBeFalse();
     }
 
     [Fact]
@@ -171,10 +171,10 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review");
         var operation = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/json-named-query-metadata"]!["get"]!;
-        var queryParam = operation["parameters"]!.AsArray().First(p => p["in"]!.GetValue<string>() == "query");
+        var queryParam = operation["parameters"].ArrayItems().First(p => p["in"]!.GetValue<string>() == "query");
 
         queryParam["name"]!.GetValue<string>().ShouldBe("customerId");
-        operation["parameters"]!.AsArray().Any(p => p["name"]!.GetValue<string>() == "customer_id").ShouldBeFalse();
+        operation["parameters"].ArrayItems().Any(p => p["name"]!.GetValue<string>() == "customer_id").ShouldBeFalse();
         queryParam["description"]!.GetValue<string>().ShouldBe("customer id query summary");
         queryParam["schema"]!["default"]!.GetValue<string>().ShouldBe("default-customer");
         queryParam["example"]!.GetValue<string>().ShouldBe("example-customer");
@@ -199,8 +199,8 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review");
         var operation = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/required-query-param"]!["post"]!;
-        var requiredSearch = operation["parameters"]!.AsArray().First(p => p["name"]!.GetValue<string>() == "search");
-        var optionalFilter = operation["parameters"]!.AsArray().First(p => p["name"]!.GetValue<string>() == "filter");
+        var requiredSearch = operation["parameters"].ArrayItems().First(p => p["name"]!.GetValue<string>() == "search");
+        var optionalFilter = operation["parameters"].ArrayItems().First(p => p["name"]!.GetValue<string>() == "filter");
 
         requiredSearch["in"]!.GetValue<string>().ShouldBe("query");
         requiredSearch["required"]!.GetValue<bool>().ShouldBeTrue();
@@ -282,7 +282,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     public async Task get_request_from_cookie_property_is_not_duplicated_as_query_parameter()
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review");
-        var parameters = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/cookie-get"]!["get"]!["parameters"]!.AsArray();
+        var parameters = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/cookie-get"]!["get"]!["parameters"].ArrayItems();
 
         parameters.Count(p => p["in"]!.GetValue<string>() == "cookie" && p["name"]!.GetValue<string>() == "session_id").ShouldBe(1);
         parameters.Any(p => p["in"]!.GetValue<string>() == "query" && p["name"]!.GetValue<string>() == "sessionId").ShouldBeFalse();
@@ -332,8 +332,8 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         schema["properties"]!["price"].ShouldNotBeNull();
         schema["properties"]!["price"]!["exclusiveMinimum"]!.GetValue<int>().ShouldBe(200);
         schema["example"]!["name"]!.GetValue<string>().ShouldBe("test product name");
-        operation["parameters"]!.AsArray().First(p => p!["name"]!.GetValue<string>() == "customerID")!["in"]!.GetValue<string>().ShouldBe("header");
-        operation["parameters"]!.AsArray().First(p => p!["name"]!.GetValue<string>() == "id")!["in"]!.GetValue<string>().ShouldBe("path");
+        operation["parameters"].ArrayItems().First(p => p["name"]!.GetValue<string>() == "customerID")["in"]!.GetValue<string>().ShouldBe("header");
+        operation["parameters"].ArrayItems().First(p => p["name"]!.GetValue<string>() == "id")["in"]!.GetValue<string>().ShouldBe("path");
     }
 
     [Fact]
@@ -379,7 +379,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     public async Task idempotency_header_is_added_as_required_parameter()
     {
         var json = await App.GetDocumentJsonAsync("Release 2.0");
-        var header = JsonNode.Parse(json)!["paths"]!["/api/test-cases/idempotency/{id}"]!["get"]!["parameters"]!.AsArray()
+        var header = JsonNode.Parse(json)!["paths"]!["/api/test-cases/idempotency/{id}"]!["get"]!["parameters"].ArrayItems()
                            .First(p => p["name"]!.GetValue<string>() == "Idempotency-Key");
 
         header["in"]!.GetValue<string>().ShouldBe("header");
@@ -391,7 +391,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     public async Task idempotency_header_without_explicit_type_uses_example_shape()
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review");
-        var header = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/idempotency-anonymous-example"]!["post"]!["parameters"]!.AsArray()
+        var header = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/idempotency-anonymous-example"]!["post"]!["parameters"].ArrayItems()
                            .First(p => p["name"]!.GetValue<string>() == "Idempotency-Key");
 
         header["description"]!.GetValue<string>().ShouldBe("custom idempotency header");
@@ -407,7 +407,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     public async Task idempotency_header_is_not_duplicated_when_already_present()
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review");
-        var parameters = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/duplicate-idempotency-header"]!["post"]!["parameters"]!.AsArray();
+        var parameters = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/duplicate-idempotency-header"]!["post"]!["parameters"].ArrayItems();
 
         parameters.Count(p => p["in"]!.GetValue<string>() == "header" && p["name"]!.GetValue<string>() == "Idempotency-Key").ShouldBe(1);
     }
@@ -416,7 +416,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     public async Task x402_signature_header_is_not_duplicated_when_already_present()
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review");
-        var parameters = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/duplicate-x402-header"]!["get"]!["parameters"]!.AsArray();
+        var parameters = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/duplicate-x402-header"]!["get"]!["parameters"].ArrayItems();
 
         parameters.Count(p => p["in"]!.GetValue<string>() == "header" && p["name"]!.GetValue<string>() == "PAYMENT-SIGNATURE").ShouldBe(1);
     }
@@ -427,7 +427,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         var json = await App.GetDocumentJsonAsync("Release 2.0");
         var operation = JsonNode.Parse(json)!["paths"]!["/api/test-cases/x402/success"]!["get"]!;
 
-        operation["parameters"]!.AsArray().First(p => p!["name"]!.GetValue<string>() == "PAYMENT-SIGNATURE")!["in"]!.GetValue<string>().ShouldBe("header");
+        operation["parameters"].ArrayItems().First(p => p["name"]!.GetValue<string>() == "PAYMENT-SIGNATURE")["in"]!.GetValue<string>().ShouldBe("header");
         operation["responses"]!["200"]!["headers"]!["PAYMENT-RESPONSE"]!["schema"]!["type"]!.GetValue<string>().ShouldBe("string");
         operation["responses"]!["402"]!["headers"]!["PAYMENT-REQUIRED"]!["schema"]!["type"]!.GetValue<string>().ShouldBe("string");
     }
@@ -459,7 +459,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     {
         var json = await App.GetDocumentJsonAsync("Initial Release");
         var operation = JsonNode.Parse(json)!["paths"]!["/api/test-cases/json-array-binding-for-ienumerable-props"]!["get"]!;
-        var dictParam = operation["parameters"]!.AsArray().First(p => p["name"]!.GetValue<string>() == "dict");
+        var dictParam = operation["parameters"].ArrayItems().First(p => p["name"]!.GetValue<string>() == "dict");
 
         dictParam["schema"].ShouldBeNull();
         dictParam["content"]!["application/json"]!["schema"]!["$ref"].ShouldBeNull();
@@ -477,14 +477,14 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         var json = await App.GetDocumentJsonAsync("Initial Release");
         var doc = JsonNode.Parse(json)!;
         var operation = doc["paths"]!["/api/test-cases/json-array-binding-for-ienumerable-props"]!["get"]!;
-        var stevenParam = operation["parameters"]!.AsArray().First(p => p["name"]!.GetValue<string>() == "steven");
+        var stevenParam = operation["parameters"].ArrayItems().First(p => p["name"]!.GetValue<string>() == "steven");
 
         stevenParam["schema"].ShouldBeNull();
         stevenParam["content"]!["application/json"]!["schema"]!["$ref"]!.GetValue<string>()
                                                                         .ShouldBe("#/components/schemas/TestCasesJsonArrayBindingForIEnumerablePropsRequest_Person");
 
         var fromQueryOperation = doc["paths"]!["/api/test-cases/query-param-creation-from-test-helpers/{complexId}/{complexIdString}"]!["get"]!;
-        var fromQueryParameters = fromQueryOperation["parameters"]!.AsArray();
+        var fromQueryParameters = fromQueryOperation["parameters"].ArrayItems();
 
         fromQueryParameters.Any(p => p["name"]!.GetValue<string>() == "Nested").ShouldBeFalse();
         fromQueryParameters.Any(p => p["name"]!.GetValue<string>() == "first" && p["in"]!.GetValue<string>() == "query").ShouldBeTrue();
@@ -622,8 +622,8 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         var doc = JsonNode.Parse(json)!;
         var securedOperation = doc["paths"]!["/non-fe-auth"]!["get"]!;
         var anonymousOperation = doc["paths"]!["/non-fe-auth-anon"]!["get"]!;
-        var securitySchemeNames = securedOperation["security"]!.AsArray()
-                                  .SelectMany(o => o!.AsObject().Select(p => p.Key))
+        var securitySchemeNames = securedOperation["security"].ArrayItems()
+                                  .SelectMany(o => o.AsObject().Select(p => p.Key))
                                   .ToArray();
 
         securitySchemeNames.ShouldContain("JWTBearerAuth");
@@ -636,7 +636,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review");
         var operation = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/interface-dictionary"]!["get"]!;
-        var dictParam = operation["parameters"]!.AsArray().First(p => p["name"]!.GetValue<string>() == "metadata");
+        var dictParam = operation["parameters"].ArrayItems().First(p => p["name"]!.GetValue<string>() == "metadata");
 
         dictParam["schema"].ShouldBeNull();
         dictParam["content"]!["application/json"]!["schema"]!["type"]!.GetValue<string>().ShouldBe("object");
@@ -650,11 +650,11 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         var doc = JsonNode.Parse(json)!;
         var nestedRef = "#/components/schemas/TestCasesSwaggerReviewManualSchemaNested";
         var idempotencyRef = "#/components/schemas/TestCasesSwaggerReviewManualSchemaIdempotencyHeader";
-        var queryParam = doc["paths"]!["/api/swagger-review/manual-complex-query"]!["get"]!["parameters"]!.AsArray()
+        var queryParam = doc["paths"]!["/api/swagger-review/manual-complex-query"]!["get"]!["parameters"].ArrayItems()
             .First(p => p["name"]!.GetValue<string>() == "filter");
         var responseHeader = doc["paths"]!["/api/swagger-review/manual-complex-response-header"]!["get"]!["responses"]!["200"]!
             ["headers"]!["x-complex-header"]!;
-        var idempotencyHeader = doc["paths"]!["/api/swagger-review/manual-complex-idempotency-header"]!["post"]!["parameters"]!.AsArray()
+        var idempotencyHeader = doc["paths"]!["/api/swagger-review/manual-complex-idempotency-header"]!["post"]!["parameters"].ArrayItems()
             .First(p => p["name"]!.GetValue<string>() == "Idempotency-Key");
 
         queryParam["content"]!["application/json"]!["schema"]!["$ref"]!.GetValue<string>().ShouldBe(nestedRef);
@@ -740,7 +740,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     {
         var json = await App.GetDocumentJsonAsync("Release 2.0");
         var operation = JsonNode.Parse(json)!["paths"]!["/api/test-cases/ep-witout-req-route-binding-test/{customerID}/{otherID}"]!["get"]!;
-        var customerId = operation["parameters"]!.AsArray().First(p => p["name"]!.GetValue<string>() == "customerID");
+        var customerId = operation["parameters"].ArrayItems().First(p => p["name"]!.GetValue<string>() == "customerID");
 
         customerId["schema"]!["type"]!.GetValue<string>().ShouldBe("integer");
         customerId["schema"]!["format"]!.GetValue<string>().ShouldBe("int32");
@@ -751,7 +751,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review");
         var operation = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/no-request-metadata-leak/{leakId}"]!["get"]!;
-        var leakId = operation["parameters"]!.AsArray().First(p => p["name"]!.GetValue<string>() == "leakId");
+        var leakId = operation["parameters"].ArrayItems().First(p => p["name"]!.GetValue<string>() == "leakId");
 
         leakId["description"].ShouldBeNull();
     }
@@ -761,7 +761,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review");
         var operation = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/default-route-value/{id}"]!["get"]!;
-        var id = operation["parameters"]!.AsArray().First(p => p["name"]!.GetValue<string>() == "id");
+        var id = operation["parameters"].ArrayItems().First(p => p["name"]!.GetValue<string>() == "id");
 
         id["description"]!.GetValue<string>().ShouldBe("route param summary");
     }
@@ -772,12 +772,12 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         var json = await App.GetDocumentJsonAsync("Initial Release");
         var doc = JsonNode.Parse(json)!;
         var saveOperation = doc["paths"]!["/api/customer/save"]!["get"]!;
-        var pathParams = saveOperation["parameters"]!.AsArray()
+        var pathParams = saveOperation["parameters"].ArrayItems()
                          .Where(p => p["in"]!.GetValue<string>() == "path")
                          .Select(p => p["name"]!.GetValue<string>())
                          .ToArray();
         var routedOperation = doc["paths"]!["/api/customer/{cID}/new/{sourceID}"]!["get"]!;
-        var routedParams = routedOperation["parameters"]!.AsArray()
+        var routedParams = routedOperation["parameters"].ArrayItems()
                            .Select(
                                p => new
                                {
@@ -842,9 +842,9 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         var json = await App.GetDocumentJsonAsync("Nullable OneOf Repro");
         var nullableObjSchema = JsonNode.Parse(json)!["components"]!["schemas"]!["TestCasesSwaggerReviewNullableRefPropertyResponse"]!
             ["properties"]!["nullableObj"]!;
-        var oneOf = nullableObjSchema["oneOf"] as JsonArray ?? [];
+        var oneOf = nullableObjSchema["oneOf"].ArrayItems().ToArray();
 
-        oneOf.Count.ShouldBe(2);
+        oneOf.Length.ShouldBe(2);
         oneOf.Count(s => SchemaTypeContains(s, "null")).ShouldBe(1);
         oneOf.Select(s => s["$ref"]?.GetValue<string>())
              .Where(static r => r is not null)
@@ -988,7 +988,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         op.ShouldNotBeNull();
         op["requestBody"].ShouldBeNull();
 
-        var parameters = op["parameters"]!.AsArray().ToArray();
+        var parameters = op["parameters"].ArrayItems().ToArray();
         parameters.ShouldContain(p => p["name"]!.GetValue<string>() == "name" && p["in"]!.GetValue<string>() == "query");
         parameters.ShouldContain(p => p["name"]!.GetValue<string>() == "page" && p["in"]!.GetValue<string>() == "query");
     }
@@ -1002,7 +1002,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         op.ShouldNotBeNull();
         op["requestBody"].ShouldBeNull();
 
-        var parameters = op["parameters"]!.AsArray().ToArray();
+        var parameters = op["parameters"].ArrayItems().ToArray();
         parameters.ShouldContain(p => p["name"]!.GetValue<string>() == "name" && p["in"]!.GetValue<string>() == "query");
         parameters.ShouldContain(p => p["name"]!.GetValue<string>() == "page" && p["in"]!.GetValue<string>() == "query");
     }
@@ -1019,7 +1019,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         (requestBody["required"]?.GetValue<bool>() ?? false).ShouldBeFalse();
 
         var content = requestBody["content"]!;
-        var mediaType = content["application/json"] ?? content["*/*"] ?? content.AsObject().First().Value;
+        var mediaType = content["application/json"] ?? content["*/*"] ?? content.AsObject().Select(static p => p.Value).OfType<JsonNode>().First();
         var schema = ResolveSchema(document, mediaType["schema"]!);
         schema["type"]!.GetValue<string>().ShouldBe("array");
         schema["items"].ShouldNotBeNull();
@@ -1039,8 +1039,11 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
 
 static file class JsonNodeTestExtensions
 {
-    public static IEnumerable<string> StringValues(this JsonNode? node)
+    public static IEnumerable<JsonNode> ArrayItems(this JsonNode? node)
         => node is JsonArray arr
-               ? arr.Select(n => n!.GetValue<string>())
+               ? arr.OfType<JsonNode>()
                : [];
+
+    public static IEnumerable<string> StringValues(this JsonNode? node)
+        => node.ArrayItems().Select(n => n.GetValue<string>());
 }

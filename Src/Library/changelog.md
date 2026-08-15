@@ -237,6 +237,14 @@ Previously an indexer was treated as a bindable property, which failed endpoint 
 
 ## Improvements 🚀
 
+<details><summary>Kiota client generation uses Microsoft.OpenApi.Kiota.Builder 1.29.1</summary>
+
+`FastEndpoints.OpenApi.Kiota` and `FastEndpoints.ClientGen.Kiota` now ship with `Microsoft.OpenApi.Kiota.Builder` **1.29.1**, a security-only backport that stays on the `Microsoft.OpenApi` 2.x line compatible with `Microsoft.AspNetCore.OpenApi`.
+
+This release patches Kiota codegen injection and path-resolution CVEs without requiring a breaking OpenAPI 3.x bump. Newer Kiota 1.30+ builds remain incompatible until ASP.NET OpenAPI itself moves to OpenAPI 3.x.
+
+</details>
+
 <details><summary>Response cache header value is built once per endpoint</summary>
 
 The `Cache-Control` value of a response cached endpoint is no longer re-interpolated on every request. Both of its inputs (the configured `ResponseCacheLocation` and duration) are fixed after startup, so the value is now built on the first request to the endpoint and reused, removing a string interpolation plus an `int.ToString()` per request. The emitted headers are unchanged.

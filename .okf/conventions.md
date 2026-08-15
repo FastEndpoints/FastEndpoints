@@ -40,6 +40,7 @@ tags: [conventions]
 - Manual resolve façade: `Endpoint`/`Group`/`Mapper` inherit `ServiceResolverClient`; `Validator`/`BinderContext`/`HttpContext` extensions forward via `ServiceResolverClient.Forward` (do not re-copy the eight Resolve methods).
 - Service registration generator can emit registration from attributes when generator is referenced.
 - Central package versions only in `Directory.Packages.props`; do not hardcode versions in csproj except intentional `VersionOverride` / constrained ranges already present.
+- `FastEndpoints.AspVersioning`: on .NET 10, `AddVersioning(...)` takes an optional trailing `Action<VersionedOpenApiOptions>` so consumers can configure the versioned OpenAPI documents from `Asp.Versioning.OpenApi` (that package is net10.0-only, hence the `#if NET10_0_OR_GREATER` guard and conditional package ref in `Src/AspVersioning/`).
 
 ## Testing conventions
 - Integration: `AppFixture<TProgram>` / collection fixtures from `FastEndpoints.Testing`.

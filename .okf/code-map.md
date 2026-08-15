@@ -20,6 +20,7 @@ tags: [layout]
 | `Src/CommandRules/` | Rule-based command dispatch package |
 | `Src/Security/` | JWT/cookie/refresh/revocation |
 | `Src/OpenApi/`, `Src/OpenApi.Kiota/` | OpenAPI + Kiota client gen |
+| `Src/AspVersioning/` | `Asp.Versioning.Http` integration (`AddVersioning`; net10-only optional `Action<VersionedOpenApiOptions>` configures versioned OpenAPI docs via `Asp.Versioning.OpenApi`) |
 | `Src/Swagger/`, `Src/ClientGen*` | Legacy NSwag-era packages (slnx “Legacy” folder) |
 | `Src/Generator/`, `Src/Generator.Cli/` | Roslyn generators + CLI |
 | `Src/Testing/` | `FastEndpoints.Testing` |

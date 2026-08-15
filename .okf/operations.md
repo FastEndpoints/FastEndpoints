@@ -18,7 +18,7 @@ tags: [ops]
 | `.github/workflows/publish-to-nuget.yml` | push tag `v*` | test → pack → nuget push → optional GH release |
 | `azure-pipeline.yml` | tags `v*` (branches excluded) | UseDotNet 10.x; adjust xunit runner; `dotnet test` under `Tests/` |
 
-GitHub workflow installs SDKs 8/9/10, runs filtered tests on `FastEndpoints.slnx`, packs solution, obtains a short-lived API key via `NuGet/login` (GitHub OIDC / trusted publishing; nuget.org user `dj-nitehawk` in workflow YAML), pushes `Src/**/*.nupkg`. Requires nuget.org trusted publishing policy for workflow `publish-to-nuget.yml`.
+GitHub workflow installs SDKs 8/9/10, runs filtered tests on `FastEndpoints.slnx`, packs solution, obtains a short-lived API key via `NuGet/login` (GitHub OIDC / trusted publishing; nuget.org user `dj-nitehawk` in workflow YAML), pushes `Src/**/*.nupkg` with `--skip-duplicate`. Skip-duplicate is required: Agents packages keep their own `<Version>` and a core `v*` tag still packs/pushes them. A 409 on an unchanged Agents nupkg otherwise aborts the rest of the glob (core packages later in the set never publish). Requires nuget.org trusted publishing policy for workflow `publish-to-nuget.yml`.
 
 ## Services and ports
 - No production services. Local harnesses are Kestrel web apps (`TestHarness/Web`, etc.); default ASP.NET ports when run.

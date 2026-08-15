@@ -237,6 +237,34 @@ Previously an indexer was treated as a bindable property, which failed endpoint 
 
 ## Improvements 🚀
 
+<details><summary>Configure versioned OpenAPI documents from <code>AddVersioning</code></summary>
+
+On .NET 10, `AddVersioning` accepts an optional third argument of type `Action<VersionedOpenApiOptions>`, letting consumers configure the versioned OpenAPI documents from the `Asp.Versioning.OpenApi` package, whose per-version document services are required by `MapOpenApi().WithDocumentPerVersion()`.
+
+```csharp
+services.AddVersioning(
+    o =>
+    {
+        o.ApiVersionReader = ApiVersionReader.Combine(new UrlSegmentApiVersionReader());
+    },
+    o =>
+    {
+        o.GroupNameFormat = "'v'VVV";
+        o.SubstituteApiVersionInUrl = true;
+    },
+    o => o.Document.AddDocumentTransformer(
+        (document, _, _) =>
+        {
+            document.Info.Title = "My API";
+            document.Info.Description = "My API description";
+            return Task.CompletedTask;
+        }));
+```
+
+The argument is optional, so existing callers of `AddVersioning` are unaffected. The new parameter is only available on .NET 10 targets because `Asp.Versioning.OpenApi` itself does not ship for earlier frameworks.
+
+</details>
+
 <details><summary>Kiota client generation uses Microsoft.OpenApi.Kiota.Builder 1.29.1</summary>
 
 `FastEndpoints.OpenApi.Kiota` and `FastEndpoints.ClientGen.Kiota` now ship with `Microsoft.OpenApi.Kiota.Builder` **1.29.1**, a security-only backport that stays on the `Microsoft.OpenApi` 2.x line compatible with `Microsoft.AspNetCore.OpenApi`.

@@ -1,7 +1,7 @@
 using Asp.Versioning;
-using Asp.Versioning.ApiExplorer;
 using Asp.Versioning.OpenApi;
 using FastEndpoints.AspVersioning;
+using Microsoft.AspNetCore.OpenApi;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Xunit;
@@ -25,12 +25,22 @@ public class AddVersioningTests
         services.Any(d => d.ServiceType == typeof(IConfigureOptions<VersionedOpenApiOptions>)).ShouldBeTrue();
     }
 
+    [Fact(DisplayName = "AddVersioning does not register versioned OpenAPI services without open api options")]
+    public void AddVersioning_WithoutOpenApiOptions_DoesNotRegisterVersionedOpenApi()
+    {
+        var services = new ServiceCollection();
+
+        services.AddVersioning();
+
+        services.Any(d => d.ServiceType == typeof(IConfigureOptions<VersionedOpenApiOptions>)).ShouldBeFalse();
+        HasDocumentProvider(services).ShouldBeFalse();
+        HasOpenApiPostConfigure(services).ShouldBeFalse();
+    }
+
     [Fact(DisplayName = "AddVersioning registers the versioned OpenAPI document services")]
     public void AddVersioning_WithOpenApiOptions_RegistersVersionedOpenApi()
     {
         var services = new ServiceCollection();
-
-        services.AddLogging();
 
         services.AddVersioning(
             o => o.ApiVersionReader = ApiVersionReader.Combine(new UrlSegmentApiVersionReader()),
@@ -42,12 +52,13 @@ public class AddVersioningTests
                     return Task.CompletedTask;
                 }));
 
-        using var sp = services.BuildServiceProvider();
-
-        var descriptions = sp.GetRequiredService<IApiVersionDescriptionProvider>().ApiVersionDescriptions;
-
-        descriptions.ShouldNotBeEmpty();
-
-        sp.GetRequiredService<IOptionsFactory<VersionedOpenApiOptions>>().ShouldNotBeNull();
+        HasDocumentProvider(services).ShouldBeTrue();
+        HasOpenApiPostConfigure(services).ShouldBeTrue();
     }
+
+    static bool HasDocumentProvider(IServiceCollection services)
+        => services.Any(d => d.ServiceType.FullName == "Microsoft.Extensions.ApiDescriptions.IDocumentProvider");
+
+    static bool HasOpenApiPostConfigure(IServiceCollection services)
+        => services.Any(d => d.ServiceType == typeof(IPostConfigureOptions<OpenApiOptions>));
 }

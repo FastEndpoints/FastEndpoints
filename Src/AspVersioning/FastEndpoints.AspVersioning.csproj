@@ -13,7 +13,6 @@
         <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer"/>
         <PackageReference Include="NSwag.Generation.AspNetCore"/> <!-- todo: remove when swagger support no longer needed -->
         <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
-
         <PackageReference Include="Asp.Versioning.OpenApi" Condition="'$(TargetFramework)' == 'net10.0'"/>
     </ItemGroup>
 

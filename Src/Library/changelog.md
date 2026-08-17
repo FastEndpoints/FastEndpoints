@@ -237,6 +237,12 @@ Previously an indexer was treated as a bindable property, which failed endpoint 
 
 ## Improvements 🚀
 
+<details><summary>Faster assembly scanning at startup</summary>
+
+Reflection based type discovery no longer builds a LINQ set of the wanted interface types for every single type it inspects, which is the bulk of the work `AddFastEndpoints()` / `AddMessaging()` do at startup (measured on a 5 interface discovery: 180ns and 448 bytes per inspected type, down to 66ns and 35 bytes). The assembly exclusion list is also matched with an ordinal string comparison now, instead of a culture sensitive one that went through ICU collation per assembly.
+
+</details>
+
 <details><summary>Response cache header value is built once per endpoint</summary>
 
 The `Cache-Control` value of a response cached endpoint is no longer re-interpolated on every request. Both of its inputs (the configured `ResponseCacheLocation` and duration) are fixed after startup, so the value is now built on the first request to the endpoint and reused, removing a string interpolation plus an `int.ToString()` per request. The emitted headers are unchanged.

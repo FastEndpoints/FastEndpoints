@@ -47,7 +47,7 @@ jobs:
           user: djnitehawk # nuget.org username (not github)
 
       - name: Publish To Nuget
-        run: dotnet nuget push "Src/**/*.nupkg" --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
+        run: dotnet nuget push "Src/**/*.nupkg" --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
 
       - name: Create Release
         uses: softprops/action-gh-release@v2.3.2

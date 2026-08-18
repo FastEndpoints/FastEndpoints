@@ -39,6 +39,7 @@ tags: [gotcha]
 - **OpenAPI `.http` request bodies:** prefer media-type `Example` / first named `Examples` value, then schema/property `Example` → `Default`, else type placeholders (`""`/`0`/`false`). Media-type example is full replace (no merge). Form bodies still omitted; non-JSON uses `{{body}}`.
 - **OpenAPI conditional validation:** FluentValidation presence rules (`NotNull`/`NotEmpty`) under rule- or component-level synchronous/asynchronous conditions must not emit unconditional `required`, non-null, or minimum-length/item constraints. Independent unconditional presence rules still apply.
 - **CI filter:** tests with `Trait("ExcludeInCiCd","Yes")` never run in publish/Azure pipelines; don't rely on them as merge gates.
+- **NuGet push must `--skip-duplicate`:** Agents (`Mcp`/`A2A`) are independently versioned but packed from `FastEndpoints.slnx`. A core-only tag re-pushes the last Agents version; nuget.org 409s and `dotnet nuget push` stops, leaving later glob matches unpublished. Do not bump Agents versions just to make a core release succeed.
 - **WAF cache:** one cached factory per `AppFixture` type; misuse of static state across tests can leak. Use fixture `ConfigureServices` for doubles.
 - **Mappers are singletons:** no request state in mapper classes.
 - **Signing / InternalsVisibleTo:** must use full public key from props; unsigned local hacks break friend assemblies. Agent packages rely on signed friend access (see **Agents friend-assembly binary contract** above).

@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <RootNamespace>Unit.FastEndpoints.AspVersioning</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\Src\AspVersioning\FastEndpoints.AspVersioning.csproj"/>
+
+        <PackageReference Include="Asp.Versioning.OpenApi"/>
+    </ItemGroup>
+
+</Project>

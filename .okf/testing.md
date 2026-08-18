@@ -12,7 +12,7 @@ tags: [test]
 | --- | --- |
 | Framework | **xunit.v3**, Shouldly, FakeItEasy |
 | Test TFM | **net10.0** (`Tests/Directory.Build.props`) |
-| Unit | `Tests/UnitTests/FastEndpoints`, `…/FastEndpoints.Testing` (+ legacy Swagger unit commented in slnx) |
+| Unit | `Tests/UnitTests/FastEndpoints`, `…/FastEndpoints.Testing`, `…/FastEndpoints.AspVersioning` (+ legacy Swagger unit commented in slnx) |
 | Integration | `Tests/IntegrationTests/FastEndpoints` (main), OpenApi, OpenApi.Kiota, OData, Agents |
 | AOT | `Tests/NativeAotTests/NativeAotCheckerTests` + `NativeAot.slnx` |
 | Helpers package | `Src/Testing` → `FastEndpoints.Testing` (`AppFixture`, fixtures, Bogus) |

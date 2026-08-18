@@ -237,6 +237,42 @@ Previously an indexer was treated as a bindable property, which failed endpoint 
 
 ## Improvements 🚀
 
+<details><summary>Configure versioned OpenAPI documents from <code>AddVersioning</code></summary>
+
+On .NET 10, `AddVersioning` accepts an optional third argument of type `Action<VersionedOpenApiOptions>`, letting consumers configure the versioned OpenAPI documents from the `Asp.Versioning.OpenApi` package, whose per-version document services are required by `MapOpenApi().WithDocumentPerVersion()`.
+
+```csharp
+services.AddVersioning(
+    o =>
+    {
+        o.ApiVersionReader = ApiVersionReader.Combine(new UrlSegmentApiVersionReader());
+    },
+    o =>
+    {
+        o.GroupNameFormat = "'v'VVV";
+        o.SubstituteApiVersionInUrl = true;
+    },
+    o => o.Document.AddDocumentTransformer(
+        (document, _, _) =>
+        {
+            document.Info.Title = "My API";
+            document.Info.Description = "My API description";
+            return Task.CompletedTask;
+        }));
+```
+
+The argument is optional, so existing callers of `AddVersioning` are unaffected. The new parameter is only available on .NET 10 targets because `Asp.Versioning.OpenApi` itself does not ship for earlier frameworks.
+
+</details>
+
+<details><summary>Kiota client generation uses Microsoft.OpenApi.Kiota.Builder 1.29.1</summary>
+
+`FastEndpoints.OpenApi.Kiota` and `FastEndpoints.ClientGen.Kiota` now ship with `Microsoft.OpenApi.Kiota.Builder` **1.29.1**, a security-only backport that stays on the `Microsoft.OpenApi` 2.x line compatible with `Microsoft.AspNetCore.OpenApi`.
+
+This release patches Kiota codegen injection and path-resolution CVEs without requiring a breaking OpenAPI 3.x bump. Newer Kiota 1.30+ builds remain incompatible until ASP.NET OpenAPI itself moves to OpenAPI 3.x.
+
+</details>
+
 <details><summary>Faster assembly scanning at startup</summary>
 
 Reflection based type discovery no longer builds a LINQ set of the wanted interface types for every single type it inspects, which is the bulk of the work `AddFastEndpoints()` / `AddMessaging()` do at startup (measured on a 5 interface discovery: 180ns and 448 bytes per inspected type, down to 66ns and 35 bytes). The assembly exclusion list is also matched with an ordinal string comparison now, instead of a culture sensitive one that went through ICU collation per assembly.

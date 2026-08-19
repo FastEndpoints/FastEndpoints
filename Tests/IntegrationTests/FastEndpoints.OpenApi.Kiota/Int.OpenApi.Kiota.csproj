@@ -1,7 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <!-- Heavy/slow Kiota gen; skip the project in CI so MTP does not exit 8 on a filtered-empty assembly. -->
+        <!-- Heavy/slow Kiota gen. MTP discovers via IsTestingPlatformApplication, not IsTestProject. -->
+        <IsTestingPlatformApplication Condition="'$(CI)' == 'true' or '$(TF_BUILD)' == 'true'">false</IsTestingPlatformApplication>
         <IsTestProject Condition="'$(CI)' == 'true' or '$(TF_BUILD)' == 'true'">false</IsTestProject>
     </PropertyGroup>
 

@@ -9,6 +9,7 @@ namespace FastEndpoints.Testing;
 /// <typeparam name="TAppFixture">
 /// the type of the assembly level app fixture.
 /// </typeparam>
+[TestClass(DisableParallelization = true), TestCaseOrderer(typeof(TestCaseOrderer)), TestMethodOrderer(typeof(TestMethodOrderer))]
 public abstract class TestBaseWithAssemblyFixture<TAppFixture> : IAsyncLifetime, IFaker, IAssemblyFixture<TAppFixture> where TAppFixture : BaseFixture
 {
     static readonly Faker _faker = new();
@@ -18,8 +19,7 @@ public abstract class TestBaseWithAssemblyFixture<TAppFixture> : IAsyncLifetime,
 #pragma warning disable CA1822
     public ITestContext Context => TestContext.Current;
     public CancellationToken Cancellation => TestContext.Current.CancellationToken;
-    public ITestOutputHelper Output
-        => TestContext.Current.TestOutputHelper ?? throw new InvalidOperationException("Test output helper is not available in the current context!");
+    public ITestOutputHelper Output => TestContext.Current.TestOutputHelper ?? throw new InvalidOperationException("Test output helper is not available in the current context!");
 #pragma warning restore CA1822
 
     // ReSharper disable VirtualMemberNeverOverridden.Global

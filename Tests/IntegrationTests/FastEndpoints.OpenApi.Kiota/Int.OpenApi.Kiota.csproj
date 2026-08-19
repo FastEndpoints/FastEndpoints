@@ -1,5 +1,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+    <PropertyGroup>
+        <!-- Heavy/slow Kiota gen. MTP discovers via IsTestingPlatformApplication, not IsTestProject. -->
+        <IsTestingPlatformApplication Condition="'$(CI)' == 'true' or '$(TF_BUILD)' == 'true'">false</IsTestingPlatformApplication>
+        <IsTestProject Condition="'$(CI)' == 'true' or '$(TF_BUILD)' == 'true'">false</IsTestProject>
+    </PropertyGroup>
+
     <ItemGroup>
         <ProjectReference Include="..\..\..\Src\Testing\FastEndpoints.Testing.csproj"/>
         <ProjectReference Include="..\..\..\Src\OpenApi.Kiota\FastEndpoints.OpenApi.Kiota.csproj"/>

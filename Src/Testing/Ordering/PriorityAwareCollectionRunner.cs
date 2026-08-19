@@ -14,11 +14,11 @@ sealed class PriorityAwareCollectionRunner : XunitTestCollectionRunner
 
         // GroupBy preserves the order of first key occurrence. since test cases are already sorted by class priority, the groups will appear in priority order.
         // we intentionally do not call .OrderBy(TestClassComparer) which would re-sort by UniqueID hash.
-        var groups = ctx.TestCases.GroupBy(tc => tc.TestClass, TestClassComparer.Instance);
+        var groups = ctx.TestCases.GroupBy(tc => tc.TestClass, TestClassComparer<IXunitTestClass>.Instance);
 
         foreach (var testCasesByClass in groups)
         {
-            var testClass = testCasesByClass.Key as IXunitTestClass;
+            var testClass = testCasesByClass.Key;
             var testCases = testCasesByClass.ToArray();
 
             if (exception is not null)

@@ -11,7 +11,7 @@ sealed class IdempotencyPolicy : IOutputCachePolicy
 {
     public async ValueTask CacheRequestAsync(OutputCacheContext ctx, CancellationToken ct)
     {
-        var opts = ctx.HttpContext.GetEndpoint()?.Metadata.OfType<EndpointDefinition>().SingleOrDefault()?.IdempotencyOptions;
+        var opts = ctx.HttpContext.GetEndpoint()?.Metadata.GetMetadata<EndpointDefinition>()?.IdempotencyOptions;
 
         if (opts is null)
             return;

@@ -13,7 +13,7 @@ Compact operational knowledge for agents working in the FastEndpoints repository
 * [Conventions](conventions.md): naming, style, patterns
 
 ## Workflow and validation
-* [Workflows](workflows.md): build, pack, clean, publish
+* [Workflows](workflows.md): build, pack, changelog, publish
 * [Testing](testing.md): unit/integration/AOT, filters, harnesses
 
 ## Task-specific

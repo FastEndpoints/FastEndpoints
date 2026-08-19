@@ -1,7 +1,7 @@
 ---
 type: Playbook
 title: Workflows
-description: Build, test, pack, publish, and FE-Docs commands for the FastEndpoints monorepo.
+description: Build, test, pack, publish, changelog, and FE-Docs commands for the FastEndpoints monorepo.
 tags: [build]
 ---
 
@@ -60,6 +60,22 @@ Trusted publishing policy on nuget.org must match: owner `FastEndpoints`, repo `
 
 Azure `azure-pipeline.yml`: tag `v*` trigger; tests under `Tests/` with the same filter. No pack/push in that file.
 
+## Changelog
+Rolling current-cycle release notes: `Src/Library/changelog.md`. Non-beta tags dump the **entire file** as the GitHub release body. Not Keep-a-Changelog: no version headers, do not reset or rewrite the file, keep the sponsorship banner and existing entries.
+
+Update it in the same change as user-visible library work (new public API/package/feature, user-visible bug fix, notable perf/behavior improvement, breaking change). Skip tests-only, OKF, comments, CI, formatting, internal refactors with no consumer effect, and FE-Docs-only edits. Do not duplicate an existing `<details>` for the same change.
+
+Prepend a new `<details>` immediately under the matching heading (newest first). Do not add headings.
+
+- `## New 🎉`
+- `## Fixes 🪲`
+- `## Improvements 🚀`
+- `## Minor Breaking Changes ⚠️`
+
+Match neighbors: HTML `<details><summary>user-facing title</summary>` plus short consumer-facing prose and an optional small code sample. The HTML comment near the top of the file is the entry template. Summaries state consumer impact, not the implementation. Breaking entries must say what broke and how to migrate.
+
+Changelog is release notes. FE-Docs is API docs. Do both when both apply.
+
 ## Lint and format
 - Style primarily via `.editorconfig` + ReSharper/Rider DotSettings (`FastEndpoints.sln.DotSettings.user` is user-local).
 - No dedicated `dotnet format` script required by CI from inspected files; follow editorconfig when editing.
@@ -73,7 +89,7 @@ Azure `azure-pipeline.yml`: tag `v*` trigger; tests under `Tests/` with the same
 ## Public documentation
 User-facing docs are the sibling `../FE-Docs/` SvelteKit site (`src/content/docs/` numbered topics). Published: https://fast-endpoints.com. Preview: https://dev.fastendpoints-doc-site.pages.dev.
 
-Update FE-Docs when a change is user-visible (public APIs, config, endpoint/messaging/job/security/OpenAPI/AOT behavior, breaking changes, new features). Match neighboring page style. Do not paste doc pages into OKF. Docs are not built by this repo's solutions or publish workflow.
+Update FE-Docs when a change is user-visible (public APIs, config, endpoint/messaging/job/security/OpenAPI/AOT behavior, breaking changes, new features). Match neighboring page style. Do not paste doc pages into OKF. Docs are not built by this repo's solutions or publish workflow. Same class of change also needs a changelog entry (see Changelog).
 
 ```bash
 # from ../FE-Docs/
@@ -89,6 +105,7 @@ npm run build
 
 ## Sources
 - `.github/workflows/publish-to-nuget.yml`
+- `Src/Library/changelog.md`
 - `azure-pipeline.yml`
 - `clean.sh`
 - `Src/Generator/FastEndpoints.Generator.targets`

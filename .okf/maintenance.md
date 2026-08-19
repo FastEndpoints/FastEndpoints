@@ -28,8 +28,9 @@ Sync OKF when changes hit:
 - config/env/ops assumptions
 - conventions, layout, gotchas
 - docs maintenance workflow / FE-Docs paths (not the full docs body)
+- changelog path/format / GH-release notes workflow (not the entry bodies)
 
-**Public docs (FE-Docs):** user-visible library changes also require updates in sibling `../FE-Docs/` (see [workflows.md](workflows.md)). That is separate from OKF sync; do both when both apply.
+**Public docs (FE-Docs) and changelog:** user-visible library changes also require updates in sibling `../FE-Docs/` and `Src/Library/changelog.md` (see [workflows.md](workflows.md)). Those are separate from OKF sync; do all that apply.
 
 If unaffected, state why in the final response (`OKF unaffected (non-behavioral edit)` for pure comment/typo/format).
 

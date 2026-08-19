@@ -27,7 +27,10 @@ Sync `.okf/` when the change hits the update triggers in `.okf/maintenance.md`. 
 
 If no update needed, state why (pure comment/typo/formatting: `OKF unaffected (non-behavioral edit)`). Task is incomplete until OKF is synced or explicitly unaffected.
 
-For **user-visible** library changes (public APIs, config, behavior, breaking changes, new features), also update the public docs in sibling `../FE-Docs/src/content/docs/` (see `.okf/workflows.md`). Do not copy full doc pages into OKF.
+For **user-visible** library changes (public APIs, config, behavior, breaking changes, new features), also:
+
+- update public docs in sibling `../FE-Docs/src/content/docs/` (see `.okf/workflows.md`). Do not copy full doc pages into OKF.
+- add or update an entry in `Src/Library/changelog.md` (format in `.okf/workflows.md`). Skip tests-only, OKF, comments, CI, formatting, and internal refactors with no consumer effect.
 
 ### General
 

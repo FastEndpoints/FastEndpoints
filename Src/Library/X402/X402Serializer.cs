@@ -1,4 +1,3 @@
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
@@ -16,10 +15,10 @@ static class X402Serializer
     internal static readonly X402JsonContext Context = new(Options);
 
     internal static string ToBase64<T>(T value, JsonTypeInfo<T> typeInfo)
-        => Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(value, typeInfo)));
+        => Convert.ToBase64String(JsonSerializer.SerializeToUtf8Bytes(value, typeInfo));
 
     internal static T FromBase64<T>(string value, JsonTypeInfo<T> typeInfo)
-        => JsonSerializer.Deserialize(Encoding.UTF8.GetString(Convert.FromBase64String(value)), typeInfo)! ??
+        => JsonSerializer.Deserialize(Convert.FromBase64String(value).AsSpan(), typeInfo)! ??
            throw new InvalidOperationException($"failed to deserialize x402 payload as [{typeof(T).Name}]!");
 }
 

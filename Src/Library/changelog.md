@@ -421,6 +421,12 @@ Roots are taken from the request DTO itself, so warmup still covers them when a 
 
 </details>
 
+<details><summary>Fewer allocations encoding/decoding x402 payment payloads</summary>
+
+`X402Serializer` no longer round-trips through an intermediate UTF-16 `string` when base64 encoding or decoding payment payloads. Encoding serializes directly to UTF-8 bytes, and decoding deserializes straight from the decoded byte span. Behavior is unchanged; each direction does one less allocation per x402-protected request.
+
+</details>
+
 ## Minor Breaking Changes ⚠️
 
 <details><summary>'FastEndpoints.Testing' requires xUnit.net v3 4.0</summary>

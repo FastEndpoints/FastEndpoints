@@ -20,20 +20,23 @@ It's useful when an application event, webhook payload, request DTO, or domain o
 // map input model to a rule
 bld.Services.AddCommandRules(o => o.Register<OrderPlaced, OrderPlacedRule>());
 
-// define the rule to specify which commands should ececute
+// define the rule to specify which commands should execute
 sealed class OrderPlacedRule : CommandRule<OrderPlaced>
 {
     public override bool CanHandle(OrderPlaced input)
-        => input.SendReceipt;
+        => input.IsPaid;
 
     public override IEnumerable<PlannedCommand> Build(OrderPlaced input)
     {
         yield return PlannedCommand.Create(new ReserveStock(input.OrderId));
 
-        yield return new PlannedCommand(new SendReceipt(input.OrderId))
+        if (input.SendReceipt)
         {
-            Mode = CommandDispatchMode.QueueAsJob
-        };
+            yield return new PlannedCommand(new SendReceipt(input.OrderId))
+            {
+                Mode = CommandDispatchMode.QueueAsJob
+            };
+        }
     }
 }
 

@@ -1,7 +1,7 @@
 ---
 type: Playbook
 title: Workflows
-description: Build, test, pack, clean, and publish commands for the FastEndpoints monorepo.
+description: Build, test, pack, publish, and FE-Docs commands for the FastEndpoints monorepo.
 tags: [build]
 ---
 
@@ -39,6 +39,8 @@ dotnet test Tests/**/*.csproj --filter "ExcludeInCiCd!=Yes"   # Azure pipeline s
 ```
 
 ## Pack and publish
+NuGet-only release (no long-running service). Changelog for GH releases: `Src/Library/changelog.md`.
+
 ```bash
 dotnet pack FastEndpoints.slnx -c Release
 dotnet nuget push "Src/**/*.nupkg" -k <NUGET_API_KEY> -s https://api.nuget.org/v3/index.json
@@ -48,15 +50,15 @@ GitHub Actions (`.github/workflows/publish-to-nuget.yml`): on tag `v*`:
 1. setup SDKs 8/9/10
 2. `dotnet test FastEndpoints.slnx -c Release --filter ExcludeInCiCd!=Yes`
 3. pack
-4. `NuGet/login@v1` exchanges GitHub OIDC for a short-lived nuget.org API key (`user: dj-nitehawk` hardcoded in workflow)
+4. `NuGet/login@v1` exchanges GitHub OIDC for a short-lived nuget.org API key (`user: djnitehawk` in the workflow; this is the nuget.org username, not GitHub `dj-nitehawk`)
 5. push with that temp key and `--skip-duplicate` (trusted publishing; no long-lived API key secret). Needed because independently versioned Agents packages (`FastEndpoints.Mcp` / `FastEndpoints.A2A`) are packed with the solution and already exist on nuget.org when their version is unchanged.
-6. non-beta tags: GH release body from `Src/Library/changelog.md`
+6. non-beta tags: GH release body from `Src/Library/changelog.md`. AOT test step is commented; do not assume an AOT gate.
 
 Job permissions: `id-token: write` (OIDC), `contents: write` (GH release).
 
 Trusted publishing policy on nuget.org must match: owner `FastEndpoints`, repo `FastEndpoints`, workflow file `publish-to-nuget.yml` (filename only).
 
-Azure `azure-pipeline.yml`: tag `v*` trigger; runs tests under `Tests/` with same filter (pack steps not in the snippet beyond test; verify file when changing release process).
+Azure `azure-pipeline.yml`: tag `v*` trigger; tests under `Tests/` with the same filter. No pack/push in that file.
 
 ## Lint and format
 - Style primarily via `.editorconfig` + ReSharper/Rider DotSettings (`FastEndpoints.sln.DotSettings.user` is user-local).
@@ -69,32 +71,21 @@ Azure `azure-pipeline.yml`: tag `v*` trigger; runs tests under `Tests/` with sam
 - No DB migrations in-repo.
 
 ## Public documentation
-User-facing docs live in a **sibling repo**, not this monorepo:
+User-facing docs are the sibling `../FE-Docs/` SvelteKit site (`src/content/docs/` numbered topics). Published: https://fast-endpoints.com. Preview: https://dev.fastendpoints-doc-site.pages.dev.
 
-| Item | Location |
-| --- | --- |
-| Docs source | `../FE-Docs/src/content/docs/` (numbered topic pages) |
-| Site | SvelteKit app in `../FE-Docs/` |
-| Published | https://fast-endpoints.com |
-| Dev preview | https://dev.fastendpoints-doc-site.pages.dev |
+Update FE-Docs when a change is user-visible (public APIs, config, endpoint/messaging/job/security/OpenAPI/AOT behavior, breaking changes, new features). Match neighboring page style. Do not paste doc pages into OKF. Docs are not built by this repo's solutions or publish workflow.
 
-**When library work finishes**, update FE-Docs if the change is user-visible: public APIs, config knobs, endpoint/messaging/job/security/OpenAPI/AOT behavior, breaking changes, or new features. Prefer editing the matching topic under `src/content/docs/` (and related nav if structure changes). Match the **writing style and formatting** of existing content on that page and in neighboring topics (tone, structure, headings, code samples, callouts). Do **not** paste full doc pages into OKF.
-
-Local docs site (from `../FE-Docs/`):
 ```bash
+# from ../FE-Docs/
 npm install   # first time
-npm run dev   # vite dev
+npm run dev
 npm run build
 ```
-
-Docs are not built/tested by `FastEndpoints.slnx` or NuGet publish workflows.
 
 ## Env vars / secrets (names only)
 | Name | Use |
 | --- | --- |
-| App config keys e.g. `TokenKey` | Harness JWT signing (configuration, not committed secrets) |
-
-NuGet publish uses trusted publishing (OIDC); no NuGet API key or username secret. Username `dj-nitehawk` is set in the workflow.
+| App config keys e.g. `TokenKey` | Harness JWT signing (samples only) |
 
 ## Sources
 - `.github/workflows/publish-to-nuget.yml`

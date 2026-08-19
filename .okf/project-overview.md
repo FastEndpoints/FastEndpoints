@@ -12,51 +12,49 @@ resource: README.md
 **FastEndpoints** is a developer-oriented alternative to Minimal APIs and MVC for ASP.NET Core. It implements the **REPR** pattern (Request-Endpoint-Response) with low boilerplate. Public docs: https://fast-endpoints.com
 
 ## Scope
-This repo is the multi-package source for:
+Library monorepo, not a hosted product. Package inventory: [monorepo-packages.md](monorepo-packages.md).
 
-| Area | Packages (examples) |
+| Area | Examples |
 | --- | --- |
-| Core HTTP framework | `FastEndpoints`, `FastEndpoints.Attributes`, `FastEndpoints.Core` |
+| Core HTTP | `FastEndpoints`, `FastEndpoints.Attributes`, `FastEndpoints.Core` |
 | Messaging / jobs | `FastEndpoints.Messaging*`, `FastEndpoints.JobQueues`, `FastEndpoints.CommandRules` |
-| Security | `FastEndpoints.Security` |
+| Security / integrations | `FastEndpoints.Security`, `AspVersioning`, `OData`, `HealthChecks` |
 | Docs / clients | `FastEndpoints.OpenApi`, `FastEndpoints.OpenApi.Kiota`, legacy `Swagger` / `ClientGen*` |
 | Tooling / AOT | `FastEndpoints.Generator`, `FastEndpoints.Generator.Cli` |
-| Testing helpers | `FastEndpoints.Testing`, remote messaging testing |
-| Addons (independent versioning) | `FastEndpoints.Mcp`, `FastEndpoints.A2A` (under `Src/Agents/`) |
-| Integrations | `AspVersioning`, `OData`, `HealthChecks` |
+| Testing | `FastEndpoints.Testing`, remote messaging testing |
+| Addons (own version line) | `FastEndpoints.Mcp`, `FastEndpoints.A2A` (`Src/Agents/`) |
 
 ## Consumers
-- Library authors and app developers targeting ASP.NET Core **net8.0 / net9.0 / net10.0**
-- NuGet consumers; not an application service deployed from this repo
+- App developers targeting ASP.NET Core **net8.0 / net9.0 / net10.0**
+- NuGet consumers; nothing is deployed as a service from this repo
 
 ## Capabilities
 - Endpoint discovery (reflection or source-generated `DiscoveredTypes`)
-- FluentValidation integration, pre/post processors, mappers
-- Command/event bus (in-process) and gRPC remote messaging
-- Job queues with storage provider abstraction
-- JWT/cookie auth helpers, OpenAPI (Microsoft.AspNetCore.OpenApi), AOT-oriented generation
+- FluentValidation, pre/post processors, mappers
+- In-process command/event bus and gRPC remote messaging
+- Job queues (storage SPI) and HTTP request idempotency (`AddIdempotency`)
+- JWT/cookie auth, feature flags (`IFeatureFlag`), X402 payment helpers
+- OpenAPI (Microsoft.AspNetCore.OpenApi), AOT-oriented generation
 
 ## Status
-- Library version (shared `Src/Directory.Build.props`): **8.3.0-beta.16** (verify before citing)
-- Agents addons versioned separately (e.g. **1.0.0-beta.3**)
-- Agents projects currently **commented out** of `FastEndpoints.slnx` but present under `Src/Agents/`
-- Primary solution: `FastEndpoints.slnx`; AOT solution: `NativeAot.slnx`
+- Core version: `Src/Directory.Build.props` `<Version>` (never cite OKF)
+- Agents versions: per-csproj under `Src/Agents/`
+- Solutions: `FastEndpoints.slnx` (primary), `NativeAot.slnx` (AOT)
 
 ## Non-goals
-- Not a hosted product/API of its own
-- Product roadmap, sponsorship, and full public API catalog live outside OKF (docs site / changelog)
-- Public doc **pages** are maintained in sibling `../FE-Docs/` (see [workflows.md](workflows.md)); OKF only records that obligation and paths, not page content
+- Not a hosted product
+- Roadmap, sponsorship, and API catalog live in the docs site / changelog
+- Public doc pages: sibling `../FE-Docs/` ([workflows.md](workflows.md))
 
 ## Glossary
 | Term | Meaning |
 | --- | --- |
-| REPR | Request-Endpoint-Response endpoint design |
+| REPR | Request-Endpoint-Response |
 | SUT / harness | Sample apps under `TestHarness/` used by integration tests |
-| WAF | `WebApplicationFactory` path via `FastEndpoints.Testing.AppFixture` |
+| WAF | `WebApplicationFactory` via `FastEndpoints.Testing.AppFixture` |
 | DiscoveredTypes | Source-generated type list for AOT-friendly registration |
 
 ## Sources
 - `README.md`
 - `Src/Directory.Build.props`
 - `FastEndpoints.slnx`
-- `Src/Library/FastEndpoints.csproj`

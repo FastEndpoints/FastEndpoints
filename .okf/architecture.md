@@ -1,7 +1,7 @@
 ---
 type: Architecture
 title: Architecture
-description: REPR endpoint pipeline, multi-package dependency graph, messaging, and discovery invariants.
+description: REPR endpoint pipeline, package graph, messaging, auth, and discovery invariants.
 tags: [architecture]
 ---
 
@@ -55,7 +55,7 @@ Attributes / Messaging.Core
 - **Security/OpenApi/OData/AspVersioning** reference Library (addons on top of core HTTP).
 - **Generator** references Attributes only (analyzer package); consumers reference Generator as analyzer.
 - **Agents** (`Mcp`, `A2A`) reference Library; share internal types via linked `Src/Agents/Shared/*.cs` (not a separate NuGet).
-- **Agents friend internals:** Library exposes selected internals to `FastEndpoints.Mcp` / `FastEndpoints.A2A` via `InternalsVisibleTo` (`Src/Library/Metadata.cs`). Those members are an effective binary contract across independently versioned packages; see stock in [gotchas.md](gotchas.md).
+- **Agents friend internals:** Library grants `InternalsVisibleTo` to `FastEndpoints.Mcp` / `FastEndpoints.A2A` (`Src/Library/Metadata.cs`). Consumed internals are a binary contract across independently versioned packages; stock in [gotchas.md](gotchas.md).
 - **Forbidden for agents:** invent reverse deps (e.g. Core → Library) or ship Agents.Shared as a public package unless code changes deliberately.
 
 ## Communication
@@ -75,10 +75,13 @@ Attributes / Messaging.Core
 - Job idempotency is storage-enforced on `(QueueID, IdempotencyKey)` while the row exists (including completed); not filtered to incomplete-only.
 - No EF/migrations in this repo.
 
-## Security / auth (boundary summary)
-- Auth is ASP.NET Core middleware + `FastEndpoints.Security` helpers.
-- Endpoint-level `Permissions` / `Roles` / `AccessControl` (generator can emit permission constants).
-- See [security.md](security.md) for operational detail.
+## Security / auth
+- Auth is ASP.NET Core middleware + optional `FastEndpoints.Security` (`Src/Security`): JWT bearer, cookies, refresh, revocation.
+- Endpoint `Configure()`: `AllowAnonymous()`, roles/permissions/policies; `AccessControl(...)` can emit constants via Generator. Global options: `Config.Security`.
+- Feature flags: implement `IFeatureFlag`, call `FeatureFlag<T>()` to disable an endpoint at runtime.
+- Harness wires `AddAuthenticationJwtBearer`, `AdminOnly`, `UseJwtRevocation<T>()`, `UseAntiforgeryFE`. Sample JWT keys are test-only.
+- Remote messaging is trusted-network RPC unless the consumer adds auth.
+- Publish is secretless OIDC ([workflows.md](workflows.md)).
 
 ## Invariants
 1. Endpoint types implement `IEndpoint`; public base is `Endpoint<TRequest[, TResponse]>`.
@@ -93,11 +96,7 @@ Attributes / Messaging.Core
 ## Sources
 - `Src/Library/Main/MainExtensions.cs`
 - `Src/Library/Main/EndpointRouteMapper.cs`
-- `Src/Library/Main/EndpointSecurityPolicies.cs`
-- `Src/Library/Main/EndpointProducesMetadata.cs`
-- `Src/Library/Main/EndpointWarmup.cs`
 - `Src/Library/Endpoint/Endpoint.cs`
-- `Src/Library/FastEndpoints.csproj`
 - `Src/Library/Metadata.cs`
-- `Src/Generator/DiscoveredTypesGenerator.cs`
+- `Src/Security/`
 - `Src/Agents/Directory.Build.props`

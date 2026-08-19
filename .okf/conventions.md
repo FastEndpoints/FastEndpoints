@@ -32,6 +32,8 @@ tags: [conventions]
 - Pre/post processors: `IPreProcessor<TRequest>`, `IPostProcessor<TRequest,TResponse>`.
 - Mappers: `IMapper` / request-response mappers; **stateless** (singleton lifetime expectation).
 - Commands/events: implement `ICommand` / `IEvent` (+ handlers); job queue builds on commands.
+- HTTP idempotency: `services.AddIdempotency()` + endpoint `Idempotency()` (output-cache policy). Distinct from job-queue `IdempotencyKeyFor`.
+- Feature flags: implement `IFeatureFlag`, call `FeatureFlag<T>()` in `Configure()`.
 - Optional attributes: `DontRegister`, `DontInject`, `HideFromDocs`, `RegisterService`, etc. in Attributes package.
 
 ## Config and DI

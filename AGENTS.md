@@ -13,7 +13,7 @@ Normative OKF use/update gates live in this file. `.okf/index.md` and `.okf/main
 Match OKF depth to blast radius:
 
 - Local/small change: `.okf/index.md` + conventions/gotchas (and the matching task file if the surface is already documented).
-- Cross-cutting, public API, persistence, auth, contracts, or new surface: core set first (overview, architecture, code-map, conventions), then task-specific files (testing/workflows/dependencies/operations/gotchas and any expanded files present: monorepo-packages/generated-code/security).
+- Cross-cutting, public API, persistence, auth, contracts, or new surface: core set first (overview, architecture, code-map, conventions), then task-specific files (testing/workflows/dependencies/gotchas and any expanded files present: monorepo-packages/generated-code).
 
 OKF guides; it does not replace checking source, tests, or manifests for exact behavior.
 

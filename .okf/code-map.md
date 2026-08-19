@@ -43,8 +43,8 @@ tags: [layout]
 
 | Folder under `Src/Library/` | Concern |
 | --- | --- |
-| `Main/` | Startup facades + collaborators: `MainExtensions` (public entry; wires discovery + messaging registration), `EndpointData` (HTTP definition catalog only)/`EndpointDiscoveryOptions`, `EndpointBootstrap`, `FeRequestHandler`, `EndpointRouteMapper`, `EndpointSecurityPolicies`, `EndpointProducesMetadata`, `EndpointWarmup`, `ResponseCacheExecutor` |
-| `Endpoint/` | Endpoint base, setup, send, validation, processors, mappers |
+| `Main/` | Startup facades + collaborators: `MainExtensions` (public entry; wires discovery + messaging registration), `EndpointData` (HTTP definition catalog only)/`EndpointDiscoveryOptions`, `EndpointBootstrap`, `FeRequestHandler`, `EndpointRouteMapper`, `EndpointSecurityPolicies`, `EndpointProducesMetadata`, `EndpointWarmup`, `ResponseCacheExecutor`, `IFeatureFlag` |
+| `Endpoint/` | Endpoint base, setup, send, validation, processors, mappers, HTTP `Idempotency/` |
 | `Binder/` | Request binding |
 | `Config/` | Global `Config` options |
 | `Validation/` | FluentValidation wrappers |

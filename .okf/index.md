@@ -17,8 +17,8 @@ Compact operational knowledge for agents working in the FastEndpoints repository
 * [Testing](testing.md): unit/integration/AOT, filters, harnesses
 
 ## Task-specific
-* [Dependencies](dependencies.md) · [Operations](operations.md) · [Gotchas](gotchas.md) · [Maintenance](maintenance.md)
-* [Monorepo Packages](monorepo-packages.md) · [Generated Code](generated-code.md) · [Security](security.md)
+* [Dependencies](dependencies.md) · [Gotchas](gotchas.md) · [Maintenance](maintenance.md)
+* [Monorepo Packages](monorepo-packages.md) · [Generated Code](generated-code.md)
 
 ## Authority
 If OKF conflicts with source, tests, generated artifacts, or manifests: verify those, then update OKF.

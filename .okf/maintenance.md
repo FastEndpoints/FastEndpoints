@@ -24,7 +24,7 @@ Sync OKF when changes hit:
 - deps / TFMs / central package management
 - build, test, pack, publish, codegen commands
 - testing strategy or harness layout
-- security/auth surfaces
+- security/auth surfaces (JWT/cookies/permissions/feature flags; no separate `security.md`)
 - config/env/ops assumptions
 - conventions, layout, gotchas
 - docs maintenance workflow / FE-Docs paths (not the full docs body)

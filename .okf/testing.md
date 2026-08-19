@@ -43,7 +43,8 @@ AOT tests: use `NativeAot.slnx` (publish workflow currently has AOT test step co
 - **WAF caching:** `AppFixture` caches one factory per fixture type; override `OnCachedWafDisposedAsync()` for one-shot teardown of the shared factory (cached mode + `[assembly: EnableAdvancedTesting]`).
 - **Sut pattern:** derive `AppFixture<Web.Program>`, override `ConfigureServices` / `SetupAsync` for clients and test doubles (`RegisterTestCommandHandler`, event receivers, etc.).
 - **Auth clients:** Admin/Customer JWT obtained via login endpoints in `Sut.SetupAsync`.
-- **Traits:** `[Trait("ExcludeInCiCd", "Yes")]` skips in CI (job-queue timing, some binding/Kiota cases).
+- **Traits:** `[Trait("ExcludeInCiCd", "Yes")]` skips in CI (job-queue timing, some binding cases).
+- **Kiota integration project:** `Int.OpenApi.Kiota` sets `IsTestProject=false` when `CI` (GitHub) or `TF_BUILD` (Azure) is true (heavy Kiota gen). Local `dotnet test FastEndpoints.slnx` still runs it.
 - Integration runners for `FastEndpoints`, `FastEndpoints.OpenApi`, and `FastEndpoints.Agents` disable test-collection parallelization (process-wide FastEndpoints state). Azure and GitHub publish pipelines also rewrite the `FastEndpoints` runner config.
 - No external DB for the core suite; job storage tests use in-memory/test providers.
 - Job-queue idempotency, gRPC reflection, and AOT binding/jobs live under the matching `Tests/UnitTests`, `Tests/IntegrationTests/FastEndpoints/RPCTests`, and `Tests/NativeAotTests` folders. Do not stand up a second in-process event hub with default storage types (see [gotchas.md](gotchas.md)).

@@ -1,5 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+    <PropertyGroup>
+        <!-- Heavy/slow Kiota gen; skip the project in CI so MTP does not exit 8 on a filtered-empty assembly. -->
+        <IsTestProject Condition="'$(CI)' == 'true' or '$(TF_BUILD)' == 'true'">false</IsTestProject>
+    </PropertyGroup>
+
     <ItemGroup>
         <ProjectReference Include="..\..\..\Src\Testing\FastEndpoints.Testing.csproj"/>
         <ProjectReference Include="..\..\..\Src\OpenApi.Kiota\FastEndpoints.OpenApi.Kiota.csproj"/>

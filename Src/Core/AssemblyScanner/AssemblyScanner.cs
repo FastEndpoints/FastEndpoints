@@ -47,8 +47,10 @@ internal static class AssemblyScanner
             assemblies = assemblies.Where(opts.AssemblyFilter);
 
         return assemblies
-               //the exclusions are plain ascii prefixes, so Ordinal is both correct and free of icu collation.
-               .Where(a => !a.IsDynamic && (opts.Assemblies?.Contains(a) is true || !_exclusions.Any(x => a.FullName!.StartsWith(x, StringComparison.Ordinal))))
+               .Where(
+                   a => !a.IsDynamic &&
+                        (opts.Assemblies?.Contains(a) is true ||
+                         !_exclusions.Any(x => a.FullName!.StartsWith(x, StringComparison.Ordinal)))) // Ordinal is both correct and free of icu collation.
                .SelectMany(a => a.GetTypes())
                .Where(t => IsTypeMatch(t, opts));
 

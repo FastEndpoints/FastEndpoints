@@ -47,7 +47,10 @@ internal static class AssemblyScanner
             assemblies = assemblies.Where(opts.AssemblyFilter);
 
         return assemblies
-               .Where(a => !a.IsDynamic && (opts.Assemblies?.Contains(a) is true || !_exclusions.Any(x => a.FullName!.StartsWith(x))))
+               .Where(
+                   a => !a.IsDynamic &&
+                        (opts.Assemblies?.Contains(a) is true ||
+                         !_exclusions.Any(x => a.FullName!.StartsWith(x, StringComparison.Ordinal)))) // Ordinal is both correct and free of icu collation.
                .SelectMany(a => a.GetTypes())
                .Where(t => IsTypeMatch(t, opts));
 
@@ -59,11 +62,24 @@ internal static class AssemblyScanner
             if (options.ExcludeAttribute is not null && t.IsDefined(options.ExcludeAttribute))
                 return false;
 
-            return options.InterfaceTypes.Length switch
+            if (options.InterfaceTypes.Length > 0 && !ImplementsAny(t, options.InterfaceTypes))
+                return false;
+
+            return options.TypeFilter is null || options.TypeFilter(t);
+        }
+
+        static bool ImplementsAny(Type t, Type[] interfaceTypes)
+        {
+            foreach (var tImplemented in t.GetInterfaces())
             {
-                > 0 when !t.GetInterfaces().Intersect(options.InterfaceTypes).Any() => false,
-                _ => options.TypeFilter is null || options.TypeFilter(t)
-            };
+                foreach (var tWanted in interfaceTypes)
+                {
+                    if (tImplemented == tWanted)
+                        return true;
+                }
+            }
+
+            return false;
         }
     }
 }

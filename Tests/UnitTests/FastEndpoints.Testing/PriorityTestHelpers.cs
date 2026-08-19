@@ -57,6 +57,14 @@ static class PriorityTestHelpers
 
     public class CollectionDefNoPriority;
 
+    public static IXunitTestMethod FakeTestMethod(MethodInfo method)
+    {
+        var testMethod = A.Fake<IXunitTestMethod>();
+        A.CallTo(() => testMethod.Method).Returns(method);
+
+        return testMethod;
+    }
+
     public static IXunitTestCase FakeTestCaseForMethod(MethodInfo method)
     {
         var testMethod = A.Fake<IXunitTestMethod>();

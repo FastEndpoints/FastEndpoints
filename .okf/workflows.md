@@ -31,7 +31,7 @@ dotnet run --project TestHarness/Web/Web.csproj
 Sandbox: `TestHarness/Sandbox/Sandbox.slnx` for isolated experiments.
 
 ## Test
-See [testing.md](testing.md). Common:
+See [testing.md](testing.md). Root `global.json` selects the Microsoft Testing Platform runner for `dotnet test` (SDK 10 + xunit.v3 4). Common:
 
 ```bash
 dotnet test FastEndpoints.slnx -c Release --filter "ExcludeInCiCd!=Yes"

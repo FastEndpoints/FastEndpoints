@@ -69,6 +69,7 @@ sealed class TestAssemblyRunner : XunitTestAssemblyRunner
             ctx.MessageBus.QueueMessage(
                 new ErrorMessage
                 {
+                    AssemblyUniqueID = ctx.TestAssembly.UniqueID,
                     ExceptionParentIndices = [-1],
                     ExceptionTypes = [typeof(TestPipelineException).SafeName()],
                     Messages =
@@ -106,9 +107,10 @@ sealed class TestAssemblyRunner : XunitTestAssemblyRunner
             OrderAccordingToClassLevelPriority(cases),
             ctx.ExplicitOption,
             ctx.MessageBus,
-            _testCaseOrderer,
             ctx.Aggregator.Clone(),
             ctx.CancellationTokenSource,
+            ctx.ParallelMode,
+            ctx.Scheduler,
             ctx.AssemblyFixtureMappings);
     }
 

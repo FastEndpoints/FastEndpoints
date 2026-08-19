@@ -423,6 +423,26 @@ Roots are taken from the request DTO itself, so warmup still covers them when a 
 
 ## Minor Breaking Changes ⚠️
 
+<details><summary>'FastEndpoints.Testing' requires xUnit.net v3 4.0</summary>
+
+`FastEndpoints.Testing` now depends on `xunit.v3.extensibility.core` **4.0**. Test projects that use this package must align on `xunit.v3` **4.0** or later.
+
+If you run tests with `dotnet test` on the **.NET 10 SDK**, add this to the solution-root `global.json` (one file for the repo, not per project):
+
+```json
+{
+  "test": {
+    "runner": "Microsoft.Testing.Platform"
+  }
+}
+```
+
+If you run `dotnet test` on the **.NET 8 or 9 SDK**, VSTest is still the default. Keep `xunit.runner.visualstudio` **4.0** and `Microsoft.NET.Test.Sdk`, or drop the adapter and set `<TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>` for MTP.
+
+That runner setup is an xUnit 4 / SDK requirement, not something `FastEndpoints.Testing` sets. It is not needed for Rider, Visual Studio Test Explorer, running the test executable directly, or `xunit.v3.mtp-off`. See [Microsoft Testing Platform (xUnit.net v3)](https://xunit.net/docs/getting-started/v3/microsoft-testing-platform).
+
+</details>
+
 <details><summary>Nested collections are rejected in complex form/query binding</summary>
 
 Complex `[FromForm]` / `[FromQuery]` binding now throws `NotSupportedException` when a collection's element type is itself a complex collection (e.g. `List<List<Item>>`, `List<byte[]>`, `List<Dictionary<TKey, TValue>>`), instead of returning an empty list or failing with an unrelated indexer error.

@@ -6,5 +6,5 @@ namespace FastEndpoints.Testing;
 sealed class TestFramework : XunitTestFramework
 {
     protected override ITestFrameworkExecutor CreateExecutor(Assembly assembly)
-        => new TestFrameworkExecutor(new XunitTestAssembly(assembly));
+        => new TestFrameworkExecutor(new XunitTestAssembly(assembly, configFilePath: null));
 }

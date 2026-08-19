@@ -10,7 +10,7 @@ tags: [test]
 ## Frameworks and layout
 | Piece | Detail |
 | --- | --- |
-| Framework | **xunit.v3**, Shouldly, FakeItEasy |
+| Framework | **xunit.v3** (MTP v2, no VSTest adapter), Shouldly, FakeItEasy |
 | Test TFM | **net10.0** (`Tests/Directory.Build.props`) |
 | Unit | `Tests/UnitTests/FastEndpoints`, `…/FastEndpoints.Testing`, `…/FastEndpoints.AspVersioning` (+ legacy Swagger unit commented in slnx) |
 | Integration | `Tests/IntegrationTests/FastEndpoints` (main), OpenApi, OpenApi.Kiota, OData, Agents |
@@ -22,6 +22,8 @@ tags: [test]
 Integration projects reference harness + `FastEndpoints.Testing` + often remote messaging testing helpers.
 
 ## Commands
+Root `global.json` sets `"test": { "runner": "Microsoft.Testing.Platform" }` so `dotnet test` uses MTP on the .NET 10 SDK (required after `xunit.v3` 4.0).
+
 ```bash
 # Full solution tests (matches GitHub publish workflow)
 dotnet test FastEndpoints.slnx -c Release --verbosity minimal --filter "ExcludeInCiCd!=Yes"
@@ -37,6 +39,7 @@ dotnet test Tests/IntegrationTests/FastEndpoints/Int.FastEndpoints.csproj --filt
 AOT tests: use `NativeAot.slnx` (publish workflow currently has AOT test step commented out; re-check before assuming CI runs AOT).
 
 ## Integration and data
+- **TestBase serial + `[Priority]`:** `TestBase` / `TestBaseWithAssemblyFixture` apply `[TestClass(DisableParallelization = true)]`, `[TestCaseOrderer]`, and `[TestMethodOrderer]`. xunit.v3 4 default parallel mode is `Collections` (same class already serial). The `TestClass` flag is ignored in that mode and only applies if a project enables `ParallelMode.All`. Method + case orderers restore `[Priority]` across `[Fact]` methods and theory rows. No consumer attribute needed.
 - **WAF caching:** `AppFixture` caches one factory per fixture type; override `OnCachedWafDisposedAsync()` for one-shot teardown of the shared factory (cached mode + `[assembly: EnableAdvancedTesting]`).
 - **Sut pattern:** derive `AppFixture<Web.Program>`, override `ConfigureServices` / `SetupAsync` for clients and test doubles (`RegisterTestCommandHandler`, event receivers, etc.).
 - **Auth clients:** Admin/Customer JWT obtained via login endpoints in `Sut.SetupAsync`.

@@ -7,17 +7,14 @@
         <IsPackable>false</IsPackable>
         <RootNamespace>Tests</RootNamespace>
         <OutputType>Exe</OutputType>
-        <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
     </PropertyGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\..\..\Src\Generator\FastEndpoints.Generator.csproj"/>
         <ProjectReference Include="..\..\..\Src\Testing\FastEndpoints.Testing.csproj"/>
         <PackageReference Include="FakeItEasy"/>
-        <PackageReference Include="Microsoft.NET.Test.Sdk"/>
         <PackageReference Include="Shouldly"/>
         <PackageReference Include="xunit.v3"/>
-        <PackageReference Include="xunit.runner.visualstudio" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive"/>
     </ItemGroup>
 
     <ItemGroup>

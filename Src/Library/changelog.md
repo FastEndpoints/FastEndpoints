@@ -282,6 +282,12 @@ Reflection based type discovery no longer builds a LINQ set of the wanted interf
 
 </details>
 
+<details><summary>Idempotency policy avoids a per-request LINQ scan of endpoint metadata</summary>
+
+`IdempotencyPolicy` (registered as an ASP.NET output-cache base policy, so it runs on **every** request) no longer looks up the endpoint's `EndpointDefinition` with `Metadata.OfType<EndpointDefinition>().SingleOrDefault()`, which allocates an enumerator and walks the whole metadata collection. It now uses `Metadata.GetMetadata<EndpointDefinition>()`, the same cached-per-type lookup already used elsewhere in the request pipeline.
+
+</details>
+
 <details><summary>Response cache header value is built once per endpoint</summary>
 
 The `Cache-Control` value of a response cached endpoint is no longer re-interpolated on every request. Both of its inputs (the configured `ResponseCacheLocation` and duration) are fixed after startup, so the value is now built on the first request to the endpoint and reused, removing a string interpolation plus an `int.ToString()` per request. The emitted headers are unchanged.

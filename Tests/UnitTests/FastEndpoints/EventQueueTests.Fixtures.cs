@@ -636,7 +636,7 @@ public partial class EventQueueTests
         readonly object _sync = new();
         readonly List<TestEventRecord> _records = [];
 
-        public TaskCompletionSource SecondFetchObserved { get; } = NewSignal();
+        public TaskCompletionSource FirstFetchObserved { get; } = NewSignal();
         public int EmptyBatchCount { get; private set; }
         public int GetNextBatchCallCount { get; private set; }
 
@@ -654,8 +654,8 @@ public partial class EventQueueTests
             {
                 GetNextBatchCallCount++;
 
-                if (GetNextBatchCallCount >= 2)
-                    SecondFetchObserved.TrySetResult();
+                if (GetNextBatchCallCount == 1)
+                    FirstFetchObserved.TrySetResult();
 
                 var batch = _records.Where(match)
                                     .Take(parameters.Limit)

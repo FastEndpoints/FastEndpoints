@@ -36,5 +36,5 @@ steps:
     inputs:
       command: "test"
       projects: "Tests/**/*.csproj"
-      arguments: "--configuration $(BuildConfiguration) --filter ExcludeInCiCd!=Yes"
+      arguments: "--configuration $(BuildConfiguration) --filter ExcludeInCiCd!=Yes --max-parallel-test-modules 1"
       workingDirectory: "Tests"

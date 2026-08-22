@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using FastEndpoints;
 using Microsoft.Extensions.DependencyInjection;
 using QueueTesting;
@@ -51,7 +50,10 @@ public partial class EventQueueTests
         var provider = CreateServiceProvider(services => services.AddSingleton(state));
 
         EventHub<WaitRecoveryEvent, TestEventRecord, InstrumentedEventHubStorage>.Mode = HubMode.EventPublisher;
-        EventHubSettings.WaitForSignalTimeout = TimeSpan.FromMilliseconds(200);
+        var previousTimeout = EventHubSettings.WaitForSignalTimeout;
+
+        // must exceed the arrival deadline below; otherwise a missed wake still passes
+        EventHubSettings.WaitForSignalTimeout = TimeSpan.FromSeconds(5);
 
         var hub = new EventHub<WaitRecoveryEvent, TestEventRecord, InstrumentedEventHubStorage>(provider);
         var writer = new TestServerStreamWriter<WaitRecoveryEvent>();
@@ -62,14 +64,12 @@ public partial class EventQueueTests
         {
             subscriberTask = hub.OnSubscriberConnected(hub, "wait-recovery-sub", writer, CreateServerCallContext(cts.Token));
 
-            await state.SecondFetchObserved.Task.WaitAsync(TimeSpan.FromSeconds(2));
-            await Task.Delay(50);
+            await state.FirstFetchObserved.Task.WaitAsync(TimeSpan.FromSeconds(2));
+            await Task.Delay(100);
 
-            var stopwatch = Stopwatch.StartNew();
             await hub.BroadcastEventTaskForTesting(new() { EventID = 42 });
-            await WaitUntil(() => writer.Responses.Count == 1, timeoutMs: 2000);
 
-            stopwatch.Elapsed.ShouldBeLessThan(TimeSpan.FromMilliseconds(500));
+            await WaitUntil(() => writer.Responses.Count == 1, timeoutMs: 2000);
             writer.Responses.Single().EventID.ShouldBe(42);
         }
         finally
@@ -79,7 +79,7 @@ public partial class EventQueueTests
             if (subscriberTask is not null)
                 await WaitForCompletion(subscriberTask, timeoutMs: 5000);
 
-            EventHubSettings.WaitForSignalTimeout = TimeSpan.FromSeconds(10);
+            EventHubSettings.WaitForSignalTimeout = previousTimeout;
         }
     }
 

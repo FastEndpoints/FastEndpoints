@@ -40,13 +40,25 @@ public class EventBusTests
         await new EventBus<NewItemAddedToStock>(handlers).PublishAsync(event1, Mode.WaitForNone, TestContext.Current.CancellationToken);
         await new EventBus<NewItemAddedToStock>(handlers).PublishAsync(event2, Mode.WaitForAny, TestContext.Current.CancellationToken);
 
-        await Task.Delay(100, TestContext.Current.CancellationToken);
+        await WaitForEffects(event2);
+        await WaitForEffects(event1);
 
-        event2.ID.ShouldBe(0);
-        event2.Name.ShouldBe("pass");
+        async Task WaitForEffects(NewItemAddedToStock evnt)
+        {
+            var timeoutAt = DateTime.UtcNow.AddSeconds(2);
+            var ct = TestContext.Current.CancellationToken;
 
-        event1.ID.ShouldBe(0);
-        event1.Name.ShouldBe("pass");
+            while (DateTime.UtcNow < timeoutAt)
+            {
+                if (evnt is { ID: 0, Name: "pass" })
+                    return;
+
+                await Task.Delay(10, ct);
+            }
+
+            evnt.ID.ShouldBe(0);
+            evnt.Name.ShouldBe("pass");
+        }
     }
 
     [Fact]

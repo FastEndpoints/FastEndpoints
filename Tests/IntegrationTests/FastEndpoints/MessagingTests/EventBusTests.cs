@@ -37,14 +37,29 @@ public class EventBusTests(Sut App) : TestBase<Sut>
         await new EventBus<NewItemAddedToStock>().PublishAsync(event2, Mode.WaitForAny, Cancellation);
         await new EventBus<NewItemAddedToStock>().PublishAsync(event3, cancellation: Cancellation);
 
+        // WaitForAll completed every handler before returning
         event3.ID.ShouldBe(0);
         event3.Name.ShouldBe("pass");
 
-        event2.ID.ShouldBe(0);
-        event2.Name.ShouldBe("pass");
+        // WaitForAny / WaitForNone offload via Task.Run; remaining handlers may still be queued
+        await WaitForEffects(event2);
+        await WaitForEffects(event1);
 
-        event1.ID.ShouldBe(0);
-        event1.Name.ShouldBe("pass");
+        async Task WaitForEffects(NewItemAddedToStock evnt)
+        {
+            var timeoutAt = DateTime.UtcNow.AddSeconds(2);
+
+            while (DateTime.UtcNow < timeoutAt)
+            {
+                if (evnt is { ID: 0, Name: "pass" })
+                    return;
+
+                await Task.Delay(10, Cancellation);
+            }
+
+            evnt.ID.ShouldBe(0);
+            evnt.Name.ShouldBe("pass");
+        }
     }
 }
 

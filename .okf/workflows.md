@@ -34,8 +34,8 @@ Sandbox: `TestHarness/Sandbox/Sandbox.slnx` for isolated experiments.
 See [testing.md](testing.md). Root `global.json` selects the Microsoft Testing Platform runner for `dotnet test` (SDK 10 + xunit.v3 4). Common:
 
 ```bash
-dotnet test FastEndpoints.slnx -c Release --filter "ExcludeInCiCd!=Yes"
-dotnet test Tests/**/*.csproj --filter "ExcludeInCiCd!=Yes"   # Azure pipeline style
+dotnet test FastEndpoints.slnx -c Release --filter "ExcludeInCiCd!=Yes" --max-parallel-test-modules 1
+dotnet test Tests/**/*.csproj --filter "ExcludeInCiCd!=Yes" --max-parallel-test-modules 1   # Azure pipeline style
 ```
 
 ## Pack and publish
@@ -48,7 +48,7 @@ dotnet nuget push "Src/**/*.nupkg" -k <NUGET_API_KEY> -s https://api.nuget.org/v
 
 GitHub Actions (`.github/workflows/publish-to-nuget.yml`): on tag `v*`:
 1. setup SDKs 8/9/10
-2. `dotnet test FastEndpoints.slnx -c Release --filter ExcludeInCiCd!=Yes` (`Int.OpenApi.Kiota` is omitted via `IsTestingPlatformApplication=false` when `CI`/`TF_BUILD` is set)
+2. `dotnet test FastEndpoints.slnx -c Release --filter ExcludeInCiCd!=Yes --max-parallel-test-modules 1` (`Int.OpenApi.Kiota` is omitted via `IsTestingPlatformApplication=false` when `CI`/`TF_BUILD` is set)
 3. pack
 4. `NuGet/login@v1` exchanges GitHub OIDC for a short-lived nuget.org API key (`user: djnitehawk` in the workflow; this is the nuget.org username, not GitHub `dj-nitehawk`)
 5. push with that temp key and `--skip-duplicate` (trusted publishing; no long-lived API key secret). Needed because independently versioned Agents packages (`FastEndpoints.Mcp` / `FastEndpoints.A2A`) are packed with the solution and already exist on nuget.org when their version is unchanged.

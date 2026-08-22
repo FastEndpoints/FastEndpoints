@@ -47,6 +47,7 @@ tags: [conventions]
 ## Testing conventions
 - Integration: `AppFixture<TProgram>` / collection fixtures from `FastEndpoints.Testing`.
 - Prefer typed HTTP helpers (`POSTAsync<TEndpoint, TRequest, TResponse>`) over raw URLs when endpoint types exist.
+- Prefer `IEventReceiver<T>` / `ICommandReceiver<T>` to spy publish/execute; they are not a stand-in for test handlers or handler-completion asserts (see [testing.md](testing.md)).
 - Mark flaky/heavy tests with `[Trait("ExcludeInCiCd", "Yes")]` to match CI filter.
 
 ## YAGNI

@@ -41,12 +41,12 @@ AOT tests: use `NativeAot.slnx` (publish workflow currently has AOT test step co
 ## Integration and data
 - **TestBase serial + `[Priority]`:** `TestBase` / `TestBaseWithAssemblyFixture` apply `[TestClass(DisableParallelization = true)]`, `[TestCaseOrderer]`, and `[TestMethodOrderer]`. xunit.v3 4 default parallel mode is `Collections` (same class already serial). The `TestClass` flag is ignored in that mode and only applies if a project enables `ParallelMode.All`. Method + case orderers restore `[Priority]` across `[Fact]` methods and theory rows. No consumer attribute needed.
 - **WAF caching:** `AppFixture` caches one factory per fixture type; override `OnCachedWafDisposedAsync()` for one-shot teardown of the shared factory (cached mode + `[assembly: EnableAdvancedTesting]`).
-- **Sut pattern:** derive `AppFixture<Web.Program>`, override `ConfigureServices` / `SetupAsync` for clients and test doubles (`RegisterTestCommandHandler`, event receivers, etc.).
+- **Sut pattern:** derive `AppFixture<Web.Program>`, override `ConfigureServices` / `SetupAsync` for clients and test doubles (`RegisterTestCommandHandler`, `RegisterTestEventHandler`, `RegisterTestEventReceivers` / `RegisterTestCommandReceivers`, etc.). Main `Sut` already registers both receiver open-generics.
 - **Auth clients:** Admin/Customer JWT obtained via login endpoints in `Sut.SetupAsync`.
 - **Traits:** `[Trait("ExcludeInCiCd", "Yes")]` skips in CI (job-queue timing, some binding cases).
 - **Kiota integration project:** `Int.OpenApi.Kiota` sets `IsTestingPlatformApplication=false` and `IsTestProject=false` when `CI` (GitHub) or `TF_BUILD` (Azure) is true (heavy Kiota gen; MTP keys off the former). Local `dotnet test FastEndpoints.slnx` still runs it.
 - Integration runners for `FastEndpoints`, `FastEndpoints.OpenApi`, and `FastEndpoints.Agents` disable test-collection parallelization (process-wide FastEndpoints state). Azure and GitHub publish pipelines also rewrite the `FastEndpoints` runner config and pass `--max-parallel-test-modules 1` so test assemblies do not starve each other on 2-core runners.
-- `Mode.WaitForAny` / `WaitForNone` offload handlers with `Task.Run`. Tests must not assert every handler side-effect immediately after those publishes; poll, or use `WaitForAll`.
+- `Mode.WaitForAny` / `WaitForNone` offload handlers with `Task.Run`. Do not assert handler side-effects immediately after those publishes; poll, or use `WaitForAll`. For "was it published", use an event receiver (capture is sync at publish start).
 - No external DB for the core suite; job storage tests use in-memory/test providers.
 - Job-queue idempotency, gRPC reflection, and AOT binding/jobs live under the matching `Tests/UnitTests`, `Tests/IntegrationTests/FastEndpoints/RPCTests`, and `Tests/NativeAotTests` folders. Do not stand up a second in-process event hub with default storage types (see [gotchas.md](gotchas.md)).
 
@@ -57,6 +57,13 @@ AOT tests: use `NativeAot.slnx` (publish workflow currently has AOT test step co
   `dotnet test Tests/IntegrationTests/FastEndpoints.OpenApi/Int.OpenApi.csproj --filter FullyQualifiedName~HttpSnapshotTests`,  
   set `_updateSnapshots = false`, re-run the same filter. JSON goldens use the same flag in `SnapshotTests.cs`.
 
+## Command/event spies
+- **API:** `RegisterTestEventReceivers()` / `RegisterTestCommandReceivers()`, then `GetTestEventReceiver<T>()` / `GetTestCommandReceiver<T>()`. Assert with `WaitForMatchAsync(match, timeoutSeconds = 2)`.
+- **Use when** an HTTP, RPC, or dispatcher path should have published an event or executed a command, and the assertion is receipt (payload/predicate), not handler logic. Prefer this over capturing statics or extra fake handlers.
+- **Do not use when** proving `RegisterTestCommandHandler` / `RegisterTestEventHandler` substitution; asserting handler completion or mutations; asserting job *successful* completion (receiver sees `ExecuteAsync` start, including throws/retries); asserting event-hub *subscriber* delivery (hub receiver is publisher-side); client-stream RPC (no hook); NativeAot published process (no test DI).
+- Match on a unique value (`Guid.NewGuid()`). Receivers are fixture singletons and never clear (see [gotchas.md](gotchas.md)).
+- Worked examples: `Tests/IntegrationTests/FastEndpoints/MessagingTests/CommandBusTests.cs` (`Test_Command_Receiver_Receives_Executed_Command`), `…/EventBusTests.cs` (`Test_Event_Receiver_Receives_Event`).
+
 ## Expectations
 - New public behavior: unit tests when pure logic; integration tests against `TestHarness/Web` (or domain harness) when pipeline/HTTP involved.
 - Prefer endpoint-typed client extensions over magic strings.
@@ -65,7 +72,7 @@ AOT tests: use `NativeAot.slnx` (publish workflow currently has AOT test step co
 
 ## Sources
 - `Tests/Directory.Build.props`
+- `Src/Library/Testing/TestingExtensions.cs`
 - `Src/Testing/AppFixture.Waf.cs`
 - `Tests/IntegrationTests/FastEndpoints/Sut.cs`
-- `Tests/IntegrationTests/FastEndpoints/Int.FastEndpoints.csproj`
 - `.github/workflows/publish-to-nuget.yml`

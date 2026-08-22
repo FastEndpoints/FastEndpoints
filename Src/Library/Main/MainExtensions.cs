@@ -159,7 +159,7 @@ public static class MainExtensions
                    .Append('/');
         }
 
-        if (Cfg.VerOpts.RouteTemplate is not null && (epVersion > 0 || Cfg.VerOpts.DefaultVersion != 0))
+        if (Cfg.VerOpts.RouteTemplate is not null && epVersion > 0)
         {
             var index = route.IndexOf(Cfg.VerOpts.RouteTemplate, StringComparison.Ordinal);
 
@@ -198,27 +198,24 @@ public static class MainExtensions
             if (builder.Length > 0 && builder[^1] == '/' && route.StartsWith('/'))
                 builder.Length--;
 
-            builder.Append(route.AsSpan(0, indexPos))                              //add up to beginning of routeTemplate
-                   .Append(Cfg.VerOpts.Prefix ?? "v")                              //add version prefix
-                   .Append(epVersion > 0 ? epVersion : Cfg.VerOpts.DefaultVersion) //add version number
-                   .Append(route.AsSpan(indexPos + routeTemplate.Length));         //add the part after routeTemplate
+            builder.Append(route.AsSpan(0, indexPos))                      //add up to beginning of routeTemplate
+                   .Append(Cfg.VerOpts.Prefix ?? "v")                      //add version prefix
+                   .Append(epVersion)                                      //add version number
+                   .Append(route.AsSpan(indexPos + routeTemplate.Length)); //add the part after routeTemplate
         }
 
         static void AppendVersion(StringBuilder builder, int epVersion, bool trailingSlash)
         {
-            var prefix = Cfg.VerOpts.Prefix ?? "v";
-            var version = epVersion > 0
-                              ? epVersion
-                              : Cfg.VerOpts.DefaultVersion;
-
-            if (version == 0)
+            if (epVersion == 0)
                 return;
+
+            var prefix = Cfg.VerOpts.Prefix ?? "v";
 
             if (builder.Length > 0 && builder[^1] != '/')
                 builder.Append('/');
 
             builder.Append(prefix)
-                   .Append(version);
+                   .Append(epVersion);
 
             if (trailingSlash)
                 builder.Append('/');

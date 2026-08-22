@@ -19,13 +19,31 @@ public class EndpointRouteMapperTests : IDisposable
 {
     readonly Func<EndpointDefinition, bool>? _previousEndpointFilter;
     readonly string? _previousRoutePrefix;
+    readonly Action<EndpointDefinition>? _previousConfigurator;
+    readonly int _previousDefaultVersion;
+    readonly bool? _previousPrependToRoute;
+    readonly string? _previousVersionPrefix;
+    readonly string? _previousRouteTemplate;
+    readonly bool _previousSerializerConfigured;
 
     public EndpointRouteMapperTests()
     {
         _previousEndpointFilter = Config.EpOpts.Filter;
         _previousRoutePrefix = Config.EpOpts.RoutePrefix;
+        _previousConfigurator = Config.EpOpts.Configurator;
+        _previousDefaultVersion = Config.VerOpts.DefaultVersion;
+        _previousPrependToRoute = Config.VerOpts.PrependToRoute;
+        _previousVersionPrefix = Config.VerOpts.Prefix;
+        _previousRouteTemplate = Config.VerOpts.RouteTemplate;
+        _previousSerializerConfigured = MainExtensions.SerializerConfigured;
         Config.EpOpts.Filter = null;
         Config.EpOpts.RoutePrefix = null;
+        Config.EpOpts.Configurator = null;
+        Config.VerOpts.DefaultVersion = 0;
+        Config.VerOpts.PrependToRoute = null;
+        Config.VerOpts.Prefix = null;
+        Config.VerOpts.RouteTemplate = null;
+        MainExtensions.SerializerConfigured = false;
         LockStateRecordingEp.ObservedLockStates.Clear();
     }
 
@@ -33,6 +51,12 @@ public class EndpointRouteMapperTests : IDisposable
     {
         Config.EpOpts.Filter = _previousEndpointFilter;
         Config.EpOpts.RoutePrefix = _previousRoutePrefix;
+        Config.EpOpts.Configurator = _previousConfigurator;
+        Config.VerOpts.DefaultVersion = _previousDefaultVersion;
+        Config.VerOpts.PrependToRoute = _previousPrependToRoute;
+        Config.VerOpts.Prefix = _previousVersionPrefix;
+        Config.VerOpts.RouteTemplate = _previousRouteTemplate;
+        MainExtensions.SerializerConfigured = _previousSerializerConfigured;
         LockStateRecordingEp.ObservedLockStates.Clear();
 
         var testingProvider = new ServiceCollection().AddHttpContextAccessor().BuildServiceProvider();
@@ -104,6 +128,69 @@ public class EndpointRouteMapperTests : IDisposable
         }
     }
 
+    [Fact]
+    public async Task DontVersion_OmitsVersionSegmentWhenDefaultVersionIsSet()
+    {
+        var builder = WebApplication.CreateBuilder();
+        builder.Services.AddFastEndpoints([typeof(DontVersionEp), typeof(DefaultVersionedEp)]);
+        var app = builder.Build();
+
+        try
+        {
+            app.UseFastEndpoints(
+                c =>
+                {
+                    c.Versioning.Prefix = "v";
+                    c.Versioning.DefaultVersion = 1;
+                    c.Versioning.PrependToRoute = true;
+                });
+
+            EndpointsOf<DontVersionEp>(app)
+               .Select(r => r.RoutePattern.RawText)
+               .ShouldBe(["dont-version-me"]);
+
+            EndpointsOf<DefaultVersionedEp>(app)
+               .Select(r => r.RoutePattern.RawText)
+               .ShouldBe(["v1/do-version-me"]);
+        }
+        finally
+        {
+            await app.DisposeAsync();
+        }
+    }
+
+    [Fact]
+    public async Task DontVersion_FromConfigurator_OmitsVersionSegment()
+    {
+        var builder = WebApplication.CreateBuilder();
+        builder.Services.AddFastEndpoints([typeof(ConfiguratorDontVersionEp)]);
+        var app = builder.Build();
+
+        try
+        {
+            app.UseFastEndpoints(
+                c =>
+                {
+                    c.Versioning.Prefix = "v";
+                    c.Versioning.DefaultVersion = 1;
+                    c.Versioning.PrependToRoute = true;
+                    c.Endpoints.Configurator = ep =>
+                    {
+                        if (ep.EndpointType == typeof(ConfiguratorDontVersionEp))
+                            ep.DontVersion();
+                    };
+                });
+
+            EndpointsOf<ConfiguratorDontVersionEp>(app)
+               .Select(r => r.RoutePattern.RawText)
+               .ShouldBe(["configurator-dont-version-me"]);
+        }
+        finally
+        {
+            await app.DisposeAsync();
+        }
+    }
+
     static RouteEndpoint[] EndpointsOf<TEndpoint>(WebApplication app)
         => ((IEndpointRouteBuilder)app).DataSources
                                        .SelectMany(ds => ds.Endpoints)
@@ -131,6 +218,43 @@ file sealed class LockStateRecordingEp : EndpointWithoutRequest
         Get("lock-state-recording/one", "lock-state-recording/two");
         AllowAnonymous();
         Options(_ => ObservedLockStates.Add(Definition.IsLocked));
+    }
+
+    public override Task HandleAsync(CancellationToken ct)
+        => Task.CompletedTask;
+}
+
+file sealed class DontVersionEp : EndpointWithoutRequest
+{
+    public override void Configure()
+    {
+        Get("dont-version-me");
+        AllowAnonymous();
+        DontVersion();
+    }
+
+    public override Task HandleAsync(CancellationToken ct)
+        => Task.CompletedTask;
+}
+
+file sealed class DefaultVersionedEp : EndpointWithoutRequest
+{
+    public override void Configure()
+    {
+        Get("do-version-me");
+        AllowAnonymous();
+    }
+
+    public override Task HandleAsync(CancellationToken ct)
+        => Task.CompletedTask;
+}
+
+file sealed class ConfiguratorDontVersionEp : EndpointWithoutRequest
+{
+    public override void Configure()
+    {
+        Get("configurator-dont-version-me");
+        AllowAnonymous();
     }
 
     public override Task HandleAsync(CancellationToken ct)

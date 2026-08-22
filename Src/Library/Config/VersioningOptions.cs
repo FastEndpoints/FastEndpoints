@@ -18,7 +18,8 @@ public sealed class VersioningOptions
     public string? RouteTemplate { get; set; }
 
     /// <summary>
-    /// this value will be used on endpoints that does not specify a version
+    /// this value will be used on endpoints that does not specify a version.
+    /// call <see cref="EndpointDefinition.DontVersion" /> on an endpoint to keep it at version 0 and omit the version segment from the route.
     /// </summary>
     public int DefaultVersion { internal get; set; }
 

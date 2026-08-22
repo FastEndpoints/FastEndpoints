@@ -288,6 +288,20 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     }
 
     /// <summary>
+    /// exclude this endpoint from route versioning when <see cref="VersioningOptions.DefaultVersion" /> is set.
+    /// the endpoint stays at version 0 and no version segment is added to the route.
+    /// calling <see cref="EndpointVersion" /> afterwards re-enables versioning for this endpoint.
+    /// </summary>
+    public void DontVersion()
+    {
+        ThrowIfLocked();
+        Version.SkipDefault = true;
+        Version.Current = 0;
+        Version.StartingReleaseVersion = 0;
+        Version.DeprecatedAt = 0;
+    }
+
+    /// <summary>
     /// enable antiforgery token verification for an endpoint
     /// </summary>
     public void EnableAntiforgery()
@@ -304,6 +318,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     public EpVersion EndpointVersion(int version, int deprecateAt = 0)
     {
         ThrowIfLocked();
+        Version.SkipDefault = false;
         Version.Current = version;
         Version.StartingReleaseVersion = version;
         Version.DeprecatedAt = deprecateAt;
@@ -880,11 +895,13 @@ public sealed class EpVersion
     public int StartingReleaseVersion { get; internal set; }
     public int DeprecatedAt { get; internal set; }
 
+    internal bool SkipDefault { get; set; }
+
     bool _isLocked;
 
     internal void Init()
     {
-        if (Current == 0)
+        if (Current == 0 && !SkipDefault)
             Current = VerOpts.DefaultVersion;
 
         _isLocked = true;

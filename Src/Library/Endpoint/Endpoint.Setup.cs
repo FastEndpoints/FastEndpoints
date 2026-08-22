@@ -226,6 +226,14 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
         => Definition.DontThrowIfValidationFails();
 
     /// <summary>
+    /// exclude this endpoint from route versioning when a default version is configured.
+    /// the endpoint stays at version 0 and no version segment is added to the route.
+    /// calling <see cref="Version(int, int)" /> afterwards re-enables versioning for this endpoint.
+    /// </summary>
+    protected void DontVersion()
+        => Definition.DontVersion();
+
+    /// <summary>
     /// enables antiforgery token verification for this endpoint
     /// </summary>
     protected void EnableAntiforgery()

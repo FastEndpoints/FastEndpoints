@@ -176,7 +176,12 @@ static partial class OperationSchemaHelpers
             if (!property.CanRead || !property.CanWrite)
                 continue;
 
-            property.SetValue(clone, CloneSchemaMemberValue(property.Name, property.GetValue(schema)));
+            //assigning a null is not the same as leaving the member alone: OpenApiSchema.Const tracks
+            //assignment, so setting it to null makes the writer emit "const": null on the clone.
+            if (property.GetValue(schema) is not { } value)
+                continue;
+
+            property.SetValue(clone, CloneSchemaMemberValue(property.Name, value));
         }
 
         return clone;

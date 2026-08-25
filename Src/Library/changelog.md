@@ -29,6 +29,20 @@ public override void Configure()
 
 ## Fixes 🪲
 
+<details><summary>Nullable collection properties no longer get <code>const: null</code> in OpenAPI documents</summary>
+
+`FastEndpoints.OpenApi` 8.3.0 emitted nullable collection properties with a sibling `"const": null`. JSON Schema applies keywords together, so only `null` validated; a populated array failed against the schema describing it.
+
+The property now serializes as a nullable array only:
+
+```json
+"children": { "type": ["null", "array"], "items": { "$ref": "#/components/schemas/Child" } }
+```
+
+Visible with `Microsoft.OpenApi` 2.11.0 or later.
+
+</details>
+
 ## Improvements 🚀
 
 ## Minor Breaking Changes ⚠️

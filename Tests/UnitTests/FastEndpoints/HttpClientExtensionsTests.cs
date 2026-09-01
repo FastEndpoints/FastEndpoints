@@ -132,6 +132,24 @@ public class HttpClientExtensionsTests
     }
 
     [Fact]
+    public void GetTestUrlForUrlEncodesRouteParamValues()
+    {
+        MockHttpMessageHandler mockHttp = new();
+        var http = mockHttp.ToHttpClient();
+        http.BaseAddress = new("http://localhost");
+
+        IEndpoint.SetTestUrl(typeof(StringRouteParamEndpoint), "items/{name}");
+
+        var testUrl = http.GetTestUrlFor<StringRouteParamEndpoint>(
+            new StringRouteParamRequest
+            {
+                Name = "part#1?x y"
+            });
+
+        testUrl.ShouldBe("items/part%231%3Fx%20y");
+    }
+
+    [Fact]
     public void GetTestUrlForLoadsTestUrlCacheViaHttpWhenEndpointTestUrlIsUnavailable()
     {
         MockHttpMessageHandler mockHttp = new();
@@ -324,6 +342,8 @@ file class DateTimeQueryParamEndpoint : Endpoint<DateTimeParamRequest>;
 
 file class StringQueryParamEndpoint : Endpoint<StringQueryParamRequest>;
 
+file class StringRouteParamEndpoint : Endpoint<StringRouteParamRequest>;
+
 file class DateTimeParamRequest
 {
     public static DateTime DateTime { get; } = DateTime.UtcNow;
@@ -376,6 +396,12 @@ file class StringQueryParamRequest
 {
     [QueryParam]
     public string? QueryParam { get; set; }
+}
+
+file class StringRouteParamRequest
+{
+    [RouteParam]
+    public string Name { get; set; } = null!;
 }
 
 file class HttpFallbackEndpoint : Endpoint<EmptyRequest>;

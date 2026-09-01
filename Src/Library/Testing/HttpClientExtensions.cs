@@ -689,8 +689,9 @@ public static class HttpClientExtensions
                                         ? segmentParts[0][1..^1]
                                         : segmentParts[0][1..]).TrimEnd('?');
 
-                    var propVal = reqProps.TryGetValue(propName, out var prop)
-                                      ? prop.GetValueAsString(request)
+                    var hasRouteValue = reqProps.TryGetValue(propName, out var prop);
+                    var propVal = hasRouteValue
+                                      ? prop!.GetValueAsString(request)
                                       : segment;
 
                     if (propVal is null)
@@ -706,7 +707,7 @@ public static class HttpClientExtensions
                         }
                     }
 
-                    sb.Append(propVal);
+                    sb.Append(hasRouteValue ? Uri.EscapeDataString(propVal!) : propVal);
                     sb.Append('/');
                 }
                 sb.Length--; //remove the last '/'

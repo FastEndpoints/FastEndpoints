@@ -40,6 +40,7 @@ tags: [gotcha]
 - **CI filter:** tests with `Trait("ExcludeInCiCd","Yes")` never run in publish/Azure pipelines; don't rely on them as merge gates. To skip a whole project (e.g. `Int.OpenApi.Kiota`), set `IsTestingPlatformApplication=false` (and `IsTestProject=false`) under `CI`/`TF_BUILD`. MTP ignores `IsTestProject`; exit 8 is "zero tests ran", not a failed assertion.
 - **NuGet push must `--skip-duplicate`:** Agents (`Mcp`/`A2A`) are independently versioned but packed from `FastEndpoints.slnx`. A core-only tag re-pushes the last Agents version; nuget.org 409s and `dotnet nuget push` stops, leaving later glob matches unpublished. Do not bump Agents versions just to make a core release succeed.
 - **WAF cache:** one cached factory per `AppFixture` type; misuse of static state across tests can leak. Use fixture `ConfigureServices` for doubles.
+- **Routeless test URL encoding:** `GetTestUrlFor()` URL-encodes matched route DTO values with `Uri.EscapeDataString`; unmatched placeholders stay intact for other binding sources. Query values use `WebUtility.UrlEncode`. Do not use query-string encoding for path segments because `+` is not a path-space escape.
 - **Mappers are singletons:** no request state in mapper classes.
 - **Signing / InternalsVisibleTo:** must use full public key from props; unsigned local hacks break friend assemblies. Agent packages rely on signed friend access (see **Agents friend-assembly binary contract** above).
 - **User DotSettings:** `*.sln.DotSettings.user` is personal; don't treat as repo policy.

@@ -29,6 +29,7 @@ One root `.okf/` covers the whole repo. Packages are NuGet libraries, not separa
 | `Messaging/Messaging.Remote/` | FastEndpoints.Messaging.Remote | gRPC server/client |
 | `Messaging/Messaging.Remote.Reflection/` | FastEndpoints.Messaging.Remote.Reflection | Protobuf wire format + gRPC reflection |
 | `Messaging/Messaging.Remote.Testing/` | FastEndpoints.Messaging.Remote.Testing | Test helpers |
+| `Messaging/Messaging.RabbitMQ/` | FastEndpoints.Messaging.RabbitMQ | Typed RabbitMQ command/event transport |
 | `JobQueues/` | FastEndpoints.JobQueues | Background jobs |
 | `CommandRules/` | FastEndpoints.CommandRules | Rule dispatch |
 | `Security/` | FastEndpoints.Security | JWT/cookies |

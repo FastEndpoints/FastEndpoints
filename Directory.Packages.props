@@ -23,10 +23,12 @@
         <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="[4.11.0]"/><!-- not upgradeable for net8 compatibility -->
         <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.11"/>
         <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.11"/>
+        <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.11"/>
         <PackageVersion Include="Microsoft.Extensions.Primitives" Version="10.0.11"/>
         <PackageVersion Include="Microsoft.OpenApi.Kiota.Builder" Version="[1.29.1]"/><!-- latest kiota uses Microsoft.OpenApi 3.x but Microsoft.AspNetCore.OpenApi still uses 2.x -->
         <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.400"/>
         <PackageVersion Include="protobuf-net" Version="3.3.21"/>
+        <PackageVersion Include="RabbitMQ.Client" Version="7.2.2"/>
         <PackageVersion Include="RichardSzalay.MockHttp" Version="7.1.0"/>
         <PackageVersion Include="Scalar.AspNetCore" Version="2.16.20"/>
         <PackageVersion Include="Shouldly" Version="4.3.0"/>

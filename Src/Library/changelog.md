@@ -10,6 +10,22 @@ Please [join the discussion here](https://github.com/FastEndpoints/FastEndpoints
 
 ## New 🎉
 
+<details><summary>RabbitMQ transport for typed commands and events</summary>
+
+The new `FastEndpoints.Messaging.RabbitMQ` package sends `ICommand` and publishes `IEvent` messages through RabbitMQ while continuing to use standard `ICommandHandler&lt;T&gt;` and `IEventHandler&lt;T&gt;` handlers.
+
+It includes publisher confirms, manual ACK/NACK handling, configurable publisher and consumer concurrency, prefetch, convention-based or custom topology, and Classic, Quorum, and Stream queue declarations. Aspire-provided named RabbitMQ connections and `ConnectionStrings` configuration are supported.
+
+Producer-only applications can register routes with `AddCommandPublisher<TCommand>()` and `AddEventPublisher<TEvent>()` without starting local consumers.
+
+```csharp
+builder.AddRabbitMQMessaging("messaging", options => options.PublisherConcurrency = 8)
+       .AddCommand<CreateOrder, CreateOrderHandler>()
+       .AddEvent<OrderCreated, OrderCreatedHandler>();
+```
+
+</details>
+
 <details><summary>Exclude an endpoint from route versioning with <code>DontVersion()</code></summary>
 
 When `Versioning.DefaultVersion` is set, every endpoint that does not call `Version(n)` gets that version on its route. Call `DontVersion()` to keep an endpoint at version 0 so no version segment is added (`/health` instead of `/v1/health`).

@@ -34,6 +34,7 @@ Attributes / Messaging.Core
 | `FastEndpoints.Core` | Service resolution (`IServiceResolver`, `ServiceResolverClient` shared resolve façade), assembly scanning |
 | `FastEndpoints.Messaging.Core` | `ICommand` / `IEvent` / handler interfaces |
 | `FastEndpoints.Messaging` | In-process command/event bus |
+| `FastEndpoints.Messaging.RabbitMQ` | Typed one-way command/event transport over RabbitMQ.Client |
 | `FastEndpoints.JobQueues` | Background jobs over commands + storage SPI |
 | `FastEndpoints` (Library) | HTTP endpoints, binding, validation, middleware, config |
 | `FastEndpoints.Security` | JWT bearer helpers, cookies, refresh/revocation |
@@ -69,6 +70,7 @@ Attributes / Messaging.Core
   format and gRPC server reflection (`AddHandlerReflection` / `MapHandlerReflection`). It generates Google.Protobuf descriptors
   from the command CLR types, so protobuf/reflection dependencies stay out of `Messaging.Remote`.
 - **Jobs:** `AddJobQueues<TJob, TStorage>()`; storage provider is app-supplied. Optional business-key idempotency via `JobQueueOptions.IdempotencyKeyFor<TCommand>(Func<TCommand,string?>)` + storage record `IHasIdempotencyKey` + provider uniqueness / `DuplicateJobException`.
+- **RabbitMQ transport:** `AddRabbitMQMessaging()` registers `IRabbitMQPublisher` plus optional typed hosted consumers. `AddCommandPublisher<T>()` and `AddEventPublisher<T>()` register producer-only routes. Commands use a shared direct exchange and one queue per command type. Events use a fanout exchange and one queue per handler. Publisher confirms and manual ACK/NACK are enabled. `PublisherConcurrency` bounds a pool of exclusive, long-lived publisher channels so multiple callers can await confirms concurrently. Classic, Quorum, and Stream declarations are supported; `ICommand<TResult>` request/reply is deliberately outside this one-way transport.
 
 ## Persistence
 - Framework does **not** own an app DB. Job queues require consumer `IJobStorageProvider` / `IJobStorageRecord` implementations.

@@ -14,6 +14,7 @@ tags: [test]
 | Test TFM | **net10.0** (`Tests/Directory.Build.props`) |
 | Unit | `Tests/UnitTests/FastEndpoints`, `…/FastEndpoints.Testing`, `…/FastEndpoints.AspVersioning` (+ legacy Swagger unit commented in slnx) |
 | Integration | `Tests/IntegrationTests/FastEndpoints` (main), OpenApi, OpenApi.Kiota, OData, Agents |
+| RabbitMQ | `Tests/UnitTests/FastEndpoints.Messaging.RabbitMQ` plus broker tests in the matching IntegrationTests project |
 | AOT | `Tests/NativeAotTests/NativeAotCheckerTests` + `NativeAot.slnx` |
 | Helpers package | `Src/Testing` → `FastEndpoints.Testing` (`AppFixture`, fixtures, Bogus) |
 | Main SUT | `TestHarness/Web` (`Web.Program`) |
@@ -34,9 +35,14 @@ dotnet test Tests/**/*.csproj -c Release --filter "ExcludeInCiCd!=Yes" --max-par
 # Targeted
 dotnet test Tests/UnitTests/FastEndpoints/Unit.FastEndpoints.csproj
 dotnet test Tests/IntegrationTests/FastEndpoints/Int.FastEndpoints.csproj --filter FullyQualifiedName~BindingTests
+
+# Requires a reachable broker. Excluded from CI by trait.
+RABBITMQ_CONNECTION_STRING=amqp://guest:guest@localhost:5672/ dotnet test Tests/IntegrationTests/FastEndpoints.Messaging.RabbitMQ/Int.Messaging.RabbitMQ.csproj
 ```
 
 AOT tests: use `NativeAot.slnx` (publish workflow currently has AOT test step commented out; re-check before assuming CI runs AOT).
+
+RabbitMQ unit tests cover the bounded publisher-channel pool without a broker, including reuse, limits, cancellation, failures, active-lease disposal, producer-only routes, duplicate registration rejection, and explicit queue types. Broker tests cover confirms and parallel delivery with `PublisherConcurrency > 1`.
 
 ## Integration and data
 - **TestBase serial + `[Priority]`:** `TestBase` / `TestBaseWithAssemblyFixture` apply `[TestClass(DisableParallelization = true)]`, `[TestCaseOrderer]`, and `[TestMethodOrderer]`. xunit.v3 4 default parallel mode is `Collections` (same class already serial). The `TestClass` flag is ignored in that mode and only applies if a project enables `ParallelMode.All`. Method + case orderers restore `[Priority]` across `[Fact]` methods and theory rows. No consumer attribute needed.

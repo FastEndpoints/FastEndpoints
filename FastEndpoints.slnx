@@ -49,11 +49,13 @@
         <Project Path="Tests/IntegrationTests/FastEndpoints.OpenApi/Int.OpenApi.csproj" />
         <Project Path="Tests/IntegrationTests/FastEndpoints/Int.FastEndpoints.csproj" />
         <Project Path="Tests/IntegrationTests/FastEndpoints.OData/Int.OData.csproj" />
+        <Project Path="Tests/IntegrationTests/FastEndpoints.Messaging.RabbitMQ/Int.Messaging.RabbitMQ.csproj" />
     </Folder>
     <Folder Name="/Tests/UnitTests/">
         <Project Path="Tests/UnitTests/FastEndpoints/Unit.FastEndpoints.csproj" />
         <Project Path="Tests/UnitTests/FastEndpoints.Testing/Unit.Testing.csproj" />
         <Project Path="Tests/UnitTests/FastEndpoints.AspVersioning/Unit.AspVersioning.csproj" />
+        <Project Path="Tests/UnitTests/FastEndpoints.Messaging.RabbitMQ/Unit.Messaging.RabbitMQ.csproj" />
     </Folder>
     <Project Path="Src/AspVersioning/FastEndpoints.AspVersioning.csproj" />
     <Project Path="Src/Attributes/FastEndpoints.Attributes.csproj" />
@@ -69,6 +71,7 @@
     <Project Path="Src/Messaging/Messaging.Remote.Reflection/FastEndpoints.Messaging.Remote.Reflection.csproj" />
     <Project Path="Src/Messaging/Messaging.Remote.Testing/FastEndpoints.Messaging.Remote.Testing.csproj" />
     <Project Path="Src/Messaging/Messaging.Remote/FastEndpoints.Messaging.Remote.csproj" />
+    <Project Path="Src/Messaging/Messaging.RabbitMQ/FastEndpoints.Messaging.RabbitMQ.csproj" />
     <Project Path="Src/Messaging/Messaging/FastEndpoints.Messaging.csproj" />
     <Project Path="Src/OData/FastEndpoints.OData.csproj" />
     <Project Path="Src/Security/FastEndpoints.Security.csproj" />

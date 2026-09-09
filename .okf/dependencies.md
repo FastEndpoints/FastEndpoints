@@ -29,6 +29,7 @@ tags: [deps]
 | Grpc.AspNetCore.Server / Grpc.Net.Client* | Remote messaging |
 | MessagePack | Default RPC marshalling |
 | protobuf-net / Grpc.Reflection | Protobuf wire format + gRPC reflection (Messaging.Remote.Reflection only) |
+| RabbitMQ.Client | AMQP 0-9-1 transport, confirms, consumers, and topology for Messaging.RabbitMQ |
 | Microsoft.AspNetCore.OData | OData package |
 | ModelContextProtocol.AspNetCore | Agents MCP; v2.x targets the 2026-07-28 MCP spec (stateless-by-default transport, backward compatible with the addon's v1-style handler wiring) |
 | Microsoft.CodeAnalysis.CSharp **[4.11.0]** | Generators; pinned for net8 compatibility (comment in props) |

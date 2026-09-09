@@ -15,7 +15,7 @@ tags: [layout]
 | `Src/Library/` | Main `FastEndpoints` package (HTTP REPR runtime) |
 | `Src/Core/` | `FastEndpoints.Core` (service resolver, `ServiceResolverClient` DI façade base, assembly scanner) |
 | `Src/Attributes/` | Attributes + small contracts for generators/consumers |
-| `Src/Messaging/` | Messaging.Core, Messaging, Messaging.Remote*, testing helpers |
+| `Src/Messaging/` | Messaging.Core, Messaging, Messaging.Remote*, RabbitMQ transport, testing helpers |
 | `Src/JobQueues/` | Job queue package (`IJobStorageRecord` addons, `JobQueueOptions`, providers SPI, `DuplicateJobException`) |
 | `Src/CommandRules/` | Rule-based command dispatch package |
 | `Src/Security/` | JWT/cookie/refresh/revocation |

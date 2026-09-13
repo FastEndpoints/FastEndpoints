@@ -33,6 +33,14 @@ public class EndpointTests(Sut App) : TestBase<Sut>
     }
 
     [Fact]
+    public async Task TestUrlCacheRouteIsNotExposedByDefault()
+    {
+        var response = await App.GuestClient.GetAsync("_test_url_cache_", Cancellation);
+
+        response.StatusCode.ShouldBe(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
     public async Task OnBeforeOnAfterValidation()
     {
         var (rsp, res) = await App.AdminClient.POSTAsync<

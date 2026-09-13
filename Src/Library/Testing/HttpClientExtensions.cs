@@ -636,7 +636,19 @@ public static class HttpClientExtensions
 
                 if (shouldGetViaHttp)
                 {
-                    var res = client.GetFromJsonAsync<string[]>("_test_url_cache_").GetAwaiter().GetResult();
+                    using var rsp = client.GetAsync(Constants.TestUrlCacheRoute).GetAwaiter().GetResult();
+
+                    if (rsp.StatusCode == HttpStatusCode.NotFound)
+                    {
+                        throw new InvalidOperationException(
+                            $"Unable to resolve the url for [{epTypeName}] because the app under test does not expose the test url cache. " +
+                            $"Set the configuration value '{Constants.ExposeTestUrlCacheKey}' to 'true' in the app under test " +
+                            "(e.g. environment variable 'FastEndpoints__ExposeTestUrlCache=true'). Never enable this in production.");
+                    }
+
+                    rsp.EnsureSuccessStatusCode();
+
+                    var res = rsp.Content.ReadFromJsonAsync<string[]>().GetAwaiter().GetResult();
 
                     foreach (var line in res ?? [])
                     {

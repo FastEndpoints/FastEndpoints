@@ -29,6 +29,12 @@ public override void Configure()
 
 ## Fixes 🪲
 
+<details><summary>Singleton validators, mappers, processors and event handlers no longer capture scoped services from the first request</summary>
+
+Validators, mappers, pre/post-processors, event handlers and other types that FastEndpoints caches as singletons were built from the DI scope of whichever request first needed them, unless `Warmup()` was enabled. Scoped constructor dependencies (such as a `DbContext` or a current user service) were therefore captured from that first request and reused by every later request, without triggering DI scope validation. These singletons are now always built from the root service provider, the same as with `Warmup()`. Injecting a scoped service into their constructors now throws when scope validation is enabled (the default in the Development environment), as the docs describe. Resolve scoped services per request with `Resolve<T>()` or a new scope instead.
+
+</details>
+
 <details><summary>JWT revocation middleware now matches the <code>Bearer</code> scheme case-insensitively</summary>
 
 `JwtRevocationMiddleware` only checked tokens sent with an exact `Bearer ` prefix, while the JWT bearer authentication handler accepts the scheme in any casing. A revoked token sent as `Authorization: bearer <jwt>` therefore skipped `JwtTokenIsValidAsync()` but still authenticated. The prefix is now matched case-insensitively, so every token the authentication handler reads from the `Authorization` header goes through the revocation check.

@@ -89,8 +89,77 @@ public class ServiceResolverTests
     }
 
     [Fact]
-    public void CreateSingleton_UsesHttpContextRequestServicesIfAvailable()
+    public void CreateSingleton_WithActiveRequestScope_DoesNotResolveScopedDependenciesFromRequestScope()
     {
+        // a cached singleton must not capture the scoped services of whichever request happened to create it first.
+        var services = new ServiceCollection();
+        services.AddScoped<IDependency, TestDependency>();
+        var rootProvider = services.BuildServiceProvider(new ServiceProviderOptions { ValidateScopes = true });
+        using var requestScope = rootProvider.CreateScope();
+
+        var httpContext = new DefaultHttpContext { RequestServices = requestScope.ServiceProvider };
+        var ctxAccessor = A.Fake<IHttpContextAccessor>();
+        A.CallTo(() => ctxAccessor.HttpContext).Returns(httpContext);
+
+        var resolver = new ServiceResolver(rootProvider, ctxAccessor);
+
+        var create = () => resolver.CreateSingleton(typeof(ServiceWithDependency));
+
+        create.ShouldThrow<InvalidOperationException>().Message.ShouldContain("root provider");
+    }
+
+    [Fact]
+    public void CreateSingleton_WithActiveRequestScope_UsesRootProviderOfTheRequestHost()
+    {
+        // simulates a torn-down host whose resolver still lingers in the static ServiceResolver.Instance while
+        // another host serves the request. the singleton must be built from the live host's root provider.
+        var staleRootProvider = new ServiceCollection().BuildServiceProvider();
+        staleRootProvider.Dispose();
+
+        var liveServices = new ServiceCollection();
+        liveServices.AddSingleton<IDependency, TestDependency>();
+        liveServices.AddSingleton<IServiceResolver, ServiceResolver>();
+        var liveRootProvider = liveServices.BuildServiceProvider();
+        using var requestScope = liveRootProvider.CreateScope();
+
+        var httpContext = new DefaultHttpContext { RequestServices = requestScope.ServiceProvider };
+        var ctxAccessor = A.Fake<IHttpContextAccessor>();
+        A.CallTo(() => ctxAccessor.HttpContext).Returns(httpContext);
+
+        var resolver = new ServiceResolver(staleRootProvider, ctxAccessor);
+
+        var instance = resolver.CreateSingleton(typeof(ServiceWithDependency));
+
+        instance.ShouldBeOfType<ServiceWithDependency>();
+    }
+
+    [Fact]
+    public void CreateSingleton_WithActiveRequestScope_DoesNotResolveScopedDependenciesFromRequestHostScope()
+    {
+        var staleRootProvider = new ServiceCollection().BuildServiceProvider();
+        staleRootProvider.Dispose();
+
+        var liveServices = new ServiceCollection();
+        liveServices.AddScoped<IDependency, TestDependency>();
+        liveServices.AddSingleton<IServiceResolver, ServiceResolver>();
+        var liveRootProvider = liveServices.BuildServiceProvider(new ServiceProviderOptions { ValidateScopes = true });
+        using var requestScope = liveRootProvider.CreateScope();
+
+        var httpContext = new DefaultHttpContext { RequestServices = requestScope.ServiceProvider };
+        var ctxAccessor = A.Fake<IHttpContextAccessor>();
+        A.CallTo(() => ctxAccessor.HttpContext).Returns(httpContext);
+
+        var resolver = new ServiceResolver(staleRootProvider, ctxAccessor);
+
+        var create = () => resolver.CreateSingleton(typeof(ServiceWithDependency));
+
+        create.ShouldThrow<InvalidOperationException>().Message.ShouldContain("root provider");
+    }
+
+    [Fact]
+    public void CreateSingleton_InUnitTestMode_UsesHttpContextRequestServices()
+    {
+        // unit test mode registers test services only on the http context, the captured root provider is empty.
         var services = new ServiceCollection();
         services.AddSingleton<IDependency, TestDependency>();
         var provider = services.BuildServiceProvider();
@@ -99,11 +168,10 @@ public class ServiceResolverTests
         var ctxAccessor = A.Fake<IHttpContextAccessor>();
         A.CallTo(() => ctxAccessor.HttpContext).Returns(httpContext);
 
-        var resolver = new ServiceResolver(CreateEmptyServiceProvider(), ctxAccessor);
+        var resolver = new ServiceResolver(CreateEmptyServiceProvider(), ctxAccessor, isUnitTestMode: true);
 
         var instance = resolver.CreateSingleton(typeof(ServiceWithDependency));
 
-        instance.ShouldNotBeNull();
         instance.ShouldBeOfType<ServiceWithDependency>();
     }
 

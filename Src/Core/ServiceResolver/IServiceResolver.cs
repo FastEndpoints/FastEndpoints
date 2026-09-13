@@ -96,6 +96,8 @@ public interface IServiceResolver : IServiceResolverBase
     /// <see cref="ActivatorUtilities.CreateInstance(IServiceProvider, Type, object[])" /> may be used. repeated calls with the same input type should return the same
     /// singleton
     /// instance by utilizing an internal concurrent/thread-safe cache.
+    /// the instance should be created from the root service provider, never from a request scope, so that scoped dependencies are not captured
+    /// for the lifetime of the singleton.
     /// </summary>
     /// <param name="type">the type to create an instance of</param>
     object CreateSingleton(Type type);

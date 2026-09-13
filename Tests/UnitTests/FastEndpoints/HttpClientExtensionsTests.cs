@@ -166,6 +166,22 @@ public class HttpClientExtensionsTests
     }
 
     [Fact]
+    public void GetTestUrlForThrowsHelpfulErrorWhenTestUrlCacheRouteIsNotExposed()
+    {
+        MockHttpMessageHandler mockHttp = new();
+        mockHttp.Expect(HttpMethod.Get, "http://localhost/_test_url_cache_")
+                .Respond(System.Net.HttpStatusCode.NotFound);
+
+        var http = mockHttp.ToHttpClient();
+        http.BaseAddress = new("http://localhost");
+
+        var ex = Should.Throw<InvalidOperationException>(() => http.GetTestUrlFor<UnexposedHttpFallbackEndpoint>(EmptyRequest.Instance));
+
+        ex.Message.ShouldContain("FastEndpoints__ExposeTestUrlCache");
+        mockHttp.VerifyNoOutstandingExpectation();
+    }
+
+    [Fact]
     public void GetTestUrlForAcceptsStructurallyCompatibleRequestDto()
     {
         MockHttpMessageHandler mockHttp = new();
@@ -405,6 +421,8 @@ file class StringRouteParamRequest
 }
 
 file class HttpFallbackEndpoint : Endpoint<EmptyRequest>;
+
+file class UnexposedHttpFallbackEndpoint : Endpoint<EmptyRequest>;
 
 file class MultipartBindingSourceRequest
 {

@@ -87,3 +87,19 @@ Those rules now apply to DTO-bound operation parameters as well, using the same 
 </details>
 
 ## Minor Breaking Changes ⚠️
+
+<details><summary>Test url cache route is now opt-in</summary>
+
+The internal `_test_url_cache_` route used by routeless test helpers (`GETAsync<TEndpoint>()` etc.) when testing an out-of-process app is no longer mapped by default, since it exposed every endpoint route and type name to anonymous callers. Apps now only map it when the configuration value `FastEndpoints:ExposeTestUrlCache` is `true`.
+
+In-process `AppFixture` (WAF) tests are unaffected, and Native AOT `AppFixture` tests set it automatically. Aspire `DistributedApplication` tests must set it on the tested project resource:
+
+```csharp
+var appHost = await DistributedApplicationTestingBuilder.CreateAsync<Projects.AspireApp_AppHost>(ct);
+appHost.CreateResourceBuilder<ProjectResource>("apiservice")
+       .WithEnvironment("FastEndpoints__ExposeTestUrlCache", "true");
+```
+
+Never enable it in production.
+
+</details>

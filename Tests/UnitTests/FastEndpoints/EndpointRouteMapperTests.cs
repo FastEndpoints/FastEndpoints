@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -189,6 +190,40 @@ public class EndpointRouteMapperTests : IDisposable
         {
             await app.DisposeAsync();
         }
+    }
+
+    [Theory]
+    [InlineData(null, false)]
+    [InlineData("false", false)]
+    [InlineData("true", true)]
+    public async Task TestUrlCacheRoute_IsMappedOnlyWhenConfigIsTrue(string? configValue, bool expectedMapped)
+    {
+        var builder = WebApplication.CreateBuilder();
+        builder.Configuration.AddInMemoryCollection(
+            new Dictionary<string, string?>
+            {
+                [Constants.ExposeTestUrlCacheKey] = configValue
+            });
+        builder.Services.AddFastEndpoints([typeof(DontVersionEp)]);
+        var app = builder.Build();
+
+        try
+        {
+            app.UseFastEndpoints();
+
+            //raw MapGet, not an EndpointDefinition, so it is not in EndpointsOf<>
+            HasRoute(app, Constants.TestUrlCacheRoute).ShouldBe(expectedMapped);
+        }
+        finally
+        {
+            await app.DisposeAsync();
+        }
+
+        static bool HasRoute(WebApplication app, string route)
+            => ((IEndpointRouteBuilder)app).DataSources
+                                           .SelectMany(ds => ds.Endpoints)
+                                           .OfType<RouteEndpoint>()
+                                           .Any(e => e.RoutePattern.RawText == route);
     }
 
     static RouteEndpoint[] EndpointsOf<TEndpoint>(WebApplication app)

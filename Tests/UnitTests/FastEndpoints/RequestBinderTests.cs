@@ -83,6 +83,42 @@ public class RequestBinderTests
     }
 
     [Fact]
+    public async Task OptionalHasPermissionIgnoresTrueFromJsonBodyWhenPermissionMissing()
+    {
+        var hCtx = JsonBodyContext("""{"HasAdminPermission":true}""");
+        var binder = new RequestBinder<PermissionRequest>();
+        var ctx = new BinderContext(hCtx, [], null, false, ((IRequestBinder<PermissionRequest>)binder).RequiredProps);
+
+        var res = await binder.BindAsync(ctx, default);
+
+        res.HasAdminPermission.ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task OptionalHasPermissionIgnoresFalseFromJsonBodyWhenPermissionPresent()
+    {
+        var hCtx = JsonBodyContext("""{"HasAdminPermission":false}""", new Claim("permissions", "Admin"));
+        var binder = new RequestBinder<PermissionRequest>();
+        var ctx = new BinderContext(hCtx, [], null, false, ((IRequestBinder<PermissionRequest>)binder).RequiredProps);
+
+        var res = await binder.BindAsync(ctx, default);
+
+        res.HasAdminPermission.ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task OptionalNullableHasPermissionBindsFalseWhenPermissionMissing()
+    {
+        var hCtx = new DefaultHttpContext();
+        var binder = new RequestBinder<NullablePermissionRequest>();
+        var ctx = new BinderContext(hCtx, [], null, false, ((IRequestBinder<NullablePermissionRequest>)binder).RequiredProps);
+
+        var res = await binder.BindAsync(ctx, default);
+
+        res.HasAdminPermission.ShouldBe(false);
+    }
+
+    [Fact]
     public async Task RequiredHasPermissionFailsWithDifferentClaimValueCasing()
     {
         var hCtx = new DefaultHttpContext
@@ -267,6 +303,26 @@ public class RequestBinderTests
     {
         [HasPermission("Admin", isRequired: false)]
         public bool HasAdminPermission { get; set; }
+    }
+
+    static DefaultHttpContext JsonBodyContext(string json, params Claim[] claims)
+    {
+        var hCtx = new DefaultHttpContext
+        {
+            User = new(new ClaimsIdentity(claims))
+        };
+        var body = System.Text.Encoding.UTF8.GetBytes(json);
+        hCtx.Request.ContentType = "application/json";
+        hCtx.Request.ContentLength = body.Length;
+        hCtx.Request.Body = new MemoryStream(body);
+
+        return hCtx;
+    }
+
+    sealed class NullablePermissionRequest
+    {
+        [HasPermission("Admin", isRequired: false)]
+        public bool? HasAdminPermission { get; set; }
     }
 
     sealed class OptionalPermissionRequest

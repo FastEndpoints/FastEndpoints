@@ -581,23 +581,19 @@ public class RequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest :
             var prop = _hasPermissionProps[i];
             var hasPerm = matched[i];
 
-            switch (hasPerm)
+            if (!hasPerm && prop.ForbidIfMissing)
             {
-                case false when prop.ForbidIfMissing:
-                    ctx.ValidationFailures.Add(new(prop.Identifier, "User doesn't have this permission!"));
+                ctx.ValidationFailures.Add(new(prop.Identifier, "User doesn't have this permission!"));
 
-                    break;
-                case true:
-                {
-                    var res = prop.ValueParser(hasPerm.ToString());
-                    prop.PropSetter(req, res.Value);
-
-                    if (!res.IsSuccess)
-                        ctx.ValidationFailures.Add(new(prop.PropName, $"Attribute [HasPermission] does not work with [{prop.PropType.Name}] properties!"));
-
-                    break;
-                }
+                continue;
             }
+
+            //always write the result so a value supplied by the client (i.e. json body) can't survive when the permission is missing
+            var res = prop.ValueParser(hasPerm.ToString());
+            prop.PropSetter(req, res.Value);
+
+            if (!res.IsSuccess)
+                ctx.ValidationFailures.Add(new(prop.PropName, $"Attribute [HasPermission] does not work with [{prop.PropType.Name}] properties!"));
         }
     }
 

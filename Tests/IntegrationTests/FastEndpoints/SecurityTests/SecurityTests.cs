@@ -178,6 +178,25 @@ public class SecurityTests(Sut App) : TestBase<Sut>
     }
 
     [Fact]
+    public async Task Jwt_Revocation_Token_From_Query_String()
+    {
+        var token = JwtBearer.CreateToken(
+            o =>
+            {
+                o.SigningKey = App.Services.GetRequiredService<Microsoft.Extensions.Configuration.IConfiguration>()["TokenKey"]!;
+                o.User["jti"] = Guid.NewGuid().ToString();
+            });
+        Web.Auth.JwtBlacklistChecker.RevokedTokens[token] = true;
+
+        var url = $"{IEndpoint.TestURLFor<Customers.List.Recent.Endpoint>()}?access_token={Uri.EscapeDataString(token)}";
+        var rsp = await App.GuestClient.GetAsync(url, Cancellation);
+
+        rsp.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
+        var res = await rsp.Content.ReadAsStringAsync(Cancellation);
+        res.ShouldBe("Bearer token has been revoked!");
+    }
+
+    [Fact]
     public async Task IAuthorization_Injection_Pass()
     {
         var (rsp, res) = await App.AdminClient.GETAsync<TestCases.IAuthorizationServiceInjectionTest.Endpoint, bool>();

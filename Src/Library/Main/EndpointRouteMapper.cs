@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -135,9 +136,13 @@ static class EndpointRouteMapper
 
         CommandExtensions.TestCommandHandlerMarker ??= Types.TestCommandHandlerMarker;
 
-        app.MapGet(
-               "_test_url_cache_",
-               () => Results.Json(IEndpoint.GetTestUrlCache(), Cfg.SerOpts.Options))
-           .ExcludeFromDescription();
+        //only for out-of-process tests (aspire/aot). exposes every route + endpoint type name, so it must stay opt-in.
+        if (bool.TryParse(app.ServiceProvider.GetService<IConfiguration>()?[Constants.ExposeTestUrlCacheKey], out var exposeTestUrlCache) && exposeTestUrlCache)
+        {
+            app.MapGet(
+                   Constants.TestUrlCacheRoute,
+                   () => Results.Json(IEndpoint.GetTestUrlCache(), Cfg.SerOpts.Options))
+               .ExcludeFromDescription();
+        }
     }
 }

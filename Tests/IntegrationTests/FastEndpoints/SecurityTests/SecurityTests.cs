@@ -167,10 +167,10 @@ public class SecurityTests(Sut App) : TestBase<Sut>
         token.Claims.Single(c => c.Type == "new-claim").Value.ShouldBe("new-value");
     }
 
-    [Fact]
-    public async Task Jwt_Revocation()
+    [Theory, InlineData("Bearer"), InlineData("bearer"), InlineData("BEARER")]
+    public async Task Jwt_Revocation(string scheme)
     {
-        var client = App.CreateClient(c => c.DefaultRequestHeaders.Authorization = new("Bearer", "revoked token"));
+        var client = App.CreateClient(c => c.DefaultRequestHeaders.Authorization = new(scheme, "revoked token"));
         var (rsp, _) = await client.GETAsync<Customers.List.Recent.Endpoint, Customers.List.Recent.Response>();
         rsp.StatusCode.ShouldBe(HttpStatusCode.Unauthorized);
         var res = await rsp.Content.ReadAsStringAsync(Cancellation);

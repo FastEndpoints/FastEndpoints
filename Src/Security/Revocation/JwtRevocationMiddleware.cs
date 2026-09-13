@@ -23,7 +23,7 @@ public abstract class JwtRevocationMiddleware(RequestDelegate next)
 
         var authHeader = ctx.Request.Headers.Authorization;
 
-        if (!StringValues.IsNullOrEmpty(authHeader) && authHeader[0]!.StartsWith(Bearer) is true)
+        if (!StringValues.IsNullOrEmpty(authHeader) && authHeader[0]!.StartsWith(Bearer, StringComparison.OrdinalIgnoreCase))
         {
             var token = authHeader[0]![Bearer.Length..].Trim();
 

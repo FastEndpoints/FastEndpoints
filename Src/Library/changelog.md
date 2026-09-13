@@ -34,6 +34,9 @@ public override void Configure()
 With `isRequired: false`, the binder only wrote the property when the user held the permission. When the permission was missing, a value supplied in the JSON request body (e.g. `"canUpdatePrice": true`) was left in place, so the endpoint saw `true` for a user without the permission.
 
 The binder now always writes the permission check result, so the property is `false` whenever the permission is missing, regardless of the request body. As a result, optional `bool?` properties are now `false` instead of `null` when the permission is missing.
+<details><summary>JWT revocation middleware now matches the <code>Bearer</code> scheme case-insensitively</summary>
+
+`JwtRevocationMiddleware` only checked tokens sent with an exact `Bearer ` prefix, while the JWT bearer authentication handler accepts the scheme in any casing. A revoked token sent as `Authorization: bearer <jwt>` therefore skipped `JwtTokenIsValidAsync()` but still authenticated. The prefix is now matched case-insensitively, so every token the authentication handler reads from the `Authorization` header goes through the revocation check.
 
 </details>
 

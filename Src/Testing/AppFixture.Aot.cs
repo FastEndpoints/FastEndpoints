@@ -412,10 +412,15 @@ public abstract partial class AppFixture<TProgram>
         /// <summary>
         /// additional environment variables to pass to the aot app instance.
         /// <para>by default <c>ASPNETCORE_ENVIRONMENT</c> is set to <c>Testing</c></para>
+        /// <para>
+        /// by default <c>FastEndpoints__ExposeTestUrlCache</c> is set to <c>true</c> so that routeless test helpers can resolve endpoint urls from the
+        /// out-of-process app.
+        /// </para>
         /// </summary>
         public Dictionary<string, string> EnvironmentVariables { get; } = new()
         {
-            ["ASPNETCORE_ENVIRONMENT"] = "Testing"
+            ["ASPNETCORE_ENVIRONMENT"] = "Testing",
+            ["FastEndpoints__ExposeTestUrlCache"] = "true"
         };
     }
 

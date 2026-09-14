@@ -102,6 +102,12 @@ Those rules now apply to DTO-bound operation parameters as well, using the same 
 
 </details>
 
+<details><summary>Route mapping no longer rebuilds authorization metadata once per HTTP verb</summary>
+
+Endpoints with multiple HTTP verbs and/or routes had their `AuthorizeAttribute[]` rebuilt from scratch for every verb of every route, even though the result depends only on endpoint-level settings (roles, policies, schemes) and never varies by verb or route. That metadata is now built once per endpoint definition and reused for every verb/route it's registered under, skipping the work entirely when every verb is anonymous.
+
+</details>
+
 ## Minor Breaking Changes ⚠️
 
 <details><summary>Test url cache route is now opt-in</summary>

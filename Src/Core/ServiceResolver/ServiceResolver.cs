@@ -46,10 +46,30 @@ sealed class ServiceResolver(IServiceProvider provider, IHttpContextAccessor? ct
 
     public object CreateSingleton(Type type)
     {
-        return _singletonCache.GetOrAdd(type, ValueFactory, (ctxAccessor, provider));
+        return _singletonCache.GetOrAdd(type, ValueFactory, this);
 
-        static object ValueFactory(Type t, (IHttpContextAccessor? ctxAccessor, IServiceProvider provider) args)
-            => ActivatorUtilities.GetServiceOrCreateInstance(args.ctxAccessor?.HttpContext?.RequestServices ?? args.provider, t);
+        static object ValueFactory(Type t, ServiceResolver resolver)
+            => ActivatorUtilities.GetServiceOrCreateInstance(resolver.SingletonProvider(), t);
+    }
+
+    IServiceProvider RootProvider => provider;
+
+    //singletons outlive the request that first creates them, so they must never be built from that request's scope. otherwise
+    //scoped ctor dependencies (and scoped registrations of the type itself) get captured for the process lifetime without
+    //tripping DI scope validation. build them from the root provider of the host serving the request instead of the captured
+    //root 'provider', which may belong to a torn-down host in multi-host setups (see TryResolve). unit test mode is the
+    //exception since test services are only registered on the http context.
+    IServiceProvider SingletonProvider()
+    {
+        if (ctxAccessor?.HttpContext?.RequestServices is not { } rs)
+            return provider;
+
+        if (isUnitTestMode)
+            return rs;
+
+        return rs.GetService<IServiceResolver>() is ServiceResolver hostResolver
+                   ? hostResolver.RootProvider
+                   : provider;
     }
 
     public IServiceScope CreateScope()

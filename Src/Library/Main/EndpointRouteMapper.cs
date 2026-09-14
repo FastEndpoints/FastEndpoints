@@ -50,6 +50,12 @@ static class EndpointRouteMapper
 
             EndpointSecurityPolicies.AddSecurityPolicy(authOptions, def);
 
+            //hoisted out of the route/verb loops below - depends only on endpoint-level state, not on the verb/route being registered.
+            //skipped entirely when every verb is anonymous, since it's then never read.
+            var authorizeAttributes = def.AnonymousVerbs is null || !def.Verbs.All(def.AnonymousVerbs.Contains)
+                                           ? EndpointSecurityPolicies.BuildAuthorizeAttributes(def)
+                                           : null;
+
             var routeNum = 0;
 
             foreach (var route in def.Routes)
@@ -81,7 +87,7 @@ static class EndpointRouteMapper
                     if (def.AnonymousVerbs?.Contains(verb) is true)
                         hb.AllowAnonymous();
                     else
-                        hb.RequireAuthorization(EndpointSecurityPolicies.BuildAuthorizeAttributes(def));
+                        hb.RequireAuthorization(authorizeAttributes!);
 
                     if (def.ResponseCacheSettings is not null)
                         hb.WithMetadata(def.ResponseCacheSettings);

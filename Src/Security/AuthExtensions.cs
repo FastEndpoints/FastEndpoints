@@ -40,6 +40,9 @@ public static class AuthExtensions
                         o.TokenValidationParameters.ValidIssuer = null;
                         o.TokenValidationParameters.ValidateIssuer = false;
 
+                        //keep the accepted token on the auth result so JwtRevocationMiddleware can check tokens that didn't come from the authorization header
+                        o.SaveToken = true;
+
                         //set sensible defaults (based on configuration) for the claim mapping so tokens created with JWTBearer.CreateToken() will not be modified
                         o.TokenValidationParameters.NameClaimType = Cfg.SecOpts.NameClaimType;
                         o.TokenValidationParameters.RoleClaimType = Cfg.SecOpts.RoleClaimType;

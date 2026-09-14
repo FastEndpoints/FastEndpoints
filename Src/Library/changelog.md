@@ -102,6 +102,12 @@ Those rules now apply to DTO-bound operation parameters as well, using the same 
 
 </details>
 
+<details><summary>Warmup no longer precompiles the data-annotations validation graph when it's disabled</summary>
+
+`Warmup()` unconditionally walked and precompiled each request DTO's data-annotations validation graph (bindable props + getters), even though that graph is only ever used when `Validation.EnableDataAnnotationsSupport` is turned on. That startup-only work is now skipped when the setting is left at its default (off), which is the common case.
+
+</details>
+
 ## Minor Breaking Changes ⚠️
 
 <details><summary>Test url cache route is now opt-in</summary>

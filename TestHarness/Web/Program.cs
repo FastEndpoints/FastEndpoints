@@ -29,7 +29,21 @@ bld.Services
    .AddResponseCaching()
    .AddFastEndpoints(DiscoveredTypes.All)
    .AddX402()
-   .AddAuthenticationJwtBearer(s => s.SigningKey = bld.Configuration["TokenKey"]!)
+   .AddAuthenticationJwtBearer(
+       s => s.SigningKey = bld.Configuration["TokenKey"]!,
+       b => b.Events = new()
+       {
+           OnMessageReceived = ctx =>
+                               {
+                                   //accept tokens from the query string as well (sse/signalr clients)
+                                   var token = ctx.Request.Query["access_token"].FirstOrDefault();
+
+                                   if (!string.IsNullOrEmpty(token))
+                                       ctx.Token = token;
+
+                                   return Task.CompletedTask;
+                               }
+       })
    .AddAuthorization(o => o.AddPolicy("AdminOnly", b => b.RequireRole(Role.Admin)))
    .AddKeyedTransient<IKeyedService>("AAA", (_, _) => new MyKeyedService("AAA"))
    .AddKeyedTransient<IKeyedService>("BBB", (_, _) => new MyKeyedService("BBB"))

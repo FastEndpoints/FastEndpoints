@@ -1,11 +1,19 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Primitives;
 
 namespace FastEndpoints.Security;
 
 /// <summary>
-/// abstract class for implementing a jwt revocation middleware
+/// abstract class for implementing a jwt revocation middleware.
+/// <para>
+/// the token in the authorization header is checked, as well as any token accepted by a jwt bearer authentication scheme from another source such as the query
+/// string or a cookie. the latter requires <see cref="JwtBearerOptions.SaveToken" /> to be enabled, which is the default when using
+/// <see cref="AuthExtensions.AddAuthenticationJwtBearer" />.
+/// </para>
 /// </summary>
 /// <param name="next">the next request delegate to execute</param>
 public abstract class JwtRevocationMiddleware(RequestDelegate next)
@@ -14,7 +22,8 @@ public abstract class JwtRevocationMiddleware(RequestDelegate next)
 
     public async Task Invoke(HttpContext ctx)
     {
-        if (ctx.GetEndpoint()?.Metadata.OfType<IAllowAnonymous>().Any() is null or true)
+        //requests that have not been matched to an endpoint (such as when registered before routing) are checked as well
+        if (ctx.GetEndpoint()?.Metadata.OfType<IAllowAnonymous>().Any() is true)
         {
             await next(ctx);
 
@@ -22,16 +31,43 @@ public abstract class JwtRevocationMiddleware(RequestDelegate next)
         }
 
         var authHeader = ctx.Request.Headers.Authorization;
+        string? headerToken = null;
 
         if (!StringValues.IsNullOrEmpty(authHeader) && authHeader[0]!.StartsWith(Bearer, StringComparison.OrdinalIgnoreCase))
         {
-            var token = authHeader[0]![Bearer.Length..].Trim();
+            headerToken = authHeader[0]![Bearer.Length..].Trim();
 
-            if (!await JwtTokenIsValidAsync(token, ctx.RequestAborted))
+            if (!await JwtTokenIsValidAsync(headerToken, ctx.RequestAborted))
             {
                 await SendTokenRevokedResponseAsync(ctx, ctx.RequestAborted);
 
                 return;
+            }
+        }
+
+        var schemes = ctx.RequestServices.GetService<IAuthenticationSchemeProvider>();
+
+        if (schemes is not null)
+        {
+            foreach (var scheme in await schemes.GetAllSchemesAsync())
+            {
+                if (!typeof(JwtBearerHandler).IsAssignableFrom(scheme.HandlerType))
+                    continue;
+
+                //the handler may have taken the token from somewhere other than the authorization header.
+                //authentication results are cached per request, so the token is not validated twice.
+                var result = await ctx.AuthenticateAsync(scheme.Name);
+                var token = result.Succeeded ? result.Properties?.GetTokenValue("access_token") : null;
+
+                if (token is null || token == headerToken)
+                    continue;
+
+                if (!await JwtTokenIsValidAsync(token, ctx.RequestAborted))
+                {
+                    await SendTokenRevokedResponseAsync(ctx, ctx.RequestAborted);
+
+                    return;
+                }
             }
         }
 

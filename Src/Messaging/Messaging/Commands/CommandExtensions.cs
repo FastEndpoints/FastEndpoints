@@ -43,14 +43,17 @@ public static class CommandExtensions
         var registry = ServiceResolver.Instance.Resolve<CommandHandlerRegistry>();
         registry.TryGetValue(tCommand, out var def);
         var tRes = typeof(TResult);
-        var tHandlerInterface = tRes == Types.VoidResult
-                                    ? Types.ICommandHandlerOf1.MakeGenericType(tCommand)
-                                    : Types.ICommandHandlerOf2.MakeGenericType(tCommand, tRes);
+        Type? tHandlerInterface = null;
 
         if (def is null && tCommand.IsGenericType)
+        {
+            tHandlerInterface = tRes == Types.VoidResult
+                                     ? Types.ICommandHandlerOf1.MakeGenericType(tCommand)
+                                     : Types.ICommandHandlerOf2.MakeGenericType(tCommand, tRes);
             InitGenericHandlerCore(ref def, tCommand, registry, tHandlerInterface);
+        }
 
-        var tHandler = PrepareExecution<TResult>(def, tCommand, Types.CommandHandlerExecutorOf2, tHandlerInterface);
+        var tHandler = PrepareExecution<TResult>(def, tCommand, tRes, Types.CommandHandlerExecutorOf2, Types.ICommandHandlerOf2, Types.ICommandHandlerOf1, tHandlerInterface);
 
         return ((ICommandHandlerExecutor<TResult>)def!.HandlerExecutor!).Execute(command, tHandler, ct);
     }
@@ -67,11 +70,15 @@ public static class CommandExtensions
         var tCommand = command.GetType();
         var registry = ServiceResolver.Instance.Resolve<CommandHandlerRegistry>();
         registry.TryGetValue(tCommand, out var def);
+        Type? tHandlerInterface = null;
 
-        var tHandlerInterface = Types.IStreamCommandHandlerOf2.MakeGenericType(tCommand, typeof(TResult));
         if (def is null && tCommand.IsGenericType)
+        {
+            tHandlerInterface = Types.IStreamCommandHandlerOf2.MakeGenericType(tCommand, typeof(TResult));
             InitGenericHandlerCore(ref def, tCommand, registry, tHandlerInterface);
-        var tHandler = PrepareExecution<TResult>(def, tCommand, Types.StreamCommandHandlerExecutorOf2, tHandlerInterface);
+        }
+
+        var tHandler = PrepareExecution<TResult>(def, tCommand, typeof(TResult), Types.StreamCommandHandlerExecutorOf2, Types.IStreamCommandHandlerOf2, tHandlerInterface: tHandlerInterface);
 
         return ((IStreamCommandHandlerExecutor<TResult>)def!.HandlerExecutor!).Execute(command, tHandler, ct);
     }
@@ -94,18 +101,24 @@ public static class CommandExtensions
             => t.IsGenericType && t.GetGenericTypeDefinition() == Types.IStreamCommandHandlerOf2 ? "stream command" : "command";
     }
 
-    static Type PrepareExecution<TResult>(CommandHandlerDefinition? def, Type tCommand, Type tExecutorOpenGeneric, Type tHandlerInterface)
+    static Type PrepareExecution<TResult>(CommandHandlerDefinition? def, Type tCommand, Type tRes, Type tExecutorOpenGeneric, Type tHandlerOf2, Type? tHandlerOf1 = null,
+                                           Type? tHandlerInterface = null)
     {
         if (def is null)
             throw new InvalidOperationException($"Unable to create an instance of the handler for command [{tCommand.FullName}]");
 
         var resolver = ServiceResolver.Instance;
 
-        def.HandlerExecutor ??= resolver.CreateSingleton(tExecutorOpenGeneric.MakeGenericType(tCommand, typeof(TResult)));
+        def.HandlerExecutor ??= resolver.CreateSingleton(tExecutorOpenGeneric.MakeGenericType(tCommand, tRes));
 
-        return TestCommandHandlerMarker is not null && resolver.TryResolve(TestCommandHandlerMarker) is not null
-                   ? resolver.TryResolve(tHandlerInterface)?.GetType() ?? def.HandlerType
-                   : def.HandlerType;
+        if (TestCommandHandlerMarker is null || resolver.TryResolve(TestCommandHandlerMarker) is null)
+            return def.HandlerType;
+
+        tHandlerInterface ??= tHandlerOf1 is not null && tRes == Types.VoidResult
+                                   ? tHandlerOf1.MakeGenericType(tCommand)
+                                   : tHandlerOf2.MakeGenericType(tCommand, tRes);
+
+        return resolver.TryResolve(tHandlerInterface)?.GetType() ?? def.HandlerType;
     }
 
     /// <summary>

@@ -102,6 +102,12 @@ Those rules now apply to DTO-bound operation parameters as well, using the same 
 
 </details>
 
+<details><summary>Command execution no longer builds a handler-interface <code>Type</code> it doesn't need on the hot path</summary>
+
+`ExecuteAsync` computed a closed generic handler interface type via `MakeGenericType` on every command and stream-command dispatch, but that type is only read the first time a generic command type is seen, or when a unit test has registered a fake handler. Both call sites now compute it lazily, only when one of those two conditions is actually true, removing an unnecessary reflection call from the common case of executing a registered, non-generic command outside of a test.
+
+</details>
+
 ## Minor Breaking Changes ⚠️
 
 <details><summary>Test url cache route is now opt-in</summary>

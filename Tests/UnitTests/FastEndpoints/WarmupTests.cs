@@ -24,6 +24,7 @@ public class WarmupTests : IDisposable
     readonly bool _previousWarmupRequested;
     readonly JsonSerializerOptions _previousSerializerOptions;
     readonly bool _previousSerializerConfigured;
+    readonly bool _previousEnableDataAnnotationsSupport;
 
     public WarmupTests()
     {
@@ -34,6 +35,7 @@ public class WarmupTests : IDisposable
         _previousWarmupRequested = Config.EpOpts.WarmupRequested;
         _previousSerializerOptions = Config.SerOpts.Options;
         _previousSerializerConfigured = MainExtensions.SerializerConfigured;
+        _previousEnableDataAnnotationsSupport = Config.ValOpts.EnableDataAnnotationsSupport;
 
         ResetState();
     }
@@ -45,6 +47,7 @@ public class WarmupTests : IDisposable
         Config.EpOpts.WarmupRequested = _previousWarmupRequested;
         Config.SerOpts.Options = _previousSerializerOptions;
         MainExtensions.SerializerConfigured = _previousSerializerConfigured;
+        Config.ValOpts.EnableDataAnnotationsSupport = _previousEnableDataAnnotationsSupport;
         CountingBinder.Reset();
         ResetServiceResolver();
         _testLock.Release();
@@ -57,6 +60,7 @@ public class WarmupTests : IDisposable
         Config.EpOpts.WarmupRequested = false;
         Config.SerOpts.Options = new();
         MainExtensions.SerializerConfigured = false;
+        Config.ValOpts.EnableDataAnnotationsSupport = false;
         CountingBinder.Reset();
         ResetServiceResolver();
     }
@@ -186,6 +190,8 @@ public class WarmupTests : IDisposable
     [Fact]
     public async Task Warmup_PrecompilesNestedComplexAndCollectionElementTypeAccessors()
     {
+        Config.ValOpts.EnableDataAnnotationsSupport = true;
+
         var builder = WebApplication.CreateBuilder();
         builder.Services.AddFastEndpoints([typeof(WarmupNestedEp)]);
         var app = builder.Build();
@@ -209,8 +215,37 @@ public class WarmupTests : IDisposable
     }
 
     [Fact]
+    public async Task Warmup_SkipsValidatableTypePrecompileWhenDataAnnotationsDisabled()
+    {
+        // EnableDataAnnotationsSupport left at its default (false).
+
+        var builder = WebApplication.CreateBuilder();
+        builder.Services.AddFastEndpoints([typeof(WarmupDisabledDataAnnotationsEp)]);
+        var app = builder.Build();
+
+        try
+        {
+            app.UseFastEndpoints(c => c.Endpoints.Warmup());
+
+            // the value-parser cache still picks up an entry for the nested type (unrelated to data-annotations
+            // precompilation), so assert on the fields only PrecompileValidatableType/IsValidatable() touch.
+            if (Config.BndOpts.ReflectionCache.TryGetValue(typeof(DisabledDataAnnotationsNestedDto), out var nestedDef))
+            {
+                nestedDef!.IsValidatable.ShouldBeNull();
+                nestedDef.Properties.ShouldBeNull();
+            }
+        }
+        finally
+        {
+            await app.DisposeAsync();
+        }
+    }
+
+    [Fact]
     public async Task Warmup_DoesNotInstantiateAbstractNestedValidatableType()
     {
+        Config.ValOpts.EnableDataAnnotationsSupport = true;
+
         var builder = WebApplication.CreateBuilder();
         builder.Services.AddFastEndpoints([typeof(WarmupAbstractNestedEp)]);
         var app = builder.Build();
@@ -239,6 +274,8 @@ public class WarmupTests : IDisposable
     [Fact]
     public async Task Warmup_DoesNotInstantiateNestedTypeWithoutPublicConstructor()
     {
+        Config.ValOpts.EnableDataAnnotationsSupport = true;
+
         var builder = WebApplication.CreateBuilder();
         builder.Services.AddFastEndpoints([typeof(WarmupNoPublicCtorNestedEp)]);
         var app = builder.Build();
@@ -266,6 +303,8 @@ public class WarmupTests : IDisposable
     [Fact]
     public async Task Warmup_PrecompilesDerivedCollectionElementTypeAccessors()
     {
+        Config.ValOpts.EnableDataAnnotationsSupport = true;
+
         var builder = WebApplication.CreateBuilder();
         builder.Services.AddFastEndpoints([typeof(WarmupDerivedCollectionEp)]);
         var app = builder.Build();
@@ -554,6 +593,26 @@ file sealed class WarmupNestedEp : Endpoint<WarmupNestedRequest>
         => Post("warmup-nested-ep");
 
     public override Task HandleAsync(WarmupNestedRequest req, CancellationToken ct)
+        => Task.CompletedTask;
+}
+
+file sealed class WarmupDisabledDataAnnotationsRequest
+{
+    public DisabledDataAnnotationsNestedDto? Nested { get; set; }
+}
+
+file sealed class DisabledDataAnnotationsNestedDto
+{
+    [Required]
+    public string? City { get; set; }
+}
+
+file sealed class WarmupDisabledDataAnnotationsEp : Endpoint<WarmupDisabledDataAnnotationsRequest>
+{
+    public override void Configure()
+        => Post("warmup-disabled-data-annotations-ep");
+
+    public override Task HandleAsync(WarmupDisabledDataAnnotationsRequest req, CancellationToken ct)
         => Task.CompletedTask;
 }
 

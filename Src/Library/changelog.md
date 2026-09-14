@@ -119,3 +119,11 @@ appHost.CreateResourceBuilder<ProjectResource>("apiservice")
 Never enable it in production.
 
 </details>
+
+<details><summary><code>ProblemDetails.Errors</code> is now <code>IReadOnlyCollection&lt;Error&gt;</code> instead of <code>IEnumerable&lt;Error&gt;</code></summary>
+
+`Errors` was a lazy `IEnumerable<Error>`. When `AllowDuplicateErrors` was enabled, that sequence got re-enumerated up to three times per error response (once when reading `Errors.Count()`/`Errors.First()` to build `Detail`, again during JSON serialization), rerunning `PropertyNamingPolicy.ConvertName` for every `Error` each time. `Errors` is now always backed by a concrete collection (a materialized array when duplicates are allowed, the existing deduplicating `HashSet` otherwise), so it is only ever enumerated once.
+
+Reading `Errors` is unaffected. Code that assigns `Errors` directly to a lazy `IEnumerable<Error>` (for example a custom `ResponseBuilder` that constructs its own `ProblemDetails`) needs to materialize it first, since the setter no longer accepts a plain `IEnumerable<Error>`.
+
+</details>

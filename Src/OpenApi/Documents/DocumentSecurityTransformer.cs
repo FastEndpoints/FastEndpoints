@@ -24,7 +24,9 @@ static class DocumentSecurityTransformer
 
     static void FixOperationSecurity(OpenApiDocument document, SharedContext sharedCtx)
     {
-        if (sharedCtx.SecurityRequirements.IsEmpty)
+        var securityRequirements = sharedCtx.For(document).SecurityRequirements;
+
+        if (securityRequirements.IsEmpty)
             return;
 
         foreach (var (path, pathItem) in document.Paths)
@@ -36,7 +38,7 @@ static class DocumentSecurityTransformer
             {
                 var opKey = $"{method}:{path}";
 
-                if (!sharedCtx.SecurityRequirements.TryGetValue(opKey, out var securityEntries))
+                if (!securityRequirements.TryGetValue(opKey, out var securityEntries))
                     continue;
 
                 operation.Security = [];

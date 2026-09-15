@@ -14,6 +14,7 @@ namespace FastEndpoints.OpenApi;
 sealed class ValidationSchemaApplier : IDisposable
 {
     readonly SharedContext _sharedCtx;
+    readonly OpenApiGenerationState _generation;
     readonly ILogger<ValidationSchemaTransformer>? _logger;
     readonly FluentValidationRule[] _rules;
     readonly ChildValidatorResolver _childResolver;
@@ -23,6 +24,7 @@ sealed class ValidationSchemaApplier : IDisposable
     readonly string _schemaKey;
 
     public ValidationSchemaApplier(SharedContext sharedCtx,
+                                   OpenApiGenerationState generation,
                                    IServiceResolver serviceResolver,
                                    ILogger<ValidationSchemaTransformer>? logger,
                                    Func<IServiceScope> createScope,
@@ -33,6 +35,7 @@ sealed class ValidationSchemaApplier : IDisposable
                                    bool localizeReferencedSchemas = false)
     {
         _sharedCtx = sharedCtx;
+        _generation = generation;
         _logger = logger;
         _rules = rules;
         _usePropertyNamingPolicy = usePropertyNamingPolicy;
@@ -42,6 +45,7 @@ sealed class ValidationSchemaApplier : IDisposable
         _childResolver = new(
             serviceResolver,
             sharedCtx,
+            generation,
             logger,
             createScope,
             ApplyValidator,
@@ -106,6 +110,7 @@ sealed class ValidationSchemaApplier : IDisposable
                 composite[i],
                 _localizeReferencedSchemas,
                 _sharedCtx,
+                _generation,
                 _operationKey,
                 $"{_schemaKey}.{propertyPrefix}.composite[{i}]",
                 localized => composite[i] = localized);
@@ -132,6 +137,7 @@ sealed class ValidationSchemaApplier : IDisposable
                                                   property,
                                                   _localizeReferencedSchemas,
                                                   _sharedCtx,
+                                                  _generation,
                                                   _operationKey,
                                                   $"{_schemaKey}.{fullPropertyName}",
                                                   localized => schema.Properties![propertyName] = localized);
@@ -153,6 +159,7 @@ sealed class ValidationSchemaApplier : IDisposable
             property,
             _localizeReferencedSchemas,
             _sharedCtx,
+            _generation,
             _operationKey,
             $"{_schemaKey}.{fullPropertyName}",
             localized => schema.Properties![propertyName] = localized);
@@ -174,6 +181,7 @@ sealed class ValidationSchemaApplier : IDisposable
                 propertySchema.Items,
                 _localizeReferencedSchemas,
                 _sharedCtx,
+                _generation,
                 _operationKey,
                 $"{_schemaKey}.{fullPropertyName}[]",
                 localized => propertySchema.Items = localized) is { Properties.Count: > 0 } itemsSchema)

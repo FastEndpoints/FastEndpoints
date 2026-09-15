@@ -329,8 +329,9 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
             }
         };
         var sharedCtx = new SharedContext();
-        sharedCtx.PromotedRequestWrapperSchemaRefs.TryAdd("PromotedWrapper", 0);
-        sharedCtx.PromotedRequestWrapperSchemaRefs.TryAdd("StillUsedWrapper", 0);
+        var generation = sharedCtx.For(document);
+        generation.PromotedRequestWrapperSchemaRefs.TryAdd("PromotedWrapper", 0);
+        generation.PromotedRequestWrapperSchemaRefs.TryAdd("StillUsedWrapper", 0);
 
         document.RemovePromotedRequestWrapperSchemas(sharedCtx);
 
@@ -689,6 +690,7 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
         operation.RemovePropFromRequestBody(
             prop,
             new(),
+            new SharedContext().For(new OpenApiDocument()),
             "GET:/test",
             new() { UsePropertyNamingPolicy = false },
             JsonNamingPolicy.CamelCase,
@@ -783,13 +785,13 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
             }
         };
 
-        var sharedCtx = ApplyResponseParamDescriptions(
+        var generation = ApplyResponseParamDescriptions(
             response,
             typeof(ResponseParamDescriptionResponse),
             new() { ["name"] = "operation-specific" });
 
         var operationSchemaRef = response.Content!["application/json"].Schema.ShouldBeOfType<OpenApiSchemaReference>();
-        var operationSchema = sharedCtx.OperationSchemaVariants[operationSchemaRef.Reference.Id!];
+        var operationSchema = generation.OperationSchemaVariants[operationSchemaRef.Reference.Id!];
 
         operationSchema.Properties!["name"].ShouldBeOfType<OpenApiSchema>().Description.ShouldBe("operation-specific");
         componentSchema.Properties!["name"].ShouldBeOfType<OpenApiSchema>().Description.ShouldBeNull();
@@ -832,7 +834,7 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
             }
         };
 
-        var sharedCtx = ApplyResponseParamDescriptions(
+        var generation = ApplyResponseParamDescriptions(
             response,
             typeof(List<ResponseParamDescriptionCollectionItem>),
             new()
@@ -844,7 +846,7 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
 
         var arraySchema = response.Content!["application/json"].Schema.ShouldBeOfType<OpenApiSchema>();
         var itemSchemaRef = arraySchema.Items.ShouldBeOfType<OpenApiSchemaReference>();
-        var itemSchema = sharedCtx.OperationSchemaVariants[itemSchemaRef.Reference.Id!];
+        var itemSchema = generation.OperationSchemaVariants[itemSchemaRef.Reference.Id!];
 
         itemSchema.ShouldNotBeSameAs(componentSchema);
         itemSchema.Properties!["displayName"].ShouldBeOfType<OpenApiSchema>().Description.ShouldBe("item display name");
@@ -867,9 +869,10 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
             culture: null)!;
         var addParameter = transformerType.GetMethod("AddParameter", BindingFlags.Instance | BindingFlags.NonPublic)!;
 
-        addParameter.Invoke(transformer, [operation, "routeValue", ParameterLocation.Path, null, true, false, typeof(uint)]);
-        addParameter.Invoke(transformer, [operation, "queryValue", ParameterLocation.Query, null, null, false, typeof(ulong)]);
-        addParameter.Invoke(transformer, [operation, "x-byte-value", ParameterLocation.Header, null, null, false, typeof(byte)]);
+        var generation = new SharedContext().For(new OpenApiDocument());
+        addParameter.Invoke(transformer, [operation, "routeValue", ParameterLocation.Path, null, generation, true, false, typeof(uint)]);
+        addParameter.Invoke(transformer, [operation, "queryValue", ParameterLocation.Query, null, generation, null, false, typeof(ulong)]);
+        addParameter.Invoke(transformer, [operation, "x-byte-value", ParameterLocation.Header, null, generation, null, false, typeof(byte)]);
 
         operation.Parameters.ShouldNotBeNull();
         var route = operation.Parameters.Single(p => p.Name == "routeValue");
@@ -1178,14 +1181,15 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
             culture: null)!;
         var addMissingResponseContent = transformerType.GetMethod("AddMissingResponseContent", BindingFlags.Instance | BindingFlags.NonPublic)!;
 
-        addMissingResponseContent.Invoke(transformer, [response, new ProducesMetadata(typeof(List<MissingSchemaCollectionItem>))]);
+        var generation = sharedCtx.For(new OpenApiDocument());
+        addMissingResponseContent.Invoke(transformer, [response, new ProducesMetadata(typeof(List<MissingSchemaCollectionItem>)), generation]);
 
         var schema = response.Content!["application/json"].Schema.ShouldBeOfType<OpenApiSchema>();
 
         schema.Type.ShouldBe(JsonSchemaType.Array);
         schema.Items.ShouldBeOfType<OpenApiSchemaReference>();
-        sharedCtx.MissingSchemaTypes.ContainsKey(SchemaNameGenerator.GetReferenceId(typeof(MissingSchemaCollectionItem), false)!).ShouldBeTrue();
-        sharedCtx.MissingSchemaTypes.Keys.ShouldNotContain(SchemaNameGenerator.GetReferenceId(typeof(List<MissingSchemaCollectionItem>), false)!);
+        generation.MissingSchemaTypes.ContainsKey(SchemaNameGenerator.GetReferenceId(typeof(MissingSchemaCollectionItem), false)!).ShouldBeTrue();
+        generation.MissingSchemaTypes.Keys.ShouldNotContain(SchemaNameGenerator.GetReferenceId(typeof(List<MissingSchemaCollectionItem>), false)!);
     }
 
     [Fact]
@@ -1205,10 +1209,10 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
         };
         var sharedCtx = new SharedContext();
 
-        UpdateParameterSchema(operation, "status", typeof(RouteStatus), sharedCtx);
+        var generation = UpdateParameterSchema(operation, "status", typeof(RouteStatus), sharedCtx);
 
         operation.Parameters.Single().Schema.ShouldBeOfType<OpenApiSchemaReference>();
-        sharedCtx.MissingSchemaTypes.ContainsKey(SchemaNameGenerator.GetReferenceId(typeof(RouteStatus), false)!).ShouldBeTrue();
+        generation.MissingSchemaTypes.ContainsKey(SchemaNameGenerator.GetReferenceId(typeof(RouteStatus), false)!).ShouldBeTrue();
     }
 
     sealed class ThrowingSerializableObject
@@ -1348,7 +1352,7 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
             culture: null)!;
 
         transformerType.GetMethod("ApplyBodyOverrides", BindingFlags.Instance | BindingFlags.Public)!
-                       .Invoke(transformer, [operation, epDef, "GET:/test"]);
+                       .Invoke(transformer, [operation, epDef, "GET:/test", new SharedContext().For(new OpenApiDocument())]);
     }
 
     static OpenApiOperation CreateFormPromotionOperation()
@@ -1407,7 +1411,7 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
             culture: null)!;
 
         return (JsonNode?)transformerType.GetMethod("CreateSampleFromSchema", BindingFlags.Instance | BindingFlags.NonPublic)!
-                                         .Invoke(transformer, [schema, null]);
+                                         .Invoke(transformer, [schema, new SharedContext().For(new OpenApiDocument()), null]);
     }
 
     static JsonNode? NormalizeSchemaExample(JsonNode example, OpenApiSchema schema)
@@ -1422,7 +1426,7 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
             culture: null)!;
 
         return (JsonNode?)transformerType.GetMethod("NormalizeExampleNode", BindingFlags.Instance | BindingFlags.NonPublic)!
-                                         .Invoke(transformer, [example, schema, null]);
+                                         .Invoke(transformer, [example, schema, null, new SharedContext().For(new OpenApiDocument())]);
     }
 
     static void ValidateRequestDto(Type requestType, bool isCollection)
@@ -1481,7 +1485,7 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
             culture: null)!;
 
         return (bool)expanderType.GetMethod("TryAdd", BindingFlags.Instance | BindingFlags.NonPublic)!
-                                  .Invoke(expander, [operation, prop, false])!;
+                                  .Invoke(expander, [operation, prop, false, sharedCtx.For(new OpenApiDocument())])!;
     }
 
     static void FixBinaryFormats(OpenApiOperation operation)
@@ -1496,19 +1500,22 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
             culture: null)!;
 
         transformerType.GetMethod("FixBinaryFormats", BindingFlags.Instance | BindingFlags.Public)!
-                       .Invoke(transformer, [operation, "GET:/test"]);
+                       .Invoke(transformer, [operation, "GET:/test", new SharedContext().For(new OpenApiDocument())]);
     }
 
-    static void UpdateParameterSchema(OpenApiOperation operation, string name, Type type, SharedContext sharedCtx)
+    static OpenApiGenerationState UpdateParameterSchema(OpenApiOperation operation, string name, Type type, SharedContext sharedCtx)
     {
+        var generation = sharedCtx.For(new OpenApiDocument());
         var parameterCollectionType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
                                                                             .GetType("FastEndpoints.OpenApi.OperationParameterCollection", throwOnError: true)!;
 
         parameterCollectionType.GetMethod("UpdateSchema", BindingFlags.Static | BindingFlags.NonPublic)!
-                               .Invoke(null, [operation, ParameterLocation.Path, name, type, sharedCtx, false]);
+                               .Invoke(null, [operation, ParameterLocation.Path, name, type, sharedCtx, generation, false]);
+
+        return generation;
     }
 
-    static SharedContext ApplyResponseParamDescriptions(OpenApiResponse response,
+    static OpenApiGenerationState ApplyResponseParamDescriptions(OpenApiResponse response,
                                                         Type responseType,
                                                         Dictionary<string, string> descriptions,
                                                         JsonNamingPolicy? namingPolicy = null)
@@ -1516,6 +1523,7 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
         var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
                                                                       .GetType("FastEndpoints.OpenApi.ResponseOperationTransformer", throwOnError: true)!;
         var sharedCtx = new SharedContext { NamingPolicy = namingPolicy };
+        var generation = sharedCtx.For(new OpenApiDocument());
         var transformer = Activator.CreateInstance(
             transformerType,
             BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
@@ -1524,9 +1532,9 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
             culture: null)!;
 
         transformerType.GetMethod("ApplyParamDescriptions", BindingFlags.Instance | BindingFlags.NonPublic)!
-                       .Invoke(transformer, [response, descriptions, responseType, "GET:/test", "response.200"]);
+                       .Invoke(transformer, [response, descriptions, responseType, "GET:/test", "response.200", generation]);
 
-        return sharedCtx;
+        return generation;
     }
 
     sealed class EmptyServiceProvider : IServiceProvider
@@ -1549,7 +1557,7 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
             culture: null)!;
 
         transformerType.GetMethod("AddParameter", BindingFlags.Instance | BindingFlags.NonPublic)!
-                       .Invoke(transformer, [operation, name, location, prop, isRequired, false, null]);
+                       .Invoke(transformer, [operation, name, location, prop, new SharedContext().For(new OpenApiDocument()), isRequired, false, null]);
     }
 
     static string? GetReferenceId(OpenApiSchemaReference schemaRef)

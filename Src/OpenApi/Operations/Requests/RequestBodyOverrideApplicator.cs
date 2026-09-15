@@ -6,7 +6,7 @@ sealed class RequestBodyOverrideApplicator(DocumentOptions docOpts, SharedContex
 {
     JsonNamingPolicy? NamingPolicy => sharedCtx.NamingPolicy;
 
-    internal PromotedBodyProperty? Apply(OpenApiOperation operation, EndpointDefinition epDef, string operationKey)
+    internal PromotedBodyProperty? Apply(OpenApiOperation operation, EndpointDefinition epDef, string operationKey, OpenApiGenerationState generation)
     {
         if (operation.RequestBody?.Content is null)
             return null;
@@ -19,13 +19,13 @@ sealed class RequestBodyOverrideApplicator(DocumentOptions docOpts, SharedContex
             return null;
 
         var promoted = false;
-        var mutationCtx = new OperationSchemaMutationContext(sharedCtx, operationKey);
+        var mutationCtx = new OperationSchemaMutationContext(sharedCtx, generation, operationKey);
         var schemaKey = PropertyNameResolver.GetSchemaPropertyName(promoteProp, NamingPolicy, docOpts.UsePropertyNamingPolicy);
 
         // replace the entire request body schema with the [FromBody]/[FromForm] property's type schema
         foreach (var content in operation.RequestBody.Content.Values)
         {
-            var resolvedSchema = content.Schema.ResolveSchema(sharedCtx);
+            var resolvedSchema = content.Schema.ResolveSchema(generation);
 
             if (resolvedSchema is null)
                 continue;
@@ -41,7 +41,7 @@ sealed class RequestBodyOverrideApplicator(DocumentOptions docOpts, SharedContex
         }
 
         if (promoted && SchemaNameGenerator.GetReferenceId(requestDtoType, docOpts.ShortSchemaNames, sharedCtx.SchemaNames) is { } refId)
-            sharedCtx.PromotedRequestWrapperSchemaRefs.TryAdd(refId, 0);
+            generation.PromotedRequestWrapperSchemaRefs.TryAdd(refId, 0);
 
         if (promoted && fromFormProp is not null)
             NormalizePromotedFormRequestBodyContent(operation, epDef.FormDataContentType);
@@ -49,7 +49,7 @@ sealed class RequestBodyOverrideApplicator(DocumentOptions docOpts, SharedContex
         // JSON Patch unwrap: only for [FromBody], promote the operations array to top-level
         if (fromBodyProp is not null && operation.RequestBody.Content.TryGetValue("application/json-patch+json", out var patchContent))
         {
-            var patchArraySchema = TryGetJsonPatchArraySchema(patchContent.Schema);
+            var patchArraySchema = TryGetJsonPatchArraySchema(patchContent.Schema, generation);
 
             if (patchArraySchema is not null)
             {
@@ -78,9 +78,9 @@ sealed class RequestBodyOverrideApplicator(DocumentOptions docOpts, SharedContex
         content[targetContentType] = targetContent;
     }
 
-    OpenApiSchema? TryGetJsonPatchArraySchema(IOpenApiSchema? schema)
+    OpenApiSchema? TryGetJsonPatchArraySchema(IOpenApiSchema? schema, OpenApiGenerationState generation)
     {
-        var resolved = schema.ResolveSchema(sharedCtx);
+        var resolved = schema.ResolveSchema(generation);
 
         if (resolved is not { Type: JsonSchemaType.Object, Properties.Count: 1 })
             return null;
@@ -89,7 +89,7 @@ sealed class RequestBodyOverrideApplicator(DocumentOptions docOpts, SharedContex
                                      .FirstOrDefault(p => string.Equals(p.Key, "operations", StringComparison.OrdinalIgnoreCase))
                                      .Value;
 
-        return operationsProp.ResolveSchema(sharedCtx) is { Type: JsonSchemaType.Array } arraySchema
+        return operationsProp.ResolveSchema(generation) is { Type: JsonSchemaType.Array } arraySchema
                    ? arraySchema
                    : null;
     }

@@ -76,9 +76,10 @@ public class DocumentPathNormalizerTests
         DocumentPathNormalizer.NormalizeParameterNames(document);
 
         var sharedCtx = new SharedContext();
+        var generation = sharedCtx.For(document);
         var normalizedPath = RouteTemplateHelpers.NormalizePath("/files/{*slug:int}");
         var operationKey = $"GET:{normalizedPath}";
-        sharedCtx.Operations[operationKey] = new()
+        generation.Operations[operationKey] = new()
         {
             OperationKey = normalizedPath,
             DocumentPath = normalizedPath,
@@ -88,7 +89,7 @@ public class DocumentPathNormalizerTests
             DeprecatedAt = 0,
             IsFastEndpoint = true
         };
-        sharedCtx.SecurityRequirements[operationKey] = [("ApiKey", [])];
+        generation.SecurityRequirements[operationKey] = [("ApiKey", [])];
         var opts = new DocumentOptions();
         opts.AddAuth("ApiKey", new() { Type = SecuritySchemeType.ApiKey, Name = "api_key", In = ParameterLocation.Header });
 

@@ -68,7 +68,7 @@ sealed partial class OperationMetadataTransformer(DocumentOptions docOpts, Share
         }
     }
 
-    public void AddIdempotencyHeader(OpenApiOperation operation, EndpointDefinition epDef)
+    public void AddIdempotencyHeader(OpenApiOperation operation, EndpointDefinition epDef, OpenApiGenerationState generation)
     {
         if (epDef.IdempotencyOptions is null)
             return;
@@ -88,7 +88,7 @@ sealed partial class OperationMetadataTransformer(DocumentOptions docOpts, Share
                 Required = true,
                 Description = epDef.IdempotencyOptions.SwaggerHeaderDescription,
                 Schema = epDef.IdempotencyOptions.SwaggerHeaderType is not null
-                             ? epDef.IdempotencyOptions.SwaggerHeaderType.GetSchemaForType(sharedCtx, docOpts.ShortSchemaNames)
+                             ? epDef.IdempotencyOptions.SwaggerHeaderType.GetSchemaForType(sharedCtx, generation, docOpts.ShortSchemaNames)
                              : OperationSchemaHelpers.CreateSchemaFromExampleNode(exampleNode) ?? OperationSchemaHelpers.StringSchema(),
                 Example = exampleNode
             });
@@ -142,7 +142,7 @@ sealed partial class OperationMetadataTransformer(DocumentOptions docOpts, Share
         }
     }
 
-    public void ApplySecurityRequirements(OpenApiOperation operation, EndpointDefinition? epDef, IList<object> metadata, string operationKey)
+    public void ApplySecurityRequirements(OpenApiOperation operation, EndpointDefinition? epDef, IList<object> metadata, string operationKey, OpenApiGenerationState generation)
     {
         var authorizeAttributes = new List<AuthorizeAttribute>();
         var hasAllowAnonymous = false;
@@ -172,7 +172,7 @@ sealed partial class OperationMetadataTransformer(DocumentOptions docOpts, Share
         var securityEntries = BuildSecurityRequirements(epDef, authorizeAttributes);
 
         if (securityEntries.Length > 0)
-            sharedCtx.SecurityRequirements[operationKey] = securityEntries;
+            generation.SecurityRequirements[operationKey] = securityEntries;
     }
 
     (string SchemeName, string[] Scopes)[] BuildSecurityRequirements(EndpointDefinition? epDef, IEnumerable<AuthorizeAttribute> authorizeAttributes)

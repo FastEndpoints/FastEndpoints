@@ -29,6 +29,12 @@ public override void Configure()
 
 ## Fixes 🪲
 
+<details><summary>Overlapping OpenAPI document requests no longer throw or return a truncated spec</summary>
+
+`MapOpenApi()` rebuilds the document on every request and does not serialize generation. Visual Studio and Scalar often hit `/openapi/*.json` at the same time on startup, which made FluentValidation schema mapping and `oneOf` cleanup mutate the same schema objects. That produced `IndexOutOfRangeException` / `Collection was modified` failures, or a document with only some of the paths. Each generation now keeps its own mutation state, so overlapping fetches complete with a full document.
+
+</details>
+
 <details><summary>Singleton validators, mappers, processors and event handlers no longer capture scoped services from the first request</summary>
 
 Validators, mappers, pre/post-processors, event handlers and other types that FastEndpoints caches as singletons were built from the DI scope of whichever request first needed them, unless `Warmup()` was enabled. Scoped constructor dependencies (such as a `DbContext` or a current user service) were therefore captured from that first request and reused by every later request, without triggering DI scope validation. These singletons are now always built from the root service provider, the same as with `Warmup()`. Injecting a scoped service into their constructors now throws when scope validation is enabled (the default in the Development environment), as the docs describe. Resolve scoped services per request with `Resolve<T>()` or a new scope instead.

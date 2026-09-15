@@ -137,6 +137,8 @@ Never enable it in production.
 `Errors` was a lazy `IEnumerable<Error>`. When `AllowDuplicateErrors` was enabled, that sequence got re-enumerated up to three times per error response (once when reading `Errors.Count()`/`Errors.First()` to build `Detail`, again during JSON serialization), rerunning `PropertyNamingPolicy.ConvertName` for every `Error` each time. `Errors` is now always backed by a concrete collection (a materialized array when duplicates are allowed, the existing deduplicating `HashSet` otherwise), so it is only ever enumerated once.
 
 Reading `Errors` is unaffected. Code that assigns `Errors` directly to a lazy `IEnumerable<Error>` (for example a custom `ResponseBuilder` that constructs its own `ProblemDetails`) needs to materialize it first, since the setter no longer accepts a plain `IEnumerable<Error>`.
+</details>
+
 <details><summary><code>Void</code> is now a struct instead of a class</summary>
 
 `Void` (behind `ICommand` and `Task<Void>` send methods) is now a `readonly struct`. Synchronously completing no-result sends and command dispatches no longer allocate a `Task`.

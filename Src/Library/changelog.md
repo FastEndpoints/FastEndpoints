@@ -122,38 +122,8 @@ Never enable it in production.
 
 <details><summary><code>Void</code> is now a struct instead of a class</summary>
 
-`Void`, the marker result type behind `ICommand`, `Task<Void>` endpoint send methods, and similar no-result APIs, is now a zero-field `readonly struct` instead of a `sealed class`. The runtime's `Task<TResult>` completion cache only applies when the result equals `default(TResult)`; a class instance is never bit-identical to `null`, so every synchronously-completing `Task<Void>` allocated a fresh `Task` even though the same singleton `Void.Instance` was returned every time. As a struct with `Instance = default`, the singleton is `default(Void)`, so the existing cache applies and those allocations are gone: 72 bytes saved per synchronously-completing no-result endpoint send or command dispatch, down to 0 (same as a plain `Task`).
+`Void` (behind `ICommand` and `Task<Void>` send methods) is now a `readonly struct`. Synchronously completing no-result sends and command dispatches no longer allocate a `Task`.
 
-This is a binary and source breaking change for any generic constrained `where TResult : class` over `ICommand<TResult>` (or `IServerStreamCommand<TResult>`) that was also meant to cover no-result commands (`ICommand` = `ICommand<Void>`), which now fails to compile/load with `Void` as the type argument:
-
-```csharp
-public interface ICommandLogger<TCommand, TResult> where TCommand : ICommand<TResult> where TResult : class
-{
-    void Log(TCommand command, TResult result);
-}
-
-public class MyCommand : ICommand; // ICommand<Void> under the hood
-
-// no longer compiles: Void does not satisfy 'class' (CS0452)
-public class MyCommandLogger : ICommandLogger<MyCommand, Void>
-{
-    public void Log(MyCommand command, Void result) { }
-}
-```
-
-Drop the `class` constraint, or add a sibling overload constrained on `ICommand` for the no-result case:
-
-```csharp
-public interface ICommandLogger<TCommand, TResult> where TCommand : ICommand<TResult>
-{
-    void Log(TCommand command, TResult result);
-}
-
-// or keep the constraint and add a dedicated overload for no-result commands
-public interface ICommandLogger<TCommand> where TCommand : ICommand
-{
-    void Log(TCommand command);
-}
-```
+This breaks `where TResult : class` over `ICommand<TResult>` (or `IServerStreamCommand<TResult>`) when `TResult` is `Void`. Drop the constraint, or add a sibling API constrained on `ICommand`.
 
 </details>

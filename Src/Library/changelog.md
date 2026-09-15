@@ -125,3 +125,11 @@ appHost.CreateResourceBuilder<ProjectResource>("apiservice")
 Never enable it in production.
 
 </details>
+
+<details><summary><code>Void</code> is now a struct instead of a class</summary>
+
+`Void` (behind `ICommand` and `Task<Void>` send methods) is now a `readonly struct`. Synchronously completing no-result sends and command dispatches no longer allocate a `Task`.
+
+This breaks `where TResult : class` over `ICommand<TResult>` (or `IServerStreamCommand<TResult>`) when `TResult` is `Void`. Drop the constraint, or add a sibling API constrained on `ICommand`.
+
+</details>

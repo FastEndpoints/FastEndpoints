@@ -133,7 +133,7 @@ public sealed class ErrorOptions
                    : Cfg.ErrOpts.ProblemDetailsConf.TypeValue;
 
         static string? TransformDetail(ProblemDetails p)
-            => p.Errors.Count() == 1
+            => p.Errors.Count == 1
                    ? p.Errors.First().Reason
                    : null;
 

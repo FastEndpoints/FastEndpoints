@@ -29,11 +29,11 @@ static class OperationParameterCollection
         operation.Parameters.Add(parameter);
     }
 
-    internal static void UpdateSchema(OpenApiOperation operation, ParameterLocation location, string name, Type type, SharedContext sharedCtx, bool shortSchemaNames)
+    internal static void UpdateSchema(OpenApiOperation operation, ParameterLocation location, string name, Type type, SharedContext sharedCtx, OpenApiGenerationState generation, bool shortSchemaNames)
     {
         var param = Find(operation, location, name);
 
         if (param is not null)
-            param.Schema = type.GetSchemaForType(sharedCtx, shortSchemaNames);
+            param.Schema = type.GetSchemaForType(sharedCtx, generation, shortSchemaNames);
     }
 }

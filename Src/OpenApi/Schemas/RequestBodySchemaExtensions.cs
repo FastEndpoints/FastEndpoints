@@ -9,6 +9,7 @@ static partial class OperationSchemaHelpers
     internal static void RemovePropFromRequestBody(this OpenApiOperation operation,
                                                    PropertyInfo property,
                                                    SharedContext sharedCtx,
+                                                   OpenApiGenerationState generation,
                                                    string operationKey,
                                                    DocumentOptions docOpts,
                                                    JsonNamingPolicy? namingPolicy,
@@ -23,7 +24,7 @@ static partial class OperationSchemaHelpers
 
         foreach (var content in operation.RequestBody.Content.Values)
         {
-            var schema = content.EnsureOperationLocalSchemaForMutation(sharedCtx, operationKey, "requestBody");
+            var schema = content.EnsureOperationLocalSchemaForMutation(sharedCtx, generation, operationKey, "requestBody");
 
             if (schema?.Properties is null)
                 continue;
@@ -61,13 +62,13 @@ static partial class OperationSchemaHelpers
         return GlobalConfig.RouteConstraintMap.GetValueOrDefault(constraintName);
     }
 
-    internal static bool IsRequestBodyEmpty(this OpenApiOperation operation, SharedContext? sharedCtx = null)
+    internal static bool IsRequestBodyEmpty(this OpenApiOperation operation, OpenApiGenerationState? generation = null)
     {
         return operation.RequestBody?.Content is null || operation.RequestBody.Content.Values.All(c => IsContentSchemaEmpty(c.Schema));
 
         bool IsContentSchemaEmpty(IOpenApiSchema? schema)
         {
-            var resolvedSchema = sharedCtx is null ? schema.ResolveSchema() : schema.ResolveSchema(sharedCtx);
+            var resolvedSchema = generation is null ? schema.ResolveSchema() : schema.ResolveSchema(generation);
 
             if (resolvedSchema is not { } s)
                 return true;

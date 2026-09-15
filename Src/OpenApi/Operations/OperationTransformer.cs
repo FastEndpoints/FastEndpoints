@@ -26,6 +26,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
 
         docOpts.Services ??= context.ApplicationServices;
         sharedCtx.ResolveNamingPolicy();
+        var generation = sharedCtx.ForRequired(context.Document);
         // compute the document path for this operation
         var relativePath = context.Description.RelativePath ?? "";
         var documentPath = RouteTemplateHelpers.NormalizePath(relativePath);
@@ -37,8 +38,8 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
             if (docOpts.ExcludeNonFastEndpoints)
                 return Task.CompletedTask;
 
-            RegisterNonFastEndpointOperation(operationKey, documentPath, httpMethod);
-            _metadataTransformer.ApplySecurityRequirements(operation, null, metadata, operationKey);
+            RegisterNonFastEndpointOperation(generation, operationKey, documentPath, httpMethod);
+            _metadataTransformer.ApplySecurityRequirements(operation, null, metadata, operationKey, generation);
 
             return Task.CompletedTask;
         }
@@ -49,7 +50,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
 
         // store version metadata for document transformer
         var bareRoute = BuildBareRoute(documentPath, GlobalConfig.EndpointRoutePrefix, epDef.Version.Current);
-        RegisterFastEndpointOperation(operationKey, httpMethod, documentPath, bareRoute, epDef);
+        RegisterFastEndpointOperation(generation, operationKey, httpMethod, documentPath, bareRoute, epDef);
 
         // operation ID
         var nameMetadata = metadata.OfType<EndpointNameMetadata>().LastOrDefault();
@@ -74,10 +75,10 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
             operation.Deprecated = true;
 
         // handle request parameters
-        var requestTransformState = _requestTransformer.HandleParameters(operation, context, epDef, documentPath, operationKey);
+        var requestTransformState = _requestTransformer.HandleParameters(operation, context, epDef, documentPath, operationKey, generation);
 
         // handle [FromBody]/[FromForm] request body replacement + JSON Patch unwrap
-        var promotedBodyPropertyName = _requestTransformer.ApplyBodyOverrides(operation, epDef, operationKey);
+        var promotedBodyPropertyName = _requestTransformer.ApplyBodyOverrides(operation, epDef, operationKey, generation);
 
         // apply endpoint-scoped validation to request body and DTO-bound parameter schemas after request shape is finalized
         _validationTransformer.ApplyEndpointValidation(
@@ -86,6 +87,7 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
             epDef.ValidatorType,
             operationKey,
             requestTransformState,
+            generation,
             promotedBodyPropertyName?.Name);
 
         // apply parameter descriptions from EndpointSummary.Params and defaults from [DefaultValue]
@@ -93,38 +95,38 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
 
         // add missing responses from IProducesResponseTypeMetadata that ApiExplorer may have skipped
         // (e.g., 400 ErrorResponse with application/problem+json content type)
-        _responseTransformer.AddMissingResponses(operation, metadata);
+        _responseTransformer.AddMissingResponses(operation, metadata, generation);
 
         // handle response descriptions
-        _responseTransformer.ApplyDescriptions(operation, epDef, context, operationKey);
+        _responseTransformer.ApplyDescriptions(operation, epDef, context, operationKey, generation);
 
         // fix binary response formats (MS OpenApi generates "byte" instead of "binary" for raw binary content types)
-        _responseTransformer.FixBinaryFormats(operation, operationKey);
+        _responseTransformer.FixBinaryFormats(operation, operationKey, generation);
 
         // handle response examples from EndpointSummary
         _responseTransformer.ApplyExamples(operation, epDef, metadata);
 
         // handle request body examples from EndpointSummary.RequestExamples
-        _requestTransformer.ApplyExamples(operation, epDef, requestTransformState, promotedBodyPropertyName);
+        _requestTransformer.ApplyExamples(operation, epDef, requestTransformState, promotedBodyPropertyName, generation);
 
         // apply EndpointSummary.Params descriptions to request body schema properties
-        _requestTransformer.ApplyParamDescriptionsToBodySchema(operation, epDef, requestTransformState, promotedBodyPropertyName, operationKey);
+        _requestTransformer.ApplyParamDescriptionsToBodySchema(operation, epDef, requestTransformState, promotedBodyPropertyName, operationKey, generation);
 
         // handle response headers ([ToHeader] on response DTO + EndpointSummary.ResponseHeaders)
-        _responseTransformer.AddHeaders(operation, epDef, metadata);
+        _responseTransformer.AddHeaders(operation, epDef, metadata, generation);
 
         // fix response polymorphism if enabled
         if (docOpts.UseOneOfForPolymorphism)
-            _responseTransformer.FixPolymorphism(operation, operationKey);
+            _responseTransformer.FixPolymorphism(operation, operationKey, generation);
 
         // handle idempotency header
-        _metadataTransformer.AddIdempotencyHeader(operation, epDef);
+        _metadataTransformer.AddIdempotencyHeader(operation, epDef, generation);
 
         // handle x402 headers
         _metadataTransformer.AddX402Headers(operation, epDef);
 
         // handle security requirements
-        _metadataTransformer.ApplySecurityRequirements(operation, epDef, metadata, operationKey);
+        _metadataTransformer.ApplySecurityRequirements(operation, epDef, metadata, operationKey, generation);
 
         // drop duplicate parameters introduced by Asp.Versioning (it adds the version route
         // segment as an extra path parameter alongside the one we derive from the endpoint).
@@ -137,8 +139,8 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
     static string CreateOperationKey(string httpMethod, string documentPath)
         => $"{httpMethod}:{documentPath}";
 
-    void RegisterNonFastEndpointOperation(string operationKey, string documentPath, string httpMethod)
-        => sharedCtx.Operations[operationKey] = new()
+    void RegisterNonFastEndpointOperation(OpenApiGenerationState generation, string operationKey, string documentPath, string httpMethod)
+        => generation.Operations[operationKey] = new()
         {
             OperationKey = operationKey,
             DocumentPath = documentPath,
@@ -149,8 +151,8 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
             IsFastEndpoint = false
         };
 
-    void RegisterFastEndpointOperation(string operationKey, string httpMethod, string documentPath, string bareRoute, EndpointDefinition epDef)
-        => sharedCtx.Operations[operationKey] = new()
+    void RegisterFastEndpointOperation(OpenApiGenerationState generation, string operationKey, string httpMethod, string documentPath, string bareRoute, EndpointDefinition epDef)
+        => generation.Operations[operationKey] = new()
         {
             OperationKey = CreateOperationKey(httpMethod, bareRoute),
             DocumentPath = documentPath,

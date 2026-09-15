@@ -12,6 +12,7 @@ namespace FastEndpoints.OpenApi;
 
 sealed class ChildValidatorResolver(IServiceResolver serviceResolver,
                                     SharedContext sharedCtx,
+                                    OpenApiGenerationState generation,
                                     ILogger<ValidationSchemaTransformer>? logger,
                                     Func<IServiceScope> createScope,
                                     Action<OpenApiSchema, IValidator, string, HashSet<Type>> applyValidator,
@@ -126,6 +127,7 @@ sealed class ChildValidatorResolver(IServiceResolver serviceResolver,
                     childPropSchema,
                     localizeReferencedSchemas,
                     sharedCtx,
+                    generation,
                     operationKey,
                     $"{schemaKey}.{propertyName}",
                     localized => schema.Properties![propertyName] = localized);
@@ -138,6 +140,7 @@ sealed class ChildValidatorResolver(IServiceResolver serviceResolver,
                             childSchema.Items,
                             localizeReferencedSchemas,
                             sharedCtx,
+                            generation,
                             operationKey,
                             $"{schemaKey}.{propertyName}[]",
                             localized => childSchema.Items = localized) is { } itemsSchema)

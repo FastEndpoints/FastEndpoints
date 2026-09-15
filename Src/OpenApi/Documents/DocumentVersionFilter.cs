@@ -40,7 +40,7 @@ sealed class DocumentVersionFilter
         var opsToKeep = new HashSet<(string Path, string Method)>();
         var opsToDeprecate = new HashSet<(string Path, string Method)>();
 
-        foreach (var op in _sharedCtx.Operations.Values)
+        foreach (var op in _sharedCtx.For(document).Operations.Values)
         {
             if (!op.IsFastEndpoint)
             {

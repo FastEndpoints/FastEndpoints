@@ -44,6 +44,7 @@ sealed class ValidationSchemaTransformer(DocumentOptions docOpts, SharedContext 
                                         Type? validatorType,
                                         string operationKey,
                                         RequestTransformState parameterState,
+                                        OpenApiGenerationState generation,
                                         string? propertyPrefix = null)
     {
         if (validatorType is null)
@@ -66,27 +67,27 @@ sealed class ValidationSchemaTransformer(DocumentOptions docOpts, SharedContext 
             return;
 
         if (hasRequestBody)
-            ApplyRequestBodyValidation(operation, cachedRules, operationKey, propertyPrefix);
+            ApplyRequestBodyValidation(operation, cachedRules, operationKey, generation, propertyPrefix);
 
         if (hasParameters)
-            ApplyParameterValidation(parameterState, cachedRules, operationKey);
+            ApplyParameterValidation(parameterState, cachedRules, operationKey, generation);
     }
 
-    void ApplyRequestBodyValidation(OpenApiOperation operation, CachedValidatorRules cachedRules, string operationKey, string? propertyPrefix)
+    void ApplyRequestBodyValidation(OpenApiOperation operation, CachedValidatorRules cachedRules, string operationKey, OpenApiGenerationState generation, string? propertyPrefix)
     {
-        using var schemaApplier = CreateSchemaApplier(operationKey, "requestBody");
+        using var schemaApplier = CreateSchemaApplier(operationKey, "requestBody", generation);
         var formattedPropertyPrefix = FormatPropertyPrefix(propertyPrefix);
 
         foreach (var content in operation.RequestBody!.Content!.Values)
         {
-            var schema = content.EnsureOperationLocalSchemaForMutation(sharedCtx, operationKey, "requestBody");
+            var schema = content.EnsureOperationLocalSchemaForMutation(sharedCtx, generation, operationKey, "requestBody");
 
             if (schema is not null)
                 schemaApplier.ApplyValidatorRules(schema, cachedRules, formattedPropertyPrefix, []);
         }
     }
 
-    void ApplyParameterValidation(RequestTransformState parameterState, CachedValidatorRules cachedRules, string operationKey)
+    void ApplyParameterValidation(RequestTransformState parameterState, CachedValidatorRules cachedRules, string operationKey, OpenApiGenerationState generation)
     {
         var properties = new Dictionary<string, IOpenApiSchema>(parameterState.ParametersBySchemaPath.Count, StringComparer.Ordinal);
         var paramByKey = new Dictionary<string, OpenApiParameter>(parameterState.ParametersBySchemaPath.Count, StringComparer.Ordinal);
@@ -96,7 +97,7 @@ sealed class ValidationSchemaTransformer(DocumentOptions docOpts, SharedContext 
         {
             if (!schemaByParam.TryGetValue(param, out var schema))
             {
-                schema = GetMutableParameterSchema(param, operationKey, schemaPath);
+                schema = GetMutableParameterSchema(param, operationKey, schemaPath, generation);
 
                 if (schema is null)
                     continue;
@@ -117,7 +118,7 @@ sealed class ValidationSchemaTransformer(DocumentOptions docOpts, SharedContext 
             Properties = properties
         };
 
-        using var schemaApplier = CreateSchemaApplier(operationKey, "parameters");
+        using var schemaApplier = CreateSchemaApplier(operationKey, "parameters", generation);
         schemaApplier.ApplyValidatorRules(synthetic, cachedRules, string.Empty, []);
 
         if (synthetic.Required is not { Count: > 0 } required)
@@ -130,9 +131,10 @@ sealed class ValidationSchemaTransformer(DocumentOptions docOpts, SharedContext 
         }
     }
 
-    ValidationSchemaApplier CreateSchemaApplier(string operationKey, string schemaKey)
+    ValidationSchemaApplier CreateSchemaApplier(string operationKey, string schemaKey, OpenApiGenerationState generation)
         => new(
             sharedCtx,
+            generation,
             _serviceResolver!,
             _logger,
             _serviceResolver!.CreateScope,
@@ -142,19 +144,19 @@ sealed class ValidationSchemaTransformer(DocumentOptions docOpts, SharedContext 
             schemaKey,
             localizeReferencedSchemas: true);
 
-    OpenApiSchema? GetMutableParameterSchema(OpenApiParameter param, string operationKey, string schemaPath)
+    OpenApiSchema? GetMutableParameterSchema(OpenApiParameter param, string operationKey, string schemaPath, OpenApiGenerationState generation)
     {
         var schemaKey = $"parameter.{schemaPath}";
 
         if (param.Schema is not null)
-            return param.Schema.EnsureSchemaForMutation(sharedCtx, operationKey, schemaKey, localized => param.Schema = localized, cloneConcreteSchema: true);
+            return param.Schema.EnsureSchemaForMutation(sharedCtx, generation, operationKey, schemaKey, localized => param.Schema = localized, cloneConcreteSchema: true);
 
         if (param.Content is not { Count: > 0 })
             return null;
 
         foreach (var content in param.Content.Values)
         {
-            var schema = content.EnsureOperationLocalSchemaForMutation(sharedCtx, operationKey, schemaKey);
+            var schema = content.EnsureOperationLocalSchemaForMutation(sharedCtx, generation, operationKey, schemaKey);
 
             if (schema is not null)
                 return schema;
@@ -224,6 +226,7 @@ sealed class ValidationSchemaTransformer(DocumentOptions docOpts, SharedContext 
     internal static OpenApiSchema? ResolveForMutation(IOpenApiSchema? schema,
                                                       bool localizeReferencedSchemas,
                                                       SharedContext sharedCtx,
+                                                      OpenApiGenerationState generation,
                                                       string operationKey,
                                                       string schemaKey,
                                                       Action<IOpenApiSchema> replace)
@@ -231,7 +234,7 @@ sealed class ValidationSchemaTransformer(DocumentOptions docOpts, SharedContext 
         if (!localizeReferencedSchemas || schema is not OpenApiSchemaReference)
             return schema.ResolveSchema();
 
-        return schema.EnsureSchemaForMutation(sharedCtx, operationKey, schemaKey, replace);
+        return schema.EnsureSchemaForMutation(sharedCtx, generation, operationKey, schemaKey, replace);
     }
 
     internal static Type GetValidatorTargetType(IValidator validator)

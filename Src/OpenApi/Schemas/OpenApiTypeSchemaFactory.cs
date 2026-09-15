@@ -13,11 +13,11 @@ static partial class OperationSchemaHelpers
         internal IOpenApiSchema GetSchemaForType(bool shortSchemaNames = false)
             => GetSchemaForTypeCore(type, _defaultSchemaNameRegistry, shortSchemaNames);
 
-        internal IOpenApiSchema GetSchemaForType(SharedContext sharedCtx, bool shortSchemaNames = false)
+        internal IOpenApiSchema GetSchemaForType(SharedContext sharedCtx, OpenApiGenerationState generation, bool shortSchemaNames = false)
         {
             var schema = GetSchemaForTypeCore(type, sharedCtx.SchemaNames, shortSchemaNames);
 
-            RegisterMissingSchemaTypes(type, schema, sharedCtx);
+            RegisterMissingSchemaTypes(type, schema, generation);
 
             return schema;
         }
@@ -71,14 +71,14 @@ static partial class OperationSchemaHelpers
         return StringSchema();
     }
 
-    static void RegisterMissingSchemaTypes(Type type, IOpenApiSchema schema, SharedContext sharedCtx)
+    static void RegisterMissingSchemaTypes(Type type, IOpenApiSchema schema, OpenApiGenerationState generation)
     {
         type = Nullable.GetUnderlyingType(type) ?? type;
 
         if (schema is OpenApiSchemaReference schemaRef)
         {
             if (schemaRef.GetReferenceId() is { } refId)
-                sharedCtx.MissingSchemaTypes.TryAdd(refId, type);
+                generation.MissingSchemaTypes.TryAdd(refId, type);
 
             return;
         }
@@ -88,13 +88,13 @@ static partial class OperationSchemaHelpers
 
         if (TryGetDictionaryValueType(type) is { } dictionaryValueType && concreteSchema.AdditionalProperties is { } additionalProperties)
         {
-            RegisterMissingSchemaTypes(dictionaryValueType, additionalProperties, sharedCtx);
+            RegisterMissingSchemaTypes(dictionaryValueType, additionalProperties, generation);
 
             return;
         }
 
         if (type != typeof(string) && type != typeof(byte[]) && TryGetCollectionElementType(type) is { } elementType && concreteSchema.Items is { } items)
-            RegisterMissingSchemaTypes(elementType, items, sharedCtx);
+            RegisterMissingSchemaTypes(elementType, items, generation);
     }
 
     static OpenApiSchema ByteArraySchema()

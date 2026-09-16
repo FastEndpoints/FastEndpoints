@@ -226,6 +226,68 @@ public class EndpointRouteMapperTests : IDisposable
                                            .Any(e => e.RoutePattern.RawText == route);
     }
 
+    [Fact]
+    public async Task AuthorizeAttributes_AreSharedAcrossVerbsAndRoutesOfTheSameEndpoint()
+    {
+        var builder = WebApplication.CreateBuilder();
+        builder.Services.AddFastEndpoints([typeof(MultiVerbRoleRestrictedEp)]);
+        var app = builder.Build();
+
+        try
+        {
+            app.UseFastEndpoints();
+
+            var routes = EndpointsOf<MultiVerbRoleRestrictedEp>(app);
+            routes.Length.ShouldBe(4); //2 routes x 2 verbs
+
+            var authorizeDataPerRoute = routes.Select(r => r.Metadata.OfType<AuthorizeAttribute>().ToArray()).ToArray();
+
+            foreach (var authorizeData in authorizeDataPerRoute)
+            {
+                authorizeData.Length.ShouldBe(1);
+                authorizeData[0].Roles.ShouldBe("Admin");
+            }
+
+            //built once per endpoint definition and reused for every verb/route combo - not recomputed per registration.
+            authorizeDataPerRoute.Select(a => a[0]).Distinct().Count().ShouldBe(1);
+        }
+        finally
+        {
+            await app.DisposeAsync();
+        }
+    }
+
+    [Fact]
+    public async Task AuthorizeAttributes_AreNotAppliedToAnonymousVerbsOfAMixedEndpoint()
+    {
+        var builder = WebApplication.CreateBuilder();
+        builder.Services.AddFastEndpoints([typeof(MixedAnonymousVerbEp)]);
+        var app = builder.Build();
+
+        try
+        {
+            app.UseFastEndpoints();
+
+            var routes = EndpointsOf<MixedAnonymousVerbEp>(app);
+            routes.Length.ShouldBe(2); //GET + POST on the same route
+
+            var getRoute = routes.Single(r => r.Metadata.GetMetadata<IHttpMethodMetadata>()!.HttpMethods.Contains("GET"));
+            var postRoute = routes.Single(r => r.Metadata.GetMetadata<IHttpMethodMetadata>()!.HttpMethods.Contains("POST"));
+
+            getRoute.Metadata.OfType<IAllowAnonymous>().Count().ShouldBe(1);
+            getRoute.Metadata.OfType<AuthorizeAttribute>().ShouldBeEmpty();
+
+            postRoute.Metadata.OfType<IAllowAnonymous>().ShouldBeEmpty();
+            var postAuthData = postRoute.Metadata.OfType<AuthorizeAttribute>().ToArray();
+            postAuthData.Length.ShouldBe(1);
+            postAuthData[0].Roles.ShouldBe("Admin");
+        }
+        finally
+        {
+            await app.DisposeAsync();
+        }
+    }
+
     static RouteEndpoint[] EndpointsOf<TEndpoint>(WebApplication app)
         => ((IEndpointRouteBuilder)app).DataSources
                                        .SelectMany(ds => ds.Endpoints)
@@ -290,6 +352,35 @@ file sealed class ConfiguratorDontVersionEp : EndpointWithoutRequest
     {
         Get("configurator-dont-version-me");
         AllowAnonymous();
+    }
+
+    public override Task HandleAsync(CancellationToken ct)
+        => Task.CompletedTask;
+}
+
+file sealed class MultiVerbRoleRestrictedEp : EndpointWithoutRequest
+{
+    public override void Configure()
+    {
+        Routes("multi-verb-role-restricted/one", "multi-verb-role-restricted/two");
+        Verbs(Http.GET, Http.PUT);
+        Roles("Admin");
+        DontVersion();
+    }
+
+    public override Task HandleAsync(CancellationToken ct)
+        => Task.CompletedTask;
+}
+
+file sealed class MixedAnonymousVerbEp : EndpointWithoutRequest
+{
+    public override void Configure()
+    {
+        Routes("mixed-anonymous-verb");
+        Verbs(Http.GET, Http.POST);
+        Roles("Admin");
+        AllowAnonymous(Http.GET);
+        DontVersion();
     }
 
     public override Task HandleAsync(CancellationToken ct)

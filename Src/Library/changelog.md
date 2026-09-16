@@ -113,6 +113,11 @@ Those rules now apply to DTO-bound operation parameters as well, using the same 
 
 </details>
 
+<details><summary>Route mapping no longer rebuilds authorization metadata once per HTTP verb</summary>
+
+Endpoints with multiple HTTP verbs and/or routes had their `AuthorizeAttribute[]` rebuilt from scratch for every verb of every route, even though the result depends only on endpoint-level settings (roles, policies, schemes) and never varies by verb or route. That metadata is now built once per endpoint definition and reused for every verb/route it's registered under, skipping the work entirely when every verb is anonymous.
+</details>
+  
 <details><summary>Command execution no longer builds a handler-interface <code>Type</code> it doesn't need on the hot path</summary>
 `ExecuteAsync` computed a closed generic handler interface type via `MakeGenericType` on every command and stream-command dispatch, but that type is only read the first time a generic command type is seen, or when a unit test has registered a fake handler. Both call sites now compute it lazily, only when one of those two conditions is actually true, removing an unnecessary reflection call from the common case of executing a registered, non-generic command outside of a test.
 </details>

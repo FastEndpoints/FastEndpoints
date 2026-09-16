@@ -87,6 +87,11 @@ Visible with `Microsoft.OpenApi` 2.11.0 or later.
 
 ## Improvements 🚀
 
+<details><summary>Warmup no longer precompiles the data-annotations validation graph when it's disabled</summary>
+
+`Warmup()` unconditionally walked and precompiled each request DTO's data-annotations validation graph (bindable props + getters), even though that graph is only ever used when `Validation.EnableDataAnnotationsSupport` is turned on. That startup-only work is now skipped when the setting is left at its default (off), which is the common case.
+</details>
+
 <details><summary>SSE <code>StreamItem.Id</code> is now settable after construction</summary>
 
 `StreamItem.Id` was `init`-only, so SSE endpoints that own an incrementing event-id sequence had to pass a counter into helper methods or clone each item just to stamp the id. `Id` can now be assigned after construction:
@@ -109,9 +114,7 @@ Those rules now apply to DTO-bound operation parameters as well, using the same 
 </details>
 
 <details><summary>Command execution no longer builds a handler-interface <code>Type</code> it doesn't need on the hot path</summary>
-
 `ExecuteAsync` computed a closed generic handler interface type via `MakeGenericType` on every command and stream-command dispatch, but that type is only read the first time a generic command type is seen, or when a unit test has registered a fake handler. Both call sites now compute it lazily, only when one of those two conditions is actually true, removing an unnecessary reflection call from the common case of executing a registered, non-generic command outside of a test.
-
 </details>
 
 ## Minor Breaking Changes ⚠️

@@ -227,8 +227,15 @@ public class WarmupTests : IDisposable
         {
             app.UseFastEndpoints(c => c.Endpoints.Warmup());
 
-            // the value-parser cache still picks up an entry for the nested type (unrelated to data-annotations
-            // precompilation), so assert on the fields only PrecompileValidatableType/IsValidatable() touch.
+            // warmup always caches the request DTO (BindableProps / ObjectFactory).
+            // PrecompileValidatableType is the only warmup path that sets IsValidatable;
+            // if it had run, this would be true because of [Required] on Name.
+            Config.BndOpts.ReflectionCache.TryGetValue(typeof(WarmupDisabledDataAnnotationsRequest), out var reqDef)
+                .ShouldBeTrue();
+            reqDef!.IsValidatable.ShouldBeNull();
+
+            // binder may still cache the nested type for value parsers. those fields are
+            // only written by PrecompileValidatableType once the root is validatable.
             if (Config.BndOpts.ReflectionCache.TryGetValue(typeof(DisabledDataAnnotationsNestedDto), out var nestedDef))
             {
                 nestedDef!.IsValidatable.ShouldBeNull();
@@ -598,6 +605,9 @@ file sealed class WarmupNestedEp : Endpoint<WarmupNestedRequest>
 
 file sealed class WarmupDisabledDataAnnotationsRequest
 {
+    [Required]
+    public string? Name { get; set; }
+
     public DisabledDataAnnotationsNestedDto? Nested { get; set; }
 }
 

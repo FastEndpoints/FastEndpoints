@@ -122,6 +122,10 @@ Endpoints with multiple HTTP verbs and/or routes had their `AuthorizeAttribute[]
 `ExecuteAsync` computed a closed generic handler interface type via `MakeGenericType` on every command and stream-command dispatch, but that type is only read the first time a generic command type is seen, or when a unit test has registered a fake handler. Both call sites now compute it lazily, only when one of those two conditions is actually true, removing an unnecessary reflection call from the common case of executing a registered, non-generic command outside of a test.
 </details>
 
+<details><summary>Required-property validation no longer rebuilds a hash set per request</summary>
+`BinderContext.UnboundRequiredProperties` used `Enumerable.Except` to diff the endpoint's required property names against the ones actually bound, which internally builds a fresh `HashSet<string>` from the bound-properties list on every request that declares required properties. The bound-properties collection is now itself a `HashSet<string>` populated as binding happens, so the diff is a plain lookup per required property instead of a rebuild-then-diff. Behavior and the case-insensitive comparison are unchanged.
+</details>
+
 ## Minor Breaking Changes ⚠️
 
 <details><summary>Test url cache route is now opt-in</summary>

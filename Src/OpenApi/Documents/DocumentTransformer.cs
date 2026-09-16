@@ -39,7 +39,7 @@ sealed class DocumentTransformer(DocumentOptions opts, SharedContext sharedCtx) 
         }
         finally
         {
-            sharedCtx.ResetPerDocumentState();
+            sharedCtx.ResetPerDocumentState(document);
         }
     }
 }

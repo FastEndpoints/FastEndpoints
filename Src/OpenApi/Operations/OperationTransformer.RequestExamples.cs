@@ -96,23 +96,23 @@ sealed partial class RequestOperationTransformer
             return result;
         }
 
-        JsonNode? NormalizeExampleNode(JsonNode? example, OpenApiSchema? schema, JsonNode? fallback)
+        JsonNode? NormalizeExampleNode(JsonNode? example, OpenApiSchema? schema, JsonNode? fallback, OpenApiGenerationState generation)
         {
             if (example is null)
-                return AllowsNull(schema) ? null : fallback?.DeepClone() ?? CreateSampleFromSchema(schema);
+                return AllowsNull(schema, generation) ? null : fallback?.DeepClone() ?? CreateSampleFromSchema(schema, generation);
 
             if (schema?.Enum is { Count: > 0 } enumValues && !MatchesEnumValue(example, enumValues))
                 return enumValues[0].DeepClone();
 
             return example switch
             {
-                JsonObject obj => NormalizeObjectExample(obj, schema, fallback as JsonObject),
-                JsonArray arr => NormalizeArrayExample(arr, schema, fallback as JsonArray),
+                JsonObject obj => NormalizeObjectExample(obj, schema, fallback as JsonObject, generation),
+                JsonArray arr => NormalizeArrayExample(arr, schema, fallback as JsonArray, generation),
                 _ => example
             };
         }
 
-        JsonObject NormalizeObjectExample(JsonObject example, OpenApiSchema? schema, JsonObject? fallback)
+        JsonObject NormalizeObjectExample(JsonObject example, OpenApiSchema? schema, JsonObject? fallback, OpenApiGenerationState generation)
         {
             if (schema?.Properties is not { Count: > 0 } properties)
                 return example;
@@ -128,7 +128,7 @@ sealed partial class RequestOperationTransformer
 
             foreach (var key in example.Select(kvp => kvp.Key).ToArray())
             {
-                if (!propertyKeys.TryGetValue(key, out var schemaKey) || properties[schemaKey].ResolveSchema(sharedCtx) is not { } propertySchema)
+                if (!propertyKeys.TryGetValue(key, out var schemaKey) || properties[schemaKey].ResolveSchema(generation) is not { } propertySchema)
                     continue;
 
                 string? fallbackKey = null;
@@ -136,7 +136,7 @@ sealed partial class RequestOperationTransformer
                 var fallbackNode = fallbackKey is not null ? fallback![fallbackKey] : null;
 
                 var currentNode = example[key];
-                var normalizedNode = NormalizeExampleNode(currentNode, propertySchema, fallbackNode);
+                var normalizedNode = NormalizeExampleNode(currentNode, propertySchema, fallbackNode, generation);
 
                 if (!ReferenceEquals(currentNode, normalizedNode))
                     example[key] = normalizedNode;
@@ -145,9 +145,9 @@ sealed partial class RequestOperationTransformer
             return example;
         }
 
-        JsonArray NormalizeArrayExample(JsonArray example, OpenApiSchema? schema, JsonArray? fallback)
+        JsonArray NormalizeArrayExample(JsonArray example, OpenApiSchema? schema, JsonArray? fallback, OpenApiGenerationState generation)
         {
-            var itemSchema = schema?.Items.ResolveSchema(sharedCtx);
+            var itemSchema = schema?.Items.ResolveSchema(generation);
 
             if (itemSchema is null)
                 return example;
@@ -157,7 +157,7 @@ sealed partial class RequestOperationTransformer
             for (var i = 0; i < example.Count; i++)
             {
                 var currentNode = example[i];
-                var normalizedNode = NormalizeExampleNode(currentNode, itemSchema, fallbackNode);
+                var normalizedNode = NormalizeExampleNode(currentNode, itemSchema, fallbackNode, generation);
 
                 if (!ReferenceEquals(currentNode, normalizedNode))
                     example[i] = normalizedNode;
@@ -166,7 +166,7 @@ sealed partial class RequestOperationTransformer
             return example;
         }
 
-        bool AllowsNull(OpenApiSchema? schema)
+        bool AllowsNull(OpenApiSchema? schema, OpenApiGenerationState generation)
         {
             if (schema is null)
                 return true;
@@ -174,10 +174,10 @@ sealed partial class RequestOperationTransformer
             if (schema.Type.HasValue && schema.Type.Value.HasFlag(JsonSchemaType.Null))
                 return true;
 
-            return ContainsNullOption(schema.OneOf) || ContainsNullOption(schema.AnyOf);
+            return ContainsNullOption(schema.OneOf, generation) || ContainsNullOption(schema.AnyOf, generation);
         }
 
-        JsonNode? CreateSampleFromSchema(OpenApiSchema? schema, string? propertyName = null)
+        JsonNode? CreateSampleFromSchema(OpenApiSchema? schema, OpenApiGenerationState generation, string? propertyName = null)
         {
             if (schema is null)
                 return null;
@@ -185,10 +185,10 @@ sealed partial class RequestOperationTransformer
             if (schema.Enum is { Count: > 0 })
                 return schema.Enum[0].DeepClone();
 
-            if (CreateSampleFromFirstNonNullableOption(schema.OneOf, propertyName) is { } oneOfSample)
+            if (CreateSampleFromFirstNonNullableOption(schema.OneOf, generation, propertyName) is { } oneOfSample)
                 return oneOfSample;
 
-            if (CreateSampleFromFirstNonNullableOption(schema.AnyOf, propertyName) is { } anyOfSample)
+            if (CreateSampleFromFirstNonNullableOption(schema.AnyOf, generation, propertyName) is { } anyOfSample)
                 return anyOfSample;
 
             if (schema.Properties is { Count: > 0 })
@@ -197,7 +197,7 @@ sealed partial class RequestOperationTransformer
 
                 foreach (var (key, propertySchema) in schema.Properties)
                 {
-                    var sample = CreateSampleFromSchema(propertySchema.ResolveSchema(sharedCtx), key);
+                    var sample = CreateSampleFromSchema(propertySchema.ResolveSchema(generation), generation, key);
 
                     if (sample is not null)
                         obj[key] = sample;
@@ -206,9 +206,9 @@ sealed partial class RequestOperationTransformer
                 return obj.Count > 0 ? obj : null;
             }
 
-            if (schema.AdditionalProperties.ResolveSchema(sharedCtx) is { } additionalPropertiesSchema)
+            if (schema.AdditionalProperties.ResolveSchema(generation) is { } additionalPropertiesSchema)
             {
-                var sample = CreateSampleFromSchema(additionalPropertiesSchema, "additionalProp1");
+                var sample = CreateSampleFromSchema(additionalPropertiesSchema, generation, "additionalProp1");
 
                 return sample is not null
                            ? new JsonObject { ["additionalProp1"] = sample }
@@ -217,7 +217,7 @@ sealed partial class RequestOperationTransformer
 
             if (schema.Type?.HasFlag(JsonSchemaType.Array) == true)
             {
-                var itemSample = CreateSampleFromSchema(schema.Items.ResolveSchema(sharedCtx), propertyName);
+                var itemSample = CreateSampleFromSchema(schema.Items.ResolveSchema(generation), generation, propertyName);
 
                 return itemSample is not null ? new JsonArray(itemSample) : new JsonArray();
             }
@@ -245,20 +245,20 @@ sealed partial class RequestOperationTransformer
             return false;
         }
 
-        bool ContainsNullOption(IList<IOpenApiSchema>? schemas)
-            => schemas?.Any(s => AllowsNull(s.ResolveSchema(sharedCtx))) == true;
+        bool ContainsNullOption(IList<IOpenApiSchema>? schemas, OpenApiGenerationState generation)
+            => schemas?.Any(s => AllowsNull(s.ResolveSchema(generation), generation)) == true;
 
-        JsonNode? CreateSampleFromFirstNonNullableOption(IList<IOpenApiSchema>? schemas, string? propertyName)
+        JsonNode? CreateSampleFromFirstNonNullableOption(IList<IOpenApiSchema>? schemas, OpenApiGenerationState generation, string? propertyName)
         {
             if (schemas is not { Count: > 0 })
                 return null;
 
             foreach (var option in schemas)
             {
-                var resolved = option.ResolveSchema(sharedCtx);
+                var resolved = option.ResolveSchema(generation);
 
-                if (resolved is not null && !AllowsNull(resolved))
-                    return CreateSampleFromSchema(resolved, propertyName);
+                if (resolved is not null && !AllowsNull(resolved, generation))
+                    return CreateSampleFromSchema(resolved, generation, propertyName);
             }
 
             return null;

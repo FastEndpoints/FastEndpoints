@@ -37,32 +37,34 @@ namespace OpenApi
         public void shared_context_registers_colliding_short_schema_names_with_distinct_schema_refs()
         {
             var sharedCtx = new SharedContext();
+            var generation = sharedCtx.For(new OpenApiDocument());
 
-            var alphaSchemaRef = typeof(CollisionAlpha.Thing).GetSchemaForType(sharedCtx, shortSchemaNames: true)
+            var alphaSchemaRef = typeof(CollisionAlpha.Thing).GetSchemaForType(sharedCtx, generation, shortSchemaNames: true)
                                                             .ShouldBeOfType<OpenApiSchemaReference>();
-            var betaSchemaRef = typeof(CollisionBeta.Thing).GetSchemaForType(sharedCtx, shortSchemaNames: true)
+            var betaSchemaRef = typeof(CollisionBeta.Thing).GetSchemaForType(sharedCtx, generation, shortSchemaNames: true)
                                                           .ShouldBeOfType<OpenApiSchemaReference>();
 
             GetReferenceId(alphaSchemaRef).ShouldBe("Thing");
             GetReferenceId(betaSchemaRef).ShouldBe("Thing2");
-            sharedCtx.MissingSchemaTypes["Thing"].ShouldBe(typeof(CollisionAlpha.Thing));
-            sharedCtx.MissingSchemaTypes["Thing2"].ShouldBe(typeof(CollisionBeta.Thing));
+            generation.MissingSchemaTypes["Thing"].ShouldBe(typeof(CollisionAlpha.Thing));
+            generation.MissingSchemaTypes["Thing2"].ShouldBe(typeof(CollisionBeta.Thing));
         }
 
         [Fact]
         public void shared_context_registers_nullable_colliding_short_schema_names_as_underlying_types()
         {
             var sharedCtx = new SharedContext();
+            var generation = sharedCtx.For(new OpenApiDocument());
 
-            var alphaSchemaRef = typeof(NullableCollisionAlpha.Thing?).GetSchemaForType(sharedCtx, shortSchemaNames: true)
+            var alphaSchemaRef = typeof(NullableCollisionAlpha.Thing?).GetSchemaForType(sharedCtx, generation, shortSchemaNames: true)
                                                                      .ShouldBeOfType<OpenApiSchemaReference>();
-            var betaSchemaRef = typeof(NullableCollisionBeta.Thing?).GetSchemaForType(sharedCtx, shortSchemaNames: true)
+            var betaSchemaRef = typeof(NullableCollisionBeta.Thing?).GetSchemaForType(sharedCtx, generation, shortSchemaNames: true)
                                                                     .ShouldBeOfType<OpenApiSchemaReference>();
 
             GetReferenceId(alphaSchemaRef).ShouldBe("Thing");
             GetReferenceId(betaSchemaRef).ShouldBe("Thing2");
-            sharedCtx.MissingSchemaTypes["Thing"].ShouldBe(typeof(NullableCollisionAlpha.Thing));
-            sharedCtx.MissingSchemaTypes["Thing2"].ShouldBe(typeof(NullableCollisionBeta.Thing));
+            generation.MissingSchemaTypes["Thing"].ShouldBe(typeof(NullableCollisionAlpha.Thing));
+            generation.MissingSchemaTypes["Thing2"].ShouldBe(typeof(NullableCollisionBeta.Thing));
         }
 
         static string? GetReferenceId(OpenApiSchemaReference schemaRef)

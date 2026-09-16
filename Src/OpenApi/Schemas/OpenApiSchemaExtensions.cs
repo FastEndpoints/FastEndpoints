@@ -46,12 +46,15 @@ static partial class OperationSchemaHelpers
             return null;
         }
 
-        internal OpenApiSchema? ResolveSchema(SharedContext sharedCtx)
+        internal OpenApiSchema? ResolveSchema(OpenApiGenerationState generation)
             => schema switch
             {
-                OpenApiSchemaReference schemaRef when schemaRef.GetReferenceId() is { } refId && sharedCtx.TryGetOperationSchemaVariant(refId, out var variant) => variant,
+                OpenApiSchemaReference schemaRef when schemaRef.GetReferenceId() is { } refId && generation.TryGetOperationSchemaVariant(refId, out var variant) => variant,
                 _ => schema.ResolveSchema()
             };
+
+        internal OpenApiSchema? ResolveSchema(SharedContext sharedCtx, OpenApiDocument document)
+            => schema.ResolveSchema(sharedCtx.For(document));
 
         internal IOpenApiSchema? ResolveSchemaOrReference()
             => schema switch
@@ -61,10 +64,10 @@ static partial class OperationSchemaHelpers
                 _ => null
             };
 
-        internal IOpenApiSchema? ResolveSchemaOrReference(SharedContext sharedCtx)
+        internal IOpenApiSchema? ResolveSchemaOrReference(OpenApiGenerationState generation)
             => schema switch
             {
-                OpenApiSchemaReference schemaRef when schemaRef.GetReferenceId() is { } refId && sharedCtx.TryGetOperationSchemaVariant(refId, out var variant) => variant,
+                OpenApiSchemaReference schemaRef when schemaRef.GetReferenceId() is { } refId && generation.TryGetOperationSchemaVariant(refId, out var variant) => variant,
                 _ => schema.ResolveSchemaOrReference()
             };
 
@@ -92,9 +95,10 @@ static partial class OperationSchemaHelpers
         internal OpenApiSchema? EnsureOperationLocalSchemaForMutation()
             => mediaType.EnsureOperationLocalSchema();
 
-        internal OpenApiSchema? EnsureOperationLocalSchemaForMutation(SharedContext sharedCtx, string operationKey, string schemaKey)
+        internal OpenApiSchema? EnsureOperationLocalSchemaForMutation(SharedContext sharedCtx, OpenApiGenerationState generation, string operationKey, string schemaKey)
             => mediaType.Schema.EnsureSchemaForMutation(
                 sharedCtx,
+                generation,
                 operationKey,
                 schemaKey,
                 localized => mediaType.Schema = localized,
@@ -116,12 +120,14 @@ static partial class OperationSchemaHelpers
                                                         bool cloneConcreteSchema = false)
             => schema.EnsureSchemaForMutation(
                 mutationCtx.SharedContext,
+                mutationCtx.Generation,
                 mutationCtx.OperationKey,
                 schemaKey,
                 replace,
                 cloneConcreteSchema);
 
         internal OpenApiSchema? EnsureSchemaForMutation(SharedContext sharedCtx,
+                                                        OpenApiGenerationState generation,
                                                         string operationKey,
                                                         string schemaKey,
                                                         Action<IOpenApiSchema> replace,
@@ -131,7 +137,7 @@ static partial class OperationSchemaHelpers
             {
                 case OpenApiSchemaReference schemaRef when schemaRef.GetReferenceId() is { } refId:
                 {
-                    if (sharedCtx.TryGetOperationSchemaVariant(refId, out var existingVariant))
+                    if (generation.TryGetOperationSchemaVariant(refId, out var existingVariant))
                         return existingVariant;
 
                     var cloned = schemaRef.CloneAsConcreteSchema();
@@ -139,7 +145,7 @@ static partial class OperationSchemaHelpers
                     if (cloned is null)
                         return null;
 
-                    var variant = sharedCtx.GetOrAddOperationSchemaVariant(refId, operationKey, schemaKey, cloned);
+                    var variant = generation.GetOrAddOperationSchemaVariant(refId, operationKey, schemaKey, cloned);
                     replace(new OpenApiSchemaReference(variant.RefId));
 
                     return variant.Schema;
@@ -340,7 +346,7 @@ static partial class OperationSchemaHelpers
     }
 }
 
-readonly record struct OperationSchemaMutationContext(SharedContext SharedContext, string OperationKey);
+readonly record struct OperationSchemaMutationContext(SharedContext SharedContext, OpenApiGenerationState Generation, string OperationKey);
 
 static class OpenApiSchemaReferenceExtensions
 {

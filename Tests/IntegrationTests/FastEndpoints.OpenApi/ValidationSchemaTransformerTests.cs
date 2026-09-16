@@ -331,6 +331,7 @@ public class ValidationSchemaTransformerTests : DefaultPropertyNameResolverTestB
             args:
             [
                 new SharedContext(),
+                new SharedContext().For(new OpenApiDocument()),
                 resolver,
                 null,
                 (Func<IServiceScope>)(() => resolver.CreateScope()),

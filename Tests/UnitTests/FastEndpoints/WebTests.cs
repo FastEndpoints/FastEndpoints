@@ -441,4 +441,40 @@ public class WebTests
         res.Errors = new HashSet<ProblemDetails.Error>(res.Errors);
         res.ShouldBeEquivalentTo(problemDetails);
     }
+
+[Fact]
+    public async Task problem_details_duplicate_errors_are_materialized_once()
+    {
+        var conf = Config.ErrOpts.ProblemDetailsConf;
+        var previous = conf.AllowDuplicateErrors;
+
+        try
+        {
+            conf.AllowDuplicateErrors = true;
+
+            var problemDetails = new ProblemDetails(
+                new List<ValidationFailure>
+                {
+                    new("name", "first"),
+                    new("name", "second")
+                },
+                "instance",
+                "trace",
+                400);
+
+            problemDetails.Errors.Count.ShouldBe(2);
+            problemDetails.Errors.Select(e => e.Name).ShouldBe(["name", "name"]);
+            problemDetails.Errors.Select(e => e.Reason).ShouldBe(["first", "second"]);
+            problemDetails.Detail.ShouldBeNull();
+
+            var firstPass = problemDetails.Errors.ToArray();
+            var secondPass = problemDetails.Errors.ToArray();
+            firstPass[0].ShouldBeSameAs(secondPass[0]);
+            firstPass[1].ShouldBeSameAs(secondPass[1]);
+        }
+        finally
+        {
+            conf.AllowDuplicateErrors = previous;
+        }
+    }
 }

@@ -25,10 +25,7 @@ public partial class JobQueueTests
         await QueueJobsAsync(slow, fast, third);
         await RefillTestCommandHandler.FastStarted.WaitAsync(TimeSpan.FromSeconds(5));
 
-        var thirdStartedBeforeSlowFinished = await Task.WhenAny(
-                                                 RefillTestCommandHandler.ThirdStarted,
-                                                 Task.Delay(TimeSpan.FromSeconds(1))) ==
-                                             RefillTestCommandHandler.ThirdStarted;
+        var thirdStartedBeforeSlowFinished = await CompletesWithin(RefillTestCommandHandler.ThirdStarted, TimeSpan.FromSeconds(1));
 
         thirdStartedBeforeSlowFinished.ShouldBeTrue();
         storage.MaxActiveExecutions.ShouldBe(2);
@@ -113,10 +110,7 @@ public partial class JobQueueTests
         await DistributedRefillCommandHandler.FastStarted.WaitAsync(TimeSpan.FromSeconds(5));
         await DistributedRefillCommandHandler.ThirdStarted.WaitAsync(TimeSpan.FromSeconds(5));
 
-        var fourthStartedEarly = await Task.WhenAny(
-                                     DistributedRefillCommandHandler.FourthStarted,
-                                     Task.Delay(TimeSpan.FromMilliseconds(300))) ==
-                                 DistributedRefillCommandHandler.FourthStarted;
+        var fourthStartedEarly = await CompletesWithin(DistributedRefillCommandHandler.FourthStarted, TimeSpan.FromMilliseconds(300));
 
         fourthStartedEarly.ShouldBeFalse();
         storage.GetRequestedLimitsSnapshot().ShouldContain(1);

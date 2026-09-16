@@ -40,10 +40,7 @@ public partial class EventQueueTests
 
         await TestEventExecutorHandler.FastStarted.Task.WaitAsync(TimeSpan.FromSeconds(5));
 
-        var thirdStartedBeforeSlowFinished = await Task.WhenAny(
-                                                 TestEventExecutorHandler.ThirdStarted.Task,
-                                                 Task.Delay(TimeSpan.FromSeconds(1), cts.Token)) ==
-                                             TestEventExecutorHandler.ThirdStarted.Task;
+        var thirdStartedBeforeSlowFinished = await CompletesWithin(TestEventExecutorHandler.ThirdStarted.Task, TimeSpan.FromSeconds(1), cts.Token);
 
         thirdStartedBeforeSlowFinished.ShouldBeTrue();
         storage.MaxConcurrentExecutions.ShouldBe(2);

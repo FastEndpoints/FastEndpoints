@@ -2,9 +2,30 @@
 
 /// <summary>
 /// </summary>
-public sealed class Void
+public readonly struct Void : IEquatable<Void>
 {
-    internal static readonly Void Instance = new();
+    internal static readonly Void Instance = default;
+
+    /// <inheritdoc />
+    public bool Equals(Void other) => true;
+
+    /// <inheritdoc />
+    public override bool Equals(object? obj) => obj is Void;
+
+    /// <inheritdoc />
+    public override int GetHashCode() => 0;
+
+    /// <inheritdoc />
+    public static bool operator ==(Void left, Void right)
+    {
+        return left.Equals(right);
+    }
+
+    /// <inheritdoc />
+    public static bool operator !=(Void left, Void right)
+    {
+        return !(left == right);
+    }
 }
 
 /// <summary>

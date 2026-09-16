@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Text.Json;
 using Microsoft.OpenApi;
@@ -6,7 +7,10 @@ using Microsoft.OpenApi;
 namespace FastEndpoints.OpenApi;
 
 /// <summary>
-/// shared state between operation and document transformers for a single document
+/// shared state between operation and document transformers for a single OpenAPI document registration.
+/// serializer options and schema names are process-wide. mutation bags are keyed by the
+/// <see cref="OpenApiDocument"/> instance because MapOpenApi rebuilds the document on every request
+/// with no lock, and overlapping fetches must not share schema objects.
 /// </summary>
 internal class SharedContext
 {
@@ -21,6 +25,23 @@ internal class SharedContext
 
     internal SchemaNameRegistry SchemaNames { get; } = new();
 
+    readonly ConditionalWeakTable<OpenApiDocument, OpenApiGenerationState> _generations = new();
+
+    internal OpenApiGenerationState For(OpenApiDocument document)
+        => _generations.GetValue(document, static _ => new());
+
+    internal OpenApiGenerationState ForRequired(OpenApiDocument? document)
+        => For(document ?? throw new InvalidOperationException("OpenAPI transformer context is missing the document instance."));
+
+    internal void ResetPerDocumentState(OpenApiDocument document)
+    {
+        if (_generations.TryGetValue(document, out var state))
+            state.Clear();
+    }
+}
+
+sealed class OpenApiGenerationState
+{
     /// <summary>
     /// key: "METHOD:/path", value: metadata about the operation
     /// </summary>
@@ -49,7 +70,7 @@ internal class SharedContext
     internal IEnumerable<KeyValuePair<OperationSchemaVariantKey, OperationSchemaVariant>> EnumerateOperationSchemaVariants()
         => _operationSchemaVariantKeys;
 
-    internal void ResetPerDocumentState()
+    internal void Clear()
     {
         Operations.Clear();
         SecurityRequirements.Clear();

@@ -31,10 +31,12 @@ static class DocumentSchemaHelpers
 
     internal static void RemovePromotedRequestWrapperSchemas(this OpenApiDocument document, SharedContext sharedCtx, HashSet<string> referencedSchemas)
     {
-        if (sharedCtx.PromotedRequestWrapperSchemaRefs.IsEmpty || document.Components?.Schemas is not { Count: > 0 } schemas)
+        var promotedRefs = sharedCtx.For(document).PromotedRequestWrapperSchemaRefs;
+
+        if (promotedRefs.IsEmpty || document.Components?.Schemas is not { Count: > 0 } schemas)
             return;
 
-        foreach (var refId in sharedCtx.PromotedRequestWrapperSchemaRefs.Keys)
+        foreach (var refId in promotedRefs.Keys)
         {
             if (!referencedSchemas.Contains(refId))
                 schemas.Remove(refId);
@@ -60,12 +62,14 @@ static class DocumentSchemaHelpers
 
     internal static async Task AddMissingSchemas(this OpenApiDocument document, SharedContext sharedCtx, OpenApiDocumentTransformerContext context, CancellationToken ct)
     {
-        if (sharedCtx.MissingSchemaTypes.IsEmpty)
+        var missingSchemaTypes = sharedCtx.For(document).MissingSchemaTypes;
+
+        if (missingSchemaTypes.IsEmpty)
             return;
 
         var schemas = document.EnsureComponentSchemas();
 
-        foreach (var (refId, type) in sharedCtx.MissingSchemaTypes)
+        foreach (var (refId, type) in missingSchemaTypes)
         {
             if (schemas.ContainsKey(refId))
                 continue;
@@ -110,12 +114,14 @@ static class DocumentSchemaHelpers
 
     internal static void AddOperationSchemaVariants(this OpenApiDocument document, SharedContext sharedCtx)
     {
-        if (sharedCtx.OperationSchemaVariants.IsEmpty)
+        var variants = sharedCtx.For(document).OperationSchemaVariants;
+
+        if (variants.IsEmpty)
             return;
 
         var schemas = document.EnsureComponentSchemas();
 
-        foreach (var (refId, schema) in sharedCtx.OperationSchemaVariants)
+        foreach (var (refId, schema) in variants)
             schemas.TryAdd(refId, schema);
     }
 
@@ -129,10 +135,12 @@ static class DocumentSchemaHelpers
 
     internal static void DeduplicateOperationSchemaVariants(this OpenApiDocument document, SharedContext sharedCtx)
     {
-        if (sharedCtx.OperationSchemaVariants.IsEmpty || document.Components?.Schemas is not { Count: > 0 } schemas)
+        var variants = sharedCtx.For(document).OperationSchemaVariants;
+
+        if (variants.IsEmpty || document.Components?.Schemas is not { Count: > 0 } schemas)
             return;
 
-        var variantIds = sharedCtx.OperationSchemaVariants.Keys
+        var variantIds = variants.Keys
                                   .Where(schemas.ContainsKey)
                                   .ToHashSet(StringComparer.Ordinal);
 
@@ -189,10 +197,12 @@ static class DocumentSchemaHelpers
 
     internal static void CollapseExclusiveOperationSchemaVariants(this OpenApiDocument document, SharedContext sharedCtx)
     {
-        if (sharedCtx.OperationSchemaVariants.IsEmpty || document.Components?.Schemas is not { Count: > 0 } schemas)
+        var generation = sharedCtx.For(document);
+
+        if (generation.OperationSchemaVariants.IsEmpty || document.Components?.Schemas is not { Count: > 0 } schemas)
             return;
 
-        var variantGroups = sharedCtx.EnumerateOperationSchemaVariants()
+        var variantGroups = generation.EnumerateOperationSchemaVariants()
                                    .GroupBy(static kvp => kvp.Key.SourceRefId, StringComparer.Ordinal)
                                    .Select(g => new
                                    {

@@ -200,7 +200,7 @@ public class DocumentVersionFilterTests
             pathItem.Operations![openApiMethod] = new OpenApiOperation { OperationId = op.DocumentPath };
 
             var dictionaryKey = $"{op.HttpMethod}:{op.DocumentPath}";
-            sharedCtx.Operations[dictionaryKey] = new OperationMeta
+            sharedCtx.For(document).Operations[dictionaryKey] = new OperationMeta
             {
                 OperationKey = $"{op.HttpMethod}:{op.BareRoute}",
                 DocumentPath = op.DocumentPath,

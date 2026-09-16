@@ -12,11 +12,12 @@ sealed class OperationParameterFactory(DocumentOptions docOpts, SharedContext sh
     internal OpenApiParameter Create(string name,
                                      ParameterLocation location,
                                      PropertyInfo? prop,
+                                     OpenApiGenerationState generation,
                                      bool? isRequired = null,
                                      bool shortSchemaNames = false,
                                      Type? explicitType = null)
     {
-        var schemaInfo = CreateSchemaInfo(prop, explicitType, isRequired, shortSchemaNames);
+        var schemaInfo = CreateSchemaInfo(prop, explicitType, isRequired, shortSchemaNames, generation);
 
         var param = new OpenApiParameter
         {
@@ -41,10 +42,10 @@ sealed class OperationParameterFactory(DocumentOptions docOpts, SharedContext sh
         return param;
     }
 
-    ParameterSchemaInfo CreateSchemaInfo(PropertyInfo? prop, Type? explicitType, bool? isRequired, bool shortSchemaNames)
+    ParameterSchemaInfo CreateSchemaInfo(PropertyInfo? prop, Type? explicitType, bool? isRequired, bool shortSchemaNames, OpenApiGenerationState generation)
     {
         var propType = GetParameterType(prop, explicitType);
-        var schema = propType.GetSchemaForType(sharedCtx, shortSchemaNames);
+        var schema = propType.GetSchemaForType(sharedCtx, generation, shortSchemaNames);
 
         if (schema is OpenApiSchema concreteSchema)
             OperationSchemaHelpers.ApplyUniqueItems(concreteSchema, propType, prop);

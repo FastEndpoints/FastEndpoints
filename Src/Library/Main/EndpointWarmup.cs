@@ -11,7 +11,8 @@ static class EndpointWarmup
         if (!def.ReqDtoType.IsValueType) // native aot cannot instantiate value type generic binders
             _ = sp.GetService(Types.IRequestBinderOf1.MakeGenericType(def.ReqDtoType));
 
-        PrecompileValidatableType(def.ReqDtoType, []);
+        if (Cfg.ValOpts.EnableDataAnnotationsSupport)
+            PrecompileValidatableType(def.ReqDtoType, []);
         PrecompileComplexBindGraph(def.ReqDtoType);
 
         _ = def.ExecuteAsyncReturnsIResult;

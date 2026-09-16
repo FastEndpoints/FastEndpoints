@@ -58,7 +58,8 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
                                                   OpenApiOperationTransformerContext context,
                                                   EndpointDefinition epDef,
                                                   string documentPath,
-                                                  string operationKey)
+                                                  string operationKey,
+                                                  OpenApiGenerationState generation)
     {
         var state = new RequestTransformState();
         var endpointRouteTemplate = FindEndpointRouteTemplate(epDef, documentPath);
@@ -81,12 +82,12 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
 
             if (requestDtoProps is not null)
             {
-                RemoveHiddenProperties(operation, requestDtoProps, state, operationKey);
-                AddBoundParameters(operation, requestDtoProps, routeParameterLookup, useQueryParamsForBodylessRequest, state, operationKey);
+                RemoveHiddenProperties(operation, requestDtoProps, state, operationKey, generation);
+                AddBoundParameters(operation, requestDtoProps, routeParameterLookup, useQueryParamsForBodylessRequest, state, operationKey, generation);
             }
 
             // remove request body if GET (unless explicitly enabled), HEAD, or empty
-            if (useQueryParamsForBodylessRequest || operation.IsRequestBodyEmpty(sharedCtx))
+            if (useQueryParamsForBodylessRequest || operation.IsRequestBodyEmpty(generation))
             {
                 if (!requestDtoIsList)
                     operation.RequestBody = null;
@@ -96,18 +97,18 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
                 requestBody.Required = false;
         }
 
-        _routeParameterApplicator.EnsureRouteParameters(operation, routeParameters);
+        _routeParameterApplicator.EnsureRouteParameters(operation, routeParameters, generation);
 
         return state;
     }
 
-    public PromotedBodyProperty? ApplyBodyOverrides(OpenApiOperation operation, EndpointDefinition epDef, string operationKey)
-        => _requestBodyOverrideApplicator.Apply(operation, epDef, operationKey);
+    public PromotedBodyProperty? ApplyBodyOverrides(OpenApiOperation operation, EndpointDefinition epDef, string operationKey, OpenApiGenerationState generation)
+        => _requestBodyOverrideApplicator.Apply(operation, epDef, operationKey, generation);
 
     public void ApplyParameterMetadata(OpenApiOperation operation, EndpointDefinition epDef)
         => _requestParameterMetadataApplicator.Apply(operation, epDef);
 
-    public void ApplyExamples(OpenApiOperation operation, EndpointDefinition epDef, RequestTransformState state, PromotedBodyProperty? promotedBodyProperty)
+    public void ApplyExamples(OpenApiOperation operation, EndpointDefinition epDef, RequestTransformState state, PromotedBodyProperty? promotedBodyProperty, OpenApiGenerationState generation)
     {
         if (epDef.EndpointSummary?.RequestExamples.Count is not > 0)
             return;
@@ -124,14 +125,15 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
 
         foreach (var content in operation.RequestBody.Content.Values)
         {
-            var schema = content.Schema.ResolveSchema(sharedCtx);
+            var schema = content.Schema.ResolveSchema(generation);
 
             if (exampleNodes.Count == 1)
             {
                 content.Example = NormalizeExampleNode(
                     exampleNodes[0].Node?.DeepClone(),
                     schema,
-                    fallbackExample);
+                    fallbackExample,
+                    generation);
                 content.Examples?.Clear();
             }
             else
@@ -148,7 +150,8 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
                         Value = NormalizeExampleNode(
                             exampleNode?.DeepClone(),
                             schema,
-                            fallbackExample)
+                            fallbackExample,
+                            generation)
                     };
                 }
             }
@@ -159,7 +162,8 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
                                                    EndpointDefinition epDef,
                                                    RequestTransformState state,
                                                    PromotedBodyProperty? promotedBodyProperty,
-                                                   string operationKey)
+                                                   string operationKey,
+                                                   OpenApiGenerationState generation)
     {
         if (operation.RequestBody?.Content is null)
             return;
@@ -179,7 +183,7 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
                                      ? null
                                      : BuildRequestExampleNode(exampleObj, state.PropsRemovedFromBody, promotedBodyProperty);
         JsonNode? fallbackExample = null;
-        var mutationCtx = new OperationSchemaMutationContext(sharedCtx, operationKey);
+        var mutationCtx = new OperationSchemaMutationContext(sharedCtx, generation, operationKey);
 
         if (exampleObj is not null and not IEnumerable && requestExampleNode is JsonObject obj)
         {
@@ -194,7 +198,7 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
 
         foreach (var content in operation.RequestBody.Content.Values)
         {
-            var schema = content.Schema.ResolveSchema(sharedCtx);
+            var schema = content.Schema.ResolveSchema(generation);
 
             if (schema is null)
                 continue;
@@ -213,7 +217,7 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
             if (requestExampleNode is not null)
             {
                 fallbackExample ??= GetRequestExampleFallback(epDef, state, promotedBodyProperty);
-                schema.Example = NormalizeExampleNode(requestExampleNode.DeepClone(), schema, fallbackExample);
+                schema.Example = NormalizeExampleNode(requestExampleNode.DeepClone(), schema, fallbackExample, generation);
             }
 
             if (schema.Properties is null)
@@ -287,7 +291,7 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
         }
     }
 
-    void RemoveHiddenProperties(OpenApiOperation operation, List<PropertyInfo> requestDtoProps, RequestTransformState state, string operationKey)
+    void RemoveHiddenProperties(OpenApiOperation operation, List<PropertyInfo> requestDtoProps, RequestTransformState state, string operationKey, OpenApiGenerationState generation)
     {
         for (var i = requestDtoProps.Count - 1; i >= 0; i--)
         {
@@ -301,7 +305,7 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
                 continue;
 
             requestDtoProps.RemoveAt(i);
-            operation.RemovePropFromRequestBody(p, sharedCtx, operationKey, docOpts, NamingPolicy, state.PropsRemovedFromBody);
+            operation.RemovePropFromRequestBody(p, sharedCtx, generation, operationKey, docOpts, NamingPolicy, state.PropsRemovedFromBody);
         }
     }
 
@@ -310,24 +314,25 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
                             Dictionary<string, RouteParameterInfo> routeParameters,
                             bool useQueryParamsForBodylessRequest,
                             RequestTransformState state,
-                            string operationKey)
+                            string operationKey,
+                            OpenApiGenerationState generation)
     {
         for (var i = 0; i < requestDtoProps.Count; i++)
         {
             var p = requestDtoProps[i];
             var metadata = GetPropertyMetadata(p);
 
-            AddAttributeParameters(operation, p, metadata, state, operationKey);
-            var boundToRoute = _routeParameterApplicator.AddBoundRouteParameter(operation, p, routeParameters, state, operationKey);
+            AddAttributeParameters(operation, p, metadata, state, operationKey, generation);
+            var boundToRoute = _routeParameterApplicator.AddBoundRouteParameter(operation, p, routeParameters, state, operationKey, generation);
 
             var queryParamName = _parameterNameResolver.GetQueryName(p);
 
             if (ShouldAddQueryParam(p, metadata, operation, queryParamName, useQueryParamsForBodylessRequest) &&
                 (!boundToRoute || IsSupplementaryQuerySource(metadata)))
             {
-                operation.RemovePropFromRequestBody(p, sharedCtx, operationKey, docOpts, NamingPolicy, state.PropsRemovedFromBody);
+                operation.RemovePropFromRequestBody(p, sharedCtx, generation, operationKey, docOpts, NamingPolicy, state.PropsRemovedFromBody);
 
-                if (_complexQueryParameterExpander.TryAdd(operation, p, docOpts.ShortSchemaNames))
+                if (_complexQueryParameterExpander.TryAdd(operation, p, docOpts.ShortSchemaNames, generation))
                     continue;
 
                 state.RegisterBoundParameter(
@@ -337,6 +342,7 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
                         queryParamName,
                         ParameterLocation.Query,
                         p,
+                        generation,
                         GetDontBindRequiredness(p),
                         docOpts.ShortSchemaNames),
                     NamingPolicy,
@@ -363,7 +369,8 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
                                 PropertyInfo p,
                                 PropertyMetadata metadata,
                                 RequestTransformState state,
-                                string operationKey)
+                                string operationKey,
+                                OpenApiGenerationState generation)
     {
         if (metadata.FromHeader is { } hAttrib)
         {
@@ -371,44 +378,45 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
 
             if (IsIllegalHeaderName(pName))
             {
-                operation.RemovePropFromRequestBody(p, sharedCtx, operationKey, docOpts, NamingPolicy, state.PropsRemovedFromBody);
+                operation.RemovePropFromRequestBody(p, sharedCtx, generation, operationKey, docOpts, NamingPolicy, state.PropsRemovedFromBody);
 
                 return;
             }
 
             var headerParam = OperationParameterCollection.Find(operation, ParameterLocation.Header, pName) ??
-                              AddParameter(operation, pName, ParameterLocation.Header, p, hAttrib.IsRequired, docOpts.ShortSchemaNames);
+                              AddParameter(operation, pName, ParameterLocation.Header, p, generation, hAttrib.IsRequired, docOpts.ShortSchemaNames);
             state.RegisterBoundParameter(p, headerParam, NamingPolicy, docOpts.UsePropertyNamingPolicy);
 
             if (hAttrib.IsRequired || hAttrib.RemoveFromSchema)
-                operation.RemovePropFromRequestBody(p, sharedCtx, operationKey, docOpts, NamingPolicy, state.PropsRemovedFromBody);
+                operation.RemovePropFromRequestBody(p, sharedCtx, generation, operationKey, docOpts, NamingPolicy, state.PropsRemovedFromBody);
         }
 
         if (metadata.FromCookie is { } cAttrib)
         {
             var pName = cAttrib.CookieName ?? _parameterNameResolver.ApplyPropertyNamingPolicy(p.Name);
             var cookieParam = OperationParameterCollection.Find(operation, ParameterLocation.Cookie, pName) ??
-                              AddParameter(operation, pName, ParameterLocation.Cookie, p, cAttrib.IsRequired, docOpts.ShortSchemaNames);
+                              AddParameter(operation, pName, ParameterLocation.Cookie, p, generation, cAttrib.IsRequired, docOpts.ShortSchemaNames);
             state.RegisterBoundParameter(p, cookieParam, NamingPolicy, docOpts.UsePropertyNamingPolicy);
 
             if (cAttrib.IsRequired || cAttrib.RemoveFromSchema)
-                operation.RemovePropFromRequestBody(p, sharedCtx, operationKey, docOpts, NamingPolicy, state.PropsRemovedFromBody);
+                operation.RemovePropFromRequestBody(p, sharedCtx, generation, operationKey, docOpts, NamingPolicy, state.PropsRemovedFromBody);
         }
 
         if (metadata.FromClaim is { IsRequired: true } or { RemoveFromSchema: true } ||
             metadata.HasPermission is { IsRequired: true } or { RemoveFromSchema: true })
-            operation.RemovePropFromRequestBody(p, sharedCtx, operationKey, docOpts, NamingPolicy, state.PropsRemovedFromBody);
+            operation.RemovePropFromRequestBody(p, sharedCtx, generation, operationKey, docOpts, NamingPolicy, state.PropsRemovedFromBody);
     }
 
     OpenApiParameter AddParameter(OpenApiOperation operation,
                                   string name,
                                   ParameterLocation location,
                                   PropertyInfo? prop,
+                                  OpenApiGenerationState generation,
                                   bool? isRequired = null,
                                   bool shortSchemaNames = false,
                                   Type? explicitType = null)
     {
-        var param = _parameterFactory.Create(name, location, prop, isRequired, shortSchemaNames, explicitType);
+        var param = _parameterFactory.Create(name, location, prop, generation, isRequired, shortSchemaNames, explicitType);
         OperationParameterCollection.Add(operation, param);
 
         return param;

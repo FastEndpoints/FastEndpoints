@@ -29,6 +29,12 @@ public override void Configure()
 
 ## Fixes 🪲
 
+<details><summary>Overlapping OpenAPI document requests no longer throw or return a truncated spec</summary>
+
+`MapOpenApi()` rebuilds the document on every request and does not serialize generation. Visual Studio and Scalar often hit `/openapi/*.json` at the same time on startup, which made FluentValidation schema mapping and `oneOf` cleanup mutate the same schema objects. That produced `IndexOutOfRangeException` / `Collection was modified` failures, or a document with only some of the paths. Each generation now keeps its own mutation state, so overlapping fetches complete with a full document.
+
+</details>
+
 <details><summary>Singleton validators, mappers, processors and event handlers no longer capture scoped services from the first request</summary>
 
 Validators, mappers, pre/post-processors, event handlers and other types that FastEndpoints caches as singletons were built from the DI scope of whichever request first needed them, unless `Warmup()` was enabled. Scoped constructor dependencies (such as a `DbContext` or a current user service) were therefore captured from that first request and reused by every later request, without triggering DI scope validation. These singletons are now always built from the root service provider, the same as with `Warmup()`. Injecting a scoped service into their constructors now throws when scope validation is enabled (the default in the Development environment), as the docs describe. Resolve scoped services per request with `Resolve<T>()` or a new scope instead.
@@ -81,6 +87,11 @@ Visible with `Microsoft.OpenApi` 2.11.0 or later.
 
 ## Improvements 🚀
 
+<details><summary>Warmup no longer precompiles the data-annotations validation graph when it's disabled</summary>
+
+`Warmup()` unconditionally walked and precompiled each request DTO's data-annotations validation graph (bindable props + getters), even though that graph is only ever used when `Validation.EnableDataAnnotationsSupport` is turned on. That startup-only work is now skipped when the setting is left at its default (off), which is the common case.
+</details>
+
 <details><summary>SSE <code>StreamItem.Id</code> is now settable after construction</summary>
 
 `StreamItem.Id` was `init`-only, so SSE endpoints that own an incrementing event-id sequence had to pass a counter into helper methods or clone each item just to stamp the id. `Id` can now be assigned after construction:
@@ -105,7 +116,10 @@ Those rules now apply to DTO-bound operation parameters as well, using the same 
 <details><summary>Route mapping no longer rebuilds authorization metadata once per HTTP verb</summary>
 
 Endpoints with multiple HTTP verbs and/or routes had their `AuthorizeAttribute[]` rebuilt from scratch for every verb of every route, even though the result depends only on endpoint-level settings (roles, policies, schemes) and never varies by verb or route. That metadata is now built once per endpoint definition and reused for every verb/route it's registered under, skipping the work entirely when every verb is anonymous.
-
+</details>
+  
+<details><summary>Command execution no longer builds a handler-interface <code>Type</code> it doesn't need on the hot path</summary>
+`ExecuteAsync` computed a closed generic handler interface type via `MakeGenericType` on every command and stream-command dispatch, but that type is only read the first time a generic command type is seen, or when a unit test has registered a fake handler. Both call sites now compute it lazily, only when one of those two conditions is actually true, removing an unnecessary reflection call from the common case of executing a registered, non-generic command outside of a test.
 </details>
 
 ## Minor Breaking Changes ⚠️
@@ -123,5 +137,20 @@ appHost.CreateResourceBuilder<ProjectResource>("apiservice")
 ```
 
 Never enable it in production.
+
+</details>
+
+<details><summary><code>ProblemDetails.Errors</code> is now <code>IReadOnlyCollection&lt;Error&gt;</code> instead of <code>IEnumerable&lt;Error&gt;</code></summary>
+
+`Errors` was a lazy `IEnumerable<Error>`. When `AllowDuplicateErrors` was enabled, that sequence got re-enumerated up to three times per error response (once when reading `Errors.Count()`/`Errors.First()` to build `Detail`, again during JSON serialization), rerunning `PropertyNamingPolicy.ConvertName` for every `Error` each time. `Errors` is now always backed by a concrete collection (a materialized array when duplicates are allowed, the existing deduplicating `HashSet` otherwise), so it is only ever enumerated once.
+
+Reading `Errors` is unaffected. Code that assigns `Errors` directly to a lazy `IEnumerable<Error>` (for example a custom `ResponseBuilder` that constructs its own `ProblemDetails`) needs to materialize it first, since the setter no longer accepts a plain `IEnumerable<Error>`.
+</details>
+
+<details><summary><code>Void</code> is now a struct instead of a class</summary>
+
+`Void` (behind `ICommand` and `Task<Void>` send methods) is now a `readonly struct`. Synchronously completing no-result sends and command dispatches no longer allocate a `Task`.
+
+This breaks `where TResult : class` over `ICommand<TResult>` (or `IServerStreamCommand<TResult>`) when `TResult` is `Void`. Drop the constraint, or add a sibling API constrained on `ICommand`.
 
 </details>

@@ -42,15 +42,8 @@ public static class CommandExtensions
         var tCommand = command.GetType();
         var registry = ServiceResolver.Instance.Resolve<CommandHandlerRegistry>();
         registry.TryGetValue(tCommand, out var def);
-        var tRes = typeof(TResult);
-        var tHandlerInterface = tRes == Types.VoidResult
-                                    ? Types.ICommandHandlerOf1.MakeGenericType(tCommand)
-                                    : Types.ICommandHandlerOf2.MakeGenericType(tCommand, tRes);
 
-        if (def is null && tCommand.IsGenericType)
-            InitGenericHandlerCore(ref def, tCommand, registry, tHandlerInterface);
-
-        var tHandler = PrepareExecution<TResult>(def, tCommand, Types.CommandHandlerExecutorOf2, tHandlerInterface);
+        var tHandler = PrepareExecution(ref def, tCommand, typeof(TResult), registry, Types.CommandHandlerExecutorOf2, Types.ICommandHandlerOf2, Types.ICommandHandlerOf1);
 
         return ((ICommandHandlerExecutor<TResult>)def!.HandlerExecutor!).Execute(command, tHandler, ct);
     }
@@ -68,10 +61,7 @@ public static class CommandExtensions
         var registry = ServiceResolver.Instance.Resolve<CommandHandlerRegistry>();
         registry.TryGetValue(tCommand, out var def);
 
-        var tHandlerInterface = Types.IStreamCommandHandlerOf2.MakeGenericType(tCommand, typeof(TResult));
-        if (def is null && tCommand.IsGenericType)
-            InitGenericHandlerCore(ref def, tCommand, registry, tHandlerInterface);
-        var tHandler = PrepareExecution<TResult>(def, tCommand, Types.StreamCommandHandlerExecutorOf2, tHandlerInterface);
+        var tHandler = PrepareExecution(ref def, tCommand, typeof(TResult), registry, Types.StreamCommandHandlerExecutorOf2, Types.IStreamCommandHandlerOf2);
 
         return ((IStreamCommandHandlerExecutor<TResult>)def!.HandlerExecutor!).Execute(command, tHandler, ct);
     }
@@ -94,18 +84,35 @@ public static class CommandExtensions
             => t.IsGenericType && t.GetGenericTypeDefinition() == Types.IStreamCommandHandlerOf2 ? "stream command" : "command";
     }
 
-    static Type PrepareExecution<TResult>(CommandHandlerDefinition? def, Type tCommand, Type tExecutorOpenGeneric, Type tHandlerInterface)
+    static Type HandlerInterfaceType(Type tCommand, Type tRes, Type tHandlerOf2, Type? tHandlerOf1 = null)
+        => tHandlerOf1 is not null && tRes == Types.VoidResult
+               ? tHandlerOf1.MakeGenericType(tCommand)
+               : tHandlerOf2.MakeGenericType(tCommand, tRes);
+
+    static Type PrepareExecution(ref CommandHandlerDefinition? def, Type tCommand, Type tRes, CommandHandlerRegistry registry, Type tExecutorOpenGeneric, Type tHandlerOf2,
+                                 Type? tHandlerOf1 = null)
     {
+        Type? tHandlerInterface = null;
+
+        if (def is null && tCommand.IsGenericType)
+        {
+            tHandlerInterface = HandlerInterfaceType(tCommand, tRes, tHandlerOf2, tHandlerOf1);
+            InitGenericHandlerCore(ref def, tCommand, registry, tHandlerInterface);
+        }
+
         if (def is null)
             throw new InvalidOperationException($"Unable to create an instance of the handler for command [{tCommand.FullName}]");
 
         var resolver = ServiceResolver.Instance;
 
-        def.HandlerExecutor ??= resolver.CreateSingleton(tExecutorOpenGeneric.MakeGenericType(tCommand, typeof(TResult)));
+        def.HandlerExecutor ??= resolver.CreateSingleton(tExecutorOpenGeneric.MakeGenericType(tCommand, tRes));
 
-        return TestCommandHandlerMarker is not null && resolver.TryResolve(TestCommandHandlerMarker) is not null
-                   ? resolver.TryResolve(tHandlerInterface)?.GetType() ?? def.HandlerType
-                   : def.HandlerType;
+        if (TestCommandHandlerMarker is null || resolver.TryResolve(TestCommandHandlerMarker) is null)
+            return def.HandlerType;
+
+        tHandlerInterface ??= HandlerInterfaceType(tCommand, tRes, tHandlerOf2, tHandlerOf1);
+
+        return resolver.TryResolve(tHandlerInterface)?.GetType() ?? def.HandlerType;
     }
 
     /// <summary>

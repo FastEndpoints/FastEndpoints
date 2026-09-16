@@ -6,7 +6,7 @@ namespace FastEndpoints.OpenApi;
 
 sealed class ComplexQueryParameterExpander(OperationParameterFactory parameterFactory, OperationParameterNameResolver parameterNameResolver)
 {
-    internal bool TryAdd(OpenApiOperation operation, PropertyInfo property, bool shortSchemaNames)
+    internal bool TryAdd(OpenApiOperation operation, PropertyInfo property, bool shortSchemaNames, OpenApiGenerationState generation)
     {
         var propertyType = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
 
@@ -16,7 +16,7 @@ sealed class ComplexQueryParameterExpander(OperationParameterFactory parameterFa
             OperationSchemaHelpers.TryGetDictionaryValueType(propertyType) is not null)
             return false;
 
-        Add(operation, propertyType, prefix: null, shortSchemaNames, []);
+        Add(operation, propertyType, prefix: null, shortSchemaNames, generation, []);
 
         return true;
     }
@@ -25,6 +25,7 @@ sealed class ComplexQueryParameterExpander(OperationParameterFactory parameterFa
              Type type,
              string? prefix,
              bool shortSchemaNames,
+             OpenApiGenerationState generation,
              HashSet<Type> visited)
     {
         type = Nullable.GetUnderlyingType(type) ?? type;
@@ -45,21 +46,21 @@ sealed class ComplexQueryParameterExpander(OperationParameterFactory parameterFa
                 !propType.IsCollection() &&
                 OperationSchemaHelpers.TryGetDictionaryValueType(propType) is null)
             {
-                Add(operation, propType, key, shortSchemaNames, visited);
+                Add(operation, propType, key, shortSchemaNames, generation, visited);
 
                 continue;
             }
 
             if (propType.IsCollection() && OperationSchemaHelpers.TryGetCollectionElementType(propType) is { } elementType && elementType.IsComplexType())
             {
-                Add(operation, elementType, $"{key}[0]", shortSchemaNames, visited);
+                Add(operation, elementType, $"{key}[0]", shortSchemaNames, generation, visited);
 
                 continue;
             }
 
             OperationParameterCollection.Add(
                 operation,
-                parameterFactory.Create(key, ParameterLocation.Query, prop, GetDontBindRequiredness(prop), shortSchemaNames));
+                parameterFactory.Create(key, ParameterLocation.Query, prop, generation, GetDontBindRequiredness(prop), shortSchemaNames));
         }
 
         visited.Remove(type);

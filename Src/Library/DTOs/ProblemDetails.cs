@@ -35,7 +35,7 @@ public sealed class ProblemDetails : IResult, IEndpointMetadataProvider
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? Detail { get; set; }
 
-    public IEnumerable<Error> Errors { get; set; } = null!;
+    public IReadOnlyCollection<Error> Errors { get; set; } = null!;
 
     public ProblemDetails() { }
 
@@ -56,7 +56,7 @@ public sealed class ProblemDetails : IResult, IEndpointMetadataProvider
         TraceId = traceId;
 
         if (Cfg.ErrOpts.ProblemDetailsConf.AllowDuplicateErrors)
-            Errors = failures.Select(f => new Error(f));
+            Errors = failures.Select(f => new Error(f)).ToArray();
         else
         {
             var set = new HashSet<Error>(failures.Count, Error.EqComparer);

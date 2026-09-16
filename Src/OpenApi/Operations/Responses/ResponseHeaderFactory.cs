@@ -12,7 +12,7 @@ sealed class ResponseHeaderFactory(DocumentOptions docOpts, SharedContext shared
     JsonNamingPolicy? NamingPolicy => sharedCtx.NamingPolicy;
     JsonSerializerOptions SerializerOptions => sharedCtx.SerializerOptions ?? Cfg.SerOpts.Options;
 
-    internal void AddTypedHeaders(OpenApiResponse response, Type responseType)
+    internal void AddTypedHeaders(OpenApiResponse response, Type responseType, OpenApiGenerationState generation)
     {
         foreach (var prop in GetPublicInstanceProperties(responseType))
         {
@@ -29,13 +29,13 @@ sealed class ResponseHeaderFactory(DocumentOptions docOpts, SharedContext shared
                 new()
                 {
                     Description = XmlDocLookup.GetPropertySummary(prop),
-                    Schema = headerType.GetSchemaForType(sharedCtx, docOpts.ShortSchemaNames),
+                    Schema = headerType.GetSchemaForType(sharedCtx, generation, docOpts.ShortSchemaNames),
                     Example = GetHeaderExample(prop, headerType)
                 });
         }
     }
 
-    internal void AddConfiguredHeaders(OpenApiResponse response, IEnumerable<ResponseHeader> headers)
+    internal void AddConfiguredHeaders(OpenApiResponse response, IEnumerable<ResponseHeader> headers, OpenApiGenerationState generation)
     {
         foreach (var header in headers)
         {
@@ -47,7 +47,7 @@ sealed class ResponseHeaderFactory(DocumentOptions docOpts, SharedContext shared
                 {
                     Description = header.Description,
                     Example = example,
-                    Schema = CreateConfiguredSchema(header.Example, example)
+                    Schema = CreateConfiguredSchema(header.Example, example, generation)
                 });
         }
     }
@@ -56,7 +56,7 @@ sealed class ResponseHeaderFactory(DocumentOptions docOpts, SharedContext shared
         => OperationSchemaHelpers.ParseXmlExampleJsonNode(XmlDocLookup.GetPropertyExample(prop), preserveRawString: true) ??
            headerType.GetSampleValue().JsonNodeFromObject(SerializerOptions);
 
-    IOpenApiSchema? CreateConfiguredSchema(object? exampleValue, JsonNode? exampleNode)
+    IOpenApiSchema? CreateConfiguredSchema(object? exampleValue, JsonNode? exampleNode, OpenApiGenerationState generation)
     {
         if (exampleValue is null)
             return null;
@@ -64,7 +64,7 @@ sealed class ResponseHeaderFactory(DocumentOptions docOpts, SharedContext shared
         var exampleType = exampleValue.GetType();
 
         if (!IsAnonymousType(exampleType))
-            return exampleType.GetSchemaForType(sharedCtx, docOpts.ShortSchemaNames);
+            return exampleType.GetSchemaForType(sharedCtx, generation, docOpts.ShortSchemaNames);
 
         return OperationSchemaHelpers.CreateSchemaFromExampleNode(exampleNode);
     }

@@ -5,7 +5,9 @@ namespace OpenApi;
 
 public class Fixture : AppFixture<Web.Program>
 {
-    static readonly SemaphoreSlim DocumentGenerationLock = new(1, 1);
+    // serializes snapshot/helper fetches so parallel test classes do not pile onto the same
+    // expensive generation. overlapping generation itself is safe (mutation bags are per OpenApiDocument).
+    static readonly SemaphoreSlim _documentGenerationLock = new(1, 1);
 
     public HttpClient DocClient { get; set; } = default!;
 
@@ -18,25 +20,24 @@ public class Fixture : AppFixture<Web.Program>
 
     public async Task<string> GetDocumentJsonAsync(string documentName)
     {
-        await DocumentGenerationLock.WaitAsync();
+        await _documentGenerationLock.WaitAsync();
 
         try
         {
-            var url = $"/openapi/{Uri.EscapeDataString(documentName)}.json";
-            using var response = await DocClient.GetAsync(url);
-            response.EnsureSuccessStatusCode();
-
-            return await response.Content.ReadAsStringAsync();
+            return await ReadDocumentJsonAsync(documentName);
         }
         finally
         {
-            DocumentGenerationLock.Release();
+            _documentGenerationLock.Release();
         }
     }
 
+    public Task<string> GetDocumentJsonUnlockedAsync(string documentName)
+        => ReadDocumentJsonAsync(documentName);
+
     public async Task<string> GetHttpFileContentAsync(string documentName, CancellationToken ct)
     {
-        await DocumentGenerationLock.WaitAsync(ct);
+        await _documentGenerationLock.WaitAsync(ct);
 
         try
         {
@@ -48,7 +49,16 @@ public class Fixture : AppFixture<Web.Program>
         }
         finally
         {
-            DocumentGenerationLock.Release();
+            _documentGenerationLock.Release();
         }
+    }
+
+    async Task<string> ReadDocumentJsonAsync(string documentName)
+    {
+        var url = $"/openapi/{Uri.EscapeDataString(documentName)}.json";
+        using var response = await DocClient.GetAsync(url);
+        response.EnsureSuccessStatusCode();
+
+        return await response.Content.ReadAsStringAsync();
     }
 }

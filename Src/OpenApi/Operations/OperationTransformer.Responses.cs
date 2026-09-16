@@ -30,7 +30,7 @@ sealed class ResponseOperationTransformer(DocumentOptions docOpts, SharedContext
     JsonNamingPolicy? NamingPolicy => sharedCtx.NamingPolicy;
     JsonSerializerOptions SerializerOptions => sharedCtx.SerializerOptions ?? Cfg.SerOpts.Options;
 
-    public void AddMissingResponses(OpenApiOperation operation, IList<object> metadata)
+    public void AddMissingResponses(OpenApiOperation operation, IList<object> metadata, OpenApiGenerationState generation)
     {
         operation.Responses ??= [];
 
@@ -41,14 +41,14 @@ sealed class ResponseOperationTransformer(DocumentOptions docOpts, SharedContext
             var isNew = existing is null;
             var response = existing ?? new OpenApiResponse();
 
-            AddMissingResponseContent(response, meta);
+            AddMissingResponseContent(response, meta, generation);
 
             if (isNew)
                 operation.Responses[key] = response;
         }
     }
 
-    public void ApplyDescriptions(OpenApiOperation operation, EndpointDefinition epDef, OpenApiOperationTransformerContext context, string operationKey)
+    public void ApplyDescriptions(OpenApiOperation operation, EndpointDefinition epDef, OpenApiOperationTransformerContext context, string operationKey, OpenApiGenerationState generation)
     {
         if (operation.Responses is null)
             return;
@@ -69,17 +69,17 @@ sealed class ResponseOperationTransformer(DocumentOptions docOpts, SharedContext
                     response.Description = customDesc;
 
                 if (epDef.EndpointSummary.ResponseParams.TryGetValue(code, out var propDescriptions))
-                    ApplyParamDescriptions(response, propDescriptions, responseTypes?.GetValueOrDefault(code), operationKey, $"response.{statusCode}");
+                    ApplyParamDescriptions(response, propDescriptions, responseTypes?.GetValueOrDefault(code), operationKey, $"response.{statusCode}", generation);
             }
         }
     }
 
-    public void FixBinaryFormats(OpenApiOperation operation, string operationKey)
+    public void FixBinaryFormats(OpenApiOperation operation, string operationKey, OpenApiGenerationState generation)
     {
         if (operation.Responses is null)
             return;
 
-        var mutationCtx = new OperationSchemaMutationContext(sharedCtx, operationKey);
+        var mutationCtx = new OperationSchemaMutationContext(sharedCtx, generation, operationKey);
 
         foreach (var response in operation.Responses.Values)
         {
@@ -92,7 +92,7 @@ sealed class ResponseOperationTransformer(DocumentOptions docOpts, SharedContext
                 if (contentType.Contains("json", StringComparison.OrdinalIgnoreCase))
                     continue;
 
-                if (mediaType.Schema.ResolveSchema(sharedCtx) is not { Type: JsonSchemaType.String, Format: "byte" })
+                if (mediaType.Schema.ResolveSchema(generation) is not { Type: JsonSchemaType.String, Format: "byte" })
                     continue;
 
                 var schema = mediaType.Schema.EnsureSchemaForMutation(
@@ -132,7 +132,7 @@ sealed class ResponseOperationTransformer(DocumentOptions docOpts, SharedContext
         }
     }
 
-    public void AddHeaders(OpenApiOperation operation, EndpointDefinition epDef, IList<object> metadata)
+    public void AddHeaders(OpenApiOperation operation, EndpointDefinition epDef, IList<object> metadata, OpenApiGenerationState generation)
     {
         if (operation.Responses is null)
             return;
@@ -150,19 +150,19 @@ sealed class ResponseOperationTransformer(DocumentOptions docOpts, SharedContext
             var code = ParseStatusCode(statusCode);
 
             if (responseTypeMetas.TryGetValue(code, out var responseMeta) && responseMeta.Type is not null)
-                _headerFactory.AddTypedHeaders(concreteResponse, responseMeta.Type);
+                _headerFactory.AddTypedHeaders(concreteResponse, responseMeta.Type, generation);
 
             if (configuredHeaders?.TryGetValue(code, out var headersForStatusCode) == true)
-                _headerFactory.AddConfiguredHeaders(concreteResponse, headersForStatusCode);
+                _headerFactory.AddConfiguredHeaders(concreteResponse, headersForStatusCode, generation);
         }
     }
 
-    public void FixPolymorphism(OpenApiOperation operation, string operationKey)
+    public void FixPolymorphism(OpenApiOperation operation, string operationKey, OpenApiGenerationState generation)
     {
         if (operation.Responses is null)
             return;
 
-        var mutationCtx = new OperationSchemaMutationContext(sharedCtx, operationKey);
+        var mutationCtx = new OperationSchemaMutationContext(sharedCtx, generation, operationKey);
 
         foreach (var (_, response) in operation.Responses)
         {
@@ -174,7 +174,7 @@ sealed class ResponseOperationTransformer(DocumentOptions docOpts, SharedContext
                 if (mediaType.Schema is null)
                     continue;
 
-                if (mediaType.Schema.ResolveSchemaOrReference(sharedCtx) is not OpenApiSchema actualSchema)
+                if (mediaType.Schema.ResolveSchemaOrReference(generation) is not OpenApiSchema actualSchema)
                     continue;
 
                 if (actualSchema.Discriminator?.Mapping is not { Count: > 0 } ||
@@ -203,7 +203,8 @@ sealed class ResponseOperationTransformer(DocumentOptions docOpts, SharedContext
                                 Dictionary<string, string> propDescriptions,
                                 Type? responseDtoType,
                                 string operationKey,
-                                string schemaKey)
+                                string schemaKey,
+                                OpenApiGenerationState generation)
     {
         if (response is not OpenApiResponse concreteResp || concreteResp.Content is not { Count: > 0 })
             return;
@@ -211,7 +212,7 @@ sealed class ResponseOperationTransformer(DocumentOptions docOpts, SharedContext
         var collectionElementType = responseDtoType is null ? null : OperationSchemaHelpers.TryGetCollectionElementType(responseDtoType);
         var descriptionType = collectionElementType ?? responseDtoType;
         var jsonNameToClrName = BuildJsonNameMap(descriptionType, NamingPolicy, docOpts.UsePropertyNamingPolicy);
-        var mutationCtx = new OperationSchemaMutationContext(sharedCtx, operationKey);
+        var mutationCtx = new OperationSchemaMutationContext(sharedCtx, generation, operationKey);
 
         foreach (var content in concreteResp.Content.Values)
         {
@@ -251,7 +252,7 @@ sealed class ResponseOperationTransformer(DocumentOptions docOpts, SharedContext
             cloneConcreteSchema: true);
     }
 
-    void AddMissingResponseContent(OpenApiResponse response, IProducesResponseTypeMetadata metadata)
+    void AddMissingResponseContent(OpenApiResponse response, IProducesResponseTypeMetadata metadata, OpenApiGenerationState generation)
     {
         if (metadata.Type is null || metadata.Type == Types.Void)
             return;
@@ -261,7 +262,7 @@ sealed class ResponseOperationTransformer(DocumentOptions docOpts, SharedContext
         foreach (var contentType in metadata.ContentTypes)
         {
             if (!response.Content.ContainsKey(contentType))
-                response.Content[contentType] = CreateMissingResponseMediaType(metadata.Type, docOpts.ShortSchemaNames);
+                response.Content[contentType] = CreateMissingResponseMediaType(metadata.Type, generation, docOpts.ShortSchemaNames);
         }
     }
 
@@ -289,10 +290,10 @@ sealed class ResponseOperationTransformer(DocumentOptions docOpts, SharedContext
         return jsonNameMap;
     }
 
-    OpenApiMediaType CreateMissingResponseMediaType(Type type, bool shortSchemaNames)
+    OpenApiMediaType CreateMissingResponseMediaType(Type type, OpenApiGenerationState generation, bool shortSchemaNames)
         => new()
         {
-            Schema = type.GetSchemaForType(sharedCtx, shortSchemaNames)
+            Schema = type.GetSchemaForType(sharedCtx, generation, shortSchemaNames)
         };
 
     static bool IsFrameworkDefault(string statusCode, string description)

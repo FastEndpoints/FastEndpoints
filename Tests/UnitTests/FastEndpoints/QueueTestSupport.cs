@@ -45,9 +45,28 @@ static class QueueTestSupport
 
     public static async Task WaitForCompletion(Task task, int timeoutMs = 3000)
     {
-        await Task.WhenAny(task, Task.Delay(timeoutMs));
-        task.IsCompleted.ShouldBeTrue();
-        await task;
+        try
+        {
+            await task.WaitAsync(TimeSpan.FromMilliseconds(timeoutMs));
+        }
+        catch (TimeoutException)
+        {
+            task.IsCompleted.ShouldBeTrue();
+        }
+    }
+
+    public static async Task<bool> CompletesWithin(Task task, TimeSpan timeout, CancellationToken ct = default)
+    {
+        try
+        {
+            await task.WaitAsync(timeout, ct);
+
+            return true;
+        }
+        catch (TimeoutException)
+        {
+            return false;
+        }
     }
 
     public static TaskCompletionSource NewSignal()

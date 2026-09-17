@@ -37,6 +37,19 @@ public class SerializerContextTests(App app) : TestBase<App>
     }
 
     [Fact]
+    public async Task Dictionary_Enum_Key_Endpoint()
+    {
+        var (rsp, res, err) = await app.Client.GETAsync<DictionaryEnumKeyEndpoint, Dictionary<ChecklistControllerName, ChecklistForApprovalDto[]>>();
+
+        if (!rsp.IsSuccessStatusCode)
+            Assert.Fail(err);
+
+        res.Count.ShouldBe(2);
+        res[ChecklistControllerName.Alpha].Single().Name.ShouldBe("alpha-item");
+        res[ChecklistControllerName.Beta].Single().Name.ShouldBe("beta-item");
+    }
+
+    [Fact]
     public async Task Bool_Response_Endpoint()
     {
         var (rsp, res) = await app.Client.GETAsync<BoolResponseEndpoint, bool>();

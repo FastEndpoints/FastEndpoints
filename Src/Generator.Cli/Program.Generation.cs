@@ -3,7 +3,7 @@ namespace FastEndpoints.Generator.Cli;
 partial class Program
 {
     private const string CacheFileName = ".fastendpoints-generator-cache";
-    private const string CacheSchemaVersion = "v1";
+    private const string CacheSchemaVersion = "v2";
 
     private static int ExecuteGenerator(string projectPath,
                                         bool forceRegenerate,

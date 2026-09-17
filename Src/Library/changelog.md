@@ -29,6 +29,12 @@ public override void Configure()
 
 ## Fixes 🪲
 
+<details><summary>Serializer context generation now fully qualifies enum type arguments</summary>
+
+Auto-generated `[JsonSerializable]` attributes left enums as bare names when they appeared as generic arguments, such as `Dictionary<MyEnum, MyDto[]>`. The generated context then failed to compile (`CS0246`) and STJ source-gen skipped metadata for the enum (`SYSLIB1030`). Enums are now indexed like other types and emitted with their full namespace.
+
+</details>
+
 <details><summary>Overlapping OpenAPI document requests no longer throw or return a truncated spec</summary>
 
 `MapOpenApi()` rebuilds the document on every request and does not serialize generation. Visual Studio and Scalar often hit `/openapi/*.json` at the same time on startup, which made FluentValidation schema mapping and `oneOf` cleanup mutate the same schema objects. That produced `IndexOutOfRangeException` / `Collection was modified` failures, or a document with only some of the paths. Each generation now keeps its own mutation state, so overlapping fetches complete with a full document.

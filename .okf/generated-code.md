@@ -20,6 +20,7 @@ Whitelist for discovery includes `IEndpoint`, `IEventHandler`, `ICommandHandler`
 
 ## MSBuild / CLI generation
 - **`FastEndpoints.Generator.targets`:** when `GenerateSerializerContexts=true`, runs Generator.Cli to emit STJ serializer contexts into `SerializerContextOutputPath` (default `Generated/FastEndpoints`).
+- **CLI type index:** `SourceFileWalker` records class, struct, record, **and enum** declarations so generic type arguments (including enum dictionary keys) emit fully qualified `typeof(...)` in `[JsonSerializable]`. Cache schema is `v2` after that change.
 - **OpenApi targets:** `ExportOpenApiArtifactsBeforeAotPublish` exports `.json`/`.http` when `ExportOpenApiDocs`/`ExportHttpFiles` set (aliases keep old target names). Single JIT intermediate dir + combined CLI flags when both enabled; app one-call export orchestrator (`ExportOpenApiArtifactsAndExitAsync`) reads those flags (see NativeAotChecker).
 - Dev mode uses locally built `FastEndpoints.Generator.Cli.dll`; package mode installs local tool `FastEndpoints.Generator.Cli`.
 

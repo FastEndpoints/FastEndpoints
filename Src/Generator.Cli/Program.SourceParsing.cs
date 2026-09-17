@@ -164,6 +164,12 @@ partial class Program
             base.VisitRecordDeclaration(node);
         }
 
+        public override void VisitEnumDeclaration(EnumDeclarationSyntax node)
+        {
+            ProcessEnumDeclaration(node);
+            base.VisitEnumDeclaration(node);
+        }
+
         private void ProcessTypeDeclaration(TypeDeclarationSyntax typeDecl)
         {
             if (typeDecl.Modifiers.Any(m => m.Text == "file"))
@@ -194,11 +200,30 @@ partial class Program
             else
                 Types[fullName] = typeInfo;
         }
+
+        private void ProcessEnumDeclaration(EnumDeclarationSyntax enumDecl)
+        {
+            if (enumDecl.Modifiers.Any(m => m.Text == "file"))
+                return;
+
+            var fullName = GetFullTypeName(enumDecl);
+            var baseTypes = enumDecl.BaseList?.Types.Select(t => new TypeRef(t.ToString(), filePath)).ToList() ?? [];
+            var ns = GetContainingNamespace(enumDecl);
+            var typeInfo = new TypeInfo(fullName, ns, enumDecl.Identifier.Text, filePath, [], baseTypes, []);
+
+            if (Types.TryGetValue(fullName, out var existing))
+                Types[fullName] = MergeTypeInfos(existing, typeInfo);
+            else
+                Types[fullName] = typeInfo;
+        }
     }
 
-    private static string GetFullTypeName(TypeDeclarationSyntax typeDecl)
+    private static string GetFullTypeName(BaseTypeDeclarationSyntax typeDecl)
     {
-        var nameParts = new List<string> { GetTypeNameWithArity(typeDecl) };
+        var nameParts = new List<string>
+        {
+            typeDecl is TypeDeclarationSyntax td ? GetTypeNameWithArity(td) : typeDecl.Identifier.Text
+        };
         var parent = typeDecl.Parent;
 
         while (parent != null)

@@ -53,6 +53,19 @@ public class RequestBinderTests
     }
 
     [Fact]
+    public async Task RequiredPropMatchIsCaseInsensitive()
+    {
+        var hCtx = new DefaultHttpContext();
+        hCtx.Request.RouteValues["REQ_QUIRED"] = false; //differently-cased route key than the [BindFrom] name
+        var binder = new RequestBinder<RequestClass>();
+        var ctx = new BinderContext(hCtx, [], null, false, ((IRequestBinder<RequestClass>)binder).RequiredProps);
+
+        var res = await binder.BindAsync(ctx, default);
+
+        res.Required.ShouldBeFalse();
+    }
+
+    [Fact]
     public async Task HasPermissionBindsWithExactClaimValueCasing()
     {
         var hCtx = new DefaultHttpContext

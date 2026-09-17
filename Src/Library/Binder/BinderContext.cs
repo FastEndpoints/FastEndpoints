@@ -40,16 +40,26 @@ public readonly struct BinderContext : IServiceResolverBase
     public bool DontAutoBindForms { get; init; }
 
     readonly IEnumerable<string> _requiredProperties;
-    internal List<string>? BoundProperties { get; }
+    internal HashSet<string>? BoundProperties { get; }
     internal bool HasRequiredProperties { get; }
 
     /// <summary>
     /// indicates which required properties were not bound due to missing input from the request.
     /// </summary>
     public IEnumerable<string> UnboundRequiredProperties
-        => HasRequiredProperties
-               ? _requiredProperties.Except(BoundProperties ?? [], StringComparer.OrdinalIgnoreCase)
-               : [];
+    {
+        get
+        {
+            if (!HasRequiredProperties)
+                yield break;
+
+            foreach (var reqProp in _requiredProperties)
+            {
+                if (BoundProperties is null || !BoundProperties.Contains(reqProp))
+                    yield return reqProp;
+            }
+        }
+    }
 
     /// <summary>
     /// constructor of the binder context
@@ -71,7 +81,7 @@ public readonly struct BinderContext : IServiceResolverBase
         DontAutoBindForms = dontAutoBindForms;
         _requiredProperties = requiredPropsToBind;
         HasRequiredProperties = requiredPropsToBind.Count > 0;
-        BoundProperties = HasRequiredProperties ? [] : null;
+        BoundProperties = HasRequiredProperties ? new(StringComparer.OrdinalIgnoreCase) : null;
     }
 
     /// <inheritdoc />

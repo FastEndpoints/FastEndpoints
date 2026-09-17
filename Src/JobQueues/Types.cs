@@ -1,4 +1,6 @@
-﻿// ReSharper disable InconsistentNaming
+﻿using System.Diagnostics.CodeAnalysis;
+
+// ReSharper disable InconsistentNaming
 
 namespace FastEndpoints;
 
@@ -10,6 +12,10 @@ static class Types
     internal static readonly Type IJobResultStorage = typeof(IJobResultStorage);
     internal static readonly Type IHasIdempotencyKey = typeof(IHasIdempotencyKey);
     internal static readonly Type IJobResultProvider = typeof(IJobResultProvider);
+
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
     internal static readonly Type JobQueueOf4 = typeof(JobQueue<,,,>);
+
+    internal static readonly Type JobQueueVoidResult = typeof(JobQueueVoidResult);
     internal static readonly Type VoidResult = typeof(Void);
 }

@@ -29,6 +29,12 @@ public override void Configure()
 
 ## Fixes 🪲
 
+<details><summary>Void-result job queues and command execution work under Native AOT again</summary>
+
+After `Void` became a struct, Native AOT apps that call `UseJobQueues()` crashed at startup because MS.DI cannot close open generics over a valuetype. Job queues for commands that return no result are now constructed directly, and closed over an internal reference type rather than `Void`. The same valuetype limitation also blocked `ICommand.ExecuteAsync()` / command-rules `ExecuteNow` (missing native code for `CommandHandlerExecutor<TCommand, Void>`). Those void commands now use a class-only executor. No consumer code changes are required.
+
+</details>
+
 <details><summary>Serializer context generation now fully qualifies enum type arguments</summary>
 
 Auto-generated `[JsonSerializable]` attributes left enums as bare names when they appeared as generic arguments, such as `Dictionary<MyEnum, MyDto[]>`. The generated context then failed to compile (`CS0246`) and STJ source-gen skipped metadata for the enum (`SYSLIB1030`). Enums are now indexed like other types and emitted with their full namespace.

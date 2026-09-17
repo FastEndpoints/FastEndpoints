@@ -87,7 +87,6 @@ public static class JobQueueExtensions
 
         svc.AddSingleton<TStorageProvider>();
         svc.AddSingleton(typeof(IJobTracker<>), typeof(JobTracker<>));
-        svc.AddSingleton(typeof(JobQueue<,,,>));
 
         return svc;
     }
@@ -111,7 +110,8 @@ public static class JobQueueExtensions
     /// <param name="provider"></param>
     /// <param name="options">specify settings/execution limits for each job queue type</param>
     /// <exception cref="InvalidOperationException">thrown when no commands/handlers have been detected</exception>
-    [UnconditionalSuppressMessage("Trimming", "IL2075"), UnconditionalSuppressMessage("Trimming", "IL2055"), UnconditionalSuppressMessage("AOT", "IL3050")]
+    [UnconditionalSuppressMessage("Trimming", "IL2026"), UnconditionalSuppressMessage("Trimming", "IL2072"), UnconditionalSuppressMessage("Trimming", "IL2075"),
+     UnconditionalSuppressMessage("Trimming", "IL2077"), UnconditionalSuppressMessage("Trimming", "IL2055"), UnconditionalSuppressMessage("AOT", "IL3050")]
     public static IServiceProvider UseJobQueues(this IServiceProvider provider, Action<JobQueueOptions>? options = null)
     {
         provider.UseMessaging();
@@ -150,8 +150,10 @@ public static class JobQueueExtensions
             if (tHandler is not null)
                 registry[tCommand].HandlerType = tHandler;
 
-            var tJobQ = Types.JobQueueOf4.MakeGenericType(tCommand, tResult, _tStorageRecord, _tStorageProvider);
-            var jobQ = provider.GetRequiredService(tJobQ);
+            // Void is a struct; Native AOT cannot emit JobQueue/Logger closed over a valuetype. ExecuteCommand already handles ICommand before ICommand<TResult>.
+            var tQueueResult = tResult == Types.VoidResult ? Types.JobQueueVoidResult : tResult;
+            var tJobQ = Types.JobQueueOf4.MakeGenericType(tCommand, tQueueResult, _tStorageRecord, _tStorageProvider);
+            var jobQ = ActivatorUtilities.CreateInstance(provider, tJobQ);
             opts.SetLimits(tCommand, (JobQueueBase)jobQ);
         }
 

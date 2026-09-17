@@ -105,7 +105,10 @@ public static class CommandExtensions
 
         var resolver = ServiceResolver.Instance;
 
-        def.HandlerExecutor ??= resolver.CreateSingleton(tExecutorOpenGeneric.MakeGenericType(tCommand, tRes));
+        def.HandlerExecutor ??= resolver.CreateSingleton(
+            tHandlerOf1 is not null && tRes == Types.VoidResult
+                ? Types.VoidCommandHandlerExecutorOf1.MakeGenericType(tCommand)
+                : tExecutorOpenGeneric.MakeGenericType(tCommand, tRes));
 
         if (TestCommandHandlerMarker is null || resolver.TryResolve(TestCommandHandlerMarker) is null)
             return def.HandlerType;

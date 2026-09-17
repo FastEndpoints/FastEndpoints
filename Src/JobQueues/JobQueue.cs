@@ -6,7 +6,11 @@ using Microsoft.Extensions.Logging;
 
 namespace FastEndpoints;
 
-// instantiated by DI as singleton
+// Native AOT cannot compile JobQueue<,,> closed over the Void struct. UseJobQueues substitutes this class so every generic arg is a reference type.
+sealed class JobQueueVoidResult;
+
+// instantiated by UseJobQueues via ActivatorUtilities (not open-generic DI) as a process singleton in JobQueueBase.JobQueues
+// void ICommand queues are closed over JobQueueVoidResult, not Void, so Logger<JobQueue<...>> has native code under AOT.
 [SuppressMessage("Reliability", "CA2016:Forward the \'CancellationToken\' parameter to methods"),
  SuppressMessage("ReSharper", "MethodSupportsCancellation"),
  SuppressMessage("ReSharper", "SuspiciousTypeConversion.Global")]

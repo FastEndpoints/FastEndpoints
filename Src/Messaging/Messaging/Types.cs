@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 // ReSharper disable InconsistentNaming
 
 namespace FastEndpoints.Messaging;
@@ -5,6 +7,9 @@ namespace FastEndpoints.Messaging;
 static class Types
 {
     internal static readonly Type CommandHandlerExecutorOf2 = typeof(CommandHandlerExecutor<,>);
+
+    [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.PublicConstructors)]
+    internal static readonly Type VoidCommandHandlerExecutorOf1 = typeof(VoidCommandHandlerExecutor<>);
     internal static readonly Type StreamCommandHandlerExecutorOf2 = typeof(StreamCommandHandlerExecutor<,>);
     internal static readonly Type ICommandHandler = typeof(ICommandHandler);
     internal static readonly Type ICommandHandlerOf1 = typeof(ICommandHandler<>);

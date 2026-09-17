@@ -44,7 +44,7 @@ public class CommandRulesTests(App app) : TestBase<App>
         res.Outcomes.Count.ShouldBe(1);
         res.Outcomes[0].CommandName.ShouldBe("execute-now");
         res.Outcomes[0].Mode.ShouldBe("ExecuteNow");
-        res.Outcomes[0].Succeeded.ShouldBeTrue();
+        res.Outcomes[0].Succeeded.ShouldBeTrue(res.Outcomes[0].ErrorReason ?? "no error");
         res.Record.ShouldBe($"recorded:execute-now:{value}");
     }
 

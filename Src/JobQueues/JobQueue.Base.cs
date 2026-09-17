@@ -8,8 +8,8 @@ abstract class JobQueueBase
 {
     //key: tCommand
     //val: job queue for the command type
-    //values get created when the DI container resolves each job queue type and the ctor is run.
-    //see ctor in JobQueue<TCommand, TStorageRecord, TStorageProvider>
+    //values get created when UseJobQueues constructs each job queue type and the ctor is run.
+    //see ctor in JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider>
     protected static readonly ConcurrentDictionary<Type, JobQueueBase> JobQueues = new();
 
     protected abstract IJobStorageRecord CreateJob(ICommandBase command, DateTime? executeAfter, DateTime? expireOn);

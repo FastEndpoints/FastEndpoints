@@ -2,6 +2,7 @@ using System.Reflection;
 using FastEndpoints;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using QueueTesting;
@@ -274,6 +275,44 @@ public partial class JobQueueTests
         var ex = Should.Throw<InvalidOperationException>(() => provider.UseJobQueues(o => o.IdempotencyKeyFor<IdempotentTestCommand>(c => c.OrderId)));
 
         ex.Message.ShouldContain(nameof(IHasIdempotencyKey));
+    }
+
+    [Fact]
+    public async Task use_job_queues_creates_void_result_queue_without_open_generic_di()
+    {
+        var registry = new CommandHandlerRegistry
+        {
+            [typeof(RefillTestCommand)] = new(typeof(RefillTestCommandHandler))
+        };
+
+        using var appStopping = new CancellationTokenSource();
+        var storage = new RefillTestStorage();
+        var services = new ServiceCollection();
+        services.AddSingleton<ILoggerFactory, LoggerFactory>();
+        services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
+        services.AddSingleton<IHostApplicationLifetime>(new TestHostLifetime(appStopping.Token));
+        services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+        services.AddSingleton(registry);
+        services.AddSingleton(sp => (IServiceResolver)new ServiceResolver(sp, sp.GetRequiredService<IHttpContextAccessor>(), true));
+        services.AddSingleton(storage);
+        var provider = services.BuildServiceProvider();
+
+        typeof(JobQueueExtensions)
+            .GetField("_tStorageRecord", BindingFlags.Static | BindingFlags.NonPublic)!
+            .SetValue(null, typeof(RefillTestRecord));
+        typeof(JobQueueExtensions)
+            .GetField("_tStorageProvider", BindingFlags.Static | BindingFlags.NonPublic)!
+            .SetValue(null, typeof(RefillTestStorage));
+
+        provider.UseJobQueues();
+
+        provider.GetService(typeof(JobQueue<RefillTestCommand, Void, RefillTestRecord, RefillTestStorage>)).ShouldBeNull();
+
+        var trackingId = await new RefillTestCommand { Name = "void-aot", Sequence = 1 }.QueueJobAsync();
+
+        trackingId.ShouldNotBe(Guid.Empty);
+
+        appStopping.Cancel();
     }
 
     [Fact]

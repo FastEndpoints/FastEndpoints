@@ -31,6 +31,21 @@ public class CommandsTests(App app) : TestBase<App>
     }
 
     [Fact]
+    public async Task Void_Command_Middleware_Executes_In_Correct_Order()
+    {
+        var (rsp, res, err) = await app.Client.POSTAsync<VoidCommandMiddlewareEndpoint, VoidCommandMiddlewareRequest, VoidCommandMiddlewareResponse>(
+                                  new()
+                                  {
+                                      Input = ""
+                                  });
+
+        if (!rsp.IsSuccessStatusCode)
+            Assert.Fail(err);
+
+        res.Result.ShouldBe("first-in>second-in>[handler]<second-out<first-out");
+    }
+
+    [Fact]
     public async Task Stream_Command_Execution()
     {
         var (rsp, res, err) = await app.Client.GETAsync<StreamCommandExecutionEndpoint, StreamCommandExecutionRequest, IEnumerable<int>>(new() { Count = 5 });

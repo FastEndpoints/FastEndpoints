@@ -29,6 +29,12 @@ public override void Configure()
 
 ## Fixes 🪲
 
+<details><summary>No-result command middleware runs under Native AOT</summary>
+
+After `Void` became a struct, Native AOT could not resolve `IEnumerable<ICommandMiddleware<TCommand, Void>>`, so middleware registered for no-result commands was skipped. Those pipelines now use the types recorded at `AddCommandMiddleware` time. Closed `Register<MyCommand, Void, MyMiddleware>()` works without consumer code changes. Open-generic `Register(typeof(Foo<,>))` is still unsupported for void commands under Native AOT and now throws instead of silently skipping.
+
+</details>
+
 <details><summary>Void-result job queues and command execution work under Native AOT again</summary>
 
 After `Void` became a struct, Native AOT apps that call `UseJobQueues()` crashed at startup because MS.DI cannot close open generics over a valuetype. Job queues for commands that return no result are now constructed directly, and closed over an internal reference type rather than `Void`. The same valuetype limitation also blocked `ICommand.ExecuteAsync()` / command-rules `ExecuteNow` (missing native code for `CommandHandlerExecutor<TCommand, Void>`). Those void commands now use a class-only executor. No consumer code changes are required.

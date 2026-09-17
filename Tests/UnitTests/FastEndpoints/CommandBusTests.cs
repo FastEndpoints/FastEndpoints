@@ -152,6 +152,25 @@ public class CommandBusTests
     }
 
     [Fact]
+    public async Task Void_Command_Middleware_Executes_In_Correct_Order()
+    {
+        Factory.RegisterTestServices(
+            s => s.AddCommandMiddleware(
+                c =>
+                {
+                    c.Register<VoidMwCmd, FastEndpoints.Void, VoidFirstMiddleware>();
+                    c.Register(typeof(VoidSecondMiddleware<,>));
+                }));
+
+        ServiceResolver.Instance.Resolve<CommandHandlerRegistry>()[typeof(VoidMwCmd)] = new(typeof(VoidMwHandler));
+
+        var cmd = new VoidMwCmd();
+        await cmd.ExecuteAsync(TestContext.Current.CancellationToken);
+
+        cmd.Log.ShouldBe("first-in>second-in>[handler]<second-out<first-out");
+    }
+
+    [Fact]
     public async Task StreamCommandMiddlewareExecutesInCorrectOrder()
     {
         Factory.RegisterTestServices(
@@ -263,6 +282,46 @@ sealed class ServiceRegisteredVoidTestHandler : ICommandHandler<ServiceRegistere
         Result = "test";
 
         return Task.CompletedTask;
+    }
+}
+
+class VoidMwCmd : ICommand
+{
+    public string Log { get; set; } = "";
+}
+
+sealed class VoidMwHandler : ICommandHandler<VoidMwCmd>
+{
+    public Task ExecuteAsync(VoidMwCmd command, CancellationToken ct)
+    {
+        command.Log += "[handler]";
+
+        return Task.CompletedTask;
+    }
+}
+
+sealed class VoidFirstMiddleware : ICommandMiddleware<VoidMwCmd, FastEndpoints.Void>
+{
+    public async Task<FastEndpoints.Void> ExecuteAsync(VoidMwCmd command, CommandDelegate<FastEndpoints.Void> next, CancellationToken ct)
+    {
+        command.Log += "first-in>";
+        var result = await next();
+        command.Log += "<first-out";
+
+        return result;
+    }
+}
+
+sealed class VoidSecondMiddleware<TCommand, TResult> : ICommandMiddleware<TCommand, TResult>
+    where TCommand : VoidMwCmd, ICommand<TResult>
+{
+    public async Task<TResult> ExecuteAsync(TCommand command, CommandDelegate<TResult> next, CancellationToken ct)
+    {
+        command.Log += "second-in>";
+        var result = await next();
+        command.Log += "<second-out";
+
+        return result;
     }
 }
 

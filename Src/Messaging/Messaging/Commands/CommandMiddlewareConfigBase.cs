@@ -36,3 +36,10 @@ public abstract class CommandMiddlewareConfigBase
            tMiddleware.GetGenericArguments().Length == 2 &&
            tMiddleware.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == openGenericInterface);
 }
+
+// Native AOT cannot resolve IEnumerable<ICommandMiddleware<TCommand, Void>> (Void is a valuetype).
+// AddCommandMiddleware records implementation types here so VoidCommandHandlerExecutor can build the pipeline without that closed generic.
+sealed class CommandMiddlewareRegistrations
+{
+    internal List<(Type tInterface, Type tImplementation)> Items { get; } = [];
+}

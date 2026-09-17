@@ -33,6 +33,8 @@ bld.Services
            c.Register<MiddlewareTestCmd, MiddlewareTestResult, FirstMiddleware>();
            c.Register<MiddlewareTestCmd, MiddlewareTestResult, SecondMiddleware<MiddlewareTestCmd, MiddlewareTestResult>>();
            c.Register<MiddlewareTestCmd, MiddlewareTestResult, ThirdMiddleware<MiddlewareTestCmd, MiddlewareTestResult>>();
+           c.Register<VoidMiddlewareCmd, FastEndpoints.Void, VoidFirstMiddleware>();
+           c.Register<VoidMiddlewareCmd, FastEndpoints.Void, VoidSecondMiddleware>();
        })
    .AddStreamCommandMiddleware(c => c.Register<StreamNumbersWithMiddlewareAotCommand, int, StreamNumbersAotMiddleware>())
    .OpenApiDocument(o => o.DocumentName = "v1");

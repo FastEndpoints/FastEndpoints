@@ -306,9 +306,30 @@ public static class CommandExtensions
         if (config.Middleware.Count == 0)
             throw new ArgumentNullException(paramName, "Please add some command middleware to the pipeline!");
 
+        var registrations = config is CommandMiddlewareConfig
+                                ? GetOrAddCommandMiddlewareRegistrations(services)
+                                : null;
+
         foreach (var mw in config.Middleware)
+        {
             services.AddTransient(mw.tInterface, mw.tImplementation);
+            registrations?.Items.Add(mw);
+        }
 
         return services;
+    }
+
+    static CommandMiddlewareRegistrations GetOrAddCommandMiddlewareRegistrations(IServiceCollection services)
+    {
+        foreach (var d in services)
+        {
+            if (d.ServiceType == typeof(CommandMiddlewareRegistrations) && d.ImplementationInstance is CommandMiddlewareRegistrations existing)
+                return existing;
+        }
+
+        var created = new CommandMiddlewareRegistrations();
+        services.AddSingleton(created);
+
+        return created;
     }
 }

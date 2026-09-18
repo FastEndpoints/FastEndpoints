@@ -49,6 +49,8 @@ AOT tests: use `NativeAot.slnx` (publish workflow currently has AOT test step co
 - `Mode.WaitForAny` / `WaitForNone` offload handlers with `Task.Run`. Do not assert handler side-effects immediately after those publishes; poll, or use `WaitForAll`. For "was it published", use an event receiver (capture is sync at publish start).
 - No external DB for the core suite; job storage tests use in-memory/test providers.
 - Job-queue idempotency, gRPC reflection, and AOT binding/jobs live under the matching `Tests/UnitTests`, `Tests/IntegrationTests/FastEndpoints/RPCTests`, and `Tests/NativeAotTests` folders. Do not stand up a second in-process event hub with default storage types (see [gotchas.md](gotchas.md)).
+- Financial HTTP idempotency: real Kestrel response-lifecycle tests in `FinancialResponseCaptureTests.cs`; unit tests in `Tests/UnitTests/FastEndpoints/Financial*.cs` / `MemoryFinancialIdempotencyStoreTests.cs`; harness endpoints in `TestHarness/Web/[Features]/TestCases/FinancialIdempotency/`; integration in `Tests/IntegrationTests/FastEndpoints/FinancialIdempotencyTests/` (`Sut` for the memory path, `FinancialIdempotencyFaultSut` for in-flight/`Complete` failure fakes).
+- Unit tests that host `WebApplication` + `UseFastEndpoints()` must isolate process statics (see [gotchas.md](gotchas.md)). Copy `EndpointRouteMapperTests`: `RouteMapperCollection` + restore `ServiceResolver` on dispose. Do not add a second in-process host in `Unit.FastEndpoints` without that pattern.
 
 ## OpenAPI snapshots
 - Goldens: `Tests/IntegrationTests/FastEndpoints.OpenApi/release-*.http` and `release-*.json` (plus `release-versioning-*`).

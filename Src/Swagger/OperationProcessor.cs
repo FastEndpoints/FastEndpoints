@@ -362,14 +362,34 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
 
     static void AddIdempotencyHeader(ProcessingState state, List<OpenApiParameter> requestParams)
     {
-        if (state.EndpointDefinition.IdempotencyOptions is null)
+        var epDef = state.EndpointDefinition;
+        string headerName;
+        string? description;
+        Func<object>? exampleGenerator;
+        Type? headerType;
+
+        if (epDef.IdempotencyOptions is not null)
+        {
+            headerName = epDef.IdempotencyOptions.HeaderName;
+            description = epDef.IdempotencyOptions.SwaggerHeaderDescription;
+            exampleGenerator = epDef.IdempotencyOptions.SwaggerExampleGenerator;
+            headerType = epDef.IdempotencyOptions.SwaggerHeaderType;
+        }
+        else if (epDef.FinancialIdempotencyOptions is not null)
+        {
+            headerName = epDef.FinancialIdempotencyOptions.HeaderName;
+            description = epDef.FinancialIdempotencyOptions.SwaggerHeaderDescription;
+            exampleGenerator = epDef.FinancialIdempotencyOptions.SwaggerExampleGenerator;
+            headerType = epDef.FinancialIdempotencyOptions.SwaggerHeaderType;
+        }
+        else
             return;
 
-        var prm = CreateParam(state.ParamCtx, OpenApiParameterKind.Header, null, state.EndpointDefinition.IdempotencyOptions.HeaderName, true);
-        prm.Example = state.EndpointDefinition.IdempotencyOptions.SwaggerExampleGenerator?.Invoke();
-        prm.Description = state.EndpointDefinition.IdempotencyOptions.SwaggerHeaderDescription;
-        if (state.EndpointDefinition.IdempotencyOptions.SwaggerHeaderType is not null)
-            prm.Schema = JsonSchema.FromType(state.EndpointDefinition.IdempotencyOptions.SwaggerHeaderType);
+        var prm = CreateParam(state.ParamCtx, OpenApiParameterKind.Header, null, headerName, true);
+        prm.Example = exampleGenerator?.Invoke();
+        prm.Description = description;
+        if (headerType is not null)
+            prm.Schema = JsonSchema.FromType(headerType);
         requestParams.Add(prm);
     }
 

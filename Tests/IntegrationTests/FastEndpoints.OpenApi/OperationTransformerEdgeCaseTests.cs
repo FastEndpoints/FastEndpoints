@@ -404,6 +404,19 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     }
 
     [Fact]
+    public async Task financial_idempotency_header_is_added_as_required_parameter()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var header = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/financial-idempotency"]!["post"]!["parameters"].ArrayItems()
+                           .First(p => p["name"]!.GetValue<string>() == "Idempotency-Key");
+
+        header["in"]!.GetValue<string>().ShouldBe("header");
+        header["required"]!.GetValue<bool>().ShouldBeTrue();
+        header["description"]!.GetValue<string>().ShouldBe("financial idempotency key");
+        header["example"]!.GetValue<string>().ShouldBe("fin-key-1");
+    }
+
+    [Fact]
     public async Task idempotency_header_is_not_duplicated_when_already_present()
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review");

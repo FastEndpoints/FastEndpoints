@@ -10,6 +10,29 @@ Please [join the discussion here](https://github.com/FastEndpoints/FastEndpoints
 
 ## New 🎉
 
+<details><summary>Financial-mode HTTP idempotency with <code>FinancialIdempotency()</code></summary>
+
+Payment-style POST/PUT endpoints can reserve an idempotency key before the handler runs, replay the original 2xx, and `409` when the same key is reused with a different payload. This is a dedicated store and middleware, not an output-cache mode. Fingerprint `Idempotency()` is unchanged.
+
+Register `AddFinancialIdempotency()` (in-memory store by default, or `AddFinancialIdempotency<TStore>()` for Redis/SQL) and `UseFinancialIdempotency()` after routing/auth, next to `UseOutputCache()`. Do not call both `Idempotency()` and `FinancialIdempotency()` on the same endpoint. Distributed stores must implement atomic `TryBegin`; in-flight keys return `409` so clients retry. Fail-closed `500` if a 2xx cannot be replayed. Requires an explicit trusted stable `CallerScope`. Ownership-token settlement prevents stale writers; active and uncertain reservations never auto-expire. Concurrent requests return immediate `409`. Exceptions and ambiguous non-2xx responses retain protection; only explicit no-side-effects rejection releases a key. Bounded lifecycle capture includes empty responses and pending pipe bytes. Uploaded file contents participate in the hash. Breaking store/identity changes require coordinated migration. A durable application store and transactional/downstream idempotency remain deployment obligations.
+
+```csharp
+bld.Services.AddFastEndpoints().AddFinancialIdempotency(c =>
+    c.CallerScope = ctx => ctx.User.FindFirst("account_id")?.Value);
+app.UseFinancialIdempotency().UseFastEndpoints();
+
+sealed class Charge : Endpoint<Request, Response>
+{
+    public override void Configure()
+    {
+        Post("charges");
+        FinancialIdempotency(o => o.Duration = TimeSpan.FromHours(24));
+    }
+}
+```
+
+</details>
+
 <details><summary>Exclude an endpoint from route versioning with <code>DontVersion()</code></summary>
 
 When `Versioning.DefaultVersion` is set, every endpoint that does not call `Version(n)` gets that version on its route. Call `DontVersion()` to keep an endpoint at version 0 so no version segment is added (`/health` instead of `/v1/health`).

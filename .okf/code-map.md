@@ -44,12 +44,12 @@ tags: [layout]
 | Folder under `Src/Library/` | Concern |
 | --- | --- |
 | `Main/` | Startup facades + collaborators: `MainExtensions` (public entry; wires discovery + messaging registration), `EndpointData` (HTTP definition catalog only)/`EndpointDiscoveryOptions`, `EndpointBootstrap`, `FeRequestHandler`, `EndpointRouteMapper`, `EndpointSecurityPolicies`, `EndpointProducesMetadata`, `EndpointWarmup`, `ResponseCacheExecutor`, `IFeatureFlag` |
-| `Endpoint/` | Endpoint base, setup, send, validation, processors, mappers, HTTP `Idempotency/` |
+| `Endpoint/` | Endpoint base, setup, send, validation, processors, mappers |
 | `Binder/` | Request binding |
 | `Config/` | Global `Config` options |
 | `Validation/` | FluentValidation wrappers |
 | `Messaging/` | Command handlers living in Library surface |
-| `Middleware/` | e.g. antiforgery |
+| `Middleware/` | Antiforgery, HTTP `Idempotency/` (fingerprint) and `FinancialIdempotency/` (reservation) |
 | `Auth/`, `X402/` | Auth hooks / payment protocol support |
 | `Testing/` | Lightweight test helpers shipped with main package |
 

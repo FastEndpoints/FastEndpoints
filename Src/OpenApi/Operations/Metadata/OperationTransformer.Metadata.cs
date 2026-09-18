@@ -70,28 +70,58 @@ sealed partial class OperationMetadataTransformer(DocumentOptions docOpts, Share
 
     public void AddIdempotencyHeader(OpenApiOperation operation, EndpointDefinition epDef, OpenApiGenerationState generation)
     {
-        if (epDef.IdempotencyOptions is null)
+        if (!TryGetIdempotencyHeader(epDef, out var headerName, out var description, out var exampleGenerator, out var headerType))
             return;
 
-        if (OperationParameterCollection.Has(operation, ParameterLocation.Header, epDef.IdempotencyOptions.HeaderName))
+        if (OperationParameterCollection.Has(operation, ParameterLocation.Header, headerName))
             return;
 
-        var exampleValue = epDef.IdempotencyOptions.SwaggerExampleGenerator?.Invoke();
+        var exampleValue = exampleGenerator?.Invoke();
         var exampleNode = exampleValue.JsonNodeFromObject(SerializerOptions);
 
         OperationParameterCollection.Add(
             operation,
-            new OpenApiParameter
+            new()
             {
-                Name = epDef.IdempotencyOptions.HeaderName,
+                Name = headerName,
                 In = ParameterLocation.Header,
                 Required = true,
-                Description = epDef.IdempotencyOptions.SwaggerHeaderDescription,
-                Schema = epDef.IdempotencyOptions.SwaggerHeaderType is not null
-                             ? epDef.IdempotencyOptions.SwaggerHeaderType.GetSchemaForType(sharedCtx, generation, docOpts.ShortSchemaNames)
+                Description = description,
+                Schema = headerType is not null
+                             ? headerType.GetSchemaForType(sharedCtx, generation, docOpts.ShortSchemaNames)
                              : OperationSchemaHelpers.CreateSchemaFromExampleNode(exampleNode) ?? OperationSchemaHelpers.StringSchema(),
                 Example = exampleNode
             });
+    }
+
+    static bool TryGetIdempotencyHeader(EndpointDefinition epDef, out string headerName, out string? description, out Func<object>? exampleGenerator, out Type? headerType)
+    {
+        if (epDef.IdempotencyOptions is not null)
+        {
+            headerName = epDef.IdempotencyOptions.HeaderName;
+            description = epDef.IdempotencyOptions.SwaggerHeaderDescription;
+            exampleGenerator = epDef.IdempotencyOptions.SwaggerExampleGenerator;
+            headerType = epDef.IdempotencyOptions.SwaggerHeaderType;
+
+            return true;
+        }
+
+        if (epDef.FinancialIdempotencyOptions is not null)
+        {
+            headerName = epDef.FinancialIdempotencyOptions.HeaderName;
+            description = epDef.FinancialIdempotencyOptions.SwaggerHeaderDescription;
+            exampleGenerator = epDef.FinancialIdempotencyOptions.SwaggerExampleGenerator;
+            headerType = epDef.FinancialIdempotencyOptions.SwaggerHeaderType;
+
+            return true;
+        }
+
+        headerName = null!;
+        description = null;
+        exampleGenerator = null;
+        headerType = null;
+
+        return false;
     }
 
     public void AddX402Headers(OpenApiOperation operation, EndpointDefinition epDef)
@@ -103,7 +133,7 @@ sealed partial class OperationMetadataTransformer(DocumentOptions docOpts, Share
         {
             OperationParameterCollection.Add(
                 operation,
-                new OpenApiParameter
+                new()
                 {
                     Name = X402Constants.PaymentSignatureHeader,
                     In = ParameterLocation.Header,

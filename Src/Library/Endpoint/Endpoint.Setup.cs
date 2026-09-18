@@ -354,6 +354,14 @@ public abstract partial class Endpoint<TRequest, TResponse> where TRequest : not
         => Definition.Idempotency(options);
 
     /// <summary>
+    /// specify financial-mode idempotency for this endpoint (Stripe-style reservation, not output-cache fingerprinting).
+    /// requires <c>AddFinancialIdempotency()</c> and <c>UseFinancialIdempotency()</c>. cannot be combined with <see cref="Idempotency" />.
+    /// </summary>
+    /// <param name="options">the financial idempotency options</param>
+    protected void FinancialIdempotency(Action<FinancialIdempotencyOptions>? options = null)
+        => Definition.FinancialIdempotency(options);
+
+    /// <summary>
     /// register metadata objects for the endpoint. these will be auto added to the endpoint metadata collection during startup.
     /// </summary>
     /// <param name="metadata"></param>

@@ -26,6 +26,7 @@ bld.Services
    .AddCors()
    .AddOutputCache()
    .AddIdempotency()
+   .AddFinancialIdempotency(c => c.CallerScope = _ => "anonymous-test-harness")
    .AddResponseCaching()
    .AddFastEndpoints(DiscoveredTypes.All)
    .AddX402()
@@ -88,6 +89,7 @@ app.UseRequestLocalization(
        })
    .UseAntiforgeryFE(additionalContentTypes: ["application/json"])
    .UseOutputCache()
+   .UseFinancialIdempotency()
    .UseFastEndpoints(
        c =>
        {

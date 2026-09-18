@@ -2545,6 +2545,38 @@
         }
       }
     },
+    "/api/swagger-review/financial-idempotency": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewFinancialIdempotencyReviewEndpoint",
+        "parameters": [
+          {
+            "name": "Idempotency-Key",
+            "in": "header",
+            "description": "financial idempotency key",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "example": "fin-key-1"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/swagger-review/generic-xml-doc": {
       "post": {
         "tags": [

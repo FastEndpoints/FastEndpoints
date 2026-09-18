@@ -53,6 +53,7 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     public List<string>? EndpointTags { get; private set; }
     public string? FormDataContentType { get; private set; }
     public IdempotencyOptions? IdempotencyOptions { get; private set; }
+    public FinancialIdempotencyOptions? FinancialIdempotencyOptions { get; private set; }
     public object[]? EndpointMetadata { get; private set; }
     public string? OverriddenRoutePrefix { get; private set; }
     public List<string>? PreBuiltUserPolicies { get; private set; }
@@ -362,8 +363,22 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     public void Idempotency(Action<IdempotencyOptions>? options = null)
     {
         ThrowIfLocked();
+        ThrowIfOtherIdempotencyMode(financial: false);
         IdempotencyOptions ??= new();
         options?.Invoke(IdempotencyOptions);
+    }
+
+    /// <summary>
+    /// specify financial-mode idempotency for this endpoint (Stripe-style reservation, not output-cache fingerprinting).
+    /// requires <c>AddFinancialIdempotency()</c> and <c>UseFinancialIdempotency()</c>. cannot be combined with <see cref="Idempotency" />.
+    /// </summary>
+    /// <param name="options">the financial idempotency options</param>
+    public void FinancialIdempotency(Action<FinancialIdempotencyOptions>? options = null)
+    {
+        ThrowIfLocked();
+        ThrowIfOtherIdempotencyMode(financial: true);
+        FinancialIdempotencyOptions ??= new();
+        options?.Invoke(FinancialIdempotencyOptions);
     }
 
     /// <summary>
@@ -791,6 +806,15 @@ public sealed class EndpointDefinition(Type endpointType, Type requestDtoType, T
     {
         if (IsLocked)
             throw new InvalidOperationException($"Not allowed to configure endpoints after startup! Culprit: [{callerName}()]");
+    }
+
+    void ThrowIfOtherIdempotencyMode(bool financial)
+    {
+        if (financial && IdempotencyOptions is not null)
+            throw new InvalidOperationException("Cannot enable FinancialIdempotency() together with fingerprint Idempotency() on the same endpoint.");
+
+        if (!financial && FinancialIdempotencyOptions is not null)
+            throw new InvalidOperationException("Cannot enable fingerprint Idempotency() together with FinancialIdempotency() on the same endpoint.");
     }
 
     object? _mapper;

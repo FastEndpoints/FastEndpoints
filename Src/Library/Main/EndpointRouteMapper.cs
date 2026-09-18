@@ -45,6 +45,12 @@ static class EndpointRouteMapper
             if (def.AntiforgeryEnabled && (app.ServiceProvider.GetService<IAntiforgery>() is null || AntiforgeryMiddleware.IsRegistered is false))
                 throw new InvalidOperationException("AntiForgery middleware setup is incorrect!");
 
+            if (def.FinancialIdempotencyOptions is not null &&
+                (app.ServiceProvider.GetService<IFinancialIdempotencyStore>() is null || (app is not IApplicationBuilder pipeline || !pipeline.Properties.ContainsKey(FinancialIdempotencyExtensions.RegistrationKey))))
+                throw new InvalidOperationException("Financial idempotency middleware setup is incorrect!");
+
+            def.FinancialIdempotencyOptions?.ApplyDefaults(app.ServiceProvider.GetRequiredService<FinancialIdempotencyConfig>());
+
             if (Cfg.EpOpts.WarmupRequested && (Cfg.EpOpts.WarmupFilter is null || Cfg.EpOpts.WarmupFilter(def)))
                 EndpointWarmup.WarmupEndpoint(def, scope.ServiceProvider);
 

@@ -696,6 +696,25 @@ sealed class ManualSchemaIdempotencyHeaderEndpoint : EndpointWithoutRequest<stri
         => Send.OkAsync("ok", ct);
 }
 
+sealed class FinancialIdempotencyReviewEndpoint : EndpointWithoutRequest<string>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/financial-idempotency");
+        Tags("swagger_review");
+        AllowAnonymous();
+        FinancialIdempotency(
+            o =>
+            {
+                o.SwaggerHeaderDescription = "financial idempotency key";
+                o.SwaggerExampleGenerator = () => "fin-key-1";
+            });
+    }
+
+    public override Task HandleAsync(CancellationToken ct)
+        => Send.OkAsync("ok", ct);
+}
+
 sealed class ChildValidatorReviewRequest
 {
     public ChildValidatorReviewChild Child { get; set; } = new();

@@ -506,6 +506,12 @@ POST {{baseUrl}}/api/swagger-review/explicit-response-example
 Accept: application/json
 
 
+### swagger_review_TestCasesSwaggerReviewFinancialIdempotencyReviewEndpoint
+POST {{baseUrl}}/api/swagger-review/financial-idempotency
+Idempotency-Key: {{Idempotency-Key}}
+Accept: application/json
+
+
 ### swagger_review_TestCasesSwaggerReviewGenericXmlDocReviewEndpoint
 POST {{baseUrl}}/api/swagger-review/generic-xml-doc
 Content-Type: application/json

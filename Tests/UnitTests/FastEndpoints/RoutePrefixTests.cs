@@ -1,8 +1,10 @@
 using System.Text;
+using RouteMapper;
 using Xunit;
 
 namespace FastEndpoints;
 
+[Collection(RouteMapperCollection.Name)]
 public class RoutePrefixTests
 {
     [Fact]

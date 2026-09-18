@@ -32,7 +32,7 @@ Library monorepo, not a hosted product. Package inventory: [monorepo-packages.md
 - Endpoint discovery (reflection or source-generated `DiscoveredTypes`)
 - FluentValidation, pre/post processors, mappers
 - In-process command/event bus and gRPC remote messaging
-- Job queues (storage SPI) and HTTP request idempotency (`AddIdempotency`)
+- Job queues (storage SPI) and HTTP request idempotency (`AddIdempotency` fingerprint; `AddFinancialIdempotency` reservation)
 - JWT/cookie auth, feature flags (`IFeatureFlag`), X402 payment helpers
 - OpenAPI (Microsoft.AspNetCore.OpenApi), AOT-oriented generation
 

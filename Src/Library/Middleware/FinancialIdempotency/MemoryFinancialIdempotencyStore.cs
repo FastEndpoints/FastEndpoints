@@ -11,6 +11,7 @@ public sealed class MemoryFinancialIdempotencyStore : IFinancialIdempotencyStore
     readonly Lock _gate = new();
     readonly Dictionary<string, Record> _records = new(StringComparer.Ordinal);
     readonly TimeProvider _time;
+    readonly ILogger<MemoryFinancialIdempotencyStore>? _logger;
     readonly long _budget;
     readonly int _maxEntries;
     long _used;
@@ -23,11 +24,14 @@ public sealed class MemoryFinancialIdempotencyStore : IFinancialIdempotencyStore
                                            TimeProvider? time = null,
                                            int maxEntries = 10000)
     {
-        if (maxStoredBodyBytes <= 0 || maxEntries <= 0)
+        if (maxStoredBodyBytes <= 0)
             throw new ArgumentOutOfRangeException(nameof(maxStoredBodyBytes));
+        if (maxEntries <= 0)
+            throw new ArgumentOutOfRangeException(nameof(maxEntries));
 
         _budget = maxStoredBodyBytes;
         _maxEntries = maxEntries;
+        _logger = logger;
         _time = time ?? TimeProvider.System;
     }
 
@@ -41,24 +45,37 @@ public sealed class MemoryFinancialIdempotencyStore : IFinancialIdempotencyStore
 
         lock (_gate)
         {
-            Reclaim();
-
             if (_records.TryGetValue(identityKey, out var record))
             {
-                if (!CryptographicOperations.FixedTimeEquals(record.Hash, payloadHash.Span))
-                    return new(FinancialBeginResult.Conflict());
-
-                return new(record.State switch
+                if (record.State != RecordState.Completed || record.Expires > _time.GetUtcNow())
                 {
-                    RecordState.Active => FinancialBeginResult.InFlight(),
-                    RecordState.Completed => FinancialBeginResult.Replay(Clone(record.Response!)),
-                    RecordState.Unreplayable => FinancialBeginResult.Unreplayable(),
-                    _ => throw new InvalidOperationException($"Unknown financial reservation state: {record.State}")
-                });
+                    if (!CryptographicOperations.FixedTimeEquals(record.Hash, payloadHash.Span))
+                        return new(FinancialBeginResult.Conflict());
+
+                    return new(record.State switch
+                    {
+                        RecordState.Active => FinancialBeginResult.InFlight(),
+                        RecordState.Completed => FinancialBeginResult.Replay(Clone(record.Response!)),
+                        RecordState.Unreplayable => FinancialBeginResult.Unreplayable(),
+                        _ => throw new InvalidOperationException($"Unknown financial reservation state: {record.State}")
+                    });
+                }
+
+                _used -= record.Size;
+                _records.Remove(identityKey);
             }
 
             if (_records.Count >= _maxEntries)
-                throw new InvalidOperationException("Financial reservation capacity exhausted. Reconciliation is required.");
+            {
+                Reclaim();
+
+                if (_records.Count >= _maxEntries)
+                {
+                    _logger?.LogError("Financial reservation capacity exhausted. Reconciliation is required.");
+
+                    throw new InvalidOperationException("Financial reservation capacity exhausted. Reconciliation is required.");
+                }
+            }
 
             var token = Guid.NewGuid().ToString("N");
             _records.Add(identityKey, new() { Hash = payloadHash.ToArray(), Token = token });
@@ -96,7 +113,11 @@ public sealed class MemoryFinancialIdempotencyStore : IFinancialIdempotencyStore
             }
 
             if (size > _budget - _used)
+            {
+                _logger?.LogError("Financial response storage capacity exhausted.");
+
                 throw new InvalidOperationException("Financial response storage capacity exhausted.");
+            }
 
             record!.Response = Clone(response);
             record.Size = size;

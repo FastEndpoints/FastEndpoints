@@ -285,4 +285,91 @@ public class FinancialResponseCaptureTests
         await using var capture = new FinancialResponseCapture(new HttpResponseFeature(), 4);
         await Should.ThrowAsync<IOException>(async () => await capture.Stream.WriteAsync(new byte[5]));
     }
+
+    [Fact]
+    public async Task Successful_Handler_Completes_Even_If_Client_Aborted()
+    {
+        var store = new MemoryFinancialIdempotencyStore();
+        var definition = new EndpointDefinition(typeof(FinancialResponseCaptureTests), typeof(object), typeof(object));
+        definition.FinancialIdempotency(o => o.CallerScope = _ => "account");
+        var body = "charged"u8.ToArray();
+        var executions = 0;
+        using var abort = new CancellationTokenSource();
+        var middleware = new FinancialIdempotencyMiddleware(
+            async ctx =>
+            {
+                executions++;
+                ctx.Response.StatusCode = 201;
+                await ctx.Response.Body.WriteAsync(body);
+                abort.Cancel();
+            },
+            store,
+            Microsoft.Extensions.Logging.Abstractions.NullLogger<FinancialIdempotencyMiddleware>.Instance);
+
+        var first = CreateContext();
+        first.RequestAborted = abort.Token;
+
+        try
+        {
+            await middleware.Invoke(first);
+        }
+        catch (OperationCanceledException) { }
+
+        var replay = CreateContext();
+        await middleware.Invoke(replay);
+        replay.Response.StatusCode.ShouldBe(201);
+        ((MemoryStream)replay.Response.Body).ToArray().ShouldBe(body);
+        executions.ShouldBe(1);
+
+        DefaultHttpContext CreateContext()
+        {
+            var ctx = new DefaultHttpContext();
+            ctx.Request.Method = "POST";
+            ctx.Request.Headers["Idempotency-Key"] = "same";
+            ctx.Response.Body = new MemoryStream();
+            ctx.SetEndpoint(new Microsoft.AspNetCore.Http.Endpoint(_ => Task.CompletedTask, new EndpointMetadataCollection(definition), "financial"));
+
+            return ctx;
+        }
+    }
+
+    [Fact]
+    public async Task Abort_During_Handler_Remains_Unreplayable()
+    {
+        var store = new MemoryFinancialIdempotencyStore();
+        var definition = new EndpointDefinition(typeof(FinancialResponseCaptureTests), typeof(object), typeof(object));
+        definition.FinancialIdempotency(o => o.CallerScope = _ => "account");
+        var executions = 0;
+        using var abort = new CancellationTokenSource();
+        var middleware = new FinancialIdempotencyMiddleware(
+            _ =>
+            {
+                executions++;
+                abort.Cancel();
+
+                return Task.FromException(new OperationCanceledException(abort.Token));
+            },
+            store,
+            Microsoft.Extensions.Logging.Abstractions.NullLogger<FinancialIdempotencyMiddleware>.Instance);
+
+        var first = CreateContext();
+        first.RequestAborted = abort.Token;
+        await Should.ThrowAsync<OperationCanceledException>(() => middleware.Invoke(first));
+
+        var retry = CreateContext();
+        await middleware.Invoke(retry);
+        retry.Response.StatusCode.ShouldBe(500);
+        executions.ShouldBe(1);
+
+        DefaultHttpContext CreateContext()
+        {
+            var ctx = new DefaultHttpContext();
+            ctx.Request.Method = "POST";
+            ctx.Request.Headers["Idempotency-Key"] = "same";
+            ctx.Response.Body = new MemoryStream();
+            ctx.SetEndpoint(new Microsoft.AspNetCore.Http.Endpoint(_ => Task.CompletedTask, new EndpointMetadataCollection(definition), "financial"));
+
+            return ctx;
+        }
+    }
 }

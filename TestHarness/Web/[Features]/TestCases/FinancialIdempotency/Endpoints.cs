@@ -71,6 +71,43 @@ sealed class FormEndpoint : Endpoint<ChargeRequest, ChargeResponse>
     }
 }
 
+sealed class FileRequest
+{
+    public IFormFile File { get; set; }
+}
+
+sealed class FileEndpoint : Endpoint<FileRequest, ChargeResponse>
+{
+    public static int HandleCount;
+    public static byte[]? LastBytes;
+
+    public override void Configure()
+    {
+        Post("test-cases/financial-idempotency/file");
+        AllowAnonymous();
+        AllowFormData();
+        Description(x => x.ExcludeFromDescription());
+        FinancialIdempotency();
+    }
+
+    public override async Task HandleAsync(FileRequest req, CancellationToken ct)
+    {
+        Interlocked.Increment(ref HandleCount);
+        await using var stream = req.File.OpenReadStream();
+        using var ms = new MemoryStream();
+        await stream.CopyToAsync(ms, ct);
+        LastBytes = ms.ToArray();
+
+        await Send.ResponseAsync(
+            new()
+            {
+                Amount = LastBytes.Length,
+                Ticks = DateTime.UtcNow.Ticks
+            },
+            201);
+    }
+}
+
 sealed class OversizeEndpoint : EndpointWithoutRequest
 {
     public static int HandleCount;

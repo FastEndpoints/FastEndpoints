@@ -103,7 +103,8 @@ sealed class FinancialIdempotencyMiddleware(RequestDelegate next, IFinancialIdem
         try
         {
             await next(ctx);
-            ctx.RequestAborted.ThrowIfCancellationRequested();
+
+            // A finished handler must settle even if the client disconnected.
             if (!ReferenceEquals(ctx.Features.Get<IHttpResponseBodyFeature>(), capture) ||
                 !ReferenceEquals(ctx.Features.Get<IHttpResponseFeature>(), capture))
                 throw new InvalidOperationException("Financial response capture was replaced.");

@@ -94,6 +94,24 @@ public class FinancialPayloadHashTests
     }
 
     [Fact]
+    public async Task Hashing_Form_Files_Does_Not_Prevent_Later_Reads()
+    {
+        var bytes = "upload-bytes"u8.ToArray();
+        var file = new FormFile(new MemoryStream(bytes), 0, bytes.Length, "file", "a.bin")
+        {
+            Headers = new HeaderDictionary(),
+            ContentType = "application/octet-stream"
+        };
+        var form = new FormCollection(new Dictionary<string, StringValues>(), new FormFileCollection { file });
+        await Hash(form: form);
+
+        await using var again = file.OpenReadStream();
+        var buffer = new byte[bytes.Length];
+        (await again.ReadAsync(buffer)).ShouldBe(bytes.Length);
+        buffer.ShouldBe(bytes);
+    }
+
+    [Fact]
     public async Task Buffering_State_Does_Not_Change_Hash_And_Position_Is_Restored()
     {
         var bytes = "same payload"u8.ToArray();

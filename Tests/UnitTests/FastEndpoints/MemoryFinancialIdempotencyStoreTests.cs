@@ -10,6 +10,15 @@ public class MemoryFinancialIdempotencyStoreTests
         => store.TryBeginAsync(key, new byte[] { value }, Ttl, default);
 
     [Fact]
+    public void Constructor_Validates_Budget_And_Entry_Limits()
+    {
+        Should.Throw<ArgumentOutOfRangeException>(() => new MemoryFinancialIdempotencyStore(0))
+              .ParamName.ShouldBe("maxStoredBodyBytes");
+        Should.Throw<ArgumentOutOfRangeException>(() => new MemoryFinancialIdempotencyStore(1, maxEntries: 0))
+              .ParamName.ShouldBe("maxEntries");
+    }
+
+    [Fact]
     public async Task Active_And_Uncertain_Never_Expire_And_Concurrent_Begin_Is_Immediate()
     {
         var clock = new Clock();

@@ -86,6 +86,9 @@ public static class FinancialIdempotencyExtensions
 
     static FinancialIdempotencyConfig RegisterConfig(IServiceCollection services, Action<FinancialIdempotencyConfig>? cfg)
     {
+        if (services.Any(d => d.ServiceType == typeof(FinancialIdempotencyConfig)))
+            throw new InvalidOperationException("Financial idempotency is already registered!");
+
         var conf = new FinancialIdempotencyConfig();
         cfg?.Invoke(conf);
 

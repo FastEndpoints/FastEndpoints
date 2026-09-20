@@ -9,6 +9,7 @@ public class FinancialIdempotencyTests(Sut App) : TestBase<Sut>
 {
     const string ChargeUrl = "/api/test-cases/financial-idempotency/charge";
     const string FormUrl = "/api/test-cases/financial-idempotency/form";
+    const string FileUrl = "/api/test-cases/financial-idempotency/file";
     const string OversizeUrl = "/api/test-cases/financial-idempotency/oversize";
     const string ThrowUrl = "/api/test-cases/financial-idempotency/throw";
     const string InvalidUrl = "/api/test-cases/financial-idempotency/invalid";
@@ -222,6 +223,25 @@ public class FinancialIdempotencyTests(Sut App) : TestBase<Sut>
     }
 
     [Fact]
+    public async Task Multipart_File_Bytes_Are_Hashed_And_Readable()
+    {
+        var key = Guid.NewGuid().ToString();
+        var handles = FileEndpoint.HandleCount;
+        var first = await Post(FileUrl, key, FileContent("same.bin", "abc"u8.ToArray()));
+        first.StatusCode.ShouldBe(HttpStatusCode.Created);
+        FileEndpoint.LastBytes.ShouldBe("abc"u8.ToArray());
+        var ticks = (await first.Content.ReadFromJsonAsync<ChargeResponse>(Cancellation))!.Ticks;
+
+        var replay = await Post(FileUrl, key, FileContent("same.bin", "abc"u8.ToArray()));
+        replay.StatusCode.ShouldBe(HttpStatusCode.Created);
+        (await replay.Content.ReadFromJsonAsync<ChargeResponse>(Cancellation))!.Ticks.ShouldBe(ticks);
+        FileEndpoint.HandleCount.ShouldBe(handles + 1);
+
+        (await Post(FileUrl, key, FileContent("same.bin", "xyz"u8.ToArray()))).StatusCode.ShouldBe(HttpStatusCode.Conflict);
+        FileEndpoint.HandleCount.ShouldBe(handles + 1);
+    }
+
+    [Fact]
     public async Task Concurrent_Same_Payload_Executes_Once()
     {
         var key = Guid.NewGuid().ToString();
@@ -390,6 +410,14 @@ public class FinancialIdempotencyTests(Sut App) : TestBase<Sut>
 
     static FormUrlEncodedContent Form(params (string Key, string Value)[] fields)
         => new(fields.Select(f => new KeyValuePair<string, string>(f.Key, f.Value)));
+
+static MultipartFormDataContent FileContent(string name, byte[] bytes)
+    {
+        var content = new MultipartFormDataContent();
+        content.Add(new ByteArrayContent(bytes), "File", name);
+
+        return content;
+    }
 
     static async Task<string> Error(HttpResponseMessage res)
     {

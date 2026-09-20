@@ -67,6 +67,17 @@ public class FinancialIdempotencyOptionsTests
         provider.GetRequiredService<FinancialIdempotencyConfig>().DefaultDuration.ShouldBe(duration);
     }
 
+    [Fact]
+    public void Duplicate_Registration_Throws()
+    {
+        var services = new ServiceCollection();
+        services.AddFinancialIdempotency(c => c.CallerScope = _ => "account");
+        Should.Throw<InvalidOperationException>(() => services.AddFinancialIdempotency())
+              .Message.ShouldBe("Financial idempotency is already registered!");
+        Should.Throw<InvalidOperationException>(() => services.AddFinancialIdempotency(new MemoryFinancialIdempotencyStore()))
+              .Message.ShouldBe("Financial idempotency is already registered!");
+    }
+
     [Theory]
     [InlineData(-1L, false)]
     [InlineData(0L, false)]

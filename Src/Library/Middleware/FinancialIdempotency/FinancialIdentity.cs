@@ -39,7 +39,7 @@ static class FinancialIdentity
         writer.Write((byte)2);
         writer.Write(request.Method.ToUpperInvariant());
         writer.Write(request.Scheme.ToUpperInvariant());
-        writer.Write((request.Host.Value ?? "").ToUpperInvariant());
+        writer.Write(CanonicalHost(request));
         writer.Write(path);
         writer.Write(callerScope);
 
@@ -55,4 +55,25 @@ static class FinancialIdentity
 
         return KeyPrefix + Convert.ToHexString(SHA256.HashData(stream.GetBuffer().AsSpan(0, (int)stream.Length)));
     }
+
+    static string CanonicalHost(HttpRequest request)
+    {
+        var host = request.Host;
+        var value = host.Value ?? "";
+
+        // RFC 3986 default ports are the same origin. Keeping them distinct lets one retry miss the reservation.
+        if (host.Port is { } port && IsDefaultPort(request.Scheme, port))
+        {
+            var colon = value.LastIndexOf(':');
+
+            if (colon > 0)
+                value = value[..colon];
+        }
+
+        return value.ToUpperInvariant();
+    }
+
+    static bool IsDefaultPort(string scheme, int port)
+        => (port == 80 && scheme.Equals("http", StringComparison.OrdinalIgnoreCase)) ||
+           (port == 443 && scheme.Equals("https", StringComparison.OrdinalIgnoreCase));
 }

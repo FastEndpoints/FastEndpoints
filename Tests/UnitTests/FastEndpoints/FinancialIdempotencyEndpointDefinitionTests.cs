@@ -1,5 +1,7 @@
+using System.Net;
 using FastEndpoints;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using RouteMapper;
@@ -44,6 +46,68 @@ public class FinancialIdempotencyMapperTests : IDisposable
         Config.EpOpts.RoutePrefix = null;
         Config.EpOpts.Configurator = null;
         MainExtensions.SerializerConfigured = false;
+    }
+
+    [Fact]
+    public async Task Middleware_Before_Routing_Does_Not_Run_The_Handler()
+    {
+        GuardedFinancialEndpoint.Hits = 0;
+        await using var app = GuardHost(financialBeforeRouting: true);
+        await app.StartAsync();
+        using var client = new HttpClient();
+        using var req = new HttpRequestMessage(HttpMethod.Post, app.Urls.Single().TrimEnd('/') + "/fin/guard");
+        req.Headers.TryAddWithoutValidation("Idempotency-Key", "before-routing");
+
+        var res = await client.SendAsync(req);
+
+        ((int)res.StatusCode).ShouldBe(500);
+        GuardedFinancialEndpoint.Hits.ShouldBe(0);
+    }
+
+    [Fact]
+    public async Task Middleware_After_Routing_Runs_Once_And_Replays()
+    {
+        GuardedFinancialEndpoint.Hits = 0;
+        await using var app = GuardHost(financialBeforeRouting: false);
+        await app.StartAsync();
+        using var client = new HttpClient();
+        var url = app.Urls.Single().TrimEnd('/') + "/fin/guard";
+
+        (await Post()).StatusCode.ShouldBe(HttpStatusCode.OK);
+        (await Post()).StatusCode.ShouldBe(HttpStatusCode.OK);
+        GuardedFinancialEndpoint.Hits.ShouldBe(1);
+
+        Task<HttpResponseMessage> Post()
+        {
+            var req = new HttpRequestMessage(HttpMethod.Post, url);
+            req.Headers.TryAddWithoutValidation("Idempotency-Key", "after-routing");
+
+            return client.SendAsync(req);
+        }
+    }
+
+    static WebApplication GuardHost(bool financialBeforeRouting)
+    {
+        var builder = WebApplication.CreateBuilder();
+        builder.WebHost.UseKestrel().UseUrls("http://127.0.0.1:0");
+        builder.Services.AddFastEndpoints([typeof(GuardedFinancialEndpoint)]);
+        builder.Services.AddFinancialIdempotency(c => c.CallerScope = _ => "account");
+        var app = builder.Build();
+
+        if (financialBeforeRouting)
+        {
+            app.UseFinancialIdempotency();
+            app.UseRouting();
+        }
+        else
+        {
+            app.UseRouting();
+            app.UseFinancialIdempotency();
+        }
+
+        app.UseFastEndpoints();
+
+        return app;
     }
 
     public void Dispose()
@@ -167,4 +231,23 @@ file sealed class FinancialOnlyEndpoint : EndpointWithoutRequest
 
     public override Task HandleAsync(CancellationToken ct)
         => Task.CompletedTask;
+}
+
+file sealed class GuardedFinancialEndpoint : EndpointWithoutRequest
+{
+    internal static int Hits;
+
+    public override void Configure()
+    {
+        Post("fin/guard");
+        AllowAnonymous();
+        FinancialIdempotency();
+    }
+
+    public override Task HandleAsync(CancellationToken ct)
+    {
+        Interlocked.Increment(ref Hits);
+
+        return HttpContext.Response.WriteAsync("ok", ct);
+    }
 }

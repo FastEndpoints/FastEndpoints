@@ -372,4 +372,68 @@ public class FinancialResponseCaptureTests
             return ctx;
         }
     }
+
+    [Fact]
+    public async Task Store_Begin_Without_Token_Or_Replay_Body_Does_Not_Run_The_Handler()
+    {
+        var definition = new EndpointDefinition(typeof(FinancialResponseCaptureTests), typeof(object), typeof(object));
+        definition.FinancialIdempotency(o => o.CallerScope = _ => "account");
+        var executions = 0;
+        var store = new BrokenBeginStore();
+        var middleware = new FinancialIdempotencyMiddleware(
+            _ =>
+            {
+                executions++;
+
+                return Task.CompletedTask;
+            },
+            store,
+            Microsoft.Extensions.Logging.Abstractions.NullLogger<FinancialIdempotencyMiddleware>.Instance);
+
+        var missingToken = Context();
+        await middleware.Invoke(missingToken);
+        missingToken.Response.StatusCode.ShouldBe(500);
+
+        store.WhitespaceToken = true;
+        var whitespaceToken = Context();
+        await middleware.Invoke(whitespaceToken);
+        whitespaceToken.Response.StatusCode.ShouldBe(500);
+
+        store.ReplayWithoutBody = true;
+        var missingBody = Context();
+        await middleware.Invoke(missingBody);
+        missingBody.Response.StatusCode.ShouldBe(500);
+        executions.ShouldBe(0);
+
+        DefaultHttpContext Context()
+        {
+            var ctx = new DefaultHttpContext();
+            ctx.Request.Method = "POST";
+            ctx.Request.Headers["Idempotency-Key"] = "same";
+            ctx.Response.Body = new MemoryStream();
+            ctx.SetEndpoint(new Microsoft.AspNetCore.Http.Endpoint(_ => Task.CompletedTask, new EndpointMetadataCollection(definition), "financial"));
+
+            return ctx;
+        }
+    }
+
+    sealed class BrokenBeginStore : IFinancialIdempotencyStore
+    {
+        public bool ReplayWithoutBody { get; set; }
+        public bool WhitespaceToken { get; set; }
+
+        public ValueTask<FinancialBeginResult> TryBeginAsync(string identityKey, ReadOnlyMemory<byte> payloadHash, TimeSpan ttl, CancellationToken ct)
+            => new(ReplayWithoutBody
+                       ? FinancialBeginResult.Replay(null!)
+                       : FinancialBeginResult.Started(WhitespaceToken ? "  " : ""));
+
+        public Task<FinancialSettlementResult> CompleteAsync(string identityKey, string reservationToken, FinancialIdempotencyResponse response, TimeSpan ttl, CancellationToken ct)
+            => throw new NotSupportedException();
+
+        public Task<FinancialSettlementResult> MarkUnreplayableAsync(string identityKey, string reservationToken, CancellationToken ct)
+            => throw new NotSupportedException();
+
+        public Task<FinancialSettlementResult> AbandonAsync(string identityKey, string reservationToken, CancellationToken ct)
+            => throw new NotSupportedException();
+    }
 }

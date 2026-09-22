@@ -26,6 +26,7 @@ internal sealed class FeRequestHandler : IResult
                 if (hdrVal.Count == 0)
                 {
                     ctx.Response.StatusCode = 403;
+                    ReleaseUnusedFinancialReservation(ctx);
 
                     return ctx.Response.WriteAsync("Forbidden by rate limiting middleware!", ctx.RequestAborted);
                 }
@@ -34,6 +35,7 @@ internal sealed class FeRequestHandler : IResult
             if (epDef.HitCounter.LimitReached(hdrVal[0]!))
             {
                 ctx.Response.StatusCode = 429;
+                ReleaseUnusedFinancialReservation(ctx);
 
                 return ctx.Response.WriteAsync(ThrOpts.Message ?? "You are requesting this endpoint too frequently!", ctx.RequestAborted);
             }
@@ -59,6 +61,7 @@ internal sealed class FeRequestHandler : IResult
             if (acceptsMeta is not null && !acceptsMeta.ContentTypes.Contains("*/*"))
             {
                 ctx.Response.StatusCode = 415;
+                ReleaseUnusedFinancialReservation(ctx);
 
                 return ctx.Response.StartAsync(ctx.RequestAborted);
             }
@@ -75,5 +78,13 @@ internal sealed class FeRequestHandler : IResult
         ResponseCacheExecutor.Execute(ctx, epDef);
 
         return epInstance.ExecAsync(ctx.RequestAborted);
+    }
+
+    // These returns happen before the endpoint exists, so the handler cannot assert no side effects itself.
+    // Leaving the reservation active would permanently burn a key that never ran business code.
+    static void ReleaseUnusedFinancialReservation(HttpContext ctx)
+    {
+        if (ctx.Items.ContainsKey(FinancialIdempotencyMiddleware.RejectionKey))
+            ctx.RejectFinancialIdempotencyWithoutSideEffects();
     }
 }

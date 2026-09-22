@@ -176,6 +176,23 @@ public class FinancialIdentityTests
         FinancialIdentity.Build(request, options).ShouldNotBe(rebuilt);
     }
 
+[Fact]
+    public void Default_Port_Is_Not_A_Distinct_Origin()
+    {
+        var opts = new FinancialIdempotencyOptions { CallerScope = _ => "account" };
+        string Id(string scheme, string host) => FinancialIdentity.Build(Request(scheme: scheme, host: host), opts, "account");
+
+        Id("https", "example.com").ShouldBe(Id("https", "example.com:443"));
+        Id("https", "example.com").ShouldBe(Id("HTTPS", "Example.COM:443"));
+        Id("http", "example.com").ShouldBe(Id("http", "example.com:80"));
+        Id("https", "[::1]").ShouldBe(Id("https", "[::1]:443"));
+        Id("https", "example.com").ShouldNotBe(Id("http", "example.com"));
+        Id("https", "example.com").ShouldNotBe(Id("https", "example.com:8443"));
+        Id("https", "example.com").ShouldNotBe(Id("https", "example.com:80"));
+        Id("https", "example.com").ShouldNotBe(Id("http", "example.com:443"));
+        Id("https", "example.com:443").ShouldNotBe(Id("https", "example.com:444"));
+    }
+
     static HttpRequest Request(string method = "POST",
                                string scheme = "https",
                                string host = "example.com",

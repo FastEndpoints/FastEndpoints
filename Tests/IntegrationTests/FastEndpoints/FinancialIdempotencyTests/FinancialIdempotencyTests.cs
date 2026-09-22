@@ -38,6 +38,23 @@ public class FinancialIdempotencyTests(Sut App) : TestBase<Sut>
     }
 
     [Fact]
+    public async Task Missing_Content_Type_Does_Not_Burn_The_Key()
+    {
+        var key = Guid.NewGuid().ToString();
+        var handles = ChargeEndpoint.HandleCount;
+        var bytes = """{"amount":10}"""u8.ToArray();
+
+        var rejected = await Post(ChargeUrl, key, new ByteArrayContent(bytes));
+        rejected.StatusCode.ShouldBe(HttpStatusCode.UnsupportedMediaType);
+        ChargeEndpoint.HandleCount.ShouldBe(handles);
+
+        var accepted = await Post(ChargeUrl, key, new ByteArrayContent(bytes), r => r.Content!.Headers.ContentType = new("application/json"));
+        accepted.StatusCode.ShouldBe(HttpStatusCode.Created);
+        (await accepted.Content.ReadFromJsonAsync<ChargeResponse>(Cancellation))!.Amount.ShouldBe(10);
+        ChargeEndpoint.HandleCount.ShouldBe(handles + 1);
+    }
+
+    [Fact]
     public async Task Same_Payload_Replays_And_Maps_Status()
     {
         var key = Guid.NewGuid().ToString();

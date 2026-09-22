@@ -54,6 +54,10 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
 {
     internal override async Task ExecAsync(CancellationToken ct)
     {
+        if (Definition.FinancialIdempotencyOptions is not null &&
+            !HttpContext.Items.ContainsKey(FinancialIdempotencyMiddleware.PipelineKey))
+            throw new InvalidOperationException("Financial idempotency middleware did not cover this request. Place UseFinancialIdempotency() after routing and before the endpoint.");
+
         TRequest req = default!;
         var ranPreProcessors = false;
         ExceptionDispatchInfo? edi = null;

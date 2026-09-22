@@ -9,9 +9,11 @@ namespace FastEndpoints;
 sealed class FinancialIdempotencyMiddleware(RequestDelegate next, IFinancialIdempotencyStore store, ILogger<FinancialIdempotencyMiddleware> logger)
 {
     internal static readonly object RejectionKey = new();
+    internal static readonly object PipelineKey = new();
 
     internal const string ConflictMessage = "This idempotency key was already used with a different payload!";
     internal const string UnreplayableMessage = "The original response could not be cached for replay!";
+    internal const string InvalidBeginMessage = "Financial idempotency could not start a reservation for this request.";
     internal const string InProgressMessage = "A request with this idempotency key is already in progress!";
     internal const string MultipleHeadersMessage = "Multiple idempotency headers not allowed!";
 
@@ -66,8 +68,12 @@ sealed class FinancialIdempotencyMiddleware(RequestDelegate next, IFinancialIdem
 
         switch (began.Kind)
         {
+            case FinancialBeginKind.Replay when began.Response is not null:
+                await WriteReplay(ctx, opts, idmpKey, began.Response);
+
+                return;
             case FinancialBeginKind.Replay:
-                await WriteReplay(ctx, opts, idmpKey, began.Response!);
+                await SendError(ctx, 500, UnreplayableMessage);
 
                 return;
             case FinancialBeginKind.Conflict:
@@ -82,8 +88,12 @@ sealed class FinancialIdempotencyMiddleware(RequestDelegate next, IFinancialIdem
                 await SendError(ctx, 409, InProgressMessage);
 
                 return;
+            case FinancialBeginKind.Started when !string.IsNullOrWhiteSpace(began.ReservationToken):
+                await ExecuteAndSettle(ctx, opts, identityKey, began.ReservationToken, ttl);
+
+                return;
             case FinancialBeginKind.Started:
-                await ExecuteAndSettle(ctx, opts, identityKey, began.ReservationToken!, ttl);
+                await SendError(ctx, 500, InvalidBeginMessage);
 
                 return;
             default:
@@ -99,6 +109,7 @@ sealed class FinancialIdempotencyMiddleware(RequestDelegate next, IFinancialIdem
         ctx.Features.Set<IHttpResponseFeature>(capture);
         ctx.Features.Set<IHttpResponseBodyFeature>(capture);
         ctx.Items[RejectionKey] = false;
+        ctx.Items[PipelineKey] = true;
         byte[] body;
         try
         {
@@ -121,6 +132,7 @@ sealed class FinancialIdempotencyMiddleware(RequestDelegate next, IFinancialIdem
             ctx.Features.Set(originalResponse);
             ctx.Features.Set(originalBody);
             ctx.Items.Remove(RejectionKey);
+            ctx.Items.Remove(PipelineKey);
         }
 
         originalResponse.StatusCode = capture.StatusCode;

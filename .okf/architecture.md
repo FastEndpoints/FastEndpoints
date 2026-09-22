@@ -68,14 +68,12 @@ Attributes / Messaging.Core
 - **Remote reflection:** `FastEndpoints.Messaging.Remote.Reflection` is an opt-in satellite package holding the protobuf wire
   format and gRPC server reflection (`AddHandlerReflection` / `MapHandlerReflection`). It generates Google.Protobuf descriptors
   from the command CLR types, so protobuf/reflection dependencies stay out of `Messaging.Remote`.
-- **Jobs:** `AddJobQueues<TJob, TStorage>()`; storage provider is app-supplied. `UseJobQueues` constructs per-command queues with `ActivatorUtilities` (not open-generic DI) so void `ICommand` jobs work under Native AOT. Optional business-key idempotency via `JobQueueOptions.IdempotencyKeyFor<TCommand>(Func<TCommand,string?>)` + storage record `IHasIdempotencyKey` + provider uniqueness / `DuplicateJobException`.
-- **HTTP idempotency:** fingerprint mode is an output-cache policy (`AddIdempotency` + `Idempotency()`). financial mode is a separate reservation pipeline (`AddFinancialIdempotency` + `UseFinancialIdempotency` + `FinancialIdempotency()`) with `IFinancialIdempotencyStore` (atomic `TryBegin` and ownership-token settlement). Requires stable caller scope; unresolved reservations require explicit reconciliation and never auto-expire. do not combine both on one endpoint. not shared with job-queue `IdempotencyKeyFor`.
-
-**Financial fingerprint internals:** `FinancialIdempotencyOptions` owns the identity-header cache: `ApplyDefaults` eagerly rebuilds it after validation; `IdentityHeaders` returns it or computes without caching before mapping. `FinancialIdempotencyHeaders.IdentityHeaderNames` only normalizes header-name inputs. `FinancialPayloadHash.ComputeAsync` owns buffering, rewind, and position restoration in one `try/finally` for raw and form bodies, after query hashing. The rented hash buffer is cleared on return. Identity and version-2 payload encodings remain persistence contracts, pinned by `FinancialIdentityTests` and `FinancialPayloadHashTests`. `FinancialIdentity.CanonicalHost` drops only RFC 3986 default ports. `FinancialIdempotencyHeaders.SnapshotHeaders` owns response-header selection and copying for storage; middleware owns snapshot timing and replay delivery. Snapshot exclusions are stricter than replay filtering and do not filter first-response delivery. Settlement of a finished 2xx is independent of `RequestAborted`; abort during the handler still marks unreplayable. `FeRequestHandler` abandons its pre-endpoint `415` and hit-counter `403`/`429` via `RejectFinancialIdempotencyWithoutSideEffects`. `ExecAsync` requires `FinancialIdempotencyMiddleware.PipelineKey`, set only around the reserved `next()` call. A `Started` result without a token or a `Replay` without a response fails closed and does not run the handler. `RegisterConfig` rejects a second `AddFinancialIdempotency()`. `MemoryFinancialIdempotencyStore` expires a completed record on that key's `TryBegin` and full-scans `Reclaim` only when admitting at `maxEntries` or completing (budget).
+- **Jobs:** `AddJobQueues<TJob, TStorage>()` with an app-supplied storage provider. Optional business-key idempotency via `JobQueueOptions.IdempotencyKeyFor`. AOT construction and dedupe traps: [gotchas.md](gotchas.md).
+- **HTTP idempotency:** fingerprint mode is an output-cache policy (`AddIdempotency` + `Idempotency()`). Financial mode is a separate reservation pipeline (`AddFinancialIdempotency` + `UseFinancialIdempotency` + `FinancialIdempotency()`) with `IFinancialIdempotencyStore` (atomic `TryBegin`, ownership-token settlement). Requires a stable caller scope. Do not combine both on one endpoint. Not shared with job-queue `IdempotencyKeyFor`. Settlement and identity traps: [gotchas.md](gotchas.md).
 
 ## Persistence
 - Framework does **not** own an app DB. Job queues require consumer `IJobStorageProvider` / `IJobStorageRecord` implementations.
-- Job idempotency is storage-enforced on `(QueueID, IdempotencyKey)` while the row exists (including completed); not filtered to incomplete-only.
+- Job-queue idempotency rules: [gotchas.md](gotchas.md).
 - No EF/migrations in this repo.
 
 ## Security / auth
@@ -90,11 +88,9 @@ Attributes / Messaging.Core
 1. Endpoint types implement `IEndpoint`; public base is `Endpoint<TRequest[, TResponse]>`.
 2. AOT: do **not** rely on reflection discovery; use `AddFastEndpoints(DiscoveredTypes.All)` (+ generator).
 3. Mappers/validators discovered types are typically treated as singletons for performance; no per-request state in mappers.
-4. Shared library TFMs: **net8.0;net9.0;net10.0** (exceptions: Generator netstandard2.0; Attributes multi-TFM; Agents often net9+net10).
-5. Strong-name signing via `FastEndpoints.snk` (public key in Directory.Build.props / InternalsVisibleTo).
-6. Central package versions: root `Directory.Packages.props` (`ManagePackageVersionsCentrally`).
-7. Agents addons version **independently** of core (`Src/Agents/Directory.Build.props` imports parent then overrides).
-8. Do not rename, retype, or remove Library internals listed in the Agents friend-assembly stock ([gotchas.md](gotchas.md)) without checking published agent package compatibility and restocking OKF.
+4. TFMs, central package versions, and strong-name signing: [dependencies.md](dependencies.md).
+5. Agents addons version independently of core: [monorepo-packages.md](monorepo-packages.md).
+6. Do not rename, retype, or remove Library internals in the Agents friend-assembly stock ([gotchas.md](gotchas.md)) without checking published agent packages and restocking that list.
 
 ## Sources
 - `Src/Library/Main/MainExtensions.cs`

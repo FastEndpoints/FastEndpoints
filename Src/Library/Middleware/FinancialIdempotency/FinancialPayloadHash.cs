@@ -4,17 +4,19 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
+using Microsoft.Net.Http.Headers;
 
 namespace FastEndpoints;
 
 static class FinancialPayloadHash
 {
-    internal const byte LayoutVersion = 2;
+    internal const byte LayoutVersion = 1;
 
     internal static async ValueTask<byte[]> ComputeAsync(HttpRequest request, CancellationToken ct)
     {
         using var hasher = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
         AppendByte(hasher, LayoutVersion);
+        AppendContentType(hasher, request.ContentType);
 
         if (request.Query.Count > 0)
             AppendQuery(hasher, request.Query);
@@ -45,6 +47,20 @@ static class FinancialPayloadHash
         }
 
         return hasher.GetHashAndReset();
+    }
+
+    static void AppendContentType(IncrementalHash hasher, string? contentType)
+    {
+        if (contentType is not null && MediaTypeHeaderValue.TryParse(contentType, out var parsed))
+        {
+            AppendString(hasher, parsed.MediaType.ToString().ToLowerInvariant());
+            AppendString(hasher, parsed.Charset.ToString().Trim('"').ToLowerInvariant());
+        }
+        else
+        {
+            AppendString(hasher, contentType?.Trim().ToLowerInvariant() ?? "");
+            AppendString(hasher, "");
+        }
     }
 
     static void AppendQuery(IncrementalHash hasher, IQueryCollection query)

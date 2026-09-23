@@ -18,6 +18,39 @@ public class FinancialPayloadHashTests
         a.ShouldBe(b);
     }
 
+    [Theory]
+    [InlineData("application/json", "application/json; charset=utf-16")]
+    [InlineData("application/json", "text/plain")]
+    [InlineData("application/x-www-form-urlencoded; charset=utf-8", "application/x-www-form-urlencoded; charset=utf-16")]
+    public async Task Different_Declared_Representation_Changes_Hash(string firstType, string secondType)
+    {
+        var bytes = "value=10"u8.ToArray();
+        (await HashWithType(firstType)).ShouldNotBe(await HashWithType(secondType));
+
+        async Task<byte[]> HashWithType(string contentType)
+        {
+            var ctx = new DefaultHttpContext();
+            ctx.Request.ContentType = contentType;
+            ctx.Request.Body = new MemoryStream(bytes);
+            return await FinancialPayloadHash.ComputeAsync(ctx.Request, CancellationToken.None);
+        }
+    }
+
+    [Fact]
+    public async Task Equivalent_Representation_Spelling_Hashes_The_Same()
+    {
+        var bytes = "{\"value\":10}"u8.ToArray();
+        (await HashWithType("Application/JSON; charset=\"UTF-8\"")).ShouldBe(await HashWithType("application/json; charset=utf-8"));
+
+        async Task<byte[]> HashWithType(string contentType)
+        {
+            var ctx = new DefaultHttpContext();
+            ctx.Request.ContentType = contentType;
+            ctx.Request.Body = new MemoryStream(bytes);
+            return await FinancialPayloadHash.ComputeAsync(ctx.Request, CancellationToken.None);
+        }
+    }
+
     [Fact]
     public async Task Query_Order_Does_Not_Change_Hash()
     {
@@ -118,6 +151,7 @@ public class FinancialPayloadHashTests
         var expected = await Hash(body: bytes);
         var context = new DefaultHttpContext();
         context.Request.Body = new NonSeekable(bytes);
+        context.Request.ContentType = "application/json";
         context.Request.EnableBuffering();
         await context.Request.Body.ReadExactlyAsync(new byte[3]);
         (await FinancialPayloadHash.ComputeAsync(context.Request, default)).ShouldBe(expected);
@@ -129,11 +163,11 @@ public class FinancialPayloadHashTests
     }
 
     [Fact]
-    public async Task Raw_Payload_Preserves_Version_Two_Encoding()
+    public async Task Raw_Payload_Preserves_Version_One_Encoding()
     {
         var hash = await Hash(query: "?b=2&a=1", body: """{"a":1}"""u8.ToArray());
 
-        Convert.ToHexString(hash).ShouldBe("C8B8EF16A28446D088A79C1A0A64005984EC91B72B2ED02BD849F35A95FC1105");
+        Convert.ToHexString(hash).ShouldBe("45B287D260BFB55762A947B0CCA35884BA4BCD5418579AFA2A444CF3D13F9E0A");
     }
 
     [Theory]
@@ -151,7 +185,7 @@ public class FinancialPayloadHashTests
 
         var hash = await FinancialPayloadHash.ComputeAsync(context.Request, default);
 
-        Convert.ToHexString(hash).ShouldBe("5CD20DBEBED73F9BB28717B76546E7D381FE7706286FE4AD013053094D9908CB");
+        Convert.ToHexString(hash).ShouldBe("EE6314D32D5AF13B84842857060C2FA1D90C86A441734AC06C0C2F9F662C2408");
         context.Request.Body.Position.ShouldBe(3);
     }
 

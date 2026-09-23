@@ -74,6 +74,26 @@ public class FinancialIdempotencyTests(Sut App) : TestBase<Sut>
     }
 
     [Fact]
+    public async Task Changed_Charset_Conflicts_Instead_Of_Replaying()
+    {
+        var key = Guid.NewGuid().ToString();
+        var handles = ChargeEndpoint.HandleCount;
+        var bytes = "{\"amount\":10}"u8.ToArray();
+
+        (await Post(ChargeUrl, key, Json("application/json"))).StatusCode.ShouldBe(HttpStatusCode.Created);
+        (await Post(ChargeUrl, key, Json("application/json; charset=utf-16"))).StatusCode.ShouldBe(HttpStatusCode.Conflict);
+        (await Post(ChargeUrl, Guid.NewGuid().ToString(), Json("application/json; charset=utf-16"))).StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        ChargeEndpoint.HandleCount.ShouldBe(handles + 1);
+
+        ByteArrayContent Json(string contentType)
+        {
+            var content = new ByteArrayContent(bytes);
+            content.Headers.TryAddWithoutValidation("Content-Type", contentType);
+            return content;
+        }
+    }
+
+    [Fact]
     public async Task Different_Payload_Is_409()
     {
         var key = Guid.NewGuid().ToString();

@@ -169,6 +169,13 @@ Endpoints with multiple HTTP verbs and/or routes had their `AuthorizeAttribute[]
 
 ## Minor Breaking Changes ⚠️
 
+<details><summary><code>Group.Configure()</code> is no longer overridable</summary>
+
+<code>Configure()</code> is now non-virtual, so calling it from a group constructor no longer raises a "virtual member call in constructor" warning. The route prefix is still applied, the group's own action still runs, and <code>SubGroup&lt;TParent&gt;</code> still runs the parent group after that.
+
+If a <code>Group</code> subclass overrode <code>Configure()</code>, remove the override and call <code>Configure()</code> from the constructor.
+</details>
+
 <details><summary>Test url cache route is now opt-in</summary>
 
 The internal `_test_url_cache_` route used by routeless test helpers (`GETAsync<TEndpoint>()` etc.) when testing an out-of-process app is no longer mapped by default, since it exposed every endpoint route and type name to anonymous callers. Apps now only map it when the configuration value `FastEndpoints:ExposeTestUrlCache` is `true`.

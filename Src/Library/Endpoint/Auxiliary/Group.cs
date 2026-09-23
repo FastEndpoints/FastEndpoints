@@ -13,8 +13,20 @@ public abstract class Group : ServiceResolverClient
     /// </summary>
     /// <param name="routePrefix">the route prefix for the group</param>
     /// <param name="ep">the configuration action to be performed on the <see cref="EndpointDefinition" /></param>
-    protected virtual void Configure(string routePrefix, Action<EndpointDefinition> ep)
-        => Action = RouteModifier(routePrefix) + ep;
+    protected void Configure(string routePrefix, Action<EndpointDefinition> ep)
+    {
+        Action = RouteModifier(routePrefix) + ep;
+        var inherited = InheritedAction();
+
+        if (inherited is not null)
+            Action += inherited;
+    }
+
+    /// <summary>
+    /// extra configuration from a parent group. <see cref="SubGroup{TParent}" /> uses this so the parent action runs after this group's own.
+    /// </summary>
+    internal virtual Action<EndpointDefinition>? InheritedAction()
+        => null;
 
     static Action<EndpointDefinition> RouteModifier(string routePrefix)
         => e =>
@@ -33,17 +45,14 @@ public abstract class Group : ServiceResolverClient
 
 /// <summary>
 /// common configuration for a sub group of endpoints can be specified by implementing this abstract class and calling
-/// <see cref="Configure(string, Action{EndpointDefinition})" /> in the constructor.
+/// <see cref="Group.Configure(string, Action{EndpointDefinition})" /> in the constructor.
 /// </summary>
 /// <typeparam name="TParent"></typeparam>
 public abstract class SubGroup<TParent> : Group where TParent : Group, new()
 {
     /// <inheritdoc />
-    protected sealed override void Configure(string routePrefix, Action<EndpointDefinition> ep)
-    {
-        base.Configure(routePrefix, ep);
-        Action += new TParent().Action;
-    }
+    internal sealed override Action<EndpointDefinition>? InheritedAction()
+        => new TParent().Action;
 }
 
 interface IGroupAttribute

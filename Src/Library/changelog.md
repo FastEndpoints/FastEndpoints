@@ -52,6 +52,12 @@ public override void Configure()
 
 ## Fixes 🪲
 
+<details><summary>Validators nested inside an open generic no longer break <code>DiscoveredTypes</code> generation</summary>
+
+A discovered type nested inside an open generic, such as <code>BaseValidator&lt;T&gt;.ChildValidator</code>, was emitted as <code>Preserve&lt;BaseValidator&lt;T&gt;.ChildValidator&gt;()</code>. That does not compile, and making the nested type private failed generation for the same reason. Those types are now skipped, which is what reflection discovery already does. Move the nested type out of the open generic if it should be registered.
+
+</details>
+
 <details><summary>No-result command middleware runs under Native AOT</summary>
 
 After `Void` became a struct, Native AOT could not resolve `IEnumerable<ICommandMiddleware<TCommand, Void>>`, so middleware registered for no-result commands was skipped. Those pipelines now use the types recorded at `AddCommandMiddleware` time. Closed `Register<MyCommand, Void, MyMiddleware>()` works without consumer code changes. Open-generic `Register(typeof(Foo<,>))` is still unsupported for void commands under Native AOT and now throws instead of silently skipping.

@@ -40,9 +40,22 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
 
         initCtx.RegisterSourceOutput(syntaxProvider, Generate!);
 
-        //executed per each keystroke
+        //executed per each keystroke.
         static bool Qualify(SyntaxNode node, CancellationToken _)
-            => node is ClassDeclarationSyntax { TypeParameterList: null };
+        {
+            if (node is not ClassDeclarationSyntax { TypeParameterList: null })
+                return false;
+
+            //a class nested in an open generic is itself generic at runtime, and AssemblyScanner drops those (IsGenericType).
+            //emitting Outer<T>.Inner writes an unbound T that does not compile in DiscoveredTypes.
+            for (var parent = node.Parent; parent is not null; parent = parent.Parent)
+            {
+                if (parent is TypeDeclarationSyntax { TypeParameterList: not null })
+                    return false;
+            }
+
+            return true;
+        }
 
         //executed per each keystroke but only for syntax nodes filtered by the Qualify method
         string? Transform(GeneratorSyntaxContext ctx, CancellationToken _)

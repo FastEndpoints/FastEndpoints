@@ -8,6 +8,7 @@ tags: [gotcha]
 # Gotchas
 
 - **AOT discovery:** reflection `AddFastEndpoints()` is not supported under AOT. Use `AddFastEndpoints(DiscoveredTypes.All)` plus the Generator analyzer.
+- **DiscoveredTypes skips open generics, including nested types:** a class nested inside `Outer<T>` is itself generic (`IsGenericType`). `AssemblyScanner` drops it, and `DiscoveredTypesGenerator` does too. Emitting `Outer<T>.Inner` does not compile. Move the type out of the open generic to register it.
 - **Generator package shape:** output is `analyzers/dotnet/cs`. `DevelopmentDependency` is false on purpose. Reference it as an analyzer, not a normal library.
 - **AccessControl categories:** only string literals and compile-time constants (`const`, `nameof`). Runtime expressions are ignored, so the permission gets no group. Mechanism: [generated-code.md](generated-code.md).
 - **Serializer contexts:** do not hand-edit. Dev CLI must already be built under `Src/Generator.Cli/bin/.../net8.0/`. Index, cache `v2`, and props: [generated-code.md](generated-code.md).

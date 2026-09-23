@@ -18,6 +18,8 @@ tags: [layout]
 
 Whitelist for discovery includes `IEndpoint`, `IEventHandler`, `ICommandHandler`, stream command handlers, summaries, job storage providers, processors, command middleware, mappers, FluentValidation validators (`DiscoveredTypesGenerator`).
 
+Open generic classes are skipped (`TypeParameterList` is not null). A non-generic class nested inside an open generic is also skipped: it is generic at runtime (`Type.IsGenericType`), `AssemblyScanner` drops it, and emitting `Outer<T>.Inner` does not compile in `DiscoveredTypes`.
+
 ## MSBuild / CLI generation
 - **`FastEndpoints.Generator.targets`:** when `GenerateSerializerContexts=true` (optional `SerializerContextOutputPath`, default `Generated/FastEndpoints`, and `GeneratorCliVersion`), runs Generator.Cli to emit STJ serializer contexts.
 - **CLI type index:** `SourceFileWalker` records class, struct, record, and enum declarations so generic type arguments (including enum dictionary keys) emit fully qualified `typeof(...)` in `[JsonSerializable]`. Cache schema `v2` invalidates older `.fastendpoints-generator-cache` files.

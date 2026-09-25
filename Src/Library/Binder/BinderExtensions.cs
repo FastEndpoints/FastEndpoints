@@ -121,7 +121,17 @@ static class BinderExtensions
                     return input => new(true, input.ToString());
 
                 if (type.IsEnum)
-                    return input => new(Enum.TryParse(type, input, true, out var res) && (Cfg.BndOpts.AllowUndefinedEnumValues || Enum.IsDefined(type, res)), res);
+                {
+                    // TryParse ORs comma-separated names, so "One,Two" can be a different defined member.
+                    // repeated values join the same way. [Flags] is the only enum that means that syntax.
+                    var isFlags = type.IsDefined(typeof(FlagsAttribute), false);
+
+                    return input => new(
+                               Enum.TryParse(type, input, true, out var res) &&
+                               (Cfg.BndOpts.AllowUndefinedEnumValues ||
+                                ((isFlags || !IsCombinedEnumValue(input)) && Enum.IsDefined(type, res))),
+                               res);
+                }
 
                 if (type == Types.Uri)
                     return input => new(Uri.TryCreate(input, UriKind.Absolute, out var res), res);
@@ -274,6 +284,9 @@ static class BinderExtensions
             return propDef;
         }
     }
+
+    static bool IsCombinedEnumValue(StringValues input)
+        => input.Count > 1 || (input.Count == 1 && input[0]?.Contains(',') == true);
 
     static bool TryParseObject(StringValues input, Type tProp, out object? result)
     {

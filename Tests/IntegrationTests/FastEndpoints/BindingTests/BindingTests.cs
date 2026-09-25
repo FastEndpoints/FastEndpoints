@@ -471,6 +471,32 @@ public class BindingTests(Sut App) : TestBase<Sut>
     }
 
     [Fact]
+    public async Task BindingCommaSeparatedEnumNamesFromQueryFails()
+    {
+        var (rsp, res) = await App.Client
+                                  .GETAsync<TestCases.QueryObjectBindingTest.Request, ErrorResponse>(
+                                      "api/test-cases/query-object-binding-test?Enum=Monday,Tuesday",
+                                      new());
+
+        rsp.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        res.Errors.ShouldNotBeNull();
+        res.Errors.ShouldContainKey("enum");
+    }
+
+    [Fact]
+    public async Task BindingRepeatedEnumQueryValuesFails()
+    {
+        var (rsp, res) = await App.Client
+                                  .GETAsync<TestCases.QueryObjectBindingTest.Request, ErrorResponse>(
+                                      "api/test-cases/query-object-binding-test?Enum=Monday&Enum=Tuesday",
+                                      new());
+
+        rsp.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        res.Errors.ShouldNotBeNull();
+        res.Errors.ShouldContainKey("enum");
+    }
+
+    [Fact]
     public async Task BindingArraysOfObjectsFromQueryUse()
     {
         var (rsp, res) = await App.Client

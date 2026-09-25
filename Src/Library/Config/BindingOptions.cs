@@ -100,9 +100,12 @@ public sealed class BindingOptions
 
     /// <summary>
     /// specify whether non-STJ model binding should allow enum values that are not explicitly defined by the target enum type.
-    /// when set to <c>false</c> (default), route/query/form/header/cookie/claim binding will reject undefined enum values even if
-    /// <see cref="Enum.TryParse(Type,string,bool,out object?)" /> can parse the input successfully.
-    /// set this to <c>true</c> to restore the previous behavior and allow numeric enum values that are not defined by the enum.
+    /// when set to <c>false</c> (default), route/query/form/header/cookie/claim binding rejects undefined enum values even if
+    /// <see cref="Enum.TryParse(Type,string,bool,out object?)" /> can parse the input.
+    /// enums without <see cref="FlagsAttribute" /> also reject comma-separated names and repeated values, because
+    /// <c>Enum.TryParse</c> combines them with a bitwise OR that can match a different defined member.
+    /// <see cref="FlagsAttribute" /> enums still accept comma-separated names when the combined value is defined.
+    /// set this to <c>true</c> to restore raw <c>Enum.TryParse</c> behavior, including undefined numeric values and comma-separated names.
     /// <para>
     /// NOTE: this setting only affects non-STJ binding paths. JSON request body deserialization continues to be controlled by your STJ converters/options.
     /// </para>

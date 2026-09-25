@@ -14,6 +14,9 @@ Please visit the official website for detailed documentation.
 
 ---
 
+## Powered By:
+[![JetBrains logo.](https://resources.jetbrains.com/storage/products/company/brand/logos/jetbrains.svg)](https://jb.gg/OpenSource)
+
 ## Meet Our Sponsors:
 
 - [DodoTech](https://dodotech.dev/) - DodoTech is a software company that builds custom software tailored to each client's specific needs, from web applications to system integrations.

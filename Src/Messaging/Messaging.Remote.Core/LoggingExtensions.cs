@@ -50,4 +50,10 @@ static partial class LoggingExtensions
 
     [LoggerMessage(15, LogLevel.Error, "Subscriber exception receiver fault during '{operation}' for [subscriber-id:{subscriberId}]({eventType}).")]
     public static partial void SubscriberExceptionReceiverFault(this ILogger l, Exception ex, string operation, string subscriberId, string eventType);
+
+    [LoggerMessage(16, LogLevel.Warning, "Event delivery has an empty tracking id or no event for [subscriber-id:{subscriberId}]({tEvent}).")]
+    public static partial void EmptyDeliveryTrackingIdWarning(this ILogger l, string subscriberId, string tEvent);
+
+    [LoggerMessage(17, LogLevel.Warning, "Duplicate event delivery exception had an empty tracking id for [subscriber-id:{subscriberId}]({tEvent}). Acknowledging the wire id.")]
+    public static partial void DuplicateDeliveryEmptyTrackingIdWarning(this ILogger l, string subscriberId, string tEvent);
 }

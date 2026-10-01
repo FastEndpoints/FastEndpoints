@@ -34,7 +34,9 @@ public interface IEventSubscriberStorageProvider<TStorageRecord> where TStorageR
     /// or instead of removing them, you can move them to some other location (dead-letter-queue maybe) or for inspection by a human.
     /// or if you'd like to retry expired events, update the <see cref="IEventStorageRecord.ExpireOn" /> field to a future date/time.
     /// <para>
-    /// NOTE: the default match criteria is:
+    /// apply the supplied predicate. ACK records also require their RetainUntil deadline to have passed.
+    /// completion and execution expiry alone do not permit deleting an ACK delivery key.
+    /// NOTE: for ordinary records the default match criteria is:
     /// <code>
     ///     r => r.IsComplete || DateTime.UtcNow &gt;= r.ExpireOn
     /// </code>

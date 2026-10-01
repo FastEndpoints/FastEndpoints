@@ -24,6 +24,39 @@ public class Request
 
 </details>
 
+<details><summary>Opt-in event delivery acknowledgement for Remote Event Hubs</summary>
+
+Remote event hubs can now wait until the subscriber has stored a delivery before the hub row is marked complete. Implement two addon interfaces on the storage providers you already register. Providers that do not opt in keep the existing behavior.
+
+If you already use remote event hubs, let in-flight deliveries finish before opting in. Otherwise, one event that was already sent, but not yet marked complete, can run its handler a second time.
+
+The example below extends your existing storage implementations. The subscriber record must implement `IEventDeliveryAckStorageRecord` and persist `RetainUntil` with the inbox row. The library sets this deadline from the hub replay deadline plus the subscriber clock-skew allowance. Apply the supplied purge predicate so completed or expired ACK rows retain their delivery keys until this deadline passes. Enforce `TrackingID` uniqueness atomically in storage and translate duplicate-key conflicts into `DuplicateEventDeliveryException`.
+
+```csharp
+sealed partial class EventRecord : IEventDeliveryAckStorageRecord
+{
+    public DateTime? RetainUntil { get; set; }
+}
+
+sealed partial class HubStorage : IEventHubDeliveryAck<EventRecord>
+{
+    // Existing IEventHubStorageProvider methods remain unchanged.
+}
+
+sealed partial class SubscriberStorage : IEventSubscriberDeliveryAck<EventRecord>
+{
+    public async ValueTask StoreEventAsync(EventRecord record, CancellationToken ct)
+    {
+        if (await TrackingIdExists(record.TrackingID, ct))
+            throw new DuplicateEventDeliveryException(record.TrackingID);
+
+        await Insert(record, ct);
+    }
+}
+```
+
+</details>
+
 <details><summary>Financial-mode HTTP idempotency with <code>FinancialIdempotency()</code></summary>
 
 Payment-style POST/PUT endpoints can reserve an idempotency key before the handler runs, replay the original 2xx, and `409` when the same key is reused with a different payload. This is a dedicated store and middleware, not an output-cache mode. Fingerprint `Idempotency()` is unchanged.
@@ -86,7 +119,7 @@ Query, route, form, header, cookie, and claim binding treated <code>Monday,Tuesd
 
 <details><summary>Validators nested inside an open generic no longer break <code>DiscoveredTypes</code> generation</summary>
 
-A discovered type nested inside an open generic, such as <code>BaseValidator&lt;T&gt;.ChildValidator</code>, was emitted as <code>Preserve&lt;BaseValidator&lt;T&gt;.ChildValidator&gt;()</code>. That does not compile, and making the nested type private failed generation for the same reason. Those types are now skipped, which is what reflection discovery already does. Move the nested type out of the open generic if it should be registered.
+A discovered type nested inside an open generic, such as <code>BaseValidator&lt;T&gt;.ChildValidator</code>, was emitted as <code>Preserve&lt;BaseValidator&lt;T&gt;.ChildValidator&gt; ()</code>. That does not compile, and making the nested type private failed generation for the same reason. Those types are now skipped, which is what reflection discovery already does. Move the nested type out of the open generic if it should be registered.
 
 </details>
 
@@ -196,7 +229,7 @@ Those rules now apply to DTO-bound operation parameters as well, using the same 
 
 Endpoints with multiple HTTP verbs and/or routes had their `AuthorizeAttribute[]` rebuilt from scratch for every verb of every route, even though the result depends only on endpoint-level settings (roles, policies, schemes) and never varies by verb or route. That metadata is now built once per endpoint definition and reused for every verb/route it's registered under, skipping the work entirely when every verb is anonymous.
 </details>
-  
+
 <details><summary>Command execution no longer builds a handler-interface <code>Type</code> it doesn't need on the hot path</summary>
 `ExecuteAsync` computed a closed generic handler interface type via `MakeGenericType` on every command and stream-command dispatch, but that type is only read the first time a generic command type is seen, or when a unit test has registered a fake handler. Both call sites now compute it lazily, only when one of those two conditions is actually true, removing an unnecessary reflection call from the common case of executing a registered, non-generic command outside of a test.
 </details>
@@ -209,9 +242,9 @@ Endpoints with multiple HTTP verbs and/or routes had their `AuthorizeAttribute[]
 
 <details><summary><code>Group.Configure()</code> is no longer overridable</summary>
 
-<code>Configure()</code> is now non-virtual, so calling it from a group constructor no longer raises a "virtual member call in constructor" warning. The route prefix is still applied, the group's own action still runs, and <code>SubGroup&lt;TParent&gt;</code> still runs the parent group after that.
+<code>Configure ()</code> is now non-virtual, so calling it from a group constructor no longer raises a "virtual member call in constructor" warning. The route prefix is still applied, the group's own action still runs, and <code>SubGroup&lt;TParent&gt;</code> still runs the parent group after that.
 
-If a <code>Group</code> subclass overrode <code>Configure()</code>, remove the override and call <code>Configure()</code> from the constructor.
+If a <code>Group</code> subclass overrode <code>Configure ()</code>, remove the override and call <code>Configure ()</code> from the constructor.
 </details>
 
 <details><summary>Test url cache route is now opt-in</summary>

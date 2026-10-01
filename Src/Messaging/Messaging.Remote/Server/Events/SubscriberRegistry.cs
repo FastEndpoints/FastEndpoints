@@ -46,18 +46,33 @@ sealed class SubscriberRegistry
     internal Subscriber RegisterConnection(string subscriberID)
         => Subscribers.AddOrUpdate(
             subscriberID,
-            _ => new()
+            _ => RefreshSubscriber(subscriberID, null, 1),
+            (_, existing) => RefreshSubscriber(subscriberID, existing, existing.ConnectionCount + 1));
+
+    internal Subscriber? TryRegisterExclusiveConnection(string subscriberID)
+    {
+        while (true)
+        {
+            if (!Subscribers.TryGetValue(subscriberID, out var current))
             {
-                ConnectionCount = 1,
-                LastSeenUtc = DateTime.UtcNow,
-                IsKnownSubscriber = _knownSubscriberIDs.Contains(subscriberID)
-            },
-            (_, existing) => existing with
-            {
-                ConnectionCount = existing.ConnectionCount + 1,
-                LastSeenUtc = DateTime.UtcNow,
-                IsKnownSubscriber = existing.IsKnownSubscriber || _knownSubscriberIDs.Contains(subscriberID)
-            });
+                var added = RefreshSubscriber(subscriberID, null, 1);
+
+                if (Subscribers.TryAdd(subscriberID, added))
+                    return added;
+
+                continue;
+            }
+
+            // a live call owns the id. do not touch that entry, and do not cancel it.
+            if (current.ConnectionCount > 0)
+                return null;
+
+            var updated = RefreshSubscriber(subscriberID, current, 1);
+
+            if (Subscribers.TryUpdate(subscriberID, updated, current))
+                return updated;
+        }
+    }
 
     internal void ReleaseConnection(string subscriberID)
         => TryUpdate(
@@ -72,12 +87,8 @@ sealed class SubscriberRegistry
     {
         Subscribers.AddOrUpdate(
             subscriberID,
-            _ => new() { LastSeenUtc = DateTime.UtcNow, IsKnownSubscriber = _knownSubscriberIDs.Contains(subscriberID) },
-            (_, existing) => existing with
-            {
-                LastSeenUtc = DateTime.UtcNow,
-                IsKnownSubscriber = existing.IsKnownSubscriber || _knownSubscriberIDs.Contains(subscriberID)
-            });
+            _ => RefreshSubscriber(subscriberID, null, 0),
+            (_, existing) => RefreshSubscriber(subscriberID, existing, existing.ConnectionCount));
     }
 
     internal void Remove(string subscriberID, bool allowConfiguredRemoval)
@@ -110,7 +121,7 @@ sealed class SubscriberRegistry
     }
 
     internal string[] GetAllSubscriberIds()
-        => Subscribers.Keys.ToArray();
+        => [.. Subscribers.Keys];
 
     internal string[] GetConnectedSubscriberIds()
         => Subscribers
@@ -134,17 +145,25 @@ sealed class SubscriberRegistry
         }
     }
 
-    Subscriber? TryUpdate(string subscriberID, Func<Subscriber, Subscriber> update)
+    Subscriber RefreshSubscriber(string subscriberID, Subscriber? existing, int connectionCount)
+        => (existing ?? new Subscriber()) with
+        {
+            ConnectionCount = connectionCount,
+            LastSeenUtc = DateTime.UtcNow,
+            IsKnownSubscriber = existing?.IsKnownSubscriber == true || _knownSubscriberIDs.Contains(subscriberID)
+        };
+
+    void TryUpdate(string subscriberID, Func<Subscriber, Subscriber> update)
     {
         while (true)
         {
             if (!Subscribers.TryGetValue(subscriberID, out var current))
-                return null;
+                return;
 
             var updated = update(current);
 
             if (Subscribers.TryUpdate(subscriberID, updated, current))
-                return updated;
+                return;
         }
     }
 }

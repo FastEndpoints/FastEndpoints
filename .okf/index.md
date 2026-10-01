@@ -13,6 +13,7 @@ Compact operational knowledge for agents working in the FastEndpoints repository
 * [Conventions](conventions.md): naming, style, patterns
 
 ## Workflow and validation
+* Bug hunts and reviews: check [accepted policies and review exclusions](gotchas.md#accepted-policies-and-review-exclusions) before ranking findings.
 * [Workflows](workflows.md): build, pack, changelog, publish
 * [Testing](testing.md): unit/integration/AOT, filters, harnesses
 

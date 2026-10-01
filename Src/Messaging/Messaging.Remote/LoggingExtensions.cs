@@ -21,4 +21,19 @@ static partial class LoggingExtensions
 
     [LoggerMessage(5, LogLevel.Error, "Event hub exception receiver fault during operation for ({tEvent}).")]
     public static partial void EventHubExceptionReceiverFault(this ILogger l, Exception ex, string tEvent);
+
+    [LoggerMessage(6, LogLevel.Warning, "Event subscriber connection rejected because one is already open! [id:{subscriberId}]({tEvent})")]
+    public static partial void SubscriberAlreadyConnected(this ILogger l, string subscriberId, string tEvent);
+
+    [LoggerMessage(7, LogLevel.Warning, "Event delivery acknowledgement tracking id did not match the delivery for [subscriber-id:{subscriberId}]({tEvent}).")]
+    public static partial void DeliveryAckMismatch(this ILogger l, string subscriberId, string tEvent);
+
+    [LoggerMessage(8, LogLevel.Warning, "Event delivery has an empty tracking id or no event for [subscriber-id:{subscriberId}]({tEvent}).")]
+    public static partial void EmptyDeliveryTrackingId(this ILogger l, string subscriberId, string tEvent);
+
+    [LoggerMessage(9, LogLevel.Error, "Event deserialization failed after {attemptCount} attempts. Completing undelivered event [tracking-id:{trackingId}] [subscriber-id:{subscriberId}]({tEvent}). Recovery requires OnDeserializeEventError.")]
+    public static partial void DeserializeEventError(this ILogger l, Exception ex, Guid trackingId, string subscriberId, string tEvent, int attemptCount);
+
+    [LoggerMessage(10, LogLevel.Warning, "Event delivery acknowledgement timed out. Closing subscription with pending event [tracking-id:{trackingId}] [subscriber-id:{subscriberId}]({tEvent}).")]
+    public static partial void DeliveryAckTimeout(this ILogger l, Guid trackingId, string subscriberId, string tEvent);
 }

@@ -18,15 +18,10 @@ sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProv
 {
     static readonly string _eventTypeName = typeof(TEvent).FullName!;
     static TStorageProvider? _storage;
-    static SubscriberStorageBehavior _storageBehavior = SubscriberStorageBehavior.Durable;
 
-    readonly SemaphoreSlim _sem = new(0);
-    readonly ObjectFactory _handlerFactory;
-    readonly IServiceProvider _serviceProvider;
-    readonly SubscriberExceptionReceiver? _errorReceiver;
+    readonly EventSubscriberRuntime<TEvent, TEventHandler, TStorageRecord, TStorageProvider> _runtime;
     readonly ILogger<EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProvider>> _logger;
     readonly string _subscriberID;
-    readonly TimeSpan _eventRecordExpiry;
 
     public EventSubscriber(ChannelBase channel, string clientIdentifier, IServiceProvider serviceProvider, IRpcMarshallerFactory marshaller)
         : this(channel, clientIdentifier, null, serviceProvider, marshaller) { }
@@ -35,44 +30,16 @@ sealed class EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProv
         : base(channel: channel, methodType: MethodType.ServerStreaming, marshaller: marshaller, endpointName: $"{_eventTypeName}/sub")
     {
         _subscriberID = SubscriberIDFactory.Create(subscriberID, clientIdentifier, GetType(), channel.Target);
-        _serviceProvider = serviceProvider;
-        _storage ??= (TStorageProvider)ActivatorUtilities.GetServiceOrCreateInstance(_serviceProvider, typeof(TStorageProvider));
-        _storageBehavior = SubscriberStorageBehavior.For(_storage);
-        EventSubscriberStorage<TStorageRecord, TStorageProvider>.Provider = _storage; //setup stale record purge task
-        EventSubscriberStorage<TStorageRecord, TStorageProvider>.IsInMemProvider = _storage is InMemoryEventSubscriberStorage;
-        _handlerFactory = ActivatorUtilities.CreateFactory(typeof(TEventHandler), Type.EmptyTypes);
-        _errorReceiver = _serviceProvider.GetService<SubscriberExceptionReceiver>();
-        _eventRecordExpiry = RemoteConnectionCore.EventRecordExpiry;
+        _storage ??= (TStorageProvider)ActivatorUtilities.GetServiceOrCreateInstance(serviceProvider, typeof(TStorageProvider));
+
+        _runtime = new(_storage, serviceProvider);
         _logger = serviceProvider.GetRequiredService<ILogger<EventSubscriber<TEvent, TEventHandler, TStorageRecord, TStorageProvider>>>();
         _logger.SubscriberRegistered(_subscriberID, typeof(TEventHandler).FullName!, _eventTypeName);
     }
 
     public void Start(CallOptions opts)
     {
-        _ = EventReceiverWorker.RunAsync<TEvent, TStorageRecord, TStorageProvider>(
-            _storage!,
-            _storageBehavior,
-            _sem,
-            opts,
-            Invoker,
-            Method,
-            _subscriberID,
-            _eventTypeName,
-            _eventRecordExpiry,
-            _logger,
-            _errorReceiver);
-
-        _ = EventExecutorWorker.RunAsync<TEvent, TEventHandler, TStorageRecord, TStorageProvider>(
-            _storage!,
-            _storageBehavior,
-            _sem,
-            opts,
-            Environment.ProcessorCount,
-            _subscriberID,
-            _eventTypeName,
-            _logger,
-            _handlerFactory,
-            _serviceProvider,
-            _errorReceiver);
+        _ = _runtime.RunReceiverAsync(opts, Invoker, Method, _subscriberID, _logger);
+        _ = _runtime.RunExecutorAsync(opts, _subscriberID, _logger);
     }
 }

@@ -1,7 +1,10 @@
 using System.Collections.Concurrent;
+using System.ComponentModel;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Schema;
+using System.Text.Json.Serialization;
 
 namespace FastEndpoints.Agents;
 
@@ -30,7 +33,36 @@ static class JsonSchemaBuilder
             {
                 var serializerOptions = AgentJsonSerializerOptions.EnsureTypeInfoResolver(key.Item2);
 
-                return serializerOptions.GetJsonSchemaAsNode(key.Item1);
+                return serializerOptions.GetJsonSchemaAsNode(
+                    key.Item1,
+                    new()
+                    {
+                        TransformSchemaNode = static (context, schema) =>
+                                              {
+                                                  if (context.PropertyInfo is not { } jsonProperty)
+                                                      return schema;
+
+                                                  // Source-generated metadata does not populate AttributeProvider.
+                                                  var attributeProvider = jsonProperty.AttributeProvider ??
+                                                                          jsonProperty.DeclaringType?.GetProperties(BindingFlags.Instance | BindingFlags.Public)
+                                                                                      .FirstOrDefault(
+                                                                                          p => (p.GetCustomAttribute<JsonPropertyNameAttribute>()?.Name ??
+                                                                                                context.TypeInfo.Options.PropertyNamingPolicy?.ConvertName(p.Name) ?? p.Name) ==
+                                                                                               jsonProperty.Name);
+
+                                                  if (attributeProvider?.GetCustomAttributes(typeof(DescriptionAttribute), true)
+                                                                       .OfType<DescriptionAttribute>()
+                                                                       .FirstOrDefault() is not { Description: { Length: > 0 } description })
+                                                      return schema;
+
+                                                  if (schema is JsonValue)
+                                                      schema = schema.GetValue<bool>() ? new JsonObject() : new JsonObject { ["not"] = new JsonObject() };
+
+                                                  schema["description"] = description;
+
+                                                  return schema;
+                                              }
+                    });
             });
 
         return cached.DeepClone();

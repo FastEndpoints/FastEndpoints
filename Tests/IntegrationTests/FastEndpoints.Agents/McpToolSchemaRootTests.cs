@@ -87,6 +87,8 @@ public class McpToolSchemaRootTests
 
         tool.ProtocolTool.OutputSchema.HasValue.ShouldBeTrue();
         tool.ProtocolTool.OutputSchema.Value.GetProperty("type").GetString().ShouldBe("object");
+        tool.ProtocolTool.InputSchema.GetProperty("properties").GetProperty("Value").GetProperty("description").GetString().ShouldBe("Value to echo");
+        tool.ProtocolTool.OutputSchema.Value.GetProperty("properties").GetProperty("Value").GetProperty("description").GetString().ShouldBe("Echoed value");
         result.StructuredContent.HasValue.ShouldBeTrue();
         result.StructuredContent.Value.GetProperty("Value").GetString().ShouldBe("value:ping");
         ((TextContentBlock)result.Content[0]).Text.ShouldContain("value:ping");
@@ -202,11 +204,13 @@ public class McpToolSchemaRootTests
     sealed class ObjectRequest
     {
         // ReSharper disable once AutoPropertyCanBeMadeGetOnly.Local
+        [System.ComponentModel.Description("Value to echo")]
         public string Value { get; set; } = "";
     }
 
     sealed class ObjectResponse
     {
+        [System.ComponentModel.Description("Echoed value")]
         public string? Value { get; set; }
     }
 }

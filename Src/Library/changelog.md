@@ -10,6 +10,20 @@ Please [join the discussion here](https://github.com/FastEndpoints/FastEndpoints
 
 ## New 🎉
 
+<details><summary>Describe MCP tool input and output properties with <code>[Description]</code></summary>
+
+Annotate DTO properties with the standard `System.ComponentModel.DescriptionAttribute` to add descriptions to MCP tool schemas. Nested properties, JSON property names, naming policies, and endpoint serializer contexts are supported.
+
+```csharp
+public class Request
+{
+    [System.ComponentModel.Description("City name or zip code")]
+    public string Location { get; set; }
+}
+```
+
+</details>
+
 <details><summary>Financial-mode HTTP idempotency with <code>FinancialIdempotency()</code></summary>
 
 Payment-style POST/PUT endpoints can reserve an idempotency key before the handler runs, replay the original 2xx, and `409` when the same key is reused with a different payload. This is a dedicated store and middleware, not an output-cache mode. Fingerprint `Idempotency()` is unchanged.

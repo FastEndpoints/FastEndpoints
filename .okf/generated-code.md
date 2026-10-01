@@ -20,6 +20,10 @@ Whitelist for discovery includes `IEndpoint`, `IEventHandler`, `ICommandHandler`
 
 Open generic classes are skipped (`TypeParameterList` is not null). A non-generic class nested inside an open generic is also skipped: it is generic at runtime (`Type.IsGenericType`), `AssemblyScanner` drops it, and emitting `Outer<T>.Inner` does not compile in `DiscoveredTypes`.
 
+`ReflectionGenerator` takes the registration namespace from the compilation (`AssemblyName?.ToValidNameSpace() ?? "Assembly"`) via `CompilationProvider`, combined with collected endpoint syntax. It always emits `ReflectionData.g.cs`, including compilations with no non-generic classes. That empty `AddFrom...` method returns the cache. The method suffix is that namespace passed through `ToValidIdentifier` (dots and underscores removed). Endpoint namespaces do not supply it. Regression: `Tests/UnitTests/FastEndpoints/ReflectionGeneratorTests.cs`.
+
+`DiscoveredTypesGenerator`, `ServiceRegistrationGenerator`, and `GenericProcessorTypesGenerator` still store the namespace on a field set inside the syntax transform. Verify each one before applying this compilation-input pattern.
+
 ## MSBuild / CLI generation
 - **`FastEndpoints.Generator.targets`:** when `GenerateSerializerContexts=true` (optional `SerializerContextOutputPath`, default `Generated/FastEndpoints`, and `GeneratorCliVersion`), runs Generator.Cli to emit STJ serializer contexts.
 - **CLI type index:** `SourceFileWalker` records class, struct, record, and enum declarations so generic type arguments (including enum dictionary keys) emit fully qualified `typeof(...)` in `[JsonSerializable]`. Cache schema `v2` invalidates older `.fastendpoints-generator-cache` files.

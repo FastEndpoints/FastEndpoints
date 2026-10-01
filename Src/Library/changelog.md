@@ -52,6 +52,12 @@ public override void Configure()
 
 ## Fixes 🪲
 
+<details><summary>Reflection generation succeeds in projects without non-generic classes</summary>
+
+A project that contains only records, open generic classes, or no class declarations no longer fails the build with <code>CS8785</code> while generating reflection data. <code>ReflectionData.g.cs</code> is still produced, with an empty <code>AddFrom...</code> method that returns the cache. The namespace and method name still come from the assembly name.
+
+</details>
+
 <details><summary>Comma-separated enum names no longer bind as a different member</summary>
 
 Query, route, form, header, cookie, and claim binding treated <code>Monday,Tuesday</code> as <code>Wednesday</code> when that bitwise OR was itself a defined enum member. Repeated values such as <code>?day=Monday&amp;day=Tuesday</code> did the same. With <code>AllowUndefinedEnumValues</code> left at its default <code>false</code>, enums that are not <code>[Flags]</code> now reject those inputs. <code>[Flags]</code> enums still accept a comma list when the combined value is a defined member. Set <code>Binding.AllowUndefinedEnumValues = true</code> to keep the old <code>Enum.TryParse</code> behavior. JSON body enums are unchanged and still follow your serializer options.

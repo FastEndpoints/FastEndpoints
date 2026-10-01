@@ -24,7 +24,6 @@ public class ReflectionGenerator : IIncrementalGenerator
 
     readonly StringBuilder b = new();
     readonly StringBuilder _initArgsBuilder = new();
-    string? _rootNamespace;
     TypeCollector _collector = new();
 
     // ReSharper restore InconsistentNaming
@@ -37,7 +36,10 @@ public class ReflectionGenerator : IIncrementalGenerator
                                     .WithComparer(FullTypeComparer.Instance)
                                     .Collect();
 
-        initCtx.RegisterSourceOutput(syntaxProvider, Generate);
+        var assemblyNamespace = initCtx.CompilationProvider
+                                       .Select(static (c, _) => c.AssemblyName?.ToValidNameSpace() ?? "Assembly");
+
+        initCtx.RegisterSourceOutput(syntaxProvider.Combine(assemblyNamespace), Generate);
 
         //executed per each keystroke
         static bool Qualify(SyntaxNode node, CancellationToken _)
@@ -45,25 +47,20 @@ public class ReflectionGenerator : IIncrementalGenerator
 
         //executed per each keystroke but only for syntax nodes filtered by the Qualify method
         TypeInfo? Transform(GeneratorSyntaxContext ctx, CancellationToken _)
-        {
-            //should be re-assigned on every call. do not cache!
-            _rootNamespace = ctx.SemanticModel.Compilation.AssemblyName?.ToValidNameSpace() ?? "Assembly";
-
-            return ctx.SemanticModel.GetDeclaredSymbol(ctx.Node) is not ITypeSymbol type ||
-                   type.IsAbstract ||
-                   type.GetAttributes().Any(a => a.AttributeClass!.Name == DontRegisterAttribute || type.AllInterfaces.Length == 0)
-                       ? null
-                       : type.AllInterfaces.Any(i => i.ToDisplayString() == IEndpoint) //must be an endpoint
-                           ? new TypeInfo(ref _collector, type, true)
-                           : null;
-        }
+            => ctx.SemanticModel.GetDeclaredSymbol(ctx.Node) is not ITypeSymbol type ||
+               type.IsAbstract ||
+               type.GetAttributes().Any(a => a.AttributeClass!.Name == DontRegisterAttribute || type.AllInterfaces.Length == 0)
+                   ? null
+                   : type.AllInterfaces.Any(i => i.ToDisplayString() == IEndpoint) //must be an endpoint
+                       ? new TypeInfo(ref _collector, type, true)
+                       : null;
     }
 
     //only executed if the equality comparer says the data is not what has been cached by roslyn
-    void Generate(SourceProductionContext spc, ImmutableArray<TypeInfo?> _)
-        => spc.AddSource("ReflectionData.g.cs", SourceText.From(RenderClass(), Encoding.UTF8));
+    void Generate(SourceProductionContext spc, (ImmutableArray<TypeInfo?> _, string RootNamespace) input)
+        => spc.AddSource("ReflectionData.g.cs", SourceText.From(RenderClass(input.RootNamespace), Encoding.UTF8));
 
-    string RenderClass()
+    string RenderClass(string rootNamespace)
     {
         b.Clear().w(
             """
@@ -89,17 +86,17 @@ public class ReflectionGenerator : IIncrementalGenerator
         b.w(
             $$"""
 
-              namespace {{_rootNamespace}};
+              namespace {{rootNamespace}};
 
               /// <summary>
-              /// source generated reflection data for request dtos located in the [{{_rootNamespace}}] assembly.
+              /// source generated reflection data for request dtos located in the [{{rootNamespace}}] assembly.
               /// </summary>
               public static class GeneratedReflection
               {
                   /// <summary>
-                  /// register source generated reflection data from [{{_rootNamespace}}] with the central cache.
+                  /// register source generated reflection data from [{{rootNamespace}}] with the central cache.
                   /// </summary>
-                  public static ReflectionCache AddFrom{{_rootNamespace!.ToValidIdentifier(string.Empty)}}(this ReflectionCache cache)
+                  public static ReflectionCache AddFrom{{rootNamespace.ToValidIdentifier(string.Empty)}}(this ReflectionCache cache)
                   {
 
               """);

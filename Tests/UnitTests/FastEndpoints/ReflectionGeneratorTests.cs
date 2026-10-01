@@ -281,6 +281,195 @@ public class ReflectionGeneratorTests
         generated.ShouldContain("MyEndpoint");
     }
 
+    [Fact]
+    public void empty_source_emits_empty_reflection_registration()
+    {
+        var result = Run("");
+
+        AssertRegistration(result, "TestApp", "TestApp", empty: true);
+    }
+
+    [Fact]
+    public void record_only_source_emits_empty_reflection_registration()
+    {
+        const string source =
+            """
+            namespace MyApp;
+
+            public record Request(string Name);
+            """;
+
+        var result = Run(source);
+
+        AssertRegistration(result, "TestApp", "TestApp", empty: true);
+        result.Generated.ShouldNotContain("namespace MyApp;");
+    }
+
+    [Fact]
+    public void generic_class_only_source_emits_empty_reflection_registration()
+    {
+        const string source =
+            """
+            namespace MyApp;
+
+            public class Request<T>
+            {
+                public T Value { get; set; } = default!;
+            }
+            """;
+
+        var result = Run(source);
+
+        AssertRegistration(result, "TestApp", "TestApp", empty: true);
+        result.Generated.ShouldNotContain("namespace MyApp;");
+    }
+
+    [Fact]
+    public void class_without_endpoint_emits_empty_reflection_registration()
+    {
+        const string source =
+            """
+            namespace MyApp;
+
+            public class Request
+            {
+                public string Name { get; set; } = "";
+            }
+            """;
+
+        var result = Run(source);
+
+        AssertRegistration(result, "TestApp", "TestApp", empty: true);
+        result.Generated.ShouldNotContain("namespace MyApp;");
+        result.Generated.ShouldNotContain("Getter =");
+    }
+
+    [Fact]
+    public void response_alias_endpoint_emits_request_property_accessors()
+    {
+        const string source =
+            """
+            using System.Threading;
+            using System.Threading.Tasks;
+            using FastEndpoints;
+
+            using CreateSessionResponse = Microsoft.AspNetCore.Http.HttpResults.Results<
+                Microsoft.AspNetCore.Http.HttpResults.Created<MyApp.CreateSessionApiResponse>,
+                Microsoft.AspNetCore.Http.HttpResults.ProblemHttpResult>;
+
+            namespace MyApp;
+
+            public class CreateSessionApiResponse
+            {
+                public string Id { get; set; } = "";
+            }
+
+            public class CreateSessionRequest
+            {
+                public string Name { get; set; } = "";
+            }
+
+            public class CreateSessionEndpoint : Endpoint<CreateSessionRequest, CreateSessionResponse>
+            {
+                public override void Configure() { }
+
+                public override Task HandleAsync(CreateSessionRequest req, CancellationToken ct) => Task.CompletedTask;
+            }
+            """;
+
+        var result = Run(source);
+
+        AssertRegistration(result, "TestApp", "TestApp", empty: false);
+        result.Generated.ShouldContain("Getter = dto => ((t0)dto).Name");
+        result.Generated.ShouldContain("Setter = (dto, val) => ((t0)dto).Name = (string)val!");
+        result.Generated.ShouldContain("CreateSessionRequest");
+    }
+
+    [Fact]
+    public void assembly_name_is_sanitized_for_namespace_and_registration_method()
+    {
+        const string source =
+            """
+            namespace MyApp;
+
+            public record Request(string Name);
+            """;
+
+        var result = Run(source, "My-App.Host");
+
+        AssertRegistration(result, "My_App.Host", "MyAppHost", empty: true);
+    }
+
+    [Fact]
+    public void null_assembly_name_falls_back_to_assembly()
+    {
+        const string source =
+            """
+            namespace MyApp;
+
+            public record Request(string Name);
+            """;
+
+        var result = Run(source, null);
+
+        AssertRegistration(result, "Assembly", "Assembly", empty: true);
+    }
+
+    [Fact]
+    public void reused_driver_tracks_assembly_name_without_syntax_transform()
+    {
+        // Records are not class declarations, so Transform never runs. The namespace still has to follow the compilation.
+        const string source =
+            """
+            namespace MyApp;
+
+            public record Request(string Name);
+            """;
+
+        var first = Run(source, "First.App");
+        AssertRegistration(first, "First.App", "FirstApp", empty: true);
+
+        var second = Execute(first.Driver, first.Input.WithAssemblyName("Second-App"));
+        AssertRegistration(second, "Second_App", "SecondApp", empty: true);
+        second.Generated.ShouldNotContain("namespace First.App;");
+        second.Generated.ShouldNotContain("AddFromFirstApp");
+    }
+
+    [Fact]
+    public void reused_driver_keeps_request_accessors_when_assembly_name_changes()
+    {
+        const string source =
+            """
+            using System.Threading;
+            using System.Threading.Tasks;
+            using FastEndpoints;
+
+            namespace MyApp;
+
+            public class MyRequest
+            {
+                public string Name { get; set; } = "";
+            }
+
+            public class MyEndpoint : Endpoint<MyRequest, string>
+            {
+                public override void Configure() { }
+
+                public override Task HandleAsync(MyRequest req, CancellationToken ct) => Task.CompletedTask;
+            }
+            """;
+
+        var first = Run(source, "First.App");
+        AssertRegistration(first, "First.App", "FirstApp", empty: false);
+        first.Generated.ShouldContain("Getter = dto => ((t0)dto).Name");
+
+        var second = Execute(first.Driver, first.Input.WithAssemblyName("Second.App"));
+        AssertRegistration(second, "Second.App", "SecondApp", empty: false);
+        second.Generated.ShouldContain("Getter = dto => ((t0)dto).Name");
+        second.Generated.ShouldNotContain("namespace First.App;");
+        second.Generated.ShouldNotContain("AddFromFirstApp");
+    }
+
     // ── helpers ───────────────────────────────────────────────────────────────
 
     static string RunGenerator(string source, out ImmutableArray<Diagnostic> generatorDiagnostics)
@@ -291,12 +480,19 @@ public class ReflectionGeneratorTests
         out ImmutableArray<Diagnostic> generatorDiagnostics,
         out Compilation outputCompilation)
     {
-        var parseOptions = new CSharpParseOptions(LanguageVersion.Preview);
-        var syntaxTree = CSharpSyntaxTree.ParseText(source, parseOptions);
+        var result = Run(source);
+        generatorDiagnostics = result.Diagnostics;
+        outputCompilation = result.Output;
 
+        return result.Generated;
+    }
+
+    static GeneratorResult Run(string source, string? assemblyName = "TestApp")
+    {
+        var parseOptions = new CSharpParseOptions(LanguageVersion.Preview);
         var compilation = CSharpCompilation.Create(
-            "TestApp",
-            [syntaxTree],
+            assemblyName,
+            [CSharpSyntaxTree.ParseText(source, parseOptions)],
             GetReferences(),
             new(OutputKind.DynamicallyLinkedLibrary));
 
@@ -304,24 +500,64 @@ public class ReflectionGeneratorTests
             [new ReflectionGenerator().AsSourceGenerator()],
             parseOptions: parseOptions);
 
-        driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out outputCompilation, out generatorDiagnostics);
+        return Execute(driver, compilation);
+    }
 
-        var result = driver.GetRunResult();
+    static GeneratorResult Execute(GeneratorDriver driver, Compilation compilation)
+    {
+        driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var diagnostics);
 
-        return result.GeneratedTrees
-                     .FirstOrDefault(t => Path.GetFileName(t.FilePath) == "ReflectionData.g.cs")
-                     ?.GetText().ToString()
-               ?? string.Empty;
+        var reflectionTrees = driver.GetRunResult()
+                                    .GeneratedTrees
+                                    .Where(static t => Path.GetFileName(t.FilePath) == "ReflectionData.g.cs")
+                                    .ToArray();
+
+        var generated = reflectionTrees.Length == 1
+                            ? reflectionTrees[0].GetText().ToString()
+                            : string.Empty;
+
+        return new(generated, diagnostics, outputCompilation, compilation, driver, reflectionTrees.Length);
+    }
+
+    static void AssertRegistration(GeneratorResult result, string expectedNamespace, string expectedMethod, bool empty)
+    {
+        result.Input.GetDiagnostics()
+              .Where(static d => d.Severity == DiagnosticSeverity.Error)
+              .ShouldBeEmpty();
+        result.Diagnostics.ShouldBeEmpty();
+        result.ReflectionTreeCount.ShouldBe(1);
+        result.Output.GetDiagnostics()
+              .Where(static d => d.Severity == DiagnosticSeverity.Error)
+              .ShouldBeEmpty();
+        result.Generated.ShouldContain($"namespace {expectedNamespace};");
+        result.Generated.ShouldContain($"public static ReflectionCache AddFrom{expectedMethod}(this ReflectionCache cache)");
+        result.Generated.ShouldContain("return cache;");
+
+        if (empty)
+            result.Generated.ShouldNotContain("cache.TryAdd");
     }
 
     static IEnumerable<MetadataReference> GetReferences()
     {
+        var paths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var trustedPlatformAssemblies = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator);
 
         foreach (var path in trustedPlatformAssemblies)
-            yield return MetadataReference.CreateFromFile(path);
+            paths.Add(path);
 
-        yield return MetadataReference.CreateFromFile(typeof(Endpoint<>).Assembly.Location);
-        yield return MetadataReference.CreateFromFile(typeof(HideFromDocsAttribute).Assembly.Location);
+        paths.Add(typeof(Endpoint<>).Assembly.Location);
+        paths.Add(typeof(HideFromDocsAttribute).Assembly.Location);
+        paths.Add(typeof(Microsoft.AspNetCore.Http.IResult).Assembly.Location);
+        paths.Add(typeof(Microsoft.AspNetCore.Http.HttpResults.ProblemHttpResult).Assembly.Location);
+
+        return paths.Select(static path => MetadataReference.CreateFromFile(path));
     }
+
+    sealed record GeneratorResult(
+        string Generated,
+        ImmutableArray<Diagnostic> Diagnostics,
+        Compilation Output,
+        Compilation Input,
+        GeneratorDriver Driver,
+        int ReflectionTreeCount);
 }

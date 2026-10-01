@@ -333,7 +333,7 @@ static partial class OperationSchemaHelpers
         var cloned = new List<JsonNode>(nodes.Count);
 
         foreach (var node in nodes)
-            cloned.Add(node.DeepClone());
+            cloned.Add(node?.DeepClone()!);
 
         return cloned;
     }

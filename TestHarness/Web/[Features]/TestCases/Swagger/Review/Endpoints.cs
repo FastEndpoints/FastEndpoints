@@ -46,6 +46,34 @@ sealed class DuplicateRequestExamplesEndpoint : Endpoint<DuplicateRequestExample
         => Send.OkAsync(req.Name, ct);
 }
 
+enum NullableEnumExampleColour { Red, DarkBlue }
+
+sealed class NullableEnumExampleRequest
+{
+    [JsonConverter(typeof(JsonStringEnumConverter<NullableEnumExampleColour>))]
+    public NullableEnumExampleColour? Colour { get; set; }
+}
+
+sealed class NullableEnumExampleEndpoint : Endpoint<NullableEnumExampleRequest, string>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/nullable-enum-example");
+        Tags("swagger_review");
+        AllowAnonymous();
+        Summary(
+            s =>
+            {
+                s.RequestExamples.Add(new(new { colour = "nope" }, "Mismatch"));
+                s.RequestExamples.Add(new(new { colour = (string?)null }, "Null"));
+                s.RequestExamples.Add(new(new { colour = "DarkBlue" }, "Match"));
+            });
+    }
+
+    public override Task HandleAsync(NullableEnumExampleRequest req, CancellationToken ct)
+        => Send.OkAsync(req.Colour?.ToString() ?? "null", ct);
+}
+
 sealed class SharedRequestMetadataReviewRequest
 {
     public string Name { get; set; } = string.Empty;

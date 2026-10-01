@@ -53,6 +53,7 @@ AOT tests: use `NativeAot.slnx` (publish workflow currently has AOT test step co
 - Unit tests that host `WebApplication` + `UseFastEndpoints()` must isolate process statics ([gotchas.md](gotchas.md)). Do not add a second in-process host in `Unit.FastEndpoints` without that pattern.
 
 ## OpenAPI snapshots
+- `EnumSchemaTransformerTests` hosts an isolated TestServer with the real ASP.NET schema pipeline and FE enum transformer. It covers mixed property converters, nullable values, naming policies, and unchanged shared enum components. `Int.OpenApi.csproj` enables `Microsoft.AspNetCore.OpenApi.Generated` interceptors for its `AddOpenApi` registration. Nullable enum request examples (mismatch, JSON null, and a matching value) are covered by `OperationTransformerEdgeCaseTests` against the `Swagger Review` document. `OperationSchemaHelpersTests` covers sample generation and invalid-example replacement with leading null enum entries, cloned values, and empty/all-null enum lists.
 - Goldens: `Tests/IntegrationTests/FastEndpoints.OpenApi/release-*.http` and `release-*.json` (plus `release-versioning-*`).
 - Walker/export/versioning behavior is covered by focused tests in that project, not snapshots alone. Export mode keys live on internal `OpenApiExportMode`; public `IsExportMode` / `IsNotExportMode` (+ per-format wrappers) on `IHost` / `IHostApplicationBuilder`.
 - To regenerate `.http` goldens: set `_updateSnapshots = true` in `HttpSnapshotTests.cs`, run  

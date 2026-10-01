@@ -42,6 +42,24 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     }
 
     [Fact]
+    public async Task nullable_enum_request_examples_tolerate_the_null_schema_entry()
+    {
+        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var doc = JsonNode.Parse(json)!;
+        var media = doc["paths"]!["/api/swagger-review/nullable-enum-example"]!["post"]!
+            ["requestBody"]!["content"]!["application/json"]!;
+        var examples = media["examples"]!;
+        var schema = ResolveSchema(doc, media["schema"]!);
+        var colour = schema["properties"]!["colour"]!;
+
+        examples["Mismatch"]!["value"]!["colour"]!.GetValue<string>().ShouldBe("Red");
+        examples["Null"]!["value"]!["colour"].ShouldBeNull();
+        examples["Match"]!["value"]!["colour"]!.GetValue<string>().ShouldBe("DarkBlue");
+        colour["$ref"].ShouldBeNull();
+        colour["enum"]!.AsArray().Select(n => n?.ToJsonString()).ShouldBe(["\"Red\"", "\"DarkBlue\"", null]);
+    }
+
+    [Fact]
     public async Task endpoint_specific_request_metadata_does_not_mutate_shared_component_schema()
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review");

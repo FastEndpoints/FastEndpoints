@@ -66,6 +66,12 @@ public override void Configure()
 
 ## Fixes 🪲
 
+<details><summary>OpenAPI enum properties honor their JSON converters</summary>
+
+Property-level `[JsonConverter]` attributes now determine enum schema values and types, including string-enum naming policies and nullable enums. Converter-backed properties are documented inline, allowing other properties of the same enum type to keep their own serialization representation.
+
+</details>
+
 <details><summary>Reflection generation succeeds in projects without non-generic classes</summary>
 
 A project that contains only records, open generic classes, or no class declarations no longer fails the build with <code>CS8785</code> while generating reflection data. <code>ReflectionData.g.cs</code> is still produced, with an empty <code>AddFrom...</code> method that returns the cache. The namespace and method name still come from the assembly name.

@@ -1024,6 +1024,48 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
         normalized!.GetValue<string>().ShouldBe("active");
     }
 
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(2)]
+    public void enum_examples_skip_leading_null_values(int leadingNulls)
+    {
+        var value = JsonValue.Create("active")!;
+        var schema = new OpenApiSchema
+        {
+            Type = JsonSchemaType.String | JsonSchemaType.Null,
+            Enum = Enumerable.Repeat<JsonNode>(null!, leadingNulls).ToList()
+        };
+        schema.Enum.Add(value);
+        schema.Enum.Add(JsonValue.Create("inactive")!);
+        schema.Enum.Add(null!);
+
+        var normalized = NormalizeSchemaExample(JsonValue.Create("invalid")!, schema);
+        var sample = CreateSchemaSample(schema);
+
+        normalized!.GetValue<string>().ShouldBe("active");
+        sample!.GetValue<string>().ShouldBe("active");
+        normalized.ShouldNotBeSameAs(value);
+        sample.ShouldNotBeSameAs(value);
+        schema.Enum.Count.ShouldBe(leadingNulls + 3);
+        schema.Enum[leadingNulls].ShouldBeSameAs(value);
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(2)]
+    public void enum_examples_without_defined_values_keep_the_existing_example(int nullCount)
+    {
+        var schema = new OpenApiSchema
+        {
+            Type = JsonSchemaType.String | JsonSchemaType.Null,
+            Enum = Enumerable.Repeat<JsonNode>(null!, nullCount).ToList()
+        };
+        var example = JsonValue.Create("existing")!;
+
+        NormalizeSchemaExample(example, schema).ShouldBeSameAs(example);
+    }
+
     [Fact]
     public void schema_example_normalization_handles_nested_arrays_without_reparenting()
     {

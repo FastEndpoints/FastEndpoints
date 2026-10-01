@@ -595,6 +595,15 @@ GET {{baseUrl}}/api/swagger-review/no-request-metadata-leak/{{leakId}}
 Accept: application/json
 
 
+### swagger_review_TestCasesSwaggerReviewNullableEnumExampleEndpoint
+POST {{baseUrl}}/api/swagger-review/nullable-enum-example
+Content-Type: application/json
+Accept: application/json
+
+{
+  "colour": "Red"
+}
+
 ### nullable_oneOf_repro_TestCasesSwaggerReviewNullableRefPropertyEndpoint
 GET {{baseUrl}}/api/swagger-review/nullable-ref-property
 Accept: application/json

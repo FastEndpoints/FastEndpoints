@@ -2884,6 +2884,53 @@
         }
       }
     },
+    "/api/swagger-review/nullable-enum-example": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewNullableEnumExampleEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSwaggerReviewNullableEnumExampleRequest"
+              },
+              "examples": {
+                "Mismatch": {
+                  "value": {
+                    "colour": "Red"
+                  }
+                },
+                "Null": {
+                  "value": {
+                    "colour": null
+                  }
+                },
+                "Match": {
+                  "value": {
+                    "colour": "DarkBlue"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/swagger-review/nullable-ref-property": {
       "get": {
         "tags": [
@@ -10490,6 +10537,26 @@
             "type": "string",
             "description": "response leak id"
           }
+        }
+      },
+      "TestCasesSwaggerReviewNullableEnumExampleRequest": {
+        "type": "object",
+        "properties": {
+          "colour": {
+            "enum": [
+              "Red",
+              "DarkBlue",
+              null
+            ],
+            "type": [
+              "null",
+              "string"
+            ],
+            "example": "nope"
+          }
+        },
+        "example": {
+          "colour": "Red"
         }
       },
       "TestCasesSwaggerReviewNullableRefChild": {

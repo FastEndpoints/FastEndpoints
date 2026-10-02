@@ -213,6 +213,14 @@ Endpoints with multiple HTTP verbs and/or routes had their `AuthorizeAttribute[]
 
 ## Minor Breaking Changes ⚠️
 
+<details><summary>OpenAPI security requirements use explicitly configured scopes</summary>
+
+`FastEndpoints.OpenApi` now omits role names from `Roles()` and `[Authorize(Roles = "...")]` in operation security requirements. Previously, these names were merged with configured scopes, which could cause OAuth2/OpenID Connect clients to request invalid scopes. Runtime role enforcement is unchanged.
+
+Applications that relied on role names being emitted as scopes must configure those scopes explicitly with the `globalScopeNames` argument of `DocumentOptions.AddAuth()`. Legacy `FastEndpoints.Swagger` behavior is unchanged.
+
+</details>
+
 <details><summary><code>Group.Configure()</code> is no longer overridable</summary>
 
 <code>Configure()</code> is now non-virtual, so calling it from a group constructor no longer raises a "virtual member call in constructor" warning. The route prefix is still applied, the group's own action still runs, and <code>SubGroup&lt;TParent&gt;</code> still runs the parent group after that.

@@ -456,10 +456,7 @@
         "deprecated": true,
         "security": [
           {
-            "JWTBearerAuth": [
-              "admin",
-              "staff"
-            ]
+            "JWTBearerAuth": [ ]
           }
         ]
       }
@@ -517,10 +514,7 @@
         },
         "security": [
           {
-            "JWTBearerAuth": [
-              "admin",
-              "staff"
-            ]
+            "JWTBearerAuth": [ ]
           }
         ]
       }
@@ -4406,9 +4400,7 @@
         },
         "security": [
           {
-            "JWTBearerAuth": [
-              "admin"
-            ]
+            "JWTBearerAuth": [ ]
           }
         ]
       }

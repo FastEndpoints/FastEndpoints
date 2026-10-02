@@ -266,10 +266,7 @@
         },
         "security": [
           {
-            "ApiKey": [
-              "admin",
-              "staff"
-            ]
+            "ApiKey": [ ]
           }
         ]
       }
@@ -4233,14 +4230,10 @@
         },
         "security": [
           {
-            "JWTBearerAuth": [
-              "admin"
-            ]
+            "JWTBearerAuth": [ ]
           },
           {
-            "ApiKey": [
-              "admin"
-            ]
+            "ApiKey": [ ]
           }
         ]
       }

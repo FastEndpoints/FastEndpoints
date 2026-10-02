@@ -199,15 +199,14 @@ sealed partial class OperationMetadataTransformer(DocumentOptions docOpts, Share
             return;
         }
 
-        var securityEntries = BuildSecurityRequirements(epDef, authorizeAttributes);
+        var securityEntries = BuildSecurityRequirements(epDef);
 
         if (securityEntries.Length > 0)
             generation.SecurityRequirements[operationKey] = securityEntries;
     }
 
-    (string SchemeName, string[] Scopes)[] BuildSecurityRequirements(EndpointDefinition? epDef, IEnumerable<AuthorizeAttribute> authorizeAttributes)
+    (string SchemeName, string[] Scopes)[] BuildSecurityRequirements(EndpointDefinition? epDef)
     {
-        var scopes = BuildScopes(authorizeAttributes);
         var securityEntries = new List<(string SchemeName, string[] Scopes)>();
 
         foreach (var authConfig in docOpts.AuthSchemes)
@@ -220,34 +219,18 @@ sealed partial class OperationMetadataTransformer(DocumentOptions docOpts, Share
                     continue;
             }
 
-            var mergedScopes = new HashSet<string>(scopes, StringComparer.Ordinal);
+            var scopes = new HashSet<string>(StringComparer.Ordinal);
 
             if (authConfig.GlobalScopes is not null)
             {
                 foreach (var scope in authConfig.GlobalScopes)
-                    mergedScopes.Add(scope);
+                    scopes.Add(scope);
             }
 
-            securityEntries.Add((authConfig.Name, [.. mergedScopes]));
+            securityEntries.Add((authConfig.Name, [.. scopes]));
         }
 
         return [.. securityEntries];
-    }
-
-    static string[] BuildScopes(IEnumerable<AuthorizeAttribute> authorizeAttributes)
-    {
-        var scopes = new HashSet<string>(StringComparer.Ordinal);
-
-        foreach (var authorizeAttribute in authorizeAttributes)
-        {
-            if (authorizeAttribute.Roles is not { Length: > 0 } roles)
-                continue;
-
-            foreach (var role in roles.Split(','))
-                scopes.Add(role);
-        }
-
-        return [.. scopes];
     }
 
     static string TagName(string input, TagCase tagCase, bool stripSymbols)

@@ -17,7 +17,8 @@ public sealed class HasPermissionAttribute : NonJsonBindingAttribute
     public bool IsRequired { get; set; }
 
     /// <summary>
-    /// set to true if your header is not required but shouldn't be added to model
+    /// set to true to exclude this property from the request body schema and query parameter documentation.
+    /// runtime binding is unchanged.
     /// </summary>
     public bool RemoveFromSchema { get; set; }
 

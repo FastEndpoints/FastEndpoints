@@ -69,6 +69,8 @@ tags: [gotcha]
 - **Handler short-circuit is opt-in.** Pre-processors skip the handler when `ResponseStarted` is true. `OnBeforeHandle*` does not, unless `DontExecuteHandlerIfResponseStarted()` set `SkipHandlerIfResponseStarted`. That early return also skips `OnAfterHandle*`. Post-processors still run.
 - **`CommandExtensions.ExecuteAsync` computes the handler interface lazily.** `MakeGenericType` for `ICommandHandler<>`, `ICommandHandler<,>`, and `IStreamCommandHandler<,>` stays inside `HandlerInterfaceType`. `PrepareExecution` calls it only on first generic dispatch (`InitGenericHandlerCore`) or the `TestCommandHandlerMarker` branch. Do not hoist it to the top of `ExecuteAsync`. Void test handlers are `ICommandHandler<TCommand>` (Of1), not `ICommandHandler<TCommand, Void>` (Of2). Keep the `tHandlerOf1 is not null && tRes == Types.VoidResult` check.
 
+- **OpenAPI `RemoveFromSchema`:** optional `[FromClaim]` and `[HasPermission]` properties with this flag are excluded from body schemas and query parameters in both OpenApi and Swagger. Header/cookie parameters remain documented when the flag removes their body properties. Runtime binding is unchanged. Regression coverage: `QueryParameterVisibilityTests` in `Int.OpenApi` and `Unit.Swagger`.
+
 ## Sources
 - `Src/Library/Metadata.cs`
 - `Src/Library/Binder/BinderExtensions.cs`

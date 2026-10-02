@@ -17,7 +17,8 @@ public sealed class FromCookieAttribute : NonJsonBindingAttribute
     public bool IsRequired { get; set; }
 
     /// <summary>
-    /// set to true if your cookie is not required but shouldn't be added to schema model
+    /// set to true to exclude this property from the request body schema.
+    /// the cookie parameter remains documented and runtime binding is unchanged.
     /// </summary>
     public bool RemoveFromSchema { get; set; }
 

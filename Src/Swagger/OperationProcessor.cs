@@ -488,9 +488,9 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
                 case FromHeaderAttribute:
                     return false; // because header request params are being added
                 case FromClaimAttribute cAttrib:
-                    return !cAttrib.IsRequired; // add param if it's not required. if required only can bind from actual claim.
+                    return cAttrib is { IsRequired: false, RemoveFromSchema: false };
                 case HasPermissionAttribute pAttrib:
-                    return !pAttrib.IsRequired; // add param if it's not required. if required only can bind from actual permission.
+                    return pAttrib is { IsRequired: false, RemoveFromSchema: false };
             }
         }
 

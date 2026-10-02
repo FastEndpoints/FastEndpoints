@@ -457,10 +457,10 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
             return false;
 
         if (metadata.FromClaim is { } fromClaim)
-            return !fromClaim.IsRequired;
+            return fromClaim is { IsRequired: false, RemoveFromSchema: false };
 
         if (metadata.HasPermission is { } hasPermission)
-            return !hasPermission.IsRequired;
+            return hasPermission is { IsRequired: false, RemoveFromSchema: false };
 
         if (metadata.DontBind?.BindingSources.HasFlag(Source.QueryParam) == true)
             return false;

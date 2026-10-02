@@ -66,6 +66,12 @@ public override void Configure()
 
 ## Fixes 🪲
 
+<details><summary>Honor <code>RemoveFromSchema</code> for claim and permission query parameters</summary>
+
+Both `FastEndpoints.OpenApi` and `FastEndpoints.Swagger` now omit query parameters for optional `[FromClaim]` and `[HasPermission]` properties with `RemoveFromSchema = true`. Request binding is unchanged. `[FromHeader]` and `[FromCookie]` parameters remain documented when this flag removes their body properties.
+
+</details>
+
 <details><summary>OpenAPI enum properties honor their JSON converters</summary>
 
 Property-level `[JsonConverter]` attributes now determine enum schema values and types, including string-enum naming policies and nullable enums. Converter-backed properties are documented inline, allowing other properties of the same enum type to keep their own serialization representation.

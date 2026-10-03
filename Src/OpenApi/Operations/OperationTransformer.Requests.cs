@@ -156,7 +156,7 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
         }
     }
 
-    public void ApplyParamDescriptionsToBodySchema(OpenApiOperation operation,
+    public void ApplyBodySchemaMetadata(OpenApiOperation operation,
                                                    EndpointDefinition epDef,
                                                    PromotedBodyProperty? promotedBodyProperty,
                                                    string operationKey,
@@ -186,7 +186,7 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
             if (hasDefaults)
                 ApplyDefaultValues(schema, defaultProps, mutationCtx);
 
-            if (schema.Properties is null)
+            if (!hasParams || schema.Properties is null)
                 continue;
 
             foreach (var (propName, propSchema) in schema.Properties)

@@ -213,6 +213,14 @@ Endpoints with multiple HTTP verbs and/or routes had their `AuthorizeAttribute[]
 
 ## Minor Breaking Changes ⚠️
 
+<details><summary>OpenAPI request examples no longer create endpoint-specific schemas</summary>
+
+`FastEndpoints.OpenApi` now keeps `EndpointSummary.ExampleRequest` and `RequestExamples` at request-body media-type `example` / `examples` only, instead of also copying them to schemas and properties. Shared models and enums differing only in endpoint request examples reuse component schemas. Intentional XML/custom schema examples are preserved, and real schema differences remain distinct. The HTTP payload contract is unchanged.
+
+Regenerate OpenAPI documents and clients, review generated type names and method signatures, and update references to removed duplicate model/enum types and affected client calls. Custom transformers or tooling that read endpoint request examples from schemas/properties must instead read the operation's request-body media-type `example` / `examples`. Keep endpoint-specific examples on operations; use XML documentation or schema transformers for intentionally shared schema examples. Copying endpoint examples back onto shared schemas can reintroduce duplication or expose another endpoint's example.
+
+</details>
+
 <details><summary>OpenAPI security requirements use explicitly configured scopes</summary>
 
 `FastEndpoints.OpenApi` now omits role names from `Roles()` and `[Authorize(Roles = "...")]` in operation security requirements. Previously, these names were merged with configured scopes, which could cause OAuth2/OpenID Connect clients to request invalid scopes. Runtime role enforcement is unchanged.

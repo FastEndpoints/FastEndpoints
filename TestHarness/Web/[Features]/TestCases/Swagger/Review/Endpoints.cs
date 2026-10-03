@@ -98,6 +98,86 @@ sealed class SharedRequestMetadataAlphaEndpoint : Endpoint<SharedRequestMetadata
         => Send.OkAsync(req.Name, ct);
 }
 
+enum SharedRequestExampleKind { None, Default, Alternative }
+
+sealed class SharedRequestExampleDetails
+{
+    public string Name { get; set; } = string.Empty;
+}
+
+sealed class SharedRequestExampleRequest
+{
+    public string Test { get; set; } = string.Empty;
+    public SharedRequestExampleKind Kind { get; set; }
+    public SharedRequestExampleDetails Details { get; set; } = new();
+}
+
+sealed class SharedRequestExampleAlphaEndpoint : Endpoint<SharedRequestExampleRequest, SharedRequestExampleRequest>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/shared-request-example-alpha");
+        Tags("swagger_review");
+        AllowAnonymous();
+        Summary(s => s.ExampleRequest = new()
+        {
+            Test = "one",
+            Kind = SharedRequestExampleKind.Default,
+            Details = new() { Name = "alpha" }
+        });
+    }
+
+    public override Task HandleAsync(SharedRequestExampleRequest req, CancellationToken ct)
+        => Send.OkAsync(req, ct);
+}
+
+sealed class SharedRequestExampleBetaEndpoint : Endpoint<SharedRequestExampleRequest, SharedRequestExampleRequest>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/shared-request-example-beta");
+        Tags("swagger_review");
+        AllowAnonymous();
+        Summary(s => s.RequestExamples.Add(new(new SharedRequestExampleRequest
+        {
+            Test = "two",
+            Kind = SharedRequestExampleKind.Alternative,
+            Details = new() { Name = "beta" }
+        })));
+    }
+
+    public override Task HandleAsync(SharedRequestExampleRequest req, CancellationToken ct)
+        => Send.OkAsync(req, ct);
+}
+
+sealed class SharedRequestExampleNamedEndpoint : Endpoint<SharedRequestExampleRequest, SharedRequestExampleRequest>
+{
+    public override void Configure()
+    {
+        Post("/swagger-review/shared-request-example-named");
+        Tags("swagger_review");
+        AllowAnonymous();
+        Summary(s =>
+        {
+            s.RequestExamples.Add(new(new SharedRequestExampleRequest
+            {
+                Test = "three",
+                Kind = SharedRequestExampleKind.Default,
+                Details = new() { Name = "named" }
+            }, "Default"));
+            s.RequestExamples.Add(new(new SharedRequestExampleRequest
+            {
+                Test = "four",
+                Kind = SharedRequestExampleKind.Alternative,
+                Details = new() { Name = "alternative" }
+            }, "Alternative"));
+        });
+    }
+
+    public override Task HandleAsync(SharedRequestExampleRequest req, CancellationToken ct)
+        => Send.OkAsync(req, ct);
+}
+
 sealed class SharedRequestMetadataBetaEndpoint : Endpoint<SharedRequestMetadataReviewRequest, string>
 {
     public override void Configure()

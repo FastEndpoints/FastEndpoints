@@ -160,7 +160,6 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
 
     public void ApplyParamDescriptionsToBodySchema(OpenApiOperation operation,
                                                    EndpointDefinition epDef,
-                                                   RequestTransformState state,
                                                    PromotedBodyProperty? promotedBodyProperty,
                                                    string operationKey,
                                                    OpenApiGenerationState generation)
@@ -171,66 +170,30 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
         var paramDescriptions = epDef.EndpointSummary?.Params;
         var hasParams = paramDescriptions is { Count: > 0 };
         var paramDescriptionLookup = hasParams ? paramDescriptions!.ToCaseInsensitiveDictionary(paramDescriptions!.Count) : null;
-        var exampleObj = epDef.EndpointSummary?.ExampleRequest;
         var defaultProps = BuildRequestSchemaDefaultLookup(promotedBodyProperty?.Type ?? epDef.ReqDtoType);
         var hasDefaults = defaultProps.Count > 0;
 
-        if (!hasParams && exampleObj is null && !hasDefaults)
+        if (!hasParams && !hasDefaults)
             return;
 
-        Dictionary<string, JsonNode>? propExamples = null;
-        var requestExampleNode = exampleObj is null
-                                     ? null
-                                     : BuildRequestExampleNode(exampleObj, state.PropsRemovedFromBody, promotedBodyProperty);
-        JsonNode? fallbackExample = null;
         var mutationCtx = new OperationSchemaMutationContext(sharedCtx, generation, operationKey);
-
-        if (exampleObj is not null and not IEnumerable && requestExampleNode is JsonObject obj)
-        {
-            propExamples = [];
-
-            foreach (var (key, value) in obj)
-            {
-                if (value is not null)
-                    propExamples[key] = value.DeepClone();
-            }
-        }
 
         foreach (var content in operation.RequestBody.Content.Values)
         {
-            var schema = content.Schema.ResolveSchema(generation);
+            var schema = content.EnsureOperationLocalSchemaForMutation(mutationCtx, "requestBody");
 
             if (schema is null)
                 continue;
 
-            if (hasDefaults || hasParams || requestExampleNode is not null)
-            {
-                schema = content.EnsureOperationLocalSchemaForMutation(mutationCtx, "requestBody");
-
-                if (schema is null)
-                    continue;
-            }
-
             if (hasDefaults)
                 ApplyDefaultValues(schema, defaultProps, mutationCtx);
-
-            if (requestExampleNode is not null)
-            {
-                fallbackExample ??= GetRequestExampleFallback(epDef, state, promotedBodyProperty);
-                schema.Example = NormalizeExampleNode(requestExampleNode.DeepClone(), schema, fallbackExample, generation);
-            }
 
             if (schema.Properties is null)
                 continue;
 
             foreach (var (propName, propSchema) in schema.Properties)
             {
-                string? description = null;
-                JsonNode? exVal = null;
-                var hasDescription = paramDescriptionLookup?.TryGetValue(propName, out description) == true;
-                var hasExample = propExamples?.TryGetValue(propName, out exVal) == true;
-
-                if (!hasDescription && !hasExample)
+                if (paramDescriptionLookup?.TryGetValue(propName, out var description) != true)
                     continue;
 
                 var concreteProp = propSchema.EnsureSchemaForMutation(
@@ -238,14 +201,8 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
                     $"requestBody.{propName}",
                     localized => schema.Properties![propName] = localized);
 
-                if (concreteProp is null)
-                    continue;
-
-                if (hasDescription)
+                if (concreteProp is not null)
                     concreteProp.Description = description;
-
-                if (hasExample)
-                    concreteProp.Example = exVal;
             }
         }
     }

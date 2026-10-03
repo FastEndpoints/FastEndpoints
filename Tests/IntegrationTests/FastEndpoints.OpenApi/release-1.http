@@ -716,6 +716,45 @@ Accept: application/json
   }
 }
 
+### swagger_review_TestCasesSwaggerReviewSharedRequestExampleAlphaEndpoint
+POST {{baseUrl}}/api/swagger-review/shared-request-example-alpha
+Content-Type: application/json
+Accept: application/json
+
+{
+  "test": "one",
+  "kind": "Default",
+  "details": {
+    "name": "alpha"
+  }
+}
+
+### swagger_review_TestCasesSwaggerReviewSharedRequestExampleBetaEndpoint
+POST {{baseUrl}}/api/swagger-review/shared-request-example-beta
+Content-Type: application/json
+Accept: application/json
+
+{
+  "test": "two",
+  "kind": "Alternative",
+  "details": {
+    "name": "beta"
+  }
+}
+
+### swagger_review_TestCasesSwaggerReviewSharedRequestExampleNamedEndpoint
+POST {{baseUrl}}/api/swagger-review/shared-request-example-named
+Content-Type: application/json
+Accept: application/json
+
+{
+  "test": "three",
+  "kind": "Default",
+  "details": {
+    "name": "named"
+  }
+}
+
 ### swagger_review_TestCasesSwaggerReviewSharedRequestMetadataAlphaEndpoint
 POST {{baseUrl}}/api/swagger-review/shared-request-metadata-alpha
 Content-Type: application/json

@@ -60,6 +60,44 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     }
 
     [Fact]
+    public async Task endpoint_request_examples_share_model_enum_and_nested_schemas()
+    {
+        var doc = JsonNode.Parse(await App.GetDocumentJsonAsync("Swagger Review"))!;
+        var alpha = doc["paths"]!["/api/swagger-review/shared-request-example-alpha"]!["post"]!;
+        var beta = doc["paths"]!["/api/swagger-review/shared-request-example-beta"]!["post"]!;
+        var named = doc["paths"]!["/api/swagger-review/shared-request-example-named"]!["post"]!;
+        var alphaMedia = alpha["requestBody"]!["content"]!["application/json"]!;
+        var betaMedia = beta["requestBody"]!["content"]!["application/json"]!;
+        var namedMedia = named["requestBody"]!["content"]!["application/json"]!;
+        var modelRef = alphaMedia["schema"]!["$ref"]!.GetValue<string>();
+
+        betaMedia["schema"]!["$ref"]!.GetValue<string>().ShouldBe(modelRef);
+        namedMedia["schema"]!["$ref"]!.GetValue<string>().ShouldBe(modelRef);
+        foreach (var operation in new[] { alpha, beta, named })
+            operation["responses"]!["200"]!["content"]!["application/json"]!["schema"]!["$ref"]!.GetValue<string>().ShouldBe(modelRef);
+
+        alphaMedia["example"]!["test"]!.GetValue<string>().ShouldBe("one");
+        betaMedia["example"]!["test"]!.GetValue<string>().ShouldBe("two");
+        alphaMedia["example"]!["kind"]!.GetValue<string>().ShouldBe("Default");
+        betaMedia["example"]!["kind"]!.GetValue<string>().ShouldBe("Alternative");
+        alphaMedia["example"]!["details"]!["name"]!.GetValue<string>().ShouldBe("alpha");
+        betaMedia["example"]!["details"]!["name"]!.GetValue<string>().ShouldBe("beta");
+        namedMedia["example"].ShouldBeNull();
+        namedMedia["examples"]!["Default"]!["value"]!["test"]!.GetValue<string>().ShouldBe("three");
+        namedMedia["examples"]!["Alternative"]!["value"]!["test"]!.GetValue<string>().ShouldBe("four");
+
+        var schemas = doc["components"]!["schemas"]!.AsObject();
+        foreach (var suffix in new[] { "SharedRequestExampleRequest", "SharedRequestExampleKind", "SharedRequestExampleDetails" })
+            schemas.Count(s => s.Key.Contains(suffix, StringComparison.Ordinal)).ShouldBe(1);
+
+        var model = ResolveSchema(doc, alphaMedia["schema"]!);
+        model["example"].ShouldBeNull();
+        model["properties"]!["test"]!["example"].ShouldBeNull();
+        ResolveSchema(doc, model["properties"]!["kind"]!)["example"].ShouldBeNull();
+        ResolveSchema(doc, model["properties"]!["details"]!)["example"].ShouldBeNull();
+    }
+
+    [Fact]
     public async Task endpoint_specific_request_metadata_does_not_mutate_shared_component_schema()
     {
         var json = await App.GetDocumentJsonAsync("Swagger Review");
@@ -74,8 +112,14 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
                 ["requestBody"]!["content"]!["application/json"]!["schema"]!);
         var componentSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewSharedRequestMetadataReviewRequest"];
 
-        alphaSchema["example"]!["name"]!.GetValue<string>().ShouldBe("alpha example");
-        betaSchema["example"]!["name"]!.GetValue<string>().ShouldBe("beta example");
+        doc["paths"]!["/api/swagger-review/shared-request-metadata-alpha"]!["post"]!
+            ["requestBody"]!["content"]!["application/json"]!["example"]!["name"]!.GetValue<string>().ShouldBe("alpha example");
+        doc["paths"]!["/api/swagger-review/shared-request-metadata-beta"]!["post"]!
+            ["requestBody"]!["content"]!["application/json"]!["example"]!["name"]!.GetValue<string>().ShouldBe("beta example");
+        alphaSchema["example"].ShouldBeNull();
+        betaSchema["example"].ShouldBeNull();
+        alphaSchema["properties"]!["name"]!["example"].ShouldBeNull();
+        betaSchema["properties"]!["name"]!["example"].ShouldBeNull();
         alphaSchema["properties"]!["name"]!["description"]!.GetValue<string>().ShouldBe("alpha description");
         betaSchema["properties"]!["name"]!["description"]!.GetValue<string>().ShouldBe("beta description");
         componentSchema.ShouldBeNull();
@@ -349,7 +393,8 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         schema["properties"]!["name"].ShouldNotBeNull();
         schema["properties"]!["price"].ShouldNotBeNull();
         schema["properties"]!["price"]!["exclusiveMinimum"]!.GetValue<int>().ShouldBe(200);
-        schema["example"]!["name"]!.GetValue<string>().ShouldBe("test product name");
+        schema["example"].ShouldBeNull();
+        operation["requestBody"]!["content"]!["application/json"]!["example"]!["name"]!.GetValue<string>().ShouldBe("test product name");
         operation["parameters"].ArrayItems().First(p => p["name"]!.GetValue<string>() == "customerID")["in"]!.GetValue<string>().ShouldBe("header");
         operation["parameters"].ArrayItems().First(p => p["name"]!.GetValue<string>() == "id")["in"]!.GetValue<string>().ShouldBe("path");
     }

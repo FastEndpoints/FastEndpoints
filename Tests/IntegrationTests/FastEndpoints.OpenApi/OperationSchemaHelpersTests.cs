@@ -756,6 +756,134 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
         promotedComponent.Required.ShouldBe(["name"]);
     }
 
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public void body_metadata_without_changes_keeps_shared_schema(bool includeProperty, bool includeDescription)
+    {
+        var propertySchema = new OpenApiSchema
+        {
+            Type = JsonSchemaType.String,
+            Default = JsonValue.Create("existing"),
+            Description = "existing description"
+        };
+        var componentSchema = new OpenApiSchema
+        {
+            Type = JsonSchemaType.Object,
+            Properties = new Dictionary<string, IOpenApiSchema>()
+        };
+        var document = new OpenApiDocument
+        {
+            Components = new()
+            {
+                Schemas = new Dictionary<string, IOpenApiSchema>
+                {
+                    ["Request"] = componentSchema,
+                    ["Property"] = propertySchema
+                }
+            }
+        };
+
+        if (includeProperty)
+            componentSchema.Properties["name"] = new OpenApiSchemaReference("Property", document);
+
+        var mediaType = new OpenApiMediaType { Schema = new OpenApiSchemaReference("Request", document) };
+        var operation = new OpenApiOperation
+        {
+            RequestBody = new OpenApiRequestBody
+            {
+                Content = new Dictionary<string, OpenApiMediaType> { ["application/json"] = mediaType }
+            }
+        };
+        var originalSchema = mediaType.Schema;
+        var definition = new EndpointDefinition(typeof(object), typeof(BodyMetadataRequest), typeof(object));
+
+        if (includeDescription || !includeProperty)
+            definition.Summary(s => s.Params["name"] = "existing description");
+
+        var generation = ApplyBodySchemaMetadata(operation, definition, document);
+
+        mediaType.Schema.ShouldBeSameAs(originalSchema);
+        generation.OperationSchemaVariants.ShouldBeEmpty();
+        propertySchema.Default!.GetValue<string>().ShouldBe("existing");
+    }
+
+    [Fact]
+    public void body_metadata_localizes_only_properties_that_change()
+    {
+        var nameSchema = new OpenApiSchema { Type = JsonSchemaType.String };
+        var unchangedSchema = new OpenApiSchema { Type = JsonSchemaType.String, Default = JsonValue.Create("existing") };
+        var componentSchema = new OpenApiSchema
+        {
+            Type = JsonSchemaType.Object,
+            Properties = new Dictionary<string, IOpenApiSchema>()
+        };
+        var document = new OpenApiDocument
+        {
+            Components = new()
+            {
+                Schemas = new Dictionary<string, IOpenApiSchema>
+                {
+                    ["Request"] = componentSchema,
+                    ["Name"] = nameSchema,
+                    ["Unchanged"] = unchangedSchema
+                }
+            }
+        };
+        componentSchema.Properties["name"] = new OpenApiSchemaReference("Name", document);
+        componentSchema.Properties["unchanged"] = new OpenApiSchemaReference("Unchanged", document);
+        var mediaType = new OpenApiMediaType { Schema = new OpenApiSchemaReference("Request", document) };
+        var operation = new OpenApiOperation
+        {
+            RequestBody = new OpenApiRequestBody
+            {
+                Content = new Dictionary<string, OpenApiMediaType> { ["application/json"] = mediaType }
+            }
+        };
+        var definition = new EndpointDefinition(typeof(object), typeof(BodyMetadataRequest), typeof(object));
+        definition.Summary(s => s.Params["name"] = "new description");
+
+        var generation = ApplyBodySchemaMetadata(operation, definition, document);
+        var localSchema = mediaType.Schema.ResolveSchema(generation)!;
+        var localName = localSchema.Properties!["name"].ResolveSchema(generation)!;
+
+        generation.OperationSchemaVariants.Count.ShouldBe(2);
+        localName.Description.ShouldBe("new description");
+        localName.Default!.GetValue<string>().ShouldBe("attribute default");
+        localSchema.Properties["unchanged"].ShouldBeSameAs(componentSchema.Properties["unchanged"]);
+        nameSchema.Description.ShouldBeNull();
+        nameSchema.Default.ShouldBeNull();
+    }
+
+    static OpenApiGenerationState ApplyBodySchemaMetadata(OpenApiOperation operation, EndpointDefinition definition, OpenApiDocument document)
+    {
+        var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
+                                                                      .GetType("FastEndpoints.OpenApi.RequestOperationTransformer", throwOnError: true)!;
+        var sharedCtx = new SharedContext { NamingPolicy = JsonNamingPolicy.CamelCase };
+        var generation = sharedCtx.For(document);
+        var transformer = Activator.CreateInstance(
+            transformerType,
+            BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
+            binder: null,
+            args: [new DocumentOptions(), sharedCtx],
+            culture: null)!;
+
+        transformerType.GetMethod("ApplyBodySchemaMetadata")!
+                       .Invoke(transformer, [operation, definition, null, "POST:/test", generation]);
+
+        return generation;
+    }
+
+    sealed class BodyMetadataRequest
+    {
+        [System.ComponentModel.DefaultValue("attribute default")]
+        public string Name { get; set; } = string.Empty;
+
+        [System.ComponentModel.DefaultValue("attribute default")]
+        public string Unchanged { get; set; } = string.Empty;
+    }
+
     [Fact]
     public void response_param_descriptions_do_not_mutate_shared_component_schema()
     {

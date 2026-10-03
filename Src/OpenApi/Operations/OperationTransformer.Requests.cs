@@ -157,10 +157,10 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
     }
 
     public void ApplyBodySchemaMetadata(OpenApiOperation operation,
-                                                   EndpointDefinition epDef,
-                                                   PromotedBodyProperty? promotedBodyProperty,
-                                                   string operationKey,
-                                                   OpenApiGenerationState generation)
+                                        EndpointDefinition epDef,
+                                        PromotedBodyProperty? promotedBodyProperty,
+                                        string operationKey,
+                                        OpenApiGenerationState generation)
     {
         if (operation.RequestBody?.Content is null)
             return;
@@ -169,38 +169,54 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
         var hasParams = paramDescriptions is { Count: > 0 };
         var paramDescriptionLookup = hasParams ? paramDescriptions!.ToCaseInsensitiveDictionary(paramDescriptions!.Count) : null;
         var defaultProps = BuildRequestSchemaDefaultLookup(promotedBodyProperty?.Type ?? epDef.ReqDtoType);
-        var hasDefaults = defaultProps.Count > 0;
 
-        if (!hasParams && !hasDefaults)
+        if (!hasParams && defaultProps.Count == 0)
             return;
 
         var mutationCtx = new OperationSchemaMutationContext(sharedCtx, generation, operationKey);
 
         foreach (var content in operation.RequestBody.Content.Values)
         {
-            var schema = content.EnsureOperationLocalSchemaForMutation(mutationCtx, "requestBody");
+            var schema = content.Schema.ResolveSchema(generation);
 
-            if (schema is null)
+            if (schema?.Properties is null)
                 continue;
 
-            if (hasDefaults)
-                ApplyDefaultValues(schema, defaultProps, mutationCtx);
-
-            if (!hasParams || schema.Properties is null)
-                continue;
+            OpenApiSchema? localSchema = null;
 
             foreach (var (propName, propSchema) in schema.Properties)
             {
-                if (paramDescriptionLookup?.TryGetValue(propName, out var description) != true)
+                var resolvedProp = propSchema.ResolveSchema(generation);
+
+                if (resolvedProp is null)
                     continue;
 
-                var concreteProp = propSchema.EnsureSchemaForMutation(
+                string? description = null;
+                var needsDescription = paramDescriptionLookup?.TryGetValue(propName, out description) == true &&
+                                       resolvedProp.Description != description;
+                var needsDefault = defaultProps.TryGetValue(propName, out var defaultAttr) && resolvedProp.Default is null;
+
+                if (!needsDescription && !needsDefault)
+                    continue;
+
+                localSchema ??= content.EnsureOperationLocalSchemaForMutation(mutationCtx, "requestBody");
+
+                if (localSchema?.Properties is null)
+                    continue;
+
+                var concreteProp = localSchema.Properties[propName].EnsureSchemaForMutation(
                     mutationCtx,
                     $"requestBody.{propName}",
-                    localized => schema.Properties![propName] = localized);
+                    localized => localSchema.Properties[propName] = localized);
 
-                if (concreteProp is not null)
+                if (concreteProp is null)
+                    continue;
+
+                if (needsDescription)
                     concreteProp.Description = description;
+
+                if (needsDefault && concreteProp.Default is null)
+                    concreteProp.Default = defaultAttr.ToJsonNode(SerializerOptions);
             }
         }
     }
@@ -224,26 +240,6 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
         }
 
         return defaults;
-    }
-
-    void ApplyDefaultValues(OpenApiSchema schema, Dictionary<string, System.ComponentModel.DefaultValueAttribute> defaultProps, OperationSchemaMutationContext mutationCtx)
-    {
-        if (schema.Properties is null)
-            return;
-
-        foreach (var (propName, propSchema) in schema.Properties)
-        {
-            if (!defaultProps.TryGetValue(propName, out var defaultAttr))
-                continue;
-
-            var concreteProp = propSchema.EnsureSchemaForMutation(
-                mutationCtx,
-                $"requestBody.{propName}",
-                localized => schema.Properties![propName] = localized);
-
-            if (concreteProp is { Default: null })
-                concreteProp.Default = defaultAttr.ToJsonNode(SerializerOptions);
-        }
     }
 
     void RemoveHiddenProperties(OpenApiOperation operation, List<PropertyInfo> requestDtoProps, RequestTransformState state, string operationKey, OpenApiGenerationState generation)

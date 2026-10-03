@@ -92,6 +92,7 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
               namespace {{_rootNamespace}};
 
               using System;
+              using System.Collections.Generic;
               using System.Diagnostics.CodeAnalysis;
 
               public static class DiscoveredTypes

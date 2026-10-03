@@ -13,8 +13,6 @@ sealed class RequestTransformState
 {
     public HashSet<string> PropsRemovedFromBody { get; } = new(StringComparer.OrdinalIgnoreCase);
     public Dictionary<string, OpenApiParameter> ParametersBySchemaPath { get; } = new(StringComparer.Ordinal);
-    public JsonNode? RequestBodyFallbackExample { get; set; }
-    public bool RequestBodyFallbackExampleCreated { get; set; }
 
     internal void RegisterBoundParameter(PropertyInfo property, OpenApiParameter parameter, JsonNamingPolicy? namingPolicy, bool usePropertyNamingPolicy)
     {
@@ -117,7 +115,7 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
             return;
 
         var examples = BuildUniqueRequestExamples(epDef.EndpointSummary.RequestExamples);
-        var fallbackExample = GetRequestExampleFallback(epDef, state, promotedBodyProperty);
+        var fallbackExample = BuildRequestExampleFallback(epDef, state.PropsRemovedFromBody, promotedBodyProperty);
         var exampleNodes = new List<(RequestExample Example, JsonNode? Node)>(examples.Count);
 
         foreach (var example in examples)

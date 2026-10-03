@@ -20,19 +20,6 @@ sealed partial class RequestOperationTransformer
         return fallback;
     }
 
-    JsonNode? GetRequestExampleFallback(EndpointDefinition epDef,
-                                        RequestTransformState state,
-                                        PromotedBodyProperty? promotedBodyProperty)
-    {
-        if (!state.RequestBodyFallbackExampleCreated)
-        {
-            state.RequestBodyFallbackExample = BuildRequestExampleFallback(epDef, state.PropsRemovedFromBody, promotedBodyProperty);
-            state.RequestBodyFallbackExampleCreated = true;
-        }
-
-        return state.RequestBodyFallbackExample;
-    }
-
     JsonNode? BuildRequestExampleNode(object? example,
                                       HashSet<string> propsRemovedFromBody,
                                       PromotedBodyProperty? promotedBodyProperty)

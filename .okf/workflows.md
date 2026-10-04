@@ -38,14 +38,14 @@ NuGet-only release (no long-running service). Changelog for GH releases: `Src/Li
 
 ```bash
 dotnet pack FastEndpoints.slnx -c Release
-dotnet nuget push "Src/**/*.nupkg" -k <NUGET_API_KEY> -s https://api.nuget.org/v3/index.json
+dotnet nuget push "Src/**/*.nupkg" -k <NUGET_API_KEY> -s https://api.nuget.org/v3/index.json --skip-duplicate
 ```
 
 GitHub Actions (`.github/workflows/publish-to-nuget.yml`): on tag `v*`:
 1. setup SDKs 8/9/10
 2. solution tests with the [testing.md](testing.md) CI filter (`Int.OpenApi.Kiota` omitted when `CI`/`TF_BUILD` is set)
 3. pack
-4. `NuGet/login@v1` exchanges GitHub OIDC for a short-lived nuget.org API key (`user: djnitehawk` in the workflow; this is the nuget.org username, not GitHub `dj-nitehawk`)
+4. `NuGet/login@v1.2.0` exchanges GitHub OIDC for a short-lived nuget.org API key (`user: djnitehawk` in the workflow; this is the nuget.org username, not GitHub `dj-nitehawk`)
 5. push with that temp key and `--skip-duplicate` (trusted publishing; no long-lived API key secret). Needed because independently versioned Agents packages (`FastEndpoints.Mcp` / `FastEndpoints.A2A`) are packed with the solution and already exist on nuget.org when their version is unchanged.
 6. non-beta tags: GH release body from `Src/Library/changelog.md`. AOT test step is commented; do not assume an AOT gate.
 

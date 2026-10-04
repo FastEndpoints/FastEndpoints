@@ -10,7 +10,7 @@ tags: [deps]
 ## Runtime
 - **Language:** C# (LangVersion latest)
 - **TFMs (libraries):** net8.0; net9.0; net10.0 (default from `Src/Directory.Build.props`)
-- **Exceptions:** Generator → netstandard2.0; Attributes → netstandard2.0 + net8/9/10; Agents Mcp/A2A → net9.0;net10.0
+- **Overrides:** Generator → netstandard2.0; Generator.Cli → net8.0; Attributes → netstandard2.0 + net8/9/10; OpenApi and OpenApi.Kiota → net10.0; Agents Mcp/A2A → net9.0;net10.0
 - **Tests / harnesses:** net10.0
 - **ASP.NET:** `FrameworkReference` Microsoft.AspNetCore.App where needed
 
@@ -46,4 +46,4 @@ tags: [deps]
 - `Directory.Packages.props`
 - `Src/Directory.Build.props`
 - `Src/Library/FastEndpoints.csproj`
-- `Src/Generator/FastEndpoints.Generator.csproj`
+- `Src/**/*.csproj`

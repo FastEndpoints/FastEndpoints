@@ -15,18 +15,19 @@ tags: [architecture]
 
 ## Components
 
+Project references (arrows point to dependencies):
+
+```text
+Library → Attributes, JobQueues, Messaging
+JobQueues → Messaging → Core, Messaging.Core
+CommandRules → JobQueues, Messaging, Messaging.Core
+Security / OpenApi / OData / AspVersioning / Agents.* → Library
+Messaging.Remote → Messaging.Remote.Core → Messaging.Core
+Messaging.Remote.Reflection → Messaging.Remote
+Generator → Attributes
 ```
-Attributes / Messaging.Core
-        │
-        ▼
-      Core  ◄── Messaging  ◄── JobQueues / CommandRules
-        │
-        ▼
-    Library (FastEndpoints) ──► Security, OpenApi, OData, AspVersioning, HealthChecks, Agents.*
-        │
-        ▼
-    Generator (analyzer) + Generator.Cli (serializer contexts)
-```
+
+`HealthChecks` and `OpenApi.Kiota` have no project reference to Library. `Generator` is consumed as an analyzer; `Generator.Cli` runs through MSBuild targets.
 
 | Layer | Role |
 | --- | --- |
@@ -65,16 +66,7 @@ Attributes / Messaging.Core
   `IRpcMarshallerFactory` and defaults to MessagePack. `AddHandlerServer(marshaller:)` sets it server-side;
   `RemoteConnection.MarshallerFactory` sets it per client connection. Both sides also take the bound gRPC method name from
   the factory, so they always agree (MessagePack keeps the historical empty name).
-- **Remote event queues:** default delivery is server-streaming `sub`. A hub provider that implements
-  `IEventHubDeliveryAck<T>` binds duplex `sub-ack` instead and marks the row complete only after the subscriber stores the
-  hub `TrackingID`. `sub` stays the default. The ACK is the inbox write, not handler success.
-  `IEventHubDeliveryAck<T>.DeliveryAckTimeout` defaults to 30 seconds and is capped by the row's remaining replay lifetime.
-  Delivery writes have a separate budget using the same timeout, also capped by remaining replay lifetime. The
-  dispatcher directly awaits cancellation-aware writes and reads, including cancellation cleanup before ownership release. Timeout closes the call with `DeadlineExceeded`, leaves
-  the durable row pending, and releases exclusive subscriber ownership. Traps: [gotchas.md](gotchas.md).
-- **Remote event connection ownership:** each server dispatcher acquires its connection and releases it in `finally`. `EventDeliveryAckDispatcher` owns exclusive acquisition, connected/rejected logging, and `FailedPrecondition` rejection. `EventHub.OnDeliveryAck` reads and validates the hello, then delegates. ACK ownership spans timeout validation and awaited stream cancellation cleanup.
-- **Remote event worker ownership:** `HubContext` owns pending-batch query construction, materialization and retrieval retries, plus shared hub completion retries, deserialization and idle signal waiting for ordinary and ACK dispatchers. `GetNextNonEmptyBatch` owns the fetch/idle loop, returning a non-empty batch or null on linked cancellation (including disposed-signal shutdown). Retrieval error counts are local to each fetch and reset after success; dispatchers retain their batch limits and deserialization cancellation handling. Client adapters compose `EventSubscriberRuntime<,,,>` for purge setup, handler dependencies, the shared receiver/executor semaphore, and dependency assembly for both receiver and executor launch. The ACK dispatcher assumes durable, non-destructive storage: transport failures leave rows pending naturally, and its completion overload forwards to the shared durable retry path. Ordinary dispatch retains mode-sensitive completion. `EventDispatcherWorker.RequeueBatchAsync` owns best-effort in-memory suffix recovery, with explicit caller tokens for deserialization cancellation (`CancellationToken.None`) and stream failure (linked connection/app token). `EventDeliveryAckDispatcher.GetPhaseTimeout` owns the non-negative replay-lifetime cap, calculated afresh at each write/read phase.
-- **Remote subscriber supervision and retention:** `EventReceiveSupervisor<TEvent>` owns client reconnect delay, receive error counts/callback isolation, cancellation and terminal logging. Protocol-local sessions dispose calls before reconnect delay; ordinary initial call creation still propagates failures, ordinary replacement creation is terminal, and ACK call creation is retryable. Receivers retain persistence, hello/ACK ordering and fatal metadata validation. `EventSubscriberRetentionPolicy<TStorageRecord>` owns ACK record capability validation, clock-skew allowance validation/defaults, retained-key deadline calculation, and the side-effect-free purge expression. ACK adapters validate during construction and receivers read the allowance again at startup; `EventSubscriberStorage<,>` retains provider setup and hourly worker lifetime. Adapter identity/logger categories and separate adapter storage caches remain protocol-specific.
+- **Remote events:** ordinary server-streaming delivery and opt-in durable inbox ACK delivery. Protocol/storage contracts, worker ownership, deadlines, retention and isolation: [remote-events.md](remote-events.md).
 - **Remote reflection:** `FastEndpoints.Messaging.Remote.Reflection` is an opt-in satellite package holding the protobuf wire
   format and gRPC server reflection (`AddHandlerReflection` / `MapHandlerReflection`). It generates Google.Protobuf descriptors
   from the command CLR types, so protobuf/reflection dependencies stay out of `Messaging.Remote`.
@@ -106,6 +98,5 @@ Attributes / Messaging.Core
 - `Src/Library/Main/MainExtensions.cs`
 - `Src/Library/Main/EndpointRouteMapper.cs`
 - `Src/Library/Endpoint/Endpoint.cs`
+- `Src/**/*.csproj`
 - `Src/Library/Metadata.cs`
-- `Src/Security/`
-- `Src/Agents/Directory.Build.props`

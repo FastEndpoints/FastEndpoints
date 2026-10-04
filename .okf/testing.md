@@ -28,13 +28,12 @@ Root `global.json` sets `"test": { "runner": "Microsoft.Testing.Platform" }` so 
 # Full solution tests (matches GitHub publish workflow)
 dotnet test FastEndpoints.slnx -c Release --verbosity minimal --filter "ExcludeInCiCd!=Yes" --max-parallel-test-modules 1
 
-# By tree (Azure pipeline workingDirectory Tests)
-dotnet test Tests/**/*.csproj -c Release --filter "ExcludeInCiCd!=Yes" --max-parallel-test-modules 1
-
 # Targeted
 dotnet test Tests/UnitTests/FastEndpoints/Unit.FastEndpoints.csproj
 dotnet test Tests/IntegrationTests/FastEndpoints/Int.FastEndpoints.csproj --filter FullyQualifiedName~BindingTests
 ```
+
+Azure uses the task project glob `Tests/**/*.csproj`; use the solution command above for a portable shell invocation. MTP uses `IsTestingPlatformApplication` for discovery; exit 8 means zero tests ran.
 
 AOT tests: use `NativeAot.slnx` (publish workflow currently has AOT test step commented out; re-check before assuming CI runs AOT).
 
@@ -48,12 +47,21 @@ AOT tests: use `NativeAot.slnx` (publish workflow currently has AOT test step co
 - Integration runners for `FastEndpoints`, `FastEndpoints.OpenApi`, and `FastEndpoints.Agents` disable test-collection parallelization (process-wide FastEndpoints state). Azure and GitHub publish pipelines also rewrite the `FastEndpoints` runner config and pass `--max-parallel-test-modules 1` so test assemblies do not starve each other on 2-core runners.
 - `Mode.WaitForAny` / `WaitForNone` offload handlers with `Task.Run`. Do not assert handler side-effects immediately after those publishes; poll, or use `WaitForAll`. For "was it published", use an event receiver (see Command/event spies).
 - No external DB for the core suite; job storage tests use in-memory/test providers.
-- Job-queue idempotency, gRPC reflection, and AOT binding/jobs live under the matching `Tests/UnitTests`, `Tests/IntegrationTests/FastEndpoints/RPCTests`, and `Tests/NativeAotTests` folders. Do not stand up a second in-process event hub with default storage types (see [gotchas.md](gotchas.md)).
 - Financial HTTP idempotency: real Kestrel response-lifecycle tests in `FinancialResponseCaptureTests.cs`; unit tests in `Tests/UnitTests/FastEndpoints/Financial*.cs` / `MemoryFinancialIdempotencyStoreTests.cs`; harness endpoints in `TestHarness/Web/[Features]/TestCases/FinancialIdempotency/`; integration in `Tests/IntegrationTests/FastEndpoints/FinancialIdempotencyTests/` (`Sut` for the memory path, `FinancialIdempotencyFaultSut` for in-flight/`Complete` failure fakes).
 - Unit tests that host `WebApplication` + `UseFastEndpoints()` must isolate process statics ([gotchas.md](gotchas.md)). Do not add a second in-process host in `Unit.FastEndpoints` without that pattern.
 
+## Domain regression map
+| Surface | Regression location / constraint |
+| --- | --- |
+| Remote events | `Tests/UnitTests/FastEndpoints/EventQueueTests.*.cs`: retrieval/idle, deserialization, delivery ACK, store retries/expiry, retention, lifecycle and receive supervision |
+| ACK transport deadlines | `EventQueueTests.AckTimeout.cs` and `EventQueueTests.AckWriteTimeout.cs`: real Kestrel HTTP/2 and shared `LiveDeliveryAckHost<TEvent>` |
+| Remote event isolation | Distinct closed event/storage types and internal retry-delay overrides: [remote-events.md](remote-events.md#test-isolation) |
+| Job dedupe / reflection | Matching unit suites and `Tests/IntegrationTests/FastEndpoints/RPCTests/` |
+| AOT binding / jobs | `Tests/NativeAotTests/` |
+| Agents schemas | `Tests/IntegrationTests/FastEndpoints.Agents/JsonSchemaBuilderTests.cs`, `McpToolSchemaRootTests.cs` |
+| OpenAPI enums / examples | `EnumSchemaTransformerTests`, `NullableCollectionSchemaTests`, `OperationTransformerEdgeCaseTests`, `OperationSchemaHelpersTests` in `Int.OpenApi` |
+
 ## OpenAPI snapshots
-- `EnumSchemaTransformerTests` hosts an isolated TestServer with the real ASP.NET schema pipeline and FE enum transformer. It covers mixed property converters, nullable values, naming policies, and unchanged shared enum components. `Int.OpenApi.csproj` enables `Microsoft.AspNetCore.OpenApi.Generated` interceptors for its `AddOpenApi` registration. Nullable enum request examples (mismatch, JSON null, and a matching value) are covered by `OperationTransformerEdgeCaseTests` against the `Swagger Review` document. `OperationSchemaHelpersTests` covers sample generation and invalid-example replacement with leading null enum entries, cloned values, and empty/all-null enum lists.
 - Goldens: `Tests/IntegrationTests/FastEndpoints.OpenApi/release-*.http` and `release-*.json` (plus `release-versioning-*`).
 - Walker/export/versioning behavior is covered by focused tests in that project, not snapshots alone. Export mode keys live on internal `OpenApiExportMode`; public `IsExportMode` / `IsNotExportMode` (+ per-format wrappers) on `IHost` / `IHostApplicationBuilder`.
 - To regenerate `.http` goldens: set `_updateSnapshots = true` in `HttpSnapshotTests.cs`, run  

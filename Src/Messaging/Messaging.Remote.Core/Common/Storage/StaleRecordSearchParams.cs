@@ -9,7 +9,9 @@ namespace FastEndpoints;
 public struct StaleRecordSearchParams<TStorageRecord> where TStorageRecord : IEventStorageRecord
 {
     /// <summary>
-    /// a boolean lambda expression to match stale records
+    /// a boolean lambda expression to match stale records. apply the supplied expression in full.
+    /// ACK inbox records also require their delivery-key retention deadline to have passed.
+    /// for ordinary records:
     /// <code>
     ///     r => r.IsComplete || DateTime.UtcNow &gt;= r.ExpireOn
     /// </code>

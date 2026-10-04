@@ -15,18 +15,19 @@ tags: [architecture]
 
 ## Components
 
+Project references (arrows point to dependencies):
+
+```text
+Library → Attributes, JobQueues, Messaging
+JobQueues → Messaging → Core, Messaging.Core
+CommandRules → JobQueues, Messaging, Messaging.Core
+Security / OpenApi / OData / AspVersioning / Agents.* → Library
+Messaging.Remote → Messaging.Remote.Core → Messaging.Core
+Messaging.Remote.Reflection → Messaging.Remote
+Generator → Attributes
 ```
-Attributes / Messaging.Core
-        │
-        ▼
-      Core  ◄── Messaging  ◄── JobQueues / CommandRules
-        │
-        ▼
-    Library (FastEndpoints) ──► Security, OpenApi, OData, AspVersioning, HealthChecks, Agents.*
-        │
-        ▼
-    Generator (analyzer) + Generator.Cli (serializer contexts)
-```
+
+`HealthChecks` and `OpenApi.Kiota` have no project reference to Library. `Generator` is consumed as an analyzer; `Generator.Cli` runs through MSBuild targets.
 
 | Layer | Role |
 | --- | --- |
@@ -65,6 +66,7 @@ Attributes / Messaging.Core
   `IRpcMarshallerFactory` and defaults to MessagePack. `AddHandlerServer(marshaller:)` sets it server-side;
   `RemoteConnection.MarshallerFactory` sets it per client connection. Both sides also take the bound gRPC method name from
   the factory, so they always agree (MessagePack keeps the historical empty name).
+- **Remote events:** ordinary server-streaming delivery and opt-in durable inbox ACK delivery. Protocol/storage contracts, worker ownership, deadlines, retention and isolation: [remote-events.md](remote-events.md).
 - **Remote reflection:** `FastEndpoints.Messaging.Remote.Reflection` is an opt-in satellite package holding the protobuf wire
   format and gRPC server reflection (`AddHandlerReflection` / `MapHandlerReflection`). It generates Google.Protobuf descriptors
   from the command CLR types, so protobuf/reflection dependencies stay out of `Messaging.Remote`.
@@ -96,6 +98,5 @@ Attributes / Messaging.Core
 - `Src/Library/Main/MainExtensions.cs`
 - `Src/Library/Main/EndpointRouteMapper.cs`
 - `Src/Library/Endpoint/Endpoint.cs`
+- `Src/**/*.csproj`
 - `Src/Library/Metadata.cs`
-- `Src/Security/`
-- `Src/Agents/Directory.Build.props`

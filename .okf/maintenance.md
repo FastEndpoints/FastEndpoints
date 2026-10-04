@@ -12,7 +12,8 @@ tags: [maintain]
 - Bundle-root `index.md` is the router; only it may set `okf_version: "0.1"`.
 - Do not invent `type` values; use `Reference` if unsure.
 - No secrets in OKF. Prefer `## Sources` for multi-source claims.
-- Soft target ~50-150 lines per file; split by topic when scanning suffers.
+- Soft target ~50-150 lines per file; also check paragraph size and reading cost. Split by topic when scanning suffers.
+- Keep each detailed fact in one topic owner and link from other files. Core files summarize boundaries; testing maps regression suites; gotchas preserves traps and owner-approved review exclusions. Remote event contracts belong in [remote-events.md](remote-events.md).
 - Day-to-day OKF finish gate is normative in `AGENTS.md`; this file is the trigger inventory + conformance reminder.
 
 ## Update triggers
@@ -30,9 +31,7 @@ Sync OKF when changes hit:
 - docs maintenance workflow / FE-Docs paths (not the full docs body)
 - changelog path/format / GH-release notes workflow (not the entry bodies)
 
-**Public docs (FE-Docs) and changelog:** user-visible library changes also require updates in sibling `../FE-Docs/` and `Src/Library/changelog.md` (see [workflows.md](workflows.md)). Those are separate from OKF sync; do all that apply.
-
-If unaffected, state why in the final response (`OKF unaffected (non-behavioral edit)` for pure comment/typo/format).
+Finish gates, including public docs/changelog and explicit unaffected reporting, are owned by `AGENTS.md`. Commands and entry format: [workflows.md](workflows.md).
 
 ## Conflicts
 1. Prefer source, tests, generated artifacts, lockfiles, manifests over OKF prose.

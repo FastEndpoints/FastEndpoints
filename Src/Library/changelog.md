@@ -99,6 +99,12 @@ public override void Configure()
 
 ## Fixes 🪲
 
+<details><summary>Nested group tags are preserved in generated OpenAPI operations</summary>
+
+Explicit <code>WithTags</code> labels from a root group, nested groups, and the endpoint are all written to the operation. Disabling automatic tagging, or calling <code>DontAutoTag()</code>, removes only the route-derived tag. Repeated names are emitted once, and names that differ only by case stay distinct.
+
+</details>
+
 <details><summary>Honor <code>RemoveFromSchema</code> for claim and permission query parameters</summary>
 
 Both `FastEndpoints.OpenApi` and `FastEndpoints.Swagger` now omit query parameters for optional `[FromClaim]` and `[HasPermission]` properties with `RemoveFromSchema = true`. Request binding is unchanged. `[FromHeader]` and `[FromCookie]` parameters remain documented when this flag removes their body properties.

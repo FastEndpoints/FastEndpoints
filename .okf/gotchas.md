@@ -90,6 +90,8 @@ tags: [gotcha]
 
 - **OpenAPI `RemoveFromSchema`:** optional `[FromClaim]` and `[HasPermission]` properties with this flag are excluded from body schemas and query parameters in both OpenApi and Swagger. Header/cookie parameters remain documented when the flag removes their body properties. Runtime binding is unchanged. Regression coverage: `QueryParameterVisibilityTests` in `Int.OpenApi` and `Unit.Swagger`.
 
+- **OpenAPI nested group tags:** `FastEndpoints.OpenApi` writes every explicit `ITagsMetadata` name onto the operation after framework fallback tags are stripped. Root group, nested group, and endpoint `WithTags` values are all kept. `AutoTagPathSegmentIndex <= 0` and `DontAutoTag()` suppress only the route-derived tag. Emitted names are unique by ordinal spelling, so case variants stay distinct. `TagCase` and `TagStripSymbols` apply to automatic tags and `AutoTagOverride` only. Legacy `Src/Swagger` is unchanged. Regression coverage: `OperationTagTests` and `NestedGroupTagTests` in `Int.OpenApi`.
+
 ## Sources
 - `Src/Library/Metadata.cs`
 - `Src/Library/Binder/BinderExtensions.cs`

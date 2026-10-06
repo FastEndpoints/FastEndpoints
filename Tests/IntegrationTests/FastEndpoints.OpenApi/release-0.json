@@ -1127,6 +1127,22 @@
         }
       }
     },
+    "/api/first/middle/last/item": {
+      "get": {
+        "tags": [
+          "Last",
+          "Endpoint",
+          "First",
+          "Middle"
+        ],
+        "operationId": "nested_group_tags_TestCasesOpenApiNestedGroupTagsEndpoint",
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
     "/api/inventory/get-product/{productID}": {
       "get": {
         "tags": [

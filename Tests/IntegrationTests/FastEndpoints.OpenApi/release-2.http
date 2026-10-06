@@ -260,6 +260,11 @@ POST {{baseUrl}}/api/filtered-shared-path
 Accept: application/json
 
 
+### nested_group_tags_TestCasesOpenApiNestedGroupTagsEndpoint
+GET {{baseUrl}}/api/first/middle/last/item
+Accept: application/json
+
+
 ### InventoryGetProductEndpoint
 GET {{baseUrl}}/api/inventory/get-product/{{productID}}
 Accept: application/json

@@ -60,6 +60,7 @@ AOT tests: use `NativeAot.slnx` (publish workflow currently has AOT test step co
 | AOT binding / jobs | `Tests/NativeAotTests/` |
 | Agents schemas | `Tests/IntegrationTests/FastEndpoints.Agents/JsonSchemaBuilderTests.cs`, `McpToolSchemaRootTests.cs` |
 | OpenAPI enums / examples | `EnumSchemaTransformerTests`, `NullableCollectionSchemaTests`, `OperationTransformerEdgeCaseTests`, `OperationSchemaHelpersTests` in `Int.OpenApi` |
+| OpenAPI nested group tags | `OperationTagTests` and `NestedGroupTagTests` in `Int.OpenApi`. Contract: [gotchas.md](gotchas.md) |
 
 ## OpenAPI snapshots
 - Goldens: `Tests/IntegrationTests/FastEndpoints.OpenApi/release-*.http` and `release-*.json` (plus `release-versioning-*`).

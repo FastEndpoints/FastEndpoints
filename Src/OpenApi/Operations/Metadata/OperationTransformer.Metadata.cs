@@ -14,6 +14,7 @@ sealed partial class OperationMetadataTransformer(DocumentOptions docOpts, Share
 
     public void ApplyAutoTag(OpenApiOperation operation, EndpointDefinition epDef, string bareRoute, IList<object> metadata)
     {
+        List<string>? explicitTagNames = null;
         HashSet<string>? explicitTags = null;
         string? overrideVal = null;
 
@@ -23,10 +24,17 @@ sealed partial class OperationMetadataTransformer(DocumentOptions docOpts, Share
             {
                 case ITagsMetadata tagsMetadata:
                 {
+                    explicitTagNames ??= [];
                     explicitTags ??= new(StringComparer.OrdinalIgnoreCase);
 
                     foreach (var tagName in tagsMetadata.Tags)
+                    {
+                        if (tagName is null)
+                            continue;
+
+                        explicitTagNames.Add(tagName);
                         explicitTags.Add(tagName);
+                    }
 
                     break;
                 }
@@ -47,6 +55,14 @@ sealed partial class OperationMetadataTransformer(DocumentOptions docOpts, Share
             }
         }
 
+        HashSet<string>? emitted = null;
+
+        if (explicitTagNames is not null)
+        {
+            for (var i = 0; i < explicitTagNames.Count; i++)
+                AddTag(explicitTagNames[i]);
+        }
+
         if (docOpts.AutoTagPathSegmentIndex <= 0 || epDef.DontAutoTagEndpoints)
             return;
 
@@ -57,14 +73,35 @@ sealed partial class OperationMetadataTransformer(DocumentOptions docOpts, Share
         else
         {
             var segments = bareRoute.Split('/', StringSplitOptions.RemoveEmptyEntries);
+
             if (segments.Length >= docOpts.AutoTagPathSegmentIndex)
                 tag = TagName(segments[docOpts.AutoTagPathSegmentIndex - 1], docOpts.TagCase, docOpts.TagStripSymbols);
         }
 
         if (tag is not null)
+            AddTag(tag);
+
+        // ordinal membership keeps caller spelling, including names that differ only by case.
+        // OpenApiTagReference equality is referential, so the set is what prevents duplicate names.
+        void AddTag(string tagName)
         {
-            operation.Tags ??= new HashSet<OpenApiTagReference>();
-            operation.Tags.Add(new(tag));
+            if (tagName.Length == 0)
+                return;
+
+            if (emitted is null)
+            {
+                operation.Tags ??= new HashSet<OpenApiTagReference>();
+                emitted = new(StringComparer.Ordinal);
+
+                foreach (var existing in operation.Tags)
+                {
+                    if (existing.Name is not null)
+                        emitted.Add(existing.Name);
+                }
+            }
+
+            if (emitted.Add(tagName))
+                operation.Tags!.Add(new(tagName));
         }
     }
 

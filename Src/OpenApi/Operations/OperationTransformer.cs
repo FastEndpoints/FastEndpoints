@@ -115,10 +115,6 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
         // handle response headers ([ToHeader] on response DTO + EndpointSummary.ResponseHeaders)
         _responseTransformer.AddHeaders(operation, epDef, metadata, generation);
 
-        // fix response polymorphism if enabled
-        if (docOpts.UseOneOfForPolymorphism)
-            _responseTransformer.FixPolymorphism(operation, operationKey, generation);
-
         // handle idempotency header
         _metadataTransformer.AddIdempotencyHeader(operation, epDef, generation);
 

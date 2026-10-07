@@ -99,6 +99,13 @@ public static class MainExtensions
     static readonly Lock _serializerConfigLock = new();
     internal static volatile bool SerializerConfigured;
 
+    // test hosts share this process with other hosts. let them put the previous resolver back.
+    internal static IServiceResolver? HostServiceResolver
+    {
+        get => ServiceResolver.InstanceNotSet ? null : ServiceResolver.Instance;
+        set => ServiceResolver.Instance = value!;
+    }
+
     [UnconditionalSuppressMessage("aot", "IL2026"), UnconditionalSuppressMessage("aot", "IL3050")]
     public static IEndpointRouteBuilder MapFastEndpoints(this IEndpointRouteBuilder app, Action<Cfg>? configAction = null)
     {

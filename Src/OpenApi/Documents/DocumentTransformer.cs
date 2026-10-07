@@ -36,6 +36,9 @@ sealed class DocumentTransformer(DocumentOptions opts, SharedContext sharedCtx) 
             document.SortPaths();
             document.SortSchemas();
             document.SortResponses();
+
+            if (opts.UseOneOfForPolymorphism)
+                DocumentPolymorphicOneOf.Apply(document);
         }
         finally
         {

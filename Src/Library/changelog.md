@@ -99,6 +99,12 @@ public override void Configure()
 
 ## Fixes 🪲
 
+<details><summary>OpenAPI documents generate for abstract polymorphic responses</summary>
+
+With <code>UseOneOfForPolymorphism</code> enabled, an abstract <code>[JsonPolymorphic]</code> response no longer fails document generation. The <code>oneOf</code> entries now reference the same derived schemas as the discriminator mapping, and the framework <code>anyOf</code> list is removed from that schema.
+
+</details>
+
 <details><summary>Nested group tags are preserved in generated OpenAPI operations</summary>
 
 Explicit <code>WithTags</code> labels from a root group, nested groups, and the endpoint are all written to the operation. Disabling automatic tagging, or calling <code>DontAutoTag()</code>, removes only the route-derived tag. Repeated names are emitted once, and names that differ only by case stay distinct.

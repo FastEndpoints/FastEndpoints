@@ -4,7 +4,8 @@ using Microsoft.OpenApi;
 namespace FastEndpoints.OpenApi;
 
 /// <summary>
-/// schema transformer that populates oneOf from discriminator mappings when UseOneOfForPolymorphism is enabled.
+/// schema transformer that records a discriminator example when UseOneOfForPolymorphism is enabled.
+/// oneOf is applied later by <see cref="DocumentPolymorphicOneOf"/> once mapping refs can be bound to the document.
 /// </summary>
 sealed class PolymorphismSchemaTransformer(DocumentOptions opts) : IOpenApiSchemaTransformer
 {
@@ -13,19 +14,14 @@ sealed class PolymorphismSchemaTransformer(DocumentOptions opts) : IOpenApiSchem
         if (!opts.UseOneOfForPolymorphism)
             return Task.CompletedTask;
 
-        // only process schemas that have discriminator mappings but no oneOf entries yet
+        // mapping refs are built with a null host document. copying them into oneOf here makes schema resolution throw.
+        // DocumentPolymorphicOneOf binds oneOf after components exist.
         if (schema.Discriminator?.Mapping is not { Count: > 0 } ||
             schema.OneOf is { Count: > 0 })
             return Task.CompletedTask;
 
-        // populate oneOf from discriminator mapping values (which are schema references)
-        schema.OneOf ??= [];
-
-        foreach (var (_, derivedSchemaRef) in schema.Discriminator.Mapping)
-            schema.OneOf.Add(derivedSchemaRef);
-
         // generate example from first derived type if discriminator property name is set and no example exists
-        if (schema.Discriminator.PropertyName is not null && schema.Example is null && schema.OneOf is { Count: > 0 })
+        if (schema.Discriminator.PropertyName is not null && schema.Example is null)
         {
             var firstMapping = schema.Discriminator.Mapping.First();
 

@@ -157,48 +157,6 @@ sealed class ResponseOperationTransformer(DocumentOptions docOpts, SharedContext
         }
     }
 
-    public void FixPolymorphism(OpenApiOperation operation, string operationKey, OpenApiGenerationState generation)
-    {
-        if (operation.Responses is null)
-            return;
-
-        var mutationCtx = new OperationSchemaMutationContext(sharedCtx, generation, operationKey);
-
-        foreach (var (_, response) in operation.Responses)
-        {
-            if (response.Content is null)
-                continue;
-
-            foreach (var (_, mediaType) in response.Content)
-            {
-                if (mediaType.Schema is null)
-                    continue;
-
-                if (mediaType.Schema.ResolveSchemaOrReference(generation) is not OpenApiSchema actualSchema)
-                    continue;
-
-                if (actualSchema.Discriminator?.Mapping is not { Count: > 0 } ||
-                    actualSchema.OneOf is not { Count: > 0 })
-                    continue;
-
-                // preserve existing schema metadata and only surface oneOf at the response schema level
-                if (mediaType.Schema.OneOf is { Count: > 0 })
-                    continue;
-
-                if (mediaType.Schema.EnsureSchemaForMutation(
-                        mutationCtx,
-                        "response.polymorphism",
-                        localized => mediaType.Schema = localized) is not { } responseSchema)
-                    continue;
-
-                responseSchema.OneOf ??= [];
-
-                foreach (var schemaOption in actualSchema.OneOf)
-                    responseSchema.OneOf.Add(schemaOption);
-            }
-        }
-    }
-
     void ApplyParamDescriptions(IOpenApiResponse response,
                                 Dictionary<string, string> propDescriptions,
                                 Type? responseDtoType,

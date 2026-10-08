@@ -1322,6 +1322,11 @@ Accept: application/json
   "correlationId": ""
 }
 
+### TestCasesStreamStatusCodeTestEndpoint
+GET {{baseUrl}}/api/test-cases/stream-status/{{mode}}
+Accept: application/json
+
+
 ### TestCasesStronglyTypedRouteParamTestMyEndpoint
 POST {{baseUrl}}/api/test-cases/strong-route-params/{{platformKitUid}}/blah/{{name}}
 Accept: application/json

@@ -10,6 +10,16 @@ Please [join the discussion here](https://github.com/FastEndpoints/FastEndpoints
 
 ## New 🎉
 
+<details><summary>Custom status codes for <code>Send.StreamAsync()</code>, <code>Send.BytesAsync()</code>, and <code>Send.FileAsync()</code></summary>
+
+These three send methods now have overloads that take an HTTP status code. Existing calls keep returning `200`. Range processing and precondition checks can still replace the status with `206`, `304`, `412`, or `416`.
+
+```csharp
+await Send.StreamAsync(zipStream, statusCode: 207, fileName: "result.zip", contentType: "application/zip");
+```
+
+</details>
+
 <details><summary>Describe MCP tool input and output properties with <code>[Description]</code></summary>
 
 Annotate DTO properties with the standard `System.ComponentModel.DescriptionAttribute` to add descriptions to MCP tool schemas. Nested properties, JSON property names, naming policies, and endpoint serializer contexts are supported.

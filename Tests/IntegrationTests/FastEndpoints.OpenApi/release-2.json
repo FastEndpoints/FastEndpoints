@@ -6714,6 +6714,29 @@
         }
       }
     },
+    "/api/test-cases/stream-status/{mode}": {
+      "get": {
+        "tags": [
+          "TestCases"
+        ],
+        "operationId": "TestCasesStreamStatusCodeTestEndpoint",
+        "parameters": [
+          {
+            "name": "mode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          }
+        }
+      }
+    },
     "/api/test-cases/strong-route-params/{platformKitUid}/blah/{name}": {
       "post": {
         "tags": [

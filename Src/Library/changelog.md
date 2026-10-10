@@ -109,6 +109,12 @@ public override void Configure()
 
 ## Fixes 🪲
 
+<details><summary>Multi-line XML summaries no longer keep source indentation in OpenAPI descriptions</summary>
+
+`FastEndpoints.OpenApi` now removes the source indentation from multi-line XML `<summary>` and `<remarks>` text. Paragraphs and lists in a description render as markdown instead of a code block, and relative indentation such as nested list items is preserved.
+
+</details>
+
 <details><summary>Preserve XML property summaries on referenced OpenAPI schemas</summary>
 
 `FastEndpoints.OpenApi` now keeps each DTO property's XML summary alongside its `$ref`, including object, collection, and enum properties. Shared component descriptions retain the type's own summary. Properties with inline schemas continue to use their own descriptions.

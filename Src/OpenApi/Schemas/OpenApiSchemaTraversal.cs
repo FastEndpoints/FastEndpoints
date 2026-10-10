@@ -26,6 +26,14 @@ static class OpenApiSchemaTraversal
         }
     }
 
+    internal static void Visit(IOpenApiSchema? schema, Action<IOpenApiSchema?> visit)
+    {
+        visit(schema);
+
+        if (schema is OpenApiSchema concreteSchema)
+            TraverseChildSchemas(concreteSchema, static (child, callback) => Visit(child, callback), visit);
+    }
+
     internal static IOpenApiSchema? Rewrite(IOpenApiSchema? schema, Func<IOpenApiSchema?, IOpenApiSchema?> rewrite)
     {
         var rewritten = rewrite(schema);
@@ -39,42 +47,45 @@ static class OpenApiSchemaTraversal
     }
 
     static void TraverseChildSchemas(OpenApiSchema schema, Action<IOpenApiSchema?> visit)
+        => TraverseChildSchemas(schema, static (child, callback) => callback(child), visit);
+
+    static void TraverseChildSchemas<TState>(OpenApiSchema schema, Action<IOpenApiSchema?, TState> visit, TState state)
     {
         if (schema.Properties is { Count: > 0 })
         {
             foreach (var childSchema in schema.Properties.Values)
-                visit(childSchema);
+                visit(childSchema, state);
         }
 
-        visit(schema.Items);
-        visit(schema.AdditionalProperties);
-        visit(schema.Not);
+        visit(schema.Items, state);
+        visit(schema.AdditionalProperties, state);
+        visit(schema.Not, state);
 
         if (schema.AllOf is { Count: > 0 })
-            VisitSchemas(schema.AllOf, visit);
+            VisitSchemas(schema.AllOf, visit, state);
 
         if (schema.OneOf is { Count: > 0 })
-            VisitSchemas(schema.OneOf, visit);
+            VisitSchemas(schema.OneOf, visit, state);
 
         if (schema.AnyOf is { Count: > 0 })
-            VisitSchemas(schema.AnyOf, visit);
+            VisitSchemas(schema.AnyOf, visit, state);
 
         if (schema.PatternProperties is { Count: > 0 })
         {
             foreach (var childSchema in schema.PatternProperties.Values)
-                visit(childSchema);
+                visit(childSchema, state);
         }
 
         if (schema.Definitions is { Count: > 0 })
         {
             foreach (var childSchema in schema.Definitions.Values)
-                visit(childSchema);
+                visit(childSchema, state);
         }
 
         if (schema.Discriminator?.Mapping is { Count: > 0 })
         {
             foreach (var mappedSchema in schema.Discriminator.Mapping.Values)
-                visit(mappedSchema);
+                visit(mappedSchema, state);
         }
     }
 
@@ -121,10 +132,10 @@ static class OpenApiSchemaTraversal
         }
     }
 
-    static void VisitSchemas(IEnumerable<IOpenApiSchema?> schemas, Action<IOpenApiSchema?> visit)
+    static void VisitSchemas<TState>(IEnumerable<IOpenApiSchema?> schemas, Action<IOpenApiSchema?, TState> visit, TState state)
     {
         foreach (var schema in schemas)
-            visit(schema);
+            visit(schema, state);
     }
 
     static void RewriteSchemaList(IList<IOpenApiSchema> schemas, Func<IOpenApiSchema?, IOpenApiSchema?> rewrite)

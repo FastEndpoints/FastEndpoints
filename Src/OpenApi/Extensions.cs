@@ -54,12 +54,12 @@ public static class Extensions
                 // add transformers
                 apiOptions.AddOperationTransformer(new OperationTransformer(opts, sharedCtx));
                 apiOptions.AddDocumentTransformer(new DocumentTransformer(opts, sharedCtx));
-                apiOptions.AddSchemaTransformer<XmlDocSchemaTransformer>();
                 apiOptions.AddSchemaTransformer<NumericTypeCleanupSchemaTransformer>();
                 apiOptions.AddSchemaTransformer<UniqueItemsSchemaTransformer>();
                 apiOptions.AddSchemaTransformer(new HiddenPropertySchemaTransformer(opts, sharedCtx));
                 apiOptions.AddSchemaTransformer(new ToHeaderPropertySchemaTransformer(opts, sharedCtx));
                 apiOptions.AddSchemaTransformer(new EnumSchemaTransformer(sharedCtx));
+                apiOptions.AddSchemaTransformer<XmlDocSchemaTransformer>();
 
                 if (opts.UseOneOfForPolymorphism)
                     apiOptions.AddSchemaTransformer(new PolymorphismSchemaTransformer(opts));

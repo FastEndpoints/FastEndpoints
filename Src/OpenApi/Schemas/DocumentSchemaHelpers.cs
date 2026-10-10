@@ -75,6 +75,15 @@ static class DocumentSchemaHelpers
                 continue;
 
             var schema = await context.GetOrCreateSchemaAsync(type, parameterDescription: null, ct);
+
+            // GetOrCreateSchemaAsync leaves nested schemas inline, so reference annotations need materializing.
+            OpenApiSchemaTraversal.Visit(schema, static nested =>
+            {
+                if (nested is OpenApiSchema concrete &&
+                    concrete.Metadata?.TryGetValue("x-ref-description", out var description) == true &&
+                    description is string propertySummary)
+                    concrete.Description = propertySummary;
+            });
             schemas.TryAdd(refId, schema);
         }
     }

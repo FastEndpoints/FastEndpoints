@@ -109,6 +109,12 @@ public override void Configure()
 
 ## Fixes 🪲
 
+<details><summary>Preserve XML property summaries on referenced OpenAPI schemas</summary>
+
+`FastEndpoints.OpenApi` now keeps each DTO property's XML summary alongside its `$ref`, including object, collection, and enum properties. Shared component descriptions retain the type's own summary. Properties with inline schemas continue to use their own descriptions.
+
+</details>
+
 <details><summary>OpenAPI documents generate for abstract polymorphic responses</summary>
 
 With <code>UseOneOfForPolymorphism</code> enabled, an abstract <code>[JsonPolymorphic]</code> response no longer fails document generation. The <code>oneOf</code> entries now reference the same derived schemas as the discriminator mapping, and the framework <code>anyOf</code> list is removed from that schema.

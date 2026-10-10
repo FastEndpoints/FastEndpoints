@@ -20,6 +20,84 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
     }
 
     [Fact]
+    public void schema_visitor_materializes_nested_descriptions_without_following_references()
+    {
+        var descendants = Enumerable.Range(0, 9)
+                                    .Select(i => new OpenApiSchema
+                                    {
+                                        Description = "Type summary",
+                                        Metadata = new Dictionary<string, object> { ["x-ref-description"] = $"Property {i}" }
+                                    })
+                                    .ToArray();
+        var target = new OpenApiSchema
+        {
+            Description = "Target type summary",
+            Metadata = new Dictionary<string, object> { ["x-ref-description"] = "Target property summary" }
+        };
+        var document = new OpenApiDocument
+        {
+            Components = new()
+            {
+                Schemas = new Dictionary<string, IOpenApiSchema> { ["Target"] = target }
+            }
+        };
+        var reference = new OpenApiSchemaReference("Target", document);
+        reference.ResolveSchema().ShouldBeSameAs(target);
+        var root = new OpenApiSchema
+        {
+            Properties = new Dictionary<string, IOpenApiSchema>
+            {
+                ["child"] = new OpenApiSchema
+                {
+                    Properties = new Dictionary<string, IOpenApiSchema> { ["nested"] = descendants[0] }
+                },
+                ["reference"] = reference,
+                ["invalid"] = new OpenApiSchema
+                {
+                    Description = "Original summary",
+                    Metadata = new Dictionary<string, object> { ["x-ref-description"] = 42 }
+                }
+            },
+            Items = descendants[1],
+            AdditionalProperties = descendants[2],
+            Not = descendants[3],
+            AllOf = [descendants[4]],
+            OneOf = [descendants[5]],
+            AnyOf = [descendants[6]],
+            PatternProperties = new Dictionary<string, IOpenApiSchema> { ["^child"] = descendants[7] },
+            Definitions = new Dictionary<string, IOpenApiSchema> { ["definition"] = descendants[8] },
+            Discriminator = new()
+            {
+                Mapping = new Dictionary<string, OpenApiSchemaReference> { ["target"] = reference }
+            }
+        };
+        var visited = new List<IOpenApiSchema?>();
+
+        OpenApiSchemaTraversal.Visit(root, nested =>
+        {
+            visited.Add(nested);
+
+            if (nested is OpenApiSchema concrete &&
+                concrete.Metadata?.TryGetValue("x-ref-description", out var description) == true &&
+                description is string propertySummary)
+                concrete.Description = propertySummary;
+        });
+
+        root.Description.ShouldBeNull();
+        for (var i = 0; i < descendants.Length; i++)
+        {
+            descendants[i].Description.ShouldBe($"Property {i}");
+            visited.Count(schema => ReferenceEquals(schema, descendants[i])).ShouldBe(1);
+        }
+        visited.Count(schema => ReferenceEquals(schema, reference)).ShouldBe(2);
+        visited.ShouldNotContain(target);
+        target.Description.ShouldBe("Target type summary");
+        root.Properties["invalid"].Description.ShouldBe("Original summary");
+        root.Properties["reference"].ShouldBeSameAs(reference);
+        root.Discriminator.Mapping["target"].ShouldBeSameAs(reference);
+    }
+
+    [Fact]
     public void schema_reference_collector_follows_components_and_nested_schema_members()
     {
         var document = new OpenApiDocument

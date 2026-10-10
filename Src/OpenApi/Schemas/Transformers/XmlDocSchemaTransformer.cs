@@ -8,32 +8,38 @@ sealed class XmlDocSchemaTransformer : IOpenApiSchemaTransformer
 {
     public Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context, CancellationToken ct)
     {
-        if (context.JsonPropertyInfo is not null)
+        var isReference = schema.Metadata?.TryGetValue("x-schema-id", out var schemaId) == true &&
+                          schemaId is string { Length: > 0 };
+
+        if (isReference || context.JsonPropertyInfo is null)
         {
-            if (context.JsonPropertyInfo.AttributeProvider is PropertyInfo propInfo)
-            {
-                var summary = XmlDocLookup.GetPropertySummary(propInfo);
+            var typeSummary = XmlDocLookup.GetTypeSummary(context.JsonTypeInfo.Type);
 
-                if (summary is not null && string.IsNullOrWhiteSpace(schema.Description))
-                    schema.Description = summary;
-
-                if (schema.Example is not null)
-                    return Task.CompletedTask;
-
-                var example = XmlDocLookup.GetPropertyExample(propInfo);
-
-                if (example is null)
-                    return Task.CompletedTask;
-
-                schema.Example = OperationSchemaHelpers.ParseXmlExampleJsonNode(example, preserveRawString: true);
-            }
+            if (typeSummary is not null && string.IsNullOrWhiteSpace(schema.Description))
+                schema.Description = typeSummary;
         }
-        else
-        {
-            var summary = XmlDocLookup.GetTypeSummary(context.JsonTypeInfo.Type);
 
-            if (summary is not null && string.IsNullOrWhiteSpace(schema.Description))
-                schema.Description = summary;
+        if (context.JsonPropertyInfo?.AttributeProvider is PropertyInfo propInfo)
+        {
+            var summary = XmlDocLookup.GetPropertySummary(propInfo);
+
+            if (summary is not null)
+            {
+                if (isReference)
+                    schema.Metadata!["x-ref-description"] = summary;
+                else if (string.IsNullOrWhiteSpace(schema.Description))
+                    schema.Description = summary;
+            }
+
+            if (schema.Example is not null)
+                return Task.CompletedTask;
+
+            var example = XmlDocLookup.GetPropertyExample(propInfo);
+
+            if (example is null)
+                return Task.CompletedTask;
+
+            schema.Example = OperationSchemaHelpers.ParseXmlExampleJsonNode(example, preserveRawString: true);
         }
 
         return Task.CompletedTask;

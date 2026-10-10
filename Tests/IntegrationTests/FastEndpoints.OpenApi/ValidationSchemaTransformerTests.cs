@@ -210,6 +210,56 @@ public class ValidationSchemaTransformerTests : DefaultPropertyNameResolverTestB
     }
 
     [Fact]
+    public void rule_for_each_not_empty_applies_to_items_instead_of_the_collection()
+    {
+        var schema = CreateRuleForEachSchema();
+
+        ApplyValidatorToSchema(schema, new RuleForEachValidator());
+
+        (schema.Required?.Contains("tags") ?? false).ShouldBeFalse();
+        var propertySchema = GetPropertySchema(schema, "tags");
+        propertySchema.Type!.Value.HasFlag(JsonSchemaType.Null).ShouldBeTrue();
+        propertySchema.MinItems.ShouldBeNull();
+        var itemsSchema = (OpenApiSchema)propertySchema.Items!;
+        itemsSchema.Type!.Value.HasFlag(JsonSchemaType.Null).ShouldBeFalse();
+        itemsSchema.MinLength.ShouldBe(1);
+    }
+
+    [Fact]
+    public void rule_for_each_length_and_range_apply_to_items_instead_of_the_collection()
+    {
+        var schema = CreateRuleForEachSchema();
+
+        ApplyValidatorToSchema(schema, new RuleForEachValidator());
+
+        var codesSchema = GetPropertySchema(schema, "codes");
+        codesSchema.MaxItems.ShouldBeNull();
+        codesSchema.MinItems.ShouldBeNull();
+        ((OpenApiSchema)codesSchema.Items!).MaxLength.ShouldBe(20);
+
+        var scoresSchema = GetPropertySchema(schema, "scores");
+        scoresSchema.Minimum.ShouldBeNull();
+        scoresSchema.Maximum.ShouldBeNull();
+        var scoreItemsSchema = (OpenApiSchema)scoresSchema.Items!;
+        scoreItemsSchema.Minimum.ShouldBe("1");
+        scoreItemsSchema.Maximum.ShouldBe("5");
+    }
+
+    [Fact]
+    public void rule_for_and_rule_for_each_on_the_same_collection_keep_their_own_targets()
+    {
+        var schema = CreateRuleForEachSchema();
+
+        ApplyValidatorToSchema(schema, new RuleForEachValidator());
+
+        schema.Required!.ShouldContain("labels");
+        var propertySchema = GetPropertySchema(schema, "labels");
+        propertySchema.MinItems.ShouldBe(1);
+        propertySchema.MaxItems.ShouldBeNull();
+        ((OpenApiSchema)propertySchema.Items!).MaxLength.ShouldBe(5);
+    }
+
+    [Fact]
     public void validator_does_not_inline_referenced_leaf_schema_without_applicable_rules()
     {
         var document = new OpenApiDocument
@@ -428,6 +478,62 @@ public class ValidationSchemaTransformerTests : DefaultPropertyNameResolverTestB
                         tool.RuleFor(x => x.ToolName).NotEmpty();
                     });
             });
+        }
+    }
+
+    static OpenApiSchema CreateRuleForEachSchema()
+        => new()
+        {
+            Type = JsonSchemaType.Object,
+            Properties = new Dictionary<string, IOpenApiSchema>
+            {
+                ["tags"] = new OpenApiSchema
+                {
+                    Type = JsonSchemaType.Array | JsonSchemaType.Null,
+                    Items = new OpenApiSchema { Type = JsonSchemaType.String | JsonSchemaType.Null }
+                },
+                ["codes"] = new OpenApiSchema
+                {
+                    Type = JsonSchemaType.Array,
+                    Items = new OpenApiSchema { Type = JsonSchemaType.String }
+                },
+                ["scores"] = new OpenApiSchema
+                {
+                    Type = JsonSchemaType.Array,
+                    Items = new OpenApiSchema { Type = JsonSchemaType.Integer }
+                },
+                ["labels"] = new OpenApiSchema
+                {
+                    Type = JsonSchemaType.Array | JsonSchemaType.Null,
+                    Items = new OpenApiSchema { Type = JsonSchemaType.String }
+                }
+            }
+        };
+
+    sealed class RuleForEachRequest
+    {
+        [JsonPropertyName("tags")]
+        public List<string?>? Tags { get; init; }
+
+        [JsonPropertyName("codes")]
+        public List<string> Codes { get; init; } = [];
+
+        [JsonPropertyName("scores")]
+        public List<int> Scores { get; init; } = [];
+
+        [JsonPropertyName("labels")]
+        public List<string>? Labels { get; init; }
+    }
+
+    sealed class RuleForEachValidator : Validator<RuleForEachRequest>
+    {
+        public RuleForEachValidator()
+        {
+            RuleForEach(x => x.Tags).NotEmpty();
+            RuleForEach(x => x.Codes).MaximumLength(20);
+            RuleForEach(x => x.Scores).InclusiveBetween(1, 5);
+            RuleFor(x => x.Labels).NotEmpty();
+            RuleForEach(x => x.Labels).MaximumLength(5);
         }
     }
 

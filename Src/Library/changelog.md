@@ -109,6 +109,12 @@ public override void Configure()
 
 ## Fixes 🪲
 
+<details><summary>OpenAPI applies <code>RuleForEach()</code> validators to collection items</summary>
+
+Rules such as `RuleForEach(x => x.Tags).NotEmpty().MaximumLength(20)` now constrain the `items` schema of the collection (`minLength`, `maxLength`, `minimum`, `maximum`, non-null items). Previously they were applied to the collection itself, which marked it as required and non-nullable and published `maxItems: 20`. Rules declared with `RuleFor()` on the same collection still apply to the collection.
+
+</details>
+
 <details><summary>Preserve XML property summaries on referenced OpenAPI schemas</summary>
 
 `FastEndpoints.OpenApi` now keeps each DTO property's XML summary alongside its `$ref`, including object, collection, and enum properties. Shared component descriptions retain the type's own summary. Properties with inline schemas continue to use their own descriptions.

@@ -2,6 +2,7 @@
 // MIT License
 // Copyright (c) 2019 Zym Labs LLC
 
+using System.Diagnostics.CodeAnalysis;
 using FluentValidation;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -91,6 +92,21 @@ static class ValidationExtensions
 
     internal static bool HasCondition(this IRuleComponent component)
         => component.HasCondition || component.HasAsyncCondition;
+
+    /// <summary>
+    /// true when the rule was created with RuleForEach() and its validators target the collection items.
+    /// </summary>
+    [UnconditionalSuppressMessage("aot", "IL2075")]
+    internal static bool IsCollectionRule(this IValidationRule propertyRule)
+    {
+        foreach (var iface in propertyRule.GetType().GetInterfaces())
+        {
+            if (iface.IsGenericType && iface.GetGenericTypeDefinition() == typeof(ICollectionRule<,>))
+                return true;
+        }
+
+        return false;
+    }
 
     /// <summary>
     /// Contains IValidationRule and additional info.

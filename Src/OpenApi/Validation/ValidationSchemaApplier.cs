@@ -143,7 +143,7 @@ sealed class ValidationSchemaApplier : IDisposable
                                                   localized => schema.Properties![propertyName] = localized);
 
             foreach (var validationRule in validationRules)
-                ApplyValidationRule(schema, validationRule, propertyName, localizedPropertySchema, activeChildValidators);
+                ApplyValidationRule(schema, validationRule, propertyName, fullPropertyName, localizedPropertySchema, activeChildValidators);
         }
 
         if (property is null)
@@ -212,10 +212,13 @@ sealed class ValidationSchemaApplier : IDisposable
     void ApplyValidationRule(OpenApiSchema schema,
                              IValidationRule validationRule,
                              string propertyName,
+                             string fullPropertyName,
                              OpenApiSchema? propertySchema,
                              HashSet<Type> activeChildValidators)
     {
         var ruleHasCondition = !validationRule.HasNoCondition();
+        var isCollectionRule = validationRule.IsCollectionRule();
+        OpenApiSchema? itemsSchema = null;
 
         foreach (var ruleComponent in validationRule.Components)
         {
@@ -229,21 +232,53 @@ sealed class ValidationSchemaApplier : IDisposable
                 continue;
             }
 
-            foreach (var rule in _rules)
+            if (isCollectionRule)
             {
-                if (!rule.Matches(propertyValidator))
-                    continue;
+                // RuleForEach() validators constrain each item, not the collection itself.
+                // the items have no parent object, so presence rules get a throwaway schema to mark.
+                itemsSchema ??= ResolveItemsSchema(propertySchema, fullPropertyName);
 
-                try
-                {
-                    rule.Apply(new(schema, propertyName, propertyValidator, hasCondition, propertySchema));
-                }
-                catch (Exception ex)
-                {
-                    _logger?.FailedToApplyValidationRule(ex, propertyName, propertyValidator.Name);
-                }
+                if (itemsSchema is not null)
+                    ApplyMatchingRules(new(new(), propertyName, propertyValidator, hasCondition, itemsSchema));
+
+                continue;
+            }
+
+            ApplyMatchingRules(new(schema, propertyName, propertyValidator, hasCondition, propertySchema));
+        }
+    }
+
+    void ApplyMatchingRules(RuleContext context)
+    {
+        foreach (var rule in _rules)
+        {
+            if (!rule.Matches(context.PropertyValidator))
+                continue;
+
+            try
+            {
+                rule.Apply(context);
+            }
+            catch (Exception ex)
+            {
+                _logger?.FailedToApplyValidationRule(ex, context.PropertyKey, context.PropertyValidator.Name);
             }
         }
+    }
+
+    OpenApiSchema? ResolveItemsSchema(OpenApiSchema? propertySchema, string fullPropertyName)
+    {
+        if (propertySchema is not { Type: { } type } || !type.HasFlag(JsonSchemaType.Array))
+            return null;
+
+        return ResolveForMutation(
+            propertySchema.Items,
+            _localizeReferencedSchemas,
+            _sharedCtx,
+            _generation,
+            _operationKey,
+            $"{_schemaKey}.{fullPropertyName}[]",
+            localized => propertySchema.Items = localized);
     }
 
     internal readonly struct ValidationRuleLookup(ReadOnlyDictionary<string, List<IValidationRule>> rules)

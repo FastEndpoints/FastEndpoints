@@ -61,6 +61,7 @@ AOT tests: use `NativeAot.slnx` (publish workflow currently has AOT test step co
 | Agents schemas | `Tests/IntegrationTests/FastEndpoints.Agents/JsonSchemaBuilderTests.cs`, `McpToolSchemaRootTests.cs` |
 | OpenAPI XML reference descriptions | `XmlDocSchemaTransformerTests` in `Int.OpenApi` (self-hosted HTTP, repeated document generation, object/collection/enum references, inline converter descriptions, and component summary isolation). `OperationSchemaHelpersTests.schema_visitor_materializes_nested_descriptions_without_following_references` covers in-place traversal of all child categories and the component-reference boundary. Contract: [gotchas.md](gotchas.md) |
 | OpenAPI enums / examples | `EnumSchemaTransformerTests`, `NullableCollectionSchemaTests`, `OperationTransformerEdgeCaseTests`, `OperationSchemaHelpersTests` in `Int.OpenApi` |
+| OpenAPI validation rule mapping | `ValidationSchemaTransformerTests` in `Int.OpenApi` (conditional presence rules, collection rule paths, `RuleForEach()` item targeting). Contract: [gotchas.md](gotchas.md) |
 | OpenAPI nested group tags | `OperationTagTests` and `NestedGroupTagTests` in `Int.OpenApi`. Contract: [gotchas.md](gotchas.md) |
 | OpenAPI polymorphic `oneOf` | `PolymorphicOneOfTests` in `Int.OpenApi` (self-hosted, flag off the shared Web fixture). Contract: [gotchas.md](gotchas.md) |
 

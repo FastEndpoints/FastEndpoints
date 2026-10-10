@@ -179,7 +179,7 @@ static class XmlDocLookup
             if (summaryEl is null)
                 return null;
 
-            var summary = GetTextWithSeeRefs(summaryEl).Trim();
+            var summary = RemoveSourceIndentation(GetTextWithSeeRefs(summaryEl));
 
             return string.IsNullOrWhiteSpace(summary) ? null : summary;
         }
@@ -198,9 +198,34 @@ static class XmlDocLookup
             if (remarksEl is null)
                 return null;
 
-            var remarks = GetTextWithSeeRefs(remarksEl).Trim();
+            var remarks = RemoveSourceIndentation(GetTextWithSeeRefs(remarksEl));
 
             return string.IsNullOrWhiteSpace(remarks) ? null : remarks;
         }
+    }
+
+    // xml doc text keeps the source indentation of every line after the first. removing the indentation
+    // all lines share keeps markdown paragraphs and lists intact; otherwise a line after a blank line
+    // renders as a code block.
+    static string RemoveSourceIndentation(string text)
+    {
+        var lines = text.Trim().Split('\n');
+        var indent = int.MaxValue;
+
+        for (var i = 1; i < lines.Length; i++)
+        {
+            var line = lines[i].TrimEnd();
+
+            if (line.Length > 0)
+                indent = Math.Min(indent, line.Length - line.TrimStart().Length);
+        }
+
+        for (var i = 0; i < lines.Length; i++)
+        {
+            var line = lines[i].TrimEnd();
+            lines[i] = i == 0 || line.Length == 0 ? line : line[indent..];
+        }
+
+        return string.Join('\n', lines);
     }
 }

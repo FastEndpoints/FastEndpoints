@@ -94,6 +94,42 @@ public class XmlDocSchemaTransformerTests
         }
     }
 
+    [Fact]
+    public async Task nullable_collection_properties_keep_summaries()
+    {
+        var builder = WebApplication.CreateBuilder();
+        builder.WebHost.UseTestServer();
+        builder.Services.OpenApiDocument(o =>
+        {
+            o.DocumentName = "v1";
+            o.ShortSchemaNames = true;
+        });
+
+        await using var app = builder.Build();
+        app.MapGet("/tags", () => new TagsResponse());
+        app.MapOpenApi();
+        await app.StartAsync();
+        using var client = app.GetTestClient();
+
+        var document = JsonNode.Parse(await client.GetStringAsync("/openapi/v1.json"))!;
+        var properties = document["components"]!["schemas"]![SchemaNameGenerator.GetReferenceId(typeof(TagsResponse), true)!]!["properties"]!;
+
+        foreach (var name in new[] { "names", "addresses", "required" })
+            (properties[name]!["description"]?.GetValue<string>()).ShouldBe($"The {name} property.");
+    }
+
+    public sealed class TagsResponse
+    {
+        /// <summary>The names property.</summary>
+        public List<string>? Names { get; set; }
+
+        /// <summary>The addresses property.</summary>
+        public List<Address>? Addresses { get; set; }
+
+        /// <summary>The required property.</summary>
+        public List<string> Required { get; set; } = [];
+    }
+
     /// <summary>A postal address.</summary>
     public sealed record Address(string City);
 

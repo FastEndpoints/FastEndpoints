@@ -109,6 +109,12 @@ public override void Configure()
 
 ## Fixes 🪲
 
+<details><summary>Nullable collection properties keep their XML summaries in OpenAPI documents</summary>
+
+A nullable collection property such as `List<string>?` lost its XML summary in the generated OpenAPI document. Its description now appears alongside the `["null", "array"]` schema, the same as for non-nullable collections.
+
+</details>
+
 <details><summary>Preserve XML property summaries on referenced OpenAPI schemas</summary>
 
 `FastEndpoints.OpenApi` now keeps each DTO property's XML summary alongside its `$ref`, including object, collection, and enum properties. Shared component descriptions retain the type's own summary. Properties with inline schemas continue to use their own descriptions.

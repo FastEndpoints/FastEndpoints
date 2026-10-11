@@ -208,6 +208,36 @@ public class ValidationRuleMappingTests : DefaultPropertyNameResolverTestBase
         propertySchema.Minimum.ShouldBe("18");
     }
 
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public void item_presence_rules_preserve_parent_requiredness(bool notEmpty, bool hasRequiredProperties)
+    {
+        var itemsSchema = new OpenApiSchema { Type = JsonSchemaType.String | JsonSchemaType.Null };
+        var collectionSchema = new OpenApiSchema { Type = JsonSchemaType.Array | JsonSchemaType.Null, Items = itemsSchema };
+        var schema = CreateParentSchema("names", collectionSchema);
+        var required = hasRequiredProperties ? new HashSet<string> { "other" } : null;
+        schema.Required = required;
+        IPropertyValidator validator = notEmpty ? new StubNotEmptyValidator() : new NotNullValidator<object, string>();
+        var context = new RuleContext(schema, "names", validator, false, itemsSchema) { RequiredPropertyOwner = null };
+
+        foreach (var rule in GetDefaultRules().Where(r => r.Matches(validator)))
+            rule.Apply(context);
+
+        context.Schema.ShouldBeSameAs(schema);
+        schema.Required.ShouldBeSameAs(required);
+        if (hasRequiredProperties)
+            schema.Required.ShouldBe(new[] { "other" });
+        else
+            schema.Required.ShouldBeNull();
+        collectionSchema.Type.ShouldBe(JsonSchemaType.Array | JsonSchemaType.Null);
+        collectionSchema.MinItems.ShouldBeNull();
+        itemsSchema.Type.ShouldBe(JsonSchemaType.String);
+        itemsSchema.MinLength.ShouldBe(notEmpty ? 1 : null);
+    }
+
     static FluentValidationRule[] GetDefaultRules()
         => (FluentValidationRule[])typeof(FastEndpoints.OpenApi.Extensions).Assembly
                                                                            .GetType("FastEndpoints.OpenApi.ValidationRuleCatalog", throwOnError: true)!

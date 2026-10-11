@@ -241,12 +241,11 @@ sealed class ValidationSchemaApplier : IDisposable
                 if (hasCondition)
                     continue;
 
-                // RuleForEach() validators constrain each item, not the collection itself.
-                // the items have no parent object, so presence rules get a throwaway schema to mark.
+                // RuleForEach() validators constrain each item without requiring the collection property.
                 itemsSchema ??= ResolveItemsSchema(propertySchema, fullPropertyName);
 
                 if (itemsSchema is not null)
-                    ApplyMatchingRules(new(new(), propertyName, propertyValidator, hasCondition, itemsSchema));
+                    ApplyMatchingRules(new(schema, propertyName, propertyValidator, hasCondition, itemsSchema) { RequiredPropertyOwner = null });
 
                 continue;
             }

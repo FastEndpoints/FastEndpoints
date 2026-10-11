@@ -11,6 +11,7 @@ namespace FastEndpoints.OpenApi.ValidationProcessor;
 public class RuleContext(OpenApiSchema schema, string propertyKey, IPropertyValidator propertyValidator, bool hasCondition, OpenApiSchema? propertySchema = null)
 {
     public OpenApiSchema Schema { get; } = schema;
+    internal OpenApiSchema? RequiredPropertyOwner { get; init; } = schema;
     public string PropertyKey { get; } = propertyKey;
     public IPropertyValidator PropertyValidator { get; } = propertyValidator;
     public bool HasCondition { get; set; } = hasCondition;

@@ -52,8 +52,8 @@ Generator → Attributes
 
 ## OpenAPI validation ownership
 - `ValidationSchemaTransformer` owns initialization, naming-policy-keyed validator-rule caching, cache-construction scopes, and request-body/parameter orchestration.
-- `ValidatorRuleTreeReader` owns naming-aware rule-tree construction and included-validator traversal for both cached endpoint validators and ephemeral live child validators. Its active-path type guard terminates include cycles and allows the same validator type in sibling branches. It calls `ChildValidatorResolver.GetIncludedValidators`, which preserves `ChildValidatorAdaptor<,>` public methods for trimming.
-- `ValidationSchemaApplier` builds live child rule trees before applying them and owns own-rules-first/included-rules-next application, rule-path traversal, component eligibility, and catalog dispatch. `ChildValidatorResolver` owns child/included-validator discovery, scoped child instantiation, the separate child-recursion guard, and child-schema targeting.
+- `ValidatorRuleTreeReader` owns validator target-type discovery, naming-aware rule-tree construction, and included-validator discovery and traversal for both cached endpoint validators and ephemeral live child validators. Its active-path type guard terminates include cycles and allows the same validator type in sibling branches. Its include discovery preserves `ChildValidatorAdaptor<,>` public methods for trimming.
+- `ValidationSchemaApplier` builds live child rule trees before applying them and owns own-rules-first/included-rules-next application, rule-path traversal, component eligibility, and catalog dispatch. `ChildValidatorResolver` owns scoped child instantiation, the separate child-recursion guard, and child-schema targeting.
 - `ValidationSchemaMutation` owns validation-specific reference localization, array-item localization keys, and nullable-array branch preparation. It receives the existing `OperationSchemaMutationContext`, constructed once per applier and shared with `ChildValidatorResolver`, and delegates variant registration to `EnsureSchemaForMutation`; generation state stays on `OpenApiGenerationState`.
 
 ## Dependency rules

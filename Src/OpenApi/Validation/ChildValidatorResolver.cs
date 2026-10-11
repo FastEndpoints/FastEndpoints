@@ -1,7 +1,5 @@
 using System.Diagnostics.CodeAnalysis;
-using FastEndpoints.OpenApi.ValidationProcessor.Extensions;
 using FluentValidation;
-using FluentValidation.Internal;
 using FluentValidation.Validators;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -24,59 +22,6 @@ sealed class ChildValidatorResolver(IServiceResolver serviceResolver,
 
     public void Dispose()
         => _scope?.Dispose();
-
-    [DynamicDependency(DynamicallyAccessedMemberTypes.PublicMethods, typeof(ChildValidatorAdaptor<,>))]
-    public static IEnumerable<IValidator> GetIncludedValidators(IValidator validator, ILogger<ValidationSchemaTransformer>? logger)
-    {
-        if (validator is not IEnumerable<IValidationRule> rules)
-            yield break;
-
-        foreach (var rule in rules)
-        {
-            if (!rule.HasNoCondition() || rule is not IIncludeRule)
-                continue;
-
-            foreach (var component in rule.Components)
-            {
-                var validatorType = component.Validator.GetType();
-
-                if (!validatorType.IsGenericType || validatorType.GetGenericTypeDefinition() != typeof(ChildValidatorAdaptor<,>))
-                    continue;
-
-                if (TryGetIncludedValidator(component.Validator, logger, out var includeValidator))
-                    yield return includeValidator;
-            }
-        }
-    }
-
-    static bool TryGetIncludedValidator(IPropertyValidator adapter, ILogger<ValidationSchemaTransformer>? logger, [NotNullWhen(true)] out IValidator? validator)
-    {
-        validator = null;
-        var adapterType = adapter.GetType();
-
-        try
-        {
-            var accessor = ChildValidatorAdapterAccessor.Get(adapterType);
-
-            if (!accessor.IsAvailable)
-                return false;
-
-            var validationContext = accessor.CreateValidationContext(null);
-
-            if (accessor.GetValidator(adapter, validationContext) is not IValidator resolvedValidator)
-                return false;
-
-            validator = resolvedValidator;
-
-            return true;
-        }
-        catch (Exception ex)
-        {
-            logger?.ExceptionProcessingValidator(ex, adapterType.Name);
-
-            return false;
-        }
-    }
 
     public void ApplyChildValidator(OpenApiSchema schema, string propertyName, IPropertyValidator propertyValidator, HashSet<Type> activeChildValidators)
     {

@@ -193,9 +193,6 @@ sealed class ValidationSchemaTransformer(DocumentOptions docOpts, SharedContext 
 
     CachedValidatorRules CacheValidatorRules(IValidator validator, JsonNamingPolicy? namingPolicy)
         => ValidatorRuleTreeReader.Read(validator, namingPolicy, docOpts.UsePropertyNamingPolicy, _logger);
-
-    internal static Type GetValidatorTargetType(IValidator validator)
-        => validator.GetType().GetGenericArgumentsOfType(Types.ValidatorOf1)?[0] ?? validator.GetType();
 }
 
 internal sealed record CachedValidatorRules(System.Collections.ObjectModel.ReadOnlyDictionary<string, List<IValidationRule>> Rules, CachedValidatorRules[] IncludedRules);

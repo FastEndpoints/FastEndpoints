@@ -12,14 +12,12 @@ using static FastEndpoints.OpenApi.ValidationSchemaTransformer;
 namespace FastEndpoints.OpenApi;
 
 sealed class ChildValidatorResolver(IServiceResolver serviceResolver,
-                                    SharedContext sharedCtx,
-                                    OpenApiGenerationState generation,
+                                    OperationSchemaMutationContext mutationCtx,
                                     ILogger<ValidationSchemaTransformer>? logger,
                                     Func<IServiceScope> createScope,
                                     Action<OpenApiSchema, IValidator, string, HashSet<Type>> applyValidator,
                                     Action<OpenApiSchema?, ValidationSchemaApplier.ValidationRuleLookup, string, HashSet<Type>> applyRulesToSchema,
                                     bool usePropertyNamingPolicy,
-                                    string operationKey,
                                     string schemaKey,
                                     bool localizeReferencedSchemas) : IDisposable
 {
@@ -127,9 +125,7 @@ sealed class ChildValidatorResolver(IServiceResolver serviceResolver,
                 var childSchema = ResolveForMutation(
                     childPropSchema,
                     localizeReferencedSchemas,
-                    sharedCtx,
-                    generation,
-                    operationKey,
+                    mutationCtx,
                     $"{schemaKey}.{propertyName}",
                     localized => schema.Properties![propertyName] = localized);
 
@@ -138,9 +134,7 @@ sealed class ChildValidatorResolver(IServiceResolver serviceResolver,
                     if (ResolveArrayItemsForMutation(
                             childSchema,
                             localizeReferencedSchemas,
-                            sharedCtx,
-                            generation,
-                            operationKey,
+                            mutationCtx,
                             schemaKey,
                             propertyName) is { } itemsSchema)
                         applyValidator(itemsSchema, childValidator, string.Empty, activeChildValidators);

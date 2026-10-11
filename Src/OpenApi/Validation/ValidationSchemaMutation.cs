@@ -10,23 +10,19 @@ static class ValidationSchemaMutation
 {
     internal static OpenApiSchema? ResolveForMutation(IOpenApiSchema? schema,
                                                       bool localizeReferencedSchemas,
-                                                      SharedContext sharedCtx,
-                                                      OpenApiGenerationState generation,
-                                                      string operationKey,
+                                                      OperationSchemaMutationContext mutationCtx,
                                                       string schemaKey,
                                                       Action<IOpenApiSchema> replace)
     {
         if (!localizeReferencedSchemas || schema is not OpenApiSchemaReference)
             return schema.ResolveSchema();
 
-        return schema.EnsureSchemaForMutation(sharedCtx, generation, operationKey, schemaKey, replace);
+        return schema.EnsureSchemaForMutation(mutationCtx, schemaKey, replace);
     }
 
     internal static OpenApiSchema? ResolveArrayItemsForMutation(OpenApiSchema? arraySchema,
                                                                 bool localizeReferencedSchemas,
-                                                                SharedContext sharedCtx,
-                                                                OpenApiGenerationState generation,
-                                                                string operationKey,
+                                                                OperationSchemaMutationContext mutationCtx,
                                                                 string schemaKey,
                                                                 string propertyPath)
     {
@@ -36,18 +32,14 @@ static class ValidationSchemaMutation
         return ResolveForMutation(
             arraySchema.Items,
             localizeReferencedSchemas,
-            sharedCtx,
-            generation,
-            operationKey,
+            mutationCtx,
             $"{schemaKey}.{propertyPath}[]",
             localized => arraySchema.Items = localized);
     }
 
     internal static OpenApiSchema? ResolveItemsSchema(OpenApiSchema? propertySchema,
                                                       bool localizeReferencedSchemas,
-                                                      SharedContext sharedCtx,
-                                                      OpenApiGenerationState generation,
-                                                      string operationKey,
+                                                      OperationSchemaMutationContext mutationCtx,
                                                       string schemaKey,
                                                       string fullPropertyName)
     {
@@ -81,9 +73,7 @@ static class ValidationSchemaMutation
         return ResolveArrayItemsForMutation(
             propertySchema,
             localizeReferencedSchemas,
-            sharedCtx,
-            generation,
-            operationKey,
+            mutationCtx,
             schemaKey,
             fullPropertyName);
     }

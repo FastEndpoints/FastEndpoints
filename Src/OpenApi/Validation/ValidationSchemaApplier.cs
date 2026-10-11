@@ -15,13 +15,12 @@ namespace FastEndpoints.OpenApi;
 sealed class ValidationSchemaApplier : IDisposable
 {
     readonly SharedContext _sharedCtx;
-    readonly OpenApiGenerationState _generation;
+    readonly OperationSchemaMutationContext _mutationCtx;
     readonly ILogger<ValidationSchemaTransformer>? _logger;
     readonly FluentValidationRule[] _rules;
     readonly ChildValidatorResolver _childResolver;
     readonly bool _localizeReferencedSchemas;
     readonly bool _usePropertyNamingPolicy;
-    readonly string _operationKey;
     readonly string _schemaKey;
 
     public ValidationSchemaApplier(SharedContext sharedCtx,
@@ -36,23 +35,20 @@ sealed class ValidationSchemaApplier : IDisposable
                                    bool localizeReferencedSchemas = false)
     {
         _sharedCtx = sharedCtx;
-        _generation = generation;
+        _mutationCtx = new(sharedCtx, generation, operationKey);
         _logger = logger;
         _rules = rules;
         _usePropertyNamingPolicy = usePropertyNamingPolicy;
-        _operationKey = operationKey;
         _schemaKey = schemaKey;
         _localizeReferencedSchemas = localizeReferencedSchemas;
         _childResolver = new(
             serviceResolver,
-            sharedCtx,
-            generation,
+            _mutationCtx,
             logger,
             createScope,
             ApplyValidator,
             ApplyRulesToSchema,
             usePropertyNamingPolicy,
-            operationKey,
             schemaKey,
             localizeReferencedSchemas);
     }
@@ -110,9 +106,7 @@ sealed class ValidationSchemaApplier : IDisposable
             var resolved = ResolveForMutation(
                 composite[i],
                 _localizeReferencedSchemas,
-                _sharedCtx,
-                _generation,
-                _operationKey,
+                _mutationCtx,
                 $"{_schemaKey}.{propertyPrefix}.composite[{i}]",
                 localized => composite[i] = localized);
 
@@ -137,9 +131,7 @@ sealed class ValidationSchemaApplier : IDisposable
                                               : ResolveForMutation(
                                                   property,
                                                   _localizeReferencedSchemas,
-                                                  _sharedCtx,
-                                                  _generation,
-                                                  _operationKey,
+                                                  _mutationCtx,
                                                   $"{_schemaKey}.{fullPropertyName}",
                                                   localized => schema.Properties![propertyName] = localized);
 
@@ -159,9 +151,7 @@ sealed class ValidationSchemaApplier : IDisposable
         var propertySchema = ResolveForMutation(
             property,
             _localizeReferencedSchemas,
-            _sharedCtx,
-            _generation,
-            _operationKey,
+            _mutationCtx,
             $"{_schemaKey}.{fullPropertyName}",
             localized => schema.Properties![propertyName] = localized);
 
@@ -179,9 +169,7 @@ sealed class ValidationSchemaApplier : IDisposable
             ResolveArrayItemsForMutation(
                 propertySchema,
                 _localizeReferencedSchemas,
-                _sharedCtx,
-                _generation,
-                _operationKey,
+                _mutationCtx,
                 _schemaKey,
                 fullPropertyName) is { Properties.Count: > 0 } itemsSchema)
             ApplyRulesToSchema(itemsSchema, rules, $"{fullPropertyName}[].", activeChildValidators);
@@ -276,9 +264,7 @@ sealed class ValidationSchemaApplier : IDisposable
         => ValidationSchemaMutation.ResolveItemsSchema(
             propertySchema,
             _localizeReferencedSchemas,
-            _sharedCtx,
-            _generation,
-            _operationKey,
+            _mutationCtx,
             _schemaKey,
             fullPropertyName);
 

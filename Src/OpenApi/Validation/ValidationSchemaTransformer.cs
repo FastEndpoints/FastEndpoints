@@ -4,7 +4,6 @@
 
 using System.Collections.Concurrent;
 using System.Text.Json;
-using FastEndpoints.OpenApi.ValidationProcessor.Extensions;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -193,35 +192,7 @@ sealed class ValidationSchemaTransformer(DocumentOptions docOpts, SharedContext 
                                .Value;
 
     CachedValidatorRules CacheValidatorRules(IValidator validator, JsonNamingPolicy? namingPolicy)
-        => CacheValidatorRules(validator, namingPolicy, []);
-
-    CachedValidatorRules CacheValidatorRules(IValidator validator, JsonNamingPolicy? namingPolicy, HashSet<Type> activeIncludedValidators)
-    {
-        var rules = validator.GetDictionaryOfRules(namingPolicy, docOpts.UsePropertyNamingPolicy, GetValidatorTargetType(validator));
-        var validatorType = validator.GetType();
-
-        if (!activeIncludedValidators.Add(validatorType))
-            return new(rules, []);
-
-        try
-        {
-            var includedRules = new List<CachedValidatorRules>();
-
-            foreach (var includedValidator in ChildValidatorResolver.GetIncludedValidators(validator, _logger))
-            {
-                if (activeIncludedValidators.Contains(includedValidator.GetType()))
-                    continue;
-
-                includedRules.Add(CacheValidatorRules(includedValidator, namingPolicy, activeIncludedValidators));
-            }
-
-            return new(rules, [.. includedRules]);
-        }
-        finally
-        {
-            activeIncludedValidators.Remove(validatorType);
-        }
-    }
+        => ValidatorRuleTreeReader.Read(validator, namingPolicy, docOpts.UsePropertyNamingPolicy, _logger);
 
     internal static Type GetValidatorTargetType(IValidator validator)
         => validator.GetType().GetGenericArgumentsOfType(Types.ValidatorOf1)?[0] ?? validator.GetType();

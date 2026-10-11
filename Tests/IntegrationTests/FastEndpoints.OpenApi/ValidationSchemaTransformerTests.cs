@@ -572,6 +572,101 @@ public class ValidationSchemaTransformerTests : DefaultPropertyNameResolverTestB
     }
 
     [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void two_validator_include_cycles_retain_both_validators_constraints(bool liveChild)
+    {
+        var schema = CreateIncludedNameSchema();
+
+        ApplyIncludedGraphToSchema(schema, new MutualIncludeValidator(), liveChild);
+
+        var nameSchema = GetPropertySchema(schema, "prefix_Name");
+        nameSchema.MinLength.ShouldBe(1);
+        nameSchema.MaxLength.ShouldBe(5);
+        nameSchema.Type.ShouldBe(JsonSchemaType.String);
+        schema.Required.ShouldNotBeNull().ShouldContain("prefix_Name");
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void sibling_include_branches_revisit_validator_types_in_include_order(bool liveChild)
+    {
+        var schema = CreateIncludedNameSchema();
+
+        ApplyIncludedGraphToSchema(schema, new SiblingIncludeValidator(), liveChild);
+
+        var nameSchema = GetPropertySchema(schema, "prefix_Name");
+        nameSchema.MinLength.ShouldBe(3);
+        nameSchema.MaxLength.ShouldBe(5);
+        nameSchema.Type.ShouldBe(JsonSchemaType.String);
+        schema.Required.ShouldNotBeNull().ShouldContain("prefix_Name");
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void include_providers_preserve_constraints_when_another_provider_fails(bool liveChild)
+    {
+        var schema = CreateIncludedNameSchema();
+        var validator = new ProviderIncludeValidator();
+
+        ApplyIncludedGraphToSchema(schema, validator, liveChild);
+
+        validator.ProviderCalls.ShouldBe(liveChild ? 0 : 1);
+        var nameSchema = GetPropertySchema(schema, "prefix_Name");
+        nameSchema.MinLength.ShouldBe(2);
+        nameSchema.MaxLength.ShouldBe(5);
+        schema.Required.ShouldNotBeNull().ShouldContain("prefix_Name");
+    }
+
+    static OpenApiSchema CreateIncludedNameSchema()
+        => new()
+        {
+            Type = JsonSchemaType.Object,
+            Properties = new Dictionary<string, IOpenApiSchema>
+            {
+                ["prefix_Name"] = new OpenApiSchema { Type = JsonSchemaType.String | JsonSchemaType.Null }
+            }
+        };
+
+    static void ApplyIncludedGraphToSchema(OpenApiSchema schema, IValidator<NamingPolicyCacheRequest> validator, bool liveChild)
+    {
+        var sharedCtx = new SharedContext { NamingPolicy = new PrefixNamingPolicy("prefix_") };
+
+        if (liveChild)
+        {
+            var parentSchema = new OpenApiSchema
+            {
+                Type = JsonSchemaType.Object,
+                Properties = new Dictionary<string, IOpenApiSchema> { ["prefix_Child"] = schema }
+            };
+            var parentValidator = new InlineValidator<IncludedChildRequest>();
+            parentValidator.RuleFor(x => x.Child).SetValidator(validator);
+            ApplyValidatorToSchema(parentSchema, parentValidator, sharedCtx: sharedCtx);
+
+            return;
+        }
+
+        var transformer = new ValidationSchemaTransformer(new DocumentOptions(), sharedCtx);
+        var cachedRules = (CachedValidatorRules)typeof(ValidationSchemaTransformer)
+                                               .GetMethod("CacheValidatorRules", BindingFlags.Instance | BindingFlags.NonPublic)!
+                                               .Invoke(transformer, [validator, sharedCtx.NamingPolicy])!;
+        var resolver = new TestServiceResolver();
+        using var applier = new ValidationSchemaApplier(
+            sharedCtx,
+            sharedCtx.For(new()),
+            resolver,
+            null,
+            resolver.CreateScope,
+            ValidationRuleCatalog.DefaultRules,
+            true,
+            "GET:/test",
+            "requestBody");
+        applier.ApplyValidatorRules(schema, cachedRules, string.Empty, []);
+    }
+
+    [Theory]
     [InlineData("When")]
     [InlineData("Unless")]
     [InlineData("WhenAsync")]
@@ -1141,6 +1236,69 @@ sealed class TagItemsRequest
         {
             RuleFor(x => x.Name).MaximumLength(5);
             Include(new NamingPolicyCacheValidator());
+        }
+    }
+
+    sealed class MutualIncludeValidator : Validator<NamingPolicyCacheRequest>
+    {
+        public MutualIncludeValidator()
+        {
+            RuleFor(x => x.Name).MaximumLength(5);
+            Include(new MutualIncludePartnerValidator(this));
+        }
+    }
+
+    sealed class MutualIncludePartnerValidator : Validator<NamingPolicyCacheRequest>
+    {
+        public MutualIncludePartnerValidator(MutualIncludeValidator parent)
+        {
+            RuleFor(x => x.Name).NotEmpty();
+            Include(parent);
+        }
+    }
+
+    sealed class SiblingIncludeValidator : Validator<NamingPolicyCacheRequest>
+    {
+        public SiblingIncludeValidator()
+        {
+            RuleFor(x => x.Name).NotEmpty().MaximumLength(12);
+            Include(new FirstIncludeBranchValidator());
+            Include(new SecondIncludeBranchValidator());
+        }
+    }
+
+    sealed class FirstIncludeBranchValidator : Validator<NamingPolicyCacheRequest>
+    {
+        public FirstIncludeBranchValidator()
+            => Include(new SharedIncludeLeafValidator(2, 9));
+    }
+
+    sealed class SecondIncludeBranchValidator : Validator<NamingPolicyCacheRequest>
+    {
+        public SecondIncludeBranchValidator()
+            => Include(new SharedIncludeLeafValidator(3, 5));
+    }
+
+    sealed class SharedIncludeLeafValidator : Validator<NamingPolicyCacheRequest>
+    {
+        public SharedIncludeLeafValidator(int minLength, int maxLength)
+            => RuleFor(x => x.Name).MinimumLength(minLength).MaximumLength(maxLength);
+    }
+
+    sealed class ProviderIncludeValidator : Validator<NamingPolicyCacheRequest>
+    {
+        public int ProviderCalls { get; private set; }
+
+        public ProviderIncludeValidator()
+        {
+            RuleFor(x => x.Name).NotEmpty();
+            Include(_ =>
+            {
+                ProviderCalls++;
+
+                return new SharedIncludeLeafValidator(2, 5);
+            });
+            Include<SharedIncludeLeafValidator>(_ => throw new InvalidOperationException("Unavailable included validator"));
         }
     }
 

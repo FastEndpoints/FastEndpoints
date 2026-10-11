@@ -7,7 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi;
 using static FastEndpoints.OpenApi.ValidationSchemaMutation;
-using static FastEndpoints.OpenApi.ValidationSchemaTransformer;
 
 namespace FastEndpoints.OpenApi;
 
@@ -63,40 +62,8 @@ sealed class ValidationSchemaApplier : IDisposable
 
     void ApplyValidator(OpenApiSchema schema, IValidator validator, string propertyPrefix, HashSet<Type> activeChildValidators)
     {
-        var rulesDict = validator.GetDictionaryOfRules(_sharedCtx.NamingPolicy, _usePropertyNamingPolicy, GetValidatorTargetType(validator));
-        ApplyRulesToSchema(schema, new(rulesDict), propertyPrefix, activeChildValidators);
-        ApplyRulesFromIncludedValidators(schema, validator, propertyPrefix, activeChildValidators, []);
-    }
-
-    void ApplyRulesFromIncludedValidators(OpenApiSchema schema,
-                                          IValidator validator,
-                                          string propertyPrefix,
-                                          HashSet<Type> activeChildValidators,
-                                          HashSet<Type> activeIncludedValidators)
-    {
-        var validatorType = validator.GetType();
-
-        if (!activeIncludedValidators.Add(validatorType))
-            return;
-
-        try
-        {
-            foreach (var includeValidator in ChildValidatorResolver.GetIncludedValidators(validator, _logger))
-            {
-                var includeValidatorType = includeValidator.GetType();
-
-                if (activeIncludedValidators.Contains(includeValidatorType))
-                    continue;
-
-                var rulesDict = includeValidator.GetDictionaryOfRules(_sharedCtx.NamingPolicy, _usePropertyNamingPolicy, GetValidatorTargetType(includeValidator));
-                ApplyRulesToSchema(schema, new(rulesDict), propertyPrefix, activeChildValidators);
-                ApplyRulesFromIncludedValidators(schema, includeValidator, propertyPrefix, activeChildValidators, activeIncludedValidators);
-            }
-        }
-        finally
-        {
-            activeIncludedValidators.Remove(validatorType);
-        }
+        var rules = ValidatorRuleTreeReader.Read(validator, _sharedCtx.NamingPolicy, _usePropertyNamingPolicy, _logger);
+        ApplyValidatorRules(schema, rules, propertyPrefix, activeChildValidators);
     }
 
     void ApplyRulesToSchema(OpenApiSchema? schema, ValidationRuleLookup rules, string propertyPrefix, HashSet<Type> activeChildValidators)

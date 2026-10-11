@@ -92,43 +92,10 @@ public class NullableCollectionValidationTests
                 (loose["required"]?.AsArray().Count ?? 0).ShouldBe(0);
 
                 var filtered = RequestSchema(document, "/nullable-collections/filtered");
-                var filteredProperties = filtered["properties"]!;
-                foreach (var name in new[] { "tags", "codes", "names", "scores" })
-                {
-                    var collection = Resolve(document, filteredProperties[name]!);
-                    collection["type"]!.AsArray().Select(t => t!.GetValue<string>()).ShouldContain("null");
-                    var items = Resolve(document, collection["items"]!);
-                    items["type"]!.ToJsonString().ShouldContain("\"null\"", customMessage: name);
-                    (items["minLength"]?.GetValue<int>() ?? 0).ShouldBe(0);
-                    items["pattern"].ShouldBeNull();
-                    items["minimum"].ShouldBeNull();
-                    items["maximum"].ShouldBeNull();
-                    if (name == "tags")
-                        items["maxLength"]!.GetValue<int>().ShouldBe(30);
-                    else
-                        items["maxLength"].ShouldBeNull();
-                }
-                var conditional = RequestSchema(document, "/nullable-collections/conditional");
-                foreach (var name in new[] { "tags", "codes", "names", "scores" })
-                {
-                    var collection = Resolve(document, conditional["properties"]![name]!);
-                    collection["type"]!.AsArray().Select(t => t!.GetValue<string>()).ShouldContain("null");
-                    var items = Resolve(document, collection["items"]!);
-                    items["type"]!.ToJsonString().ShouldContain("\"null\"", customMessage: name);
-                    items["pattern"].ShouldBeNull();
-                    (items["minLength"]?.GetValue<int>() ?? 0).ShouldBe(0);
-                    items["minimum"].ShouldBeNull();
-                    items["maximum"].ShouldBeNull();
-                    if (name is "tags" or "codes")
-                        items["maxLength"]!.GetValue<int>().ShouldBe(30);
-                    else
-                        items["maxLength"].ShouldBeNull();
-                }
-                conditional["required"]!.AsArray().Select(n => n!.GetValue<string>()).ShouldBe(["requiredTags"]);
-                Resolve(document, conditional["properties"]!["requiredTags"]!)["minItems"]!.GetValue<int>().ShouldBe(1);
+                AssertSelectiveCollectionSchema(document, filtered, new Dictionary<string, int> { ["tags"] = 30 });
 
-                filtered["required"]!.AsArray().Select(n => n!.GetValue<string>()).ShouldBe(["requiredTags"]);
-                Resolve(document, filteredProperties["requiredTags"]!)["minItems"]!.GetValue<int>().ShouldBe(1);
+                var conditional = RequestSchema(document, "/nullable-collections/conditional");
+                AssertSelectiveCollectionSchema(document, conditional, new Dictionary<string, int> { ["tags"] = 30, ["codes"] = 30 });
             }
 
             await AssertResponse(client, "/nullable-collections/strict", """{"requiredTags":["ok"]}""", HttpStatusCode.OK);
@@ -181,6 +148,29 @@ public class NullableCollectionValidationTests
             Config.EpOpts.Filter = previousFilter;
             Config.EpOpts.Configurator = previousConfigurator;
         }
+    }
+
+    static void AssertSelectiveCollectionSchema(JsonNode document, JsonNode schema, IReadOnlyDictionary<string, int> retainedMaximumLengths)
+    {
+        var properties = schema["properties"]!;
+        foreach (var name in new[] { "tags", "codes", "names", "scores" })
+        {
+            var collection = Resolve(document, properties[name]!);
+            collection["type"]!.AsArray().Select(t => t!.GetValue<string>()).ShouldContain("null");
+            var items = Resolve(document, collection["items"]!);
+            items["type"]!.ToJsonString().ShouldContain("\"null\"", customMessage: name);
+            (items["minLength"]?.GetValue<int>() ?? 0).ShouldBe(0);
+            items["pattern"].ShouldBeNull();
+            items["minimum"].ShouldBeNull();
+            items["maximum"].ShouldBeNull();
+            if (retainedMaximumLengths.TryGetValue(name, out var maximumLength))
+                items["maxLength"]!.GetValue<int>().ShouldBe(maximumLength);
+            else
+                items["maxLength"].ShouldBeNull();
+        }
+
+        schema["required"]!.AsArray().Select(n => n!.GetValue<string>()).ShouldBe(["requiredTags"]);
+        Resolve(document, properties["requiredTags"]!)["minItems"]!.GetValue<int>().ShouldBe(1);
     }
 
     static JsonNode RequestSchema(JsonNode document, string path)

@@ -7,20 +7,19 @@ using FluentValidation.Validators;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi;
-using static FastEndpoints.OpenApi.ValidationSchemaTransformer;
+using static FastEndpoints.OpenApi.ValidationSchemaMutation;
 
 namespace FastEndpoints.OpenApi;
 
 sealed class ValidationSchemaApplier : IDisposable
 {
     readonly SharedContext _sharedCtx;
-    readonly OpenApiGenerationState _generation;
+    readonly OperationSchemaMutationContext _mutationCtx;
     readonly ILogger<ValidationSchemaTransformer>? _logger;
     readonly FluentValidationRule[] _rules;
     readonly ChildValidatorResolver _childResolver;
     readonly bool _localizeReferencedSchemas;
     readonly bool _usePropertyNamingPolicy;
-    readonly string _operationKey;
     readonly string _schemaKey;
 
     public ValidationSchemaApplier(SharedContext sharedCtx,
@@ -35,25 +34,13 @@ sealed class ValidationSchemaApplier : IDisposable
                                    bool localizeReferencedSchemas = false)
     {
         _sharedCtx = sharedCtx;
-        _generation = generation;
+        _mutationCtx = new(sharedCtx, generation, operationKey);
         _logger = logger;
         _rules = rules;
         _usePropertyNamingPolicy = usePropertyNamingPolicy;
-        _operationKey = operationKey;
         _schemaKey = schemaKey;
         _localizeReferencedSchemas = localizeReferencedSchemas;
-        _childResolver = new(
-            serviceResolver,
-            sharedCtx,
-            generation,
-            logger,
-            createScope,
-            ApplyValidator,
-            ApplyRulesToSchema,
-            usePropertyNamingPolicy,
-            operationKey,
-            schemaKey,
-            localizeReferencedSchemas);
+        _childResolver = new(serviceResolver, logger, createScope);
     }
 
     public void Dispose()
@@ -69,14 +56,9 @@ sealed class ValidationSchemaApplier : IDisposable
 
     void ApplyValidator(OpenApiSchema schema, IValidator validator, string propertyPrefix, HashSet<Type> activeChildValidators)
     {
-        var rulesDict = validator.GetDictionaryOfRules(_sharedCtx.NamingPolicy, _usePropertyNamingPolicy, GetValidatorTargetType(validator));
-        ApplyRulesToSchema(schema, new(rulesDict), propertyPrefix, activeChildValidators);
-        _childResolver.ApplyRulesFromIncludedValidators(schema, validator, propertyPrefix, activeChildValidators, _sharedCtx.NamingPolicy, []);
+        var rules = ValidatorRuleTreeReader.Read(validator, _sharedCtx.NamingPolicy, _usePropertyNamingPolicy, _logger);
+        ApplyValidatorRules(schema, rules, propertyPrefix, activeChildValidators);
     }
-
-    [DynamicDependency(DynamicallyAccessedMemberTypes.PublicMethods, typeof(ChildValidatorAdaptor<,>))]
-    public static IEnumerable<IValidator> GetIncludedValidators(IValidator validator, ILogger<ValidationSchemaTransformer>? logger)
-        => ChildValidatorResolver.GetIncludedValidators(validator, logger);
 
     void ApplyRulesToSchema(OpenApiSchema? schema, ValidationRuleLookup rules, string propertyPrefix, HashSet<Type> activeChildValidators)
     {
@@ -109,9 +91,7 @@ sealed class ValidationSchemaApplier : IDisposable
             var resolved = ResolveForMutation(
                 composite[i],
                 _localizeReferencedSchemas,
-                _sharedCtx,
-                _generation,
-                _operationKey,
+                _mutationCtx,
                 $"{_schemaKey}.{propertyPrefix}.composite[{i}]",
                 localized => composite[i] = localized);
 
@@ -136,14 +116,12 @@ sealed class ValidationSchemaApplier : IDisposable
                                               : ResolveForMutation(
                                                   property,
                                                   _localizeReferencedSchemas,
-                                                  _sharedCtx,
-                                                  _generation,
-                                                  _operationKey,
+                                                  _mutationCtx,
                                                   $"{_schemaKey}.{fullPropertyName}",
                                                   localized => schema.Properties![propertyName] = localized);
 
             foreach (var validationRule in validationRules)
-                ApplyValidationRule(schema, validationRule, propertyName, localizedPropertySchema, activeChildValidators);
+                ApplyValidationRule(schema, validationRule, propertyName, fullPropertyName, localizedPropertySchema, activeChildValidators);
         }
 
         if (property is null)
@@ -158,9 +136,7 @@ sealed class ValidationSchemaApplier : IDisposable
         var propertySchema = ResolveForMutation(
             property,
             _localizeReferencedSchemas,
-            _sharedCtx,
-            _generation,
-            _operationKey,
+            _mutationCtx,
             $"{_schemaKey}.{fullPropertyName}",
             localized => schema.Properties![propertyName] = localized);
 
@@ -175,16 +151,12 @@ sealed class ValidationSchemaApplier : IDisposable
         }
 
         if (hasNestedArrayRules &&
-            propertySchema is { Type: { } type } &&
-            type.HasFlag(JsonSchemaType.Array) &&
-            ResolveForMutation(
-                propertySchema.Items,
+            ResolveArrayItemsForMutation(
+                propertySchema,
                 _localizeReferencedSchemas,
-                _sharedCtx,
-                _generation,
-                _operationKey,
-                $"{_schemaKey}.{fullPropertyName}[]",
-                localized => propertySchema.Items = localized) is { Properties.Count: > 0 } itemsSchema)
+                _mutationCtx,
+                _schemaKey,
+                fullPropertyName) is { Properties.Count: > 0 } itemsSchema)
             ApplyRulesToSchema(itemsSchema, rules, $"{fullPropertyName}[].", activeChildValidators);
     }
 
@@ -204,7 +176,10 @@ sealed class ValidationSchemaApplier : IDisposable
                 var propertyValidator = ruleComponent.Validator;
 
                 if (propertyValidator.Name == "ChildValidatorAdaptor")
-                    _childResolver.ApplyChildValidator(schema, propertyValidator, activeChildValidators);
+                    _childResolver.ApplyChildValidator(
+                        propertyValidator,
+                        activeChildValidators,
+                        validator => ApplyValidator(schema, validator, string.Empty, activeChildValidators));
             }
         }
     }
@@ -212,10 +187,17 @@ sealed class ValidationSchemaApplier : IDisposable
     void ApplyValidationRule(OpenApiSchema schema,
                              IValidationRule validationRule,
                              string propertyName,
+                             string fullPropertyName,
                              OpenApiSchema? propertySchema,
                              HashSet<Type> activeChildValidators)
     {
         var ruleHasCondition = !validationRule.HasNoCondition();
+        var isCollectionRule = validationRule.IsCollectionRule(out var hasFilter);
+        // Filtered rules validate selected elements, so their constraints cannot apply to every item.
+        if (hasFilter)
+            return;
+
+        OpenApiSchema? itemsSchema = null;
 
         foreach (var ruleComponent in validationRule.Components)
         {
@@ -224,27 +206,76 @@ sealed class ValidationSchemaApplier : IDisposable
 
             if (propertyValidator.Name == "ChildValidatorAdaptor")
             {
-                _childResolver.ApplyChildValidator(schema, propertyName, propertyValidator, activeChildValidators);
+                ApplyChildValidator(propertySchema, propertyName, propertyValidator, activeChildValidators);
 
                 continue;
             }
 
-            foreach (var rule in _rules)
+            if (isCollectionRule)
             {
-                if (!rule.Matches(propertyValidator))
+                // Conditional components cannot constrain every item unconditionally.
+                if (hasCondition)
                     continue;
 
-                try
-                {
-                    rule.Apply(new(schema, propertyName, propertyValidator, hasCondition, propertySchema));
-                }
-                catch (Exception ex)
-                {
-                    _logger?.FailedToApplyValidationRule(ex, propertyName, propertyValidator.Name);
-                }
+                // RuleForEach() validators constrain each item without requiring the collection property.
+                itemsSchema ??= ResolveItemsSchema(propertySchema, fullPropertyName);
+
+                if (itemsSchema is not null)
+                    ApplyMatchingRules(new(schema, propertyName, propertyValidator, hasCondition, itemsSchema) { RequiredPropertyOwner = null });
+
+                continue;
+            }
+
+            ApplyMatchingRules(new(schema, propertyName, propertyValidator, hasCondition, propertySchema));
+        }
+    }
+
+    void ApplyChildValidator(OpenApiSchema? propertySchema,
+                             string propertyName,
+                             IPropertyValidator propertyValidator,
+                             HashSet<Type> activeChildValidators)
+    {
+        _childResolver.ApplyChildValidator(propertyValidator, activeChildValidators, validator =>
+        {
+            if (propertySchema is null)
+                return;
+
+            var childSchema = ResolveArrayItemsForMutation(
+                                  propertySchema,
+                                  _localizeReferencedSchemas,
+                                  _mutationCtx,
+                                  _schemaKey,
+                                  propertyName) ?? propertySchema;
+
+            ApplyValidator(childSchema, validator, string.Empty, activeChildValidators);
+        });
+    }
+
+    void ApplyMatchingRules(RuleContext context)
+    {
+        foreach (var rule in _rules)
+        {
+            if (!rule.Matches(context.PropertyValidator))
+                continue;
+
+            try
+            {
+                rule.Apply(context);
+            }
+            catch (Exception ex)
+            {
+                _logger?.FailedToApplyValidationRule(ex, context.PropertyKey, context.PropertyValidator.Name);
             }
         }
     }
+
+    OpenApiSchema? ResolveItemsSchema(OpenApiSchema? propertySchema, string fullPropertyName)
+        => ValidationSchemaMutation.ResolveItemsSchema(
+            propertySchema,
+            _localizeReferencedSchemas,
+            _mutationCtx,
+            _schemaKey,
+            fullPropertyName);
 
     internal readonly struct ValidationRuleLookup(ReadOnlyDictionary<string, List<IValidationRule>> rules)
     {

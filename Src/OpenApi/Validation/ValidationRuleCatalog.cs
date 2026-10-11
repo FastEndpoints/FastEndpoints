@@ -14,7 +14,10 @@ static class ValidationRuleCatalog
             Matches = propertyValidator => propertyValidator is INotNullValidator or INotEmptyValidator,
             Apply = context =>
                     {
-                        var schema = context.Schema;
+                        var schema = context.RequiredPropertyOwner;
+                        if (schema is null)
+                            return;
+
                         schema.Required ??= new HashSet<string>();
                         if (!context.HasCondition)
                             schema.Required.Add(context.PropertyKey);

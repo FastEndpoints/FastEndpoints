@@ -123,42 +123,28 @@ public class PolymorphicOneOfTests
         Action<WebApplication> map,
         Action<WebApplicationBuilder>? configure = null)
     {
-        var previousResolver = MainExtensions.HostServiceResolver;
-        var previousSerializerConfigured = MainExtensions.SerializerConfigured;
-        var previousSerializerOptions = Config.SerOpts.Options;
-        var previousNameResolver = ValidatorOptions.Global.PropertyNameResolver;
+        using var globalState = new HostGlobalStateScope();
+        var builder = WebApplication.CreateBuilder();
+        builder.WebHost.UseTestServer();
+        configure?.Invoke(builder);
+        builder.Services.OpenApiDocument(
+            o =>
+            {
+                o.DocumentName = "v1";
+                o.UseOneOfForPolymorphism = useOneOf;
+            });
 
-        try
-        {
-            var builder = WebApplication.CreateBuilder();
-            builder.WebHost.UseTestServer();
-            configure?.Invoke(builder);
-            builder.Services.OpenApiDocument(
-                o =>
-                {
-                    o.DocumentName = "v1";
-                    o.UseOneOfForPolymorphism = useOneOf;
-                });
+        await using var app = builder.Build();
+        map(app);
+        app.MapOpenApi();
+        await app.StartAsync();
 
-            await using var app = builder.Build();
-            map(app);
-            app.MapOpenApi();
-            await app.StartAsync();
+        using var client = app.GetTestClient();
+        using var response = await client.GetAsync("/openapi/v1.json");
+        var json = await response.Content.ReadAsStringAsync();
+        response.IsSuccessStatusCode.ShouldBeTrue(json);
 
-            using var client = app.GetTestClient();
-            using var response = await client.GetAsync("/openapi/v1.json");
-            var json = await response.Content.ReadAsStringAsync();
-            response.IsSuccessStatusCode.ShouldBeTrue(json);
-
-            return JsonNode.Parse(json)!.AsObject();
-        }
-        finally
-        {
-            Config.SerOpts.Options = previousSerializerOptions;
-            MainExtensions.SerializerConfigured = previousSerializerConfigured;
-            ValidatorOptions.Global.PropertyNameResolver = previousNameResolver;
-            MainExtensions.HostServiceResolver = previousResolver;
-        }
+        return JsonNode.Parse(json)!.AsObject();
     }
 
     static void RegisterProblemEndpoint(WebApplicationBuilder builder)

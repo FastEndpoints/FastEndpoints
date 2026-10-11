@@ -179,7 +179,7 @@ static class XmlDocLookup
             if (summaryEl is null)
                 return null;
 
-            var summary = GetTextWithSeeRefs(summaryEl).Trim();
+            var summary = RemoveSourceIndentation(GetTextWithSeeRefs(summaryEl));
 
             return string.IsNullOrWhiteSpace(summary) ? null : summary;
         }
@@ -198,9 +198,44 @@ static class XmlDocLookup
             if (remarksEl is null)
                 return null;
 
-            var remarks = GetTextWithSeeRefs(remarksEl).Trim();
+            var remarks = RemoveSourceIndentation(GetTextWithSeeRefs(remarksEl));
 
             return string.IsNullOrWhiteSpace(remarks) ? null : remarks;
         }
+    }
+
+    // measure the margin before trimming so the first content line anchors relative indentation.
+    static string RemoveSourceIndentation(string text)
+    {
+        var lines = text.Split('\n');
+        var start = 0;
+        var end = lines.Length - 1;
+
+        while (start <= end && string.IsNullOrWhiteSpace(lines[start]))
+            start++;
+
+        while (end >= start && string.IsNullOrWhiteSpace(lines[end]))
+            end--;
+
+        if (start > end)
+            return string.Empty;
+
+        var indent = int.MaxValue;
+
+        for (var i = start; i <= end; i++)
+        {
+            var line = lines[i];
+
+            if (!string.IsNullOrWhiteSpace(line))
+                indent = Math.Min(indent, line.Length - line.TrimStart().Length);
+        }
+
+        for (var i = start; i <= end; i++)
+        {
+            var line = lines[i];
+            lines[i] = string.IsNullOrWhiteSpace(line) ? string.Empty : line[indent..];
+        }
+
+        return string.Join('\n', lines[start..(end + 1)]);
     }
 }

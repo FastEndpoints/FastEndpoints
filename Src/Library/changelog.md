@@ -109,6 +109,12 @@ public override void Configure()
 
 ## Fixes 🪲
 
+<details><summary>OpenAPI collection filters preserve accepted item values</summary>
+
+`FastEndpoints.OpenApi` now omits item constraints from `RuleForEach()` rules using `.Where(...)` or `.WhereAsync(...)`. Filtered rules validate selected elements, so their presence, length, pattern, and numeric constraints cannot describe every array item. Independent unfiltered item rules and collection-level rules remain documented.
+
+</details>
+
 <details><summary>OpenAPI applies <code>RuleForEach()</code> validators to collection items</summary>
 
 Rules such as `RuleForEach(x => x.Tags).NotEmpty().MaximumLength(20)` now constrain the `items` schema of the collection (`minLength`, `maxLength`, `minimum`, `maximum`, non-null items). Previously they were applied to the collection itself, which marked it as required and non-nullable and published `maxItems: 20`. Nullable lists and arrays also retain these item constraints while preserving the collection's optionality and nullability. Rules declared with `RuleFor()` on the same collection still apply to the collection.

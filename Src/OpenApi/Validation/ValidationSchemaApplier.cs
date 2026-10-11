@@ -217,7 +217,11 @@ sealed class ValidationSchemaApplier : IDisposable
                              HashSet<Type> activeChildValidators)
     {
         var ruleHasCondition = !validationRule.HasNoCondition();
-        var isCollectionRule = validationRule.IsCollectionRule();
+        var isCollectionRule = validationRule.IsCollectionRule(out var hasFilter);
+        // Filtered rules validate selected elements, so their constraints cannot apply to every item.
+        if (hasFilter)
+            return;
+
         OpenApiSchema? itemsSchema = null;
 
         foreach (var ruleComponent in validationRule.Components)

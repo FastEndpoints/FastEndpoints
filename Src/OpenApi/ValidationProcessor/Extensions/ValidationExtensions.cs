@@ -46,10 +46,11 @@ static class ValidationExtensions
                 var propertyNameRaw = rule.ValidationRule.PropertyName;
                 var propertyNameWithSchemaCasing = validatorTargetType is null
                                                        ? propertyNameRaw.ConvertToSchemaCasing(namingPolicy, usePropertyNamingPolicy)
-                                                       : PropertyNameResolver.ConvertPropertyPath(validatorTargetType,
-                                                                                                  propertyNameRaw,
-                                                                                                  namingPolicy,
-                                                                                                  usePropertyNamingPolicy);
+                                                       : PropertyNameResolver.ConvertPropertyPath(
+                                                           validatorTargetType,
+                                                           propertyNameRaw,
+                                                           namingPolicy,
+                                                           usePropertyNamingPolicy);
 
                 if (rulesDict.TryGetValue(propertyNameWithSchemaCasing, out var propertyRules))
                     propertyRules.Add(rule.ValidationRule);
@@ -96,13 +97,21 @@ static class ValidationExtensions
     /// <summary>
     /// true when the rule was created with RuleForEach() and its validators target the collection items.
     /// </summary>
-    [UnconditionalSuppressMessage("aot", "IL2075")]
-    internal static bool IsCollectionRule(this IValidationRule propertyRule)
+    [DynamicDependency(DynamicallyAccessedMemberTypes.PublicProperties, typeof(ICollectionRule<,>)),
+     UnconditionalSuppressMessage("aot", "IL2075", Justification = "Collection rule interface properties are preserved by DynamicDependency.")]
+    internal static bool IsCollectionRule(this IValidationRule propertyRule, out bool hasFilter)
     {
+        hasFilter = false;
+
         foreach (var iface in propertyRule.GetType().GetInterfaces())
         {
-            if (iface.IsGenericType && iface.GetGenericTypeDefinition() == typeof(ICollectionRule<,>))
-                return true;
+            if (!iface.IsGenericType || iface.GetGenericTypeDefinition() != typeof(ICollectionRule<,>))
+                continue;
+
+            hasFilter = iface.GetProperty(nameof(ICollectionRule<,>.Filter))!.GetValue(propertyRule) is not null ||
+                        iface.GetProperty(nameof(ICollectionRule<,>.AsyncFilter))!.GetValue(propertyRule) is not null;
+
+            return true;
         }
 
         return false;

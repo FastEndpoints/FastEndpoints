@@ -109,6 +109,12 @@ public override void Configure()
 
 ## Fixes 🪲
 
+<details><summary>Nullable collection properties keep their XML summaries in OpenAPI documents</summary>
+
+A nullable collection property such as `List<string>?` lost its XML summary in the generated OpenAPI document. Its description now appears alongside the `["null", "array"]` schema, the same as for non-nullable collections.
+
+</details>
+
 <details><summary>Multi-line XML summaries no longer keep source indentation in OpenAPI descriptions</summary>
 
 `FastEndpoints.OpenApi` now removes the source indentation from multi-line XML `<summary>` and `<remarks>` text. Paragraphs and lists in a description render as markdown instead of a code block. Relative indentation for nested list items and indented code blocks is preserved, along with trailing spaces used for Markdown hard line breaks.

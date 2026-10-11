@@ -3,18 +3,12 @@ using FluentValidation;
 using FluentValidation.Validators;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.OpenApi;
-using static FastEndpoints.OpenApi.ValidationSchemaMutation;
 
 namespace FastEndpoints.OpenApi;
 
 sealed class ChildValidatorResolver(IServiceResolver serviceResolver,
-                                    OperationSchemaMutationContext mutationCtx,
                                     ILogger<ValidationSchemaTransformer>? logger,
-                                    Func<IServiceScope> createScope,
-                                    Action<OpenApiSchema, IValidator, string, HashSet<Type>> applyValidator,
-                                    string schemaKey,
-                                    bool localizeReferencedSchemas) : IDisposable
+                                    Func<IServiceScope> createScope) : IDisposable
 {
     IServiceScope? _scope;
 
@@ -23,54 +17,18 @@ sealed class ChildValidatorResolver(IServiceResolver serviceResolver,
     public void Dispose()
         => _scope?.Dispose();
 
-    public void ApplyChildValidator(OpenApiSchema schema, string propertyName, IPropertyValidator propertyValidator, HashSet<Type> activeChildValidators)
+    public void ApplyChildValidator(IPropertyValidator propertyValidator, HashSet<Type> activeChildValidators, Action<IValidator> applyValidator)
     {
         if (!TryCreateChildValidator(propertyValidator, activeChildValidators, out var validatorType, out var childValidator))
             return;
 
         try
         {
-            if (schema.Properties?.TryGetValue(propertyName, out var childPropSchema) == true)
-            {
-                var childSchema = ResolveForMutation(
-                    childPropSchema,
-                    localizeReferencedSchemas,
-                    mutationCtx,
-                    $"{schemaKey}.{propertyName}",
-                    localized => schema.Properties![propertyName] = localized);
-
-                if (childSchema is not null)
-                {
-                    if (ResolveArrayItemsForMutation(
-                            childSchema,
-                            localizeReferencedSchemas,
-                            mutationCtx,
-                            schemaKey,
-                            propertyName) is { } itemsSchema)
-                        applyValidator(itemsSchema, childValidator, string.Empty, activeChildValidators);
-                    else
-                        applyValidator(childSchema, childValidator, string.Empty, activeChildValidators);
-                }
-            }
+            applyValidator(childValidator);
         }
         finally
         {
             activeChildValidators.Remove(validatorType);
-        }
-    }
-
-    public void ApplyChildValidator(OpenApiSchema schema, IPropertyValidator propertyValidator, HashSet<Type> activeChildValidators)
-    {
-        if (TryCreateChildValidator(propertyValidator, activeChildValidators, out var validatorType, out var childValidator))
-        {
-            try
-            {
-                applyValidator(schema, childValidator, string.Empty, activeChildValidators);
-            }
-            finally
-            {
-                activeChildValidators.Remove(validatorType);
-            }
         }
     }
 

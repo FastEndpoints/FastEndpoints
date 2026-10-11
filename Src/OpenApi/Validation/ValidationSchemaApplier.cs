@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using FastEndpoints.OpenApi.ValidationProcessor;
 using FastEndpoints.OpenApi.ValidationProcessor.Extensions;
 using FluentValidation;
+using FluentValidation.Validators;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi;
@@ -39,14 +40,7 @@ sealed class ValidationSchemaApplier : IDisposable
         _usePropertyNamingPolicy = usePropertyNamingPolicy;
         _schemaKey = schemaKey;
         _localizeReferencedSchemas = localizeReferencedSchemas;
-        _childResolver = new(
-            serviceResolver,
-            _mutationCtx,
-            logger,
-            createScope,
-            ApplyValidator,
-            schemaKey,
-            localizeReferencedSchemas);
+        _childResolver = new(serviceResolver, logger, createScope);
     }
 
     public void Dispose()
@@ -182,7 +176,10 @@ sealed class ValidationSchemaApplier : IDisposable
                 var propertyValidator = ruleComponent.Validator;
 
                 if (propertyValidator.Name == "ChildValidatorAdaptor")
-                    _childResolver.ApplyChildValidator(schema, propertyValidator, activeChildValidators);
+                    _childResolver.ApplyChildValidator(
+                        propertyValidator,
+                        activeChildValidators,
+                        validator => ApplyValidator(schema, validator, string.Empty, activeChildValidators));
             }
         }
     }
@@ -209,7 +206,7 @@ sealed class ValidationSchemaApplier : IDisposable
 
             if (propertyValidator.Name == "ChildValidatorAdaptor")
             {
-                _childResolver.ApplyChildValidator(schema, propertyName, propertyValidator, activeChildValidators);
+                ApplyChildValidator(propertySchema, propertyName, propertyValidator, activeChildValidators);
 
                 continue;
             }
@@ -231,6 +228,27 @@ sealed class ValidationSchemaApplier : IDisposable
 
             ApplyMatchingRules(new(schema, propertyName, propertyValidator, hasCondition, propertySchema));
         }
+    }
+
+    void ApplyChildValidator(OpenApiSchema? propertySchema,
+                             string propertyName,
+                             IPropertyValidator propertyValidator,
+                             HashSet<Type> activeChildValidators)
+    {
+        _childResolver.ApplyChildValidator(propertyValidator, activeChildValidators, validator =>
+        {
+            if (propertySchema is null)
+                return;
+
+            var childSchema = ResolveArrayItemsForMutation(
+                                  propertySchema,
+                                  _localizeReferencedSchemas,
+                                  _mutationCtx,
+                                  _schemaKey,
+                                  propertyName) ?? propertySchema;
+
+            ApplyValidator(childSchema, validator, string.Empty, activeChildValidators);
+        });
     }
 
     void ApplyMatchingRules(RuleContext context)

@@ -519,6 +519,80 @@ public class ValidationSchemaTransformerTests : DefaultPropertyNameResolverTestB
     }
 
     [Fact]
+    public void child_validator_scope_is_lazy_and_reused_and_guard_is_released_after_callback_failure()
+    {
+        var parentValidator = new InlineValidator<TagItemsRequest>();
+        parentValidator.RuleForEach(x => x.Tags).SetValidator(new TagItemValidator());
+        var component = parentValidator.Single().Components.Single().Validator;
+        var activeChildValidators = new HashSet<Type>();
+        var scope = new TestScope();
+        var scopeCreations = 0;
+        var applications = 0;
+        var serviceResolver = new TestServiceResolver();
+
+        using (var resolver = new ChildValidatorResolver(serviceResolver, null, () =>
+               {
+                   scopeCreations++;
+
+                   return scope;
+               }))
+        {
+            scopeCreations.ShouldBe(0);
+            scope.DisposeCount.ShouldBe(0);
+
+            Should.Throw<InvalidOperationException>(() => resolver.ApplyChildValidator(component, activeChildValidators, validator =>
+            {
+                validator.ShouldBeOfType<TagItemValidator>();
+                activeChildValidators.ShouldContain(typeof(TagItemValidator));
+                scopeCreations.ShouldBe(1);
+                scope.DisposeCount.ShouldBe(0);
+                resolver.ApplyChildValidator(component, activeChildValidators, _ => applications++);
+                applications.ShouldBe(0);
+
+                throw new InvalidOperationException("Child application failed");
+            }));
+
+            activeChildValidators.ShouldBeEmpty();
+            scope.DisposeCount.ShouldBe(0);
+
+            resolver.ApplyChildValidator(component, activeChildValidators, validator =>
+            {
+                validator.ShouldBeOfType<TagItemValidator>();
+                activeChildValidators.ShouldContain(typeof(TagItemValidator));
+                applications++;
+            });
+
+            applications.ShouldBe(1);
+            activeChildValidators.ShouldBeEmpty();
+            scopeCreations.ShouldBe(1);
+            scope.DisposeCount.ShouldBe(0);
+            serviceResolver.InstanceProviders.Count.ShouldBe(2);
+            foreach (var provider in serviceResolver.InstanceProviders)
+                provider.ShouldBeSameAs(scope.ServiceProvider);
+        }
+
+        scope.DisposeCount.ShouldBe(1);
+    }
+
+    [Fact]
+    public void disposing_unused_child_validator_resolver_keeps_scope_uncreated()
+    {
+        var serviceResolver = new TestServiceResolver();
+        var scopeCreations = 0;
+
+        using (var resolver = new ChildValidatorResolver(serviceResolver, null, () =>
+               {
+                   scopeCreations++;
+
+                   return new TestScope();
+               }))
+            scopeCreations.ShouldBe(0);
+
+        scopeCreations.ShouldBe(0);
+        serviceResolver.InstanceProviders.ShouldBeEmpty();
+    }
+
+    [Fact]
     public void cyclic_included_validators_do_not_recurse_forever_when_rules_are_cached()
     {
         var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
@@ -1310,6 +1384,8 @@ sealed class TagItemsRequest
 
     sealed class TestServiceResolver : IServiceResolver
     {
+        public List<IServiceProvider?> InstanceProviders { get; } = [];
+
         public IServiceScope CreateScope()
             => new TestScope();
 
@@ -1338,7 +1414,11 @@ sealed class TagItemsRequest
             => throw new InvalidOperationException();
 
         public object CreateInstance(Type type, IServiceProvider? serviceProvider = null)
-            => Activator.CreateInstance(type)!;
+        {
+            InstanceProviders.Add(serviceProvider);
+
+            return Activator.CreateInstance(type)!;
+        }
 
         public object CreateSingleton(Type type)
             => CreateInstance(type);
@@ -1347,9 +1427,12 @@ sealed class TagItemsRequest
     sealed class TestScope : IServiceScope
     {
         public IServiceProvider ServiceProvider { get; } = new ServiceCollection().BuildServiceProvider();
+        public int DisposeCount { get; private set; }
 
         public void Dispose()
         {
+            DisposeCount++;
+
             if (ServiceProvider is IDisposable disposable)
                 disposable.Dispose();
         }

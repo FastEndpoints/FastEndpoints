@@ -6,6 +6,7 @@ using FluentValidation.Validators;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi;
+using static FastEndpoints.OpenApi.ValidationSchemaMutation;
 using static FastEndpoints.OpenApi.ValidationSchemaTransformer;
 
 namespace FastEndpoints.OpenApi;

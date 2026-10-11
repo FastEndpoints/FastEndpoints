@@ -7,6 +7,7 @@ using FluentValidation.Validators;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi;
+using static FastEndpoints.OpenApi.ValidationSchemaMutation;
 using static FastEndpoints.OpenApi.ValidationSchemaTransformer;
 
 namespace FastEndpoints.OpenApi;
@@ -273,35 +274,7 @@ sealed class ValidationSchemaApplier : IDisposable
     }
 
     OpenApiSchema? ResolveItemsSchema(OpenApiSchema? propertySchema, string fullPropertyName)
-    {
-        if (propertySchema?.Type?.HasFlag(JsonSchemaType.Array) != true)
-        {
-            if (propertySchema?.OneOf is not { Count: 2 } options)
-                return null;
-
-            var arrayIndex = options[0] is OpenApiSchema { Type: JsonSchemaType.Null }
-                                 ? 1
-                                 : options[1] is OpenApiSchema { Type: JsonSchemaType.Null } ? 0 : -1;
-
-            if (arrayIndex < 0 || options[arrayIndex].ResolveSchema()?.Type?.HasFlag(JsonSchemaType.Array) != true)
-                return null;
-
-            var arrayOption = options[arrayIndex];
-            propertySchema = _localizeReferencedSchemas && arrayOption is OpenApiSchemaReference
-                                 ? arrayOption.CloneAsConcreteSchema()
-                                 : arrayOption.ResolveSchema();
-
-            if (propertySchema is not null && _localizeReferencedSchemas)
-            {
-                // Nullable-array normalization needs a resolvable branch before variant references are rebound.
-                options[arrayIndex] = propertySchema;
-
-                if (arrayOption.Description is { Length: > 0 } description)
-                    propertySchema.Description = description;
-            }
-        }
-
-        return ResolveArrayItemsForMutation(
+        => ValidationSchemaMutation.ResolveItemsSchema(
             propertySchema,
             _localizeReferencedSchemas,
             _sharedCtx,
@@ -309,7 +282,6 @@ sealed class ValidationSchemaApplier : IDisposable
             _operationKey,
             _schemaKey,
             fullPropertyName);
-    }
 
     internal readonly struct ValidationRuleLookup(ReadOnlyDictionary<string, List<IValidationRule>> rules)
     {

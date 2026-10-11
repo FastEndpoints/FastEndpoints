@@ -51,7 +51,7 @@ Generator → Attributes
 **Discovery ownership:** `AddFastEndpoints` resolves the type list once (`EndpointData.DiscoverTypes` for reflection, or source-generated `DiscoveredTypes`). `EndpointData` builds the HTTP endpoint definition catalog only (`Found`). Messaging handler registration is owned by `MessagingExtensions.RegisterHandlers` into `CommandHandlerRegistry` (same path used by standalone `AddMessaging`). Skip `AddMessaging` when `AddFastEndpoints` already ran; both must not invent a second registration owner.
 
 ## OpenAPI validation ownership
-- `ValidationSchemaTransformer` owns initialization, validator-rule caching, and request-body/parameter orchestration.
+- `ValidationSchemaTransformer` owns initialization, validator-rule caching, and request-body/parameter orchestration. Rule caching calls `ChildValidatorResolver.GetIncludedValidators` directly; that resolver entrypoint preserves `ChildValidatorAdaptor<,>` public methods for trimming.
 - `ValidationSchemaApplier` owns rule-path traversal, component eligibility, and catalog dispatch. `ChildValidatorResolver` owns child/included-validator discovery, scoped instantiation, and recursion protection.
 - `ValidationSchemaMutation` owns validation-specific reference localization, array-item localization keys, and nullable-array branch preparation. It receives the existing `OperationSchemaMutationContext`, constructed once per applier and shared with `ChildValidatorResolver`, and delegates variant registration to `EnsureSchemaForMutation`; generation state stays on `OpenApiGenerationState`.
 

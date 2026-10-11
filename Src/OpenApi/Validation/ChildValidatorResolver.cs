@@ -28,6 +28,7 @@ sealed class ChildValidatorResolver(IServiceResolver serviceResolver,
     public void Dispose()
         => _scope?.Dispose();
 
+    [DynamicDependency(DynamicallyAccessedMemberTypes.PublicMethods, typeof(ChildValidatorAdaptor<,>))]
     public static IEnumerable<IValidator> GetIncludedValidators(IValidator validator, ILogger<ValidationSchemaTransformer>? logger)
     {
         if (validator is not IEnumerable<IValidationRule> rules)

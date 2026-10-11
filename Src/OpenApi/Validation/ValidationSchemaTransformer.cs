@@ -207,7 +207,7 @@ sealed class ValidationSchemaTransformer(DocumentOptions docOpts, SharedContext 
         {
             var includedRules = new List<CachedValidatorRules>();
 
-            foreach (var includedValidator in ValidationSchemaApplier.GetIncludedValidators(validator, _logger))
+            foreach (var includedValidator in ChildValidatorResolver.GetIncludedValidators(validator, _logger))
             {
                 if (activeIncludedValidators.Contains(includedValidator.GetType()))
                     continue;

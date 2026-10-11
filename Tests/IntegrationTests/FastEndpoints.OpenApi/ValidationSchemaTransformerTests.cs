@@ -260,6 +260,98 @@ public class ValidationSchemaTransformerTests : DefaultPropertyNameResolverTestB
     }
 
     [Fact]
+    public void rule_for_each_localizes_referenced_items_per_property_and_operation()
+    {
+        var sharedItems = new OpenApiSchema { Type = JsonSchemaType.String | JsonSchemaType.Null };
+        var document = new OpenApiDocument
+        {
+            Components = new()
+            {
+                Schemas = new Dictionary<string, IOpenApiSchema> { ["Tag"] = sharedItems }
+            }
+        };
+        var sharedCtx = new SharedContext();
+        var firstSchema = CreateRuleForEachSchema();
+        GetPropertySchema(firstSchema, "tags").Items = new OpenApiSchemaReference("Tag", document);
+        GetPropertySchema(firstSchema, "codes").Items = new OpenApiSchemaReference("Tag", document);
+
+        var generation = ApplyValidatorToSchema(firstSchema, new RuleForEachValidator(), true, sharedCtx, document);
+
+        var tagsRef = GetPropertySchema(firstSchema, "tags").Items.ShouldBeOfType<OpenApiSchemaReference>();
+        var codesRef = GetPropertySchema(firstSchema, "codes").Items.ShouldBeOfType<OpenApiSchemaReference>();
+        tagsRef.Reference.Id.ShouldNotBe(codesRef.Reference.Id);
+        var tagsItems = generation.OperationSchemaVariants[tagsRef.Reference.Id!];
+        var codesItems = generation.OperationSchemaVariants[codesRef.Reference.Id!];
+        tagsItems.Type!.Value.HasFlag(JsonSchemaType.Null).ShouldBeFalse();
+        tagsItems.MinLength.ShouldBe(1);
+        tagsItems.MaxLength.ShouldBeNull();
+        codesItems.Type!.Value.HasFlag(JsonSchemaType.Null).ShouldBeTrue();
+        codesItems.MaxLength.ShouldBe(20);
+
+        var secondSchema = CreateRuleForEachSchema();
+        GetPropertySchema(secondSchema, "codes").Items = new OpenApiSchemaReference("Tag", document);
+        var secondValidator = new InlineValidator<RuleForEachRequest>();
+        secondValidator.RuleForEach(x => x.Codes).MaximumLength(5);
+
+        ApplyValidatorToSchema(secondSchema, secondValidator, true, sharedCtx, document, "GET:/other");
+
+        var secondCodesRef = GetPropertySchema(secondSchema, "codes").Items.ShouldBeOfType<OpenApiSchemaReference>();
+        secondCodesRef.Reference.Id.ShouldNotBe(codesRef.Reference.Id);
+        var secondCodesItems = generation.OperationSchemaVariants[secondCodesRef.Reference.Id!];
+        secondCodesItems.ShouldNotBeSameAs(codesItems);
+        secondCodesItems.MaxLength.ShouldBe(5);
+        codesItems.MaxLength.ShouldBe(20);
+        sharedItems.Type.ShouldBe(JsonSchemaType.String | JsonSchemaType.Null);
+        sharedItems.MinLength.ShouldBeNull();
+        sharedItems.MaxLength.ShouldBeNull();
+        document.Components.Schemas["Tag"].ShouldBeSameAs(sharedItems);
+    }
+
+    [Theory]
+    [InlineData(true, true)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(false, false)]
+    public void conditional_rule_for_each_presence_preserves_nullable_items(bool useOuterCondition, bool useNotEmpty)
+    {
+        var schema = CreateRuleForEachSchema();
+        var validator = new InlineValidator<RuleForEachRequest>();
+
+        if (useOuterCondition)
+        {
+            validator.When(x => x.Codes.Count > 0, () =>
+            {
+                if (useNotEmpty)
+                    validator.RuleForEach(x => x.Tags).NotEmpty();
+                else
+                    validator.RuleForEach(x => x.Tags).NotNull();
+            });
+        }
+        else if (useNotEmpty)
+        {
+            validator.RuleForEach(x => x.Tags)
+                     .NotEmpty()
+                     .When(x => x.Codes.Count > 0, ApplyConditionTo.CurrentValidator);
+        }
+        else
+        {
+            validator.RuleForEach(x => x.Tags)
+                     .NotNull()
+                     .When(x => x.Codes.Count > 0, ApplyConditionTo.CurrentValidator);
+        }
+
+        ApplyValidatorToSchema(schema, validator);
+
+        (schema.Required?.Contains("tags") ?? false).ShouldBeFalse();
+        var propertySchema = GetPropertySchema(schema, "tags");
+        propertySchema.Type!.Value.HasFlag(JsonSchemaType.Null).ShouldBeTrue();
+        propertySchema.MinItems.ShouldBeNull();
+        var itemsSchema = propertySchema.Items.ShouldBeOfType<OpenApiSchema>();
+        itemsSchema.Type!.Value.HasFlag(JsonSchemaType.Null).ShouldBeTrue();
+        itemsSchema.MinLength.ShouldBeNull();
+    }
+
+    [Fact]
     public void validator_does_not_inline_referenced_leaf_schema_without_applicable_rules()
     {
         var document = new OpenApiDocument
@@ -362,7 +454,12 @@ public class ValidationSchemaTransformerTests : DefaultPropertyNameResolverTestB
     static OpenApiSchema GetPropertySchema(OpenApiSchema schema, string propertyName)
         => (OpenApiSchema)schema.Properties![propertyName];
 
-    static void ApplyValidatorToSchema(OpenApiSchema schema, IValidator validator, bool localizeReferencedSchemas = false)
+    static OpenApiGenerationState ApplyValidatorToSchema(OpenApiSchema schema,
+                                                         IValidator validator,
+                                                         bool localizeReferencedSchemas = false,
+                                                         SharedContext? sharedCtx = null,
+                                                         OpenApiDocument? document = null,
+                                                         string operationKey = "GET:/test")
     {
         var applierType = typeof(FastEndpoints.OpenApi.Extensions)
                           .Assembly
@@ -374,20 +471,22 @@ public class ValidationSchemaTransformerTests : DefaultPropertyNameResolverTestB
                     .GetField("DefaultRules", BindingFlags.NonPublic | BindingFlags.Static)!
                     .GetValue(null)!;
         var resolver = new TestServiceResolver();
+        sharedCtx ??= new();
+        var generation = sharedCtx.For(document ?? new());
         using var applier = (IDisposable)Activator.CreateInstance(
             applierType,
             BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
             binder: null,
             args:
             [
-                new SharedContext(),
-                new SharedContext().For(new OpenApiDocument()),
+                sharedCtx,
+                generation,
                 resolver,
                 null,
                 (Func<IServiceScope>)(() => resolver.CreateScope()),
                 rules,
                 true,
-                "GET:/test",
+                operationKey,
                 "requestBody",
                 localizeReferencedSchemas
             ],
@@ -395,6 +494,8 @@ public class ValidationSchemaTransformerTests : DefaultPropertyNameResolverTestB
 
         applierType.GetMethod("ApplyValidator", BindingFlags.Instance | BindingFlags.NonPublic)!
                    .Invoke(applier, [schema, validator, string.Empty, new HashSet<Type>()]);
+
+        return generation;
     }
 
     sealed class ConditionalRulesRequest

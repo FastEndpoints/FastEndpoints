@@ -112,6 +112,9 @@ public override void Configure()
 <details><summary>OpenAPI applies <code>RuleForEach()</code> validators to collection items</summary>
 
 Rules such as `RuleForEach(x => x.Tags).NotEmpty().MaximumLength(20)` now constrain the `items` schema of the collection (`minLength`, `maxLength`, `minimum`, `maximum`, non-null items). Previously they were applied to the collection itself, which marked it as required and non-nullable and published `maxItems: 20`. Rules declared with `RuleFor()` on the same collection still apply to the collection.
+
+</details>
+
 <details><summary>Nullable collection properties keep their XML summaries in OpenAPI documents</summary>
 
 A nullable collection property such as `List<string>?` lost its XML summary in the generated OpenAPI document. Its description now appears alongside the `["null", "array"]` schema, the same as for non-nullable collections.

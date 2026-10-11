@@ -111,7 +111,7 @@ public override void Configure()
 
 <details><summary>Multi-line XML summaries no longer keep source indentation in OpenAPI descriptions</summary>
 
-`FastEndpoints.OpenApi` now removes the source indentation from multi-line XML `<summary>` and `<remarks>` text. Paragraphs and lists in a description render as markdown instead of a code block, and relative indentation such as nested list items is preserved.
+`FastEndpoints.OpenApi` now removes the source indentation from multi-line XML `<summary>` and `<remarks>` text. Paragraphs and lists in a description render as markdown instead of a code block. Relative indentation for nested list items and indented code blocks is preserved, along with trailing spaces used for Markdown hard line breaks.
 
 </details>
 

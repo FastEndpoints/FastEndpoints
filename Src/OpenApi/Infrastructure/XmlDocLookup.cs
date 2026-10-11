@@ -204,28 +204,38 @@ static class XmlDocLookup
         }
     }
 
-    // xml doc text keeps the source indentation of every line after the first. removing the indentation
-    // all lines share keeps markdown paragraphs and lists intact; otherwise a line after a blank line
-    // renders as a code block.
+    // measure the margin before trimming so the first content line anchors relative indentation.
     static string RemoveSourceIndentation(string text)
     {
-        var lines = text.Trim().Split('\n');
+        var lines = text.Split('\n');
+        var start = 0;
+        var end = lines.Length - 1;
+
+        while (start <= end && string.IsNullOrWhiteSpace(lines[start]))
+            start++;
+
+        while (end >= start && string.IsNullOrWhiteSpace(lines[end]))
+            end--;
+
+        if (start > end)
+            return string.Empty;
+
         var indent = int.MaxValue;
 
-        for (var i = 1; i < lines.Length; i++)
+        for (var i = start; i <= end; i++)
         {
-            var line = lines[i].TrimEnd();
+            var line = lines[i];
 
-            if (line.Length > 0)
+            if (!string.IsNullOrWhiteSpace(line))
                 indent = Math.Min(indent, line.Length - line.TrimStart().Length);
         }
 
-        for (var i = 0; i < lines.Length; i++)
+        for (var i = start; i <= end; i++)
         {
-            var line = lines[i].TrimEnd();
-            lines[i] = i == 0 || line.Length == 0 ? line : line[indent..];
+            var line = lines[i];
+            lines[i] = string.IsNullOrWhiteSpace(line) ? string.Empty : line[indent..];
         }
 
-        return string.Join('\n', lines);
+        return string.Join('\n', lines[start..(end + 1)]);
     }
 }

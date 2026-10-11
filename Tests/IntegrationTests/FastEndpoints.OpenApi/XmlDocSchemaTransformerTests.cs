@@ -94,8 +94,12 @@ public class XmlDocSchemaTransformerTests
         }
     }
 
-    [Fact]
-    public async Task multi_line_summaries_drop_source_indentation()
+    [Theory]
+    [InlineData("text", "Choices:\n- one\n  - nested")]
+    [InlineData("nestedList", "- parent\n  - child")]
+    [InlineData("codeBlock", "Example:\n\n    var x = 1;\n    Use(x);")]
+    [InlineData("hardBreak", "First line  \nsecond line")]
+    public async Task multi_line_summaries_drop_source_indentation(string property, string expected)
     {
         var builder = WebApplication.CreateBuilder();
         builder.WebHost.UseTestServer();
@@ -115,7 +119,7 @@ public class XmlDocSchemaTransformerTests
         var schema = document["components"]!["schemas"]![SchemaNameGenerator.GetReferenceId(typeof(NotesResponse), true)!]!;
 
         schema["description"]!.GetValue<string>().ShouldBe("First line\nsecond line.\n\nSecond paragraph.");
-        schema["properties"]!["text"]!["description"]!.GetValue<string>().ShouldBe("Choices:\n- one\n  - nested");
+        schema["properties"]![property]!["description"]!.GetValue<string>().ShouldBe(expected);
     }
 
     /// <summary>
@@ -132,6 +136,26 @@ public class XmlDocSchemaTransformerTests
         ///   - nested
         /// </summary>
         public string Text { get; set; } = "";
+
+        /// <summary>
+        /// - parent
+        ///   - child
+        /// </summary>
+        public string NestedList { get; set; } = "";
+
+        /// <summary>
+        /// Example:
+        ///
+        ///     var x = 1;
+        ///     Use(x);
+        /// </summary>
+        public string CodeBlock { get; set; } = "";
+
+        /// <summary>
+        /// First line&#32;&#32;
+        /// second line
+        /// </summary>
+        public string HardBreak { get; set; } = "";
     }
 
     /// <summary>A postal address.</summary>

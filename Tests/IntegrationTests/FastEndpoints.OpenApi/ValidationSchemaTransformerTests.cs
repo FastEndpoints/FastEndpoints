@@ -484,6 +484,119 @@ public class ValidationSchemaTransformerTests : DefaultPropertyNameResolverTestB
     }
 
     [Theory]
+    [InlineData("When")]
+    [InlineData("Unless")]
+    [InlineData("WhenAsync")]
+    [InlineData("UnlessAsync")]
+    [InlineData("OuterWhen")]
+    [InlineData("OuterUnless")]
+    [InlineData("OuterWhenAsync")]
+    [InlineData("OuterUnlessAsync")]
+    public async Task conditional_rule_for_each_omits_pattern_length_and_numeric_constraints(string condition)
+    {
+        var enforce = false;
+        var validator = new InlineValidator<RuleForEachRequest>();
+        Action addRules = () =>
+        {
+            var pattern = validator.RuleForEach(x => x.Tags).Matches("^a+$");
+            var length = validator.RuleForEach(x => x.Codes).Length(2, 5);
+            var range = validator.RuleForEach(x => x.Scores).InclusiveBetween(1, 5).GreaterThan(0);
+
+            switch (condition)
+            {
+                case "When":
+                    pattern.When(_ => enforce);
+                    length.When(_ => enforce);
+                    range.When(_ => enforce);
+                    break;
+                case "Unless":
+                    pattern.Unless(_ => !enforce);
+                    length.Unless(_ => !enforce);
+                    range.Unless(_ => !enforce);
+                    break;
+                case "WhenAsync":
+                    pattern.WhenAsync((_, _) => Task.FromResult(enforce));
+                    length.WhenAsync((_, _) => Task.FromResult(enforce));
+                    range.WhenAsync((_, _) => Task.FromResult(enforce));
+                    break;
+                case "UnlessAsync":
+                    pattern.UnlessAsync((_, _) => Task.FromResult(!enforce));
+                    length.UnlessAsync((_, _) => Task.FromResult(!enforce));
+                    range.UnlessAsync((_, _) => Task.FromResult(!enforce));
+                    break;
+            }
+        };
+
+        switch (condition)
+        {
+            case "OuterWhen": validator.When(_ => enforce, addRules); break;
+            case "OuterUnless": validator.Unless(_ => !enforce, addRules); break;
+            case "OuterWhenAsync": validator.WhenAsync((_, _) => Task.FromResult(enforce), addRules); break;
+            case "OuterUnlessAsync": validator.UnlessAsync((_, _) => Task.FromResult(!enforce), addRules); break;
+            default: addRules(); break;
+        }
+
+        var invalid = new RuleForEachRequest { Tags = ["INVALID"], Codes = ["waytoolong"], Scores = [-1] };
+        (await validator.ValidateAsync(invalid)).IsValid.ShouldBeTrue();
+        enforce = true;
+        (await validator.ValidateAsync(invalid)).Errors.Count.ShouldBe(4);
+        (await validator.ValidateAsync(new RuleForEachRequest { Tags = ["aaa"], Codes = ["ok"], Scores = [3] })).IsValid.ShouldBeTrue();
+
+        var schema = CreateRuleForEachSchema();
+        ApplyValidatorToSchema(schema, validator);
+        GetPropertySchema(schema, "tags").Items!.Pattern.ShouldBeNull();
+        GetPropertySchema(schema, "codes").Items!.MinLength.ShouldBeNull();
+        GetPropertySchema(schema, "codes").Items!.MaxLength.ShouldBeNull();
+        GetPropertySchema(schema, "scores").Items!.Minimum.ShouldBeNull();
+        GetPropertySchema(schema, "scores").Items!.Maximum.ShouldBeNull();
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task conditional_rule_for_each_current_validator_keeps_unconditional_components(bool asyncCondition)
+    {
+        var enforce = false;
+        var validator = new InlineValidator<RuleForEachRequest>();
+        var pattern = validator.RuleForEach(x => x.Tags).MaximumLength(30).Matches("^a+$");
+        var length = validator.RuleForEach(x => x.Codes).MinimumLength(2).MaximumLength(5);
+        var range = validator.RuleForEach(x => x.Scores).GreaterThanOrEqualTo(-10).InclusiveBetween(1, 5);
+        if (asyncCondition)
+        {
+            pattern.WhenAsync((_, _) => Task.FromResult(enforce), ApplyConditionTo.CurrentValidator);
+            length.WhenAsync((_, _) => Task.FromResult(enforce), ApplyConditionTo.CurrentValidator);
+            range.WhenAsync((_, _) => Task.FromResult(enforce), ApplyConditionTo.CurrentValidator);
+        }
+        else
+        {
+            pattern.When(_ => enforce, ApplyConditionTo.CurrentValidator);
+            length.When(_ => enforce, ApplyConditionTo.CurrentValidator);
+            range.When(_ => enforce, ApplyConditionTo.CurrentValidator);
+        }
+        validator.RuleForEach(x => x.Codes).MaximumLength(30);
+        validator.RuleFor(x => x.Tags).NotEmpty();
+
+        var invalid = new RuleForEachRequest { Tags = ["INVALID"], Codes = ["waytoolong"], Scores = [-1] };
+        (await validator.ValidateAsync(invalid)).IsValid.ShouldBeTrue();
+        enforce = true;
+        (await validator.ValidateAsync(invalid)).Errors.Count.ShouldBe(3);
+        enforce = false;
+        (await validator.ValidateAsync(new RuleForEachRequest { Tags = [new string('a', 31)], Codes = [""], Scores = [-11] })).Errors.Count.ShouldBe(3);
+
+        var schema = CreateRuleForEachSchema();
+        ApplyValidatorToSchema(schema, validator);
+        var tags = GetPropertySchema(schema, "tags");
+        tags.Items!.Pattern.ShouldBeNull();
+        tags.Items.MaxLength.ShouldBe(30);
+        tags.MinItems.ShouldBe(1);
+        schema.Required!.ShouldContain("tags");
+        GetPropertySchema(schema, "codes").Items!.MinLength.ShouldBe(2);
+        GetPropertySchema(schema, "codes").Items!.MaxLength.ShouldBe(30);
+        GetPropertySchema(schema, "scores").Items!.Minimum.ShouldBe("-10");
+        GetPropertySchema(schema, "scores").Items!.Maximum.ShouldBeNull();
+    }
+
+    [Theory]
     [InlineData(false, 0)]
     [InlineData(true, 0)]
     [InlineData(false, 1)]

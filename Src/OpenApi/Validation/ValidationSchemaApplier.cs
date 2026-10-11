@@ -238,6 +238,10 @@ sealed class ValidationSchemaApplier : IDisposable
 
             if (isCollectionRule)
             {
+                // Conditional components cannot constrain every item unconditionally.
+                if (hasCondition)
+                    continue;
+
                 // RuleForEach() validators constrain each item, not the collection itself.
                 // the items have no parent object, so presence rules get a throwaway schema to mark.
                 itemsSchema ??= ResolveItemsSchema(propertySchema, fullPropertyName);

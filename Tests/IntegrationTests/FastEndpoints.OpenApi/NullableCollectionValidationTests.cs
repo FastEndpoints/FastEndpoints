@@ -33,7 +33,8 @@ public class NullableCollectionValidationTests
             {
                 o.DisableAutoDiscovery = true;
                 o.Assemblies = [typeof(NullableCollectionValidationTests).Assembly];
-                o.Filter = type => type == typeof(StrictEndpoint) || type == typeof(LooseEndpoint) || type == typeof(FilteredEndpoint);
+                o.Filter = type => type == typeof(StrictEndpoint) || type == typeof(LooseEndpoint) ||
+                                   type == typeof(FilteredEndpoint) || type == typeof(ConditionalEndpoint);
             });
             builder.Services.OpenApiDocument(o =>
             {
@@ -110,6 +111,25 @@ public class NullableCollectionValidationTests
                     else
                         items["maxLength"].ShouldBeNull();
                 }
+                var conditional = RequestSchema(document, "/nullable-collections/conditional");
+                foreach (var name in new[] { "tags", "codes", "names", "scores" })
+                {
+                    var collection = Resolve(document, conditional["properties"]![name]!);
+                    collection["type"]!.AsArray().Select(t => t!.GetValue<string>()).ShouldContain("null");
+                    var items = Resolve(document, collection["items"]!);
+                    items["type"]!.ToJsonString().ShouldContain("\"null\"", customMessage: name);
+                    items["pattern"].ShouldBeNull();
+                    (items["minLength"]?.GetValue<int>() ?? 0).ShouldBe(0);
+                    items["minimum"].ShouldBeNull();
+                    items["maximum"].ShouldBeNull();
+                    if (name is "tags" or "codes")
+                        items["maxLength"]!.GetValue<int>().ShouldBe(30);
+                    else
+                        items["maxLength"].ShouldBeNull();
+                }
+                conditional["required"]!.AsArray().Select(n => n!.GetValue<string>()).ShouldBe(["requiredTags"]);
+                Resolve(document, conditional["properties"]!["requiredTags"]!)["minItems"]!.GetValue<int>().ShouldBe(1);
+
                 filtered["required"]!.AsArray().Select(n => n!.GetValue<string>()).ShouldBe(["requiredTags"]);
                 Resolve(document, filteredProperties["requiredTags"]!)["minItems"]!.GetValue<int>().ShouldBe(1);
             }
@@ -129,6 +149,21 @@ public class NullableCollectionValidationTests
                          """{"requiredTags":[]}"""
                      })
                 await AssertResponse(client, "/nullable-collections/strict", invalid, HttpStatusCode.BadRequest);
+
+            await AssertResponse(client, "/nullable-collections/conditional", """{"tags":["INVALID"],"codes":["waytoolong"],"names":["x"],"scores":[-1],"requiredTags":["ok"]}""", HttpStatusCode.OK);
+            await AssertResponse(client, "/nullable-collections/conditional", """{"enforce":true,"tags":["aaa"],"codes":["ok"],"names":["ok"],"scores":[3],"requiredTags":["ok"]}""", HttpStatusCode.OK);
+            await AssertResponse(client, "/nullable-collections/conditional", """{"enforce":true,"tags":null,"codes":null,"names":null,"scores":null,"requiredTags":["ok"]}""", HttpStatusCode.OK);
+            foreach (var invalid in new[]
+                     {
+                         """{"enforce":true,"tags":["INVALID"],"requiredTags":["ok"]}""",
+                         """{"enforce":true,"codes":["waytoolong"],"requiredTags":["ok"]}""",
+                         """{"enforce":true,"names":["x"],"requiredTags":["ok"]}""",
+                         """{"enforce":true,"scores":[-1],"requiredTags":["ok"]}""",
+                         """{"codes":["1234567890123456789012345678901"],"requiredTags":["ok"]}""",
+                         """{"tags":["1234567890123456789012345678901"],"requiredTags":["ok"]}""",
+                         """{"requiredTags":[]}"""
+                     })
+                await AssertResponse(client, "/nullable-collections/conditional", invalid, HttpStatusCode.BadRequest);
 
             await AssertResponse(client, "/nullable-collections/loose", """{"tags":["123456"],"names":[null]}""", HttpStatusCode.OK);
             await AssertResponse(client, "/nullable-collections/filtered", """{"tags":[null,"skip-long-value","ok"],"codes":[null,"skip"],"names":[null,""],"scores":[0,1,5],"requiredTags":["ok"]}""", HttpStatusCode.OK);
@@ -175,6 +210,7 @@ public class NullableCollectionValidationTests
 
     public class Request
     {
+        public bool Enforce { get; set; }
         public List<string?>? Tags { get; set; }
         public string?[]? Codes { get; set; }
         public int?[]? Scores { get; set; }
@@ -216,6 +252,33 @@ public class NullableCollectionValidationTests
             RuleForEach(x => x.Scores).Where(x => x > 0).InclusiveBetween(1, 5);
             RuleFor(x => x.RequiredTags).NotEmpty();
         }
+    }
+
+    public class ConditionalValidator : Validator<Request>
+    {
+        public ConditionalValidator()
+        {
+            RuleForEach(x => x.Tags).MaximumLength(30).Matches("^a+$")
+                                   .When(x => x.Enforce, ApplyConditionTo.CurrentValidator);
+            When(x => x.Enforce, () => RuleForEach(x => x.Codes).MaximumLength(5));
+            RuleForEach(x => x.Codes).MaximumLength(30);
+            RuleForEach(x => x.Names).Length(2, 5).UnlessAsync((x, _) => Task.FromResult(!x.Enforce));
+            WhenAsync((x, _) => Task.FromResult(x.Enforce), () => RuleForEach(x => x.Scores).InclusiveBetween(1, 5));
+            RuleFor(x => x.RequiredTags).NotEmpty();
+        }
+    }
+
+    public class ConditionalEndpoint : Endpoint<Request>
+    {
+        public override void Configure()
+        {
+            Post("/nullable-collections/conditional");
+            AllowAnonymous();
+            Validator<ConditionalValidator>();
+        }
+
+        public override Task HandleAsync(Request req, CancellationToken ct)
+            => Send.OkAsync(ct);
     }
 
     public class FilteredEndpoint : Endpoint<Request>

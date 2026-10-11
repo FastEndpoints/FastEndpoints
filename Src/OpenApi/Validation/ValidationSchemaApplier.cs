@@ -175,16 +175,14 @@ sealed class ValidationSchemaApplier : IDisposable
         }
 
         if (hasNestedArrayRules &&
-            propertySchema is { Type: { } type } &&
-            type.HasFlag(JsonSchemaType.Array) &&
-            ResolveForMutation(
-                propertySchema.Items,
+            ResolveArrayItemsForMutation(
+                propertySchema,
                 _localizeReferencedSchemas,
                 _sharedCtx,
                 _generation,
                 _operationKey,
-                $"{_schemaKey}.{fullPropertyName}[]",
-                localized => propertySchema.Items = localized) is { Properties.Count: > 0 } itemsSchema)
+                _schemaKey,
+                fullPropertyName) is { Properties.Count: > 0 } itemsSchema)
             ApplyRulesToSchema(itemsSchema, rules, $"{fullPropertyName}[].", activeChildValidators);
     }
 
@@ -303,17 +301,14 @@ sealed class ValidationSchemaApplier : IDisposable
             }
         }
 
-        if (propertySchema is null)
-            return null;
-
-        return ResolveForMutation(
-            propertySchema.Items,
+        return ResolveArrayItemsForMutation(
+            propertySchema,
             _localizeReferencedSchemas,
             _sharedCtx,
             _generation,
             _operationKey,
-            $"{_schemaKey}.{fullPropertyName}[]",
-            localized => propertySchema.Items = localized);
+            _schemaKey,
+            fullPropertyName);
     }
 
     internal readonly struct ValidationRuleLookup(ReadOnlyDictionary<string, List<IValidationRule>> rules)

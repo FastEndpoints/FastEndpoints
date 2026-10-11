@@ -14,16 +14,13 @@ public class NullableCollectionValidationTests
     [Fact]
     public async Task nullable_collection_item_rules_match_runtime_validation_and_stay_operation_local()
     {
-        var previousResolver = MainExtensions.HostServiceResolver;
-        var previousSerializerConfigured = MainExtensions.SerializerConfigured;
-        var previousSerializerOptions = Config.SerOpts.Options;
-        var previousNameResolver = ValidatorOptions.Global.PropertyNameResolver;
         var previousRoutePrefix = Config.EpOpts.RoutePrefix;
         var previousFilter = Config.EpOpts.Filter;
         var previousConfigurator = Config.EpOpts.Configurator;
 
         try
         {
+            using var globalState = new HostGlobalStateScope();
             Config.EpOpts.RoutePrefix = null;
             Config.EpOpts.Filter = null;
             Config.EpOpts.Configurator = null;
@@ -180,10 +177,6 @@ public class NullableCollectionValidationTests
         }
         finally
         {
-            Config.SerOpts.Options = previousSerializerOptions;
-            MainExtensions.SerializerConfigured = previousSerializerConfigured;
-            ValidatorOptions.Global.PropertyNameResolver = previousNameResolver;
-            MainExtensions.HostServiceResolver = previousResolver;
             Config.EpOpts.RoutePrefix = previousRoutePrefix;
             Config.EpOpts.Filter = previousFilter;
             Config.EpOpts.Configurator = previousConfigurator;

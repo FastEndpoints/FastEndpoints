@@ -134,16 +134,14 @@ sealed class ChildValidatorResolver(IServiceResolver serviceResolver,
 
                 if (childSchema is not null)
                 {
-                    if (childSchema.Type.HasValue &&
-                        childSchema.Type.Value.HasFlag(JsonSchemaType.Array) &&
-                        ResolveForMutation(
-                            childSchema.Items,
+                    if (ResolveArrayItemsForMutation(
+                            childSchema,
                             localizeReferencedSchemas,
                             sharedCtx,
                             generation,
                             operationKey,
-                            $"{schemaKey}.{propertyName}[]",
-                            localized => childSchema.Items = localized) is { } itemsSchema)
+                            schemaKey,
+                            propertyName) is { } itemsSchema)
                         applyValidator(itemsSchema, childValidator, string.Empty, activeChildValidators);
                     else
                         applyValidator(childSchema, childValidator, string.Empty, activeChildValidators);

@@ -237,6 +237,27 @@ sealed class ValidationSchemaTransformer(DocumentOptions docOpts, SharedContext 
         return schema.EnsureSchemaForMutation(sharedCtx, generation, operationKey, schemaKey, replace);
     }
 
+    internal static OpenApiSchema? ResolveArrayItemsForMutation(OpenApiSchema? arraySchema,
+                                                                bool localizeReferencedSchemas,
+                                                                SharedContext sharedCtx,
+                                                                OpenApiGenerationState generation,
+                                                                string operationKey,
+                                                                string schemaKey,
+                                                                string propertyPath)
+    {
+        if (arraySchema?.Type?.HasFlag(JsonSchemaType.Array) != true)
+            return null;
+
+        return ResolveForMutation(
+            arraySchema.Items,
+            localizeReferencedSchemas,
+            sharedCtx,
+            generation,
+            operationKey,
+            $"{schemaKey}.{propertyPath}[]",
+            localized => arraySchema.Items = localized);
+    }
+
     internal static Type GetValidatorTargetType(IValidator validator)
         => validator.GetType().GetGenericArgumentsOfType(Types.ValidatorOf1)?[0] ?? validator.GetType();
 }

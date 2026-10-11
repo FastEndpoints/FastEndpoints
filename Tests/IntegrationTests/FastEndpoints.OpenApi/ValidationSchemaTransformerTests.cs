@@ -308,6 +308,61 @@ public class ValidationSchemaTransformerTests : DefaultPropertyNameResolverTestB
     }
 
     [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void scalar_item_and_child_validator_rules_reuse_the_same_referenced_item_variant(bool childRuleFirst)
+    {
+        var sharedName = new OpenApiSchema { Type = JsonSchemaType.String };
+        var sharedItems = new OpenApiSchema
+        {
+            Type = JsonSchemaType.Object | JsonSchemaType.Null,
+            Properties = new Dictionary<string, IOpenApiSchema> { ["name"] = sharedName }
+        };
+        var sharedArray = new OpenApiSchema { Type = JsonSchemaType.Array };
+        var document = new OpenApiDocument
+        {
+            Components = new()
+            {
+                Schemas = new Dictionary<string, IOpenApiSchema>
+                {
+                    ["Tag"] = sharedItems,
+                    ["Tags"] = sharedArray
+                }
+            }
+        };
+        sharedArray.Items = new OpenApiSchemaReference("Tag", document);
+        var schema = new OpenApiSchema
+        {
+            Type = JsonSchemaType.Object,
+            Properties = new Dictionary<string, IOpenApiSchema>
+            {
+                ["tags"] = new OpenApiSchemaReference("Tags", document)
+            }
+        };
+        var validator = new InlineValidator<TagItemsRequest>();
+        if (childRuleFirst)
+            validator.RuleForEach(x => x.Tags).SetValidator(new TagItemValidator());
+        validator.RuleForEach(x => x.Tags).NotNull();
+        if (!childRuleFirst)
+            validator.RuleForEach(x => x.Tags).SetValidator(new TagItemValidator());
+
+        var generation = ApplyValidatorToSchema(schema, validator, true, document: document);
+
+        var arrayRef = schema.Properties["tags"].ShouldBeOfType<OpenApiSchemaReference>();
+        var arrayVariant = generation.OperationSchemaVariants[arrayRef.Reference.Id!];
+        var itemsRef = arrayVariant.Items.ShouldBeOfType<OpenApiSchemaReference>();
+        var itemVariant = generation.OperationSchemaVariants[itemsRef.Reference.Id!];
+        itemVariant.Type.ShouldBe(JsonSchemaType.Object);
+        GetPropertySchema(itemVariant, "name").MaxLength.ShouldBe(5);
+        generation.OperationSchemaVariants.Count.ShouldBe(2);
+        sharedItems.Type.ShouldBe(JsonSchemaType.Object | JsonSchemaType.Null);
+        sharedName.MaxLength.ShouldBeNull();
+        sharedArray.Items.ShouldBeOfType<OpenApiSchemaReference>().Reference.Id.ShouldBe("Tag");
+        document.Components.Schemas["Tag"].ShouldBeSameAs(sharedItems);
+        document.Components.Schemas["Tags"].ShouldBeSameAs(sharedArray);
+    }
+
+    [Theory]
     [InlineData(true)]
     [InlineData(false)]
     public void rule_for_each_nullable_wrappers_localize_array_and_item_references(bool nullFirst)
@@ -803,6 +858,26 @@ public class ValidationSchemaTransformerTests : DefaultPropertyNameResolverTestB
                    .Invoke(applier, [schema, validator, string.Empty, new HashSet<Type>()]);
 
         return generation;
+    }
+
+sealed class TagItemsRequest
+    {
+        [JsonPropertyName("tags")]
+        public List<TagItem?> Tags { get; set; } = [];
+    }
+
+    sealed class TagItem
+    {
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = string.Empty;
+    }
+
+    sealed class TagItemValidator : AbstractValidator<TagItem?>
+    {
+        public TagItemValidator()
+        {
+            RuleFor(x => x!.Name).MaximumLength(5);
+        }
     }
 
     sealed class ConditionalRulesRequest

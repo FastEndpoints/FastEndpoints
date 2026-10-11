@@ -65,6 +65,10 @@ AOT tests: use `NativeAot.slnx` (publish workflow currently has AOT test step co
 | OpenAPI nested group tags | `OperationTagTests` and `NestedGroupTagTests` in `Int.OpenApi`. Contract: [gotchas.md](gotchas.md) |
 | OpenAPI polymorphic `oneOf` | `PolymorphicOneOfTests` in `Int.OpenApi` (self-hosted, flag off the shared Web fixture). Contract: [gotchas.md](gotchas.md) |
 
+## OpenAPI self-hosted isolation
+- `HostGlobalStateScope` in `Int.OpenApi` snapshots and restores the host service resolver, serializer-configured flag, serializer options, and FluentValidation property-name resolver. Declare it before the temporary host so async host disposal completes before restoration. Endpoint-option resets remain local to each test.
+- `HostGlobalStateScopeTests` covers restoration when the protected lifetime throws. `ValidationSchemaTransformerTests.scalar_item_and_child_validator_rules_reuse_the_same_referenced_item_variant` covers item-level presence and child-property constraints sharing one localized item variant in both rule orders, with shared components preserved.
+
 ## OpenAPI snapshots
 - Goldens: `Tests/IntegrationTests/FastEndpoints.OpenApi/release-*.http` and `release-*.json` (plus `release-versioning-*`).
 - Walker/export/versioning behavior is covered by focused tests in that project, not snapshots alone. Export mode keys live on internal `OpenApiExportMode`; public `IsExportMode` / `IsNotExportMode` (+ per-format wrappers) on `IHost` / `IHostApplicationBuilder`.

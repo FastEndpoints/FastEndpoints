@@ -130,6 +130,70 @@ public class XmlDocSchemaTransformerTests
         public List<string> Required { get; set; } = [];
     }
 
+    [Theory]
+    [InlineData("text", "Choices:\n- one\n  - nested")]
+    [InlineData("nestedList", "- parent\n  - child")]
+    [InlineData("codeBlock", "Example:\n\n    var x = 1;\n    Use(x);")]
+    [InlineData("hardBreak", "First line  \nsecond line")]
+    public async Task multi_line_summaries_drop_source_indentation(string property, string expected)
+    {
+        var builder = WebApplication.CreateBuilder();
+        builder.WebHost.UseTestServer();
+        builder.Services.OpenApiDocument(o =>
+        {
+            o.DocumentName = "v1";
+            o.ShortSchemaNames = true;
+        });
+
+        await using var app = builder.Build();
+        app.MapGet("/notes", () => new NotesResponse());
+        app.MapOpenApi();
+        await app.StartAsync();
+        using var client = app.GetTestClient();
+
+        var document = JsonNode.Parse(await client.GetStringAsync("/openapi/v1.json"))!;
+        var schema = document["components"]!["schemas"]![SchemaNameGenerator.GetReferenceId(typeof(NotesResponse), true)!]!;
+
+        schema["description"]!.GetValue<string>().ShouldBe("First line\nsecond line.\n\nSecond paragraph.");
+        schema["properties"]![property]!["description"]!.GetValue<string>().ShouldBe(expected);
+    }
+
+    /// <summary>
+    /// First line
+    /// second line.
+    ///
+    /// Second paragraph.
+    /// </summary>
+    public sealed class NotesResponse
+    {
+        /// <summary>
+        /// Choices:
+        /// - one
+        ///   - nested
+        /// </summary>
+        public string Text { get; set; } = "";
+
+        /// <summary>
+        /// - parent
+        ///   - child
+        /// </summary>
+        public string NestedList { get; set; } = "";
+
+        /// <summary>
+        /// Example:
+        ///
+        ///     var x = 1;
+        ///     Use(x);
+        /// </summary>
+        public string CodeBlock { get; set; } = "";
+
+        /// <summary>
+        /// First line&#32;&#32;
+        /// second line
+        /// </summary>
+        public string HardBreak { get; set; } = "";
+    }
+
     /// <summary>A postal address.</summary>
     public sealed record Address(string City);
 

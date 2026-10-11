@@ -115,6 +115,12 @@ A nullable collection property such as `List<string>?` lost its XML summary in t
 
 </details>
 
+<details><summary>Multi-line XML summaries no longer keep source indentation in OpenAPI descriptions</summary>
+
+`FastEndpoints.OpenApi` now removes the source indentation from multi-line XML `<summary>` and `<remarks>` text. Paragraphs and lists in a description render as markdown instead of a code block. Relative indentation for nested list items and indented code blocks is preserved, along with trailing spaces used for Markdown hard line breaks.
+
+</details>
+
 <details><summary>Preserve XML property summaries on referenced OpenAPI schemas</summary>
 
 `FastEndpoints.OpenApi` now keeps each DTO property's XML summary alongside its `$ref`, including object, collection, and enum properties. Shared component descriptions retain the type's own summary. Properties with inline schemas continue to use their own descriptions.

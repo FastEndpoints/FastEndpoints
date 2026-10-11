@@ -1,4 +1,4 @@
-using System.Reflection;
+using FastEndpoints.OpenApi;
 using FastEndpoints.OpenApi.ValidationProcessor;
 using FluentValidation;
 using FluentValidation.Internal;
@@ -239,10 +239,7 @@ public class ValidationRuleMappingTests : DefaultPropertyNameResolverTestBase
     }
 
     static FluentValidationRule[] GetDefaultRules()
-        => (FluentValidationRule[])typeof(FastEndpoints.OpenApi.Extensions).Assembly
-                                                                           .GetType("FastEndpoints.OpenApi.ValidationRuleCatalog", throwOnError: true)!
-                                                                           .GetField("DefaultRules", BindingFlags.NonPublic | BindingFlags.Static)!
-                                                                           .GetValue(null)!;
+        => ValidationRuleCatalog.DefaultRules;
 
     static OpenApiSchema CreateParentSchema(string propertyName, OpenApiSchema propertySchema)
         => new()

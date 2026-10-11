@@ -7,7 +7,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi;
 using static FastEndpoints.OpenApi.ValidationSchemaMutation;
-using static FastEndpoints.OpenApi.ValidationSchemaTransformer;
 
 namespace FastEndpoints.OpenApi;
 
@@ -16,8 +15,6 @@ sealed class ChildValidatorResolver(IServiceResolver serviceResolver,
                                     ILogger<ValidationSchemaTransformer>? logger,
                                     Func<IServiceScope> createScope,
                                     Action<OpenApiSchema, IValidator, string, HashSet<Type>> applyValidator,
-                                    Action<OpenApiSchema?, ValidationSchemaApplier.ValidationRuleLookup, string, HashSet<Type>> applyRulesToSchema,
-                                    bool usePropertyNamingPolicy,
                                     string schemaKey,
                                     bool localizeReferencedSchemas) : IDisposable
 {
@@ -49,39 +46,6 @@ sealed class ChildValidatorResolver(IServiceResolver serviceResolver,
                 if (TryGetIncludedValidator(component.Validator, logger, out var includeValidator))
                     yield return includeValidator;
             }
-        }
-    }
-
-    [DynamicDependency(DynamicallyAccessedMemberTypes.PublicMethods, typeof(ChildValidatorAdaptor<,>))]
-    public void ApplyRulesFromIncludedValidators(OpenApiSchema schema,
-                                                 IValidator validator,
-                                                 string propertyPrefix,
-                                                 HashSet<Type> activeChildValidators,
-                                                 System.Text.Json.JsonNamingPolicy? namingPolicy,
-                                                 HashSet<Type> activeIncludedValidators)
-    {
-        var validatorType = validator.GetType();
-
-        if (!activeIncludedValidators.Add(validatorType))
-            return;
-
-        try
-        {
-            foreach (var includeValidator in GetIncludedValidators(validator, logger))
-            {
-                var includeValidatorType = includeValidator.GetType();
-
-                if (activeIncludedValidators.Contains(includeValidatorType))
-                    continue;
-
-                var rulesDict = includeValidator.GetDictionaryOfRules(namingPolicy, usePropertyNamingPolicy, GetValidatorTargetType(includeValidator));
-                applyRulesToSchema(schema, new(rulesDict), propertyPrefix, activeChildValidators);
-                ApplyRulesFromIncludedValidators(schema, includeValidator, propertyPrefix, activeChildValidators, namingPolicy, activeIncludedValidators);
-            }
-        }
-        finally
-        {
-            activeIncludedValidators.Remove(validatorType);
         }
     }
 

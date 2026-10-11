@@ -539,6 +539,39 @@ public class ValidationSchemaTransformerTests : DefaultPropertyNameResolverTestB
     }
 
     [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void live_child_validator_includes_apply_constraints_and_terminate_cycles(bool selfInclude)
+    {
+        var childSchema = new OpenApiSchema
+        {
+            Type = JsonSchemaType.Object,
+            Properties = new Dictionary<string, IOpenApiSchema>
+            {
+                ["prefix_Name"] = new OpenApiSchema { Type = JsonSchemaType.String | JsonSchemaType.Null }
+            }
+        };
+        var schema = new OpenApiSchema
+        {
+            Type = JsonSchemaType.Object,
+            Properties = new Dictionary<string, IOpenApiSchema> { ["prefix_Child"] = childSchema }
+        };
+        IValidator<NamingPolicyCacheRequest> childValidator = selfInclude ? new SelfIncludeValidator() : new IncludingNameValidator();
+        var validator = new InlineValidator<IncludedChildRequest>();
+        validator.RuleFor(x => x.Child).SetValidator(childValidator);
+        var sharedCtx = new SharedContext { NamingPolicy = new PrefixNamingPolicy("prefix_") };
+
+        ApplyValidatorToSchema(schema, validator, sharedCtx: sharedCtx);
+
+        var nameSchema = GetPropertySchema(childSchema, "prefix_Name");
+        nameSchema.MinLength.ShouldBe(1);
+        nameSchema.Type.ShouldBe(JsonSchemaType.String);
+        childSchema.Required.ShouldNotBeNull().ShouldContain("prefix_Name");
+        if (!selfInclude)
+            nameSchema.MaxLength.ShouldBe(5);
+    }
+
+    [Theory]
     [InlineData("When")]
     [InlineData("Unless")]
     [InlineData("WhenAsync")]
@@ -823,39 +856,23 @@ public class ValidationSchemaTransformerTests : DefaultPropertyNameResolverTestB
                                                          OpenApiDocument? document = null,
                                                          string operationKey = "GET:/test")
     {
-        var applierType = typeof(FastEndpoints.OpenApi.Extensions)
-                          .Assembly
-                          .GetType("FastEndpoints.OpenApi.ValidationSchemaApplier", throwOnError: true)!;
-
-        var rules = typeof(FastEndpoints.OpenApi.Extensions)
-                    .Assembly
-                    .GetType("FastEndpoints.OpenApi.ValidationRuleCatalog", throwOnError: true)!
-                    .GetField("DefaultRules", BindingFlags.NonPublic | BindingFlags.Static)!
-                    .GetValue(null)!;
         var resolver = new TestServiceResolver();
         sharedCtx ??= new();
         var generation = sharedCtx.For(document ?? new());
-        using var applier = (IDisposable)Activator.CreateInstance(
-            applierType,
-            BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
-            binder: null,
-            args:
-            [
-                sharedCtx,
-                generation,
-                resolver,
-                null,
-                (Func<IServiceScope>)(() => resolver.CreateScope()),
-                rules,
-                true,
-                operationKey,
-                "requestBody",
-                localizeReferencedSchemas
-            ],
-            culture: null)!;
+        using var applier = new ValidationSchemaApplier(
+            sharedCtx,
+            generation,
+            resolver,
+            null,
+            () => resolver.CreateScope(),
+            ValidationRuleCatalog.DefaultRules,
+            true,
+            operationKey,
+            "requestBody",
+            localizeReferencedSchemas);
 
-        applierType.GetMethod("ApplyValidator", BindingFlags.Instance | BindingFlags.NonPublic)!
-                   .Invoke(applier, [schema, validator, string.Empty, new HashSet<Type>()]);
+        typeof(ValidationSchemaApplier).GetMethod("ApplyValidator", BindingFlags.Instance | BindingFlags.NonPublic)!
+                                      .Invoke(applier, [schema, validator, string.Empty, new HashSet<Type>()]);
 
         return generation;
     }
@@ -1110,6 +1127,20 @@ sealed class TagItemsRequest
         {
             RuleFor(x => x.Name).NotEmpty();
             Include(this);
+        }
+    }
+
+    sealed class IncludedChildRequest
+    {
+        public NamingPolicyCacheRequest Child { get; } = new();
+    }
+
+    sealed class IncludingNameValidator : Validator<NamingPolicyCacheRequest>
+    {
+        public IncludingNameValidator()
+        {
+            RuleFor(x => x.Name).MaximumLength(5);
+            Include(new NamingPolicyCacheValidator());
         }
     }
 

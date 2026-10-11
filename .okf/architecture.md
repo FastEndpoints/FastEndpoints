@@ -52,7 +52,7 @@ Generator → Attributes
 
 ## OpenAPI validation ownership
 - `ValidationSchemaTransformer` owns initialization, validator-rule caching, and request-body/parameter orchestration. Rule caching calls `ChildValidatorResolver.GetIncludedValidators` directly; that resolver entrypoint preserves `ChildValidatorAdaptor<,>` public methods for trimming.
-- `ValidationSchemaApplier` owns rule-path traversal, component eligibility, and catalog dispatch. `ChildValidatorResolver` owns child/included-validator discovery, scoped instantiation, and recursion protection.
+- `ValidationSchemaApplier` owns rule-path traversal, naming-aware live rule conversion, included-validator rule application with its separate cycle guard, component eligibility, and catalog dispatch. `ChildValidatorResolver` owns child/included-validator discovery, scoped child instantiation, child recursion protection, and child-schema targeting.
 - `ValidationSchemaMutation` owns validation-specific reference localization, array-item localization keys, and nullable-array branch preparation. It receives the existing `OperationSchemaMutationContext`, constructed once per applier and shared with `ChildValidatorResolver`, and delegates variant registration to `EnsureSchemaForMutation`; generation state stays on `OpenApiGenerationState`.
 
 ## Dependency rules

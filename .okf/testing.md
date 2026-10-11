@@ -67,6 +67,7 @@ AOT tests: use `NativeAot.slnx` (publish workflow currently has AOT test step co
 
 ## OpenAPI self-hosted isolation
 - `HostGlobalStateScope` in `Int.OpenApi` snapshots and restores the host service resolver, serializer-configured flag, serializer options, and FluentValidation property-name resolver. Declare it before the temporary host so async host disposal completes before restoration. Endpoint-option resets remain local to each test.
+- Validation helpers use the signed `Int.OpenApi` friend boundary for typed `ValidationSchemaApplier` construction and direct `ValidationRuleCatalog.DefaultRules` access. Private live-validator invocation remains reflective. `ValidationSchemaTransformerTests.live_child_validator_includes_apply_constraints_and_terminate_cycles` covers live child includes and self-includes with naming-policy conversion and preserved own constraints.
 - `HostGlobalStateScopeTests` covers restoration when the protected lifetime throws. `ValidationSchemaTransformerTests.scalar_item_and_child_validator_rules_reuse_the_same_referenced_item_variant` covers item-level presence and child-property constraints sharing one localized item variant in both rule orders, with shared components preserved.
 
 ## OpenAPI snapshots

@@ -308,6 +308,92 @@ public class ValidationSchemaTransformerTests : DefaultPropertyNameResolverTestB
     }
 
     [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void rule_for_each_nullable_wrappers_localize_array_and_item_references(bool nullFirst)
+    {
+        var sharedItems = new OpenApiSchema { Type = JsonSchemaType.String | JsonSchemaType.Null };
+        var document = new OpenApiDocument
+        {
+            Components = new()
+            {
+                Schemas = new Dictionary<string, IOpenApiSchema> { ["Tag"] = sharedItems }
+            }
+        };
+        var sharedArray = new OpenApiSchema
+        {
+            Type = JsonSchemaType.Array,
+            Items = new OpenApiSchemaReference("Tag", document)
+        };
+        document.Components.Schemas["Tags"] = sharedArray;
+        var schema = CreateRuleForEachSchema();
+
+        foreach (var name in new[] { "tags", "codes" })
+        {
+            var nullOption = new OpenApiSchema { Type = JsonSchemaType.Null };
+            var arrayOption = new OpenApiSchemaReference("Tags", document) { Description = name };
+            schema.Properties![name] = new OpenApiSchema
+            {
+                OneOf = nullFirst ? [nullOption, arrayOption] : [arrayOption, nullOption]
+            };
+        }
+
+        var generation = ApplyValidatorToSchema(schema, new RuleForEachValidator(), true, document: document);
+        var tagsWrapper = GetPropertySchema(schema, "tags");
+        var codesWrapper = GetPropertySchema(schema, "codes");
+        var arrayIndex = nullFirst ? 1 : 0;
+        var tagsArray = tagsWrapper.OneOf![arrayIndex].ShouldBeOfType<OpenApiSchema>();
+        var codesArray = codesWrapper.OneOf![arrayIndex].ShouldBeOfType<OpenApiSchema>();
+        tagsArray.ShouldNotBeSameAs(codesArray);
+        tagsArray.ShouldNotBeSameAs(sharedArray);
+        tagsArray.Description.ShouldBe("tags");
+        codesArray.Description.ShouldBe("codes");
+        tagsWrapper.OneOf.Count.ShouldBe(2);
+        tagsWrapper.OneOf[1 - arrayIndex].Type.ShouldBe(JsonSchemaType.Null);
+        tagsWrapper.Type.ShouldBeNull();
+        (schema.Required?.Contains("tags") ?? false).ShouldBeFalse();
+
+        var tagsRef = tagsArray.Items.ShouldBeOfType<OpenApiSchemaReference>();
+        var codesRef = codesArray.Items.ShouldBeOfType<OpenApiSchemaReference>();
+        tagsRef.Reference.Id.ShouldNotBe(codesRef.Reference.Id);
+        var tagsItems = generation.OperationSchemaVariants[tagsRef.Reference.Id!];
+        var codesItems = generation.OperationSchemaVariants[codesRef.Reference.Id!];
+        tagsItems.MinLength.ShouldBe(1);
+        tagsItems.Type.ShouldBe(JsonSchemaType.String);
+        codesItems.MaxLength.ShouldBe(20);
+        codesItems.Type.ShouldBe(JsonSchemaType.String | JsonSchemaType.Null);
+        sharedArray.Items.ShouldBeOfType<OpenApiSchemaReference>().Reference.Id.ShouldBe("Tag");
+        sharedItems.Type.ShouldBe(JsonSchemaType.String | JsonSchemaType.Null);
+        sharedItems.MinLength.ShouldBeNull();
+        sharedItems.MaxLength.ShouldBeNull();
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void rule_for_each_leaves_multi_type_collection_unions_unchanged(bool includeNull)
+    {
+        var items = new OpenApiSchema { Type = JsonSchemaType.String };
+        var array = new OpenApiSchema { Type = JsonSchemaType.Array, Items = items };
+        var other = new OpenApiSchema { Type = JsonSchemaType.String };
+        var wrapper = new OpenApiSchema
+        {
+            OneOf = includeNull ? [new OpenApiSchema { Type = JsonSchemaType.Null }, array, other] : [array, other]
+        };
+        var schema = CreateRuleForEachSchema();
+        schema.Properties!["tags"] = wrapper;
+        var validator = new InlineValidator<RuleForEachRequest>();
+        validator.RuleForEach(x => x.Tags).MaximumLength(5);
+
+        var generation = ApplyValidatorToSchema(schema, validator, true);
+
+        wrapper.OneOf.ShouldContain(array);
+        array.Items.ShouldBeSameAs(items);
+        items.MaxLength.ShouldBeNull();
+        generation.OperationSchemaVariants.ShouldBeEmpty();
+    }
+
+    [Theory]
     [InlineData(true, true)]
     [InlineData(true, false)]
     [InlineData(false, true)]

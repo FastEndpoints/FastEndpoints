@@ -35,7 +35,7 @@ dotnet test Tests/IntegrationTests/FastEndpoints/Int.FastEndpoints.csproj --filt
 
 Azure uses the task project glob `Tests/**/*.csproj`; use the solution command above for a portable shell invocation. MTP uses `IsTestingPlatformApplication` for discovery; exit 8 means zero tests ran.
 
-AOT tests: use `NativeAot.slnx` (publish workflow currently has AOT test step commented out; re-check before assuming CI runs AOT).
+AOT tests: use `NativeAot.slnx` (publish workflow currently has AOT test step commented out; re-check before assuming CI runs AOT). The fixture's publish fingerprint covers the target project directory, so referenced-library-only changes require an explicit `dotnet publish TestHarness/NativeAotChecker/NativeAotChecker.csproj -c Release -o Tests/NativeAotTests/NativeAotCheckerTests/bin/aot/NativeAotChecker` before smoke tests to verify a fresh native binary.
 
 ## Integration and data
 - **TestBase serial + `[Priority]`:** `TestBase` / `TestBaseWithAssemblyFixture` apply `[TestClass(DisableParallelization = true)]`, `[TestCaseOrderer]`, and `[TestMethodOrderer]`. xunit.v3 4 default parallel mode is `Collections` (same class already serial). The `TestClass` flag is ignored in that mode and only applies if a project enables `ParallelMode.All`. Method + case orderers restore `[Priority]` across `[Fact]` methods and theory rows. No consumer attribute needed.
@@ -56,6 +56,7 @@ AOT tests: use `NativeAot.slnx` (publish workflow currently has AOT test step co
 | Remote events | `Tests/UnitTests/FastEndpoints/EventQueueTests.*.cs`: retrieval/idle, deserialization, delivery ACK, store retries/expiry, retention, lifecycle and receive supervision |
 | ACK transport deadlines | `EventQueueTests.AckTimeout.cs` and `EventQueueTests.AckWriteTimeout.cs`: real Kestrel HTTP/2 and shared `LiveDeliveryAckHost<TEvent>` |
 | Remote event isolation | Distinct closed event/storage types and internal retry-delay overrides: [remote-events.md](remote-events.md#test-isolation) |
+| Void command middleware | `CommandBusTests` in `Unit.FastEndpoints`: direct DI, helper and mixed registrations, closed/open middleware ordering, repeated dispatch, scoped and transient dependencies. `CommandsTests` in `NativeAotCheckerTests` verifies the closed-registration AOT path. |
 | Job dedupe / reflection | Matching unit suites and `Tests/IntegrationTests/FastEndpoints/RPCTests/` |
 | AOT binding / jobs | `Tests/NativeAotTests/`; `JobsTests.Void_Jobs_Use_Public_Result_Type_With_Source_Generated_Storage` covers success, bounded storage attempts, and failure recovery with a `Void`/`string`-only serializer context. Run `NativeAotCheckerTests.csproj` with `-p:RunSmokeTests=false` for JIT/WAF; the default `true` publishes and tests Native AOT. |
 | Agents schemas | `Tests/IntegrationTests/FastEndpoints.Agents/JsonSchemaBuilderTests.cs`, `McpToolSchemaRootTests.cs` |

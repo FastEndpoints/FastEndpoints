@@ -40,7 +40,7 @@ sealed class CommandHandlerExecutor<TCommand, TResult>(IEnumerable<ICommandMiddl
 
 // Native AOT cannot emit CommandHandlerExecutor<TCommand, Void> (Void is a struct). This executor only genericizes over the command class.
 // Parameterless ctor so ActivatorUtilities does not need IEnumerable<ICommandMiddleware<TCommand, Void>> (also valuetype-closed).
-// Middleware types come from CommandMiddlewareRegistrations, not GetServices of that valuetype-closed enumerable.
+// Native AOT middleware types come from CommandMiddlewareRegistrations to avoid resolving that valuetype-closed enumerable.
 sealed class VoidCommandHandlerExecutor<TCommand> : ICommandHandlerExecutor<Void> where TCommand : ICommand
 {
     internal ICommandHandler<TCommand, Void>? TestHandler { get; init; }
@@ -57,6 +57,9 @@ sealed class VoidCommandHandlerExecutor<TCommand> : ICommandHandlerExecutor<Void
     [UnconditionalSuppressMessage("AOT", "IL3050")]
     static Type[] ResolveMiddlewareTypes()
     {
+        if (RuntimeFeature.IsDynamicCodeSupported)
+            return ServiceResolver.Instance.Resolve<IEnumerable<ICommandMiddleware<TCommand, Void>>>().Select(m => m.GetType()).ToArray();
+
         var registrations = ServiceResolver.Instance.TryResolve<CommandMiddlewareRegistrations>();
         if (registrations is null || registrations.Items.Count == 0)
             return [];

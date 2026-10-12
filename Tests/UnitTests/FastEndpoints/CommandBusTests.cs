@@ -1,5 +1,7 @@
 ﻿using FakeItEasy;
 using FastEndpoints;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TestCases.CommandBusTest;
 using TestCases.CommandHandlerTest;
@@ -170,6 +172,83 @@ public class CommandBusTests
         cmd.Log.ShouldBe("first-in>second-in>[handler]<second-out<first-out");
     }
 
+    [Theory]
+    [InlineData(0)]
+    [InlineData(1)]
+    [InlineData(2)]
+    [InlineData(3)]
+    public async Task Void_Command_Middleware_Registration_Styles_Preserve_Order(int registrationStyle)
+    {
+        Factory.RegisterTestServices(
+            s =>
+            {
+                if (registrationStyle is 0 or 3)
+                    s.AddCommandMiddleware(c => c.Register<VoidMwCmd, FastEndpoints.Void, VoidFirstMiddleware>());
+                else
+                    s.AddTransient<ICommandMiddleware<VoidMwCmd, FastEndpoints.Void>, VoidFirstMiddleware>();
+
+                if (registrationStyle is 0 or 2)
+                    s.AddCommandMiddleware(c => c.Register(typeof(VoidSecondMiddleware<,>)));
+                else
+                    s.AddTransient(typeof(ICommandMiddleware<,>), typeof(VoidSecondMiddleware<,>));
+            });
+
+        // The test service resolver caches executors across service registrations.
+        ServiceResolver.Instance.Resolve<CommandHandlerRegistry>()[typeof(VoidMwCmd)] = new(typeof(VoidMwHandler))
+        {
+            HandlerExecutor = new VoidCommandHandlerExecutor<VoidMwCmd>()
+        };
+
+        for (var i = 0; i < 2; i++)
+        {
+            var cmd = new VoidMwCmd();
+            await cmd.ExecuteAsync(TestContext.Current.CancellationToken);
+
+            cmd.Log.ShouldBe("first-in>second-in>[handler]<second-out<first-out");
+        }
+    }
+
+    [Fact]
+    public async Task Void_Command_Direct_Middleware_Uses_Current_Scope_And_Fresh_Transient_Dependencies()
+    {
+        var ctx = new DefaultHttpContext();
+        ctx.AddTestServices(
+            s =>
+            {
+                s.AddScoped<VoidScopedDependency>();
+                s.AddTransient<VoidTransientDependency>();
+                s.AddTransient<ICommandMiddleware<VoidMwCmd, FastEndpoints.Void>, VoidDependencyMiddleware>();
+            });
+
+        var provider = ctx.RequestServices;
+        var registry = provider.GetRequiredService<CommandHandlerRegistry>();
+        registry[typeof(VoidMwCmd)] = new(typeof(VoidMwHandler));
+        var commands = new List<VoidMwCmd>();
+
+        for (var i = 0; i < 2; i++)
+        {
+            using var scope = provider.CreateScope();
+            ctx.RequestServices = scope.ServiceProvider;
+            if (i == 0)
+                registry[typeof(VoidMwCmd)].HandlerExecutor = new VoidCommandHandlerExecutor<VoidMwCmd>();
+
+            for (var j = 0; j < 2; j++)
+            {
+                var cmd = new VoidMwCmd();
+                await cmd.ExecuteAsync(TestContext.Current.CancellationToken);
+                cmd.Log.ShouldBe("dependency-in>[handler]<dependency-out");
+                cmd.ScopedDependency.ShouldBe(scope.ServiceProvider.GetRequiredService<VoidScopedDependency>().Id);
+                commands.Add(cmd);
+            }
+        }
+
+        ctx.RequestServices = provider;
+        commands[0].ScopedDependency.ShouldBe(commands[1].ScopedDependency);
+        commands[2].ScopedDependency.ShouldBe(commands[3].ScopedDependency);
+        commands[0].ScopedDependency.ShouldNotBe(commands[2].ScopedDependency);
+        commands.Select(c => c.TransientDependency).Distinct().Count().ShouldBe(4);
+    }
+
     [Fact]
     public async Task StreamCommandMiddlewareExecutesInCorrectOrder()
     {
@@ -288,6 +367,8 @@ sealed class ServiceRegisteredVoidTestHandler : ICommandHandler<ServiceRegistere
 class VoidMwCmd : ICommand
 {
     public string Log { get; set; } = "";
+    public Guid ScopedDependency { get; set; }
+    public Guid TransientDependency { get; set; }
 }
 
 sealed class VoidMwHandler : ICommandHandler<VoidMwCmd>
@@ -320,6 +401,31 @@ sealed class VoidSecondMiddleware<TCommand, TResult> : ICommandMiddleware<TComma
         command.Log += "second-in>";
         var result = await next();
         command.Log += "<second-out";
+
+        return result;
+    }
+}
+
+sealed class VoidScopedDependency
+{
+    public Guid Id { get; } = Guid.NewGuid();
+}
+
+sealed class VoidTransientDependency
+{
+    public Guid Id { get; } = Guid.NewGuid();
+}
+
+sealed class VoidDependencyMiddleware(VoidScopedDependency scoped, VoidTransientDependency transient)
+    : ICommandMiddleware<VoidMwCmd, FastEndpoints.Void>
+{
+    public async Task<FastEndpoints.Void> ExecuteAsync(VoidMwCmd command, CommandDelegate<FastEndpoints.Void> next, CancellationToken ct)
+    {
+        command.ScopedDependency = scoped.Id;
+        command.TransientDependency = transient.Id;
+        command.Log += "dependency-in>";
+        var result = await next();
+        command.Log += "<dependency-out";
 
         return result;
     }

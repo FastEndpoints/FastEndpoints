@@ -21,6 +21,8 @@ sealed class FinancialResponseCapture : IHttpResponseFeature, IHttpResponseBodyF
     internal FinancialResponseCapture(IHttpResponseFeature original, long limit)
     {
         _original = original;
+        if (original is FinancialResponseFeature response)
+            response.TransferStartingTo(this);
         _statusCode = original.StatusCode;
         ReasonPhrase = original.ReasonPhrase;
         Headers = new HeaderDictionary();

@@ -10,16 +10,26 @@ interface ICommandHandlerExecutor<TResult>
     Task<TResult> Execute(ICommand<TResult> command, Type handlerType, CancellationToken ct);
 }
 
-sealed class CommandHandlerExecutor<TCommand, TResult>(IEnumerable<ICommandMiddleware<TCommand, TResult>> m, ICommandReceiver<TCommand>? commandReceiver = null)
-    : ICommandHandlerExecutor<TResult> where TCommand : ICommand<TResult>
+sealed class CommandHandlerExecutor<TCommand, TResult> : ICommandHandlerExecutor<TResult> where TCommand : ICommand<TResult>
 {
     internal ICommandHandler<TCommand, TResult>? TestHandler { get; init; }
 
-    readonly Type[] _tMiddlewares = m.Select(x => x.GetType()).ToArray();
+    readonly Type[] _tMiddlewares;
+    readonly ICommandReceiver<TCommand>? _commandReceiver;
+
+    // DI uses this public constructor; middleware discovery follows the active request scope.
+    public CommandHandlerExecutor(ICommandReceiver<TCommand>? commandReceiver = null)
+        : this(ServiceResolver.Instance.Resolve<IEnumerable<ICommandMiddleware<TCommand, TResult>>>(), commandReceiver) { }
+
+    internal CommandHandlerExecutor(IEnumerable<ICommandMiddleware<TCommand, TResult>> middleware, ICommandReceiver<TCommand>? commandReceiver = null)
+    {
+        _tMiddlewares = [.. middleware.Select(m => m.GetType())];
+        _commandReceiver = commandReceiver;
+    }
 
     public Task<TResult> Execute(ICommand<TResult> command, Type tCommandHandler, CancellationToken ct)
     {
-        commandReceiver?.AddCommand((TCommand)command);
+        _commandReceiver?.AddCommand((TCommand)command);
 
         var cmdHandler = TestHandler ?? //TestHandler is not null for unit tests
                          (ICommandHandler<TCommand, TResult>)ServiceResolver.Instance.CreateInstance(tCommandHandler);
@@ -45,14 +55,8 @@ sealed class VoidCommandHandlerExecutor<TCommand> : ICommandHandlerExecutor<Void
 {
     internal ICommandHandler<TCommand, Void>? TestHandler { get; init; }
 
-    readonly Type[] _tMiddlewares;
-    readonly ICommandReceiver<TCommand>? _commandReceiver;
-
-    public VoidCommandHandlerExecutor()
-    {
-        _commandReceiver = ServiceResolver.Instance.TryResolve<ICommandReceiver<TCommand>>();
-        _tMiddlewares = ResolveMiddlewareTypes();
-    }
+    readonly Type[] _tMiddlewares = ResolveMiddlewareTypes();
+    readonly ICommandReceiver<TCommand>? _commandReceiver = ServiceResolver.Instance.TryResolve<ICommandReceiver<TCommand>>();
 
     [UnconditionalSuppressMessage("AOT", "IL3050")]
     static Type[] ResolveMiddlewareTypes()
@@ -61,6 +65,7 @@ sealed class VoidCommandHandlerExecutor<TCommand> : ICommandHandlerExecutor<Void
             return ServiceResolver.Instance.Resolve<IEnumerable<ICommandMiddleware<TCommand, Void>>>().Select(m => m.GetType()).ToArray();
 
         var registrations = ServiceResolver.Instance.TryResolve<CommandMiddlewareRegistrations>();
+
         if (registrations is null || registrations.Items.Count == 0)
             return [];
 
@@ -73,6 +78,7 @@ sealed class VoidCommandHandlerExecutor<TCommand> : ICommandHandlerExecutor<Void
             if (tInterface == tClosed)
             {
                 (types ??= []).Add(tImplementation);
+
                 continue;
             }
 
@@ -111,9 +117,9 @@ sealed class VoidCommandHandlerExecutor<TCommand> : ICommandHandlerExecutor<Void
             }
 
             return await ((ICommandMiddleware<TCommand, Void>)ServiceResolver.Instance.CreateInstance(_tMiddlewares[index])).ExecuteAsync(
-                (TCommand)command,
-                () => InvokeMiddleware(index + 1),
-                ct);
+                       (TCommand)command,
+                       () => InvokeMiddleware(index + 1),
+                       ct);
         }
     }
 }
@@ -125,16 +131,26 @@ interface IStreamCommandHandlerExecutor<TResult>
     IAsyncEnumerable<TResult> Execute(IStreamCommand<TResult> command, Type handlerType, CancellationToken ct);
 }
 
-sealed class StreamCommandHandlerExecutor<TCommand, TResult>(IEnumerable<IStreamCommandMiddleware<TCommand, TResult>> m, ICommandReceiver<TCommand>? commandReceiver = null)
-    : IStreamCommandHandlerExecutor<TResult> where TCommand : IStreamCommand<TResult>
+sealed class StreamCommandHandlerExecutor<TCommand, TResult> : IStreamCommandHandlerExecutor<TResult> where TCommand : IStreamCommand<TResult>
 {
     internal IStreamCommandHandler<TCommand, TResult>? TestHandler { get; init; }
 
-    readonly Type[] _tMiddlewares = m.Select(x => x.GetType()).ToArray();
+    readonly Type[] _tMiddlewares;
+    readonly ICommandReceiver<TCommand>? _commandReceiver;
+
+    // DI uses this public constructor; middleware discovery follows the active request scope.
+    public StreamCommandHandlerExecutor(ICommandReceiver<TCommand>? commandReceiver = null)
+        : this(ServiceResolver.Instance.Resolve<IEnumerable<IStreamCommandMiddleware<TCommand, TResult>>>(), commandReceiver) { }
+
+    internal StreamCommandHandlerExecutor(IEnumerable<IStreamCommandMiddleware<TCommand, TResult>> middleware, ICommandReceiver<TCommand>? commandReceiver = null)
+    {
+        _tMiddlewares = [.. middleware.Select(m => m.GetType())];
+        _commandReceiver = commandReceiver;
+    }
 
     public IAsyncEnumerable<TResult> Execute(IStreamCommand<TResult> command, Type tCommandHandler, CancellationToken ct)
     {
-        commandReceiver?.AddCommand((TCommand)command);
+        _commandReceiver?.AddCommand((TCommand)command);
 
         var cmdHandler = TestHandler ?? //TestHandler is not null for unit tests
                          (IStreamCommandHandler<TCommand, TResult>)ServiceResolver.Instance.CreateInstance(tCommandHandler);

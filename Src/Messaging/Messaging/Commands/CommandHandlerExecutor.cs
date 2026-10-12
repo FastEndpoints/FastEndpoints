@@ -97,7 +97,7 @@ sealed class VoidCommandHandlerExecutor<TCommand> : ICommandHandlerExecutor<Void
         _commandReceiver?.AddCommand((TCommand)command);
 
         var cmdHandler = TestHandler ??
-                         (ICommandHandler<TCommand>)ServiceResolver.Instance.CreateInstance(tCommandHandler);
+                         (ICommandHandler<TCommand, Void>)ServiceResolver.Instance.CreateInstance(tCommandHandler);
 
         return InvokeMiddleware(0);
 

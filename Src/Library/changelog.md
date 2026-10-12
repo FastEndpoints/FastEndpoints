@@ -139,6 +139,12 @@ A nullable collection property such as `List<string>?` lost its XML summary in t
 
 </details>
 
+<details><summary>Schema extensions no longer fail OpenAPI generation for nullable references</summary>
+
+A schema transformer that added an extension such as `x-enumDescriptions` to a component made document generation throw `NotSupportedException` when a nullable property referenced that component (for example `Status?`). Extensions are now copied with the schema.
+
+</details>
+
 <details><summary>Multi-line XML summaries no longer keep source indentation in OpenAPI descriptions</summary>
 
 `FastEndpoints.OpenApi` now removes the source indentation from multi-line XML `<summary>` and `<remarks>` text. Paragraphs and lists in a description render as markdown instead of a code block. Relative indentation for nested list items and indented code blocks is preserved, along with trailing spaces used for Markdown hard line breaks.

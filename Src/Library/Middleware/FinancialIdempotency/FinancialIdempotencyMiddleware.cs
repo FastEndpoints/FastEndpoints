@@ -162,8 +162,10 @@ sealed class FinancialIdempotencyMiddleware(RequestDelegate next, IFinancialIdem
                 Body = BodyAllowed(ctx, capture.StatusCode) ? body : []
             }, ttl, settlement.Token).WaitAsync(settlement.Token);
 
-            if (result == FinancialSettlementResult.OwnershipLost)
-                throw new InvalidOperationException("Financial reservation ownership was lost.");
+            if (result != FinancialSettlementResult.Applied)
+                throw new InvalidOperationException(result == FinancialSettlementResult.OwnershipLost
+                                                        ? "Financial reservation ownership was lost."
+                                                        : "Financial response completion was not confirmed.");
         }
         else if (ctx.Items[RejectionKey] is true)
             await store.AbandonAsync(identityKey, token, settlement.Token).WaitAsync(settlement.Token);

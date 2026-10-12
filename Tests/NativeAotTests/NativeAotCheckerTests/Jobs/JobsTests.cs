@@ -29,4 +29,20 @@ public class JobsTests(App app) : TestBase<App>
             res.ShouldBe(id.ToString());
         }
     }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Void_Jobs_Use_Public_Result_Type_With_Source_Generated_Storage(bool fail)
+    {
+        var (rsp, res, err) = await app.Client.GETAsync<VoidJobQueueEndpoint, VoidJobQueueRequest, VoidJobQueueResponse>(new() { Fail = fail });
+
+        if (!rsp.IsSuccessStatusCode)
+            Assert.Fail(err);
+
+        res.IsComplete.ShouldBeTrue();
+        res.FailureRecorded.ShouldBe(fail);
+        res.StoreAttempts.ShouldBe(fail ? 0 : 1);
+        res.GetAttempts.ShouldBe(fail ? 1 : 0);
+    }
 }

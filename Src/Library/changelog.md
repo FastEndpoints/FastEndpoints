@@ -109,6 +109,12 @@ public override void Configure()
 
 ## Fixes 🪲
 
+<details><summary>Read XML documentation in single-file apps</summary>
+
+`FastEndpoints.OpenApi` now finds the XML documentation of a single-file app. Its bundled assemblies have no location on disk, so every summary, remark, and example was missing from the document. The XML files are now read from the app directory, where publishing places them.
+
+</details>
+
 <details><summary>Honor endpoint request descriptions that match a referenced type's summary</summary>
 
 Explicit request property descriptions configured with `Summary()` now override reference-local XML summaries even when the configured text matches the shared type's summary. Shared schemas and other endpoints retain their descriptions, and unchanged descriptions continue to reuse schemas.

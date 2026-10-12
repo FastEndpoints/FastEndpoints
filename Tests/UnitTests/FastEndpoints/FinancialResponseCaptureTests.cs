@@ -121,6 +121,81 @@ public class FinancialResponseCaptureTests
         }
     }
 
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public async Task Kestrel_Initialized_Cookies_Reach_First_Response_And_Are_Excluded_From_Replay(bool policy, bool delete)
+    {
+        var builder = WebApplication.CreateBuilder();
+        builder.WebHost.UseKestrel().UseUrls("http://127.0.0.1:0");
+        var store = new MemoryFinancialIdempotencyStore();
+        builder.Services.AddFinancialIdempotency(store);
+        await using var app = builder.Build();
+        var definition = new EndpointDefinition(typeof(FinancialResponseCaptureTests), typeof(object), typeof(object));
+        definition.FinancialIdempotency(o => o.CallerScope = _ => "account");
+        var opts = definition.FinancialIdempotencyOptions!;
+        var executions = 0;
+        string identity = null!;
+        byte[] hash = null!;
+        app.Use(async (ctx, next) =>
+        {
+            _ = ctx.Response.Cookies;
+            await next(ctx);
+        });
+        if (policy)
+            app.UseCookiePolicy(new CookiePolicyOptions { MinimumSameSitePolicy = SameSiteMode.Strict });
+        app.Use(async (ctx, next) =>
+        {
+            var cookies = ctx.Response.Cookies;
+            var firstAttempt = executions == 0;
+            ctx.Response.OnStarting(() =>
+            {
+                if (firstAttempt)
+                    cookies.Append("callback-cookie", "first");
+                return Task.CompletedTask;
+            });
+            ctx.SetEndpoint(new Microsoft.AspNetCore.Http.Endpoint(_ => Task.CompletedTask, new EndpointMetadataCollection(definition), "financial"));
+            identity = FinancialIdentity.Build(ctx.Request, opts, "account");
+            hash = await FinancialPayloadHash.ComputeAsync(ctx.Request, CancellationToken.None);
+            await next(ctx);
+        });
+        app.UseFinancialIdempotency();
+        app.Run(async ctx =>
+        {
+            executions++;
+            ctx.Response.StatusCode = 201;
+            ctx.Response.Cookies.Append("business-cookie", "abc");
+            if (delete)
+                ctx.Response.Cookies.Delete("business-cookie");
+            await ctx.Response.WriteAsync("result");
+        });
+        await app.StartAsync();
+        using var client = new HttpClient(new HttpClientHandler { UseCookies = false });
+        client.DefaultRequestHeaders.Add("Idempotency-Key", "same");
+        using var first = await client.PostAsync(app.Urls.Single(), new StringContent("same"));
+        first.StatusCode.ShouldBe(HttpStatusCode.Created);
+        (await first.Content.ReadAsStringAsync()).ShouldBe("result");
+        var cookies = first.Headers.GetValues("Set-Cookie").ToArray();
+        cookies.Length.ShouldBe(2);
+        var business = cookies.Single(c => c.StartsWith("business-cookie=", StringComparison.Ordinal));
+        business.ShouldStartWith(delete ? "business-cookie=;" : "business-cookie=abc;");
+        if (delete)
+            business.ShouldContain("expires=Thu, 01 Jan 1970 00:00:00 GMT");
+        cookies.ShouldContain(c => c.StartsWith("callback-cookie=first;", StringComparison.Ordinal));
+        if (policy)
+            cookies.ShouldAllBe(c => c.Contains("samesite=strict", StringComparison.OrdinalIgnoreCase));
+        var stored = await store.TryBeginAsync(identity, hash, opts.Duration, CancellationToken.None);
+        stored.Kind.ShouldBe(FinancialBeginKind.Replay);
+        stored.Response!.Headers.ShouldNotContain(h => h.Key == "Set-Cookie");
+        using var replay = await client.PostAsync(app.Urls.Single(), new StringContent("same"));
+        replay.StatusCode.ShouldBe(HttpStatusCode.Created);
+        (await replay.Content.ReadAsStringAsync()).ShouldBe("result");
+        replay.Headers.Contains("Set-Cookie").ShouldBeFalse();
+        executions.ShouldBe(1);
+    }
+
     [Fact]
     public async Task Kestrel_Nonfinancial_Callbacks_Keep_Their_Order_And_Completion()
     {
@@ -442,6 +517,26 @@ public class FinancialResponseCaptureTests
         await capture.CompleteAsync();
         callbackExecuted.ShouldBeFalse();
         capture.StatusCode.ShouldBe(201);
+    }
+
+    [Fact]
+    public async Task Capture_Seals_Shared_Headers_After_Starting_Callbacks()
+    {
+        var original = new HttpResponseFeature();
+        original.Headers["X-Final"] = "initial";
+        await using var capture = new FinancialResponseCapture(original, 1024);
+        capture.OnStarting(_ =>
+        {
+            original.Headers["X-Final"] = "callback";
+            return Task.CompletedTask;
+        }, original);
+
+        await capture.StartAsync();
+
+        capture.Headers["X-Final"].ToString().ShouldBe("callback");
+        Should.Throw<InvalidOperationException>(() => capture.Headers["X-Final"] = "late");
+        original.Headers["X-Final"] = "transport";
+        capture.Headers["X-Final"].ToString().ShouldBe("callback");
     }
 
     [Fact]

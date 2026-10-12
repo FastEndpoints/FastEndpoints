@@ -25,9 +25,8 @@ sealed class FinancialResponseCapture : IHttpResponseFeature, IHttpResponseBodyF
             response.TransferStartingTo(this);
         _statusCode = original.StatusCode;
         ReasonPhrase = original.ReasonPhrase;
-        Headers = new HeaderDictionary();
-        foreach (var header in original.Headers)
-            Headers[header.Key] = header.Value;
+        // Initialized cookie features retain the original header dictionary.
+        Headers = original.Headers;
         _buffer = new(memoryThreshold: (int)Math.Min(32768, limit), bufferLimit: limit);
         _body = new(new CaptureStream(this));
     }
@@ -108,9 +107,12 @@ sealed class FinancialResponseCapture : IHttpResponseFeature, IHttpResponseBodyF
         {
             while (_starting.TryPop(out var callback))
                 await callback.Callback(callback.State);
+            var headers = new HeaderDictionary();
+            foreach (var header in Headers)
+                headers[header.Key] = header.Value;
+            headers.IsReadOnly = true;
+            _headers = headers;
             HasStarted = true;
-            if (Headers is HeaderDictionary headers)
-                headers.IsReadOnly = true;
         }
         catch
         {

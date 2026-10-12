@@ -49,6 +49,8 @@ GitHub Actions (`.github/workflows/publish-to-nuget.yml`): on tag `v*`:
 5. push with that temp key and `--skip-duplicate` (trusted publishing; no long-lived API key secret). Needed because independently versioned Agents packages (`FastEndpoints.Mcp` / `FastEndpoints.A2A`) are packed with the solution and already exist on nuget.org when their version is unchanged.
 6. non-beta tags: GH release body from `Src/Library/changelog.md`. AOT test step is commented; do not assume an AOT gate.
 
+Changed Agents addons must receive a new independent version in their `.csproj` before release; `--skip-duplicate` skips updated assemblies packaged under an already-published version.
+
 Job permissions: `id-token: write` (OIDC), `contents: write` (GH release).
 
 Trusted publishing policy on nuget.org must match: owner `FastEndpoints`, repo `FastEndpoints`, workflow file `publish-to-nuget.yml` (filename only).

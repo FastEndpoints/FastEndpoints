@@ -125,7 +125,7 @@ sealed class ValidationSchemaTransformer(DocumentOptions docOpts, SharedContext 
 
         foreach (var name in required)
         {
-            if (paramByKey.TryGetValue(name, out var param))
+            if (paramByKey.TryGetValue(name, out var param) && !parameterState.ParametersWithFallbackValues.Contains(param))
                 param.Required = true;
         }
     }

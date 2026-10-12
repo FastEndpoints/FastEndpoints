@@ -13,11 +13,25 @@ sealed class RequestTransformState
 {
     public HashSet<string> PropsRemovedFromBody { get; } = new(StringComparer.OrdinalIgnoreCase);
     public Dictionary<string, OpenApiParameter> ParametersBySchemaPath { get; } = new(StringComparer.Ordinal);
+    public HashSet<OpenApiParameter> ParametersWithFallbackValues { get; } = new(ReferenceEqualityComparer.Instance);
 
     internal void RegisterBoundParameter(PropertyInfo property, OpenApiParameter parameter, JsonNamingPolicy? namingPolicy, bool usePropertyNamingPolicy)
     {
         var schemaPath = PropertyNameResolver.GetSchemaPropertyName(property, namingPolicy, usePropertyNamingPolicy);
         ParametersBySchemaPath[schemaPath] = parameter;
+
+        var metadata = GetPropertyMetadata(property);
+
+        if ((parameter.In == ParameterLocation.Header && metadata.FromHeader is { IsRequired: false }) ||
+            (parameter.In == ParameterLocation.Query &&
+             (metadata.FromClaim is { IsRequired: false } || metadata.HasPermission is { IsRequired: false })))
+        {
+            ParametersWithFallbackValues.Add(parameter);
+
+            // Query schema nullability describes the final value, which claims can also supply.
+            if (parameter.In == ParameterLocation.Query && metadata.DontBind?.IsRequired is not true)
+                parameter.Required = false;
+        }
 
         // FluentValidation rule keys follow JsonPropertyName; query/header names may not.
         // Also index CLR/camelCase names so a missed target-type lookup still matches.
@@ -106,7 +120,11 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
     public void ApplyParameterMetadata(OpenApiOperation operation, EndpointDefinition epDef)
         => _requestParameterMetadataApplicator.Apply(operation, epDef);
 
-    public void ApplyExamples(OpenApiOperation operation, EndpointDefinition epDef, RequestTransformState state, PromotedBodyProperty? promotedBodyProperty, OpenApiGenerationState generation)
+    public void ApplyExamples(OpenApiOperation operation,
+                              EndpointDefinition epDef,
+                              RequestTransformState state,
+                              PromotedBodyProperty? promotedBodyProperty,
+                              OpenApiGenerationState generation)
     {
         if (epDef.EndpointSummary?.RequestExamples.Count is not > 0)
             return;

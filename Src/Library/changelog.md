@@ -109,6 +109,12 @@ public override void Configure()
 
 ## Fixes 🪲
 
+<details><summary>Keep fallback input sources optional in OpenAPI documents</summary>
+
+Optional headers and query parameters for optional claim/permission properties now remain optional when FluentValidation requires the final DTO value. Requests can supply that value through another binding source. Parameter schema constraints and explicitly required headers remain documented. `RemoveFromSchema` continues to control visibility independently of runtime binding.
+
+</details>
+
 <details><summary>OpenAPI applies <code>RuleForEach()</code> validators to collection items</summary>
 
 Rules such as `RuleForEach(x => x.Tags).NotEmpty().MaximumLength(20)` now constrain the `items` schema of the collection (`minLength`, `maxLength`, `minimum`, `maximum`, non-null items). Previously they were applied to the collection itself, which marked it as required and non-nullable and published `maxItems: 20`. Nullable lists and arrays also retain these item constraints while preserving the collection's optionality and nullability. Rules declared with `RuleFor()` on the same collection still apply to the collection.

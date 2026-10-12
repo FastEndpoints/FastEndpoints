@@ -864,7 +864,6 @@
           {
             "name": "customerID",
             "in": "query",
-            "required": true,
             "schema": {
               "type": "string",
               "default": "test default val"
@@ -1014,7 +1013,6 @@
           {
             "name": "customerID",
             "in": "query",
-            "required": true,
             "schema": {
               "type": "string",
               "default": "test default val"
@@ -3289,7 +3287,6 @@
           {
             "name": "X-Client",
             "in": "header",
-            "required": true,
             "schema": {
               "minLength": 2,
               "type": "string"

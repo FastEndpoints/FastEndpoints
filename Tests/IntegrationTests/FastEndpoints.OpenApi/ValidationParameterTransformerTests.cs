@@ -42,7 +42,7 @@ public class ValidationParameterTransformerTests(Fixture App) : TestBase<Fixture
         search["schema"]!["minLength"]!.GetValue<int>().ShouldBe(2);
 
         var client = Param(parameters, "X-Client", "header");
-        client["required"]!.GetValue<bool>().ShouldBeTrue();
+        (client["required"]?.GetValue<bool>() ?? false).ShouldBeFalse();
         client["schema"]!["minLength"]!.GetValue<int>().ShouldBe(2);
 
         var requestSchema = ResolveSchema(doc, operation["requestBody"]!["content"]!["application/json"]!["schema"]!);

@@ -211,7 +211,7 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
 
                 string? description = null;
                 var needsDescription = paramDescriptionLookup?.TryGetValue(propName, out description) == true &&
-                                       resolvedProp.Description != description;
+                                       (propSchema.Description ?? resolvedProp.Description) != description;
                 var needsDefault = defaultProps.TryGetValue(propName, out var defaultAttr) && resolvedProp.Default is null;
 
                 if (!needsDescription && !needsDefault)
@@ -219,10 +219,7 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
 
                 localSchema ??= content.EnsureOperationLocalSchemaForMutation(mutationCtx, "requestBody");
 
-                if (localSchema?.Properties is null)
-                    continue;
-
-                var concreteProp = localSchema.Properties[propName].EnsureSchemaForMutation(
+                var concreteProp = localSchema?.Properties?[propName].EnsureSchemaForMutation(
                     mutationCtx,
                     $"requestBody.{propName}",
                     localized => localSchema.Properties[propName] = localized);

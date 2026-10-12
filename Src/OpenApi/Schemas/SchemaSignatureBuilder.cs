@@ -40,6 +40,7 @@ static class SchemaSignatureBuilder
                 return;
             case OpenApiSchemaReference schemaRef:
                 builder.Append("ref:").Append(schemaRef.GetReferenceId() is { } refId ? ResolveAlias(refId, aliases) : string.Empty).Append(';');
+                AppendValue(builder, "description", schemaRef.Reference.Description);
 
                 return;
             case OpenApiSchema s:

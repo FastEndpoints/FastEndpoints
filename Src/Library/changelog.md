@@ -109,6 +109,12 @@ public override void Configure()
 
 ## Fixes 🪲
 
+<details><summary>Honor endpoint request descriptions that match a referenced type's summary</summary>
+
+Explicit request property descriptions configured with `Summary()` now override reference-local XML summaries even when the configured text matches the shared type's summary. Shared schemas and other endpoints retain their descriptions, and unchanged descriptions continue to reuse schemas.
+
+</details>
+
 <details><summary>Keep fallback input sources optional in OpenAPI documents</summary>
 
 Optional headers and query parameters for optional claim/permission properties now remain optional when FluentValidation requires the final DTO value. Requests can supply that value through another binding source. Parameter schema constraints and explicitly required headers remain documented. `RemoveFromSchema` continues to control visibility independently of runtime binding.

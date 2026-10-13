@@ -92,9 +92,8 @@ static class DocumentSchemaNormalizer
         arraySchema.Type = schemaType | JsonSchemaType.Null;
         arraySchema.OneOf = null;
 
-        // The property summary lives on the $ref option, but the clone copies only the referenced component.
-        if (schema is OpenApiSchemaReference { Description: { Length: > 0 } description })
-            arraySchema.Description = description;
+        // The property summary and example live on the $ref option, but the clone copies only the referenced component.
+        arraySchema.KeepReferenceAnnotations(schema);
 
         return arraySchema;
     }

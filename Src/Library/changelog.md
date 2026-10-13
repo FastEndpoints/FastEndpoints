@@ -109,6 +109,12 @@ public override void Configure()
 
 ## Fixes 🪲
 
+<details><summary>Preserve XML property examples on referenced OpenAPI schemas</summary>
+
+`FastEndpoints.OpenApi` now keeps each DTO property's XML `<example>` alongside its `$ref` (as `examples`), including date, time, enum, object, and collection properties. Shared component schemas no longer take the example of the first property that uses them. Request properties whose schemas an endpoint's validator copies per operation now keep their XML summary and example as well.
+
+</details>
+
 <details><summary>Honor endpoint request descriptions that match a referenced type's summary</summary>
 
 Explicit request property descriptions configured with `Summary()` now override reference-local XML summaries even when the configured text matches the shared type's summary. Shared schemas and other endpoints retain their descriptions, and unchanged descriptions continue to reuse schemas.

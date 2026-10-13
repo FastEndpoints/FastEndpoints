@@ -31,7 +31,7 @@ sealed class XmlDocSchemaTransformer : IOpenApiSchemaTransformer
                     schema.Description = summary;
             }
 
-            if (schema.Example is not null)
+            if (!isReference && schema.Example is not null)
                 return Task.CompletedTask;
 
             var example = XmlDocLookup.GetPropertyExample(propInfo);
@@ -39,7 +39,12 @@ sealed class XmlDocSchemaTransformer : IOpenApiSchemaTransformer
             if (example is null)
                 return Task.CompletedTask;
 
-            schema.Example = OperationSchemaHelpers.ParseXmlExampleJsonNode(example, preserveRawString: true);
+            var exampleNode = OperationSchemaHelpers.ParseXmlExampleJsonNode(example, preserveRawString: true);
+
+            if (!isReference)
+                schema.Example = exampleNode;
+            else if (exampleNode is not null)
+                schema.Metadata!["x-ref-example"] = exampleNode;
         }
 
         return Task.CompletedTask;

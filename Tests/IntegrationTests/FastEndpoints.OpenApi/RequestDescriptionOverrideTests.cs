@@ -30,7 +30,8 @@ public class RequestDescriptionOverrideTests
                 o.DisableAutoDiscovery = true;
                 o.Assemblies = [typeof(RequestDescriptionOverrideTests).Assembly];
                 o.Filter = type => type == typeof(TypeSummaryEndpoint) || type == typeof(CustomSummaryEndpoint) ||
-                                   type == typeof(PropertySummaryEndpoint) || type == typeof(UnchangedEndpoint);
+                                   type == typeof(PropertySummaryEndpoint) || type == typeof(UnchangedEndpoint) ||
+                                   type == typeof(ResponseSummaryEndpoint);
             });
             builder.Services.OpenApiDocument(o =>
             {
@@ -81,6 +82,10 @@ public class RequestDescriptionOverrideTests
                 Body("/description/type")["$ref"]!.GetValue<string>()
                     .ShouldNotBe(Body("/description/unchanged")["$ref"]!.GetValue<string>());
                 schemas[childReference.Split('/').Last()]!["description"]!.GetValue<string>().ShouldBe("type summary");
+
+                var response = document["paths"]!["/description/response"]!["get"]!["responses"]!["200"]!["content"]!["application/json"]!["schema"]!;
+                var responseChild = Resolve(response)["properties"]!["child"]!;
+                (responseChild["description"] ?? Resolve(responseChild)["description"])!.GetValue<string>().ShouldBe("endpoint summary");
             }
         }
         finally
@@ -104,6 +109,24 @@ public class RequestDescriptionOverrideTests
 
         /// <summary>other property summary</summary>
         public Child Other { get; set; } = new();
+    }
+
+    public sealed class Response
+    {
+        /// <summary>property summary</summary>
+        public Child Child { get; set; } = new();
+    }
+
+    public sealed class ResponseSummaryEndpoint : EndpointWithoutRequest<Response>
+    {
+        public override void Configure()
+        {
+            Get("/description/response");
+            AllowAnonymous();
+            Summary(s => s.ResponseParam<Response>(r => r.Child, "endpoint summary"));
+        }
+
+        public override Task HandleAsync(CancellationToken ct) => Send.OkAsync(new(), ct);
     }
 
     public sealed class TypeSummaryEndpoint : Endpoint<Request>

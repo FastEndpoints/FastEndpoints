@@ -95,6 +95,116 @@ public class XmlDocSchemaTransformerTests
     }
 
     [Fact]
+    public async Task referenced_properties_keep_independent_examples()
+    {
+        var builder = WebApplication.CreateBuilder();
+        builder.WebHost.UseTestServer();
+        builder.Services.OpenApiDocument(o =>
+        {
+            o.DocumentName = "v1";
+            o.ShortSchemaNames = true;
+        });
+
+        await using var app = builder.Build();
+        app.MapGet("/ticket", () => new TicketResponse());
+        app.MapOpenApi();
+        await app.StartAsync();
+        using var client = app.GetTestClient();
+
+        for (var i = 0; i < 2; i++)
+        {
+            var document = JsonNode.Parse(await client.GetStringAsync("/openapi/v1.json"))!;
+            var schemas = document["components"]!["schemas"]!;
+            var properties = schemas[SchemaNameGenerator.GetReferenceId(typeof(TicketResponse), true)!]!["properties"]!;
+
+            foreach (var (name, example) in TicketExamples.Where(e => e.Name is not ("time" or "previous")))
+            {
+                properties[name]!["$ref"].ShouldNotBeNull();
+                properties[name]!["examples"]!.ToJsonString().ShouldBe($"[{example}]");
+            }
+
+            var time = properties["time"]!["oneOf"]!.AsArray().Single(o => o!["$ref"] is not null)!;
+            time["examples"]!.ToJsonString().ShouldBe("[\"06:45:00\"]");
+            properties["previous"]!["example"]!.ToJsonString().ShouldBe("[{\"city\":\"Paris\"}]");
+
+            foreach (var type in new[] { typeof(DateOnly), typeof(Status), typeof(Address) })
+                schemas[SchemaNameGenerator.GetReferenceId(type, true)!]!["example"].ShouldBeNull();
+        }
+    }
+
+    [Fact]
+    public async Task missing_response_schemas_keep_inline_property_examples()
+    {
+        var sharedCtx = new SharedContext();
+        var builder = WebApplication.CreateBuilder();
+        builder.WebHost.UseTestServer();
+        builder.Services.OpenApiDocument(o =>
+        {
+            o.DocumentName = "v1";
+            o.ShortSchemaNames = true;
+            o.ConfigureOpenApi = options => options.AddDocumentTransformer(async (document, context, ct) =>
+            {
+                sharedCtx.For(document).MissingSchemaTypes.TryAdd("TicketResponse", typeof(TicketResponse));
+                await document.AddMissingSchemas(sharedCtx, context, ct);
+            });
+        });
+
+        await using var app = builder.Build();
+        app.MapGet("/ping", () => "pong");
+        app.MapOpenApi();
+        await app.StartAsync();
+        using var client = app.GetTestClient();
+
+        var document = JsonNode.Parse(await client.GetStringAsync("/openapi/v1.json"))!;
+        var properties = document["components"]!["schemas"]!["TicketResponse"]!["properties"]!;
+
+        foreach (var (name, example) in TicketExamples)
+            properties[name]!.ToJsonString().ShouldContain($"\"example\":{example}");
+    }
+
+    static readonly (string Name, string Example)[] TicketExamples =
+    [
+        ("day", "\"2026-10-06\""),
+        ("time", "\"06:45:00\""),
+        ("primary", "1"),
+        ("secondary", "0"),
+        ("home", "{\"city\":\"Berlin\"}"),
+        ("work", "{\"city\":\"Munich\"}"),
+        ("previous", "[{\"city\":\"Paris\"}]")
+    ];
+
+    public sealed class TicketResponse
+    {
+        /// <summary>The day property.</summary>
+        /// <example>2026-10-06</example>
+        public DateOnly Day { get; set; }
+
+        /// <summary>The time property.</summary>
+        /// <example>06:45:00</example>
+        public TimeOnly? Time { get; set; }
+
+        /// <summary>The primary property.</summary>
+        /// <example>1</example>
+        public Status Primary { get; set; }
+
+        /// <summary>The secondary property.</summary>
+        /// <example>0</example>
+        public Status Secondary { get; set; }
+
+        /// <summary>The home property.</summary>
+        /// <example>{"city":"Berlin"}</example>
+        public Address Home { get; set; } = new("Home");
+
+        /// <summary>The work property.</summary>
+        /// <example>{"city":"Munich"}</example>
+        public Address Work { get; set; } = new("Work");
+
+        /// <summary>The previous property.</summary>
+        /// <example>[{"city":"Paris"}]</example>
+        public List<Address>? Previous { get; set; }
+    }
+
+    [Fact]
     public async Task nullable_collection_properties_keep_summaries()
     {
         var builder = WebApplication.CreateBuilder();

@@ -20,7 +20,7 @@ Remote commands and wire-format selection: [architecture.md](architecture.md#com
 - Empty ACK tracking ids are completed/skipped. Ordinary stream failures retain reconnect/requeue behavior.
 
 ## Retention and execution expiry
-- ACK inbox records implement `IEventDeliveryAckStorageRecord` and persist nullable `RetainUntil`, calculated from hub `ReplayUntil` plus `DeliveryAckClockSkewAllowance` (default five minutes, non-negative).
+- ACK inbox records implement `IEventDeliveryAckStorageRecord` and persist nullable `RetainUntil`, calculated from hub `ReplayUntil` plus `DeliveryAckClockSkewAllowance` (default five minutes, non-negative). Addition saturates at UTC `DateTime.MaxValue` when the allowance exceeds the remaining date range, preserving maximum-expiry deliveries and their deduplication keys.
 - Apply the supplied purge predicate. Completed or execution-expired ACK rows retain their key through `RetainUntil`; null retention preserves ordinary-row cleanup in mixed storage.
 - Upgrade hubs first and conservatively backfill old ACK retention before cleanup. Missing replay deadlines stop the receiver. The guarantee assumes bounded clock lead/in-flight delays and unchanged hub expiry after delivery.
 - Execution expiry is refreshed immediately before each ACK insertion attempt. The accepted slow-successful-insert boundary is documented in [review exclusions](gotchas.md#accepted-policies-and-review-exclusions).

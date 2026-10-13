@@ -21,7 +21,9 @@ static class EventSubscriberRetentionPolicy<TStorageRecord>
     }
 
     internal static DateTime GetRetainUntil(DateTime replayUntil, TimeSpan allowance)
-        => replayUntil.Add(allowance);
+        => allowance.Ticks >= DateTime.MaxValue.Ticks - replayUntil.Ticks
+               ? DateTime.SpecifyKind(DateTime.MaxValue, DateTimeKind.Utc)
+               : replayUntil.Add(allowance);
 
     internal static Expression<Func<TStorageRecord, bool>> PurgeMatch
         => typeof(IEventDeliveryAckStorageRecord).IsAssignableFrom(typeof(TStorageRecord))

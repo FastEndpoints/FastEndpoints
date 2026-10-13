@@ -12,7 +12,8 @@ namespace FastEndpoints.Security;
 /// <para>
 /// the token in the authorization header is checked, as well as any token accepted by a jwt bearer authentication scheme from another source such as the query
 /// string or a cookie. the latter requires <see cref="JwtBearerOptions.SaveToken" /> to be enabled, which is the default when using
-/// <see cref="AuthExtensions.AddAuthenticationJwtBearer" />.
+/// <see cref="AuthExtensions.AddAuthenticationJwtBearer" />. register after routing and before authentication to check these alternative sources.
+/// requests without a selected endpoint receive only the authorization header check.
 /// </para>
 /// </summary>
 /// <param name="next">the next request delegate to execute</param>
@@ -43,6 +44,14 @@ public abstract class JwtRevocationMiddleware(RequestDelegate next)
 
                 return;
             }
+        }
+
+        //endpoint-dependent token extraction must run after routing to avoid caching an empty authentication result.
+        if (ctx.GetEndpoint() is null)
+        {
+            await next(ctx);
+
+            return;
         }
 
         var schemes = ctx.RequestServices.GetService<IAuthenticationSchemeProvider>();

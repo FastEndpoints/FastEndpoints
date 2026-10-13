@@ -78,17 +78,55 @@ public class JwtRevocationMiddlewareTests
         NextCalled(ctx).ShouldBeFalse();
     }
 
-    [Fact]
-    public async Task Revoked_Token_Is_Rejected_When_No_Endpoint_Is_Resolved()
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(true, true)]
+    public async Task PreRouting_Check_Preserves_Endpoint_Gated_Authentication(bool cookie, bool revoked)
     {
-        var token = CreateToken("victim");
-        var checker = new Checker(token);
-        var ctx = NewContext(anonymous: null, queryToken: token);
+        var token = CreateToken("user");
+        var ctx = NewContext(anonymous: null, queryToken: token, endpointGated: true, cookie: cookie);
+        var routedChecker = new Checker(revoked ? [token] : []);
+        var earlyChecker = new Checker(
+            async c =>
+            {
+                c.SetEndpoint(new(null, EndpointMetadataCollection.Empty, "test"));
+                await routedChecker.Invoke(c);
+
+                if (NextCalled(c))
+                {
+                    var result = await c.AuthenticateAsync(JwtBearerDefaults.AuthenticationScheme);
+                    result.Succeeded.ShouldBeTrue();
+                }
+            });
+
+        await earlyChecker.Invoke(ctx);
+
+        earlyChecker.Checked.ShouldBeEmpty();
+        routedChecker.Checked.ShouldBe([token]);
+        ctx.Items["validations"].ShouldBe(1);
+        NextCalled(ctx).ShouldBe(!revoked);
+        ctx.Response.StatusCode.ShouldBe(revoked ? 401 : 200);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task PreRouting_Check_Leaves_Authentication_For_Downstream_Middleware(bool cookie)
+    {
+        var token = CreateToken("user");
+        var checker = new Checker();
+        var ctx = NewContext(anonymous: null, queryToken: token, endpointGated: true, cookie: cookie);
 
         await checker.Invoke(ctx);
 
-        ctx.Response.StatusCode.ShouldBe(401);
-        NextCalled(ctx).ShouldBeFalse();
+        checker.Checked.ShouldBeEmpty();
+        ctx.SetEndpoint(new(null, EndpointMetadataCollection.Empty, "test"));
+        var result = await ctx.AuthenticateAsync(JwtBearerDefaults.AuthenticationScheme);
+
+        result.Succeeded.ShouldBeTrue();
+        ctx.Items["validations"].ShouldBe(1);
     }
 
     [Fact]
@@ -131,7 +169,7 @@ public class JwtRevocationMiddlewareTests
         ctx.Items["validations"].ShouldBe(1);
     }
 
-    static DefaultHttpContext NewContext(bool? anonymous, string? header = null, string? queryToken = null, bool addJwtBearer = true)
+    static DefaultHttpContext NewContext(bool? anonymous, string? header = null, string? queryToken = null, bool addJwtBearer = true, bool endpointGated = false, bool cookie = false)
     {
         var services = new ServiceCollection();
         services.AddLogging();
@@ -154,7 +192,10 @@ public class JwtRevocationMiddlewareTests
                             {
                                 OnMessageReceived = c =>
                                                     {
-                                                        var token = c.Request.Query["access_token"].FirstOrDefault();
+                                                        if (endpointGated && c.HttpContext.GetEndpoint() is null)
+                                                            return Task.CompletedTask;
+
+                                                        var token = cookie ? c.Request.Cookies["access_token"] : c.Request.Query["access_token"].FirstOrDefault();
 
                                                         if (!string.IsNullOrEmpty(token))
                                                             c.Token = token;
@@ -177,7 +218,12 @@ public class JwtRevocationMiddlewareTests
             ctx.Request.Headers.Authorization = header;
 
         if (queryToken is not null)
-            ctx.Request.QueryString = QueryString.Create("access_token", queryToken);
+        {
+            if (cookie)
+                ctx.Request.Headers.Cookie = $"access_token={queryToken}";
+            else
+                ctx.Request.QueryString = QueryString.Create("access_token", queryToken);
+        }
 
         if (anonymous is not null)
         {
@@ -200,14 +246,17 @@ public class JwtRevocationMiddlewareTests
     static bool NextCalled(HttpContext ctx)
         => ctx.Items.ContainsKey("next");
 
-    sealed class Checker(params string[] revoked) : JwtRevocationMiddleware(
-        ctx =>
-        {
-            ctx.Items["next"] = true;
-
-            return Task.CompletedTask;
-        })
+    sealed class Checker(RequestDelegate next, params string[] revoked) : JwtRevocationMiddleware(next)
     {
+        public Checker(params string[] revoked) : this(
+            ctx =>
+            {
+                ctx.Items["next"] = true;
+
+                return Task.CompletedTask;
+            },
+            revoked) { }
+
         public List<string> Checked { get; } = [];
 
         protected override Task<bool> JwtTokenIsValidAsync(string jwtToken, CancellationToken ct)

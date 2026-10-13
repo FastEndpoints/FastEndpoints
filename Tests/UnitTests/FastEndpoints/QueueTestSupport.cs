@@ -52,6 +52,7 @@ static class QueueTestSupport
         catch (TimeoutException)
         {
             task.IsCompleted.ShouldBeTrue();
+            await task;
         }
     }
 
@@ -65,7 +66,12 @@ static class QueueTestSupport
         }
         catch (TimeoutException)
         {
-            return false;
+            if (!task.IsCompleted)
+                return false;
+
+            await task;
+
+            return true;
         }
     }
 

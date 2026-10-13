@@ -54,6 +54,7 @@ AOT tests: use `NativeAot.slnx` (publish workflow currently has AOT test step co
 | Surface | Regression location / constraint |
 | --- | --- |
 | Remote events | `Tests/UnitTests/FastEndpoints/EventQueueTests.*.cs`: retrieval/idle, deserialization, delivery ACK, store retries/expiry, retention, lifecycle and receive supervision |
+| Queue wait helpers | `QueueTestSupportTests.cs`: successful completion, pending deadlines, worker faults (including `TimeoutException`), worker cancellation and wait cancellation. `WaitForCompletion` and `CompletesWithin` re-await completed tasks after a caught timeout so original failures remain visible. |
 | ACK transport deadlines | `EventQueueTests.AckTimeout.cs` and `EventQueueTests.AckWriteTimeout.cs`: real Kestrel HTTP/2 and shared `LiveDeliveryAckHost<TEvent>` |
 | Remote event isolation | Distinct closed event/storage types and internal retry-delay overrides: [remote-events.md](remote-events.md#test-isolation) |
 | Void command middleware | `CommandBusTests` in `Unit.FastEndpoints` runs in a non-parallel collection because discovery/dispatch tests replace the process-wide service resolver. Covers both no-result handler interfaces through `AddMessaging` discovery, middleware and test-handler substitution, plus direct DI, helper and mixed registrations, closed/open middleware ordering, repeated dispatch, scoped and transient dependencies. `CommandsTests` in `NativeAotCheckerTests` verifies the closed-registration AOT path. |

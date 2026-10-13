@@ -17,6 +17,7 @@ sealed class RequestTransformState
 
     internal void RegisterBoundParameter(PropertyInfo property, OpenApiParameter parameter, JsonNamingPolicy? namingPolicy, bool usePropertyNamingPolicy)
     {
+        // Validator rule paths use serialized property names; wire and CLR aliases can identify unrelated properties.
         var schemaPath = PropertyNameResolver.GetSchemaPropertyName(property, namingPolicy, usePropertyNamingPolicy);
         ParametersBySchemaPath[schemaPath] = parameter;
 
@@ -32,16 +33,6 @@ sealed class RequestTransformState
             if (parameter.In == ParameterLocation.Query && metadata.DontBind?.IsRequired is not true)
                 parameter.Required = false;
         }
-
-        // FluentValidation rule keys follow JsonPropertyName; query/header names may not.
-        // Also index CLR/camelCase names so a missed target-type lookup still matches.
-        if (parameter.Name is { Length: > 0 })
-            ParametersBySchemaPath.TryAdd(parameter.Name, parameter);
-
-        var clrName = usePropertyNamingPolicy
-                          ? namingPolicy?.ConvertName(property.Name) ?? property.Name
-                          : property.Name;
-        ParametersBySchemaPath.TryAdd(clrName, parameter);
     }
 }
 

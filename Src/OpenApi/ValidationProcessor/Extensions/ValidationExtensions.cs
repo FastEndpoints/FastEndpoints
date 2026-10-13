@@ -44,6 +44,13 @@ static class ValidationExtensions
             foreach (var rule in rules.GetPropertyRules())
             {
                 var propertyNameRaw = rule.ValidationRule.PropertyName;
+                var memberPath = PropertyChain.FromExpression(rule.ValidationRule.Expression).ToString();
+
+                // FastEndpoints' global resolver converts the CLR path before the rule is read.
+                if (memberPath.Length > 0 &&
+                    (propertyNameRaw == memberPath || propertyNameRaw == Config.SerOpts.Options.PropertyNamingPolicy?.ConvertName(memberPath)))
+                    propertyNameRaw = memberPath;
+
                 var propertyNameWithSchemaCasing = validatorTargetType is null
                                                        ? propertyNameRaw.ConvertToSchemaCasing(namingPolicy, usePropertyNamingPolicy)
                                                        : PropertyNameResolver.ConvertPropertyPath(

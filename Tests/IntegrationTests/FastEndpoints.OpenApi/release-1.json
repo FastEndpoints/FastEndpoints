@@ -10731,6 +10731,7 @@
         "type": "object",
         "properties": {
           "x_coord": {
+            "exclusiveMinimum": 0,
             "type": "integer",
             "format": "int32"
           }

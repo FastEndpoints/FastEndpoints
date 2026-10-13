@@ -11,7 +11,8 @@ namespace FastEndpoints.Security;
 /// abstract class for implementing a jwt revocation middleware.
 /// <para>
 /// the token in the authorization header is checked, as well as any token accepted by a jwt bearer authentication scheme from another source such as the query
-/// string or a cookie. the latter requires <see cref="JwtBearerOptions.SaveToken" /> to be enabled, which is the default when using
+/// string or a cookie. only jwt schemes selected by the endpoint's effective authorization policy or the default authentication scheme are invoked.
+/// checking accepted tokens requires <see cref="JwtBearerOptions.SaveToken" /> to be enabled, which is the default when using
 /// <see cref="AuthExtensions.AddAuthenticationJwtBearer" />. register after routing and before authentication to check these alternative sources.
 /// requests without a selected endpoint receive only the authorization header check.
 /// </para>
@@ -58,9 +59,29 @@ public abstract class JwtRevocationMiddleware(RequestDelegate next)
 
         if (schemes is not null)
         {
-            foreach (var scheme in await schemes.GetAllSchemesAsync())
+            var endpoint = ctx.GetEndpoint()!;
+            var policyProvider = ctx.RequestServices.GetService<IAuthorizationPolicyProvider>();
+            var policy = policyProvider is null
+                             ? null
+                             : await AuthorizationPolicy.CombineAsync(
+                                 policyProvider,
+                                 endpoint.Metadata.GetOrderedMetadata<IAuthorizeData>(),
+                                 endpoint.Metadata.GetOrderedMetadata<AuthorizationPolicy>());
+            var selectedSchemes = policy?.AuthenticationSchemes ?? [];
+
+            if (selectedSchemes.Count == 0)
             {
-                if (!typeof(JwtBearerHandler).IsAssignableFrom(scheme.HandlerType))
+                var defaultScheme = await schemes.GetDefaultAuthenticateSchemeAsync();
+
+                if (defaultScheme is not null)
+                    selectedSchemes = [defaultScheme.Name];
+            }
+
+            foreach (var schemeName in selectedSchemes.Distinct(StringComparer.Ordinal))
+            {
+                var scheme = await schemes.GetSchemeAsync(schemeName);
+
+                if (scheme is null || !typeof(JwtBearerHandler).IsAssignableFrom(scheme.HandlerType))
                     continue;
 
                 //the handler may have taken the token from somewhere other than the authorization header.

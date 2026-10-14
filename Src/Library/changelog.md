@@ -109,6 +109,12 @@ public override void Configure()
 
 ## Fixes 🪲
 
+<details><summary>Read XML documentation in single-file apps</summary>
+
+`FastEndpoints.OpenApi` now finds the XML documentation of a single-file app. Its bundled assemblies have no location on disk, so every summary, remark, and example was missing from the document. The XML files are now read from the app directory, where publishing places them.
+
+</details>
+
 <details><summary>Preserve OpenAPI minimum lengths when combining validation rules</summary>
 
 `NotEmpty().MaximumLength(50)` now documents `minLength: 1` instead of `0`. Combining `NotEmpty()` with minimum, bounded, or exact length rules preserves the stricter minimum regardless of rule order. The same minimum composition applies to array schemas through `minItems`. Runtime validation and maximum-bound handling are unchanged.

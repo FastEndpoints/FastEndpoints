@@ -126,17 +126,25 @@ static class XmlDocLookup
     static FrozenDictionary<string, XmlMemberInfo> GetXmlDoc(Assembly assembly)
         => _xmlDocCache.GetValue(assembly, LoadXmlDoc);
 
-    [UnconditionalSuppressMessage("SingleFile", "IL3000", Justification = "XML doc lookup is optional when assembly paths are unavailable.")]
-    static FrozenDictionary<string, XmlMemberInfo> LoadXmlDoc(Assembly assembly)
+    // a single-file app bundles its assemblies without a location, but publishes their xml files next to the app.
+    [UnconditionalSuppressMessage("SingleFile", "IL3000", Justification = "An empty assembly location falls back to the app base directory.")]
+    static string? GetXmlDocPath(Assembly assembly)
     {
         var location = assembly.Location;
 
-        if (string.IsNullOrEmpty(location))
-            return _emptyMembers;
+        if (!string.IsNullOrEmpty(location))
+            return Path.ChangeExtension(location, ".xml");
 
-        var xmlPath = Path.ChangeExtension(location, ".xml");
+        var name = assembly.GetName().Name;
 
-        if (!File.Exists(xmlPath))
+        return name is null ? null : Path.Combine(AppContext.BaseDirectory, $"{name}.xml");
+    }
+
+    static FrozenDictionary<string, XmlMemberInfo> LoadXmlDoc(Assembly assembly)
+    {
+        var xmlPath = GetXmlDocPath(assembly);
+
+        if (xmlPath is null || !File.Exists(xmlPath))
             return _emptyMembers;
 
         XDocument doc;

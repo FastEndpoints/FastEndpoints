@@ -192,8 +192,14 @@ sealed class ResponseOperationTransformer(DocumentOptions docOpts, SharedContext
                     $"{schemaKey}.{propKey}",
                     localized => descriptionTarget.Properties![propKey] = localized);
 
-                if (concretePropSchema is not null)
-                    concretePropSchema.Description = responseDescription;
+                if (concretePropSchema is null)
+                    continue;
+
+                concretePropSchema.Description = responseDescription;
+
+                // the replacement reference keeps the xml summary next to its $ref, which would hide the override.
+                if (descriptionTarget.Properties[propKey] is OpenApiSchemaReference localizedRef)
+                    localizedRef.Description = responseDescription;
             }
         }
     }

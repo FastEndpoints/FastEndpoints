@@ -64,9 +64,7 @@ static class ValidationSchemaMutation
             {
                 // Nullable-array normalization needs a resolvable branch before variant references are rebound.
                 options[arrayIndex] = propertySchema;
-
-                if (arrayOption.Description is { Length: > 0 } description)
-                    propertySchema.Description = description;
+                propertySchema.KeepReferenceAnnotations(arrayOption);
             }
         }
 

@@ -219,7 +219,13 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
                     continue;
 
                 if (needsDescription)
+                {
                     concreteProp.Description = description;
+
+                    // the replacement reference keeps the xml summary next to its $ref, which would hide the override.
+                    if (localSchema!.Properties?[propName] is OpenApiSchemaReference localizedRef)
+                        localizedRef.Description = description;
+                }
 
                 if (needsDefault && concreteProp.Default is null)
                     concreteProp.Default = defaultAttr.ToJsonNode(SerializerOptions);

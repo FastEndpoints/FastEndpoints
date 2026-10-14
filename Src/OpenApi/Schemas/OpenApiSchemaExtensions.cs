@@ -146,7 +146,7 @@ static partial class OperationSchemaHelpers
                         return null;
 
                     var variant = generation.GetOrAddOperationSchemaVariant(refId, operationKey, schemaKey, cloned);
-                    replace(new OpenApiSchemaReference(variant.RefId));
+                    replace(schemaRef.RetargetTo(variant.RefId));
 
                     return variant.Schema;
                 }
@@ -348,4 +348,37 @@ static class OpenApiSchemaReferenceExtensions
 {
     internal static string? GetReferenceId(this OpenApiSchemaReference schemaRef)
         => schemaRef.Reference.Id ?? schemaRef.Id;
+
+    /// <summary>
+    /// a reference to <paramref name="refId" /> that keeps the description and examples written next to <paramref name="schemaRef" />.
+    /// a property's xml summary and example live there, not on the shared component.
+    /// </summary>
+    internal static OpenApiSchemaReference RetargetTo(this OpenApiSchemaReference schemaRef, string refId)
+        => new(refId)
+        {
+            Description = schemaRef.Reference.Description,
+            Examples = schemaRef.Reference.Examples?.Select(e => e?.DeepClone()!).ToList()
+        };
+
+    /// <summary>
+    /// copies the description and example a property keeps next to its <c>$ref</c> onto <paramref name="concrete" />,
+    /// a clone of the referenced component that takes the reference's place.
+    /// </summary>
+    internal static void KeepReferenceAnnotations(this OpenApiSchema concrete, IOpenApiSchema? source)
+    {
+        if (source is not OpenApiSchemaReference { Reference: var annotations })
+            return;
+
+        if (annotations.Description is { Length: > 0 } description)
+            concrete.Description = description;
+
+        if (annotations.Examples is [var example, ..])
+        {
+            concrete.Example = example?.DeepClone();
+
+            // A null Example means absent; the examples list can represent an explicit JSON null.
+            if (example is null)
+                concrete.Examples = annotations.Examples.Select(e => e?.DeepClone()!).ToList();
+        }
+    }
 }

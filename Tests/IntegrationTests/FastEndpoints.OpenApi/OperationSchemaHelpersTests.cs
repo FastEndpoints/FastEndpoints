@@ -19,6 +19,66 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
         _jsonSerializerOptions = app.Services.GetRequiredService<IOptions<JsonSerializerOptions>>().Value;
     }
 
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void retargeted_references_preserve_null_examples_and_clone_values(bool nullFirst)
+    {
+        var example = new JsonObject { ["city"] = "Berlin" };
+        var source = new OpenApiSchemaReference("Original")
+        {
+            Description = "Property summary",
+            Examples = nullFirst ? [null!, example] : [example, null!]
+        };
+
+        var retargeted = source.RetargetTo("Variant");
+
+        retargeted.GetReferenceId().ShouldBe("Variant");
+        retargeted.Reference.Description.ShouldBe("Property summary");
+        retargeted.Reference.Examples.ShouldNotBeSameAs(source.Reference.Examples);
+        retargeted.Reference.Examples!.Count.ShouldBe(2);
+        retargeted.Reference.Examples[nullFirst ? 0 : 1].ShouldBeNull();
+        var cloned = retargeted.Reference.Examples[nullFirst ? 1 : 0];
+        cloned.ShouldNotBeSameAs(example);
+        cloned["city"] = "Paris";
+        example["city"]!.GetValue<string>().ShouldBe("Berlin");
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void concrete_reference_annotations_preserve_null_examples(bool nullExample)
+    {
+        var source = new OpenApiSchemaReference("Original")
+        {
+            Description = "Property summary",
+            Examples = [nullExample ? null! : new JsonObject { ["city"] = "Berlin" }]
+        };
+        var concrete = new OpenApiSchema { Example = JsonValue.Create("component example") };
+
+        concrete.KeepReferenceAnnotations(source);
+
+        concrete.Description.ShouldBe("Property summary");
+        if (nullExample)
+        {
+            concrete.Example.ShouldBeNull();
+            concrete.Examples.ShouldNotBeSameAs(source.Reference.Examples);
+            concrete.Examples!.Count.ShouldBe(1);
+            concrete.Examples[0].ShouldBeNull();
+            using var writer = new StringWriter();
+            concrete.SerializeAsV31(new OpenApiJsonWriter(writer));
+            JsonNode.Parse(writer.ToString())!["examples"]!.ToJsonString().ShouldBe("[null]");
+        }
+        else
+        {
+            concrete.Example.ShouldNotBeNull();
+            concrete.Example.ShouldNotBeSameAs(source.Reference.Examples![0]);
+            concrete.Example["city"] = "Paris";
+            source.Reference.Examples[0]["city"]!.GetValue<string>().ShouldBe("Berlin");
+        }
+    }
+
     [Fact]
     public void schema_visitor_materializes_nested_descriptions_without_following_references()
     {

@@ -9070,10 +9070,7 @@
         "items": {
           "type": "string",
           "format": "date-time"
-        },
-        "example": [
-          "2020-10-10"
-        ]
+        }
       },
       "SystemCollectionsGenericIEnumerableOfSystemGuid": {
         "type": "array",
@@ -9464,6 +9461,11 @@
             "$ref": "#/components/schemas/SystemCollectionsGenericListOfSystemGuid"
           },
           "dates": {
+            "examples": [
+              [
+                "2020-10-10"
+              ]
+            ],
             "$ref": "#/components/schemas/SystemCollectionsGenericICollectionOfSystemDateTime"
           },
           "persons": {
@@ -9843,6 +9845,11 @@
             "$ref": "#/components/schemas/SystemCollectionsGenericListOfSystemGuid"
           },
           "dates": {
+            "examples": [
+              [
+                "2020-10-10"
+              ]
+            ],
             "$ref": "#/components/schemas/SystemCollectionsGenericICollectionOfSystemDateTime"
           },
           "steven": {

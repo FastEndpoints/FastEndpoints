@@ -109,6 +109,16 @@ public override void Configure()
 
 ## Fixes 🪲
 
+<details><summary>Preserve XML property examples on referenced OpenAPI schemas</summary>
+
+`FastEndpoints.OpenApi` now keeps each DTO property's XML `<example>` alongside its `$ref` (as `examples`), including date, time, enum, object, and collection properties. Shared component schemas no longer take the example of the first property that uses them. Request properties whose schemas an endpoint's validator copies per operation now keep their XML summary and example as well.
+
+Reference examples supplied by custom transformers may include JSON null without causing document generation to fail. Explicit null examples are preserved when a nullable collection reference is converted to an inline schema.
+
+Exported `.http` request bodies also use each property's reference-local example before shared component examples or defaults, including explicit JSON null examples.
+
+</details>
+
 <details><summary>Read XML documentation in single-file apps</summary>
 
 `FastEndpoints.OpenApi` now finds the XML documentation of a single-file app. Its bundled assemblies have no location on disk, so every summary, remark, and example was missing from the document. The XML files are now read from the app directory, where publishing places them.

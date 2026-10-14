@@ -109,6 +109,12 @@ public override void Configure()
 
 ## Fixes 🪲
 
+<details><summary>Preserve OpenAPI minimum lengths when combining validation rules</summary>
+
+`NotEmpty().MaximumLength(50)` now documents `minLength: 1` instead of `0`. Combining `NotEmpty()` with minimum, bounded, or exact length rules preserves the stricter minimum regardless of rule order. The same minimum composition applies to array schemas through `minItems`. Runtime validation and maximum-bound handling are unchanged.
+
+</details>
+
 <details><summary>Honor endpoint request descriptions that match a referenced type's summary</summary>
 
 Explicit request property descriptions configured with `Summary()` now override reference-local XML summaries even when the configured text matches the shared type's summary. Shared schemas and other endpoints retain their descriptions, and unchanged descriptions continue to reuse schemas.

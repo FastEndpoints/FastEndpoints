@@ -115,6 +115,8 @@ public override void Configure()
 
 Reference examples supplied by custom transformers may include JSON null without causing document generation to fail. Explicit null examples are preserved when a nullable collection reference is converted to an inline schema.
 
+Exported `.http` request bodies also use each property's reference-local example before shared component examples or defaults, including explicit JSON null examples.
+
 </details>
 
 <details><summary>Read XML documentation in single-file apps</summary>

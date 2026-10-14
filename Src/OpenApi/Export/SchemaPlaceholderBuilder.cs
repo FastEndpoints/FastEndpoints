@@ -15,6 +15,10 @@ static class SchemaPlaceholderBuilder
     // only a schema that recurses into itself is short-circuited.
     internal static JsonNode? Build(IOpenApiSchema schema, HashSet<IOpenApiSchema> seen, IDictionary<string, IOpenApiSchema>? components)
     {
+        // Reference-local examples belong to this property, not its shared component.
+        if (schema is OpenApiSchemaReference { Reference.Examples: [var referenceExample, ..] })
+            return referenceExample?.DeepClone();
+
         var resolved = schema.ResolveSchema(components);
 
         if (resolved is null)
@@ -28,6 +32,9 @@ static class SchemaPlaceholderBuilder
             // prefer document-authored sample data over type placeholders (media-type examples are handled by the exporter)
             if (resolved.Example is not null)
                 return resolved.Example.DeepClone();
+
+            if (resolved.Examples is [var example, ..])
+                return example?.DeepClone();
 
             if (resolved.Default is not null)
                 return resolved.Default.DeepClone();

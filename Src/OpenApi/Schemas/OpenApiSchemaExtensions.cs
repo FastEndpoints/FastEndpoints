@@ -249,19 +249,15 @@ static partial class OperationSchemaHelpers
         => CloneDictionary(sets, static set => new HashSet<string>(set, StringComparer.Ordinal));
 
     static Dictionary<string, IOpenApiExtension>? CloneExtensionsDictionary(IDictionary<string, IOpenApiExtension>? extensions)
-    {
-        if (extensions is null)
-            return null;
-
-        if (extensions.Count > 0)
-        {
-            throw new NotSupportedException(
-                "OpenApiSchema extensions cannot be safely cloned without sharing mutable extension instances. " +
-                "Update the schema clone logic before using operation-local schema mutations with schema extensions.");
-        }
-
-        return new(StringComparer.Ordinal);
-    }
+        => CloneDictionary(
+            extensions,
+            static IOpenApiExtension (extension) => extension switch
+            {
+                JsonNodeExtension { Node: var node } => new JsonNodeExtension(node.DeepClone()),
+                _ => throw new NotSupportedException(
+                         $"OpenApiSchema extension type '{extension.GetType().FullName}' is not supported for cloning. " +
+                         "Update the schema clone logic before using operation-local schema mutations with this extension type.")
+            });
 
     static Dictionary<string, object>? CloneMetadataDictionary(string memberName, IDictionary<string, object>? metadata)
         => CloneDictionary(metadata, value => CloneSchemaMemberValue(memberName, value) ?? new object());
@@ -361,7 +357,7 @@ static class OpenApiSchemaReferenceExtensions
         => new(refId)
         {
             Description = schemaRef.Reference.Description,
-            Examples = schemaRef.Reference.Examples?.Select(e => e.DeepClone()).ToList()
+            Examples = schemaRef.Reference.Examples?.Select(e => e?.DeepClone()!).ToList()
         };
 
     /// <summary>
@@ -377,6 +373,12 @@ static class OpenApiSchemaReferenceExtensions
             concrete.Description = description;
 
         if (annotations.Examples is [var example, ..])
-            concrete.Example = example.DeepClone();
+        {
+            concrete.Example = example?.DeepClone();
+
+            // A null Example means absent; the examples list can represent an explicit JSON null.
+            if (example is null)
+                concrete.Examples = annotations.Examples.Select(e => e?.DeepClone()!).ToList();
+        }
     }
 }

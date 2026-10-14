@@ -113,6 +113,20 @@ public override void Configure()
 
 `FastEndpoints.OpenApi` now keeps each DTO property's XML `<example>` alongside its `$ref` (as `examples`), including date, time, enum, object, and collection properties. Shared component schemas no longer take the example of the first property that uses them. Request properties whose schemas an endpoint's validator copies per operation now keep their XML summary and example as well.
 
+Reference examples supplied by custom transformers may include JSON null without causing document generation to fail. Explicit null examples are preserved when a nullable collection reference is converted to an inline schema.
+
+</details>
+
+<details><summary>Read XML documentation in single-file apps</summary>
+
+`FastEndpoints.OpenApi` now finds the XML documentation of a single-file app. Its bundled assemblies have no location on disk, so every summary, remark, and example was missing from the document. The XML files are now read from the app directory, where publishing places them.
+
+</details>
+
+<details><summary>Preserve OpenAPI minimum lengths when combining validation rules</summary>
+
+`NotEmpty().MaximumLength(50)` now documents `minLength: 1` instead of `0`. Combining `NotEmpty()` with minimum, bounded, or exact length rules preserves the stricter minimum regardless of rule order. The same minimum composition applies to array schemas through `minItems`. Runtime validation and maximum-bound handling are unchanged.
+
 </details>
 
 <details><summary>Honor endpoint request descriptions that match a referenced type's summary</summary>
@@ -136,6 +150,12 @@ Rules such as `RuleForEach(x => x.Tags).NotEmpty().MaximumLength(20)` now constr
 <details><summary>Nullable collection properties keep their XML summaries in OpenAPI documents</summary>
 
 A nullable collection property such as `List<string>?` lost its XML summary in the generated OpenAPI document. Its description now appears alongside the `["null", "array"]` schema, the same as for non-nullable collections.
+
+</details>
+
+<details><summary>Schema extensions no longer fail OpenAPI generation for nullable references</summary>
+
+A schema transformer that added an extension such as `x-enumDescriptions` to a component made document generation throw `NotSupportedException` when a nullable property referenced that component (for example `Status?`). Extensions are now copied with the schema.
 
 </details>
 

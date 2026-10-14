@@ -112,6 +112,37 @@ public class ValidationSchemaTransformerTests : DefaultPropertyNameResolverTestB
     }
 
     [Fact]
+    public void not_empty_before_maximum_length_publishes_min_length_through_full_transformer()
+    {
+        var schema = CreateTagNameSchema();
+
+        ApplyValidatorToSchema(schema, new NotEmptyMaximumLengthValidator());
+
+        GetPropertySchema(schema, "name").MinLength.ShouldBe(1);
+        GetPropertySchema(schema, "name").MaxLength.ShouldBe(50);
+    }
+
+    [Fact]
+    public void maximum_length_before_not_empty_publishes_min_length_through_full_transformer()
+    {
+        var schema = CreateTagNameSchema();
+
+        ApplyValidatorToSchema(schema, new MaximumLengthNotEmptyValidator());
+
+        GetPropertySchema(schema, "name").MinLength.ShouldBe(1);
+        GetPropertySchema(schema, "name").MaxLength.ShouldBe(50);
+    }
+
+    static OpenApiSchema CreateTagNameSchema()
+        => new()
+        {
+            Properties = new Dictionary<string, IOpenApiSchema>
+            {
+                ["name"] = new OpenApiSchema { Type = JsonSchemaType.String }
+            }
+        };
+
+    [Fact]
     public void outer_when_does_not_make_nullable_collection_unconditionally_required_or_non_empty()
     {
         var schema = CreateConditionalRulesSchema();
@@ -1374,6 +1405,24 @@ sealed class TagItemsRequest
             });
             Include<SharedIncludeLeafValidator>(_ => throw new InvalidOperationException("Unavailable included validator"));
         }
+    }
+
+    sealed class NotEmptyMaximumLengthValidator : Validator<TagNameRequest>
+    {
+        public NotEmptyMaximumLengthValidator()
+            => RuleFor(x => x.Name).NotEmpty().MaximumLength(50);
+    }
+
+    sealed class MaximumLengthNotEmptyValidator : Validator<TagNameRequest>
+    {
+        public MaximumLengthNotEmptyValidator()
+            => RuleFor(x => x.Name).MaximumLength(50).NotEmpty();
+    }
+
+    sealed class TagNameRequest
+    {
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = null!;
     }
 
     sealed class PrefixNamingPolicy(string prefix) : JsonNamingPolicy

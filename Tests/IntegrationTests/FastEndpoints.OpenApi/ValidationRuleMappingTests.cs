@@ -137,231 +137,187 @@ public class ValidationRuleMappingTests : DefaultPropertyNameResolverTestBase
         propertySchema.MaxLength.ShouldBeNull();
     }
 
-    [Fact]
-    public void not_empty_after_maximum_length_preserves_not_empty_min_length()
+    [Theory]
+    [InlineData(JsonSchemaType.String, "MaximumLength", true, 1, 50)]
+    [InlineData(JsonSchemaType.String, "MaximumLength", false, 1, 50)]
+    [InlineData(JsonSchemaType.String, "MinimumLength", true, 4, null)]
+    [InlineData(JsonSchemaType.String, "MinimumLength", false, 4, null)]
+    [InlineData(JsonSchemaType.String, "Length", true, 3, 10)]
+    [InlineData(JsonSchemaType.String, "Length", false, 3, 10)]
+    [InlineData(JsonSchemaType.String, "ExactLength", true, 7, 7)]
+    [InlineData(JsonSchemaType.String, "ExactLength", false, 7, 7)]
+    [InlineData(JsonSchemaType.Array, "MaximumLength", true, 1, 50)]
+    [InlineData(JsonSchemaType.Array, "MaximumLength", false, 1, 50)]
+    [InlineData(JsonSchemaType.Array, "MinimumLength", true, 4, null)]
+    [InlineData(JsonSchemaType.Array, "MinimumLength", false, 4, null)]
+    [InlineData(JsonSchemaType.Array, "Length", true, 3, 10)]
+    [InlineData(JsonSchemaType.Array, "Length", false, 3, 10)]
+    [InlineData(JsonSchemaType.Array, "ExactLength", true, 7, 7)]
+    [InlineData(JsonSchemaType.Array, "ExactLength", false, 7, 7)]
+    public void not_empty_and_length_rules_compose_in_both_orders(JsonSchemaType schemaType,
+                                                                string validatorName,
+                                                                bool notEmptyFirst,
+                                                                int expectedMinimum,
+                                                                int? expectedMaximum)
     {
         var rules = GetDefaultRules();
-        var propertySchema = new OpenApiSchema { Type = JsonSchemaType.String };
-        var schema = CreateParentSchema("name", propertySchema);
-        var notEmptyRule = rules.Single(r => r.Matches(new StubNotEmptyValidator()) && MutatesNotEmptyConstraint(r, JsonSchemaType.String));
-        var lengthValidator = CreateValidator<ILengthValidator>(typeof(MaximumLengthValidator<>), 50);
+        var propertySchema = new OpenApiSchema { Type = schemaType };
+        var schema = CreateParentSchema("value", propertySchema);
+        var notEmptyValidator = new StubNotEmptyValidator();
+        var notEmptyRule = rules.Single(r => r.Matches(notEmptyValidator) && MutatesNotEmptyConstraint(r, schemaType));
+        var lengthValidator = CreateLengthValidator(validatorName);
         var lengthRule = rules.Single(r => r.Matches(lengthValidator));
 
-        notEmptyRule.Apply(new(schema, "name", new StubNotEmptyValidator(), false));
-        lengthRule.Apply(new(schema, "name", lengthValidator, false));
+        if (notEmptyFirst)
+        {
+            notEmptyRule.Apply(new(schema, "value", notEmptyValidator, false));
+            lengthRule.Apply(new(schema, "value", lengthValidator, false));
+        }
+        else
+        {
+            lengthRule.Apply(new(schema, "value", lengthValidator, false));
+            notEmptyRule.Apply(new(schema, "value", notEmptyValidator, false));
+        }
 
-        propertySchema.MinLength.ShouldBe(1);
-        propertySchema.MaxLength.ShouldBe(50);
+        if (schemaType == JsonSchemaType.Array)
+        {
+            propertySchema.MinItems.ShouldBe(expectedMinimum);
+            propertySchema.MaxItems.ShouldBe(expectedMaximum);
+            propertySchema.MinLength.ShouldBeNull();
+            propertySchema.MaxLength.ShouldBeNull();
+        }
+        else
+        {
+            propertySchema.MinLength.ShouldBe(expectedMinimum);
+            propertySchema.MaxLength.ShouldBe(expectedMaximum);
+            propertySchema.MinItems.ShouldBeNull();
+            propertySchema.MaxItems.ShouldBeNull();
+        }
     }
 
-    [Fact]
-    public void maximum_length_after_not_empty_does_not_lower_min_length()
+    [Theory]
+    [InlineData(JsonSchemaType.String, "MaximumLength", 0, 50)]
+    [InlineData(JsonSchemaType.String, "MinimumLength", 4, null)]
+    [InlineData(JsonSchemaType.String, "Length", 3, 10)]
+    [InlineData(JsonSchemaType.String, "ExactLength", 7, 7)]
+    [InlineData(JsonSchemaType.Array, "MaximumLength", 0, 50)]
+    [InlineData(JsonSchemaType.Array, "MinimumLength", 4, null)]
+    [InlineData(JsonSchemaType.Array, "Length", 3, 10)]
+    [InlineData(JsonSchemaType.Array, "ExactLength", 7, 7)]
+    public void standalone_length_rules_publish_minimum_and_maximum(JsonSchemaType schemaType,
+                                                                   string validatorName,
+                                                                   int expectedMinimum,
+                                                                   int? expectedMaximum)
     {
         var rules = GetDefaultRules();
-        var propertySchema = new OpenApiSchema { Type = JsonSchemaType.String };
-        var schema = CreateParentSchema("name", propertySchema);
-        var lengthValidator = CreateValidator<ILengthValidator>(typeof(MaximumLengthValidator<>), 50);
-        var lengthRule = rules.Single(r => r.Matches(lengthValidator));
-        var notEmptyRule = rules.Single(r => r.Matches(new StubNotEmptyValidator()) && MutatesNotEmptyConstraint(r, JsonSchemaType.String));
-
-        lengthRule.Apply(new(schema, "name", lengthValidator, false));
-        notEmptyRule.Apply(new(schema, "name", new StubNotEmptyValidator(), false));
-
-        propertySchema.MinLength.ShouldBe(1);
-        propertySchema.MaxLength.ShouldBe(50);
-    }
-
-    [Fact]
-    public void bounded_length_after_not_empty_keeps_explicit_minimum()
-    {
-        var rules = GetDefaultRules();
-        var propertySchema = new OpenApiSchema { Type = JsonSchemaType.String };
-        var schema = CreateParentSchema("name", propertySchema);
-        var lengthValidator = CreateValidator<ILengthValidator>(typeof(LengthValidator<>), 3, 10);
-        var lengthRule = rules.Single(r => r.Matches(lengthValidator));
-        var notEmptyRule = rules.Single(r => r.Matches(new StubNotEmptyValidator()) && MutatesNotEmptyConstraint(r, JsonSchemaType.String));
-
-        lengthRule.Apply(new(schema, "name", lengthValidator, false));
-        notEmptyRule.Apply(new(schema, "name", new StubNotEmptyValidator(), false));
-
-        propertySchema.MinLength.ShouldBe(3);
-        propertySchema.MaxLength.ShouldBe(10);
-    }
-
-    [Fact]
-    public void exact_length_after_not_empty_keeps_exact_minimum()
-    {
-        var rules = GetDefaultRules();
-        var propertySchema = new OpenApiSchema { Type = JsonSchemaType.String };
-        var schema = CreateParentSchema("code", propertySchema);
-        var lengthValidator = CreateValidator<ILengthValidator>(typeof(ExactLengthValidator<>), 7);
-        var lengthRule = rules.Single(r => r.Matches(lengthValidator));
-        var notEmptyRule = rules.Single(r => r.Matches(new StubNotEmptyValidator()) && MutatesNotEmptyConstraint(r, JsonSchemaType.String));
-
-        lengthRule.Apply(new(schema, "code", lengthValidator, false));
-        notEmptyRule.Apply(new(schema, "code", new StubNotEmptyValidator(), false));
-
-        propertySchema.MinLength.ShouldBe(7);
-        propertySchema.MaxLength.ShouldBe(7);
-    }
-
-    [Fact]
-    public void minimum_length_only_after_not_empty_leaves_maximum_unset()
-    {
-        var rules = GetDefaultRules();
-        var propertySchema = new OpenApiSchema { Type = JsonSchemaType.String };
-        var schema = CreateParentSchema("name", propertySchema);
-        var lengthValidator = CreateValidator<ILengthValidator>(typeof(MinimumLengthValidator<>), 4);
-        var lengthRule = rules.Single(r => r.Matches(lengthValidator));
-        var notEmptyRule = rules.Single(r => r.Matches(new StubNotEmptyValidator()) && MutatesNotEmptyConstraint(r, JsonSchemaType.String));
-
-        lengthRule.Apply(new(schema, "name", lengthValidator, false));
-        notEmptyRule.Apply(new(schema, "name", new StubNotEmptyValidator(), false));
-
-        propertySchema.MinLength.ShouldBe(4);
-        propertySchema.MaxLength.ShouldBeNull();
-    }
-
-    [Fact]
-    public void standalone_minimum_length_without_not_empty_leaves_maximum_unset()
-    {
-        var rules = GetDefaultRules();
-        var propertySchema = new OpenApiSchema { Type = JsonSchemaType.String };
-        var schema = CreateParentSchema("name", propertySchema);
-        var lengthValidator = CreateValidator<ILengthValidator>(typeof(MinimumLengthValidator<>), 4);
+        var propertySchema = new OpenApiSchema { Type = schemaType };
+        var schema = CreateParentSchema("value", propertySchema);
+        var lengthValidator = CreateLengthValidator(validatorName);
         var lengthRule = rules.Single(r => r.Matches(lengthValidator));
 
-        lengthRule.Apply(new(schema, "name", lengthValidator, false));
+        lengthRule.Apply(new(schema, "value", lengthValidator, false));
 
-        propertySchema.MinLength.ShouldBe(4);
-        propertySchema.MaxLength.ShouldBeNull();
+        if (schemaType == JsonSchemaType.Array)
+        {
+            propertySchema.MinItems.ShouldBe(expectedMinimum);
+            propertySchema.MaxItems.ShouldBe(expectedMaximum);
+            propertySchema.MinLength.ShouldBeNull();
+            propertySchema.MaxLength.ShouldBeNull();
+        }
+        else
+        {
+            propertySchema.MinLength.ShouldBe(expectedMinimum);
+            propertySchema.MaxLength.ShouldBe(expectedMaximum);
+            propertySchema.MinItems.ShouldBeNull();
+            propertySchema.MaxItems.ShouldBeNull();
+        }
     }
 
-    [Fact]
-    public void not_empty_preserves_existing_stricter_min_length()
+    [Theory]
+    [InlineData(JsonSchemaType.String, "MaximumLength", 2, 2, 50)]
+    [InlineData(JsonSchemaType.String, "MaximumLength", 8, 8, 50)]
+    [InlineData(JsonSchemaType.String, "MinimumLength", 2, 4, null)]
+    [InlineData(JsonSchemaType.String, "MinimumLength", 8, 8, null)]
+    [InlineData(JsonSchemaType.String, "Length", 2, 3, 10)]
+    [InlineData(JsonSchemaType.String, "Length", 8, 8, 10)]
+    [InlineData(JsonSchemaType.String, "ExactLength", 2, 7, 7)]
+    [InlineData(JsonSchemaType.String, "ExactLength", 8, 8, 7)]
+    [InlineData(JsonSchemaType.Array, "MaximumLength", 2, 2, 50)]
+    [InlineData(JsonSchemaType.Array, "MaximumLength", 8, 8, 50)]
+    [InlineData(JsonSchemaType.Array, "MinimumLength", 2, 4, null)]
+    [InlineData(JsonSchemaType.Array, "MinimumLength", 8, 8, null)]
+    [InlineData(JsonSchemaType.Array, "Length", 2, 3, 10)]
+    [InlineData(JsonSchemaType.Array, "Length", 8, 8, 10)]
+    [InlineData(JsonSchemaType.Array, "ExactLength", 2, 7, 7)]
+    [InlineData(JsonSchemaType.Array, "ExactLength", 8, 8, 7)]
+    public void length_rules_only_raise_existing_minimums(JsonSchemaType schemaType,
+                                                         string validatorName,
+                                                         int existingMinimum,
+                                                         int expectedMinimum,
+                                                         int? expectedMaximum)
     {
         var rules = GetDefaultRules();
-        var propertySchema = new OpenApiSchema { Type = JsonSchemaType.String, MinLength = 5 };
-        var schema = CreateParentSchema("name", propertySchema);
-        var notEmptyRule = rules.Single(r => r.Matches(new StubNotEmptyValidator()) && MutatesNotEmptyConstraint(r, JsonSchemaType.String));
+        var propertySchema = new OpenApiSchema { Type = schemaType };
+        if (schemaType == JsonSchemaType.Array)
+            propertySchema.MinItems = existingMinimum;
+        else
+            propertySchema.MinLength = existingMinimum;
 
-        notEmptyRule.Apply(new(schema, "name", new StubNotEmptyValidator(), false));
-
-        propertySchema.MinLength.ShouldBe(5);
-    }
-
-    [Fact]
-    public void not_empty_after_maximum_length_preserves_not_empty_min_items()
-    {
-        var rules = GetDefaultRules();
-        var propertySchema = new OpenApiSchema { Type = JsonSchemaType.Array };
-        var schema = CreateParentSchema("tags", propertySchema);
-        var notEmptyRule = rules.Single(r => r.Matches(new StubNotEmptyValidator()) && MutatesNotEmptyConstraint(r, JsonSchemaType.Array));
-        var lengthValidator = CreateValidator<ILengthValidator>(typeof(MaximumLengthValidator<>), 10);
+        var schema = CreateParentSchema("value", propertySchema);
+        var lengthValidator = CreateLengthValidator(validatorName);
         var lengthRule = rules.Single(r => r.Matches(lengthValidator));
 
-        notEmptyRule.Apply(new(schema, "tags", new StubNotEmptyValidator(), false));
-        lengthRule.Apply(new(schema, "tags", lengthValidator, false));
+        lengthRule.Apply(new(schema, "value", lengthValidator, false));
 
-        propertySchema.MinItems.ShouldBe(1);
-        propertySchema.MaxItems.ShouldBe(10);
+        if (schemaType == JsonSchemaType.Array)
+        {
+            propertySchema.MinItems.ShouldBe(expectedMinimum);
+            propertySchema.MaxItems.ShouldBe(expectedMaximum);
+            propertySchema.MinLength.ShouldBeNull();
+            propertySchema.MaxLength.ShouldBeNull();
+        }
+        else
+        {
+            propertySchema.MinLength.ShouldBe(expectedMinimum);
+            propertySchema.MaxLength.ShouldBe(expectedMaximum);
+            propertySchema.MinItems.ShouldBeNull();
+            propertySchema.MaxItems.ShouldBeNull();
+        }
     }
 
-    [Fact]
-    public void maximum_length_after_not_empty_does_not_lower_min_items()
+    [Theory]
+    [InlineData(JsonSchemaType.String)]
+    [InlineData(JsonSchemaType.Array)]
+    public void not_empty_preserves_existing_stricter_minimum(JsonSchemaType schemaType)
     {
         var rules = GetDefaultRules();
-        var propertySchema = new OpenApiSchema { Type = JsonSchemaType.Array };
-        var schema = CreateParentSchema("tags", propertySchema);
-        var lengthValidator = CreateValidator<ILengthValidator>(typeof(MaximumLengthValidator<>), 10);
-        var lengthRule = rules.Single(r => r.Matches(lengthValidator));
-        var notEmptyRule = rules.Single(r => r.Matches(new StubNotEmptyValidator()) && MutatesNotEmptyConstraint(r, JsonSchemaType.Array));
+        var propertySchema = new OpenApiSchema { Type = schemaType };
+        if (schemaType == JsonSchemaType.Array)
+            propertySchema.MinItems = 5;
+        else
+            propertySchema.MinLength = 5;
 
-        lengthRule.Apply(new(schema, "tags", lengthValidator, false));
-        notEmptyRule.Apply(new(schema, "tags", new StubNotEmptyValidator(), false));
+        var schema = CreateParentSchema("value", propertySchema);
+        var validator = new StubNotEmptyValidator();
+        var notEmptyRule = rules.Single(r => r.Matches(validator) && MutatesNotEmptyConstraint(r, schemaType));
 
-        propertySchema.MinItems.ShouldBe(1);
-        propertySchema.MaxItems.ShouldBe(10);
+        notEmptyRule.Apply(new(schema, "value", validator, false));
+
+        if (schemaType == JsonSchemaType.Array)
+            propertySchema.MinItems.ShouldBe(5);
+        else
+            propertySchema.MinLength.ShouldBe(5);
     }
 
-    [Fact]
-    public void bounded_length_after_not_empty_keeps_explicit_min_items()
-    {
-        var rules = GetDefaultRules();
-        var propertySchema = new OpenApiSchema { Type = JsonSchemaType.Array };
-        var schema = CreateParentSchema("tags", propertySchema);
-        var lengthValidator = CreateValidator<ILengthValidator>(typeof(LengthValidator<>), 3, 10);
-        var lengthRule = rules.Single(r => r.Matches(lengthValidator));
-        var notEmptyRule = rules.Single(r => r.Matches(new StubNotEmptyValidator()) && MutatesNotEmptyConstraint(r, JsonSchemaType.Array));
-
-        lengthRule.Apply(new(schema, "tags", lengthValidator, false));
-        notEmptyRule.Apply(new(schema, "tags", new StubNotEmptyValidator(), false));
-
-        propertySchema.MinItems.ShouldBe(3);
-        propertySchema.MaxItems.ShouldBe(10);
-    }
-
-    [Fact]
-    public void exact_length_after_not_empty_keeps_exact_min_items()
-    {
-        var rules = GetDefaultRules();
-        var propertySchema = new OpenApiSchema { Type = JsonSchemaType.Array };
-        var schema = CreateParentSchema("tags", propertySchema);
-        var lengthValidator = CreateValidator<ILengthValidator>(typeof(ExactLengthValidator<>), 7);
-        var lengthRule = rules.Single(r => r.Matches(lengthValidator));
-        var notEmptyRule = rules.Single(r => r.Matches(new StubNotEmptyValidator()) && MutatesNotEmptyConstraint(r, JsonSchemaType.Array));
-
-        lengthRule.Apply(new(schema, "tags", lengthValidator, false));
-        notEmptyRule.Apply(new(schema, "tags", new StubNotEmptyValidator(), false));
-
-        propertySchema.MinItems.ShouldBe(7);
-        propertySchema.MaxItems.ShouldBe(7);
-    }
-
-    [Fact]
-    public void minimum_length_only_after_not_empty_leaves_max_items_unset()
-    {
-        var rules = GetDefaultRules();
-        var propertySchema = new OpenApiSchema { Type = JsonSchemaType.Array };
-        var schema = CreateParentSchema("tags", propertySchema);
-        var lengthValidator = CreateValidator<ILengthValidator>(typeof(MinimumLengthValidator<>), 4);
-        var lengthRule = rules.Single(r => r.Matches(lengthValidator));
-        var notEmptyRule = rules.Single(r => r.Matches(new StubNotEmptyValidator()) && MutatesNotEmptyConstraint(r, JsonSchemaType.Array));
-
-        lengthRule.Apply(new(schema, "tags", lengthValidator, false));
-        notEmptyRule.Apply(new(schema, "tags", new StubNotEmptyValidator(), false));
-
-        propertySchema.MinItems.ShouldBe(4);
-        propertySchema.MaxItems.ShouldBeNull();
-    }
-
-    [Fact]
-    public void standalone_minimum_length_without_not_empty_leaves_max_items_unset()
-    {
-        var rules = GetDefaultRules();
-        var propertySchema = new OpenApiSchema { Type = JsonSchemaType.Array };
-        var schema = CreateParentSchema("tags", propertySchema);
-        var lengthValidator = CreateValidator<ILengthValidator>(typeof(MinimumLengthValidator<>), 4);
-        var lengthRule = rules.Single(r => r.Matches(lengthValidator));
-
-        lengthRule.Apply(new(schema, "tags", lengthValidator, false));
-
-        propertySchema.MinItems.ShouldBe(4);
-        propertySchema.MaxItems.ShouldBeNull();
-    }
-
-    [Fact]
-    public void not_empty_preserves_existing_stricter_min_items()
-    {
-        var rules = GetDefaultRules();
-        var propertySchema = new OpenApiSchema { Type = JsonSchemaType.Array, MinItems = 5 };
-        var schema = CreateParentSchema("tags", propertySchema);
-        var notEmptyRule = rules.Single(r => r.Matches(new StubNotEmptyValidator()) && MutatesNotEmptyConstraint(r, JsonSchemaType.Array));
-
-        notEmptyRule.Apply(new(schema, "tags", new StubNotEmptyValidator(), false));
-
-        propertySchema.MinItems.ShouldBe(5);
-    }
+    static ILengthValidator CreateLengthValidator(string validatorName)
+        => validatorName switch
+        {
+            "MaximumLength" => CreateValidator<ILengthValidator>(typeof(MaximumLengthValidator<>), 50),
+            "MinimumLength" => CreateValidator<ILengthValidator>(typeof(MinimumLengthValidator<>), 4),
+            "Length" => CreateValidator<ILengthValidator>(typeof(LengthValidator<>), 3, 10),
+            "ExactLength" => CreateValidator<ILengthValidator>(typeof(ExactLengthValidator<>), 7),
+            _ => throw new ArgumentOutOfRangeException(nameof(validatorName), validatorName, null)
+        };
 
     [Fact]
     public void pattern_rule_does_not_apply_to_non_string_schema()

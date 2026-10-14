@@ -115,6 +115,12 @@ public override void Configure()
 
 </details>
 
+<details><summary>Preserve OpenAPI minimum lengths when combining validation rules</summary>
+
+`NotEmpty().MaximumLength(50)` now documents `minLength: 1` instead of `0`. Combining `NotEmpty()` with minimum, bounded, or exact length rules preserves the stricter minimum regardless of rule order. The same minimum composition applies to array schemas through `minItems`. Runtime validation and maximum-bound handling are unchanged.
+
+</details>
+
 <details><summary>Honor endpoint request descriptions that match a referenced type's summary</summary>
 
 Explicit request property descriptions configured with `Summary()` now override reference-local XML summaries even when the configured text matches the shared type's summary. Shared schemas and other endpoints retain their descriptions, and unchanged descriptions continue to reuse schemas.
@@ -136,6 +142,12 @@ Rules such as `RuleForEach(x => x.Tags).NotEmpty().MaximumLength(20)` now constr
 <details><summary>Nullable collection properties keep their XML summaries in OpenAPI documents</summary>
 
 A nullable collection property such as `List<string>?` lost its XML summary in the generated OpenAPI document. Its description now appears alongside the `["null", "array"]` schema, the same as for non-nullable collections.
+
+</details>
+
+<details><summary>Schema extensions no longer fail OpenAPI generation for nullable references</summary>
+
+A schema transformer that added an extension such as `x-enumDescriptions` to a component made document generation throw `NotSupportedException` when a nullable property referenced that component (for example `Status?`). Extensions are now copied with the schema.
 
 </details>
 

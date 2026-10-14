@@ -78,7 +78,6 @@ static class SchemaSignatureBuilder
                 AppendValue(builder, "unevaluatedProperties", s.UnevaluatedProperties);
                 AppendValue(builder, "deprecated", s.Deprecated);
                 AppendJsonNode(builder, "default", s.Default);
-                AppendJsonNode(builder, "example", s.Example);
                 AppendJsonNodeList(builder, "examples", s.Examples);
                 AppendJsonNodeList(builder, "enum", s.Enum);
                 AppendStringSet(builder, "required", s.Required);

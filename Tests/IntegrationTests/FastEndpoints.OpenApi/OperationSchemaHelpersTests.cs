@@ -53,30 +53,53 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
         var source = new OpenApiSchemaReference("Original")
         {
             Description = "Property summary",
-            Examples = [nullExample ? null! : new JsonObject { ["city"] = "Berlin" }]
+            Examples = [nullExample ? null! : new JsonObject { ["city"] = "Berlin" }, new JsonObject { ["city"] = "Rome" }]
         };
-        var concrete = new OpenApiSchema { Example = JsonValue.Create("component example") };
+        var concrete = new OpenApiSchema { Examples = [JsonValue.Create("component example")!] };
 
         concrete.KeepReferenceAnnotations(source);
 
         concrete.Description.ShouldBe("Property summary");
+        concrete.Examples.ShouldNotBeSameAs(source.Reference.Examples);
+        concrete.Examples!.Count.ShouldBe(2);
+        using var writer = new StringWriter();
+        concrete.SerializeAsV31(new OpenApiJsonWriter(writer));
+        var json = JsonNode.Parse(writer.ToString())!;
+        json.AsObject().ContainsKey("example").ShouldBeFalse();
+        json["examples"]!.ToJsonString().ShouldBe(nullExample
+                                                    ? """[null,{"city":"Rome"}]"""
+                                                    : """[{"city":"Berlin"},{"city":"Rome"}]""");
+
         if (nullExample)
-        {
-            concrete.Example.ShouldBeNull();
-            concrete.Examples.ShouldNotBeSameAs(source.Reference.Examples);
-            concrete.Examples!.Count.ShouldBe(1);
             concrete.Examples[0].ShouldBeNull();
-            using var writer = new StringWriter();
-            concrete.SerializeAsV31(new OpenApiJsonWriter(writer));
-            JsonNode.Parse(writer.ToString())!["examples"]!.ToJsonString().ShouldBe("[null]");
-        }
         else
         {
-            concrete.Example.ShouldNotBeNull();
-            concrete.Example.ShouldNotBeSameAs(source.Reference.Examples![0]);
-            concrete.Example["city"] = "Paris";
-            source.Reference.Examples[0]["city"]!.GetValue<string>().ShouldBe("Berlin");
+            concrete.Examples[0].ShouldNotBeSameAs(source.Reference.Examples![0]);
+            concrete.Examples[0]["city"] = "Paris";
+            source.Reference.Examples![0]["city"]!.GetValue<string>().ShouldBe("Berlin");
         }
+
+        concrete.Examples[1].ShouldNotBeSameAs(source.Reference.Examples![1]);
+        concrete.Examples[1]["city"] = "Milan";
+        source.Reference.Examples[1]["city"]!.GetValue<string>().ShouldBe("Rome");
+    }
+
+    [Fact]
+    public void schema_examples_serialize_as_an_array_in_v31_and_as_a_single_example_in_v30()
+    {
+        var schema = new OpenApiSchema { Examples = [new JsonObject { ["city"] = "Berlin" }] };
+        using var v31Writer = new StringWriter();
+        schema.SerializeAsV31(new OpenApiJsonWriter(v31Writer));
+        var v31 = JsonNode.Parse(v31Writer.ToString())!;
+        v31.AsObject().ContainsKey("example").ShouldBeFalse();
+        v31["examples"]!.AsArray().Count.ShouldBe(1);
+        v31["examples"]![0]!["city"]!.GetValue<string>().ShouldBe("Berlin");
+
+        using var v30Writer = new StringWriter();
+        schema.SerializeAsV3(new OpenApiJsonWriter(v30Writer));
+        var v30 = JsonNode.Parse(v30Writer.ToString())!;
+        v30.AsObject().ContainsKey("examples").ShouldBeFalse();
+        v30["example"]!["city"]!.GetValue<string>().ShouldBe("Berlin");
     }
 
     [Fact]
@@ -284,7 +307,7 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
         {
             Type = JsonSchemaType.Object,
             Required = new HashSet<string> { "name" },
-            Example = new JsonObject { ["name"] = "original" },
+            Examples = [new JsonObject { ["name"] = "original" }],
             Properties = new Dictionary<string, IOpenApiSchema>
             {
                 ["name"] = new OpenApiSchema
@@ -305,16 +328,17 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
         clone.ShouldNotBeSameAs(schema);
         clone.Required!.ShouldNotBeSameAs(original.Required);
         clone.Properties!.ShouldNotBeSameAs(original.Properties);
-        clone.Example.ShouldNotBeSameAs(original.Example);
+        clone.Examples.ShouldNotBeSameAs(original.Examples);
+        clone.Examples![0].ShouldNotBeSameAs(original.Examples![0]);
 
         clone.Required!.Add("other");
-        ((JsonObject)clone.Example!)["name"] = "clone";
+        ((JsonObject)clone.Examples![0])["name"] = "clone";
         ((OpenApiSchema)clone.Properties!["name"]).Properties!.Remove("nested");
 
         original.Required.ShouldBe(["name"]);
         original.Properties!.Keys.ShouldBe(["name"]);
         ((OpenApiSchema)original.Properties!["name"]).Properties!.Keys.ShouldBe(["nested"]);
-        original.Example!["name"]!.GetValue<string>().ShouldBe("original");
+        original.Examples![0]["name"]!.GetValue<string>().ShouldBe("original");
     }
 
     [Fact]

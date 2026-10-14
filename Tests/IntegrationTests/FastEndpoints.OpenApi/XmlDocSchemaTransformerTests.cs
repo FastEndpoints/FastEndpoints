@@ -54,7 +54,7 @@ public class XmlDocSchemaTransformerTests
                 (properties[name]!["description"]?.GetValue<string>()).ShouldBe($"The {name} property.");
             }
             properties["name"]!["description"]!.GetValue<string>().ShouldBe("The person's name.");
-            properties["name"]!["example"]!.GetValue<string>().ShouldBe("Jane");
+            properties["name"]!["examples"]![0]!.GetValue<string>().ShouldBe("Jane");
         }
     }
 
@@ -125,7 +125,7 @@ public class XmlDocSchemaTransformerTests
 
             var time = properties["time"]!["oneOf"]!.AsArray().Single(o => o!["$ref"] is not null)!;
             time["examples"]!.ToJsonString().ShouldBe("[\"06:45:00\"]");
-            properties["previous"]!["example"]!.ToJsonString().ShouldBe("[{\"city\":\"Paris\"}]");
+            properties["previous"]!["examples"]![0]!.ToJsonString().ShouldBe("[{\"city\":\"Paris\"}]");
 
             foreach (var type in new[] { typeof(DateOnly), typeof(Status), typeof(Address) })
                 schemas[SchemaNameGenerator.GetReferenceId(type, true)!]!["example"].ShouldBeNull();
@@ -159,7 +159,10 @@ public class XmlDocSchemaTransformerTests
         var properties = document["components"]!["schemas"]!["TicketResponse"]!["properties"]!;
 
         foreach (var (name, example) in TicketExamples)
-            properties[name]!.ToJsonString().ShouldContain($"\"example\":{example}");
+        {
+            properties[name]!["examples"]![0]!.ToJsonString().ShouldBe(example);
+            properties[name]!.AsObject().ContainsKey("example").ShouldBeFalse();
+        }
     }
 
     static readonly (string Name, string Example)[] TicketExamples =

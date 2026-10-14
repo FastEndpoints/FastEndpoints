@@ -749,7 +749,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
         var responseSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewGenericXmlDocReviewResponse"]!;
 
         requestSchema["properties"]!["value"]!["description"]!.GetValue<string>().ShouldBe("wrapped value summary");
-        requestSchema["properties"]!["value"]!["example"]!.GetValue<string>().ShouldBe("wrapped example");
+        requestSchema["properties"]!["value"]!["examples"]![0]!.GetValue<string>().ShouldBe("wrapped example");
         responseSchema["description"]!.GetValue<string>().ShouldBe("generic review response summary");
         responseSchema["properties"]!["value"]!["description"]!.GetValue<string>().ShouldBe("wrapped value summary");
     }

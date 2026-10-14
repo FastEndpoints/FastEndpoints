@@ -332,6 +332,14 @@ Endpoints with multiple HTTP verbs and/or routes had their `AuthorizeAttribute[]
 
 ## Minor Breaking Changes ⚠️
 
+<details><summary>OpenAPI 3.1 schema examples now use <code>examples</code> arrays</summary>
+
+`FastEndpoints.OpenApi` now writes XML documentation and generated polymorphic schema examples as `examples: [value]` instead of singular `example: value` in OpenAPI 3.1 documents. Reference-local examples retain their full list, including explicit JSON nulls. Request/response media-type examples and parameter/header examples are unchanged. OpenAPI 3.0 output continues to write a single schema example from the first list entry.
+
+Update custom schema transformers to set `schema.Examples = [exampleNode]` and schema consumers to read the `examples` array. Schema deduplication and `.http` export now use `Examples`, not the obsolete `OpenApiSchema.Example`; `.http` export selects the first entry. Regenerate OpenAPI documents and clients, and update snapshots or tooling that expect singular schema `example` fields. The HTTP payload contract is unchanged.
+
+</details>
+
 <details><summary>OpenAPI request examples no longer create endpoint-specific schemas</summary>
 
 `FastEndpoints.OpenApi` now keeps `EndpointSummary.ExampleRequest` and `RequestExamples` at request-body media-type `example` / `examples` only, instead of also copying them to schemas and properties. Shared models and enums differing only in endpoint request examples reuse component schemas. Intentional XML/custom schema examples are preserved, and real schema differences remain distinct. The HTTP payload contract is unchanged.

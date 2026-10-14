@@ -32,7 +32,7 @@ public class PolymorphicOneOfTests
 
         oneOfRefs.ShouldBe(mappingRefs, ignoreOrder: true);
         schema["anyOf"].ShouldBeNull();
-        schema["example"]!["$type"]!.GetValue<string>().ShouldBe("cmd_null");
+        schema["examples"]![0]!["$type"]!.GetValue<string>().ShouldBe("cmd_null");
     }
 
     [Fact]

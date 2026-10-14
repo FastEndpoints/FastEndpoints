@@ -8388,18 +8388,22 @@
         "type": "object",
         "properties": {
           "userName": {
+            "examples": [
+              "example username"
+            ],
             "maxLength": 50,
             "minLength": 3,
             "type": "string",
             "description": "overriden username text",
-            "default": "admin",
-            "example": "example username"
+            "default": "admin"
           },
           "password": {
+            "examples": [
+              "example password"
+            ],
             "minLength": 3,
             "type": "string",
-            "description": "the admin password",
-            "example": "example password"
+            "description": "the admin password"
           }
         },
         "description": "the admin login request"
@@ -8408,9 +8412,11 @@
         "type": "object",
         "properties": {
           "jwtToken": {
+            "examples": [
+              "blahblahblah"
+            ],
             "type": "string",
-            "description": "the jwt token",
-            "example": "blahblahblah"
+            "description": "the jwt token"
           },
           "expiryDate": {
             "type": "string",
@@ -10668,12 +10674,14 @@
         "type": "object",
         "properties": {
           "value": {
+            "examples": [
+              "wrapped example"
+            ],
             "type": [
               "null",
               "string"
             ],
-            "description": "wrapped value summary",
-            "example": "wrapped example"
+            "description": "wrapped value summary"
           }
         }
       },
@@ -10681,12 +10689,14 @@
         "type": "object",
         "properties": {
           "value": {
+            "examples": [
+              "wrapped example"
+            ],
             "type": [
               "null",
               "string"
             ],
-            "description": "wrapped value summary",
-            "example": "wrapped example"
+            "description": "wrapped value summary"
           }
         },
         "description": "generic review response summary"

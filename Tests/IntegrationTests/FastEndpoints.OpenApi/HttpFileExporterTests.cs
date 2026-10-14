@@ -555,7 +555,7 @@ public class HttpFileExporterTests
     public void schema_example_used_when_media_has_no_example()
     {
         var schemas = LoginRequestSchemas();
-        ((OpenApiSchema)schemas["LoginRequest"]).Example = JsonNode.Parse("""{"userName":"schema","password":"ex"}""");
+        ((OpenApiSchema)schemas["LoginRequest"]).Examples = [JsonNode.Parse("""{"userName":"schema","password":"ex"}""")!];
 
         var document = CreateDocument(
             operationId: "SchemaExample",
@@ -612,7 +612,7 @@ public class HttpFileExporterTests
                         ["userName"] = new OpenApiSchema
                         {
                             Type = JsonSchemaType.String,
-                            Example = JsonValue.Create("from-example"),
+                            Examples = [JsonValue.Create("from-example")!, JsonValue.Create("later example")!],
                             Default = JsonValue.Create("from-default")
                         },
                         ["password"] = new OpenApiSchema { Type = JsonSchemaType.String }
@@ -666,7 +666,7 @@ public class HttpFileExporterTests
                     Type = JsonSchemaType.Object,
                     Properties = new Dictionary<string, IOpenApiSchema>
                     {
-                        ["zip"] = new OpenApiSchema { Type = JsonSchemaType.String, Example = JsonValue.Create("90210") }
+                        ["zip"] = new OpenApiSchema { Type = JsonSchemaType.String, Examples = [JsonValue.Create("90210")!] }
                     }
                 },
                 ["DualChildRequest"] = new OpenApiSchema
@@ -722,7 +722,7 @@ public class HttpFileExporterTests
                 ["Value"] = new OpenApiSchema
                 {
                     Type = type,
-                    Example = JsonNode.Parse(firstExample),
+                    Examples = [JsonNode.Parse(firstExample)!],
                     Default = JsonNode.Parse(firstExample)
                 }
             });
@@ -744,7 +744,7 @@ public class HttpFileExporterTests
         IOpenApiSchema property;
         if (reference)
         {
-            sample.Example = JsonValue.Create("component example");
+            sample.Examples = [JsonValue.Create("component example")!];
             property = new OpenApiSchemaReference("Value") { Examples = [null!, JsonValue.Create("later example")!] };
         }
         else

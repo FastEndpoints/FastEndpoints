@@ -87,7 +87,7 @@ static class DocumentSchemaHelpers
                     concrete.Description = propertySummary;
 
                 if (metadata.TryGetValue("x-ref-example", out var example) && example is JsonNode propertyExample)
-                    concrete.Example = propertyExample;
+                    concrete.Examples = [propertyExample];
             });
             schemas.TryAdd(refId, schema);
         }

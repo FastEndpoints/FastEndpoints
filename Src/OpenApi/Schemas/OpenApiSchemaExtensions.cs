@@ -372,13 +372,7 @@ static class OpenApiSchemaReferenceExtensions
         if (annotations.Description is { Length: > 0 } description)
             concrete.Description = description;
 
-        if (annotations.Examples is [var example, ..])
-        {
-            concrete.Example = example?.DeepClone();
-
-            // A null Example means absent; the examples list can represent an explicit JSON null.
-            if (example is null)
-                concrete.Examples = annotations.Examples.Select(e => e?.DeepClone()!).ToList();
-        }
+        if (annotations.Examples is { Count: > 0 })
+            concrete.Examples = annotations.Examples.Select(e => e?.DeepClone()!).ToList();
     }
 }

@@ -47,7 +47,7 @@ public class XmlDocValidatedRequestTests
                 foreach (var (name, expected) in new[] { ("day", "\"2026-10-06\""), ("status", "1"), ("home", "{\"city\":\"Berlin\"}"), ("codes", "[\"A1\"]") })
                 {
                     var property = properties[name]!;
-                    var example = property["examples"]?[0] ?? property["example"];
+                    var example = property["examples"]?[0];
                     (property["description"]?.GetValue<string>()).ShouldBe($"The {name} property.");
                     example.ShouldNotBeNull(name);
                     example.ToJsonString().ShouldBe(expected, name);

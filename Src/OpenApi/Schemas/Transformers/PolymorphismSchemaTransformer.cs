@@ -21,7 +21,7 @@ sealed class PolymorphismSchemaTransformer(DocumentOptions opts) : IOpenApiSchem
             return Task.CompletedTask;
 
         // generate example from first derived type if discriminator property name is set and no example exists
-        if (schema.Discriminator.PropertyName is not null && schema.Example is null)
+        if (schema.Discriminator.PropertyName is not null && schema.Examples is not { Count: > 0 })
         {
             var firstMapping = schema.Discriminator.Mapping.First();
 
@@ -31,7 +31,7 @@ sealed class PolymorphismSchemaTransformer(DocumentOptions opts) : IOpenApiSchem
                 {
                     [schema.Discriminator.PropertyName] = firstMapping.Key
                 };
-                schema.Example = exampleObj;
+                schema.Examples = [exampleObj];
             }
             catch
             {

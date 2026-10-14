@@ -30,9 +30,6 @@ static class SchemaPlaceholderBuilder
         try
         {
             // prefer document-authored sample data over type placeholders (media-type examples are handled by the exporter)
-            if (resolved.Example is not null)
-                return resolved.Example.DeepClone();
-
             if (resolved.Examples is [var example, ..])
                 return example?.DeepClone();
 

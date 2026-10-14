@@ -84,7 +84,7 @@ static partial class HttpFileExporter
 
         if (IsJsonContentType(contentType))
         {
-            // media-type example is authoritative (full replace); else schema Example/Default via builder; never emit literal null root
+            // media-type example is authoritative (full replace); else first schema example/default via builder; never emit literal null root
             var node = mediaType.Example?.DeepClone() ??
                        FirstNamedExample(mediaType.Examples) ??
                        (mediaType.Schema is null

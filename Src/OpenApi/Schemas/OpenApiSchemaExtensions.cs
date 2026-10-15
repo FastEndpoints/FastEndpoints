@@ -205,6 +205,7 @@ static partial class OperationSchemaHelpers
             OpenApiSchemaReference schemaRef => schemaRef,
             IOpenApiSchema schema => CloneNestedSchema(schema),
             IDictionary<string, IOpenApiSchema> schemaDictionary => CloneSchemaDictionary(schemaDictionary),
+            IDictionary<string, OpenApiSchemaReference> mappingDictionary => new Dictionary<string, OpenApiSchemaReference>(mappingDictionary, StringComparer.Ordinal),
             IDictionary<string, string> stringDictionary => new Dictionary<string, string>(stringDictionary, StringComparer.Ordinal),
             IDictionary<string, bool> boolDictionary => new Dictionary<string, bool>(boolDictionary, StringComparer.Ordinal),
             IDictionary<string, JsonNode> jsonNodeDictionary => CloneJsonNodeDictionary(jsonNodeDictionary),

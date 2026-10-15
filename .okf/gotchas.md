@@ -111,6 +111,10 @@ tags: [gotcha]
 
 - **OpenAPI nested group tags:** `FastEndpoints.OpenApi` writes every explicit `ITagsMetadata` name onto the operation after framework fallback tags are stripped. Root group, nested group, and endpoint `WithTags` values are all kept. `AutoTagPathSegmentIndex <= 0` and `DontAutoTag()` suppress only the route-derived tag. Emitted names are unique by ordinal spelling, so case variants stay distinct. `TagCase` and `TagStripSymbols` apply to automatic tags and `AutoTagOverride` only. Legacy `Src/Swagger` is unchanged. Regression coverage: `OperationTagTests` and `NestedGroupTagTests` in `Int.OpenApi`.
 
+- **OpenAPI polymorphic validation cloning:** `CloneSchemaMemberValue` copies discriminator `IDictionary<string, OpenApiSchemaReference>` mappings into independent ordinal dictionaries, retaining schema-reference values as elsewhere in the clone helpers. Do not mutate these shared reference objects in place. `PolymorphicValidationTests` in `Int.OpenApi` covers mapping isolation, case-sensitive keys, empty and constrained child validators, cross-endpoint constraint isolation, and repeated HTTP document generation.
+
+- **OpenAPI polymorphic validation with `UseOneOfForPolymorphism`:** a separate composition limitation remains after the mapping-clone fix for issue #1212. A constrained child validator can leave both the original and operation-local derived schema in `oneOf`, while the discriminator mapping points at the original. Do not treat successful document generation as proof that the union enforces the child constraints. The default `anyOf` regression in `PolymorphicValidationTests` checks constraint localization; the opt-in `oneOf` composition needs a separate fix.
+
 ## Sources
 - `Src/Library/Metadata.cs`
 - `Src/Library/Binder/BinderExtensions.cs`

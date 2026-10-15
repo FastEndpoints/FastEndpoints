@@ -169,6 +169,12 @@ public override void Configure()
 
 ## Fixes 🪲
 
+<details><summary>OpenAPI generation supports polymorphic properties with child validators</summary>
+
+Fixed OpenAPI document generation throwing a <code>NotSupportedException</code> when a JSON-polymorphic request property has a FluentValidation child validator. Discriminator mappings are preserved when schemas are copied for endpoint-specific validation.
+
+</details>
+
 <details><summary>Preserve XML property examples on referenced OpenAPI schemas</summary>
 
 XML property examples stay alongside `$ref` as `examples`, rather than leaking onto shared components. This covers date, time, enum, object, and collection properties, including operation-specific validator copies, which also retain XML summaries.

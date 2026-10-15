@@ -56,6 +56,9 @@ public sealed class CommandModeTests : IAsyncLifetime
 
         // IDE hosts can have a different base directory and target framework than the tests.
         proc.ArgumentList.Add(harnessPath);
+        // Let Kestrel allocate a port atomically, avoiding other apps and concurrent test runs.
+        proc.ArgumentList.Add("--urls");
+        proc.ArgumentList.Add("http://127.0.0.1:0");
         proc.ArgumentList.Add($"--{key}");
         proc.ArgumentList.Add(value);
         proc.Environment["DOTNET_ENVIRONMENT"] = "Testing";

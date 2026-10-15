@@ -6,6 +6,6 @@ static class SnapshotFiles
 #if NET11_0_OR_GREATER
         => Path.Combine("Snapshots", "net11.0", fileName);
 #else
-        => fileName;
+        => Path.Combine("Snapshots", "net10.0", fileName);
 #endif
 }

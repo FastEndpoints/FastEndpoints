@@ -32,7 +32,7 @@ tags: [deps]
 | protobuf-net / Grpc.Reflection | Protobuf wire format + gRPC reflection (Messaging.Remote.Reflection only) |
 | Microsoft.AspNetCore.OData | OData package |
 | ModelContextProtocol.AspNetCore | Agents MCP; v2.x targets the 2026-07-28 MCP spec (stateless-by-default transport, backward compatible with the addon's v1-style handler wiring) |
-| Microsoft.CodeAnalysis.CSharp **[4.11.0]** | Generators; retains existing Roslyn analyzer-host compatibility |
+| Microsoft.CodeAnalysis.CSharp **[5.0.0]** | Generators; minimum analyzer host is .NET 10 SDK / Visual Studio 2026 18.0 |
 | Microsoft.OpenApi.Kiota.Builder **[1.29.2]** | Pinned; Kiota OpenAPI 3.x vs AspNetCore.OpenApi 10's 2.x mismatch |
 | xunit.v3, Shouldly, FakeItEasy, Bogus | Test stack |
 | BenchmarkDotNet, NBomber | Benchmarks / load |

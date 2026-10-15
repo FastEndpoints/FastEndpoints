@@ -21,8 +21,8 @@
     <PackageVersion Include="ModelContextProtocol.AspNetCore" Version="2.2.0" />
     <PackageVersion Include="NBomber" Version="6.7.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="5.9.0" />
-    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="[4.11.0]" />
-    <!-- retain the analyzer's existing Roslyn host compatibility -->
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="[5.0.0]" />
+    <!-- .NET 10 SDK / Visual Studio 2026 18.0 is the minimum analyzer host -->
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.13" />
     <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.13" />
     <PackageVersion Include="Microsoft.Extensions.Primitives" Version="10.0.13" />

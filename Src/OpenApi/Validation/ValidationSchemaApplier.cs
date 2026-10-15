@@ -73,12 +73,13 @@ sealed class ValidationSchemaApplier : IDisposable
                 TryApplyValidation(schema, rules, propertyName, propertySchema, propertyPrefix, activeChildValidators);
         }
 
-        RecurseComposite(schema.AllOf, rules, propertyPrefix, activeChildValidators);
-        RecurseComposite(schema.OneOf, rules, propertyPrefix, activeChildValidators);
-        RecurseComposite(schema.AnyOf, rules, propertyPrefix, activeChildValidators);
+        RecurseComposite(schema, schema.AllOf, rules, propertyPrefix, activeChildValidators);
+        RecurseComposite(schema, schema.OneOf, rules, propertyPrefix, activeChildValidators);
+        RecurseComposite(schema, schema.AnyOf, rules, propertyPrefix, activeChildValidators);
     }
 
-    void RecurseComposite(IList<IOpenApiSchema>? composite,
+    void RecurseComposite(OpenApiSchema schema,
+                          IList<IOpenApiSchema>? composite,
                           ValidationRuleLookup rules,
                           string propertyPrefix,
                           HashSet<Type> activeChildValidators)
@@ -86,14 +87,55 @@ sealed class ValidationSchemaApplier : IDisposable
         if (composite is null)
             return;
 
+        Dictionary<string, List<string>>? mappingKeysByTarget = null;
+
         for (var i = 0; i < composite.Count; i++)
         {
+            var originalId = (composite[i] as OpenApiSchemaReference)?.GetReferenceId();
             var resolved = ResolveForMutation(
                 composite[i],
                 _localizeReferencedSchemas,
                 _mutationCtx,
                 $"{_schemaKey}.{propertyPrefix}.composite[{i}]",
-                localized => composite[i] = localized);
+                localized =>
+                {
+                    composite[i] = localized;
+
+                    if (originalId is null ||
+                        localized is not OpenApiSchemaReference localizedRef ||
+                        localizedRef.GetReferenceId() is not { } localizedId ||
+                        schema.Discriminator?.Mapping is not { Count: > 0 } mapping)
+                        return;
+
+                    // Build once, then track retargets so repeated branch IDs keep sequential semantics.
+                    if (mappingKeysByTarget is null)
+                    {
+                        mappingKeysByTarget = new(StringComparer.Ordinal);
+
+                        foreach (var (key, reference) in mapping)
+                        {
+                            if (reference.GetReferenceId() is not { } targetId)
+                                continue;
+
+                            if (!mappingKeysByTarget.TryGetValue(targetId, out var targetKeys))
+                                mappingKeysByTarget[targetId] = targetKeys = [];
+
+                            targetKeys.Add(key);
+                        }
+                    }
+
+                    if (!mappingKeysByTarget.Remove(originalId, out var keys))
+                        return;
+
+                    // Replace values, never mutate references shared with other operations.
+                    foreach (var key in keys)
+                        mapping[key] = mapping[key].RetargetTo(localizedId);
+
+                    if (mappingKeysByTarget.TryGetValue(localizedId, out var localizedKeys))
+                        localizedKeys.AddRange(keys);
+                    else
+                        mappingKeysByTarget[localizedId] = keys;
+                });
 
             if (resolved?.Properties is { Count: > 0 })
                 ApplyRulesToSchema(resolved, rules, propertyPrefix, activeChildValidators);

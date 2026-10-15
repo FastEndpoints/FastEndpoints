@@ -43,8 +43,10 @@ public class PolymorphicValidationTests
         original.Mapping["simple"].ShouldBeSameAs(reference);
     }
 
-    [Fact]
-    public async Task polymorphic_child_validators_preserve_mappings_and_isolate_constraints()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task polymorphic_child_validators_preserve_mappings_and_isolate_constraints(bool useOneOf)
     {
         var previousRoutePrefix = Config.EpOpts.RoutePrefix;
         var previousFilter = Config.EpOpts.Filter;
@@ -64,7 +66,18 @@ public class PolymorphicValidationTests
                 o.Assemblies = [typeof(PolymorphicValidationTests).Assembly];
                 o.Filter = type => type == typeof(ValidatedEndpoint) || type == typeof(EmptyValidatorEndpoint) || type == typeof(PlainEndpoint);
             });
-            builder.Services.OpenApiDocument(o => o.DocumentName = "v1");
+            builder.Services.OpenApiDocument(o =>
+            {
+                o.DocumentName = "v1";
+                o.UseOneOfForPolymorphism = useOneOf;
+                o.ConfigureOpenApi = options => options.AddSchemaTransformer((schema, context, _) =>
+                {
+                    if (context.JsonTypeInfo.Type == typeof(Base) && schema.Discriminator?.Mapping is { } mapping)
+                        mapping["Simple"] = mapping["simple"];
+
+                    return Task.CompletedTask;
+                });
+            });
 
             await using var app = builder.Build();
             app.UseFastEndpoints();
@@ -81,17 +94,30 @@ public class PolymorphicValidationTests
                     var body = document["paths"]![path]!["post"]!["requestBody"]!["content"]!["application/json"]!["schema"]!;
                     var field = Resolve(document, Resolve(document, body)["properties"]!["field"]!);
                     field["discriminator"]!["propertyName"]!.GetValue<string>().ShouldBe("type");
-                    var mapping = field["discriminator"]!["mapping"]!["simple"]!.GetValue<string>();
+                    var mappings = field["discriminator"]!["mapping"]!.AsObject();
+                    mappings.Count.ShouldBe(3);
+                    mappings["Simple"]!.GetValue<string>().ShouldBe(mappings["simple"]!.GetValue<string>());
+                    var mapping = mappings["simple"]!.GetValue<string>();
                     var derived = Resolve(document, new JsonObject { ["$ref"] = mapping });
                     derived["properties"]!["name"].ShouldNotBeNull();
-                    var alternatives = field["anyOf"]!;
-                    var localDerived = Resolve(document, alternatives[0]!);
-                    var minLength = Resolve(document, localDerived["properties"]!["label"]!)["minLength"];
+                    var alternatives = field[useOneOf ? "oneOf" : "anyOf"]!.AsArray();
+                    // The existing oneOf conversion emits one branch per mapping key, including aliases.
+                    alternatives.Count.ShouldBe(useOneOf ? 3 : 2);
+                    field[useOneOf ? "anyOf" : "oneOf"].ShouldBeNull();
+                    var expectedReferences = new[] { mapping, mappings["other"]!.GetValue<string>(), mapping };
+                    alternatives.Select(branch => branch!["$ref"]!.GetValue<string>()).Order()
+                                .ShouldBe((useOneOf ? expectedReferences : expectedReferences.Take(2)).Order());
 
-                    if (path == "/polymorphic-validated")
-                        minLength!.GetValue<int>().ShouldBe(3);
-                    else
-                        minLength.ShouldBeNull();
+                    foreach (var alternative in alternatives)
+                    {
+                        var localDerived = Resolve(document, alternative!);
+                        var minLength = Resolve(document, localDerived["properties"]!["label"]!)["minLength"];
+
+                        if (path == "/polymorphic-validated")
+                            minLength!.GetValue<int>().ShouldBe(3);
+                        else
+                            minLength.ShouldBeNull();
+                    }
                 }
             }
         }
@@ -103,6 +129,74 @@ public class PolymorphicValidationTests
         }
     }
 
+    [Theory]
+    [InlineData("allOf")]
+    [InlineData("oneOf")]
+    [InlineData("anyOf")]
+    public void repeated_composite_ids_retarget_aliases_only_on_the_first_replacement(string compositeKind)
+    {
+        var component = new OpenApiSchema { Type = JsonSchemaType.Object };
+        var document = new OpenApiDocument
+        {
+            Components = new OpenApiComponents
+            {
+                Schemas = new Dictionary<string, IOpenApiSchema>
+                {
+                    ["Derived"] = component,
+                    ["Other"] = new OpenApiSchema { Type = JsonSchemaType.Object }
+                }
+            }
+        };
+        document.RegisterComponents();
+        var reference = new OpenApiSchemaReference("Derived", document) { Description = "Original branch" };
+        var aliasReference = new OpenApiSchemaReference("Derived", document) { Description = "Alias branch" };
+        var otherReference = new OpenApiSchemaReference("Other", document);
+        IList<IOpenApiSchema> branches = [reference, reference, otherReference];
+        var schema = new OpenApiSchema
+        {
+            Discriminator = new OpenApiDiscriminator
+            {
+                PropertyName = "type",
+                Mapping = new Dictionary<string, OpenApiSchemaReference>
+                {
+                    ["simple"] = reference,
+                    ["Simple"] = aliasReference,
+                    ["other"] = otherReference,
+                    ["unmatched"] = new("Unmatched")
+                }
+            },
+            AllOf = compositeKind == "allOf" ? branches : null,
+            OneOf = compositeKind == "oneOf" ? branches : null,
+            AnyOf = compositeKind == "anyOf" ? branches : null
+        };
+        var sharedContext = new SharedContext();
+        var resolver = FakeItEasy.A.Fake<IServiceResolver>();
+        using var applier = new ValidationSchemaApplier(
+            sharedContext, sharedContext.For(document), resolver, null, resolver.CreateScope,
+            ValidationRuleCatalog.DefaultRules, true, "POST:/test", "requestBody", true);
+        var rules = new CachedValidatorRules(new(new Dictionary<string, List<IValidationRule>>()), []);
+
+        applier.ApplyValidatorRules(schema, rules, string.Empty, []);
+
+        var firstId = ((OpenApiSchemaReference)branches[0]).GetReferenceId();
+        var secondId = ((OpenApiSchemaReference)branches[1]).GetReferenceId();
+        firstId.ShouldNotBe("Derived");
+        secondId.ShouldNotBe("Derived");
+        secondId.ShouldNotBe(firstId);
+        var mapping = schema.Discriminator.Mapping!;
+        mapping["simple"].GetReferenceId().ShouldBe(firstId);
+        mapping["Simple"].GetReferenceId().ShouldBe(firstId);
+        mapping["other"].GetReferenceId().ShouldBe(((OpenApiSchemaReference)branches[2]).GetReferenceId());
+        mapping["other"].GetReferenceId().ShouldNotBe("Other");
+        mapping["unmatched"].GetReferenceId().ShouldBe("Unmatched");
+        mapping["simple"].ShouldNotBeSameAs(reference);
+        mapping["Simple"].ShouldNotBeSameAs(aliasReference);
+        mapping["simple"].Description.ShouldBe("Original branch");
+        mapping["Simple"].Description.ShouldBe("Alias branch");
+        reference.GetReferenceId().ShouldBe("Derived");
+        otherReference.GetReferenceId().ShouldBe("Other");
+    }
+
     static JsonNode Resolve(JsonNode document, JsonNode schema)
         => schema["$ref"]?.GetValue<string>() is { } reference
                ? document["components"]!["schemas"]![reference.Split('/')[^1]]!
@@ -110,6 +204,7 @@ public class PolymorphicValidationTests
 
     [JsonPolymorphic(TypeDiscriminatorPropertyName = "type")]
     [JsonDerivedType(typeof(Derived), "simple")]
+    [JsonDerivedType(typeof(OtherDerived), "other")]
     public abstract class Base
     {
         public string Label { get; set; } = "";
@@ -118,6 +213,11 @@ public class PolymorphicValidationTests
     public sealed class Derived : Base
     {
         public required string Name { get; init; }
+    }
+
+    public sealed class OtherDerived : Base
+    {
+        public int Count { get; init; }
     }
 
     public sealed class ValidatedRequest

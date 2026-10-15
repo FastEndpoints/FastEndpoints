@@ -18,10 +18,8 @@ jobs:
         uses: actions/setup-dotnet@v4.3.1
         with:
           dotnet-version: |
-            8.x
-            9.x
             10.x
-          #dotnet-quality: 'preview'
+          global-json-file: global.json
 
       - name: Modify xUnit Runner Config
         run: |
@@ -31,11 +29,17 @@ jobs:
             "diagnosticMessages": false
           }' > Tests/IntegrationTests/FastEndpoints/xunit.runner.json
 
-      - name: Run WAF Tests
-        run: dotnet test FastEndpoints.slnx -c Release --verbosity minimal --filter "ExcludeInCiCd!=Yes" --max-parallel-test-modules 1
+      - name: Run .NET 10 Tests
+        run: dotnet test FastEndpoints.slnx -c Release --framework net10.0 --verbosity minimal --filter "ExcludeInCiCd!=Yes" --max-parallel-test-modules 1
 
-      # - name: Run AOT Tests
-      #   run: dotnet test NativeAot.slnx -c Release --verbosity minimal
+      - name: Run .NET 11 Tests
+        run: dotnet test FastEndpoints.slnx -c Release --framework net11.0 --verbosity minimal --filter "ExcludeInCiCd!=Yes" --max-parallel-test-modules 1
+
+      - name: Run .NET 10 AOT Tests
+        run: dotnet test NativeAot.slnx -c Release --framework net10.0 --verbosity minimal --max-parallel-test-modules 1
+
+      - name: Run .NET 11 AOT Tests
+        run: dotnet test NativeAot.slnx -c Release --framework net11.0 --verbosity minimal --max-parallel-test-modules 1
 
       - name: Make Nuget Packages
         run: dotnet pack FastEndpoints.slnx -c Release

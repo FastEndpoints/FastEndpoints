@@ -56,6 +56,14 @@ public sealed class CommandModeTests : IAsyncLifetime
 
         proc.ArgumentList.Add("run");
         proc.ArgumentList.Add("--no-build");
+        proc.ArgumentList.Add("--framework");
+        proc.ArgumentList.Add($"net{new System.Runtime.Versioning.FrameworkName(AppContext.TargetFrameworkName!).Version}");
+        proc.ArgumentList.Add("--configuration");
+#if DEBUG
+        proc.ArgumentList.Add("Debug");
+#else
+        proc.ArgumentList.Add("Release");
+#endif
         proc.ArgumentList.Add("--project");
         proc.ArgumentList.Add(projectPath);
         proc.ArgumentList.Add("--");

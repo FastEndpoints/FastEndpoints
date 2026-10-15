@@ -20,6 +20,14 @@ steps:
       version: "10.x"
       includePreviewVersions: true
 
+  - task: UseDotNet@2
+    displayName: "Use SDK from global.json"
+    inputs:
+      packageType: "sdk"
+      useGlobalJson: true
+      workingDirectory: "$(Build.SourcesDirectory)"
+      includePreviewVersions: true
+
   - task: Bash@3
     displayName: "Update xUnit Runner Config"
     inputs:
@@ -32,9 +40,17 @@ steps:
         }' > Tests/IntegrationTests/FastEndpoints/xunit.runner.json
 
   - task: DotNetCoreCLI@2
-    displayName: "Run Tests"
+    displayName: "Run .NET 10 Tests"
     inputs:
       command: "test"
       projects: "Tests/**/*.csproj"
-      arguments: "--configuration $(BuildConfiguration) --filter ExcludeInCiCd!=Yes --max-parallel-test-modules 1"
+      arguments: "--configuration $(BuildConfiguration) --framework net10.0 --filter ExcludeInCiCd!=Yes --max-parallel-test-modules 1"
+      workingDirectory: "Tests"
+
+  - task: DotNetCoreCLI@2
+    displayName: "Run .NET 11 Tests"
+    inputs:
+      command: "test"
+      projects: "Tests/**/*.csproj"
+      arguments: "--configuration $(BuildConfiguration) --framework net11.0 --filter ExcludeInCiCd!=Yes --max-parallel-test-modules 1"
       workingDirectory: "Tests"

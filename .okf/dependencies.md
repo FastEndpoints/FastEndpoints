@@ -12,7 +12,7 @@ tags: [deps]
 - **TFMs (libraries):** net10.0; net11.0 (default from `Src/Directory.Build.props`, including OpenApi, OpenApi.Kiota and Agents)
 - **Overrides:** Generator → netstandard2.0; Generator.Cli → net10.0 with major runtime roll-forward; Attributes → netstandard2.0 + net10/11. The netstandard targets support analyzer hosts, not older application runtimes.
 - **SDK:** pinned in `global.json` to 11.0.100-rc.2.26504.105 with latest-patch roll-forward. net11 ASP.NET JwtBearer/TestHost/Mvc.Testing packages use the matching RC2.
-- **Tests / harnesses:** net10.0
+- **Tests / integration and AOT harnesses:** net10.0; net11.0. Benchmarks and standalone Sandbox projects remain net10.0.
 - **ASP.NET:** `FrameworkReference` Microsoft.AspNetCore.App where needed
 
 ## Packages

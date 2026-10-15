@@ -8,7 +8,7 @@ tags: [build]
 # Workflows
 
 ## Setup
-- Install .NET SDKs matching CI: **8.x, 9.x, 10.x** (tests default to **net10.0** via `Tests/Directory.Build.props`).
+- Install .NET **10.x** plus the **11.0 RC2 SDK pinned in `global.json`**. CI installs both; tests target net10.0 and net11.0 via `Tests/Directory.Build.props`.
 - Clone repo; restore via normal `dotnet` on solutions (central package management).
 - No docker-compose required for core unit/integration suite (in-process WAF).
 - Signing key files `FastEndpoints.snk` / public key present in repo for signed builds.
@@ -22,7 +22,7 @@ dotnet build FastEndpoints.slnx -c Release
 dotnet build NativeAot.slnx -c Release
 
 # Sample harness (dev)
-dotnet run --project TestHarness/Web/Web.csproj
+dotnet run --project TestHarness/Web/Web.csproj --framework net10.0
 
 # Clean bin/obj
 ./clean.sh
@@ -42,12 +42,12 @@ dotnet nuget push "Src/**/*.nupkg" -k <NUGET_API_KEY> -s https://api.nuget.org/v
 ```
 
 GitHub Actions (`.github/workflows/publish-to-nuget.yml`): on tag `v*`:
-1. setup SDKs 8/9/10
-2. solution tests with the [testing.md](testing.md) CI filter (`Int.OpenApi.Kiota` omitted when `CI`/`TF_BUILD` is set)
+1. setup SDK 10.x plus the SDK selected by `global.json`
+2. solution tests on net10/net11 with the [testing.md](testing.md) CI filter (`Int.OpenApi.Kiota` omitted when `CI`/`TF_BUILD` is set), followed by Native AOT tests on both TFMs
 3. pack
 4. `NuGet/login@v1.2.0` exchanges GitHub OIDC for a short-lived nuget.org API key (`user: djnitehawk` in the workflow; this is the nuget.org username, not GitHub `dj-nitehawk`)
 5. push with that temp key and `--skip-duplicate` (trusted publishing; no long-lived API key secret). Needed because independently versioned Agents packages (`FastEndpoints.Mcp` / `FastEndpoints.A2A`) are packed with the solution and already exist on nuget.org when their version is unchanged.
-6. non-beta tags: GH release body from `Src/Library/changelog.md`. AOT test step is commented; do not assume an AOT gate.
+6. non-beta tags: GH release body from `Src/Library/changelog.md`.
 
 Changed Agents addons must receive a new independent version in their `.csproj` before release; `--skip-duplicate` skips updated assemblies packaged under an already-published version.
 
@@ -55,7 +55,7 @@ Job permissions: `id-token: write` (OIDC), `contents: write` (GH release).
 
 Trusted publishing policy on nuget.org must match: owner `FastEndpoints`, repo `FastEndpoints`, workflow file `publish-to-nuget.yml` (filename only).
 
-Azure `azure-pipeline.yml`: tag `v*` trigger; tests under `Tests/` with the same filter. No pack/push in that file.
+Azure `azure-pipeline.yml`: tag `v*` trigger; installs 10.x plus the SDK from `global.json`, runs tests under `Tests/` on net10/net11 with the same filter (including Native AOT tests). No pack/push in that file.
 
 ## Changelog
 Rolling current-cycle release notes: `Src/Library/changelog.md`. Non-beta tags dump the **entire file** as the GitHub release body. Not Keep-a-Changelog: no version headers, do not reset or rewrite the file, keep the sponsorship banner and existing entries.

@@ -8,6 +8,85 @@ Please [join the discussion here](https://github.com/FastEndpoints/FastEndpoints
 
 [//]: # (<details><summary>title text</summary></details>)
 
+## Breaking Changes ⚠️
+
+<details><summary>Target .NET 10 or .NET 11 when upgrading to FastEndpoints v9</summary>
+
+Runtime packages, including the independently versioned MCP and A2A addons, now target only `net10.0` and `net11.0`. Retarget .NET 8/9 apps before upgrading, or keep your current FastEndpoints version.
+
+The serializer-context-generator CLI requires .NET 10+. The Roslyn generator requires Roslyn 5.0, the .NET 10+ SDK, and Visual Studio 2026 18.0+ when using VS. Its `netstandard2.0` assets (and attributes) support compiler hosts, not older app runtimes. Upgrade SDKs/IDEs first.
+
+.NET 11 support currently uses RC2 framework packages. Revalidate against the final .NET 11 SDK and packages before a stable release.
+</details>
+
+<details><summary>The ASP.NET API Versioning integration is limited to .NET 10</summary>
+
+`FastEndpoints.AspVersioning` remains .NET 10-only: `Asp.Versioning.OpenApi` requires Microsoft.OpenApi 2.x, which is incompatible with the .NET 11 stack. On .NET 11, use built-in route-based versioning or defer upgrading to FE v9 until the integration supports it.
+
+</details>
+
+<details><summary>OpenAPI 3.1 schema examples now use <code>examples</code> arrays</summary>
+
+`FastEndpoints.OpenApi` writes XML and generated polymorphic schema examples as `examples: [value]` in OpenAPI 3.1. Reference-local lists retain all values, including JSON nulls. OpenAPI 3.0 uses the first entry as singular `example`. Media-type, parameter, and header examples are unchanged.
+
+Use `schema.Examples = [exampleNode]` in custom transformers and read `examples` in consumers. Deduplication and `.http` export also use `Examples` (export selects the first). Regenerate documents/clients and update snapshots/tooling expecting singular schema examples. HTTP payloads are unchanged.
+
+</details>
+
+<details><summary>OpenAPI request examples no longer create endpoint-specific schemas</summary>
+
+`FastEndpoints.OpenApi` keeps `EndpointSummary.ExampleRequest` and `RequestExamples` only on request-body media types. Models/enums differing only in endpoint examples now share schemas; intentional XML/custom schema examples and real schema differences remain. HTTP payloads are unchanged.
+
+Regenerate documents/clients and update references to removed duplicate types or changed method signatures. Read endpoint examples from the operation's request-body media-type `example` / `examples`, not schemas/properties. Use XML or transformers for shared schema examples; copying endpoint examples onto shared schemas can restore duplication or leak examples between endpoints.
+
+</details>
+
+<details><summary>OpenAPI security requirements use explicitly configured scopes</summary>
+
+`FastEndpoints.OpenApi` now omits role names from `Roles()` and `[Authorize(Roles = "...")]` in operation security requirements. Previously, these names were merged with configured scopes, which could cause OAuth2/OpenID Connect clients to request invalid scopes. Runtime role enforcement is unchanged.
+
+Applications that relied on role names being emitted as scopes must configure those scopes explicitly with the `globalScopeNames` argument of `DocumentOptions.AddAuth()`. Legacy `FastEndpoints.Swagger` behavior is unchanged.
+
+</details>
+
+<details><summary><code>Group.Configure()</code> is no longer overridable</summary>
+
+`Configure()` is now non-virtual, avoiding constructor warnings. Route prefixes and group actions are unchanged, including parent-group execution after subgroup configuration.
+
+Replace any `Group.Configure()` override with a constructor call to `Configure()`.
+</details>
+
+<details><summary>Test url cache route is now opt-in</summary>
+
+The internal `_test_url_cache_` route used by routeless test helpers (`GETAsync<TEndpoint>()` etc.) when testing an out-of-process app is no longer mapped by default, since it exposed every endpoint route and type name to anonymous callers. Apps now only map it when the configuration value `FastEndpoints:ExposeTestUrlCache` is `true`.
+
+In-process `AppFixture` (WAF) tests are unaffected, and Native AOT `AppFixture` tests set it automatically. Aspire `DistributedApplication` tests must set it on the tested project resource:
+
+```csharp
+var appHost = await DistributedApplicationTestingBuilder.CreateAsync<Projects.AspireApp_AppHost>(ct);
+appHost.CreateResourceBuilder<ProjectResource>("apiservice")
+       .WithEnvironment("FastEndpoints__ExposeTestUrlCache", "true");
+```
+
+Never enable it in production.
+
+</details>
+
+<details><summary><code>ProblemDetails.Errors</code> is now <code>IReadOnlyCollection&lt;Error&gt;</code> instead of <code>IEnumerable&lt;Error&gt;</code></summary>
+
+`Errors` is now a materialized `IReadOnlyCollection<Error>`, avoiding repeated error projection and naming-policy conversion when `AllowDuplicateErrors` is enabled. Deduplication behavior is unchanged.
+
+Reading is unaffected. When assigning a plain `IEnumerable<Error>` to `Errors` (for example in a custom `ResponseBuilder`), materialize it first with `ToArray()` or `ToList()`.
+</details>
+
+<details><summary><code>Void</code> is now a struct instead of a class</summary>
+
+`Void` (behind `ICommand` and `Task<Void>` send methods) is now a `readonly struct`. Synchronously completing no-result sends and command dispatches no longer allocate a `Task`.
+
+This breaks `where TResult : class` over `ICommand<TResult>` (or `IServerStreamCommand<TResult>`) when `TResult` is `Void`. Drop the constraint, or add a sibling API constrained on `ICommand`.
+
+</details>
+
 ## New 🎉
 
 <details><summary>Custom status codes for <code>Send.StreamAsync()</code>, <code>Send.BytesAsync()</code>, and <code>Send.FileAsync()</code></summary>
@@ -36,34 +115,11 @@ public class Request
 
 <details><summary>Opt-in event delivery acknowledgement for Remote Event Hubs</summary>
 
-Remote event hubs can now wait until the subscriber has stored a delivery before the hub row is marked complete. Implement two addon interfaces on the storage providers you already register. Providers that do not opt in keep the existing behavior.
+Remote event hubs can wait for subscriber storage before completing a delivery. Opt in through `IEventHubDeliveryAck<TRecord>` and `IEventSubscriberDeliveryAck<TRecord>` on existing storage providers; other providers are unchanged.
 
-If you already use remote event hubs, let in-flight deliveries finish before opting in. Otherwise, one event that was already sent, but not yet marked complete, can run its handler a second time.
+Drain in-flight deliveries before opting in to avoid re-executing an already-sent event.
 
-The example below extends your existing storage implementations. The subscriber record must implement `IEventDeliveryAckStorageRecord` and persist `RetainUntil` with the inbox row. The library sets this deadline from the hub replay deadline plus the subscriber clock-skew allowance. Apply the supplied purge predicate so completed or expired ACK rows retain their delivery keys until this deadline passes. Enforce `TrackingID` uniqueness atomically in storage and translate duplicate-key conflicts into `DuplicateEventDeliveryException`.
-
-```csharp
-sealed partial class EventRecord : IEventDeliveryAckStorageRecord
-{
-    public DateTime? RetainUntil { get; set; }
-}
-
-sealed partial class HubStorage : IEventHubDeliveryAck<EventRecord>
-{
-    // Existing IEventHubStorageProvider methods remain unchanged.
-}
-
-sealed partial class SubscriberStorage : IEventSubscriberDeliveryAck<EventRecord>
-{
-    public async ValueTask StoreEventAsync(EventRecord record, CancellationToken ct)
-    {
-        if (await TrackingIdExists(record.TrackingID, ct))
-            throw new DuplicateEventDeliveryException(record.TrackingID);
-
-        await Insert(record, ct);
-    }
-}
-```
+Subscriber records must implement `IEventDeliveryAckStorageRecord` and persist `RetainUntil` (hub replay deadline plus subscriber clock-skew allowance). Use the supplied purge predicate to retain completed/expired delivery keys until that deadline. Enforce `TrackingID` uniqueness atomically and translate duplicate-key conflicts into `DuplicateEventDeliveryException`.
 
 </details>
 
@@ -71,7 +127,11 @@ sealed partial class SubscriberStorage : IEventSubscriberDeliveryAck<EventRecord
 
 Payment-style POST/PUT endpoints can reserve an idempotency key before the handler runs, replay the original 2xx, and `409` when the same key is reused with a different payload. This is a dedicated store and middleware, not an output-cache mode. Fingerprint `Idempotency()` is unchanged.
 
-Register `AddFinancialIdempotency()` (in-memory store by default, or `AddFinancialIdempotency<TStore>()` for Redis/SQL) and `UseFinancialIdempotency()` after routing/auth, next to `UseOutputCache()`. Do not call both `Idempotency()` and `FinancialIdempotency()` on the same endpoint. Distributed stores must implement atomic `TryBegin`; in-flight keys return `409` so clients retry. Fail-closed `500` if a 2xx cannot be replayed. Requires an explicit trusted stable `CallerScope`. Ownership-token settlement prevents stale writers; active and uncertain reservations never auto-expire. Concurrent requests return immediate `409`. Exceptions and ambiguous non-2xx responses retain protection; only explicit no-side-effects rejection releases a key. Bounded lifecycle capture includes empty responses and pending pipe bytes. Uploaded file contents participate in the hash. Breaking store/identity changes require coordinated migration. A durable application store and transactional/downstream idempotency remain deployment obligations.
+Register `AddFinancialIdempotency()` (in-memory) or `AddFinancialIdempotency<TStore>()` (Redis/SQL), then `UseFinancialIdempotency()` after routing/auth, next to `UseOutputCache()`. Set a trusted, stable `CallerScope`; do not combine both idempotency modes on one endpoint.
+
+Concurrent/in-flight requests return immediate `409`; unreplayable 2xx responses fail closed with `500`. Ownership tokens prevent stale settlement. Active/uncertain reservations never auto-expire; exceptions and ambiguous non-2xx responses retain protection. Only explicit no-side-effects rejection releases a key. Bounded response capture includes empty responses and pending pipe bytes; request hashes include uploaded file contents.
+
+Custom stores require atomic `TryBegin`. Production deployments remain responsible for durable storage, transactional/downstream idempotency, and coordinated migration of breaking store/identity changes.
 
 ```csharp
 bld.Services.AddFastEndpoints().AddFinancialIdempotency(c =>
@@ -111,17 +171,15 @@ public override void Configure()
 
 <details><summary>Preserve XML property examples on referenced OpenAPI schemas</summary>
 
-`FastEndpoints.OpenApi` now keeps each DTO property's XML `<example>` alongside its `$ref` (as `examples`), including date, time, enum, object, and collection properties. Shared component schemas no longer take the example of the first property that uses them. Request properties whose schemas an endpoint's validator copies per operation now keep their XML summary and example as well.
+XML property examples stay alongside `$ref` as `examples`, rather than leaking onto shared components. This covers date, time, enum, object, and collection properties, including operation-specific validator copies, which also retain XML summaries.
 
-Reference examples supplied by custom transformers may include JSON null without causing document generation to fail. Explicit null examples are preserved when a nullable collection reference is converted to an inline schema.
-
-Exported `.http` request bodies also use each property's reference-local example before shared component examples or defaults, including explicit JSON null examples.
+Custom reference examples support JSON null, including when nullable collections are inlined. Exported `.http` bodies prefer reference-local examples over component examples/defaults, including explicit nulls.
 
 </details>
 
 <details><summary>Read XML documentation in single-file apps</summary>
 
-`FastEndpoints.OpenApi` now finds the XML documentation of a single-file app. Its bundled assemblies have no location on disk, so every summary, remark, and example was missing from the document. The XML files are now read from the app directory, where publishing places them.
+`FastEndpoints.OpenApi` now reads published XML files from the app directory for single-file apps, restoring missing summaries, remarks, and examples.
 
 </details>
 
@@ -145,7 +203,7 @@ Optional headers and query parameters for optional claim/permission properties n
 
 <details><summary>OpenAPI applies <code>RuleForEach()</code> validators to collection items</summary>
 
-Rules such as `RuleForEach(x => x.Tags).NotEmpty().MaximumLength(20)` now constrain the `items` schema of the collection (`minLength`, `maxLength`, `minimum`, `maximum`, non-null items). Previously they were applied to the collection itself, which marked it as required and non-nullable and published `maxItems: 20`. Nullable lists and arrays also retain these item constraints while preserving the collection's optionality and nullability. Rules declared with `RuleFor()` on the same collection still apply to the collection.
+`RuleForEach(x => x.Tags).NotEmpty().MaximumLength(20)` now constrains collection `items`, not the collection's requiredness, nullability, or size. Item length, numeric, and non-null constraints also work for nullable lists/arrays. `RuleFor()` still constrains the collection itself.
 
 </details>
 
@@ -199,65 +257,65 @@ Property-level `[JsonConverter]` attributes now determine enum schema values and
 
 <details><summary>Reflection generation succeeds in projects without non-generic classes</summary>
 
-A project that contains only records, open generic classes, or no class declarations no longer fails the build with <code>CS8785</code> while generating reflection data. <code>ReflectionData.g.cs</code> is still produced, with an empty <code>AddFrom...</code> method that returns the cache. The namespace and method name still come from the assembly name.
+Projects containing only records, open generic classes, or no classes no longer fail with `CS8785`. They generate an empty `AddFrom...` method returning the cache, with namespace/method names still derived from the assembly name.
 
 </details>
 
 <details><summary>Comma-separated enum names no longer bind as a different member</summary>
 
-Query, route, form, header, cookie, and claim binding treated <code>Monday,Tuesday</code> as <code>Wednesday</code> when that bitwise OR was itself a defined enum member. Repeated values such as <code>?day=Monday&amp;day=Tuesday</code> did the same. With <code>AllowUndefinedEnumValues</code> left at its default <code>false</code>, enums that are not <code>[Flags]</code> now reject those inputs. <code>[Flags]</code> enums still accept a comma list when the combined value is a defined member. Set <code>Binding.AllowUndefinedEnumValues = true</code> to keep the old <code>Enum.TryParse</code> behavior. JSON body enums are unchanged and still follow your serializer options.
+Query, route, form, header, cookie, and claim binding now reject comma-separated/repeated names for non-`[Flags]` enums by default, rather than OR-ing them into another member (for example `Monday,Tuesday` into `Wednesday`). `[Flags]` combinations still bind when defined. Set `Binding.AllowUndefinedEnumValues = true` to restore raw `Enum.TryParse` behavior. JSON bodies still follow serializer options.
 
 </details>
 
 <details><summary>Validators nested inside an open generic no longer break <code>DiscoveredTypes</code> generation</summary>
 
-A discovered type nested inside an open generic, such as <code>BaseValidator&lt;T&gt;.ChildValidator</code>, was emitted as <code>Preserve&lt;BaseValidator&lt;T&gt;.ChildValidator&gt; ()</code>. That does not compile, and making the nested type private failed generation for the same reason. Those types are now skipped, which is what reflection discovery already does. Move the nested type out of the open generic if it should be registered.
+Types nested inside open generics, such as `BaseValidator<T>.ChildValidator`, are now skipped, matching reflection discovery, instead of generating uncompilable code or failing for private types. Move them outside the open generic to register them.
 
 </details>
 
 <details><summary>No-result command middleware runs under Native AOT</summary>
 
-After `Void` became a struct, Native AOT could not resolve `IEnumerable<ICommandMiddleware<TCommand, Void>>`, so middleware registered for no-result commands was skipped. Those pipelines now use the types recorded at `AddCommandMiddleware` time. Closed `Register<MyCommand, Void, MyMiddleware>()` works without consumer code changes. Open-generic `Register(typeof(Foo<,>))` is still unsupported for void commands under Native AOT and now throws instead of silently skipping.
+Native AOT no-result command pipelines now use `AddCommandMiddleware` registrations instead of skipping middleware after the `Void` struct change. Closed `Register<MyCommand, Void, MyMiddleware>()` works unchanged. Open-generic `Register(typeof(Foo<,>))` remains unsupported for these commands and now throws instead of silently skipping.
 
 </details>
 
 <details><summary>Void-result job queues and command execution work under Native AOT again</summary>
 
-After `Void` became a struct, Native AOT apps that call `UseJobQueues()` crashed at startup because MS.DI cannot close open generics over a valuetype. Job queues for commands that return no result are now constructed directly, and closed over an internal reference type rather than `Void`. The same valuetype limitation also blocked `ICommand.ExecuteAsync()` / command-rules `ExecuteNow` (missing native code for `CommandHandlerExecutor<TCommand, Void>`). Those void commands now use a class-only executor. No consumer code changes are required.
+Fixed Native AOT startup crashes in `UseJobQueues()` and execution failures in `ICommand.ExecuteAsync()` / command-rules `ExecuteNow` caused by the `Void` struct change. No-result queues and command executors now avoid unsupported generic value-type construction. No consumer changes are required.
 
 </details>
 
 <details><summary>Serializer context generation now fully qualifies enum type arguments</summary>
 
-Auto-generated `[JsonSerializable]` attributes left enums as bare names when they appeared as generic arguments, such as `Dictionary<MyEnum, MyDto[]>`. The generated context then failed to compile (`CS0246`) and STJ source-gen skipped metadata for the enum (`SYSLIB1030`). Enums are now indexed like other types and emitted with their full namespace.
+Generated `[JsonSerializable]` attributes now fully qualify enum generic arguments (for example in `Dictionary<MyEnum, MyDto[]>`), fixing `CS0246` compilation errors and `SYSLIB1030` missing-metadata warnings.
 
 </details>
 
 <details><summary>Overlapping OpenAPI document requests no longer throw or return a truncated spec</summary>
 
-`MapOpenApi()` rebuilds the document on every request and does not serialize generation. Visual Studio and Scalar often hit `/openapi/*.json` at the same time on startup, which made FluentValidation schema mapping and `oneOf` cleanup mutate the same schema objects. That produced `IndexOutOfRangeException` / `Collection was modified` failures, or a document with only some of the paths. Each generation now keeps its own mutation state, so overlapping fetches complete with a full document.
+Concurrent `/openapi/*.json` requests now use isolated generation state, preventing `IndexOutOfRangeException`, `Collection was modified`, and missing paths. `MapOpenApi()` still rebuilds per request without serializing generation.
 
 </details>
 
 <details><summary>Singleton validators, mappers, processors and event handlers no longer capture scoped services from the first request</summary>
 
-Validators, mappers, pre/post-processors, event handlers and other types that FastEndpoints caches as singletons were built from the DI scope of whichever request first needed them, unless `Warmup()` was enabled. Scoped constructor dependencies (such as a `DbContext` or a current user service) were therefore captured from that first request and reused by every later request, without triggering DI scope validation. These singletons are now always built from the root service provider, the same as with `Warmup()`. Injecting a scoped service into their constructors now throws when scope validation is enabled (the default in the Development environment), as the docs describe. Resolve scoped services per request with `Resolve<T>()` or a new scope instead.
+Cached singletons are now always built from the root provider, matching `Warmup()`, instead of capturing the first request's scoped dependencies. Scoped constructor injection now throws with scope validation enabled (the Development default). Resolve scoped services per request with `Resolve<T>()` or a new scope instead.
 
 </details>
 
 <details><summary>JWT revocation middleware now matches the <code>Bearer</code> scheme case-insensitively</summary>
 
-`JwtRevocationMiddleware` only checked tokens sent with an exact `Bearer ` prefix, while the JWT bearer authentication handler accepts the scheme in any casing. A revoked token sent as `Authorization: bearer <jwt>` therefore skipped `JwtTokenIsValidAsync()` but still authenticated. The prefix is now matched case-insensitively, so every token the authentication handler reads from the `Authorization` header goes through the revocation check.
+`JwtRevocationMiddleware` now matches `Bearer` case-insensitively, like JWT authentication. Alternate casing such as `Authorization: bearer <jwt>` no longer bypasses `JwtTokenIsValidAsync()`.
 
 </details>
 
-<details><summary>JWT revocation middleware now checks tokens from any source and before routing</summary>
+<details><summary>JWT revocation middleware now checks alternate token sources after routing</summary>
 
-`JwtRevocationMiddleware` only checked the token in the `Authorization` header. Apps that also accept access tokens from the query string or a cookie via `JwtBearerEvents.OnMessageReceived` (common for SSE and SignalR clients) authenticated revoked tokens sent that way without calling `JwtTokenIsValidAsync()`. The middleware now also checks the token that each JWT bearer authentication scheme actually accepted. Authentication results are cached per request, so tokens are not validated twice.
+After routing, revocation checks now include query/cookie tokens accepted through `JwtBearerEvents.OnMessageReceived`. Checks use the endpoint's effective policy schemes, or the default authenticate scheme when none are specified. Unrelated JWT schemes are skipped; authentication results are cached per request to avoid double validation.
 
-This relies on `JwtBearerOptions.SaveToken`, which `AddAuthenticationJwtBearer()` now enables by default. If you register JWT bearer auth with `AddJwtBearer()` directly and accept tokens from somewhere other than the `Authorization` header, set `SaveToken = true`.
+`AddAuthenticationJwtBearer()` now enables the required `SaveToken` option. With direct `AddJwtBearer()` registration, set `SaveToken = true` for alternate token sources.
 
-The middleware also skipped every request when no endpoint had been matched yet, for example when `UseJwtRevocation<T>()` was registered before an explicit `UseRouting()` call. Such requests are now checked, and only endpoints that allow anonymous access are skipped.
+Before routing, header tokens are now checked instead of skipping the request, but alternate sources are not. Place `UseJwtRevocation<T>()` after `UseRouting()` for query/cookie checks and anonymous-endpoint handling. Matched anonymous endpoints remain exempt.
 
 </details>
 
@@ -269,23 +327,7 @@ Route parameter values generated by `GetTestUrlFor()` are now URL-encoded, preve
 
 <details><summary>Nullable collection properties no longer get <code>const: null</code> in OpenAPI documents</summary>
 
-`FastEndpoints.OpenApi` 8.3.0 emitted nullable collection properties with a sibling `"const": null`. JSON Schema applies keywords together, so only `null` validated; a populated array failed against the schema describing it.
-
-The property now serializes as a nullable array only:
-
-```json
-"children": {
-    "type": [
-        "null",
-        "array"
-    ],
-    "items": {
-        "$ref": "#/components/schemas/Child"
-    }
-}
-```
-
-Visible with `Microsoft.OpenApi` 2.11.0 or later.
+Removed the sibling `const: null` emitted by `FastEndpoints.OpenApi` 8.3.0, which incorrectly rejected populated arrays. Properties now use only the nullable array schema (`type: ["null", "array"]` with `items`). Affects `Microsoft.OpenApi` 2.11.0+.
 
 </details>
 
@@ -299,121 +341,30 @@ Visible with `Microsoft.OpenApi` 2.11.0 or later.
 
 <details><summary>Warmup no longer precompiles the data-annotations validation graph when it's disabled</summary>
 
-`Warmup()` unconditionally walked and precompiled each request DTO's data-annotations validation graph (bindable props + getters), even though that graph is only ever used when `Validation.EnableDataAnnotationsSupport` is turned on. That startup-only work is now skipped when the setting is left at its default (off), which is the common case.
+`Warmup()` now skips precompiling request DTO data-annotations graphs when `Validation.EnableDataAnnotationsSupport` is disabled (the default), reducing startup work.
 </details>
 
 <details><summary>SSE <code>StreamItem.Id</code> is now settable after construction</summary>
 
-`StreamItem.Id` was `init`-only, so SSE endpoints that own an incrementing event-id sequence had to pass a counter into helper methods or clone each item just to stamp the id. `Id` can now be assigned after construction:
-
-```csharp
-var item = SomeHelper();
-item.Id = (i++).ToString();
-```
-
-`EventName`, `Data`, and `Retry` remain `init`-only.
+Assign `StreamItem.Id` after construction without cloning the item. `EventName`, `Data`, and `Retry` remain `init`-only.
 
 </details>
 
 <details><summary>FluentValidation rules now apply to OpenAPI query, path, header, and cookie parameters</summary>
 
-`FastEndpoints.OpenApi` previously applied validator constraints only to request body schemas. Bodyless GET/HEAD endpoints (and mixed POST properties marked `[QueryParam]` / `[FromHeader]` / `[FromCookie]`) therefore omitted `required`, `minLength`, patterns, and numeric ranges from the generated document.
-
-Those rules now apply to DTO-bound operation parameters as well, using the same conditional-rule behavior as request bodies. Client generators that derive types from parameters will now see the constraints.
+`FastEndpoints.OpenApi` now documents requiredness, lengths, patterns, and numeric ranges on DTO-bound parameters, including bodyless GET/HEAD and mixed-source POST requests. Conditional rules behave as for request bodies. Generated clients now see these constraints.
 
 </details>
 
 <details><summary>Route mapping no longer rebuilds authorization metadata once per HTTP verb</summary>
 
-Endpoints with multiple HTTP verbs and/or routes had their `AuthorizeAttribute[]` rebuilt from scratch for every verb of every route, even though the result depends only on endpoint-level settings (roles, policies, schemes) and never varies by verb or route. That metadata is now built once per endpoint definition and reused for every verb/route it's registered under, skipping the work entirely when every verb is anonymous.
+Authorization metadata is now built once per endpoint and reused across its verbs/routes, or skipped entirely when all verbs are anonymous.
 </details>
 
 <details><summary>Command execution no longer builds a handler-interface <code>Type</code> it doesn't need on the hot path</summary>
-`ExecuteAsync` computed a closed generic handler interface type via `MakeGenericType` on every command and stream-command dispatch, but that type is only read the first time a generic command type is seen, or when a unit test has registered a fake handler. Both call sites now compute it lazily, only when one of those two conditions is actually true, removing an unnecessary reflection call from the common case of executing a registered, non-generic command outside of a test.
+Command and stream-command dispatch now construct handler-interface types only for first-time generic discovery or test-handler substitution, removing unnecessary `MakeGenericType` calls from normal execution.
 </details>
 
 <details><summary>Required-property validation no longer rebuilds a hash set per request</summary>
-`BinderContext.UnboundRequiredProperties` used `Enumerable.Except` to diff the endpoint's required property names against the ones actually bound, which internally builds a fresh `HashSet<string>` from the bound-properties list on every request that declares required properties. The bound-properties collection is now itself a `HashSet<string>` populated as binding happens, so the diff is a plain lookup per required property instead of a rebuild-then-diff. Behavior and the case-insensitive comparison are unchanged.
-</details>
-
-## Minor Breaking Changes ⚠️
-
-<details><summary>The ASP.NET API Versioning integration is limited to .NET 10</summary>
-
-Known limitation: `FastEndpoints.AspVersioning` remains .NET 10-only because `Asp.Versioning.OpenApi` requires Microsoft.OpenApi 2.x and cannot share the OpenAPI 11 / Microsoft.OpenApi 3.x stack. On .NET 11, use FastEndpoints' built-in route-based versioning instead.
-
-</details>
-
-<details><summary>Target .NET 10 or .NET 11 when upgrading FastEndpoints</summary>
-
-Runtime packages now target `net10.0` and `net11.0` only. .NET 8 and .NET 9 applications must retarget to .NET 10 or .NET 11 before upgrading, or stay on their existing FastEndpoints package version. This also applies to the independently versioned MCP and A2A addons.
-
-The serializer generator CLI now requires a .NET 10 runtime or later. The Roslyn generator and its attributes retain `netstandard2.0` assets for compiler-host compatibility, not support for older application runtimes.
-
-.NET 11 support currently uses RC2 framework packages. Revalidate against the final .NET 11 SDK and packages before a stable release.
-
-OpenAPI retains the compatible Microsoft.AspNetCore.OpenApi 10 dependency on both targets. On .NET 11, response descriptions preserve the existing last-declared-type policy when several CLR types share a status code. `UnauthorizedHttpResult` now supplies 401 response metadata on .NET 11, so typed-result endpoints can include that response in generated documents.
-
-</details>
-
-<details><summary>OpenAPI 3.1 schema examples now use <code>examples</code> arrays</summary>
-
-`FastEndpoints.OpenApi` now writes XML documentation and generated polymorphic schema examples as `examples: [value]` instead of singular `example: value` in OpenAPI 3.1 documents. Reference-local examples retain their full list, including explicit JSON nulls. Request/response media-type examples and parameter/header examples are unchanged. OpenAPI 3.0 output continues to write a single schema example from the first list entry.
-
-Update custom schema transformers to set `schema.Examples = [exampleNode]` and schema consumers to read the `examples` array. Schema deduplication and `.http` export now use `Examples`, not the obsolete `OpenApiSchema.Example`; `.http` export selects the first entry. Regenerate OpenAPI documents and clients, and update snapshots or tooling that expect singular schema `example` fields. The HTTP payload contract is unchanged.
-
-</details>
-
-<details><summary>OpenAPI request examples no longer create endpoint-specific schemas</summary>
-
-`FastEndpoints.OpenApi` now keeps `EndpointSummary.ExampleRequest` and `RequestExamples` at request-body media-type `example` / `examples` only, instead of also copying them to schemas and properties. Shared models and enums differing only in endpoint request examples reuse component schemas. Intentional XML/custom schema examples are preserved, and real schema differences remain distinct. The HTTP payload contract is unchanged.
-
-Regenerate OpenAPI documents and clients, review generated type names and method signatures, and update references to removed duplicate model/enum types and affected client calls. Custom transformers or tooling that read endpoint request examples from schemas/properties must instead read the operation's request-body media-type `example` / `examples`. Keep endpoint-specific examples on operations; use XML documentation or schema transformers for intentionally shared schema examples. Copying endpoint examples back onto shared schemas can reintroduce duplication or expose another endpoint's example.
-
-</details>
-
-<details><summary>OpenAPI security requirements use explicitly configured scopes</summary>
-
-`FastEndpoints.OpenApi` now omits role names from `Roles()` and `[Authorize(Roles = "...")]` in operation security requirements. Previously, these names were merged with configured scopes, which could cause OAuth2/OpenID Connect clients to request invalid scopes. Runtime role enforcement is unchanged.
-
-Applications that relied on role names being emitted as scopes must configure those scopes explicitly with the `globalScopeNames` argument of `DocumentOptions.AddAuth()`. Legacy `FastEndpoints.Swagger` behavior is unchanged.
-
-</details>
-
-<details><summary><code>Group.Configure()</code> is no longer overridable</summary>
-
-<code>Configure ()</code> is now non-virtual, so calling it from a group constructor no longer raises a "virtual member call in constructor" warning. The route prefix is still applied, the group's own action still runs, and <code>SubGroup&lt;TParent&gt;</code> still runs the parent group after that.
-
-If a <code>Group</code> subclass overrode <code>Configure ()</code>, remove the override and call <code>Configure ()</code> from the constructor.
-</details>
-
-<details><summary>Test url cache route is now opt-in</summary>
-
-The internal `_test_url_cache_` route used by routeless test helpers (`GETAsync<TEndpoint>()` etc.) when testing an out-of-process app is no longer mapped by default, since it exposed every endpoint route and type name to anonymous callers. Apps now only map it when the configuration value `FastEndpoints:ExposeTestUrlCache` is `true`.
-
-In-process `AppFixture` (WAF) tests are unaffected, and Native AOT `AppFixture` tests set it automatically. Aspire `DistributedApplication` tests must set it on the tested project resource:
-
-```csharp
-var appHost = await DistributedApplicationTestingBuilder.CreateAsync<Projects.AspireApp_AppHost>(ct);
-appHost.CreateResourceBuilder<ProjectResource>("apiservice")
-       .WithEnvironment("FastEndpoints__ExposeTestUrlCache", "true");
-```
-
-Never enable it in production.
-
-</details>
-
-<details><summary><code>ProblemDetails.Errors</code> is now <code>IReadOnlyCollection&lt;Error&gt;</code> instead of <code>IEnumerable&lt;Error&gt;</code></summary>
-
-`Errors` was a lazy `IEnumerable<Error>`. When `AllowDuplicateErrors` was enabled, that sequence got re-enumerated up to three times per error response (once when reading `Errors.Count()`/`Errors.First()` to build `Detail`, again during JSON serialization), rerunning `PropertyNamingPolicy.ConvertName` for every `Error` each time. `Errors` is now always backed by a concrete collection (a materialized array when duplicates are allowed, the existing deduplicating `HashSet` otherwise), so it is only ever enumerated once.
-
-Reading `Errors` is unaffected. Code that assigns `Errors` directly to a lazy `IEnumerable<Error>` (for example a custom `ResponseBuilder` that constructs its own `ProblemDetails`) needs to materialize it first, since the setter no longer accepts a plain `IEnumerable<Error>`.
-</details>
-
-<details><summary><code>Void</code> is now a struct instead of a class</summary>
-
-`Void` (behind `ICommand` and `Task<Void>` send methods) is now a `readonly struct`. Synchronously completing no-result sends and command dispatches no longer allocate a `Task`.
-
-This breaks `where TResult : class` over `ICommand<TResult>` (or `IServerStreamCommand<TResult>`) when `TResult` is `Void`. Drop the constraint, or add a sibling API constrained on `ICommand`.
-
+Required-property checks now reuse the set populated during binding instead of allocating another hash set per request. Validation behavior and case-insensitive matching are unchanged.
 </details>

@@ -29,13 +29,13 @@ public partial class EventQueueTests
 
             successfulAttempt = DateTime.UtcNow;
         };
-        await session.Connect("retry-expiry", executionExpiry: TimeSpan.FromSeconds(1));
+        await session.Connect("retry-expiry", executionExpiry: TimeSpan.FromMilliseconds(250));
         await session.Hub.BroadcastEventTaskForTesting(new());
         await WaitUntil(() => session.HubState.Rows.Single().IsComplete);
 
         var persisted = session.SubState.Rows.Single();
         persisted.ExpireOn.ShouldBeGreaterThan(originalExpiry);
-        persisted.ExpireOn.ShouldBeGreaterThan(successfulAttempt.AddMilliseconds(900));
+        persisted.ExpireOn.ShouldBeGreaterThan(successfulAttempt.AddMilliseconds(225));
         persisted.RetainUntil.ShouldBe(session.HubState.Rows.Single().ExpireOn.Add(session.SubState.ClockSkewAllowance));
         await WaitUntil(() => DeliveryAckCountingHandler<DeliveryAckStoreRetryEvent>.Runs == 1 && persisted.IsComplete);
         attempts.ShouldBe(3);

@@ -1,16 +1,13 @@
 using FastEndpoints;
 using Grpc.Core;
 using Microsoft.Extensions.Logging.Abstractions;
-
 using Xunit;
 
 namespace EventQueue;
 
 public partial class EventQueueTests
 {
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task receiver_supervision_isolates_throwing_receive_error_callbacks(bool deliveryAck)
     {
         using var cts = new CancellationTokenSource();
@@ -28,9 +25,7 @@ public partial class EventQueueTests
         sem.CurrentCount.ShouldBe(0);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task receiver_supervision_cancellation_during_reconnect_delay_does_not_replace_call(bool deliveryAck)
     {
         using var cts = new CancellationTokenSource();
@@ -51,11 +46,7 @@ public partial class EventQueueTests
         errors.Counts.ShouldBe([1]);
     }
 
-    [Theory]
-    [InlineData(false, false)]
-    [InlineData(false, true)]
-    [InlineData(true, false)]
-    [InlineData(true, true)]
+    [Theory, InlineData(false, false), InlineData(false, true), InlineData(true, false), InlineData(true, true)]
     public async Task receiver_supervision_disposes_session_before_creating_replacement(bool deliveryAck, bool gracefulEnd)
     {
         using var cts = new CancellationTokenSource();
@@ -79,8 +70,7 @@ public partial class EventQueueTests
         var errors = new SupervisionErrors();
         var invoker = new SupervisionInvoker(cts, [SupervisionStep.CreationFailure()]);
 
-        var exception = await Should.ThrowAsync<InvalidOperationException>(
-            () => RunSupervisedReceiver(false, invoker, errors, sem, cts.Token));
+        var exception = await Should.ThrowAsync<InvalidOperationException>(() => RunSupervisedReceiver(false, invoker, errors, sem, cts.Token));
 
         exception.ShouldBeSameAs(invoker.CreationError);
         errors.Counts.ShouldBeEmpty();
@@ -88,9 +78,7 @@ public partial class EventQueueTests
         invoker.Disposals.ShouldBe(0);
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task ordinary_receiver_replacement_call_creation_failure_is_terminal_without_receive_callback(bool receiveFailure)
     {
         using var cts = new CancellationTokenSource();
@@ -108,9 +96,7 @@ public partial class EventQueueTests
         cts.IsCancellationRequested.ShouldBeFalse();
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task ack_receiver_call_creation_failure_reports_and_reconnects(bool replacement)
     {
         using var cts = new CancellationTokenSource();
@@ -130,16 +116,15 @@ public partial class EventQueueTests
         invoker.ReplacedBeforeDisposal.ShouldBeFalse();
     }
 
-    [Theory]
-    [InlineData(false)]
-    [InlineData(true)]
+    [Theory, InlineData(false), InlineData(true)]
     public async Task receiver_supervision_resets_receive_error_count_after_successful_delivery(bool deliveryAck)
     {
         using var cts = new CancellationTokenSource();
         using var sem = new SemaphoreSlim(0);
         var errors = new SupervisionErrors();
-        var invoker = new SupervisionInvoker(cts,
-                                            [SupervisionStep.Fail(), SupervisionStep.Fail(), SupervisionStep.Deliver(), SupervisionStep.Stop()]);
+        var invoker = new SupervisionInvoker(
+            cts,
+            [SupervisionStep.Fail(), SupervisionStep.Fail(), SupervisionStep.Deliver(), SupervisionStep.Stop()]);
         var storage = new TestEventSubscriberStorage();
         var ackState = new DeliveryAckSubscriberState();
 
@@ -148,6 +133,7 @@ public partial class EventQueueTests
 
         errors.Counts.ShouldBe([1, 2, 1]);
         sem.CurrentCount.ShouldBe(1);
+
         if (deliveryAck)
         {
             ackState.StoreCalls.ShouldBe(1);
@@ -168,9 +154,12 @@ public partial class EventQueueTests
         using var sem = new SemaphoreSlim(0);
         var errors = new SupervisionErrors();
         var ackState = new DeliveryAckSubscriberState();
-        var invoker = new SupervisionInvoker(cts,
-                                            [SupervisionStep.Fail(), SupervisionStep.Fail(), SupervisionStep.Deliver(failAck: true),
-                                             SupervisionStep.Deliver(), SupervisionStep.Stop()]);
+        var invoker = new SupervisionInvoker(
+            cts,
+            [
+                SupervisionStep.Fail(), SupervisionStep.Fail(), SupervisionStep.Deliver(failAck: true),
+                SupervisionStep.Deliver(), SupervisionStep.Stop()
+            ]);
 
         await RunSupervisedReceiver(true, invoker, errors, sem, cts.Token, ackState: ackState).WaitAsync(TimeSpan.FromSeconds(3));
 
@@ -195,17 +184,44 @@ public partial class EventQueueTests
     {
         var opts = new CallOptions(cancellationToken: ct);
         var delay = retryDelay ?? TimeSpan.Zero;
+
         if (!deliveryAck)
+        {
             return EventReceiverWorker.RunAsync<TrackedTestEvent, TestEventRecord, TestEventSubscriberStorage>(
-                storage ?? new(), SubscriberStorageBehavior.Durable, sem, opts, invoker, CreateSubscriptionMethod<TrackedTestEvent>(),
-                "supervised-subscriber", typeof(TrackedTestEvent).FullName!, TimeSpan.FromMinutes(1), NullLogger.Instance, errors, delay);
+                storage ?? new(),
+                SubscriberStorageBehavior.Durable,
+                sem,
+                opts,
+                invoker,
+                CreateSubscriptionMethod<TrackedTestEvent>(),
+                "supervised-subscriber",
+                typeof(TrackedTestEvent).FullName!,
+                TimeSpan.FromMinutes(1),
+                NullLogger.Instance,
+                errors,
+                delay);
+        }
 
         var method = new Method<EventDeliveryAck, EventDelivery<TrackedTestEvent>>(
-            MethodType.DuplexStreaming, typeof(TrackedTestEvent).FullName!, "sub-ack",
-            new MessagePackMarshaller<EventDeliveryAck>(), new MessagePackMarshaller<EventDelivery<TrackedTestEvent>>());
+            MethodType.DuplexStreaming,
+            typeof(TrackedTestEvent).FullName!,
+            "sub-ack",
+            new MessagePackMarshaller<EventDeliveryAck>(),
+            new MessagePackMarshaller<EventDelivery<TrackedTestEvent>>());
+
         return EventDeliveryAckReceiver.RunAsync<TrackedTestEvent, DeliveryAckRecord, DeliveryAckSubscriberStorage>(
-            new(ackState ?? new()), SubscriberStorageBehavior.Durable, sem, opts, invoker, method,
-            "supervised-subscriber", typeof(TrackedTestEvent).FullName!, TimeSpan.FromMinutes(1), NullLogger.Instance, errors, delay);
+            new(ackState ?? new()),
+            SubscriberStorageBehavior.Durable,
+            sem,
+            opts,
+            invoker,
+            method,
+            "supervised-subscriber",
+            typeof(TrackedTestEvent).FullName!,
+            TimeSpan.FromMinutes(1),
+            NullLogger.Instance,
+            errors,
+            delay);
     }
 
     sealed class SupervisionErrors : SubscriberExceptionReceiver
@@ -218,6 +234,7 @@ public partial class EventQueueTests
         {
             Counts.Add(attemptCount);
             Exceptions.Add(exception);
+
             if (ThrowOnReceive)
                 throw new InvalidOperationException("receive callback failed");
 
@@ -225,14 +242,26 @@ public partial class EventQueueTests
         }
     }
 
-    sealed record SupervisionStep(bool ThrowOnCreate = false, bool HasEvent = false, bool FailAck = false,
-                                  bool FailRead = false, bool Cancel = false)
+    sealed record SupervisionStep(bool ThrowOnCreate = false,
+                                  bool HasEvent = false,
+                                  bool FailAck = false,
+                                  bool FailRead = false,
+                                  bool Cancel = false)
     {
-        public static SupervisionStep Fail() => new(FailRead: true);
-        public static SupervisionStep End() => new();
-        public static SupervisionStep Stop() => new(Cancel: true);
-        public static SupervisionStep CreationFailure() => new(ThrowOnCreate: true);
-        public static SupervisionStep Deliver(bool failAck = false) => new(HasEvent: true, FailAck: failAck, FailRead: true);
+        public static SupervisionStep Fail()
+            => new(FailRead: true);
+
+        public static SupervisionStep End()
+            => new();
+
+        public static SupervisionStep Stop()
+            => new(Cancel: true);
+
+        public static SupervisionStep CreationFailure()
+            => new(ThrowOnCreate: true);
+
+        public static SupervisionStep Deliver(bool failAck = false)
+            => new(HasEvent: true, FailAck: failAck, FailRead: true);
     }
 
     sealed class SupervisionInvoker(CancellationTokenSource cts, SupervisionStep[] steps) : CallInvoker
@@ -250,11 +279,15 @@ public partial class EventQueueTests
         {
             ReplacedBeforeDisposal |= _callOpen;
             var index = CreationAttempts++;
+
             if (index >= steps.Length)
                 throw new InvalidOperationException("Unexpected replacement call.");
+
             var step = steps[index];
+
             if (step.ThrowOnCreate)
                 throw CreationError;
+
             _callOpen = true;
 
             return step;
@@ -266,17 +299,26 @@ public partial class EventQueueTests
             _callOpen = false;
         }
 
-        public override AsyncServerStreamingCall<TResponse> AsyncServerStreamingCall<TRequest, TResponse>(
-            Method<TRequest, TResponse> method, string? host, CallOptions options, TRequest request)
+        public override AsyncServerStreamingCall<TResponse> AsyncServerStreamingCall<TRequest, TResponse>(Method<TRequest, TResponse> method,
+                                                                                                          string? host,
+                                                                                                          CallOptions options,
+                                                                                                          TRequest request)
         {
             var step = Create();
             var reader = new SupervisionReader<TrackedTestEvent>(step, new() { Name = "supervised" }, cts);
+
             return (AsyncServerStreamingCall<TResponse>)(object)new AsyncServerStreamingCall<TrackedTestEvent>(
-                reader, Task.FromResult(new Metadata()), () => Status.DefaultSuccess, () => new(), DisposeCall);
+                reader,
+                Task.FromResult(new Metadata()),
+                () => Status.DefaultSuccess,
+                () => new(),
+                DisposeCall);
         }
 
         public override AsyncDuplexStreamingCall<TRequest, TResponse> AsyncDuplexStreamingCall<TRequest, TResponse>(
-            Method<TRequest, TResponse> method, string? host, CallOptions options)
+            Method<TRequest, TResponse> method,
+            string? host,
+            CallOptions options)
         {
             var step = Create();
             var delivery = new EventDelivery<TrackedTestEvent>
@@ -284,21 +326,30 @@ public partial class EventQueueTests
                 TrackingID = TrackingID, Event = new() { Name = "supervised" }, ReplayUntil = DateTime.UtcNow.AddMinutes(5)
             };
             var reader = new SupervisionReader<EventDelivery<TrackedTestEvent>>(step, delivery, cts);
+
             return (AsyncDuplexStreamingCall<TRequest, TResponse>)(object)new AsyncDuplexStreamingCall<EventDeliveryAck, EventDelivery<TrackedTestEvent>>(
-                new SupervisionAckWriter(this, step), reader, Task.FromResult(new Metadata()),
-                () => Status.DefaultSuccess, () => new(), DisposeCall);
+                new SupervisionAckWriter(this, step),
+                reader,
+                Task.FromResult(new Metadata()),
+                () => Status.DefaultSuccess,
+                () => new(),
+                DisposeCall);
         }
 
         sealed class SupervisionAckWriter(SupervisionInvoker owner, SupervisionStep step) : IClientStreamWriter<EventDeliveryAck>
         {
             public WriteOptions? WriteOptions { get; set; }
-            public Task CompleteAsync() => Task.CompletedTask;
+
+            public Task CompleteAsync()
+                => Task.CompletedTask;
+
             public Task WriteAsync(EventDeliveryAck message)
             {
                 if (message.TrackingID != Guid.Empty)
                 {
                     if (step.FailAck)
                         throw owner.AckError;
+
                     owner.SuccessfulAcks++;
                 }
 
@@ -307,11 +358,16 @@ public partial class EventQueueTests
         }
 
         public override AsyncClientStreamingCall<TRequest, TResponse> AsyncClientStreamingCall<TRequest, TResponse>(
-            Method<TRequest, TResponse> method, string? host, CallOptions options) => throw new NotSupportedException();
-        public override AsyncUnaryCall<TResponse> AsyncUnaryCall<TRequest, TResponse>(
-            Method<TRequest, TResponse> method, string? host, CallOptions options, TRequest request) => throw new NotSupportedException();
-        public override TResponse BlockingUnaryCall<TRequest, TResponse>(
-            Method<TRequest, TResponse> method, string? host, CallOptions options, TRequest request) => throw new NotSupportedException();
+            Method<TRequest, TResponse> method,
+            string? host,
+            CallOptions options)
+            => throw new NotSupportedException();
+
+        public override AsyncUnaryCall<TResponse> AsyncUnaryCall<TRequest, TResponse>(Method<TRequest, TResponse> method, string? host, CallOptions options, TRequest request)
+            => throw new NotSupportedException();
+
+        public override TResponse BlockingUnaryCall<TRequest, TResponse>(Method<TRequest, TResponse> method, string? host, CallOptions options, TRequest request)
+            => throw new NotSupportedException();
     }
 
     sealed class SupervisionReader<T>(SupervisionStep step, T message, CancellationTokenSource cts) : IAsyncStreamReader<T>
@@ -324,13 +380,17 @@ public partial class EventQueueTests
             if (step.Cancel)
             {
                 cts.Cancel();
+
                 return Task.FromResult(false);
             }
+
             if (step.HasEvent && !_delivered)
             {
                 _delivered = true;
+
                 return Task.FromResult(true);
             }
+
             if (step.FailRead)
                 throw new IOException("stream read failed");
 

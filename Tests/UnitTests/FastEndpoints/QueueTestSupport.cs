@@ -37,7 +37,7 @@ static class QueueTestSupport
             if (condition())
                 return;
 
-            await Task.Delay(50);
+            await Task.Delay(5);
         }
 
         condition().ShouldBeTrue();

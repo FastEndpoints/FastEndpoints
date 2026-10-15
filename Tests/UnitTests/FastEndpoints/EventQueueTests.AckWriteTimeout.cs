@@ -24,7 +24,7 @@ public partial class EventQueueTests
     static async Task VerifyWriteDeadline<TEvent>(string mode) where TEvent : class, IEvent, new()
     {
         await using var session = DeliveryAckSession<TEvent>.Create();
-        session.HubState.AckTimeout = TimeSpan.FromMilliseconds(mode == "expiry" ? 30000 : mode == "slow" ? 1000 : 200);
+        session.HubState.AckTimeout = TimeSpan.FromMilliseconds(mode == "expiry" ? 30000 : mode == "slow" ? 400 : 200);
         const string subscriberId = "blocked-write";
         var id = Guid.NewGuid();
         session.HubState.Rows.Add(new()
@@ -43,10 +43,11 @@ public partial class EventQueueTests
             session.ConnectionCount(subscriberId).ShouldBe(1);
             if (mode == "slow")
             {
-                await Task.Delay(600);
+                // Each phase fits its own budget, but their sum exceeds a shared budget.
+                await Task.Delay(250);
                 writer.Release.TrySetResult();
                 await reader.AckReadStarted.Task.WaitAsync(TimeSpan.FromSeconds(3));
-                await Task.Delay(600);
+                await Task.Delay(250);
                 call.IsCompleted.ShouldBeFalse();
                 reader.Send(new() { TrackingID = id });
                 await WaitUntil(() => session.HubState.Rows.Single().IsComplete);
@@ -129,7 +130,7 @@ public partial class EventQueueTests
 
     static async Task VerifyUnreadDelivery<TEvent>(bool expireHead) where TEvent : class, IEvent, new()
     {
-        await using var host = await LiveDeliveryAckHost<TEvent>.CreateAsync(TimeSpan.FromSeconds(expireHead ? 30 : 1),
+        await using var host = await LiveDeliveryAckHost<TEvent>.CreateAsync(TimeSpan.FromMilliseconds(expireHead ? 30000 : 200),
             new Grpc.Net.Client.GrpcChannelOptions { MaxReceiveMessageSize = 64 * 1024 * 1024 });
         var state = host.HubState;
         var channel = host.Channel;
@@ -150,7 +151,7 @@ public partial class EventQueueTests
                 new()
                 {
                     SubscriberID = subscriberId, TrackingID = firstId, EventType = typeof(TEvent).FullName!,
-                    Event = new TEvent(), ExpireOn = DateTime.UtcNow.AddSeconds(expireHead ? 1 : 60)
+                    Event = new TEvent(), ExpireOn = DateTime.UtcNow.AddMilliseconds(expireHead ? 200 : 60000)
                 },
                 new()
                 {

@@ -246,7 +246,7 @@ public partial class EventQueueTests
     [Fact]
     public async Task delivery_ack_live_grpc_call_without_ack_times_out_and_reconnects()
     {
-        await using var host = await LiveDeliveryAckHost<DeliveryAckTransportEvent>.CreateAsync(TimeSpan.FromSeconds(1));
+        await using var host = await LiveDeliveryAckHost<DeliveryAckTransportEvent>.CreateAsync(TimeSpan.FromMilliseconds(200));
         var state = host.HubState;
         var channel = host.Channel;
         var method = host.Method;

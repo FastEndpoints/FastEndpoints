@@ -332,6 +332,16 @@ Endpoints with multiple HTTP verbs and/or routes had their `AuthorizeAttribute[]
 
 ## Minor Breaking Changes ⚠️
 
+<details><summary>Target .NET 10 or .NET 11 when upgrading FastEndpoints</summary>
+
+Runtime packages now target `net10.0` and `net11.0` only. .NET 8 and .NET 9 applications must retarget to .NET 10 or .NET 11 before upgrading, or stay on their existing FastEndpoints package version. This also applies to the independently versioned MCP and A2A addons.
+
+The serializer generator CLI now requires a .NET 10 runtime or later. The Roslyn generator and its attributes retain `netstandard2.0` assets for compiler-host compatibility, not support for older application runtimes.
+
+.NET 11 support currently uses RC2 framework packages. Revalidate against the final .NET 11 SDK and packages before a stable release.
+
+</details>
+
 <details><summary>OpenAPI 3.1 schema examples now use <code>examples</code> arrays</summary>
 
 `FastEndpoints.OpenApi` now writes XML documentation and generated polymorphic schema examples as `examples: [value]` instead of singular `example: value` in OpenAPI 3.1 documents. Reference-local examples retain their full list, including explicit JSON nulls. Request/response media-type examples and parameter/header examples are unchanged. OpenAPI 3.0 output continues to write a single schema example from the first list entry.

@@ -25,7 +25,7 @@ Library monorepo, not a hosted product. Package inventory: [monorepo-packages.md
 | Addons (own version line) | `FastEndpoints.Mcp`, `FastEndpoints.A2A` (`Src/Agents/`) |
 
 ## Consumers
-- App developers targeting ASP.NET Core **net8.0 / net9.0 / net10.0**
+- App developers targeting ASP.NET Core **net10.0 / net11.0**
 - NuGet consumers; nothing is deployed as a service from this repo
 
 ## Capabilities

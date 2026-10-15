@@ -30,7 +30,7 @@ Open generic classes are skipped (`TypeParameterList` is not null). A non-generi
 - **`FastEndpoints.Generator.targets`:** when `GenerateSerializerContexts=true` (optional `SerializerContextOutputPath`, default `Generated/FastEndpoints`, and `GeneratorCliVersion`), runs Generator.Cli to emit STJ serializer contexts.
 - **CLI type index:** `SourceFileWalker` records class, struct, record, and enum declarations so generic type arguments (including enum dictionary keys) emit fully qualified `typeof(...)` in `[JsonSerializable]`. Cache schema `v2` invalidates older `.fastendpoints-generator-cache` files.
 - **OpenApi targets:** `ExportOpenApiArtifactsBeforeAotPublish` exports `.json`/`.http` when `ExportOpenApiDocs`/`ExportHttpFiles` set (aliases keep old target names). Single JIT intermediate dir + combined CLI flags when both enabled; app one-call export orchestrator (`ExportOpenApiArtifactsAndExitAsync`, or either legacy `Export*AndExitAsync` alias) reads those flags (see NativeAotChecker).
-- Dev mode uses `Src/Generator.Cli/bin/$(Configuration)/net8.0/FastEndpoints.Generator.Cli.dll`; `BuildFastEndpointsGeneratorCli` automatically builds a missing DLL before `CoreCompile` when serializer generation is enabled. Package mode installs/updates the local tool `FastEndpoints.Generator.Cli`.
+- Dev mode uses `Src/Generator.Cli/bin/$(Configuration)/net10.0/FastEndpoints.Generator.Cli.dll`; `BuildFastEndpointsGeneratorCli` automatically builds a missing DLL before `CoreCompile` when serializer generation is enabled. Package mode installs/updates the local tool `FastEndpoints.Generator.Cli`.
 
 ## Do not hand-edit
 - Compiler-generated outputs under consumer `Generated/` folders

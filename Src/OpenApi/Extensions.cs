@@ -68,9 +68,9 @@ public static class Extensions
                 opts.ConfigureOpenApi?.Invoke(apiOptions);
             });
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<JsonOptions>, FeOpenApiJsonOptions>());
-#if NET11_0_OR_GREATER
+    #if NET11_0_OR_GREATER
         services.TryAddEnumerable(ServiceDescriptor.Transient<Microsoft.AspNetCore.Mvc.ApiExplorer.IApiDescriptionProvider, ResponseTypeCompatibilityProvider>());
-#endif
+    #endif
 
         return services;
     }

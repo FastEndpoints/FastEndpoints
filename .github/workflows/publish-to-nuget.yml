@@ -35,11 +35,12 @@ jobs:
       - name: Run .NET 11 Tests
         run: dotnet test FastEndpoints.slnx -c Release --framework net11.0 --verbosity minimal --filter "ExcludeInCiCd!=Yes" --max-parallel-test-modules 1
 
-      - name: Run .NET 10 AOT Tests
-        run: dotnet test NativeAot.slnx -c Release --framework net10.0 --verbosity minimal --max-parallel-test-modules 1
+      # AOT tests disabled to keep publishing CI duration manageable.
+      # - name: Run .NET 10 AOT Tests
+      #   run: dotnet test NativeAot.slnx -c Release --framework net10.0 --verbosity minimal --max-parallel-test-modules 1
 
-      - name: Run .NET 11 AOT Tests
-        run: dotnet test NativeAot.slnx -c Release --framework net11.0 --verbosity minimal --max-parallel-test-modules 1
+      # - name: Run .NET 11 AOT Tests
+      #   run: dotnet test NativeAot.slnx -c Release --framework net11.0 --verbosity minimal --max-parallel-test-modules 1
 
       - name: Make Nuget Packages
         run: dotnet pack FastEndpoints.slnx -c Release

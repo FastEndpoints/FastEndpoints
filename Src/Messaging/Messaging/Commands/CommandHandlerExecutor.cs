@@ -85,14 +85,9 @@ sealed class VoidCommandHandlerExecutor<TCommand> : ICommandHandlerExecutor<Void
             if (tInterface != tOpen)
                 continue;
 
-            if (!RuntimeFeature.IsDynamicCodeSupported)
-            {
-                throw new NotSupportedException(
-                    $"Open-generic command middleware [{tImplementation.Name}] cannot wrap no-result commands under Native AOT. " +
-                    $"Register a closed type with Register<{typeof(TCommand).Name}, Void, TMiddleware>().");
-            }
-
-            (types ??= []).Add(tImplementation.MakeGenericType(typeof(TCommand), typeof(Void)));
+            throw new NotSupportedException(
+                $"Open-generic command middleware [{tImplementation.Name}] cannot wrap no-result commands under Native AOT. " +
+                $"Register a closed type with Register<{typeof(TCommand).Name}, Void, TMiddleware>().");
         }
 
         return types is null ? [] : [.. types];

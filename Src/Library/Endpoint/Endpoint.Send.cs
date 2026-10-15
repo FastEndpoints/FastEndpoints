@@ -359,9 +359,7 @@ public readonly struct ResponseSender<TRequest, TResponse>(Endpoint<TRequest, TR
     /// send an http 200 ok response with the supplied response dto serialized as json to the client.
     /// </summary>
     /// <param name="response">the object to serialize to json</param>
-#if NET9_0_OR_GREATER
     [System.Runtime.CompilerServices.OverloadResolutionPriority(1)]
-#endif
     public Task<Void> OkAsync(TResponse response)
         => OkAsync(response, CancellationToken.None);
 

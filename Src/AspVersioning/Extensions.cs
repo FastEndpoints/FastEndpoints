@@ -4,15 +4,12 @@ using Asp.Versioning.ApiExplorer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using NSwag.Generation.AspNetCore;
-#if NET10_0_OR_GREATER
 using Asp.Versioning.OpenApi;
-#endif
 
 namespace FastEndpoints.AspVersioning;
 
 public static class Extensions
 {
-#if NET10_0_OR_GREATER
     /// <summary>
     /// add Asp.Versioning.Http versioning support to the middleware pipeline and
     /// configure the versioned open api documents
@@ -25,17 +22,6 @@ public static class Extensions
                                                    Action<ApiVersioningOptions>? versioningOptions = null,
                                                    Action<ApiExplorerOptions>? apiExplorerOptions = null,
                                                    Action<VersionedOpenApiOptions>? openApiOptions = null)
-#else
-    /// <summary>
-    /// add Asp.Versioning.Http versioning support to the middleware pipeline
-    /// </summary>
-    /// <param name="versioningOptions">action for configuring the verioning options</param>
-    /// <param name="apiExplorerOptions">action for configuring the api explorer options</param>
-    [UnconditionalSuppressMessage("aot", "IL2026")]
-    public static IServiceCollection AddVersioning(this IServiceCollection services,
-                                                   Action<ApiVersioningOptions>? versioningOptions = null,
-                                                   Action<ApiExplorerOptions>? apiExplorerOptions = null)
-#endif
     {
         var builder = versioningOptions is null
                           ? services.AddApiVersioning(VersioningDefaults)
@@ -57,10 +43,8 @@ public static class Extensions
 
         Config.VerOpts.IsUsingAspVersioning = true;
 
-#if NET10_0_OR_GREATER
         if (openApiOptions is not null)
             builder.AddOpenApi(openApiOptions);
-#endif
 
         return services;
 

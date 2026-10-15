@@ -46,27 +46,16 @@ public sealed class CommandModeTests : IAsyncLifetime
 
     async Task<(int ExitCode, string ArtifactRoot)> RunHarnessAsync(string key, string value)
     {
-        var projectPath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "..", "TestHarness", "OpenApi.Kiota", "OpenApi.Kiota.csproj"));
+        var harnessPath = typeof(Program).Assembly.Location;
         var proc = new ProcessStartInfo("dotnet")
         {
-            WorkingDirectory = Path.GetDirectoryName(projectPath)!,
+            WorkingDirectory = Path.GetDirectoryName(harnessPath)!,
             RedirectStandardError = true,
             RedirectStandardOutput = true
         };
 
-        proc.ArgumentList.Add("run");
-        proc.ArgumentList.Add("--no-build");
-        proc.ArgumentList.Add("--framework");
-        proc.ArgumentList.Add($"net{new System.Runtime.Versioning.FrameworkName(AppContext.TargetFrameworkName!).Version}");
-        proc.ArgumentList.Add("--configuration");
-#if DEBUG
-        proc.ArgumentList.Add("Debug");
-#else
-        proc.ArgumentList.Add("Release");
-#endif
-        proc.ArgumentList.Add("--project");
-        proc.ArgumentList.Add(projectPath);
-        proc.ArgumentList.Add("--");
+        // IDE hosts can have a different base directory and target framework than the tests.
+        proc.ArgumentList.Add(harnessPath);
         proc.ArgumentList.Add($"--{key}");
         proc.ArgumentList.Add(value);
         proc.Environment["DOTNET_ENVIRONMENT"] = "Testing";

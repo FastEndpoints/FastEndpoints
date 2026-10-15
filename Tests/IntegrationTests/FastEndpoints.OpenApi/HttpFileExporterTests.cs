@@ -225,9 +225,9 @@ public class HttpFileExporterTests
                             OperationId = "Upload",
                             RequestBody = new OpenApiRequestBody
                             {
-                                Content = new Dictionary<string, OpenApiMediaType>
+                                Content = new Dictionary<string, OpenApiMediaTypeValue>()
                                 {
-                                    ["multipart/form-data"] = new()
+                                    ["multipart/form-data"] = new OpenApiMediaType()
                                     {
                                         Schema = new OpenApiSchema
                                         {
@@ -269,9 +269,9 @@ public class HttpFileExporterTests
                             OperationId = "TextBody",
                             RequestBody = new OpenApiRequestBody
                             {
-                                Content = new Dictionary<string, OpenApiMediaType>
+                                Content = new Dictionary<string, OpenApiMediaTypeValue>()
                                 {
-                                    ["text/plain"] = new()
+                                    ["text/plain"] = new OpenApiMediaType()
                                     {
                                         Schema = new OpenApiSchema { Type = JsonSchemaType.String }
                                     }
@@ -305,9 +305,9 @@ public class HttpFileExporterTests
                             OperationId = "JsonPatch",
                             RequestBody = new OpenApiRequestBody
                             {
-                                Content = new Dictionary<string, OpenApiMediaType>
+                                Content = new Dictionary<string, OpenApiMediaTypeValue>()
                                 {
-                                    ["application/json-patch+json"] = new()
+                                    ["application/json-patch+json"] = new OpenApiMediaType()
                                     {
                                         Schema = new OpenApiSchema
                                         {
@@ -480,9 +480,9 @@ public class HttpFileExporterTests
                             OperationId = "LoginNoHost",
                             RequestBody = new OpenApiRequestBody
                             {
-                                Content = new Dictionary<string, OpenApiMediaType>
+                                Content = new Dictionary<string, OpenApiMediaTypeValue>()
                                 {
-                                    ["application/json"] = new()
+                                    ["application/json"] = new OpenApiMediaType()
                                     {
                                         Schema = new OpenApiSchemaReference("LoginRequest") // no HostDocument
                                     }
@@ -809,9 +809,9 @@ public class HttpFileExporterTests
                     OperationId = operationId,
                     RequestBody = new OpenApiRequestBody
                     {
-                        Content = new Dictionary<string, OpenApiMediaType>
+                        Content = new Dictionary<string, OpenApiMediaTypeValue>()
                         {
-                            ["application/json"] = new()
+                            ["application/json"] = new OpenApiMediaType()
                             {
                                 Schema = bodySchema,
                                 Example = mediaExample,

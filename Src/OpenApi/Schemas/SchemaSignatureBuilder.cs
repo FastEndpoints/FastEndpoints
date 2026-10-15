@@ -285,8 +285,12 @@ static class SchemaSignatureBuilder
             AppendValue(builder, "name", xml.Name);
             AppendValue(builder, "namespace", xml.Namespace);
             AppendValue(builder, "prefix", xml.Prefix);
+#if NET11_0_OR_GREATER
+            AppendValue(builder, "nodeType", xml.NodeType);
+#else
             AppendValue(builder, "attribute", xml.Attribute);
             AppendValue(builder, "wrapped", xml.Wrapped);
+#endif
         }
 
         builder.Append("};");

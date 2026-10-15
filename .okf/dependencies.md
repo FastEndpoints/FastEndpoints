@@ -10,7 +10,7 @@ tags: [deps]
 ## Runtime
 - **Language:** C# (LangVersion latest)
 - **TFMs (libraries):** net10.0; net11.0 (default from `Src/Directory.Build.props`, including OpenApi, OpenApi.Kiota and Agents)
-- **Overrides:** Generator → netstandard2.0; Generator.Cli → net10.0 with major runtime roll-forward; Attributes → netstandard2.0 + net10/11. The netstandard targets support analyzer hosts, not older application runtimes.
+- **Overrides:** Generator → netstandard2.0; Generator.Cli → net10.0 with major runtime roll-forward; Attributes → netstandard2.0 + net10/11; AspVersioning and its unit tests → net10.0 only. The netstandard targets support analyzer hosts, not older application runtimes.
 - **SDK:** pinned in `global.json` to 11.0.100-rc.2.26504.105 with latest-patch roll-forward. net11 ASP.NET JwtBearer/TestHost/Mvc.Testing packages use the matching RC2.
 - **Tests / integration and AOT harnesses:** net10.0; net11.0. Benchmarks and standalone Sandbox projects remain net10.0.
 - **ASP.NET:** `FrameworkReference` Microsoft.AspNetCore.App where needed
@@ -33,15 +33,16 @@ tags: [deps]
 | Microsoft.AspNetCore.OData | OData package |
 | ModelContextProtocol.AspNetCore | Agents MCP; v2.x targets the 2026-07-28 MCP spec (stateless-by-default transport, backward compatible with the addon's v1-style handler wiring) |
 | Microsoft.CodeAnalysis.CSharp **[5.0.0]** | Generators; minimum analyzer host is .NET 10 SDK / Visual Studio 2026 18.0 |
-| Microsoft.OpenApi.Kiota.Builder **[1.29.2]** | Pinned; Kiota OpenAPI 3.x vs AspNetCore.OpenApi 10's 2.x mismatch |
+| Microsoft.OpenApi.Kiota.Builder | net10: pinned **[1.29.2]** for OpenAPI 2.x; net11: **1.36.1** for OpenAPI 3.x |
 | xunit.v3, Shouldly, FakeItEasy, Bogus | Test stack |
 | BenchmarkDotNet, NBomber | Benchmarks / load |
 
 ## Constraints
 - Bump of `Microsoft.CodeAnalysis.CSharp` or Kiota builder needs explicit compatibility validation (comments in `Directory.Packages.props`).
-- TFM-conditional package versions for JwtBearer, TestHost and Mvc.Testing (10/11 groups); Asp.Versioning 10 is shared by both TFMs.
-- Keep Microsoft.AspNetCore.OpenApi 10 on both TFMs until Asp.Versioning.OpenApi supports Microsoft.OpenApi 3.x. OpenAPI 11 requires 3.x but Asp.Versioning.OpenApi 10 requires <3.0.0. Coordinate that migration with the Kiota pin.
-- On net11, `OpenApiDocument` registers `ResponseTypeCompatibilityProvider` once. It collapses API Explorer's multiple CLR response types per status to the last declared type before OpenAPI 10 runs, preserving that type's media formats and keeping default responses distinct. Remove this compatibility layer only with the coordinated OpenAPI dependency migration.
+- TFM-conditional package versions for JwtBearer, TestHost, Mvc.Testing, Microsoft.AspNetCore.OpenApi and Kiota (10/11 groups). OpenAPI 10 uses Microsoft.OpenApi 2.x; OpenAPI 11 uses 3.x.
+- AspVersioning remains net10-only: Asp.Versioning.OpenApi 10 requires Microsoft.OpenApi <3.0.0 and cannot share the net11 OpenAPI stack. Built-in FastEndpoints route versioning works on both TFMs.
+- `OpenApiMediaTypeValue` aliases the concrete 2.x media type on net10 and `IOpenApiMediaType` on net11. Mutations use `GetMutableMediaType(s)` to localize referenced media types before changing schemas/examples. XML schema signatures use `NodeType` on net11 instead of 2.x's `Attribute`/`Wrapped`.
+- On net11, `OpenApiDocument` registers `ResponseTypeCompatibilityProvider` once to preserve last-declared response-type selection, its media formats and distinct default responses.
 - Library version single-sourced in `Src/Directory.Build.props`; Agents override `Version` per csproj.
 - Strong-name key required for pack/sign; InternalsVisibleTo entries must use the public key.
 

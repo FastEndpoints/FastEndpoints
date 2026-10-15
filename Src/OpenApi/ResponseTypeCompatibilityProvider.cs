@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.ApiExplorer;
 
 namespace FastEndpoints.OpenApi;
 
-// OpenAPI 10 expects one response per status. .NET 11 API Explorer can return several CLR types for a status.
+// Preserve last-declaration-wins when API Explorer reports several CLR types for a status.
 sealed class ResponseTypeCompatibilityProvider : IApiDescriptionProvider
 {
     public int Order => int.MinValue;

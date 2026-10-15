@@ -291,6 +291,12 @@ Visible with `Microsoft.OpenApi` 2.11.0 or later.
 
 ## Improvements 🚀
 
+<details><summary>Use the .NET 11 OpenAPI stack and newer Kiota client generation on .NET 11</summary>
+
+`FastEndpoints.OpenApi` and `FastEndpoints.OpenApi.Kiota` use ASP.NET Core OpenAPI 11 and Microsoft.OpenApi 3.x when targeting .NET 11, with OpenAPI 3.2 documents and `QUERY` operation support by default. .NET 10 retains the compatible OpenAPI 10 / Microsoft.OpenApi 2.x stack and Kiota 1.29.2.
+
+</details>
+
 <details><summary>Warmup no longer precompiles the data-annotations validation graph when it's disabled</summary>
 
 `Warmup()` unconditionally walked and precompiled each request DTO's data-annotations validation graph (bindable props + getters), even though that graph is only ever used when `Validation.EnableDataAnnotationsSupport` is turned on. That startup-only work is now skipped when the setting is left at its default (off), which is the common case.
@@ -331,6 +337,12 @@ Endpoints with multiple HTTP verbs and/or routes had their `AuthorizeAttribute[]
 </details>
 
 ## Minor Breaking Changes ⚠️
+
+<details><summary>The ASP.NET API Versioning integration is limited to .NET 10</summary>
+
+Known limitation: `FastEndpoints.AspVersioning` remains .NET 10-only because `Asp.Versioning.OpenApi` requires Microsoft.OpenApi 2.x and cannot share the OpenAPI 11 / Microsoft.OpenApi 3.x stack. On .NET 11, use FastEndpoints' built-in route-based versioning instead.
+
+</details>
 
 <details><summary>Target .NET 10 or .NET 11 when upgrading FastEndpoints</summary>
 

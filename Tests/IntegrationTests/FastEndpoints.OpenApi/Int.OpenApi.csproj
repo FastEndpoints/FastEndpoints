@@ -13,6 +13,7 @@
 
     <ItemGroup>
         <Content Include="release-0.json" CopyToOutputDirectory="Always"/>
+        <Content Include="Snapshots/**/*.json;Snapshots/**/*.http" CopyToOutputDirectory="Always"/>
         <Content Include="release-1.json" CopyToOutputDirectory="Always"/>
         <Content Include="release-2.json" CopyToOutputDirectory="Always"/>
         <Content Include="xunit.runner.json" CopyToOutputDirectory="Always"/>

@@ -130,7 +130,7 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
         foreach (var example in examples)
             exampleNodes.Add((example, BuildRequestExampleNode(example.Value, state.PropsRemovedFromBody, promotedBodyProperty)));
 
-        foreach (var content in operation.RequestBody.Content.Values)
+        foreach (var content in operation.RequestBody.Content.GetMutableMediaTypes())
         {
             var schema = content.Schema.ResolveSchema(generation);
 
@@ -184,7 +184,7 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
 
         var mutationCtx = new OperationSchemaMutationContext(sharedCtx, generation, operationKey);
 
-        foreach (var content in operation.RequestBody.Content.Values)
+        foreach (var content in operation.RequestBody.Content.GetMutableMediaTypes())
         {
             var schema = content.Schema.ResolveSchema(generation);
 

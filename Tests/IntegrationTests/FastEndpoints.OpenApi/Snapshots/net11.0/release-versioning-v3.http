@@ -1,0 +1,38 @@
+@baseUrl = https://localhost:5001
+
+### release_versioning_TestCasesSwaggerReleaseVersioningEndpointA
+GET {{baseUrl}}/api/release-versioning/endpoint-a
+Authorization: Bearer {{bearerToken}}
+Accept: application/json
+
+
+### release_versioning_TestCasesSwaggerReleaseVersioningEndpointA_V1
+GET {{baseUrl}}/api/release-versioning/endpoint-a/ver1
+Authorization: Bearer {{bearerToken}}
+Accept: application/json
+
+
+### release_versioning_TestCasesSwaggerReleaseVersioningEndpointA_V2
+GET {{baseUrl}}/api/release-versioning/endpoint-a/ver2
+Authorization: Bearer {{bearerToken}}
+Accept: application/json
+
+
+### release_versioning_TestCasesSwaggerReleaseVersioningEndpointB
+GET {{baseUrl}}/api/release-versioning/endpoint-b
+Authorization: Bearer {{bearerToken}}
+Accept: application/json
+
+
+### release_versioning_TestCasesSwaggerReleaseVersioningEndpointB_V1
+GET {{baseUrl}}/api/release-versioning/endpoint-b/ver1
+Authorization: Bearer {{bearerToken}}
+Accept: application/json
+
+
+### release_versioning_TestCasesSwaggerReleaseVersioningEndpointB_V1_Delete
+DELETE {{baseUrl}}/api/release-versioning/endpoint-b/ver1
+Authorization: Bearer {{bearerToken}}
+Accept: application/json
+
+

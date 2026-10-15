@@ -106,7 +106,7 @@ static class OpenApiSchemaGraphTransformer
 
         if (response.Content is { Count: > 0 })
         {
-            foreach (var mediaType in response.Content.Values)
+            foreach (var mediaType in response.Content.GetMutableMediaTypes())
                 RewriteMediaTypeSchemas(mediaType, rewrite);
         }
     }
@@ -121,7 +121,7 @@ static class OpenApiSchemaGraphTransformer
 
         if (parameter.Content is { Count: > 0 })
         {
-            foreach (var mediaType in parameter.Content.Values)
+            foreach (var mediaType in parameter.Content.GetMutableMediaTypes())
                 RewriteMediaTypeSchemas(mediaType, rewrite);
         }
     }
@@ -131,7 +131,7 @@ static class OpenApiSchemaGraphTransformer
         if (requestBody?.Content is not { Count: > 0 })
             return;
 
-        foreach (var mediaType in requestBody.Content.Values)
+        foreach (var mediaType in requestBody.Content.GetMutableMediaTypes())
             RewriteMediaTypeSchemas(mediaType, rewrite);
     }
 
@@ -145,7 +145,7 @@ static class OpenApiSchemaGraphTransformer
 
         if (header.Content is { Count: > 0 })
         {
-            foreach (var mediaType in header.Content.Values)
+            foreach (var mediaType in header.Content.GetMutableMediaTypes())
                 RewriteMediaTypeSchemas(mediaType, rewrite);
         }
     }

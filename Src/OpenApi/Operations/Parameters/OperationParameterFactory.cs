@@ -30,9 +30,9 @@ sealed class OperationParameterFactory(DocumentOptions docOpts, SharedContext sh
         if (ShouldUseJsonContent(location, schemaInfo.Type))
         {
             param.Schema = null;
-            param.Content = new Dictionary<string, OpenApiMediaType>
+            param.Content = new Dictionary<string, OpenApiMediaTypeValue>
             {
-                ["application/json"] = new() { Schema = schemaInfo.Schema }
+                ["application/json"] = new OpenApiMediaType { Schema = schemaInfo.Schema }
             };
         }
 
@@ -83,7 +83,7 @@ sealed class OperationParameterFactory(DocumentOptions docOpts, SharedContext sh
             return;
 
         if (param.Content is not null)
-            param.Content["application/json"].Example = example;
+            param.Content.GetMutableMediaType("application/json").Example = example;
         else
             param.Example = example;
     }

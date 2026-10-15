@@ -214,7 +214,7 @@ static class OpenApiSchemaReferenceCollector
             CollectPathItemRefs(pathItem, context);
     }
 
-    static void CollectMediaTypeRefs(OpenApiMediaType? mediaType, ReferenceCollectionContext context)
+    static void CollectMediaTypeRefs(OpenApiMediaTypeValue? mediaType, ReferenceCollectionContext context)
     {
         if (mediaType is null)
             return;

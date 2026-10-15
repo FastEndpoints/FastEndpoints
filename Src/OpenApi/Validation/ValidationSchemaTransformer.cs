@@ -77,7 +77,7 @@ sealed class ValidationSchemaTransformer(DocumentOptions docOpts, SharedContext 
         using var schemaApplier = CreateSchemaApplier(operationKey, "requestBody", generation);
         var formattedPropertyPrefix = FormatPropertyPrefix(propertyPrefix);
 
-        foreach (var content in operation.RequestBody!.Content!.Values)
+        foreach (var content in operation.RequestBody!.Content!.GetMutableMediaTypes())
         {
             var schema = content.EnsureOperationLocalSchemaForMutation(sharedCtx, generation, operationKey, "requestBody");
 
@@ -153,7 +153,7 @@ sealed class ValidationSchemaTransformer(DocumentOptions docOpts, SharedContext 
         if (param.Content is not { Count: > 0 })
             return null;
 
-        foreach (var content in param.Content.Values)
+        foreach (var content in param.Content.GetMutableMediaTypes())
         {
             var schema = content.EnsureOperationLocalSchemaForMutation(sharedCtx, generation, operationKey, schemaKey);
 

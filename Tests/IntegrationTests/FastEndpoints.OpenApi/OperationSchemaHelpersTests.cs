@@ -208,9 +208,9 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
                 {
                     ["ReusableRequest"] = new OpenApiRequestBody
                     {
-                        Content = new Dictionary<string, OpenApiMediaType>
+                        Content = new Dictionary<string, OpenApiMediaTypeValue>()
                         {
-                            ["application/json"] = new() { Schema = new OpenApiSchemaReference("RequestRoot") }
+                            ["application/json"] = new OpenApiMediaType() { Schema = new OpenApiSchemaReference("RequestRoot") }
                         }
                     }
                 },
@@ -218,9 +218,9 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
                 {
                     ["ReusableResponse"] = new OpenApiResponse
                     {
-                        Content = new Dictionary<string, OpenApiMediaType>
+                        Content = new Dictionary<string, OpenApiMediaTypeValue>()
                         {
-                            ["application/json"] = new() { Schema = new OpenApiSchemaReference("ResponseRoot") }
+                            ["application/json"] = new OpenApiMediaType() { Schema = new OpenApiSchemaReference("ResponseRoot") }
                         }
                     }
                 },
@@ -263,9 +263,9 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
                         {
                             RequestBody = new OpenApiRequestBody
                             {
-                                Content = new Dictionary<string, OpenApiMediaType>
+                                Content = new Dictionary<string, OpenApiMediaTypeValue>()
                                 {
-                                    ["application/json"] = new() { Schema = new OpenApiSchemaReference("Old") }
+                                    ["application/json"] = new OpenApiMediaType() { Schema = new OpenApiSchemaReference("Old") }
                                 }
                             }
                         }
@@ -409,10 +409,10 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
             {
                 ["200"] = new OpenApiResponse
                 {
-                    Content = new Dictionary<string, OpenApiMediaType>
+                    Content = new Dictionary<string, OpenApiMediaTypeValue>()
                     {
-                        ["application/json"] = new(),
-                        ["application/problem+json"] = new()
+                        ["application/json"] = new OpenApiMediaType(),
+                        ["application/problem+json"] = new OpenApiMediaType()
                     }
                 }
             }
@@ -455,9 +455,9 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
                         {
                             RequestBody = new OpenApiRequestBody
                             {
-                                Content = new Dictionary<string, OpenApiMediaType>
+                                Content = new Dictionary<string, OpenApiMediaTypeValue>()
                                 {
-                                    ["application/json"] = new() { Schema = new OpenApiSchemaReference("Body") }
+                                    ["application/json"] = new OpenApiMediaType() { Schema = new OpenApiSchemaReference("Body") }
                                 }
                             }
                         }
@@ -471,9 +471,9 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
                         {
                             RequestBody = new OpenApiRequestBody
                             {
-                                Content = new Dictionary<string, OpenApiMediaType>
+                                Content = new Dictionary<string, OpenApiMediaTypeValue>()
                                 {
-                                    ["application/json"] = new() { Schema = new OpenApiSchemaReference("StillUsedWrapper") }
+                                    ["application/json"] = new OpenApiMediaType() { Schema = new OpenApiSchemaReference("StillUsedWrapper") }
                                 }
                             }
                         }
@@ -546,9 +546,9 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
             {
                 RequestBody = new OpenApiRequestBody
                 {
-                    Content = new Dictionary<string, OpenApiMediaType>
+                    Content = new Dictionary<string, OpenApiMediaTypeValue>()
                     {
-                        ["application/json"] = new() { Schema = schema }
+                        ["application/json"] = new OpenApiMediaType() { Schema = schema }
                     }
                 }
             };
@@ -581,9 +581,9 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
             {
                 RequestBody = new OpenApiRequestBody
                 {
-                    Content = new Dictionary<string, OpenApiMediaType>
+                    Content = new Dictionary<string, OpenApiMediaTypeValue>()
                     {
-                        ["application/json"] = new() { Schema = schema }
+                        ["application/json"] = new OpenApiMediaType() { Schema = schema }
                     }
                 }
             };
@@ -638,9 +638,9 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
                 {
                     ["ReusableResponse"] = new OpenApiResponse
                     {
-                        Content = new Dictionary<string, OpenApiMediaType>
+                        Content = new Dictionary<string, OpenApiMediaTypeValue>()
                         {
-                            ["application/json"] = new() { Schema = new OpenApiSchemaReference("ComponentResponseModel") }
+                            ["application/json"] = new OpenApiMediaType() { Schema = new OpenApiSchemaReference("ComponentResponseModel") }
                         }
                     }
                 },
@@ -648,9 +648,9 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
                 {
                     ["ReusableRequest"] = new OpenApiRequestBody
                     {
-                        Content = new Dictionary<string, OpenApiMediaType>
+                        Content = new Dictionary<string, OpenApiMediaTypeValue>()
                         {
-                            ["application/json"] = new() { Schema = new OpenApiSchemaReference("ComponentRequestModel") }
+                            ["application/json"] = new OpenApiMediaType() { Schema = new OpenApiSchemaReference("ComponentRequestModel") }
                         }
                     }
                 }
@@ -683,9 +683,9 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
         {
             ["ReusableResponse"] = new OpenApiResponse
             {
-                Content = new Dictionary<string, OpenApiMediaType>
+                Content = new Dictionary<string, OpenApiMediaTypeValue>()
                 {
-                    ["application/json"] = new() { Schema = new OpenApiSchemaReference("ResponseModel") }
+                    ["application/json"] = new OpenApiMediaType() { Schema = new OpenApiSchemaReference("ResponseModel") }
                 }
             }
         };
@@ -693,9 +693,9 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
         {
             ["ReusableRequest"] = new OpenApiRequestBody
             {
-                Content = new Dictionary<string, OpenApiMediaType>
+                Content = new Dictionary<string, OpenApiMediaTypeValue>()
                 {
-                    ["application/json"] = new() { Schema = new OpenApiSchemaReference("RequestModel") }
+                    ["application/json"] = new OpenApiMediaType() { Schema = new OpenApiSchemaReference("RequestModel") }
                 }
             }
         };
@@ -739,9 +739,9 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
                         {
                             RequestBody = new OpenApiRequestBody
                             {
-                                Content = new Dictionary<string, OpenApiMediaType>
+                                Content = new Dictionary<string, OpenApiMediaTypeValue>()
                                 {
-                                    ["application/json"] = new()
+                                    ["application/json"] = new OpenApiMediaType()
                                     {
                                         Schema = new OpenApiSchemaReference("Root")
                                     }
@@ -805,9 +805,9 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
                 {
                     ["ReusableRequest"] = new OpenApiRequestBody
                     {
-                        Content = new Dictionary<string, OpenApiMediaType>
+                        Content = new Dictionary<string, OpenApiMediaTypeValue>()
                         {
-                            ["application/json"] = new() { Schema = new OpenApiSchemaReference("KeptModel") }
+                            ["application/json"] = new OpenApiMediaType() { Schema = new OpenApiSchemaReference("KeptModel") }
                         }
                     }
                 }
@@ -828,9 +828,9 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
         {
             RequestBody = new OpenApiRequestBody
             {
-                Content = new Dictionary<string, OpenApiMediaType>
+                Content = new Dictionary<string, OpenApiMediaTypeValue>()
                 {
-                    ["application/json"] = new()
+                    ["application/json"] = new OpenApiMediaType()
                     {
                         Schema = new OpenApiSchema
                         {
@@ -884,9 +884,9 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
         {
             RequestBody = new OpenApiRequestBody
             {
-                Content = new Dictionary<string, OpenApiMediaType>
+                Content = new Dictionary<string, OpenApiMediaTypeValue>()
                 {
-                    ["application/json"] = new()
+                    ["application/json"] = new OpenApiMediaType()
                     {
                         Schema = new OpenApiSchema
                         {
@@ -955,7 +955,7 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
         {
             RequestBody = new OpenApiRequestBody
             {
-                Content = new Dictionary<string, OpenApiMediaType> { ["application/json"] = mediaType }
+                Content = new Dictionary<string, OpenApiMediaTypeValue>() { ["application/json"] = mediaType }
             }
         };
         var originalSchema = mediaType.Schema;
@@ -1000,7 +1000,7 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
         {
             RequestBody = new OpenApiRequestBody
             {
-                Content = new Dictionary<string, OpenApiMediaType> { ["application/json"] = mediaType }
+                Content = new Dictionary<string, OpenApiMediaTypeValue>() { ["application/json"] = mediaType }
             }
         };
         var definition = new EndpointDefinition(typeof(object), typeof(BodyMetadataRequest), typeof(object));
@@ -1069,9 +1069,9 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
         };
         var response = new OpenApiResponse
         {
-            Content = new Dictionary<string, OpenApiMediaType>
+            Content = new Dictionary<string, OpenApiMediaTypeValue>()
             {
-                ["application/json"] = new() { Schema = new OpenApiSchemaReference("ResponseParamDescriptionResponse", document) }
+                ["application/json"] = new OpenApiMediaType() { Schema = new OpenApiSchemaReference("ResponseParamDescriptionResponse", document) }
             }
         };
 
@@ -1111,9 +1111,9 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
         };
         var response = new OpenApiResponse
         {
-            Content = new Dictionary<string, OpenApiMediaType>
+            Content = new Dictionary<string, OpenApiMediaTypeValue>()
             {
-                ["application/json"] = new()
+                ["application/json"] = new OpenApiMediaType()
                 {
                     Schema = new OpenApiSchema
                     {
@@ -1251,10 +1251,10 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
             {
                 ["200"] = new OpenApiResponse
                 {
-                    Content = new Dictionary<string, OpenApiMediaType>
+                    Content = new Dictionary<string, OpenApiMediaTypeValue>()
                     {
-                        ["application/octet-stream"] = new() { Schema = typeof(byte[]).GetSchemaForType() },
-                        ["application/json"] = new() { Schema = typeof(byte[]).GetSchemaForType() }
+                        ["application/octet-stream"] = new OpenApiMediaType() { Schema = typeof(byte[]).GetSchemaForType() },
+                        ["application/json"] = new OpenApiMediaType() { Schema = typeof(byte[]).GetSchemaForType() }
                     }
                 }
             }
@@ -1690,7 +1690,7 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
     static OpenApiOperation CreateFormPromotionOperation()
     {
         var operation = CreatePromotionOperation();
-        operation.RequestBody!.Content!["application/x-www-form-urlencoded"] = new()
+        operation.RequestBody!.Content!["application/x-www-form-urlencoded"] = new OpenApiMediaType()
         {
             Schema = ClonePromotionWrapperSchema()
         };
@@ -1706,10 +1706,10 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
         {
             RequestBody = new OpenApiRequestBody
             {
-                Content = new Dictionary<string, OpenApiMediaType>
+                Content = new Dictionary<string, OpenApiMediaTypeValue>()
                 {
-                    ["application/json"] = new() { Schema = ClonePromotionWrapperSchema() },
-                    ["*/*"] = new() { Schema = ClonePromotionWrapperSchema() }
+                    ["application/json"] = new OpenApiMediaType() { Schema = ClonePromotionWrapperSchema() },
+                    ["*/*"] = new OpenApiMediaType() { Schema = ClonePromotionWrapperSchema() }
                 }
             }
         };

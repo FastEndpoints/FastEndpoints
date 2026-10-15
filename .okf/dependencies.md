@@ -41,6 +41,7 @@ tags: [deps]
 - Bump of `Microsoft.CodeAnalysis.CSharp` or Kiota builder needs explicit compatibility validation (comments in `Directory.Packages.props`).
 - TFM-conditional package versions for JwtBearer, TestHost and Mvc.Testing (10/11 groups); Asp.Versioning 10 is shared by both TFMs.
 - Keep Microsoft.AspNetCore.OpenApi 10 on both TFMs until Asp.Versioning.OpenApi supports Microsoft.OpenApi 3.x. OpenAPI 11 requires 3.x but Asp.Versioning.OpenApi 10 requires <3.0.0. Coordinate that migration with the Kiota pin.
+- On net11, `OpenApiDocument` registers `ResponseTypeCompatibilityProvider` once. It collapses API Explorer's multiple CLR response types per status to the last declared type before OpenAPI 10 runs, preserving that type's media formats and keeping default responses distinct. Remove this compatibility layer only with the coordinated OpenAPI dependency migration.
 - Library version single-sourced in `Src/Directory.Build.props`; Agents override `Version` per csproj.
 - Strong-name key required for pack/sign; InternalsVisibleTo entries must use the public key.
 

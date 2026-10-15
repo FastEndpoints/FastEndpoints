@@ -340,6 +340,8 @@ The serializer generator CLI now requires a .NET 10 runtime or later. The Roslyn
 
 .NET 11 support currently uses RC2 framework packages. Revalidate against the final .NET 11 SDK and packages before a stable release.
 
+OpenAPI retains the compatible Microsoft.AspNetCore.OpenApi 10 dependency on both targets. On .NET 11, response descriptions preserve the existing last-declared-type policy when several CLR types share a status code. `UnauthorizedHttpResult` now supplies 401 response metadata on .NET 11, so typed-result endpoints can include that response in generated documents.
+
 </details>
 
 <details><summary>OpenAPI 3.1 schema examples now use <code>examples</code> arrays</summary>

@@ -77,6 +77,8 @@ AOT tests: use `NativeAot.slnx` (publish workflow currently has AOT test step co
 
 ## OpenAPI snapshots
 - Goldens: `Tests/IntegrationTests/FastEndpoints.OpenApi/release-*.http` and `release-*.json` (plus `release-versioning-*`).
+- `ResponseTypeCompatibilityTests` checks net11's OpenAPI 10 bridge: last-declared response type, attribute precedence, distinct default responses, format preservation and one registration across multiple documents. `PolymorphicOneOfTests` exercises same-status typed-result/problem metadata end to end on both runtimes.
+- Regenerate shared JSON goldens on net10 only. `SnapshotTests` adds the exact expected 401 response for the union-login endpoint on net11, where `UnauthorizedHttpResult` starts emitting response metadata; all other document fields remain compared against the shared goldens.
 - Walker/export/versioning behavior is covered by focused tests in that project, not snapshots alone. Export mode keys live on internal `OpenApiExportMode`; public `IsExportMode` / `IsNotExportMode` (+ per-format wrappers) on `IHost` / `IHostApplicationBuilder`.
 - To regenerate `.http` goldens: set `_updateSnapshots = true` in `HttpSnapshotTests.cs`, run  
   `dotnet test Tests/IntegrationTests/FastEndpoints.OpenApi/Int.OpenApi.csproj --filter FullyQualifiedName~HttpSnapshotTests`,  

@@ -89,6 +89,39 @@ This breaks `where TResult : class` over `ICommand<TResult>` (or `IServerStreamC
 
 ## New 🎉
 
+<details><summary>Opt-in event delivery acknowledgement for Remote Event Hubs</summary>
+
+Remote Event Hubs can now wait for confirmation that a subscriber has stored an event before considering it delivered. If you need that extra assurance for your events, you can opt in with your storage providers. Existing providers continue to work as before.
+
+See the documentation for setup instructions and things to keep in mind when switching over.
+
+</details>
+
+<details><summary>Financial-mode HTTP idempotency with <code>FinancialIdempotency()</code></summary>
+
+If you're building payment-style endpoints where retrying a request shouldn't mean processing it twice, you can now opt in with `FinancialIdempotency()`. It protects requests while they're being processed and lets clients retry a successful request to get the original response back.
+
+This is a separate mode from the existing `Idempotency()`, which continues to work as before. Here's a quick example to get started:
+
+```csharp
+bld.Services.AddFastEndpoints().AddFinancialIdempotency(c =>
+    c.CallerScope = ctx => ctx.User.FindFirst("account_id")?.Value);
+app.UseFinancialIdempotency().UseFastEndpoints();
+
+sealed class Charge : Endpoint<Request, Response>
+{
+    public override void Configure()
+    {
+        Post("charges");
+        FinancialIdempotency(o => o.Duration = TimeSpan.FromHours(24));
+    }
+}
+```
+
+See the documentation for the full setup, storage options, and safeguards needed for production use.
+
+</details>
+
 <details><summary>Custom status codes for <code>Send.StreamAsync()</code>, <code>Send.BytesAsync()</code>, and <code>Send.FileAsync()</code></summary>
 
 These three send methods now have overloads that take an HTTP status code. Existing calls keep returning `200`. Range processing and precondition checks can still replace the status with `206`, `304`, `412`, or `416`.
@@ -108,43 +141,6 @@ public class Request
 {
     [System.ComponentModel.Description("City name or zip code")]
     public string Location { get; set; }
-}
-```
-
-</details>
-
-<details><summary>Opt-in event delivery acknowledgement for Remote Event Hubs</summary>
-
-Remote event hubs can wait for subscriber storage before completing a delivery. Opt in through `IEventHubDeliveryAck<TRecord>` and `IEventSubscriberDeliveryAck<TRecord>` on existing storage providers; other providers are unchanged.
-
-Drain in-flight deliveries before opting in to avoid re-executing an already-sent event.
-
-Subscriber records must implement `IEventDeliveryAckStorageRecord` and persist `RetainUntil` (hub replay deadline plus subscriber clock-skew allowance). Use the supplied purge predicate to retain completed/expired delivery keys until that deadline. Enforce `TrackingID` uniqueness atomically and translate duplicate-key conflicts into `DuplicateEventDeliveryException`.
-
-</details>
-
-<details><summary>Financial-mode HTTP idempotency with <code>FinancialIdempotency()</code></summary>
-
-Payment-style POST/PUT endpoints can reserve an idempotency key before the handler runs, replay the original 2xx, and `409` when the same key is reused with a different payload. This is a dedicated store and middleware, not an output-cache mode. Fingerprint `Idempotency()` is unchanged.
-
-Register `AddFinancialIdempotency()` (in-memory) or `AddFinancialIdempotency<TStore>()` (Redis/SQL), then `UseFinancialIdempotency()` after routing/auth, next to `UseOutputCache()`. Set a trusted, stable `CallerScope`; do not combine both idempotency modes on one endpoint.
-
-Concurrent/in-flight requests return immediate `409`; unreplayable 2xx responses fail closed with `500`. Ownership tokens prevent stale settlement. Active/uncertain reservations never auto-expire; exceptions and ambiguous non-2xx responses retain protection. Only explicit no-side-effects rejection releases a key. Bounded response capture includes empty responses and pending pipe bytes; request hashes include uploaded file contents.
-
-Custom stores require atomic `TryBegin`. Production deployments remain responsible for durable storage, transactional/downstream idempotency, and coordinated migration of breaking store/identity changes.
-
-```csharp
-bld.Services.AddFastEndpoints().AddFinancialIdempotency(c =>
-    c.CallerScope = ctx => ctx.User.FindFirst("account_id")?.Value);
-app.UseFinancialIdempotency().UseFastEndpoints();
-
-sealed class Charge : Endpoint<Request, Response>
-{
-    public override void Configure()
-    {
-        Post("charges");
-        FinancialIdempotency(o => o.Duration = TimeSpan.FromHours(24));
-    }
 }
 ```
 

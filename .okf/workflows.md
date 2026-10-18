@@ -58,7 +58,7 @@ Trusted publishing policy on nuget.org must match: owner `FastEndpoints`, repo `
 Azure `azure-pipeline.yml`: tag `v*` trigger; installs only the SDK from `global.json`, runs tests under `Tests/` on net11.0 with the same filter (including Native AOT tests via the project glob). No net10.0 test step or pack/push in that file.
 
 ## Changelog
-Rolling current-cycle release notes: `Src/Library/changelog.md`. Non-beta tags dump the **entire file** as the GitHub release body. Not Keep-a-Changelog: no version headers, do not reset or rewrite the file, keep the sponsorship banner and existing entries.
+Rolling current-cycle release notes: `Src/Library/changelog.md`. Non-beta tags dump the **entire file** as the GitHub release body. Entries are purged at every release, so this is not a permanent history or Keep-a-Changelog file. No version headers. During ordinary changes, preserve the sponsorship banner and unrelated entries; do not purge entries unless explicitly asked as part of release work.
 
 Update it in the same change as user-visible library work (new public API/package/feature, user-visible bug fix, notable perf/behavior improvement, breaking change). Skip tests-only, OKF, comments, CI, formatting, internal refactors with no consumer effect, and FE-Docs-only edits. Do not duplicate an existing `<details>` for the same change.
 
@@ -69,7 +69,14 @@ Prepend a new `<details>` immediately under the matching heading (newest first).
 - `## Improvements 🚀`
 - `## Minor Breaking Changes ⚠️`
 
-Match neighbors: HTML `<details><summary>user-facing title</summary>` plus short consumer-facing prose and an optional small code sample. The HTML comment near the top of the file is the entry template. Summaries state consumer impact, not the implementation. Breaking entries must say what broke and how to migrate.
+Use HTML `<details><summary>user-facing title</summary>` plus short consumer-facing prose and an optional small code sample. The HTML comment near the top of the file is the entry template. Summaries state consumer impact, not the implementation.
+
+**Voice and detail:** Write short, conversational entries in the maintainer's voice, speaking directly to users. Focus on their needs and the practical impact, not a technical dump. Prefer plain language over API inventories and implementation details. Keep useful code examples, but leave detailed setup, storage contracts, response-code matrices, and operational edge cases to the public documentation. Add a documentation pointer where appropriate. Retain essential compatibility, safety, and migration warnings. These rules stand on their own; do not rely on temporary changelog entries as tone references.
+
+- **New:** Introduce the capability, who it helps, and why. A useful shape is: "If you're building [use case], you can now [capability]. [Brief benefit or relevant compatibility note.]" Follow with an optional example and documentation pointer, not a mandatory formula.
+- **Fixes:** Describe the user-visible problem and what now works correctly.
+- **Improvements:** State what is better and the practical benefit.
+- **Breaking changes:** Say what changed, who is affected, and what users must do to migrate. Include a small before/after example when useful. Give users enough detail to act safely, while keeping the same conversational voice.
 
 Changelog is release notes. FE-Docs is API docs. Do both when both apply.
 

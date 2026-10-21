@@ -29,20 +29,7 @@ Generator → Attributes
 
 `HealthChecks` and `OpenApi.Kiota` have no project reference to Library. `Generator` is consumed as an analyzer; `Generator.Cli` runs through MSBuild targets.
 
-| Layer | Role |
-| --- | --- |
-| `FastEndpoints.Attributes` | Shared attributes/contracts; multi-TFM including netstandard2.0 for generator |
-| `FastEndpoints.Core` | Service resolution (`IServiceResolver`, `ServiceResolverClient` shared resolve façade), assembly scanning |
-| `FastEndpoints.Messaging.Core` | `ICommand` / `IEvent` / handler interfaces |
-| `FastEndpoints.Messaging` | In-process command/event bus |
-| `FastEndpoints.JobQueues` | Background jobs over commands + storage SPI |
-| `FastEndpoints` (Library) | HTTP endpoints, binding, validation, middleware, config |
-| `FastEndpoints.Security` | JWT bearer helpers, cookies, refresh/revocation |
-| `FastEndpoints.OpenApi` | Microsoft.AspNetCore.OpenApi document pipeline |
-| `FastEndpoints.Generator` | Roslyn generators (discovered types, ACL, reflection cache, service registration, generic processors) |
-| `FastEndpoints.Generator.Cli` | Build-time JSON serializer context generation |
-| `FastEndpoints.Testing` | `AppFixture`, collection fixtures, WAF cache for integration tests |
-| Messaging.Remote* | gRPC RPC for remote command/event execution (MessagePack by default; wire format pluggable) |
+Package roles: [monorepo-packages.md](monorepo-packages.md). Source locations: [code-map.md](code-map.md).
 
 **Request path (simplified):** `AddFastEndpoints` registers discovery data → `UseFastEndpoints`/`MapFastEndpoints` maps routes → `FeRequestHandler` resolves endpoint instance → bind → validate → pre-processors → (`ResponseStarted` short-circuit) → `OnBeforeHandle` → optional `SkipHandlerIfResponseStarted` short-circuit → `HandleAsync`/`ExecuteAsync` → post-processors → send response.
 

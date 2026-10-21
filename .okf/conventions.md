@@ -43,11 +43,7 @@ tags: [conventions]
 - Service registration generator can emit registration from attributes when generator is referenced.
 - Central package versions: [dependencies.md](dependencies.md). Do not hardcode versions in csproj.
 
-## Testing
-- Layout, commands, spies, and CI filter: [testing.md](testing.md).
-
-## YAGNI
-- Keep changes minimal and consistent with surrounding package boundaries.
+## Legacy packages
 - Do not reintroduce NSwag/Swagger paths as default when OpenApi is the active harness path unless task is legacy package work.
 
 ## Sources

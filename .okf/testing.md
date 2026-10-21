@@ -49,19 +49,19 @@ AOT tests: run `dotnet test NativeAot.slnx -c Release --framework net10.0 --verb
 - Checked-in `FastEndpoints` and `FastEndpoints.OpenApi` runner configs enable test-collection parallelization; `FastEndpoints.Agents` disables it. Tests that mutate process-wide FastEndpoints or FluentValidation state need an explicitly nonparallel collection. Azure and GitHub publish pipelines rewrite the `FastEndpoints` runner config and pass `--max-parallel-test-modules 1`; that switch serializes test modules and leaves each module's xUnit collection policy intact.
 - `Mode.WaitForAny` / `WaitForNone` offload handlers with `Task.Run`. Do not assert handler side-effects immediately after those publishes; poll, or use `WaitForAll`. For "was it published", use an event receiver (see Command/event spies).
 - No external DB for the core suite; job storage tests use in-memory/test providers.
-- Financial HTTP idempotency: real Kestrel response-lifecycle tests in `FinancialResponseCaptureTests.cs` cover upstream/downstream callback settlement, LIFO ordering, exceptions, client cancellation, empty responses, compression, upstream-initialized cookie append/delete (with and without cookie policy), replay cookie exclusions, and nonfinancial callback/completion behavior; unit tests in `Tests/UnitTests/FastEndpoints/Financial*.cs` / `MemoryFinancialIdempotencyStoreTests.cs`; harness endpoints in `TestHarness/Web/[Features]/TestCases/FinancialIdempotency/`; integration in `Tests/IntegrationTests/FastEndpoints/FinancialIdempotencyTests/` (`Sut` for the memory path, `FinancialIdempotencyFaultSut` for in-flight/`Complete` failure fakes).
+- Financial HTTP idempotency: `FinancialResponseCaptureTests.cs` uses real Kestrel for response-lifecycle behavior. Unit tests: `Tests/UnitTests/FastEndpoints/Financial*.cs` / `MemoryFinancialIdempotencyStoreTests.cs`. Harness: `TestHarness/Web/[Features]/TestCases/FinancialIdempotency/`. Integration: `Tests/IntegrationTests/FastEndpoints/FinancialIdempotencyTests/` (`Sut` for memory storage, `FinancialIdempotencyFaultSut` for storage failures).
 - Unit tests that host `WebApplication` + `UseFastEndpoints()` must isolate process statics ([gotchas.md](gotchas.md)). Do not add a second in-process host in `Unit.FastEndpoints` without that pattern.
 
 ## Domain regression map
 | Surface | Regression location / constraint |
 | --- | --- |
 | Remote events | `Tests/UnitTests/FastEndpoints/EventQueueTests.*.cs`: retrieval/idle, deserialization, delivery ACK, store retries/expiry, retention, lifecycle and receive supervision |
-| Queue wait helpers | `QueueTestSupportTests.cs`: successful completion, pending deadlines, worker faults (including `TimeoutException`), worker cancellation and wait cancellation. `WaitUntil` polls every 5 ms with a default three-second failure deadline. `WaitForCompletion` and `CompletesWithin` re-await completed tasks after a caught timeout so original failures remain visible. |
+| Queue wait helpers | `QueueTestSupportTests.cs`; preserve original worker faults/cancellation rather than masking them as wait timeouts |
 | ACK transport deadlines | `EventQueueTests.AckTimeout.cs` and `EventQueueTests.AckWriteTimeout.cs`: real Kestrel HTTP/2 and shared `LiveDeliveryAckHost<TEvent>` |
 | Remote event isolation | Distinct closed event/storage types and internal retry-delay overrides: [remote-events.md](remote-events.md#test-isolation) |
-| Void command middleware | `CommandBusTests` in `Unit.FastEndpoints` runs in a non-parallel collection because discovery/dispatch tests replace the process-wide service resolver. Covers both no-result handler interfaces through `AddMessaging` discovery, middleware and test-handler substitution, plus direct DI, helper and mixed registrations, closed/open middleware ordering, repeated dispatch, scoped and transient dependencies. `CommandsTests` in `NativeAotCheckerTests` verifies the closed-registration AOT path. |
+| Command dispatch / middleware | `CommandBusTests`, `CommandBusScopedMiddlewareTests` in `Unit.FastEndpoints`; discovery tests require a nonparallel collection because they replace the process-wide service resolver. AOT: `CommandsTests` in `NativeAotCheckerTests`. |
 | Job dedupe / reflection | Matching unit suites and `Tests/IntegrationTests/FastEndpoints/RPCTests/` |
-| AOT binding / jobs | `Tests/NativeAotTests/`; `JobsTests.Void_Jobs_Use_Public_Result_Type_With_Source_Generated_Storage` covers success, bounded storage attempts, and failure recovery with a `Void`/`string`-only serializer context. Run `NativeAotCheckerTests.csproj` with `-p:RunSmokeTests=false` for JIT/WAF; the default `true` publishes and tests Native AOT. |
+| AOT binding / jobs | `Tests/NativeAotTests/`, including `JobsTests.Void_Jobs_Use_Public_Result_Type_With_Source_Generated_Storage`. Run `NativeAotCheckerTests.csproj` with `-p:RunSmokeTests=false` for JIT/WAF; the default `true` publishes and tests Native AOT. |
 | Agents schemas | `Tests/IntegrationTests/FastEndpoints.Agents/JsonSchemaBuilderTests.cs`, `McpToolSchemaRootTests.cs` |
 
 ## OpenAPI regression map
@@ -69,15 +69,15 @@ All suites below live in `Tests/IntegrationTests/FastEndpoints.OpenApi/` (`Int.O
 
 | Surface | Suites / focus |
 | --- | --- |
-| XML descriptions / examples | `XmlDocSchemaTransformerTests`, `XmlDocValidatedRequestTests`, `RequestDescriptionOverrideTests`: reference-local metadata, nullable collections, converters, type/property/endpoint precedence, unchanged-schema reuse, nested traversal, multiline summaries (lists, code, hard breaks), and missing response schemas |
+| XML descriptions / examples | `XmlDocSchemaTransformerTests`, `XmlDocValidatedRequestTests`, `RequestDescriptionOverrideTests` |
 | XML docs without assembly location | `XmlDocLookupTests`: assembly loaded from bytes exercises the single-file fallback |
-| Enums / examples / reference cloning | `EnumSchemaTransformerTests`, `NullableCollectionSchemaTests`, `OperationTransformerEdgeCaseTests`, `OperationSchemaHelpersTests`, `HttpFileExporterTests`: converter/null examples, annotations, extension cloning, serialization, mutation isolation, and export precedence |
-| Validation / collections | `ValidationSchemaTransformerTests`, `NullableCollectionValidationTests`, `ValidationRuleMappingTests`: filtered/conditional rules, `CurrentValidator`, collection paths, nullable branch orders, item/parent requiredness, localized item reuse, union guards, length composition, include cycles, child scopes, and HTTP schema/runtime agreement |
-| Parameters / binding sources | `ParameterAliasValidationTests`, `ValidationBindingSourceTests`, `ValidationParameterTransformerTests`, `ConditionalParameterValidationTests`, `QueryParameterVisibilityTests`: serialized-name identity, fallback optionality, conditional query/body rules, and `RemoveFromSchema` (also `Unit.Swagger`) |
-| Tags / security | `OperationTagTests`, `NestedGroupTagTests`, `OperationSecurityTests`: explicit/automatic tag ownership and explicit OAuth scopes, not roles |
-| Polymorphic `oneOf` | `PolymorphicOneOfTests`: self-hosted opt-in flag, component binding, same-status typed-result/problem metadata on both runtimes |
-| Polymorphic validation | `PolymorphicValidationTests`: discriminator dictionary cloning, default `anyOf` and opt-in `oneOf`, alias/repeated-ID retargeting across all composite kinds, and constrained/empty/plain endpoint isolation |
-| Framework compatibility | `ResponseTypeCompatibilityTests`, `MediaTypeCompatibilityTests`: response precedence/defaults/formats and single registration; concrete/referenced/unresolved media mutation and XML node-kind signatures |
+| Enums / examples / reference cloning | `EnumSchemaTransformerTests`, `NullableCollectionSchemaTests`, `OperationTransformerEdgeCaseTests`, `OperationSchemaHelpersTests`, `HttpFileExporterTests` |
+| Validation / collections | `ValidationSchemaTransformerTests`, `NullableCollectionValidationTests`, `ValidationRuleMappingTests` |
+| Parameters / binding sources | `ParameterAliasValidationTests`, `ValidationBindingSourceTests`, `ValidationParameterTransformerTests`, `ConditionalParameterValidationTests`, `QueryParameterVisibilityTests` (also `Unit.Swagger` for `RemoveFromSchema`) |
+| Tags / security | `OperationTagTests`, `NestedGroupTagTests`, `OperationSecurityTests` |
+| Polymorphic `oneOf` | `PolymorphicOneOfTests`; self-hosted opt-in flag |
+| Polymorphic validation | `PolymorphicValidationTests` |
+| Framework compatibility | `ResponseTypeCompatibilityTests`, `MediaTypeCompatibilityTests`; run on both TFMs |
 | Host restoration | `HostGlobalStateScopeTests`: restore state even when the protected lifetime throws |
 
 ## OpenAPI self-hosted isolation

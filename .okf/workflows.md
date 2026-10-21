@@ -100,11 +100,6 @@ npm run dev
 npm run build
 ```
 
-## Env vars / secrets (names only)
-| Name | Use |
-| --- | --- |
-| App config keys e.g. `TokenKey` | Harness JWT signing (samples only) |
-
 ## Sources
 - `.github/workflows/publish-to-nuget.yml`
 - `Src/Library/changelog.md`

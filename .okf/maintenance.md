@@ -10,11 +10,11 @@ tags: [maintain]
 ## Conformance
 - Format and day-to-day gates: [AGENTS.md](../AGENTS.md). The okf-setup skill supplies the closed type list; use `Reference` if unsure.
 - No secrets in OKF. Prefer `## Sources` for multi-source claims.
-- Optimize reading cost, not line count. Keep invariants and failure consequences, not exhaustive API/test catalogs or implementation walkthroughs.
-- Keep each detailed fact in one topic owner and link from other files. Core files summarize boundaries; testing maps regression suites; gotchas preserves traps and owner-approved review exclusions. Detailed contracts belong in [openapi.md](openapi.md) and [remote-events.md](remote-events.md); link there instead of repeating implementation rules in test inventories.
+- Content selection and compactness: [OKF content discipline](../AGENTS.md#okf-content-discipline).
+- Topic ownership: core files summarize boundaries; testing maps regression suites; gotchas preserves traps and owner-approved review exclusions. Detailed contracts belong in [openapi.md](openapi.md) and [remote-events.md](remote-events.md).
 
 ## Update triggers
-Sync OKF when changes hit:
+Evaluate OKF when changes hit (the update gate is in `AGENTS.md`):
 - architecture / package boundaries / dependency directions
 - public APIs, endpoint pipeline contracts, messaging/job contracts
 - **Agents friend-assembly surface:** Library `internal` members consumed by `FastEndpoints.Mcp` / `FastEndpoints.A2A` via `InternalsVisibleTo` (stock in [gotchas.md](gotchas.md); summary in [monorepo-packages.md](monorepo-packages.md)). Restock when agents gain/drop internal core calls, or when those core members change signature/shape.

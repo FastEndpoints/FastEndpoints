@@ -21,9 +21,18 @@ OKF guides; it does not replace checking source, tests, or manifests for exact b
 
 Preserve conventions, boundaries, and workflows from OKF. On conflict with source/tests/generated artifacts/manifests: prefer verified current behavior, update OKF, mention the correction.
 
+### OKF content discipline
+
+- OKF is operational memory, not a change log or second documentation site.
+- Add facts only when they guide future decisions: boundaries, contracts, commands, non-obvious failure modes, or owner-approved policies. Omit routine implementation details and exhaustive API/test inventories.
+- Keep each detailed fact in one topic owner. Elsewhere, use a short summary or link only when needed for navigation.
+- Update or replace existing guidance rather than appending another account of the same behavior. Remove superseded material in the same edit.
+- Test guidance should identify relevant suites, commands, setup, and isolation requirements, not enumerate assertions.
+- Before finishing an OKF edit, check for duplication, stale detail, and unnecessary reading cost. Preserve critical safety, compatibility, persistence, and owner-decision constraints.
+
 ### Before finishing
 
-Sync `.okf/` when the change hits the update triggers in `.okf/maintenance.md`. Default trigger inventory: architecture/boundaries; public APIs/routes/schemas/events/contracts; persistence/migrations; deps/runtime; build/run/test/lint/format/generate/deploy; testing strategy; security/auth; config/env/ports/ops; conventions/layout; gotchas.
+Evaluate OKF when a change hits the update triggers in `.okf/maintenance.md`. Update it only when existing guidance becomes incorrect or incomplete, or the change introduces durable operational knowledge that future agents would otherwise need to rediscover. A trigger requires evaluation, not an automatic addition. If existing guidance remains sufficient, report `OKF unaffected (existing guidance remains accurate and sufficient)`.
 
 If no update needed, state why (pure comment/typo/formatting: `OKF unaffected (non-behavioral edit)`). Task is incomplete until OKF is synced or explicitly unaffected.
 

@@ -13,7 +13,7 @@ tags: [maintain]
 - Do not invent `type` values; use `Reference` if unsure.
 - No secrets in OKF. Prefer `## Sources` for multi-source claims.
 - Soft target ~50-150 lines per file; also check paragraph size and reading cost. Split by topic when scanning suffers.
-- Keep each detailed fact in one topic owner and link from other files. Core files summarize boundaries; testing maps regression suites; gotchas preserves traps and owner-approved review exclusions. Remote event contracts belong in [remote-events.md](remote-events.md).
+- Keep each detailed fact in one topic owner and link from other files. Core files summarize boundaries; testing maps regression suites; gotchas preserves traps and owner-approved review exclusions. Detailed contracts belong in [openapi.md](openapi.md) and [remote-events.md](remote-events.md); link there instead of repeating implementation rules in test inventories.
 - Day-to-day OKF finish gate is normative in `AGENTS.md`; this file is the trigger inventory + conformance reminder.
 
 ## Update triggers

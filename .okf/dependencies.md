@@ -41,8 +41,7 @@ tags: [deps]
 - Bump of `Microsoft.CodeAnalysis.CSharp` or Kiota builder needs explicit compatibility validation (comments in `Directory.Packages.props`).
 - TFM-conditional package versions for JwtBearer, TestHost, Mvc.Testing, Microsoft.AspNetCore.OpenApi and Kiota (10/11 groups). OpenAPI 10 uses Microsoft.OpenApi 2.x; OpenAPI 11 uses 3.x.
 - AspVersioning remains net10-only: Asp.Versioning.OpenApi 10 requires Microsoft.OpenApi <3.0.0 and cannot share the net11 OpenAPI stack. Built-in FastEndpoints route versioning works on both TFMs.
-- `OpenApiMediaTypeValue` aliases the concrete 2.x media type on net10 and `IOpenApiMediaType` on net11. Mutations use `GetMutableMediaType(s)` to localize referenced media types before changing schemas/examples. XML schema signatures use `NodeType` on net11 instead of 2.x's `Attribute`/`Wrapped`.
-- On net11, `OpenApiDocument` registers `ResponseTypeCompatibilityProvider` once to preserve last-declared response-type selection, its media formats and distinct default responses.
+- OpenAPI media/response compatibility adapters: [openapi.md](openapi.md#tags-security-and-framework-compatibility).
 - Library version single-sourced in `Src/Directory.Build.props`; Agents override `Version` per csproj.
 - Strong-name key required for pack/sign; InternalsVisibleTo entries must use the public key.
 

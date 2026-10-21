@@ -20,6 +20,7 @@ Compact operational knowledge for agents working in the FastEndpoints repository
 ## Task-specific
 * [Dependencies](dependencies.md) · [Gotchas](gotchas.md) · [Maintenance](maintenance.md)
 * [Monorepo Packages](monorepo-packages.md) · [Generated Code](generated-code.md)
+* [OpenAPI Contracts](openapi.md): generation, schema isolation, validation, examples and compatibility
 * [Remote Events](remote-events.md): protocol/storage contracts, worker ownership, reliability and test isolation
 
 ## Authority

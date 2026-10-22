@@ -18,7 +18,7 @@ The package ships under `analyzers/dotnet/cs`, with `DevelopmentDependency=false
 | `ServiceRegistrationGenerator` | DI registration from attributes |
 | `GenericProcessorTypesGenerator` | Generic pre/post processor type materialization |
 
-Whitelist for discovery includes `IEndpoint`, `IEventHandler`, `ICommandHandler`, stream command handlers, summaries, job storage providers, processors, command middleware, mappers, FluentValidation validators (`DiscoveredTypesGenerator`).
+The discovery whitelist is owned by `DiscoveredTypesGenerator`; check it when adding a discoverable contract.
 
 Open generic classes are skipped (`TypeParameterList` is not null). A non-generic class nested inside an open generic is also skipped: it is generic at runtime (`Type.IsGenericType`), `AssemblyScanner` drops it, and emitting `Outer<T>.Inner` does not compile in `DiscoveredTypes`.
 

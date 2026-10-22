@@ -8,7 +8,7 @@ tags: [build]
 # Workflows
 
 ## Setup
-- Install .NET **10.x** plus the **11.0 RC2 SDK pinned in `global.json`**. GitHub publish installs both; Azure installs only the SDK from `global.json`. Tests target net10.0 and net11.0 via `Tests/Directory.Build.props`.
+- SDK and runtime requirements: [dependencies.md](dependencies.md#runtime). CI installation differences are described under Pack and publish below.
 - Clone repo; restore via normal `dotnet` on solutions (central package management).
 - No docker-compose required for core unit/integration suite (in-process WAF).
 - Signing key files `FastEndpoints.snk` / public key present in repo for signed builds.
@@ -24,7 +24,8 @@ dotnet build NativeAot.slnx -c Release
 # Sample harness (dev)
 dotnet run --project TestHarness/Web/Web.csproj --framework net10.0
 
-# Clean bin/obj
+# Optional destructive cleanup, from the repository root:
+# recursively deletes all bin/obj directories beneath the current directory
 ./clean.sh
 ```
 
@@ -86,10 +87,9 @@ Changelog is release notes. FE-Docs is API docs. Do both when both apply.
 
 ## Codegen and migrations
 - Roslyn generators, serializer contexts, and OpenAPI export: [generated-code.md](generated-code.md).
-- No DB migrations in-repo.
 
 ## Public documentation
-User-facing docs are the sibling `../FE-Docs/` SvelteKit site (`src/content/docs/` numbered topics). Published: https://fast-endpoints.com. Preview: https://dev.fastendpoints-doc-site.pages.dev.
+User-facing docs are the sibling `../FE-Docs/` SvelteKit site (`src/content/docs/` numbered topics). Published: https://fast-endpoints.com. Preview: https://dev.fastendpoints-doc-site.pages.dev. Setup commands are defined by [`package.json`](../../FE-Docs/package.json) and [`README.md`](../../FE-Docs/README.md).
 
 Update FE-Docs when a change is user-visible (public APIs, config, endpoint/messaging/job/security/OpenAPI/AOT behavior, breaking changes, new features). Match neighboring page style. Do not paste doc pages into OKF. Docs are not built by this repo's solutions or publish workflow. Same class of change also needs a changelog entry (see Changelog).
 
@@ -105,7 +105,3 @@ npm run build
 - `Src/Library/changelog.md`
 - `azure-pipeline.yml`
 - `clean.sh`
-- `Src/Generator/FastEndpoints.Generator.targets`
-- `Tests/Directory.Build.props`
-- `../FE-Docs/README.md`
-- `../FE-Docs/package.json`

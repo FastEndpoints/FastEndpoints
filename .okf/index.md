@@ -4,7 +4,7 @@ okf_version: "0.1"
 
 # OKF Knowledge Set
 
-Compact operational knowledge for agents working in the FastEndpoints repository. Read relevant files before editing. Keep synchronized with code, tests, docs, and configuration.
+Compact operational knowledge for agents working in the FastEndpoints repository. Reading gates, authority, and update rules: [AGENTS.md](../AGENTS.md).
 
 ## Core reading order
 * [Project Overview](project-overview.md): purpose, packages, status
@@ -23,9 +23,6 @@ Compact operational knowledge for agents working in the FastEndpoints repository
 * [OpenAPI Contracts](openapi.md): generation, schema isolation, validation, examples and compatibility
 * [Remote Events](remote-events.md): protocol/storage contracts, worker ownership, reliability and test isolation
 
-## Authority
-If OKF conflicts with source, tests, generated artifacts, or manifests: verify those, then update OKF.
-
 ## Maintenance
-Normative OKF use/update gates: repo canonical agent instructions (`AGENTS.md`). Reminder + conformance detail: [Maintenance](maintenance.md).
+Update-trigger inventory and conformance detail: [Maintenance](maintenance.md).
 Expanded library-monorepo set. Runtime/ops guidance is covered by architecture and workflows; a separate operations file is unnecessary.

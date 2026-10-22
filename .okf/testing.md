@@ -32,6 +32,9 @@ dotnet test FastEndpoints.slnx -c Release --framework net11.0 --verbosity minima
 # Targeted
 dotnet test Tests/UnitTests/FastEndpoints/Unit.FastEndpoints.csproj
 dotnet test Tests/IntegrationTests/FastEndpoints/Int.FastEndpoints.csproj --filter FullyQualifiedName~BindingTests
+
+# Legacy Swagger search initialization (Node.js built-in runner, no npm install)
+node --test Tests/UnitTests/FastEndpoints.Swagger/SwaggerSearchTests.mjs
 ```
 
 Azure installs only the SDK from `global.json` and runs net11.0 tests using the task project glob `Tests/**/*.csproj`, including Native AOT tests. GitHub publish runs the primary solution on both TFMs but leaves its separate AOT steps disabled. Use the solution commands above for portable shell invocations. MTP uses `IsTestingPlatformApplication` for discovery; exit 8 means zero tests ran.

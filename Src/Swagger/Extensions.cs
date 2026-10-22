@@ -194,12 +194,13 @@ public static class Extensions
                                 }
                               });
 
-                              const initPlugin = () => {
+                              const initPlugin = (attempt = 0) => {
                                 const ui = window.ui || window.swaggerUi;
                                 if (ui && ui.getSystem) {
                                   ui.getSystem().fn.opsFilter = SearchPlugin(ui.getSystem()).fn.opsFilter;
-                                  const searchBox = document.querySelector('.filter-container input');
-                                  if (searchBox) {
+                                  const initSearchBox = () => {
+                                    const searchBox = document.querySelector('.filter-container input');
+                                    if (!searchBox) return false;
                                     searchBox.placeholder = "Search...";
                                     searchBox.addEventListener('input', (event) => {
                                       const phrase = event.target.value;
@@ -208,12 +209,25 @@ public static class Extensions
                                       const filteredOps = system.fn.opsFilter(taggedOps, phrase);
                                       system.getState().update('taggedOps', () => filteredOps);
                                     });
+                                    return true;
+                                  };
+
+                                  if (!initSearchBox()) {
+                                    // The input can render after the UI is available.
+                                    const observer = new MutationObserver(() => {
+                                      if (initSearchBox()) {
+                                        observer.disconnect();
+                                        clearTimeout(timeout);
+                                      }
+                                    });
+                                    observer.observe(document.body, { childList: true, subtree: true });
+                                    const timeout = setTimeout(() => observer.disconnect(), 30000);
                                   }
-                                } else {
-                                  setTimeout(initPlugin, 250);
+                                } else if (attempt < 120) {
+                                  setTimeout(() => initPlugin(attempt + 1), 250);
                                 }
                               };
-                              document.addEventListener('DOMContentLoaded', initPlugin);
+                              document.addEventListener('DOMContentLoaded', () => initPlugin());
                               </script>
                               """;
         settings?.Invoke(s);

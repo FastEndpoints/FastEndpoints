@@ -165,6 +165,12 @@ public override void Configure()
 
 ## Fixes 🪲
 
+<details><summary>Swagger UI shows the correct search hint after a slow load</summary>
+
+The legacy <code>FastEndpoints.Swagger</code> search box now shows <code>Search...</code> even when the API definition takes longer to load. Full-text search remains available while the search box finishes rendering.
+
+</details>
+
 <details><summary>OpenAPI generation supports polymorphic properties with child validators</summary>
 
 Fixed OpenAPI document generation throwing a <code>NotSupportedException</code> when a JSON-polymorphic request property has a FluentValidation child validator. Discriminator mappings are preserved when schemas are copied for endpoint-specific validation.

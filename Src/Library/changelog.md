@@ -165,6 +165,12 @@ public override void Configure()
 
 ## Fixes 🪲
 
+<details><summary>Custom DataAnnotations validators can resolve request-scoped services</summary>
+
+Custom validation attributes can now resolve registered services through `ValidationContext.GetService()`. Validation uses the same request scope as your endpoint, including when validating nested objects and collection items.
+
+</details>
+
 <details><summary>Swagger UI shows the correct search hint after a slow load</summary>
 
 The legacy <code>FastEndpoints.Swagger</code> search box now shows <code>Search...</code> even when the API definition takes longer to load. Full-text search remains available while the search box finishes rendering.

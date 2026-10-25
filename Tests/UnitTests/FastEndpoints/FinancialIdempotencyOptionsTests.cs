@@ -14,6 +14,7 @@ public class FinancialIdempotencyOptionsTests
 
         opts.HeaderName.ShouldBe("Idempotency-Key");
         opts.Duration.ShouldBe(TimeSpan.FromHours(24));
+        opts.UnreplayableRetention.ShouldBe(TimeSpan.FromHours(24));
         opts.ReplayStatusCode.ShouldBeNull();
         opts.AddHeaderToResponse.ShouldBeTrue();
         opts.UseCaseSensitivePaths.ShouldBeFalse();
@@ -36,13 +37,37 @@ public class FinancialIdempotencyOptionsTests
     }
 
     [Fact]
+    public void Unreplayable_Retention_Is_Inherited_And_Never_Shorter_Than_Duration()
+    {
+        var config = new FinancialIdempotencyConfig { CallerScope = _ => "account", DefaultUnreplayableRetention = TimeSpan.FromDays(7) };
+        var inherited = new FinancialIdempotencyOptions();
+        inherited.ApplyDefaults(config);
+        inherited.UnreplayableRetention.ShouldBe(TimeSpan.FromDays(7));
+        inherited.EffectiveUnreplayableRetention.ShouldBe(TimeSpan.FromDays(7));
+
+        var shorter = new FinancialIdempotencyOptions { Duration = TimeSpan.FromHours(2), UnreplayableRetention = TimeSpan.FromHours(1) };
+        shorter.ApplyDefaults(config);
+        shorter.UnreplayableRetention.ShouldBe(TimeSpan.FromHours(1));
+        shorter.EffectiveUnreplayableRetention.ShouldBe(TimeSpan.FromHours(2));
+
+        Should.Throw<InvalidOperationException>(() => new FinancialIdempotencyOptions { UnreplayableRetention = TimeSpan.Zero }.ApplyDefaults(config))
+              .Message.ShouldBe("Invalid financial idempotency options or missing CallerScope!");
+    }
+
+    [Fact]
     public void Config_Defaults()
     {
         var cfg = new FinancialIdempotencyConfig();
 
         cfg.InMemoryStoreSize.ShouldBe(1024L * 1024 * 1024);
         cfg.DefaultDuration.ShouldBe(TimeSpan.FromHours(24));
+        cfg.DefaultUnreplayableRetention.ShouldBe(TimeSpan.FromHours(24));
     }
+
+    [Fact]
+    public void Registration_Validates_Unreplayable_Retention()
+        => Should.Throw<InvalidOperationException>(() => new ServiceCollection().AddFinancialIdempotency(c => c.DefaultUnreplayableRetention = TimeSpan.Zero))
+                 .Message.ShouldBe("Invalid financial idempotency global limits!");
 
     [Theory]
     [InlineData(-1L, false)]

@@ -94,7 +94,8 @@ public static class FinancialIdempotencyExtensions
 
         if (conf.InMemoryStoreSize <= 0 ||
             conf.InMemoryMaxEntries <= 0 ||
-            !FinancialIdempotencyOptions.IsValidDuration(conf.DefaultDuration))
+            !FinancialIdempotencyOptions.IsValidDuration(conf.DefaultDuration) ||
+            !FinancialIdempotencyOptions.IsValidDuration(conf.DefaultUnreplayableRetention))
             throw new InvalidOperationException("Invalid financial idempotency global limits!");
 
         services.AddSingleton(conf);

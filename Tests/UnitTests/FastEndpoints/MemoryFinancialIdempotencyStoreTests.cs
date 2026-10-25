@@ -7,7 +7,7 @@ public class MemoryFinancialIdempotencyStoreTests
 {
     static readonly TimeSpan Ttl = TimeSpan.FromSeconds(1);
     static ValueTask<FinancialBeginResult> Begin(MemoryFinancialIdempotencyStore store, string key = "k", byte value = 1)
-        => store.TryBeginAsync(key, new byte[] { value }, Ttl, default);
+        => store.TryBeginAsync(key, new byte[] { value }, default);
 
     [Fact]
     public void Constructor_Validates_Budget_And_Entry_Limits()
@@ -19,17 +19,54 @@ public class MemoryFinancialIdempotencyStoreTests
     }
 
     [Fact]
-    public async Task Active_And_Uncertain_Never_Expire_And_Concurrent_Begin_Is_Immediate()
+    public async Task Active_Never_Expires_And_Concurrent_Begin_Is_Immediate()
+    {
+        var clock = new Clock();
+        var store = new MemoryFinancialIdempotencyStore(time: clock);
+        await Begin(store);
+        clock.Now += TimeSpan.FromDays(100);
+        (await Begin(store)).Kind.ShouldBe(FinancialBeginKind.InFlight);
+        (await Begin(store, value: 2)).Kind.ShouldBe(FinancialBeginKind.Conflict);
+    }
+
+    [Fact]
+    public async Task Unreplayable_Is_Retained_Until_Retention_Expires()
     {
         var clock = new Clock();
         var store = new MemoryFinancialIdempotencyStore(time: clock);
         var first = await Begin(store);
-        clock.Now += TimeSpan.FromDays(100);
-        (await Begin(store)).Kind.ShouldBe(FinancialBeginKind.InFlight);
-        (await Begin(store, value: 2)).Kind.ShouldBe(FinancialBeginKind.Conflict);
-        await store.MarkUnreplayableAsync("k", first.ReservationToken!, default);
-        clock.Now += TimeSpan.FromDays(100);
+        (await store.MarkUnreplayableAsync("k", first.ReservationToken!, TimeSpan.FromHours(1), default)).ShouldBe(FinancialSettlementResult.Applied);
+        clock.Now += TimeSpan.FromMinutes(59);
         (await Begin(store)).Kind.ShouldBe(FinancialBeginKind.Unreplayable);
+        (await Begin(store, value: 2)).Kind.ShouldBe(FinancialBeginKind.Conflict);
+        clock.Now += TimeSpan.FromMinutes(1);
+        (await Begin(store, value: 2)).Kind.ShouldBe(FinancialBeginKind.Started);
+    }
+
+    [Fact]
+    public async Task Expired_Unreplayable_Entries_Reclaim_Global_Capacity()
+    {
+        var clock = new Clock();
+        var store = new MemoryFinancialIdempotencyStore(time: clock, maxEntries: 1);
+        var first = await Begin(store);
+        await store.MarkUnreplayableAsync("k", first.ReservationToken!, Ttl, default);
+        await Should.ThrowAsync<InvalidOperationException>(async () => await Begin(store, "next"));
+        clock.Now += Ttl;
+        (await Begin(store, "next")).Kind.ShouldBe(FinancialBeginKind.Started);
+    }
+
+    [Theory]
+    [InlineData(-1L)]
+    [InlineData(0L)]
+    [InlineData(36500L * TimeSpan.TicksPerDay + 1)]
+    public async Task Unreplayable_Validates_Retention_Boundaries(long ticks)
+    {
+        var store = new MemoryFinancialIdempotencyStore();
+        var first = await Begin(store);
+        (await Should.ThrowAsync<ArgumentOutOfRangeException>(
+             () => store.MarkUnreplayableAsync("k", first.ReservationToken!, TimeSpan.FromTicks(ticks), default)))
+            .ParamName.ShouldBe("retention");
+        (await Begin(store)).Kind.ShouldBe(FinancialBeginKind.InFlight);
     }
 
     [Fact]
@@ -43,7 +80,7 @@ public class MemoryFinancialIdempotencyStoreTests
         (await store.AbandonAsync("k", first.ReservationToken!, default)).ShouldBe(FinancialSettlementResult.OwnershipLost);
         (await store.CompleteAsync("k", second.ReservationToken!, new() { StatusCode = 201 }, Ttl, default)).ShouldBe(FinancialSettlementResult.Applied);
         (await store.AbandonAsync("k", second.ReservationToken!, default)).ShouldBe(FinancialSettlementResult.AlreadySettled);
-        (await store.MarkUnreplayableAsync("k", second.ReservationToken!, default)).ShouldBe(FinancialSettlementResult.AlreadySettled);
+        (await store.MarkUnreplayableAsync("k", second.ReservationToken!, Ttl, default)).ShouldBe(FinancialSettlementResult.AlreadySettled);
         (await Begin(store)).Kind.ShouldBe(FinancialBeginKind.Replay);
     }
 
@@ -65,7 +102,7 @@ public class MemoryFinancialIdempotencyStoreTests
     {
         var store = new MemoryFinancialIdempotencyStore();
         byte[] hash = [1];
-        var first = await store.TryBeginAsync("k", hash, Ttl, default);
+        var first = await store.TryBeginAsync("k", hash, default);
         hash[0] = 2;
         byte[] body = [3];
         string[] values = ["original"];

@@ -25,4 +25,10 @@ public sealed class FinancialIdempotencyConfig
     /// default is 24 hours.
     /// </summary>
     public TimeSpan DefaultDuration { get; set; } = TimeSpan.FromHours(24);
+
+    /// <summary>
+    /// default unreplayable-outcome retention used when an endpoint does not override <see cref="FinancialIdempotencyOptions.UnreplayableRetention" />.
+    /// default is 24 hours. the effective retention is never shorter than the endpoint's <see cref="FinancialIdempotencyOptions.Duration" />.
+    /// </summary>
+    public TimeSpan DefaultUnreplayableRetention { get; set; } = TimeSpan.FromHours(24);
 }

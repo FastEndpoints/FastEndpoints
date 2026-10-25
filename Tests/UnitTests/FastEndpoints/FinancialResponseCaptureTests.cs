@@ -165,7 +165,7 @@ public class FinancialResponseCaptureTests
             var opts = definition.FinancialIdempotencyOptions!;
             var identity = FinancialIdentity.Build(first.Request, opts, "account");
             var hash = await FinancialPayloadHash.ComputeAsync(first.Request, CancellationToken.None);
-            (await store.TryBeginAsync(identity, hash, opts.Duration, CancellationToken.None)).Kind.ShouldBe(FinancialBeginKind.Unreplayable);
+            (await store.TryBeginAsync(identity, hash, CancellationToken.None)).Kind.ShouldBe(FinancialBeginKind.Unreplayable);
         }
         else
         {
@@ -229,7 +229,7 @@ public class FinancialResponseCaptureTests
         var opts = definition.FinancialIdempotencyOptions!;
         var identity = FinancialIdentity.Build(first.Request, opts, "account");
         var hash = await FinancialPayloadHash.ComputeAsync(first.Request, CancellationToken.None);
-        var stored = await store.TryBeginAsync(identity, hash, opts.Duration, CancellationToken.None);
+        var stored = await store.TryBeginAsync(identity, hash, CancellationToken.None);
         stored.Kind.ShouldBe(FinancialBeginKind.Replay);
         stored.Response!.Headers.Select(h => h.Key).ShouldBe(["Idempotency-Key", "X-Retained"]);
         stored.Response.Headers.Single(h => h.Key == "X-Retained").Value.ShouldBe(["first", "second"]);
@@ -422,7 +422,7 @@ public class FinancialResponseCaptureTests
         public bool ReplayWithoutBody { get; set; }
         public bool WhitespaceToken { get; set; }
 
-        public ValueTask<FinancialBeginResult> TryBeginAsync(string identityKey, ReadOnlyMemory<byte> payloadHash, TimeSpan ttl, CancellationToken ct)
+        public ValueTask<FinancialBeginResult> TryBeginAsync(string identityKey, ReadOnlyMemory<byte> payloadHash, CancellationToken ct)
             => new(ReplayWithoutBody
                        ? FinancialBeginResult.Replay(null!)
                        : FinancialBeginResult.Started(WhitespaceToken ? "  " : ""));
@@ -430,7 +430,7 @@ public class FinancialResponseCaptureTests
         public Task<FinancialSettlementResult> CompleteAsync(string identityKey, string reservationToken, FinancialIdempotencyResponse response, TimeSpan ttl, CancellationToken ct)
             => throw new NotSupportedException();
 
-        public Task<FinancialSettlementResult> MarkUnreplayableAsync(string identityKey, string reservationToken, CancellationToken ct)
+        public Task<FinancialSettlementResult> MarkUnreplayableAsync(string identityKey, string reservationToken, TimeSpan retention, CancellationToken ct)
             => throw new NotSupportedException();
 
         public Task<FinancialSettlementResult> AbandonAsync(string identityKey, string reservationToken, CancellationToken ct)

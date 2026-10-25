@@ -62,9 +62,7 @@ sealed class FinancialIdempotencyMiddleware(RequestDelegate next, IFinancialIdem
 
         var identityKey = FinancialIdentity.Build(ctx.Request, opts, callerScope);
         var payloadHash = await FinancialPayloadHash.ComputeAsync(ctx.Request, ctx.RequestAborted);
-        var ttl = opts.Duration;
-
-        var began = await store.TryBeginAsync(identityKey, payloadHash, ttl, ctx.RequestAborted);
+        var began = await store.TryBeginAsync(identityKey, payloadHash, ctx.RequestAborted);
 
         switch (began.Kind)
         {
@@ -89,7 +87,7 @@ sealed class FinancialIdempotencyMiddleware(RequestDelegate next, IFinancialIdem
 
                 return;
             case FinancialBeginKind.Started when !string.IsNullOrWhiteSpace(began.ReservationToken):
-                await ExecuteAndSettle(ctx, opts, identityKey, began.ReservationToken, ttl);
+                await ExecuteAndSettle(ctx, opts, identityKey, began.ReservationToken);
 
                 return;
             case FinancialBeginKind.Started:
@@ -101,7 +99,7 @@ sealed class FinancialIdempotencyMiddleware(RequestDelegate next, IFinancialIdem
         }
     }
 
-    async Task ExecuteAndSettle(HttpContext ctx, FinancialIdempotencyOptions opts, string identityKey, string token, TimeSpan ttl)
+    async Task ExecuteAndSettle(HttpContext ctx, FinancialIdempotencyOptions opts, string identityKey, string token)
     {
         var originalResponse = ctx.Features.Get<IHttpResponseFeature>()!;
         var originalBody = ctx.Features.Get<IHttpResponseBodyFeature>()!;
@@ -120,11 +118,11 @@ sealed class FinancialIdempotencyMiddleware(RequestDelegate next, IFinancialIdem
                 !ReferenceEquals(ctx.Features.Get<IHttpResponseFeature>(), capture))
                 throw new InvalidOperationException("Financial response capture was replaced.");
             body = await capture.SnapshotAsync();
-            await SettleReservation(ctx, opts, identityKey, token, ttl, capture, body);
+            await SettleReservation(ctx, opts, identityKey, token, capture, body);
         }
         catch
         {
-            await MarkUnreplayableSafe(identityKey, token, opts.SettlementTimeout);
+            await MarkUnreplayableSafe(identityKey, token, opts);
             throw;
         }
         finally
@@ -147,7 +145,6 @@ sealed class FinancialIdempotencyMiddleware(RequestDelegate next, IFinancialIdem
                                 FinancialIdempotencyOptions opts,
                                 string identityKey,
                                 string token,
-                                TimeSpan ttl,
                                 FinancialResponseCapture capture,
                                 byte[] body)
     {
@@ -160,7 +157,7 @@ sealed class FinancialIdempotencyMiddleware(RequestDelegate next, IFinancialIdem
                 StatusCode = capture.StatusCode,
                 Headers = FinancialIdempotencyHeaders.SnapshotHeaders(capture.Headers),
                 Body = BodyAllowed(ctx, capture.StatusCode) ? body : []
-            }, ttl, settlement.Token).WaitAsync(settlement.Token);
+            }, opts.Duration, settlement.Token).WaitAsync(settlement.Token);
 
             if (result == FinancialSettlementResult.OwnershipLost)
                 throw new InvalidOperationException("Financial reservation ownership was lost.");
@@ -168,15 +165,15 @@ sealed class FinancialIdempotencyMiddleware(RequestDelegate next, IFinancialIdem
         else if (ctx.Items[RejectionKey] is true)
             await store.AbandonAsync(identityKey, token, settlement.Token).WaitAsync(settlement.Token);
         else
-            await store.MarkUnreplayableAsync(identityKey, token, settlement.Token).WaitAsync(settlement.Token);
+            await store.MarkUnreplayableAsync(identityKey, token, opts.EffectiveUnreplayableRetention, settlement.Token).WaitAsync(settlement.Token);
     }
 
-    async Task MarkUnreplayableSafe(string identityKey, string token, TimeSpan timeout)
+    async Task MarkUnreplayableSafe(string identityKey, string token, FinancialIdempotencyOptions opts)
     {
         try
         {
-            using var settlement = new CancellationTokenSource(timeout);
-            await store.MarkUnreplayableAsync(identityKey, token, settlement.Token).WaitAsync(settlement.Token);
+            using var settlement = new CancellationTokenSource(opts.SettlementTimeout);
+            await store.MarkUnreplayableAsync(identityKey, token, opts.EffectiveUnreplayableRetention, settlement.Token).WaitAsync(settlement.Token);
         }
         catch (Exception ex)
         {

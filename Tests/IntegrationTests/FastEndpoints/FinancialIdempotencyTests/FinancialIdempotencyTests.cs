@@ -37,6 +37,15 @@ public class FinancialIdempotencyTests(Sut App) : TestBase<Sut>
         (await Error(res)).ShouldContain("Multiple idempotency headers");
     }
 
+    [Theory, InlineData("   "), InlineData(null)]
+    public async Task Invalid_Key_Is_400_And_Not_Echoed(string? key)
+    {
+        var res = await Post(ChargeUrl, key ?? new string('x', 257), JsonBody(10));
+        res.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        (await Error(res)).ShouldContain("Invalid idempotency key");
+        res.Headers.Contains("Idempotency-Key").ShouldBeFalse();
+    }
+
     [Fact]
     public async Task Missing_Content_Type_Does_Not_Burn_The_Key()
     {

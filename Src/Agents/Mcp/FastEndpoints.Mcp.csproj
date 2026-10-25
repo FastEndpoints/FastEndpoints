@@ -2,7 +2,7 @@
 
     <PropertyGroup>
 
-        <Version>1.0.0-beta.7</Version> <!-- independently versioned from FastEndpoints -->
+        <Version>1.0.0-beta.8</Version> <!-- independently versioned from FastEndpoints -->
 
         <NoWarn>1701;1702;CS1591;CS1573</NoWarn>
         <Description>Addon for FastEndpoints: expose opt-in endpoints as Model Context Protocol (MCP) tools over HTTP. Built on the official ModelContextProtocol C# SDK.</Description>

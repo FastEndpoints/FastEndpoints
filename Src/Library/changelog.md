@@ -162,6 +162,13 @@ public override void Configure()
 ```
 
 </details>
+<details><summary>Audit refused MCP tool calls without logging tool listings</summary>
+
+You can now set `McpOptions.OnToolCallRefused` to record calls rejected by `ToolVisibilityFilter`. The callback receives the endpoint, caller, and HTTP context, and runs once per refused call. Routine tool listings and unknown tool names don't trigger it.
+
+See [auditing refused MCP calls](https://fast-endpoints.com/docs/ai-agents#auditing-refused-mcp-calls) for an example.
+
+</details>
 
 ## Fixes 🪲
 

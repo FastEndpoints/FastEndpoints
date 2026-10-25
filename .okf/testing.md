@@ -80,7 +80,7 @@ All suites below live in `Tests/IntegrationTests/FastEndpoints.OpenApi/` (`Int.O
 | Tags / security | `OperationTagTests`, `NestedGroupTagTests`, `OperationSecurityTests` |
 | Polymorphic `oneOf` | `PolymorphicOneOfTests`; self-hosted opt-in flag |
 | Polymorphic validation | `PolymorphicValidationTests` |
-| Framework compatibility | `ResponseTypeCompatibilityTests`, `MediaTypeCompatibilityTests`; run on both TFMs |
+| Framework compatibility | `ResponseTypeCompatibilityTests`, `MediaTypeCompatibilityTests`, `SseSchemaTests`; run on both TFMs |
 | Host restoration | `HostGlobalStateScopeTests`: restore state even when the protected lifetime throws |
 
 ## OpenAPI self-hosted isolation

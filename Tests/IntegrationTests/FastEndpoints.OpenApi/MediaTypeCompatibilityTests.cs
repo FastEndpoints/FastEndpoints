@@ -40,6 +40,49 @@ public class MediaTypeCompatibilityTests
     }
 
 #if NET11_0_OR_GREATER
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void item_schema_references_are_collected_and_rewritten(bool inlineEnvelope)
+    {
+        var mediaType = new OpenApiMediaType
+        {
+            Schema = new OpenApiSchemaReference("Other"),
+            ItemSchema = inlineEnvelope
+                             ? new OpenApiSchema
+                             {
+                                 Properties = new Dictionary<string, IOpenApiSchema> { ["data"] = new OpenApiSchemaReference("Original") }
+                             }
+                             : new OpenApiSchemaReference("Original")
+        };
+        var document = new OpenApiDocument
+        {
+            Components = new()
+            {
+                Responses = new Dictionary<string, IOpenApiResponse>
+                {
+                    ["Sse"] = new OpenApiResponse
+                    {
+                        Content = new Dictionary<string, IOpenApiMediaType> { ["text/event-stream"] = mediaType }
+                    }
+                }
+            }
+        };
+
+        document.GetReferencedSchemaRefs().ShouldContain("Original");
+        OpenApiSchemaGraphTransformer.TransformDocumentSchemas(
+            document,
+            schema => schema is OpenApiSchemaReference { Reference.Id: "Original" }
+                          ? new OpenApiSchemaReference("Rewritten")
+                          : schema);
+
+        ((OpenApiSchemaReference)mediaType.Schema).Reference.Id.ShouldBe("Other");
+        var item = inlineEnvelope ? mediaType.ItemSchema!.Properties!["data"] : mediaType.ItemSchema;
+        ((OpenApiSchemaReference)item!).Reference.Id.ShouldBe("Rewritten");
+        document.GetReferencedSchemaRefs().ShouldNotContain("Original");
+        document.GetReferencedSchemaRefs().ShouldContain("Rewritten");
+    }
+
     [Fact]
     public void referenced_media_types_are_localized_without_mutating_the_component()
     {

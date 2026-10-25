@@ -165,6 +165,9 @@ static class OpenApiSchemaGraphTransformer
             return;
 
         mediaType.Schema = OpenApiSchemaTraversal.Rewrite(mediaType.Schema, rewrite);
+#if NET11_0_OR_GREATER
+        mediaType.ItemSchema = OpenApiSchemaTraversal.Rewrite(mediaType.ItemSchema, rewrite);
+#endif
 
         if (mediaType.Encoding is { Count: > 0 })
         {

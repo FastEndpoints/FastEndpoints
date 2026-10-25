@@ -220,6 +220,9 @@ static class OpenApiSchemaReferenceCollector
             return;
 
         context.CollectSchemaRefs(mediaType.Schema);
+#if NET11_0_OR_GREATER
+        context.CollectSchemaRefs(mediaType.ItemSchema);
+#endif
 
         if (mediaType.Encoding is { Count: > 0 })
         {

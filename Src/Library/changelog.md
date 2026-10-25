@@ -172,6 +172,12 @@ See [auditing refused MCP calls](https://fast-endpoints.com/docs/ai-agents#audit
 
 ## Fixes 🪲
 
+<details><summary>Custom endpoint metadata is now visible during MCP and A2A calls</summary>
+
+Pre-processors and other endpoint code can now read metadata added with `Definition.Metadata(...)` through `HttpContext.GetEndpoint().Metadata` during agent calls, just as they can during HTTP calls. This fixes metadata-based authorization checks that could incorrectly deny agent calls because their declarations appeared to be missing.
+
+</details>
+
 <details><summary>Custom DataAnnotations validators can resolve request-scoped services</summary>
 
 Custom validation attributes can now resolve registered services through `ValidationContext.GetService()`. Validation uses the same request scope as your endpoint, including when validating nested objects and collection items.

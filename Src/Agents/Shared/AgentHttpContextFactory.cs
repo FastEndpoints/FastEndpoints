@@ -71,7 +71,7 @@ sealed class AgentHttpContextFactory
     {
         public AgentEndpointFeature(EndpointDefinition definition)
         {
-            var metadata = new EndpointMetadataCollection(definition);
+            var metadata = new EndpointMetadataCollection([definition, ..definition.EndpointMetadata ?? []]);
             Endpoint = new(_ => Task.CompletedTask, metadata, definition.EndpointType.FullName);
         }
 

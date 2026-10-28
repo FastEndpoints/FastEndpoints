@@ -101,8 +101,6 @@ See the documentation for setup instructions and things to keep in mind when swi
 
 If you're building payment-style endpoints where retrying a request shouldn't mean processing it twice, you can now opt in with `FinancialIdempotency()`. It protects requests while they're being processed and lets clients retry a successful request to get the original response back.
 
-Register `AddFinancialIdempotency()` (in-memory store by default, or `AddFinancialIdempotency<TStore>()` for Redis/SQL) and `UseFinancialIdempotency()` after routing/auth, next to `UseOutputCache()`. Do not call both `Idempotency()` and `FinancialIdempotency()` on the same endpoint. Distributed stores must implement atomic `TryBegin`; in-flight keys return `409` so clients retry. Fail-closed `500` if a 2xx cannot be replayed. Requires an explicit trusted stable `CallerScope`. Ownership-token settlement prevents stale writers; active reservations never auto-expire. Uncertain (unreplayable) outcomes fail closed for `UnreplayableRetention` (default 24h via `DefaultUnreplayableRetention`, never shorter than `Duration`), after which a retry runs the handler again. Concurrent requests return immediate `409`. Exceptions and ambiguous non-2xx responses retain protection; only explicit no-side-effects rejection releases a key. Bounded lifecycle capture includes empty responses and pending pipe bytes. Uploaded file contents participate in the hash. Breaking store/identity changes require coordinated migration. A durable application store and transactional/downstream idempotency remain deployment obligations.
-
 This is a separate mode from the existing `Idempotency()`, which continues to work as before. Here's a quick example to get started:
 
 ```csharp

@@ -677,6 +677,62 @@ public class FinancialResponseCaptureTests
         }
     }
 
+    [Theory]
+    [InlineData(false, 1)]
+    [InlineData(false, 3)]
+    [InlineData(true, 1)]
+    [InlineData(true, 3)]
+    public async Task Middleware_Retains_Uncertain_Outcomes_For_Effective_Retention_From_Settlement(bool throws, int retentionHours)
+    {
+        var clock = new RetentionClock();
+        var store = new MemoryFinancialIdempotencyStore(time: clock);
+        var definition = new EndpointDefinition(typeof(FinancialResponseCaptureTests), typeof(object), typeof(object));
+        definition.FinancialIdempotency(o =>
+        {
+            o.CallerScope = _ => "account";
+            o.Duration = TimeSpan.FromHours(2);
+            o.UnreplayableRetention = TimeSpan.FromHours(retentionHours);
+        });
+        var ctx = new DefaultHttpContext();
+        ctx.Request.Method = "POST";
+        ctx.Request.Headers["Idempotency-Key"] = "same";
+        ctx.Response.Body = new MemoryStream();
+        ctx.SetEndpoint(new Microsoft.AspNetCore.Http.Endpoint(_ => Task.CompletedTask, new EndpointMetadataCollection(definition), "financial"));
+        var opts = definition.FinancialIdempotencyOptions!;
+        var identity = FinancialIdentity.Build(ctx.Request, opts, "account");
+        var hash = await FinancialPayloadHash.ComputeAsync(ctx.Request, CancellationToken.None);
+        var middleware = new FinancialIdempotencyMiddleware(
+            context =>
+            {
+                clock.Now += TimeSpan.FromHours(10);
+                context.Response.StatusCode = 400;
+
+                return throws ? Task.FromException(new InvalidOperationException("uncertain outcome")) : Task.CompletedTask;
+            },
+            store,
+            Microsoft.Extensions.Logging.Abstractions.NullLogger<FinancialIdempotencyMiddleware>.Instance);
+
+        if (throws)
+            (await Should.ThrowAsync<InvalidOperationException>(() => middleware.Invoke(ctx))).Message.ShouldBe("uncertain outcome");
+        else
+        {
+            await middleware.Invoke(ctx);
+            ctx.Response.StatusCode.ShouldBe(400);
+        }
+
+        var expectedRetention = TimeSpan.FromHours(Math.Max(2, retentionHours));
+        clock.Now += expectedRetention - TimeSpan.FromTicks(1);
+        (await store.TryBeginAsync(identity, hash, CancellationToken.None)).Kind.ShouldBe(FinancialBeginKind.Unreplayable);
+        clock.Now += TimeSpan.FromTicks(1);
+        (await store.TryBeginAsync(identity, hash, CancellationToken.None)).Kind.ShouldBe(FinancialBeginKind.Started);
+    }
+
+    sealed class RetentionClock : TimeProvider
+    {
+        public DateTimeOffset Now = new(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
+        public override DateTimeOffset GetUtcNow() => Now;
+    }
+
     sealed class BrokenBeginStore : IFinancialIdempotencyStore
     {
         public bool ReplayWithoutBody { get; set; }

@@ -15,7 +15,7 @@ public class HttpSnapshotTests(Fixture App) : TestBase<Fixture>
         if (await UpdateSnapshotIfEnabled("release-0.http", http))
             Assert.Fail("Snapshot updated! Turn off snapshot updating to run tests...");
 
-        var snapshot = await File.ReadAllTextAsync("release-0.http", Cancellation);
+        var snapshot = await File.ReadAllTextAsync(SnapshotFiles.ForFramework("release-0.http"), Cancellation);
         Assert.Equal(Normalize(snapshot), Normalize(http));
     }
 
@@ -27,7 +27,7 @@ public class HttpSnapshotTests(Fixture App) : TestBase<Fixture>
         if (await UpdateSnapshotIfEnabled("release-1.http", http))
             Assert.Fail("Snapshot updated! Turn off snapshot updating to run tests...");
 
-        var snapshot = await File.ReadAllTextAsync("release-1.http", Cancellation);
+        var snapshot = await File.ReadAllTextAsync(SnapshotFiles.ForFramework("release-1.http"), Cancellation);
         Assert.Equal(Normalize(snapshot), Normalize(http));
     }
 
@@ -39,7 +39,7 @@ public class HttpSnapshotTests(Fixture App) : TestBase<Fixture>
         if (await UpdateSnapshotIfEnabled("release-2.http", http))
             Assert.Fail("Snapshot updated! Turn off snapshot updating to run tests...");
 
-        var snapshot = await File.ReadAllTextAsync("release-2.http", Cancellation);
+        var snapshot = await File.ReadAllTextAsync(SnapshotFiles.ForFramework("release-2.http"), Cancellation);
         Assert.Equal(Normalize(snapshot), Normalize(http));
     }
 
@@ -51,7 +51,7 @@ public class HttpSnapshotTests(Fixture App) : TestBase<Fixture>
         if (await UpdateSnapshotIfEnabled("release-versioning-v0.http", http))
             Assert.Fail("Snapshot updated! Turn off snapshot updating to run tests...");
 
-        var snapshot = await File.ReadAllTextAsync("release-versioning-v0.http", Cancellation);
+        var snapshot = await File.ReadAllTextAsync(SnapshotFiles.ForFramework("release-versioning-v0.http"), Cancellation);
         Assert.Equal(Normalize(snapshot), Normalize(http));
     }
 
@@ -63,7 +63,7 @@ public class HttpSnapshotTests(Fixture App) : TestBase<Fixture>
         if (await UpdateSnapshotIfEnabled("release-versioning-v1.http", http))
             Assert.Fail("Snapshot updated! Turn off snapshot updating to run tests...");
 
-        var snapshot = await File.ReadAllTextAsync("release-versioning-v1.http", Cancellation);
+        var snapshot = await File.ReadAllTextAsync(SnapshotFiles.ForFramework("release-versioning-v1.http"), Cancellation);
         Assert.Equal(Normalize(snapshot), Normalize(http));
     }
 
@@ -75,7 +75,7 @@ public class HttpSnapshotTests(Fixture App) : TestBase<Fixture>
         if (await UpdateSnapshotIfEnabled("release-versioning-v2.http", http))
             Assert.Fail("Snapshot updated! Turn off snapshot updating to run tests...");
 
-        var snapshot = await File.ReadAllTextAsync("release-versioning-v2.http", Cancellation);
+        var snapshot = await File.ReadAllTextAsync(SnapshotFiles.ForFramework("release-versioning-v2.http"), Cancellation);
         Assert.Equal(Normalize(snapshot), Normalize(http));
     }
 
@@ -87,7 +87,7 @@ public class HttpSnapshotTests(Fixture App) : TestBase<Fixture>
         if (await UpdateSnapshotIfEnabled("release-versioning-v3.http", http))
             Assert.Fail("Snapshot updated! Turn off snapshot updating to run tests...");
 
-        var snapshot = await File.ReadAllTextAsync("release-versioning-v3.http", Cancellation);
+        var snapshot = await File.ReadAllTextAsync(SnapshotFiles.ForFramework("release-versioning-v3.http"), Cancellation);
         Assert.Equal(Normalize(snapshot), Normalize(http));
     }
 
@@ -100,7 +100,8 @@ public class HttpSnapshotTests(Fixture App) : TestBase<Fixture>
         if (!_updateSnapshots)
             return false;
 
-        var destination = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", httpFileName));
+        var destination = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", SnapshotFiles.ForFramework(httpFileName)));
+        Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
         await File.WriteAllTextAsync(destination, httpContent);
 
         return true;

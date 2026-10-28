@@ -4,7 +4,7 @@ okf_version: "0.1"
 
 # OKF Knowledge Set
 
-Compact operational knowledge for agents working in the FastEndpoints repository. Read relevant files before editing. Keep synchronized with code, tests, docs, and configuration.
+Compact operational knowledge for agents working in the FastEndpoints repository. Reading gates, authority, and update rules: [AGENTS.md](../AGENTS.md).
 
 ## Core reading order
 * [Project Overview](project-overview.md): purpose, packages, status
@@ -13,16 +13,16 @@ Compact operational knowledge for agents working in the FastEndpoints repository
 * [Conventions](conventions.md): naming, style, patterns
 
 ## Workflow and validation
+* Bug hunts and reviews: check [accepted policies and review exclusions](gotchas.md#accepted-policies-and-review-exclusions) before ranking findings.
 * [Workflows](workflows.md): build, pack, changelog, publish
 * [Testing](testing.md): unit/integration/AOT, filters, harnesses
 
 ## Task-specific
 * [Dependencies](dependencies.md) · [Gotchas](gotchas.md) · [Maintenance](maintenance.md)
 * [Monorepo Packages](monorepo-packages.md) · [Generated Code](generated-code.md)
-
-## Authority
-If OKF conflicts with source, tests, generated artifacts, or manifests: verify those, then update OKF.
+* [OpenAPI Contracts](openapi.md): generation, schema isolation, validation, examples and compatibility
+* [Remote Events](remote-events.md): protocol/storage contracts, worker ownership, reliability and test isolation
 
 ## Maintenance
-Normative OKF use/update gates: repo canonical agent instructions (`AGENTS.md`). Reminder + conformance detail: [Maintenance](maintenance.md).
-Before finishing, sync OKF when triggers apply; if not needed, state why (`OKF unaffected (non-behavioral edit)` for pure comment/typo/format).
+Update-trigger inventory and conformance detail: [Maintenance](maintenance.md).
+Expanded library-monorepo set. Runtime/ops guidance is covered by architecture and workflows; a separate operations file is unnecessary.

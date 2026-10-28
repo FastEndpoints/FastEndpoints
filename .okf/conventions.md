@@ -32,7 +32,7 @@ tags: [conventions]
 - Pre/post processors: `IPreProcessor<TRequest>`, `IPostProcessor<TRequest,TResponse>`.
 - Mappers: `IMapper` / request-response mappers; **stateless** (singleton lifetime expectation).
 - Commands/events: implement `ICommand` / `IEvent` (+ handlers); job queue builds on commands.
-- HTTP idempotency: fingerprint `AddIdempotency()` + `Idempotency()` (output-cache policy). Financial `AddFinancialIdempotency()` + `UseFinancialIdempotency()` + `FinancialIdempotency()` (reservation store). Distinct from each other and from job-queue `IdempotencyKeyFor`. Behavior traps: [gotchas.md](gotchas.md).
+- HTTP idempotency modes and registration: [architecture.md](architecture.md#communication). Settlement and persistence constraints: [gotchas.md](gotchas.md#financial-idempotency).
 - Feature flags: implement `IFeatureFlag`, call `FeatureFlag<T>()` in `Configure()`.
 - Optional attributes: `DontRegister`, `DontInject`, `HideFromDocs`, `RegisterService`, etc. in Attributes package.
 
@@ -43,11 +43,7 @@ tags: [conventions]
 - Service registration generator can emit registration from attributes when generator is referenced.
 - Central package versions: [dependencies.md](dependencies.md). Do not hardcode versions in csproj.
 
-## Testing
-- Layout, commands, spies, and CI filter: [testing.md](testing.md).
-
-## YAGNI
-- Keep changes minimal and consistent with surrounding package boundaries.
+## Legacy packages
 - Do not reintroduce NSwag/Swagger paths as default when OpenApi is the active harness path unless task is legacy package work.
 
 ## Sources

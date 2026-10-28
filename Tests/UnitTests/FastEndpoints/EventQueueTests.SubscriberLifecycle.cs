@@ -8,6 +8,97 @@ namespace EventQueue;
 
 public partial class EventQueueTests
 {
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(false, true)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public void subscriber_registry_refreshes_metadata_and_preserves_connection_policy(bool configured, bool previouslyKnown)
+    {
+        var registry = new SubscriberRegistry();
+        string[] ids = ["ordinary", "exclusive", "restored"];
+        registry.Configure(configured ? ids : []);
+
+        try
+        {
+            foreach (var id in ids)
+            {
+                registry.Remove(id, allowConfiguredRemoval: true);
+                var started = DateTime.UtcNow;
+                Subscriber added;
+
+                switch (id)
+                {
+                    case "ordinary":
+                        added = registry.RegisterConnection(id);
+                        break;
+                    case "exclusive":
+                        added = registry.TryRegisterExclusiveConnection(id)!;
+                        break;
+                    default:
+                        registry.RestoreSubscriber(id);
+                        added = registry.Subscribers[id];
+                        break;
+                }
+
+                AssertMetadata(added, id == "restored" ? 0 : 1, configured, started);
+
+                var existing = added with
+                {
+                    ConnectionCount = id == "exclusive" ? 0 : 3,
+                    LastSeenUtc = DateTime.UtcNow.AddDays(-2),
+                    IsKnownSubscriber = previouslyKnown
+                };
+                registry.Subscribers[id] = existing;
+                started = DateTime.UtcNow;
+                Subscriber refreshed;
+
+                switch (id)
+                {
+                    case "ordinary":
+                        refreshed = registry.RegisterConnection(id);
+                        break;
+                    case "exclusive":
+                        refreshed = registry.TryRegisterExclusiveConnection(id)!;
+                        break;
+                    default:
+                        registry.RestoreSubscriber(id);
+                        refreshed = registry.Subscribers[id];
+                        break;
+                }
+
+                var expectedCount = id == "ordinary" ? 4 : id == "exclusive" ? 1 : 3;
+                AssertMetadata(refreshed, expectedCount, configured || previouslyKnown, started);
+                refreshed.Sem.ShouldBeSameAs(existing.Sem);
+                existing.ConnectionCount.ShouldBe(id == "exclusive" ? 0 : 3);
+                existing.LastSeenUtc.ShouldBeLessThan(started);
+                existing.IsKnownSubscriber.ShouldBe(previouslyKnown);
+
+                if (id == "exclusive")
+                {
+                    registry.TryRegisterExclusiveConnection(id).ShouldBeNull();
+                    registry.Subscribers[id].ShouldBeSameAs(refreshed);
+                    registry.Subscribers[id].LastSeenUtc.ShouldBe(refreshed.LastSeenUtc);
+                    registry.Subscribers[id].ConnectionCount.ShouldBe(1);
+                }
+            }
+        }
+        finally
+        {
+            foreach (var id in ids)
+                registry.Remove(id, allowConfiguredRemoval: true);
+        }
+
+        static void AssertMetadata(Subscriber subscriber, int count, bool known, DateTime started)
+        {
+            subscriber.ShouldNotBeNull();
+            subscriber.ConnectionCount.ShouldBe(count);
+            subscriber.IsKnownSubscriber.ShouldBe(known);
+            subscriber.LastSeenUtc.ShouldBeGreaterThanOrEqualTo(started);
+            subscriber.LastSeenUtc.ShouldBeLessThanOrEqualTo(DateTime.UtcNow);
+        }
+    }
+
     [Fact]
     public async Task explicit_subscriber_ids_can_be_reused_across_event_types_without_cross_delivery()
     {
@@ -219,8 +310,9 @@ public partial class EventQueueTests
         using var prunedReconnectCts = new CancellationTokenSource();
         var prunedReconnectTask = hub.OnSubscriberConnected(hub, staleSubscriberId, prunedReconnectWriter, CreateServerCallContext(prunedReconnectCts.Token));
 
-        await Task.Delay(300);
-        prunedReconnectWriter.Responses.ShouldBeEmpty();
+        EventHubBase.AddToSubscriberQueues(new StaleSubscriberEvent { EventID = 457 });
+        await WaitUntil(() => prunedReconnectWriter.Responses.Count == 1);
+        prunedReconnectWriter.Responses.Single().EventID.ShouldBe(457);
 
         prunedReconnectCts.Cancel();
         activeCts.Cancel();

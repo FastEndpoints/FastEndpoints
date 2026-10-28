@@ -1,3 +1,4 @@
+using System.Text.Json.Nodes;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
 
@@ -75,6 +76,19 @@ static class DocumentSchemaHelpers
                 continue;
 
             var schema = await context.GetOrCreateSchemaAsync(type, parameterDescription: null, ct);
+
+            // GetOrCreateSchemaAsync leaves nested schemas inline, so reference annotations need materializing.
+            OpenApiSchemaTraversal.Visit(schema, static nested =>
+            {
+                if (nested is not OpenApiSchema { Metadata: { } metadata } concrete)
+                    return;
+
+                if (metadata.TryGetValue("x-ref-description", out var description) && description is string propertySummary)
+                    concrete.Description = propertySummary;
+
+                if (metadata.TryGetValue("x-ref-example", out var example) && example is JsonNode propertyExample)
+                    concrete.Examples = [propertyExample];
+            });
             schemas.TryAdd(refId, schema);
         }
     }
@@ -289,7 +303,7 @@ static class DocumentSchemaHelpers
         if (schema is OpenApiSchemaReference schemaRef &&
             schemaRef.GetReferenceId() is { } refId &&
             aliases.TryGetValue(refId, out var canonicalRefId))
-            return new OpenApiSchemaReference(ResolveAlias(canonicalRefId, aliases));
+            return schemaRef.RetargetTo(ResolveAlias(canonicalRefId, aliases));
 
         return schema;
     }

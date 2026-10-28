@@ -6,6 +6,17 @@ namespace EventQueue;
 public partial class EventQueueTests
 {
     [Fact]
+    public void subscriber_purge_policy_matches_completed_or_expired_ordinary_records()
+    {
+        var now = DateTime.UtcNow;
+        var match = EventSubscriberRetentionPolicy<TestEventRecord>.PurgeMatch.Compile();
+
+        match(new() { IsComplete = true, ExpireOn = now.AddHours(1) }).ShouldBeTrue();
+        match(new() { ExpireOn = now.AddMinutes(-1) }).ShouldBeTrue();
+        match(new() { ExpireOn = now.AddHours(1) }).ShouldBeFalse();
+    }
+
+    [Fact]
     public async Task subscriber_storage_dequeues_events_in_enqueue_order()
     {
         const string firstSubscriberId = "sub1";

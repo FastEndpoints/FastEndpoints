@@ -11,7 +11,7 @@ tags: [test]
 | Piece | Detail |
 | --- | --- |
 | Framework | **xunit.v3** (MTP v2, no VSTest adapter), Shouldly, FakeItEasy |
-| Test TFM | **net10.0** (`Tests/Directory.Build.props`) |
+| Test TFMs | **net10.0;net11.0** (`Tests/Directory.Build.props`); Web, OData, OpenApi.Kiota and NativeAotChecker harnesses match |
 | Unit | `Tests/UnitTests/FastEndpoints`, `…/FastEndpoints.Testing`, `…/FastEndpoints.AspVersioning` (+ legacy Swagger unit commented in slnx) |
 | Integration | `Tests/IntegrationTests/FastEndpoints` (main), OpenApi, OpenApi.Kiota, OData, Agents |
 | AOT | `Tests/NativeAotTests/NativeAotCheckerTests` + `NativeAot.slnx` |
@@ -22,21 +22,24 @@ tags: [test]
 Integration projects reference harness + `FastEndpoints.Testing` + often remote messaging testing helpers.
 
 ## Commands
-Root `global.json` sets `"test": { "runner": "Microsoft.Testing.Platform" }` so `dotnet test` uses MTP on the .NET 10 SDK (required after `xunit.v3` 4.0).
+Root `global.json` pins the .NET 11 RC2 SDK and sets `"test": { "runner": "Microsoft.Testing.Platform" }` so `dotnet test` uses MTP (required after `xunit.v3` 4.0). Install both .NET 10 and .NET 11 runtimes to run the matrix.
 
 ```bash
-# Full solution tests (matches GitHub publish workflow)
-dotnet test FastEndpoints.slnx -c Release --verbosity minimal --filter "ExcludeInCiCd!=Yes" --max-parallel-test-modules 1
-
-# By tree (Azure pipeline workingDirectory Tests)
-dotnet test Tests/**/*.csproj -c Release --filter "ExcludeInCiCd!=Yes" --max-parallel-test-modules 1
+# Full solution tests (run once per framework, matching GitHub publish workflow)
+dotnet test FastEndpoints.slnx -c Release --framework net10.0 --verbosity minimal --filter "ExcludeInCiCd!=Yes" --max-parallel-test-modules 1
+dotnet test FastEndpoints.slnx -c Release --framework net11.0 --verbosity minimal --filter "ExcludeInCiCd!=Yes" --max-parallel-test-modules 1
 
 # Targeted
 dotnet test Tests/UnitTests/FastEndpoints/Unit.FastEndpoints.csproj
 dotnet test Tests/IntegrationTests/FastEndpoints/Int.FastEndpoints.csproj --filter FullyQualifiedName~BindingTests
+
+# Legacy Swagger search initialization (Node.js built-in runner, no npm install)
+node --test Tests/UnitTests/FastEndpoints.Swagger/SwaggerSearchTests.mjs
 ```
 
-AOT tests: use `NativeAot.slnx` (publish workflow currently has AOT test step commented out; re-check before assuming CI runs AOT).
+Azure installs only the SDK from `global.json` and runs net11.0 tests using the task project glob `Tests/**/*.csproj`, including Native AOT tests. GitHub publish runs the primary solution on both TFMs but leaves its separate AOT steps disabled. Use the solution commands above for portable shell invocations. MTP uses `IsTestingPlatformApplication` for discovery; exit 8 means zero tests ran.
+
+AOT tests: run `dotnet test NativeAot.slnx -c Release --framework net10.0 --verbosity minimal --max-parallel-test-modules 1` and the equivalent net11 command manually. GitHub publish has these steps commented out to reduce CI duration. The fixture passes the matching `-f` to publish and uses `Tests/NativeAotTests/NativeAotCheckerTests/bin/Release/<TFM>/aot` for isolated binaries. Its publish fingerprint covers the target project directory, so referenced-library-only changes require an explicit `dotnet publish TestHarness/NativeAotChecker/NativeAotChecker.csproj -c Release -f <TFM> -o Tests/NativeAotTests/NativeAotCheckerTests/bin/Release/<TFM>/aot` before smoke tests to verify a fresh native binary.
 
 ## Integration and data
 - **TestBase serial + `[Priority]`:** `TestBase` / `TestBaseWithAssemblyFixture` apply `[TestClass(DisableParallelization = true)]`, `[TestCaseOrderer]`, and `[TestMethodOrderer]`. xunit.v3 4 default parallel mode is `Collections` (same class already serial). The `TestClass` flag is ignored in that mode and only applies if a project enables `ParallelMode.All`. Method + case orderers restore `[Priority]` across `[Fact]` methods and theory rows. No consumer attribute needed.
@@ -45,20 +48,53 @@ AOT tests: use `NativeAot.slnx` (publish workflow currently has AOT test step co
 - **Auth clients:** Admin/Customer JWT obtained via login endpoints in `Sut.SetupAsync`.
 - **Traits:** `[Trait("ExcludeInCiCd", "Yes")]` skips in publish/Azure pipelines (job-queue timing, some binding cases). Those tests are not a merge gate.
 - **Kiota integration project:** `Int.OpenApi.Kiota` sets `IsTestingPlatformApplication=false` and `IsTestProject=false` when `CI` (GitHub) or `TF_BUILD` (Azure) is true (heavy Kiota gen; MTP keys off the former). Local `dotnet test FastEndpoints.slnx` still runs it.
-- Integration runners for `FastEndpoints`, `FastEndpoints.OpenApi`, and `FastEndpoints.Agents` disable test-collection parallelization (process-wide FastEndpoints state). Azure and GitHub publish pipelines also rewrite the `FastEndpoints` runner config and pass `--max-parallel-test-modules 1` so test assemblies do not starve each other on 2-core runners.
+- **Kiota command-mode subprocesses:** launch `typeof(Program).Assembly.Location` directly with `dotnet`, using its directory as the working directory. Pass `--urls http://127.0.0.1:0` so Kestrel atomically allocates an isolated port, even when port 5000 is occupied or TFMs run concurrently. The project reference copies the harness DLL, dependencies and runtime configuration into the matching test output. Do not derive the harness project path or TFM from `AppContext`: an IDE runner can supply its own base directory and target framework.
+- Checked-in `FastEndpoints` and `FastEndpoints.OpenApi` runner configs enable test-collection parallelization; `FastEndpoints.Agents` disables it. Tests that mutate process-wide FastEndpoints or FluentValidation state need an explicitly nonparallel collection. Azure and GitHub publish pipelines rewrite the `FastEndpoints` runner config and pass `--max-parallel-test-modules 1`; that switch serializes test modules and leaves each module's xUnit collection policy intact.
 - `Mode.WaitForAny` / `WaitForNone` offload handlers with `Task.Run`. Do not assert handler side-effects immediately after those publishes; poll, or use `WaitForAll`. For "was it published", use an event receiver (see Command/event spies).
 - No external DB for the core suite; job storage tests use in-memory/test providers.
-- Job-queue idempotency, gRPC reflection, and AOT binding/jobs live under the matching `Tests/UnitTests`, `Tests/IntegrationTests/FastEndpoints/RPCTests`, and `Tests/NativeAotTests` folders. Do not stand up a second in-process event hub with default storage types (see [gotchas.md](gotchas.md)).
-- Financial HTTP idempotency: real Kestrel response-lifecycle tests in `FinancialResponseCaptureTests.cs`; unit tests in `Tests/UnitTests/FastEndpoints/Financial*.cs` / `MemoryFinancialIdempotencyStoreTests.cs`; harness endpoints in `TestHarness/Web/[Features]/TestCases/FinancialIdempotency/`; integration in `Tests/IntegrationTests/FastEndpoints/FinancialIdempotencyTests/` (`Sut` for the memory path, `FinancialIdempotencyFaultSut` for in-flight/`Complete` failure fakes).
+- Financial HTTP idempotency: `FinancialResponseCaptureTests.cs` uses real Kestrel for response-lifecycle behavior. Unit tests: `Tests/UnitTests/FastEndpoints/Financial*.cs` / `MemoryFinancialIdempotencyStoreTests.cs`. Harness: `TestHarness/Web/[Features]/TestCases/FinancialIdempotency/`. Integration: `Tests/IntegrationTests/FastEndpoints/FinancialIdempotencyTests/` (`Sut` for memory storage, `FinancialIdempotencyFaultSut` for storage failures).
 - Unit tests that host `WebApplication` + `UseFastEndpoints()` must isolate process statics ([gotchas.md](gotchas.md)). Do not add a second in-process host in `Unit.FastEndpoints` without that pattern.
 
+## Domain regression map
+| Surface | Regression location / constraint |
+| --- | --- |
+| Remote events | `Tests/UnitTests/FastEndpoints/EventQueueTests.*.cs`: retrieval/idle, deserialization, delivery ACK, store retries/expiry, retention, lifecycle and receive supervision |
+| Queue wait helpers | `QueueTestSupportTests.cs`; preserve original worker faults/cancellation rather than masking them as wait timeouts |
+| ACK transport deadlines | `EventQueueTests.AckTimeout.cs` and `EventQueueTests.AckWriteTimeout.cs`: real Kestrel HTTP/2 and shared `LiveDeliveryAckHost<TEvent>` |
+| Remote event isolation | Distinct closed event/storage types and internal retry-delay overrides: [remote-events.md](remote-events.md#test-isolation) |
+| Command dispatch / middleware | `CommandBusTests`, `CommandBusScopedMiddlewareTests` in `Unit.FastEndpoints`; discovery tests require a nonparallel collection because they replace the process-wide service resolver. AOT: `CommandsTests` in `NativeAotCheckerTests`. |
+| Job dedupe / reflection | Matching unit suites and `Tests/IntegrationTests/FastEndpoints/RPCTests/` |
+| AOT binding / jobs | `Tests/NativeAotTests/`, including `JobsTests.Void_Jobs_Use_Public_Result_Type_With_Source_Generated_Storage`. Run `NativeAotCheckerTests.csproj` with `-p:RunSmokeTests=false` for JIT/WAF; the default `true` publishes and tests Native AOT. |
+| Agents schemas | `Tests/IntegrationTests/FastEndpoints.Agents/JsonSchemaBuilderTests.cs`, `McpToolSchemaRootTests.cs` |
+
+## OpenAPI regression map
+All suites below live in `Tests/IntegrationTests/FastEndpoints.OpenApi/` (`Int.OpenApi`). Contract details: [openapi.md](openapi.md). Check focused behavior tests as well as snapshots; preserve endpoint isolation and repeated/concurrent generation coverage.
+
+| Surface | Suites / focus |
+| --- | --- |
+| XML descriptions / examples | `XmlDocSchemaTransformerTests`, `XmlDocValidatedRequestTests`, `RequestDescriptionOverrideTests` |
+| XML docs without assembly location | `XmlDocLookupTests`: assembly loaded from bytes exercises the single-file fallback |
+| Enums / examples / reference cloning | `EnumSchemaTransformerTests`, `NullableCollectionSchemaTests`, `OperationTransformerEdgeCaseTests`, `OperationSchemaHelpersTests`, `HttpFileExporterTests` |
+| Validation / collections | `ValidationSchemaTransformerTests`, `NullableCollectionValidationTests`, `ValidationRuleMappingTests` |
+| Parameters / binding sources | `ParameterAliasValidationTests`, `ValidationBindingSourceTests`, `ValidationParameterTransformerTests`, `ConditionalParameterValidationTests`, `QueryParameterVisibilityTests` (also `Unit.Swagger` for `RemoveFromSchema`) |
+| Tags / security | `OperationTagTests`, `NestedGroupTagTests`, `OperationSecurityTests` |
+| Polymorphic `oneOf` | `PolymorphicOneOfTests`; self-hosted opt-in flag |
+| Polymorphic validation | `PolymorphicValidationTests` |
+| Framework compatibility | `ResponseTypeCompatibilityTests`, `MediaTypeCompatibilityTests`, `SseSchemaTests`; run on both TFMs |
+| Host restoration | `HostGlobalStateScopeTests`: restore state even when the protected lifetime throws |
+
+## OpenAPI self-hosted isolation
+- Use a nonparallel collection for temporary hosts beside the shared Web fixture. Declare `HostGlobalStateScope` before the host so async host disposal finishes before restoring `MainExtensions.HostServiceResolver`, `SerializerConfigured`, `Config.SerOpts.Options`, and `ValidatorOptions.Global.PropertyNameResolver`. Hosts executing requests also reset/restore `Config.EpOpts.RoutePrefix`, `Filter`, and `Configurator` locally (`NullableCollectionValidationTests`). Unit-host isolation: [gotchas.md](gotchas.md#testing-and-service-lifetimes).
+- Use the signed `Int.OpenApi` friend boundary for typed `ValidationSchemaApplier` / `ValidationRuleCatalog.DefaultRules` access; private live-validator invocation remains reflective.
+
 ## OpenAPI snapshots
-- `EnumSchemaTransformerTests` hosts an isolated TestServer with the real ASP.NET schema pipeline and FE enum transformer. It covers mixed property converters, nullable values, naming policies, and unchanged shared enum components. `Int.OpenApi.csproj` enables `Microsoft.AspNetCore.OpenApi.Generated` interceptors for its `AddOpenApi` registration. Nullable enum request examples (mismatch, JSON null, and a matching value) are covered by `OperationTransformerEdgeCaseTests` against the `Swagger Review` document. `OperationSchemaHelpersTests` covers sample generation and invalid-example replacement with leading null enum entries, cloned values, and empty/all-null enum lists.
-- Goldens: `Tests/IntegrationTests/FastEndpoints.OpenApi/release-*.http` and `release-*.json` (plus `release-versioning-*`).
-- Walker/export/versioning behavior is covered by focused tests in that project, not snapshots alone. Export mode keys live on internal `OpenApiExportMode`; public `IsExportMode` / `IsNotExportMode` (+ per-format wrappers) on `IHost` / `IHostApplicationBuilder`.
-- To regenerate `.http` goldens: set `_updateSnapshots = true` in `HttpSnapshotTests.cs`, run  
-  `dotnet test Tests/IntegrationTests/FastEndpoints.OpenApi/Int.OpenApi.csproj --filter FullyQualifiedName~HttpSnapshotTests`,  
-  set `_updateSnapshots = false`, re-run the same filter. JSON goldens use the same flag in `SnapshotTests.cs`.
+- Goldens: `Tests/IntegrationTests/FastEndpoints.OpenApi/Snapshots/<TFM>/` (`net10.0` and `net11.0`) contains `release-*.http` and `release-*.json` (including `release-versioning-*`). `SnapshotFiles.ForFramework` selects the matching baseline for reading and regeneration.
+- Regenerate goldens separately with `--framework net10.0` and `--framework net11.0`. OpenAPI 11 defaults to OpenAPI 3.2, documents QUERY operations and has different framework schema/nullability and server URL output, so its JSON and HTTP baselines are separate rather than normalizing away differences. Generated files must come from the snapshot tests, not manual edits.
+- Regeneration: set `_updateSnapshots = true` in `HttpSnapshotTests.cs` (HTTP) or `SnapshotTests.cs` (JSON), run the matching filter once per TFM, reset the flag to `false`, then rerun both to verify. Example for HTTP on net10:
+  ```bash
+  dotnet test Tests/IntegrationTests/FastEndpoints.OpenApi/Int.OpenApi.csproj --framework net10.0 --filter FullyQualifiedName~HttpSnapshotTests
+  ```
+  Repeat with `--framework net11.0`; JSON uses `FullyQualifiedName~SnapshotTests` (which also matches the HTTP class).
 
 ## Command/event spies
 - **API:** `RegisterTestEventReceivers()` / `RegisterTestCommandReceivers()`, then `GetTestEventReceiver<T>()` / `GetTestCommandReceiver<T>()`. Assert with `WaitForMatchAsync(match, timeoutSeconds = 2)`.

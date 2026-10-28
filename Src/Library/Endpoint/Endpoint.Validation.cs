@@ -10,7 +10,8 @@ namespace FastEndpoints;
 
 public abstract partial class Endpoint<TRequest, TResponse> : IValidationErrors<TRequest> where TRequest : notnull
 {
-    static async Task ValidateRequest(TRequest req, EndpointDefinition def, List<ValidationFailure> validationFailures, CancellationToken cancellation)
+    static async Task ValidateRequest(TRequest req, EndpointDefinition def, List<ValidationFailure> validationFailures,
+                                     IServiceProvider serviceProvider, CancellationToken cancellation)
     {
         if (def.ValidatorType is null && Cfg.ValOpts.EnableDataAnnotationsSupport is false)
             return;
@@ -26,14 +27,15 @@ public abstract partial class Endpoint<TRequest, TResponse> : IValidationErrors<
             }
         }
         else if (_tRequest != Types.EmptyRequest) //try data annotations because DA support is enabled by user
-            ValidateRecursively(req, string.Empty, validationFailures, []);
+            ValidateRecursively(req, string.Empty, validationFailures, [], serviceProvider);
 
         if (validationFailures.Count > 0 && def.ThrowIfValidationFails)
             throw new ValidationFailureException(validationFailures, "Request validation failed");
 
         return;
 
-        static void ValidateRecursively(object obj, string propertyPath, List<ValidationFailure> validationFailures, HashSet<object> visitedObjects)
+        static void ValidateRecursively(object obj, string propertyPath, List<ValidationFailure> validationFailures,
+                                        HashSet<object> visitedObjects, IServiceProvider serviceProvider)
         {
             var tObject = obj.GetType();
 
@@ -44,7 +46,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : IValidationErrors<
             {
                 var validationResults = new List<DAValidationResult>();
 
-                if (!DAValidator.TryValidateObject(obj, new(obj), validationResults, true))
+                if (!DAValidator.TryValidateObject(obj, new(obj, serviceProvider, null), validationResults, true))
                 {
                     foreach (var res in validationResults)
                     {
@@ -72,13 +74,13 @@ public abstract partial class Endpoint<TRequest, TResponse> : IValidationErrors<
                             if (item is not null)
                             {
                                 var itemPath = $"{currentPropertyPath}[{index}]";
-                                ValidateRecursively(item, itemPath, validationFailures, visitedObjects);
+                                ValidateRecursively(item, itemPath, validationFailures, visitedObjects, serviceProvider);
                             }
                             index++;
                         }
                     }
                     else // handle nested object
-                        ValidateRecursively(propertyValue, currentPropertyPath, validationFailures, visitedObjects);
+                        ValidateRecursively(propertyValue, currentPropertyPath, validationFailures, visitedObjects, serviceProvider);
                 }
             }
             finally

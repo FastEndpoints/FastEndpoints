@@ -4,7 +4,6 @@
 
 using System.Collections.Concurrent;
 using System.Text.Json;
-using FastEndpoints.OpenApi.ValidationProcessor.Extensions;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -78,7 +77,7 @@ sealed class ValidationSchemaTransformer(DocumentOptions docOpts, SharedContext 
         using var schemaApplier = CreateSchemaApplier(operationKey, "requestBody", generation);
         var formattedPropertyPrefix = FormatPropertyPrefix(propertyPrefix);
 
-        foreach (var content in operation.RequestBody!.Content!.Values)
+        foreach (var content in operation.RequestBody!.Content!.GetMutableMediaTypes())
         {
             var schema = content.EnsureOperationLocalSchemaForMutation(sharedCtx, generation, operationKey, "requestBody");
 
@@ -126,7 +125,7 @@ sealed class ValidationSchemaTransformer(DocumentOptions docOpts, SharedContext 
 
         foreach (var name in required)
         {
-            if (paramByKey.TryGetValue(name, out var param))
+            if (paramByKey.TryGetValue(name, out var param) && !parameterState.ParametersWithFallbackValues.Contains(param))
                 param.Required = true;
         }
     }
@@ -154,7 +153,7 @@ sealed class ValidationSchemaTransformer(DocumentOptions docOpts, SharedContext 
         if (param.Content is not { Count: > 0 })
             return null;
 
-        foreach (var content in param.Content.Values)
+        foreach (var content in param.Content.GetMutableMediaTypes())
         {
             var schema = content.EnsureOperationLocalSchemaForMutation(sharedCtx, generation, operationKey, schemaKey);
 
@@ -193,52 +192,7 @@ sealed class ValidationSchemaTransformer(DocumentOptions docOpts, SharedContext 
                                .Value;
 
     CachedValidatorRules CacheValidatorRules(IValidator validator, JsonNamingPolicy? namingPolicy)
-        => CacheValidatorRules(validator, namingPolicy, []);
-
-    CachedValidatorRules CacheValidatorRules(IValidator validator, JsonNamingPolicy? namingPolicy, HashSet<Type> activeIncludedValidators)
-    {
-        var rules = validator.GetDictionaryOfRules(namingPolicy, docOpts.UsePropertyNamingPolicy, GetValidatorTargetType(validator));
-        var validatorType = validator.GetType();
-
-        if (!activeIncludedValidators.Add(validatorType))
-            return new(rules, []);
-
-        try
-        {
-            var includedRules = new List<CachedValidatorRules>();
-
-            foreach (var includedValidator in ValidationSchemaApplier.GetIncludedValidators(validator, _logger))
-            {
-                if (activeIncludedValidators.Contains(includedValidator.GetType()))
-                    continue;
-
-                includedRules.Add(CacheValidatorRules(includedValidator, namingPolicy, activeIncludedValidators));
-            }
-
-            return new(rules, [.. includedRules]);
-        }
-        finally
-        {
-            activeIncludedValidators.Remove(validatorType);
-        }
-    }
-
-    internal static OpenApiSchema? ResolveForMutation(IOpenApiSchema? schema,
-                                                      bool localizeReferencedSchemas,
-                                                      SharedContext sharedCtx,
-                                                      OpenApiGenerationState generation,
-                                                      string operationKey,
-                                                      string schemaKey,
-                                                      Action<IOpenApiSchema> replace)
-    {
-        if (!localizeReferencedSchemas || schema is not OpenApiSchemaReference)
-            return schema.ResolveSchema();
-
-        return schema.EnsureSchemaForMutation(sharedCtx, generation, operationKey, schemaKey, replace);
-    }
-
-    internal static Type GetValidatorTargetType(IValidator validator)
-        => validator.GetType().GetGenericArgumentsOfType(Types.ValidatorOf1)?[0] ?? validator.GetType();
+        => ValidatorRuleTreeReader.Read(validator, namingPolicy, docOpts.UsePropertyNamingPolicy, _logger);
 }
 
 internal sealed record CachedValidatorRules(System.Collections.ObjectModel.ReadOnlyDictionary<string, List<IValidationRule>> Rules, CachedValidatorRules[] IncludedRules);

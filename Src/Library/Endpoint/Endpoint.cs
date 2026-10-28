@@ -75,7 +75,7 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
             await OnBeforeValidateAsync(req, ct);
 
             //execution stops here if ValidationFailureException is thrown and continues at try/catch below
-            await ValidateRequest(req, Definition, ValidationFailures, ct);
+            await ValidateRequest(req, Definition, ValidationFailures, HttpContext.RequestServices, ct);
 
             // ReSharper disable once MethodHasAsyncOverloadWithCancellation
             OnAfterValidate(req);

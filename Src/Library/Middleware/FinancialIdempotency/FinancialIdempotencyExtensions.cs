@@ -98,6 +98,7 @@ public static class FinancialIdempotencyExtensions
             throw new InvalidOperationException("Invalid financial idempotency global limits!");
 
         services.AddSingleton(conf);
+        services.Insert(0, ServiceDescriptor.Singleton<Microsoft.AspNetCore.Hosting.IStartupFilter, FinancialResponseStartupFilter>());
 
         return conf;
     }

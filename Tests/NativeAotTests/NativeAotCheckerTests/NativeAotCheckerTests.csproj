@@ -7,7 +7,7 @@
     </ItemGroup>
 
     <PropertyGroup>
-        <RunSmokeTests>true</RunSmokeTests> <!-- flip this toggle to switch between running tests in WAF mode or native aot mode -->
+        <RunSmokeTests Condition="'$(RunSmokeTests)' == ''">true</RunSmokeTests> <!-- override to run tests in WAF mode instead of native aot mode -->
     </PropertyGroup>
     <ItemGroup Condition="'$(RunSmokeTests)' == 'true'">
         <RuntimeHostConfigurationOption Include="NativeAotTestMode" Value="true"/>

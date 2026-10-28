@@ -2,6 +2,7 @@
 // MIT License
 // Copyright (c) 2019 Zym Labs LLC
 
+using System.Diagnostics.CodeAnalysis;
 using FluentValidation;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -43,12 +44,20 @@ static class ValidationExtensions
             foreach (var rule in rules.GetPropertyRules())
             {
                 var propertyNameRaw = rule.ValidationRule.PropertyName;
+                var memberPath = PropertyChain.FromExpression(rule.ValidationRule.Expression).ToString();
+
+                // FastEndpoints' global resolver converts the CLR path before the rule is read.
+                if (memberPath.Length > 0 &&
+                    (propertyNameRaw == memberPath || propertyNameRaw == Config.SerOpts.Options.PropertyNamingPolicy?.ConvertName(memberPath)))
+                    propertyNameRaw = memberPath;
+
                 var propertyNameWithSchemaCasing = validatorTargetType is null
                                                        ? propertyNameRaw.ConvertToSchemaCasing(namingPolicy, usePropertyNamingPolicy)
-                                                       : PropertyNameResolver.ConvertPropertyPath(validatorTargetType,
-                                                                                                  propertyNameRaw,
-                                                                                                  namingPolicy,
-                                                                                                  usePropertyNamingPolicy);
+                                                       : PropertyNameResolver.ConvertPropertyPath(
+                                                           validatorTargetType,
+                                                           propertyNameRaw,
+                                                           namingPolicy,
+                                                           usePropertyNamingPolicy);
 
                 if (rulesDict.TryGetValue(propertyNameWithSchemaCasing, out var propertyRules))
                     propertyRules.Add(rule.ValidationRule);
@@ -91,6 +100,29 @@ static class ValidationExtensions
 
     internal static bool HasCondition(this IRuleComponent component)
         => component.HasCondition || component.HasAsyncCondition;
+
+    /// <summary>
+    /// true when the rule was created with RuleForEach() and its validators target the collection items.
+    /// </summary>
+    [DynamicDependency(DynamicallyAccessedMemberTypes.PublicProperties, typeof(ICollectionRule<,>)),
+     UnconditionalSuppressMessage("aot", "IL2075", Justification = "Collection rule interface properties are preserved by DynamicDependency.")]
+    internal static bool IsCollectionRule(this IValidationRule propertyRule, out bool hasFilter)
+    {
+        hasFilter = false;
+
+        foreach (var iface in propertyRule.GetType().GetInterfaces())
+        {
+            if (!iface.IsGenericType || iface.GetGenericTypeDefinition() != typeof(ICollectionRule<,>))
+                continue;
+
+            hasFilter = iface.GetProperty(nameof(ICollectionRule<,>.Filter))!.GetValue(propertyRule) is not null ||
+                        iface.GetProperty(nameof(ICollectionRule<,>.AsyncFilter))!.GetValue(propertyRule) is not null;
+
+            return true;
+        }
+
+        return false;
+    }
 
     /// <summary>
     /// Contains IValidationRule and additional info.

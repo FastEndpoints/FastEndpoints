@@ -1,23 +1,23 @@
 {
-  "openapi": "3.1.1",
+  "openapi": "3.2.0",
   "info": {
     "title": "Web API",
-    "version": "v1.0"
+    "version": "v0.0"
   },
   "servers": [
     {
-      "url": "http://localhost/"
+      "url": "http://localhost"
     }
   ],
   "paths": {
-    "/api/admin/login/ver1": {
+    "/api/admin/login": {
       "post": {
         "tags": [
           "Admin"
         ],
         "summary": "this is a short summary",
         "description": "this is the long description of the endpoint",
-        "operationId": "PostAdminLoginEndpoint_V1",
+        "operationId": "PostAdminLoginEndpoint",
         "requestBody": {
           "content": {
             "application/json": {
@@ -73,7 +73,7 @@
         ],
         "summary": "this is a short summary",
         "description": "this is the long description of the endpoint",
-        "operationId": "PutAdminLoginEndpoint_V1",
+        "operationId": "PutAdminLoginEndpoint",
         "requestBody": {
           "content": {
             "application/json": {
@@ -129,7 +129,7 @@
         ],
         "summary": "this is a short summary",
         "description": "this is the long description of the endpoint",
-        "operationId": "PatchAdminLoginEndpoint_V1",
+        "operationId": "PatchAdminLoginEndpoint",
         "requestBody": {
           "content": {
             "application/json": {
@@ -240,12 +240,12 @@
         }
       }
     },
-    "/api/customer/list/recent/ver1": {
+    "/api/customer/list/recent": {
       "get": {
         "tags": [
           "Customer"
         ],
-        "operationId": "CustomersListRecentEndpoint_V1",
+        "operationId": "CustomersListRecentEndpoint",
         "responses": {
           "200": {
             "description": "Success",
@@ -266,10 +266,7 @@
         },
         "security": [
           {
-            "ApiKey": [
-              "admin",
-              "staff"
-            ]
+            "JWTBearerAuth": [ ]
           }
         ]
       }
@@ -332,9 +329,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       },
@@ -400,9 +394,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       }
@@ -452,9 +443,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       },
@@ -520,9 +508,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       }
@@ -562,9 +547,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       },
@@ -622,9 +604,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       },
@@ -637,7 +616,6 @@
           {
             "name": "customerID",
             "in": "query",
-            "required": true,
             "schema": {
               "type": "string",
               "default": "test default val"
@@ -677,9 +655,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       }
@@ -719,9 +694,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       },
@@ -779,9 +751,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       }
@@ -796,7 +765,6 @@
           {
             "name": "customerID",
             "in": "query",
-            "required": true,
             "schema": {
               "type": "string",
               "default": "test default val"
@@ -836,9 +804,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       }
@@ -892,9 +857,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       }
@@ -952,9 +914,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       },
@@ -1020,9 +979,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       }
@@ -1080,9 +1036,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       },
@@ -1148,9 +1101,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       }
@@ -1171,6 +1121,22 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/first/middle/last/item": {
+      "get": {
+        "tags": [
+          "Last",
+          "Endpoint",
+          "First",
+          "Middle"
+        ],
+        "operationId": "nested_group_tags_TestCasesOpenApiNestedGroupTagsEndpoint",
+        "responses": {
+          "204": {
+            "description": "No Content"
           }
         }
       }
@@ -1296,9 +1262,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       }
@@ -1370,9 +1333,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       }
@@ -1524,9 +1484,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       }
@@ -1606,9 +1563,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       }
@@ -3066,6 +3020,48 @@
         }
       }
     },
+    "/api/swagger-review/query-method": {
+      "query": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewQueryMethodReviewEndpoint",
+        "parameters": [
+          {
+            "name": "filter",
+            "in": "query",
+            "schema": {
+              "type": [
+                "null",
+                "string"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSwaggerReviewQueryMethodReviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/swagger-review/query-param-validation-mixed": {
       "post": {
         "tags": [
@@ -3085,7 +3081,6 @@
           {
             "name": "X-Client",
             "in": "header",
-            "required": true,
             "schema": {
               "minLength": 2,
               "type": "string"
@@ -3469,6 +3464,130 @@
         }
       }
     },
+    "/api/swagger-review/shared-request-example-alpha": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewSharedRequestExampleAlphaEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSwaggerReviewSharedRequestExampleRequest"
+              },
+              "example": {
+                "test": "one",
+                "kind": "Default",
+                "details": {
+                  "name": "alpha"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesSwaggerReviewSharedRequestExampleRequest"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/shared-request-example-beta": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewSharedRequestExampleBetaEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSwaggerReviewSharedRequestExampleRequest"
+              },
+              "example": {
+                "test": "two",
+                "kind": "Alternative",
+                "details": {
+                  "name": "beta"
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesSwaggerReviewSharedRequestExampleRequest"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/swagger-review/shared-request-example-named": {
+      "post": {
+        "tags": [
+          "SwaggerReview"
+        ],
+        "operationId": "swagger_review_TestCasesSwaggerReviewSharedRequestExampleNamedEndpoint",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesSwaggerReviewSharedRequestExampleRequest"
+              },
+              "examples": {
+                "Default": {
+                  "value": {
+                    "test": "three",
+                    "kind": "Default",
+                    "details": {
+                      "name": "named"
+                    }
+                  }
+                },
+                "Alternative": {
+                  "value": {
+                    "test": "four",
+                    "kind": "Alternative",
+                    "details": {
+                      "name": "alternative"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesSwaggerReviewSharedRequestExampleRequest"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/swagger-review/shared-request-metadata-alpha": {
       "post": {
         "tags": [
@@ -3595,36 +3714,6 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/TestCasesSwaggerReviewVersionPrefilterSharedRequest__opE88B37672F98"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "200": {
-            "description": "Success",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "string"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/swagger-review/version-prefilter-v1/ver1": {
-      "post": {
-        "tags": [
-          "SwaggerReview"
-        ],
-        "operationId": "swagger_review_TestCasesSwaggerReviewVersionPrefilterV1Endpoint",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
                 "$ref": "#/components/schemas/TestCasesSwaggerReviewVersionPrefilterSharedRequest"
               }
             }
@@ -3735,9 +3824,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       }
@@ -3801,9 +3887,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       }
@@ -3835,9 +3918,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       }
@@ -3869,9 +3949,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       }
@@ -3903,9 +3980,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       }
@@ -3975,9 +4049,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       }
@@ -4040,9 +4111,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       }
@@ -4233,14 +4301,7 @@
         },
         "security": [
           {
-            "JWTBearerAuth": [
-              "admin"
-            ]
-          },
-          {
-            "ApiKey": [
-              "admin"
-            ]
+            "JWTBearerAuth": [ ]
           }
         ]
       }
@@ -4456,9 +4517,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       }
@@ -4890,9 +4948,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       }
@@ -4924,9 +4979,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       }
@@ -4965,9 +5017,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       }
@@ -4989,9 +5038,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       }
@@ -5025,9 +5071,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       }
@@ -5062,9 +5105,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       }
@@ -5108,9 +5148,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       }
@@ -5142,9 +5179,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       }
@@ -5193,9 +5227,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       }
@@ -5276,9 +5307,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       }
@@ -5467,6 +5495,160 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/TestCasesQueryObjectWithObjectsArrayBindingTestResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/test-cases/query-method/antiforgery": {
+      "query": {
+        "tags": [
+          "TestCases"
+        ],
+        "operationId": "TestCasesQueryMethodTestAntiforgeryEndpoint",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/FastEndpointsEmptyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/test-cases/query-method/attribute/{id}": {
+      "query": {
+        "tags": [
+          "TestCases"
+        ],
+        "operationId": "TestCasesQueryMethodTestAttributeEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "schema": {
+              "type": [
+                "null",
+                "string"
+              ]
+            }
+          },
+          {
+            "name": "x-query-token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": [
+                "null",
+                "string"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesQueryMethodTestQueryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesQueryMethodTestQueryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/test-cases/query-method/fluent/{id}": {
+      "query": {
+        "tags": [
+          "TestCases"
+        ],
+        "operationId": "TestCasesQueryMethodTestFluentEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "filter",
+            "in": "query",
+            "schema": {
+              "type": [
+                "null",
+                "string"
+              ]
+            }
+          },
+          {
+            "name": "x-query-token",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": [
+                "null",
+                "string"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestCasesQueryMethodTestQueryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestCasesQueryMethodTestQueryResponse"
                 }
               }
             }
@@ -6299,9 +6481,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       }
@@ -6333,9 +6512,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       }
@@ -6367,9 +6543,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       }
@@ -6401,9 +6574,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       }
@@ -6455,6 +6625,29 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/test-cases/stream-status/{mode}": {
+      "get": {
+        "tags": [
+          "TestCases"
+        ],
+        "operationId": "TestCasesStreamStatusCodeTestEndpoint",
+        "parameters": [
+          {
+            "name": "mode",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
           }
         }
       }
@@ -7326,6 +7519,108 @@
             }
           }
         }
+      },
+      "query": {
+        "tags": [
+          "Test"
+        ],
+        "operationId": "QueryTestCasesHydratedTestUrlGeneratorTestEndpoint",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "guid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "stringBindFrom",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "nullableString",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": [
+                "null",
+                "string"
+              ]
+            }
+          },
+          {
+            "name": "fromClaim",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fromHeader",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "hasPermission",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": [
+                "null",
+                "boolean"
+              ]
+            }
+          },
+          {
+            "name": "hasPermission",
+            "in": "query",
+            "schema": {
+              "type": [
+                "null",
+                "boolean"
+              ]
+            }
+          },
+          {
+            "name": "tenant-id",
+            "in": "header",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
       }
     },
     "/api/testcases/global-generic-processors": {
@@ -7625,9 +7920,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       }
@@ -7749,6 +8041,9 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Unauthorized"
           }
         }
       }
@@ -7824,9 +8119,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       }
@@ -7960,9 +8252,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       }
@@ -8096,9 +8385,6 @@
         "security": [
           {
             "JWTBearerAuth": [ ]
-          },
-          {
-            "ApiKey": [ ]
           }
         ]
       }
@@ -8235,33 +8521,35 @@
         "type": "object",
         "properties": {
           "userName": {
+            "examples": [
+              "example username"
+            ],
             "maxLength": 50,
             "minLength": 3,
             "type": "string",
             "description": "overriden username text",
-            "default": "admin",
-            "example": "custom example user name from summary"
+            "default": "admin"
           },
           "password": {
+            "examples": [
+              "example password"
+            ],
             "minLength": 3,
             "type": "string",
-            "description": "the admin password",
-            "example": "custom example password from summary"
+            "description": "the admin password"
           }
         },
-        "description": "the admin login request",
-        "example": {
-          "userName": "custom example user name from summary",
-          "password": "custom example password from summary"
-        }
+        "description": "the admin login request"
       },
       "AdminLoginResponse": {
         "type": "object",
         "properties": {
           "jwtToken": {
+            "examples": [
+              "blahblahblah"
+            ],
             "type": "string",
-            "description": "the jwt token",
-            "example": "blahblahblah"
+            "description": "the jwt token"
           },
           "expiryDate": {
             "type": "string",
@@ -8384,6 +8672,10 @@
           }
         }
       },
+      "FastEndpointsEmptyRequest": {
+        "type": "object",
+        "description": "a request dto that doesn't have any properties"
+      },
       "FastEndpointsErrorResponse": {
         "type": "object",
         "properties": {
@@ -8431,17 +8723,11 @@
         "type": "object",
         "properties": {
           "type": {
-            "type": [
-              "null",
-              "string"
-            ],
+            "type": "string",
             "default": "https://www.rfc-editor.org/rfc/rfc7231#section-6.5.1"
           },
           "title": {
-            "type": [
-              "null",
-              "string"
-            ],
+            "type": "string",
             "default": "One or more validation errors occurred."
           },
           "status": {
@@ -8568,49 +8854,34 @@
         "properties": {
           "id": {
             "type": "integer",
-            "format": "int32",
-            "example": 1
+            "format": "int32"
           },
           "name": {
             "minLength": 1,
-            "type": "string",
-            "example": "first name"
+            "type": "string"
           },
           "description": {
             "type": [
               "null",
               "string"
-            ],
-            "example": "first description"
+            ]
           },
           "price": {
             "exclusiveMinimum": 0,
             "type": "number",
-            "format": "double",
-            "example": 10
+            "format": "double"
           },
           "qtyOnHand": {
             "type": "integer",
-            "format": "int32",
-            "example": 10
+            "format": "int32"
           },
           "modifiedBy": {
             "minLength": 1,
             "type": "string"
           },
           "generateFullUrl": {
-            "type": "boolean",
-            "example": false
+            "type": "boolean"
           }
-        },
-        "example": {
-          "id": 1,
-          "name": "first name",
-          "description": "first description",
-          "price": 10,
-          "qtyOnHand": 10,
-          "modifiedBy": "modifiedBy",
-          "generateFullUrl": false
         }
       },
       "InventoryManageUpdateRequest": {
@@ -8653,7 +8924,6 @@
       "MicrosoftAspNetCoreJsonPatchSystemTextJsonJsonPatchDocumentOfTestCasesSwaggerJsonPatchRequestBodyTestPerson": {
         "type": "array",
         "items": {
-          "type": "object",
           "oneOf": [
             {
               "required": [
@@ -8795,10 +9065,7 @@
         "type": "object",
         "properties": {
           "message": {
-            "type": [
-              "null",
-              "string"
-            ]
+            "type": "string"
           }
         }
       },
@@ -8826,10 +9093,7 @@
         "items": {
           "type": "string",
           "format": "date-time"
-        },
-        "example": [
-          "2020-10-10"
-        ]
+        }
       },
       "SystemCollectionsGenericIEnumerableOfSystemGuid": {
         "type": "array",
@@ -9220,6 +9484,11 @@
             "$ref": "#/components/schemas/SystemCollectionsGenericListOfSystemGuid"
           },
           "dates": {
+            "examples": [
+              [
+                "2020-10-10"
+              ]
+            ],
             "$ref": "#/components/schemas/SystemCollectionsGenericICollectionOfSystemDateTime"
           },
           "persons": {
@@ -9424,26 +9693,18 @@
           "id": {
             "type": "integer",
             "description": "product id goes here",
-            "format": "int32",
-            "example": 201
+            "format": "int32"
           },
           "name": {
             "type": "string",
-            "description": "this is the name of the product",
-            "example": "test product name"
+            "description": "this is the name of the product"
           },
           "price": {
             "exclusiveMinimum": 200,
             "type": "number",
             "description": "product price goes here",
-            "format": "double",
-            "example": 200.22
+            "format": "double"
           }
-        },
-        "example": {
-          "id": 201,
-          "name": "test product name",
-          "price": 200.22
         }
       },
       "TestCasesFromBodyJsonBindingResponse": {
@@ -9607,6 +9868,11 @@
             "$ref": "#/components/schemas/SystemCollectionsGenericListOfSystemGuid"
           },
           "dates": {
+            "examples": [
+              [
+                "2020-10-10"
+              ]
+            ],
             "$ref": "#/components/schemas/SystemCollectionsGenericICollectionOfSystemDateTime"
           },
           "steven": {
@@ -9933,10 +10199,7 @@
         "type": "object",
         "properties": {
           "message": {
-            "type": [
-              "null",
-              "string"
-            ]
+            "type": "string"
           }
         }
       },
@@ -9945,6 +10208,50 @@
         "properties": {
           "values": {
             "$ref": "#/components/schemas/SystemCollectionsGenericListOfSystemString"
+          }
+        }
+      },
+      "TestCasesQueryMethodTestQueryRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": [
+              "null",
+              "string"
+            ]
+          }
+        }
+      },
+      "TestCasesQueryMethodTestQueryResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "filter": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "token": {
+            "type": [
+              "null",
+              "string"
+            ]
+          },
+          "method": {
+            "type": [
+              "null",
+              "string"
+            ]
           }
         }
       },
@@ -10527,24 +10834,22 @@
         "type": "object",
         "properties": {
           "name": {
-            "type": "string",
-            "example": "first"
+            "type": "string"
           }
-        },
-        "example": {
-          "name": "first"
         }
       },
       "TestCasesSwaggerReviewGenericXmlDocReviewRequest": {
         "type": "object",
         "properties": {
           "value": {
+            "examples": [
+              "wrapped example"
+            ],
             "type": [
               "null",
               "string"
             ],
-            "description": "wrapped value summary",
-            "example": "wrapped example"
+            "description": "wrapped value summary"
           }
         }
       },
@@ -10552,12 +10857,14 @@
         "type": "object",
         "properties": {
           "value": {
+            "examples": [
+              "wrapped example"
+            ],
             "type": [
               "null",
               "string"
             ],
-            "description": "wrapped value summary",
-            "example": "wrapped example"
+            "description": "wrapped value summary"
           }
         },
         "description": "generic review response summary"
@@ -10609,6 +10916,7 @@
         "type": "object",
         "properties": {
           "x_coord": {
+            "exclusiveMinimum": 0,
             "type": "integer",
             "format": "int32"
           }
@@ -10721,12 +11029,8 @@
             "type": [
               "null",
               "string"
-            ],
-            "example": "nope"
+            ]
           }
-        },
-        "example": {
-          "colour": "Red"
         }
       },
       "TestCasesSwaggerReviewNullableRefChild": {
@@ -10762,9 +11066,6 @@
             "minLength": 2,
             "type": "string"
           }
-        },
-        "example": {
-          "code": "xy"
         }
       },
       "TestCasesSwaggerReviewPromotedBodyValidationPayload": {
@@ -10775,17 +11076,18 @@
         "properties": {
           "name": {
             "minLength": 3,
-            "type": "string",
-            "example": "example name"
+            "type": "string"
           },
           "child": {
             "$ref": "#/components/schemas/TestCasesSwaggerReviewPromotedBodyValidationChild"
           }
-        },
-        "example": {
-          "name": "example name",
-          "child": {
-            "code": "xy"
+        }
+      },
+      "TestCasesSwaggerReviewQueryMethodReviewRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
           }
         }
       },
@@ -10864,17 +11166,43 @@
           }
         }
       },
+      "TestCasesSwaggerReviewSharedRequestExampleDetails": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      },
+      "TestCasesSwaggerReviewSharedRequestExampleKind": {
+        "enum": [
+          "None",
+          "Default",
+          "Alternative"
+        ],
+        "type": "string"
+      },
+      "TestCasesSwaggerReviewSharedRequestExampleRequest": {
+        "type": "object",
+        "properties": {
+          "test": {
+            "type": "string"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/TestCasesSwaggerReviewSharedRequestExampleKind"
+          },
+          "details": {
+            "$ref": "#/components/schemas/TestCasesSwaggerReviewSharedRequestExampleDetails"
+          }
+        }
+      },
       "TestCasesSwaggerReviewSharedRequestMetadataReviewRequest__op309C56CC0779": {
         "type": "object",
         "properties": {
           "name": {
             "type": "string",
-            "description": "alpha description",
-            "example": "alpha example"
+            "description": "alpha description"
           }
-        },
-        "example": {
-          "name": "alpha example"
         }
       },
       "TestCasesSwaggerReviewSharedRequestMetadataReviewRequest__opBD209EF1D0CF": {
@@ -10882,12 +11210,8 @@
         "properties": {
           "name": {
             "type": "string",
-            "description": "beta description",
-            "example": "beta example"
+            "description": "beta description"
           }
-        },
-        "example": {
-          "name": "beta example"
         }
       },
       "TestCasesSwaggerReviewUlongEnumReviewResponse": {
@@ -10941,14 +11265,6 @@
         }
       },
       "TestCasesSwaggerReviewVersionPrefilterSharedRequest": {
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string"
-          }
-        }
-      },
-      "TestCasesSwaggerReviewVersionPrefilterSharedRequest__opE88B37672F98": {
         "type": "object",
         "properties": {
           "name": {
@@ -11141,11 +11457,6 @@
         "description": "Enter a JWT token to authorize the requests...",
         "scheme": "Bearer",
         "bearerFormat": "JWT"
-      },
-      "ApiKey": {
-        "type": "apiKey",
-        "name": "api_key",
-        "in": "header"
       }
     }
   }

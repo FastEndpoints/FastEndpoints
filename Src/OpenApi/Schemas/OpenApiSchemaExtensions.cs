@@ -146,7 +146,7 @@ static partial class OperationSchemaHelpers
                         return null;
 
                     var variant = generation.GetOrAddOperationSchemaVariant(refId, operationKey, schemaKey, cloned);
-                    replace(new OpenApiSchemaReference(variant.RefId));
+                    replace(schemaRef.RetargetTo(variant.RefId));
 
                     return variant.Schema;
                 }
@@ -205,6 +205,7 @@ static partial class OperationSchemaHelpers
             OpenApiSchemaReference schemaRef => schemaRef,
             IOpenApiSchema schema => CloneNestedSchema(schema),
             IDictionary<string, IOpenApiSchema> schemaDictionary => CloneSchemaDictionary(schemaDictionary),
+            IDictionary<string, OpenApiSchemaReference> mappingDictionary => new Dictionary<string, OpenApiSchemaReference>(mappingDictionary, StringComparer.Ordinal),
             IDictionary<string, string> stringDictionary => new Dictionary<string, string>(stringDictionary, StringComparer.Ordinal),
             IDictionary<string, bool> boolDictionary => new Dictionary<string, bool>(boolDictionary, StringComparer.Ordinal),
             IDictionary<string, JsonNode> jsonNodeDictionary => CloneJsonNodeDictionary(jsonNodeDictionary),
@@ -249,19 +250,15 @@ static partial class OperationSchemaHelpers
         => CloneDictionary(sets, static set => new HashSet<string>(set, StringComparer.Ordinal));
 
     static Dictionary<string, IOpenApiExtension>? CloneExtensionsDictionary(IDictionary<string, IOpenApiExtension>? extensions)
-    {
-        if (extensions is null)
-            return null;
-
-        if (extensions.Count > 0)
-        {
-            throw new NotSupportedException(
-                "OpenApiSchema extensions cannot be safely cloned without sharing mutable extension instances. " +
-                "Update the schema clone logic before using operation-local schema mutations with schema extensions.");
-        }
-
-        return new(StringComparer.Ordinal);
-    }
+        => CloneDictionary(
+            extensions,
+            static IOpenApiExtension (extension) => extension switch
+            {
+                JsonNodeExtension { Node: var node } => new JsonNodeExtension(node.DeepClone()),
+                _ => throw new NotSupportedException(
+                         $"OpenApiSchema extension type '{extension.GetType().FullName}' is not supported for cloning. " +
+                         "Update the schema clone logic before using operation-local schema mutations with this extension type.")
+            });
 
     static Dictionary<string, object>? CloneMetadataDictionary(string memberName, IDictionary<string, object>? metadata)
         => CloneDictionary(metadata, value => CloneSchemaMemberValue(memberName, value) ?? new object());
@@ -352,4 +349,31 @@ static class OpenApiSchemaReferenceExtensions
 {
     internal static string? GetReferenceId(this OpenApiSchemaReference schemaRef)
         => schemaRef.Reference.Id ?? schemaRef.Id;
+
+    /// <summary>
+    /// a reference to <paramref name="refId" /> that keeps the description and examples written next to <paramref name="schemaRef" />.
+    /// a property's xml summary and example live there, not on the shared component.
+    /// </summary>
+    internal static OpenApiSchemaReference RetargetTo(this OpenApiSchemaReference schemaRef, string refId)
+        => new(refId)
+        {
+            Description = schemaRef.Reference.Description,
+            Examples = schemaRef.Reference.Examples?.Select(e => e?.DeepClone()!).ToList()
+        };
+
+    /// <summary>
+    /// copies the description and example a property keeps next to its <c>$ref</c> onto <paramref name="concrete" />,
+    /// a clone of the referenced component that takes the reference's place.
+    /// </summary>
+    internal static void KeepReferenceAnnotations(this OpenApiSchema concrete, IOpenApiSchema? source)
+    {
+        if (source is not OpenApiSchemaReference { Reference: var annotations })
+            return;
+
+        if (annotations.Description is { Length: > 0 } description)
+            concrete.Description = description;
+
+        if (annotations.Examples is { Count: > 0 })
+            concrete.Examples = annotations.Examples.Select(e => e?.DeepClone()!).ToList();
+    }
 }

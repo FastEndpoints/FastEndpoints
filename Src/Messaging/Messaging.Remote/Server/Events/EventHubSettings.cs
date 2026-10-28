@@ -11,6 +11,9 @@ static class EventHubSettings
     /// </summary>
     internal static readonly TimeSpan StorageRetryDelay = TimeSpan.FromSeconds(5);
 
+    internal const int DeserializationAttempts = 3;
+    internal static readonly TimeSpan DeserializationRetryDelay = TimeSpan.FromSeconds(1);
+
     /// <summary>
     /// maximum time allowed for restoring subscriber IDs from the storage provider during initialization.
     /// if the timeout is exceeded the application will not be allowed to start.

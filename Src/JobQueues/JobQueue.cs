@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 namespace FastEndpoints;
 
 // Native AOT cannot compile JobQueue<,,> closed over the Void struct. UseJobQueues substitutes this class so every generic arg is a reference type.
+// Storage callbacks continue to use public Void.
 sealed class JobQueueVoidResult;
 
 // instantiated by UseJobQueues via ActivatorUtilities (not open-generic DI) as a process singleton in JobQueueBase.JobQueues
@@ -159,7 +160,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
             throw new NotSupportedException($"Please implement the  interface '{nameof(IJobResultProvider)}' on the job storage provider!");
 
         var tRes = typeof(TRes);
-        var tResult = typeof(TResult);
+        var tResult = typeof(TResult) == Types.JobQueueVoidResult ? Types.VoidResult : typeof(TResult);
         var cmdName = typeof(TCommand).FullName;
 
         return tRes != tResult
@@ -173,7 +174,7 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
             throw new NotSupportedException($"Please implement the  interface '{nameof(IJobResultProvider)}' on the job storage provider!");
 
         var tRes = typeof(TRes);
-        var tResult = typeof(TResult);
+        var tResult = typeof(TResult) == Types.JobQueueVoidResult ? Types.VoidResult : typeof(TResult);
         var cmdName = typeof(TCommand).FullName;
 
         return tRes != tResult
@@ -408,7 +409,10 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
                     {
                         // fetch the last known result in case the job handler stored intermediate results before failing,
                         // so it can be passed to OnHandlerExecutionFailureAsync
-                        failedRec.SetResult(await GetJobResultAsync<TResult>(record.TrackingID, CancellationToken.None)); //don't allow canceling.
+                        if (typeof(TResult) == Types.JobQueueVoidResult)
+                            failedRec.SetResult(await GetJobResultAsync<Void>(record.TrackingID, CancellationToken.None));
+                        else
+                            failedRec.SetResult(await GetJobResultAsync<TResult>(record.TrackingID, CancellationToken.None));
                     }
                     catch (Exception xx)
                     {
@@ -429,7 +433,9 @@ sealed class JobQueue<TCommand, TResult, TStorageRecord, TStorageProvider> : Job
             {
                 // if _appCancellation is used here, ORMs could throw without executing the store operation during app shutdown, causing result to get lost.
                 await RetryUntilSuccessOrShutdownAsync(
-                    operation: () => _resultStorage.StoreJobResultAsync(record.TrackingID, resultRec.GetResult<TResult>(), CancellationToken.None),
+                    operation: () => typeof(TResult) == Types.JobQueueVoidResult
+                                         ? _resultStorage.StoreJobResultAsync(record.TrackingID, resultRec.GetResult<Void>(), CancellationToken.None)
+                                         : _resultStorage.StoreJobResultAsync(record.TrackingID, resultRec.GetResult<TResult>(), CancellationToken.None),
                     logError: msg => _log.StorageStoreJobResultError(QueueID, _commandTypeName, msg));
             }
 

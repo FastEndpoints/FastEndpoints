@@ -86,7 +86,7 @@ sealed class ResponseOperationTransformer(DocumentOptions docOpts, SharedContext
             if (response is not OpenApiResponse concreteResp || concreteResp.Content is not { Count: > 0 })
                 continue;
 
-            foreach (var (contentType, mediaType) in concreteResp.Content)
+            foreach (var (contentType, mediaType) in concreteResp.Content.ToArray())
             {
                 // skip JSON content types; "byte" is correct for base64-encoded JSON string responses
                 if (contentType.Contains("json", StringComparison.OrdinalIgnoreCase))
@@ -95,10 +95,11 @@ sealed class ResponseOperationTransformer(DocumentOptions docOpts, SharedContext
                 if (mediaType.Schema.ResolveSchema(generation) is not { Type: JsonSchemaType.String, Format: "byte" })
                     continue;
 
-                var schema = mediaType.Schema.EnsureSchemaForMutation(
+                var mutableMediaType = concreteResp.Content.GetMutableMediaType(contentType);
+                var schema = mutableMediaType.Schema.EnsureSchemaForMutation(
                     mutationCtx,
                     $"response.{contentType}.binary",
-                    localized => mediaType.Schema = localized);
+                    localized => mutableMediaType.Schema = localized);
 
                 if (schema is not null)
                     schema.Format = "binary";
@@ -122,7 +123,7 @@ sealed class ResponseOperationTransformer(DocumentOptions docOpts, SharedContext
 
             var exampleNode = example.JsonNodeFromObject(SerializerOptions);
 
-            foreach (var content in response.Content.Values)
+            foreach (var content in response.Content.GetMutableMediaTypes())
             {
                 content.Example = exampleNode?.DeepClone();
 
@@ -157,48 +158,6 @@ sealed class ResponseOperationTransformer(DocumentOptions docOpts, SharedContext
         }
     }
 
-    public void FixPolymorphism(OpenApiOperation operation, string operationKey, OpenApiGenerationState generation)
-    {
-        if (operation.Responses is null)
-            return;
-
-        var mutationCtx = new OperationSchemaMutationContext(sharedCtx, generation, operationKey);
-
-        foreach (var (_, response) in operation.Responses)
-        {
-            if (response.Content is null)
-                continue;
-
-            foreach (var (_, mediaType) in response.Content)
-            {
-                if (mediaType.Schema is null)
-                    continue;
-
-                if (mediaType.Schema.ResolveSchemaOrReference(generation) is not OpenApiSchema actualSchema)
-                    continue;
-
-                if (actualSchema.Discriminator?.Mapping is not { Count: > 0 } ||
-                    actualSchema.OneOf is not { Count: > 0 })
-                    continue;
-
-                // preserve existing schema metadata and only surface oneOf at the response schema level
-                if (mediaType.Schema.OneOf is { Count: > 0 })
-                    continue;
-
-                if (mediaType.Schema.EnsureSchemaForMutation(
-                        mutationCtx,
-                        "response.polymorphism",
-                        localized => mediaType.Schema = localized) is not { } responseSchema)
-                    continue;
-
-                responseSchema.OneOf ??= [];
-
-                foreach (var schemaOption in actualSchema.OneOf)
-                    responseSchema.OneOf.Add(schemaOption);
-            }
-        }
-    }
-
     void ApplyParamDescriptions(IOpenApiResponse response,
                                 Dictionary<string, string> propDescriptions,
                                 Type? responseDtoType,
@@ -214,7 +173,7 @@ sealed class ResponseOperationTransformer(DocumentOptions docOpts, SharedContext
         var jsonNameToClrName = BuildJsonNameMap(descriptionType, NamingPolicy, docOpts.UsePropertyNamingPolicy);
         var mutationCtx = new OperationSchemaMutationContext(sharedCtx, generation, operationKey);
 
-        foreach (var content in concreteResp.Content.Values)
+        foreach (var content in concreteResp.Content.GetMutableMediaTypes())
         {
             var schema = content.EnsureOperationLocalSchemaForMutation(mutationCtx, schemaKey);
             var descriptionTarget = collectionElementType is null ? schema : EnsureLocalArrayItemSchema(schema, mutationCtx, schemaKey);
@@ -234,8 +193,14 @@ sealed class ResponseOperationTransformer(DocumentOptions docOpts, SharedContext
                     $"{schemaKey}.{propKey}",
                     localized => descriptionTarget.Properties![propKey] = localized);
 
-                if (concretePropSchema is not null)
-                    concretePropSchema.Description = responseDescription;
+                if (concretePropSchema is null)
+                    continue;
+
+                concretePropSchema.Description = responseDescription;
+
+                // the replacement reference keeps the xml summary next to its $ref, which would hide the override.
+                if (descriptionTarget.Properties[propKey] is OpenApiSchemaReference localizedRef)
+                    localizedRef.Description = responseDescription;
             }
         }
     }
@@ -257,7 +222,7 @@ sealed class ResponseOperationTransformer(DocumentOptions docOpts, SharedContext
         if (metadata.Type is null || metadata.Type == Types.Void)
             return;
 
-        response.Content ??= new Dictionary<string, OpenApiMediaType>();
+        response.Content ??= new Dictionary<string, OpenApiMediaTypeValue>();
 
         foreach (var contentType in metadata.ContentTypes)
         {

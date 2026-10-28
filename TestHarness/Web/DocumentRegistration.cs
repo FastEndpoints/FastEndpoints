@@ -8,6 +8,7 @@ static class DocumentRegistration
         Func<EndpointDefinition, bool> includeReleaseVersioning = ep => ep.EndpointTags?.Contains("release_versioning") is true;
         Func<EndpointDefinition, bool> includeSwaggerReview = ep => ep.EndpointTags?.Contains("swagger_review") is true;
         Func<EndpointDefinition, bool> includeNullableOneOfRepro = ep => ep.EndpointTags?.Contains("nullable_oneOf_repro") is true;
+        Func<EndpointDefinition, bool> includeNestedGroupTags = ep => ep.EndpointTags?.Contains("nested_group_tags") is true;
 
         FastEndpoints.OpenApi.Extensions.OpenApiDocument(
             services,
@@ -138,6 +139,23 @@ static class DocumentRegistration
                 o.Title = "Web API";
                 o.DocumentName = "Nullable OneOf Repro";
                 o.TagStripSymbols = true;
+            });
+        FastEndpoints.OpenApi.Extensions.OpenApiDocument(
+            services,
+            o =>
+            {
+                o.ExcludeNonFastEndpoints = true;
+                o.EndpointFilter = includeNestedGroupTags;
+                o.AutoTagPathSegmentIndex = 0;
+                o.Title = "Web API";
+                o.DocumentName = "Nested Group Tags";
+                o.TagDescriptions = t =>
+                {
+                    t["First"] = "Root group";
+                    t["Middle"] = "Middle group";
+                    t["Last"] = "Immediate group";
+                    t["Endpoint"] = "Endpoint tag";
+                };
             });
 
         return services;

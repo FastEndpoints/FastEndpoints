@@ -23,7 +23,7 @@ sealed class RequestBodyOverrideApplicator(DocumentOptions docOpts, SharedContex
         var schemaKey = PropertyNameResolver.GetSchemaPropertyName(promoteProp, NamingPolicy, docOpts.UsePropertyNamingPolicy);
 
         // replace the entire request body schema with the [FromBody]/[FromForm] property's type schema
-        foreach (var content in operation.RequestBody.Content.Values)
+        foreach (var content in operation.RequestBody.Content.GetMutableMediaTypes())
         {
             var resolvedSchema = content.Schema.ResolveSchema(generation);
 
@@ -53,8 +53,9 @@ sealed class RequestBodyOverrideApplicator(DocumentOptions docOpts, SharedContex
 
             if (patchArraySchema is not null)
             {
-                patchContent.Schema = patchArraySchema;
-                patchContent.EnsureOperationLocalSchemaForMutation(mutationCtx, "requestBody.jsonPatch");
+                var mutablePatchContent = operation.RequestBody.Content.GetMutableMediaType("application/json-patch+json");
+                mutablePatchContent.Schema = patchArraySchema;
+                mutablePatchContent.EnsureOperationLocalSchemaForMutation(mutationCtx, "requestBody.jsonPatch");
             }
         }
 

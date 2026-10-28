@@ -46,19 +46,19 @@ public sealed class CommandModeTests : IAsyncLifetime
 
     async Task<(int ExitCode, string ArtifactRoot)> RunHarnessAsync(string key, string value)
     {
-        var projectPath = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "..", "TestHarness", "OpenApi.Kiota", "OpenApi.Kiota.csproj"));
+        var harnessPath = typeof(Program).Assembly.Location;
         var proc = new ProcessStartInfo("dotnet")
         {
-            WorkingDirectory = Path.GetDirectoryName(projectPath)!,
+            WorkingDirectory = Path.GetDirectoryName(harnessPath)!,
             RedirectStandardError = true,
             RedirectStandardOutput = true
         };
 
-        proc.ArgumentList.Add("run");
-        proc.ArgumentList.Add("--no-build");
-        proc.ArgumentList.Add("--project");
-        proc.ArgumentList.Add(projectPath);
-        proc.ArgumentList.Add("--");
+        // IDE hosts can have a different base directory and target framework than the tests.
+        proc.ArgumentList.Add(harnessPath);
+        // Let Kestrel allocate a port atomically, avoiding other apps and concurrent test runs.
+        proc.ArgumentList.Add("--urls");
+        proc.ArgumentList.Add("http://127.0.0.1:0");
         proc.ArgumentList.Add($"--{key}");
         proc.ArgumentList.Add(value);
         proc.Environment["DOTNET_ENVIRONMENT"] = "Testing";

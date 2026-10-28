@@ -225,9 +225,9 @@ public class HttpFileExporterTests
                             OperationId = "Upload",
                             RequestBody = new OpenApiRequestBody
                             {
-                                Content = new Dictionary<string, OpenApiMediaType>
+                                Content = new Dictionary<string, OpenApiMediaTypeValue>()
                                 {
-                                    ["multipart/form-data"] = new()
+                                    ["multipart/form-data"] = new OpenApiMediaType()
                                     {
                                         Schema = new OpenApiSchema
                                         {
@@ -269,9 +269,9 @@ public class HttpFileExporterTests
                             OperationId = "TextBody",
                             RequestBody = new OpenApiRequestBody
                             {
-                                Content = new Dictionary<string, OpenApiMediaType>
+                                Content = new Dictionary<string, OpenApiMediaTypeValue>()
                                 {
-                                    ["text/plain"] = new()
+                                    ["text/plain"] = new OpenApiMediaType()
                                     {
                                         Schema = new OpenApiSchema { Type = JsonSchemaType.String }
                                     }
@@ -305,9 +305,9 @@ public class HttpFileExporterTests
                             OperationId = "JsonPatch",
                             RequestBody = new OpenApiRequestBody
                             {
-                                Content = new Dictionary<string, OpenApiMediaType>
+                                Content = new Dictionary<string, OpenApiMediaTypeValue>()
                                 {
-                                    ["application/json-patch+json"] = new()
+                                    ["application/json-patch+json"] = new OpenApiMediaType()
                                     {
                                         Schema = new OpenApiSchema
                                         {
@@ -480,9 +480,9 @@ public class HttpFileExporterTests
                             OperationId = "LoginNoHost",
                             RequestBody = new OpenApiRequestBody
                             {
-                                Content = new Dictionary<string, OpenApiMediaType>
+                                Content = new Dictionary<string, OpenApiMediaTypeValue>()
                                 {
-                                    ["application/json"] = new()
+                                    ["application/json"] = new OpenApiMediaType()
                                     {
                                         Schema = new OpenApiSchemaReference("LoginRequest") // no HostDocument
                                     }
@@ -555,7 +555,7 @@ public class HttpFileExporterTests
     public void schema_example_used_when_media_has_no_example()
     {
         var schemas = LoginRequestSchemas();
-        ((OpenApiSchema)schemas["LoginRequest"]).Example = JsonNode.Parse("""{"userName":"schema","password":"ex"}""");
+        ((OpenApiSchema)schemas["LoginRequest"]).Examples = [JsonNode.Parse("""{"userName":"schema","password":"ex"}""")!];
 
         var document = CreateDocument(
             operationId: "SchemaExample",
@@ -612,7 +612,7 @@ public class HttpFileExporterTests
                         ["userName"] = new OpenApiSchema
                         {
                             Type = JsonSchemaType.String,
-                            Example = JsonValue.Create("from-example"),
+                            Examples = [JsonValue.Create("from-example")!, JsonValue.Create("later example")!],
                             Default = JsonValue.Create("from-default")
                         },
                         ["password"] = new OpenApiSchema { Type = JsonSchemaType.String }
@@ -666,7 +666,7 @@ public class HttpFileExporterTests
                     Type = JsonSchemaType.Object,
                     Properties = new Dictionary<string, IOpenApiSchema>
                     {
-                        ["zip"] = new OpenApiSchema { Type = JsonSchemaType.String, Example = JsonValue.Create("90210") }
+                        ["zip"] = new OpenApiSchema { Type = JsonSchemaType.String, Examples = [JsonValue.Create("90210")!] }
                     }
                 },
                 ["DualChildRequest"] = new OpenApiSchema
@@ -684,6 +684,90 @@ public class HttpFileExporterTests
 
         body["billingAddress"]!["zip"]!.GetValue<string>().ShouldBe("90210");
         body["shippingAddress"]!["zip"]!.GetValue<string>().ShouldBe("90210");
+    }
+
+    [Theory]
+    [InlineData(JsonSchemaType.String, "\"2026-10-06\"", "\"2026-10-07\"", false)]
+    [InlineData(JsonSchemaType.String, "\"06:45:00\"", "\"07:30:00\"", true)]
+    [InlineData(JsonSchemaType.Integer, "1", "0", false)]
+    [InlineData(JsonSchemaType.Object, "{\"city\":\"Berlin\"}", "{\"city\":\"Paris\"}", false)]
+    [InlineData(JsonSchemaType.Array, "[\"A1\"]", "[\"B2\"]", false)]
+    public void reference_examples_override_component_samples_independently(JsonSchemaType type,
+                                                                           string firstExample,
+                                                                           string secondExample,
+                                                                           bool nullable)
+    {
+        var first = new OpenApiSchemaReference("Value") { Examples = [JsonNode.Parse(firstExample)!] };
+        var second = new OpenApiSchemaReference("Value") { Examples = [JsonNode.Parse(secondExample)!] };
+        IOpenApiSchema Property(OpenApiSchemaReference reference)
+            => nullable
+                   ? new OpenApiSchema { OneOf = [new OpenApiSchema { Type = JsonSchemaType.Null }, reference] }
+                   : reference;
+
+        var document = CreateDocument(
+            operationId: "ReferenceExamples",
+            path: "/reference-examples",
+            bodySchemaRef: "Request",
+            schemas: new()
+            {
+                ["Request"] = new OpenApiSchema
+                {
+                    Type = JsonSchemaType.Object,
+                    Properties = new Dictionary<string, IOpenApiSchema>
+                    {
+                        ["first"] = Property(first),
+                        ["second"] = Property(second)
+                    }
+                },
+                ["Value"] = new OpenApiSchema
+                {
+                    Type = type,
+                    Examples = [JsonNode.Parse(firstExample)!],
+                    Default = JsonNode.Parse(firstExample)
+                }
+            });
+
+        var body = ExtractJsonBody(HttpFileExporter.ToHttpFileContent(document), "ReferenceExamples");
+
+        body["first"]!.ToJsonString().ShouldBe(firstExample);
+        body["second"]!.ToJsonString().ShouldBe(secondExample);
+        first.Reference.Examples![0].ToJsonString().ShouldBe(firstExample);
+        second.Reference.Examples![0].ToJsonString().ShouldBe(secondExample);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void schema_examples_preserve_explicit_null_in_request_properties(bool reference)
+    {
+        var sample = new OpenApiSchema { Type = JsonSchemaType.String, Default = JsonValue.Create("fallback") };
+        IOpenApiSchema property;
+        if (reference)
+        {
+            sample.Examples = [JsonValue.Create("component example")!];
+            property = new OpenApiSchemaReference("Value") { Examples = [null!, JsonValue.Create("later example")!] };
+        }
+        else
+        {
+            sample.Examples = [null!, JsonValue.Create("later example")!];
+            property = sample;
+        }
+
+        var document = CreateDocument(
+            operationId: "NullExample",
+            path: "/null-example",
+            bodySchemaRef: null,
+            schemas: new() { ["Value"] = sample },
+            inlineBodySchema: new OpenApiSchema
+            {
+                Type = JsonSchemaType.Object,
+                Properties = new Dictionary<string, IOpenApiSchema> { ["value"] = property }
+            });
+
+        var body = ExtractJsonBody(HttpFileExporter.ToHttpFileContent(document), "NullExample");
+
+        body.AsObject().ContainsKey("value").ShouldBeTrue();
+        body["value"].ShouldBeNull();
     }
 
     static Dictionary<string, IOpenApiSchema> LoginRequestSchemas()
@@ -725,9 +809,9 @@ public class HttpFileExporterTests
                     OperationId = operationId,
                     RequestBody = new OpenApiRequestBody
                     {
-                        Content = new Dictionary<string, OpenApiMediaType>
+                        Content = new Dictionary<string, OpenApiMediaTypeValue>()
                         {
-                            ["application/json"] = new()
+                            ["application/json"] = new OpenApiMediaType()
                             {
                                 Schema = bodySchema,
                                 Example = mediaExample,

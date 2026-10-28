@@ -43,9 +43,34 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
     public McpServerTool? ResolveVisibleTool(string name, ClaimsPrincipal? user = null, HttpContext? httpContext = null)
     {
         var (principal, context) = ResolveCallerContext(user, httpContext);
-        var tool = _toolCatalog.Value.ResolveVisible(name, principal, context, options.ToolVisibilityFilter, "MCP tools visible to the current caller", "MCP tool name");
+
+        return options.OnToolCallRefused is null
+                   ? _toolCatalog.Value.ResolveVisible(name, principal, context, options.ToolVisibilityFilter,
+                                                       "MCP tools visible to the current caller", "MCP tool name")?.Tool
+                   : ResolveVisibleToolWithAudit(name, principal, context);
+    }
+
+    // Keep the capturing visibility delegate off the default, non-audited path.
+    McpServerTool? ResolveVisibleToolWithAudit(string name, ClaimsPrincipal principal, HttpContext context)
+    {
+        EndpointDefinition? refusedDefinition = null;
+        var tool = _toolCatalog.Value.ResolveVisible(name, principal, context, IsVisible, "MCP tools visible to the current caller", "MCP tool name");
+
+        if (tool is null && refusedDefinition is not null)
+            options.OnToolCallRefused?.Invoke(refusedDefinition, principal, context);
 
         return tool?.Tool;
+
+        bool IsVisible(EndpointDefinition def, ClaimsPrincipal caller, HttpContext http)
+        {
+            if (options.ToolVisibilityFilter(def, caller, http))
+                return true;
+
+            // A hidden candidate is not a refused call if another endpoint with the same name is visible.
+            refusedDefinition ??= def;
+
+            return false;
+        }
     }
 
     (ClaimsPrincipal Principal, HttpContext HttpContext) ResolveCallerContext(ClaimsPrincipal? user, HttpContext? httpContext)
@@ -135,7 +160,10 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
                 var (principal, httpContext) = CallerContextResolver.Resolve(scopedServices, ctx.User);
 
                 if (!options.ToolVisibilityFilter(def, principal, httpContext))
+                {
+                    options.OnToolCallRefused?.Invoke(def, principal, httpContext);
                     throw new McpException($"Tool '{name}' is not available for the current caller.");
+                }
 
                 var args = ctx.Params.Arguments is { } argMap
                                ? JsonSerializer.SerializeToElement(argMap, protocolSerializerOptions)

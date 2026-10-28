@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
+        <TargetFrameworks>net10.0</TargetFrameworks> <!-- Asp.Versioning.OpenApi is incompatible with the net11.0 OpenAPI stack. -->
         <NoWarn>1701;1702;CS1591;CS1573</NoWarn>
         <Description>Asp.Versioning.Http package integration for FastEndpoints.</Description>
         <IsAotCompatible>true</IsAotCompatible>
@@ -13,7 +14,7 @@
         <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer"/>
         <PackageReference Include="NSwag.Generation.AspNetCore"/> <!-- todo: remove when swagger support no longer needed -->
         <PackageReference Include="Microsoft.SourceLink.GitHub" PrivateAssets="All"/>
-        <PackageReference Include="Asp.Versioning.OpenApi" Condition="'$(TargetFramework)' == 'net10.0'"/>
+        <PackageReference Include="Asp.Versioning.OpenApi"/>
     </ItemGroup>
 
     <ItemGroup>

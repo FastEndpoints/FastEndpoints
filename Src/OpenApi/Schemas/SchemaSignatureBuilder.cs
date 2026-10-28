@@ -40,6 +40,7 @@ static class SchemaSignatureBuilder
                 return;
             case OpenApiSchemaReference schemaRef:
                 builder.Append("ref:").Append(schemaRef.GetReferenceId() is { } refId ? ResolveAlias(refId, aliases) : string.Empty).Append(';');
+                AppendValue(builder, "description", schemaRef.Reference.Description);
 
                 return;
             case OpenApiSchema s:
@@ -77,7 +78,6 @@ static class SchemaSignatureBuilder
                 AppendValue(builder, "unevaluatedProperties", s.UnevaluatedProperties);
                 AppendValue(builder, "deprecated", s.Deprecated);
                 AppendJsonNode(builder, "default", s.Default);
-                AppendJsonNode(builder, "example", s.Example);
                 AppendJsonNodeList(builder, "examples", s.Examples);
                 AppendJsonNodeList(builder, "enum", s.Enum);
                 AppendStringSet(builder, "required", s.Required);
@@ -285,8 +285,12 @@ static class SchemaSignatureBuilder
             AppendValue(builder, "name", xml.Name);
             AppendValue(builder, "namespace", xml.Namespace);
             AppendValue(builder, "prefix", xml.Prefix);
+#if NET11_0_OR_GREATER
+            AppendValue(builder, "nodeType", xml.NodeType);
+#else
             AppendValue(builder, "attribute", xml.Attribute);
             AppendValue(builder, "wrapped", xml.Wrapped);
+#endif
         }
 
         builder.Append("};");

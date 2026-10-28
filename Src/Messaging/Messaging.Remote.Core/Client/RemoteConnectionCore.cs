@@ -264,7 +264,11 @@ public class RemoteConnectionCore
         Channel ??= GrpcChannel.ForAddress(RemoteAddress, ChannelOptions);
 
         var tHandler = _serviceProvider.GetService<IEventHandler<TEvent>>()?.GetType() ?? typeof(TEventHandler);
-        var tEventSubscriber = typeof(EventSubscriber<,,,>).MakeGenericType(typeof(TEvent), tHandler, StorageRecordType, StorageProviderType);
+        // opt-in is per provider type. an ack provider never falls back to the sub stream.
+        var subscriberType = typeof(IEventSubscriberDeliveryAck<>).MakeGenericType(StorageRecordType).IsAssignableFrom(StorageProviderType)
+                                 ? typeof(EventDeliveryAckSubscriber<,,,>)
+                                 : typeof(EventSubscriber<,,,>);
+        var tEventSubscriber = subscriberType.MakeGenericType(typeof(TEvent), tHandler, StorageRecordType, StorageProviderType);
         var effectiveSubscriberID = subscriberID ?? SubscriberID;
         var eventSubscriber = (ICommandExecutor)(effectiveSubscriberID is null
                                                      ? ActivatorUtilities.CreateInstance(_serviceProvider, tEventSubscriber, Channel!, clientIdentifier, MarshallerFactory)

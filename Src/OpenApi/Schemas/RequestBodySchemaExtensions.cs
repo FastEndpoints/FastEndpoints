@@ -22,7 +22,7 @@ static partial class OperationSchemaHelpers
 
         removedProps?.Add(schemaName);
 
-        foreach (var content in operation.RequestBody.Content.Values)
+        foreach (var content in operation.RequestBody.Content.GetMutableMediaTypes())
         {
             var schema = content.EnsureOperationLocalSchemaForMutation(sharedCtx, generation, operationKey, "requestBody");
 

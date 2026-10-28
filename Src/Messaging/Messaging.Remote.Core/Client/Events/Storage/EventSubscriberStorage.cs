@@ -1,7 +1,7 @@
 ﻿namespace FastEndpoints;
 
 static class EventSubscriberStorage<TStorageRecord, TStorageProvider>
-    where TStorageRecord : IEventStorageRecord, new()
+    where TStorageRecord : class, IEventStorageRecord, new()
     where TStorageProvider : IEventSubscriberStorageProvider<TStorageRecord>
 {
     internal static TStorageProvider Provider { private get; set; } = default!;
@@ -27,7 +27,7 @@ static class EventSubscriberStorage<TStorageRecord, TStorageProvider>
                     new()
                     {
                         CancellationToken = CancellationToken.None,
-                        Match = r => r.IsComplete || DateTime.UtcNow >= r.ExpireOn
+                        Match = EventSubscriberRetentionPolicy<TStorageRecord>.PurgeMatch
                     });
             }
             catch

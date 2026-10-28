@@ -13,23 +13,26 @@ sealed class RequestTransformState
 {
     public HashSet<string> PropsRemovedFromBody { get; } = new(StringComparer.OrdinalIgnoreCase);
     public Dictionary<string, OpenApiParameter> ParametersBySchemaPath { get; } = new(StringComparer.Ordinal);
-    public JsonNode? RequestBodyFallbackExample { get; set; }
-    public bool RequestBodyFallbackExampleCreated { get; set; }
+    public HashSet<OpenApiParameter> ParametersWithFallbackValues { get; } = new(ReferenceEqualityComparer.Instance);
 
     internal void RegisterBoundParameter(PropertyInfo property, OpenApiParameter parameter, JsonNamingPolicy? namingPolicy, bool usePropertyNamingPolicy)
     {
+        // Validator rule paths use serialized property names; wire and CLR aliases can identify unrelated properties.
         var schemaPath = PropertyNameResolver.GetSchemaPropertyName(property, namingPolicy, usePropertyNamingPolicy);
         ParametersBySchemaPath[schemaPath] = parameter;
 
-        // FluentValidation rule keys follow JsonPropertyName; query/header names may not.
-        // Also index CLR/camelCase names so a missed target-type lookup still matches.
-        if (parameter.Name is { Length: > 0 })
-            ParametersBySchemaPath.TryAdd(parameter.Name, parameter);
+        var metadata = GetPropertyMetadata(property);
 
-        var clrName = usePropertyNamingPolicy
-                          ? namingPolicy?.ConvertName(property.Name) ?? property.Name
-                          : property.Name;
-        ParametersBySchemaPath.TryAdd(clrName, parameter);
+        if ((parameter.In == ParameterLocation.Header && metadata.FromHeader is { IsRequired: false }) ||
+            (parameter.In == ParameterLocation.Query &&
+             (metadata.FromClaim is { IsRequired: false } || metadata.HasPermission is { IsRequired: false })))
+        {
+            ParametersWithFallbackValues.Add(parameter);
+
+            // Query schema nullability describes the final value, which claims can also supply.
+            if (parameter.In == ParameterLocation.Query && metadata.DontBind?.IsRequired is not true)
+                parameter.Required = false;
+        }
     }
 }
 
@@ -108,7 +111,11 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
     public void ApplyParameterMetadata(OpenApiOperation operation, EndpointDefinition epDef)
         => _requestParameterMetadataApplicator.Apply(operation, epDef);
 
-    public void ApplyExamples(OpenApiOperation operation, EndpointDefinition epDef, RequestTransformState state, PromotedBodyProperty? promotedBodyProperty, OpenApiGenerationState generation)
+    public void ApplyExamples(OpenApiOperation operation,
+                              EndpointDefinition epDef,
+                              RequestTransformState state,
+                              PromotedBodyProperty? promotedBodyProperty,
+                              OpenApiGenerationState generation)
     {
         if (epDef.EndpointSummary?.RequestExamples.Count is not > 0)
             return;
@@ -117,13 +124,13 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
             return;
 
         var examples = BuildUniqueRequestExamples(epDef.EndpointSummary.RequestExamples);
-        var fallbackExample = GetRequestExampleFallback(epDef, state, promotedBodyProperty);
+        var fallbackExample = BuildRequestExampleFallback(epDef, state.PropsRemovedFromBody, promotedBodyProperty);
         var exampleNodes = new List<(RequestExample Example, JsonNode? Node)>(examples.Count);
 
         foreach (var example in examples)
             exampleNodes.Add((example, BuildRequestExampleNode(example.Value, state.PropsRemovedFromBody, promotedBodyProperty)));
 
-        foreach (var content in operation.RequestBody.Content.Values)
+        foreach (var content in operation.RequestBody.Content.GetMutableMediaTypes())
         {
             var schema = content.Schema.ResolveSchema(generation);
 
@@ -158,12 +165,11 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
         }
     }
 
-    public void ApplyParamDescriptionsToBodySchema(OpenApiOperation operation,
-                                                   EndpointDefinition epDef,
-                                                   RequestTransformState state,
-                                                   PromotedBodyProperty? promotedBodyProperty,
-                                                   string operationKey,
-                                                   OpenApiGenerationState generation)
+    public void ApplyBodySchemaMetadata(OpenApiOperation operation,
+                                        EndpointDefinition epDef,
+                                        PromotedBodyProperty? promotedBodyProperty,
+                                        string operationKey,
+                                        OpenApiGenerationState generation)
     {
         if (operation.RequestBody?.Content is null)
             return;
@@ -171,81 +177,58 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
         var paramDescriptions = epDef.EndpointSummary?.Params;
         var hasParams = paramDescriptions is { Count: > 0 };
         var paramDescriptionLookup = hasParams ? paramDescriptions!.ToCaseInsensitiveDictionary(paramDescriptions!.Count) : null;
-        var exampleObj = epDef.EndpointSummary?.ExampleRequest;
         var defaultProps = BuildRequestSchemaDefaultLookup(promotedBodyProperty?.Type ?? epDef.ReqDtoType);
-        var hasDefaults = defaultProps.Count > 0;
 
-        if (!hasParams && exampleObj is null && !hasDefaults)
+        if (!hasParams && defaultProps.Count == 0)
             return;
 
-        Dictionary<string, JsonNode>? propExamples = null;
-        var requestExampleNode = exampleObj is null
-                                     ? null
-                                     : BuildRequestExampleNode(exampleObj, state.PropsRemovedFromBody, promotedBodyProperty);
-        JsonNode? fallbackExample = null;
         var mutationCtx = new OperationSchemaMutationContext(sharedCtx, generation, operationKey);
 
-        if (exampleObj is not null and not IEnumerable && requestExampleNode is JsonObject obj)
-        {
-            propExamples = [];
-
-            foreach (var (key, value) in obj)
-            {
-                if (value is not null)
-                    propExamples[key] = value.DeepClone();
-            }
-        }
-
-        foreach (var content in operation.RequestBody.Content.Values)
+        foreach (var content in operation.RequestBody.Content.GetMutableMediaTypes())
         {
             var schema = content.Schema.ResolveSchema(generation);
 
-            if (schema is null)
+            if (schema?.Properties is null)
                 continue;
 
-            if (hasDefaults || hasParams || requestExampleNode is not null)
-            {
-                schema = content.EnsureOperationLocalSchemaForMutation(mutationCtx, "requestBody");
-
-                if (schema is null)
-                    continue;
-            }
-
-            if (hasDefaults)
-                ApplyDefaultValues(schema, defaultProps, mutationCtx);
-
-            if (requestExampleNode is not null)
-            {
-                fallbackExample ??= GetRequestExampleFallback(epDef, state, promotedBodyProperty);
-                schema.Example = NormalizeExampleNode(requestExampleNode.DeepClone(), schema, fallbackExample, generation);
-            }
-
-            if (schema.Properties is null)
-                continue;
+            OpenApiSchema? localSchema = null;
 
             foreach (var (propName, propSchema) in schema.Properties)
             {
-                string? description = null;
-                JsonNode? exVal = null;
-                var hasDescription = paramDescriptionLookup?.TryGetValue(propName, out description) == true;
-                var hasExample = propExamples?.TryGetValue(propName, out exVal) == true;
+                var resolvedProp = propSchema.ResolveSchema(generation);
 
-                if (!hasDescription && !hasExample)
+                if (resolvedProp is null)
                     continue;
 
-                var concreteProp = propSchema.EnsureSchemaForMutation(
+                string? description = null;
+                var needsDescription = paramDescriptionLookup?.TryGetValue(propName, out description) == true &&
+                                       (propSchema.Description ?? resolvedProp.Description) != description;
+                var needsDefault = defaultProps.TryGetValue(propName, out var defaultAttr) && resolvedProp.Default is null;
+
+                if (!needsDescription && !needsDefault)
+                    continue;
+
+                localSchema ??= content.EnsureOperationLocalSchemaForMutation(mutationCtx, "requestBody");
+
+                var concreteProp = localSchema?.Properties?[propName].EnsureSchemaForMutation(
                     mutationCtx,
                     $"requestBody.{propName}",
-                    localized => schema.Properties![propName] = localized);
+                    localized => localSchema.Properties[propName] = localized);
 
                 if (concreteProp is null)
                     continue;
 
-                if (hasDescription)
+                if (needsDescription)
+                {
                     concreteProp.Description = description;
 
-                if (hasExample)
-                    concreteProp.Example = exVal;
+                    // the replacement reference keeps the xml summary next to its $ref, which would hide the override.
+                    if (localSchema!.Properties?[propName] is OpenApiSchemaReference localizedRef)
+                        localizedRef.Description = description;
+                }
+
+                if (needsDefault && concreteProp.Default is null)
+                    concreteProp.Default = defaultAttr.ToJsonNode(SerializerOptions);
             }
         }
     }
@@ -269,26 +252,6 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
         }
 
         return defaults;
-    }
-
-    void ApplyDefaultValues(OpenApiSchema schema, Dictionary<string, System.ComponentModel.DefaultValueAttribute> defaultProps, OperationSchemaMutationContext mutationCtx)
-    {
-        if (schema.Properties is null)
-            return;
-
-        foreach (var (propName, propSchema) in schema.Properties)
-        {
-            if (!defaultProps.TryGetValue(propName, out var defaultAttr))
-                continue;
-
-            var concreteProp = propSchema.EnsureSchemaForMutation(
-                mutationCtx,
-                $"requestBody.{propName}",
-                localized => schema.Properties![propName] = localized);
-
-            if (concreteProp is { Default: null })
-                concreteProp.Default = defaultAttr.ToJsonNode(SerializerOptions);
-        }
     }
 
     void RemoveHiddenProperties(OpenApiOperation operation, List<PropertyInfo> requestDtoProps, RequestTransformState state, string operationKey, OpenApiGenerationState generation)
@@ -457,10 +420,10 @@ sealed partial class RequestOperationTransformer(DocumentOptions docOpts, Shared
             return false;
 
         if (metadata.FromClaim is { } fromClaim)
-            return !fromClaim.IsRequired;
+            return fromClaim is { IsRequired: false, RemoveFromSchema: false };
 
         if (metadata.HasPermission is { } hasPermission)
-            return !hasPermission.IsRequired;
+            return hasPermission is { IsRequired: false, RemoveFromSchema: false };
 
         if (metadata.DontBind?.BindingSources.HasFlag(Source.QueryParam) == true)
             return false;

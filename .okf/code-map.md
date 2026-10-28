@@ -20,7 +20,7 @@ tags: [layout]
 | `Src/CommandRules/` | Rule-based command dispatch package |
 | `Src/Security/` | JWT/cookie/refresh/revocation |
 | `Src/OpenApi/`, `Src/OpenApi.Kiota/` | OpenAPI + Kiota client gen |
-| `Src/AspVersioning/` | `Asp.Versioning.Http` integration (`AddVersioning`; net10-only optional `Action<VersionedOpenApiOptions>` configures versioned OpenAPI docs via `Asp.Versioning.OpenApi`) |
+| `Src/AspVersioning/` | net10-only `Asp.Versioning.Http` integration (`AddVersioning`; optional `Action<VersionedOpenApiOptions>` configures versioned OpenAPI docs via `Asp.Versioning.OpenApi`) |
 | `Src/Swagger/`, `Src/ClientGen*` | Legacy NSwag-era packages (slnx “Legacy” folder) |
 | `Src/Generator/`, `Src/Generator.Cli/` | Roslyn generators + CLI |
 | `Src/Testing/` | `FastEndpoints.Testing` |
@@ -35,7 +35,7 @@ tags: [layout]
 | `Src/Directory.Build.props` | Shared version, TFMs, signing, package metadata |
 | `FastEndpoints.slnx` | Primary solution |
 | `NativeAot.slnx` | AOT-focused solution |
-| `azure-pipeline.yml` | Azure DevOps test pipeline (tag-triggered pack path differs) |
+| `azure-pipeline.yml` | Tag-triggered Azure DevOps test pipeline |
 | `.github/workflows/publish-to-nuget.yml` | Tag `v*` test → pack → OIDC NuGet login → push → GH release |
 | `../FE-Docs/` (sibling) | Public docs site source; content under `src/content/docs/`; not in this solution |
 
@@ -63,7 +63,7 @@ tags: [layout]
 Harness features under `TestHarness/Web/[Features]/…` (e.g. `Admin/Login/Endpoint.cs`) show canonical endpoint layout: namespace-per-feature, `Endpoint : Endpoint<Request, Response>`, `Configure()` + handle methods.
 
 ## Generated code
-See [generated-code.md](generated-code.md). Generators: discovered types, access-control constants, reflection cache, service registration, generic processor types; CLI emits STJ serializer contexts when `GenerateSerializerContexts=true`.
+Generator inventory, consumption, and output editability: [generated-code.md](generated-code.md).
 
 ## Sources
 - `FastEndpoints.slnx`

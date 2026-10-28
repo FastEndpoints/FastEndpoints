@@ -16,6 +16,9 @@ public sealed class MemoryFinancialIdempotencyStore : IFinancialIdempotencyStore
     readonly int _maxEntries;
     long _used;
 
+    // Conservative lower bound, protected by _gate. Direct key removal may leave it earlier than necessary.
+    DateTimeOffset _nextExpiration = DateTimeOffset.MaxValue;
+
     /// <summary>
     /// Create a store with a total body/header budget and bounded reservation count. Active entries are never evicted.
     /// </summary>
@@ -123,6 +126,8 @@ public sealed class MemoryFinancialIdempotencyStore : IFinancialIdempotencyStore
             record.Size = size;
             record.Expires = _time.GetUtcNow() + ttl;
             record.State = RecordState.Completed;
+            if (record.Expires < _nextExpiration)
+                _nextExpiration = record.Expires;
             _used += size;
 
             return Task.FromResult(FinancialSettlementResult.Applied);
@@ -159,6 +164,8 @@ public sealed class MemoryFinancialIdempotencyStore : IFinancialIdempotencyStore
                 {
                     record!.State = RecordState.Unreplayable;
                     record.Expires = _time.GetUtcNow() + retention.Value;
+                    if (record.Expires < _nextExpiration)
+                        _nextExpiration = record.Expires;
                 }
             }
 
@@ -177,12 +184,28 @@ public sealed class MemoryFinancialIdempotencyStore : IFinancialIdempotencyStore
     void Reclaim()
     {
         var now = _time.GetUtcNow();
+        if (now < _nextExpiration)
+            return;
 
-        foreach (var pair in _records.Where(p => p.Value.State != RecordState.Active && p.Value.Expires <= now).ToArray())
+        ReclaimExpired(now);
+    }
+
+    void ReclaimExpired(DateTimeOffset now)
+    {
+        var next = DateTimeOffset.MaxValue;
+        foreach (var pair in _records)
         {
-            _used -= pair.Value.Size;
-            _records.Remove(pair.Key);
+            if (pair.Value.State == RecordState.Active)
+                continue;
+            if (pair.Value.Expires <= now)
+            {
+                _used -= pair.Value.Size;
+                _records.Remove(pair.Key);
+            }
+            else if (pair.Value.Expires < next)
+                next = pair.Value.Expires;
         }
+        _nextExpiration = next;
     }
 
     static FinancialIdempotencyResponse Clone(FinancialIdempotencyResponse response)

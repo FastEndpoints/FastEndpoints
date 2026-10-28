@@ -17,13 +17,27 @@ public sealed class FinancialIdempotencyOptions
     TimeSpan? _duration;
 
     /// <summary>
-    /// Retention of completed responses. Unresolved reservations never expire automatically.
+    /// Retention of completed responses. Active reservations never expire automatically.
     /// </summary>
     public TimeSpan Duration
     {
         get => _duration ?? TimeSpan.FromHours(24);
         set => _duration = value;
     }
+
+    TimeSpan? _unreplayableRetention;
+
+    /// <summary>
+    /// Retention of uncertain (unreplayable) outcomes, which fail closed with <c>500</c> until they expire.
+    /// A retry after expiry runs the handler again. The effective retention is never shorter than <see cref="Duration" />.
+    /// </summary>
+    public TimeSpan UnreplayableRetention
+    {
+        get => _unreplayableRetention ?? TimeSpan.FromHours(24);
+        set => _unreplayableRetention = value;
+    }
+
+    internal TimeSpan EffectiveUnreplayableRetention => UnreplayableRetention > Duration ? UnreplayableRetention : Duration;
 
     /// <summary>
     /// Trusted stable tenant/account scope, evaluated after authentication. Required globally or per endpoint.
@@ -50,10 +64,12 @@ public sealed class FinancialIdempotencyOptions
     internal void ApplyDefaults(FinancialIdempotencyConfig config)
     {
         _duration ??= config.DefaultDuration;
+        _unreplayableRetention ??= config.DefaultUnreplayableRetention;
         CallerScope ??= config.CallerScope;
 
         if (CallerScope is null ||
             !IsValidDuration(Duration) ||
+            !IsValidDuration(UnreplayableRetention) ||
             MaxResponseBodySize <= 0 ||
             MaxResponseBodySize > int.MaxValue ||
             MaxKeyLength <= 0 ||

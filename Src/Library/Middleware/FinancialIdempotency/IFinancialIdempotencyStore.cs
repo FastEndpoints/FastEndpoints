@@ -144,11 +144,10 @@ public interface IFinancialIdempotencyStore
     ///         <term>unreplayable</term><description><see cref="FinancialBeginKind.Unreplayable" /> / <see cref="FinancialBeginKind.Conflict" /></description>
     ///     </item>
     /// </list>
-    /// ttl applies only to completed responses. Active and uncertain reservations never expire automatically.
+    /// Active reservations never expire automatically. Expired completed and unreplayable records count as missing.
     /// </summary>
     ValueTask<FinancialBeginResult> TryBeginAsync(string identityKey,
                                                   ReadOnlyMemory<byte> payloadHash,
-                                                  TimeSpan ttl,
                                                   CancellationToken ct);
 
     /// <summary>
@@ -157,9 +156,9 @@ public interface IFinancialIdempotencyStore
     Task<FinancialSettlementResult> CompleteAsync(string identityKey, string reservationToken, FinancialIdempotencyResponse response, TimeSpan ttl, CancellationToken ct);
 
     /// <summary>
-    /// Atomically retain an uncertain outcome indefinitely for the matching active owner.
+    /// Atomically retain an uncertain outcome for the matching active owner. Retention begins now. Never downgrade a settled record.
     /// </summary>
-    Task<FinancialSettlementResult> MarkUnreplayableAsync(string identityKey, string reservationToken, CancellationToken ct);
+    Task<FinancialSettlementResult> MarkUnreplayableAsync(string identityKey, string reservationToken, TimeSpan retention, CancellationToken ct);
 
     /// <summary>
     /// Release only the matching active owner after an explicit no-business-side-effects assertion.

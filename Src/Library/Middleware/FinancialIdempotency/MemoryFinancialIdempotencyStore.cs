@@ -16,8 +16,11 @@ public sealed class MemoryFinancialIdempotencyStore : IFinancialIdempotencyStore
     readonly int _maxEntries;
     long _used;
 
+    // Conservative lower bound, protected by _gate. Direct key removal may leave it earlier than necessary.
+    DateTimeOffset _nextExpiration = DateTimeOffset.MaxValue;
+
     /// <summary>
-    /// Create a store with a total body/header budget and bounded reservation count. Unresolved entries are never evicted.
+    /// Create a store with a total body/header budget and bounded reservation count. Active entries are never evicted.
     /// </summary>
     public MemoryFinancialIdempotencyStore(long maxStoredBodyBytes = 1024L * 1024 * 1024,
                                            ILogger<MemoryFinancialIdempotencyStore>? logger = null,
@@ -36,7 +39,7 @@ public sealed class MemoryFinancialIdempotencyStore : IFinancialIdempotencyStore
     }
 
     /// <inheritdoc />
-    public ValueTask<FinancialBeginResult> TryBeginAsync(string identityKey, ReadOnlyMemory<byte> payloadHash, TimeSpan ttl, CancellationToken ct)
+    public ValueTask<FinancialBeginResult> TryBeginAsync(string identityKey, ReadOnlyMemory<byte> payloadHash, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
 
@@ -47,7 +50,7 @@ public sealed class MemoryFinancialIdempotencyStore : IFinancialIdempotencyStore
         {
             if (_records.TryGetValue(identityKey, out var record))
             {
-                if (record.State != RecordState.Completed || record.Expires > _time.GetUtcNow())
+                if (record.State == RecordState.Active || record.Expires > _time.GetUtcNow())
                 {
                     if (!CryptographicOperations.FixedTimeEquals(record.Hash, payloadHash.Span))
                         return new(FinancialBeginResult.Conflict());
@@ -123,6 +126,8 @@ public sealed class MemoryFinancialIdempotencyStore : IFinancialIdempotencyStore
             record.Size = size;
             record.Expires = _time.GetUtcNow() + ttl;
             record.State = RecordState.Completed;
+            if (record.Expires < _nextExpiration)
+                _nextExpiration = record.Expires;
             _used += size;
 
             return Task.FromResult(FinancialSettlementResult.Applied);
@@ -130,14 +135,20 @@ public sealed class MemoryFinancialIdempotencyStore : IFinancialIdempotencyStore
     }
 
     /// <inheritdoc />
-    public Task<FinancialSettlementResult> MarkUnreplayableAsync(string identityKey, string reservationToken, CancellationToken ct)
-        => Settle(identityKey, reservationToken, false, ct);
+    public Task<FinancialSettlementResult> MarkUnreplayableAsync(string identityKey, string reservationToken, TimeSpan retention, CancellationToken ct)
+    {
+        if (!FinancialIdempotencyOptions.IsValidDuration(retention))
+            throw new ArgumentOutOfRangeException(nameof(retention));
+
+        return Settle(identityKey, reservationToken, retention, ct);
+    }
 
     /// <inheritdoc />
     public Task<FinancialSettlementResult> AbandonAsync(string identityKey, string reservationToken, CancellationToken ct)
-        => Settle(identityKey, reservationToken, true, ct);
+        => Settle(identityKey, reservationToken, null, ct);
 
-    Task<FinancialSettlementResult> Settle(string key, string token, bool abandon, CancellationToken ct)
+    // a null retention abandons the reservation
+    Task<FinancialSettlementResult> Settle(string key, string token, TimeSpan? retention, CancellationToken ct)
     {
         ct.ThrowIfCancellationRequested();
 
@@ -147,10 +158,15 @@ public sealed class MemoryFinancialIdempotencyStore : IFinancialIdempotencyStore
 
             if (result == FinancialSettlementResult.Applied)
             {
-                if (abandon)
+                if (retention is null)
                     _records.Remove(key);
                 else
+                {
                     record!.State = RecordState.Unreplayable;
+                    record.Expires = _time.GetUtcNow() + retention.Value;
+                    if (record.Expires < _nextExpiration)
+                        _nextExpiration = record.Expires;
+                }
             }
 
             return Task.FromResult(result);
@@ -168,12 +184,28 @@ public sealed class MemoryFinancialIdempotencyStore : IFinancialIdempotencyStore
     void Reclaim()
     {
         var now = _time.GetUtcNow();
+        if (now < _nextExpiration)
+            return;
 
-        foreach (var pair in _records.Where(p => p.Value.State == RecordState.Completed && p.Value.Expires <= now).ToArray())
+        ReclaimExpired(now);
+    }
+
+    void ReclaimExpired(DateTimeOffset now)
+    {
+        var next = DateTimeOffset.MaxValue;
+        foreach (var pair in _records)
         {
-            _used -= pair.Value.Size;
-            _records.Remove(pair.Key);
+            if (pair.Value.State == RecordState.Active)
+                continue;
+            if (pair.Value.Expires <= now)
+            {
+                _used -= pair.Value.Size;
+                _records.Remove(pair.Key);
+            }
+            else if (pair.Value.Expires < next)
+                next = pair.Value.Expires;
         }
+        _nextExpiration = next;
     }
 
     static FinancialIdempotencyResponse Clone(FinancialIdempotencyResponse response)

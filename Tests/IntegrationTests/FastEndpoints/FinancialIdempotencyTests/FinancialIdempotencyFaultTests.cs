@@ -146,11 +146,10 @@ public sealed class FaultyFinancialIdempotencyStore : IFinancialIdempotencyStore
 
     public ValueTask<FinancialBeginResult> TryBeginAsync(string identityKey,
                                                          ReadOnlyMemory<byte> payloadHash,
-                                                         TimeSpan ttl,
                                                          CancellationToken ct)
         => AlwaysInFlight
                ? new(FinancialBeginResult.InFlight())
-               : _inner.TryBeginAsync(identityKey, payloadHash, ttl, ct);
+               : _inner.TryBeginAsync(identityKey, payloadHash, ct);
 
     public async Task<FinancialSettlementResult> CompleteAsync(string identityKey,
                                    string reservationToken,
@@ -165,7 +164,7 @@ public sealed class FaultyFinancialIdempotencyStore : IFinancialIdempotencyStore
         if (CompleteBeforeSettlement)
             await _inner.CompleteAsync(identityKey, reservationToken, response, ttl, ct);
         if (MarkUnreplayableBeforeSettlement)
-            await _inner.MarkUnreplayableAsync(identityKey, reservationToken, ct);
+            await _inner.MarkUnreplayableAsync(identityKey, reservationToken, ttl, ct);
 
         var result = await _inner.CompleteAsync(identityKey,
                                               LoseOwnershipOnComplete ? reservationToken + "-stale" : reservationToken,
@@ -180,8 +179,9 @@ public sealed class FaultyFinancialIdempotencyStore : IFinancialIdempotencyStore
 
     public Task<FinancialSettlementResult> MarkUnreplayableAsync(string identityKey,
                                            string reservationToken,
+                                           TimeSpan retention,
                                            CancellationToken ct)
-        => _inner.MarkUnreplayableAsync(identityKey, reservationToken, ct);
+        => _inner.MarkUnreplayableAsync(identityKey, reservationToken, retention, ct);
 
     public Task<FinancialSettlementResult> AbandonAsync(string identityKey, string reservationToken, CancellationToken ct)
         => _inner.AbandonAsync(identityKey, reservationToken, ct);

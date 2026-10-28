@@ -44,14 +44,14 @@ sealed class FinancialIdempotencyMiddleware(RequestDelegate next, IFinancialIdem
             return;
         }
 
-        if (opts.AddHeaderToResponse)
-            ctx.Response.Headers.TryAdd(opts.HeaderName, idmpKey);
-
         if (string.IsNullOrWhiteSpace(idmpKey[0]) || idmpKey[0]!.Length > opts.MaxKeyLength)
         {
             await SendError(ctx, 400, "Invalid idempotency key!");
             return;
         }
+
+        if (opts.AddHeaderToResponse)
+            ctx.Response.Headers.TryAdd(opts.HeaderName, idmpKey);
 
         var callerScope = opts.CallerScope?.Invoke(ctx);
         if (string.IsNullOrWhiteSpace(callerScope))

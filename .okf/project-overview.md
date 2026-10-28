@@ -14,19 +14,9 @@ resource: README.md
 ## Scope
 Library monorepo, not a hosted product. Package inventory: [monorepo-packages.md](monorepo-packages.md).
 
-| Area | Examples |
-| --- | --- |
-| Core HTTP | `FastEndpoints`, `FastEndpoints.Attributes`, `FastEndpoints.Core` |
-| Messaging / jobs | `FastEndpoints.Messaging*`, `FastEndpoints.JobQueues`, `FastEndpoints.CommandRules` |
-| Security / integrations | `FastEndpoints.Security`, `AspVersioning`, `OData`, `HealthChecks` |
-| Docs / clients | `FastEndpoints.OpenApi`, `FastEndpoints.OpenApi.Kiota`, legacy `Swagger` / `ClientGen*` |
-| Tooling / AOT | `FastEndpoints.Generator`, `FastEndpoints.Generator.Cli` |
-| Testing | `FastEndpoints.Testing`, remote messaging testing |
-| Addons (own version line) | `FastEndpoints.Mcp`, `FastEndpoints.A2A` (`Src/Agents/`) |
-
 ## Consumers
-- App developers targeting ASP.NET Core **net8.0 / net9.0 / net10.0**
-- NuGet consumers; nothing is deployed as a service from this repo
+- App developers targeting ASP.NET Core **net10.0 / net11.0**
+- NuGet consumers
 
 ## Capabilities
 - Endpoint discovery (reflection or source-generated `DiscoveredTypes`)
@@ -42,7 +32,6 @@ Library monorepo, not a hosted product. Package inventory: [monorepo-packages.md
 - Solutions: `FastEndpoints.slnx` (primary), `NativeAot.slnx` (AOT)
 
 ## Non-goals
-- Not a hosted product
 - Roadmap, sponsorship, and API catalog live in the docs site / changelog
 - Public doc pages: sibling `../FE-Docs/` ([workflows.md](workflows.md))
 

@@ -1,0 +1,358 @@
+using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
+using FastEndpoints.OpenApi;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection;
+
+namespace OpenApi;
+
+public class XmlDocSchemaTransformerTests
+{
+    [Theory]
+    [InlineData("home", "work", typeof(Address), "A postal address.")]
+    [InlineData("billing", "support", typeof(Contact), null)]
+    [InlineData("primary", "secondary", typeof(Status), "A contact status.")]
+    [InlineData("current", "previous", typeof(List<Address>), null)]
+    public async Task referenced_properties_keep_independent_summaries(string first, string second, Type type, string? typeSummary)
+    {
+        var builder = WebApplication.CreateBuilder();
+        builder.WebHost.UseTestServer();
+        builder.Services.OpenApiDocument(o =>
+        {
+            o.DocumentName = "v1";
+            o.ShortSchemaNames = true;
+        });
+
+        await using var app = builder.Build();
+        app.MapGet("/person", () => new PersonResponse());
+        app.MapPost("/person", (PersonResponse response) => response);
+        app.MapOpenApi();
+        await app.StartAsync();
+        using var client = app.GetTestClient();
+
+        for (var i = 0; i < 2; i++)
+        {
+            var document = JsonNode.Parse(await client.GetStringAsync("/openapi/v1.json"))!;
+            var schemas = document["components"]!["schemas"]!;
+            var properties = schemas[SchemaNameGenerator.GetReferenceId(typeof(PersonResponse), true)!]!["properties"]!;
+            var referenceId = SchemaNameGenerator.GetReferenceId(type, true)!;
+
+            foreach (var name in new[] { first, second })
+            {
+                properties[name]!["$ref"]!.GetValue<string>().ShouldBe($"#/components/schemas/{referenceId}");
+                (properties[name]!["description"]?.GetValue<string>()).ShouldBe($"The {name} property.");
+            }
+
+            (schemas[referenceId]!["description"]?.GetValue<string>()).ShouldBe(typeSummary);
+            properties["undocumented"]!["$ref"]!.GetValue<string>().ShouldBe($"#/components/schemas/{SchemaNameGenerator.GetReferenceId(typeof(Address), true)}");
+            properties["undocumented"]!["description"].ShouldBeNull();
+
+            foreach (var name in new[] { "convertedPrimary", "convertedSecondary" })
+            {
+                properties[name]!["$ref"].ShouldBeNull();
+                (properties[name]!["description"]?.GetValue<string>()).ShouldBe($"The {name} property.");
+            }
+            properties["name"]!["description"]!.GetValue<string>().ShouldBe("The person's name.");
+            properties["name"]!["examples"]![0]!.GetValue<string>().ShouldBe("Jane");
+        }
+    }
+
+    [Fact]
+    public async Task missing_response_schemas_keep_inline_property_summaries()
+    {
+        var sharedCtx = new SharedContext();
+        var builder = WebApplication.CreateBuilder();
+        builder.WebHost.UseTestServer();
+        builder.Services.OpenApiDocument(o =>
+        {
+            o.DocumentName = "v1";
+            o.ShortSchemaNames = true;
+            o.ConfigureOpenApi = options => options.AddDocumentTransformer(async (document, context, ct) =>
+            {
+                sharedCtx.For(document).MissingSchemaTypes.TryAdd("PersonResponse", typeof(PersonResponse));
+                await document.AddMissingSchemas(sharedCtx, context, ct);
+            });
+        });
+
+        await using var app = builder.Build();
+        app.MapGet("/ping", () => "pong");
+        app.MapOpenApi();
+        await app.StartAsync();
+        using var client = app.GetTestClient();
+
+        for (var i = 0; i < 2; i++)
+        {
+            var document = JsonNode.Parse(await client.GetStringAsync("/openapi/v1.json"))!;
+            var properties = document["components"]!["schemas"]!["PersonResponse"]!["properties"]!;
+
+            foreach (var name in new[] { "home", "work", "billing", "support", "primary", "secondary", "current", "previous" })
+            {
+                properties[name]!["$ref"].ShouldBeNull();
+                (properties[name]!["description"]?.GetValue<string>()).ShouldBe($"The {name} property.");
+            }
+        }
+    }
+
+    [Fact]
+    public async Task referenced_properties_keep_independent_examples()
+    {
+        var builder = WebApplication.CreateBuilder();
+        builder.WebHost.UseTestServer();
+        builder.Services.OpenApiDocument(o =>
+        {
+            o.DocumentName = "v1";
+            o.ShortSchemaNames = true;
+        });
+
+        await using var app = builder.Build();
+        app.MapGet("/ticket", () => new TicketResponse());
+        app.MapOpenApi();
+        await app.StartAsync();
+        using var client = app.GetTestClient();
+
+        for (var i = 0; i < 2; i++)
+        {
+            var document = JsonNode.Parse(await client.GetStringAsync("/openapi/v1.json"))!;
+            var schemas = document["components"]!["schemas"]!;
+            var properties = schemas[SchemaNameGenerator.GetReferenceId(typeof(TicketResponse), true)!]!["properties"]!;
+
+            foreach (var (name, example) in TicketExamples.Where(e => e.Name is not ("time" or "previous")))
+            {
+                properties[name]!["$ref"].ShouldNotBeNull();
+                properties[name]!["examples"]!.ToJsonString().ShouldBe($"[{example}]");
+            }
+
+            var time = properties["time"]!["oneOf"]!.AsArray().Single(o => o!["$ref"] is not null)!;
+            time["examples"]!.ToJsonString().ShouldBe("[\"06:45:00\"]");
+            properties["previous"]!["examples"]![0]!.ToJsonString().ShouldBe("[{\"city\":\"Paris\"}]");
+
+            foreach (var type in new[] { typeof(DateOnly), typeof(Status), typeof(Address) })
+                schemas[SchemaNameGenerator.GetReferenceId(type, true)!]!["example"].ShouldBeNull();
+        }
+    }
+
+    [Fact]
+    public async Task missing_response_schemas_keep_inline_property_examples()
+    {
+        var sharedCtx = new SharedContext();
+        var builder = WebApplication.CreateBuilder();
+        builder.WebHost.UseTestServer();
+        builder.Services.OpenApiDocument(o =>
+        {
+            o.DocumentName = "v1";
+            o.ShortSchemaNames = true;
+            o.ConfigureOpenApi = options => options.AddDocumentTransformer(async (document, context, ct) =>
+            {
+                sharedCtx.For(document).MissingSchemaTypes.TryAdd("TicketResponse", typeof(TicketResponse));
+                await document.AddMissingSchemas(sharedCtx, context, ct);
+            });
+        });
+
+        await using var app = builder.Build();
+        app.MapGet("/ping", () => "pong");
+        app.MapOpenApi();
+        await app.StartAsync();
+        using var client = app.GetTestClient();
+
+        var document = JsonNode.Parse(await client.GetStringAsync("/openapi/v1.json"))!;
+        var properties = document["components"]!["schemas"]!["TicketResponse"]!["properties"]!;
+
+        foreach (var (name, example) in TicketExamples)
+        {
+            properties[name]!["examples"]![0]!.ToJsonString().ShouldBe(example);
+            properties[name]!.AsObject().ContainsKey("example").ShouldBeFalse();
+        }
+    }
+
+    static readonly (string Name, string Example)[] TicketExamples =
+    [
+        ("day", "\"2026-10-06\""),
+        ("time", "\"06:45:00\""),
+        ("primary", "1"),
+        ("secondary", "0"),
+        ("home", "{\"city\":\"Berlin\"}"),
+        ("work", "{\"city\":\"Munich\"}"),
+        ("previous", "[{\"city\":\"Paris\"}]")
+    ];
+
+    public sealed class TicketResponse
+    {
+        /// <summary>The day property.</summary>
+        /// <example>2026-10-06</example>
+        public DateOnly Day { get; set; }
+
+        /// <summary>The time property.</summary>
+        /// <example>06:45:00</example>
+        public TimeOnly? Time { get; set; }
+
+        /// <summary>The primary property.</summary>
+        /// <example>1</example>
+        public Status Primary { get; set; }
+
+        /// <summary>The secondary property.</summary>
+        /// <example>0</example>
+        public Status Secondary { get; set; }
+
+        /// <summary>The home property.</summary>
+        /// <example>{"city":"Berlin"}</example>
+        public Address Home { get; set; } = new("Home");
+
+        /// <summary>The work property.</summary>
+        /// <example>{"city":"Munich"}</example>
+        public Address Work { get; set; } = new("Work");
+
+        /// <summary>The previous property.</summary>
+        /// <example>[{"city":"Paris"}]</example>
+        public List<Address>? Previous { get; set; }
+    }
+
+    [Fact]
+    public async Task nullable_collection_properties_keep_summaries()
+    {
+        var builder = WebApplication.CreateBuilder();
+        builder.WebHost.UseTestServer();
+        builder.Services.OpenApiDocument(o =>
+        {
+            o.DocumentName = "v1";
+            o.ShortSchemaNames = true;
+        });
+
+        await using var app = builder.Build();
+        app.MapGet("/tags", () => new TagsResponse());
+        app.MapOpenApi();
+        await app.StartAsync();
+        using var client = app.GetTestClient();
+
+        var document = JsonNode.Parse(await client.GetStringAsync("/openapi/v1.json"))!;
+        var properties = document["components"]!["schemas"]![SchemaNameGenerator.GetReferenceId(typeof(TagsResponse), true)!]!["properties"]!;
+
+        foreach (var name in new[] { "names", "addresses", "required" })
+            (properties[name]!["description"]?.GetValue<string>()).ShouldBe($"The {name} property.");
+    }
+
+    public sealed class TagsResponse
+    {
+        /// <summary>The names property.</summary>
+        public List<string>? Names { get; set; }
+
+        /// <summary>The addresses property.</summary>
+        public List<Address>? Addresses { get; set; }
+
+        /// <summary>The required property.</summary>
+        public List<string> Required { get; set; } = [];
+    }
+
+    [Theory]
+    [InlineData("text", "Choices:\n- one\n  - nested")]
+    [InlineData("nestedList", "- parent\n  - child")]
+    [InlineData("codeBlock", "Example:\n\n    var x = 1;\n    Use(x);")]
+    [InlineData("hardBreak", "First line  \nsecond line")]
+    public async Task multi_line_summaries_drop_source_indentation(string property, string expected)
+    {
+        var builder = WebApplication.CreateBuilder();
+        builder.WebHost.UseTestServer();
+        builder.Services.OpenApiDocument(o =>
+        {
+            o.DocumentName = "v1";
+            o.ShortSchemaNames = true;
+        });
+
+        await using var app = builder.Build();
+        app.MapGet("/notes", () => new NotesResponse());
+        app.MapOpenApi();
+        await app.StartAsync();
+        using var client = app.GetTestClient();
+
+        var document = JsonNode.Parse(await client.GetStringAsync("/openapi/v1.json"))!;
+        var schema = document["components"]!["schemas"]![SchemaNameGenerator.GetReferenceId(typeof(NotesResponse), true)!]!;
+
+        schema["description"]!.GetValue<string>().ShouldBe("First line\nsecond line.\n\nSecond paragraph.");
+        schema["properties"]![property]!["description"]!.GetValue<string>().ShouldBe(expected);
+    }
+
+    /// <summary>
+    /// First line
+    /// second line.
+    ///
+    /// Second paragraph.
+    /// </summary>
+    public sealed class NotesResponse
+    {
+        /// <summary>
+        /// Choices:
+        /// - one
+        ///   - nested
+        /// </summary>
+        public string Text { get; set; } = "";
+
+        /// <summary>
+        /// - parent
+        ///   - child
+        /// </summary>
+        public string NestedList { get; set; } = "";
+
+        /// <summary>
+        /// Example:
+        ///
+        ///     var x = 1;
+        ///     Use(x);
+        /// </summary>
+        public string CodeBlock { get; set; } = "";
+
+        /// <summary>
+        /// First line&#32;&#32;
+        /// second line
+        /// </summary>
+        public string HardBreak { get; set; } = "";
+    }
+
+    /// <summary>A postal address.</summary>
+    public sealed record Address(string City);
+
+    public sealed record Contact(string Email);
+
+    /// <summary>A contact status.</summary>
+    public enum Status { Active, Inactive }
+
+    public sealed class PersonResponse
+    {
+        /// <summary>The home property.</summary>
+        public Address Home { get; set; } = new("Home");
+
+        /// <summary>The work property.</summary>
+        public Address Work { get; set; } = new("Work");
+
+        /// <summary>The billing property.</summary>
+        public Contact Billing { get; set; } = new("billing@example.com");
+
+        /// <summary>The support property.</summary>
+        public Contact Support { get; set; } = new("support@example.com");
+
+        /// <summary>The primary property.</summary>
+        public Status Primary { get; set; }
+
+        /// <summary>The secondary property.</summary>
+        public Status Secondary { get; set; }
+
+        /// <summary>The current property.</summary>
+        public List<Address> Current { get; set; } = [];
+
+        /// <summary>The previous property.</summary>
+        public List<Address> Previous { get; set; } = [];
+
+        public Address Undocumented { get; set; } = new("Undocumented");
+
+        /// <summary>The convertedPrimary property.</summary>
+        [JsonConverter(typeof(JsonStringEnumConverter<Status>))]
+        public Status ConvertedPrimary { get; set; }
+
+        /// <summary>The convertedSecondary property.</summary>
+        [JsonConverter(typeof(JsonStringEnumConverter<Status>))]
+        public Status ConvertedSecondary { get; set; }
+
+        /// <summary>The person's name.</summary>
+        /// <example>Jane</example>
+        public string Name { get; set; } = "Jane";
+    }
+}

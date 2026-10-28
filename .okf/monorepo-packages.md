@@ -40,7 +40,7 @@ One root `.okf/` covers the whole repo. Packages are NuGet libraries, not separa
 | `Generator/` | FastEndpoints.Generator | Analyzers + targets |
 | `Generator.Cli/` | FastEndpoints.Generator.Cli | `PackageId` explicit; tool |
 | `Testing/` | FastEndpoints.Testing | Integration test base |
-| `AspVersioning/` | FastEndpoints.AspVersioning | API versioning |
+| `AspVersioning/` | FastEndpoints.AspVersioning | API versioning, net10-only due to Asp.Versioning.OpenApi's OpenAPI 2.x dependency |
 | `OData/` | FastEndpoints.OData | OData |
 | `HealthChecks/` | FastEndpoints.HealthChecks | Probes |
 | `Agents/Mcp/` | FastEndpoints.Mcp | Independent Version |

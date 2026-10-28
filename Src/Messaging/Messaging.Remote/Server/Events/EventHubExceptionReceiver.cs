@@ -73,4 +73,18 @@ public abstract class EventHubExceptionReceiver
     public virtual Task OnSerializeEventError<TEvent>(TEvent @event, Exception exception, CancellationToken ct)
         where TEvent : class, IEvent
         => Task.CompletedTask;
+
+    /// <summary>
+    /// called once after three attempts to deserialize a stored event fail, for both ACK and ordinary subscriptions.
+    /// preserve the raw record in a dead-letter queue here if recovery is required.
+    /// the callback is awaited before the hub completes the record and continues. completion also occurs when no receiver
+    /// is registered or this callback throws. cancellation leaves the record pending.
+    /// </summary>
+    /// <param name="record">the original storage record containing the unreadable payload</param>
+    /// <param name="attemptCount">the number of failed deserialization attempts</param>
+    /// <param name="exception">the exception from the final attempt</param>
+    /// <param name="ct">cancellation token</param>
+    public virtual Task OnDeserializeEventError<TEvent>(IEventStorageRecord record, int attemptCount, Exception exception, CancellationToken ct)
+        where TEvent : class, IEvent
+        => Task.CompletedTask;
 }

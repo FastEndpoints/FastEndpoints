@@ -19,6 +19,167 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
         _jsonSerializerOptions = app.Services.GetRequiredService<IOptions<JsonSerializerOptions>>().Value;
     }
 
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void retargeted_references_preserve_null_examples_and_clone_values(bool nullFirst)
+    {
+        var example = new JsonObject { ["city"] = "Berlin" };
+        var source = new OpenApiSchemaReference("Original")
+        {
+            Description = "Property summary",
+            Examples = nullFirst ? [null!, example] : [example, null!]
+        };
+
+        var retargeted = source.RetargetTo("Variant");
+
+        retargeted.GetReferenceId().ShouldBe("Variant");
+        retargeted.Reference.Description.ShouldBe("Property summary");
+        retargeted.Reference.Examples.ShouldNotBeSameAs(source.Reference.Examples);
+        retargeted.Reference.Examples!.Count.ShouldBe(2);
+        retargeted.Reference.Examples[nullFirst ? 0 : 1].ShouldBeNull();
+        var cloned = retargeted.Reference.Examples[nullFirst ? 1 : 0];
+        cloned.ShouldNotBeSameAs(example);
+        cloned["city"] = "Paris";
+        example["city"]!.GetValue<string>().ShouldBe("Berlin");
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void concrete_reference_annotations_preserve_null_examples(bool nullExample)
+    {
+        var source = new OpenApiSchemaReference("Original")
+        {
+            Description = "Property summary",
+            Examples = [nullExample ? null! : new JsonObject { ["city"] = "Berlin" }, new JsonObject { ["city"] = "Rome" }]
+        };
+        var concrete = new OpenApiSchema { Examples = [JsonValue.Create("component example")!] };
+
+        concrete.KeepReferenceAnnotations(source);
+
+        concrete.Description.ShouldBe("Property summary");
+        concrete.Examples.ShouldNotBeSameAs(source.Reference.Examples);
+        concrete.Examples!.Count.ShouldBe(2);
+        using var writer = new StringWriter();
+        concrete.SerializeAsV31(new OpenApiJsonWriter(writer));
+        var json = JsonNode.Parse(writer.ToString())!;
+        json.AsObject().ContainsKey("example").ShouldBeFalse();
+        json["examples"]!.ToJsonString().ShouldBe(nullExample
+                                                    ? """[null,{"city":"Rome"}]"""
+                                                    : """[{"city":"Berlin"},{"city":"Rome"}]""");
+
+        if (nullExample)
+            concrete.Examples[0].ShouldBeNull();
+        else
+        {
+            concrete.Examples[0].ShouldNotBeSameAs(source.Reference.Examples![0]);
+            concrete.Examples[0]["city"] = "Paris";
+            source.Reference.Examples![0]["city"]!.GetValue<string>().ShouldBe("Berlin");
+        }
+
+        concrete.Examples[1].ShouldNotBeSameAs(source.Reference.Examples![1]);
+        concrete.Examples[1]["city"] = "Milan";
+        source.Reference.Examples[1]["city"]!.GetValue<string>().ShouldBe("Rome");
+    }
+
+    [Fact]
+    public void schema_examples_serialize_as_an_array_in_v31_and_as_a_single_example_in_v30()
+    {
+        var schema = new OpenApiSchema { Examples = [new JsonObject { ["city"] = "Berlin" }] };
+        using var v31Writer = new StringWriter();
+        schema.SerializeAsV31(new OpenApiJsonWriter(v31Writer));
+        var v31 = JsonNode.Parse(v31Writer.ToString())!;
+        v31.AsObject().ContainsKey("example").ShouldBeFalse();
+        v31["examples"]!.AsArray().Count.ShouldBe(1);
+        v31["examples"]![0]!["city"]!.GetValue<string>().ShouldBe("Berlin");
+
+        using var v30Writer = new StringWriter();
+        schema.SerializeAsV3(new OpenApiJsonWriter(v30Writer));
+        var v30 = JsonNode.Parse(v30Writer.ToString())!;
+        v30.AsObject().ContainsKey("examples").ShouldBeFalse();
+        v30["example"]!["city"]!.GetValue<string>().ShouldBe("Berlin");
+    }
+
+    [Fact]
+    public void schema_visitor_materializes_nested_descriptions_without_following_references()
+    {
+        var descendants = Enumerable.Range(0, 9)
+                                    .Select(i => new OpenApiSchema
+                                    {
+                                        Description = "Type summary",
+                                        Metadata = new Dictionary<string, object> { ["x-ref-description"] = $"Property {i}" }
+                                    })
+                                    .ToArray();
+        var target = new OpenApiSchema
+        {
+            Description = "Target type summary",
+            Metadata = new Dictionary<string, object> { ["x-ref-description"] = "Target property summary" }
+        };
+        var document = new OpenApiDocument
+        {
+            Components = new()
+            {
+                Schemas = new Dictionary<string, IOpenApiSchema> { ["Target"] = target }
+            }
+        };
+        var reference = new OpenApiSchemaReference("Target", document);
+        reference.ResolveSchema().ShouldBeSameAs(target);
+        var root = new OpenApiSchema
+        {
+            Properties = new Dictionary<string, IOpenApiSchema>
+            {
+                ["child"] = new OpenApiSchema
+                {
+                    Properties = new Dictionary<string, IOpenApiSchema> { ["nested"] = descendants[0] }
+                },
+                ["reference"] = reference,
+                ["invalid"] = new OpenApiSchema
+                {
+                    Description = "Original summary",
+                    Metadata = new Dictionary<string, object> { ["x-ref-description"] = 42 }
+                }
+            },
+            Items = descendants[1],
+            AdditionalProperties = descendants[2],
+            Not = descendants[3],
+            AllOf = [descendants[4]],
+            OneOf = [descendants[5]],
+            AnyOf = [descendants[6]],
+            PatternProperties = new Dictionary<string, IOpenApiSchema> { ["^child"] = descendants[7] },
+            Definitions = new Dictionary<string, IOpenApiSchema> { ["definition"] = descendants[8] },
+            Discriminator = new()
+            {
+                Mapping = new Dictionary<string, OpenApiSchemaReference> { ["target"] = reference }
+            }
+        };
+        var visited = new List<IOpenApiSchema?>();
+
+        OpenApiSchemaTraversal.Visit(root, nested =>
+        {
+            visited.Add(nested);
+
+            if (nested is OpenApiSchema concrete &&
+                concrete.Metadata?.TryGetValue("x-ref-description", out var description) == true &&
+                description is string propertySummary)
+                concrete.Description = propertySummary;
+        });
+
+        root.Description.ShouldBeNull();
+        for (var i = 0; i < descendants.Length; i++)
+        {
+            descendants[i].Description.ShouldBe($"Property {i}");
+            visited.Count(schema => ReferenceEquals(schema, descendants[i])).ShouldBe(1);
+        }
+        visited.Count(schema => ReferenceEquals(schema, reference)).ShouldBe(2);
+        visited.ShouldNotContain(target);
+        target.Description.ShouldBe("Target type summary");
+        root.Properties["invalid"].Description.ShouldBe("Original summary");
+        root.Properties["reference"].ShouldBeSameAs(reference);
+        root.Discriminator.Mapping["target"].ShouldBeSameAs(reference);
+    }
+
     [Fact]
     public void schema_reference_collector_follows_components_and_nested_schema_members()
     {
@@ -47,9 +208,9 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
                 {
                     ["ReusableRequest"] = new OpenApiRequestBody
                     {
-                        Content = new Dictionary<string, OpenApiMediaType>
+                        Content = new Dictionary<string, OpenApiMediaTypeValue>()
                         {
-                            ["application/json"] = new() { Schema = new OpenApiSchemaReference("RequestRoot") }
+                            ["application/json"] = new OpenApiMediaType() { Schema = new OpenApiSchemaReference("RequestRoot") }
                         }
                     }
                 },
@@ -57,9 +218,9 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
                 {
                     ["ReusableResponse"] = new OpenApiResponse
                     {
-                        Content = new Dictionary<string, OpenApiMediaType>
+                        Content = new Dictionary<string, OpenApiMediaTypeValue>()
                         {
-                            ["application/json"] = new() { Schema = new OpenApiSchemaReference("ResponseRoot") }
+                            ["application/json"] = new OpenApiMediaType() { Schema = new OpenApiSchemaReference("ResponseRoot") }
                         }
                     }
                 },
@@ -102,9 +263,9 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
                         {
                             RequestBody = new OpenApiRequestBody
                             {
-                                Content = new Dictionary<string, OpenApiMediaType>
+                                Content = new Dictionary<string, OpenApiMediaTypeValue>()
                                 {
-                                    ["application/json"] = new() { Schema = new OpenApiSchemaReference("Old") }
+                                    ["application/json"] = new OpenApiMediaType() { Schema = new OpenApiSchemaReference("Old") }
                                 }
                             }
                         }
@@ -146,7 +307,7 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
         {
             Type = JsonSchemaType.Object,
             Required = new HashSet<string> { "name" },
-            Example = new JsonObject { ["name"] = "original" },
+            Examples = [new JsonObject { ["name"] = "original" }],
             Properties = new Dictionary<string, IOpenApiSchema>
             {
                 ["name"] = new OpenApiSchema
@@ -167,16 +328,17 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
         clone.ShouldNotBeSameAs(schema);
         clone.Required!.ShouldNotBeSameAs(original.Required);
         clone.Properties!.ShouldNotBeSameAs(original.Properties);
-        clone.Example.ShouldNotBeSameAs(original.Example);
+        clone.Examples.ShouldNotBeSameAs(original.Examples);
+        clone.Examples![0].ShouldNotBeSameAs(original.Examples![0]);
 
         clone.Required!.Add("other");
-        ((JsonObject)clone.Example!)["name"] = "clone";
+        ((JsonObject)clone.Examples![0])["name"] = "clone";
         ((OpenApiSchema)clone.Properties!["name"]).Properties!.Remove("nested");
 
         original.Required.ShouldBe(["name"]);
         original.Properties!.Keys.ShouldBe(["name"]);
         ((OpenApiSchema)original.Properties!["name"]).Properties!.Keys.ShouldBe(["nested"]);
-        original.Example!["name"]!.GetValue<string>().ShouldBe("original");
+        original.Examples![0]["name"]!.GetValue<string>().ShouldBe("original");
     }
 
     [Fact]
@@ -247,10 +409,10 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
             {
                 ["200"] = new OpenApiResponse
                 {
-                    Content = new Dictionary<string, OpenApiMediaType>
+                    Content = new Dictionary<string, OpenApiMediaTypeValue>()
                     {
-                        ["application/json"] = new(),
-                        ["application/problem+json"] = new()
+                        ["application/json"] = new OpenApiMediaType(),
+                        ["application/problem+json"] = new OpenApiMediaType()
                     }
                 }
             }
@@ -293,9 +455,9 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
                         {
                             RequestBody = new OpenApiRequestBody
                             {
-                                Content = new Dictionary<string, OpenApiMediaType>
+                                Content = new Dictionary<string, OpenApiMediaTypeValue>()
                                 {
-                                    ["application/json"] = new() { Schema = new OpenApiSchemaReference("Body") }
+                                    ["application/json"] = new OpenApiMediaType() { Schema = new OpenApiSchemaReference("Body") }
                                 }
                             }
                         }
@@ -309,9 +471,9 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
                         {
                             RequestBody = new OpenApiRequestBody
                             {
-                                Content = new Dictionary<string, OpenApiMediaType>
+                                Content = new Dictionary<string, OpenApiMediaTypeValue>()
                                 {
-                                    ["application/json"] = new() { Schema = new OpenApiSchemaReference("StillUsedWrapper") }
+                                    ["application/json"] = new OpenApiMediaType() { Schema = new OpenApiSchemaReference("StillUsedWrapper") }
                                 }
                             }
                         }
@@ -384,9 +546,9 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
             {
                 RequestBody = new OpenApiRequestBody
                 {
-                    Content = new Dictionary<string, OpenApiMediaType>
+                    Content = new Dictionary<string, OpenApiMediaTypeValue>()
                     {
-                        ["application/json"] = new() { Schema = schema }
+                        ["application/json"] = new OpenApiMediaType() { Schema = schema }
                     }
                 }
             };
@@ -419,9 +581,9 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
             {
                 RequestBody = new OpenApiRequestBody
                 {
-                    Content = new Dictionary<string, OpenApiMediaType>
+                    Content = new Dictionary<string, OpenApiMediaTypeValue>()
                     {
-                        ["application/json"] = new() { Schema = schema }
+                        ["application/json"] = new OpenApiMediaType() { Schema = schema }
                     }
                 }
             };
@@ -476,9 +638,9 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
                 {
                     ["ReusableResponse"] = new OpenApiResponse
                     {
-                        Content = new Dictionary<string, OpenApiMediaType>
+                        Content = new Dictionary<string, OpenApiMediaTypeValue>()
                         {
-                            ["application/json"] = new() { Schema = new OpenApiSchemaReference("ComponentResponseModel") }
+                            ["application/json"] = new OpenApiMediaType() { Schema = new OpenApiSchemaReference("ComponentResponseModel") }
                         }
                     }
                 },
@@ -486,9 +648,9 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
                 {
                     ["ReusableRequest"] = new OpenApiRequestBody
                     {
-                        Content = new Dictionary<string, OpenApiMediaType>
+                        Content = new Dictionary<string, OpenApiMediaTypeValue>()
                         {
-                            ["application/json"] = new() { Schema = new OpenApiSchemaReference("ComponentRequestModel") }
+                            ["application/json"] = new OpenApiMediaType() { Schema = new OpenApiSchemaReference("ComponentRequestModel") }
                         }
                     }
                 }
@@ -521,9 +683,9 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
         {
             ["ReusableResponse"] = new OpenApiResponse
             {
-                Content = new Dictionary<string, OpenApiMediaType>
+                Content = new Dictionary<string, OpenApiMediaTypeValue>()
                 {
-                    ["application/json"] = new() { Schema = new OpenApiSchemaReference("ResponseModel") }
+                    ["application/json"] = new OpenApiMediaType() { Schema = new OpenApiSchemaReference("ResponseModel") }
                 }
             }
         };
@@ -531,9 +693,9 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
         {
             ["ReusableRequest"] = new OpenApiRequestBody
             {
-                Content = new Dictionary<string, OpenApiMediaType>
+                Content = new Dictionary<string, OpenApiMediaTypeValue>()
                 {
-                    ["application/json"] = new() { Schema = new OpenApiSchemaReference("RequestModel") }
+                    ["application/json"] = new OpenApiMediaType() { Schema = new OpenApiSchemaReference("RequestModel") }
                 }
             }
         };
@@ -577,9 +739,9 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
                         {
                             RequestBody = new OpenApiRequestBody
                             {
-                                Content = new Dictionary<string, OpenApiMediaType>
+                                Content = new Dictionary<string, OpenApiMediaTypeValue>()
                                 {
-                                    ["application/json"] = new()
+                                    ["application/json"] = new OpenApiMediaType()
                                     {
                                         Schema = new OpenApiSchemaReference("Root")
                                     }
@@ -643,9 +805,9 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
                 {
                     ["ReusableRequest"] = new OpenApiRequestBody
                     {
-                        Content = new Dictionary<string, OpenApiMediaType>
+                        Content = new Dictionary<string, OpenApiMediaTypeValue>()
                         {
-                            ["application/json"] = new() { Schema = new OpenApiSchemaReference("KeptModel") }
+                            ["application/json"] = new OpenApiMediaType() { Schema = new OpenApiSchemaReference("KeptModel") }
                         }
                     }
                 }
@@ -666,9 +828,9 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
         {
             RequestBody = new OpenApiRequestBody
             {
-                Content = new Dictionary<string, OpenApiMediaType>
+                Content = new Dictionary<string, OpenApiMediaTypeValue>()
                 {
-                    ["application/json"] = new()
+                    ["application/json"] = new OpenApiMediaType()
                     {
                         Schema = new OpenApiSchema
                         {
@@ -722,9 +884,9 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
         {
             RequestBody = new OpenApiRequestBody
             {
-                Content = new Dictionary<string, OpenApiMediaType>
+                Content = new Dictionary<string, OpenApiMediaTypeValue>()
                 {
-                    ["application/json"] = new()
+                    ["application/json"] = new OpenApiMediaType()
                     {
                         Schema = new OpenApiSchema
                         {
@@ -756,6 +918,134 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
         promotedComponent.Required.ShouldBe(["name"]);
     }
 
+    [Theory]
+    [InlineData(false, false)]
+    [InlineData(true, false)]
+    [InlineData(true, true)]
+    public void body_metadata_without_changes_keeps_shared_schema(bool includeProperty, bool includeDescription)
+    {
+        var propertySchema = new OpenApiSchema
+        {
+            Type = JsonSchemaType.String,
+            Default = JsonValue.Create("existing"),
+            Description = "existing description"
+        };
+        var componentSchema = new OpenApiSchema
+        {
+            Type = JsonSchemaType.Object,
+            Properties = new Dictionary<string, IOpenApiSchema>()
+        };
+        var document = new OpenApiDocument
+        {
+            Components = new()
+            {
+                Schemas = new Dictionary<string, IOpenApiSchema>
+                {
+                    ["Request"] = componentSchema,
+                    ["Property"] = propertySchema
+                }
+            }
+        };
+
+        if (includeProperty)
+            componentSchema.Properties["name"] = new OpenApiSchemaReference("Property", document);
+
+        var mediaType = new OpenApiMediaType { Schema = new OpenApiSchemaReference("Request", document) };
+        var operation = new OpenApiOperation
+        {
+            RequestBody = new OpenApiRequestBody
+            {
+                Content = new Dictionary<string, OpenApiMediaTypeValue>() { ["application/json"] = mediaType }
+            }
+        };
+        var originalSchema = mediaType.Schema;
+        var definition = new EndpointDefinition(typeof(object), typeof(BodyMetadataRequest), typeof(object));
+
+        if (includeDescription || !includeProperty)
+            definition.Summary(s => s.Params["name"] = "existing description");
+
+        var generation = ApplyBodySchemaMetadata(operation, definition, document);
+
+        mediaType.Schema.ShouldBeSameAs(originalSchema);
+        generation.OperationSchemaVariants.ShouldBeEmpty();
+        propertySchema.Default!.GetValue<string>().ShouldBe("existing");
+    }
+
+    [Fact]
+    public void body_metadata_localizes_only_properties_that_change()
+    {
+        var nameSchema = new OpenApiSchema { Type = JsonSchemaType.String };
+        var unchangedSchema = new OpenApiSchema { Type = JsonSchemaType.String, Default = JsonValue.Create("existing") };
+        var componentSchema = new OpenApiSchema
+        {
+            Type = JsonSchemaType.Object,
+            Properties = new Dictionary<string, IOpenApiSchema>()
+        };
+        var document = new OpenApiDocument
+        {
+            Components = new()
+            {
+                Schemas = new Dictionary<string, IOpenApiSchema>
+                {
+                    ["Request"] = componentSchema,
+                    ["Name"] = nameSchema,
+                    ["Unchanged"] = unchangedSchema
+                }
+            }
+        };
+        componentSchema.Properties["name"] = new OpenApiSchemaReference("Name", document);
+        componentSchema.Properties["unchanged"] = new OpenApiSchemaReference("Unchanged", document);
+        var mediaType = new OpenApiMediaType { Schema = new OpenApiSchemaReference("Request", document) };
+        var operation = new OpenApiOperation
+        {
+            RequestBody = new OpenApiRequestBody
+            {
+                Content = new Dictionary<string, OpenApiMediaTypeValue>() { ["application/json"] = mediaType }
+            }
+        };
+        var definition = new EndpointDefinition(typeof(object), typeof(BodyMetadataRequest), typeof(object));
+        definition.Summary(s => s.Params["name"] = "new description");
+
+        var generation = ApplyBodySchemaMetadata(operation, definition, document);
+        var localSchema = mediaType.Schema.ResolveSchema(generation)!;
+        var localName = localSchema.Properties!["name"].ResolveSchema(generation)!;
+
+        generation.OperationSchemaVariants.Count.ShouldBe(2);
+        localName.Description.ShouldBe("new description");
+        localName.Default!.GetValue<string>().ShouldBe("attribute default");
+        localSchema.Properties["unchanged"].ShouldBeSameAs(componentSchema.Properties["unchanged"]);
+        nameSchema.Description.ShouldBeNull();
+        nameSchema.Default.ShouldBeNull();
+    }
+
+    static OpenApiGenerationState ApplyBodySchemaMetadata(OpenApiOperation operation, EndpointDefinition definition, OpenApiDocument document)
+    {
+        var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
+                                                                      .GetType("FastEndpoints.OpenApi.RequestOperationTransformer", throwOnError: true)!;
+        var sharedCtx = new SharedContext { NamingPolicy = JsonNamingPolicy.CamelCase };
+        var generation = sharedCtx.For(document);
+        var transformer = Activator.CreateInstance(
+            transformerType,
+            BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
+            binder: null,
+            args: [new DocumentOptions(), sharedCtx],
+            culture: null)!;
+
+        transformerType.GetMethod("ApplyBodySchemaMetadata")!
+                       .Invoke(transformer, [operation, definition, null, "POST:/test", generation]);
+
+        return generation;
+    }
+
+    sealed class BodyMetadataRequest
+    {
+        [System.ComponentModel.DefaultValue("attribute default")]
+        public string Name { get; set; } = string.Empty;
+
+        [System.ComponentModel.DefaultValue("attribute default")]
+        public string Unchanged { get; set; } = string.Empty;
+    }
+
     [Fact]
     public void response_param_descriptions_do_not_mutate_shared_component_schema()
     {
@@ -779,9 +1069,9 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
         };
         var response = new OpenApiResponse
         {
-            Content = new Dictionary<string, OpenApiMediaType>
+            Content = new Dictionary<string, OpenApiMediaTypeValue>()
             {
-                ["application/json"] = new() { Schema = new OpenApiSchemaReference("ResponseParamDescriptionResponse", document) }
+                ["application/json"] = new OpenApiMediaType() { Schema = new OpenApiSchemaReference("ResponseParamDescriptionResponse", document) }
             }
         };
 
@@ -821,9 +1111,9 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
         };
         var response = new OpenApiResponse
         {
-            Content = new Dictionary<string, OpenApiMediaType>
+            Content = new Dictionary<string, OpenApiMediaTypeValue>()
             {
-                ["application/json"] = new()
+                ["application/json"] = new OpenApiMediaType()
                 {
                     Schema = new OpenApiSchema
                     {
@@ -961,10 +1251,10 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
             {
                 ["200"] = new OpenApiResponse
                 {
-                    Content = new Dictionary<string, OpenApiMediaType>
+                    Content = new Dictionary<string, OpenApiMediaTypeValue>()
                     {
-                        ["application/octet-stream"] = new() { Schema = typeof(byte[]).GetSchemaForType() },
-                        ["application/json"] = new() { Schema = typeof(byte[]).GetSchemaForType() }
+                        ["application/octet-stream"] = new OpenApiMediaType() { Schema = typeof(byte[]).GetSchemaForType() },
+                        ["application/json"] = new OpenApiMediaType() { Schema = typeof(byte[]).GetSchemaForType() }
                     }
                 }
             }
@@ -1400,7 +1690,7 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
     static OpenApiOperation CreateFormPromotionOperation()
     {
         var operation = CreatePromotionOperation();
-        operation.RequestBody!.Content!["application/x-www-form-urlencoded"] = new()
+        operation.RequestBody!.Content!["application/x-www-form-urlencoded"] = new OpenApiMediaType()
         {
             Schema = ClonePromotionWrapperSchema()
         };
@@ -1416,10 +1706,10 @@ public class OperationSchemaHelpersTests : TestBase<Fixture>
         {
             RequestBody = new OpenApiRequestBody
             {
-                Content = new Dictionary<string, OpenApiMediaType>
+                Content = new Dictionary<string, OpenApiMediaTypeValue>()
                 {
-                    ["application/json"] = new() { Schema = ClonePromotionWrapperSchema() },
-                    ["*/*"] = new() { Schema = ClonePromotionWrapperSchema() }
+                    ["application/json"] = new OpenApiMediaType() { Schema = ClonePromotionWrapperSchema() },
+                    ["*/*"] = new OpenApiMediaType() { Schema = ClonePromotionWrapperSchema() }
                 }
             }
         };

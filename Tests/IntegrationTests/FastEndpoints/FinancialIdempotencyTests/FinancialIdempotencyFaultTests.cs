@@ -56,6 +56,49 @@ public class FinancialIdempotencyFaultTests(FinancialIdempotencyFaultSut App) : 
         (await retry.Content.ReadFromJsonAsync<ChargeResponse>())!.Amount.ShouldBe(10);
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Already_Settled_Fails_Closed_And_Preserves_Terminal_State(bool completed)
+    {
+        App.Store.Reset();
+        App.Store.CompleteBeforeSettlement = completed;
+        App.Store.MarkUnreplayableBeforeSettlement = !completed;
+        var key = Guid.NewGuid().ToString();
+
+        var first = await Post(ChargeUrl, key, JsonBody(10));
+        first.StatusCode.ShouldBe(HttpStatusCode.InternalServerError);
+        App.Store.LastCompletionResult.ShouldBe(FinancialSettlementResult.AlreadySettled);
+
+        var retry = await Post(ChargeUrl, key, JsonBody(10));
+        retry.StatusCode.ShouldBe(completed ? HttpStatusCode.OK : HttpStatusCode.InternalServerError);
+        if (completed)
+            (await retry.Content.ReadFromJsonAsync<ChargeResponse>())!.Amount.ShouldBe(10);
+        else
+            (await Error(retry)).ShouldBe(FinancialIdempotencyMiddleware.UnreplayableMessage);
+        App.Store.CompleteCalls.ShouldBe(1);
+
+        var other = await Post(ChargeUrl, key, JsonBody(11));
+        other.StatusCode.ShouldBe(HttpStatusCode.Conflict);
+    }
+
+    [Fact]
+    public async Task Completion_Ownership_Lost_Fails_Closed()
+    {
+        App.Store.Reset();
+        App.Store.LoseOwnershipOnComplete = true;
+        var key = Guid.NewGuid().ToString();
+
+        var first = await Post(ChargeUrl, key, JsonBody(10));
+        first.StatusCode.ShouldBe(HttpStatusCode.InternalServerError);
+        App.Store.LastCompletionResult.ShouldBe(FinancialSettlementResult.OwnershipLost);
+
+        var retry = await Post(ChargeUrl, key, JsonBody(10));
+        retry.StatusCode.ShouldBe(HttpStatusCode.InternalServerError);
+        (await Error(retry)).ShouldBe(FinancialIdempotencyMiddleware.UnreplayableMessage);
+        App.Store.CompleteCalls.ShouldBe(1);
+    }
+
     async Task<HttpResponseMessage> Post(string url, string key, HttpContent content)
     {
         var req = new HttpRequestMessage(HttpMethod.Post, url) { Content = content };
@@ -83,12 +126,22 @@ public sealed class FaultyFinancialIdempotencyStore : IFinancialIdempotencyStore
     public bool AlwaysInFlight { get; set; }
     public bool ThrowOnComplete { get; set; }
     public bool ThrowAfterComplete { get; set; }
+    public bool CompleteBeforeSettlement { get; set; }
+    public bool MarkUnreplayableBeforeSettlement { get; set; }
+    public bool LoseOwnershipOnComplete { get; set; }
+    public FinancialSettlementResult? LastCompletionResult { get; private set; }
+    public int CompleteCalls { get; private set; }
 
     public void Reset()
     {
         AlwaysInFlight = false;
         ThrowOnComplete = false;
         ThrowAfterComplete = false;
+        CompleteBeforeSettlement = false;
+        MarkUnreplayableBeforeSettlement = false;
+        LoseOwnershipOnComplete = false;
+        LastCompletionResult = null;
+        CompleteCalls = 0;
     }
 
     public ValueTask<FinancialBeginResult> TryBeginAsync(string identityKey,
@@ -107,7 +160,18 @@ public sealed class FaultyFinancialIdempotencyStore : IFinancialIdempotencyStore
         if (ThrowOnComplete)
             throw new IOException("complete failed");
 
-        var result = await _inner.CompleteAsync(identityKey, reservationToken, response, ttl, ct);
+        CompleteCalls++;
+        if (CompleteBeforeSettlement)
+            await _inner.CompleteAsync(identityKey, reservationToken, response, ttl, ct);
+        if (MarkUnreplayableBeforeSettlement)
+            await _inner.MarkUnreplayableAsync(identityKey, reservationToken, ttl, ct);
+
+        var result = await _inner.CompleteAsync(identityKey,
+                                              LoseOwnershipOnComplete ? reservationToken + "-stale" : reservationToken,
+                                              response,
+                                              ttl,
+                                              ct);
+        LastCompletionResult = result;
         if (ThrowAfterComplete)
             throw new IOException("acknowledgement lost");
         return result;

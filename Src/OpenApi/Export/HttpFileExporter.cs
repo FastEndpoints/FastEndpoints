@@ -77,14 +77,14 @@ static partial class HttpFileExporter
         sb.Append('\n');
     }
 
-    static void AppendRequestBody(StringBuilder sb, string? contentType, OpenApiMediaType? mediaType, IDictionary<string, IOpenApiSchema>? components)
+    static void AppendRequestBody(StringBuilder sb, string? contentType, OpenApiMediaTypeValue? mediaType, IDictionary<string, IOpenApiSchema>? components)
     {
         if (contentType is null || mediaType is null)
             return;
 
         if (IsJsonContentType(contentType))
         {
-            // media-type example is authoritative (full replace); else schema Example/Default via builder; never emit literal null root
+            // media-type example is authoritative (full replace); else first schema example/default via builder; never emit literal null root
             var node = mediaType.Example?.DeepClone() ??
                        FirstNamedExample(mediaType.Examples) ??
                        (mediaType.Schema is null
@@ -182,7 +182,7 @@ static partial class HttpFileExporter
         => scheme.Type == SecuritySchemeType.Http &&
            string.Equals(scheme.Scheme, "Bearer", StringComparison.OrdinalIgnoreCase);
 
-    static (string? ContentType, OpenApiMediaType? MediaType) ResolveRequestMediaType(IOpenApiRequestBody? requestBody)
+    static (string? ContentType, OpenApiMediaTypeValue? MediaType) ResolveRequestMediaType(IOpenApiRequestBody? requestBody)
     {
         if (requestBody?.Content is not { Count: > 0 } content)
             return (null, null);

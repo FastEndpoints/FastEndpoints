@@ -105,8 +105,8 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
 
     static readonly string[] _httPost = ["POST"];
 
-    //note: event hubs are not added to the schema registry - the "sub" method takes a bare subscriber id string, which has
-    //no top-level protobuf message equivalent, so grpc reflection does not describe hubs.
+    //note: event hubs are not added to the schema registry. "sub" takes a bare subscriber id string, which has
+    //no top-level protobuf message equivalent, and "sub-ack" is omitted as well, so grpc reflection does not describe hubs.
     public void Bind(ServiceMethodProviderContext<EventHub<TEvent, TStorageRecord, TStorageProvider>> ctx, IRpcMarshallerFactory marshaller, RpcSchemaRegistry schema)
     {
         // ReSharper disable once UseSymbolAlias
@@ -116,14 +116,29 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
             metadata.AddRange(eventAttributes);
         metadata.Add(new HttpMethodMetadata(_httPost, acceptCorsPreflight: true));
 
-        var sub = new Method<string, TEvent>(
-            type: MethodType.ServerStreaming,
-            serviceName: _tEvent.FullName!,
-            name: "sub",
-            requestMarshaller: marshaller.Create<string>(),
-            responseMarshaller: marshaller.Create<TEvent>());
+        // sub-ack keeps the same service/method split as sub: the client puts "{event}/sub-ack" in the service name.
+        if (typeof(IEventHubDeliveryAck<TStorageRecord>).IsAssignableFrom(typeof(TStorageProvider)))
+        {
+            var subAck = new Method<EventDeliveryAck, EventDelivery<TEvent>>(
+                type: MethodType.DuplexStreaming,
+                serviceName: _tEvent.FullName!,
+                name: "sub-ack",
+                requestMarshaller: marshaller.Create<EventDeliveryAck>(),
+                responseMarshaller: marshaller.Create<EventDelivery<TEvent>>());
 
-        ctx.AddServerStreamingMethod(sub, metadata, OnSubscriberConnected);
+            ctx.AddDuplexStreamingMethod(subAck, metadata, OnDeliveryAck);
+        }
+        else
+        {
+            var sub = new Method<string, TEvent>(
+                type: MethodType.ServerStreaming,
+                serviceName: _tEvent.FullName!,
+                name: "sub",
+                requestMarshaller: marshaller.Create<string>(),
+                responseMarshaller: marshaller.Create<TEvent>());
+
+            ctx.AddServerStreamingMethod(sub, metadata, OnSubscriberConnected);
+        }
 
         if (!Mode.HasFlag(HubMode.EventBroker))
             return;
@@ -149,6 +164,29 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
             _registry,
             _ctx,
             subscriberID,
+            stream,
+            ctx.CancellationToken);
+    }
+
+    internal async Task OnDeliveryAck(EventHub<TEvent, TStorageRecord, TStorageProvider> _,
+                                      IAsyncStreamReader<EventDeliveryAck> request,
+                                      IServerStreamWriter<EventDelivery<TEvent>> stream,
+                                      ServerCallContext ctx)
+    {
+        if (!await request.MoveNext(ctx.CancellationToken))
+            return;
+
+        var subscriberID = request.Current?.SubscriberID;
+
+        if (string.IsNullOrWhiteSpace(subscriberID))
+            return;
+
+        await EventDeliveryAckDispatcher.RunAsync<TEvent, TStorageRecord, TStorageProvider>(
+            _storage!,
+            _registry,
+            _ctx,
+            subscriberID,
+            request,
             stream,
             ctx.CancellationToken);
     }

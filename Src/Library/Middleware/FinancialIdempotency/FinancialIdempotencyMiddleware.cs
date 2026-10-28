@@ -44,14 +44,14 @@ sealed class FinancialIdempotencyMiddleware(RequestDelegate next, IFinancialIdem
             return;
         }
 
-        if (opts.AddHeaderToResponse)
-            ctx.Response.Headers.TryAdd(opts.HeaderName, idmpKey);
-
         if (string.IsNullOrWhiteSpace(idmpKey[0]) || idmpKey[0]!.Length > opts.MaxKeyLength)
         {
             await SendError(ctx, 400, "Invalid idempotency key!");
             return;
         }
+
+        if (opts.AddHeaderToResponse)
+            ctx.Response.Headers.TryAdd(opts.HeaderName, idmpKey);
 
         var callerScope = opts.CallerScope?.Invoke(ctx);
         if (string.IsNullOrWhiteSpace(callerScope))
@@ -159,8 +159,10 @@ sealed class FinancialIdempotencyMiddleware(RequestDelegate next, IFinancialIdem
                 Body = BodyAllowed(ctx, capture.StatusCode) ? body : []
             }, opts.Duration, settlement.Token).WaitAsync(settlement.Token);
 
-            if (result == FinancialSettlementResult.OwnershipLost)
-                throw new InvalidOperationException("Financial reservation ownership was lost.");
+            if (result != FinancialSettlementResult.Applied)
+                throw new InvalidOperationException(result == FinancialSettlementResult.OwnershipLost
+                                                        ? "Financial reservation ownership was lost."
+                                                        : "Financial response completion was not confirmed.");
         }
         else if (ctx.Items[RejectionKey] is true)
             await store.AbandonAsync(identityKey, token, settlement.Token).WaitAsync(settlement.Token);

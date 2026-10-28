@@ -214,12 +214,15 @@ static class OpenApiSchemaReferenceCollector
             CollectPathItemRefs(pathItem, context);
     }
 
-    static void CollectMediaTypeRefs(OpenApiMediaType? mediaType, ReferenceCollectionContext context)
+    static void CollectMediaTypeRefs(OpenApiMediaTypeValue? mediaType, ReferenceCollectionContext context)
     {
         if (mediaType is null)
             return;
 
         context.CollectSchemaRefs(mediaType.Schema);
+#if NET11_0_OR_GREATER
+        context.CollectSchemaRefs(mediaType.ItemSchema);
+#endif
 
         if (mediaType.Encoding is { Count: > 0 })
         {

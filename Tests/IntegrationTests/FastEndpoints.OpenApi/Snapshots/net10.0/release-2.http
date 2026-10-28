@@ -1,5 +1,35 @@
 @baseUrl = https://localhost:5001
 
+### PostAdminLoginEndpoint
+POST {{baseUrl}}/api/admin/login
+Content-Type: application/json
+Accept: application/json
+
+{
+  "userName": "custom example user name from summary",
+  "password": "custom example password from summary"
+}
+
+### PutAdminLoginEndpoint
+PUT {{baseUrl}}/api/admin/login
+Content-Type: application/json
+Accept: application/json
+
+{
+  "userName": "custom example user name from summary",
+  "password": "custom example password from summary"
+}
+
+### PatchAdminLoginEndpoint
+PATCH {{baseUrl}}/api/admin/login
+Content-Type: application/json
+Accept: application/json
+
+{
+  "userName": "custom example user name from summary",
+  "password": "custom example password from summary"
+}
+
 ### PostAdminLoginEndpoint_V1
 POST {{baseUrl}}/api/admin/login/ver1
 Content-Type: application/json
@@ -30,6 +60,11 @@ Accept: application/json
   "password": "custom example password from summary"
 }
 
+### AdminLoginEndpoint_V2
+GET {{baseUrl}}/api/admin/login/ver2
+Accept: application/json
+
+
 ### TestCasesNestedFromFormBindingTestCircularEndpoint
 POST {{baseUrl}}/api/api/test-cases/circular-fromform-binding-test
 Content-Type: multipart/form-data
@@ -44,8 +79,20 @@ Accept: application/json
 
 # body omitted (multipart/form-data); provide form fields in the client
 
+### CustomersListRecentEndpoint
+GET {{baseUrl}}/api/customer/list/recent
+Authorization: Bearer {{bearerToken}}
+Accept: application/json
+
+
 ### CustomersListRecentEndpoint_V1
 GET {{baseUrl}}/api/customer/list/recent/ver1
+Accept: application/json
+
+
+### CustomersListRecentEndpoint_V2
+GET {{baseUrl}}/api/customer/list/recent/ver2
+Authorization: Bearer {{bearerToken}}
 Accept: application/json
 
 
@@ -210,6 +257,11 @@ Accept: application/json
 
 ### swagger_review_TestCasesSwaggerReviewSharedPathFastEndpoint
 POST {{baseUrl}}/api/filtered-shared-path
+Accept: application/json
+
+
+### nested_group_tags_TestCasesOpenApiNestedGroupTagsEndpoint
+GET {{baseUrl}}/api/first/middle/last/item
 Accept: application/json
 
 
@@ -713,6 +765,45 @@ Accept: application/json
 {
   "address": {
     "zip": ""
+  }
+}
+
+### swagger_review_TestCasesSwaggerReviewSharedRequestExampleAlphaEndpoint
+POST {{baseUrl}}/api/swagger-review/shared-request-example-alpha
+Content-Type: application/json
+Accept: application/json
+
+{
+  "test": "one",
+  "kind": "Default",
+  "details": {
+    "name": "alpha"
+  }
+}
+
+### swagger_review_TestCasesSwaggerReviewSharedRequestExampleBetaEndpoint
+POST {{baseUrl}}/api/swagger-review/shared-request-example-beta
+Content-Type: application/json
+Accept: application/json
+
+{
+  "test": "two",
+  "kind": "Alternative",
+  "details": {
+    "name": "beta"
+  }
+}
+
+### swagger_review_TestCasesSwaggerReviewSharedRequestExampleNamedEndpoint
+POST {{baseUrl}}/api/swagger-review/shared-request-example-named
+Content-Type: application/json
+Accept: application/json
+
+{
+  "test": "three",
+  "kind": "Default",
+  "details": {
+    "name": "named"
   }
 }
 
@@ -1285,6 +1376,11 @@ Accept: application/json
   "shortCircuit": false,
   "correlationId": ""
 }
+
+### TestCasesStreamStatusCodeTestEndpoint
+GET {{baseUrl}}/api/test-cases/stream-status/{{mode}}
+Accept: application/json
+
 
 ### TestCasesStronglyTypedRouteParamTestMyEndpoint
 POST {{baseUrl}}/api/test-cases/strong-route-params/{{platformKitUid}}/blah/{{name}}

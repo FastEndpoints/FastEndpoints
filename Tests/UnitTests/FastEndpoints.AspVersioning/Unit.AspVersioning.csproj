@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
+        <TargetFrameworks>net10.0</TargetFrameworks>
         <RootNamespace>Unit.FastEndpoints.AspVersioning</RootNamespace>
     </PropertyGroup>
 

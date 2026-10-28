@@ -14,7 +14,10 @@ static class ValidationRuleCatalog
             Matches = propertyValidator => propertyValidator is INotNullValidator or INotEmptyValidator,
             Apply = context =>
                     {
-                        var schema = context.Schema;
+                        var schema = context.RequiredPropertyOwner;
+                        if (schema is null)
+                            return;
+
                         schema.Required ??= new HashSet<string>();
                         if (!context.HasCondition)
                             schema.Required.Add(context.PropertyKey);
@@ -49,9 +52,9 @@ static class ValidationRuleCatalog
                             prop.Type = prop.Type.Value & ~JsonSchemaType.Null;
 
                         if (IsArraySchema(prop))
-                            prop.MinItems = 1;
+                            prop.MinItems = Math.Max(prop.MinItems ?? 0, 1);
                         else if (IsStringSchema(prop))
-                            prop.MinLength = 1;
+                            prop.MinLength = Math.Max(prop.MinLength ?? 0, 1);
                     }
         },
         new("Length")
@@ -59,6 +62,9 @@ static class ValidationRuleCatalog
             Matches = propertyValidator => propertyValidator is ILengthValidator,
             Apply = context =>
                     {
+                        if (context.HasCondition)
+                            return;
+
                         if (!context.TryGetPropertySchema(out var prop))
                             return;
 
@@ -69,10 +75,7 @@ static class ValidationRuleCatalog
                         {
                             if (lengthValidator.Max > 0)
                                 target.MaxItems = lengthValidator.Max;
-                            if (IsValidatorType(lengthValidator, typeof(MinimumLengthValidator<>)) ||
-                                IsValidatorType(lengthValidator, typeof(ExactLengthValidator<>)) ||
-                                target.MinItems is null or 1)
-                                target.MinItems = lengthValidator.Min;
+                            target.MinItems = Math.Max(target.MinItems ?? 0, lengthValidator.Min);
 
                             return;
                         }
@@ -82,10 +85,7 @@ static class ValidationRuleCatalog
 
                         if (lengthValidator.Max > 0)
                             target.MaxLength = lengthValidator.Max;
-                        if (IsValidatorType(lengthValidator, typeof(MinimumLengthValidator<>)) ||
-                            IsValidatorType(lengthValidator, typeof(ExactLengthValidator<>)) ||
-                            target.MinLength is null or 1)
-                            target.MinLength = lengthValidator.Min;
+                        target.MinLength = Math.Max(target.MinLength ?? 0, lengthValidator.Min);
                     }
         },
         new("Pattern")
@@ -93,6 +93,9 @@ static class ValidationRuleCatalog
             Matches = propertyValidator => propertyValidator is IRegularExpressionValidator,
             Apply = context =>
                     {
+                        if (context.HasCondition)
+                            return;
+
                         if (!context.TryGetPropertySchema(out var prop))
                             return;
 
@@ -108,6 +111,9 @@ static class ValidationRuleCatalog
             Matches = propertyValidator => propertyValidator is IComparisonValidator,
             Apply = context =>
                     {
+                        if (context.HasCondition)
+                            return;
+
                         var comparisonValidator = (IComparisonValidator)context.PropertyValidator;
 
                         if (comparisonValidator.ValueToCompare.IsNumeric())
@@ -145,6 +151,9 @@ static class ValidationRuleCatalog
             Matches = propertyValidator => propertyValidator is IBetweenValidator,
             Apply = context =>
                     {
+                        if (context.HasCondition)
+                            return;
+
                         var betweenValidator = (IBetweenValidator)context.PropertyValidator;
 
                         if (!context.TryGetPropertySchema(out var prop))
@@ -176,6 +185,9 @@ static class ValidationRuleCatalog
             Matches = propertyValidator => propertyValidator.GetType().IsSubClassOfGeneric(typeof(AspNetCoreCompatibleEmailValidator<>)),
             Apply = context =>
                     {
+                        if (context.HasCondition)
+                            return;
+
                         if (!context.TryGetPropertySchema(out var prop))
                             return;
 
@@ -193,12 +205,4 @@ static class ValidationRuleCatalog
 
     static bool IsArraySchema(OpenApiSchema schema)
         => schema.Type?.HasFlag(JsonSchemaType.Array) == true;
-
-    static bool IsValidatorType(object validator, Type openGenericValidatorType)
-    {
-        var validatorType = validator.GetType();
-
-        return (validatorType.IsGenericType && validatorType.GetGenericTypeDefinition() == openGenericValidatorType) ||
-               validatorType.IsSubClassOfGeneric(openGenericValidatorType);
-    }
 }

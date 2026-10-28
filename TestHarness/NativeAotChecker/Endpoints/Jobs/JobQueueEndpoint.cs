@@ -54,6 +54,19 @@ public sealed class Job : IJobStorageRecord, IJobResultStorage, IHasIdempotencyK
     public bool IsComplete { get; set; }
     public object? Result { get; set; }
     public string? IdempotencyKey { get; set; }
+
+    public int StoreAttempts { get; set; }
+    public int GetAttempts { get; set; }
+    public bool FailureRecorded { get; set; }
+
+    public TResult? GetResult<TResult>()
+        => (TResult?)System.Text.Json.JsonSerializer.Deserialize(
+            Result as string ?? (typeof(TResult) == typeof(FastEndpoints.Void) ? "{}" : "null"),
+            typeof(TResult),
+            JobResultContext.Default);
+
+    public void SetResult<TResult>(TResult result)
+        => Result = System.Text.Json.JsonSerializer.Serialize(result, typeof(TResult), JobResultContext.Default);
 }
 
 public sealed class JobStorage : IJobStorageProvider<Job>, IJobResultProvider
@@ -67,6 +80,22 @@ public sealed class JobStorage : IJobStorageProvider<Job>, IJobResultProvider
     {
         lock (_lock)
             return _jobs.Count(j => j.IdempotencyKey == key);
+    }
+
+    public static VoidJobQueueResponse GetVoidJobStatus(Guid trackingId)
+    {
+        lock (_lock)
+        {
+            var job = _jobs.Single(j => j.TrackingID == trackingId);
+
+            return new()
+            {
+                IsComplete = job.IsComplete,
+                FailureRecorded = job.FailureRecorded,
+                StoreAttempts = job.StoreAttempts,
+                GetAttempts = job.GetAttempts
+            };
+        }
     }
 
     public Task StoreJobAsync(Job r, CancellationToken ct)
@@ -124,7 +153,18 @@ public sealed class JobStorage : IJobStorageProvider<Job>, IJobResultProvider
     }
 
     public Task OnHandlerExecutionFailureAsync(Job r, Exception exception, CancellationToken ct)
-        => Task.CompletedTask;
+    {
+        if (r.Command is VoidJobCommand)
+        {
+            lock (_lock)
+            {
+                r.FailureRecorded = Equals(r.Result, "{}");
+                r.IsComplete = true;
+            }
+        }
+
+        return Task.CompletedTask;
+    }
 
     public Task PurgeStaleJobsAsync(StaleJobSearchParams<Job> parameters)
         => Task.CompletedTask;
@@ -134,6 +174,7 @@ public sealed class JobStorage : IJobStorageProvider<Job>, IJobResultProvider
         lock (_lock)
         {
             var j = _jobs.Single(j => j.TrackingID == trackingId);
+            j.StoreAttempts++;
             ((IJobResultStorage)j).SetResult(result);
         }
 
@@ -145,6 +186,7 @@ public sealed class JobStorage : IJobStorageProvider<Job>, IJobResultProvider
         lock (_lock)
         {
             var j = _jobs.Single(j => j.TrackingID == trackingId);
+            j.GetAttempts++;
             var res = ((IJobResultStorage)j).GetResult<TResult>();
 
             return Task.FromResult(res);

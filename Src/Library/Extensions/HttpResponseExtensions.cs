@@ -211,6 +211,33 @@ public static class HttpResponseExtensions
                 cancellation);
 
         /// <summary>
+        /// send a byte array to the client with a custom http status code.
+        /// </summary>
+        /// <param name="bytes">the bytes to send</param>
+        /// <param name="statusCode">the http status code. range processing and precondition checks may replace it.</param>
+        /// <param name="fileName">optional file name to set in the content-disposition header</param>
+        /// <param name="contentType">optional content type to set on the http response</param>
+        /// <param name="lastModified">optional last modified date-time-offset for the data stream</param>
+        /// <param name="enableRangeProcessing">optional switch for enabling range processing</param>
+        /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
+        public Task<Void> SendBytesAsync(byte[] bytes,
+                                         int statusCode,
+                                         string? fileName = null,
+                                         string contentType = "application/octet-stream",
+                                         DateTimeOffset? lastModified = null,
+                                         bool enableRangeProcessing = false,
+                                         CancellationToken cancellation = default)
+            => rsp.SendStreamAsync( //the stream is disposed by SendStreamAsync itself
+                new MemoryStream(bytes),
+                statusCode,
+                fileName,
+                bytes.Length,
+                contentType,
+                lastModified,
+                enableRangeProcessing,
+                cancellation);
+
+        /// <summary>
         /// send a 201 created response with a location header containing where the resource can be retrieved from.
         /// <para>
         /// HINT: if pointing to an endpoint with multiple verbs, make sure to specify the 'verb' argument and if pointing to a multi route endpoint,
@@ -405,6 +432,31 @@ public static class HttpResponseExtensions
                 cancellation);
 
         /// <summary>
+        /// send a file to the client with a custom http status code.
+        /// </summary>
+        /// <param name="fileInfo">the file to send</param>
+        /// <param name="statusCode">the http status code. range processing and precondition checks may replace it.</param>
+        /// <param name="contentType">optional content type to set on the http response</param>
+        /// <param name="lastModified">optional last modified date-time-offset for the data stream</param>
+        /// <param name="enableRangeProcessing">optional switch for enabling range processing</param>
+        /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
+        public Task<Void> SendFileAsync(FileInfo fileInfo,
+                                        int statusCode,
+                                        string contentType = "application/octet-stream",
+                                        DateTimeOffset? lastModified = null,
+                                        bool enableRangeProcessing = false,
+                                        CancellationToken cancellation = default)
+            => rsp.SendStreamAsync(
+                fileInfo.OpenRead(),
+                statusCode,
+                fileInfo.Name,
+                fileInfo.Length,
+                contentType,
+                lastModified,
+                enableRangeProcessing,
+                cancellation);
+
+        /// <summary>
         /// send a 403 unauthorized response
         /// </summary>
         /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
@@ -571,7 +623,36 @@ public static class HttpResponseExtensions
         /// <param name="lastModified">optional last modified date-time-offset for the data stream</param>
         /// <param name="enableRangeProcessing">optional switch for enabling range processing</param>
         /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
+        public Task<Void> SendStreamAsync(Stream stream,
+                                          string? fileName = null,
+                                          long? fileLengthBytes = null,
+                                          string contentType = "application/octet-stream",
+                                          DateTimeOffset? lastModified = null,
+                                          bool enableRangeProcessing = false,
+                                          CancellationToken cancellation = default)
+            => rsp.SendStreamAsync(
+                stream,
+                200,
+                fileName,
+                fileLengthBytes,
+                contentType,
+                lastModified,
+                enableRangeProcessing,
+                cancellation);
+
+        /// <summary>
+        /// send the contents of a stream to the client with a custom http status code.
+        /// </summary>
+        /// <param name="stream">the stream to read the data from</param>
+        /// <param name="statusCode">the http status code. range processing and precondition checks may replace it.</param>
+        /// <param name="fileName">and optional file name to set in the content-disposition header</param>
+        /// <param name="fileLengthBytes">optional total size of the file/stream</param>
+        /// <param name="contentType">optional content type to set on the http response</param>
+        /// <param name="lastModified">optional last modified date-time-offset for the data stream</param>
+        /// <param name="enableRangeProcessing">optional switch for enabling range processing</param>
+        /// <param name="cancellation">optional cancellation token. if not specified, the <c>HttpContext.RequestAborted</c> token is used.</param>
         public async Task<Void> SendStreamAsync(Stream stream,
+                                                int statusCode,
                                                 string? fileName = null,
                                                 long? fileLengthBytes = null,
                                                 string contentType = "application/octet-stream",
@@ -583,7 +664,7 @@ public static class HttpResponseExtensions
                 throw new ArgumentNullException(nameof(stream), "The supplied stream cannot be null!");
 
             rsp.HttpContext.MarkResponseStart();
-            rsp.StatusCode = 200;
+            rsp.StatusCode = statusCode;
 
             await using (stream)
             {

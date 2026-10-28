@@ -109,15 +109,11 @@ sealed partial class OperationTransformer(DocumentOptions docOpts, SharedContext
         // handle request body examples from EndpointSummary.RequestExamples
         _requestTransformer.ApplyExamples(operation, epDef, requestTransformState, promotedBodyPropertyName, generation);
 
-        // apply EndpointSummary.Params descriptions to request body schema properties
-        _requestTransformer.ApplyParamDescriptionsToBodySchema(operation, epDef, requestTransformState, promotedBodyPropertyName, operationKey, generation);
+        // apply EndpointSummary.Params descriptions and [DefaultValue] to request body schema properties
+        _requestTransformer.ApplyBodySchemaMetadata(operation, epDef, promotedBodyPropertyName, operationKey, generation);
 
         // handle response headers ([ToHeader] on response DTO + EndpointSummary.ResponseHeaders)
         _responseTransformer.AddHeaders(operation, epDef, metadata, generation);
-
-        // fix response polymorphism if enabled
-        if (docOpts.UseOneOfForPolymorphism)
-            _responseTransformer.FixPolymorphism(operation, operationKey, generation);
 
         // handle idempotency header
         _metadataTransformer.AddIdempotencyHeader(operation, epDef, generation);

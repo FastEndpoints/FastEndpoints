@@ -15,7 +15,7 @@ public class SnapshotTests(Fixture App) : TestBase<Fixture>
         if (await UpdateSnapshotIfEnabled("release-0.json", json))
             Assert.Fail("Snapshot updated! Turn off snapshot updating to run tests...");
 
-        var snapshot = await File.ReadAllTextAsync("release-0.json", Cancellation);
+        var snapshot = await ReadReleaseSnapshotAsync("release-0.json", Cancellation);
         JsonSnapshotComparer.AssertMatches(json, snapshot);
     }
 
@@ -27,7 +27,7 @@ public class SnapshotTests(Fixture App) : TestBase<Fixture>
         if (await UpdateSnapshotIfEnabled("release-1.json", json))
             Assert.Fail("Snapshot updated! Turn off snapshot updating to run tests...");
 
-        var snapshot = await File.ReadAllTextAsync("release-1.json", Cancellation);
+        var snapshot = await ReadReleaseSnapshotAsync("release-1.json", Cancellation);
         JsonSnapshotComparer.AssertMatches(json, snapshot);
     }
 
@@ -39,7 +39,7 @@ public class SnapshotTests(Fixture App) : TestBase<Fixture>
         if (await UpdateSnapshotIfEnabled("release-2.json", json))
             Assert.Fail("Snapshot updated! Turn off snapshot updating to run tests...");
 
-        var snapshot = await File.ReadAllTextAsync("release-2.json", Cancellation);
+        var snapshot = await ReadReleaseSnapshotAsync("release-2.json", Cancellation);
         JsonSnapshotComparer.AssertMatches(json, snapshot);
     }
 
@@ -51,7 +51,7 @@ public class SnapshotTests(Fixture App) : TestBase<Fixture>
         if (await UpdateSnapshotIfEnabled("release-versioning-v0.json", json))
             Assert.Fail("Snapshot updated! Turn off snapshot updating to run tests...");
 
-        var snapshot = await File.ReadAllTextAsync("release-versioning-v0.json", Cancellation);
+        var snapshot = await ReadReleaseSnapshotAsync("release-versioning-v0.json", Cancellation);
         JsonSnapshotComparer.AssertMatches(json, snapshot);
     }
 
@@ -63,7 +63,7 @@ public class SnapshotTests(Fixture App) : TestBase<Fixture>
         if (await UpdateSnapshotIfEnabled("release-versioning-v1.json", json))
             Assert.Fail("Snapshot updated! Turn off snapshot updating to run tests...");
 
-        var snapshot = await File.ReadAllTextAsync("release-versioning-v1.json", Cancellation);
+        var snapshot = await ReadReleaseSnapshotAsync("release-versioning-v1.json", Cancellation);
         JsonSnapshotComparer.AssertMatches(json, snapshot);
     }
 
@@ -75,7 +75,7 @@ public class SnapshotTests(Fixture App) : TestBase<Fixture>
         if (await UpdateSnapshotIfEnabled("release-versioning-v2.json", json))
             Assert.Fail("Snapshot updated! Turn off snapshot updating to run tests...");
 
-        var snapshot = await File.ReadAllTextAsync("release-versioning-v2.json", Cancellation);
+        var snapshot = await ReadReleaseSnapshotAsync("release-versioning-v2.json", Cancellation);
         JsonSnapshotComparer.AssertMatches(json, snapshot);
     }
 
@@ -87,17 +87,20 @@ public class SnapshotTests(Fixture App) : TestBase<Fixture>
         if (await UpdateSnapshotIfEnabled("release-versioning-v3.json", json))
             Assert.Fail("Snapshot updated! Turn off snapshot updating to run tests...");
 
-        var snapshot = await File.ReadAllTextAsync("release-versioning-v3.json", Cancellation);
+        var snapshot = await ReadReleaseSnapshotAsync("release-versioning-v3.json", Cancellation);
         JsonSnapshotComparer.AssertMatches(json, snapshot);
     }
 
-    // ReSharper disable once UnusedMember.Local
+    static Task<string> ReadReleaseSnapshotAsync(string fileName, CancellationToken ct)
+        => File.ReadAllTextAsync(SnapshotFiles.ForFramework(fileName), ct);
+
     static async Task<bool> UpdateSnapshotIfEnabled(string jsonFileName, string jsonContent)
     {
         if (!_updateSnapshots)
             return false;
 
-        var destination = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", jsonFileName));
+        var destination = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", SnapshotFiles.ForFramework(jsonFileName)));
+        Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
         await File.WriteAllTextAsync(destination, jsonContent);
 
         return true;

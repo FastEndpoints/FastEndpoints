@@ -488,9 +488,9 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
                 case FromHeaderAttribute:
                     return false; // because header request params are being added
                 case FromClaimAttribute cAttrib:
-                    return !cAttrib.IsRequired; // add param if it's not required. if required only can bind from actual claim.
+                    return cAttrib is { IsRequired: false, RemoveFromSchema: false };
                 case HasPermissionAttribute pAttrib:
-                    return !pAttrib.IsRequired; // add param if it's not required. if required only can bind from actual permission.
+                    return pAttrib is { IsRequired: false, RemoveFromSchema: false };
             }
         }
 
@@ -715,7 +715,6 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
 
     static void ApplyIResultResponseWorkaround(OperationProcessorContext ctx, OpenApiOperation op, Dictionary<string, ResponseMeta> responseMetas)
     {
-    #if NET9_0_OR_GREATER
 
         //remove this workaround when sdk bug is fixed: https://github.com/dotnet/aspnetcore/issues/57801#issuecomment-2439578287
         foreach (var meta in responseMetas.Values.Where(m => m is { IsIResult: true, DtoType: not null }))
@@ -743,7 +742,6 @@ sealed partial class OperationProcessor(DocumentOptions docOpts) : IOperationPro
             foreach (var rsp in orderedResponses)
                 op.Responses.Add(rsp);
         }
-    #endif
     }
 
     void AddResponseHeaders(ProcessingState state, OpenApiResponse response, ResponseMeta meta)

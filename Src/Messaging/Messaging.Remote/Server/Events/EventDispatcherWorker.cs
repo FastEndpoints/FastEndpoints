@@ -15,7 +15,9 @@ static class EventDispatcherWorker
                                                                                   HubContext ctx,
                                                                                   string subscriberID,
                                                                                   IServerStreamWriter<TEvent> stream,
-                                                                                  CancellationToken connectionCt)
+                                                                                  CancellationToken connectionCt,
+                                                                                  TimeSpan? deserializationRetryDelay = null,
+                                                                                  TimeSpan? retrievalRetryDelay = null)
         where TEvent : class, IEvent
         where TStorageRecord : class, IEventStorageRecord, new()
         where TStorageProvider : IEventHubStorageProvider<TStorageRecord>
@@ -25,83 +27,54 @@ static class EventDispatcherWorker
 
         try
         {
-            var retrievalErrorCount = 0;
             var subscriber = registry.RegisterConnection(subscriberID);
             connectionRegistered = true;
             var subscriberSem = subscriber.Sem;
 
             while (!cts.Token.IsCancellationRequested)
             {
-                List<TStorageRecord> records;
+                var records = await ctx.GetNextNonEmptyBatch<TEvent, TStorageRecord, TStorageProvider>(
+                                  storage, subscriberID, EventHubSettings.BatchSize, subscriberSem, cts, retrievalRetryDelay);
 
-                try
-                {
-                    records = (await storage.GetNextBatchAsync(
-                                   new()
-                                   {
-                                       CancellationToken = cts.Token,
-                                       EventType = ctx.EventTypeName,
-                                       Limit = EventHubSettings.BatchSize,
-                                       SubscriberID = subscriberID,
-                                       Match = e => e.SubscriberID == subscriberID &&
-                                                    e.EventType == ctx.EventTypeName &&
-                                                    !e.IsComplete &&
-                                                    DateTime.UtcNow <= e.ExpireOn
-                                   })).ToList();
-                    retrievalErrorCount = 0;
-                }
-                catch (OperationCanceledException) when (cts.Token.IsCancellationRequested)
-                {
+                if (records is null)
                     break;
-                }
-                catch (Exception ex)
-                {
-                    retrievalErrorCount++;
-                    await ctx.InvokeExceptionReceiverSafely(() => ctx.Errors?.OnGetNextBatchError<TEvent>(subscriberID, retrievalErrorCount, ex, cts.Token));
-                    ctx.Logger.StorageGetNextBatchError(subscriberID, ctx.EventTypeName, ex.Message);
-
-                    if (!cts.Token.IsCancellationRequested)
-                        await Task.Delay(EventHubSettings.StorageRetryDelay);
-
-                    continue;
-                }
-
-                if (records.Count == 0)
-                {
-                    await WaitForSignal(subscriberSem, cts);
-
-                    continue;
-                }
 
                 for (var i = 0; i < records.Count; i++)
                 {
                     var record = records[i];
 
+                    TEvent? evnt;
+
                     try
                     {
-                        await stream.WriteAsync(record.GetEvent<TEvent>(), cts.Token);
+                        evnt = await ctx.DeserializeEvent<TEvent>(record, cts.Token, deserializationRetryDelay);
+                    }
+                    catch (OperationCanceledException) when (cts.Token.IsCancellationRequested)
+                    {
+                        await RequeueBatchAsync(storage, storageBehavior, records, i, CancellationToken.None);
+
+                        return;
+                    }
+
+                    if (evnt is null)
+                    {
+                        await ctx.MarkEventComplete<TEvent, TStorageRecord, TStorageProvider>(storage, storageBehavior, record, subscriberID, cts.Token);
+
+                        continue;
+                    }
+
+                    try
+                    {
+                        await stream.WriteAsync(evnt, cts.Token);
                     }
                     catch
                     {
-                        if (storageBehavior.ShouldRequeueOnStreamFailure)
-                        {
-                            // re-queue the current record and all remaining unattempted records in the batch
-                            // since they were already dequeued from the in-memory queue by GetNextBatchAsync.
-                            try
-                            {
-                                await storage.StoreEventsAsync(records[i..], cts.Token);
-                            }
-                            catch
-                            {
-                                //it's either canceled or queue is full
-                                //ignore and discard event if queue is full
-                            }
-                        }
+                        await RequeueBatchAsync(storage, storageBehavior, records, i, cts.Token);
 
                         return; //stream is most likely broken/canceled. exit the method here and let the subscriber re-connect and re-enter the method.
                     }
 
-                    await MarkEventComplete<TEvent, TStorageRecord, TStorageProvider>(storage, storageBehavior, ctx, record, subscriberID, cts);
+                    await ctx.MarkEventComplete<TEvent, TStorageRecord, TStorageProvider>(storage, storageBehavior, record, subscriberID, cts.Token);
                 }
             }
         }
@@ -114,45 +87,24 @@ static class EventDispatcherWorker
         }
     }
 
-    static async Task MarkEventComplete<TEvent, TStorageRecord, TStorageProvider>(TStorageProvider storage,
-                                                                                  HubStorageBehavior storageBehavior,
-                                                                                  HubContext ctx,
-                                                                                  TStorageRecord record,
-                                                                                  string subscriberID,
-                                                                                  CancellationTokenSource cts)
-        where TEvent : class, IEvent
-        where TStorageRecord : class, IEventStorageRecord, new()
-        where TStorageProvider : IEventHubStorageProvider<TStorageRecord>
+    static async ValueTask RequeueBatchAsync<TStorageRecord>(IEventHubStorageProvider<TStorageRecord> storage,
+                                                           HubStorageBehavior storageBehavior,
+                                                           List<TStorageRecord> records,
+                                                           int index,
+                                                           CancellationToken ct)
+        where TStorageRecord : class, IEventStorageRecord
     {
-        if (!storageBehavior.ShouldMarkComplete)
+        if (!storageBehavior.ShouldRequeueOnStreamFailure)
             return;
 
-        record.IsComplete = true;
-
-        // use composite cancellation token (signals client canceled or app shutdown) here so an interrupted "post write ack" leaves the record pending
-        // for "at least once" redelivery if the client did not durably persist the event yet.
-        await ctx.RetryUntilSuccess(
-            operation: () => storage.MarkEventAsCompleteAsync(record, cts.Token),
-            onError: (count, ex) => ctx.Errors?.OnMarkEventAsCompleteError<TEvent>(record, count, ex, cts.Token),
-            logError: msg => ctx.Logger.StorageMarkAsCompleteError(subscriberID, ctx.EventTypeName, msg),
-            retryDelay: EventHubSettings.StorageRetryDelay,
-            ct: cts.Token);
-    }
-
-    static async Task WaitForSignal(SemaphoreSlim subscriberSem, CancellationTokenSource cts)
-    {
         try
         {
-            if (await subscriberSem.WaitAsync(EventHubSettings.WaitForSignalTimeout, cts.Token)) //wait for poll interval, semaphore release, or shutdown.
-                while (subscriberSem.Wait(0)) { }                                                //drain residual releases so the next poll only runs after new work arrives.
+            // in-memory reads dequeue the batch, so recover the current record and unattempted suffix.
+            await storage.StoreEventsAsync(records[index..], ct);
         }
-        catch (OperationCanceledException) when (cts.Token.IsCancellationRequested)
+        catch
         {
-            //don't throw. let the main loop exit naturally so the disconnect state is updated.
-        }
-        catch (ObjectDisposedException)
-        {
-            cts.Cancel();
+            // recovery is best-effort when canceled or the queue is full.
         }
     }
 }

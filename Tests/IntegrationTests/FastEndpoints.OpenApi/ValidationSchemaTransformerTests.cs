@@ -112,6 +112,37 @@ public class ValidationSchemaTransformerTests : DefaultPropertyNameResolverTestB
     }
 
     [Fact]
+    public void not_empty_before_maximum_length_publishes_min_length_through_full_transformer()
+    {
+        var schema = CreateTagNameSchema();
+
+        ApplyValidatorToSchema(schema, new NotEmptyMaximumLengthValidator());
+
+        GetPropertySchema(schema, "name").MinLength.ShouldBe(1);
+        GetPropertySchema(schema, "name").MaxLength.ShouldBe(50);
+    }
+
+    [Fact]
+    public void maximum_length_before_not_empty_publishes_min_length_through_full_transformer()
+    {
+        var schema = CreateTagNameSchema();
+
+        ApplyValidatorToSchema(schema, new MaximumLengthNotEmptyValidator());
+
+        GetPropertySchema(schema, "name").MinLength.ShouldBe(1);
+        GetPropertySchema(schema, "name").MaxLength.ShouldBe(50);
+    }
+
+    static OpenApiSchema CreateTagNameSchema()
+        => new()
+        {
+            Properties = new Dictionary<string, IOpenApiSchema>
+            {
+                ["name"] = new OpenApiSchema { Type = JsonSchemaType.String }
+            }
+        };
+
+    [Fact]
     public void outer_when_does_not_make_nullable_collection_unconditionally_required_or_non_empty()
     {
         var schema = CreateConditionalRulesSchema();
@@ -210,6 +241,289 @@ public class ValidationSchemaTransformerTests : DefaultPropertyNameResolverTestB
     }
 
     [Fact]
+    public void rule_for_each_not_empty_applies_to_items_instead_of_the_collection()
+    {
+        var schema = CreateRuleForEachSchema();
+
+        ApplyValidatorToSchema(schema, new RuleForEachValidator());
+
+        (schema.Required?.Contains("tags") ?? false).ShouldBeFalse();
+        var propertySchema = GetPropertySchema(schema, "tags");
+        propertySchema.Type!.Value.HasFlag(JsonSchemaType.Null).ShouldBeTrue();
+        propertySchema.MinItems.ShouldBeNull();
+        var itemsSchema = (OpenApiSchema)propertySchema.Items!;
+        itemsSchema.Type!.Value.HasFlag(JsonSchemaType.Null).ShouldBeFalse();
+        itemsSchema.MinLength.ShouldBe(1);
+    }
+
+    [Fact]
+    public void rule_for_each_length_and_range_apply_to_items_instead_of_the_collection()
+    {
+        var schema = CreateRuleForEachSchema();
+
+        ApplyValidatorToSchema(schema, new RuleForEachValidator());
+
+        var codesSchema = GetPropertySchema(schema, "codes");
+        codesSchema.MaxItems.ShouldBeNull();
+        codesSchema.MinItems.ShouldBeNull();
+        ((OpenApiSchema)codesSchema.Items!).MaxLength.ShouldBe(20);
+
+        var scoresSchema = GetPropertySchema(schema, "scores");
+        scoresSchema.Minimum.ShouldBeNull();
+        scoresSchema.Maximum.ShouldBeNull();
+        var scoreItemsSchema = (OpenApiSchema)scoresSchema.Items!;
+        scoreItemsSchema.Minimum.ShouldBe("1");
+        scoreItemsSchema.Maximum.ShouldBe("5");
+    }
+
+    [Fact]
+    public void rule_for_and_rule_for_each_on_the_same_collection_keep_their_own_targets()
+    {
+        var schema = CreateRuleForEachSchema();
+
+        ApplyValidatorToSchema(schema, new RuleForEachValidator());
+
+        schema.Required!.ShouldContain("labels");
+        var propertySchema = GetPropertySchema(schema, "labels");
+        propertySchema.MinItems.ShouldBe(1);
+        propertySchema.MaxItems.ShouldBeNull();
+        ((OpenApiSchema)propertySchema.Items!).MaxLength.ShouldBe(5);
+    }
+
+    [Fact]
+    public void rule_for_each_localizes_referenced_items_per_property_and_operation()
+    {
+        var sharedItems = new OpenApiSchema { Type = JsonSchemaType.String | JsonSchemaType.Null };
+        var document = new OpenApiDocument
+        {
+            Components = new()
+            {
+                Schemas = new Dictionary<string, IOpenApiSchema> { ["Tag"] = sharedItems }
+            }
+        };
+        var sharedCtx = new SharedContext();
+        var firstSchema = CreateRuleForEachSchema();
+        GetPropertySchema(firstSchema, "tags").Items = new OpenApiSchemaReference("Tag", document);
+        GetPropertySchema(firstSchema, "codes").Items = new OpenApiSchemaReference("Tag", document);
+
+        var generation = ApplyValidatorToSchema(firstSchema, new RuleForEachValidator(), true, sharedCtx, document);
+
+        var tagsRef = GetPropertySchema(firstSchema, "tags").Items.ShouldBeOfType<OpenApiSchemaReference>();
+        var codesRef = GetPropertySchema(firstSchema, "codes").Items.ShouldBeOfType<OpenApiSchemaReference>();
+        tagsRef.Reference.Id.ShouldNotBe(codesRef.Reference.Id);
+        var tagsItems = generation.OperationSchemaVariants[tagsRef.Reference.Id!];
+        var codesItems = generation.OperationSchemaVariants[codesRef.Reference.Id!];
+        tagsItems.Type!.Value.HasFlag(JsonSchemaType.Null).ShouldBeFalse();
+        tagsItems.MinLength.ShouldBe(1);
+        tagsItems.MaxLength.ShouldBeNull();
+        codesItems.Type!.Value.HasFlag(JsonSchemaType.Null).ShouldBeTrue();
+        codesItems.MaxLength.ShouldBe(20);
+
+        var secondSchema = CreateRuleForEachSchema();
+        GetPropertySchema(secondSchema, "codes").Items = new OpenApiSchemaReference("Tag", document);
+        var secondValidator = new InlineValidator<RuleForEachRequest>();
+        secondValidator.RuleForEach(x => x.Codes).MaximumLength(5);
+
+        ApplyValidatorToSchema(secondSchema, secondValidator, true, sharedCtx, document, "GET:/other");
+
+        var secondCodesRef = GetPropertySchema(secondSchema, "codes").Items.ShouldBeOfType<OpenApiSchemaReference>();
+        secondCodesRef.Reference.Id.ShouldNotBe(codesRef.Reference.Id);
+        var secondCodesItems = generation.OperationSchemaVariants[secondCodesRef.Reference.Id!];
+        secondCodesItems.ShouldNotBeSameAs(codesItems);
+        secondCodesItems.MaxLength.ShouldBe(5);
+        codesItems.MaxLength.ShouldBe(20);
+        sharedItems.Type.ShouldBe(JsonSchemaType.String | JsonSchemaType.Null);
+        sharedItems.MinLength.ShouldBeNull();
+        sharedItems.MaxLength.ShouldBeNull();
+        document.Components.Schemas["Tag"].ShouldBeSameAs(sharedItems);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void scalar_item_and_child_validator_rules_reuse_the_same_referenced_item_variant(bool childRuleFirst)
+    {
+        var sharedName = new OpenApiSchema { Type = JsonSchemaType.String };
+        var sharedItems = new OpenApiSchema
+        {
+            Type = JsonSchemaType.Object | JsonSchemaType.Null,
+            Properties = new Dictionary<string, IOpenApiSchema> { ["name"] = sharedName }
+        };
+        var sharedArray = new OpenApiSchema { Type = JsonSchemaType.Array };
+        var document = new OpenApiDocument
+        {
+            Components = new()
+            {
+                Schemas = new Dictionary<string, IOpenApiSchema>
+                {
+                    ["Tag"] = sharedItems,
+                    ["Tags"] = sharedArray
+                }
+            }
+        };
+        sharedArray.Items = new OpenApiSchemaReference("Tag", document);
+        var schema = new OpenApiSchema
+        {
+            Type = JsonSchemaType.Object,
+            Properties = new Dictionary<string, IOpenApiSchema>
+            {
+                ["tags"] = new OpenApiSchemaReference("Tags", document)
+            }
+        };
+        var validator = new InlineValidator<TagItemsRequest>();
+        if (childRuleFirst)
+            validator.RuleForEach(x => x.Tags).SetValidator(new TagItemValidator());
+        validator.RuleForEach(x => x.Tags).NotNull();
+        if (!childRuleFirst)
+            validator.RuleForEach(x => x.Tags).SetValidator(new TagItemValidator());
+
+        var generation = ApplyValidatorToSchema(schema, validator, true, document: document);
+
+        var arrayRef = schema.Properties["tags"].ShouldBeOfType<OpenApiSchemaReference>();
+        var arrayVariant = generation.OperationSchemaVariants[arrayRef.Reference.Id!];
+        var itemsRef = arrayVariant.Items.ShouldBeOfType<OpenApiSchemaReference>();
+        var itemVariant = generation.OperationSchemaVariants[itemsRef.Reference.Id!];
+        itemVariant.Type.ShouldBe(JsonSchemaType.Object);
+        GetPropertySchema(itemVariant, "name").MaxLength.ShouldBe(5);
+        generation.OperationSchemaVariants.Count.ShouldBe(2);
+        sharedItems.Type.ShouldBe(JsonSchemaType.Object | JsonSchemaType.Null);
+        sharedName.MaxLength.ShouldBeNull();
+        sharedArray.Items.ShouldBeOfType<OpenApiSchemaReference>().Reference.Id.ShouldBe("Tag");
+        document.Components.Schemas["Tag"].ShouldBeSameAs(sharedItems);
+        document.Components.Schemas["Tags"].ShouldBeSameAs(sharedArray);
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void rule_for_each_nullable_wrappers_localize_array_and_item_references(bool nullFirst)
+    {
+        var sharedItems = new OpenApiSchema { Type = JsonSchemaType.String | JsonSchemaType.Null };
+        var document = new OpenApiDocument
+        {
+            Components = new()
+            {
+                Schemas = new Dictionary<string, IOpenApiSchema> { ["Tag"] = sharedItems }
+            }
+        };
+        var sharedArray = new OpenApiSchema
+        {
+            Type = JsonSchemaType.Array,
+            Items = new OpenApiSchemaReference("Tag", document)
+        };
+        document.Components.Schemas["Tags"] = sharedArray;
+        var schema = CreateRuleForEachSchema();
+
+        foreach (var name in new[] { "tags", "codes" })
+        {
+            var nullOption = new OpenApiSchema { Type = JsonSchemaType.Null };
+            var arrayOption = new OpenApiSchemaReference("Tags", document) { Description = name };
+            schema.Properties![name] = new OpenApiSchema
+            {
+                OneOf = nullFirst ? [nullOption, arrayOption] : [arrayOption, nullOption]
+            };
+        }
+
+        var generation = ApplyValidatorToSchema(schema, new RuleForEachValidator(), true, document: document);
+        var tagsWrapper = GetPropertySchema(schema, "tags");
+        var codesWrapper = GetPropertySchema(schema, "codes");
+        var arrayIndex = nullFirst ? 1 : 0;
+        var tagsArray = tagsWrapper.OneOf![arrayIndex].ShouldBeOfType<OpenApiSchema>();
+        var codesArray = codesWrapper.OneOf![arrayIndex].ShouldBeOfType<OpenApiSchema>();
+        tagsArray.ShouldNotBeSameAs(codesArray);
+        tagsArray.ShouldNotBeSameAs(sharedArray);
+        tagsArray.Description.ShouldBe("tags");
+        codesArray.Description.ShouldBe("codes");
+        tagsWrapper.OneOf.Count.ShouldBe(2);
+        tagsWrapper.OneOf[1 - arrayIndex].Type.ShouldBe(JsonSchemaType.Null);
+        tagsWrapper.Type.ShouldBeNull();
+        (schema.Required?.Contains("tags") ?? false).ShouldBeFalse();
+
+        var tagsRef = tagsArray.Items.ShouldBeOfType<OpenApiSchemaReference>();
+        var codesRef = codesArray.Items.ShouldBeOfType<OpenApiSchemaReference>();
+        tagsRef.Reference.Id.ShouldNotBe(codesRef.Reference.Id);
+        var tagsItems = generation.OperationSchemaVariants[tagsRef.Reference.Id!];
+        var codesItems = generation.OperationSchemaVariants[codesRef.Reference.Id!];
+        tagsItems.MinLength.ShouldBe(1);
+        tagsItems.Type.ShouldBe(JsonSchemaType.String);
+        codesItems.MaxLength.ShouldBe(20);
+        codesItems.Type.ShouldBe(JsonSchemaType.String | JsonSchemaType.Null);
+        sharedArray.Items.ShouldBeOfType<OpenApiSchemaReference>().Reference.Id.ShouldBe("Tag");
+        sharedItems.Type.ShouldBe(JsonSchemaType.String | JsonSchemaType.Null);
+        sharedItems.MinLength.ShouldBeNull();
+        sharedItems.MaxLength.ShouldBeNull();
+    }
+
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void rule_for_each_leaves_multi_type_collection_unions_unchanged(bool includeNull)
+    {
+        var items = new OpenApiSchema { Type = JsonSchemaType.String };
+        var array = new OpenApiSchema { Type = JsonSchemaType.Array, Items = items };
+        var other = new OpenApiSchema { Type = JsonSchemaType.String };
+        var wrapper = new OpenApiSchema
+        {
+            OneOf = includeNull ? [new OpenApiSchema { Type = JsonSchemaType.Null }, array, other] : [array, other]
+        };
+        var schema = CreateRuleForEachSchema();
+        schema.Properties!["tags"] = wrapper;
+        var validator = new InlineValidator<RuleForEachRequest>();
+        validator.RuleForEach(x => x.Tags).MaximumLength(5);
+
+        var generation = ApplyValidatorToSchema(schema, validator, true);
+
+        wrapper.OneOf.ShouldContain(array);
+        array.Items.ShouldBeSameAs(items);
+        items.MaxLength.ShouldBeNull();
+        generation.OperationSchemaVariants.ShouldBeEmpty();
+    }
+
+    [Theory]
+    [InlineData(true, true)]
+    [InlineData(true, false)]
+    [InlineData(false, true)]
+    [InlineData(false, false)]
+    public void conditional_rule_for_each_presence_preserves_nullable_items(bool useOuterCondition, bool useNotEmpty)
+    {
+        var schema = CreateRuleForEachSchema();
+        var validator = new InlineValidator<RuleForEachRequest>();
+
+        if (useOuterCondition)
+        {
+            validator.When(x => x.Codes.Count > 0, () =>
+            {
+                if (useNotEmpty)
+                    validator.RuleForEach(x => x.Tags).NotEmpty();
+                else
+                    validator.RuleForEach(x => x.Tags).NotNull();
+            });
+        }
+        else if (useNotEmpty)
+        {
+            validator.RuleForEach(x => x.Tags)
+                     .NotEmpty()
+                     .When(x => x.Codes.Count > 0, ApplyConditionTo.CurrentValidator);
+        }
+        else
+        {
+            validator.RuleForEach(x => x.Tags)
+                     .NotNull()
+                     .When(x => x.Codes.Count > 0, ApplyConditionTo.CurrentValidator);
+        }
+
+        ApplyValidatorToSchema(schema, validator);
+
+        (schema.Required?.Contains("tags") ?? false).ShouldBeFalse();
+        var propertySchema = GetPropertySchema(schema, "tags");
+        propertySchema.Type!.Value.HasFlag(JsonSchemaType.Null).ShouldBeTrue();
+        propertySchema.MinItems.ShouldBeNull();
+        var itemsSchema = propertySchema.Items.ShouldBeOfType<OpenApiSchema>();
+        itemsSchema.Type!.Value.HasFlag(JsonSchemaType.Null).ShouldBeTrue();
+        itemsSchema.MinLength.ShouldBeNull();
+    }
+
+    [Fact]
     public void validator_does_not_inline_referenced_leaf_schema_without_applicable_rules()
     {
         var document = new OpenApiDocument
@@ -236,6 +550,80 @@ public class ValidationSchemaTransformerTests : DefaultPropertyNameResolverTestB
     }
 
     [Fact]
+    public void child_validator_scope_is_lazy_and_reused_and_guard_is_released_after_callback_failure()
+    {
+        var parentValidator = new InlineValidator<TagItemsRequest>();
+        parentValidator.RuleForEach(x => x.Tags).SetValidator(new TagItemValidator());
+        var component = parentValidator.Single().Components.Single().Validator;
+        var activeChildValidators = new HashSet<Type>();
+        var scope = new TestScope();
+        var scopeCreations = 0;
+        var applications = 0;
+        var serviceResolver = new TestServiceResolver();
+
+        using (var resolver = new ChildValidatorResolver(serviceResolver, null, () =>
+               {
+                   scopeCreations++;
+
+                   return scope;
+               }))
+        {
+            scopeCreations.ShouldBe(0);
+            scope.DisposeCount.ShouldBe(0);
+
+            Should.Throw<InvalidOperationException>(() => resolver.ApplyChildValidator(component, activeChildValidators, validator =>
+            {
+                validator.ShouldBeOfType<TagItemValidator>();
+                activeChildValidators.ShouldContain(typeof(TagItemValidator));
+                scopeCreations.ShouldBe(1);
+                scope.DisposeCount.ShouldBe(0);
+                resolver.ApplyChildValidator(component, activeChildValidators, _ => applications++);
+                applications.ShouldBe(0);
+
+                throw new InvalidOperationException("Child application failed");
+            }));
+
+            activeChildValidators.ShouldBeEmpty();
+            scope.DisposeCount.ShouldBe(0);
+
+            resolver.ApplyChildValidator(component, activeChildValidators, validator =>
+            {
+                validator.ShouldBeOfType<TagItemValidator>();
+                activeChildValidators.ShouldContain(typeof(TagItemValidator));
+                applications++;
+            });
+
+            applications.ShouldBe(1);
+            activeChildValidators.ShouldBeEmpty();
+            scopeCreations.ShouldBe(1);
+            scope.DisposeCount.ShouldBe(0);
+            serviceResolver.InstanceProviders.Count.ShouldBe(2);
+            foreach (var provider in serviceResolver.InstanceProviders)
+                provider.ShouldBeSameAs(scope.ServiceProvider);
+        }
+
+        scope.DisposeCount.ShouldBe(1);
+    }
+
+    [Fact]
+    public void disposing_unused_child_validator_resolver_keeps_scope_uncreated()
+    {
+        var serviceResolver = new TestServiceResolver();
+        var scopeCreations = 0;
+
+        using (var resolver = new ChildValidatorResolver(serviceResolver, null, () =>
+               {
+                   scopeCreations++;
+
+                   return new TestScope();
+               }))
+            scopeCreations.ShouldBe(0);
+
+        scopeCreations.ShouldBe(0);
+        serviceResolver.InstanceProviders.ShouldBeEmpty();
+    }
+
+    [Fact]
     public void cyclic_included_validators_do_not_recurse_forever_when_rules_are_cached()
     {
         var transformerType = typeof(FastEndpoints.OpenApi.Extensions).Assembly
@@ -253,6 +641,355 @@ public class ValidationSchemaTransformerTests : DefaultPropertyNameResolverTestB
 
         HasRule(cachedRules, "Name").ShouldBeTrue();
         GetIncludedRuleCount(cachedRules).ShouldBe(0);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void live_child_validator_includes_apply_constraints_and_terminate_cycles(bool selfInclude)
+    {
+        var childSchema = new OpenApiSchema
+        {
+            Type = JsonSchemaType.Object,
+            Properties = new Dictionary<string, IOpenApiSchema>
+            {
+                ["prefix_Name"] = new OpenApiSchema { Type = JsonSchemaType.String | JsonSchemaType.Null }
+            }
+        };
+        var schema = new OpenApiSchema
+        {
+            Type = JsonSchemaType.Object,
+            Properties = new Dictionary<string, IOpenApiSchema> { ["prefix_Child"] = childSchema }
+        };
+        IValidator<NamingPolicyCacheRequest> childValidator = selfInclude ? new SelfIncludeValidator() : new IncludingNameValidator();
+        var validator = new InlineValidator<IncludedChildRequest>();
+        validator.RuleFor(x => x.Child).SetValidator(childValidator);
+        var sharedCtx = new SharedContext { NamingPolicy = new PrefixNamingPolicy("prefix_") };
+
+        ApplyValidatorToSchema(schema, validator, sharedCtx: sharedCtx);
+
+        var nameSchema = GetPropertySchema(childSchema, "prefix_Name");
+        nameSchema.MinLength.ShouldBe(1);
+        nameSchema.Type.ShouldBe(JsonSchemaType.String);
+        childSchema.Required.ShouldNotBeNull().ShouldContain("prefix_Name");
+        if (!selfInclude)
+            nameSchema.MaxLength.ShouldBe(5);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void two_validator_include_cycles_retain_both_validators_constraints(bool liveChild)
+    {
+        var schema = CreateIncludedNameSchema();
+
+        ApplyIncludedGraphToSchema(schema, new MutualIncludeValidator(), liveChild);
+
+        var nameSchema = GetPropertySchema(schema, "prefix_Name");
+        nameSchema.MinLength.ShouldBe(1);
+        nameSchema.MaxLength.ShouldBe(5);
+        nameSchema.Type.ShouldBe(JsonSchemaType.String);
+        schema.Required.ShouldNotBeNull().ShouldContain("prefix_Name");
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void sibling_include_branches_revisit_validator_types_in_include_order(bool liveChild)
+    {
+        var schema = CreateIncludedNameSchema();
+
+        ApplyIncludedGraphToSchema(schema, new SiblingIncludeValidator(), liveChild);
+
+        var nameSchema = GetPropertySchema(schema, "prefix_Name");
+        nameSchema.MinLength.ShouldBe(3);
+        nameSchema.MaxLength.ShouldBe(5);
+        nameSchema.Type.ShouldBe(JsonSchemaType.String);
+        schema.Required.ShouldNotBeNull().ShouldContain("prefix_Name");
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void include_providers_preserve_constraints_when_another_provider_fails(bool liveChild)
+    {
+        var schema = CreateIncludedNameSchema();
+        var validator = new ProviderIncludeValidator();
+
+        ApplyIncludedGraphToSchema(schema, validator, liveChild);
+
+        validator.ProviderCalls.ShouldBe(liveChild ? 0 : 1);
+        var nameSchema = GetPropertySchema(schema, "prefix_Name");
+        nameSchema.MinLength.ShouldBe(2);
+        nameSchema.MaxLength.ShouldBe(5);
+        schema.Required.ShouldNotBeNull().ShouldContain("prefix_Name");
+    }
+
+    static OpenApiSchema CreateIncludedNameSchema()
+        => new()
+        {
+            Type = JsonSchemaType.Object,
+            Properties = new Dictionary<string, IOpenApiSchema>
+            {
+                ["prefix_Name"] = new OpenApiSchema { Type = JsonSchemaType.String | JsonSchemaType.Null }
+            }
+        };
+
+    static void ApplyIncludedGraphToSchema(OpenApiSchema schema, IValidator<NamingPolicyCacheRequest> validator, bool liveChild)
+    {
+        var sharedCtx = new SharedContext { NamingPolicy = new PrefixNamingPolicy("prefix_") };
+
+        if (liveChild)
+        {
+            var parentSchema = new OpenApiSchema
+            {
+                Type = JsonSchemaType.Object,
+                Properties = new Dictionary<string, IOpenApiSchema> { ["prefix_Child"] = schema }
+            };
+            var parentValidator = new InlineValidator<IncludedChildRequest>();
+            parentValidator.RuleFor(x => x.Child).SetValidator(validator);
+            ApplyValidatorToSchema(parentSchema, parentValidator, sharedCtx: sharedCtx);
+
+            return;
+        }
+
+        var transformer = new ValidationSchemaTransformer(new DocumentOptions(), sharedCtx);
+        var cachedRules = (CachedValidatorRules)typeof(ValidationSchemaTransformer)
+                                               .GetMethod("CacheValidatorRules", BindingFlags.Instance | BindingFlags.NonPublic)!
+                                               .Invoke(transformer, [validator, sharedCtx.NamingPolicy])!;
+        var resolver = new TestServiceResolver();
+        using var applier = new ValidationSchemaApplier(
+            sharedCtx,
+            sharedCtx.For(new()),
+            resolver,
+            null,
+            resolver.CreateScope,
+            ValidationRuleCatalog.DefaultRules,
+            true,
+            "GET:/test",
+            "requestBody");
+        applier.ApplyValidatorRules(schema, cachedRules, string.Empty, []);
+    }
+
+    [Theory]
+    [InlineData("When")]
+    [InlineData("Unless")]
+    [InlineData("WhenAsync")]
+    [InlineData("UnlessAsync")]
+    [InlineData("OuterWhen")]
+    [InlineData("OuterUnless")]
+    [InlineData("OuterWhenAsync")]
+    [InlineData("OuterUnlessAsync")]
+    public async Task conditional_rule_for_each_omits_pattern_length_and_numeric_constraints(string condition)
+    {
+        var enforce = false;
+        var validator = new InlineValidator<RuleForEachRequest>();
+        Action addRules = () =>
+        {
+            var pattern = validator.RuleForEach(x => x.Tags).Matches("^a+$");
+            var length = validator.RuleForEach(x => x.Codes).Length(2, 5);
+            var range = validator.RuleForEach(x => x.Scores).InclusiveBetween(1, 5).GreaterThan(0);
+
+            switch (condition)
+            {
+                case "When":
+                    pattern.When(_ => enforce);
+                    length.When(_ => enforce);
+                    range.When(_ => enforce);
+                    break;
+                case "Unless":
+                    pattern.Unless(_ => !enforce);
+                    length.Unless(_ => !enforce);
+                    range.Unless(_ => !enforce);
+                    break;
+                case "WhenAsync":
+                    pattern.WhenAsync((_, _) => Task.FromResult(enforce));
+                    length.WhenAsync((_, _) => Task.FromResult(enforce));
+                    range.WhenAsync((_, _) => Task.FromResult(enforce));
+                    break;
+                case "UnlessAsync":
+                    pattern.UnlessAsync((_, _) => Task.FromResult(!enforce));
+                    length.UnlessAsync((_, _) => Task.FromResult(!enforce));
+                    range.UnlessAsync((_, _) => Task.FromResult(!enforce));
+                    break;
+            }
+        };
+
+        switch (condition)
+        {
+            case "OuterWhen": validator.When(_ => enforce, addRules); break;
+            case "OuterUnless": validator.Unless(_ => !enforce, addRules); break;
+            case "OuterWhenAsync": validator.WhenAsync((_, _) => Task.FromResult(enforce), addRules); break;
+            case "OuterUnlessAsync": validator.UnlessAsync((_, _) => Task.FromResult(!enforce), addRules); break;
+            default: addRules(); break;
+        }
+
+        var invalid = new RuleForEachRequest { Tags = ["INVALID"], Codes = ["waytoolong"], Scores = [-1] };
+        (await validator.ValidateAsync(invalid)).IsValid.ShouldBeTrue();
+        enforce = true;
+        (await validator.ValidateAsync(invalid)).Errors.Count.ShouldBe(4);
+        (await validator.ValidateAsync(new RuleForEachRequest { Tags = ["aaa"], Codes = ["ok"], Scores = [3] })).IsValid.ShouldBeTrue();
+
+        var schema = CreateRuleForEachSchema();
+        ApplyValidatorToSchema(schema, validator);
+        GetPropertySchema(schema, "tags").Items!.Pattern.ShouldBeNull();
+        GetPropertySchema(schema, "codes").Items!.MinLength.ShouldBeNull();
+        GetPropertySchema(schema, "codes").Items!.MaxLength.ShouldBeNull();
+        GetPropertySchema(schema, "scores").Items!.Minimum.ShouldBeNull();
+        GetPropertySchema(schema, "scores").Items!.Maximum.ShouldBeNull();
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task conditional_rule_for_each_current_validator_keeps_unconditional_components(bool asyncCondition)
+    {
+        var enforce = false;
+        var validator = new InlineValidator<RuleForEachRequest>();
+        var pattern = validator.RuleForEach(x => x.Tags).MaximumLength(30).Matches("^a+$");
+        var length = validator.RuleForEach(x => x.Codes).MinimumLength(2).MaximumLength(5);
+        var range = validator.RuleForEach(x => x.Scores).GreaterThanOrEqualTo(-10).InclusiveBetween(1, 5);
+        if (asyncCondition)
+        {
+            pattern.WhenAsync((_, _) => Task.FromResult(enforce), ApplyConditionTo.CurrentValidator);
+            length.WhenAsync((_, _) => Task.FromResult(enforce), ApplyConditionTo.CurrentValidator);
+            range.WhenAsync((_, _) => Task.FromResult(enforce), ApplyConditionTo.CurrentValidator);
+        }
+        else
+        {
+            pattern.When(_ => enforce, ApplyConditionTo.CurrentValidator);
+            length.When(_ => enforce, ApplyConditionTo.CurrentValidator);
+            range.When(_ => enforce, ApplyConditionTo.CurrentValidator);
+        }
+        validator.RuleForEach(x => x.Codes).MaximumLength(30);
+        validator.RuleFor(x => x.Tags).NotEmpty();
+
+        var invalid = new RuleForEachRequest { Tags = ["INVALID"], Codes = ["waytoolong"], Scores = [-1] };
+        (await validator.ValidateAsync(invalid)).IsValid.ShouldBeTrue();
+        enforce = true;
+        (await validator.ValidateAsync(invalid)).Errors.Count.ShouldBe(3);
+        enforce = false;
+        (await validator.ValidateAsync(new RuleForEachRequest { Tags = [new string('a', 31)], Codes = [""], Scores = [-11] })).Errors.Count.ShouldBe(3);
+
+        var schema = CreateRuleForEachSchema();
+        ApplyValidatorToSchema(schema, validator);
+        var tags = GetPropertySchema(schema, "tags");
+        tags.Items!.Pattern.ShouldBeNull();
+        tags.Items.MaxLength.ShouldBe(30);
+        tags.MinItems.ShouldBe(1);
+        schema.Required!.ShouldContain("tags");
+        GetPropertySchema(schema, "codes").Items!.MinLength.ShouldBe(2);
+        GetPropertySchema(schema, "codes").Items!.MaxLength.ShouldBe(30);
+        GetPropertySchema(schema, "scores").Items!.Minimum.ShouldBe("-10");
+        GetPropertySchema(schema, "scores").Items!.Maximum.ShouldBeNull();
+    }
+
+    [Theory]
+    [InlineData(false, 0)]
+    [InlineData(true, 0)]
+    [InlineData(false, 1)]
+    [InlineData(true, 1)]
+    [InlineData(false, 2)]
+    [InlineData(true, 2)]
+    public async Task filtered_rule_for_each_preserves_nullable_items(bool asyncFilter, int schemaShape)
+    {
+        var validator = new InlineValidator<RuleForEachRequest>();
+        var rule = validator.RuleForEach(x => x.Tags);
+        if (asyncFilter)
+            rule.WhereAsync(x => Task.FromResult(x is not null && x != "INVALID"));
+        else
+            rule.Where(x => x is not null && x != "INVALID");
+        rule.NotNull().Length(2, 5).Matches("^[a-z]+$");
+
+        (await validator.ValidateAsync(new RuleForEachRequest() { Tags = [null, "INVALID", "ok"] })).IsValid.ShouldBeTrue();
+        (await validator.ValidateAsync(new RuleForEachRequest() { Tags = ["bad!"] })).IsValid.ShouldBeFalse();
+
+        var items = new OpenApiSchema { Type = JsonSchemaType.String | JsonSchemaType.Null };
+        var document = new OpenApiDocument
+        {
+            Components = new() { Schemas = new Dictionary<string, IOpenApiSchema> { ["Tag"] = items } }
+        };
+        var schema = CreateRuleForEachSchema();
+        var array = GetPropertySchema(schema, "tags");
+        array.Items = schemaShape == 0 ? items : new OpenApiSchemaReference("Tag", document);
+        if (schemaShape == 2)
+        {
+            document.Components.Schemas["Tags"] = array;
+            schema.Properties!["tags"] = new OpenApiSchema
+            {
+                OneOf = [new OpenApiSchema { Type = JsonSchemaType.Null }, new OpenApiSchemaReference("Tags", document)]
+            };
+        }
+
+        var generation = ApplyValidatorToSchema(schema, validator, true, document: document);
+
+        var appliedArray = GetPropertySchema(schema, "tags");
+        if (schemaShape == 2)
+        {
+            appliedArray.OneOf![0].Type.ShouldBe(JsonSchemaType.Null);
+            appliedArray = appliedArray.OneOf[1] is OpenApiSchemaReference arrayReference
+                               ? (OpenApiSchema)document.Components.Schemas[arrayReference.Reference.Id!]
+                               : (OpenApiSchema)appliedArray.OneOf[1];
+        }
+        var appliedItems = appliedArray.Items!;
+        if (appliedItems is OpenApiSchemaReference reference)
+            appliedItems = generation.OperationSchemaVariants.TryGetValue(reference.Reference.Id!, out var variant)
+                               ? variant
+                               : document.Components.Schemas[reference.Reference.Id!];
+        appliedItems.Type.ShouldBe(JsonSchemaType.String | JsonSchemaType.Null);
+        appliedItems.MinLength.ShouldBeNull();
+        appliedItems.MaxLength.ShouldBeNull();
+        appliedItems.Pattern.ShouldBeNull();
+        items.Type.ShouldBe(JsonSchemaType.String | JsonSchemaType.Null);
+        items.MinLength.ShouldBeNull();
+        items.MaxLength.ShouldBeNull();
+        items.Pattern.ShouldBeNull();
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task filtered_rule_for_each_omits_bounds_and_keeps_independent_rules(bool asyncFilter)
+    {
+        var validator = new InlineValidator<RuleForEachRequest>();
+        var rule = validator.RuleForEach(x => x.Scores);
+        if (asyncFilter)
+            rule.WhereAsync(x => Task.FromResult(x > 0));
+        else
+            rule.Where(x => x > 0);
+        rule.InclusiveBetween(1, 5);
+        validator.RuleForEach(x => x.Tags).Where(x => x is not null).NotNull().MaximumLength(5);
+        validator.RuleForEach(x => x.Tags).MaximumLength(30);
+        validator.RuleFor(x => x.Tags).NotEmpty();
+
+        (await validator.ValidateAsync(new RuleForEachRequest() { Tags = [null, "ok"], Scores = [0, 1, 5] })).IsValid.ShouldBeTrue();
+        (await validator.ValidateAsync(new RuleForEachRequest() { Tags = ["ok"], Scores = [6] })).IsValid.ShouldBeFalse();
+        var schema = CreateRuleForEachSchema();
+        ApplyValidatorToSchema(schema, validator);
+
+        var scores = GetPropertySchema(schema, "scores");
+        scores.Items!.Minimum.ShouldBeNull();
+        scores.Items.Maximum.ShouldBeNull();
+        var tags = GetPropertySchema(schema, "tags");
+        tags.Items!.Type.ShouldBe(JsonSchemaType.String | JsonSchemaType.Null);
+        tags.Items.MaxLength.ShouldBe(30);
+        tags.MinItems.ShouldBe(1);
+        schema.Required!.ShouldContain("tags");
+    }
+
+    [Fact]
+    public void filtered_rule_for_each_schema_generation_only_reads_filter_metadata()
+    {
+        var validator = new InlineValidator<RuleForEachRequest>();
+        validator.RuleForEach(x => x.Tags).Where(_ => throw new InvalidOperationException()).NotNull();
+        validator.RuleForEach(x => x.Codes).WhereAsync(_ => throw new InvalidOperationException()).NotNull();
+        var schema = CreateRuleForEachSchema();
+        GetPropertySchema(schema, "codes").Items = new OpenApiSchema { Type = JsonSchemaType.String | JsonSchemaType.Null };
+
+        ApplyValidatorToSchema(schema, validator);
+
+        GetPropertySchema(schema, "tags").Items!.Type.ShouldBe(JsonSchemaType.String | JsonSchemaType.Null);
+        GetPropertySchema(schema, "codes").Items!.Type.ShouldBe(JsonSchemaType.String | JsonSchemaType.Null);
     }
 
     static bool HasRule(object cachedRules, string key)
@@ -312,39 +1049,52 @@ public class ValidationSchemaTransformerTests : DefaultPropertyNameResolverTestB
     static OpenApiSchema GetPropertySchema(OpenApiSchema schema, string propertyName)
         => (OpenApiSchema)schema.Properties![propertyName];
 
-    static void ApplyValidatorToSchema(OpenApiSchema schema, IValidator validator, bool localizeReferencedSchemas = false)
+    static OpenApiGenerationState ApplyValidatorToSchema(OpenApiSchema schema,
+                                                         IValidator validator,
+                                                         bool localizeReferencedSchemas = false,
+                                                         SharedContext? sharedCtx = null,
+                                                         OpenApiDocument? document = null,
+                                                         string operationKey = "GET:/test")
     {
-        var applierType = typeof(FastEndpoints.OpenApi.Extensions)
-                          .Assembly
-                          .GetType("FastEndpoints.OpenApi.ValidationSchemaApplier", throwOnError: true)!;
-
-        var rules = typeof(FastEndpoints.OpenApi.Extensions)
-                    .Assembly
-                    .GetType("FastEndpoints.OpenApi.ValidationRuleCatalog", throwOnError: true)!
-                    .GetField("DefaultRules", BindingFlags.NonPublic | BindingFlags.Static)!
-                    .GetValue(null)!;
         var resolver = new TestServiceResolver();
-        using var applier = (IDisposable)Activator.CreateInstance(
-            applierType,
-            BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
-            binder: null,
-            args:
-            [
-                new SharedContext(),
-                new SharedContext().For(new OpenApiDocument()),
-                resolver,
-                null,
-                (Func<IServiceScope>)(() => resolver.CreateScope()),
-                rules,
-                true,
-                "GET:/test",
-                "requestBody",
-                localizeReferencedSchemas
-            ],
-            culture: null)!;
+        sharedCtx ??= new();
+        var generation = sharedCtx.For(document ?? new());
+        using var applier = new ValidationSchemaApplier(
+            sharedCtx,
+            generation,
+            resolver,
+            null,
+            () => resolver.CreateScope(),
+            ValidationRuleCatalog.DefaultRules,
+            true,
+            operationKey,
+            "requestBody",
+            localizeReferencedSchemas);
 
-        applierType.GetMethod("ApplyValidator", BindingFlags.Instance | BindingFlags.NonPublic)!
-                   .Invoke(applier, [schema, validator, string.Empty, new HashSet<Type>()]);
+        typeof(ValidationSchemaApplier).GetMethod("ApplyValidator", BindingFlags.Instance | BindingFlags.NonPublic)!
+                                      .Invoke(applier, [schema, validator, string.Empty, new HashSet<Type>()]);
+
+        return generation;
+    }
+
+sealed class TagItemsRequest
+    {
+        [JsonPropertyName("tags")]
+        public List<TagItem?> Tags { get; set; } = [];
+    }
+
+    sealed class TagItem
+    {
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = string.Empty;
+    }
+
+    sealed class TagItemValidator : AbstractValidator<TagItem?>
+    {
+        public TagItemValidator()
+        {
+            RuleFor(x => x!.Name).MaximumLength(5);
+        }
     }
 
     sealed class ConditionalRulesRequest
@@ -428,6 +1178,62 @@ public class ValidationSchemaTransformerTests : DefaultPropertyNameResolverTestB
                         tool.RuleFor(x => x.ToolName).NotEmpty();
                     });
             });
+        }
+    }
+
+    static OpenApiSchema CreateRuleForEachSchema()
+        => new()
+        {
+            Type = JsonSchemaType.Object,
+            Properties = new Dictionary<string, IOpenApiSchema>
+            {
+                ["tags"] = new OpenApiSchema
+                {
+                    Type = JsonSchemaType.Array | JsonSchemaType.Null,
+                    Items = new OpenApiSchema { Type = JsonSchemaType.String | JsonSchemaType.Null }
+                },
+                ["codes"] = new OpenApiSchema
+                {
+                    Type = JsonSchemaType.Array,
+                    Items = new OpenApiSchema { Type = JsonSchemaType.String }
+                },
+                ["scores"] = new OpenApiSchema
+                {
+                    Type = JsonSchemaType.Array,
+                    Items = new OpenApiSchema { Type = JsonSchemaType.Integer }
+                },
+                ["labels"] = new OpenApiSchema
+                {
+                    Type = JsonSchemaType.Array | JsonSchemaType.Null,
+                    Items = new OpenApiSchema { Type = JsonSchemaType.String }
+                }
+            }
+        };
+
+    sealed class RuleForEachRequest
+    {
+        [JsonPropertyName("tags")]
+        public List<string?>? Tags { get; init; }
+
+        [JsonPropertyName("codes")]
+        public List<string> Codes { get; init; } = [];
+
+        [JsonPropertyName("scores")]
+        public List<int> Scores { get; init; } = [];
+
+        [JsonPropertyName("labels")]
+        public List<string>? Labels { get; init; }
+    }
+
+    sealed class RuleForEachValidator : Validator<RuleForEachRequest>
+    {
+        public RuleForEachValidator()
+        {
+            RuleForEach(x => x.Tags).NotEmpty();
+            RuleForEach(x => x.Codes).MaximumLength(20);
+            RuleForEach(x => x.Scores).InclusiveBetween(1, 5);
+            RuleFor(x => x.Labels).NotEmpty();
+            RuleForEach(x => x.Labels).MaximumLength(5);
         }
     }
 
@@ -524,6 +1330,101 @@ public class ValidationSchemaTransformerTests : DefaultPropertyNameResolverTestB
         }
     }
 
+    sealed class IncludedChildRequest
+    {
+        public NamingPolicyCacheRequest Child { get; } = new();
+    }
+
+    sealed class IncludingNameValidator : Validator<NamingPolicyCacheRequest>
+    {
+        public IncludingNameValidator()
+        {
+            RuleFor(x => x.Name).MaximumLength(5);
+            Include(new NamingPolicyCacheValidator());
+        }
+    }
+
+    sealed class MutualIncludeValidator : Validator<NamingPolicyCacheRequest>
+    {
+        public MutualIncludeValidator()
+        {
+            RuleFor(x => x.Name).MaximumLength(5);
+            Include(new MutualIncludePartnerValidator(this));
+        }
+    }
+
+    sealed class MutualIncludePartnerValidator : Validator<NamingPolicyCacheRequest>
+    {
+        public MutualIncludePartnerValidator(MutualIncludeValidator parent)
+        {
+            RuleFor(x => x.Name).NotEmpty();
+            Include(parent);
+        }
+    }
+
+    sealed class SiblingIncludeValidator : Validator<NamingPolicyCacheRequest>
+    {
+        public SiblingIncludeValidator()
+        {
+            RuleFor(x => x.Name).NotEmpty().MaximumLength(12);
+            Include(new FirstIncludeBranchValidator());
+            Include(new SecondIncludeBranchValidator());
+        }
+    }
+
+    sealed class FirstIncludeBranchValidator : Validator<NamingPolicyCacheRequest>
+    {
+        public FirstIncludeBranchValidator()
+            => Include(new SharedIncludeLeafValidator(2, 9));
+    }
+
+    sealed class SecondIncludeBranchValidator : Validator<NamingPolicyCacheRequest>
+    {
+        public SecondIncludeBranchValidator()
+            => Include(new SharedIncludeLeafValidator(3, 5));
+    }
+
+    sealed class SharedIncludeLeafValidator : Validator<NamingPolicyCacheRequest>
+    {
+        public SharedIncludeLeafValidator(int minLength, int maxLength)
+            => RuleFor(x => x.Name).MinimumLength(minLength).MaximumLength(maxLength);
+    }
+
+    sealed class ProviderIncludeValidator : Validator<NamingPolicyCacheRequest>
+    {
+        public int ProviderCalls { get; private set; }
+
+        public ProviderIncludeValidator()
+        {
+            RuleFor(x => x.Name).NotEmpty();
+            Include(_ =>
+            {
+                ProviderCalls++;
+
+                return new SharedIncludeLeafValidator(2, 5);
+            });
+            Include<SharedIncludeLeafValidator>(_ => throw new InvalidOperationException("Unavailable included validator"));
+        }
+    }
+
+    sealed class NotEmptyMaximumLengthValidator : Validator<TagNameRequest>
+    {
+        public NotEmptyMaximumLengthValidator()
+            => RuleFor(x => x.Name).NotEmpty().MaximumLength(50);
+    }
+
+    sealed class MaximumLengthNotEmptyValidator : Validator<TagNameRequest>
+    {
+        public MaximumLengthNotEmptyValidator()
+            => RuleFor(x => x.Name).MaximumLength(50).NotEmpty();
+    }
+
+    sealed class TagNameRequest
+    {
+        [JsonPropertyName("name")]
+        public string Name { get; set; } = null!;
+    }
+
     sealed class PrefixNamingPolicy(string prefix) : JsonNamingPolicy
     {
         public override string ConvertName(string name)
@@ -532,6 +1433,8 @@ public class ValidationSchemaTransformerTests : DefaultPropertyNameResolverTestB
 
     sealed class TestServiceResolver : IServiceResolver
     {
+        public List<IServiceProvider?> InstanceProviders { get; } = [];
+
         public IServiceScope CreateScope()
             => new TestScope();
 
@@ -560,7 +1463,11 @@ public class ValidationSchemaTransformerTests : DefaultPropertyNameResolverTestB
             => throw new InvalidOperationException();
 
         public object CreateInstance(Type type, IServiceProvider? serviceProvider = null)
-            => Activator.CreateInstance(type)!;
+        {
+            InstanceProviders.Add(serviceProvider);
+
+            return Activator.CreateInstance(type)!;
+        }
 
         public object CreateSingleton(Type type)
             => CreateInstance(type);
@@ -569,9 +1476,12 @@ public class ValidationSchemaTransformerTests : DefaultPropertyNameResolverTestB
     sealed class TestScope : IServiceScope
     {
         public IServiceProvider ServiceProvider { get; } = new ServiceCollection().BuildServiceProvider();
+        public int DisposeCount { get; private set; }
 
         public void Dispose()
         {
+            DisposeCount++;
+
             if (ServiceProvider is IDisposable disposable)
                 disposable.Dispose();
         }

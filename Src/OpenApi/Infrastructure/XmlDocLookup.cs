@@ -126,17 +126,25 @@ static class XmlDocLookup
     static FrozenDictionary<string, XmlMemberInfo> GetXmlDoc(Assembly assembly)
         => _xmlDocCache.GetValue(assembly, LoadXmlDoc);
 
-    [UnconditionalSuppressMessage("SingleFile", "IL3000", Justification = "XML doc lookup is optional when assembly paths are unavailable.")]
-    static FrozenDictionary<string, XmlMemberInfo> LoadXmlDoc(Assembly assembly)
+    // a single-file app bundles its assemblies without a location, but publishes their xml files next to the app.
+    [UnconditionalSuppressMessage("SingleFile", "IL3000", Justification = "An empty assembly location falls back to the app base directory.")]
+    static string? GetXmlDocPath(Assembly assembly)
     {
         var location = assembly.Location;
 
-        if (string.IsNullOrEmpty(location))
-            return _emptyMembers;
+        if (!string.IsNullOrEmpty(location))
+            return Path.ChangeExtension(location, ".xml");
 
-        var xmlPath = Path.ChangeExtension(location, ".xml");
+        var name = assembly.GetName().Name;
 
-        if (!File.Exists(xmlPath))
+        return name is null ? null : Path.Combine(AppContext.BaseDirectory, $"{name}.xml");
+    }
+
+    static FrozenDictionary<string, XmlMemberInfo> LoadXmlDoc(Assembly assembly)
+    {
+        var xmlPath = GetXmlDocPath(assembly);
+
+        if (xmlPath is null || !File.Exists(xmlPath))
             return _emptyMembers;
 
         XDocument doc;
@@ -179,7 +187,7 @@ static class XmlDocLookup
             if (summaryEl is null)
                 return null;
 
-            var summary = GetTextWithSeeRefs(summaryEl).Trim();
+            var summary = RemoveSourceIndentation(GetTextWithSeeRefs(summaryEl));
 
             return string.IsNullOrWhiteSpace(summary) ? null : summary;
         }
@@ -198,9 +206,44 @@ static class XmlDocLookup
             if (remarksEl is null)
                 return null;
 
-            var remarks = GetTextWithSeeRefs(remarksEl).Trim();
+            var remarks = RemoveSourceIndentation(GetTextWithSeeRefs(remarksEl));
 
             return string.IsNullOrWhiteSpace(remarks) ? null : remarks;
         }
+    }
+
+    // measure the margin before trimming so the first content line anchors relative indentation.
+    static string RemoveSourceIndentation(string text)
+    {
+        var lines = text.Split('\n');
+        var start = 0;
+        var end = lines.Length - 1;
+
+        while (start <= end && string.IsNullOrWhiteSpace(lines[start]))
+            start++;
+
+        while (end >= start && string.IsNullOrWhiteSpace(lines[end]))
+            end--;
+
+        if (start > end)
+            return string.Empty;
+
+        var indent = int.MaxValue;
+
+        for (var i = start; i <= end; i++)
+        {
+            var line = lines[i];
+
+            if (!string.IsNullOrWhiteSpace(line))
+                indent = Math.Min(indent, line.Length - line.TrimStart().Length);
+        }
+
+        for (var i = start; i <= end; i++)
+        {
+            var line = lines[i];
+            lines[i] = string.IsNullOrWhiteSpace(line) ? string.Empty : line[indent..];
+        }
+
+        return string.Join('\n', lines[start..(end + 1)]);
     }
 }

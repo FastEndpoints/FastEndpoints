@@ -18,7 +18,7 @@
         <_FastEndpointsToolSentinel>$(IntermediateOutputPath)fastendpoints-tool.version</_FastEndpointsToolSentinel>
 
         <!-- Path to locally built CLI for development mode -->
-        <_FastEndpointsCliDevPath>$(MSBuildThisFileDirectory)../Generator.Cli/bin/$(Configuration)/net8.0/FastEndpoints.Generator.Cli.dll</_FastEndpointsCliDevPath>
+        <_FastEndpointsCliDevPath>$(MSBuildThisFileDirectory)../Generator.Cli/bin/$(Configuration)/net10.0/FastEndpoints.Generator.Cli.dll</_FastEndpointsCliDevPath>
         <_FastEndpointsCliProjectPath>$(MSBuildThisFileDirectory)../Generator.Cli/FastEndpoints.Generator.Cli.csproj</_FastEndpointsCliProjectPath>
     </PropertyGroup>
 

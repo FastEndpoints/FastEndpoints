@@ -21,6 +21,24 @@ readonly struct SubscriberContext
         EventTypeName = eventTypeName;
     }
 
+    internal Task RetryStoreEvent<TEvent>(IEventStorageRecord record,
+                                         Func<ValueTask> operation,
+                                         SubscriberExceptionReceiver? errors,
+                                         TimeSpan retryDelay,
+                                         CancellationToken ct)
+        where TEvent : class, IEvent
+    {
+        var ctx = this;
+
+        return RetryUntilSuccess(
+            operation,
+            (count, ex) => errors?.OnStoreEventRecordError<TEvent>(record, count, ex, ct),
+            msg => ctx.Logger.StoreEventError(ctx.SubscriberID, ctx.EventTypeName, msg),
+            retryDelay,
+            ct,
+            "store-event");
+    }
+
     /// <summary>
     /// retries <paramref name="operation" /> in a loop until it succeeds or <paramref name="ct" /> is canceled.
     /// on each failure the error receiver callback is invoked safely (exceptions from user code are caught),

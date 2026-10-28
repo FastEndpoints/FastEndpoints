@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
-        <TargetFramework>net10.0</TargetFramework>
+        <TargetFrameworks>net10.0;net11.0</TargetFrameworks>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <NoDefaultLaunchSettingsFile>true</NoDefaultLaunchSettingsFile>
@@ -11,7 +11,7 @@
         <IsPackable>false</IsPackable>
 
         <GenerateSerializerContexts>true</GenerateSerializerContexts>
-        <SerializerContextOutputPath>Generated/SerializerCtx</SerializerContextOutputPath>
+        <SerializerContextOutputPath>obj/$(Configuration)/$(TargetFramework)/SerializerCtx</SerializerContextOutputPath>
 
         <ExportOpenApiDocs>true</ExportOpenApiDocs>
         <ExportHttpFiles>true</ExportHttpFiles>
@@ -21,7 +21,15 @@
     <Import Project="..\..\Src\Generator\FastEndpoints.Generator.targets"/><!-- only needed for project references -->
     <Import Project="..\..\Src\OpenApi\FastEndpoints.OpenApi.targets"/><!-- only needed for project references -->
 
+    <!-- Generated contexts are isolated per target and included after generation on a clean build. -->
+    <Target Name="IncludeSerializerContexts" BeforeTargets="CoreCompile" DependsOnTargets="GenerateFastEndpointsSerializerContexts">
+        <ItemGroup>
+            <Compile Include="$(SerializerContextOutputPath)/**/*.cs"/>
+        </ItemGroup>
+    </Target>
+
     <ItemGroup>
+        <Compile Remove="Generated/**/*.cs"/>
         <None Remove="NativeAotChecker.csproj.DotSettings"/>
         <Content Remove="aot\**"/>
         <None Remove="aot\**"/>

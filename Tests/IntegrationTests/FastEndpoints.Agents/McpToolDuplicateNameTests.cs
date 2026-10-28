@@ -2,6 +2,7 @@ using System.Security.Claims;
 using FastEndpoints.Mcp;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
+using ModelContextProtocol;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 
@@ -25,11 +26,15 @@ public class McpToolDuplicateNameTests
         ex.Message.ShouldContain(typeof(SecondDuplicateToolEndpoint).FullName!);
     }
 
-    [Fact]
-    public async Task Hidden_duplicate_does_not_shadow_visible_tool()
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Hidden_duplicate_does_not_shadow_visible_tool(bool audit)
     {
         using var provider = BuildServices(HideSecondDuplicate, includeSecondDuplicate: true, secondDuplicateVisible: false);
         SetUser(provider, true);
+        var refusals = 0;
+        provider.GetRequiredService<McpOptions>().OnToolCallRefused = audit ? (_, _, _) => refusals++ : null;
 
         var listed = await ListTools(provider, authenticated: true);
         listed.Tools.Select(t => t.Name).ShouldBe(["shared_tool"]);
@@ -38,13 +43,31 @@ public class McpToolDuplicateNameTests
 
         ((TextContentBlock)result.Content[0]).Text.ShouldContain("visible:ping");
         ((TextContentBlock)result.Content[0]).Text.ShouldNotContain("duplicate:ping");
+        refusals.ShouldBe(0);
     }
 
     [Fact]
-    public async Task Multiple_visible_duplicates_do_not_resolve_arbitrarily_on_call_or_list()
+    public async Task All_hidden_duplicates_report_only_one_refusal()
+    {
+        using var provider = BuildServices((_, _, _) => false, includeSecondDuplicate: true, secondDuplicateVisible: false);
+        SetUser(provider, true);
+        var refusals = new List<EndpointDefinition>();
+        provider.GetRequiredService<McpOptions>().OnToolCallRefused = (def, _, _) => refusals.Add(def);
+
+        var ex = await Should.ThrowAsync<McpException>(async () => await CallTool(provider, "shared_tool", authenticated: true));
+
+        ex.Message.ShouldBe("Tool 'shared_tool' is not available for the current caller.");
+        refusals.ShouldHaveSingleItem().ShouldBeSameAs(provider.GetRequiredService<EndpointData>().Found.First());
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task Multiple_visible_duplicates_do_not_resolve_arbitrarily_on_call_or_list(bool audit)
     {
         using var provider = BuildServices((_, _, _) => true, includeSecondDuplicate: true, secondDuplicateVisible: true);
         SetUser(provider, true);
+        provider.GetRequiredService<McpOptions>().OnToolCallRefused = audit ? static (_, _, _) => { } : null;
 
         var options = provider.GetRequiredService<IOptions<McpServerOptions>>().Value;
 

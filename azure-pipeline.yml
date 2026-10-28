@@ -14,10 +14,11 @@ variables:
 
 steps:
   - task: UseDotNet@2
-    displayName: "Use .Net Core SDK 10.x"
+    displayName: "Use SDK from global.json"
     inputs:
       packageType: "sdk"
-      version: "10.x"
+      useGlobalJson: true
+      workingDirectory: "$(Build.SourcesDirectory)"
       includePreviewVersions: true
 
   - task: Bash@3
@@ -32,9 +33,9 @@ steps:
         }' > Tests/IntegrationTests/FastEndpoints/xunit.runner.json
 
   - task: DotNetCoreCLI@2
-    displayName: "Run Tests"
+    displayName: "Run .NET 11 Tests"
     inputs:
       command: "test"
       projects: "Tests/**/*.csproj"
-      arguments: "--configuration $(BuildConfiguration) --filter ExcludeInCiCd!=Yes --max-parallel-test-modules 1"
+      arguments: "--configuration $(BuildConfiguration) --framework net11.0 --filter ExcludeInCiCd!=Yes --max-parallel-test-modules 1"
       workingDirectory: "Tests"

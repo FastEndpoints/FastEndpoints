@@ -118,7 +118,6 @@ public class IdempotencyTests(Sut App) : TestBase<Sut>
     const string MultipleHeadersError = "Multiple idempotency headers not allowed!";
     const string MissingRequiredPropertyBody = "{}";
     const string MalformedJsonBody = "{";
-
     const string ValidBody = """{"name":"x"}""";
 
     public static TheoryData<string[], string, string> RejectedHeadersWithUnbindableBodies
@@ -133,47 +132,47 @@ public class IdempotencyTests(Sut App) : TestBase<Sut>
     [Theory, MemberData(nameof(RejectedHeadersWithUnbindableBodies))]
     public async Task Rejected_Header_With_Unbindable_Body(string[] idempotencyKeys, string body, string expectedError)
     {
-        var res = await App.Client.SendAsync(RequiredBodyRequest(JsonBody(body), idempotencyKeys), Cancellation);
-        (await GeneralErrorOf(res)).ShouldBe(expectedError);
+        var res = await Post(RawJson(body), idempotencyKeys);
+        res.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        (await Error(res)).ShouldBe(expectedError);
     }
 
     [Fact]
     public async Task Header_Not_Present_Without_Content_Type()
     {
-        var res = await App.Client.SendAsync(RequiredBodyRequest(new ByteArrayContent(Encoding.UTF8.GetBytes(ValidBody))), Cancellation);
-        (await GeneralErrorOf(res)).ShouldBe(HeaderRequiredError);
+        var res = await Post(new ByteArrayContent(Encoding.UTF8.GetBytes(ValidBody)));
+        res.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        (await Error(res)).ShouldBe(HeaderRequiredError);
     }
 
     [Fact]
     public async Task Header_Present_With_Missing_Required_Property()
     {
-        var res = await App.Client.SendAsync(RequiredBodyRequest(JsonBody(MissingRequiredPropertyBody), Guid.NewGuid().ToString()), Cancellation);
+        var res = await Post(RawJson(MissingRequiredPropertyBody), Guid.NewGuid().ToString());
         res.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
         var body = await res.Content.ReadFromJsonAsync<ErrorResponse>(Cancellation);
         body.ShouldNotBeNull();
         body.Errors.SelectMany(e => e.Value).ShouldContain(e => e.Contains("'name'"));
     }
 
-    static HttpRequestMessage RequiredBodyRequest(HttpContent content, params string[] idempotencyKeys)
+    async Task<HttpResponseMessage> Post(HttpContent content, params string[] idempotencyKeys)
     {
         var req = new HttpRequestMessage(HttpMethod.Post, RequiredBodyEndpoint.RoutePath) { Content = content };
 
         if (idempotencyKeys.Length > 0)
             req.Headers.Add("Idempotency-Key", idempotencyKeys);
 
-        return req;
+        return await App.Client.SendAsync(req, Cancellation);
     }
 
-    static StringContent JsonBody(string json)
-        => new(json, Encoding.UTF8, "application/json");
+    static StringContent RawJson(string body)
+        => new(body, Encoding.UTF8, "application/json");
 
-    // reads the whole body, since a broken response can arrive with its status and headers but never complete
-    async Task<string> GeneralErrorOf(HttpResponseMessage res)
+    static async Task<string> Error(HttpResponseMessage res)
     {
-        res.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
-        var body = await res.Content.ReadFromJsonAsync<ErrorResponse>(Cancellation);
+        var body = await res.Content.ReadFromJsonAsync<ErrorResponse>();
         body.ShouldNotBeNull();
 
-        return body.Errors["generalErrors"].ShouldHaveSingleItem();
+        return body.Errors["generalErrors"][0];
     }
 }

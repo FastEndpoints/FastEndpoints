@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text;
 using TestCases.Idempotency;
 
 namespace IdempotencyTests;
@@ -111,5 +112,93 @@ public class IdempotencyTests(Sut App) : TestBase<Sut>
         res3.IsSuccessStatusCode.ShouldBeTrue();
 
         rsp3.Ticks.ShouldNotBe(ticks);
+    }
+
+    const string HeaderRequiredError = "Idempotency header [Idempotency-Key] is required!";
+    const string MultipleHeadersError = "Multiple idempotency headers not allowed!";
+    const string MissingRequiredPropertyBody = "{}";
+    const string MalformedJsonBody = "{";
+
+    const string ValidBody = """{"name":"x"}""";
+
+    public static TheoryData<string[], string, string> RejectedHeadersWithUnbindableBodies
+        => new()
+        {
+            { [], MissingRequiredPropertyBody, HeaderRequiredError },
+            { [], MalformedJsonBody, HeaderRequiredError },
+            { ["1", "2"], MissingRequiredPropertyBody, MultipleHeadersError },
+            { ["1", "2"], MalformedJsonBody, MultipleHeadersError }
+        };
+
+    [Theory, MemberData(nameof(RejectedHeadersWithUnbindableBodies))]
+    public async Task Rejected_Header_With_Unbindable_Body(string[] idempotencyKeys, string body, string expectedError)
+    {
+        var res = await App.Client.SendAsync(RequiredBodyRequest(JsonBody(body), idempotencyKeys), Cancellation);
+        (await GeneralErrorOf(res)).ShouldBe(expectedError);
+    }
+
+    [Fact]
+    public async Task Header_Not_Present_Without_Content_Type()
+    {
+        var res = await App.Client.SendAsync(RequiredBodyRequest(new ByteArrayContent(Encoding.UTF8.GetBytes(ValidBody))), Cancellation);
+        (await GeneralErrorOf(res)).ShouldBe(HeaderRequiredError);
+    }
+
+    [Fact]
+    public async Task Header_Not_Present_With_Valid_Body()
+    {
+        var res = await App.Client.SendAsync(RequiredBodyRequest(JsonBody(ValidBody)), Cancellation);
+        (await GeneralErrorOf(res)).ShouldBe(HeaderRequiredError);
+    }
+
+    [Fact]
+    public async Task Header_Present_With_Missing_Required_Property()
+    {
+        var res = await App.Client.SendAsync(RequiredBodyRequest(JsonBody(MissingRequiredPropertyBody), Guid.NewGuid().ToString()), Cancellation);
+        res.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        var body = await res.Content.ReadFromJsonAsync<ErrorResponse>(Cancellation);
+        body.ShouldNotBeNull();
+        body.Errors.SelectMany(e => e.Value).ShouldContain(e => e.Contains("'name'"));
+    }
+
+    [Fact]
+    public async Task Required_Body_Response_Is_Cached()
+    {
+        var idmpKey = Guid.NewGuid().ToString();
+
+        var res1 = await App.Client.SendAsync(RequiredBodyRequest(JsonBody(ValidBody), idmpKey), Cancellation);
+        res1.IsSuccessStatusCode.ShouldBeTrue();
+        var rsp1 = await res1.Content.ReadFromJsonAsync<Response>(Cancellation);
+        rsp1.ShouldNotBeNull();
+        rsp1.Id.ShouldBe("x");
+
+        var res2 = await App.Client.SendAsync(RequiredBodyRequest(JsonBody(ValidBody), idmpKey), Cancellation);
+        res2.IsSuccessStatusCode.ShouldBeTrue();
+        var rsp2 = await res2.Content.ReadFromJsonAsync<Response>(Cancellation);
+        rsp2.ShouldNotBeNull();
+        rsp2.Ticks.ShouldBe(rsp1.Ticks);
+    }
+
+    static HttpRequestMessage RequiredBodyRequest(HttpContent content, params string[] idempotencyKeys)
+    {
+        var req = new HttpRequestMessage(HttpMethod.Post, RequiredBodyEndpoint.RoutePath) { Content = content };
+
+        if (idempotencyKeys.Length > 0)
+            req.Headers.Add("Idempotency-Key", idempotencyKeys);
+
+        return req;
+    }
+
+    static StringContent JsonBody(string json)
+        => new(json, Encoding.UTF8, "application/json");
+
+    // reads the whole body, since a broken response can arrive with its status and headers but never complete
+    async Task<string> GeneralErrorOf(HttpResponseMessage res)
+    {
+        res.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        var body = await res.Content.ReadFromJsonAsync<ErrorResponse>(Cancellation);
+        body.ShouldNotBeNull();
+
+        return body.Errors["generalErrors"].ShouldHaveSingleItem();
     }
 }

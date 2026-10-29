@@ -172,6 +172,12 @@ See [auditing refused MCP calls](https://fast-endpoints.com/docs/ai-agents#audit
 
 ## Fixes 🪲
 
+<details><summary>Requests rejected for their idempotency header get a complete 400 response</summary>
+
+On an endpoint with `Idempotency()`, a request with a missing or repeated idempotency header now gets the 400 for the header, even when its body also fails to bind or it has no `Content-Type`. Previously the endpoint still ran after the 400 had started, so the client received the status and the error body but the response never completed.
+
+</details>
+
 <details><summary>Custom endpoint metadata is now visible during MCP and A2A calls</summary>
 
 Pre-processors and other endpoint code can now read metadata added with `Definition.Metadata(...)` through `HttpContext.GetEndpoint().Metadata` during agent calls, just as they can during HTTP calls. This fixes metadata-based authorization checks that could incorrectly deny agent calls because their declarations appeared to be missing.

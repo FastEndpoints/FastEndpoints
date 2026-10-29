@@ -28,7 +28,7 @@ public sealed class FinancialIdempotencyOptions
     TimeSpan? _unreplayableRetention;
 
     /// <summary>
-    /// Retention of uncertain (unreplayable) outcomes, which fail closed with <c>500</c> until they expire.
+    /// Retention of uncertain (unreplayable) outcomes, which fail closed with <c>409</c> (without <c>Retry-After</c>) until they expire.
     /// A retry after expiry runs the handler again. The effective retention is never shorter than <see cref="Duration" />.
     /// </summary>
     public TimeSpan UnreplayableRetention

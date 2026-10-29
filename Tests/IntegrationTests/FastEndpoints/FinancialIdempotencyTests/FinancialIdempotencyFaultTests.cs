@@ -24,6 +24,7 @@ public class FinancialIdempotencyFaultTests(FinancialIdempotencyFaultSut App) : 
         var res = await Post(ChargeUrl, Guid.NewGuid().ToString(), JsonBody(10));
         res.StatusCode.ShouldBe(HttpStatusCode.Conflict);
         (await Error(res)).ShouldBe(FinancialIdempotencyMiddleware.InProgressMessage);
+        res.Headers.RetryAfter!.Delta.ShouldBe(TimeSpan.FromSeconds(1));
     }
 
     [Fact]
@@ -37,11 +38,11 @@ public class FinancialIdempotencyFaultTests(FinancialIdempotencyFaultSut App) : 
         first.StatusCode.ShouldBe(HttpStatusCode.InternalServerError);
 
         var retry = await Post(ChargeUrl, key, JsonBody(10));
-        retry.StatusCode.ShouldBe(HttpStatusCode.InternalServerError);
+        retry.StatusCode.ShouldBe(HttpStatusCode.Conflict);
         (await Error(retry)).ShouldBe(FinancialIdempotencyMiddleware.UnreplayableMessage);
 
         var other = await Post(ChargeUrl, key, JsonBody(11));
-        other.StatusCode.ShouldBe(HttpStatusCode.Conflict);
+        other.StatusCode.ShouldBe(HttpStatusCode.UnprocessableEntity);
     }
 
     [Fact]
@@ -71,7 +72,7 @@ public class FinancialIdempotencyFaultTests(FinancialIdempotencyFaultSut App) : 
         App.Store.LastCompletionResult.ShouldBe(FinancialSettlementResult.AlreadySettled);
 
         var retry = await Post(ChargeUrl, key, JsonBody(10));
-        retry.StatusCode.ShouldBe(completed ? HttpStatusCode.OK : HttpStatusCode.InternalServerError);
+        retry.StatusCode.ShouldBe(completed ? HttpStatusCode.OK : HttpStatusCode.Conflict);
         if (completed)
             (await retry.Content.ReadFromJsonAsync<ChargeResponse>())!.Amount.ShouldBe(10);
         else
@@ -79,7 +80,7 @@ public class FinancialIdempotencyFaultTests(FinancialIdempotencyFaultSut App) : 
         App.Store.CompleteCalls.ShouldBe(1);
 
         var other = await Post(ChargeUrl, key, JsonBody(11));
-        other.StatusCode.ShouldBe(HttpStatusCode.Conflict);
+        other.StatusCode.ShouldBe(HttpStatusCode.UnprocessableEntity);
     }
 
     [Fact]
@@ -94,7 +95,7 @@ public class FinancialIdempotencyFaultTests(FinancialIdempotencyFaultSut App) : 
         App.Store.LastCompletionResult.ShouldBe(FinancialSettlementResult.OwnershipLost);
 
         var retry = await Post(ChargeUrl, key, JsonBody(10));
-        retry.StatusCode.ShouldBe(HttpStatusCode.InternalServerError);
+        retry.StatusCode.ShouldBe(HttpStatusCode.Conflict);
         (await Error(retry)).ShouldBe(FinancialIdempotencyMiddleware.UnreplayableMessage);
         App.Store.CompleteCalls.ShouldBe(1);
     }

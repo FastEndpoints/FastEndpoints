@@ -14,8 +14,10 @@ sealed class FinancialIdempotencyMiddleware(RequestDelegate next, IFinancialIdem
     internal const string ConflictMessage = "This idempotency key was already used with a different payload!";
     internal const string UnreplayableMessage = "The original response could not be cached for replay!";
     internal const string InvalidBeginMessage = "Financial idempotency could not start a reservation for this request.";
+    internal const string InvalidReplayMessage = "Financial idempotency could not load the stored response for this request.";
     internal const string InProgressMessage = "A request with this idempotency key is already in progress!";
     internal const string MultipleHeadersMessage = "Multiple idempotency headers not allowed!";
+    internal const string InFlightRetryAfterSeconds = "1";
 
     public async Task Invoke(HttpContext ctx)
     {
@@ -71,19 +73,21 @@ sealed class FinancialIdempotencyMiddleware(RequestDelegate next, IFinancialIdem
 
                 return;
             case FinancialBeginKind.Replay:
-                await SendError(ctx, 500, UnreplayableMessage);
+                await SendError(ctx, 500, InvalidReplayMessage);
 
                 return;
             case FinancialBeginKind.Conflict:
-                await SendError(ctx, 409, ConflictMessage);
+                await SendError(ctx, 422, ConflictMessage, FinancialIdempotencyErrorCodes.PayloadMismatch);
 
                 return;
             case FinancialBeginKind.Unreplayable:
-                await SendError(ctx, 500, UnreplayableMessage);
+                // no Retry-After: a retry after retention expiry runs the handler again.
+                await SendError(ctx, 409, UnreplayableMessage, FinancialIdempotencyErrorCodes.OutcomeUnknown);
 
                 return;
             case FinancialBeginKind.InFlight:
-                await SendError(ctx, 409, InProgressMessage);
+                ctx.Response.Headers.RetryAfter = InFlightRetryAfterSeconds;
+                await SendError(ctx, 409, InProgressMessage, FinancialIdempotencyErrorCodes.InProgress);
 
                 return;
             case FinancialBeginKind.Started when !string.IsNullOrWhiteSpace(began.ReservationToken):
@@ -219,8 +223,8 @@ sealed class FinancialIdempotencyMiddleware(RequestDelegate next, IFinancialIdem
         await WriteBodyAsync(ctx, ctx.Response.StatusCode, stored.Body);
     }
 
-    static Task SendError(HttpContext ctx, int statusCode, string message)
+    static Task SendError(HttpContext ctx, int statusCode, string message, string? errorCode = null)
         => ctx.Response.SendErrorsAsync(
-            [new(Cfg.ErrOpts.GeneralErrorsField, message)],
+            [new(Cfg.ErrOpts.GeneralErrorsField, message) { ErrorCode = errorCode }],
             statusCode);
 }

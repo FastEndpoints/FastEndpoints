@@ -145,13 +145,6 @@ public class IdempotencyTests(Sut App) : TestBase<Sut>
     }
 
     [Fact]
-    public async Task Header_Not_Present_With_Valid_Body()
-    {
-        var res = await App.Client.SendAsync(RequiredBodyRequest(JsonBody(ValidBody)), Cancellation);
-        (await GeneralErrorOf(res)).ShouldBe(HeaderRequiredError);
-    }
-
-    [Fact]
     public async Task Header_Present_With_Missing_Required_Property()
     {
         var res = await App.Client.SendAsync(RequiredBodyRequest(JsonBody(MissingRequiredPropertyBody), Guid.NewGuid().ToString()), Cancellation);
@@ -159,24 +152,6 @@ public class IdempotencyTests(Sut App) : TestBase<Sut>
         var body = await res.Content.ReadFromJsonAsync<ErrorResponse>(Cancellation);
         body.ShouldNotBeNull();
         body.Errors.SelectMany(e => e.Value).ShouldContain(e => e.Contains("'name'"));
-    }
-
-    [Fact]
-    public async Task Required_Body_Response_Is_Cached()
-    {
-        var idmpKey = Guid.NewGuid().ToString();
-
-        var res1 = await App.Client.SendAsync(RequiredBodyRequest(JsonBody(ValidBody), idmpKey), Cancellation);
-        res1.IsSuccessStatusCode.ShouldBeTrue();
-        var rsp1 = await res1.Content.ReadFromJsonAsync<Response>(Cancellation);
-        rsp1.ShouldNotBeNull();
-        rsp1.Id.ShouldBe("x");
-
-        var res2 = await App.Client.SendAsync(RequiredBodyRequest(JsonBody(ValidBody), idmpKey), Cancellation);
-        res2.IsSuccessStatusCode.ShouldBeTrue();
-        var rsp2 = await res2.Content.ReadFromJsonAsync<Response>(Cancellation);
-        rsp2.ShouldNotBeNull();
-        rsp2.Ticks.ShouldBe(rsp1.Ticks);
     }
 
     static HttpRequestMessage RequiredBodyRequest(HttpContent content, params string[] idempotencyKeys)

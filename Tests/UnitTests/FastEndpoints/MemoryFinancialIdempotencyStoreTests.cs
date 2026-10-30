@@ -135,6 +135,32 @@ public class MemoryFinancialIdempotencyStoreTests
         applied.ShouldBe(1);
     }
 
+    [Fact]
+    public async Task Response_Larger_Than_Total_Budget_Is_Rejected_And_Reservation_Stays_Active()
+    {
+        var store = new MemoryFinancialIdempotencyStore(1);
+        var first = await Begin(store);
+        await Should.ThrowAsync<InvalidOperationException>(
+            () => store.CompleteAsync("k", first.ReservationToken!, new() { Body = [1, 2] }, Ttl, default));
+        (await Begin(store)).Kind.ShouldBe(FinancialBeginKind.InFlight);
+        (await store.CompleteAsync("k", first.ReservationToken!, new() { Body = [1] }, Ttl, default))
+            .ShouldBe(FinancialSettlementResult.Applied);
+    }
+
+    [Fact]
+    public async Task Response_Larger_Than_Total_Budget_Reports_Ownership_Before_Capacity()
+    {
+        var store = new MemoryFinancialIdempotencyStore(1);
+        var first = await Begin(store);
+        await store.AbandonAsync("k", first.ReservationToken!, default);
+        var second = await Begin(store);
+        (await store.CompleteAsync("k", first.ReservationToken!, new() { Body = [1, 2] }, Ttl, default))
+            .ShouldBe(FinancialSettlementResult.OwnershipLost);
+        await store.CompleteAsync("k", second.ReservationToken!, new() { Body = [1] }, Ttl, default);
+        (await store.CompleteAsync("k", second.ReservationToken!, new() { Body = [1, 2] }, Ttl, default))
+            .ShouldBe(FinancialSettlementResult.AlreadySettled);
+    }
+
     [Theory]
     [InlineData(-1L, false)]
     [InlineData(0L, false)]

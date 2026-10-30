@@ -118,8 +118,6 @@ sealed class Charge : Endpoint<Request, Response>
 }
 ```
 
-Retries get clear status codes. A request still in progress returns `409` with a `Retry-After` header. Reusing a key with a different payload returns `422`. If the original outcome is uncertain (for example the handler threw, validation failed, or it returned a non-2xx response), retries return `409` without `Retry-After` until `UnreplayableRetention` expires (24 hours by default, configurable globally via `DefaultUnreplayableRetention`). After that, a retry runs the handler again. Each of these errors also carries a stable error code from `FinancialIdempotencyErrorCodes`, which `ProblemDetails` responses include when `IndicateErrorCode` is enabled.
-
 See the documentation for the full setup, storage options, and safeguards needed for production use.
 
 </details>

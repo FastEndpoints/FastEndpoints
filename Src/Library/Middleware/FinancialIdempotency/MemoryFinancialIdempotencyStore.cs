@@ -46,6 +46,15 @@ public sealed class MemoryFinancialIdempotencyStore : IFinancialIdempotencyStore
         if (identityKey.Length is 0 or > 1024 || payloadHash.Length is 0 or > 128)
             throw new ArgumentException("Reservation metadata exceeds supported limits.");
 
+        // stored responses are never mutated, so the replay copy is made after releasing the lock
+        var result = Begin(identityKey, payloadHash);
+
+        return new(result.Kind == FinancialBeginKind.Replay ? FinancialBeginResult.Replay(Clone(result.Response!)) : result);
+    }
+
+    // a replay result carries the stored instance, which the caller must copy before handing out
+    FinancialBeginResult Begin(string identityKey, ReadOnlyMemory<byte> payloadHash)
+    {
         lock (_gate)
         {
             if (_records.TryGetValue(identityKey, out var record))
@@ -53,15 +62,15 @@ public sealed class MemoryFinancialIdempotencyStore : IFinancialIdempotencyStore
                 if (record.State == RecordState.Active || record.Expires > _time.GetUtcNow())
                 {
                     if (!CryptographicOperations.FixedTimeEquals(record.Hash, payloadHash.Span))
-                        return new(FinancialBeginResult.Conflict());
+                        return FinancialBeginResult.Conflict();
 
-                    return new(record.State switch
+                    return record.State switch
                     {
                         RecordState.Active => FinancialBeginResult.InFlight(),
-                        RecordState.Completed => FinancialBeginResult.Replay(Clone(record.Response!)),
+                        RecordState.Completed => FinancialBeginResult.Replay(record.Response!),
                         RecordState.Unreplayable => FinancialBeginResult.Unreplayable(),
                         _ => throw new InvalidOperationException($"Unknown financial reservation state: {record.State}")
-                    });
+                    };
                 }
 
                 _used -= record.Size;
@@ -83,7 +92,7 @@ public sealed class MemoryFinancialIdempotencyStore : IFinancialIdempotencyStore
             var token = Guid.NewGuid().ToString("N");
             _records.Add(identityKey, new() { Hash = payloadHash.ToArray(), Token = token });
 
-            return new(FinancialBeginResult.Started(token));
+            return FinancialBeginResult.Started(token);
         }
     }
 
@@ -95,6 +104,20 @@ public sealed class MemoryFinancialIdempotencyStore : IFinancialIdempotencyStore
         if (!FinancialIdempotencyOptions.IsValidDuration(ttl))
             throw new ArgumentOutOfRangeException(nameof(ttl));
 
+        // copy and size the response before taking the lock so large bodies don't block other requests
+        var copy = Clone(response);
+        var size = copy.Body.LongLength;
+
+        checked
+        {
+            foreach (var header in copy.Headers)
+            {
+                size += header.Key.Length * 2L + 32;
+                foreach (var value in header.Value)
+                    size += value.Length * 2L + 24;
+            }
+        }
+
         lock (_gate)
         {
             Reclaim();
@@ -103,18 +126,6 @@ public sealed class MemoryFinancialIdempotencyStore : IFinancialIdempotencyStore
             if (result != FinancialSettlementResult.Applied)
                 return Task.FromResult(result);
 
-            var size = response.Body.LongLength;
-
-            checked
-            {
-                foreach (var header in response.Headers)
-                {
-                    size += header.Key.Length * 2L + 32;
-                    foreach (var value in header.Value)
-                        size += value.Length * 2L + 24;
-                }
-            }
-
             if (size > _budget - _used)
             {
                 _logger?.LogError("Financial response storage capacity exhausted.");
@@ -122,7 +133,7 @@ public sealed class MemoryFinancialIdempotencyStore : IFinancialIdempotencyStore
                 throw new InvalidOperationException("Financial response storage capacity exhausted.");
             }
 
-            record!.Response = Clone(response);
+            record!.Response = copy;
             record.Size = size;
             record.Expires = _time.GetUtcNow() + ttl;
             record.State = RecordState.Completed;

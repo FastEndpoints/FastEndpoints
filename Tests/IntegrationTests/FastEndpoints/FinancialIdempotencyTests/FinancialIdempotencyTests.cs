@@ -90,7 +90,7 @@ public class FinancialIdempotencyTests(Sut App) : TestBase<Sut>
         var bytes = "{\"amount\":10}"u8.ToArray();
 
         (await Post(ChargeUrl, key, Json("application/json"))).StatusCode.ShouldBe(HttpStatusCode.Created);
-        (await Post(ChargeUrl, key, Json("application/json; charset=utf-16"))).StatusCode.ShouldBe(HttpStatusCode.Conflict);
+        (await Post(ChargeUrl, key, Json("application/json; charset=utf-16"))).StatusCode.ShouldBe(HttpStatusCode.UnprocessableEntity);
         (await Post(ChargeUrl, Guid.NewGuid().ToString(), Json("application/json; charset=utf-16"))).StatusCode.ShouldBe(HttpStatusCode.BadRequest);
         ChargeEndpoint.HandleCount.ShouldBe(handles + 1);
 
@@ -103,7 +103,7 @@ public class FinancialIdempotencyTests(Sut App) : TestBase<Sut>
     }
 
     [Fact]
-    public async Task Different_Payload_Is_409()
+    public async Task Different_Payload_Is_422()
     {
         var key = Guid.NewGuid().ToString();
         var handles = ChargeEndpoint.HandleCount;
@@ -111,7 +111,7 @@ public class FinancialIdempotencyTests(Sut App) : TestBase<Sut>
         (await Post(ChargeUrl, key, JsonBody(10))).StatusCode.ShouldBe(HttpStatusCode.Created);
 
         var res = await Post(ChargeUrl, key, JsonBody(11));
-        res.StatusCode.ShouldBe(HttpStatusCode.Conflict);
+        res.StatusCode.ShouldBe(HttpStatusCode.UnprocessableEntity);
         (await Error(res)).ShouldBe(FinancialIdempotencyMiddleware.ConflictMessage);
         ChargeEndpoint.HandleCount.ShouldBe(handles + 1);
     }
@@ -135,7 +135,7 @@ public class FinancialIdempotencyTests(Sut App) : TestBase<Sut>
         (await replay.Content.ReadFromJsonAsync<ChargeResponse>(Cancellation))!.Ticks.ShouldBe(body!.Ticks);
 
         var conflict = await Post(retryUrl, key, JsonBody(11));
-        conflict.StatusCode.ShouldBe(HttpStatusCode.Conflict);
+        conflict.StatusCode.ShouldBe(HttpStatusCode.UnprocessableEntity);
         (await Error(conflict)).ShouldBe(FinancialIdempotencyMiddleware.ConflictMessage);
         ChargeEndpoint.HandleCount.ShouldBe(handles + 1);
     }
@@ -222,7 +222,7 @@ public class FinancialIdempotencyTests(Sut App) : TestBase<Sut>
     }
 
     [Fact]
-    public async Task Query_Change_Is_409_And_Order_Does_Not_Matter()
+    public async Task Query_Change_Is_422_And_Order_Does_Not_Matter()
     {
         var key = Guid.NewGuid().ToString();
         var handles = ChargeEndpoint.HandleCount;
@@ -233,7 +233,7 @@ public class FinancialIdempotencyTests(Sut App) : TestBase<Sut>
         (await replay.Content.ReadFromJsonAsync<ChargeResponse>(Cancellation))!.Ticks.ShouldBe(ticks);
 
         var conflict = await Post(ChargeUrl + "?a=1&b=3", key, JsonBody(10));
-        conflict.StatusCode.ShouldBe(HttpStatusCode.Conflict);
+        conflict.StatusCode.ShouldBe(HttpStatusCode.UnprocessableEntity);
         ChargeEndpoint.HandleCount.ShouldBe(handles + 1);
     }
 
@@ -244,7 +244,7 @@ public class FinancialIdempotencyTests(Sut App) : TestBase<Sut>
         (await Post(RawUrl + "?x=1", key, RawJson("00"))).StatusCode.ShouldBe(HttpStatusCode.Created);
 
         var res = await Post(RawUrl + "?x=10", key, RawJson("0"));
-        res.StatusCode.ShouldBe(HttpStatusCode.Conflict);
+        res.StatusCode.ShouldBe(HttpStatusCode.UnprocessableEntity);
     }
 
     [Fact]
@@ -252,7 +252,7 @@ public class FinancialIdempotencyTests(Sut App) : TestBase<Sut>
     {
         var key1 = Guid.NewGuid().ToString();
         (await Post(FormUrl, key1, Form(("Amount", "1"), ("a", "bc")))).StatusCode.ShouldBe(HttpStatusCode.Created);
-        (await Post(FormUrl, key1, Form(("Amount", "1"), ("ab", "c")))).StatusCode.ShouldBe(HttpStatusCode.Conflict);
+        (await Post(FormUrl, key1, Form(("Amount", "1"), ("ab", "c")))).StatusCode.ShouldBe(HttpStatusCode.UnprocessableEntity);
 
         var key2 = Guid.NewGuid().ToString();
         var handles = FormEndpoint.HandleCount;
@@ -265,7 +265,7 @@ public class FinancialIdempotencyTests(Sut App) : TestBase<Sut>
 
         var key3 = Guid.NewGuid().ToString();
         (await Post(FormUrl, key3, Form(("Amount", "1"), ("a", "1,2")))).StatusCode.ShouldBe(HttpStatusCode.Created);
-        (await Post(FormUrl, key3, Form(("Amount", "1"), ("a", "1"), ("a", "2")))).StatusCode.ShouldBe(HttpStatusCode.Conflict);
+        (await Post(FormUrl, key3, Form(("Amount", "1"), ("a", "1"), ("a", "2")))).StatusCode.ShouldBe(HttpStatusCode.UnprocessableEntity);
     }
 
     [Fact]
@@ -283,7 +283,7 @@ public class FinancialIdempotencyTests(Sut App) : TestBase<Sut>
         (await replay.Content.ReadFromJsonAsync<ChargeResponse>(Cancellation))!.Ticks.ShouldBe(ticks);
         FileEndpoint.HandleCount.ShouldBe(handles + 1);
 
-        (await Post(FileUrl, key, FileContent("same.bin", "xyz"u8.ToArray()))).StatusCode.ShouldBe(HttpStatusCode.Conflict);
+        (await Post(FileUrl, key, FileContent("same.bin", "xyz"u8.ToArray()))).StatusCode.ShouldBe(HttpStatusCode.UnprocessableEntity);
         FileEndpoint.HandleCount.ShouldBe(handles + 1);
     }
 
@@ -301,6 +301,7 @@ public class FinancialIdempotencyTests(Sut App) : TestBase<Sut>
             await ConcurrentEndpoint.Entered.Task.WaitAsync(TimeSpan.FromSeconds(5));
             var second = await Post(ConcurrentUrl, key, JsonBody(10));
             second.StatusCode.ShouldBe(HttpStatusCode.Conflict);
+            second.Headers.RetryAfter!.Delta.ShouldBe(TimeSpan.FromSeconds(1));
             ConcurrentEndpoint.Release.TrySetResult();
             (await first).StatusCode.ShouldBe(HttpStatusCode.Created);
             ConcurrentEndpoint.HandleCount.ShouldBe(handles + 1);
@@ -314,7 +315,7 @@ public class FinancialIdempotencyTests(Sut App) : TestBase<Sut>
     }
 
     [Fact]
-    public async Task Concurrent_Different_Payloads_One_409()
+    public async Task Concurrent_Different_Payloads_One_422()
     {
         var key = Guid.NewGuid().ToString();
         var handles = ConcurrentEndpoint.HandleCount;
@@ -327,7 +328,7 @@ public class FinancialIdempotencyTests(Sut App) : TestBase<Sut>
             await ConcurrentEndpoint.Entered.Task.WaitAsync(TimeSpan.FromSeconds(5));
             var second = Post(ConcurrentUrl, key, JsonBody(11));
             var conflict = await second;
-            conflict.StatusCode.ShouldBe(HttpStatusCode.Conflict);
+            conflict.StatusCode.ShouldBe(HttpStatusCode.UnprocessableEntity);
             ConcurrentEndpoint.Release.TrySetResult();
             (await first).StatusCode.ShouldBe(HttpStatusCode.Created);
             ConcurrentEndpoint.HandleCount.ShouldBe(handles + 1);
@@ -350,7 +351,7 @@ public class FinancialIdempotencyTests(Sut App) : TestBase<Sut>
         InvalidEndpoint.HandleCount.ShouldBe(handles);
 
         var res = await Post(InvalidUrl, key, JsonBody(5));
-        res.StatusCode.ShouldBe(HttpStatusCode.Conflict);
+        res.StatusCode.ShouldBe(HttpStatusCode.UnprocessableEntity);
         InvalidEndpoint.HandleCount.ShouldBe(handles);
     }
 
@@ -363,7 +364,7 @@ public class FinancialIdempotencyTests(Sut App) : TestBase<Sut>
         (await Post(ThrowUrl, key, JsonBody(-1))).StatusCode.ShouldBe(HttpStatusCode.InternalServerError);
 
         var res = await Post(ThrowUrl, key, JsonBody(5));
-        res.StatusCode.ShouldBe(HttpStatusCode.Conflict);
+        res.StatusCode.ShouldBe(HttpStatusCode.UnprocessableEntity);
         ThrowEndpoint.HandleCount.ShouldBe(handles + 1);
     }
 
@@ -378,12 +379,13 @@ public class FinancialIdempotencyTests(Sut App) : TestBase<Sut>
         OversizeEndpoint.HandleCount.ShouldBe(handles + 1);
 
         var retry = await Post(OversizeUrl, key);
-        retry.StatusCode.ShouldBe(HttpStatusCode.InternalServerError);
+        retry.StatusCode.ShouldBe(HttpStatusCode.Conflict);
+        retry.Headers.RetryAfter.ShouldBeNull();
         (await Error(retry)).ShouldBe(FinancialIdempotencyMiddleware.UnreplayableMessage);
         OversizeEndpoint.HandleCount.ShouldBe(handles + 1);
 
         var other = await Post(OversizeUrl + "?n=2", key);
-        other.StatusCode.ShouldBe(HttpStatusCode.Conflict);
+        other.StatusCode.ShouldBe(HttpStatusCode.UnprocessableEntity);
         OversizeEndpoint.HandleCount.ShouldBe(handles + 1);
     }
 
@@ -417,7 +419,7 @@ public class FinancialIdempotencyTests(Sut App) : TestBase<Sut>
         ProcessorEndpoint.PostCount.ShouldBe(post + 1);
 
         (await Post(ProcessorsUrl, key, JsonBody(10))).StatusCode.ShouldBe(HttpStatusCode.Created);
-        (await Post(ProcessorsUrl, key, JsonBody(11))).StatusCode.ShouldBe(HttpStatusCode.Conflict);
+        (await Post(ProcessorsUrl, key, JsonBody(11))).StatusCode.ShouldBe(HttpStatusCode.UnprocessableEntity);
         ProcessorEndpoint.HandleCount.ShouldBe(handles + 1);
         ProcessorEndpoint.PreCount.ShouldBe(pre + 1);
         ProcessorEndpoint.PostCount.ShouldBe(post + 1);

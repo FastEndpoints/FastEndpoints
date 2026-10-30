@@ -16,18 +16,18 @@ public enum FinancialBeginKind
     Replay,
 
     /// <summary>
-    /// the key was already used with a different payload hash.
+    /// the key was already used with a different payload hash. middleware maps it to <c>422</c>.
     /// </summary>
     Conflict,
 
     /// <summary>
-    /// an uncertain outcome cannot be replayed. fail closed.
+    /// an uncertain outcome cannot be replayed. fail closed; middleware maps it to <c>409</c> without <c>Retry-After</c>.
     /// </summary>
     Unreplayable,
 
     /// <summary>
     /// another request is currently executing for this key.
-    /// all stores must return this immediately; middleware maps it to <c>409</c> in-progress.
+    /// all stores must return this immediately; middleware maps it to <c>409</c> in-progress with <c>Retry-After</c>.
     /// </summary>
     InFlight
 }

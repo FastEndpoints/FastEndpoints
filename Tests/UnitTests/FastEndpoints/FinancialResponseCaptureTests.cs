@@ -14,10 +14,10 @@ public class FinancialResponseCaptureTests
     [Theory]
     [InlineData("success", 202, 202, false)]
     [InlineData("success", 202, 202, true)]
-    [InlineData("error", 400, 500, false)]
-    [InlineData("error", 400, 500, true)]
-    [InlineData("exception", 500, 500, false)]
-    [InlineData("exception", 500, 500, true)]
+    [InlineData("error", 400, 409, false)]
+    [InlineData("error", 400, 409, true)]
+    [InlineData("exception", 500, 409, false)]
+    [InlineData("exception", 500, 409, true)]
     [InlineData("cancel", 202, 202, false)]
     [InlineData("empty", 204, 204, false)]
     public async Task Kestrel_Upstream_Callbacks_Run_Before_Settlement(string mode, int firstStatus, int retryStatus, bool flush)
@@ -356,7 +356,7 @@ public class FinancialResponseCaptureTests
         var first = await client.PostAsync(app.Urls.Single(), new StringContent("same"));
         ((int)first.StatusCode).ShouldBe(firstStatus);
         var retry = await client.PostAsync(app.Urls.Single(), new StringContent("same"));
-        ((int)retry.StatusCode).ShouldBe(mode is "partial" or "ambiguous" ? 500 : firstStatus);
+        ((int)retry.StatusCode).ShouldBe(mode is "partial" or "ambiguous" ? 409 : firstStatus);
         executions.ShouldBe(mode == "reject" ? 2 : 1);
         if (mode == "compressed")
         {
@@ -618,7 +618,7 @@ public class FinancialResponseCaptureTests
 
         var retry = CreateContext();
         await middleware.Invoke(retry);
-        retry.Response.StatusCode.ShouldBe(500);
+        retry.Response.StatusCode.ShouldBe(409);
         executions.ShouldBe(1);
 
         DefaultHttpContext CreateContext()
@@ -631,6 +631,52 @@ public class FinancialResponseCaptureTests
 
             return ctx;
         }
+    }
+
+    [Theory]
+    [InlineData(FinancialBeginKind.InFlight, 409, FinancialIdempotencyErrorCodes.InProgress)]
+    [InlineData(FinancialBeginKind.Conflict, 422, FinancialIdempotencyErrorCodes.PayloadMismatch)]
+    [InlineData(FinancialBeginKind.Unreplayable, 409, FinancialIdempotencyErrorCodes.OutcomeUnknown)]
+    public async Task Begin_Rejections_Carry_Stable_Error_Codes(FinancialBeginKind kind, int status, string code)
+    {
+        var definition = new EndpointDefinition(typeof(FinancialResponseCaptureTests), typeof(object), typeof(object));
+        definition.FinancialIdempotency(o => o.CallerScope = _ => "account");
+        var store = new FixedBeginStore(kind);
+        var middleware = new FinancialIdempotencyMiddleware(
+            _ => throw new InvalidOperationException("handler must not run"),
+            store,
+            Microsoft.Extensions.Logging.Abstractions.NullLogger<FinancialIdempotencyMiddleware>.Instance);
+
+        var ctx = new DefaultHttpContext();
+        ctx.Request.Method = "POST";
+        ctx.Request.Headers["Idempotency-Key"] = "same";
+        ctx.Response.Body = new MemoryStream();
+        ctx.SetEndpoint(new Microsoft.AspNetCore.Http.Endpoint(_ => Task.CompletedTask, new EndpointMetadataCollection(definition), "financial"));
+
+        // the response builder is global, so only capture failures for this test's context.
+        var errOpts = Config.ErrOpts;
+        var previous = errOpts.ResponseBuilder;
+        List<FluentValidation.Results.ValidationFailure>? captured = null;
+
+        try
+        {
+            errOpts.ResponseBuilder = (failures, c, s) =>
+                                      {
+                                          if (ReferenceEquals(c, ctx))
+                                              captured = failures;
+
+                                          return previous(failures, c, s);
+                                      };
+            await middleware.Invoke(ctx);
+        }
+        finally
+        {
+            errOpts.ResponseBuilder = previous;
+        }
+
+        ctx.Response.StatusCode.ShouldBe(status);
+        captured.ShouldNotBeNull();
+        captured.Single().ErrorCode.ShouldBe(code);
     }
 
     [Fact]
@@ -731,6 +777,28 @@ public class FinancialResponseCaptureTests
     {
         public DateTimeOffset Now = new(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
         public override DateTimeOffset GetUtcNow() => Now;
+    }
+
+    sealed class FixedBeginStore(FinancialBeginKind kind) : IFinancialIdempotencyStore
+    {
+        public ValueTask<FinancialBeginResult> TryBeginAsync(string identityKey, ReadOnlyMemory<byte> payloadHash, CancellationToken ct)
+            => new(
+                kind switch
+                {
+                    FinancialBeginKind.InFlight => FinancialBeginResult.InFlight(),
+                    FinancialBeginKind.Conflict => FinancialBeginResult.Conflict(),
+                    FinancialBeginKind.Unreplayable => FinancialBeginResult.Unreplayable(),
+                    _ => throw new ArgumentOutOfRangeException(nameof(kind))
+                });
+
+        public Task<FinancialSettlementResult> CompleteAsync(string identityKey, string reservationToken, FinancialIdempotencyResponse response, TimeSpan ttl, CancellationToken ct)
+            => throw new NotSupportedException();
+
+        public Task<FinancialSettlementResult> MarkUnreplayableAsync(string identityKey, string reservationToken, TimeSpan retention, CancellationToken ct)
+            => throw new NotSupportedException();
+
+        public Task<FinancialSettlementResult> AbandonAsync(string identityKey, string reservationToken, CancellationToken ct)
+            => throw new NotSupportedException();
     }
 
     sealed class BrokenBeginStore : IFinancialIdempotencyStore

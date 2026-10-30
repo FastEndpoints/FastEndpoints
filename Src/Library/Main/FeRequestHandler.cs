@@ -12,6 +12,10 @@ internal sealed class FeRequestHandler : IResult
 
     public Task ExecuteAsync(HttpContext ctx)
     {
+        // middleware that already sent a response may still call next(), e.g. the idempotency policy's 400 from inside the output cache
+        if (ctx.ResponseStarted())
+            return Task.CompletedTask;
+
         var endpoint = ((IEndpointFeature)ctx.Features[Types.IEndpointFeature]!).Endpoint!;
         var epDef = endpoint.Metadata.GetMetadata<EndpointDefinition>()!;
 

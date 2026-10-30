@@ -38,3 +38,34 @@ sealed class Response
     public string Id { get; set; }
     public long Ticks { get; set; }
 }
+
+sealed class RequiredBodyRequest
+{
+    public required string Name { get; set; }
+}
+
+sealed class RequiredBodyEndpoint : Endpoint<RequiredBodyRequest, Response>
+{
+    public static string RoutePath { get; } = $"{Endpoint.BaseRoute}/required-body";
+
+    public override void Configure()
+    {
+        Post(RoutePath);
+        RoutePrefixOverride(string.Empty);
+        AllowAnonymous();
+        Description(x => x.ExcludeFromDescription());
+        Idempotency(
+            o =>
+            {
+                o.CacheDuration = TimeSpan.FromSeconds(10);
+            });
+    }
+
+    public override async Task HandleAsync(RequiredBodyRequest r, CancellationToken c)
+        => await Send.OkAsync(
+               new()
+               {
+                   Id = r.Name,
+                   Ticks = DateTime.UtcNow.Ticks
+               });
+}

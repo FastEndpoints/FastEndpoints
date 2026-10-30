@@ -104,19 +104,24 @@ public sealed class MemoryFinancialIdempotencyStore : IFinancialIdempotencyStore
         if (!FinancialIdempotencyOptions.IsValidDuration(ttl))
             throw new ArgumentOutOfRangeException(nameof(ttl));
 
-        // copy and size the response before taking the lock so large bodies don't block other requests
-        var copy = Clone(response);
-        var size = copy.Body.LongLength;
+        var size = Size(response);
 
-        checked
+        // a response larger than the whole budget can never be stored, so skip the copy and only resolve ownership
+        if (size > _budget)
         {
-            foreach (var header in copy.Headers)
+            lock (_gate)
             {
-                size += header.Key.Length * 2L + 32;
-                foreach (var value in header.Value)
-                    size += value.Length * 2L + 24;
+                var result = Check(identityKey, reservationToken, out _);
+
+                if (result != FinancialSettlementResult.Applied)
+                    return Task.FromResult(result);
             }
+
+            throw ResponseCapacityExhausted();
         }
+
+        // copy before taking the lock so large bodies don't block other requests
+        var copy = Clone(response);
 
         lock (_gate)
         {
@@ -127,11 +132,7 @@ public sealed class MemoryFinancialIdempotencyStore : IFinancialIdempotencyStore
                 return Task.FromResult(result);
 
             if (size > _budget - _used)
-            {
-                _logger?.LogError("Financial response storage capacity exhausted.");
-
-                throw new InvalidOperationException("Financial response storage capacity exhausted.");
-            }
+                throw ResponseCapacityExhausted();
 
             record!.Response = copy;
             record.Size = size;
@@ -217,6 +218,37 @@ public sealed class MemoryFinancialIdempotencyStore : IFinancialIdempotencyStore
                 next = pair.Value.Expires;
         }
         _nextExpiration = next;
+    }
+
+    InvalidOperationException ResponseCapacityExhausted()
+    {
+        _logger?.LogError("Financial response storage capacity exhausted.");
+
+        return new("Financial response storage capacity exhausted.");
+    }
+
+    // saturates on overflow so an impossible size fails the budget check after ownership is verified
+    static long Size(FinancialIdempotencyResponse response)
+    {
+        try
+        {
+            checked
+            {
+                var size = response.Body.LongLength;
+                foreach (var header in response.Headers)
+                {
+                    size += header.Key.Length * 2L + 32;
+                    foreach (var value in header.Value)
+                        size += value.Length * 2L + 24;
+                }
+
+                return size;
+            }
+        }
+        catch (OverflowException)
+        {
+            return long.MaxValue;
+        }
     }
 
     static FinancialIdempotencyResponse Clone(FinancialIdempotencyResponse response)

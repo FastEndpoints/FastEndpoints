@@ -117,6 +117,37 @@ public class MemoryFinancialIdempotencyStoreTests
     }
 
     [Fact]
+    public async Task Copying_A_Completion_Does_Not_Block_Reservations_For_Other_Keys()
+    {
+        var store = new MemoryFinancialIdempotencyStore();
+        var first = await Begin(store);
+        var headers = new BlockingCopyHeaders();
+        var completion = Task.Run(() => store.CompleteAsync("k", first.ReservationToken!, new() { Body = [1], Headers = headers }, Ttl, default));
+        Task<FinancialBeginResult>? otherReservation = null;
+
+        try
+        {
+            await headers.CopyStarted.Task.WaitAsync(TimeSpan.FromSeconds(5));
+            otherReservation = Task.Run(async () => await Begin(store, "other"));
+            (await otherReservation.WaitAsync(TimeSpan.FromSeconds(5))).Kind.ShouldBe(FinancialBeginKind.Started);
+            completion.IsCompleted.ShouldBeFalse();
+        }
+        finally
+        {
+            headers.ContinueCopy.TrySetResult();
+            await completion.WaitAsync(TimeSpan.FromSeconds(5));
+            if (otherReservation is not null)
+                await otherReservation.WaitAsync(TimeSpan.FromSeconds(5));
+        }
+
+        (await completion).ShouldBe(FinancialSettlementResult.Applied);
+        var replay = (await Begin(store)).Response!;
+        replay.Body.ShouldBe(new byte[] { 1 });
+        replay.Headers[0].Key.ShouldBe("X-Test");
+        replay.Headers[0].Value.ShouldBe(new[] { "original" });
+    }
+
+    [Fact]
     public async Task Concurrent_Completions_Cannot_Exceed_Budget()
     {
         var store = new MemoryFinancialIdempotencyStore(1);
@@ -133,6 +164,32 @@ public class MemoryFinancialIdempotencyStoreTests
             catch (InvalidOperationException) { }
         })));
         applied.ShouldBe(1);
+    }
+
+    [Fact]
+    public async Task Response_Larger_Than_Total_Budget_Is_Rejected_And_Reservation_Stays_Active()
+    {
+        var store = new MemoryFinancialIdempotencyStore(1);
+        var first = await Begin(store);
+        await Should.ThrowAsync<InvalidOperationException>(
+            () => store.CompleteAsync("k", first.ReservationToken!, new() { Body = [1, 2] }, Ttl, default));
+        (await Begin(store)).Kind.ShouldBe(FinancialBeginKind.InFlight);
+        (await store.CompleteAsync("k", first.ReservationToken!, new() { Body = [1] }, Ttl, default))
+            .ShouldBe(FinancialSettlementResult.Applied);
+    }
+
+    [Fact]
+    public async Task Response_Larger_Than_Total_Budget_Reports_Ownership_Before_Capacity()
+    {
+        var store = new MemoryFinancialIdempotencyStore(1);
+        var first = await Begin(store);
+        await store.AbandonAsync("k", first.ReservationToken!, default);
+        var second = await Begin(store);
+        (await store.CompleteAsync("k", first.ReservationToken!, new() { Body = [1, 2] }, Ttl, default))
+            .ShouldBe(FinancialSettlementResult.OwnershipLost);
+        await store.CompleteAsync("k", second.ReservationToken!, new() { Body = [1] }, Ttl, default);
+        (await store.CompleteAsync("k", second.ReservationToken!, new() { Body = [1, 2] }, Ttl, default))
+            .ShouldBe(FinancialSettlementResult.AlreadySettled);
     }
 
     [Theory]
@@ -268,6 +325,30 @@ public class MemoryFinancialIdempotencyStoreTests
         (await Begin(store, "active")).Response!.Body.ShouldBe(new byte[] { 3, 4 });
         (await Begin(store, "first")).Kind.ShouldBe(FinancialBeginKind.Started);
         (await Begin(store, "second")).Kind.ShouldBe(FinancialBeginKind.Started);
+    }
+
+    sealed class BlockingCopyHeaders : IReadOnlyList<KeyValuePair<string, string[]>>
+    {
+        int _enumerations;
+        public TaskCompletionSource CopyStarted { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public TaskCompletionSource ContinueCopy { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
+        public int Count => 1;
+        public KeyValuePair<string, string[]> this[int index]
+            => index == 0 ? new("X-Test", ["original"]) : throw new ArgumentOutOfRangeException(nameof(index));
+
+        public IEnumerator<KeyValuePair<string, string[]>> GetEnumerator()
+        {
+            // Sizing enumerates once. Pause the second enumeration, when the headers are copied.
+            if (Interlocked.Increment(ref _enumerations) == 2)
+            {
+                CopyStarted.TrySetResult();
+                ContinueCopy.Task.GetAwaiter().GetResult();
+            }
+
+            yield return this[0];
+        }
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
     sealed class Clock : TimeProvider

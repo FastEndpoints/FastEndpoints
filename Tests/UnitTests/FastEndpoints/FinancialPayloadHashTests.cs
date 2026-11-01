@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using System.Text;
 using FastEndpoints;
 using Microsoft.AspNetCore.Http;
@@ -207,9 +208,70 @@ public class FinancialPayloadHashTests
         context.Request.Body.Position.ShouldBe(3);
     }
 
+    [Fact]
+    public async Task Successful_Read_Clears_The_Largest_Used_Region()
+    {
+        var stream = new MarkingStream(40_000, 100);
+
+        await FinancialPayloadHash.ComputeAsync(RequestWith(stream), default);
+
+        stream.Buffer.ShouldNotBeNull();
+        stream.Buffer.AsSpan(0, 40_000).ContainsAnyExcept((byte)0).ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task Faulted_Read_Clears_The_Whole_Buffer()
+    {
+        var stream = new MarkingStream { FaultAfterWrite = true };
+
+        await Should.ThrowAsync<IOException>(async () => await FinancialPayloadHash.ComputeAsync(RequestWith(stream), default));
+
+        stream.Buffer.ShouldNotBeNull();
+        stream.Buffer.AsSpan().ContainsAnyExcept((byte)0).ShouldBeFalse();
+    }
+
+    static HttpRequest RequestWith(Stream body)
+    {
+        var ctx = new DefaultHttpContext();
+        ctx.Request.ContentType = "application/octet-stream";
+        ctx.Request.Body = body;
+
+        return ctx.Request;
+    }
+
     sealed class NonSeekable(byte[] bytes) : MemoryStream(bytes)
     {
         public override bool CanSeek => false;
+    }
+
+    // seekable so the hash reads it directly, and completes synchronously so nothing else can rent the returned buffer before the asserts
+    sealed class MarkingStream(params int[] reads) : MemoryStream
+    {
+        int _next;
+
+        public byte[]? Buffer { get; private set; }
+        public bool FaultAfterWrite { get; init; }
+
+        public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default)
+        {
+            MemoryMarshal.TryGetArray<byte>(buffer, out var segment).ShouldBeTrue();
+            Buffer = segment.Array;
+
+            if (FaultAfterWrite)
+            {
+                buffer.Span.Fill(0xAB);
+
+                return ValueTask.FromException<int>(new IOException());
+            }
+
+            if (_next == reads.Length)
+                return ValueTask.FromResult(0);
+
+            var count = reads[_next++];
+            buffer.Span[..count].Fill(0xAB);
+
+            return ValueTask.FromResult(count);
+        }
     }
 
     static async Task<byte[]> Hash(string? query = null, byte[]? body = null, IFormCollection? form = null)

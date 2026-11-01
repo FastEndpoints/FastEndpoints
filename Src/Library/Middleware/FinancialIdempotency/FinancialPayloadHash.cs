@@ -94,8 +94,7 @@ static class FinancialPayloadHash
     static async Task AppendStreamAsync(IncrementalHash hasher, Stream stream, CancellationToken ct)
     {
         using var digest = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
-        // match the serializer buffer size so the pooled arrays are shared with STJ
-        var buffer = ArrayPool<byte>.Shared.Rent(Cfg.SerOpts.Options.DefaultBufferSize);
+        var buffer = ArrayPool<byte>.Shared.Rent(16384);
         long count = 0;
         var used = 0;
 

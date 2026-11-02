@@ -41,8 +41,6 @@ sealed class ServiceHealthChecksStartupFilter(IOptions<ServiceHealthChecksOption
 
     static Task WriteJson(HttpContext ctx, HealthReport report)
     {
-        ctx.Response.ContentType = "application/json; charset=utf-8";
-
         var payload = new HealthCheckResponse
         {
             Status = report.Status.ToString(),
@@ -58,7 +56,13 @@ sealed class ServiceHealthChecksStartupFilter(IOptions<ServiceHealthChecksOption
                 }).ToArray()
         };
 
-        return ctx.Response.WriteAsync(JsonSerializer.Serialize(payload, HealthChecksJsonContext.Default.HealthCheckResponse));
+        // serialize before touching the response so a failure surfaces as a clean 500 instead of a truncated body
+        var json = JsonSerializer.SerializeToUtf8Bytes(payload, HealthChecksJsonContext.Default.HealthCheckResponse);
+
+        ctx.Response.ContentType = "application/json; charset=utf-8";
+        ctx.Response.ContentLength = json.Length;
+
+        return ctx.Response.Body.WriteAsync(json).AsTask();
     }
 }
 

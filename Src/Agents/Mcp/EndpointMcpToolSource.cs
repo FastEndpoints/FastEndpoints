@@ -202,12 +202,12 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
         return tool;
     }
 
-    static CallToolResult BuildSuccessResult(InvocationResult r, JsonNode? outputSchema, IReadOnlySet<string>? outputPropertyNames)
+    static CallToolResult BuildSuccessResult(InvocationResult r, JsonNode? outputSchema, HashSet<string>? outputPropertyNames)
     {
         var text = InvocationResultHelpers.ReadBodyText(r);
         JsonElement? structuredContent = null;
 
-        if (outputSchema is not null && McpStructuredContentMapper.TryMap(text, outputSchema, outputPropertyNames, out var schemaContent))
+        if (outputSchema is not null && McpStructuredContentMapper.TryMap(r.Body, outputSchema, outputPropertyNames, out var schemaContent))
             structuredContent = schemaContent;
 
         return new()
@@ -253,7 +253,7 @@ sealed class EndpointMcpToolSource(IServiceProvider services, McpOptions options
         };
     }
 
-    static IReadOnlySet<string>? GetRootPropertyNames(JsonNode? schema)
+    static HashSet<string>? GetRootPropertyNames(JsonNode? schema)
         => schema is JsonObject { } root && root["properties"] is JsonObject props
                ? props.Select(p => p.Key).ToHashSet(StringComparer.Ordinal)
                : null;

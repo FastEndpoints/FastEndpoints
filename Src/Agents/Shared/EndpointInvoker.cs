@@ -91,8 +91,10 @@ sealed class EndpointInvoker(IServiceScopeFactory scopeFactory)
             return InvocationResult.Invalid(endpoint.ValidationFailures);
 
         var body = (MemoryStream)httpContext.Response.Body;
-        body.Position = 0;
-        var payload = body.ToArray();
+
+        // alias the response buffer instead of copying: the endpoint has completed and httpContext never escapes this method,
+        // so nothing writes to it afterwards. consumers must not keep Body beyond mapping the result.
+        ReadOnlyMemory<byte> payload = body.TryGetBuffer(out var buffer) ? buffer : body.ToArray();
 
         return httpContext.Response.StatusCode is >= 200 and < 300
                    ? InvocationResult.Ok(httpContext.Response.StatusCode, httpContext.Response.ContentType, payload)
@@ -106,11 +108,11 @@ readonly struct InvocationResult
     public InvocationStatus Status { get; }
     public int HttpStatusCode { get; }
     public string? ContentType { get; }
-    public byte[] Body { get; }
+    public ReadOnlyMemory<byte> Body { get; }
     public Exception? Exception { get; }
     public IReadOnlyList<ValidationFailure> ValidationFailures { get; }
 
-    InvocationResult(InvocationStatus status, int httpStatusCode, string? contentType, byte[] body, Exception? ex, IReadOnlyList<ValidationFailure> failures)
+    InvocationResult(InvocationStatus status, int httpStatusCode, string? contentType, ReadOnlyMemory<byte> body, Exception? ex, IReadOnlyList<ValidationFailure> failures)
     {
         Status = status;
         HttpStatusCode = httpStatusCode;
@@ -120,17 +122,17 @@ readonly struct InvocationResult
         ValidationFailures = failures;
     }
 
-    public static InvocationResult Ok(int statusCode, string? contentType, byte[] body)
+    public static InvocationResult Ok(int statusCode, string? contentType, ReadOnlyMemory<byte> body)
         => new(InvocationStatus.Success, statusCode, contentType, body, null, []);
 
-    public static InvocationResult HttpError(int statusCode, string? contentType, byte[] body)
+    public static InvocationResult HttpError(int statusCode, string? contentType, ReadOnlyMemory<byte> body)
         => new(InvocationStatus.HttpError, statusCode, contentType, body, null, []);
 
     public static InvocationResult Invalid(IReadOnlyList<ValidationFailure> failures)
-        => new(InvocationStatus.ValidationFailed, 400, null, [], null, failures);
+        => new(InvocationStatus.ValidationFailed, 400, null, ReadOnlyMemory<byte>.Empty, null, failures);
 
     public static InvocationResult Faulted(Exception ex, IReadOnlyList<ValidationFailure> failures)
-        => new(InvocationStatus.Faulted, 500, null, [], ex, failures);
+        => new(InvocationStatus.Faulted, 500, null, ReadOnlyMemory<byte>.Empty, ex, failures);
 }
 
 enum InvocationStatus

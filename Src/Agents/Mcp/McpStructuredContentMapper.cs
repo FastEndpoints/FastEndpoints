@@ -6,9 +6,9 @@ namespace FastEndpoints.Mcp;
 
 static class McpStructuredContentMapper
 {
-    public static bool TryMap(string text, JsonNode outputSchema, IReadOnlySet<string>? outputPropertyNames, out JsonElement structuredContent)
+    public static bool TryMap(ReadOnlyMemory<byte> body, JsonNode outputSchema, HashSet<string>? outputPropertyNames, out JsonElement structuredContent)
     {
-        if (!TryExtractStructuredContent(text, out var content))
+        if (!TryExtractStructuredContent(body, out var content))
         {
             structuredContent = default;
 
@@ -18,9 +18,9 @@ static class McpStructuredContentMapper
         return TryApplyOutputSchema(content, outputSchema, outputPropertyNames, out structuredContent);
     }
 
-    static bool TryExtractStructuredContent(string text, out JsonElement structuredContent)
+    static bool TryExtractStructuredContent(ReadOnlyMemory<byte> body, out JsonElement structuredContent)
     {
-        if (InvocationResultHelpers.TryParseJson(text, out var json) && json.ValueKind == JsonValueKind.Object)
+        if (InvocationResultHelpers.TryParseJson(body, out var json) && json.ValueKind == JsonValueKind.Object)
         {
             structuredContent = json;
 
@@ -32,7 +32,7 @@ static class McpStructuredContentMapper
         return false;
     }
 
-    static bool TryApplyOutputSchema(JsonElement content, JsonNode outputSchema, IReadOnlySet<string>? outputPropertyNames, out JsonElement structuredContent)
+    static bool TryApplyOutputSchema(JsonElement content, JsonNode outputSchema, HashSet<string>? outputPropertyNames, out JsonElement structuredContent)
     {
         if (outputSchema is not JsonObject root || outputPropertyNames is null)
         {
@@ -48,15 +48,31 @@ static class McpStructuredContentMapper
             return false;
         }
 
-        var filtered = new JsonObject();
+        structuredContent = JsonElementWriter.WriteObject(
+            (content, outputPropertyNames),
+            static (writer, s) =>
+            {
+                // duplicate names keep the first position and the last value, matching JsonObject indexer semantics
+                var matched = new List<JsonProperty>();
+                var positions = new Dictionary<string, int>(StringComparer.Ordinal);
 
-        foreach (var prop in content.EnumerateObject())
-        {
-            if (outputPropertyNames.Contains(prop.Name))
-                filtered[prop.Name] = JsonNode.Parse(prop.Value.GetRawText());
-        }
+                foreach (var prop in s.content.EnumerateObject())
+                {
+                    if (!s.outputPropertyNames.Contains(prop.Name))
+                        continue;
 
-        structuredContent = JsonSerializer.SerializeToElement(filtered);
+                    if (positions.TryGetValue(prop.Name, out var i))
+                        matched[i] = prop;
+                    else
+                    {
+                        positions[prop.Name] = matched.Count;
+                        matched.Add(prop);
+                    }
+                }
+
+                foreach (var prop in matched)
+                    prop.WriteTo(writer);
+            });
 
         return true;
     }

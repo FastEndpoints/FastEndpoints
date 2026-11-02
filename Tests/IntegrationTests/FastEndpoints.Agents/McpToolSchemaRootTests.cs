@@ -94,6 +94,20 @@ public class McpToolSchemaRootTests
         ((TextContentBlock)result.Content[0]).Text.ShouldContain("value:ping");
     }
 
+    [Fact]
+    public async Task Duplicate_response_properties_keep_first_position_and_last_value()
+    {
+        using var provider = BuildServices(typeof(DuplicatePropertiesEndpoint));
+        SetUser(provider, true);
+
+        var tool = BuildTool(provider, "duplicate_properties");
+        var result = await tool.InvokeAsync(BuildRequestContext(provider, tool, []), CancellationToken.None);
+
+        tool.ProtocolTool.OutputSchema.HasValue.ShouldBeTrue();
+        result.StructuredContent.HasValue.ShouldBeTrue();
+        result.StructuredContent.Value.GetRawText().ShouldBe("""{"id":2,"other":true}""");
+    }
+
     static ServiceProvider BuildServices(params Type[] endpointTypes)
     {
         Factory.RegisterTestServices(
@@ -130,6 +144,9 @@ public class McpToolSchemaRootTests
 
             if (def.EndpointType == typeof(StringRequestEndpoint))
                 def.McpTool("string_request");
+
+            if (def.EndpointType == typeof(DuplicatePropertiesEndpoint))
+                def.McpTool("duplicate_properties");
         }
 
         return provider;
@@ -198,6 +215,23 @@ public class McpToolSchemaRootTests
     {
         public override Task HandleAsync(string req, CancellationToken ct)
             => Send.OkAsync(new() { Value = req }, ct);
+    }
+
+    [HttpPost("/mcp-schema-root/duplicate-properties")]
+    sealed class DuplicatePropertiesEndpoint : EndpointWithoutRequest<DuplicatePropertiesResponse>
+    {
+        public override Task HandleAsync(CancellationToken ct)
+            => Send.StringAsync("""{"id":1,"other":true,"id":2}""", 200, "application/json", ct);
+    }
+
+    // ReSharper disable once ClassNeverInstantiated.Local
+    sealed class DuplicatePropertiesResponse
+    {
+        [System.Text.Json.Serialization.JsonPropertyName("id")]
+        public int Id { get; set; }
+
+        [System.Text.Json.Serialization.JsonPropertyName("other")]
+        public bool Other { get; set; }
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local

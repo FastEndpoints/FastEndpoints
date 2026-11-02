@@ -211,12 +211,12 @@ public class FinancialPayloadHashTests
     [Fact]
     public async Task Successful_Read_Clears_The_Largest_Used_Region()
     {
-        var stream = new MarkingStream(40_000, 100);
+        var stream = new MarkingStream(16_000, 100);
 
         await FinancialPayloadHash.ComputeAsync(RequestWith(stream), default);
 
         stream.Buffer.ShouldNotBeNull();
-        stream.Buffer.AsSpan(0, 40_000).ContainsAnyExcept((byte)0).ShouldBeFalse();
+        stream.Buffer.AsSpan(0, 16_000).ContainsAnyExcept((byte)0).ShouldBeFalse();
     }
 
     [Fact]

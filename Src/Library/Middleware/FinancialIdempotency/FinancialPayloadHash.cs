@@ -94,8 +94,9 @@ static class FinancialPayloadHash
     static async Task AppendStreamAsync(IncrementalHash hasher, Stream stream, CancellationToken ct)
     {
         using var digest = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
-        var buffer = ArrayPool<byte>.Shared.Rent(65536);
+        var buffer = ArrayPool<byte>.Shared.Rent(16384);
         long count = 0;
+        var used = 0;
 
         try
         {
@@ -103,15 +104,25 @@ static class FinancialPayloadHash
 
             while ((read = await stream.ReadAsync(buffer, ct)) > 0)
             {
+                used = Math.Max(used, read);
                 count = checked(count + read);
                 digest.AppendData(buffer.AsSpan(0, read));
             }
             AppendInt64(hasher, count);
             hasher.AppendData(digest.GetHashAndReset());
         }
+        catch
+        {
+            // a faulted read may have written past the tracked length
+            used = buffer.Length;
+
+            throw;
+        }
         finally
         {
-            ArrayPool<byte>.Shared.Return(buffer, clearArray: true);
+            // only the bytes written by the reads can hold payload data
+            CryptographicOperations.ZeroMemory(buffer.AsSpan(0, used));
+            ArrayPool<byte>.Shared.Return(buffer);
         }
     }
 

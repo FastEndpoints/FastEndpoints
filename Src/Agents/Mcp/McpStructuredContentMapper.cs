@@ -8,35 +8,31 @@ static class McpStructuredContentMapper
 {
     public static bool TryMap(ReadOnlyMemory<byte> body, JsonNode outputSchema, HashSet<string>? outputPropertyNames, out JsonElement structuredContent)
     {
-        if (!TryExtractStructuredContent(body, out var content))
-        {
-            structuredContent = default;
-
-            return false;
-        }
-
-        return TryApplyOutputSchema(content, outputSchema, outputPropertyNames, out structuredContent);
-    }
-
-    static bool TryExtractStructuredContent(ReadOnlyMemory<byte> body, out JsonElement structuredContent)
-    {
-        if (InvocationResultHelpers.TryParseJson(body, out var json) && json.ValueKind == JsonValueKind.Object)
-        {
-            structuredContent = json;
-
-            return true;
-        }
-
         structuredContent = default;
 
-        return false;
+        if (body.IsEmpty)
+            return false;
+
+        try
+        {
+            using var doc = JsonDocument.Parse(body);
+            var content = doc.RootElement;
+
+            return content.ValueKind == JsonValueKind.Object &&
+                   TryApplyOutputSchema(content, outputSchema, outputPropertyNames, out structuredContent);
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
     }
 
     static bool TryApplyOutputSchema(JsonElement content, JsonNode outputSchema, HashSet<string>? outputPropertyNames, out JsonElement structuredContent)
     {
         if (outputSchema is not JsonObject root || outputPropertyNames is null)
         {
-            structuredContent = content;
+            // The input document is disposed when TryMap returns.
+            structuredContent = content.Clone();
 
             return true;
         }

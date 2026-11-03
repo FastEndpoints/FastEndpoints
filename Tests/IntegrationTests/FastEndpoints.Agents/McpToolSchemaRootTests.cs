@@ -1,5 +1,7 @@
 using System.Security.Claims;
+using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using FastEndpoints.Mcp;
 using Microsoft.AspNetCore.Http;
 using ModelContextProtocol.Protocol;
@@ -106,6 +108,55 @@ public class McpToolSchemaRootTests
         tool.ProtocolTool.OutputSchema.HasValue.ShouldBeTrue();
         result.StructuredContent.HasValue.ShouldBeTrue();
         result.StructuredContent.Value.GetRawText().ShouldBe("""{"id":2,"other":true}""");
+    }
+
+    [Theory, InlineData(true, false), InlineData(false, true), InlineData(false, false)]
+    public void Pass_through_content_owns_its_json_after_mapping(bool objectSchema, bool includePropertyNames)
+    {
+        var body = Encoding.UTF8.GetBytes("""{"value":{"items":[1,2]},"extra":true}""");
+        var schema = JsonNode.Parse(objectSchema ? """{"type":"object"}""" : "true")!;
+        HashSet<string>? names = includePropertyNames ? new(StringComparer.Ordinal) { "value" } : null;
+
+        McpStructuredContentMapper.TryMap(body, schema, names, out var content).ShouldBeTrue();
+        Array.Clear(body);
+
+        content.GetProperty("value").GetProperty("items")[1].GetInt32().ShouldBe(2);
+        JsonSerializer.Serialize(content).ShouldBe("""{"value":{"items":[1,2]},"extra":true}""");
+    }
+
+    [Fact]
+    public void Filtered_content_owns_its_json_after_mapping()
+    {
+        var body = Encoding.UTF8.GetBytes("""{"value":{"items":[1,2]},"extra":true}""");
+        var schema = JsonNode.Parse("""{"type":"object","properties":{"value":{"type":"object","properties":{"items":{"type":"array","items":{"type":"integer"}}}}}}""")!;
+
+        McpStructuredContentMapper.TryMap(body, schema, new(StringComparer.Ordinal) { "value" }, out var content).ShouldBeTrue();
+        Array.Clear(body);
+
+        content.GetProperty("value").GetProperty("items")[1].GetInt32().ShouldBe(2);
+        content.TryGetProperty("extra", out _).ShouldBeFalse();
+        JsonSerializer.Serialize(content).ShouldBe("""{"value":{"items":[1,2]}}""");
+    }
+
+    [Theory, InlineData(""), InlineData(" "), InlineData("{"), InlineData("null"), InlineData("[]"), InlineData("42"), InlineData("\"text\"")]
+    public void Invalid_or_non_object_content_is_not_mapped(string json)
+    {
+        var schema = JsonNode.Parse("""{"type":"object"}""")!;
+
+        McpStructuredContentMapper.TryMap(Encoding.UTF8.GetBytes(json), schema, null, out var content).ShouldBeFalse();
+
+        content.ValueKind.ShouldBe(JsonValueKind.Undefined);
+    }
+
+    [Fact]
+    public void Content_exceeding_the_json_depth_limit_is_not_mapped()
+    {
+        var body = Encoding.UTF8.GetBytes("{\"value\":" + new string('[', 64) + "0" + new string(']', 64) + "}");
+        var schema = JsonNode.Parse("""{"type":"object"}""")!;
+
+        McpStructuredContentMapper.TryMap(body, schema, null, out var content).ShouldBeFalse();
+
+        content.ValueKind.ShouldBe(JsonValueKind.Undefined);
     }
 
     static ServiceProvider BuildServices(params Type[] endpointTypes)

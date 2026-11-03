@@ -8,19 +8,22 @@ static class InvocationResultHelpers
     internal static string ReadBodyText(InvocationResult result)
         => ReadBodyText(result.Body);
 
-    internal static string ReadBodyText(byte[] body)
-        => body.Length == 0 ? string.Empty : Encoding.UTF8.GetString(body);
+    internal static string ReadBodyText(ReadOnlyMemory<byte> body)
+        => body.IsEmpty ? string.Empty : Encoding.UTF8.GetString(body.Span);
 
-    internal static bool TryParseJson(string text, out JsonElement json)
+    internal static bool TryParseJson(InvocationResult result, out JsonElement json)
+        => TryParseJson(result.Body, out json);
+
+    internal static bool TryParseJson(ReadOnlyMemory<byte> body, out JsonElement json)
     {
         json = default;
 
-        if (string.IsNullOrWhiteSpace(text))
+        if (body.IsEmpty)
             return false;
 
         try
         {
-            using var doc = JsonDocument.Parse(text);
+            using var doc = JsonDocument.Parse(body);
             json = doc.RootElement.Clone();
 
             return true;

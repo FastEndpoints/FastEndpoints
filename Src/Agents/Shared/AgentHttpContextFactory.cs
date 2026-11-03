@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
@@ -24,17 +25,15 @@ sealed class AgentHttpContextFactory
         if (principal is not null)
             ctx.User = principal;
 
-        var requestBody = new MemoryStream();
+        // wrap the builder's bytes without copying; publiclyVisible keeps TryGetBuffer working for buffered body readers
+        var requestBody = request.Body is not { } body
+                              ? new MemoryStream()
+                              : MemoryMarshal.TryGetArray(body, out var segment)
+                                  ? new(segment.Array!, segment.Offset, segment.Count, writable: false, publiclyVisible: true)
+                                  : new MemoryStream(body.ToArray(), writable: false);
 
-        if (request.Body is { } body)
-        {
-            using var writer = new Utf8JsonWriter(requestBody);
-            body.WriteTo(writer);
-            writer.Flush();
+        if (request.Body is not null)
             ctx.Request.ContentType = "application/json";
-        }
-
-        requestBody.Position = 0;
 
         ctx.Request.Body = requestBody;
         ctx.Request.ContentLength = requestBody.Length;

@@ -24,8 +24,6 @@ static class A2AInvocationResultMapper
     {
         A2AMessageValidator.EnsureActualOutputModeIsAccepted(r, acceptedOutputModes);
 
-        var text = InvocationResultHelpers.ReadBodyText(r);
-
         return new()
         {
             Message = new()
@@ -33,7 +31,7 @@ static class A2AInvocationResultMapper
                 MessageId = Guid.NewGuid().ToString("N"),
                 ContextId = requestMessage.ContextId ?? Guid.NewGuid().ToString("N"),
                 Role = RoleAgent,
-                Parts = [BuildResponsePart(text, InvocationResultHelpers.NormalizeMediaType(r.ContentType))]
+                Parts = [BuildResponsePart(r, InvocationResultHelpers.NormalizeMediaType(r.ContentType))]
             }
         };
     }
@@ -41,7 +39,7 @@ static class A2AInvocationResultMapper
     static JsonRpcError BuildHttpError(InvocationResult result)
     {
         var text = InvocationResultHelpers.ReadBodyText(result);
-        object? body = InvocationResultHelpers.TryParseJson(text, out var json) ? json : null;
+        object? body = InvocationResultHelpers.TryParseJson(result, out var json) ? json : null;
 
         return new()
         {
@@ -79,12 +77,12 @@ static class A2AInvocationResultMapper
         return JsonRpcError.Internal("Endpoint invocation failed.");
     }
 
-    static A2APart BuildResponsePart(string text, string mediaType)
+    static A2APart BuildResponsePart(InvocationResult result, string mediaType)
     {
-        if (IsJsonMediaType(mediaType) && InvocationResultHelpers.TryParseJson(text, out var data))
+        if (IsJsonMediaType(mediaType) && InvocationResultHelpers.TryParseJson(result, out var data))
             return new() { Data = data, MediaType = mediaType };
 
-        return new() { Text = text, MediaType = mediaType };
+        return new() { Text = InvocationResultHelpers.ReadBodyText(result), MediaType = mediaType };
     }
 
     static bool IsJsonMediaType(string mediaType)

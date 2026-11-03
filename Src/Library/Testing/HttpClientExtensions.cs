@@ -811,10 +811,10 @@ public static class HttpClientExtensions
         }
     }
 
-    static StringContent? ToContent<TRequest>(this TRequest request) where TRequest : notnull
+    static ByteArrayContent? ToContent<TRequest>(this TRequest request) where TRequest : notnull
     {
         if (request.GetType().GetInterfaces().Contains(Types.IEnumerable))
-            return new(JsonSerializer.Serialize(request, SerOpts.Options), Encoding.UTF8, "application/json");
+            return request.ToJsonContent();
 
         foreach (var prop in request.GetType().BindableProps())
         {
@@ -831,10 +831,18 @@ public static class HttpClientExtensions
             if (prop.GetCustomAttribute<DontBindAttribute>(true) is not null) //covers FormField, RouteParam, QueryParam, FromQuery
                 continue;
 
-            return new(JsonSerializer.Serialize(request, SerOpts.Options), Encoding.UTF8, "application/json");
+            return request.ToJsonContent();
         }
 
         return null;
+    }
+
+    static ByteArrayContent ToJsonContent<TRequest>(this TRequest request) where TRequest : notnull
+    {
+        var content = new ByteArrayContent(JsonSerializer.SerializeToUtf8Bytes(request, SerOpts.Options));
+        content.Headers.ContentType = new("application/json") { CharSet = "utf-8" };
+
+        return content;
     }
 
     static readonly string[] contentHeaders =

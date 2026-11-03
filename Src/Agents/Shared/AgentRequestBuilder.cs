@@ -2,7 +2,6 @@ using System.Collections.Concurrent;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
@@ -36,7 +35,7 @@ sealed class AgentRequestBuilder
         if (args.ValueKind != JsonValueKind.Object)
         {
             if (args.ValueKind is not JsonValueKind.Undefined and not JsonValueKind.Null)
-                request.Body = args.Clone();
+                request.Body = JsonElementWriter.WriteUtf8(args);
 
             request.Path = ResolvePath(requestSpec.RouteSegments, request.RouteValues);
 
@@ -44,7 +43,7 @@ sealed class AgentRequestBuilder
         }
 
         var remainingArgs = args.EnumerateObject().ToDictionary(p => p.Name, p => p.Value.Clone(), StringComparer.OrdinalIgnoreCase);
-        var bodyProps = new JsonObject();
+        var bodyProps = new Dictionary<string, JsonElement>(StringComparer.Ordinal);
         JsonElement? fromBodyPayload = null;
 
         foreach (var routeParam in routeParams)
@@ -116,17 +115,34 @@ sealed class AgentRequestBuilder
                 continue;
             }
 
-            bodyProps[spec.SerializedName] = JsonNode.Parse(value.GetRawText());
+            bodyProps[spec.SerializedName] = value;
         }
 
         if (remainingArgs.Count > 0)
             throw new UnknownAgentArgumentsException(remainingArgs.Keys);
 
-        request.Body = fromBodyPayload ?? (bodyProps.Count > 0 ? JsonSerializer.SerializeToElement(bodyProps, payloadSerializerOptions) : null);
+        if (fromBodyPayload is { } payload)
+            request.Body = JsonElementWriter.WriteUtf8(payload);
+        else if (bodyProps.Count > 0)
+            request.Body = BuildBodyObject(bodyProps, payloadSerializerOptions);
+
         request.Path = ResolvePath(requestSpec.RouteSegments, request.RouteValues);
 
         return request;
     }
+
+    static ReadOnlyMemory<byte> BuildBodyObject(Dictionary<string, JsonElement> bodyProps, JsonSerializerOptions payloadSerializerOptions)
+        => JsonElementWriter.WriteObjectUtf8(
+            bodyProps,
+            static (writer, props) =>
+            {
+                foreach (var (name, value) in props)
+                {
+                    writer.WritePropertyName(name);
+                    value.WriteTo(writer);
+                }
+            },
+            payloadSerializerOptions.MaxDepth);
 
     static AgentRequestSpec BuildRequestSpec(EndpointDefinition definition, JsonSerializerOptions serializerOptions)
     {
@@ -459,7 +475,8 @@ sealed class AgentRequest
 {
     public string Method { get; set; } = "POST";
     public PathString Path { get; set; } = "/";
-    public JsonElement? Body { get; set; }
+    // utf-8 json, written once by the builder and handed to the request stream without another serialization pass
+    public ReadOnlyMemory<byte>? Body { get; set; }
     public Dictionary<string, object?> RouteValues { get; } = new(StringComparer.OrdinalIgnoreCase);
     public List<KeyValuePair<string, string?>> Query { get; } = [];
     public Dictionary<string, StringValues> Headers { get; } = new(StringComparer.OrdinalIgnoreCase);

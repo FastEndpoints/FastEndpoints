@@ -107,7 +107,7 @@ public class FinancialResponseCaptureTests
         if (stored.Response is not null)
         {
             stored.Response.StatusCode.ShouldBe(firstStatus);
-            stored.Response.Headers.Single(h => h.Key == "X-Final").Value.ShouldBe(["upstream"]);
+            stored.Response.Headers.Single(h => h.Key == "X-Final").Value.ToArray().ShouldBe(["upstream"]);
             stored.Response.Headers.ShouldNotContain(h => h.Key == "Set-Cookie");
         }
         using var retry = await client.PostAsync(app.Urls.Single(), new StringContent("same"));
@@ -472,7 +472,7 @@ public class FinancialResponseCaptureTests
         var stored = await store.TryBeginAsync(identity, hash, CancellationToken.None);
         stored.Kind.ShouldBe(FinancialBeginKind.Replay);
         stored.Response!.Headers.Select(h => h.Key).ShouldBe(["Idempotency-Key", "X-Retained"]);
-        stored.Response.Headers.Single(h => h.Key == "X-Retained").Value.ShouldBe(["first", "second"]);
+        stored.Response.Headers.Single(h => h.Key == "X-Retained").Value.ToArray().ShouldBe(["first", "second"]);
 
         var replay = CreateContext();
         await middleware.Invoke(replay);
@@ -482,6 +482,12 @@ public class FinancialResponseCaptureTests
             replay.Response.Headers.ContainsKey(name).ShouldBeFalse();
         replay.Response.ContentLength.ShouldBe(body.LongLength);
         ((MemoryStream)replay.Response.Body).ToArray().ShouldBe(body);
+        string[] replayed = replay.Response.Headers["X-Retained"]!;
+        replayed[0] = "mutated"; // live response headers must not share arrays with the stored response
+
+        var secondReplay = CreateContext();
+        await middleware.Invoke(secondReplay);
+        secondReplay.Response.Headers["X-Retained"].ToArray().ShouldBe(["first", "second"]);
         executions.ShouldBe(1);
 
         DefaultHttpContext CreateContext()
@@ -544,6 +550,32 @@ public class FinancialResponseCaptureTests
     {
         await using var capture = new FinancialResponseCapture(new HttpResponseFeature(), 4);
         await Should.ThrowAsync<IOException>(async () => await capture.Stream.WriteAsync(new byte[5]));
+    }
+
+    [Theory]
+    [InlineData(200, 0, null)]
+    [InlineData(200, 50, 100L)]
+    [InlineData(200 * 1024, 0, null)]
+    [InlineData(200 * 1024, 70 * 1024, 100 * 1024L)]
+    public async Task SendFile_Captures_Requested_File_Range(int size, long offset, long? count)
+    {
+        var path = Path.GetTempFileName();
+
+        try
+        {
+            var contents = new byte[size];
+            Random.Shared.NextBytes(contents);
+            await File.WriteAllBytesAsync(path, contents);
+            await using var capture = new FinancialResponseCapture(new HttpResponseFeature(), 1024 * 1024);
+
+            await capture.SendFileAsync(path, offset, count);
+
+            (await capture.SnapshotAsync()).ShouldBe(contents.AsSpan((int)offset, (int)(count ?? size - offset)).ToArray());
+        }
+        finally
+        {
+            File.Delete(path);
+        }
     }
 
     [Fact]

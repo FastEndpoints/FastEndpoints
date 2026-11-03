@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
 
@@ -31,9 +32,9 @@ static class FinancialIdempotencyHeaders
            name.Equals(HeaderNames.TransferEncoding, StringComparison.OrdinalIgnoreCase) ||
            name.Equals(HeaderNames.Connection, StringComparison.OrdinalIgnoreCase);
 
-    internal static List<KeyValuePair<string, string[]>> SnapshotHeaders(IHeaderDictionary headers)
+    internal static ImmutableArray<KeyValuePair<string, ImmutableArray<string>>> SnapshotHeaders(IHeaderDictionary headers)
     {
-        var list = new List<KeyValuePair<string, string[]>>(headers.Count);
+        var list = ImmutableArray.CreateBuilder<KeyValuePair<string, ImmutableArray<string>>>(headers.Count);
         var nominated = headers.Connection.ToString().Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
 
         foreach (var header in headers)
@@ -44,10 +45,10 @@ static class FinancialIdempotencyHeaders
                 header.Key.Equals(HeaderNames.ContentLength, StringComparison.OrdinalIgnoreCase))
                 continue;
 
-            list.Add(new(header.Key, header.Value.Select(v => v ?? "").ToArray()));
+            list.Add(new(header.Key, [.. header.Value.Select(v => v ?? "")]));
         }
 
-        return list;
+        return list.DrainToImmutable();
     }
 
     internal static List<string> IdentityHeaderNames(string headerName, IEnumerable<string> additionalHeaders)

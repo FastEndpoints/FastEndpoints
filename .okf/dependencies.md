@@ -29,6 +29,12 @@ tags: [deps]
 - Library version single-sourced in `Src/Directory.Build.props`; Agents override `Version` per csproj.
 - Strong-name key required for pack/sign; InternalsVisibleTo entries must use the public key.
 
+## Kiota 1.29.2 CVE warning
+
+`CVE-2026-105796` / `GHSA-rm89-rhwj-9j92` (Java/PHP doc-comment code injection) is fixed in the net10-pinned Kiota 1.29.2 security backport, as confirmed by the [release notes](https://github.com/microsoft/kiota/releases/tag/v1.29.2). The GitHub advisory still includes 1.29.2 in its affected range. [Advisory Database PR #10705](https://github.com/github/advisory-database/pull/10705), opened 2026-10-27 and still open when checked 2026-11-04, proposes excluding 1.29.2 for both `Microsoft.OpenApi.Kiota` and `Microsoft.OpenApi.Kiota.Builder`.
+
+If this warning recurs, recheck the PR and [current advisory](https://github.com/advisories/GHSA-rm89-rhwj-9j92) before treating it as an unpatched dependency or changing the pin. Preserve the net10 OpenAPI 2.x compatibility constraint above. This correction applies only to this advisory, not all Kiota vulnerabilities; assess other CVEs independently. It does not authorize blanket audit suppression.
+
 ## AspVersioning net11 migration
 
 Keep the integration and its unit tests net10-only until a released upstream package supports the net11 OpenAPI stack. The current Asp.Versioning.OpenApi 10.2.3 dependency range is Microsoft.OpenApi `>= 2.7.5 && < 3.0.0`; this repository's ASP.NET Core OpenAPI 11 RC3 requires `>= 3.10.2 && < 4.0.0`. A net10 package being consumable from net11 does not establish dependency or runtime compatibility. Do not force an incompatible Microsoft.OpenApi version or suppress restore warnings to bypass this gate.

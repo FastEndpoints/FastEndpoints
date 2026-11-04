@@ -46,13 +46,10 @@ public sealed class MemoryFinancialIdempotencyStore : IFinancialIdempotencyStore
         if (identityKey.Length is 0 or > 1024 || payloadHash.Length is 0 or > 128)
             throw new ArgumentException("Reservation metadata exceeds supported limits.");
 
-        // stored responses are never mutated, so the replay copy is made after releasing the lock
-        var result = Begin(identityKey, payloadHash);
-
-        return new(result.Kind == FinancialBeginKind.Replay ? FinancialBeginResult.Replay(Clone(result.Response!)) : result);
+        return new(Begin(identityKey, payloadHash));
     }
 
-    // a replay result carries the stored instance, which the caller must copy before handing out
+    // responses are immutable, so a replay hands out the stored instance
     FinancialBeginResult Begin(string identityKey, ReadOnlyMemory<byte> payloadHash)
     {
         lock (_gate)
@@ -106,23 +103,6 @@ public sealed class MemoryFinancialIdempotencyStore : IFinancialIdempotencyStore
 
         var size = Size(response);
 
-        // a response larger than the whole budget can never be stored, so skip the copy and only resolve ownership
-        if (size > _budget)
-        {
-            lock (_gate)
-            {
-                var result = Check(identityKey, reservationToken, out _);
-
-                if (result != FinancialSettlementResult.Applied)
-                    return Task.FromResult(result);
-            }
-
-            throw ResponseCapacityExhausted();
-        }
-
-        // copy before taking the lock so large bodies don't block other requests
-        var copy = Clone(response);
-
         lock (_gate)
         {
             Reclaim();
@@ -134,7 +114,7 @@ public sealed class MemoryFinancialIdempotencyStore : IFinancialIdempotencyStore
             if (size > _budget - _used)
                 throw ResponseCapacityExhausted();
 
-            record!.Response = copy;
+            record!.Response = response;
             record.Size = size;
             record.Expires = _time.GetUtcNow() + ttl;
             record.State = RecordState.Completed;
@@ -234,12 +214,12 @@ public sealed class MemoryFinancialIdempotencyStore : IFinancialIdempotencyStore
         {
             checked
             {
-                var size = response.Body.LongLength;
+                long size = response.Body.Length;
                 foreach (var header in response.Headers)
                 {
                     size += header.Key.Length * 2L + 32;
                     foreach (var value in header.Value)
-                        size += value.Length * 2L + 24;
+                        size += (value?.Length ?? 0) * 2L + 24;
                 }
 
                 return size;
@@ -250,13 +230,6 @@ public sealed class MemoryFinancialIdempotencyStore : IFinancialIdempotencyStore
             return long.MaxValue;
         }
     }
-
-    static FinancialIdempotencyResponse Clone(FinancialIdempotencyResponse response)
-        => new()
-        {
-            StatusCode = response.StatusCode, Body = response.Body.ToArray(),
-            Headers = response.Headers.Select(h => new KeyValuePair<string, string[]>(h.Key, h.Value.ToArray())).ToArray()
-        };
 
     enum RecordState
     {

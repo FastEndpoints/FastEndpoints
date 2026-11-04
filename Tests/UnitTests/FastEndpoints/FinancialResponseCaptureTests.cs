@@ -107,7 +107,7 @@ public class FinancialResponseCaptureTests
         if (stored.Response is not null)
         {
             stored.Response.StatusCode.ShouldBe(firstStatus);
-            stored.Response.Headers.Single(h => h.Key == "X-Final").Value.ShouldBe(["upstream"]);
+            stored.Response.Headers.Single(h => h.Key == "X-Final").Value.ToArray().ShouldBe(["upstream"]);
             stored.Response.Headers.ShouldNotContain(h => h.Key == "Set-Cookie");
         }
         using var retry = await client.PostAsync(app.Urls.Single(), new StringContent("same"));
@@ -396,7 +396,8 @@ public class FinancialResponseCaptureTests
             await ctx.Response.Body.WriteAsync(body);
         }, store, Microsoft.Extensions.Logging.Abstractions.NullLogger<FinancialIdempotencyMiddleware>.Instance);
 
-        var first = CreateContext();
+        var first = CreateContext(definition, method);
+        first.Response.ContentLength = 999;
         await middleware.Invoke(first);
         AssertDelivery(first, status, firstBodyAllowed);
 
@@ -409,23 +410,12 @@ public class FinancialResponseCaptureTests
         }
         else
         {
-            var replay = CreateContext();
+            var replay = CreateContext(definition, method);
+            replay.Response.ContentLength = 999;
             await middleware.Invoke(replay);
             AssertDelivery(replay, replayStatus ?? status, replayBodyAllowed);
         }
         executions.ShouldBe(1);
-
-        DefaultHttpContext CreateContext()
-        {
-            var ctx = new DefaultHttpContext();
-            ctx.Request.Method = method;
-            ctx.Request.Headers["Idempotency-Key"] = "same";
-            ctx.Response.Body = new MemoryStream();
-            ctx.Response.ContentLength = 999;
-            ctx.SetEndpoint(new Microsoft.AspNetCore.Http.Endpoint(_ => Task.CompletedTask, new EndpointMetadataCollection(definition), "financial"));
-
-            return ctx;
-        }
 
         void AssertDelivery(DefaultHttpContext ctx, int expectedStatus, bool bodyAllowed)
         {
@@ -456,7 +446,7 @@ public class FinancialResponseCaptureTests
             await ctx.Response.Body.WriteAsync(body);
         }, store, Microsoft.Extensions.Logging.Abstractions.NullLogger<FinancialIdempotencyMiddleware>.Instance);
 
-        var first = CreateContext();
+        var first = CreateContext(definition);
         await middleware.Invoke(first);
         first.Response.Headers["X-Retained"].ToArray().ShouldBe(["first", "second"]);
         first.Response.Headers["Set-Cookie"].ToString().ShouldBe("session=value");
@@ -472,9 +462,9 @@ public class FinancialResponseCaptureTests
         var stored = await store.TryBeginAsync(identity, hash, CancellationToken.None);
         stored.Kind.ShouldBe(FinancialBeginKind.Replay);
         stored.Response!.Headers.Select(h => h.Key).ShouldBe(["Idempotency-Key", "X-Retained"]);
-        stored.Response.Headers.Single(h => h.Key == "X-Retained").Value.ShouldBe(["first", "second"]);
+        stored.Response.Headers.Single(h => h.Key == "X-Retained").Value.ToArray().ShouldBe(["first", "second"]);
 
-        var replay = CreateContext();
+        var replay = CreateContext(definition);
         await middleware.Invoke(replay);
         replay.Response.StatusCode.ShouldBe(201);
         replay.Response.Headers["X-Retained"].ToArray().ShouldBe(["first", "second"]);
@@ -482,18 +472,13 @@ public class FinancialResponseCaptureTests
             replay.Response.Headers.ContainsKey(name).ShouldBeFalse();
         replay.Response.ContentLength.ShouldBe(body.LongLength);
         ((MemoryStream)replay.Response.Body).ToArray().ShouldBe(body);
+        string[] replayed = replay.Response.Headers["X-Retained"]!;
+        replayed[0] = "mutated"; // live response headers must not share arrays with the stored response
+
+        var secondReplay = CreateContext(definition);
+        await middleware.Invoke(secondReplay);
+        secondReplay.Response.Headers["X-Retained"].ToArray().ShouldBe(["first", "second"]);
         executions.ShouldBe(1);
-
-        DefaultHttpContext CreateContext()
-        {
-            var ctx = new DefaultHttpContext();
-            ctx.Request.Method = "POST";
-            ctx.Request.Headers["Idempotency-Key"] = "same";
-            ctx.Response.Body = new MemoryStream();
-            ctx.SetEndpoint(new Microsoft.AspNetCore.Http.Endpoint(_ => Task.CompletedTask, new EndpointMetadataCollection(definition), "financial"));
-
-            return ctx;
-        }
     }
 
     [Fact]
@@ -546,6 +531,32 @@ public class FinancialResponseCaptureTests
         await Should.ThrowAsync<IOException>(async () => await capture.Stream.WriteAsync(new byte[5]));
     }
 
+    [Theory]
+    [InlineData(200, 0, null)]
+    [InlineData(200, 50, 100L)]
+    [InlineData(200 * 1024, 0, null)]
+    [InlineData(200 * 1024, 70 * 1024, 100 * 1024L)]
+    public async Task SendFile_Captures_Requested_File_Range(int size, long offset, long? count)
+    {
+        var path = Path.GetTempFileName();
+
+        try
+        {
+            var contents = new byte[size];
+            Random.Shared.NextBytes(contents);
+            await File.WriteAllBytesAsync(path, contents);
+            await using var capture = new FinancialResponseCapture(new HttpResponseFeature(), 1024 * 1024);
+
+            await capture.SendFileAsync(path, offset, count);
+
+            (await capture.SnapshotAsync()).ShouldBe(contents.AsSpan((int)offset, (int)(count ?? size - offset)).ToArray());
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+    }
+
     [Fact]
     public async Task Successful_Handler_Completes_Even_If_Client_Aborted()
     {
@@ -566,7 +577,7 @@ public class FinancialResponseCaptureTests
             store,
             Microsoft.Extensions.Logging.Abstractions.NullLogger<FinancialIdempotencyMiddleware>.Instance);
 
-        var first = CreateContext();
+        var first = CreateContext(definition);
         first.RequestAborted = abort.Token;
 
         try
@@ -575,22 +586,11 @@ public class FinancialResponseCaptureTests
         }
         catch (OperationCanceledException) { }
 
-        var replay = CreateContext();
+        var replay = CreateContext(definition);
         await middleware.Invoke(replay);
         replay.Response.StatusCode.ShouldBe(201);
         ((MemoryStream)replay.Response.Body).ToArray().ShouldBe(body);
         executions.ShouldBe(1);
-
-        DefaultHttpContext CreateContext()
-        {
-            var ctx = new DefaultHttpContext();
-            ctx.Request.Method = "POST";
-            ctx.Request.Headers["Idempotency-Key"] = "same";
-            ctx.Response.Body = new MemoryStream();
-            ctx.SetEndpoint(new Microsoft.AspNetCore.Http.Endpoint(_ => Task.CompletedTask, new EndpointMetadataCollection(definition), "financial"));
-
-            return ctx;
-        }
     }
 
     [Fact]
@@ -612,25 +612,14 @@ public class FinancialResponseCaptureTests
             store,
             Microsoft.Extensions.Logging.Abstractions.NullLogger<FinancialIdempotencyMiddleware>.Instance);
 
-        var first = CreateContext();
+        var first = CreateContext(definition);
         first.RequestAborted = abort.Token;
         await Should.ThrowAsync<OperationCanceledException>(() => middleware.Invoke(first));
 
-        var retry = CreateContext();
+        var retry = CreateContext(definition);
         await middleware.Invoke(retry);
         retry.Response.StatusCode.ShouldBe(409);
         executions.ShouldBe(1);
-
-        DefaultHttpContext CreateContext()
-        {
-            var ctx = new DefaultHttpContext();
-            ctx.Request.Method = "POST";
-            ctx.Request.Headers["Idempotency-Key"] = "same";
-            ctx.Response.Body = new MemoryStream();
-            ctx.SetEndpoint(new Microsoft.AspNetCore.Http.Endpoint(_ => Task.CompletedTask, new EndpointMetadataCollection(definition), "financial"));
-
-            return ctx;
-        }
     }
 
     [Theory]
@@ -647,11 +636,7 @@ public class FinancialResponseCaptureTests
             store,
             Microsoft.Extensions.Logging.Abstractions.NullLogger<FinancialIdempotencyMiddleware>.Instance);
 
-        var ctx = new DefaultHttpContext();
-        ctx.Request.Method = "POST";
-        ctx.Request.Headers["Idempotency-Key"] = "same";
-        ctx.Response.Body = new MemoryStream();
-        ctx.SetEndpoint(new Microsoft.AspNetCore.Http.Endpoint(_ => Task.CompletedTask, new EndpointMetadataCollection(definition), "financial"));
+        var ctx = CreateContext(definition);
 
         // the response builder is global, so only capture failures for this test's context.
         var errOpts = Config.ErrOpts;
@@ -696,31 +681,20 @@ public class FinancialResponseCaptureTests
             store,
             Microsoft.Extensions.Logging.Abstractions.NullLogger<FinancialIdempotencyMiddleware>.Instance);
 
-        var missingToken = Context();
+        var missingToken = CreateContext(definition);
         await middleware.Invoke(missingToken);
         missingToken.Response.StatusCode.ShouldBe(500);
 
         store.WhitespaceToken = true;
-        var whitespaceToken = Context();
+        var whitespaceToken = CreateContext(definition);
         await middleware.Invoke(whitespaceToken);
         whitespaceToken.Response.StatusCode.ShouldBe(500);
 
         store.ReplayWithoutBody = true;
-        var missingBody = Context();
+        var missingBody = CreateContext(definition);
         await middleware.Invoke(missingBody);
         missingBody.Response.StatusCode.ShouldBe(500);
         executions.ShouldBe(0);
-
-        DefaultHttpContext Context()
-        {
-            var ctx = new DefaultHttpContext();
-            ctx.Request.Method = "POST";
-            ctx.Request.Headers["Idempotency-Key"] = "same";
-            ctx.Response.Body = new MemoryStream();
-            ctx.SetEndpoint(new Microsoft.AspNetCore.Http.Endpoint(_ => Task.CompletedTask, new EndpointMetadataCollection(definition), "financial"));
-
-            return ctx;
-        }
     }
 
     [Theory]
@@ -739,11 +713,7 @@ public class FinancialResponseCaptureTests
             o.Duration = TimeSpan.FromHours(2);
             o.UnreplayableRetention = TimeSpan.FromHours(retentionHours);
         });
-        var ctx = new DefaultHttpContext();
-        ctx.Request.Method = "POST";
-        ctx.Request.Headers["Idempotency-Key"] = "same";
-        ctx.Response.Body = new MemoryStream();
-        ctx.SetEndpoint(new Microsoft.AspNetCore.Http.Endpoint(_ => Task.CompletedTask, new EndpointMetadataCollection(definition), "financial"));
+        var ctx = CreateContext(definition);
         var opts = definition.FinancialIdempotencyOptions!;
         var identity = FinancialIdentity.Build(ctx.Request, opts, "account");
         var hash = await FinancialPayloadHash.ComputeAsync(ctx.Request, CancellationToken.None);
@@ -771,6 +741,17 @@ public class FinancialResponseCaptureTests
         (await store.TryBeginAsync(identity, hash, CancellationToken.None)).Kind.ShouldBe(FinancialBeginKind.Unreplayable);
         clock.Now += TimeSpan.FromTicks(1);
         (await store.TryBeginAsync(identity, hash, CancellationToken.None)).Kind.ShouldBe(FinancialBeginKind.Started);
+    }
+
+    static DefaultHttpContext CreateContext(EndpointDefinition definition, string method = "POST")
+    {
+        var ctx = new DefaultHttpContext();
+        ctx.Request.Method = method;
+        ctx.Request.Headers["Idempotency-Key"] = "same";
+        ctx.Response.Body = new MemoryStream();
+        ctx.SetEndpoint(new Microsoft.AspNetCore.Http.Endpoint(_ => Task.CompletedTask, new EndpointMetadataCollection(definition), "financial"));
+
+        return ctx;
     }
 
     sealed class RetentionClock : TimeProvider

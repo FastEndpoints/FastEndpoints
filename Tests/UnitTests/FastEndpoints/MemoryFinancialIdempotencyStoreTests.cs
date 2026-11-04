@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using FastEndpoints;
 using Xunit;
 
@@ -8,6 +9,8 @@ public class MemoryFinancialIdempotencyStoreTests
     static readonly TimeSpan Ttl = TimeSpan.FromSeconds(1);
     static ValueTask<FinancialBeginResult> Begin(MemoryFinancialIdempotencyStore store, string key = "k", byte value = 1)
         => store.TryBeginAsync(key, new byte[] { value }, default);
+    static FinancialIdempotencyResponse Response(params byte[] body)
+        => new(200, [], [.. body]);
 
     [Fact]
     public void Constructor_Validates_Budget_And_Entry_Limits()
@@ -76,9 +79,9 @@ public class MemoryFinancialIdempotencyStoreTests
         var first = await Begin(store);
         await store.AbandonAsync("k", first.ReservationToken!, default);
         var second = await Begin(store);
-        (await store.CompleteAsync("k", first.ReservationToken!, new(), Ttl, default)).ShouldBe(FinancialSettlementResult.OwnershipLost);
+        (await store.CompleteAsync("k", first.ReservationToken!, Response(), Ttl, default)).ShouldBe(FinancialSettlementResult.OwnershipLost);
         (await store.AbandonAsync("k", first.ReservationToken!, default)).ShouldBe(FinancialSettlementResult.OwnershipLost);
-        (await store.CompleteAsync("k", second.ReservationToken!, new() { StatusCode = 201 }, Ttl, default)).ShouldBe(FinancialSettlementResult.Applied);
+        (await store.CompleteAsync("k", second.ReservationToken!, new(201, [], []), Ttl, default)).ShouldBe(FinancialSettlementResult.Applied);
         (await store.AbandonAsync("k", second.ReservationToken!, default)).ShouldBe(FinancialSettlementResult.AlreadySettled);
         (await store.MarkUnreplayableAsync("k", second.ReservationToken!, Ttl, default)).ShouldBe(FinancialSettlementResult.AlreadySettled);
         (await Begin(store)).Kind.ShouldBe(FinancialBeginKind.Replay);
@@ -90,61 +93,58 @@ public class MemoryFinancialIdempotencyStoreTests
         var clock = new Clock();
         var store = new MemoryFinancialIdempotencyStore(1, time: clock, maxEntries: 1);
         var first = await Begin(store);
-        await store.CompleteAsync("k", first.ReservationToken!, new() { Body = [1] }, Ttl, default);
+        await store.CompleteAsync("k", first.ReservationToken!, Response(1), Ttl, default);
         await Should.ThrowAsync<InvalidOperationException>(async () => await Begin(store, "next"));
         clock.Now += TimeSpan.FromSeconds(2);
         var next = await Begin(store, "next");
-        (await store.CompleteAsync("next", next.ReservationToken!, new() { Body = [2] }, Ttl, default)).ShouldBe(FinancialSettlementResult.Applied);
+        (await store.CompleteAsync("next", next.ReservationToken!, Response(2), Ttl, default)).ShouldBe(FinancialSettlementResult.Applied);
     }
 
     [Fact]
-    public async Task Storage_And_Replay_Are_Defensive_Snapshots()
+    public async Task Default_Headers_And_Body_Are_Stored_As_Empty()
+    {
+        var response = new FinancialIdempotencyResponse(204, default, default);
+        response.Headers.IsDefault.ShouldBeFalse();
+        response.Headers.ShouldBeEmpty();
+        response.Body.IsDefault.ShouldBeFalse();
+        response.Body.ShouldBeEmpty();
+
+        var withDefaultValue = new FinancialIdempotencyResponse(200, [new("X", ["1"]), new("Y", default)], []);
+        withDefaultValue.Headers.Select(h => h.Key).ShouldBe(["X", "Y"]);
+        withDefaultValue.Headers[0].Value.ToArray().ShouldBe(["1"]);
+        withDefaultValue.Headers[1].Value.IsDefault.ShouldBeFalse();
+        withDefaultValue.Headers[1].Value.ShouldBeEmpty();
+
+        var store = new MemoryFinancialIdempotencyStore();
+        var first = await Begin(store);
+        (await store.CompleteAsync("k", first.ReservationToken!, response, Ttl, default)).ShouldBe(FinancialSettlementResult.Applied);
+        var second = await Begin(store, "other");
+        (await store.CompleteAsync("other", second.ReservationToken!, withDefaultValue, Ttl, default)).ShouldBe(FinancialSettlementResult.Applied);
+    }
+
+    [Fact]
+    public async Task Reservation_Keeps_Its_Own_Copy_Of_The_Payload_Hash()
     {
         var store = new MemoryFinancialIdempotencyStore();
         byte[] hash = [1];
-        var first = await store.TryBeginAsync("k", hash, default);
+        await store.TryBeginAsync("k", hash, default);
         hash[0] = 2;
-        byte[] body = [3];
-        string[] values = ["original"];
-        await store.CompleteAsync("k", first.ReservationToken!, new() { Body = body, Headers = [new("X", values)] }, Ttl, default);
-        body[0] = 4;
-        values[0] = "changed";
-        var replay = (await Begin(store)).Response!;
-        replay.Body[0].ShouldBe((byte)3);
-        replay.Headers[0].Value[0].ShouldBe("original");
-        replay.Body[0] = 9;
-        (await Begin(store)).Response!.Body[0].ShouldBe((byte)3);
+        (await Begin(store)).Kind.ShouldBe(FinancialBeginKind.InFlight);
     }
 
     [Fact]
-    public async Task Copying_A_Completion_Does_Not_Block_Reservations_For_Other_Keys()
+    public async Task Replay_Shares_The_Stored_Response_Without_Copying_The_Body()
     {
         var store = new MemoryFinancialIdempotencyStore();
         var first = await Begin(store);
-        var headers = new BlockingCopyHeaders();
-        var completion = Task.Run(() => store.CompleteAsync("k", first.ReservationToken!, new() { Body = [1], Headers = headers }, Ttl, default));
-        Task<FinancialBeginResult>? otherReservation = null;
+        var body = new byte[64 * 1024];
+        Random.Shared.NextBytes(body);
+        var response = new FinancialIdempotencyResponse(200, [new("X", ["1"])], ImmutableCollectionsMarshal.AsImmutableArray(body));
+        await store.CompleteAsync("k", first.ReservationToken!, response, Ttl, default);
 
-        try
-        {
-            await headers.CopyStarted.Task.WaitAsync(TimeSpan.FromSeconds(5));
-            otherReservation = Task.Run(async () => await Begin(store, "other"));
-            (await otherReservation.WaitAsync(TimeSpan.FromSeconds(5))).Kind.ShouldBe(FinancialBeginKind.Started);
-            completion.IsCompleted.ShouldBeFalse();
-        }
-        finally
-        {
-            headers.ContinueCopy.TrySetResult();
-            await completion.WaitAsync(TimeSpan.FromSeconds(5));
-            if (otherReservation is not null)
-                await otherReservation.WaitAsync(TimeSpan.FromSeconds(5));
-        }
-
-        (await completion).ShouldBe(FinancialSettlementResult.Applied);
         var replay = (await Begin(store)).Response!;
-        replay.Body.ShouldBe(new byte[] { 1 });
-        replay.Headers[0].Key.ShouldBe("X-Test");
-        replay.Headers[0].Value.ShouldBe(new[] { "original" });
+        replay.ShouldBeSameAs(response);
+        replay.Body.ToArray().ShouldBe(body);
     }
 
     [Fact]
@@ -158,7 +158,7 @@ public class MemoryFinancialIdempotencyStoreTests
         {
             try
             {
-                await store.CompleteAsync(pair.Item1, pair.Item2.ReservationToken!, new() { Body = [1] }, Ttl, default);
+                await store.CompleteAsync(pair.Item1, pair.Item2.ReservationToken!, Response(1), Ttl, default);
                 Interlocked.Increment(ref applied);
             }
             catch (InvalidOperationException) { }
@@ -172,9 +172,9 @@ public class MemoryFinancialIdempotencyStoreTests
         var store = new MemoryFinancialIdempotencyStore(1);
         var first = await Begin(store);
         await Should.ThrowAsync<InvalidOperationException>(
-            () => store.CompleteAsync("k", first.ReservationToken!, new() { Body = [1, 2] }, Ttl, default));
+            () => store.CompleteAsync("k", first.ReservationToken!, Response(1, 2), Ttl, default));
         (await Begin(store)).Kind.ShouldBe(FinancialBeginKind.InFlight);
-        (await store.CompleteAsync("k", first.ReservationToken!, new() { Body = [1] }, Ttl, default))
+        (await store.CompleteAsync("k", first.ReservationToken!, Response(1), Ttl, default))
             .ShouldBe(FinancialSettlementResult.Applied);
     }
 
@@ -185,10 +185,10 @@ public class MemoryFinancialIdempotencyStoreTests
         var first = await Begin(store);
         await store.AbandonAsync("k", first.ReservationToken!, default);
         var second = await Begin(store);
-        (await store.CompleteAsync("k", first.ReservationToken!, new() { Body = [1, 2] }, Ttl, default))
+        (await store.CompleteAsync("k", first.ReservationToken!, Response(1, 2), Ttl, default))
             .ShouldBe(FinancialSettlementResult.OwnershipLost);
-        await store.CompleteAsync("k", second.ReservationToken!, new() { Body = [1] }, Ttl, default);
-        (await store.CompleteAsync("k", second.ReservationToken!, new() { Body = [1, 2] }, Ttl, default))
+        await store.CompleteAsync("k", second.ReservationToken!, Response(1), Ttl, default);
+        (await store.CompleteAsync("k", second.ReservationToken!, Response(1, 2), Ttl, default))
             .ShouldBe(FinancialSettlementResult.AlreadySettled);
     }
 
@@ -208,19 +208,19 @@ public class MemoryFinancialIdempotencyStoreTests
         if (!valid)
         {
             var exception = await Should.ThrowAsync<ArgumentOutOfRangeException>(
-                () => store.CompleteAsync("k", first.ReservationToken!, new(), ttl, default));
+                () => store.CompleteAsync("k", first.ReservationToken!, Response(), ttl, default));
             exception.ParamName.ShouldBe("ttl");
             (await Begin(store)).Kind.ShouldBe(FinancialBeginKind.InFlight);
 
             using var cancellation = new CancellationTokenSource();
             cancellation.Cancel();
             var cancelled = await Should.ThrowAsync<OperationCanceledException>(
-                () => store.CompleteAsync("k", first.ReservationToken!, new(), ttl, cancellation.Token));
+                () => store.CompleteAsync("k", first.ReservationToken!, Response(), ttl, cancellation.Token));
             cancelled.CancellationToken.ShouldBe(cancellation.Token);
             return;
         }
 
-        (await store.CompleteAsync("k", first.ReservationToken!, new() { StatusCode = 201 }, ttl, default))
+        (await store.CompleteAsync("k", first.ReservationToken!, new(201, [], []), ttl, default))
             .ShouldBe(FinancialSettlementResult.Applied);
         (await Begin(store)).Kind.ShouldBe(FinancialBeginKind.Replay);
         clock.Now += ttl;
@@ -237,12 +237,12 @@ public class MemoryFinancialIdempotencyStoreTests
         var later = await Begin(store, "later");
         var earlier = await Begin(store, "earlier");
         await Begin(store, "active");
-        await store.CompleteAsync("later", later.ReservationToken!, new(), Ttl * 10, default);
+        await store.CompleteAsync("later", later.ReservationToken!, Response(), Ttl * 10, default);
         clock.Now += Ttl;
         if (unreplayable)
             await store.MarkUnreplayableAsync("earlier", earlier.ReservationToken!, Ttl, default);
         else
-            await store.CompleteAsync("earlier", earlier.ReservationToken!, new(), Ttl, default);
+            await store.CompleteAsync("earlier", earlier.ReservationToken!, Response(), Ttl, default);
 
         clock.Now += Ttl - TimeSpan.FromTicks(1);
         await Should.ThrowAsync<InvalidOperationException>(async () => await Begin(store, "next"));
@@ -266,8 +266,8 @@ public class MemoryFinancialIdempotencyStoreTests
         var first = await Begin(store);
         var later = await Begin(store, "later");
         var active = await Begin(store, "active");
-        await store.CompleteAsync("k", first.ReservationToken!, new() { Body = [1] }, Ttl, default);
-        await store.CompleteAsync("later", later.ReservationToken!, new() { Body = [2] }, Ttl * 2, default);
+        await store.CompleteAsync("k", first.ReservationToken!, Response(1), Ttl, default);
+        await store.CompleteAsync("later", later.ReservationToken!, Response(2), Ttl * 2, default);
         clock.Now += Ttl;
         var replacement = await Begin(store); // Direct removal leaves an earlier, conservative deadline.
         await Should.ThrowAsync<InvalidOperationException>(async () => await Begin(store, "next"));
@@ -275,12 +275,12 @@ public class MemoryFinancialIdempotencyStoreTests
         if (unreplayable)
             await store.MarkUnreplayableAsync("k", replacement.ReservationToken!, Ttl * 3, default);
         else
-            await store.CompleteAsync("k", replacement.ReservationToken!, new() { Body = [3] }, Ttl * 3, default);
+            await store.CompleteAsync("k", replacement.ReservationToken!, Response(3), Ttl * 3, default);
 
         clock.Now += Ttl;
         (await Begin(store, "next")).Kind.ShouldBe(FinancialBeginKind.Started);
         // Reclamation must also recover the expired response's byte budget.
-        (await store.CompleteAsync("active", active.ReservationToken!, new() { Body = [4] }, Ttl * 10, default))
+        (await store.CompleteAsync("active", active.ReservationToken!, Response(4), Ttl * 10, default))
             .ShouldBe(FinancialSettlementResult.Applied);
         (await Begin(store)).Kind.ShouldBe(unreplayable ? FinancialBeginKind.Unreplayable : FinancialBeginKind.Replay);
         await Should.ThrowAsync<InvalidOperationException>(async () => await Begin(store, "last"));
@@ -293,7 +293,7 @@ public class MemoryFinancialIdempotencyStoreTests
     {
         var store = new MemoryFinancialIdempotencyStore(time: new Clock());
         var reservation = await Begin(store);
-        var response = new FinancialIdempotencyResponse();
+        var response = Response();
         await store.CompleteAsync("k", reservation.ReservationToken!, response, Ttl, default);
         for (var i = 0; i < 100; i++)
             await store.CompleteAsync("k", reservation.ReservationToken!, response, Ttl, default);
@@ -314,41 +314,17 @@ public class MemoryFinancialIdempotencyStoreTests
         var first = await Begin(store, "first");
         var second = await Begin(store, "second");
         var active = await Begin(store, "active");
-        await store.CompleteAsync("first", first.ReservationToken!, new() { Body = [1] }, Ttl, default);
-        await store.CompleteAsync("second", second.ReservationToken!, new() { Body = [2] }, Ttl, default);
+        await store.CompleteAsync("first", first.ReservationToken!, Response(1), Ttl, default);
+        await store.CompleteAsync("second", second.ReservationToken!, Response(2), Ttl, default);
         clock.Now += Ttl - TimeSpan.FromTicks(1);
         await Should.ThrowAsync<InvalidOperationException>(
-            () => store.CompleteAsync("active", active.ReservationToken!, new() { Body = [3, 4] }, Ttl, default));
+            () => store.CompleteAsync("active", active.ReservationToken!, Response(3, 4), Ttl, default));
         clock.Now += TimeSpan.FromTicks(1);
-        (await store.CompleteAsync("active", active.ReservationToken!, new() { Body = [3, 4] }, Ttl, default))
+        (await store.CompleteAsync("active", active.ReservationToken!, Response(3, 4), Ttl, default))
             .ShouldBe(FinancialSettlementResult.Applied);
-        (await Begin(store, "active")).Response!.Body.ShouldBe(new byte[] { 3, 4 });
+        (await Begin(store, "active")).Response!.Body.ToArray().ShouldBe(new byte[] { 3, 4 });
         (await Begin(store, "first")).Kind.ShouldBe(FinancialBeginKind.Started);
         (await Begin(store, "second")).Kind.ShouldBe(FinancialBeginKind.Started);
-    }
-
-    sealed class BlockingCopyHeaders : IReadOnlyList<KeyValuePair<string, string[]>>
-    {
-        int _enumerations;
-        public TaskCompletionSource CopyStarted { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
-        public TaskCompletionSource ContinueCopy { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
-        public int Count => 1;
-        public KeyValuePair<string, string[]> this[int index]
-            => index == 0 ? new("X-Test", ["original"]) : throw new ArgumentOutOfRangeException(nameof(index));
-
-        public IEnumerator<KeyValuePair<string, string[]>> GetEnumerator()
-        {
-            // Sizing enumerates once. Pause the second enumeration, when the headers are copied.
-            if (Interlocked.Increment(ref _enumerations) == 2)
-            {
-                CopyStarted.TrySetResult();
-                ContinueCopy.Task.GetAwaiter().GetResult();
-            }
-
-            yield return this[0];
-        }
-
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
     sealed class Clock : TimeProvider

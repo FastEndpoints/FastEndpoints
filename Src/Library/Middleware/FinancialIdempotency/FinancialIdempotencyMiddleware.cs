@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 
@@ -156,12 +157,12 @@ sealed class FinancialIdempotencyMiddleware(RequestDelegate next, IFinancialIdem
 
         if (capture.StatusCode is >= 200 and <= 299)
         {
-            var result = await store.CompleteAsync(identityKey, token, new()
-            {
-                StatusCode = capture.StatusCode,
-                Headers = FinancialIdempotencyHeaders.SnapshotHeaders(capture.Headers),
-                Body = BodyAllowed(ctx, capture.StatusCode) ? body : []
-            }, opts.Duration, settlement.Token).WaitAsync(settlement.Token);
+            // the snapshot is only read after this, so the stored response can share it
+            var response = new FinancialIdempotencyResponse(
+                capture.StatusCode,
+                FinancialIdempotencyHeaders.SnapshotHeaders(capture.Headers),
+                BodyAllowed(ctx, capture.StatusCode) ? ImmutableCollectionsMarshal.AsImmutableArray(body) : []);
+            var result = await store.CompleteAsync(identityKey, token, response, opts.Duration, settlement.Token).WaitAsync(settlement.Token);
 
             if (result != FinancialSettlementResult.Applied)
                 throw new InvalidOperationException(result == FinancialSettlementResult.OwnershipLost
@@ -187,7 +188,7 @@ sealed class FinancialIdempotencyMiddleware(RequestDelegate next, IFinancialIdem
         }
     }
 
-    static async Task WriteBodyAsync(HttpContext ctx, int statusCode, byte[] body)
+    static async Task WriteBodyAsync(HttpContext ctx, int statusCode, ReadOnlyMemory<byte> body)
     {
         if (BodyAllowed(ctx, statusCode))
         {
@@ -213,14 +214,15 @@ sealed class FinancialIdempotencyMiddleware(RequestDelegate next, IFinancialIdem
             if (FinancialIdempotencyHeaders.IsHopByHop(header.Key))
                 continue;
 
-            ctx.Response.Headers[header.Key] = header.Value;
+            // live headers get their own arrays, so later mutation can't reach the stored response
+            ctx.Response.Headers[header.Key] = header.Value.Length == 1 ? new(header.Value[0]) : new(header.Value.ToArray());
         }
 
         if (opts.AddHeaderToResponse)
             ctx.Response.Headers.TryAdd(opts.HeaderName, idmpKey);
 
         ctx.MarkResponseStart();
-        await WriteBodyAsync(ctx, ctx.Response.StatusCode, stored.Body);
+        await WriteBodyAsync(ctx, ctx.Response.StatusCode, stored.Body.AsMemory());
     }
 
     static Task SendError(HttpContext ctx, int statusCode, string message, string? errorCode = null)

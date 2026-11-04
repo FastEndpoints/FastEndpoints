@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+
 namespace FastEndpoints;
 
 /// <summary>
@@ -89,24 +91,47 @@ public readonly struct FinancialBeginResult
 }
 
 /// <summary>
-/// a captured 2xx HTTP response stored for financial idempotency replay
+/// a captured 2xx HTTP response stored for financial idempotency replay.
+/// instances are immutable, so stores may keep one and return it for every replay without copying.
+/// to wrap a buffer you own without copying it, use <c>ImmutableCollectionsMarshal.AsImmutableArray</c> and never
+/// mutate that buffer afterwards.
 /// </summary>
-public sealed class FinancialIdempotencyResponse
+/// <param name="statusCode">the original http status code</param>
+/// <param name="headers">response headers to replay. hop-by-hop headers should already have been omitted.</param>
+/// <param name="body">the captured response body</param>
+public sealed class FinancialIdempotencyResponse(int statusCode,
+                                                 ImmutableArray<KeyValuePair<string, ImmutableArray<string>>> headers,
+                                                 ImmutableArray<byte> body)
 {
     /// <summary>
     /// the original http status code
     /// </summary>
-    public int StatusCode { get; init; }
+    public int StatusCode { get; } = statusCode;
 
     /// <summary>
     /// response headers to replay. hop-by-hop headers should already have been omitted.
     /// </summary>
-    public IReadOnlyList<KeyValuePair<string, string[]>> Headers { get; init; } = [];
+    public ImmutableArray<KeyValuePair<string, ImmutableArray<string>>> Headers { get; } = Normalize(headers);
 
     /// <summary>
     /// the captured response body
     /// </summary>
-    public byte[] Body { get; init; } = [];
+    public ImmutableArray<byte> Body { get; } = body.IsDefault ? [] : body;
+
+    // a store rebuilding a response may leave header values default, which replay and sizing can't enumerate
+    static ImmutableArray<KeyValuePair<string, ImmutableArray<string>>> Normalize(ImmutableArray<KeyValuePair<string, ImmutableArray<string>>> headers)
+    {
+        if (headers.IsDefault)
+            return [];
+
+        foreach (var header in headers)
+        {
+            if (header.Value.IsDefault)
+                return [.. headers.Select(h => h.Value.IsDefault ? new KeyValuePair<string, ImmutableArray<string>>(h.Key, []) : h)];
+        }
+
+        return headers;
+    }
 }
 
 /// <summary>

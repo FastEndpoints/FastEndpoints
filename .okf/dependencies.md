@@ -31,7 +31,7 @@ tags: [deps]
 
 ## AspVersioning net11 migration
 
-Keep the integration and its unit tests net10-only until a released upstream package supports the net11 OpenAPI stack. The current Asp.Versioning.OpenApi 10.2.3 dependency range is Microsoft.OpenApi `>= 2.7.5 && < 3.0.0`; this repository's ASP.NET Core OpenAPI 11 RC2 requires `>= 3.10.2 && < 4.0.0`. A net10 package being consumable from net11 does not establish dependency or runtime compatibility. Do not force an incompatible Microsoft.OpenApi version or suppress restore warnings to bypass this gate.
+Keep the integration and its unit tests net10-only until a released upstream package supports the net11 OpenAPI stack. The current Asp.Versioning.OpenApi 10.2.3 dependency range is Microsoft.OpenApi `>= 2.7.5 && < 3.0.0`; this repository's ASP.NET Core OpenAPI 11 RC3 requires `>= 3.10.2 && < 4.0.0`. A net10 package being consumable from net11 does not establish dependency or runtime compatibility. Do not force an incompatible Microsoft.OpenApi version or suppress restore warnings to bypass this gate.
 
 Upstream investigation starting points (recheck status at migration time): [package dependencies/releases](https://www.nuget.org/packages/Asp.Versioning.OpenApi), [reflection-free prototype PR #1186](https://github.com/dotnet/aspnet-api-versioning/pull/1186), and [framework extensibility proposal #66725](https://github.com/dotnet/aspnetcore/issues/66725). The prototype and framework work are not proof that a compatible versioning package has shipped; no release date is assumed.
 

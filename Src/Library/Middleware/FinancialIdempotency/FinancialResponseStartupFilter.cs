@@ -61,7 +61,7 @@ sealed class FinancialResponseFeature : IHttpResponseFeature
     }
 
     internal Task RunStartingAsync()
-        => _starting is null ? Task.CompletedTask : RunStartingCoreAsync(_starting);
+        => _starting is { Count: > 0 } starting ? RunStartingCoreAsync(starting) : Task.CompletedTask;
 
     static async Task RunStartingCoreAsync(Stack<(Func<object, Task> Callback, object State)> starting)
     {

@@ -25,12 +25,12 @@ sealed class FinancialResponseStartupFilter : IStartupFilter
 sealed class FinancialResponseFeature : IHttpResponseFeature
 {
     readonly IHttpResponseFeature _original;
-    readonly Stack<(Func<object, Task> Callback, object State)> _starting = new();
+    Stack<(Func<object, Task> Callback, object State)>? _starting;
 
     internal FinancialResponseFeature(IHttpResponseFeature original)
     {
         _original = original;
-        original.OnStarting(_ => RunStartingAsync(), this);
+        original.OnStarting(static s => ((FinancialResponseFeature)s).RunStartingAsync(), this);
     }
 
     public int StatusCode { get => _original.StatusCode; set => _original.StatusCode = value; }
@@ -44,7 +44,7 @@ sealed class FinancialResponseFeature : IHttpResponseFeature
     {
         if (HasStarted)
             throw new InvalidOperationException("The response has already started.");
-        _starting.Push((callback, state));
+        (_starting ??= new()).Push((callback, state));
     }
 
     public void OnCompleted(Func<object, Task> callback, object state)
@@ -52,22 +52,28 @@ sealed class FinancialResponseFeature : IHttpResponseFeature
 
     internal void TransferStartingTo(IHttpResponseFeature response)
     {
+        if (_starting is null)
+            return;
+
         foreach (var callback in _starting.Reverse())
             response.OnStarting(callback.Callback, callback.State);
         _starting.Clear();
     }
 
-    internal async Task RunStartingAsync()
+    internal Task RunStartingAsync()
+        => _starting is { Count: > 0 } starting ? RunStartingCoreAsync(starting) : Task.CompletedTask;
+
+    static async Task RunStartingCoreAsync(Stack<(Func<object, Task> Callback, object State)> starting)
     {
         try
         {
-            while (_starting.TryPop(out var callback))
+            while (starting.TryPop(out var callback))
                 await callback.Callback(callback.State);
         }
         finally
         {
             // Consumed callbacks must not run again when the transport starts.
-            _starting.Clear();
+            starting.Clear();
         }
     }
 }

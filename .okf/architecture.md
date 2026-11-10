@@ -31,7 +31,7 @@ Generator → Attributes
 
 Package roles: [monorepo-packages.md](monorepo-packages.md). Source locations: [code-map.md](code-map.md).
 
-**Request path (simplified):** `AddFastEndpoints` registers discovery data → `UseFastEndpoints`/`MapFastEndpoints` maps routes → `FeRequestHandler` (`ResponseStarted` short-circuit) resolves endpoint instance → bind → validate → pre-processors → (`ResponseStarted` short-circuit) → `OnBeforeHandle` → optional `SkipHandlerIfResponseStarted` short-circuit → `HandleAsync`/`ExecuteAsync` → post-processors → send response.
+**Request path (simplified):** `AddFastEndpoints` registers discovery data → `UseFastEndpoints`/`MapFastEndpoints` maps routes → `FeRequestHandler` (`ResponseStarted` short-circuit) resolves endpoint instance → bind → validate → pre-processors → (`ResponseStarted` short-circuit) → `OnBeforeHandle*` → optional `SkipHandlerIfResponseStarted` short-circuit → `HandleAsync`/`ExecuteAsync` → automatic response sending (unless disabled or already started) → `OnAfterHandle*`. Post-processors run in `ExecAsync`'s `finally`, including on its early-return and error paths; they do not precede automatic response sending.
 
 **Startup/mapping split (`Src/Library/Main/`):** public facades stay on `MainExtensions` (`AddFastEndpoints` / `UseFastEndpoints` / `MapFastEndpoints`, plus internal `BuildRoute` for OpenApi/Agents friend usage). Mapping orchestration is `EndpointRouteMapper`; auth policy materialization is `EndpointSecurityPolicies`; accepts/produces API explorer defaults are `EndpointProducesMetadata`; binder/validator precompile is `EndpointWarmup`. Request execution remains `FeRequestHandler` → `EndpointBootstrap` → `Endpoint.ExecAsync`.
 
@@ -42,11 +42,8 @@ Validation caching/orchestration, rule-tree discovery, application, child scopes
 
 ## Dependency rules
 - **Allowed:** higher packages reference lower foundation packages (`Attributes`, `Core`, `Messaging.Core`).
-- **Library** references Attributes, JobQueues, Messaging (not Security/OpenApi; those are optional consumer packages).
-- **Security/OpenApi/OData/AspVersioning** reference Library (addons on top of core HTTP).
-- **Generator** references Attributes only (analyzer package); consumers reference Generator as analyzer.
 - **Agents** (`Mcp`, `A2A`) reference Library; share internal types via linked `Src/Agents/Shared/*.cs` (not a separate NuGet).
-- **Agents friend internals:** Library grants `InternalsVisibleTo` to `FastEndpoints.Mcp` / `FastEndpoints.A2A` (`Src/Library/Metadata.cs`). Consumed internals are a binary contract across independently versioned packages; stock in [gotchas.md](gotchas.md).
+- **Agents friend internals:** Library grants `InternalsVisibleTo` to `FastEndpoints.Mcp` / `FastEndpoints.A2A` (`Src/Library/Metadata.cs`). Consumed internals are a binary contract across independently versioned packages; stock in [agents.md](agents.md).
 - **Forbidden for agents:** invent reverse deps (e.g. Core → Library) or ship Agents.Shared as a public package unless code changes deliberately.
 
 ## Communication
@@ -60,13 +57,12 @@ Validation caching/orchestration, rule-tree discovery, application, child scopes
 - **Remote reflection:** `FastEndpoints.Messaging.Remote.Reflection` is an opt-in satellite package holding the protobuf wire
   format and gRPC server reflection (`AddHandlerReflection` / `MapHandlerReflection`). It generates Google.Protobuf descriptors
   from the command CLR types, so protobuf/reflection dependencies stay out of `Messaging.Remote`.
-- **Jobs:** `AddJobQueues<TJob, TStorage>()` with an app-supplied storage provider. Optional business-key idempotency via `JobQueueOptions.IdempotencyKeyFor`. AOT construction and dedupe traps: [gotchas.md](gotchas.md).
-- **HTTP idempotency:** fingerprint mode is an output-cache policy (`AddIdempotency` + `Idempotency()`). Financial mode is a separate reservation pipeline (`AddFinancialIdempotency` + `UseFinancialIdempotency` + `FinancialIdempotency()`) with `IFinancialIdempotencyStore` (atomic `TryBegin`, ownership-token settlement). Requires a stable caller scope. Do not combine both on one endpoint. Not shared with job-queue `IdempotencyKeyFor`. Settlement and identity traps: [gotchas.md](gotchas.md).
+- **Jobs:** `AddJobQueues<TJob, TStorage>()` with an app-supplied storage provider. Optional business-key idempotency via `JobQueueOptions.IdempotencyKeyFor`. AOT construction and dedupe traps: [messaging.md](messaging.md#messaging-and-jobs).
+- **HTTP idempotency:** fingerprint mode is an output-cache policy (`AddIdempotency` + `Idempotency()`). Financial mode is a separate reservation pipeline (`AddFinancialIdempotency` + `UseFinancialIdempotency` + `FinancialIdempotency()`) with `IFinancialIdempotencyStore` (atomic `TryBegin`, ownership-token settlement). Requires a stable caller scope. Do not combine both on one endpoint. Not shared with job-queue `IdempotencyKeyFor`. Settlement and identity traps: [financial-idempotency.md](financial-idempotency.md).
 
 ## Persistence
 - Framework does **not** own an app DB. Job queues require consumer `IJobStorageProvider` / `IJobStorageRecord` implementations.
-- Job-queue idempotency rules: [gotchas.md](gotchas.md).
-- No EF/migrations in this repo.
+- Job-queue idempotency rules: [messaging.md](messaging.md#messaging-and-jobs).
 
 ## Security / auth
 - Auth is ASP.NET Core middleware + optional `FastEndpoints.Security` (`Src/Security`): JWT bearer, cookies, refresh, revocation.
@@ -82,7 +78,7 @@ Validation caching/orchestration, rule-tree discovery, application, child scopes
 3. Mappers/validators discovered types are typically treated as singletons for performance; no per-request state in mappers.
 4. TFMs, central package versions, and strong-name signing: [dependencies.md](dependencies.md).
 5. Agents addons version independently of core: [monorepo-packages.md](monorepo-packages.md).
-6. Do not rename, retype, or remove Library internals in the Agents friend-assembly stock ([gotchas.md](gotchas.md)) without checking published agent packages and restocking that list.
+6. Do not rename, retype, or remove Library internals in the Agents friend-assembly stock ([agents.md](agents.md)) without checking published agent packages and restocking that list.
 
 ## Sources
 - `Src/Library/Main/MainExtensions.cs`

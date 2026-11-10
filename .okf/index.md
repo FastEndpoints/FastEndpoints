@@ -21,6 +21,9 @@ Compact operational knowledge for agents working in the FastEndpoints repository
 * [Dependencies](dependencies.md) · [Gotchas](gotchas.md) · [Maintenance](maintenance.md)
 * [Monorepo Packages](monorepo-packages.md) · [Generated Code](generated-code.md)
 * [OpenAPI Contracts](openapi.md): generation, schema isolation, validation, examples and compatibility
+* [Agents Compatibility](agents.md): MCP behavior and cross-version friend-assembly contracts
+* [Financial Idempotency](financial-idempotency.md): settlement, response capture, persistence safety
+* [Messaging and Jobs](messaging.md): RPC compatibility, dispatch lifetimes, deduplication and AOT
 * [Remote Events](remote-events.md): protocol/storage contracts, worker ownership, reliability and test isolation
 
 ## Maintenance

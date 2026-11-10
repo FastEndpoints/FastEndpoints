@@ -11,13 +11,13 @@ tags: [maintain]
 - Format and day-to-day gates: [AGENTS.md](../AGENTS.md). The okf-setup skill supplies the closed type list; use `Reference` if unsure.
 - No secrets in OKF. Prefer `## Sources` for multi-source claims.
 - Content selection and compactness: [OKF content discipline](../AGENTS.md#okf-content-discipline).
-- Topic ownership: core files summarize boundaries; testing maps regression suites; gotchas preserves traps and owner-approved review exclusions. Detailed contracts belong in [openapi.md](openapi.md) and [remote-events.md](remote-events.md).
+- Topic ownership: core files summarize boundaries; testing maps regression suites; gotchas preserves traps and owner-approved review exclusions. Detailed domain contracts belong in the task-specific topics linked from [index.md](index.md#task-specific).
 
 ## Update triggers
 Evaluate OKF when changes hit (the update gate is in `AGENTS.md`):
 - architecture / package boundaries / dependency directions
 - public APIs, endpoint pipeline contracts, messaging/job contracts
-- **Agents friend-assembly surface:** Library `internal` members consumed by `FastEndpoints.Mcp` / `FastEndpoints.A2A` via `InternalsVisibleTo` (stock in [gotchas.md](gotchas.md); summary in [monorepo-packages.md](monorepo-packages.md)). Restock when agents gain/drop internal core calls, or when those core members change signature/shape.
+- **Agents friend-assembly surface:** Library `internal` members consumed by `FastEndpoints.Mcp` / `FastEndpoints.A2A` via `InternalsVisibleTo` (stock in [agents.md](agents.md); summary in [monorepo-packages.md](monorepo-packages.md)). Restock when agents gain/drop internal core calls, or when those core members change signature/shape.
 - persistence SPIs (e.g. job storage interfaces)
 - deps / TFMs / central package management
 - build, test, pack, publish, codegen commands

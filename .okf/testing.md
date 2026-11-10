@@ -22,7 +22,7 @@ tags: [test]
 Integration projects reference harness + `FastEndpoints.Testing` + often remote messaging testing helpers.
 
 ## Commands
-Root `global.json` pins the .NET 11 RC2 SDK and sets `"test": { "runner": "Microsoft.Testing.Platform" }` so `dotnet test` uses MTP (required after `xunit.v3` 4.0). Install both .NET 10 and .NET 11 runtimes to run the matrix.
+Root `global.json` selects Microsoft.Testing.Platform for `dotnet test` (required after `xunit.v3` 4.0). SDK and dual-runtime prerequisites: [dependencies.md](dependencies.md#runtime).
 
 ```bash
 # Full solution tests (run once per framework, matching GitHub publish workflow)
@@ -37,9 +37,9 @@ dotnet test Tests/IntegrationTests/FastEndpoints/Int.FastEndpoints.csproj --filt
 node --test Tests/UnitTests/FastEndpoints.Swagger/SwaggerSearchTests.mjs
 ```
 
-Azure installs only the SDK from `global.json` and runs net11.0 tests using the task project glob `Tests/**/*.csproj`, including Native AOT tests. GitHub publish runs the primary solution on both TFMs but leaves its separate AOT steps disabled. Use the solution commands above for portable shell invocations. MTP uses `IsTestingPlatformApplication` for discovery; exit 8 means zero tests ran.
+CI matrix and AOT exclusions: [workflows.md](workflows.md#pack-and-publish). Use the solution commands above for portable shell invocations. MTP uses `IsTestingPlatformApplication` for discovery; exit 8 means zero tests ran.
 
-AOT tests: run `dotnet test NativeAot.slnx -c Release --framework net10.0 --verbosity minimal --max-parallel-test-modules 1` and the equivalent net11 command manually. GitHub publish has these steps commented out to reduce CI duration. The fixture passes the matching `-f` to publish and uses `Tests/NativeAotTests/NativeAotCheckerTests/bin/Release/<TFM>/aot` for isolated binaries. Its publish fingerprint covers the target project directory, so referenced-library-only changes require an explicit `dotnet publish TestHarness/NativeAotChecker/NativeAotChecker.csproj -c Release -f <TFM> -o Tests/NativeAotTests/NativeAotCheckerTests/bin/Release/<TFM>/aot` before smoke tests to verify a fresh native binary.
+AOT tests: run `dotnet test NativeAot.slnx -c Release --framework net10.0 --verbosity minimal --max-parallel-test-modules 1` and the equivalent net11 command manually. The fixture passes the matching `-f` to publish and uses `Tests/NativeAotTests/NativeAotCheckerTests/bin/Release/<TFM>/aot` for isolated binaries. Its publish fingerprint covers the target project directory, so referenced-library-only changes require an explicit `dotnet publish TestHarness/NativeAotChecker/NativeAotChecker.csproj -c Release -f <TFM> -o Tests/NativeAotTests/NativeAotCheckerTests/bin/Release/<TFM>/aot` before smoke tests to verify a fresh native binary.
 
 ## Integration and data
 - **TestBase serial + `[Priority]`:** `TestBase` / `TestBaseWithAssemblyFixture` apply `[TestClass(DisableParallelization = true)]`, `[TestCaseOrderer]`, and `[TestMethodOrderer]`. xunit.v3 4 default parallel mode is `Collections` (same class already serial). The `TestClass` flag is ignored in that mode and only applies if a project enables `ParallelMode.All`. Method + case orderers restore `[Priority]` across `[Fact]` methods and theory rows. No consumer attribute needed.

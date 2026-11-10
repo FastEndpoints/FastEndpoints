@@ -42,13 +42,9 @@ dotnet pack FastEndpoints.slnx -c Release
 dotnet nuget push "Src/**/*.nupkg" -k <NUGET_API_KEY> -s https://api.nuget.org/v3/index.json --skip-duplicate
 ```
 
-GitHub Actions (`.github/workflows/publish-to-nuget.yml`): on tag `v*`:
-1. setup SDK 10.x plus the SDK selected by `global.json`
-2. solution tests on net10/net11 with the [testing.md](testing.md) CI filter (`Int.OpenApi.Kiota` omitted when `CI`/`TF_BUILD` is set). Native AOT test steps on both TFMs are commented out to reduce CI duration.
-3. pack
-4. `NuGet/login@v1.2.0` exchanges GitHub OIDC for a short-lived nuget.org API key (`user: djnitehawk` in the workflow; this is the nuget.org username, not GitHub `dj-nitehawk`)
-5. push with that temp key and `--skip-duplicate` (trusted publishing; no long-lived API key secret). Needed because independently versioned Agents packages (`FastEndpoints.Mcp` / `FastEndpoints.A2A`) are packed with the solution and already exist on nuget.org when their version is unchanged.
-6. non-beta tags: GH release body from `Src/Library/changelog.md`.
+Release automation is defined in [publish-to-nuget.yml](../.github/workflows/publish-to-nuget.yml) (tags `v*`). It uses secretless OIDC for a short-lived NuGet key. The nuget.org username is `djnitehawk`, not GitHub `dj-nitehawk`; no long-lived API key secret is needed.
+
+Coverage gaps: GitHub tests both TFMs but its Native AOT steps are disabled. Kiota integration is omitted under `CI`/`TF_BUILD`. Azure installs only the SDK from `global.json` and tests net11, including AOT through its project glob; it does not test net10 or pack/push. Commands and manual coverage: [testing.md](testing.md).
 
 Changed Agents addons must receive a new independent version in their `.csproj` before release; `--skip-duplicate` skips updated assemblies packaged under an already-published version.
 
@@ -56,12 +52,10 @@ Job permissions: `id-token: write` (OIDC), `contents: write` (GH release).
 
 Trusted publishing policy on nuget.org must match: owner `FastEndpoints`, repo `FastEndpoints`, workflow file `publish-to-nuget.yml` (filename only).
 
-Azure `azure-pipeline.yml`: tag `v*` trigger; installs only the SDK from `global.json`, runs tests under `Tests/` on net11.0 with the same filter (including Native AOT tests via the project glob). No net10.0 test step or pack/push in that file.
-
 ## Changelog
 Rolling current-cycle release notes: `Src/Library/changelog.md`. Non-beta tags dump the **entire file** as the GitHub release body. Entries are purged at every release, so this is not a permanent history or Keep-a-Changelog file. No version headers. During ordinary changes, preserve the sponsorship banner and unrelated entries; do not purge entries unless explicitly asked as part of release work.
 
-Update it in the same change as user-visible library work (new public API/package/feature, user-visible bug fix, notable perf/behavior improvement, breaking change). Skip tests-only, OKF, comments, CI, formatting, internal refactors with no consumer effect, and FE-Docs-only edits. Do not duplicate an existing `<details>` for the same change.
+The update gate is in [AGENTS.md](../AGENTS.md#before-finishing). FE-Docs-only edits do not need a changelog entry. Do not duplicate an existing `<details>` for the same change.
 
 Prepend a new `<details>` immediately under the matching heading (newest first). Do not add headings.
 
@@ -79,8 +73,6 @@ Use HTML `<details><summary>user-facing title</summary>` plus short consumer-fac
 - **Improvements:** State what is better and the practical benefit.
 - **Breaking changes:** Say what changed, who is affected, and what users must do to migrate. Include a small before/after example when useful. Give users enough detail to act safely, while keeping the same conversational voice.
 
-Changelog is release notes. FE-Docs is API docs. Do both when both apply.
-
 ## Lint and format
 - Style primarily via `.editorconfig` + ReSharper/Rider DotSettings (`FastEndpoints.sln.DotSettings.user` is user-local).
 - No dedicated `dotnet format` script required by CI from inspected files; follow editorconfig when editing.
@@ -91,7 +83,7 @@ Changelog is release notes. FE-Docs is API docs. Do both when both apply.
 ## Public documentation
 User-facing docs are the sibling `../FE-Docs/` SvelteKit site (`src/content/docs/` numbered topics). Published: https://fast-endpoints.com. Preview: https://dev.fastendpoints-doc-site.pages.dev. Setup commands are defined by [`package.json`](../../FE-Docs/package.json) and [`README.md`](../../FE-Docs/README.md).
 
-Update FE-Docs when a change is user-visible (public APIs, config, endpoint/messaging/job/security/OpenAPI/AOT behavior, breaking changes, new features). Match neighboring page style. Do not paste doc pages into OKF. Docs are not built by this repo's solutions or publish workflow. Same class of change also needs a changelog entry (see Changelog).
+The update gate is in [AGENTS.md](../AGENTS.md#before-finishing). Match neighboring page style. Docs are not built by this repo's solutions or publish workflow.
 
 ```bash
 # from ../FE-Docs/

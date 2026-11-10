@@ -29,18 +29,13 @@ tags: [conventions]
 
 ## APIs and data
 - REPR: Request DTO + Endpoint + optional Response DTO; configure routes/verbs/auth in `Configure()`.
-- Pre/post processors: `IPreProcessor<TRequest>`, `IPostProcessor<TRequest,TResponse>`.
 - Mappers: `IMapper` / request-response mappers; **stateless** (singleton lifetime expectation).
-- Commands/events: implement `ICommand` / `IEvent` (+ handlers); job queue builds on commands.
-- HTTP idempotency modes and registration: [architecture.md](architecture.md#communication). Settlement and persistence constraints: [gotchas.md](gotchas.md#financial-idempotency).
-- Feature flags: implement `IFeatureFlag`, call `FeatureFlag<T>()` in `Configure()`.
-- Optional attributes: `DontRegister`, `DontInject`, `HideFromDocs`, `RegisterService`, etc. in Attributes package.
+- HTTP idempotency modes and registration: [architecture.md](architecture.md#communication). Settlement and persistence constraints: [financial-idempotency.md](financial-idempotency.md).
 
 ## Config and DI
 - Global options: `UseFastEndpoints(c => { c.Serializer…; c.Endpoints…; })` → `FastEndpoints.Config` (`Cfg` alias).
 - Endpoint ctor DI supported; property injection possible with attributes/options.
 - Manual resolve façade: `Endpoint`/`Group`/`Mapper` inherit `ServiceResolverClient`; `Validator`/`BinderContext`/`HttpContext` extensions forward via `ServiceResolverClient.Forward` (do not re-copy the eight Resolve methods).
-- Service registration generator can emit registration from attributes when generator is referenced.
 - Central package versions: [dependencies.md](dependencies.md). Do not hardcode versions in csproj.
 
 ## Legacy packages

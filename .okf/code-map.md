@@ -19,6 +19,7 @@ tags: [layout]
 | `Src/JobQueues/` | Job queue package (`IJobStorageRecord` addons, `JobQueueOptions`, providers SPI, `DuplicateJobException`) |
 | `Src/CommandRules/` | Rule-based command dispatch package |
 | `Src/Security/` | JWT/cookie/refresh/revocation |
+| `Src/OData/`, `Src/HealthChecks/` | OData integration and health probes |
 | `Src/OpenApi/`, `Src/OpenApi.Kiota/` | OpenAPI + Kiota client gen |
 | `Src/AspVersioning/` | net10-only `Asp.Versioning.Http` integration (`AddVersioning`; optional `Action<VersionedOpenApiOptions>` configures versioned OpenAPI docs via `Asp.Versioning.OpenApi`) |
 | `Src/Swagger/`, `Src/ClientGen*` | Legacy NSwag-era packages (slnx “Legacy” folder) |
@@ -57,7 +58,7 @@ tags: [layout]
 - **Consumer app:** `services.AddFastEndpoints(...)` then `app.UseFastEndpoints(...)` or `MapFastEndpoints`.
 - **Test harness Web:** `TestHarness/Web/Program.cs`; full feature surface for integration tests.
 - **Integration SUT fixture:** `Tests/IntegrationTests/FastEndpoints/Sut.cs` → `AppFixture<Web.Program>`.
-- **Pack/publish:** `dotnet pack FastEndpoints.slnx -c Release`; push `Src/**/*.nupkg`.
+- **Pack/publish:** [workflows.md](workflows.md#pack-and-publish).
 
 ## Feature samples
 Harness features under `TestHarness/Web/[Features]/…` (e.g. `Admin/Login/Endpoint.cs`) show canonical endpoint layout: namespace-per-feature, `Endpoint : Endpoint<Request, Response>`, `Configure()` + handle methods.

@@ -7,7 +7,7 @@ tags: [api, architecture, gotcha]
 
 # OpenAPI Contracts
 
-Applies to `Src/OpenApi/`, the modern Microsoft.AspNetCore.OpenApi + Scalar path used by the harness. NSwag-based Swagger/ClientGen remain legacy; do not change their behavior implicitly. Runtime/package constraints: [dependencies.md](dependencies.md). Regression suites, host isolation, and snapshot regeneration: [testing.md](testing.md#openapi-regression-map).
+Applies to `Src/OpenApi/`, the modern Microsoft.AspNetCore.OpenApi + Scalar path. NSwag-based Swagger/ClientGen remain legacy; do not change their behavior implicitly. Harness stack selection: [testing.md](testing.md#harness-documentation-stack). Runtime/package constraints: [dependencies.md](dependencies.md). Regression suites, host isolation, and snapshot regeneration: [testing.md](testing.md#openapi-regression-map).
 
 ## Generation and ownership
 - Generation is per-request and concurrent. Do not cache or lock `GetOpenApiDocumentAsync`, or restore operation/schema bags to `SharedContext` (even with `AsyncLocal`). State belongs to `OpenApiGenerationState`, keyed by document in a `ConditionalWeakTable`. Shared TestServer execution contexts can let `ResetPerDocumentState()` clear sibling generations. Only snapshot helpers take `Fixture.DocumentGenerationLock`.

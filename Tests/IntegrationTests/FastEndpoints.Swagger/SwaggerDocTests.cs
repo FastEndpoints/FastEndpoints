@@ -18,7 +18,7 @@ public class SwaggerDocTests(Fixture App) : TestBase<Fixture>
 
         await UpdateSnapshotIfEnabled("release-0.json", json);
 
-        var snapshot = await File.ReadAllTextAsync("release-0.json", Cancellation);
+        var snapshot = await File.ReadAllTextAsync(SnapshotPath("release-0.json"), Cancellation);
         var snapshotDoc = JToken.Parse(snapshot);
 
         currentDoc.ShouldBeEquivalentTo(snapshotDoc);
@@ -34,7 +34,7 @@ public class SwaggerDocTests(Fixture App) : TestBase<Fixture>
 
         await UpdateSnapshotIfEnabled("release-1.json", json);
 
-        var snapshot = await File.ReadAllTextAsync("release-1.json", Cancellation);
+        var snapshot = await File.ReadAllTextAsync(SnapshotPath("release-1.json"), Cancellation);
         var snapshotDoc = JToken.Parse(snapshot);
 
         currentDoc.ShouldBeEquivalentTo(snapshotDoc);
@@ -50,10 +50,23 @@ public class SwaggerDocTests(Fixture App) : TestBase<Fixture>
 
         await UpdateSnapshotIfEnabled("release-2.json", json);
 
-        var snapshot = await File.ReadAllTextAsync("release-2.json", Cancellation);
+        var snapshot = await File.ReadAllTextAsync(SnapshotPath("release-2.json"), Cancellation);
         var snapshotDoc = JToken.Parse(snapshot);
 
         currentDoc.ShouldBeEquivalentTo(snapshotDoc);
+    }
+
+    static string SnapshotPath(string jsonFileName)
+    {
+        if (jsonFileName.StartsWith("release-versioning-", StringComparison.Ordinal))
+            return jsonFileName;
+
+#if NET11_0_OR_GREATER
+        const string framework = "net11.0";
+#else
+        const string framework = "net10.0";
+#endif
+        return Path.Combine("Snapshots", framework, jsonFileName);
     }
 
     // ReSharper disable once UnusedMember.Local
@@ -62,7 +75,8 @@ public class SwaggerDocTests(Fixture App) : TestBase<Fixture>
         if (!_updateSnapshots)
             return;
 
-        var destination = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", jsonFileName));
+        var destination = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", SnapshotPath(jsonFileName)));
+        Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
 
         await File.WriteAllTextAsync(destination, jsonContent);
 

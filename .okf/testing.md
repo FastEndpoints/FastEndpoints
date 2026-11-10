@@ -67,6 +67,14 @@ AOT tests: run `dotnet test NativeAot.slnx -c Release --framework net10.0 --verb
 | AOT binding / jobs | `Tests/NativeAotTests/`, including `JobsTests.Void_Jobs_Use_Public_Result_Type_With_Source_Generated_Storage`. Run `NativeAotCheckerTests.csproj` with `-p:RunSmokeTests=false` for JIT/WAF; the default `true` publishes and tests Native AOT. |
 | Agents schemas | `Tests/IntegrationTests/FastEndpoints.Agents/JsonSchemaBuilderTests.cs`, `McpToolSchemaRootTests.cs` |
 
+## Harness documentation stack
+
+`TestHarness/Web/Program.cs` currently selects modern OpenAPI (`AddOpenApiDocuments` + `MapOpenApi` + `MapScalarApiReference`). Registration helpers for both stacks live in `DocumentRegistration.cs`; the Web project references both packages. To test legacy NSwag, select `AddSwaggerDocuments` instead of `AddOpenApiDocuments`, replace `MapOpenApi`/`MapScalarApiReference` with `UseSwaggerGen`, and replace the Scalar using with `using FastEndpoints.Swagger;`. Reverse those changes to restore modern OpenAPI. `Int.Swagger` requires NSwag registration, while modern `Int.OpenApi` suites require modern registration; one stack's fixture cannot validate the other.
+
+Shared harness endpoints must supply stack-specific metadata to each generator when needed. The two packages' `AutoTagOverride` types are distinct; an override registered through the modern extension alone is invisible to NSwag.
+
+Legacy Swagger snapshots live in `Tests/IntegrationTests/FastEndpoints.Swagger/`: release documents use `Snapshots/<TFM>/`, while unchanged release-versioning baselines remain shared in the project root. NSwag infers a `401` for the union-login response on net11 but not net10, so do not overwrite one framework's release baseline with the other's. Review document changes before regenerating with `_updateSnapshots = true` in `SwaggerDocTests.cs` and running its tests for each TFM, then restore `false` and verify `Int.Swagger` on both TFMs. Regeneration deliberately throws after writing each file; it is not a passing verification run.
+
 ## OpenAPI regression map
 All suites below live in `Tests/IntegrationTests/FastEndpoints.OpenApi/` (`Int.OpenApi`). Contract details: [openapi.md](openapi.md). Check focused behavior tests as well as snapshots; preserve endpoint isolation and repeated/concurrent generation coverage.
 

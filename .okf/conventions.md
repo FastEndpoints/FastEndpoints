@@ -44,7 +44,7 @@ tags: [conventions]
 - Central package versions: [dependencies.md](dependencies.md). Do not hardcode versions in csproj.
 
 ## Legacy packages
-- Do not reintroduce NSwag/Swagger paths as default when OpenApi is the active harness path unless task is legacy package work.
+- Keep modern OpenApi and legacy NSwag/Swagger work scoped to the requested stack. Harness selection: [testing.md](testing.md#harness-documentation-stack).
 
 ## Sources
 - `.editorconfig`

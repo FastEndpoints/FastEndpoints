@@ -15,7 +15,12 @@ sealed class AutoTagOverrideEndpoint : EndpointWithoutRequest<string>
         Get("/swagger-review/auto-tag-override");
         Tags("swagger_review");
         AllowAnonymous();
-        Description(b => b.AutoTagOverride("review-tag"));
+        Description(
+            b =>
+            {
+                //FastEndpoints.Swagger.Extensions.AutoTagOverride(b, "review-tag");
+                b.AutoTagOverride("review-tag");
+            });
     }
 
     public override Task HandleAsync(CancellationToken ct)
@@ -46,7 +51,11 @@ sealed class DuplicateRequestExamplesEndpoint : Endpoint<DuplicateRequestExample
         => Send.OkAsync(req.Name, ct);
 }
 
-enum NullableEnumExampleColour { Red, DarkBlue }
+enum NullableEnumExampleColour
+{
+    Red,
+    DarkBlue
+}
 
 sealed class NullableEnumExampleRequest
 {
@@ -98,7 +107,12 @@ sealed class SharedRequestMetadataAlphaEndpoint : Endpoint<SharedRequestMetadata
         => Send.OkAsync(req.Name, ct);
 }
 
-enum SharedRequestExampleKind { None, Default, Alternative }
+enum SharedRequestExampleKind
+{
+    None,
+    Default,
+    Alternative
+}
 
 sealed class SharedRequestExampleDetails
 {
@@ -119,12 +133,13 @@ sealed class SharedRequestExampleAlphaEndpoint : Endpoint<SharedRequestExampleRe
         Post("/swagger-review/shared-request-example-alpha");
         Tags("swagger_review");
         AllowAnonymous();
-        Summary(s => s.ExampleRequest = new()
-        {
-            Test = "one",
-            Kind = SharedRequestExampleKind.Default,
-            Details = new() { Name = "alpha" }
-        });
+        Summary(
+            s => s.ExampleRequest = new()
+            {
+                Test = "one",
+                Kind = SharedRequestExampleKind.Default,
+                Details = new() { Name = "alpha" }
+            });
     }
 
     public override Task HandleAsync(SharedRequestExampleRequest req, CancellationToken ct)
@@ -138,12 +153,15 @@ sealed class SharedRequestExampleBetaEndpoint : Endpoint<SharedRequestExampleReq
         Post("/swagger-review/shared-request-example-beta");
         Tags("swagger_review");
         AllowAnonymous();
-        Summary(s => s.RequestExamples.Add(new(new SharedRequestExampleRequest
-        {
-            Test = "two",
-            Kind = SharedRequestExampleKind.Alternative,
-            Details = new() { Name = "beta" }
-        })));
+        Summary(
+            s => s.RequestExamples.Add(
+                new(
+                    new SharedRequestExampleRequest
+                    {
+                        Test = "two",
+                        Kind = SharedRequestExampleKind.Alternative,
+                        Details = new() { Name = "beta" }
+                    })));
     }
 
     public override Task HandleAsync(SharedRequestExampleRequest req, CancellationToken ct)
@@ -157,21 +175,28 @@ sealed class SharedRequestExampleNamedEndpoint : Endpoint<SharedRequestExampleRe
         Post("/swagger-review/shared-request-example-named");
         Tags("swagger_review");
         AllowAnonymous();
-        Summary(s =>
-        {
-            s.RequestExamples.Add(new(new SharedRequestExampleRequest
+        Summary(
+            s =>
             {
-                Test = "three",
-                Kind = SharedRequestExampleKind.Default,
-                Details = new() { Name = "named" }
-            }, "Default"));
-            s.RequestExamples.Add(new(new SharedRequestExampleRequest
-            {
-                Test = "four",
-                Kind = SharedRequestExampleKind.Alternative,
-                Details = new() { Name = "alternative" }
-            }, "Alternative"));
-        });
+                s.RequestExamples.Add(
+                    new(
+                        new SharedRequestExampleRequest
+                        {
+                            Test = "three",
+                            Kind = SharedRequestExampleKind.Default,
+                            Details = new() { Name = "named" }
+                        },
+                        "Default"));
+                s.RequestExamples.Add(
+                    new(
+                        new SharedRequestExampleRequest
+                        {
+                            Test = "four",
+                            Kind = SharedRequestExampleKind.Alternative,
+                            Details = new() { Name = "alternative" }
+                        },
+                        "Alternative"));
+            });
     }
 
     public override Task HandleAsync(SharedRequestExampleRequest req, CancellationToken ct)

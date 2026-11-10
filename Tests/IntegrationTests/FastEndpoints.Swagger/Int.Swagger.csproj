@@ -7,9 +7,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Content Include="release-0.json" CopyToOutputDirectory="Always"/>
-        <Content Include="release-1.json" CopyToOutputDirectory="Always"/>
-        <Content Include="release-2.json" CopyToOutputDirectory="Always"/>
+        <Content Include="Snapshots/**/*.json" CopyToOutputDirectory="Always"/>
         <Content Include="xunit.runner.json" CopyToOutputDirectory="Always"/>
         <Content Include="release-versioning-v0.json" CopyToOutputDirectory="Always"/>
         <Content Include="release-versioning-v1.json" CopyToOutputDirectory="Always"/>

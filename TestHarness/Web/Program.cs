@@ -159,8 +159,12 @@ app.MapHandlers(
         h.Register<EchoCommand, EchoCommandHandler, EchoCommand>();
         h.RegisterServerStream<StatusStreamCommand, StatusUpdateHandler, StatusUpdate>();
         h.RegisterClientStream<CurrentPosition, PositionProgressHandler, ProgressReport>();
-        h.RegisterEventHub<TestEventQueue>();
-        h.RegisterEventHub<MyEvent>();
+        // Only the RPC fixture owns these event types when multiple test hosts coexist.
+        if (!app.Environment.IsEnvironment("Testing") || app.Configuration.GetValue<bool>("Testing:EnableEventHubs"))
+        {
+            h.RegisterEventHub<TestEventQueue>();
+            h.RegisterEventHub<MyEvent>();
+        }
     });
 
 app.UseJobQueues(

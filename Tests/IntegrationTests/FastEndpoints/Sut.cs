@@ -1,5 +1,6 @@
 ﻿using Admin.Login;
 using Messaging;
+using Microsoft.AspNetCore.Hosting;
 using TestCases.CommandBusTest;
 using TestCases.EventBusTest;
 using TestCases.StreamCommandBusTest;
@@ -15,6 +16,9 @@ public class Sut : AppFixture<Web.Program>
     public HttpClient AdminClient { get; private set; } = default!;
     public HttpClient CustomerClient { get; private set; } = default!;
     public HttpClient RangeClient { get; private set; } = default!;
+
+    protected override void ConfigureApp(IWebHostBuilder a)
+        => a.UseSetting("Testing:EnableEventHubs", "true");
 
     protected override async ValueTask SetupAsync()
     {

@@ -12,7 +12,7 @@ Please [join the discussion here](https://github.com/FastEndpoints/FastEndpoints
 
 <details><summary>Target .NET 10 or .NET 11 when upgrading to FastEndpoints v9</summary>
 
-Runtime packages, including the independently versioned MCP and A2A addons, now target only `net10.0` and `net11.0`. Retarget .NET 8/9 apps before upgrading, or keep your current FastEndpoints version.
+FastEndpoints now targets only `net10.0` and `net11.0`. Retarget .NET 8/9 apps before upgrading, or keep your current FastEndpoints version.
 
 The serializer-context-generator CLI requires .NET 10+. The Roslyn generator requires Roslyn 5.0, the .NET 10+ SDK, and Visual Studio 2026 18.0+ when using VS. Its `netstandard2.0` assets (and attributes) support compiler hosts, not older app runtimes. Upgrade SDKs/IDEs first.
 

@@ -69,7 +69,16 @@ AOT tests: run `dotnet test NativeAot.slnx -c Release --framework net10.0 --verb
 
 ## Harness documentation stack
 
-`TestHarness/Web/Program.cs` currently selects modern OpenAPI (`AddOpenApiDocuments` + `MapOpenApi` + `MapScalarApiReference`). Registration helpers for both stacks live in `DocumentRegistration.cs`; the Web project references both packages. To test legacy NSwag, select `AddSwaggerDocuments` instead of `AddOpenApiDocuments`, replace `MapOpenApi`/`MapScalarApiReference` with `UseSwaggerGen`, and replace the Scalar using with `using FastEndpoints.Swagger;`. Reverse those changes to restore modern OpenAPI. `Int.Swagger` requires NSwag registration, while modern `Int.OpenApi` suites require modern registration; one stack's fixture cannot validate the other.
+`TestHarness/Web/Program.cs` currently selects modern OpenAPI (`AddOpenApiDocuments` + `MapOpenApi` + `MapScalarApiReference`). To test legacy NSwag:
+
+1. Uncomment the `FastEndpoints.Swagger` project reference in `TestHarness/Web/Web.csproj`. Keep the modern OpenApi reference because shared harness code still uses it.
+2. Uncomment `AddSwaggerDocuments` in `TestHarness/Web/DocumentRegistration.cs` and add `using FastEndpoints.Swagger;` there.
+3. In `Program.cs`, select `AddSwaggerDocuments` instead of `AddOpenApiDocuments`, replace `MapOpenApi` and the entire `MapScalarApiReference` call with `UseSwaggerGen` inside the existing non-production guard, and replace the Scalar using with `using FastEndpoints.Swagger;`.
+4. Uncomment the entire `/Legacy/Tests/` folder block in `FastEndpoints.slnx`, including both `Tests/IntegrationTests/FastEndpoints.Swagger/Int.Swagger.csproj` and `Tests/UnitTests/FastEndpoints.Swagger/Unit.Swagger.csproj`, so solution test runs include both suites.
+
+When switching back to modern OpenAPI, reverse these changes and restore the original commented-out NSwag code, project reference, and entire solution folder block (including both test projects) exactly as they were. Do not delete the dormant NSwag setup or leave it uncommented. Preserve unrelated changes.
+
+`Int.Swagger` requires NSwag registration, while modern `Int.OpenApi` suites require modern registration; one stack's fixture cannot validate the other.
 
 Shared harness endpoints must supply stack-specific metadata to each generator when needed. The two packages' `AutoTagOverride` types are distinct; an override registered through the modern extension alone is invisible to NSwag.
 

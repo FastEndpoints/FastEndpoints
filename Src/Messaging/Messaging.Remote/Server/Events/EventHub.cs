@@ -21,7 +21,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
     static readonly Type _tEvent = typeof(TEvent);
     static readonly SubscriberRegistry _registry = new();
     static ISubscriberSelector _selector = new FanOutSelector();
-    static TStorageProvider? _storage;
+    readonly TStorageProvider _storage;
 
     static HubStorageBehavior _storageBehavior = HubStorageBehavior.InMemory;
 
@@ -43,9 +43,8 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
 
     public EventHub(IServiceProvider svcProvider)
     {
-        AllHubs[_tEvent] = this;
         _selector = Mode.HasFlag(HubMode.RoundRobin) ? new RoundRobinSelector() : new FanOutSelector(); // for cases where Mode is set directly (tests) without calling Configure
-        _storage ??= (TStorageProvider)ActivatorUtilities.CreateInstance(svcProvider, typeof(TStorageProvider));
+        _storage = ActivatorUtilities.CreateInstance<TStorageProvider>(svcProvider);
         _storageBehavior = HubStorageBehavior.For(_storage);
         IsInMemoryProvider = _storageBehavior == HubStorageBehavior.InMemory;
         EventHubStorage<TStorageRecord, TStorageProvider>.Provider = _storage; //for stale record purging task setup
@@ -56,6 +55,9 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
             _tEvent.FullName!,
             svcProvider.GetRequiredService<IHostApplicationLifetime>().ApplicationStopping);
         _testEventReceiver = svcProvider.GetService<IEventReceiver<TEvent>>();
+        Runtime = svcProvider.GetRequiredService<EventHubRuntime>();
+        Runtime.Register(this);
+        AllHubs[_tEvent] = this;
     }
 
     protected override async Task Initialize()
@@ -159,7 +161,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
         _ctx.Logger.SubscriberConnected(subscriberID, _tEvent.FullName!);
 
         return EventDispatcherWorker.RunAsync<TEvent, TStorageRecord, TStorageProvider>(
-            _storage!,
+            _storage,
             _storageBehavior,
             _registry,
             _ctx,
@@ -176,13 +178,13 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
         if (!await request.MoveNext(ctx.CancellationToken))
             return;
 
-        var subscriberID = request.Current?.SubscriberID;
+        var subscriberID = request.Current.SubscriberID;
 
         if (string.IsNullOrWhiteSpace(subscriberID))
             return;
 
         await EventDeliveryAckDispatcher.RunAsync<TEvent, TStorageRecord, TStorageProvider>(
-            _storage!,
+            _storage,
             _registry,
             _ctx,
             subscriberID,
@@ -191,7 +193,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
             ctx.CancellationToken);
     }
 
-    //WARNING: this method is never awaited. so it should not surface any exceptions.
+    // The host runtime tracks this task until shutdown has drained accepted broadcasts.
     protected override async Task BroadcastEventTask(IEvent evnt)
     {
         _testEventReceiver?.AddEvent((TEvent)evnt);
@@ -205,8 +207,14 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                 return;
 
             _ctx.Logger.NoSubscribersWarning(_tEvent.FullName!);
-            await Task.Delay(EventHubSettings.NoSubscriberRetryDelay, CancellationToken.None);
 
+            try
+            {
+                await Task.Delay(EventHubSettings.NoSubscriberRetryDelay, _ctx.AppCancellation);
+            }
+            catch (OperationCanceledException) when (_ctx.AppCancellation.IsCancellationRequested) { }
+
+            // Give accepted events one final recipient lookup before ending the shutdown wait.
             subscribers = _selector.SelectRecipients(_registry);
         }
 
@@ -261,7 +269,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
             {
                 // durable providers must persist the outgoing fan-out records even during shutdown so published
                 // events remain available for delivery after restart.
-                await _storage!.StoreEventsAsync(records, _storageBehavior.GetStoreEventsToken(_ctx.AppCancellation));
+                await _storage.StoreEventsAsync(records, _storageBehavior.GetStoreEventsToken(_ctx.AppCancellation));
                 createErrorCount = 0;
 
                 break;
@@ -285,7 +293,17 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
                 if (_ctx.AppCancellation.IsCancellationRequested)
                     break;
 
-                await Task.Delay(EventHubSettings.StorageRetryDelay, CancellationToken.None);
+                try
+                {
+                    await Task.Delay(EventHubSettings.StorageRetryDelay, _ctx.AppCancellation);
+
+                    if (_ctx.AppCancellation.IsCancellationRequested)
+                        break;
+                }
+                catch (OperationCanceledException) when (_ctx.AppCancellation.IsCancellationRequested)
+                {
+                    break;
+                }
             }
         }
     }
@@ -306,7 +324,7 @@ sealed class EventHub<TEvent, TStorageRecord, TStorageProvider> : EventHubBase, 
     //internal to allow unit testing
     internal Task<EmptyObject> OnEventReceived(EventHub<TEvent, TStorageRecord, TStorageProvider> _, TEvent evnt, ServerCallContext __)
     {
-        AddToSubscriberQueues(evnt);
+        QueueEvent(evnt);
 
         return Task.FromResult(EmptyObject.Instance);
     }

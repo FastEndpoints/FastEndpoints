@@ -26,6 +26,10 @@ Remote commands and wire-format selection: [architecture.md](architecture.md#com
 - Execution expiry is refreshed immediately before each ACK insertion attempt. The accepted slow-successful-insert boundary is documented in [review exclusions](gotchas.md#accepted-policies-and-review-exclusions).
 
 ## Worker ownership
+`EventHubRuntime` is a host-owned singleton shared with its hosted-service registration. It owns hub initialization and counts admitted broadcasts under the same lock that closes admission in `StopAsync`. Shutdown drains accepted broadcasts before releasing dependencies, and removes only that host's entries from `AllHubs`. New broadcasts throw after stopping begins. Broker ingress queues on its own hub rather than the process-wide lookup. The accepted exception for detached error callbacks is documented in [review exclusions](gotchas.md#accepted-policies-and-review-exclusions).
+
+No-subscriber waits wake on application stopping and make a final recipient lookup; no recipients means no persistence. Durable writes retain `CancellationToken.None`. The drain logs an expired host deadline but still awaits active writes, so provider-level operation timeouts are required to bound graceful shutdown. Do not replace this with a timeout that abandons writes against soon-to-be-disposed dependencies. Storage retries stop on shutdown. Regression: `EventQueueTests.BroadcastShutdown.cs` uses host-owned disposable dependencies and gated writes.
+
 | Owner | Responsibility |
 | --- | --- |
 | `EventHub.OnDeliveryAck` | Read/validate hello, then delegate |
@@ -44,7 +48,7 @@ Remote commands and wire-format selection: [architecture.md](architecture.md#com
 - Retention validation runs at ACK adapter construction and allowance is read again at receiver startup. Adapter logger identities and storage caches remain protocol-specific.
 
 ## Test isolation
-`EventHub<,,>` sets the static `EventHubStorage<TStorageRecord,TStorageProvider>.Provider`. A second host with default in-memory storage types can replace the main SUT provider. Use distinct closed event/storage types for independent hubs, adapters, and theory variants. Deadline tests use real Kestrel HTTP/2 where transport backpressure matters; helper tests use internal retry-delay overrides. Production retrieval and deserialization retries retain five-second and one-second delays respectively.
+Broadcast storage is held on the hub instance, so recreating a host does not reuse its predecessor's provider. `AllHubs` routing, subscriber registries/configuration, and `EventHubStorage<TStorageRecord,TStorageProvider>.Provider` for purging remain static. General same-event multi-host isolation is not supported; use distinct closed event/storage types for independent hubs, adapters, and theory variants. Deadline tests use real Kestrel HTTP/2 where transport backpressure matters; helper tests use internal retry-delay overrides. Production retrieval and deserialization retries retain five-second and one-second delays respectively.
 
 ## Sources
 - `Src/Messaging/Messaging.Remote/Server/Events/`

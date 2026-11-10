@@ -69,13 +69,13 @@ public partial class EventQueueTests
         behaviorField.SetValue(null, value ? HubStorageBehavior.InMemory : HubStorageBehavior.Durable);
     }
 
-    static TStorageProvider GetStaticHubStorage<TEvent, TStorageRecord, TStorageProvider>()
+    static TStorageProvider GetHubStorage<TEvent, TStorageRecord, TStorageProvider>(EventHub<TEvent, TStorageRecord, TStorageProvider> hub)
         where TEvent : class, IEvent
         where TStorageRecord : class, IEventStorageRecord, new()
         where TStorageProvider : class, IEventHubStorageProvider<TStorageRecord>
         => (TStorageProvider)typeof(EventHub<TEvent, TStorageRecord, TStorageProvider>)
-                             .GetField("_storage", BindingFlags.NonPublic | BindingFlags.Static)!
-                             .GetValue(null)!;
+                             .GetField("_storage", BindingFlags.NonPublic | BindingFlags.Instance)!
+                             .GetValue(hub)!;
 
     static bool SubscriberExists<TEvent>(string subscriberId) where TEvent : class, IEvent
         => TryGetInMemorySubscriber(typeof(TEvent), subscriberId, out _);

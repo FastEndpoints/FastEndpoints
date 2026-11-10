@@ -211,6 +211,14 @@ Required-property checks now reuse the set populated during binding instead of a
 
 ## Fixes 🪲
 
+<details><summary>Pending event broadcasts finish before publisher shutdown releases their dependencies</summary>
+
+Shutting down a publisher while an event was waiting for subscribers could cause a late storage call against disposed services. The host now waits for accepted broadcasts, including durable writes, before releasing their dependencies. New broadcasts are rejected once shutdown starts.
+
+Durable writes still ignore application cancellation. Give your storage operations their own timeouts, since shutdown waits for active writes even after the host's shutdown deadline.
+
+</details>
+
 <details><summary>Requests rejected for their idempotency header get a complete 400 response</summary>
 
 On an endpoint with `Idempotency()`, a request with a missing or repeated idempotency header now gets the 400 for the header, even when its body also fails to bind or it has no `Content-Type`. Previously the endpoint still ran after the 400 had started, so the client received the status and the error body but the response never completed.

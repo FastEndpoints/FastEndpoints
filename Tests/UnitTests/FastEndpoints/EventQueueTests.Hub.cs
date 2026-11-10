@@ -117,7 +117,7 @@ public partial class EventQueueTests
     {
         var provider = CreateServiceProvider();
         var hub = new EventHub<StreamFailureEvent, TestEventRecord, BatchDequeueEventHubStorage>(provider);
-        var storage = GetStaticHubStorage<StreamFailureEvent, TestEventRecord, BatchDequeueEventHubStorage>();
+        var storage = GetHubStorage(hub);
         const string subscriberId = "stream-failure-sub";
 
         SetIsInMemoryProvider(hub);

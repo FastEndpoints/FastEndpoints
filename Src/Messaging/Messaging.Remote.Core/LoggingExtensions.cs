@@ -16,7 +16,7 @@ static partial class LoggingExtensions
     [LoggerMessage(4, LogLevel.Error, "Event subscriber storage 'store-event' error for [subscriber-id:{subscriberId}]({tEvent}): {msg}. Retrying in 5 seconds...")]
     public static partial void StoreEventError(this ILogger l, string subscriberId, string tEvent, string msg);
 
-    [LoggerMessage(5, LogLevel.Error, "Event hub storage 'store-events' error for ({tEvent}): {msg}. Retrying in 5 seconds...")]
+    [LoggerMessage(5, LogLevel.Error, "Event hub storage 'store-events' error for ({tEvent}): {msg}.")]
     public static partial void StoreEventsError(this ILogger l, string tEvent, string msg);
 
     [LoggerMessage(6, LogLevel.Trace, "Event 'stream-receive' error for [subscriber-id:{subscriberId}]({tEvent}): {msg}. Retrying in 5 seconds...")]

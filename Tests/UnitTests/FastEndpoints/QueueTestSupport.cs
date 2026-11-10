@@ -15,6 +15,7 @@ static class QueueTestSupport
         services.AddSingleton<ILoggerFactory, LoggerFactory>();
         services.AddSingleton(typeof(ILogger<>), typeof(Logger<>));
         services.AddSingleton(A.Fake<IHostApplicationLifetime>());
+        services.AddSingleton<FastEndpoints.EventHubRuntime>();
         configure?.Invoke(services);
 
         return services.BuildServiceProvider();

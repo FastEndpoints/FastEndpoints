@@ -93,7 +93,7 @@ This breaks `where TResult : class` over `ICommand<TResult>` (or `IServerStreamC
 
 Remote Event Hubs can now wait for confirmation that a subscriber has stored an event before considering it delivered. If you need that extra assurance for your events, you can opt in with your storage providers. Existing providers continue to work as before.
 
-See the documentation for setup instructions and things to keep in mind when switching over.
+See the [documentation](https://fast-endpoints.com/docs/remote-procedure-calls#delivery-acknowledgements) for setup instructions and things to keep in mind when switching over.
 
 </details>
 
@@ -106,6 +106,7 @@ This is a separate mode from the existing `Idempotency()`, which continues to wo
 ```csharp
 bld.Services.AddFastEndpoints().AddFinancialIdempotency(c =>
     c.CallerScope = ctx => ctx.User.FindFirst("account_id")?.Value);
+    
 app.UseFinancialIdempotency().UseFastEndpoints();
 
 sealed class Charge : Endpoint<Request, Response>
@@ -118,7 +119,7 @@ sealed class Charge : Endpoint<Request, Response>
 }
 ```
 
-See the documentation for the full setup, storage options, and safeguards needed for production use.
+See the [documentation](https://fast-endpoints.com/docs/idempotency#financial-mode-idempotency-stripe-style) for the full setup, storage options, and safeguards needed for production use.
 
 </details>
 

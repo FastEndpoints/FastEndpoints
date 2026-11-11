@@ -11,7 +11,7 @@ tags: [test]
 | Piece | Detail |
 | --- | --- |
 | Framework | **xunit.v3** (MTP v2, no VSTest adapter), Shouldly, FakeItEasy |
-| Test TFMs | **net10.0;net11.0** (`Tests/Directory.Build.props`); Web, OData, OpenApi.Kiota and NativeAotChecker harnesses match |
+| Test TFMs | **net10.0;net11.0** (`Tests/Directory.Build.props`); AspVersioning unit tests are net10-only. Web, OData, OpenApi.Kiota and NativeAotChecker harnesses match |
 | Unit | `Tests/UnitTests/FastEndpoints`, `…/FastEndpoints.Testing`, `…/FastEndpoints.AspVersioning` (+ legacy Swagger unit commented in slnx) |
 | Integration | `Tests/IntegrationTests/FastEndpoints` (main), OpenApi, OpenApi.Kiota, OData, Agents |
 | AOT | `Tests/NativeAotTests/NativeAotCheckerTests` + `NativeAot.slnx` |
@@ -90,14 +90,9 @@ All suites below live in `Tests/IntegrationTests/FastEndpoints.OpenApi/` (`Int.O
 
 | Surface | Suites / focus |
 | --- | --- |
-| XML descriptions / examples | `XmlDocSchemaTransformerTests`, `XmlDocValidatedRequestTests`, `RequestDescriptionOverrideTests` |
+| Schema / operation transformations | Select the matching `*Tests.cs` beside `Int.OpenApi.csproj`; descriptions, examples, validation, binding, tags and security have focused suites. Also use `Unit.Swagger` for shared `RemoveFromSchema` behavior. |
 | XML docs without assembly location | `XmlDocLookupTests`: assembly loaded from bytes exercises the single-file fallback |
-| Enums / examples / reference cloning | `EnumSchemaTransformerTests`, `NullableCollectionSchemaTests`, `OperationTransformerEdgeCaseTests`, `OperationSchemaHelpersTests`, `HttpFileExporterTests` |
-| Validation / collections | `ValidationSchemaTransformerTests`, `NullableCollectionValidationTests`, `ValidationRuleMappingTests` |
-| Parameters / binding sources | `ParameterAliasValidationTests`, `ValidationBindingSourceTests`, `ValidationParameterTransformerTests`, `ConditionalParameterValidationTests`, `QueryParameterVisibilityTests` (also `Unit.Swagger` for `RemoveFromSchema`) |
-| Tags / security | `OperationTagTests`, `NestedGroupTagTests`, `OperationSecurityTests` |
-| Polymorphic `oneOf` | `PolymorphicOneOfTests`; self-hosted opt-in flag |
-| Polymorphic validation | `PolymorphicValidationTests` |
+| Polymorphism | `PolymorphicOneOfTests` uses a self-hosted opt-in flag; `PolymorphicValidationTests` covers validation. |
 | Framework compatibility | `ResponseTypeCompatibilityTests`, `MediaTypeCompatibilityTests`, `SseSchemaTests`; run on both TFMs |
 | Host restoration | `HostGlobalStateScopeTests`: restore state even when the protected lifetime throws |
 

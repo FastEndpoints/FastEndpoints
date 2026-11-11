@@ -9,9 +9,6 @@ tags: [build]
 
 ## Setup
 - SDK and runtime requirements: [dependencies.md](dependencies.md#runtime). CI installation differences are described under Pack and publish below.
-- Clone repo; restore via normal `dotnet` on solutions (central package management).
-- No docker-compose required for core unit/integration suite (in-process WAF).
-- Signing key files `FastEndpoints.snk` / public key present in repo for signed builds.
 
 ## Build and run
 ```bash

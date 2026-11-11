@@ -19,7 +19,7 @@ steps:
       packageType: "sdk"
       useGlobalJson: true
       workingDirectory: "$(Build.SourcesDirectory)"
-      includePreviewVersions: true
+      includePreviewVersions: false
 
   - task: Bash@3
     displayName: "Update xUnit Runner Config"

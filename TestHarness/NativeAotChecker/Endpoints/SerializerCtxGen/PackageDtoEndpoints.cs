@@ -1,19 +1,19 @@
-using Scalar.AspNetCore;
+using FluentValidation.Results;
 
 namespace NativeAotChecker.Endpoints.SerializerCtxGen;
 
 sealed class PackageDtoEnvelope
 {
-    public ScalarDocument? Document { get; set; }
+    public ValidationFailure? Failure { get; set; }
 }
 
 sealed class PackageDtoEnvelopeResponse
 {
     public string? Summary { get; set; }
-    public ScalarDocument? Document { get; set; }
+    public ValidationFailure? Failure { get; set; }
 }
 
-sealed class PackageDtoDirectEndpoint : Endpoint<ScalarDocument, ScalarDocument>
+sealed class PackageDtoDirectEndpoint : Endpoint<ValidationFailure, ValidationFailure>
 {
     public override void Configure()
     {
@@ -21,17 +21,21 @@ sealed class PackageDtoDirectEndpoint : Endpoint<ScalarDocument, ScalarDocument>
         AllowAnonymous();
     }
 
-    public override async Task HandleAsync(ScalarDocument req, CancellationToken ct)
+    public override async Task HandleAsync(ValidationFailure req, CancellationToken ct)
     {
         await Send.OkAsync(
-            new($"copy:{req.Name}", $"echo:{req.Title}", req.RoutePattern, req.IsDefault),
+            new($"copy:{req.PropertyName}", $"echo:{req.ErrorMessage}")
+            {
+                ErrorCode = req.ErrorCode,
+                Severity = req.Severity
+            },
             ct);
     }
 }
 
 sealed class PackageDtoNestedEndpoint : Endpoint<PackageDtoEnvelope, PackageDtoEnvelopeResponse>
 {
-    private static readonly ScalarDocument _defaultDocument = new("default-doc", "default-title", "/scalar/default");
+    private static readonly ValidationFailure _defaultFailure = new("default-property", "default-message");
 
     public override void Configure()
     {
@@ -41,13 +45,17 @@ sealed class PackageDtoNestedEndpoint : Endpoint<PackageDtoEnvelope, PackageDtoE
 
     public override async Task HandleAsync(PackageDtoEnvelope req, CancellationToken ct)
     {
-        var document = req.Document ?? _defaultDocument;
+        var failure = req.Failure ?? _defaultFailure;
 
         await Send.OkAsync(
             new()
             {
-                Summary = $"{document.Name}|{document.IsDefault}",
-                Document = new($"nested:{document.Name}", document.Title, document.RoutePattern, document.IsDefault)
+                Summary = $"{failure.PropertyName}|{failure.Severity}",
+                Failure = new($"nested:{failure.PropertyName}", failure.ErrorMessage)
+                {
+                    ErrorCode = failure.ErrorCode,
+                    Severity = failure.Severity
+                }
             },
             ct);
     }

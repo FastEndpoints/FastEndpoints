@@ -1,6 +1,7 @@
 using NativeAotChecker.Endpoints.SerializerCtxGen;
 using Contracts.Dtos;
-using Scalar.AspNetCore;
+using FluentValidation;
+using FluentValidation.Results;
 using System.Net;
 
 namespace NativeAotCheckerTests;
@@ -217,17 +218,21 @@ public class SerializerContextTests(App app) : TestBase<App>
     [Fact]
     public async Task Package_Dto_Direct_Endpoint()
     {
-        var req = new ScalarDocument("scalar-doc", "scalar-direct", "/scalar/v1", true);
+        var req = new ValidationFailure("direct-property", "direct-message")
+        {
+            ErrorCode = "direct-code",
+            Severity = Severity.Warning
+        };
 
-        var (rsp, res, err) = await app.Client.POSTAsync<PackageDtoDirectEndpoint, ScalarDocument, ScalarDocument>(req);
+        var (rsp, res, err) = await app.Client.POSTAsync<PackageDtoDirectEndpoint, ValidationFailure, ValidationFailure>(req);
 
         if (!rsp.IsSuccessStatusCode)
             Assert.Fail(err);
 
-        res.Name.ShouldBe("copy:scalar-doc");
-        res.Title.ShouldBe("echo:scalar-direct");
-        res.RoutePattern.ShouldBe("/scalar/v1");
-        res.IsDefault.ShouldBeTrue();
+        res.PropertyName.ShouldBe("copy:direct-property");
+        res.ErrorMessage.ShouldBe("echo:direct-message");
+        res.ErrorCode.ShouldBe("direct-code");
+        res.Severity.ShouldBe(Severity.Warning);
     }
 
     [Fact]
@@ -235,7 +240,11 @@ public class SerializerContextTests(App app) : TestBase<App>
     {
         var req = new PackageDtoEnvelope
         {
-            Document = new("nested-doc", "scalar-nested", "/scalar/nested")
+            Failure = new("nested-property", "nested-message")
+            {
+                ErrorCode = "nested-code",
+                Severity = Severity.Info
+            }
         };
 
         var (rsp, res, err) = await app.Client.POSTAsync<PackageDtoNestedEndpoint, PackageDtoEnvelope, PackageDtoEnvelopeResponse>(req);
@@ -243,12 +252,12 @@ public class SerializerContextTests(App app) : TestBase<App>
         if (!rsp.IsSuccessStatusCode)
             Assert.Fail(err);
 
-        res.Summary.ShouldBe("nested-doc|False");
-        res.Document.ShouldNotBeNull();
-        res.Document!.Name.ShouldBe("nested:nested-doc");
-        res.Document.Title.ShouldBe("scalar-nested");
-        res.Document.RoutePattern.ShouldBe("/scalar/nested");
-        res.Document.IsDefault.ShouldBeFalse();
+        res.Summary.ShouldBe("nested-property|Info");
+        res.Failure.ShouldNotBeNull();
+        res.Failure!.PropertyName.ShouldBe("nested:nested-property");
+        res.Failure.ErrorMessage.ShouldBe("nested-message");
+        res.Failure.ErrorCode.ShouldBe("nested-code");
+        res.Failure.Severity.ShouldBe(Severity.Info);
     }
 
     [Fact]

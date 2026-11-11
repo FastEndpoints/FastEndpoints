@@ -16,7 +16,6 @@ FastEndpoints now targets only `net10.0` and `net11.0`. Retarget .NET 8/9 apps b
 
 The serializer-context-generator CLI requires .NET 10+. The Roslyn generator requires Roslyn 5.0, the .NET 10+ SDK, and Visual Studio 2026 18.0+ when using VS. Its `netstandard2.0` assets (and attributes) support compiler hosts, not older app runtimes. Upgrade SDKs/IDEs first.
 
-.NET 11 support currently uses RC3 framework packages. Revalidate against the final .NET 11 SDK and packages before a stable release.
 </details>
 
 <details><summary>The ASP.NET API Versioning integration is limited to .NET 10</summary>

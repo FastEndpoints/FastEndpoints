@@ -14,7 +14,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task query_method_documentation_follows_the_openapi_version()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var doc = JsonNode.Parse(json)!;
 
 #if NET11_0_OR_GREATER
@@ -27,7 +27,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task auto_tag_override_uses_override_value()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var tags = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/auto-tag-override"]!["get"]!["tags"]!
                          .StringValues()
                          .ToArray();
@@ -38,7 +38,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task duplicate_request_example_labels_are_indexed()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var examples = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/duplicate-examples"]!["post"]!
             ["requestBody"]!["content"]!["application/json"]!["examples"]!.AsObject();
 
@@ -48,7 +48,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task nullable_enum_request_examples_tolerate_the_null_schema_entry()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var doc = JsonNode.Parse(json)!;
         var media = doc["paths"]!["/api/swagger-review/nullable-enum-example"]!["post"]!
             ["requestBody"]!["content"]!["application/json"]!;
@@ -66,7 +66,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task endpoint_request_examples_share_model_enum_and_nested_schemas()
     {
-        var doc = JsonNode.Parse(await App.GetDocumentJsonAsync("Swagger Review"))!;
+        var doc = JsonNode.Parse(await App.GetCachedDocumentJsonAsync("Swagger Review"))!;
         var alpha = doc["paths"]!["/api/swagger-review/shared-request-example-alpha"]!["post"]!;
         var beta = doc["paths"]!["/api/swagger-review/shared-request-example-beta"]!["post"]!;
         var named = doc["paths"]!["/api/swagger-review/shared-request-example-named"]!["post"]!;
@@ -132,7 +132,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task default_version_document_excludes_v1_endpoints_from_schema_sharing()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var doc = JsonNode.Parse(json)!;
         var initialSchema = doc["paths"]!["/api/swagger-review/version-prefilter-initial"]!["post"]!
             ["requestBody"]!["content"]!["application/json"]!["schema"]!;
@@ -150,7 +150,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task illegal_header_names_are_not_added_as_parameters()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var parameters = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/illegal-headers"]!["post"]!["parameters"];
 
         parameters.ShouldBeNull();
@@ -159,7 +159,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task ulong_enum_schema_keeps_values_above_long_max()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var enumValue = JsonNode.Parse(json)!["components"]!["schemas"]!["TestCasesSwaggerReviewUlongEnumReviewStatus"]!["enum"]![0]!;
 
         enumValue.GetValue<string>().ShouldBe("Max");
@@ -168,7 +168,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task filtered_operation_does_not_remove_other_methods_on_same_path()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var pathItem = JsonNode.Parse(json)!["paths"]!["/api/filtered-shared-path"]!;
 
         pathItem["get"].ShouldBeNull();
@@ -178,7 +178,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task bare_route_stripping_only_removes_structural_segments()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var tags = JsonNode.Parse(json)!["paths"]!["/apiary/ver0/status"]!["get"]!["tags"]!
                          .StringValues()
                          .ToArray();
@@ -189,7 +189,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task catch_all_route_parameter_is_normalized_in_path_and_parameter()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var doc = JsonNode.Parse(json)!;
         var operation = doc["paths"]!["/api/swagger-review/catch-all/{slug}"]!["get"]!;
         var pathParam = operation["parameters"].ArrayItems().First(p => p["in"]!.GetValue<string>() == "path");
@@ -201,7 +201,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task query_parameter_duplicate_detection_uses_naming_policy_name()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var operation = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/duplicate-query-naming-policy"]!["get"]!;
         var firstNameParams = operation["parameters"].ArrayItems()
                               .Where(p => p["in"]!.GetValue<string>() == "query" && p["name"]!.GetValue<string>() == "firstName")
@@ -213,7 +213,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task get_request_uses_bind_from_name_for_query_parameter()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var operation = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/bindfrom-query-get"]!["get"]!;
         var queryParam = operation["parameters"].ArrayItems().First(p => p["in"]!.GetValue<string>() == "query");
 
@@ -224,7 +224,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task non_get_query_param_attribute_with_bind_from_is_added_using_bind_name()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var operation = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/bindfrom-query-post"]!["post"]!;
         var queryParam = operation["parameters"].ArrayItems().First(p => p["in"]!.GetValue<string>() == "query");
 
@@ -235,7 +235,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task query_parameter_metadata_uses_binding_name_not_json_property_name()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var operation = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/json-named-query-metadata"]!["get"]!;
         var queryParam = operation["parameters"].ArrayItems().First(p => p["in"]!.GetValue<string>() == "query");
 
@@ -249,7 +249,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task default_value_attributes_are_applied_to_request_schema_properties()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var doc = JsonNode.Parse(json)!;
         var requestSchema = ResolveSchema(
             doc,
@@ -263,7 +263,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task nullable_query_param_attribute_with_is_required_is_added_as_required_parameter()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var operation = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/required-query-param"]!["post"]!;
         var requiredSearch = operation["parameters"].ArrayItems().First(p => p["name"]!.GetValue<string>() == "search");
         var optionalFilter = operation["parameters"].ArrayItems().First(p => p["name"]!.GetValue<string>() == "filter");
@@ -286,7 +286,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task unique_items_are_emitted_for_scalar_set_types_and_explicit_opt_in()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var doc = JsonNode.Parse(json)!;
         var requestSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewUniqueItemsReviewRequest"]!;
         var responseSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewUniqueItemsReviewResponse"]!;
@@ -314,7 +314,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task promoted_body_schema_keeps_validation_rules_from_promoted_property_subtree()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var doc = JsonNode.Parse(json)!;
         var requestSchema = ResolveSchema(
             doc,
@@ -334,7 +334,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task promoted_body_request_examples_are_unwrapped_to_promoted_schema_shape()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var operation = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/promoted-body-validation/{id}"]!["post"]!;
         var example = operation["requestBody"]!["content"]!["application/json"]!["example"]!;
 
@@ -347,7 +347,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task get_request_from_cookie_property_is_not_duplicated_as_query_parameter()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var parameters = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/cookie-get"]!["get"]!["parameters"].ArrayItems();
 
         parameters.Count(p => p["in"]!.GetValue<string>() == "cookie" && p["name"]!.GetValue<string>() == "session_id").ShouldBe(1);
@@ -358,7 +358,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task empty_request_schemas_are_removed_when_option_is_enabled()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review Empty Schema");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review Empty Schema");
         var doc = JsonNode.Parse(json)!;
         var operation = doc["paths"]!["/api/swagger-review/empty-schema-cleanup"]!["post"]!;
 
@@ -369,7 +369,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task hide_from_docs_properties_are_removed_from_request_and_response_schemas()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var doc = JsonNode.Parse(json)!;
         var requestSchema = ResolveSchema(
             doc,
@@ -387,7 +387,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task from_body_property_replaces_request_body_schema()
     {
-        var json = await App.GetDocumentJsonAsync("Release 2.0");
+        var json = await App.GetCachedDocumentJsonAsync("Release 2.0");
         var operation = JsonNode.Parse(json)!["paths"]!["/api/test-cases/from-body-binding/{id}"]!["post"]!;
 
         var schema = operation["requestBody"]!["content"]!["application/json"]!["schema"]!;
@@ -418,7 +418,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task json_patch_request_body_uses_json_patch_document_schema()
     {
-        var json = await App.GetDocumentJsonAsync("Release 2.0");
+        var json = await App.GetCachedDocumentJsonAsync("Release 2.0");
         var content = JsonNode.Parse(json)!["paths"]!["/api/json-patch-test/{id}"]!["patch"]!["requestBody"]!["content"]!;
 
         // MS OpenApi generates a proper JsonPatchDocument<T> schema using the framework's built-in type
@@ -432,7 +432,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task typed_result_endpoint_keeps_response_shapes()
     {
-        var json = await App.GetDocumentJsonAsync("Release 2.0");
+        var json = await App.GetCachedDocumentJsonAsync("Release 2.0");
         var responses = JsonNode.Parse(json)!["paths"]!["/api/multi-test"]!["post"]!["responses"]!;
 
         responses["200"]!["content"]!["application/json"]!["schema"]!["$ref"]!.GetValue<string>()
@@ -445,7 +445,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task idempotency_header_is_added_as_required_parameter()
     {
-        var json = await App.GetDocumentJsonAsync("Release 2.0");
+        var json = await App.GetCachedDocumentJsonAsync("Release 2.0");
         var header = JsonNode.Parse(json)!["paths"]!["/api/test-cases/idempotency/{id}"]!["get"]!["parameters"].ArrayItems()
                            .First(p => p["name"]!.GetValue<string>() == "Idempotency-Key");
 
@@ -457,7 +457,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task idempotency_header_without_explicit_type_uses_example_shape()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var header = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/idempotency-anonymous-example"]!["post"]!["parameters"].ArrayItems()
                            .First(p => p["name"]!.GetValue<string>() == "Idempotency-Key");
 
@@ -473,7 +473,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task financial_idempotency_header_is_added_as_required_parameter()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var header = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/financial-idempotency"]!["post"]!["parameters"].ArrayItems()
                            .First(p => p["name"]!.GetValue<string>() == "Idempotency-Key");
 
@@ -486,7 +486,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task idempotency_header_is_not_duplicated_when_already_present()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var parameters = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/duplicate-idempotency-header"]!["post"]!["parameters"].ArrayItems();
 
         parameters.Count(p => p["in"]!.GetValue<string>() == "header" && p["name"]!.GetValue<string>() == "Idempotency-Key").ShouldBe(1);
@@ -495,7 +495,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task x402_signature_header_is_not_duplicated_when_already_present()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var parameters = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/duplicate-x402-header"]!["get"]!["parameters"].ArrayItems();
 
         parameters.Count(p => p["in"]!.GetValue<string>() == "header" && p["name"]!.GetValue<string>() == "PAYMENT-SIGNATURE").ShouldBe(1);
@@ -504,7 +504,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task x402_headers_are_added_to_request_and_responses()
     {
-        var json = await App.GetDocumentJsonAsync("Release 2.0");
+        var json = await App.GetCachedDocumentJsonAsync("Release 2.0");
         var operation = JsonNode.Parse(json)!["paths"]!["/api/test-cases/x402/success"]!["get"]!;
 
         operation["parameters"].ArrayItems().First(p => p["name"]!.GetValue<string>() == "PAYMENT-SIGNATURE")["in"]!.GetValue<string>().ShouldBe("header");
@@ -515,7 +515,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task configured_response_header_with_anonymous_example_uses_inline_schema()
     {
-        var json = await App.GetDocumentJsonAsync("Initial Release");
+        var json = await App.GetCachedDocumentJsonAsync("Initial Release");
         var header = JsonNode.Parse(json)!["paths"]!["/api/admin/login"]!["post"]!["responses"]!["200"]!["headers"]!["x-some-custom-header"]!;
 
         header["schema"]!["$ref"].ShouldBeNull();
@@ -527,7 +527,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task request_examples_do_not_keep_null_for_non_nullable_schema_properties()
     {
-        var json = await App.GetDocumentJsonAsync("Initial Release");
+        var json = await App.GetCachedDocumentJsonAsync("Initial Release");
         var examples = JsonNode.Parse(json)!["paths"]!["/api/inventory/manage/create"]!["post"]!["requestBody"]!["content"]!["application/json"]!["examples"]!;
 
         examples["Example 1"]!["value"]!["modifiedBy"]!.GetValue<string>().ShouldBe("modifiedBy");
@@ -537,7 +537,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task dictionary_query_parameter_uses_object_schema_not_missing_keyvaluepair_ref()
     {
-        var json = await App.GetDocumentJsonAsync("Initial Release");
+        var json = await App.GetCachedDocumentJsonAsync("Initial Release");
         var operation = JsonNode.Parse(json)!["paths"]!["/api/test-cases/json-array-binding-for-ienumerable-props"]!["get"]!;
         var dictParam = operation["parameters"].ArrayItems().First(p => p["name"]!.GetValue<string>() == "dict");
 
@@ -554,7 +554,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task complex_query_object_parameter_uses_json_content_unless_from_query()
     {
-        var json = await App.GetDocumentJsonAsync("Initial Release");
+        var json = await App.GetCachedDocumentJsonAsync("Initial Release");
         var doc = JsonNode.Parse(json)!;
         var operation = doc["paths"]!["/api/test-cases/json-array-binding-for-ienumerable-props"]!["get"]!;
         var stevenParam = operation["parameters"].ArrayItems().First(p => p["name"]!.GetValue<string>() == "steven");
@@ -575,7 +575,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task child_validator_rules_are_applied_to_operation_schema_properties()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var doc = JsonNode.Parse(json)!;
         var requestSchema = ResolveSchema(
             doc,
@@ -591,7 +591,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task deep_nested_validator_rules_are_applied_to_operation_schema_properties()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var doc = JsonNode.Parse(json)!;
         var requestSchema = ResolveSchema(
             doc,
@@ -628,7 +628,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task validator_rules_are_applied_through_intermediate_non_generic_base_type()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var doc = JsonNode.Parse(json)!;
         var requestSchema = ResolveSchema(
             doc,
@@ -641,7 +641,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task included_validator_rules_are_applied_to_schema_properties()
     {
-        var json = await App.GetDocumentJsonAsync("Initial Release");
+        var json = await App.GetCachedDocumentJsonAsync("Initial Release");
         var doc = JsonNode.Parse(json)!;
         var requestSchema = ResolveSchema(
             doc,
@@ -656,7 +656,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task json_property_name_attributes_are_used_by_to_header_transformer()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var doc = JsonNode.Parse(json)!;
         var responseSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewJsonPropertyNameTransformerReviewResponse"]!;
 
@@ -667,7 +667,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task to_header_response_properties_use_xml_docs_for_description_and_example()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var header = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/json-property-name-transformers"]!["post"]!
             ["responses"]!["200"]!["headers"]!["x-secret"]!;
 
@@ -678,7 +678,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task response_metadata_examples_are_applied_to_response_content()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var example = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/response-metadata-example"]!["post"]!
             ["responses"]!["201"]!["content"]!["application/json"]!["example"]!;
 
@@ -688,7 +688,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task explicit_response_examples_override_response_metadata_examples()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var example = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/explicit-response-example"]!["post"]!
             ["responses"]!["200"]!["content"]!["application/json"]!["example"]!;
 
@@ -698,7 +698,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task non_fastendpoint_auth_metadata_uses_configured_security_schemes()
     {
-        var json = await App.GetDocumentJsonAsync("Release 1.0");
+        var json = await App.GetCachedDocumentJsonAsync("Release 1.0");
         var doc = JsonNode.Parse(json)!;
         var securedOperation = doc["paths"]!["/non-fe-auth"]!["get"]!;
         var anonymousOperation = doc["paths"]!["/non-fe-auth-anon"]!["get"]!;
@@ -714,7 +714,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task interface_dictionary_query_parameter_uses_object_schema()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var operation = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/interface-dictionary"]!["get"]!;
         var dictParam = operation["parameters"].ArrayItems().First(p => p["name"]!.GetValue<string>() == "metadata");
 
@@ -726,7 +726,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task manually_added_complex_parameter_and_header_refs_have_component_schemas()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var doc = JsonNode.Parse(json)!;
         var nestedRef = "#/components/schemas/TestCasesSwaggerReviewManualSchemaNested";
         var idempotencyRef = "#/components/schemas/TestCasesSwaggerReviewManualSchemaIdempotencyHeader";
@@ -747,7 +747,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task xml_docs_are_applied_for_properties_on_generic_types()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var doc = JsonNode.Parse(json)!;
         var requestSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewGenericXmlDocReviewRequest"]!;
         var responseSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewGenericXmlDocReviewResponse"]!;
@@ -761,7 +761,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task xml_doc_inline_markup_text_is_preserved_in_descriptions()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var doc = JsonNode.Parse(json)!;
         var requestSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewInlineMarkupXmlDocReviewRequest"]!;
 
@@ -772,7 +772,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task endpoint_xml_docs_are_applied_to_operation_summary_and_description()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var operation = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/endpoint-xml-doc"]!["get"]!;
 
         operation["summary"]!.GetValue<string>().ShouldBe("xml endpoint summary");
@@ -782,7 +782,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task endpoint_summary_values_override_endpoint_xml_docs()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var operation = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/endpoint-summary-overrides-xml-doc"]!["get"]!;
 
         operation["summary"]!.GetValue<string>().ShouldBe("configured endpoint summary");
@@ -792,7 +792,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task missing_schema_generation_uses_primitive_formats_for_primitive_like_properties()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var doc = JsonNode.Parse(json)!;
         var responseSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewMissingSchemaPrimitiveResponse"]!;
 
@@ -806,7 +806,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task missing_schema_generation_runs_schema_transformers()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var doc = JsonNode.Parse(json)!;
         var responseSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewMissingSchemaEnumResponse"]!;
         var enumSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewUlongEnumReviewStatus"]!;
@@ -818,7 +818,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task orphan_constrained_route_param_uses_constraint_type()
     {
-        var json = await App.GetDocumentJsonAsync("Release 2.0");
+        var json = await App.GetCachedDocumentJsonAsync("Release 2.0");
         var operation = JsonNode.Parse(json)!["paths"]!["/api/test-cases/ep-witout-req-route-binding-test/{customerID}/{otherID}"]!["get"]!;
         var customerId = operation["parameters"].ArrayItems().First(p => p["name"]!.GetValue<string>() == "customerID");
 
@@ -829,7 +829,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task endpoint_without_request_does_not_use_response_metadata_for_request_parameters()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var operation = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/no-request-metadata-leak/{leakId}"]!["get"]!;
         var leakId = operation["parameters"].ArrayItems().First(p => p["name"]!.GetValue<string>() == "leakId");
 
@@ -839,7 +839,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task inline_default_route_values_are_removed_from_openapi_paths_and_parameter_names()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var operation = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/default-route-value/{id}"]!["get"]!;
         var id = operation["parameters"].ArrayItems().First(p => p["name"]!.GetValue<string>() == "id");
 
@@ -849,7 +849,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task multi_route_endpoint_uses_path_parameters_from_matching_route_only()
     {
-        var json = await App.GetDocumentJsonAsync("Initial Release");
+        var json = await App.GetCachedDocumentJsonAsync("Initial Release");
         var doc = JsonNode.Parse(json)!;
         var saveOperation = doc["paths"]!["/api/customer/save"]!["get"]!;
         var pathParams = saveOperation["parameters"].ArrayItems()
@@ -875,7 +875,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task initial_release_does_not_keep_lone_unshared_operation_variants()
     {
-        var json = await App.GetDocumentJsonAsync("Initial Release");
+        var json = await App.GetCachedDocumentJsonAsync("Initial Release");
         var doc = JsonNode.Parse(json)!.AsObject();
         var schemas = doc["components"]!["schemas"]!.AsObject();
         var variantIds = schemas.Select(p => p.Key)
@@ -904,7 +904,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task nullable_collection_property_inlines_array_items_and_accepts_null()
     {
-        var json = await App.GetDocumentJsonAsync("Initial Release");
+        var json = await App.GetCachedDocumentJsonAsync("Initial Release");
         var doc = JsonNode.Parse(json)!;
         var customersSchema = doc["components"]!["schemas"]!["CustomersListRecentResponse"]!["properties"]!["customers"]!;
 
@@ -919,7 +919,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task nullable_ref_property_oneOf_preserves_null_and_reference_branches()
     {
-        var json = await App.GetDocumentJsonAsync("Nullable OneOf Repro");
+        var json = await App.GetCachedDocumentJsonAsync("Nullable OneOf Repro");
         var nullableObjSchema = JsonNode.Parse(json)!["components"]!["schemas"]!["TestCasesSwaggerReviewNullableRefPropertyResponse"]!
             ["properties"]!["nullableObj"]!;
         var oneOf = nullableObjSchema["oneOf"].ArrayItems().ToArray();
@@ -934,7 +934,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task nullable_ref_property_schema_accepts_null()
     {
-        var json = await App.GetDocumentJsonAsync("Nullable OneOf Repro");
+        var json = await App.GetCachedDocumentJsonAsync("Nullable OneOf Repro");
         var doc = JsonNode.Parse(json)!;
         var nullableObjSchema = doc["components"]!["schemas"]!["TestCasesSwaggerReviewNullableRefPropertyResponse"]!["properties"]!["nullableObj"]!;
 
@@ -948,7 +948,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
 
         foreach (var documentName in new[] { "Initial Release", "Nullable OneOf Repro" })
         {
-            var json = await App.GetDocumentJsonAsync(documentName);
+            var json = await App.GetCachedDocumentJsonAsync(documentName);
             var doc = JsonNode.Parse(json)!;
 
             foreach (var schema in DescendantObjects(doc))
@@ -1062,7 +1062,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task get_request_has_no_request_body_and_uses_query_parameters()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var op = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/bodyless-query-params"]!["get"]!;
 
         op.ShouldNotBeNull();
@@ -1076,7 +1076,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task head_request_has_no_request_body_and_uses_query_parameters()
     {
-        var json = await App.GetDocumentJsonAsync("Swagger Review");
+        var json = await App.GetCachedDocumentJsonAsync("Swagger Review");
         var op = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/bodyless-query-params"]!["head"]!;
 
         op.ShouldNotBeNull();
@@ -1091,7 +1091,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
      InlineData("/api/swagger-review/root-array-body", "get")]
     public async Task bodyless_root_collection_request_body_is_optional_and_keeps_array_schema(string path, string method)
     {
-        var json = await App.GetDocumentJsonAsync("Initial Release");
+        var json = await App.GetCachedDocumentJsonAsync("Initial Release");
         var document = JsonNode.Parse(json)!;
         var requestBody = document["paths"]![path]![method]!["requestBody"]!;
 
@@ -1108,7 +1108,7 @@ public class OperationTransformerEdgeCaseTests(Fixture App) : TestBase<Fixture>
     [Fact]
     public async Task post_root_collection_request_body_remains_required()
     {
-        var json = await App.GetDocumentJsonAsync("Initial Release");
+        var json = await App.GetCachedDocumentJsonAsync("Initial Release");
         var requestBody = JsonNode.Parse(json)!["paths"]!["/api/swagger-review/root-list-body"]!["post"]!["requestBody"]!;
 
         requestBody.ShouldNotBeNull();

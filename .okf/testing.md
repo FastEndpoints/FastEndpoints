@@ -88,6 +88,8 @@ Legacy Swagger snapshots live in `Tests/IntegrationTests/FastEndpoints.Swagger/`
 ## OpenAPI regression map
 All suites below live in `Tests/IntegrationTests/FastEndpoints.OpenApi/` (`Int.OpenApi`). Contract details: [openapi.md](openapi.md). Check focused behavior tests as well as snapshots; preserve endpoint isolation and repeated/concurrent generation coverage.
 
+`Fixture.GetCachedDocumentJsonAsync` reuses fixture-scoped immutable JSON only for unchanged-document inspection. Parse it separately per test. Keep `GetDocumentJsonAsync` for fresh generation and mutation-isolation checks, `GetDocumentJsonUnlockedAsync` for overlapping generation, and HTTP export generation uncached.
+
 | Surface | Suites / focus |
 | --- | --- |
 | Schema / operation transformations | Select the matching `*Tests.cs` beside `Int.OpenApi.csproj`; descriptions, examples, validation, binding, tags and security have focused suites. Also use `Unit.Swagger` for shared `RemoveFromSchema` behavior. |

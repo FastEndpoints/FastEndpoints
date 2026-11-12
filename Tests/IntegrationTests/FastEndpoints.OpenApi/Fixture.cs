@@ -9,6 +9,8 @@ public class Fixture : AppFixture<Web.Program>
     // expensive generation. overlapping generation itself is safe (mutation bags are per OpenApiDocument).
     static readonly SemaphoreSlim _documentGenerationLock = new(1, 1);
 
+    readonly Dictionary<string, string> _documentJson = new(StringComparer.Ordinal);
+
     public HttpClient DocClient { get; set; } = default!;
 
     protected override ValueTask SetupAsync()
@@ -18,6 +20,28 @@ public class Fixture : AppFixture<Web.Program>
         return ValueTask.CompletedTask;
     }
 
+    // Only for unchanged-document inspection. Parse the string separately in each test.
+    public async Task<string> GetCachedDocumentJsonAsync(string documentName)
+    {
+        await _documentGenerationLock.WaitAsync();
+
+        try
+        {
+            if (!_documentJson.TryGetValue(documentName, out var json))
+            {
+                json = await ReadDocumentJsonAsync(documentName);
+                _documentJson.Add(documentName, json);
+            }
+
+            return json;
+        }
+        finally
+        {
+            _documentGenerationLock.Release();
+        }
+    }
+
+    // Keep generation fresh for stability and mutation-isolation tests.
     public async Task<string> GetDocumentJsonAsync(string documentName)
     {
         await _documentGenerationLock.WaitAsync();

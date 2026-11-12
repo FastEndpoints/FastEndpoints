@@ -14,6 +14,8 @@ public class EventQueue(Sut App) : RpcTestBase(App)
     [Fact]
     public async Task Event_Queue()
     {
+        Remote.Subscribe<TestEventQueue, TestEventQueueHandler>(Cancellation);
+
         var resolver = MainExtensions.HostServiceResolver;
         var serializerConfigured = MainExtensions.SerializerConfigured;
         var serializerOptions = Config.SerOpts.Options;
@@ -31,6 +33,7 @@ public class EventQueue(Sut App) : RpcTestBase(App)
             await WaitUntil(() => TestEventQueueHandler.Received.Any(r => r.Id == WarmupEventId), timeoutMs: 10000);
             TestEventQueueHandler.Reset();
 
+            // Unpaced bursts can leave the subscriber backlog waiting for its 10-second poll.
             for (var i = 0; i < 100; i++)
             {
                 var evnt = new TestEventQueue { Id = i };

@@ -10,6 +10,8 @@ namespace Generator;
 
 public class AccessControlGeneratorTests
 {
+    static readonly ImmutableArray<MetadataReference> _references = GetReferences().ToImmutableArray();
+
     [Fact]
     public void generated_allow_code_compiles_without_implicit_usings()
     {
@@ -150,7 +152,7 @@ public class AccessControlGeneratorTests
         var compilation = CSharpCompilation.Create(
             "TestApp",
             [endpointTree, initialConstantsTree],
-            GetReferences(),
+            _references,
             new(OutputKind.DynamicallyLinkedLibrary));
         GeneratorDriver driver = CSharpGeneratorDriver.Create([new AccessControlGenerator().AsSourceGenerator()], parseOptions: parseOptions);
 
@@ -236,7 +238,7 @@ public class AccessControlGeneratorTests
         var compilation = CSharpCompilation.Create(
             "TestApp",
             [syntaxTree],
-            GetReferences(),
+            _references,
             new(OutputKind.DynamicallyLinkedLibrary));
 
         GeneratorDriver driver = CSharpGeneratorDriver.Create([new AccessControlGenerator().AsSourceGenerator()], parseOptions: parseOptions);

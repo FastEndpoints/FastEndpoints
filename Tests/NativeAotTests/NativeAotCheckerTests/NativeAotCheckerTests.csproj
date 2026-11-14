@@ -16,6 +16,7 @@
     <ItemGroup>
         <ProjectReference Include="..\..\..\Src\Testing\FastEndpoints.Testing.csproj"/>
         <ProjectReference Include="..\..\..\TestHarness\NativeAotChecker\NativeAotChecker.csproj"/>
+        <ProjectReference Include="..\..\..\TestHarness\MessagingAotChecker\MessagingAotChecker.csproj"/>
     </ItemGroup>
 
 </Project>

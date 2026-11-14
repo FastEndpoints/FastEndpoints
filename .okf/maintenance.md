@@ -17,7 +17,7 @@ tags: [maintain]
 Evaluate OKF when changes hit (the update gate is in `AGENTS.md`):
 - architecture / package boundaries / dependency directions
 - public APIs, endpoint pipeline contracts, messaging/job contracts
-- **Agents friend-assembly surface:** Library `internal` members consumed by `FastEndpoints.Mcp` / `FastEndpoints.A2A` via `InternalsVisibleTo` (stock in [agents.md](agents.md); summary in [monorepo-packages.md](monorepo-packages.md)). Restock when agents gain/drop internal core calls, or when those core members change signature/shape.
+- Agents friend-assembly surface or call-site changes: update the binary-contract stock in [agents.md](agents.md).
 - persistence SPIs (e.g. job storage interfaces)
 - deps / TFMs / central package management
 - build, test, pack, publish, codegen commands
@@ -29,7 +29,3 @@ Evaluate OKF when changes hit (the update gate is in `AGENTS.md`):
 - changelog path/format / GH-release notes workflow (not the entry bodies)
 
 Finish gates, including public docs/changelog and explicit unaffected reporting, are owned by `AGENTS.md`. Commands and entry format: [workflows.md](workflows.md).
-
-## Sources
-- This repository’s `.okf/` set
-- Skill/spec: OKF v0.1 (repo agent instructions)

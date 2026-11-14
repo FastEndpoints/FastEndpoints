@@ -9,6 +9,10 @@ namespace FastEndpoints;
 /// <summary>
 /// extension methods for registering messaging services
 /// </summary>
+/// <remarks>
+/// finish event-handler registrations before building the first provider from a service collection.
+/// use separate collections when providers need different handler registrations.
+/// </remarks>
 public static class MessagingExtensions
 {
     private const string AotWarning = "Reflection-based messaging discovery is not trim compatible. Use AddMessaging(DiscoveredTypes.All) with the source generator.";
@@ -55,20 +59,20 @@ public static class MessagingExtensions
             => AddMessagingCore(services, () => discoveredTypes.SelectMany(t => t));
     }
 
-    [UnconditionalSuppressMessage("Trimming", "IL2075")]
     static IServiceCollection AddMessagingCore(IServiceCollection services, Func<IEnumerable<Type>> getTypes)
     {
+        services.TryAddSingleton(_ => new MessagingDiscovery(getTypes()));
+        services.TryAddSingleton(p => p.GetRequiredService<MessagingDiscovery>().Commands);
+        return services.AddEventServices(p => p.GetRequiredService<MessagingDiscovery>().Events);
+    }
+
+    internal static IServiceCollection AddEventServices(this IServiceCollection services, Func<IServiceProvider, EventCatalog> catalog)
+    {
+        var registrations = new Lazy<EventRegistrationIndex>(() => new(services));
         services.TryAddSingleton<IServiceResolver, ServiceResolver>();
+        services.TryAddSingleton<EventOptions>();
         services.TryAddSingleton(typeof(EventBus<>));
-        services.TryAddSingleton<CommandHandlerRegistry>(
-            _ =>
-            {
-                var cmdHandlerRegistry = new CommandHandlerRegistry();
-                RegisterHandlers(getTypes(), cmdHandlerRegistry);
-
-                return cmdHandlerRegistry;
-            });
-
+        services.TryAddSingleton(p => new EventRegistry(p, p.GetRequiredService<EventOptions>(), catalog(p), registrations.Value));
         return services;
     }
 
@@ -76,7 +80,7 @@ public static class MessagingExtensions
 
     /// <summary>
     /// configures the messaging functionality.
-    /// <para>TIP: You don't have to call this method if you already have <c>.UseFastEndpoints()</c> in your pipeline.</para>
+    /// configure event settings here before <c>UseFastEndpoints</c>, <c>UseJobQueues</c>, publishing, or messaging warmup.
     /// </summary>
     /// <param name="provider">the service provider</param>
     /// <param name="options">optionally configure messaging startup behavior</param>
@@ -88,7 +92,7 @@ public static class MessagingExtensions
         if (provider.GetService<CommandHandlerRegistry>() is null) //this causes either the above factory method to run or resolve an existing instance
             throw new InvalidOperationException(ErrMsg);
 
-        var opts = new MessagingOptions();
+        var opts = new MessagingOptions(provider.GetRequiredService<EventOptions>());
         options?.Invoke(opts);
 
         if (opts.WarmupRequested)
@@ -97,66 +101,39 @@ public static class MessagingExtensions
         return provider;
     }
 
-    [UnconditionalSuppressMessage("AOT", "IL3050")]
     internal static void WarmupMessaging(IServiceProvider provider)
-    {
-        foreach (var tEvent in EventBase.HandlerDict.Keys)
-        {
-            var eventBusType = typeof(EventBus<>).MakeGenericType(tEvent);
-            provider.GetService(eventBusType);
-        }
-    }
+        => provider.GetService<EventRegistry>()?.Warmup();
 
     /// <summary>
-    /// registers command, stream-command, and event handlers from a set of discovered types into the given registry.
+    /// registers command and stream-command handlers and returns an immutable catalog of discovered event handlers.
     /// </summary>
     [UnconditionalSuppressMessage("Trimming", "IL2075")]
-    internal static void RegisterHandlers(IEnumerable<Type> types, CommandHandlerRegistry cmdHandlerRegistry)
+    internal static EventCatalog RegisterHandlers(IEnumerable<Type> types, CommandHandlerRegistry cmdHandlerRegistry)
     {
+        Dictionary<Type, HashSet<Type>> events = [];
         foreach (var t in types)
         {
             foreach (var tInterface in t.GetInterfaces())
             {
-                var tGeneric = tInterface.IsGenericType
-                                   ? tInterface.GetGenericTypeDefinition()
-                                   : null;
-
-                if (tGeneric is null)
+                if (!tInterface.IsGenericType)
                     continue;
 
-                RegisterHandler(tGeneric, tInterface, t, cmdHandlerRegistry);
+                var tGeneric = tInterface.GetGenericTypeDefinition();
+
+                if (tGeneric == Types.IEventHandlerOf1) //IsAssignableTo() is no good here if the user inherits the interface.
+                {
+                    var tEvent = tInterface.GetGenericArguments()[0];
+                    if (!events.TryGetValue(tEvent, out var handlers))
+                        events.Add(tEvent, handlers = []);
+                    handlers.Add(t);
+                }
+                else if (tGeneric == Types.ICommandHandlerOf1 || tGeneric == Types.ICommandHandlerOf2 || tGeneric == Types.IStreamCommandHandlerOf2) // IsAssignableTo() is no good here either
+                    cmdHandlerRegistry.TryAdd(tInterface.GetGenericArguments()[0], new(t));
             }
         }
+        return new(events);
     }
 
-    internal static void RegisterHandler(Type tGeneric, Type tInterface, Type t, CommandHandlerRegistry cmdHandlerRegistry)
-    {
-        if (tGeneric == Types.IEventHandlerOf1) //IsAssignableTo() is no good here if the user inherits the interface.
-        {
-            var tEvent = tInterface.GetGenericArguments()[0];
-
-            if (EventBase.HandlerDict.TryGetValue(tEvent, out var handlers))
-                handlers.Add(t);
-            else
-                EventBase.HandlerDict[tEvent] = [t];
-
-            return;
-        }
-
-        if (tGeneric == Types.ICommandHandlerOf1 || tGeneric == Types.ICommandHandlerOf2) // IsAssignableTo() is no good here either
-        {
-            cmdHandlerRegistry.TryAdd(
-                tInterface.GetGenericArguments()[0],
-                new(t));
-        }
-
-        if (tGeneric == Types.IStreamCommandHandlerOf2)
-        {
-            cmdHandlerRegistry.TryAdd(
-                tInterface.GetGenericArguments()[0],
-                new(t));
-        }
-    }
 }
 
 /// <summary>
@@ -164,6 +141,18 @@ public static class MessagingExtensions
 /// </summary>
 public sealed class MessagingOptions
 {
+    /// <summary>
+    /// creates detached default settings. <c>UseMessaging</c> supplies the owning provider's event settings instead.
+    /// </summary>
+    public MessagingOptions() : this(new()) { }
+
+    internal MessagingOptions(EventOptions events) => Events = events;
+
+    /// <summary>
+    /// settings for this provider's in-process event bus. configure before the first publish or warmup.
+    /// </summary>
+    public EventOptions Events { get; }
+
     internal bool WarmupRequested { get; private set; }
 
     /// <summary>
@@ -172,4 +161,13 @@ public sealed class MessagingOptions
     /// </summary>
     public void Warmup()
         => WarmupRequested = true;
+}
+
+sealed class MessagingDiscovery
+{
+    internal CommandHandlerRegistry Commands { get; } = new();
+    internal EventCatalog Events { get; }
+
+    internal MessagingDiscovery(IEnumerable<Type> types)
+        => Events = MessagingExtensions.RegisterHandlers(types, Commands);
 }

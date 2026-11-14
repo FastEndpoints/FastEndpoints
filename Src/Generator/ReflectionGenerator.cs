@@ -21,6 +21,7 @@ public class ReflectionGenerator : IIncrementalGenerator
     const string IParsable = "System.IParsable<";
     const string JsonIgnoreAttribute = "System.Text.Json.Serialization.JsonIgnoreAttribute";
     const string KeyedServiceAttribute = "FastEndpoints.KeyedServiceAttribute";
+    const string ReflectionCache = "FastEndpoints.ReflectionCache";
 
     readonly StringBuilder b = new();
     readonly StringBuilder _initArgsBuilder = new();
@@ -36,8 +37,10 @@ public class ReflectionGenerator : IIncrementalGenerator
                                     .WithComparer(FullTypeComparer.Instance)
                                     .Collect();
 
-        var assemblyNamespace = initCtx.CompilationProvider
-                                       .Select(static (c, _) => c.AssemblyName?.ToValidNameSpace() ?? "Assembly");
+        var assemblyNamespace = initCtx.CompilationProvider.Select(
+            static (c, _) => c.GetTypeByMetadataName(ReflectionCache) is null
+                                 ? null
+                                 : c.AssemblyName?.ToValidNameSpace() ?? "Assembly");
 
         initCtx.RegisterSourceOutput(syntaxProvider.Combine(assemblyNamespace), Generate);
 
@@ -57,8 +60,12 @@ public class ReflectionGenerator : IIncrementalGenerator
     }
 
     //only executed if the equality comparer says the data is not what has been cached by roslyn
-    void Generate(SourceProductionContext spc, (ImmutableArray<TypeInfo?> _, string RootNamespace) input)
-        => spc.AddSource("ReflectionData.g.cs", SourceText.From(RenderClass(input.RootNamespace), Encoding.UTF8));
+    void Generate(SourceProductionContext spc, (ImmutableArray<TypeInfo?> _, string? RootNamespace) input)
+    {
+        // Messaging-only consumers have no HTTP reflection cache to register with.
+        if (input.RootNamespace is not null)
+            spc.AddSource("ReflectionData.g.cs", SourceText.From(RenderClass(input.RootNamespace), Encoding.UTF8));
+    }
 
     string RenderClass(string rootNamespace)
     {

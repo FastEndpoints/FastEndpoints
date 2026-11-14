@@ -261,6 +261,7 @@ public partial class JobQueueTests
 
         var services = new ServiceCollection();
         services.AddSingleton(registry);
+        services.AddEventServices(_ => EventCatalog.Empty);
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         services.AddSingleton(sp => (IServiceResolver)new ServiceResolver(sp, sp.GetRequiredService<IHttpContextAccessor>(), true));
         var provider = services.BuildServiceProvider();
@@ -293,6 +294,7 @@ public partial class JobQueueTests
         services.AddSingleton<IHostApplicationLifetime>(new TestHostLifetime(appStopping.Token));
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         services.AddSingleton(registry);
+        services.AddEventServices(_ => EventCatalog.Empty);
         services.AddSingleton(sp => (IServiceResolver)new ServiceResolver(sp, sp.GetRequiredService<IHttpContextAccessor>(), true));
         services.AddSingleton(storage);
         var provider = services.BuildServiceProvider();

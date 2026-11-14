@@ -48,6 +48,10 @@ sealed class ServiceResolver(IServiceProvider provider, IHttpContextAccessor? ct
             => ActivatorUtilities.GetServiceOrCreateInstance(resolver.SingletonProvider(), t);
     }
 
+    // Event registries already have an owning host. An unrelated ambient request must not redirect activation.
+    internal object CreateSingletonFromRoot(Type type)
+        => _singletonCache.GetOrAdd(type, t => ActivatorUtilities.GetServiceOrCreateInstance(isUnitTestMode ? SingletonProvider() : provider, t));
+
     IServiceProvider RootProvider => provider;
 
     //singletons outlive the request that first creates them, so they must never be built from that request's scope. otherwise

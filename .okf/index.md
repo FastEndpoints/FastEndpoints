@@ -18,7 +18,7 @@ Compact operational knowledge for agents working in the FastEndpoints repository
 * [Testing](testing.md): unit/integration/AOT, filters, harnesses
 
 ## Task-specific
-* [Dependencies](dependencies.md) · [Gotchas](gotchas.md) · [Maintenance](maintenance.md)
+* [Dependencies](dependencies.md) · [Gotchas](gotchas.md)
 * [Monorepo Packages](monorepo-packages.md) · [Generated Code](generated-code.md)
 * [OpenAPI Contracts](openapi.md): generation, schema isolation, validation, examples and compatibility
 * [Agents Compatibility](agents.md): MCP behavior and cross-version friend-assembly contracts

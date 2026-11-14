@@ -16,7 +16,6 @@ public class MessagingWarmupTests : IDisposable
 {
     public void Dispose()
     {
-        EventBase.HandlerDict.Clear();
         var testingProvider = new ServiceCollection().AddHttpContextAccessor().BuildServiceProvider();
         ServiceResolver.Instance = new ServiceResolver(
             provider: testingProvider,
@@ -39,8 +38,7 @@ public class MessagingWarmupTests : IDisposable
     [Fact]
     public void UseMessaging_DoesNotWarmupByDefault()
     {
-        EventBase.HandlerDict[typeof(WarmupEventA)] = [typeof(WarmupEventHandlerA)];
-        var provider = new RecordingServiceProvider();
+        var provider = new RecordingServiceProvider(typeof(WarmupEventHandlerA));
 
         provider.UseMessaging();
 
@@ -50,9 +48,7 @@ public class MessagingWarmupTests : IDisposable
     [Fact]
     public void UseMessaging_Warmup_ResolvesEventBusForEachEventWithHandlers()
     {
-        EventBase.HandlerDict[typeof(WarmupEventA)] = [typeof(WarmupEventHandlerA)];
-        EventBase.HandlerDict[typeof(WarmupEventB)] = [typeof(WarmupEventHandlerB)];
-        var provider = new RecordingServiceProvider();
+        var provider = new RecordingServiceProvider(typeof(WarmupEventHandlerA), typeof(WarmupEventHandlerB));
 
         provider.UseMessaging(o => o.Warmup());
 
@@ -91,6 +87,24 @@ public class MessagingWarmupTests : IDisposable
         resolvedBuses.Count.ShouldBe(2);
     }
 
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public void Warmup_OnlyReadsSubscriptionsWhenInheritanceIsEnabled(bool inheritance)
+    {
+        var bus = new RecordingEventBus();
+        var provider = new RecordingServiceProvider(typeof(WarmupEventHandlerA)) { EventBus = bus };
+
+        provider.UseMessaging(o =>
+        {
+            o.Events.EnableInheritance = inheritance;
+            o.Warmup();
+        });
+
+        provider.RequestedTypes.ShouldContain(typeof(EventBus<WarmupEventA>));
+        (bus.SubscriptionReads > 0).ShouldBe(inheritance);
+    }
+
     [Fact]
     public void WarmupMessaging_DoesNothingWhenNoEventHandlersAreRegistered()
     {
@@ -104,8 +118,7 @@ public class MessagingWarmupTests : IDisposable
     [Fact]
     public void WarmupMessaging_DoesNotThrowWhenEventBusServiceIsMissing()
     {
-        EventBase.HandlerDict[typeof(WarmupEventA)] = [typeof(WarmupEventHandlerA)];
-        var provider = new RecordingServiceProvider();
+        var provider = new RecordingServiceProvider(typeof(WarmupEventHandlerA));
 
         Should.NotThrow(() => MessagingExtensions.WarmupMessaging(provider));
 
@@ -118,17 +131,28 @@ file sealed class RecordingServiceProvider : IServiceProvider
     readonly CommandHandlerRegistry _commandHandlerRegistry = new();
     readonly IServiceProvider _rootProvider = new ServiceCollection().AddHttpContextAccessor().BuildServiceProvider();
     readonly IServiceResolver _serviceResolver;
+    readonly EventOptions _options = new();
+    readonly EventRegistry _events;
 
-    public RecordingServiceProvider()
-        => _serviceResolver = new ServiceResolver(
+    public RecordingServiceProvider(params Type[] handlers)
+    {
+        var catalog = MessagingExtensions.RegisterHandlers(handlers, _commandHandlerRegistry);
+        _events = new(this, _options, catalog, new(new ServiceCollection()));
+        _serviceResolver = new ServiceResolver(
             provider: _rootProvider,
             ctxAccessor: _rootProvider.GetRequiredService<IHttpContextAccessor>(),
             isUnitTestMode: true);
+    }
 
     public List<Type> RequestedTypes { get; } = [];
+    public IExactEventBus? EventBus { get; init; }
 
     public object? GetService(Type serviceType)
     {
+        if (serviceType == typeof(EventRegistry))
+            return _events;
+        if (serviceType == typeof(EventOptions))
+            return _options;
         if (serviceType == typeof(IServiceResolver))
             return _serviceResolver;
 
@@ -136,7 +160,21 @@ file sealed class RecordingServiceProvider : IServiceProvider
             return _commandHandlerRegistry;
 
         RequestedTypes.Add(serviceType);
-        return null;
+        return serviceType == typeof(EventBus<WarmupEventA>) ? EventBus : null;
+    }
+}
+
+file sealed class RecordingEventBus : IExactEventBus
+{
+    public int SubscriptionReads { get; private set; }
+
+    public EventSubscription[] Subscriptions
+    {
+        get
+        {
+            SubscriptionReads++;
+            return [];
+        }
     }
 }
 

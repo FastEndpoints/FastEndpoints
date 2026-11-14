@@ -10,7 +10,6 @@ public class JobQueueWarmupTests : IDisposable
 {
     public void Dispose()
     {
-        EventBase.HandlerDict.Clear();
         var testingProvider = new ServiceCollection().AddHttpContextAccessor().BuildServiceProvider();
         ServiceResolver.Instance = new ServiceResolver(
             provider: testingProvider,
@@ -33,8 +32,7 @@ public class JobQueueWarmupTests : IDisposable
     [Fact]
     public void UseJobQueues_DoesNotWarmupByDefault()
     {
-        EventBase.HandlerDict[typeof(WarmupEventA)] = [typeof(WarmupEventHandlerA)];
-        var provider = new RecordingServiceProvider();
+        var provider = new RecordingServiceProvider(typeof(WarmupEventHandlerA));
 
         provider.UseJobQueues();
 
@@ -44,9 +42,7 @@ public class JobQueueWarmupTests : IDisposable
     [Fact]
     public void UseJobQueues_Warmup_ResolvesEventBusForEachEventWithHandlers()
     {
-        EventBase.HandlerDict[typeof(WarmupEventA)] = [typeof(WarmupEventHandlerA)];
-        EventBase.HandlerDict[typeof(WarmupEventB)] = [typeof(WarmupEventHandlerB)];
-        var provider = new RecordingServiceProvider();
+        var provider = new RecordingServiceProvider(typeof(WarmupEventHandlerA), typeof(WarmupEventHandlerB));
 
         provider.UseJobQueues(o => o.Warmup());
 
@@ -61,11 +57,15 @@ file sealed class RecordingServiceProvider : IServiceProvider
     readonly CommandHandlerRegistry _commandHandlerRegistry = new();
     readonly IServiceProvider _rootProvider = new ServiceCollection().AddHttpContextAccessor().BuildServiceProvider();
     readonly IServiceResolver _serviceResolver;
+    readonly EventOptions _options = new();
+    readonly EventRegistry _events;
 
-    public RecordingServiceProvider()
+    public RecordingServiceProvider(params Type[] types)
     {
-        foreach (var (tEvent, handlers) in EventBase.HandlerDict)
-            _commandHandlerRegistry[tEvent] = new CommandHandlerDefinition(handlers.First());
+        var catalog = MessagingExtensions.RegisterHandlers(types, _commandHandlerRegistry);
+        _events = new(this, _options, catalog, new(new ServiceCollection()));
+        foreach (var tEvent in catalog.Contracts)
+            _commandHandlerRegistry[tEvent] = new CommandHandlerDefinition(catalog.GetHandlers(tEvent)[0]);
 
         _serviceResolver = new ServiceResolver(
             provider: _rootProvider,
@@ -77,6 +77,10 @@ file sealed class RecordingServiceProvider : IServiceProvider
 
     public object? GetService(Type serviceType)
     {
+        if (serviceType == typeof(EventRegistry))
+            return _events;
+        if (serviceType == typeof(EventOptions))
+            return _options;
         if (serviceType == typeof(IServiceResolver))
             return _serviceResolver;
 

@@ -22,7 +22,7 @@ The discovery whitelist is owned by `DiscoveredTypesGenerator`; check it when ad
 
 Open generic classes are skipped (`TypeParameterList` is not null). A non-generic class nested inside an open generic is also skipped: it is generic at runtime (`Type.IsGenericType`), `AssemblyScanner` drops it, and emitting `Outer<T>.Inner` does not compile in `DiscoveredTypes`.
 
-`ReflectionGenerator` derives registration namespaces from the assembly name, not endpoint namespaces, and emits `ReflectionData.g.cs` even without non-generic classes. Regression: `Tests/UnitTests/FastEndpoints/ReflectionGeneratorTests.cs`.
+`ReflectionGenerator` derives registration namespaces from the assembly name, not endpoint namespaces. When `FastEndpoints.ReflectionCache` is available, it emits `ReflectionData.g.cs` even without non-generic classes. Messaging-only compilations without that HTTP contract emit no reflection registration. Regression: `Tests/UnitTests/FastEndpoints/ReflectionGeneratorTests.cs`.
 
 ## MSBuild / CLI generation
 - **`FastEndpoints.Generator.targets`:** when `GenerateSerializerContexts=true` (optional `SerializerContextOutputPath`, default `Generated/FastEndpoints`, and `GeneratorCliVersion`), runs Generator.Cli to emit STJ serializer contexts.

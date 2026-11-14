@@ -39,11 +39,10 @@ public static class MainExtensions
             options?.Invoke(opts);
 
             var discoveredTypes = EndpointData.DiscoverTypes(opts);
-            var cmdHandlerRegistry = new CommandHandlerRegistry();
-            MessagingExtensions.RegisterHandlers(discoveredTypes, cmdHandlerRegistry);
+            var messagingDiscovery = new MessagingDiscovery(discoveredTypes);
             var endpointData = new EndpointData(discoveredTypes);
 
-            return AddFastEndpointsCore(services, cmdHandlerRegistry, endpointData);
+            return AddFastEndpointsCore(services, messagingDiscovery, endpointData);
         }
 
         /// <summary>
@@ -55,23 +54,22 @@ public static class MainExtensions
         public IServiceCollection AddFastEndpoints(params List<Type>[] discoveredTypes)
         {
             var allTypes = discoveredTypes.SelectMany(t => t).ToList();
-            var cmdHandlerRegistry = new CommandHandlerRegistry();
-            MessagingExtensions.RegisterHandlers(allTypes, cmdHandlerRegistry);
+            var messagingDiscovery = new MessagingDiscovery(allTypes);
             var endpointData = new EndpointData(allTypes);
 
-            return AddFastEndpointsCore(services, cmdHandlerRegistry, endpointData);
+            return AddFastEndpointsCore(services, messagingDiscovery, endpointData);
         }
     }
 
-    static IServiceCollection AddFastEndpointsCore(IServiceCollection services, CommandHandlerRegistry cmdHandlerRegistry, EndpointData endpointData)
+    static IServiceCollection AddFastEndpointsCore(IServiceCollection services, MessagingDiscovery messagingDiscovery, EndpointData endpointData)
     {
-        services.AddSingleton(cmdHandlerRegistry);
+        var eventCatalog = messagingDiscovery.Events;
+        services.AddSingleton(messagingDiscovery.Commands);
         services.AddSingleton(endpointData);
         services.AddHttpContextAccessor();
-        services.TryAddSingleton<IServiceResolver, ServiceResolver>();
         services.TryAddSingleton<IEndpointFactory, EndpointFactory>();
         services.TryAddSingleton(typeof(IRequestBinder<>), typeof(RequestBinder<>));
-        services.AddSingleton(typeof(EventBus<>));
+        services.AddEventServices(_ => eventCatalog);
         services.AddSingleton<Cfg>();
 
         return services;

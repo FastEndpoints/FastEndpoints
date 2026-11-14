@@ -7,7 +7,9 @@ public class App : AppFixture<Program>
     public App()
     {
         // keep test-helper serialization aligned with the app before the shared serializer options become read-only
-        new Config().Serializer.Options.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
+        var options = new Config().Serializer.Options;
+        if (options.PropertyNamingPolicy != JsonNamingPolicy.SnakeCaseLower)
+            options.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
     }
 
     protected override async ValueTask ConfigureAotTargetAsync(AotTargetOptions options)

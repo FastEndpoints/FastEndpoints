@@ -98,7 +98,7 @@ public static class Factory
            .AddSingleton<ILoggerFactory, LoggerFactory>()
            .AddSingleton(typeof(ILogger<>), typeof(Logger<>))
            .AddSingleton<CommandHandlerRegistry>()
-           .AddSingleton(typeof(EventBus<>))
+           .AddEventServices(_ => EventCatalog.Empty)
            .AddHttpContextAccessor();
 
     /// <summary>

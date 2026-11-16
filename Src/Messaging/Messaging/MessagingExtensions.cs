@@ -62,6 +62,15 @@ public static class MessagingExtensions
     static IServiceCollection AddMessagingCore(IServiceCollection services, Func<IEnumerable<Type>> getTypes)
     {
         services.TryAddSingleton(_ => new MessagingDiscovery(getTypes()));
+        return services.AddMessagingServices();
+    }
+
+    /// <summary>
+    /// registers commands and events from the single <see cref="MessagingDiscovery" /> owner of the provider.
+    /// the caller registers <see cref="MessagingDiscovery" /> itself.
+    /// </summary>
+    internal static IServiceCollection AddMessagingServices(this IServiceCollection services)
+    {
         services.TryAddSingleton(p => p.GetRequiredService<MessagingDiscovery>().Commands);
         return services.AddEventServices(p => p.GetRequiredService<MessagingDiscovery>().Events);
     }
@@ -103,37 +112,6 @@ public static class MessagingExtensions
 
     internal static void WarmupMessaging(IServiceProvider provider)
         => provider.GetService<EventRegistry>()?.Warmup();
-
-    /// <summary>
-    /// registers command and stream-command handlers and returns an immutable catalog of discovered event handlers.
-    /// </summary>
-    [UnconditionalSuppressMessage("Trimming", "IL2075")]
-    internal static EventCatalog RegisterHandlers(IEnumerable<Type> types, CommandHandlerRegistry cmdHandlerRegistry)
-    {
-        Dictionary<Type, HashSet<Type>> events = [];
-        foreach (var t in types)
-        {
-            foreach (var tInterface in t.GetInterfaces())
-            {
-                if (!tInterface.IsGenericType)
-                    continue;
-
-                var tGeneric = tInterface.GetGenericTypeDefinition();
-
-                if (tGeneric == Types.IEventHandlerOf1) //IsAssignableTo() is no good here if the user inherits the interface.
-                {
-                    var tEvent = tInterface.GetGenericArguments()[0];
-                    if (!events.TryGetValue(tEvent, out var handlers))
-                        events.Add(tEvent, handlers = []);
-                    handlers.Add(t);
-                }
-                else if (tGeneric == Types.ICommandHandlerOf1 || tGeneric == Types.ICommandHandlerOf2 || tGeneric == Types.IStreamCommandHandlerOf2) // IsAssignableTo() is no good here either
-                    cmdHandlerRegistry.TryAdd(tInterface.GetGenericArguments()[0], new(t));
-            }
-        }
-        return new(events);
-    }
-
 }
 
 /// <summary>
@@ -168,6 +146,33 @@ sealed class MessagingDiscovery
     internal CommandHandlerRegistry Commands { get; } = new();
     internal EventCatalog Events { get; }
 
+    /// <summary>
+    /// discovers command and stream-command handlers, and builds an immutable catalog of event handlers.
+    /// </summary>
+    [UnconditionalSuppressMessage("Trimming", "IL2075")]
     internal MessagingDiscovery(IEnumerable<Type> types)
-        => Events = MessagingExtensions.RegisterHandlers(types, Commands);
+    {
+        Dictionary<Type, HashSet<Type>> events = [];
+        foreach (var t in types)
+        {
+            foreach (var tInterface in t.GetInterfaces())
+            {
+                if (!tInterface.IsGenericType)
+                    continue;
+
+                var tGeneric = tInterface.GetGenericTypeDefinition();
+
+                if (tGeneric == Types.IEventHandlerOf1) //IsAssignableTo() is no good here if the user inherits the interface.
+                {
+                    var tEvent = tInterface.GetGenericArguments()[0];
+                    if (!events.TryGetValue(tEvent, out var handlers))
+                        events.Add(tEvent, handlers = []);
+                    handlers.Add(t);
+                }
+                else if (tGeneric == Types.ICommandHandlerOf1 || tGeneric == Types.ICommandHandlerOf2 || tGeneric == Types.IStreamCommandHandlerOf2) // IsAssignableTo() is no good here either
+                    Commands.TryAdd(tInterface.GetGenericArguments()[0], new(t));
+            }
+        }
+        Events = new(events);
+    }
 }

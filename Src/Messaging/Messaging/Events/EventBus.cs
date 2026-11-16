@@ -43,14 +43,7 @@ public sealed class EventBus<TEvent> : IExactEventBus where TEvent : notnull
     /// <param name="eventHandlers">explicit handlers for this exact event contract</param>
     /// <param name="testEventReceiver">an optional test event receiver</param>
     public EventBus(IServiceProvider provider, IEnumerable<IEventHandler<TEvent>> eventHandlers, IEventReceiver<TEvent>? testEventReceiver = null)
-    {
-        _registry = provider.GetRequiredService<EventRegistry>();
-        _handlers = [.. eventHandlers];
-        if (_handlers.Length == 0)
-            _handlers = _registry.ResolveDiscoveredHandlers<TEvent>();
-        _firstHandlerOfType = EventHandlerFilter<IEventHandler<TEvent>, ExactInvocation>.CreateTypeIndex(_handlers);
-        _testEventReceiver = testEventReceiver;
-    }
+        : this([.. eventHandlers], provider.GetRequiredService<EventRegistry>(), testEventReceiver) { }
 
     /// <summary>
     /// instantiates an event bus for the given event dto type.
@@ -60,15 +53,17 @@ public sealed class EventBus<TEvent> : IExactEventBus where TEvent : notnull
     /// <param name="eventHandlers">a collection of concrete event handler implementations that should receive notifications from this event bus</param>
     /// <param name="testEventReceiver">a test event receiver that can be used to assert receipt of events</param>
     public EventBus(IEnumerable<IEventHandler<TEvent>>? eventHandlers = null, IEventReceiver<TEvent>? testEventReceiver = null)
+        : this(eventHandlers?.ToArray() ?? [], testEventReceiver) { }
+
+    EventBus(IEventHandler<TEvent>[] handlers, IEventReceiver<TEvent>? testEventReceiver)
+        : this(handlers, handlers.Length == 0 && !ServiceResolver.InstanceNotSet ? ServiceResolver.Instance.TryResolve<EventRegistry>() : null, testEventReceiver) { }
+
+    // Owns the snapshot rules: takes ownership of the array, falls back to discovery when it is empty,
+    // and builds the type index from exactly the stored array. A null registry means exact-only delivery.
+    EventBus(IEventHandler<TEvent>[] handlers, EventRegistry? registry, IEventReceiver<TEvent>? testEventReceiver)
     {
-        _handlers = eventHandlers?.ToArray() ?? [];
-
-        if (_handlers.Length == 0 && !ServiceResolver.InstanceNotSet)
-        {
-            _registry = ServiceResolver.Instance.TryResolve<EventRegistry>();
-            _handlers = _registry?.ResolveDiscoveredHandlers<TEvent>() ?? [];
-        }
-
+        _registry = registry;
+        _handlers = handlers.Length == 0 && registry is not null ? registry.ResolveDiscoveredHandlers<TEvent>() : handlers;
         _firstHandlerOfType = EventHandlerFilter<IEventHandler<TEvent>, ExactInvocation>.CreateTypeIndex(_handlers);
         _testEventReceiver = testEventReceiver;
     }

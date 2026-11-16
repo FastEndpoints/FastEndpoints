@@ -63,13 +63,12 @@ public static class MainExtensions
 
     static IServiceCollection AddFastEndpointsCore(IServiceCollection services, MessagingDiscovery messagingDiscovery, EndpointData endpointData)
     {
-        var eventCatalog = messagingDiscovery.Events;
-        services.AddSingleton(messagingDiscovery.Commands);
+        services.AddSingleton(messagingDiscovery); // last registration wins, so FE stays the discovery owner over AddMessaging/AddJobQueues
         services.AddSingleton(endpointData);
         services.AddHttpContextAccessor();
         services.TryAddSingleton<IEndpointFactory, EndpointFactory>();
         services.TryAddSingleton(typeof(IRequestBinder<>), typeof(RequestBinder<>));
-        services.AddEventServices(_ => eventCatalog);
+        services.AddMessagingServices();
         services.AddSingleton<Cfg>();
 
         return services;

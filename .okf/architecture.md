@@ -35,7 +35,7 @@ Package roles: [monorepo-packages.md](monorepo-packages.md). Source locations: [
 
 **Startup/mapping split (`Src/Library/Main/`):** public facades stay on `MainExtensions` (`AddFastEndpoints` / `UseFastEndpoints` / `MapFastEndpoints`, plus internal `BuildRoute` for OpenApi/Agents friend usage). Mapping orchestration is `EndpointRouteMapper`; auth policy materialization is `EndpointSecurityPolicies`; accepts/produces API explorer defaults are `EndpointProducesMetadata`; binder/validator precompile is `EndpointWarmup`. Request execution remains `FeRequestHandler` → `EndpointBootstrap` → `Endpoint.ExecAsync`.
 
-**Discovery ownership:** `AddFastEndpoints` resolves the type list once (`EndpointData.DiscoverTypes` for reflection, or source-generated `DiscoveredTypes`). `EndpointData` builds the HTTP endpoint definition catalog only (`Found`). `MessagingExtensions.RegisterHandlers` populates command and event catalogs for both full and standalone registration. Event ownership/configuration contracts: [messaging.md](messaging.md#in-process-event-ownership-and-inheritance). Skip `AddMessaging` when `AddFastEndpoints` already ran; do not invent a second registration owner.
+**Discovery ownership:** `AddFastEndpoints` resolves the type list once (`EndpointData.DiscoverTypes` for reflection, or source-generated `DiscoveredTypes`). `EndpointData` builds the HTTP endpoint definition catalog only (`Found`). `MessagingDiscovery` builds the command registry and event catalog for both full and standalone registration; one instance per provider owns both, registered through the shared `AddMessagingServices` helper. `AddFastEndpoints` registers it last-wins and `AddMessaging`/`AddJobQueues` use `TryAdd`, so when both run (any order) commands and events come from FE's type list only. Event ownership/configuration contracts: [messaging.md](messaging.md#in-process-event-ownership-and-inheritance). Skip `AddMessaging` when `AddFastEndpoints` already ran; do not invent a second registration owner.
 
 ## Dependency rules
 - Preserve the dependency direction above; do not introduce reverse dependencies such as Core → Library.
@@ -44,7 +44,7 @@ Package roles: [monorepo-packages.md](monorepo-packages.md). Source locations: [
 
 ## Communication
 - **HTTP:** endpoints mapped into ASP.NET routing; config via `UseFastEndpoints(c => …)` (`Config` / `Cfg`).
-- **In-process messaging:** command/event/stream handlers registered via `MessagingExtensions.RegisterHandlers` (from `AddMessaging` or as a side path of `AddFastEndpoints`), or DI/test helpers.
+- **In-process messaging:** command/event/stream handlers discovered by `MessagingDiscovery` (from `AddMessaging` or as a side path of `AddFastEndpoints`), or DI/test helpers.
 - **Remote:** gRPC handler server (`AddHandlerServer`) and client connections default to MessagePack. Wire-format selection and client/server compatibility: [messaging.md](messaging.md#remote-rpc-and-reflection).
 - **Remote events:** ordinary server-streaming delivery and opt-in durable inbox ACK delivery. Protocol/storage contracts, worker ownership, deadlines, retention and isolation: [remote-events.md](remote-events.md).
 - **Remote reflection:** the opt-in `Messaging.Remote.Reflection` satellite owns protobuf and gRPC server reflection, keeping those dependencies out of `Messaging.Remote`.

@@ -128,7 +128,7 @@ public class MessagingWarmupTests : IDisposable
 
 file sealed class RecordingServiceProvider : IServiceProvider
 {
-    readonly CommandHandlerRegistry _commandHandlerRegistry = new();
+    readonly CommandHandlerRegistry _commandHandlerRegistry;
     readonly IServiceProvider _rootProvider = new ServiceCollection().AddHttpContextAccessor().BuildServiceProvider();
     readonly IServiceResolver _serviceResolver;
     readonly EventOptions _options = new();
@@ -136,7 +136,9 @@ file sealed class RecordingServiceProvider : IServiceProvider
 
     public RecordingServiceProvider(params Type[] handlers)
     {
-        var catalog = MessagingExtensions.RegisterHandlers(handlers, _commandHandlerRegistry);
+        var discovery = new MessagingDiscovery(handlers);
+        var catalog = discovery.Events;
+        _commandHandlerRegistry = discovery.Commands;
         _events = new(this, _options, catalog, new(new ServiceCollection()));
         _serviceResolver = new ServiceResolver(
             provider: _rootProvider,

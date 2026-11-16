@@ -29,14 +29,12 @@ tags: [conventions]
 
 ## APIs and data
 - REPR: Request DTO + Endpoint + optional Response DTO; configure routes/verbs/auth in `Configure()`.
-- Mappers: `IMapper` / request-response mappers; **stateless** (singleton lifetime expectation).
-- HTTP idempotency modes and registration: [architecture.md](architecture.md#communication). Settlement and persistence constraints: [financial-idempotency.md](financial-idempotency.md).
+- Mappers: `IMapper` / request-response mappers; stateless singletons ([architecture.md](architecture.md#invariants)).
 
 ## Config and DI
 - Global options: `UseFastEndpoints(c => { c.Serializer…; c.Endpoints…; })` → `FastEndpoints.Config` (`Cfg` alias).
 - Endpoint ctor DI supported; property injection possible with attributes/options.
 - Manual resolve façade: `Endpoint`/`Group`/`Mapper` inherit `ServiceResolverClient`; `Validator`/`BinderContext`/`HttpContext` extensions forward via `ServiceResolverClient.Forward` (do not re-copy the eight Resolve methods).
-- Central package versions: [dependencies.md](dependencies.md). Do not hardcode versions in csproj.
 
 ## Legacy packages
 - Keep modern OpenApi and legacy NSwag/Swagger work scoped to the requested stack. Harness selection: [testing.md](testing.md#harness-documentation-stack).

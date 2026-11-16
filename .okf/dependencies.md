@@ -10,7 +10,7 @@ tags: [deps]
 ## Runtime
 - **TFMs (libraries):** net10.0; net11.0 (default from `Src/Directory.Build.props`, including OpenApi, OpenApi.Kiota and Agents)
 - **Overrides:** Generator → netstandard2.0; Generator.Cli → net10.0 with major runtime roll-forward; Attributes → netstandard2.0 + net10/11; AspVersioning and its unit tests → net10.0 only. The netstandard targets support analyzer hosts, not older application runtimes.
-- **SDK:** stable .NET 11 pinned in `global.json` with latest-patch roll-forward and prereleases disabled. Install the .NET 10 SDK alongside it for the dual-runtime test matrix. Framework-specific package versions are selected in `Directory.Packages.props`.
+- **SDK:** stable .NET 11 pinned in `global.json` with latest-patch roll-forward and prereleases disabled. Install the .NET 10 SDK alongside it for the dual-runtime test matrix.
 - **Tests / integration and AOT harnesses:** net10.0; net11.0. Benchmarks and standalone Sandbox projects remain net10.0.
 
 ## Packages
@@ -21,7 +21,7 @@ tags: [deps]
 ## Constraints
 - `Microsoft.CodeAnalysis.CSharp` is pinned to **[5.0.0]**; minimum analyzer host is .NET 10 SDK / Visual Studio 2026 18.0. Kiota builder is pinned to **[1.29.2]** on net10 for OpenAPI 2.x compatibility; net11 uses the OpenAPI 3.x-compatible line. Bumping either needs explicit compatibility validation (comments and versions in `Directory.Packages.props`).
 - Preserve TFM-conditional versions in `Directory.Packages.props`: OpenAPI 10 uses Microsoft.OpenApi 2.x; OpenAPI 11 uses 3.x. Netstandard analyzer targets keep the .NET 10 Microsoft.Extensions baseline.
-- AspVersioning remains net10-only: Asp.Versioning.OpenApi 10 requires Microsoft.OpenApi <3.0.0 and cannot share the net11 OpenAPI stack. Built-in FastEndpoints route versioning works on both TFMs. Migration gate and verification: [below](#aspversioning-net11-migration).
+- AspVersioning remains net10-only (its OpenApi dependency cannot share the net11 OpenAPI stack); built-in FastEndpoints route versioning works on both TFMs. Gate: [below](#aspversioning-net11-migration).
 - MCP SDK 2.x uses stateless HTTP transport by default; existing list/call handler wiring remains. Caller context and tool visibility must be resolved per request, not per session (`Src/Agents/Mcp/Extensions.cs`).
 - Scalar UI upgrades are not blocked by the package-DTO serializer tests: those tests use FluentValidation `ValidationFailure`, not Scalar DTOs (`TestHarness/NativeAotChecker/Endpoints/SerializerCtxGen/PackageDtoEndpoints.cs`). This does not establish Native AOT serialization support for Scalar DTOs; validate that separately if introducing them as endpoint contracts.
 - OpenAPI media/response compatibility adapters: [openapi.md](openapi.md#tags-security-and-framework-compatibility).
@@ -44,7 +44,7 @@ Upstream investigation starting points (recheck status at migration time): [pack
 When restoring dual targeting in `Src/AspVersioning/FastEndpoints.AspVersioning.csproj` and `Tests/UnitTests/FastEndpoints.AspVersioning/Unit.AspVersioning.csproj`:
 - Check released dependency ranges and API changes for compatible Http, Mvc.ApiExplorer, and OpenApi combinations on both TFMs; central conditional versions may still be needed.
 - Run `Unit.AspVersioning.csproj` on net10/net11 and verify actual per-version document generation as well as routing. Built-in route-versioning snapshots alone are insufficient. Validate the published versioned OpenAPI path if claiming AOT support, and inspect locally packed target assets/dependencies without publishing.
-- After verification, remove resolved net10-only guidance here and in the package map, plus the admonition under "Asp.Versioning.Http Package Support" in `../FE-Docs/src/content/docs/14-api-versioning.md` (FE-Docs `dev` branch). General test and release-documentation workflows remain in [testing.md](testing.md) and [workflows.md](workflows.md).
+- After verification, remove resolved net10-only guidance here and in [code-map.md](code-map.md#layout), plus the admonition under "Asp.Versioning.Http Package Support" in `../FE-Docs/src/content/docs/14-api-versioning.md` (FE-Docs `dev` branch). General test and release-documentation workflows remain in [testing.md](testing.md) and [workflows.md](workflows.md).
 
 ## Sources
 - `global.json`

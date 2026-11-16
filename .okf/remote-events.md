@@ -7,7 +7,7 @@ tags: [architecture, data, gotcha]
 
 # Remote Events
 
-Remote commands and wire-format selection: [architecture.md](architecture.md#communication). Accepted owner policies: [gotchas.md](gotchas.md#accepted-policies-and-review-exclusions). Regression locations: [testing.md](testing.md#domain-regression-map).
+Remote commands and wire-format selection: [messaging.md](messaging.md#remote-rpc-and-reflection). Accepted owner policies: [gotchas.md](gotchas.md#accepted-policies-and-review-exclusions). Regression locations: [testing.md](testing.md#domain-regression-map).
 
 ## Protocol and storage contracts
 - Default delivery uses server-streaming `sub`. `IEventHubDeliveryAck<T>` switches every hub on that provider type to duplex `sub-ack`; subscribers opt in with `IEventSubscriberDeliveryAck<T>`. Upgrade both sides together. One provider type speaks one protocol.

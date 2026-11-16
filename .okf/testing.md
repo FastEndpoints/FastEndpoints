@@ -12,14 +12,12 @@ tags: [test]
 | --- | --- |
 | Framework | **xunit.v3** (MTP v2, no VSTest adapter), Shouldly, FakeItEasy |
 | Test TFMs | **net10.0;net11.0** (`Tests/Directory.Build.props`); AspVersioning unit tests are net10-only. Web, OData, OpenApi.Kiota and NativeAotChecker harnesses match |
-| Unit | `Tests/UnitTests/FastEndpoints`, `…/FastEndpoints.Testing`, `…/FastEndpoints.AspVersioning` (+ legacy Swagger unit commented in slnx) |
+| Unit | `Tests/UnitTests/FastEndpoints`, `…/FastEndpoints.Testing`, `…/FastEndpoints.AspVersioning` (legacy `Unit.Swagger` / `Int.Swagger` are commented out in slnx; see [Harness documentation stack](#harness-documentation-stack)) |
 | Integration | `Tests/IntegrationTests/FastEndpoints` (main), OpenApi, OpenApi.Kiota, OData, Agents |
 | AOT | `Tests/NativeAotTests/NativeAotCheckerTests` + `NativeAot.slnx` |
 | Helpers package | `Src/Testing` → `FastEndpoints.Testing` (`AppFixture`, fixtures, Bogus) |
 | Main SUT | `TestHarness/Web` (`Web.Program`) |
 | Other SUTs | OData, OpenApi.Kiota, Sandbox, NativeAotChecker, MessagingAotChecker |
-
-Integration projects reference harness + `FastEndpoints.Testing` + often remote messaging testing helpers.
 
 ## Commands
 Root `global.json` selects Microsoft.Testing.Platform for `dotnet test` (required after `xunit.v3` 4.0). SDK and dual-runtime prerequisites: [dependencies.md](dependencies.md#runtime).
@@ -44,7 +42,7 @@ AOT tests: run `dotnet test NativeAot.slnx -c Release --framework net10.0 --verb
 Native process reuse is keyed by `TProgram`, not fixture type. For different launch environments against the same executable, use distinct marker types from its entry-point assembly (`InheritanceProgram` is an example), rather than two fixtures using `AppFixture<Program>`.
 
 ## Integration and data
-- **TestBase serial + `[Priority]`:** `TestBase` / `TestBaseWithAssemblyFixture` apply `[TestClass(DisableParallelization = true)]`, `[TestCaseOrderer]`, and `[TestMethodOrderer]`. xunit.v3 4 default parallel mode is `Collections` (same class already serial). The `TestClass` flag is ignored in that mode and only applies if a project enables `ParallelMode.All`. Method + case orderers restore `[Priority]` across `[Fact]` methods and theory rows. No consumer attribute needed.
+- **TestBase serial + `[Priority]`:** `TestBase` / `TestBaseWithAssemblyFixture` apply method and case orderers so `[Priority]` orders `[Fact]` methods and theory rows; no consumer attribute needed. Their `DisableParallelization` flag only matters under `ParallelMode.All` (default `Collections` already runs a class serially).
 - **WAF caching:** one factory per `AppFixture` type, so factory/static state persists across tests. Register doubles in `ConfigureServices`. Teardown hook: `OnCachedWafDisposedAsync()` (cached mode + `[assembly: EnableAdvancedTesting]`).
 - **Sut pattern:** derive `AppFixture<Web.Program>`, override `ConfigureServices` / `SetupAsync` for clients and test doubles (`RegisterTestCommandHandler`, `RegisterTestEventHandler`, `RegisterTestEventReceivers` / `RegisterTestCommandReceivers`, etc.). Main `Sut` already registers both receiver open-generics.
 - **Web harness event hubs:** in the `Testing` environment, only the main `Sut` opts in with `Testing:EnableEventHubs=true`. Other fixtures must leave them disabled so they cannot replace process-wide hub routing while RPC subscribers remain attached to the main host. `RPCTests/EventQueue.cs` exercises delivery with an unrelated host running.
@@ -55,7 +53,6 @@ Native process reuse is keyed by `TProgram`, not fixture type. For different lau
 - `Mode.WaitForAny` / `WaitForNone` offload handlers with `Task.Run`. Do not assert handler side-effects immediately after those publishes; poll, or use `WaitForAll`. For "was it published", use an event receiver (see Command/event spies).
 - Unit pooled event-filter allocation checks warm and measure inside a no-GC region with `finally` cleanup, in a nonparallel collection. GC can otherwise trim warmed pool buffers and skew byte-exact comparisons.
 - No external DB for the core suite; job storage tests use in-memory/test providers.
-- Financial HTTP idempotency: `FinancialResponseCaptureTests.cs` uses real Kestrel for response-lifecycle behavior. Unit tests: `Tests/UnitTests/FastEndpoints/Financial*.cs` / `MemoryFinancialIdempotencyStoreTests.cs`. Harness: `TestHarness/Web/[Features]/TestCases/FinancialIdempotency/`. Integration: `Tests/IntegrationTests/FastEndpoints/FinancialIdempotencyTests/` (`Sut` for memory storage, `FinancialIdempotencyFaultSut` for storage failures).
 - Unit tests that host `WebApplication` + `UseFastEndpoints()` must isolate process statics ([gotchas.md](gotchas.md)). Do not add a second in-process host in `Unit.FastEndpoints` without that pattern.
 
 ## Domain regression map
@@ -66,9 +63,10 @@ Native process reuse is keyed by `TProgram`, not fixture type. For different lau
 | ACK transport deadlines | `EventQueueTests.AckTimeout.cs` and `EventQueueTests.AckWriteTimeout.cs`: real Kestrel HTTP/2 and shared `LiveDeliveryAckHost<TEvent>` |
 | Remote event isolation | Distinct closed event/storage types and internal retry-delay overrides: [remote-events.md](remote-events.md#test-isolation) |
 | Command dispatch / middleware | `CommandBusTests`, `CommandBusScopedMiddlewareTests` in `Unit.FastEndpoints`; discovery tests require a nonparallel collection because they replace the process-wide service resolver. AOT: `CommandsTests` in `NativeAotCheckerTests`. |
-| In-process events | `EventBus*Tests`, `MessagingWarmupTests`, and `JobQueueWarmupTests` in `Unit.FastEndpoints`; `Messaging` integration filter includes a dedicated opt-in Web fixture. Native `EventsTests`, `EventInheritanceTests`, and `StandaloneMessagingTests` cover default and inherited class delivery. The standalone test freshly publishes its messaging-only binary in smoke mode. Run both TFMs and preserve nonparallel/global-restoration patterns. Ownership constraints: [messaging.md](messaging.md#in-process-event-ownership-and-inheritance). |
+| In-process events | `EventBus*Tests`, `MessagingDiscoveryOwnerTests`, `MessagingWarmupTests`, `JobQueueWarmupTests` in `Unit.FastEndpoints`; the `Messaging` integration filter. Native AOT: `EventsTests`, `EventInheritanceTests`, and `StandaloneMessagingTests` (freshly publishes the messaging-only binary in smoke mode). Run both TFMs and preserve nonparallel/global-restoration patterns. |
 | Job dedupe / reflection | Matching unit suites and `Tests/IntegrationTests/FastEndpoints/RPCTests/` |
 | AOT binding / jobs | `Tests/NativeAotTests/`. Run `NativeAotCheckerTests.csproj` with `-p:RunSmokeTests=false` for JIT/WAF; the default `true` publishes and tests Native AOT. |
+| Financial idempotency | Unit `Financial*.cs` / `MemoryFinancialIdempotencyStoreTests.cs` (`FinancialResponseCaptureTests` uses real Kestrel); integration `FinancialIdempotencyTests/` (`Sut` for memory storage, `FinancialIdempotencyFaultSut` for storage failures); harness `TestHarness/Web/[Features]/TestCases/FinancialIdempotency/` |
 | Agents schemas | `Tests/IntegrationTests/FastEndpoints.Agents/JsonSchemaBuilderTests.cs`, `McpToolSchemaRootTests.cs` |
 
 ## Harness documentation stack
@@ -125,7 +123,6 @@ All suites below live in `Tests/IntegrationTests/FastEndpoints.OpenApi/` (`Int.O
 - New public behavior: unit tests when pure logic; integration tests against `TestHarness/Web` (or domain harness) when pipeline/HTTP involved.
 - Prefer endpoint-typed client extensions over magic strings.
 - Generator behavior: unit tests reference Generator project and harness where needed (`Unit.FastEndpoints` references Generator + Web).
-- Keep assemblies signed consistently when using `InternalsVisibleTo` (public key in props).
 
 ## Sources
 - `Tests/Directory.Build.props`

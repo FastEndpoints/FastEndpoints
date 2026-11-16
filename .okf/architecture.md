@@ -29,7 +29,7 @@ Generator → Attributes
 
 `HealthChecks` and `OpenApi.Kiota` have no project reference to Library. `Generator` is consumed as an analyzer; `Generator.Cli` runs through MSBuild targets.
 
-Package roles: [monorepo-packages.md](monorepo-packages.md). Source locations: [code-map.md](code-map.md).
+Package locations and version lines: [code-map.md](code-map.md).
 
 **Request path (simplified):** `AddFastEndpoints` registers discovery data → `UseFastEndpoints`/`MapFastEndpoints` maps routes → `FeRequestHandler` (`ResponseStarted` short-circuit) resolves endpoint instance → bind → validate → pre-processors → (`ResponseStarted` short-circuit) → `OnBeforeHandle*` → optional `SkipHandlerIfResponseStarted` short-circuit → `HandleAsync`/`ExecuteAsync` → automatic response sending (unless disabled or already started) → `OnAfterHandle*`. Post-processors run in `ExecAsync`'s `finally`, including on its early-return and error paths; they do not precede automatic response sending.
 
@@ -49,7 +49,7 @@ Package roles: [monorepo-packages.md](monorepo-packages.md). Source locations: [
 - **Remote events:** ordinary server-streaming delivery and opt-in durable inbox ACK delivery. Protocol/storage contracts, worker ownership, deadlines, retention and isolation: [remote-events.md](remote-events.md).
 - **Remote reflection:** the opt-in `Messaging.Remote.Reflection` satellite owns protobuf and gRPC server reflection, keeping those dependencies out of `Messaging.Remote`.
 - **Jobs:** consumer-owned `IJobStorageProvider` / `IJobStorageRecord` persistence, not a framework-owned app DB. AOT construction and business-key dedupe contracts: [messaging.md](messaging.md#commands-and-jobs).
-- **HTTP idempotency:** fingerprint mode is an output-cache policy (`AddIdempotency` + `Idempotency()`). Financial mode is a separate reservation pipeline (`AddFinancialIdempotency` + `UseFinancialIdempotency` + `FinancialIdempotency()`) with `IFinancialIdempotencyStore` (atomic `TryBegin`, ownership-token settlement). Requires a stable caller scope. Do not combine both on one endpoint. Not shared with job-queue `IdempotencyKeyFor`. Settlement and identity traps: [financial-idempotency.md](financial-idempotency.md).
+- **HTTP idempotency:** fingerprint mode is an output-cache policy (`AddIdempotency` + `Idempotency()`). Financial mode is a separate reservation pipeline (`AddFinancialIdempotency` + `UseFinancialIdempotency` + `FinancialIdempotency()`). Do not combine both on one endpoint. Not shared with job-queue `IdempotencyKeyFor`. Settlement and identity traps: [financial-idempotency.md](financial-idempotency.md).
 
 ## Security / auth
 - Auth is ASP.NET Core middleware + optional `FastEndpoints.Security` (`Src/Security`): JWT bearer, cookies, refresh, revocation.

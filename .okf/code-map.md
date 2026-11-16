@@ -33,11 +33,17 @@ tags: [layout]
 | `Benchmark/` | BenchmarkDotNet + load tests |
 | `Directory.Packages.props` | Central NuGet versions |
 | `Src/Directory.Build.props` | Shared version, TFMs, signing, package metadata |
-| `FastEndpoints.slnx` | Primary solution |
-| `NativeAot.slnx` | AOT-focused solution |
+| `FastEndpoints.slnx` | Primary solution: libraries, Agents addons, tests, harnesses, benchmarks |
+| `NativeAot.slnx` | HTTP and standalone messaging AOT checkers, their tests, library refs, and Sandbox contracts |
+| `TestHarness/Sandbox/Sandbox.slnx` | Local sandbox for isolated experiments |
 | `azure-pipeline.yml` | Tag-triggered Azure DevOps test pipeline |
 | `.github/workflows/publish-to-nuget.yml` | Tag `v*` test → pack → OIDC NuGet login → push → GH release |
 | `../FE-Docs/` (sibling) | Public docs site source; content under `src/content/docs/`; not in this solution |
+
+## Packages and version lines
+One root `.okf/` covers the whole repo (no per-package OKF). NuGet IDs normally follow `FastEndpoints.<Area>`; Library is `FastEndpoints`, and `Src/Agents/Mcp` / `Src/Agents/A2A` publish as `FastEndpoints.Mcp` / `FastEndpoints.A2A`.
+- **Core line:** `Src/Directory.Build.props` `<Version>` (all standard Src packages unless overridden).
+- **Agents line:** per-csproj `<Version>` under `Src/Agents/` (`Src/Agents/Directory.Build.props` documents independence). Binary contract with Library: [agents.md](agents.md).
 
 ## Modules (Library internals)
 
@@ -65,6 +71,8 @@ Generator inventory, consumption, and output editability: [generated-code.md](ge
 
 ## Sources
 - `FastEndpoints.slnx`
+- `Src/Directory.Build.props`
+- `Src/Agents/Directory.Build.props`
 - `Src/Library/`
 - `TestHarness/Web/Program.cs`
 - `Tests/IntegrationTests/FastEndpoints/Sut.cs`

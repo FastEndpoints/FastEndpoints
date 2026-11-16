@@ -8,7 +8,7 @@ tags: [build]
 # Workflows
 
 ## Setup
-- SDK and runtime requirements: [dependencies.md](dependencies.md#runtime). CI installation differences are described under Pack and publish below.
+- SDK and runtime requirements: [dependencies.md](dependencies.md#runtime).
 
 ## Build and run
 ```bash
@@ -25,8 +25,6 @@ dotnet run --project TestHarness/Web/Web.csproj --framework net10.0
 # recursively deletes all bin/obj directories beneath the current directory
 ./clean.sh
 ```
-
-Sandbox: `TestHarness/Sandbox/Sandbox.slnx` for isolated experiments.
 
 ## Test
 Commands, MTP runner, CI filter, and the Kiota skip: [testing.md](testing.md).
@@ -60,7 +58,7 @@ Prepend a new `<details>` under the matching existing heading (newest first); do
 ## Lint and format
 - Style primarily via `.editorconfig` + ReSharper/Rider DotSettings (`FastEndpoints.sln.DotSettings.user` is user-local).
 
-## Codegen and migrations
+## Codegen
 - Roslyn generators, serializer contexts, and OpenAPI export: [generated-code.md](generated-code.md).
 
 ## Public documentation

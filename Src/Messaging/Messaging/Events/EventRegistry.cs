@@ -59,7 +59,7 @@ sealed class EventRegistry
 {
     readonly IServiceProvider _provider;
     readonly EventCatalog _catalog;
-    readonly EventRegistrationIndex _registrations;
+    readonly bool _hasOpenHandlers;
 
     readonly Type[] _contracts;
 
@@ -76,7 +76,7 @@ sealed class EventRegistry
         _provider = provider;
         Options = options;
         _catalog = catalog;
-        _registrations = registrations;
+        _hasOpenHandlers = registrations.HasOpenHandlers;
         _contracts = catalog.Contracts.Union(registrations.Contracts).ToArray();
         _createInstance = CreateInstance;
         _buildPlan = BuildPlan;
@@ -127,7 +127,7 @@ sealed class EventRegistry
     {
         var candidates = _contracts.Where(t => t.IsAssignableFrom(runtimeType));
 
-        if (_registrations.HasOpenHandlers)
+        if (_hasOpenHandlers)
         {
             var uniqueCandidates = candidates.ToHashSet();
             for (var type = runtimeType; type is not null; type = type.BaseType)

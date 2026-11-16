@@ -32,20 +32,17 @@ Sandbox: `TestHarness/Sandbox/Sandbox.slnx` for isolated experiments.
 Commands, MTP runner, CI filter, and the Kiota skip: [testing.md](testing.md).
 
 ## Pack and publish
-NuGet-only release (no long-running service). Changelog for GH releases: `Src/Library/changelog.md`.
+NuGet release automation and trusted publishing are defined in [publish-to-nuget.yml](../.github/workflows/publish-to-nuget.yml) (tags `v*`).
 
 ```bash
 dotnet pack FastEndpoints.slnx -c Release
-dotnet nuget push "Src/**/*.nupkg" -k <NUGET_API_KEY> -s https://api.nuget.org/v3/index.json --skip-duplicate
 ```
 
-Release automation is defined in [publish-to-nuget.yml](../.github/workflows/publish-to-nuget.yml) (tags `v*`). It uses secretless OIDC for a short-lived NuGet key. The nuget.org username is `djnitehawk`, not GitHub `dj-nitehawk`; no long-lived API key secret is needed.
+Publishing uses secretless OIDC for a short-lived NuGet key. The nuget.org username is `djnitehawk`, not GitHub `dj-nitehawk`; no long-lived API key secret is needed. Push with `--skip-duplicate` because unchanged independently versioned packages may already be published.
 
 Coverage gaps: GitHub tests both TFMs but its Native AOT steps are disabled. Kiota integration is omitted under `CI`/`TF_BUILD`. Azure installs only the SDK from `global.json` and tests net11, including AOT through its project glob; it does not test net10 or pack/push. Commands and manual coverage: [testing.md](testing.md).
 
 Changed Agents addons must receive a new independent version in their `.csproj` before release; `--skip-duplicate` skips updated assemblies packaged under an already-published version.
-
-Job permissions: `id-token: write` (OIDC), `contents: write` (GH release).
 
 Trusted publishing policy on nuget.org must match: owner `FastEndpoints`, repo `FastEndpoints`, workflow file `publish-to-nuget.yml` (filename only).
 
@@ -54,25 +51,14 @@ Rolling current-cycle release notes: `Src/Library/changelog.md`. Non-beta tags d
 
 The update gate is in [AGENTS.md](../AGENTS.md#before-finishing). FE-Docs-only edits do not need a changelog entry. Do not duplicate an existing `<details>` for the same change.
 
-Prepend a new `<details>` immediately under the matching heading (newest first). Do not add headings.
-
-- `## New 🎉`
-- `## Fixes 🪲`
-- `## Improvements 🚀`
-- `## Minor Breaking Changes ⚠️`
-
-Use HTML `<details><summary>user-facing title</summary>` plus short consumer-facing prose and an optional small code sample. The HTML comment near the top of the file is the entry template. Summaries state consumer impact, not the implementation.
+Prepend a new `<details>` under the matching existing heading (newest first); do not add headings. Follow the HTML comment template near the top of the file. Summaries state consumer impact, not implementation.
 
 **Voice and detail:** Write short, conversational entries in the maintainer's voice, speaking directly to users. Focus on their needs and the practical impact, not a technical dump. Prefer plain language over API inventories and implementation details. Keep useful code examples, but leave detailed setup, storage contracts, response-code matrices, and operational edge cases to the public documentation. Add a documentation pointer where appropriate. Retain essential compatibility, safety, and migration warnings. These rules stand on their own; do not rely on temporary changelog entries as tone references.
 
-- **New:** Introduce the capability, who it helps, and why. A useful shape is: "If you're building [use case], you can now [capability]. [Brief benefit or relevant compatibility note.]" Follow with an optional example and documentation pointer, not a mandatory formula.
-- **Fixes:** Describe the user-visible problem and what now works correctly.
-- **Improvements:** State what is better and the practical benefit.
-- **Breaking changes:** Say what changed, who is affected, and what users must do to migrate. Include a small before/after example when useful. Give users enough detail to act safely, while keeping the same conversational voice.
+- New features explain who benefits and why; fixes/improvements explain the user-visible change. Breaking changes must identify affected users and migration steps, with a before/after example when useful.
 
 ## Lint and format
 - Style primarily via `.editorconfig` + ReSharper/Rider DotSettings (`FastEndpoints.sln.DotSettings.user` is user-local).
-- No dedicated `dotnet format` script required by CI from inspected files; follow editorconfig when editing.
 
 ## Codegen and migrations
 - Roslyn generators, serializer contexts, and OpenAPI export: [generated-code.md](generated-code.md).

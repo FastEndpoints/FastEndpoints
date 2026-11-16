@@ -16,18 +16,17 @@ tags: [layout]
 | `Src/Core/` | `FastEndpoints.Core` (service resolver, `ServiceResolverClient` DI façade base, assembly scanner) |
 | `Src/Attributes/` | Attributes + small contracts for generators/consumers |
 | `Src/Messaging/` | Messaging.Core, Messaging, Messaging.Remote*, testing helpers |
-| `Src/JobQueues/` | Job queue package (`IJobStorageRecord` addons, `JobQueueOptions`, providers SPI, `DuplicateJobException`) |
+| `Src/JobQueues/` | Job queues and consumer storage-provider contracts |
 | `Src/CommandRules/` | Rule-based command dispatch package |
 | `Src/Security/` | JWT/cookie/refresh/revocation |
 | `Src/OData/`, `Src/HealthChecks/` | OData integration and health probes |
 | `Src/OpenApi/`, `Src/OpenApi.Kiota/` | OpenAPI + Kiota client gen |
-| `Src/AspVersioning/` | net10-only `Asp.Versioning.Http` integration (`AddVersioning`; optional `Action<VersionedOpenApiOptions>` configures versioned OpenAPI docs via `Asp.Versioning.OpenApi`) |
+| `Src/AspVersioning/` | net10-only `Asp.Versioning.Http` and versioned OpenAPI integration |
 | `Src/Swagger/`, `Src/ClientGen*` | Legacy NSwag-era packages (slnx “Legacy” folder) |
 | `Src/Generator/`, `Src/Generator.Cli/` | Roslyn generators + CLI |
 | `Src/Testing/` | `FastEndpoints.Testing` |
 | `Src/Agents/` | Mcp / A2A addons + Shared linked sources |
-| `Src/*/Generated/` | Often empty placeholders or build outputs; prefer not hand-edit |
-| `TestHarness/` | Sample apps: `Web`, `OData`, `OpenApi.Kiota`, `Sandbox`, `NativeAotChecker` |
+| `TestHarness/` | HTTP samples (`Web`, `OData`, `OpenApi.Kiota`), `Sandbox`, and AOT checkers (`NativeAotChecker`, messaging-only `MessagingAotChecker`) |
 | `Tests/UnitTests/` | Unit tests (xunit v3) |
 | `Tests/IntegrationTests/` | WAF/integration tests against harnesses |
 | `Tests/NativeAotTests/` | AOT publish/check tests |
@@ -44,7 +43,7 @@ tags: [layout]
 
 | Folder under `Src/Library/` | Concern |
 | --- | --- |
-| `Main/` | Startup facades + collaborators: `MainExtensions` (public entry; wires discovery + messaging registration), `EndpointData` (HTTP definition catalog only)/`EndpointDiscoveryOptions`, `EndpointBootstrap`, `FeRequestHandler`, `EndpointRouteMapper`, `EndpointSecurityPolicies`, `EndpointProducesMetadata`, `EndpointWarmup`, `ResponseCacheExecutor`, `IFeatureFlag` |
+| `Main/` | Startup, discovery, route mapping, and request dispatch; collaborator ownership: [architecture.md](architecture.md#components) |
 | `Endpoint/` | Endpoint base, setup, send, validation, processors, mappers |
 | `Binder/` | Request binding |
 | `Config/` | Global `Config` options |
@@ -55,10 +54,8 @@ tags: [layout]
 | `Testing/` | Lightweight test helpers shipped with main package |
 
 ## Entry points
-- **Consumer app:** `services.AddFastEndpoints(...)` then `app.UseFastEndpoints(...)` or `MapFastEndpoints`.
 - **Test harness Web:** `TestHarness/Web/Program.cs`; full feature surface for integration tests.
 - **Integration SUT fixture:** `Tests/IntegrationTests/FastEndpoints/Sut.cs` → `AppFixture<Web.Program>`.
-- **Pack/publish:** [workflows.md](workflows.md#pack-and-publish).
 
 ## Feature samples
 Harness features under `TestHarness/Web/[Features]/…` (e.g. `Admin/Login/Endpoint.cs`) show canonical endpoint layout: namespace-per-feature, `Endpoint : Endpoint<Request, Response>`, `Configure()` + handle methods.

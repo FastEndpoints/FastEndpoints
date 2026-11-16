@@ -40,6 +40,9 @@ bld.Services
    .OpenApiDocument(o => o.DocumentName = "v1");
 
 var app = bld.Build();
+if (app.Configuration.GetValue<bool>("Testing:EventInheritance"))
+    app.Services.UseMessaging(o => o.Events.EnableInheritance = true);
+
 app.MapGet("healthy", () => Results.Ok());
 app.UseStaticFiles()
    .UseAuthentication()

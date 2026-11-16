@@ -97,8 +97,8 @@ public static class Factory
         => services
            .AddSingleton<ILoggerFactory, LoggerFactory>()
            .AddSingleton(typeof(ILogger<>), typeof(Logger<>))
-           .AddSingleton<CommandHandlerRegistry>()
-           .AddSingleton(typeof(EventBus<>))
+           .AddSingleton(new MessagingDiscovery([]))
+           .AddMessagingServices()
            .AddHttpContextAccessor();
 
     /// <summary>

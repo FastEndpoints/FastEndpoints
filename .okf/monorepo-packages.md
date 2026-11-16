@@ -13,7 +13,7 @@ One root `.okf/` covers the whole repo. Packages are NuGet libraries, not separa
 | Solution | Contents |
 | --- | --- |
 | `FastEndpoints.slnx` | Main libraries, Agents addons, tests, harnesses, benchmarks |
-| `NativeAot.slnx` | AOT checker + subset of library refs + Sandbox contracts |
+| `NativeAot.slnx` | HTTP and standalone messaging AOT checkers, their tests, library refs, and Sandbox contracts |
 | `TestHarness/Sandbox/Sandbox.slnx` | Local sandbox |
 
 ## Package locations

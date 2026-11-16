@@ -290,6 +290,27 @@ public class ReflectionGeneratorTests
     }
 
     [Fact]
+    public void messaging_only_consumer_does_not_require_library_reflection_cache()
+    {
+        var parseOptions = new CSharpParseOptions(LanguageVersion.Preview);
+        var references = GetReferences().Where(r => r.Display != typeof(ReflectionCache).Assembly.Location);
+        var compilation = CSharpCompilation.Create(
+            "MessagingOnly",
+            [CSharpSyntaxTree.ParseText("public sealed class Message;", parseOptions)],
+            references,
+            new(OutputKind.DynamicallyLinkedLibrary));
+        GeneratorDriver driver = CSharpGeneratorDriver.Create(
+            [new ReflectionGenerator().AsSourceGenerator()],
+            parseOptions: parseOptions);
+
+        driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out var output, out var diagnostics);
+
+        driver.GetRunResult().GeneratedTrees.ShouldBeEmpty();
+        diagnostics.ShouldBeEmpty();
+        output.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ShouldBeEmpty();
+    }
+
+    [Fact]
     public void record_only_source_emits_empty_reflection_registration()
     {
         const string source =

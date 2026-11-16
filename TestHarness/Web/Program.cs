@@ -64,6 +64,9 @@ if (bld.Environment.EnvironmentName == "Testing")
 var supportedCultures = new[] { new CultureInfo("en-US") };
 
 var app = bld.Build();
+if (app.Environment.IsEnvironment("Testing") && app.Configuration.GetValue<bool>("Testing:EventInheritance"))
+    app.Services.UseMessaging(o => o.Events.EnableInheritance = true);
+
 app.UseRequestLocalization(
        new RequestLocalizationOptions
        {

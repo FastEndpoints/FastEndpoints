@@ -38,11 +38,7 @@ public static class MainExtensions
             var opts = new EndpointDiscoveryOptions();
             options?.Invoke(opts);
 
-            var discoveredTypes = EndpointData.DiscoverTypes(opts);
-            var messagingDiscovery = new MessagingDiscovery(discoveredTypes);
-            var endpointData = new EndpointData(discoveredTypes);
-
-            return AddFastEndpointsCore(services, messagingDiscovery, endpointData);
+            return AddFastEndpointsCore(services, EndpointData.DiscoverTypes(opts));
         }
 
         /// <summary>
@@ -53,16 +49,15 @@ public static class MainExtensions
         /// <param name="discoveredTypes">one or more lists of source-generated discovered types, one per referenced assembly</param>
         public IServiceCollection AddFastEndpoints(params List<Type>[] discoveredTypes)
         {
-            var allTypes = discoveredTypes.SelectMany(t => t).ToList();
-            var messagingDiscovery = new MessagingDiscovery(allTypes);
-            var endpointData = new EndpointData(allTypes);
-
-            return AddFastEndpointsCore(services, messagingDiscovery, endpointData);
+            return AddFastEndpointsCore(services, [.. discoveredTypes.SelectMany(t => t)]);
         }
     }
 
-    static IServiceCollection AddFastEndpointsCore(IServiceCollection services, MessagingDiscovery messagingDiscovery, EndpointData endpointData)
+    static IServiceCollection AddFastEndpointsCore(IServiceCollection services, List<Type> discoveredTypes)
     {
+        var messagingDiscovery = new MessagingDiscovery(discoveredTypes);
+        var endpointData = new EndpointData(discoveredTypes);
+
         services.AddSingleton(messagingDiscovery); // last registration wins, so FE stays the discovery owner over AddMessaging/AddJobQueues
         services.AddSingleton(endpointData);
         services.AddHttpContextAccessor();

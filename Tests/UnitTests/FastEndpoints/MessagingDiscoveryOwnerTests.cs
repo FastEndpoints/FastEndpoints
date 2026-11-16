@@ -40,6 +40,21 @@ public class MessagingDiscoveryOwnerTests : IDisposable
                 .ShouldBe([typeof(FeEventHandler)]);
     }
 
+    [Fact]
+    public void AddFastEndpoints_Owns_Commands_And_Events_After_Unit_Testing_Services()
+    {
+        var services = new ServiceCollection();
+        services.AddServicesForUnitTesting(); // what AddTestServices() runs before the user callback
+        AddFastEndpoints(services);
+        using var provider = services.BuildServiceProvider();
+
+        provider.GetRequiredService<CommandHandlerRegistry>().Keys.ShouldBe([typeof(FeCommand)]);
+        provider.GetRequiredService<EventRegistry>()
+                .ResolveDiscoveredHandlers<OwnerEvent>()
+                .Select(h => h.GetType())
+                .ShouldBe([typeof(FeEventHandler)]);
+    }
+
     static void AddFastEndpoints(IServiceCollection services)
         => services.AddFastEndpoints([typeof(OwnerStubEndpoint), typeof(FeCommandHandler), typeof(FeEventHandler)]);
 

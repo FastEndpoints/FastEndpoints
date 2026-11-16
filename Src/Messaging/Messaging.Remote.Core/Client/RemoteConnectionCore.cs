@@ -114,6 +114,27 @@ public class RemoteConnectionCore
         ChannelOptions.HttpHandler = httpMsgHnd ?? new GrpcWebHandler(new HttpClientHandler()) { GrpcWebMode = GrpcWebMode.GrpcWebText };
     }
 
+    //maps the key to this connection and returns the (lazily created) channel. must happen before the executor is constructed.
+    internal GrpcChannel BindToThis(Type key)
+    {
+        RemoteMap[key] = this;
+
+        return Channel ??= GrpcChannel.ForAddress(RemoteAddress, ChannelOptions);
+    }
+
+    internal static RemoteConnectionCore For(Type tCommand)
+        => RemoteMap.TryGetValue(tCommand, out var remote)
+               ? remote
+               : throw NotMapped(tCommand);
+
+    TExecutor ExecutorFor<TExecutor>(Type tCommand)
+        => ExecutorMap.TryGetValue(tCommand, out var executor)
+               ? (TExecutor)executor
+               : throw NotMapped(tCommand);
+
+    static InvalidOperationException NotMapped(Type tCommand)
+        => new($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
+
     /// <summary>
     /// register a "void" command (<see cref="ICommand" />) for this remote connection where the handler for it is hosted/located.
     /// </summary>
@@ -121,15 +142,11 @@ public class RemoteConnectionCore
     public void Register<TCommand>() where TCommand : class, ICommand
     {
         var tCommand = typeof(TCommand);
-        RemoteMap[tCommand] = this;
-        Channel ??= GrpcChannel.ForAddress(RemoteAddress, ChannelOptions);
-        ExecutorMap[tCommand] = new VoidCommandExecutor<TCommand>(Channel, MarshallerFactory);
+        ExecutorMap[tCommand] = new VoidCommandExecutor<TCommand>(BindToThis(tCommand), MarshallerFactory);
     }
 
     internal Task ExecuteVoid(ICommand cmd, Type tCommand, CallOptions opts)
-        => !ExecutorMap.TryGetValue(tCommand, out var executor)
-               ? throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]")
-               : ((IVoidCommandExecutor)executor).ExecuteVoid(cmd, opts);
+        => ExecutorFor<IVoidCommandExecutor>(tCommand).ExecuteVoid(cmd, opts);
 
     /// <summary>
     /// register a "unary" command (<see cref="ICommand{TResult}" />) for this remote connection where the handler for it is hosted/located.
@@ -139,15 +156,11 @@ public class RemoteConnectionCore
     public void Register<TCommand, TResult>() where TCommand : class, ICommand<TResult> where TResult : class
     {
         var tCommand = typeof(TCommand);
-        RemoteMap[tCommand] = this;
-        Channel ??= GrpcChannel.ForAddress(RemoteAddress, ChannelOptions);
-        ExecutorMap[tCommand] = new UnaryCommandExecutor<TCommand, TResult>(Channel, MarshallerFactory);
+        ExecutorMap[tCommand] = new UnaryCommandExecutor<TCommand, TResult>(BindToThis(tCommand), MarshallerFactory);
     }
 
     internal Task<TResult> ExecuteUnary<TResult>(ICommand<TResult> cmd, Type tCommand, CallOptions opts) where TResult : class
-        => !ExecutorMap.TryGetValue(tCommand, out var executor)
-               ? throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]")
-               : ((IUnaryCommandExecutor<TResult>)executor).ExecuteUnary(cmd, opts);
+        => ExecutorFor<IUnaryCommandExecutor<TResult>>(tCommand).ExecuteUnary(cmd, opts);
 
     /// <summary>
     /// register a "server stream" command (<see cref="IServerStreamCommand{TResult}" />) for this remote connection where the handler for it is hosted/located.
@@ -157,16 +170,12 @@ public class RemoteConnectionCore
     public void RegisterServerStream<TCommand, TResult>() where TCommand : class, IServerStreamCommand<TResult> where TResult : class
     {
         var tCommand = typeof(TCommand);
-        RemoteMap[tCommand] = this;
-        Channel ??= GrpcChannel.ForAddress(RemoteAddress, ChannelOptions);
-        ExecutorMap[tCommand] = new ServerStreamCommandExecutor<TCommand, TResult>(Channel, MarshallerFactory);
+        ExecutorMap[tCommand] = new ServerStreamCommandExecutor<TCommand, TResult>(BindToThis(tCommand), MarshallerFactory);
     }
 
     internal IAsyncStreamReader<TResult> ExecuteServerStream<TResult>(IServerStreamCommand<TResult> cmd, Type tCommand, CallOptions opts)
         where TResult : class
-        => !ExecutorMap.TryGetValue(tCommand, out var executor)
-               ? throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]")
-               : ((IServerStreamCommandExecutor<TResult>)executor).ExecuteServerStream(cmd, opts);
+        => ExecutorFor<IServerStreamCommandExecutor<TResult>>(tCommand).ExecuteServerStream(cmd, opts);
 
     /// <summary>
     /// register a remote handler for a "client stream" (<see cref="IAsyncEnumerable{T}" />) for this remote connection.
@@ -176,15 +185,27 @@ public class RemoteConnectionCore
     public void RegisterClientStream<T, TResult>() where T : class where TResult : class
     {
         var tCommand = typeof(IAsyncEnumerable<T>);
-        RemoteMap[tCommand] = this;
-        Channel ??= GrpcChannel.ForAddress(RemoteAddress, ChannelOptions);
-        ExecutorMap[tCommand] = new ClientStreamCommandExecutor<T, TResult>(Channel, MarshallerFactory);
+        ExecutorMap[tCommand] = new ClientStreamCommandExecutor<T, TResult>(BindToThis(tCommand), MarshallerFactory);
     }
 
     internal Task<TResult> ExecuteClientStream<T, TResult>(IAsyncEnumerable<T> cmd, Type tCommand, CallOptions opts) where T : class where TResult : class
-        => !ExecutorMap.TryGetValue(tCommand, out var executor)
-               ? throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]")
-               : ((IClientStreamCommandExecutor<T, TResult>)executor).ExecuteClientStream(cmd, opts);
+        => ExecutorFor<IClientStreamCommandExecutor<T, TResult>>(tCommand).ExecuteClientStream(cmd, opts);
+
+    /// <summary>
+    /// register a "duplex stream" (bi-directional stream) command (<see cref="IDuplexStreamCommand{TResult}" />) for this remote connection where the handler for
+    /// it is hosted/located.
+    /// </summary>
+    /// <typeparam name="TCommand">the type of the items in the stream that will be sent</typeparam>
+    /// <typeparam name="TResult">the type of the items in the result stream that will be received</typeparam>
+    public void RegisterDuplexStream<TCommand, TResult>() where TCommand : class, IDuplexStreamCommand<TResult> where TResult : class
+    {
+        var tCommand = typeof(TCommand);
+        ExecutorMap[tCommand] = new DuplexStreamCommandExecutor<TCommand, TResult>(BindToThis(tCommand), MarshallerFactory);
+    }
+
+    internal IAsyncEnumerable<TResult> ExecuteDuplexStream<TCommand, TResult>(IAsyncEnumerable<TCommand> commands, Type tCommand, CallOptions opts)
+        where TCommand : class, IDuplexStreamCommand<TResult> where TResult : class
+        => ExecutorFor<IDuplexStreamCommandExecutor<TCommand, TResult>>(tCommand).ExecuteDuplexStream(commands, opts);
 
     /// <summary>
     /// subscribe to a broadcast channel for a given event type (<typeparamref name="TEvent" />) on the remote host.
@@ -259,10 +280,7 @@ public class RemoteConnectionCore
         where TEventHandler : IEventHandler<TEvent>
     {
         var tEventHandler = typeof(TEventHandler);
-        RemoteMap[tEventHandler] = this;
-
-        Channel ??= GrpcChannel.ForAddress(RemoteAddress, ChannelOptions);
-
+        var channel = BindToThis(tEventHandler);
         var tHandler = _serviceProvider.GetService<IEventHandler<TEvent>>()?.GetType() ?? typeof(TEventHandler);
         // opt-in is per provider type. an ack provider never falls back to the sub stream.
         var subscriberType = typeof(IEventSubscriberDeliveryAck<>).MakeGenericType(StorageRecordType).IsAssignableFrom(StorageProviderType)
@@ -271,11 +289,11 @@ public class RemoteConnectionCore
         var tEventSubscriber = subscriberType.MakeGenericType(typeof(TEvent), tHandler, StorageRecordType, StorageProviderType);
         var effectiveSubscriberID = subscriberID ?? SubscriberID;
         var eventSubscriber = (ICommandExecutor)(effectiveSubscriberID is null
-                                                     ? ActivatorUtilities.CreateInstance(_serviceProvider, tEventSubscriber, Channel!, clientIdentifier, MarshallerFactory)
+                                                     ? ActivatorUtilities.CreateInstance(_serviceProvider, tEventSubscriber, channel, clientIdentifier, MarshallerFactory)
                                                      : ActivatorUtilities.CreateInstance(
                                                          _serviceProvider,
                                                          tEventSubscriber,
-                                                         Channel!,
+                                                         channel,
                                                          clientIdentifier,
                                                          effectiveSubscriberID,
                                                          MarshallerFactory));

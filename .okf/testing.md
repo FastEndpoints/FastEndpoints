@@ -30,6 +30,8 @@ dotnet test FastEndpoints.slnx -c Release --framework net11.0 --verbosity minima
 # Targeted
 dotnet test Tests/UnitTests/FastEndpoints/Unit.FastEndpoints.csproj
 dotnet test Tests/IntegrationTests/FastEndpoints/Int.FastEndpoints.csproj --filter FullyQualifiedName~BindingTests
+# Filters match namespaces, not folders: RPCTests/ uses `RemoteProcedureCalls` (a no-match exits with code 8, "No tests ran")
+dotnet test Tests/IntegrationTests/FastEndpoints/Int.FastEndpoints.csproj --filter FullyQualifiedName~RemoteProcedureCalls
 
 # Legacy Swagger search initialization (Node.js built-in runner, no npm install)
 node --test Tests/UnitTests/FastEndpoints.Swagger/SwaggerSearchTests.mjs
@@ -115,7 +117,7 @@ All suites below live in `Tests/IntegrationTests/FastEndpoints.OpenApi/` (`Int.O
 ## Command/event spies
 - **API:** `RegisterTestEventReceivers()` / `RegisterTestCommandReceivers()`, then `GetTestEventReceiver<T>()` / `GetTestCommandReceiver<T>()`. Assert with `WaitForMatchAsync(match, timeoutSeconds = 2)`.
 - **Use when** an HTTP, RPC, or dispatcher path should have published an event or executed a command, and the assertion is receipt (payload/predicate), not handler logic. Prefer this over capturing statics or extra fake handlers.
-- **Do not use when** proving `RegisterTestCommandHandler` / `RegisterTestEventHandler` substitution; asserting handler completion or mutations; asserting job *successful* completion (receiver sees `ExecuteAsync` start, including throws/retries); asserting event-hub *subscriber* delivery (hub receiver is publisher-side); client-stream RPC (no hook); NativeAot published process (no test DI).
+- **Do not use when** proving `RegisterTestCommandHandler` / `RegisterTestEventHandler` substitution; asserting handler completion or mutations; asserting job *successful* completion (receiver sees `ExecuteAsync` start, including throws/retries); asserting event-hub *subscriber* delivery (hub receiver is publisher-side); client-stream and duplex-stream RPC (no hook); NativeAot published process (no test DI).
 - Match on a unique value (`Guid.NewGuid()`). Receivers are fixture singletons and never clear; `_ => true` can match earlier tests. Capture means publish/execute start, not completion.
 - Examples: `Tests/IntegrationTests/FastEndpoints/MessagingTests/{CommandBusTests,EventBusTests}.cs`.
 

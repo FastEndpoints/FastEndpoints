@@ -50,10 +50,7 @@ public static class RemoteConnectionCoreExtensions
         {
             var tCommand = command.GetType();
 
-            return
-                RemoteConnectionCore.RemoteMap.TryGetValue(tCommand, out var remote)
-                    ? remote.ExecuteVoid(command, tCommand, options)
-                    : throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
+            return RemoteConnectionCore.For(tCommand).ExecuteVoid(command, tCommand, options);
         }
     }
 
@@ -78,10 +75,7 @@ public static class RemoteConnectionCoreExtensions
         {
             var tCommand = command.GetType();
 
-            return
-                RemoteConnectionCore.RemoteMap.TryGetValue(tCommand, out var remote)
-                    ? remote.ExecuteUnary(command, tCommand, options)
-                    : throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
+            return RemoteConnectionCore.For(tCommand).ExecuteUnary(command, tCommand, options);
         }
     }
 
@@ -106,10 +100,7 @@ public static class RemoteConnectionCoreExtensions
         {
             var tCommand = command.GetType();
 
-            return
-                RemoteConnectionCore.RemoteMap.TryGetValue(tCommand, out var remote)
-                    ? remote.ExecuteServerStream(command, tCommand, options).ReadAllAsync(options.CancellationToken)
-                    : throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
+            return RemoteConnectionCore.For(tCommand).ExecuteServerStream(command, tCommand, options).ReadAllAsync(options.CancellationToken);
         }
     }
 
@@ -136,10 +127,35 @@ public static class RemoteConnectionCoreExtensions
         {
             var tCommand = typeof(IAsyncEnumerable<TCommand>);
 
-            return
-                RemoteConnectionCore.RemoteMap.TryGetValue(tCommand, out var remote)
-                    ? remote.ExecuteClientStream<TCommand, TResult>(commands, tCommand, options)
-                    : throw new InvalidOperationException($"No remote handler has been mapped for the command: [{tCommand.FullName}]");
+            return RemoteConnectionCore.For(tCommand).ExecuteClientStream<TCommand, TResult>(commands, tCommand, options);
+        }
+    }
+
+    /// <param name="commands">the stream of commands to send</param>
+    /// <typeparam name="TCommand">the type of the items in the stream that will be sent</typeparam>
+    /// <typeparam name="TResult">the type of the items in the result stream that will be received</typeparam>
+    extension<TCommand, TResult>(IAsyncEnumerable<TCommand> commands) where TCommand : class, IDuplexStreamCommand<TResult> where TResult : class
+    {
+        /// <summary>
+        /// open a bi-directional stream to the relevant remote server, sending the <typeparamref name="TCommand" /> items and receiving a stream of
+        /// <typeparamref name="TResult" /> while still sending.
+        /// </summary>
+        /// <param name="ct">cancellation token</param>
+        /// <exception cref="InvalidOperationException">thrown if the relevant remote handler has not been registered</exception>
+        public IAsyncEnumerable<TResult> RemoteExecuteDuplexAsync(CancellationToken ct)
+            => RemoteExecuteDuplexAsync<TCommand, TResult>(commands, new CallOptions(cancellationToken: ct));
+
+        /// <summary>
+        /// open a bi-directional stream to the relevant remote server, sending the <typeparamref name="TCommand" /> items and receiving a stream of
+        /// <typeparamref name="TResult" /> while still sending.
+        /// </summary>
+        /// <param name="options">call options</param>
+        /// <exception cref="InvalidOperationException">thrown if the relevant remote handler has not been registered</exception>
+        public IAsyncEnumerable<TResult> RemoteExecuteDuplexAsync(CallOptions options = default)
+        {
+            var tCommand = typeof(TCommand);
+
+            return RemoteConnectionCore.For(tCommand).ExecuteDuplexStream<TCommand, TResult>(commands, tCommand, options);
         }
     }
 }

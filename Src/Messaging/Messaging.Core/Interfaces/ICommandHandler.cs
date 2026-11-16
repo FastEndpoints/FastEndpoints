@@ -76,6 +76,25 @@ public interface IClientStreamCommandHandler<T, TResult> where T : class where T
 }
 
 /// <summary>
+/// interface to be implemented by a handler for a bi-directional stream of <typeparamref name="TCommand" /> that returns a stream of
+/// <typeparamref name="TResult" />. both streams are open at the same time, so results can be sent while commands are still being received.
+/// </summary>
+/// <typeparam name="TCommand">the type of the items in the incoming stream</typeparam>
+/// <typeparam name="TResult">the type of the items in the returned stream</typeparam>
+public interface IDuplexStreamCommandHandler<in TCommand, TResult> where TCommand : class, IDuplexStreamCommand<TResult> where TResult : class
+{
+#pragma warning disable CS8424
+    /// <summary>
+    /// receives a stream of <typeparamref name="TCommand" /> and returns a stream of <typeparamref name="TResult" />.
+    /// the call ends when the returned stream ends.
+    /// </summary>
+    /// <param name="stream">the stream of incoming commands</param>
+    /// <param name="ct">optional cancellation token</param>
+    IAsyncEnumerable<TResult> ExecuteAsync(IAsyncEnumerable<TCommand> stream, [EnumeratorCancellation] CancellationToken ct);
+#pragma warning restore CS8424
+}
+
+/// <summary>
 /// interface to be implemented by a command handler for a given command type that returns a stream of <typeparamref name="TResult" />
 /// </summary>
 /// <typeparam name="TCommand">the type of the input command</typeparam>

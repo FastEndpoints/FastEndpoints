@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using TestCases.ClientStreamingTest;
 using TestCases.CommandBusTest;
+using TestCases.DuplexStreamingTest;
 using TestCases.ServerStreamingTest;
 
 namespace RemoteProcedureCalls;
@@ -20,7 +21,10 @@ public class RpcTestBase : TestBase<Sut>
         Remote.Register<TestCases.CommandBusTest.VoidCommand>();
         Remote.Register<SomeCommand, string>();
         Remote.Register<EchoCommand, EchoCommand>();
+        Remote.Register<CallContextVoidCommand>();
+        Remote.Register<CallContextUnaryCommand, string>();
         Remote.RegisterServerStream<StatusStreamCommand, StatusUpdate>();
         Remote.RegisterClientStream<CurrentPosition, ProgressReport>();
+        Remote.RegisterDuplexStream<DuplexPing, DuplexPong>();
     }
 }

@@ -41,6 +41,7 @@ public static class HandlerServerExtensions
         sc.TryAddSingleton(typeof(UnaryHandlerExecutor<,,>));
         sc.TryAddSingleton(typeof(ServerStreamHandlerExecutor<,,>));
         sc.TryAddSingleton(typeof(ClientStreamHandlerExecutor<,,>));
+        sc.TryAddSingleton(typeof(DuplexStreamHandlerExecutor<,,>));
         sc.TryAddSingleton<EventHubRuntime>();
         sc.AddHostedService(sp => sp.GetRequiredService<EventHubRuntime>());
         sc.TryAddSingleton(typeof(EventHub<,,>));

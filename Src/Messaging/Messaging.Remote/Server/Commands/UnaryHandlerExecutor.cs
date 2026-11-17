@@ -17,16 +17,10 @@ sealed class UnaryHandlerExecutor<TCommand, THandler, TResult>(ICommandReceiver<
                                            List<object> metadata)
         => ctx.AddUnaryMethod(method, metadata, ExecuteUnary);
 
-    protected override Task<TResult> ExecuteUnary(UnaryHandlerExecutor<TCommand, THandler, TResult> _, TCommand cmd, ServerCallContext ctx)
+    Task<TResult> ExecuteUnary(UnaryHandlerExecutor<TCommand, THandler, TResult> _, TCommand cmd, ServerCallContext ctx)
     {
         testCommandReceiver?.AddCommand(cmd);
 
-        var handler = (THandler)HandlerFactory(ctx.GetHttpContext().RequestServices, null);
-
-        // ReSharper disable once SuspiciousTypeConversion.Global
-        if (handler is IHasServerCallContext scc)
-            scc.ServerCallContext = ctx;
-
-        return handler.ExecuteAsync(cmd, ctx.CancellationToken);
+        return CreateHandler(ctx).ExecuteAsync(cmd, ctx.CancellationToken);
     }
 }

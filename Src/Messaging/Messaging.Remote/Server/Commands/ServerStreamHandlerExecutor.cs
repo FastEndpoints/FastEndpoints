@@ -1,7 +1,5 @@
 using Grpc.AspNetCore.Server.Model;
 using Grpc.Core;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 
 namespace FastEndpoints;
 
@@ -19,21 +17,15 @@ sealed class ServerStreamHandlerExecutor<TCommand, THandler, TResult>(ICommandRe
                                            List<object> metadata)
         => ctx.AddServerStreamingMethod(method, metadata, ExecuteServerStream);
 
-    protected override async Task ExecuteServerStream(ServerStreamHandlerExecutor<TCommand, THandler, TResult> _,
-                                                      TCommand cmd,
-                                                      IServerStreamWriter<TResult> responseStream,
-                                                      ServerCallContext ctx)
+    async Task ExecuteServerStream(ServerStreamHandlerExecutor<TCommand, THandler, TResult> _,
+                                   TCommand cmd,
+                                   IServerStreamWriter<TResult> responseStream,
+                                   ServerCallContext ctx)
     {
         testCommandReceiver?.AddCommand(cmd);
 
-        var svcProvider = ctx.GetHttpContext().RequestServices;
-        var appCancellation = svcProvider.GetRequiredService<IHostApplicationLifetime>().ApplicationStopping;
-        var cts = CancellationTokenSource.CreateLinkedTokenSource(ctx.CancellationToken, appCancellation);
-        var handler = (THandler)HandlerFactory(svcProvider, null);
-
-        // ReSharper disable once SuspiciousTypeConversion.Global
-        if (handler is IHasServerCallContext scc)
-            scc.ServerCallContext = ctx;
+        using var cts = LinkWithAppStopping(ctx);
+        var handler = CreateHandler(ctx);
 
         await foreach (var item in handler.ExecuteAsync(cmd, cts.Token))
         {

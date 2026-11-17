@@ -3,6 +3,7 @@ using Scalar.AspNetCore;
 using TestCases.ClientStreamingTest;
 using TestCases.CommandBusTest;
 using TestCases.CommandHandlerTest;
+using TestCases.DuplexStreamingTest;
 using TestCases.EventHandlingTest;
 using TestCases.EventQueueTest;
 using TestCases.GlobalGenericProcessorTest;
@@ -160,8 +161,11 @@ app.MapHandlers(
         h.Register<VoidCommand, VoidCommandHandler>();
         h.Register<SomeCommand, SomeCommandHandler, string>();
         h.Register<EchoCommand, EchoCommandHandler, EchoCommand>();
+        h.Register<CallContextVoidCommand, CallContextVoidCommandHandler>();
+        h.Register<CallContextUnaryCommand, CallContextUnaryCommandHandler, string>();
         h.RegisterServerStream<StatusStreamCommand, StatusUpdateHandler, StatusUpdate>();
         h.RegisterClientStream<CurrentPosition, PositionProgressHandler, ProgressReport>();
+        h.RegisterDuplexStream<DuplexPing, DuplexEchoHandler, DuplexPong>();
         // Only the RPC fixture owns these event types when multiple test hosts coexist.
         if (!app.Environment.IsEnvironment("Testing") || app.Configuration.GetValue<bool>("Testing:EnableEventHubs"))
         {

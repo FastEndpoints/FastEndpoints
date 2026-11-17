@@ -3,6 +3,7 @@ using Grpc.AspNetCore.Server.Model;
 using Grpc.Core;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 // ReSharper disable UnusedMemberInSuper.Global
 // ReSharper disable UseSymbolAlias
@@ -21,14 +22,22 @@ abstract class BaseHandlerExecutor<TCommand, THandler, TResult, TSelf> : IMethod
 
     protected abstract void AddMethodToCtx(ServiceMethodProviderContext<TSelf> ctx, Method<TCommand, TResult> method, List<object> metadata);
 
-    protected virtual Task<TResult> ExecuteUnary(TSelf _, TCommand cmd, ServerCallContext ctx)
-        => throw new NotImplementedException();
+    protected static THandler CreateHandler(ServerCallContext ctx)
+    {
+        var handler = (THandler)HandlerFactory(ctx.GetHttpContext().RequestServices, null);
 
-    protected virtual Task ExecuteServerStream(TSelf _, TCommand cmd, IServerStreamWriter<TResult> responseStream, ServerCallContext ctx)
-        => throw new NotImplementedException();
+        // ReSharper disable once SuspiciousTypeConversion.Global
+        if (handler is IHasServerCallContext scc)
+            scc.ServerCallContext = ctx;
 
-    protected virtual Task<TResult> ExecuteClientStream(TSelf _, IAsyncStreamReader<TCommand> requestStream, ServerCallContext serverCallContext)
-        => throw new NotImplementedException();
+        return handler;
+    }
+
+    //caller owns disposal
+    protected static CancellationTokenSource LinkWithAppStopping(ServerCallContext ctx)
+        => CancellationTokenSource.CreateLinkedTokenSource(
+            ctx.CancellationToken,
+            ctx.GetHttpContext().RequestServices.GetRequiredService<IHostApplicationLifetime>().ApplicationStopping);
 
     static readonly string[] _httpPost = ["POST"];
 

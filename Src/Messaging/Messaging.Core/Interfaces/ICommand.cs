@@ -78,5 +78,15 @@ public interface ITrackableJob<out TResult> : ICommand<TResult>, IHasTrackingID 
 /// </typeparam>
 public interface IServerStreamCommand<out TResult> where TResult : class;
 
+/// <summary>
+/// interface for the items of a bi-directional stream that results in a stream of <typeparamref name="TResult" />.
+/// the client sends a stream of these items to the handler and receives a stream of <typeparamref name="TResult" /> while still sending.
+/// </summary>
+/// <typeparam name="TResult">
+/// the type of the items in the result stream that will be returned from the handler of these items (i.e.
+/// <see cref="IDuplexStreamCommandHandler{TCommand, TResult}" />)
+/// </typeparam>
+public interface IDuplexStreamCommand<out TResult> where TResult : class;
+
 //Note: client streams are marked by IAsyncEnumerable<T> interface.
 //      so we don't need our own interface for client streams.

@@ -82,6 +82,18 @@ public class HandlerOptions<TStorageRecord, TStorageProvider>
         => _routeBuilder.MapGrpcService<ClientStreamHandlerExecutor<T, THandler, TResult>>();
 
     /// <summary>
+    /// registers a "duplex stream" (bi-directional stream) command handler this server is hosting.
+    /// </summary>
+    /// <typeparam name="TCommand">the type of the items in the incoming stream</typeparam>
+    /// <typeparam name="THandler">the type of the handler for the incoming stream</typeparam>
+    /// <typeparam name="TResult">the type of the items in the result stream that will be returned from the handler</typeparam>
+    public GrpcServiceEndpointConventionBuilder RegisterDuplexStream<TCommand, THandler, TResult>()
+        where TCommand : class, IDuplexStreamCommand<TResult>
+        where THandler : class, IDuplexStreamCommandHandler<TCommand, TResult>
+        where TResult : class
+        => _routeBuilder.MapGrpcService<DuplexStreamHandlerExecutor<TCommand, THandler, TResult>>();
+
+    /// <summary>
     /// registers an "event hub" that broadcasts events of the given type to all remote subscribers in an asynchronous manner
     /// </summary>
     /// <param name="mode">the operation mode of this event hub</param>

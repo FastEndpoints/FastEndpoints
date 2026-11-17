@@ -16,16 +16,10 @@ sealed class VoidHandlerExecutor<TCommand, THandler>(ICommandReceiver<TCommand>?
                                            List<object> metadata)
         => ctx.AddUnaryMethod(method, metadata, ExecuteUnary);
 
-    protected override async Task<EmptyObject> ExecuteUnary(VoidHandlerExecutor<TCommand, THandler> _, TCommand cmd, ServerCallContext ctx)
+    async Task<EmptyObject> ExecuteUnary(VoidHandlerExecutor<TCommand, THandler> _, TCommand cmd, ServerCallContext ctx)
     {
         testCommandReceiver?.AddCommand(cmd);
-
-        var handler = (THandler)HandlerFactory(ctx.GetHttpContext().RequestServices, null);
-        await handler.ExecuteAsync(cmd, ctx.CancellationToken);
-
-        // ReSharper disable once SuspiciousTypeConversion.Global
-        if (handler is IHasServerCallContext scc)
-            scc.ServerCallContext = ctx;
+        await CreateHandler(ctx).ExecuteAsync(cmd, ctx.CancellationToken);
 
         return EmptyObject.Instance;
     }

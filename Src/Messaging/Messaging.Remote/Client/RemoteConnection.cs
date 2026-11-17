@@ -1,6 +1,5 @@
 ﻿using System.Net.Sockets;
 using Grpc.Core;
-using Grpc.Net.Client;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace FastEndpoints;
@@ -59,9 +58,7 @@ public sealed class RemoteConnection : RemoteConnectionCore
     public void RegisterEvent<TEvent>() where TEvent : class, IEvent
     {
         var tEvent = typeof(TEvent);
-        RemoteMap[tEvent] = this;
-        Channel ??= GrpcChannel.ForAddress(RemoteAddress, ChannelOptions);
-        ExecutorMap[tEvent] = new EventPublisher<TEvent>(Channel, MarshallerFactory);
+        ExecutorMap[tEvent] = new EventPublisher<TEvent>(BindToThis(tEvent), MarshallerFactory);
     }
 
     internal Task PublishEvent(IEvent evnt, Type tEvent, CallOptions opts)

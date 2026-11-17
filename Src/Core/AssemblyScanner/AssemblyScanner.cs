@@ -51,8 +51,26 @@ internal static class AssemblyScanner
                    a => !a.IsDynamic &&
                         (opts.Assemblies?.Contains(a) is true ||
                          !_exclusions.Any(x => a.FullName!.StartsWith(x, StringComparison.Ordinal)))) // Ordinal is both correct and free of icu collation.
-               .SelectMany(a => a.GetTypes())
+               .SelectMany(GetAssemblyTypes)
                .Where(t => IsTypeMatch(t, opts));
+
+        static Type[] GetAssemblyTypes(Assembly a)
+        {
+            try
+            {
+                return a.GetTypes();
+            }
+            catch (ReflectionTypeLoadException ex)
+            {
+                var errors = string.Join(" | ", ex.LoaderExceptions.Select(e => e?.Message).Distinct());
+
+                throw new InvalidOperationException(
+                    $"Unable to load types from assembly [{a.GetName().Name}] during FastEndpoints type discovery. " +
+                    "If it doesn't contain any FastEndpoints types, exclude it with the 'AssemblyFilter' discovery option " +
+                    $"or specify the assemblies to scan explicitly. Loader errors: {errors}",
+                    ex);
+            }
+        }
 
         static bool IsTypeMatch(Type t, AssemblyScanOptions options)
         {

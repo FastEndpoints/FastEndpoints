@@ -38,7 +38,7 @@ dotnet pack FastEndpoints.slnx -c Release
 
 Publishing uses secretless OIDC for a short-lived NuGet key. The nuget.org username is `djnitehawk`, not GitHub `dj-nitehawk`; no long-lived API key secret is needed. Push with `--skip-duplicate` because unchanged independently versioned packages may already be published.
 
-Coverage gaps: GitHub tests both TFMs but its Native AOT steps are disabled. Kiota integration is omitted under `CI`/`TF_BUILD`. Azure installs only the SDK from `global.json` and tests net11, including AOT through its project glob; it does not test net10 or pack/push. Commands and manual coverage: [testing.md](testing.md).
+Coverage gaps: GitHub tests both TFMs but its Native AOT steps are disabled. Kiota integration is omitted under `CI`/`TF_BUILD`. Azure installs only the SDK from `global.json` and tests net11 through the `Tests/**/*.csproj` glob, so it also runs AOT and the legacy `Int.Swagger`/`Unit.Swagger` suites that `FastEndpoints.slnx` comments out; it does not test net10 or pack/push. Commands and manual coverage: [testing.md](testing.md).
 
 Changed Agents addons must receive a new independent version in their `.csproj` before release; `--skip-duplicate` skips updated assemblies packaged under an already-published version.
 

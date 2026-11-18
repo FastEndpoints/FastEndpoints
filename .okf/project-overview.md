@@ -14,7 +14,7 @@ resource: README.md
 ## Scope
 Library monorepo, not a hosted product. Package locations: [code-map.md](code-map.md#layout).
 
-Runtime requirements: [dependencies.md](dependencies.md#runtime). Solutions and version lines: [code-map.md](code-map.md#packages-and-version-lines). Public docs source and maintenance: [workflows.md](workflows.md#public-documentation).
+Runtime requirements: [dependencies.md](dependencies.md#runtime). Solutions: [code-map.md](code-map.md#layout). Version lines: [code-map.md](code-map.md#packages-and-version-lines). Public docs source and maintenance: [workflows.md](workflows.md#public-documentation).
 
 ## Glossary
 | Term | Meaning |

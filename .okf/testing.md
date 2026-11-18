@@ -18,6 +18,7 @@ tags: [test]
 | Helpers package | `Src/Testing` → `FastEndpoints.Testing` (`AppFixture`, fixtures, Bogus) |
 | Main SUT | `TestHarness/Web` (`Web.Program`) |
 | Other SUTs | OData, OpenApi.Kiota, Sandbox, NativeAotChecker, MessagingAotChecker |
+| Sandbox tests | `TestHarness/Sandbox/Tests` (net10, scratch) is only in `Sandbox.slnx`, not the main solution or CI |
 
 ## Commands
 Root `global.json` selects Microsoft.Testing.Platform for `dotnet test` (required after `xunit.v3` 4.0). SDK and dual-runtime prerequisites: [dependencies.md](dependencies.md#runtime).
@@ -51,7 +52,7 @@ Native process reuse is keyed by `TProgram`, not fixture type. For different lau
 - **Traits:** `[Trait("ExcludeInCiCd", "Yes")]` skips in publish/Azure pipelines (job-queue timing, some binding cases). Those tests are not a merge gate.
 - **Kiota integration project:** `Int.OpenApi.Kiota` sets `IsTestingPlatformApplication=false` and `IsTestProject=false` when `CI` (GitHub) or `TF_BUILD` (Azure) is true (heavy Kiota gen; MTP keys off the former). Local `dotnet test FastEndpoints.slnx` still runs it.
 - **Kiota command-mode subprocesses:** launch `typeof(Program).Assembly.Location` directly with `dotnet`, using its directory as the working directory. Pass `--urls http://127.0.0.1:0` so Kestrel atomically allocates an isolated port, even when port 5000 is occupied or TFMs run concurrently. The project reference copies the harness DLL, dependencies and runtime configuration into the matching test output. Do not derive the harness project path or TFM from `AppContext`: an IDE runner can supply its own base directory and target framework.
-- Checked-in `FastEndpoints` and `FastEndpoints.OpenApi` runner configs enable test-collection parallelization; `FastEndpoints.Agents` disables it. Tests that mutate process-wide FastEndpoints or FluentValidation state need an explicitly nonparallel collection. Azure and GitHub publish pipelines rewrite the `FastEndpoints` runner config and pass `--max-parallel-test-modules 1`; that switch serializes test modules and leaves each module's xUnit collection policy intact.
+- The checked-in `Int.FastEndpoints` runner config disables test-collection parallelization; the other integration projects (OpenApi, Agents, OpenApi.Kiota, Swagger) enable it. Tests that mutate process-wide FastEndpoints or FluentValidation state need an explicitly nonparallel collection. Azure and GitHub publish pipelines rewrite the `FastEndpoints` runner config and pass `--max-parallel-test-modules 1`; that switch serializes test modules and leaves each module's xUnit collection policy intact.
 - `Mode.WaitForAny` / `WaitForNone` offload handlers with `Task.Run`. Do not assert handler side-effects immediately after those publishes; poll, or use `WaitForAll`. For "was it published", use an event receiver (see Command/event spies).
 - Unit pooled event-filter allocation checks warm and measure inside a no-GC region with `finally` cleanup, in a nonparallel collection. GC can otherwise trim warmed pool buffers and skew byte-exact comparisons.
 - No external DB for the core suite; job storage tests use in-memory/test providers.

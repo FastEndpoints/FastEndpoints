@@ -48,7 +48,7 @@ No-subscriber waits wake on application stopping and make a final recipient look
 - Retention validation runs at ACK adapter construction and allowance is read again at receiver startup. Adapter logger identities and storage caches remain protocol-specific.
 
 ## Test isolation
-Broadcast storage is held on the hub instance, so recreating a host does not reuse its predecessor's provider. `AllHubs` routing, subscriber registries/configuration, and `EventHubStorage<TStorageRecord,TStorageProvider>.Provider` for purging remain static. General same-event multi-host isolation is not supported; use distinct closed event/storage types for independent hubs, adapters, and theory variants. Deadline tests use real Kestrel HTTP/2 where transport backpressure matters; helper tests use internal retry-delay overrides. Production retrieval and deserialization retries retain five-second and one-second delays respectively.
+Broadcast storage is held on the hub instance, so recreating a host does not reuse its predecessor's provider. `AllHubs` routing, subscriber registries/configuration, and the purge providers (`EventHubStorage<,>.Provider`, plus `EventSubscriberStorage<,>.Provider`, whose static constructor starts one hourly purge loop per closed type) remain static. General same-event multi-host isolation is not supported; use distinct closed event/storage types for independent hubs, adapters, and theory variants. Deadline tests use real Kestrel HTTP/2 where transport backpressure matters; helper tests use internal retry-delay overrides. Production retrieval and deserialization retries retain five-second and one-second delays respectively.
 
 ## Sources
 - `Src/Messaging/Messaging.Remote/Server/Events/`

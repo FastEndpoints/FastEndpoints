@@ -6,7 +6,7 @@ This repository uses `.okf/` as compact operational memory for AI agents.
 
 OKF v0.1: non-reserved `.md` files need YAML frontmatter with non-empty `type`, `title`, and `description`; `index.md` is a directory listing; only bundle-root `index.md` may have frontmatter (`okf_version`).
 
-Normative OKF use/update gates live in this file. `.okf/index.md` and `.okf/maintenance.md` are reminders and conformance detail; the okf-setup skill is setup/maintain procedure.
+Normative OKF use/update gates live in this file. `.okf/index.md` and `.okf/maintenance.md` are reminders and conformance detail. Setup and full re-audits follow a separate procedure (the okf skill, where available).
 
 ### Before work
 
@@ -49,5 +49,3 @@ Subject to project conventions in OKF/`conventions.md` (and architecture when pr
 - Do not use em or en dashes as prose punctuation. Use commas, parentheses, or separate sentences instead. Hyphens remain valid in compound words, bullets, code, commands, CLI flags, identifiers, paths, versions, ranges, quotations, and exact terms.
 - Do not hand-edit generated artifacts listed in code-map/gotchas; regenerate via project commands instead. If a path is not listed but is clearly generated output, leave it alone and regenerate.
 - If behavior changes, run the smallest relevant command from workflows/testing. If not run, state the blocker.
-- Prefer project references and central package versions (`Directory.Packages.props`); do not invent reverse package dependencies.
-- Keep Agents addons independently versioned when touching `Src/Agents/`.

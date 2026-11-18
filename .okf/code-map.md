@@ -33,7 +33,7 @@ tags: [layout]
 | `Benchmark/` | BenchmarkDotNet + load tests |
 | `Directory.Packages.props` | Central NuGet versions |
 | `Src/Directory.Build.props` | Shared version, TFMs, signing, package metadata |
-| `FastEndpoints.slnx` | Primary solution: libraries, Agents addons, tests, harnesses, benchmarks |
+| `FastEndpoints.slnx` | Primary solution: libraries, Agents addons, tests, harnesses, benchmarks; excludes the AOT checkers/tests (`NativeAot.slnx`) and the commented-out legacy Swagger test projects |
 | `NativeAot.slnx` | HTTP and standalone messaging AOT checkers, their tests, library refs, and Sandbox contracts |
 | `TestHarness/Sandbox/Sandbox.slnx` | Local sandbox for isolated experiments |
 | `azure-pipeline.yml` | Tag-triggered Azure DevOps test pipeline |

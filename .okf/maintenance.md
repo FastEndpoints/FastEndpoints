@@ -8,7 +8,7 @@ tags: [maintain]
 # Maintenance
 
 ## Conformance
-- Format, gates, and content discipline: [AGENTS.md](../AGENTS.md). The okf-setup skill supplies the closed type list; use `Reference` if unsure.
+- Format, gates, and content discipline: [AGENTS.md](../AGENTS.md). The okf skill supplies the closed type list; use `Reference` if unsure.
 - No secrets in OKF. Prefer `## Sources` for multi-source claims.
 - Topic ownership: core files summarize boundaries; testing maps regression suites; gotchas preserves traps and owner-approved review exclusions. Detailed domain contracts belong in the task-specific topics linked from [index.md](index.md#task-specific).
 

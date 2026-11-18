@@ -10,12 +10,12 @@ tags: [conventions]
 ## Naming
 - Public API namespace: mostly flat `FastEndpoints` (file-scoped / namespace-per-file patterns common).
 - Endpoint types often named `Endpoint` inside a feature namespace (see harness), not `FooEndpoint`.
-- Private fields: camelCase with `_` prefix (editorconfig / ReSharper rules).
+- Private fields: `_camelCase` (`.editorconfig` enforces it only for private static readonly; instance fields follow it by convention).
 - Parameters: camelCase; private constants: PascalCase.
 
 ## Style
 - C# latest language version; **nullable enable**; implicit usings.
-- Indent 4 spaces; LF; UTF-8 (`.editorconfig`, plus ReSharper/Rider DotSettings; `FastEndpoints.sln.DotSettings.user` is user-local).
+- Indent 4 spaces; LF; UTF-8 (`.editorconfig`, which also holds the ReSharper `resharper_*` settings; `*.DotSettings.user` files are gitignored and user-local).
 - Prefer existing partial-class splits for large types (`Endpoint.*.cs`).
 - XML docs generated for packages (`GenerateDocumentationFile`); suppress noise via project `NoWarn`.
 - `CS8618` suppressed for `*Request.cs`, `*Response.cs`, `*Model*.cs`, `*Endpoint.cs` patterns.
@@ -28,6 +28,10 @@ tags: [conventions]
 - Global options: `UseFastEndpoints(c => { c.Serializer…; c.Endpoints…; })` → `FastEndpoints.Config` (`Cfg` alias).
 - Endpoint ctor DI supported; property injection possible with attributes/options.
 - Manual resolve façade: `Endpoint`/`Group`/`Mapper` inherit `ServiceResolverClient`; `Validator`/`BinderContext`/`HttpContext` extensions forward via `ServiceResolverClient.Forward` (do not re-copy the eight Resolve methods).
+
+## Dependencies and versioning
+- Prefer project references and central package versions (`Directory.Packages.props`); do not invent reverse package dependencies. Details: [dependencies.md](dependencies.md#packages), [architecture.md](architecture.md#dependency-rules).
+- Keep Agents addons independently versioned when touching `Src/Agents/`: [agents.md](agents.md), [workflows.md](workflows.md#pack-and-publish).
 
 ## Legacy packages
 - Keep modern OpenApi and legacy NSwag/Swagger work scoped to the requested stack. Harness selection: [testing.md](testing.md#harness-documentation-stack).

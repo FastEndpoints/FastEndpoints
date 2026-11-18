@@ -21,13 +21,14 @@ Project references (arrows point to dependencies):
 Library → Attributes, JobQueues, Messaging
 JobQueues → Messaging → Core, Messaging.Core
 CommandRules → JobQueues, Messaging, Messaging.Core
-Security / OpenApi / OData / AspVersioning / Agents.* → Library
+Security / OpenApi / OData / AspVersioning / Swagger (legacy) / Agents.* → Library
 Messaging.Remote → Messaging.Remote.Core → Messaging.Core
 Messaging.Remote.Reflection → Messaging.Remote
+Messaging.Remote.Testing → Messaging.Core
 Generator → Attributes
 ```
 
-`HealthChecks` and `OpenApi.Kiota` have no project reference to Library. `Generator` is consumed as an analyzer; `Generator.Cli` runs through MSBuild targets.
+`HealthChecks`, `OpenApi.Kiota`, `Testing`, `ClientGen*` and `Generator.Cli` have no project reference to Library. `Generator` is consumed as an analyzer; `Generator.Cli` runs through MSBuild targets.
 
 Package locations and version lines: [code-map.md](code-map.md).
 
@@ -60,7 +61,7 @@ Package locations and version lines: [code-map.md](code-map.md).
 
 ## Invariants
 1. Endpoint types implement `IEndpoint`; public base is `Endpoint<TRequest[, TResponse]>`.
-2. AOT: do **not** rely on reflection discovery; use `AddFastEndpoints(DiscoveredTypes.All)` (+ generator).
+2. AOT: do **not** rely on reflection discovery; use `AddFastEndpoints(DiscoveredTypes.All)` (+ generator), adding `GenericProcessorTypes.All` when open-generic pre/post processors are used (see `TestHarness/NativeAotChecker/Program.cs`).
 3. Mappers/validators discovered types are typically treated as singletons for performance; no per-request state in mappers.
 
 ## Sources

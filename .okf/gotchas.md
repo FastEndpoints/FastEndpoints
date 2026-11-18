@@ -43,7 +43,7 @@ tags: [gotcha]
   - newly serialized library-owned or user types (`JsonSerializer` via options, `WriteAsJsonAsync`, `object`-typed payloads) without source-generated metadata;
   - `RuntimeFeature.IsDynamicCodeSupported` branches (JIT tests only run the dynamic branch);
   - `Requires*` or `DynamicallyAccessedMembers` added to public API, which pushes the requirement onto consumers (treat as user-visible).
-- **Known Native AOT gap, SSE data types (open, 2026-11-18):** generated serializer contexts do not include `Send.EventStreamAsync<T>` / `StreamItem.Data` types, so native SSE responses with custom data abort mid-stream. `EventStreamTests` fails in Native AOT mode (passes in JIT) and is intentionally left failing until the owner picks a fix (generator support vs. documented manual context). Do not delete or skip it.
+- **SSE data types need manual serializer contexts (owner decision, 2026-11-18):** the serializer context generator is syntax-only and does not detect `Send.EventStreamAsync<T>` / `StreamItem.Data` types. Unregistered types make native SSE responses abort mid-stream. Generator support was rejected as not worth the cost; users register a manual `JsonSerializerContext` with `SerializerContext<T>()` in the endpoint's `Configure()`, which also inserts it into the global options that SSE serializes with (documented on the FE-Docs Native AOT page). The checker's `EventStreamEndpoint` does the same. Do not add generator detection unless the owner asks.
 
 ## Sources
 - `Directory.Packages.props`

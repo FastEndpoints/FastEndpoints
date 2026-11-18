@@ -18,16 +18,28 @@ public interface IEventReceiver<TEvent> where TEvent : notnull
     Task<IEnumerable<TEvent>> WaitForMatchAsync(Func<TEvent, bool> match, int timeoutSeconds = 2, CancellationToken ct = default);
 }
 
+// Lets inherited dispatch record into receivers of every assignable type without per-type generic code.
+interface IUntypedEventReceiver
+{
+    void AddEvent(object evnt);
+}
+
 /// <summary>
 /// the default implementation of an event receiver that can be used to test the execution of and event.
 /// </summary>
 /// <typeparam name="TEvent">the type of the event</typeparam>
-public sealed class EventReceiver<TEvent> : IEventReceiver<TEvent> where TEvent : notnull
+public sealed class EventReceiver<TEvent> : IEventReceiver<TEvent>, IUntypedEventReceiver where TEvent : notnull
 {
     readonly List<TEvent> _received = [];
 
     void IEventReceiver<TEvent>.AddEvent(TEvent evnt)
-        => _received.Add(evnt);
+    {
+        lock (_received)
+            _received.Add(evnt);
+    }
+
+    void IUntypedEventReceiver.AddEvent(object evnt)
+        => ((IEventReceiver<TEvent>)this).AddEvent((TEvent)evnt);
 
     /// <inheritdoc />
     public async Task<IEnumerable<TEvent>> WaitForMatchAsync(Func<TEvent, bool> match, int timeoutSeconds = 2, CancellationToken ct = default)
@@ -36,9 +48,14 @@ public sealed class EventReceiver<TEvent> : IEventReceiver<TEvent> where TEvent 
 
         while (!ct.IsCancellationRequested && DateTime.Now.Subtract(start).TotalSeconds < timeoutSeconds)
         {
-            var res = _received.Where(match);
+            // Publishers can add concurrently, so match against a snapshot and return a materialized result.
+            TEvent[] snapshot;
+            lock (_received)
+                snapshot = [.. _received];
 
-            if (res.Any())
+            var res = snapshot.Where(match).ToArray();
+
+            if (res.Length > 0)
                 return res;
 
             await Task.Delay(100, CancellationToken.None);

@@ -22,6 +22,7 @@ public sealed class EventBus<TEvent> : IExactEventBus where TEvent : notnull
         var plan = _registry!.GetDispatchPlan(typeof(TEvent));
         _ownPlanIsExact = plan.Subscriptions.Select(s => s.Handler).SequenceEqual(_handlers, ReferenceEqualityComparer.Instance);
         Volatile.Write(ref _ownPlan, plan);
+
         return plan;
     }
 
@@ -53,7 +54,7 @@ public sealed class EventBus<TEvent> : IExactEventBus where TEvent : notnull
 
     // Owns the snapshot rules: takes ownership of the array, falls back to discovery when it is empty,
     // and builds the type index from exactly the stored array. A supplied registry is the owning host.
-    // Otherwise an empty list falls back to the active host; a nonempty list stays exact-only (null _registry).
+    // Otherwise, an empty list falls back to the active host; a nonempty list stays exact-only (null _registry).
     EventBus(IEventHandler<TEvent>[] handlers, EventRegistry? registry, IEventReceiver<TEvent>? testEventReceiver)
     {
         _registry = registry ?? (handlers.Length == 0 && !ServiceResolver.InstanceNotSet ? ServiceResolver.Instance.TryResolve<EventRegistry>() : null);
@@ -99,25 +100,42 @@ public sealed class EventBus<TEvent> : IExactEventBus where TEvent : notnull
 
     Task Execute(TEvent eventModel, Mode waitMode, Func<Type, bool>? handlerFilter, CancellationToken ct)
     {
-        _testEventReceiver?.AddEvent(eventModel);
-
         if (_registry is not null && _registry.Options.Freeze())
         {
             // Value types cannot be derived, and skipping GetType() avoids boxing them in unoptimized code.
             if (!typeof(TEvent).IsValueType && eventModel.GetType() != typeof(TEvent))
-                return _registry.GetDispatchPlan(eventModel.GetType()).Execute(eventModel, waitMode, handlerFilter, ct);
+            {
+                var runtimePlan = _registry.GetDispatchPlan(eventModel.GetType());
+                RecordReceipt(runtimePlan, eventModel);
+
+                return runtimePlan.Execute(eventModel, waitMode, handlerFilter, ct);
+            }
 
             // The plan for TEvent is fixed per bus; when it holds only this bus's handlers, stay on the typed path.
             var plan = Volatile.Read(ref _ownPlan) ?? InitOwnPlan();
+            RecordReceipt(plan, eventModel);
+
             if (!_ownPlanIsExact)
                 return plan.Execute(eventModel, waitMode, handlerFilter, ct);
         }
+        else
+            _testEventReceiver?.AddEvent(eventModel);
 
         var handlers = _handlers;
         if (handlerFilter is not null)
             handlers = EventHandlerFilter<IEventHandler<TEvent>, ExactInvocation>.Filter(_handlers, _firstHandlerOfType, handlerFilter);
 
         return EventExecution<IEventHandler<TEvent>, TEvent, ExactInvocation>.Execute(handlers, eventModel, waitMode, ct);
+    }
+
+    // Called only after the plan resolves, so a failed cold plan leaves every receiver untouched.
+    void RecordReceipt(EventDispatchPlan plan, TEvent eventModel)
+    {
+        _testEventReceiver?.AddEvent(eventModel);
+
+        // Checked first so value-type events are not boxed when no receivers are registered.
+        if (plan.HasReceivers)
+            plan.AddToReceivers(eventModel, _testEventReceiver);
     }
 
     readonly struct ExactInvocation : IEventInvocation<IEventHandler<TEvent>, TEvent>, IEventHandlerType<IEventHandler<TEvent>>

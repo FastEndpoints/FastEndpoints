@@ -51,7 +51,7 @@ sealed class EventRegistrationIndex
             else if (!type.ContainsGenericParameters)
                 contracts.Add(type.GetGenericArguments()[0]);
         }
-        Contracts = contracts.ToImmutableArray();
+        Contracts = [.. contracts];
     }
 }
 
@@ -125,23 +125,43 @@ sealed class EventRegistry
         Justification = "IEvent preserves runtime event interfaces for open-generic DI candidates; generated discovery preserves subscribed handler interfaces.")]
     EventDispatchPlan BuildPlan(Type runtimeType)
     {
-        var candidates = _contracts.Where(t => t.IsAssignableFrom(runtimeType));
+        Type[] contracts = [.. _contracts.Where(t => t.IsAssignableFrom(runtimeType))];
 
-        if (_hasOpenHandlers)
-        {
-            var uniqueCandidates = candidates.ToHashSet();
-            for (var type = runtimeType; type is not null; type = type.BaseType)
-                uniqueCandidates.Add(type);
-            uniqueCandidates.UnionWith(runtimeType.GetInterfaces());
-            candidates = uniqueCandidates;
-        }
+        // The actual base/interface hierarchy, for open-generic handlers and test receivers.
+        List<Type> hierarchy = [];
+
+        for (var type = runtimeType; type is not null; type = type.BaseType)
+            hierarchy.Add(type);
+
+        hierarchy.AddRange(runtimeType.GetInterfaces());
+
+        var candidates = _hasOpenHandlers ? contracts.Union(hierarchy) : contracts;
 
         List<EventSubscription> subscriptions = [];
+
         foreach (var candidate in candidates)
             subscriptions.AddRange(GetContractSubscriptions(candidate));
 
-        return new(subscriptions);
+        // A receiver observes everything a handler of its type would, even when no such handler exists.
+        // Only IEvent types, since GetTestEventReceiver<T> requires them; this skips object, IEquatable<T>, etc.
+        IUntypedEventReceiver[] receivers =
+        [
+            .. contracts.Union(hierarchy)
+                        .Where(typeof(IEvent).IsAssignableFrom)
+                        .Select(ResolveReceiver)
+                        .OfType<IUntypedEventReceiver>()
+        ];
+
+        return new(subscriptions, receivers);
     }
+
+    [UnconditionalSuppressMessage(
+        "AOT",
+        "IL3050",
+        Justification =
+            "Closes over the IEvent types of an event hierarchy, like ResolveBus; resolves to null unless test receivers are registered. Value-type events remain outside Native AOT scope.")]
+    object? ResolveReceiver(Type eventType)
+        => _provider.GetService(typeof(IEventReceiver<>).MakeGenericType(eventType));
 
     internal void Warmup()
     {

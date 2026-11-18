@@ -42,6 +42,8 @@ app.UseFastEndpoints();
 
 This is opt-in and also works with standalone messaging.
 
+Test event receivers follow the same rule. `GetTestEventReceiver<OrderCreated>()` sees an `OrderCreated` even if your code published it through a `DomainEvent` variable, and receivers for its base classes and interfaces see it as well.
+
 </details>
 
 ## Improvements 🚀

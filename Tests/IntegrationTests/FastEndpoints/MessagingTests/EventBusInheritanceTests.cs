@@ -30,6 +30,7 @@ public class EventBusInheritanceTests(EventBusInheritanceSut app) : TestBase<Eve
         result.ReplacementCalls.ShouldBe(1);
         var observed = await app.Services.GetTestEventReceiver<BaseEvent>().WaitForMatchAsync(e => e.Id == id, ct: Cancellation);
         observed.ShouldHaveSingleItem().ShouldBeOfType<DerivedEvent>();
+        (await app.Services.GetTestEventReceiver<DerivedEvent>().WaitForMatchAsync(e => e.Id == id, ct: Cancellation)).ShouldHaveSingleItem();
     }
 }
 

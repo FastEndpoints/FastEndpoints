@@ -599,7 +599,7 @@ public class AccessControlGenerator : IIncrementalGenerator
             for (var i = 0; i < base64Hash.Length && count < code.Length; i++)
             {
                 if (char.IsLetterOrDigit(base64Hash[i]))
-                    code[count++] = char.ToUpper(base64Hash[i]);
+                    code[count++] = char.ToUpperInvariant(base64Hash[i]);
             }
 
             return new(code, 0, count);

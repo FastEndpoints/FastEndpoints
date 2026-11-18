@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Text.RegularExpressions;
 using FastEndpoints;
 using FastEndpoints.Generator;
@@ -31,6 +32,31 @@ public class AccessControlGeneratorTests
         var allowSource = runResult.GeneratedTrees.Single(t => Path.GetFileName(t.FilePath) == "Allow.g.cs").GetText().ToString();
 
         allowSource.ShouldContain($"public const string Users_Create = {SymbolDisplay.FormatLiteral(HashEndpoint.Hash("Users+Create"), true)};");
+    }
+
+    [Fact]
+    public void acl_hash_is_not_affected_by_the_current_culture()
+    {
+        var inputs = Enumerable.Range(0, 200).Select(i => $"Perm{i}").ToArray();
+        var original = CultureInfo.CurrentCulture;
+
+        try
+        {
+            CultureInfo.CurrentCulture = new("tr-TR");
+
+            foreach (var input in inputs)
+                HashEndpoint.Hash(input).ShouldMatch("^[A-Z0-9]{3}$");
+
+            // the base64 hash of "Perm29" starts with "ij4", so a culture-sensitive generator would emit "İJ4"
+            var runResult = RunGenerator(out _, out _, "AccessControl(\"Perm29\");");
+            var allowSource = runResult.GeneratedTrees.Single(t => Path.GetFileName(t.FilePath) == "Allow.g.cs").GetText().ToString();
+
+            allowSource.ShouldContain($"public const string Perm29 = {SymbolDisplay.FormatLiteral(HashEndpoint.Hash("Perm29"), true)};");
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = original;
+        }
     }
 
     [Fact]

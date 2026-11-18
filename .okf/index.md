@@ -15,7 +15,7 @@ Compact operational knowledge for agents working in the FastEndpoints repository
 ## Workflow and validation
 * Bug hunts and reviews: check [accepted policies and review exclusions](gotchas.md#accepted-policies-and-review-exclusions) before ranking findings.
 * [Workflows](workflows.md): build, pack, changelog, publish
-* [Testing](testing.md): unit/integration/AOT, filters, harnesses
+* [Testing](testing.md): unit/integration/AOT, AOT gap checks, filters, harnesses
 
 ## Task-specific
 * [Dependencies](dependencies.md) · [Gotchas](gotchas.md)

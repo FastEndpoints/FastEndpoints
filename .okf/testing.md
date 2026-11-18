@@ -72,6 +72,21 @@ Native process reuse is keyed by `TProgram`, not fixture type. For different lau
 | Financial idempotency | Unit `Financial*.cs` / `MemoryFinancialIdempotencyStoreTests.cs` (`FinancialResponseCaptureTests` uses real Kestrel); integration `FinancialIdempotencyTests/` (`Sut` for memory storage, `FinancialIdempotencyFaultSut` for storage failures); harness `TestHarness/Web/[Features]/TestCases/FinancialIdempotency/` |
 | Agents schemas | `Tests/IntegrationTests/FastEndpoints.Agents/JsonSchemaBuilderTests.cs`, `McpToolSchemaRootTests.cs` |
 
+## Native AOT gap checks
+
+`TestHarness/NativeAotChecker` covers representative public usage, not every feature. Keep it lean: add an endpoint and test only for an untested native path the analyzer cannot verify ([blind spots](gotchas.md#operational-gotchas)), and only with owner approval.
+
+**Per change (completion gate in [AGENTS.md](../AGENTS.md#before-finishing)):** if the change hits a blind spot, name the native path that is not exercised and say whether checker coverage may be needed. Do not add it unprompted.
+
+**Full audit (on request):**
+1. Inventory the public feature surface of each `IsAotCompatible=true` project (`Src/**/*.csproj`). Ignore `false` projects.
+2. Map coverage by searching `TestHarness/NativeAotChecker` (endpoints and `Program.cs`) and `TestHarness/MessagingAotChecker` for each feature's API names. Treat OpenAPI generation as JIT-only by design (exported before publish).
+3. Rank uncovered features by AOT-sensitive code: search for `UnconditionalSuppressMessage`, `Requires*`, `DynamicallyAccessedMembers`, `IsDynamicCodeSupported`, `MakeGenericType`, and direct `JsonSerializer` / `WriteAsJsonAsync` use. Also check that serialized library-owned types are registered in `FastEndpointsSerializerContext` (`Src/Library/Main/MainExtensions.cs`) or a feature context.
+4. Report covered, uncovered-sensitive, and uncovered-low-risk features. Let the owner pick what to cover.
+5. For each picked feature, add one small endpoint under `Endpoints/<Feature>/` and a test class under `NativeAotCheckerTests/<Feature>/`. Shared middleware goes in `Program.cs` only if it no-ops for other endpoints. Replace external services at the transport layer (for example a fake `HttpMessageHandler`), not the library client, so library serialization still runs.
+6. Run JIT mode first (`-p:RunSmokeTests=false`), then Native AOT on both TFMs, republishing explicitly after library changes (see [Commands](#commands)). JIT-pass/AOT-fail isolates an AOT gap.
+7. Fix small gaps with a changelog entry. Record larger ones as open gaps in gotchas and leave their tests failing until the owner decides.
+
 ## Harness documentation stack
 
 `TestHarness/Web/Program.cs` currently selects modern OpenAPI (`AddOpenApiDocuments` + `MapOpenApi` + `MapScalarApiReference`). To test legacy NSwag:

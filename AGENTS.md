@@ -40,6 +40,7 @@ For **user-visible** library changes (public APIs, config, behavior, breaking ch
 
 - update public docs in sibling `../FE-Docs/src/content/docs/` (see `.okf/workflows.md`). Do not copy full doc pages into OKF.
 - add or update an entry in `Src/Library/changelog.md` (format in `.okf/workflows.md`). Skip tests-only, OKF, comments, CI, formatting, and internal refactors with no consumer effect.
+- run an AOT gap check when the change is in an `IsAotCompatible=true` project and hits a Native AOT blind spot listed in `.okf/gotchas.md`. Tell the user which native path is untested and whether `NativeAotChecker` coverage may be needed. Do not add checker coverage unless asked (procedure in `.okf/testing.md`).
 
 ### General
 

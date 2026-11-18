@@ -64,7 +64,9 @@ See the [configuration settings documentation](https://fast-endpoints.com/docs/c
 
 <details><summary>Permission codes could depend on the machine's culture</summary>
 
-The 3-character codes generated for permissions were upper-cased with the current culture. On a machine with a Turkish culture an `i` became `İ`, so a code could contain a non-ASCII letter, and the codes generated at build time by the source generator could differ from the ones computed at runtime if the two machines used different cultures. Both now use invariant casing, so the codes are always `A-Z0-9`.
+The 3-character codes generated for permissions were upper-cased with the current culture. On a machine with a Turkish or Azerbaijani culture an `i` became `İ`, so a code could contain a non-ASCII letter, and the codes generated at build time by the source generator could differ from the ones computed at runtime if the two machines used different cultures. Both now use invariant casing, so the codes are always `A-Z0-9`.
+
+If your app was built or run under a Turkish or Azerbaijani culture, any permission codes containing `İ` will now contain `I` instead. Re-issue any such codes you have stored (for example in a database or in issued tokens).
 
 </details>
 

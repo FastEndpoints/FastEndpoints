@@ -46,6 +46,12 @@ public class AccessControlGeneratorTests
 
             foreach (var input in inputs)
                 HashEndpoint.Hash(input).ShouldMatch("^[A-Z0-9]{3}$");
+
+            // the base64 hash of "Perm29" starts with "ij4", so a culture-sensitive generator would emit "İJ4"
+            var runResult = RunGenerator(out _, out _, "AccessControl(\"Perm29\");");
+            var allowSource = runResult.GeneratedTrees.Single(t => Path.GetFileName(t.FilePath) == "Allow.g.cs").GetText().ToString();
+
+            allowSource.ShouldContain($"public const string Perm29 = {SymbolDisplay.FormatLiteral(HashEndpoint.Hash("Perm29"), true)};");
         }
         finally
         {

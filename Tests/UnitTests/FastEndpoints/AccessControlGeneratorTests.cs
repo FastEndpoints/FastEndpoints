@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Text.RegularExpressions;
 using FastEndpoints;
 using FastEndpoints.Generator;
@@ -31,6 +32,25 @@ public class AccessControlGeneratorTests
         var allowSource = runResult.GeneratedTrees.Single(t => Path.GetFileName(t.FilePath) == "Allow.g.cs").GetText().ToString();
 
         allowSource.ShouldContain($"public const string Users_Create = {SymbolDisplay.FormatLiteral(HashEndpoint.Hash("Users+Create"), true)};");
+    }
+
+    [Fact]
+    public void acl_hash_is_not_affected_by_the_current_culture()
+    {
+        var inputs = Enumerable.Range(0, 200).Select(i => $"Perm{i}").ToArray();
+        var original = CultureInfo.CurrentCulture;
+
+        try
+        {
+            CultureInfo.CurrentCulture = new("tr-TR");
+
+            foreach (var input in inputs)
+                HashEndpoint.Hash(input).ShouldMatch("^[A-Z0-9]{3}$");
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = original;
+        }
     }
 
     [Fact]

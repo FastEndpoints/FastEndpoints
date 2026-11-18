@@ -62,6 +62,12 @@ See the [configuration settings documentation](https://fast-endpoints.com/docs/c
 
 ## Fixes 🪲
 
+<details><summary>Permission codes could depend on the machine's culture</summary>
+
+The 3-character codes generated for permissions were upper-cased with the current culture. On a machine with a Turkish culture an `i` became `İ`, so a code could contain a non-ASCII letter, and the codes generated at build time by the source generator could differ from the ones computed at runtime if the two machines used different cultures. Both now use invariant casing, so the codes are always `A-Z0-9`.
+
+</details>
+
 <details><summary>Test command receivers weren't safe under concurrent command execution</summary>
 
 `GetTestCommandReceiver<T>().WaitForMatchAsync()` could throw a "Collection was modified" exception, or return results that kept changing afterwards, when commands were executed in parallel during a test (for example concurrent requests or gRPC calls). It now matches against a snapshot and returns a fixed result, the same as test event receivers.

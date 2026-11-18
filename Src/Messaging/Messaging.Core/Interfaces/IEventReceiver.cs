@@ -30,37 +30,15 @@ interface IUntypedEventReceiver
 /// <typeparam name="TEvent">the type of the event</typeparam>
 public sealed class EventReceiver<TEvent> : IEventReceiver<TEvent>, IUntypedEventReceiver where TEvent : notnull
 {
-    readonly List<TEvent> _received = [];
+    readonly TestReceiverBuffer<TEvent> _received = new();
 
     void IEventReceiver<TEvent>.AddEvent(TEvent evnt)
-    {
-        lock (_received)
-            _received.Add(evnt);
-    }
+        => _received.Add(evnt);
 
     void IUntypedEventReceiver.AddEvent(object evnt)
-        => ((IEventReceiver<TEvent>)this).AddEvent((TEvent)evnt);
+        => _received.Add((TEvent)evnt);
 
     /// <inheritdoc />
-    public async Task<IEnumerable<TEvent>> WaitForMatchAsync(Func<TEvent, bool> match, int timeoutSeconds = 2, CancellationToken ct = default)
-    {
-        var start = DateTime.Now;
-
-        while (!ct.IsCancellationRequested && DateTime.Now.Subtract(start).TotalSeconds < timeoutSeconds)
-        {
-            // Publishers can add concurrently, so match against a snapshot and return a materialized result.
-            TEvent[] snapshot;
-            lock (_received)
-                snapshot = [.. _received];
-
-            var res = snapshot.Where(match).ToArray();
-
-            if (res.Length > 0)
-                return res;
-
-            await Task.Delay(100, CancellationToken.None);
-        }
-
-        return [];
-    }
+    public Task<IEnumerable<TEvent>> WaitForMatchAsync(Func<TEvent, bool> match, int timeoutSeconds = 2, CancellationToken ct = default)
+        => _received.WaitForMatchAsync(match, timeoutSeconds, ct);
 }

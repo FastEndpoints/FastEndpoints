@@ -12,24 +12,17 @@ tags: [conventions]
 - Endpoint types often named `Endpoint` inside a feature namespace (see harness), not `FooEndpoint`.
 - Private fields: camelCase with `_` prefix (editorconfig / ReSharper rules).
 - Parameters: camelCase; private constants: PascalCase.
-- Packages: `FastEndpoints.<Area>` NuGet IDs matching project folders.
 
 ## Style
 - C# latest language version; **nullable enable**; implicit usings.
-- Indent 4 spaces; LF; UTF-8 (`.editorconfig`).
+- Indent 4 spaces; LF; UTF-8 (`.editorconfig`, plus ReSharper/Rider DotSettings; `FastEndpoints.sln.DotSettings.user` is user-local).
 - Prefer existing partial-class splits for large types (`Endpoint.*.cs`).
 - XML docs generated for packages (`GenerateDocumentationFile`); suppress noise via project `NoWarn`.
-- Accessibility modifiers: editorconfig prefers not requiring explicit modifiers in some cases; follow neighboring code.
 - `CS8618` suppressed for `*Request.cs`, `*Response.cs`, `*Model*.cs`, `*Endpoint.cs` patterns.
 
 ## Errors and validation
-- Request validation: FluentValidation via `Validator<TRequest>` / endpoint `Validator` configuration.
-- Validation failures flow through endpoint pipeline; error response shape controlled by `Config.Errors` (including ProblemDetails helpers).
+- Request validation: FluentValidation via `Validator<TRequest>`; error response shape is owned by `Config.Errors` (including ProblemDetails helpers).
 - Prefer framework hooks (`OnBeforeValidate`, send helpers) over ad-hoc MVC filters.
-
-## APIs and data
-- REPR: Request DTO + Endpoint + optional Response DTO; configure routes/verbs/auth in `Configure()`.
-- Mappers: `IMapper` / request-response mappers; stateless singletons ([architecture.md](architecture.md#invariants)).
 
 ## Config and DI
 - Global options: `UseFastEndpoints(c => { c.Serializer…; c.Endpoints…; })` → `FastEndpoints.Config` (`Cfg` alias).

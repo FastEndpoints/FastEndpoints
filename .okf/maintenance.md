@@ -8,13 +8,12 @@ tags: [maintain]
 # Maintenance
 
 ## Conformance
-- Format and day-to-day gates: [AGENTS.md](../AGENTS.md). The okf-setup skill supplies the closed type list; use `Reference` if unsure.
+- Format, gates, and content discipline: [AGENTS.md](../AGENTS.md). The okf-setup skill supplies the closed type list; use `Reference` if unsure.
 - No secrets in OKF. Prefer `## Sources` for multi-source claims.
-- Content selection and compactness: [OKF content discipline](../AGENTS.md#okf-content-discipline).
 - Topic ownership: core files summarize boundaries; testing maps regression suites; gotchas preserves traps and owner-approved review exclusions. Detailed domain contracts belong in the task-specific topics linked from [index.md](index.md#task-specific).
 
 ## Update triggers
-Evaluate OKF when changes hit (the update gate is in `AGENTS.md`):
+Evaluate OKF when changes hit:
 - architecture / package boundaries / dependency directions
 - public APIs, endpoint pipeline contracts, messaging/job contracts
 - Agents friend-assembly surface or call-site changes: update the binary-contract stock in [agents.md](agents.md).
@@ -27,5 +26,3 @@ Evaluate OKF when changes hit (the update gate is in `AGENTS.md`):
 - conventions, layout, gotchas
 - docs maintenance workflow / FE-Docs paths (not the full docs body)
 - changelog path/format / GH-release notes workflow (not the entry bodies)
-
-Finish gates, including public docs/changelog and explicit unaffected reporting, are owned by `AGENTS.md`. Commands and entry format: [workflows.md](workflows.md).

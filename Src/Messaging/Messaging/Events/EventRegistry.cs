@@ -27,10 +27,11 @@ sealed class EventRegistrationIndex
 {
     internal ImmutableArray<Type> Contracts { get; }
     internal bool HasOpenHandlers { get; }
+    internal bool HasTestReceivers { get; }
 
     internal EventRegistrationIndex(IServiceCollection services)
     {
-        // Handler registrations must not change after the collection's first provider is built.
+        // Handler and test receiver registrations must not change after the collection's first provider is built.
         // Keep metadata only. In particular, do not invoke factories or inspect their return types.
         HashSet<Type> contracts = [];
 
@@ -40,8 +41,21 @@ sealed class EventRegistrationIndex
                 continue;
 
             var type = descriptor.ServiceType;
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-                type = type.GetGenericArguments()[0];
+
+            if (type.IsGenericType)
+            {
+                var definition = type.GetGenericTypeDefinition();
+
+                if (definition == typeof(IEventReceiver<>))
+                {
+                    HasTestReceivers = true;
+
+                    continue;
+                }
+
+                if (definition == typeof(IEnumerable<>))
+                    type = type.GetGenericArguments()[0];
+            }
 
             if (!type.IsGenericType || type.GetGenericTypeDefinition() != typeof(IEventHandler<>))
                 continue;
@@ -60,6 +74,7 @@ sealed class EventRegistry
     readonly IServiceProvider _provider;
     readonly EventCatalog _catalog;
     readonly bool _hasOpenHandlers;
+    readonly bool _hasTestReceivers;
 
     readonly Type[] _contracts;
 
@@ -77,6 +92,7 @@ sealed class EventRegistry
         Options = options;
         _catalog = catalog;
         _hasOpenHandlers = registrations.HasOpenHandlers;
+        _hasTestReceivers = registrations.HasTestReceivers;
         _contracts = catalog.Contracts.Union(registrations.Contracts).ToArray();
         _createInstance = CreateInstance;
         _buildPlan = BuildPlan;
@@ -126,16 +142,22 @@ sealed class EventRegistry
     EventDispatchPlan BuildPlan(Type runtimeType)
     {
         Type[] contracts = [.. _contracts.Where(t => t.IsAssignableFrom(runtimeType))];
+        var assignable = contracts;
 
-        // The actual base/interface hierarchy, for open-generic handlers and test receivers.
-        List<Type> hierarchy = [];
+        if (_hasOpenHandlers || _hasTestReceivers)
+        {
+            // The actual base/interface hierarchy, for open-generic handlers and test receivers.
+            List<Type> hierarchy = [];
 
-        for (var type = runtimeType; type is not null; type = type.BaseType)
-            hierarchy.Add(type);
+            for (var type = runtimeType; type is not null; type = type.BaseType)
+                hierarchy.Add(type);
 
-        hierarchy.AddRange(runtimeType.GetInterfaces());
+            hierarchy.AddRange(runtimeType.GetInterfaces());
 
-        var candidates = _hasOpenHandlers ? contracts.Union(hierarchy) : contracts;
+            assignable = [.. contracts.Union(hierarchy)];
+        }
+
+        var candidates = _hasOpenHandlers ? assignable : contracts;
 
         List<EventSubscription> subscriptions = [];
 
@@ -144,13 +166,9 @@ sealed class EventRegistry
 
         // A receiver observes everything a handler of its type would, even when no such handler exists.
         // Only IEvent types, since GetTestEventReceiver<T> requires them; this skips object, IEquatable<T>, etc.
-        IUntypedEventReceiver[] receivers =
-        [
-            .. contracts.Union(hierarchy)
-                        .Where(typeof(IEvent).IsAssignableFrom)
-                        .Select(ResolveReceiver)
-                        .OfType<IUntypedEventReceiver>()
-        ];
+        IUntypedEventReceiver[] receivers = _hasTestReceivers
+                                                ? [.. assignable.Where(typeof(IEvent).IsAssignableFrom).Select(ResolveReceiver).OfType<IUntypedEventReceiver>()]
+                                                : [];
 
         return new(subscriptions, receivers);
     }

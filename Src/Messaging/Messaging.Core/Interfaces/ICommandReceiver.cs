@@ -24,26 +24,12 @@ public interface ICommandReceiver<TCommand> where TCommand : notnull
 /// <typeparam name="TCommand">the type of the event</typeparam>
 public sealed class CommandReceiver<TCommand> : ICommandReceiver<TCommand> where TCommand : notnull
 {
-    readonly List<TCommand> _received = [];
+    readonly TestReceiverBuffer<TCommand> _received = new();
 
     void ICommandReceiver<TCommand>.AddCommand(TCommand command)
         => _received.Add(command);
 
     /// <inheritdoc />
-    public async Task<IEnumerable<TCommand>> WaitForMatchAsync(Func<TCommand, bool> match, int timeoutSeconds = 2, CancellationToken ct = default)
-    {
-        var start = DateTime.Now;
-
-        while (!ct.IsCancellationRequested && DateTime.Now.Subtract(start).TotalSeconds < timeoutSeconds)
-        {
-            var res = _received.Where(match);
-
-            if (res.Any())
-                return res;
-
-            await Task.Delay(100, CancellationToken.None);
-        }
-
-        return [];
-    }
+    public Task<IEnumerable<TCommand>> WaitForMatchAsync(Func<TCommand, bool> match, int timeoutSeconds = 2, CancellationToken ct = default)
+        => _received.WaitForMatchAsync(match, timeoutSeconds, ct);
 }

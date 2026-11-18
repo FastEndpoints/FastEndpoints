@@ -37,7 +37,7 @@ dotnet test Tests/IntegrationTests/FastEndpoints/Int.FastEndpoints.csproj --filt
 node --test Tests/UnitTests/FastEndpoints.Swagger/SwaggerSearchTests.mjs
 ```
 
-CI matrix and AOT exclusions: [workflows.md](workflows.md#pack-and-publish). Use the solution commands above for portable shell invocations. MTP uses `IsTestingPlatformApplication` for discovery; exit 8 means zero tests ran.
+CI matrix and AOT exclusions: [workflows.md](workflows.md#pack-and-publish). MTP uses `IsTestingPlatformApplication` for discovery.
 
 AOT tests: run `dotnet test NativeAot.slnx -c Release --framework net10.0 --verbosity minimal --max-parallel-test-modules 1` and the equivalent net11 command manually. The fixture passes the matching `-f` to publish and uses `Tests/NativeAotTests/NativeAotCheckerTests/bin/Release/<TFM>/aot` for isolated binaries. Its publish fingerprint covers the target project directory, so referenced-library-only changes require an explicit `dotnet publish TestHarness/NativeAotChecker/NativeAotChecker.csproj -c Release -f <TFM> -o Tests/NativeAotTests/NativeAotCheckerTests/bin/Release/<TFM>/aot` before smoke tests to verify a fresh native binary.
 

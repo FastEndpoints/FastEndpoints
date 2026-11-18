@@ -55,9 +55,6 @@ Prepend a new `<details>` under the matching existing heading (newest first); do
 
 - New features explain who benefits and why; fixes/improvements explain the user-visible change. Breaking changes must identify affected users and migration steps, with a before/after example when useful.
 
-## Lint and format
-- Style primarily via `.editorconfig` + ReSharper/Rider DotSettings (`FastEndpoints.sln.DotSettings.user` is user-local).
-
 ## Codegen
 - Roslyn generators, serializer contexts, and OpenAPI export: [generated-code.md](generated-code.md).
 

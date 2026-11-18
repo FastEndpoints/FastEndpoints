@@ -23,13 +23,13 @@ tags: [deps]
 - Preserve TFM-conditional versions in `Directory.Packages.props`: OpenAPI 10 uses Microsoft.OpenApi 2.x; OpenAPI 11 uses 3.x. Netstandard analyzer targets keep the .NET 10 Microsoft.Extensions baseline.
 - AspVersioning remains net10-only (its OpenApi dependency cannot share the net11 OpenAPI stack); built-in FastEndpoints route versioning works on both TFMs. Gate: [below](#aspversioning-net11-migration).
 - MCP SDK 2.x uses stateless HTTP transport by default; existing list/call handler wiring remains. Caller context and tool visibility must be resolved per request, not per session (`Src/Agents/Mcp/Extensions.cs`).
-- Scalar UI upgrades are not blocked by the package-DTO serializer tests: those tests use FluentValidation `ValidationFailure`, not Scalar DTOs (`TestHarness/NativeAotChecker/Endpoints/SerializerCtxGen/PackageDtoEndpoints.cs`). This does not establish Native AOT serialization support for Scalar DTOs; validate that separately if introducing them as endpoint contracts.
+- Scalar UI upgrades are not blocked by the package-DTO serializer tests (`TestHarness/NativeAotChecker/Endpoints/SerializerCtxGen/PackageDtoEndpoints.cs` uses FluentValidation `ValidationFailure`, not Scalar DTOs). Those tests do not prove Native AOT support for Scalar DTOs as endpoint contracts.
 - OpenAPI media/response compatibility adapters: [openapi.md](openapi.md#tags-security-and-framework-compatibility).
 - Strong-name key required for pack/sign; InternalsVisibleTo entries must use the public key.
 
 ## Kiota 1.29.2 CVE warnings
 
-`CVE-2026-105796` / `GHSA-rm89-rhwj-9j92` (Java/PHP doc-comment code injection) is fixed in the net10-pinned Kiota 1.29.2 security backport, as confirmed by the [release notes](https://github.com/microsoft/kiota/releases/tag/v1.29.2). The GitHub advisory still includes 1.29.2 in its affected range. [Advisory Database PR #10705](https://github.com/github/advisory-database/pull/10705), opened 2026-10-27 and still open when checked 2026-11-11, proposes excluding 1.29.2 for both `Microsoft.OpenApi.Kiota` and `Microsoft.OpenApi.Kiota.Builder`.
+`CVE-2026-105796` / `GHSA-rm89-rhwj-9j92` (Java/PHP doc-comment code injection) is fixed in the net10-pinned Kiota 1.29.2 security backport, as confirmed by the [release notes](https://github.com/microsoft/kiota/releases/tag/v1.29.2). The GitHub advisory still includes 1.29.2 in its affected range. [Advisory Database PR #10705](https://github.com/github/advisory-database/pull/10705), opened 2026-10-27 and still open when checked 2026-11-18, proposes excluding 1.29.2 for both `Microsoft.OpenApi.Kiota` and `Microsoft.OpenApi.Kiota.Builder`.
 
 If this warning recurs, recheck the PR and [current advisory](https://github.com/advisories/GHSA-rm89-rhwj-9j92) before treating it as an unpatched dependency or changing the pin. Preserve the net10 OpenAPI 2.x compatibility constraint above. This correction applies only to this advisory, not all Kiota vulnerabilities; assess other CVEs independently. It does not authorize blanket audit suppression.
 

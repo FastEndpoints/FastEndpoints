@@ -516,6 +516,17 @@ public class EventBusInheritanceTests : IDisposable
     }
 
     [Fact]
+    public async Task Hand_Registered_Closed_Receiver_Observes_Derived_Publish()
+    {
+        using var provider = Provider([typeof(Dual)], s => s.AddSingleton<IEventReceiver<Base>, EventReceiver<Base>>());
+        var model = new Derived();
+
+        await provider.GetRequiredService<EventBus<Derived>>().PublishAsync(model);
+
+        (await provider.GetTestEventReceiver<Base>().WaitForMatchAsync(e => ReferenceEquals(e, model))).ShouldHaveSingleItem();
+    }
+
+    [Fact]
     public async Task Failed_Cold_Plan_Records_Nowhere_So_Retry_Is_Observed_Once_By_Every_Receiver()
     {
         var attempts = 0;

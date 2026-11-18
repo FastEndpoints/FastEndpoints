@@ -62,9 +62,7 @@ One root `.okf/` covers the whole repo (no per-package OKF). NuGet IDs normally 
 ## Entry points
 - **Test harness Web:** `TestHarness/Web/Program.cs`; full feature surface for integration tests.
 - **Integration SUT fixture:** `Tests/IntegrationTests/FastEndpoints/Sut.cs` → `AppFixture<Web.Program>`.
-
-## Feature samples
-Harness features under `TestHarness/Web/[Features]/…` (e.g. `Admin/Login/Endpoint.cs`) show canonical endpoint layout: namespace-per-feature, `Endpoint : Endpoint<Request, Response>`, `Configure()` + handle methods.
+- **Canonical endpoint layout:** `TestHarness/Web/[Features]/…` (e.g. `Admin/Login/Endpoint.cs`).
 
 ## Generated code
 Generator inventory, consumption, and output editability: [generated-code.md](generated-code.md).

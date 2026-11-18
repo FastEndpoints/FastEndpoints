@@ -28,4 +28,3 @@ Compact operational knowledge for agents working in the FastEndpoints repository
 
 ## Maintenance
 Update-trigger inventory and conformance detail: [Maintenance](maintenance.md).
-Expanded library-monorepo set. Runtime/ops guidance is covered by architecture and workflows; a separate operations file is unnecessary.

@@ -226,5 +226,6 @@ sealed class StartupTimer;
 
 sealed class DuplicateHandlerRegistration;
 
-[JsonSerializable(typeof(string)), JsonSerializable(typeof(IEnumerable<string>)), JsonSerializable(typeof(ErrorResponse)), JsonSerializable(typeof(ProblemDetails))]
+[JsonSerializable(typeof(string)), JsonSerializable(typeof(IEnumerable<string>)), JsonSerializable(typeof(ErrorResponse)), JsonSerializable(typeof(ProblemDetails)),
+ JsonSerializable(typeof(InternalErrorResponse))]
 sealed partial class FastEndpointsSerializerContext : JsonSerializerContext;

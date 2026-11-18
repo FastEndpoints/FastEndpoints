@@ -6,12 +6,15 @@ using NativeAotChecker.Endpoints.CommandRules;
 using NativeAotChecker.Endpoints.Commands;
 using NativeAotChecker.Endpoints.Jobs;
 using NativeAotChecker.Endpoints.Processors;
+using NativeAotChecker.Endpoints.X402;
 using Scalar.AspNetCore;
 
 var bld = WebApplication.CreateSlimBuilder(args);
 bld.Services
    .AddAuthenticationJwtBearer(o => o.SigningKey = bld.Configuration["Jwt-Secret"])
    .AddAuthorization()
+   .AddX402(c => c.ConfigurePrimaryHttpMessageHandler(() => new FakeFacilitatorHandler()))
+   .AddFinancialIdempotency(c => c.CallerScope = _ => "aot-checker")
    .AddFastEndpoints(DiscoveredTypes.All, GenericProcessorTypes.All)
    .AddCommandRules(
        o =>
@@ -44,9 +47,20 @@ if (app.Configuration.GetValue<bool>("Testing:EventInheritance"))
     app.Services.UseMessaging(o => o.Events.EnableInheritance = true);
 
 app.MapGet("healthy", () => Results.Ok());
-app.UseStaticFiles()
+app.UseDefaultExceptionHandler()
+   .UseStaticFiles()
    .UseAuthentication()
    .UseAuthorization()
+   .UseX402(
+       o =>
+       {
+           o.FacilitatorUrl = "https://fake-facilitator.test/";
+           o.Defaults.Network = "eip155:84532";
+           o.Defaults.PayTo = "0xdefault";
+           o.Defaults.Asset = "0xasset";
+           o.Defaults.MimeType = "application/json";
+       })
+   .UseFinancialIdempotency()
    .UseFastEndpoints(
        c =>
        {

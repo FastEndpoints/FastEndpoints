@@ -62,6 +62,12 @@ See the [configuration settings documentation](https://fast-endpoints.com/docs/c
 
 ## Fixes 🪲
 
+<details><summary>Default exception handler returned an empty body in Native AOT apps</summary>
+
+In Native AOT apps, `UseDefaultExceptionHandler()` sent a 500 response with no body, because the error response type wasn't registered with the serializer. It now returns the usual JSON error response, the same as JIT apps.
+
+</details>
+
 <details><summary>Permission codes could depend on the machine's culture</summary>
 
 The 3-character codes generated for permissions were upper-cased with the current culture. On a machine with a Turkish or Azerbaijani culture an `i` became `İ`, so a code could contain a non-ASCII letter, and the codes generated at build time by the source generator could differ from the ones computed at runtime if the two machines used different cultures. Both now use invariant casing, so the codes are always `A-Z0-9`.

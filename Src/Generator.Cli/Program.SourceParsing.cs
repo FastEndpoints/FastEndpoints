@@ -22,10 +22,7 @@ partial class Program
         return parseResults;
     }
 
-    private static (List<(SyntaxTree Tree, string FilePath)> SyntaxTrees,
-        Dictionary<string, TypeInfo> TypeDeclarations,
-        Dictionary<string, List<string>> AllUsingsByFile,
-        Dictionary<string, Dictionary<string, string>> AllTypeAliasesByFile) BuildAnalysisInputs(ConcurrentBag<FileParseResult> parseResults)
+    private static (SourceIndex Index, List<EndpointDeclaration> Endpoints) BuildAnalysisInputs(ConcurrentBag<FileParseResult> parseResults)
     {
         var globalUsings = new HashSet<string>(StringComparer.Ordinal);
         var globalTypeAliases = new Dictionary<string, string>(StringComparer.Ordinal);
@@ -33,14 +30,14 @@ partial class Program
         var typeDeclarations = new Dictionary<string, TypeInfo>(StringComparer.Ordinal);
         var usingsByFile = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
         var typeAliasesByFile = new Dictionary<string, Dictionary<string, string>>(StringComparer.OrdinalIgnoreCase);
-        var syntaxTrees = new List<(SyntaxTree Tree, string FilePath)>();
+        var endpoints = new List<EndpointDeclaration>();
 
         // Sort by file path to ensure deterministic merging of partial classes
         var sortedResults = parseResults.OrderBy(r => r.FilePath, StringComparer.Ordinal).ToList();
 
         foreach (var result in sortedResults)
         {
-            syntaxTrees.Add((result.Tree, result.FilePath));
+            endpoints.AddRange(result.Endpoints);
             usingsByFile[result.FilePath] = result.FileUsings;
             typeAliasesByFile[result.FilePath] = result.FileTypeAliases;
 
@@ -65,12 +62,7 @@ partial class Program
             }
 
             foreach (var kvp in result.Types)
-            {
-                if (typeDeclarations.TryGetValue(kvp.Key, out var existingType))
-                    typeDeclarations[kvp.Key] = MergeTypeInfos(existingType, kvp.Value);
-                else
-                    typeDeclarations[kvp.Key] = kvp.Value;
-            }
+                TypeInfo.AddOrMerge(typeDeclarations, kvp.Key, kvp.Value);
         }
 
         var allUsingsByFile = new Dictionary<string, List<string>>(StringComparer.OrdinalIgnoreCase);
@@ -93,7 +85,7 @@ partial class Program
             allTypeAliasesByFile[fp] = map;
         }
 
-        return (syntaxTrees, typeDeclarations, allUsingsByFile, allTypeAliasesByFile);
+        return (new(typeDeclarations, allUsingsByFile, allTypeAliasesByFile), endpoints);
     }
 
     private static FileParseResult ParseFile(string filePath)
@@ -105,7 +97,7 @@ partial class Program
         var walker = new SourceFileWalker(filePath);
         walker.Visit(root);
 
-        return new(filePath, tree, walker.FileUsings, walker.GlobalUsings, walker.FileTypeAliases, walker.GlobalTypeAliases, walker.Types);
+        return new(filePath, walker.FileUsings, walker.GlobalUsings, walker.FileTypeAliases, walker.GlobalTypeAliases, walker.Types, walker.Endpoints);
     }
 
     private sealed class SourceFileWalker(string filePath) : CSharpSyntaxWalker
@@ -115,6 +107,7 @@ partial class Program
         public Dictionary<string, string> FileTypeAliases { get; } = new(StringComparer.Ordinal);
         public Dictionary<string, string> GlobalTypeAliases { get; } = new(StringComparer.Ordinal);
         public Dictionary<string, TypeInfo> Types { get; } = new(StringComparer.Ordinal);
+        public List<EndpointDeclaration> Endpoints { get; } = [];
 
         public override void VisitUsingDirective(UsingDirectiveSyntax usingDirective)
         {
@@ -195,10 +188,10 @@ partial class Program
             var genericParameters = typeDecl.TypeParameterList?.Parameters.Select(p => p.Identifier.Text).ToList() ?? [];
             var typeInfo = new TypeInfo(fullName, ns, typeDecl.Identifier.Text, filePath, properties, baseTypes, genericParameters);
             
-            if (Types.TryGetValue(fullName, out var existing))
-                Types[fullName] = MergeTypeInfos(existing, typeInfo);
-            else
-                Types[fullName] = typeInfo;
+            TypeInfo.AddOrMerge(Types, fullName, typeInfo);
+
+            if (typeDecl is ClassDeclarationSyntax && FindEndpointBaseType(baseTypes) is { } endpointBase)
+                Endpoints.Add(new(filePath, fullName, ns, endpointBase));
         }
 
         private void ProcessEnumDeclaration(EnumDeclarationSyntax enumDecl)
@@ -211,10 +204,7 @@ partial class Program
             var ns = GetContainingNamespace(enumDecl);
             var typeInfo = new TypeInfo(fullName, ns, enumDecl.Identifier.Text, filePath, [], baseTypes, []);
 
-            if (Types.TryGetValue(fullName, out var existing))
-                Types[fullName] = MergeTypeInfos(existing, typeInfo);
-            else
-                Types[fullName] = typeInfo;
+            TypeInfo.AddOrMerge(Types, fullName, typeInfo);
         }
     }
 
@@ -261,32 +251,5 @@ partial class Program
         }
 
         return string.Join(".", namespaceParts);
-    }
-
-    internal static TypeInfo MergeTypeInfos(TypeInfo existing, TypeInfo incoming)
-    {
-        if (ReferenceEquals(existing, incoming))
-            return existing;
-
-        var mergedProps = existing.Properties
-                                  .Concat(incoming.Properties)
-                                  .GroupBy(p => p.Name, StringComparer.Ordinal)
-                                  .Select(g => g.First())
-                                  .ToList();
-
-        var mergedBaseTypes = existing.BaseTypes
-                                      .Concat(incoming.BaseTypes)
-                                      .GroupBy(b => b.TypeName, StringComparer.Ordinal)
-                                      .Select(g => g.First())
-                                      .ToList();
-
-        return existing with
-        {
-            Properties = mergedProps,
-            BaseTypes = mergedBaseTypes,
-            GenericParameters = existing.GenericParameters.Count >= incoming.GenericParameters.Count
-                                    ? existing.GenericParameters
-                                    : incoming.GenericParameters
-        };
     }
 }

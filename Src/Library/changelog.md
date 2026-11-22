@@ -48,6 +48,14 @@ Test event receivers follow the same rule. `GetTestEventReceiver<OrderCreated>()
 
 ## Improvements 🚀
 
+<details><summary>Faster serializer context generation</summary>
+
+With `GenerateSerializerContexts` enabled, common properties like `Guid`, `DateTime` or `IFormFile`, and endpoints using `EmptyRequest`/`EmptyResponse`, no longer make the generator scan your referenced projects and NuGet packages. If your DTOs live in the main project and only use such common types, the generator now skips that work on every regeneration, and the up-to-date check on later builds gets faster too. When DTOs from other projects or packages are actually needed, both lookups now run in parallel.
+
+If a DTO from another project or package has the same name as one of these common types (for example your own `Results` or `Stream` class), refer to it with its namespace (`Contracts.Results`) or a `using` alias, so the generator doesn't take it for the built-in type.
+
+</details>
+
 <details><summary>Serializer context generator now matches the other generators' namespace</summary>
 
 For projects with a dotted assembly name like `My.Cool.App`, the generated `AddSerializerContextsFrom*()` method used to end up in a different namespace (`My_Cool_App`) than `DiscoveredTypes` and `AddFrom*()`, so the AOT setup from the docs didn't compile. It now uses the assembly name for the namespace and strips non-alphanumeric characters from the method name, just like `AddFrom*()`:
@@ -74,6 +82,17 @@ See the [configuration settings documentation](https://fast-endpoints.com/docs/c
 </details>
 
 ## Fixes 🪲
+
+<details><summary>Serializer context generator missed some DTO types</summary>
+
+With `GenerateSerializerContexts` enabled, the generator now also registers:
+
+- generic types and collection properties (`Result<T>`, `List<Order>`) of DTOs that come from NuGet packages. A package with both `Result` and `Result<T>` no longer causes a false "ambiguous external type reference" warning.
+- DTOs from referenced projects whose name matches a built-in collection, such as your own `Queue` class.
+
+Also, removing the last endpoint DTOs no longer leaves old generated files behind that break the build. The generated `AddSerializerContextsFrom*()` method then does nothing, so your startup code keeps compiling. Warnings found during the up-to-date check are now printed as well.
+
+</details>
 
 <details><summary>Default exception handler returned an empty body in Native AOT apps</summary>
 

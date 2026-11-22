@@ -55,11 +55,11 @@ sealed class GeneratorConfig
         "YamlDotNet"
     ];
 
-    public string[] SkipTypes { get; } =
-    [
+    public HashSet<string> SkipTypes { get; } = new(StringComparer.Ordinal)
+    {
         "EmptyRequest",
         "EmptyResponse"
-    ];
+    };
 
     public HashSet<string> BuiltInCollectionTypes { get; } = new(StringComparer.Ordinal)
     {
@@ -77,6 +77,46 @@ sealed class GeneratorConfig
         "Stack",
         "Queue"
     };
+
+    //bcl/framework types that never resolve to anything the generator emits. skipping them avoids loading referenced projects and nuget metadata.
+    public HashSet<string> WellKnownExternalTypes { get; } = new(StringComparer.Ordinal)
+    {
+        "DateTime",
+        "DateTimeOffset",
+        "DateOnly",
+        "TimeOnly",
+        "TimeSpan",
+        "Guid",
+        "Half",
+        "Int128",
+        "UInt128",
+        "IFormFile",
+        "IFormFileCollection",
+        "IResult",
+        "Results",
+        "JsonElement",
+        "JsonNode",
+        "JsonDocument",
+        "Stream",
+        "CancellationToken"
+    };
+
+    //single owner of the name-based skip policy. it decides both what gets emitted and what may trigger external type loading.
+    public bool IsSkippedNamespace(string typeName)
+    {
+        typeName = TypeNames.StripGlobal(typeName);
+
+        foreach (var skipNs in SkipNamespaces)
+        {
+            if (typeName.StartsWith(skipNs + ".", StringComparison.Ordinal))
+                return true;
+        }
+
+        return false;
+    }
+
+    public bool IsSkippedTypeName(string simpleNameWithoutArity)
+        => SkipTypes.Contains(simpleNameWithoutArity);
 
     private GeneratorConfig() { }
 }

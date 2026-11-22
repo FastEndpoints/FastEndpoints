@@ -4,8 +4,6 @@ namespace FastEndpoints.Generator.Cli;
 
 partial class Program
 {
-    private static readonly Dictionary<string, string> _emptyAliases = new(StringComparer.Ordinal);
-    private static readonly List<string> _emptyUsings = [];
     private static readonly GeneratorConfig _config = GeneratorConfig.Instance;
 
     static int Main(string[] args)
@@ -59,10 +57,15 @@ partial class Program
         }
         catch (Exception ex)
         {
-            FlushDiagnostics();
+            Diagnostics.Flush();
             Console.WriteLine($"Error: {ex.Message}");
 
             return 1;
+        }
+        finally
+        {
+            //covers every exit path, including the early returns (ex: up-to-date check warnings)
+            Diagnostics.Flush();
         }
     }
 

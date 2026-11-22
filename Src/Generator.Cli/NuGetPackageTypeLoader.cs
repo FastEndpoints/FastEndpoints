@@ -1,5 +1,6 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using static FastEndpoints.Generator.Cli.TypeNames;
 
 namespace FastEndpoints.Generator.Cli;
 
@@ -24,39 +25,34 @@ sealed class NuGetPackageTypeLoader
 
     private NuGetPackageTypeLoader(Dictionary<string, INamedTypeSymbol> typesByFullName,
                                    Dictionary<string, string> typeNamespaces,
-                                   Dictionary<string, List<string>> typesBySimpleName,
-                                   string hash)
+                                   Dictionary<string, List<string>> typesBySimpleName)
     {
         _typesByFullName = typesByFullName;
         _typeNamespaces = typeNamespaces;
         _typesBySimpleName = typesBySimpleName;
-        Hash = hash;
     }
 
-    public string Hash { get; }
-
-    public static NuGetPackageTypeLoader Create(List<NuGetPackageAssemblyInfo> packageAssemblies, List<string> referenceAssemblies, string hash)
+    public static NuGetPackageTypeLoader Create(List<NuGetPackageAssemblyInfo> packageAssemblies, List<string> referenceAssemblies)
     {
         var typesByFullName = new Dictionary<string, INamedTypeSymbol>(StringComparer.Ordinal);
         var typeNamespaces = new Dictionary<string, string>(StringComparer.Ordinal);
         var typesBySimpleName = new Dictionary<string, List<string>>(StringComparer.Ordinal);
 
         if (packageAssemblies.Count == 0)
-            return new(typesByFullName, typeNamespaces, typesBySimpleName, hash);
+            return new(typesByFullName, typeNamespaces, typesBySimpleName);
 
         var packageAssemblyLookup = packageAssemblies.ToDictionary(a => a.AssemblyPath, a => a.LibraryKey, StringComparer.OrdinalIgnoreCase);
         var metadataReferencePaths = referenceAssemblies.Concat(packageAssemblies.Select(a => a.AssemblyPath)).Distinct(StringComparer.OrdinalIgnoreCase).ToList();
         var metadataReferences = CreateMetadataReferences(metadataReferencePaths, packageAssemblyLookup);
 
         if (metadataReferences.Count == 0)
-            return new(typesByFullName, typeNamespaces, typesBySimpleName, hash);
+            return new(typesByFullName, typeNamespaces, typesBySimpleName);
 
         var compilation = CSharpCompilation.Create("FastEndpoints.Generator.Cli.NuGetMetadata", references: metadataReferences.Values);
-        var referencesByPath = metadataReferences;
 
         foreach (var assemblyPath in packageAssemblies.Select(a => a.AssemblyPath).Distinct(StringComparer.OrdinalIgnoreCase))
         {
-            if (!referencesByPath.TryGetValue(assemblyPath, out var reference))
+            if (!metadataReferences.TryGetValue(assemblyPath, out var reference))
                 continue;
 
             if (compilation.GetAssemblyOrModuleSymbol(reference) is not IAssemblySymbol assemblySymbol)
@@ -65,7 +61,7 @@ sealed class NuGetPackageTypeLoader
             CollectTypes(assemblySymbol.GlobalNamespace, typesByFullName, typeNamespaces, typesBySimpleName);
         }
 
-        return new(typesByFullName, typeNamespaces, typesBySimpleName, hash);
+        return new(typesByFullName, typeNamespaces, typesBySimpleName);
     }
 
     private static Dictionary<string, MetadataReference> CreateMetadataReferences(IEnumerable<string> metadataReferencePaths, Dictionary<string, string> packageAssemblyLookup)
@@ -78,7 +74,7 @@ sealed class NuGetPackageTypeLoader
             {
                 if (!File.Exists(path))
                 {
-                    Program.ReportDiagnostic(CreateMetadataWarning(path, packageAssemblyLookup, "missing metadata reference"));
+                    Diagnostics.Report(CreateMetadataWarning(path, packageAssemblyLookup, "missing metadata reference"));
 
                     continue;
                 }
@@ -87,7 +83,7 @@ sealed class NuGetPackageTypeLoader
             }
             catch (Exception ex)
             {
-                Program.ReportDiagnostic(CreateMetadataWarning(path, packageAssemblyLookup, ex.Message));
+                Diagnostics.Report(CreateMetadataWarning(path, packageAssemblyLookup, ex.Message));
             }
         }
 
@@ -99,12 +95,12 @@ sealed class NuGetPackageTypeLoader
                ? $"Warning: skipping metadata reference '{path}' from package '{libraryKey}': {reason}"
                : $"Warning: skipping metadata reference '{path}': {reason}";
 
-    public bool TryResolveAndLoadType(string typeExpression, string currentNamespace, List<string> usings, out string fullName, out TypeInfo typeInfo, int arity = 0)
+    public bool TryResolveAndLoadType(string typeExpression, string currentNamespace, List<string> usings, out string fullName, out TypeInfo typeInfo)
     {
         fullName = string.Empty;
         typeInfo = null!;
 
-        var resolvedFullName = ResolveFullName(typeExpression, currentNamespace, usings, arity);
+        var resolvedFullName = ResolveFullName(typeExpression, currentNamespace, usings);
 
         if (resolvedFullName == null || !_typesByFullName.TryGetValue(resolvedFullName, out var symbol))
             return false;
@@ -122,9 +118,9 @@ sealed class NuGetPackageTypeLoader
         return true;
     }
 
-    private string? ResolveFullName(string typeExpression, string currentNamespace, List<string> usings, int arity = 0)
+    private string? ResolveFullName(string typeExpression, string currentNamespace, List<string> usings)
     {
-        var lookupName = NormalizeLookupName(typeExpression, arity);
+        var lookupName = NormalizeLookupName(typeExpression);
         var cacheKey = BuildResolutionKey(lookupName, currentNamespace, usings);
 
         if (_resolutionCache.TryGetValue(cacheKey, out var cachedFullName))
@@ -160,8 +156,7 @@ sealed class NuGetPackageTypeLoader
                 return usingCandidate;
         }
 
-        var dotIndex = lookupName.LastIndexOf('.');
-        var simpleName = dotIndex >= 0 ? lookupName[(dotIndex + 1)..] : lookupName;
+        var simpleName = SimpleName(lookupName);
 
         if (!_typesBySimpleName.TryGetValue(simpleName, out var candidates) || candidates.Count == 0)
             return null;
@@ -174,12 +169,9 @@ sealed class NuGetPackageTypeLoader
         if (contextualCandidates.Count == 1)
             return contextualCandidates[0];
 
-        if (contextualCandidates.Count > 1 || candidates.Count > 1)
-        {
-            var ambiguousCandidates = contextualCandidates.Count > 1 ? contextualCandidates : candidates;
-            Program.ReportDiagnostic(
-                $"Warning: ambiguous external type reference '{lookupName}' matched {string.Join(", ", ambiguousCandidates.OrderBy(x => x, StringComparer.Ordinal))}. Use a fully qualified type name or alias.");
-        }
+        var ambiguousCandidates = contextualCandidates.Count > 1 ? contextualCandidates : candidates;
+        Diagnostics.Report(
+            $"Warning: ambiguous external type reference '{lookupName}' matched {string.Join(", ", ambiguousCandidates.OrderBy(x => x, StringComparer.Ordinal))}. Use a fully qualified type name or alias.");
 
         return null;
     }
@@ -212,15 +204,12 @@ sealed class NuGetPackageTypeLoader
         return sb.ToString();
     }
 
-    private static string NormalizeLookupName(string typeExpression, int arity = 0)
+    private static string NormalizeLookupName(string typeExpression)
     {
         if (string.IsNullOrWhiteSpace(typeExpression))
             return string.Empty;
 
-        var normalizedType = typeExpression.Trim().TrimEnd('?');
-
-        if (normalizedType.StartsWith("global::", StringComparison.Ordinal))
-            normalizedType = normalizedType[8..];
+        var normalizedType = StripGlobal(typeExpression.Trim().TrimEnd('?'));
 
         var genericIndex = normalizedType.IndexOf('<');
 
@@ -232,12 +221,7 @@ sealed class NuGetPackageTypeLoader
         if (arrayIndex >= 0)
             normalizedType = normalizedType[..arrayIndex];
 
-        normalizedType = normalizedType.Trim();
-
-        if (arity > 0 && !normalizedType.Contains('`'))
-            normalizedType = $"{normalizedType}`{arity}";
-
-        return normalizedType;
+        return normalizedType.Trim();
     }
 
     private static void CollectTypes(INamespaceSymbol namespaceSymbol,
@@ -266,10 +250,13 @@ sealed class NuGetPackageTypeLoader
                 typesByFullName[fullName] = typeSymbol;
                 typeNamespaces[fullName] = GetNamespace(typeSymbol);
 
-                if (!typesBySimpleName.TryGetValue(typeSymbol.Name, out var matches))
+                //keyed like the lookups (Name`arity for generics), so Foo and Foo<T> don't collide
+                var simpleName = typeSymbol.Arity > 0 ? $"{typeSymbol.Name}`{typeSymbol.Arity}" : typeSymbol.Name;
+
+                if (!typesBySimpleName.TryGetValue(simpleName, out var matches))
                 {
                     matches = [];
-                    typesBySimpleName[typeSymbol.Name] = matches;
+                    typesBySimpleName[simpleName] = matches;
                 }
 
                 matches.Add(fullName);

@@ -2,9 +2,6 @@ namespace FastEndpoints.Generator.Cli;
 
 partial class Program
 {
-    private const string CacheFileName = ".fastendpoints-generator-cache";
-    private const string CacheSchemaVersion = "v3";
-
     private static int ExecuteGenerator(string projectPath,
                                         bool forceRegenerate,
                                         bool includeTimestamp,
@@ -38,8 +35,7 @@ partial class Program
         var cacheFilePath = Path.Combine(outputDir, CacheFileName);
         var refSources = new Lazy<SourceFileSet>(() => CollectReferencedProjectSourceFilesWithHash(projectPath));
         var nugetPackageAssemblies = new Lazy<NuGetPackageAssemblySet>(
-            () => CollectNuGetPackageCompileAssembliesWithHash(projectPath, assetsFilePath, targetFramework, runtimeIdentifier, targetingPackRoot));
-        var nugetPackageLoader = new Lazy<NuGetPackageTypeLoader>(() => CreateNuGetPackageTypeLoader(nugetPackageAssemblies.Value));
+            () => NuGetAssetsResolver.Resolve(projectPath, assetsFilePath, targetFramework, runtimeIdentifier, targetingPackRoot));
 
         if (!forceRegenerate && IsUpToDate(cacheFilePath, hash, rootNamespace, outputDir, refSources, nugetPackageAssemblies))
         {
@@ -49,36 +45,30 @@ partial class Program
         }
 
         var parseResults = ParseSourceFiles(csFiles);
-        var (syntaxTrees, typeDeclarations, allUsingsByFile, allTypeAliasesByFile) = BuildAnalysisInputs(parseResults);
-        var analysis = AnalysisContext.Create(typeDeclarations, allUsingsByFile, allTypeAliasesByFile);
-        analysis.SetReferencedProjectLoader(() => LoadReferencedProjectContext(refSources.Value));
-        analysis.SetNuGetPackageLoader(() => nugetPackageLoader.Value);
+        var (sourceIndex, endpoints) = BuildAnalysisInputs(parseResults);
+        var analysis = new AnalysisContext(
+            sourceIndex,
+            () => BuildAnalysisInputs(ParseSourceFiles(refSources.Value.Files)).Index,
+            () =>
+            {
+                var set = nugetPackageAssemblies.Value;
 
-        Console.WriteLine($"Found {typeDeclarations.Count} type declarations.");
+                return NuGetPackageTypeLoader.Create(set.PackageAssemblies, set.ReferenceAssemblies);
+            });
 
-        var (serializableTypes, endpointCount) = DiscoverSerializableTypesFromEndpoints(syntaxTrees, analysis);
+        Console.WriteLine($"Found {sourceIndex.Types.Count} type declarations.");
 
-        Console.WriteLine($"Found {endpointCount} endpoints with {serializableTypes.Count} serializable types.");
+        var serializableTypes = DiscoverSerializableTypesFromEndpoints(endpoints, analysis);
 
+        Console.WriteLine($"Found {endpoints.Count} endpoints with {serializableTypes.Count} serializable types.");
+
+        //still write the output (no context, no-op extension method), so files from an earlier run can't keep stale
+        //typeof() references and the app's AddSerializerContextsFrom*() call keeps compiling.
         if (serializableTypes.Count == 0)
-        {
-            Console.WriteLine("No serializable types found in endpoints.");
-            FlushDiagnostics();
+            Console.WriteLine("No serializable types found in endpoints. Writing a no-op serializer context extension.");
 
-            return 0;
-        }
-
-        var cacheState = new GeneratorCacheState(
-            CacheSchemaVersion,
-            hash,
-            analysis.ReferencedProjectsInspected,
-            analysis.ReferencedProjectsHash ?? string.Empty,
-            analysis.NuGetPackagesInspected,
-            analysis.NuGetPackagesHash ?? string.Empty,
-            rootNamespace);
-
-        WriteGeneratedOutput(outputDir, rootNamespace, serializableTypes, cacheState, cacheFilePath, includeTimestamp);
-        FlushDiagnostics();
+        WriteGeneratedOutput(outputDir, rootNamespace, serializableTypes, includeTimestamp);
+        WriteCacheState(cacheFilePath, CreateCacheState(hash, rootNamespace, analysis, refSources, nugetPackageAssemblies));
 
         return 0;
     }

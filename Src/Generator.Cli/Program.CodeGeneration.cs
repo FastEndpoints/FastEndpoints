@@ -1,6 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.Json;
+using static FastEndpoints.Generator.Cli.TypeNames;
 
 namespace FastEndpoints.Generator.Cli;
 
@@ -9,21 +9,17 @@ partial class Program
     private static void WriteGeneratedOutput(string outputDir,
                                              string rootNamespace,
                                              HashSet<string> serializableTypes,
-                                             GeneratorCacheState cacheState,
-                                             string cacheFilePath,
                                              bool includeTimestamp)
     {
         Directory.CreateDirectory(outputDir);
 
         var contextCode = GenerateSerializerContext(rootNamespace, serializableTypes, includeTimestamp);
-        var contextPath = Path.Combine(outputDir, "SerializerContexts.g.cs");
+        var contextPath = Path.Combine(outputDir, ContextFileName);
         File.WriteAllText(contextPath, contextCode, Encoding.UTF8);
 
-        var extensionCode = GenerateExtensionMethod(rootNamespace);
-        var extensionPath = Path.Combine(outputDir, "SerializerContextExtensions.g.cs");
+        var extensionCode = GenerateExtensionMethod(rootNamespace, serializableTypes.Count > 0);
+        var extensionPath = Path.Combine(outputDir, ExtensionsFileName);
         File.WriteAllText(extensionPath, extensionCode, Encoding.UTF8);
-
-        File.WriteAllText(cacheFilePath, JsonSerializer.Serialize(cacheState));
 
         Console.WriteLine("Generated files:");
         Console.WriteLine($"  {contextPath}");
@@ -39,6 +35,14 @@ partial class Program
 
         if (includeTimestamp)
             b.l($"// Generated at: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+
+        //the stj generator rejects a context without any [JsonSerializable] types
+        if (types.Count == 0)
+        {
+            b.l("// No serializable types were found in endpoints.");
+
+            return b.ToString();
+        }
 
         b.l("");
         b.l("#pragma warning disable");
@@ -56,7 +60,7 @@ partial class Program
 
         foreach (var type in types.OrderBy(t => t, StringComparer.Ordinal))
         {
-            var globalStrippedType = type.StartsWith("global::", StringComparison.Ordinal) ? type[8..] : type;
+            var globalStrippedType = StripGlobal(type);
             var typeInfoName = MakeTypeInfoPropertyName(type);
             var suffix = 1;
 
@@ -76,9 +80,7 @@ partial class Program
         if (string.IsNullOrWhiteSpace(fullTypeName))
             return "TI_Unknown";
 
-        var dotIndex = fullTypeName.LastIndexOf('.');
-        var simpleName = dotIndex >= 0 ? fullTypeName[(dotIndex + 1)..] : fullTypeName;
-        simpleName = simpleName.Sanitize();
+        var simpleName = SimpleName(fullTypeName).Sanitize();
 
         var hash = ComputeStableShortHash(fullTypeName);
 
@@ -92,7 +94,7 @@ partial class Program
         return Convert.ToHexString(bytes, 0, 4);
     }
 
-    private static string GenerateExtensionMethod(string rootNamespace)
+    private static string GenerateExtensionMethod(string rootNamespace, bool hasContext)
     {
         var sb = new StringBuilder();
 
@@ -116,9 +118,13 @@ partial class Program
         sb.l("    /// </summary>");
         sb.l($"    public static JsonSerializerOptions AddSerializerContextsFrom{rootNamespace.Sanitize(string.Empty)}(this JsonSerializerOptions options)");
         sb.l("    {");
-        sb.l("        var context = new GeneratedSerializerContext(new(options));");
-        sb.l("        options.TypeInfoResolverChain.Insert(0, context);");
-        sb.l("");
+        if (hasContext)
+        {
+            sb.l("        var context = new GeneratedSerializerContext(new(options));");
+            sb.l("        options.TypeInfoResolverChain.Insert(0, context);");
+            sb.l("");
+        }
+
         sb.l("        return options;");
         sb.l("    }");
         sb.l("}");

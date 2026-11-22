@@ -1,83 +1,47 @@
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+using static FastEndpoints.Generator.Cli.TypeNames;
 
 namespace FastEndpoints.Generator.Cli;
 
 partial class Program
 {
-    private static (HashSet<string> SerializableTypes, int EndpointCount) DiscoverSerializableTypesFromEndpoints(List<(SyntaxTree Tree, string FilePath)> syntaxTrees,
-                                                                                                                 AnalysisContext analysis)
+    private static HashSet<string> DiscoverSerializableTypesFromEndpoints(List<EndpointDeclaration> endpoints, AnalysisContext analysis)
     {
         var serializableTypes = new HashSet<string>(StringComparer.Ordinal);
-        var endpointCount = 0;
+        string? currentFile = null;
+        TypeScope fileScope = null!;
 
-        foreach (var (tree, filePath) in syntaxTrees)
+        foreach (var endpoint in endpoints)
         {
-            var root = tree.GetRoot();
+            Console.WriteLine($"  Found endpoint: {endpoint.ClassName}");
 
-            var allUsings = analysis.AllUsingsByFile.GetValueOrDefault(filePath) ?? _emptyUsings;
-            var typeAliases = analysis.AllTypeAliasesByFile.GetValueOrDefault(filePath) ?? _emptyAliases;
-
-            var walker = new EndpointDiscoveryWalker(allUsings, typeAliases, serializableTypes, analysis);
-            walker.Visit(root);
-            endpointCount += walker.EndpointCount;
-        }
-
-        return (serializableTypes, endpointCount);
-    }
-
-    private sealed class EndpointDiscoveryWalker(List<string> allUsings, Dictionary<string, string> typeAliases, HashSet<string> serializableTypes, AnalysisContext analysis) : CSharpSyntaxWalker
-    {
-        public int EndpointCount { get; private set; }
-
-        public override void VisitClassDeclaration(ClassDeclarationSyntax classDecl)
-        {
-            if (!classDecl.Modifiers.Any(m => m.Text == "file"))
+            //endpoints are grouped by file. resolve the file scope once per file, before any of its endpoints trigger external loads.
+            if (!string.Equals(currentFile, endpoint.FilePath, StringComparison.Ordinal))
             {
-                var baseTypes = GetBaseTypes(classDecl);
-                var endpointBase = FindEndpointBaseType(baseTypes);
-
-                if (endpointBase != null)
-                {
-                    EndpointCount++;
-                    var className = GetFullTypeName(classDecl);
-                    Console.WriteLine($"  Found endpoint: {className}");
-
-                    var currentNs = GetContainingNamespace(classDecl);
-
-                    var typeArgs = IsFluentEndpointBaseType(endpointBase)
-                                       ? ExtractFluentTypeArguments(endpointBase)
-                                       : ExtractTypeArguments(endpointBase);
-
-                    foreach (var typeArg in typeArgs)
-                        ProcessTypeExpression(typeArg, currentNs, className, allUsings, typeAliases, serializableTypes, analysis, allowExternalFallback: true);
-                }
+                currentFile = endpoint.FilePath;
+                fileScope = analysis.ScopeFor(currentFile, "", "");
             }
 
-            base.VisitClassDeclaration(classDecl);
+            var typeArgs = IsFluentEndpointBaseType(endpoint.BaseType)
+                               ? ExtractFluentTypeArguments(endpoint.BaseType)
+                               : ExtractTypeArguments(endpoint.BaseType);
+
+            var scope = fileScope with { Namespace = endpoint.Namespace, TypeFullName = endpoint.ClassName };
+
+            foreach (var typeArg in typeArgs)
+                ProcessTypeExpression(typeArg, scope, serializableTypes, analysis);
         }
+
+        return serializableTypes;
     }
 
-    private static List<string> GetBaseTypes(ClassDeclarationSyntax classDecl)
-        => classDecl.BaseList == null
-               ? []
-               : classDecl.BaseList.Types.Select(t => t.ToString()).ToList();
-
-    private static string? FindEndpointBaseType(List<string> baseTypes)
+    private static string? FindEndpointBaseType(List<TypeRef> baseTypes)
     {
-        foreach (var baseType in baseTypes)
+        foreach (var (baseType, _) in baseTypes)
         {
             if (IsFluentEndpointBaseType(baseType))
                 return baseType;
 
-            var baseSpan = baseType.AsSpan();
-            var genIdx = baseSpan.IndexOf('<');
-            if (genIdx >= 0)
-                baseSpan = baseSpan[..genIdx];
-
-            var dotIdx = baseSpan.LastIndexOf('.');
-            var baseName = dotIdx >= 0 ? baseSpan[(dotIdx + 1)..].Trim() : baseSpan.Trim();
+            var baseName = GetSimpleBaseTypeName(baseType);
 
             foreach (var pattern in _config.EndpointBaseTypePatterns)
             {
@@ -103,37 +67,6 @@ partial class Program
                span.Contains(".Ep.", StringComparison.Ordinal);
     }
 
-    private static List<string> ExtractTypeArguments(string genericType)
-    {
-        var result = new List<string>();
-        var depth = 0;
-        var start = -1;
-
-        for (var i = 0; i < genericType.Length; i++)
-        {
-            if (genericType[i] == '<')
-            {
-                if (depth == 0)
-                    start = i + 1;
-
-                depth++;
-            }
-            else if (genericType[i] == '>')
-            {
-                depth--;
-
-                if (depth == 0 && start != -1)
-                {
-                    var argsString = genericType.Substring(start, i - start);
-                    result.AddRange(SplitTypeArguments(argsString));
-                    start = -1;
-                }
-            }
-        }
-
-        return result;
-    }
-
     private static List<string> ExtractFluentTypeArguments(string fluentBaseType)
     {
         var result = new List<string>();
@@ -152,51 +85,4 @@ partial class Program
 
         return result;
     }
-
-    private static List<string> SplitBalanced(string input, char delimiter, bool trimItems = false)
-    {
-        var result = new List<string>();
-        var depth = 0;
-        var lastSplit = 0;
-
-        for (var i = 0; i < input.Length; i++)
-        {
-            switch (input[i])
-            {
-                case '<':
-                    depth++;
-
-                    break;
-                case '>':
-                    depth--;
-
-                    break;
-                default:
-                    if (depth == 0 && input[i] == delimiter)
-                    {
-                        var item = trimItems ? input[lastSplit..i].Trim() : input[lastSplit..i];
-                        if (item.Length > 0)
-                            result.Add(item);
-                        lastSplit = i + 1;
-                    }
-
-                    break;
-            }
-        }
-
-        if (lastSplit < input.Length)
-        {
-            var item = trimItems ? input[lastSplit..].Trim() : input[lastSplit..];
-            if (item.Length > 0)
-                result.Add(item);
-        }
-
-        return result;
-    }
-
-    private static List<string> SplitDotSegments(string typeName)
-        => SplitBalanced(typeName, '.');
-
-    private static List<string> SplitTypeArguments(string argsString)
-        => SplitBalanced(argsString, ',', true);
 }

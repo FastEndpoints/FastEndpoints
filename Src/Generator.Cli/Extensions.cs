@@ -35,4 +35,7 @@ static partial class Extensions
     //must match ToValidNameSpace() in Src/Generator/Extensions.cs so the namespaces of the source generators and the cli agree
     internal static string ToValidNameSpace(this string input)
         => NamespaceRegex().Replace(input, "_");
+
+    internal static string NormalizeSeparators(this string path)
+        => path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar);
 }

@@ -48,6 +48,19 @@ Test event receivers follow the same rule. `GetTestEventReceiver<OrderCreated>()
 
 ## Improvements 🚀
 
+<details><summary>Serializer context generator now matches the other generators' namespace</summary>
+
+For projects with a dotted assembly name like `My.Cool.App`, the generated `AddSerializerContextsFrom*()` method used to end up in a different namespace (`My_Cool_App`) than `DiscoveredTypes` and `AddFrom*()`, so the AOT setup from the docs didn't compile. It now uses the assembly name for the namespace and strips non-alphanumeric characters from the method name, just like `AddFrom*()`:
+
+```cs
+c.Serializer.Options.AddSerializerContextsFromMyCoolApp();
+c.Binding.ReflectionCache.AddFromMyCoolApp();
+```
+
+If your assembly name contains characters like `.`, `_` or `-`, or you set a `<RootNamespace>` or `<AssemblyName>` that differs from the project file name, update the method call after rebuilding.
+
+</details>
+
 <details><summary>Clearer startup error when an assembly can't be scanned</summary>
 
 If one of your assemblies has a type whose dependency is missing at runtime (for example a design-time `IDesignTimeDbContextFactory` that references a private `Microsoft.EntityFrameworkCore.Design` package), type discovery used to fail with a bare `ReflectionTypeLoadException`. The error now names the assembly and the missing dependencies. If that assembly has no FastEndpoints types, you can exclude it from scanning with an `AssemblyFilter`:

@@ -28,4 +28,11 @@ static partial class Extensions
 
     internal static string Sanitize(this string input, string replacement = "_")
         => SanitizationRegex().Replace(input, replacement);
+
+    [GeneratedRegex("[^a-zA-Z0-9.]+")]
+    private static partial Regex NamespaceRegex();
+
+    //must match ToValidNameSpace() in Src/Generator/Extensions.cs so the namespaces of the source generators and the cli agree
+    internal static string ToValidNameSpace(this string input)
+        => NamespaceRegex().Replace(input, "_");
 }

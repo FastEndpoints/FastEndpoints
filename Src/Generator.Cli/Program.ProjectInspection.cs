@@ -78,6 +78,7 @@ partial class Program
 
     private static bool IsUpToDate(string cacheFilePath,
                                    string mainProjectHash,
+                                   string rootNamespace,
                                    string outputDir,
                                    Lazy<SourceFileSet> refSources,
                                    Lazy<NuGetPackageAssemblySet> nugetPackageAssemblies)
@@ -93,7 +94,9 @@ partial class Program
 
         var cacheState = ReadCacheState(cacheFilePath);
 
-        if (cacheState == null || !string.Equals(cacheState.MainProjectHash, mainProjectHash, StringComparison.Ordinal))
+        if (cacheState == null ||
+            !string.Equals(cacheState.MainProjectHash, mainProjectHash, StringComparison.Ordinal) ||
+            !string.Equals(cacheState.RootNamespace, rootNamespace, StringComparison.Ordinal))
             return false;
 
         if (!cacheState.ReferencedProjectsInspected)
@@ -121,21 +124,6 @@ partial class Program
         }
 
         return Path.Combine(projectDir, "Generated", "FastEndpoints");
-    }
-
-    private static string? GetRootNamespace(string projectPath)
-    {
-        try
-        {
-            var doc = XDocument.Load(projectPath);
-            var rootNs = doc.Descendants().FirstOrDefault(e => e.Name.LocalName == "RootNamespace")?.Value;
-
-            return rootNs?.Sanitize();
-        }
-        catch
-        {
-            return null;
-        }
     }
 
     private static string? GetTargetFramework(string projectPath)

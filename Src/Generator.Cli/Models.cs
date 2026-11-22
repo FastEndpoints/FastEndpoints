@@ -25,7 +25,8 @@ record GeneratorCacheState(string Version,
                            bool ReferencedProjectsInspected,
                            string ReferencedProjectsHash,
                            bool NuGetPackagesInspected,
-                           string NuGetPackagesHash);
+                           string NuGetPackagesHash,
+                           string RootNamespace);
 
 record FileParseResult(string FilePath,
                        SyntaxTree Tree,

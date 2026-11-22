@@ -51,12 +51,15 @@ fastendpoints-generator MyProject.csproj --force
 ### Full Options
 
 ```bash
-fastendpoints-generator <project-file-path> [--force] [--output <path>]
+fastendpoints-generator <project-file-path> [--force] [--output <path>] [--assembly-name <name>]
 
 Options:
-  --force         Force regeneration even if files are up to date
-  --output <path> Custom output path for generated files
+  --force                 Force regeneration even if files are up to date
+  --output <path>         Custom output path for generated files
+  --assembly-name <name>  Assembly name used for the generated namespace (defaults to the project file name)
 ```
+
+The generated code is placed in a namespace named after the assembly (e.g. `My.Cool.App`), the same one the `FastEndpoints.Generator` source generators use. The extension method name uses the assembly name with all non-alphanumeric characters removed (e.g. `AddSerializerContextsFromMyCoolApp`). The MSBuild integration passes the real assembly name automatically.
 
 ## What It Generates
 

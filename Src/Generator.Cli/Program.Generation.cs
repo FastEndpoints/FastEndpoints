@@ -3,7 +3,7 @@ namespace FastEndpoints.Generator.Cli;
 partial class Program
 {
     private const string CacheFileName = ".fastendpoints-generator-cache";
-    private const string CacheSchemaVersion = "v2";
+    private const string CacheSchemaVersion = "v3";
 
     private static int ExecuteGenerator(string projectPath,
                                         bool forceRegenerate,
@@ -12,10 +12,14 @@ partial class Program
                                         string? assetsFilePath,
                                         string? targetFramework,
                                         string? runtimeIdentifier,
-                                        string? targetingPackRoot)
+                                        string? targetingPackRoot,
+                                        string? assemblyName)
     {
         var projectDir = Path.GetDirectoryName(projectPath)!;
         var projectName = Path.GetFileNameWithoutExtension(projectPath);
+
+        //the source generators derive their namespace from the assembly name. this must produce the same value.
+        var rootNamespace = (string.IsNullOrWhiteSpace(assemblyName) ? projectName : assemblyName).ToValidNameSpace();
 
         Console.WriteLine($"Analyzing project: {projectName}");
 
@@ -37,7 +41,7 @@ partial class Program
             () => CollectNuGetPackageCompileAssembliesWithHash(projectPath, assetsFilePath, targetFramework, runtimeIdentifier, targetingPackRoot));
         var nugetPackageLoader = new Lazy<NuGetPackageTypeLoader>(() => CreateNuGetPackageTypeLoader(nugetPackageAssemblies.Value));
 
-        if (!forceRegenerate && IsUpToDate(cacheFilePath, hash, outputDir, refSources, nugetPackageAssemblies))
+        if (!forceRegenerate && IsUpToDate(cacheFilePath, hash, rootNamespace, outputDir, refSources, nugetPackageAssemblies))
         {
             Console.WriteLine("Generated files are up-to-date. Skipping generation.");
 
@@ -70,9 +74,10 @@ partial class Program
             analysis.ReferencedProjectsInspected,
             analysis.ReferencedProjectsHash ?? string.Empty,
             analysis.NuGetPackagesInspected,
-            analysis.NuGetPackagesHash ?? string.Empty);
+            analysis.NuGetPackagesHash ?? string.Empty,
+            rootNamespace);
 
-        WriteGeneratedOutput(outputDir, projectPath, projectName, serializableTypes, cacheState, cacheFilePath, includeTimestamp);
+        WriteGeneratedOutput(outputDir, rootNamespace, serializableTypes, cacheState, cacheFilePath, includeTimestamp);
         FlushDiagnostics();
 
         return 0;

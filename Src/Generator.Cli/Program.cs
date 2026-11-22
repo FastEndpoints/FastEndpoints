@@ -35,6 +35,7 @@ partial class Program
         var targetFramework = GetOptionValue(args, "--target-framework");
         var runtimeIdentifier = GetOptionValue(args, "--runtime-identifier");
         var targetingPackRoot = GetOptionValue(args, "--targeting-pack-root");
+        var assemblyName = GetOptionValue(args, "--assembly-name");
 
         if (!File.Exists(projectPath))
         {
@@ -45,7 +46,16 @@ partial class Program
 
         try
         {
-            return ExecuteGenerator(projectPath, forceRegenerate, includeTimestamp, customOutputPath, assetsFilePath, targetFramework, runtimeIdentifier, targetingPackRoot);
+            return ExecuteGenerator(
+                projectPath,
+                forceRegenerate,
+                includeTimestamp,
+                customOutputPath,
+                assetsFilePath,
+                targetFramework,
+                runtimeIdentifier,
+                targetingPackRoot,
+                assemblyName);
         }
         catch (Exception ex)
         {
@@ -68,6 +78,7 @@ partial class Program
         Console.WriteLine("  --target-framework <tfm>     Target framework to inspect package metadata for (build integration)");
         Console.WriteLine("  --runtime-identifier <rid>   Runtime identifier used for assets target selection (build integration)");
         Console.WriteLine("  --targeting-pack-root <path>  Override targeting pack root used for metadata references (build integration)");
+        Console.WriteLine("  --assembly-name <name>       Assembly name used for the generated namespace (defaults to the project file name)");
         Console.WriteLine("  --help                       Show this help message");
         Console.WriteLine("  --version                    Show version information");
         Console.WriteLine("");

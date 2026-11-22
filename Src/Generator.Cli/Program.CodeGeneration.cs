@@ -7,8 +7,7 @@ namespace FastEndpoints.Generator.Cli;
 partial class Program
 {
     private static void WriteGeneratedOutput(string outputDir,
-                                             string projectPath,
-                                             string projectName,
+                                             string rootNamespace,
                                              HashSet<string> serializableTypes,
                                              GeneratorCacheState cacheState,
                                              string cacheFilePath,
@@ -16,7 +15,6 @@ partial class Program
     {
         Directory.CreateDirectory(outputDir);
 
-        var rootNamespace = GetRootNamespace(projectPath) ?? projectName.Sanitize();
         var contextCode = GenerateSerializerContext(rootNamespace, serializableTypes, includeTimestamp);
         var contextPath = Path.Combine(outputDir, "SerializerContexts.g.cs");
         File.WriteAllText(contextPath, contextCode, Encoding.UTF8);
@@ -116,7 +114,7 @@ partial class Program
         sb.l("    /// <summary>");
         sb.l("    /// Adds the generated JSON serializer context to the JSON serializer options.");
         sb.l("    /// </summary>");
-        sb.l($"    public static JsonSerializerOptions AddSerializerContextsFrom{rootNamespace}(this JsonSerializerOptions options)");
+        sb.l($"    public static JsonSerializerOptions AddSerializerContextsFrom{rootNamespace.Sanitize(string.Empty)}(this JsonSerializerOptions options)");
         sb.l("    {");
         sb.l("        var context = new GeneratedSerializerContext(new(options));");
         sb.l("        options.TypeInfoResolverChain.Insert(0, context);");

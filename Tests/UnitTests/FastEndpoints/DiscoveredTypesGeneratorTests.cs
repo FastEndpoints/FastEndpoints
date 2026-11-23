@@ -3,7 +3,6 @@ using FastEndpoints;
 using FastEndpoints.Generator;
 using FluentValidation;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Xunit;
 
 namespace Generator;
@@ -61,58 +60,133 @@ public class DiscoveredTypesGeneratorTests
         outputCompilation.GetDiagnostics()
                          .Where(d => d.Severity == DiagnosticSeverity.Error)
                          .ShouldBeEmpty();
-        generated.ShouldContain("Preserve<TestApp.TopLevelValidator>()");
-        generated.ShouldContain("Preserve<TestApp.ConcreteEndpoint>()");
-        generated.ShouldContain("Preserve<TestApp.Holder.NestedInNonGeneric>()");
+        generated.ShouldContain("Preserve<global::TestApp.TopLevelValidator>()");
+        generated.ShouldContain("Preserve<global::TestApp.ConcreteEndpoint>()");
+        generated.ShouldContain("Preserve<global::TestApp.Holder.NestedInNonGeneric>()");
         generated.ShouldNotContain("DocumentUpdateDtoValidator");
         generated.ShouldNotContain("DeepValidator");
         generated.ShouldNotContain("BaseUpdateRequestValidator");
         generated.ShouldNotContain("<T>");
     }
 
-    static string RunGenerator(string source, out ImmutableArray<Diagnostic> generatorDiagnostics, out Compilation outputCompilation)
+    [Fact]
+    public void type_named_like_root_namespace_does_not_shadow_emitted_names()
     {
-        var parseOptions = new CSharpParseOptions(LanguageVersion.Preview);
-        var syntaxTree = CSharpSyntaxTree.ParseText(source, parseOptions);
-        var implicitUsings = CSharpSyntaxTree.ParseText(
+        const string source =
             """
-            global using System;
-            global using System.Collections.Generic;
-            global using System.IO;
-            global using System.Linq;
-            global using System.Threading;
-            global using System.Threading.Tasks;
-            """,
-            parseOptions);
+            using System.Threading;
+            using System.Threading.Tasks;
+            using FastEndpoints;
 
-        var compilation = CSharpCompilation.Create(
-            "TestApp",
-            [implicitUsings, syntaxTree],
-            GetReferences(),
-            new(OutputKind.DynamicallyLinkedLibrary));
+            namespace TestApp.System
+            {
+                public class Marker;
+            }
 
-        GeneratorDriver driver = CSharpGeneratorDriver.Create(
-            [new DiscoveredTypesGenerator().AsSourceGenerator()],
-            parseOptions: parseOptions);
+            namespace TestApp
+            {
+                public class TestApp;
 
-        driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out outputCompilation, out generatorDiagnostics);
+                public class Type;
 
-        return driver.GetRunResult()
-                     .GeneratedTrees
-                     .FirstOrDefault(t => Path.GetFileName(t.FilePath) == "DiscoveredTypes.g.cs")
-                     ?.GetText()
-                     .ToString()
-               ?? string.Empty;
+                public class Request;
+
+                public class MyEndpoint : Endpoint<Request>
+                {
+                    public override Task HandleAsync(Request req, CancellationToken ct) => Task.CompletedTask;
+                }
+            }
+            """;
+
+        var generated = RunGenerator(source, out var diagnostics, out var outputCompilation);
+
+        diagnostics.ShouldBeEmpty();
+        outputCompilation.GetDiagnostics()
+                         .Where(d => d.Severity == DiagnosticSeverity.Error)
+                         .ShouldBeEmpty();
+        generated.ShouldContain("Preserve<global::TestApp.MyEndpoint>()");
     }
 
-    static IEnumerable<MetadataReference> GetReferences()
+    [Fact]
+    public void record_handler_is_emitted()
     {
-        var trustedPlatformAssemblies = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator);
+        const string source =
+            """
+            using System.Threading;
+            using System.Threading.Tasks;
+            using FastEndpoints;
 
-        foreach (var path in trustedPlatformAssemblies)
-            yield return MetadataReference.CreateFromFile(path);
+            namespace TestApp;
 
-        yield return MetadataReference.CreateFromFile(typeof(Endpoint<>).Assembly.Location);
-        yield return MetadataReference.CreateFromFile(typeof(IValidator).Assembly.Location);
+            public class MyEvent;
+
+            public record MyEventHandler : IEventHandler<MyEvent>
+            {
+                public Task HandleAsync(MyEvent eventModel, CancellationToken ct) => Task.CompletedTask;
+            }
+            """;
+
+        var generated = RunGenerator(source, out var diagnostics, out var outputCompilation);
+
+        diagnostics.ShouldBeEmpty();
+        outputCompilation.GetDiagnostics()
+                         .Where(d => d.Severity == DiagnosticSeverity.Error)
+                         .ShouldBeEmpty();
+        generated.ShouldContain("Preserve<global::TestApp.MyEventHandler>()");
+    }
+
+    [Fact]
+    public void dont_register_attribute_omits_type_from_discovered_types()
+    {
+        const string source =
+            """
+            using FastEndpoints;
+
+            namespace TestApp;
+
+            [DontRegister]
+            public class SkippedEndpoint : EndpointWithoutRequest
+            {
+                public override Task HandleAsync(CancellationToken ct) => Task.CompletedTask;
+            }
+
+            public class IncludedEndpoint : EndpointWithoutRequest
+            {
+                public override Task HandleAsync(CancellationToken ct) => Task.CompletedTask;
+            }
+            """;
+
+        var generated = RunGenerator(source, out var diagnostics, out var outputCompilation);
+
+        diagnostics.ShouldBeEmpty();
+        outputCompilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ShouldBeEmpty();
+        generated.ShouldContain("Preserve<global::TestApp.IncludedEndpoint>()");
+        generated.ShouldNotContain("SkippedEndpoint");
+    }
+
+    static readonly ImmutableArray<MetadataReference> _references =
+        GeneratorTestHarness.GetReferences(typeof(Endpoint<>).Assembly, typeof(IValidator).Assembly);
+
+    const string ImplicitUsingsSource =
+        """
+        global using System;
+        global using System.Collections.Generic;
+        global using System.IO;
+        global using System.Linq;
+        global using System.Threading;
+        global using System.Threading.Tasks;
+        """;
+
+    static string RunGenerator(string source, out ImmutableArray<Diagnostic> generatorDiagnostics, out Compilation outputCompilation)
+    {
+        var result = GeneratorTestHarness.Run<DiscoveredTypesGenerator>(
+            [ImplicitUsingsSource, source],
+            _references,
+            hintFileName: "DiscoveredTypes.g.cs");
+
+        generatorDiagnostics = result.Diagnostics;
+        outputCompilation = result.Output;
+
+        return result.Generated;
     }
 }

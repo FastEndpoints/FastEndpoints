@@ -21,55 +21,61 @@ public class AccessControlGenerator : IIncrementalGenerator
         defaultSeverity: DiagnosticSeverity.Error,
         isEnabledByDefault: true);
 
-    // ReSharper disable once InconsistentNaming
-    readonly StringBuilder b = new();
-
     public void Initialize(IncrementalGeneratorInitializationContext initCtx)
     {
-        var assemblyName = initCtx.CompilationProvider.Select(static (c, _) => c.AssemblyName);
+        var rootNamespace = initCtx.RootNamespaceProvider();
         initCtx.RegisterSourceOutput(
-            assemblyName,
-            static (spc, assemblyName) => spc.AddSource("Allow.b.g.cs", SourceText.From(RenderBase(assemblyName), Encoding.UTF8)));
+            rootNamespace,
+            static (spc, rootNamespace) => spc.AddSource("Allow.b.g.cs", SourceText.From(RenderBase(rootNamespace), Encoding.UTF8)));
 
         // picks up AccessControl(...) calls in endpoint declarations
         var matches = initCtx.SyntaxProvider
                              .CreateSyntaxProvider(Qualify, Transform)
-                             .Where(static m => m is { Endpoint: not null, PermissionName: not null })
-                             .WithComparer(MatchComparer.Instance)
+                             .Where(static p => p.IsValid)
                              .Collect();
 
         // picks up handwritten public static string fields in partial Allow class declarations
         var customFields = initCtx.SyntaxProvider
                                   .CreateSyntaxProvider(QualifyCustom, TransformCustom)
                                   .Where(static p => p.IsValid)
-                                  .WithComparer(PermissionComparer.Instance)
                                   .Collect();
 
         // picks up partial property declarations; generator provides implementing half with computed hash code
         var partialFields = initCtx.SyntaxProvider
                                    .CreateSyntaxProvider(QualifyPartial, TransformPartial)
                                    .Where(static p => p.IsValid)
-                                   .WithComparer(PermissionComparer.Instance)
                                    .Collect();
 
-        initCtx.RegisterSourceOutput(matches.Combine(customFields).Combine(partialFields).Combine(assemblyName), Generate);
+        initCtx.RegisterSourceOutput(matches.Combine(customFields).Combine(partialFields).Combine(rootNamespace), Generate);
 
         //executed per each keystroke
         static bool Qualify(SyntaxNode node, CancellationToken _)
             => node is InvocationExpressionSyntax { ArgumentList.Arguments.Count: not 0, Expression: IdentifierNameSyntax { Identifier.ValueText: AccessControl } };
 
         //executed per each keystroke but only for syntax nodes filtered by the Qualify method
-        static Match Transform(GeneratorSyntaxContext ctx, CancellationToken _)
+        static Permission Transform(GeneratorSyntaxContext ctx, CancellationToken _)
         {
             var invocation = (InvocationExpressionSyntax)ctx.Node;
+
+            //the call can be nested in blocks, lambdas, local functions etc. of the endpoint class
+            if (invocation.FirstAncestorOrSelf<TypeDeclarationSyntax>() is not { } typeDeclaration ||
+                ctx.SemanticModel.GetDeclaredSymbol(typeDeclaration) is not { } endpoint)
+                return default;
+
             var arguments = invocation.ArgumentList.Arguments;
             var permissionArg = arguments.FirstOrDefault(static a => a.NameColon?.Name.Identifier.ValueText == "keyName") ?? arguments[0];
-            var permissionName = TryGetStringConstant(ctx.SemanticModel, permissionArg.Expression);
+
+            if (TryGetStringConstant(ctx.SemanticModel, permissionArg.Expression) is not { } permissionName)
+                return default;
+
             var groupNames = arguments.Where(a => a != permissionArg)
                                       .SelectMany(a => GetStringConstants(ctx.SemanticModel, a.Expression))
                                       .ToArray();
+            var description = invocation.ArgumentList.OpenParenToken.TrailingTrivia
+                                        .SingleOrDefault(static t => t.IsKind(SyntaxKind.SingleLineCommentTrivia))
+                                        .ToString();
 
-            return new(ctx.SemanticModel.GetDeclaredSymbol(ctx.Node.Parent!.Parent!.Parent!.Parent!), invocation, permissionName, groupNames);
+            return new(endpoint.ToFullName(), permissionName, groupNames, description.Length == 0 ? null : description.Substring(2).Trim());
         }
 
         // resolves string literals, const fields, nameof(...), and other compile-time string constants
@@ -94,7 +100,7 @@ public class AccessControlGenerator : IIncrementalGenerator
                 yield break;
             }
 
-            IEnumerable<ExpressionSyntax> elements = expression switch
+            var elements = expression switch
             {
                 ArrayCreationExpressionSyntax { Initializer: { } initializer } => initializer.Expressions,
                 ImplicitArrayCreationExpressionSyntax { Initializer: { } initializer } => initializer.Expressions,
@@ -103,8 +109,10 @@ public class AccessControlGenerator : IIncrementalGenerator
             };
 
             foreach (var element in elements)
+            {
                 foreach (var constant in GetStringConstants(model, element))
                     yield return constant;
+            }
         }
 
         //executed per each keystroke
@@ -129,9 +137,7 @@ public class AccessControlGenerator : IIncrementalGenerator
             if (!IsGeneratedAllowType(symbol.ContainingType, ctx.SemanticModel.Compilation))
                 return default;
 
-            var hideFromDocs = ctx.SemanticModel.Compilation.GetTypeByMetadataName($"{nameof(FastEndpoints)}.{nameof(HideFromDocsAttribute)}");
-
-            if (symbol.GetAttributes().Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, hideFromDocs)))
+            if (IsHiddenFromDocs(symbol, ctx.SemanticModel.Compilation))
                 return default;
 
             return symbol.ConstantValue is string code
@@ -156,43 +162,45 @@ public class AccessControlGenerator : IIncrementalGenerator
         static Permission TransformPartial(GeneratorSyntaxContext ctx, CancellationToken _)
         {
             var prop = (PropertyDeclarationSyntax)ctx.Node;
-            var hideFromDocs = ctx.SemanticModel.Compilation.GetTypeByMetadataName($"{nameof(FastEndpoints)}.{nameof(HideFromDocsAttribute)}");
 
             if (ctx.SemanticModel.GetDeclaredSymbol(prop) is { } symbol &&
                 IsGeneratedAllowType(symbol.ContainingType, ctx.SemanticModel.Compilation) &&
-                !symbol.GetAttributes().Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, hideFromDocs)))
+                !IsHiddenFromDocs(symbol, ctx.SemanticModel.Compilation))
                 return new(prop.Identifier.ValueText);
 
             return default;
         }
 
+        static bool IsHiddenFromDocs(ISymbol symbol, Compilation compilation)
+        {
+            var hideFromDocs = compilation.GetTypeByMetadataName($"{nameof(FastEndpoints)}.{nameof(HideFromDocsAttribute)}");
+
+            return symbol.GetAttributes().Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, hideFromDocs));
+        }
+
         static bool IsGeneratedAllowType(INamedTypeSymbol? type, Compilation compilation)
         {
-            var expectedNamespace = $"{compilation.AssemblyName?.ToValidNameSpace() ?? "Assembly"}.Auth";
+            var expectedNamespace = $"{compilation.ToRootNamespace()}.Auth";
 
             return type is { Name: "Allow", IsStatic: true } && type.ContainingNamespace.ToDisplayString().Equals(expectedNamespace, StringComparison.Ordinal);
         }
     }
 
     //only executed if the equality comparer says the data is not what has been cached by roslyn
-    void Generate(SourceProductionContext spc, (((ImmutableArray<Match>, ImmutableArray<Permission>), ImmutableArray<Permission>), string?) input)
+    static void Generate(SourceProductionContext spc, (((ImmutableArray<Permission>, ImmutableArray<Permission>), ImmutableArray<Permission>), string) input)
     {
-        var (((matches, customPerms), partialPerms), asmName) = input;
+        var (((matches, customPerms), partialPerms), rootNamespace) = input;
 
         if (matches.Length == 0 && customPerms.Length == 0 && partialPerms.Length == 0)
             return;
 
-        var rootNamespace = asmName?.ToValidNameSpace() ?? "Assembly";
+        var endpointPerms = matches.OrderBy(static p => p.Name, StringComparer.Ordinal).ToArray();
 
-        var endpointPerms = matches.Select(static m => new Permission(m))
-                                   .OrderBy(p => p.Name)
-                                   .ToArray();
+        var sortedCustomPerms = customPerms.OrderBy(static p => p.Name, StringComparer.Ordinal).ToArray();
 
-        var sortedCustomPerms = customPerms.OrderBy(p => p.Name).ToArray();
+        var sortedPartialPerms = partialPerms.OrderBy(static p => p.Name, StringComparer.Ordinal).ToArray();
 
-        var sortedPartialPerms = partialPerms.OrderBy(p => p.Name).ToArray();
-
-        ReportDuplicatePermissionCodes(spc, [..endpointPerms, ..sortedCustomPerms, ..sortedPartialPerms]);
+        ReportDuplicatePermissionCodes(spc, [.. endpointPerms, .. sortedCustomPerms, .. sortedPartialPerms]);
 
         spc.AddSource(
             "Allow.g.cs",
@@ -209,7 +217,7 @@ public class AccessControlGenerator : IIncrementalGenerator
                                   static g => new
                                   {
                                       Code = g.Key,
-                                      Names = g.Select(static p => p.Name).Distinct().OrderBy(static n => n).ToArray()
+                                      Names = g.Select(static p => p.Name).Distinct().OrderBy(static n => n, StringComparer.Ordinal).ToArray()
                                   })
                               .Where(static g => g.Names.Length > 1);
 
@@ -217,9 +225,9 @@ public class AccessControlGenerator : IIncrementalGenerator
             spc.ReportDiagnostic(Diagnostic.Create(_duplicatePermissionCode, Location.None, duplicate.Code, string.Join(", ", duplicate.Names)));
     }
 
-    string RenderClass(string rootNamespace, Permission[] endpointPerms, Permission[] constCustom, Permission[] partialPerms)
+    static string RenderClass(string rootNamespace, Permission[] endpointPerms, Permission[] constCustom, Permission[] partialPerms)
     {
-        b.Clear().w(
+        var b = new StringBuilder().w(
             $$"""
               #nullable enable
 
@@ -241,7 +249,7 @@ public class AccessControlGenerator : IIncrementalGenerator
             b.w(
                 $"""
 
-                     /// <summary>{p.Description}</summary><remark>Generated from endpoint: <see cref="{p.Endpoint}"/></remark>
+                     /// <summary>{XmlEscape(p.Description)}</summary><remark>Generated from endpoint: <see cref="{p.Endpoint}"/></remark>
                      public const string {p.Name} = {CsString(p.Code)};
                  """);
         }
@@ -254,7 +262,7 @@ public class AccessControlGenerator : IIncrementalGenerator
 
         RenderPartialFields(b, partialPerms);
 
-        RenderInitPermissions(b, [..endpointPerms, ..constCustom, ..partialPerms]);
+        RenderInitPermissions(b, [.. endpointPerms, .. constCustom, .. partialPerms]);
 
         RenderGroups(b, endpointPerms);
 
@@ -326,7 +334,7 @@ public class AccessControlGenerator : IIncrementalGenerator
         static void RenderGroups(StringBuilder sb, IEnumerable<Permission> perms)
         {
             var groups = perms.SelectMany(p => p.Categories.Select(c => (category: c, name: p.Name)))
-                              .OrderBy(x => x.name).ThenBy(x => x.category)
+                              .OrderBy(static x => x.name, StringComparer.Ordinal).ThenBy(static x => x.category, StringComparer.Ordinal)
                               .GroupBy(x => x.category, x => x.name)
                               .ToDictionary(g => g.Key, g => g.Select(n => n).ToArray());
 
@@ -341,7 +349,7 @@ public class AccessControlGenerator : IIncrementalGenerator
 
             foreach (var g in groups)
             {
-                var key = $"_{g.Key.ToLower()}";
+                var key = $"_{g.Key.ToLowerInvariant()}";
                 sb.w(
                     $$"""
 
@@ -408,7 +416,7 @@ public class AccessControlGenerator : IIncrementalGenerator
         }
     }
 
-    static string RenderBase(string? assemblyName)
+    static string RenderBase(string rootNamespace)
         => $$"""
              #nullable enable
 
@@ -418,7 +426,7 @@ public class AccessControlGenerator : IIncrementalGenerator
              using System.Collections.Generic;
              using System.Linq;
 
-             namespace {{assemblyName?.ToValidNameSpace() ?? "Assembly"}}.Auth;
+             namespace {{rootNamespace}}.Auth;
 
              public static partial class Allow
              {
@@ -535,30 +543,30 @@ public class AccessControlGenerator : IIncrementalGenerator
     static string CsString(string value)
         => SymbolDisplay.FormatLiteral(value, quote: true);
 
-    readonly struct Permission
+    static string? XmlEscape(string? value)
+        => value?.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;");
+
+    readonly record struct Permission
     {
         public string Name { get; }
         public string? Description { get; }
         public string Code { get; }
         public string CodeExpression { get; }
         public string Endpoint { get; }
-        public IEnumerable<string> Categories { get; }
+        public EquatableArray<string> Categories { get; }
         public bool IsCodeKnown { get; }
         public bool IsValid => Name is not null;
 
-        internal Permission(Match m)
+        internal Permission(string endpoint, string permissionName, string[] groupNames, string? description)
         {
-            var permissionName = m.PermissionName!.ToValidIdentifier("_");
-
-            var desc = m.Invocation.ArgumentList.OpenParenToken.TrailingTrivia.SingleOrDefault(t => t.IsKind(SyntaxKind.SingleLineCommentTrivia))
-                        .ToString();
+            permissionName = permissionName.ToValidIdentifier("_");
 
             Name = permissionName.ToValidCSharpIdentifier("_");
             Code = GetAclHash(permissionName);
             CodeExpression = CsString(Code);
-            Endpoint = m.Endpoint!.ToDisplayString();
-            Description = desc.Length == 0 ? null : desc.Substring(2).Trim();
-            Categories = m.GroupNames.Select(static c => c.ToValidIdentifier("_").ToValidCSharpIdentifier("_")).ToArray();
+            Endpoint = endpoint;
+            Description = description;
+            Categories = new([.. groupNames.Select(static c => c.ToValidIdentifier("_").ToValidCSharpIdentifier("_"))]);
             IsCodeKnown = true;
         }
 
@@ -572,7 +580,7 @@ public class AccessControlGenerator : IIncrementalGenerator
             CodeExpression = codeExpression;
             Endpoint = string.Empty;
             Description = null;
-            Categories = [];
+            Categories = default;
             IsCodeKnown = isCodeKnown;
         }
 
@@ -583,7 +591,7 @@ public class AccessControlGenerator : IIncrementalGenerator
             CodeExpression = CsString(Code);
             Endpoint = string.Empty;
             Description = null;
-            Categories = [];
+            Categories = default;
             IsCodeKnown = true;
         }
 
@@ -606,62 +614,4 @@ public class AccessControlGenerator : IIncrementalGenerator
         }
     }
 
-    readonly struct Match(ISymbol? endpoint, InvocationExpressionSyntax invocation, string? permissionName, string[] groupNames)
-    {
-        public ISymbol? Endpoint { get; } = endpoint;
-        public InvocationExpressionSyntax Invocation { get; } = invocation;
-        public string? PermissionName { get; } = permissionName;
-        public string[] GroupNames { get; } = groupNames;
-    }
-
-    class MatchComparer : IEqualityComparer<Match>
-    {
-        internal static MatchComparer Instance { get; } = new();
-
-        MatchComparer() { }
-
-        public bool Equals(Match x, Match y)
-            => x.Endpoint!.ToDisplayString().Equals(y.Endpoint!.ToDisplayString()) &&
-               x.Invocation.IsEquivalentTo(y.Invocation) &&
-               x.PermissionName == y.PermissionName &&
-               x.GroupNames.SequenceEqual(y.GroupNames);
-
-        public int GetHashCode(Match obj)
-            => obj.Endpoint!.ToDisplayString().GetHashCode();
-    }
-
-    class PermissionComparer : IEqualityComparer<Permission>
-    {
-        internal static PermissionComparer Instance { get; } = new();
-
-        PermissionComparer() { }
-
-        public bool Equals(Permission x, Permission y)
-            => x.Name == y.Name &&
-               x.Code == y.Code &&
-               x.CodeExpression == y.CodeExpression &&
-               x.Endpoint == y.Endpoint &&
-               x.Description == y.Description &&
-               x.IsCodeKnown == y.IsCodeKnown &&
-               x.Categories.SequenceEqual(y.Categories);
-
-        public int GetHashCode(Permission obj)
-        {
-            var hash = 17;
-            Add(obj.Name);
-            Add(obj.Code);
-            Add(obj.CodeExpression);
-            Add(obj.Endpoint);
-            Add(obj.Description);
-            hash = unchecked(hash * 31 + obj.IsCodeKnown.GetHashCode());
-
-            foreach (var category in obj.Categories)
-                Add(category);
-
-            return hash;
-
-            void Add(string? value)
-                => hash = unchecked(hash * 31 + (value is null ? 0 : StringComparer.Ordinal.GetHashCode(value)));
-        }
-    }
 }

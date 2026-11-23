@@ -243,6 +243,45 @@ public class XmlDocSchemaTransformerTests
         public List<string> Required { get; set; } = [];
     }
 
+    [Fact]
+    public async Task nullable_enum_properties_keep_type_summaries()
+    {
+        var builder = WebApplication.CreateBuilder();
+        builder.WebHost.UseTestServer();
+        builder.Services.OpenApiDocument(o =>
+        {
+            o.DocumentName = "v1";
+            o.ShortSchemaNames = true;
+        });
+
+        await using var app = builder.Build();
+        app.MapGet("/shift", () => new ShiftResponse());
+        app.MapOpenApi();
+        await app.StartAsync();
+        using var client = app.GetTestClient();
+
+        for (var i = 0; i < 2; i++)
+        {
+            var document = JsonNode.Parse(await client.GetStringAsync("/openapi/v1.json"))!;
+            var schemas = document["components"]!["schemas"]!;
+
+            (schemas[SchemaNameGenerator.GetReferenceId(typeof(Status), true)!]!["description"]?.GetValue<string>()).ShouldBe("A contact status.");
+            (schemas[SchemaNameGenerator.GetReferenceId(typeof(Priority), true)!]!["description"]?.GetValue<string>()).ShouldBe("A shift priority.");
+        }
+    }
+
+    /// <summary>A shift priority.</summary>
+    public enum Priority { Low, High }
+
+    public sealed class ShiftResponse
+    {
+        public Status? Previous { get; set; }
+
+        public Status Current { get; set; }
+
+        public Priority? Priority { get; set; }
+    }
+
     [Theory]
     [InlineData("text", "Choices:\n- one\n  - nested")]
     [InlineData("nestedList", "- parent\n  - child")]

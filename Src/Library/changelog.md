@@ -83,6 +83,12 @@ See the [configuration settings documentation](https://fast-endpoints.com/docs/c
 
 ## Fixes 🪲
 
+<details><summary>Enum schemas lost their XML summary when a nullable property referred to them first</summary>
+
+If the first property referring to an enum was nullable (`MyEnum?`), the enum's schema in the OpenAPI document had no description, even when other properties used the plain enum. Enums now get their XML summary as the description however they're referenced.
+
+</details>
+
 <details><summary>Serializer context generator missed some DTO types</summary>
 
 With `GenerateSerializerContexts` enabled, the generator now also registers:

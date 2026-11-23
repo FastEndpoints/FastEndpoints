@@ -39,7 +39,7 @@ Applies to `Src/OpenApi/`, the modern Microsoft.AspNetCore.OpenApi + Scalar path
 - `DocumentPolymorphicOneOf.BindOneOf` currently emits one branch per mapping key, including duplicate targets for aliases. `PolymorphicValidationTests` deliberately preserves that behavior.
 
 ## Descriptions and examples
-- Run `XmlDocSchemaTransformer` after `EnumSchemaTransformer`. For properties with `x-schema-id`, put XML summaries/examples in `Metadata["x-ref-description"]` / `Metadata["x-ref-example"]`; ASP.NET emits these beside `$ref`. Component descriptions belong to type summaries.
+- Run `XmlDocSchemaTransformer` after `EnumSchemaTransformer`. For properties with `x-schema-id`, put XML summaries/examples in `Metadata["x-ref-description"]` / `Metadata["x-ref-example"]`; ASP.NET emits these beside `$ref`. Component descriptions belong to type summaries; a nullable value-type property passes `Nullable<T>` as `JsonTypeInfo.Type`, so look up `T`.
 - Materialize reference-local XML annotations on nested inline schemas too (`DocumentSchemaHelpers.AddMissingSchemas`); traversal stops at component refs.
 - Nullable collection normalization replaces `oneOf: [null, $ref]` with a `["null", "array"]` component clone. Preserve the reference option's description and full example list.
 - `EnumSchemaTransformer` honors `JsonPropertyInfo.CustomConverter` using copied options and the declared property type (nullable converters are STJ wrappers). Remove `x-schema-id` and `x-is-nullable-property` for converter-backed enums to keep them inline; plain enums retain components. Nullable inline values include JSON null. Cloning/example matching must tolerate null entries; replace non-matching request examples with the first defined value.

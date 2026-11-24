@@ -93,7 +93,7 @@ sealed class OperationParameterFactory(DocumentOptions docOpts, SharedContext sh
         if (location != ParameterLocation.Query)
             return false;
 
-        type = Nullable.GetUnderlyingType(type) ?? type;
+        type = type.GetUnderlyingType();
 
         return (type.IsComplexType() && !type.IsCollection()) ||
                OperationSchemaHelpers.TryGetDictionaryValueType(type) is not null;

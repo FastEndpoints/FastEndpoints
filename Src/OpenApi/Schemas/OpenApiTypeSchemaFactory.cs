@@ -25,7 +25,7 @@ static partial class OperationSchemaHelpers
 
     static IOpenApiSchema GetSchemaForTypeCore(Type type, SchemaNameRegistry schemaNames, bool shortSchemaNames)
     {
-        var actualType = Nullable.GetUnderlyingType(type) ?? type;
+        var actualType = type.GetUnderlyingType();
 
         if (actualType == typeof(byte[]))
             return ByteArraySchema();
@@ -73,7 +73,7 @@ static partial class OperationSchemaHelpers
 
     static void RegisterMissingSchemaTypes(Type type, IOpenApiSchema schema, OpenApiGenerationState generation)
     {
-        type = Nullable.GetUnderlyingType(type) ?? type;
+        type = type.GetUnderlyingType();
 
         if (schema is OpenApiSchemaReference schemaRef)
         {

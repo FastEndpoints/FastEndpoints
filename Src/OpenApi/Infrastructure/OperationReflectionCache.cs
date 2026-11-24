@@ -40,7 +40,7 @@ static class OperationReflectionCache
 
     internal static TypeMetadata GetTypeMetadata(Type type)
     {
-        type = Nullable.GetUnderlyingType(type) ?? type;
+        type = type.GetUnderlyingType();
 
         return _typeMetadataCache.GetOrAdd(type, CreateTypeMetadata);
     }

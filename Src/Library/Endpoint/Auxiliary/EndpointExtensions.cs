@@ -22,7 +22,7 @@ static partial class EndpointExtensions
            ep.PreBuiltUserPolicies is not null;
 
     internal static string ActualTypeName(this Type type)
-        => (Nullable.GetUnderlyingType(type) ?? type).Name;
+        => type.GetUnderlyingType().Name;
 
     internal static void Initialize(this EndpointDefinition def, BaseEndpoint instance, HttpContext? ctx)
     {

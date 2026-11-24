@@ -16,7 +16,7 @@ static partial class OperationSchemaHelpers
         [UnconditionalSuppressMessage("aot", "IL3050")]
         internal object? GetSampleValue(string? propertyName = null)
         {
-            var underlying = Nullable.GetUnderlyingType(type) ?? type;
+            var underlying = type.GetUnderlyingType();
 
             return underlying switch
             {
@@ -42,7 +42,7 @@ static partial class OperationSchemaHelpers
                                                   bool usePropertyNamingPolicy = true,
                                                   HashSet<Type>? visited = null)
         {
-            var underlying = Nullable.GetUnderlyingType(type) ?? type;
+            var underlying = type.GetUnderlyingType();
 
             if (underlying != typeof(string))
             {
@@ -117,7 +117,7 @@ static partial class OperationSchemaHelpers
     [UnconditionalSuppressMessage("aot", "IL2070")]
     static PropertyInfo[] GetSampleJsonProperties(Type type)
     {
-        type = Nullable.GetUnderlyingType(type) ?? type;
+        type = type.GetUnderlyingType();
 
         return _sampleJsonPropertyCache.GetOrAdd(
             type,

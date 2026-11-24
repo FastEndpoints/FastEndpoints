@@ -13,7 +13,7 @@ sealed class XmlDocSchemaTransformer : IOpenApiSchemaTransformer
 
         if (isReference || context.JsonPropertyInfo is null)
         {
-            var typeSummary = XmlDocLookup.GetTypeSummary(context.JsonTypeInfo.Type);
+            var typeSummary = XmlDocLookup.GetTypeSummary(context.JsonTypeInfo.Type.GetUnderlyingType());
 
             if (typeSummary is not null && string.IsNullOrWhiteSpace(schema.Description))
                 schema.Description = typeSummary;

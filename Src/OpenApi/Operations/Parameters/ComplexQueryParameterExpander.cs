@@ -8,7 +8,7 @@ sealed class ComplexQueryParameterExpander(OperationParameterFactory parameterFa
 {
     internal bool TryAdd(OpenApiOperation operation, PropertyInfo property, bool shortSchemaNames, OpenApiGenerationState generation)
     {
-        var propertyType = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
+        var propertyType = property.PropertyType.GetUnderlyingType();
 
         if (!GetPropertyMetadata(property).IsFromQuery ||
             !propertyType.IsComplexType() ||
@@ -28,7 +28,7 @@ sealed class ComplexQueryParameterExpander(OperationParameterFactory parameterFa
              OpenApiGenerationState generation,
              HashSet<Type> visited)
     {
-        type = Nullable.GetUnderlyingType(type) ?? type;
+        type = type.GetUnderlyingType();
 
         if (!visited.Add(type))
             return;
@@ -40,7 +40,7 @@ sealed class ComplexQueryParameterExpander(OperationParameterFactory parameterFa
 
             var propName = parameterNameResolver.GetQueryName(prop);
             var key = string.IsNullOrEmpty(prefix) ? propName : $"{prefix}.{propName}";
-            var propType = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
+            var propType = prop.PropertyType.GetUnderlyingType();
 
             if (propType.IsComplexType() &&
                 !propType.IsCollection() &&

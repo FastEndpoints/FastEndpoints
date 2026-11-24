@@ -83,6 +83,12 @@ See the [configuration settings documentation](https://fast-endpoints.com/docs/c
 
 ## Fixes 🪲
 
+<details><summary>Enum schemas lost their XML summary when a nullable property referred to them first</summary>
+
+If the first property referring to an enum was nullable (`MyEnum?`), the enum's schema in the OpenAPI document had no description, even when other properties used the plain enum. Enums now get their XML summary as the description however they're referenced.
+
+</details>
+
 <details><summary>Source generator edge cases that broke builds or skipped code</summary>
 
 The source generators now handle a number of situations that used to produce code that didn't compile, crashed a generator, or silently left something out:

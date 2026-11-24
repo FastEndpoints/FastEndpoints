@@ -19,6 +19,7 @@ tags: [conventions]
 - Prefer existing partial-class splits for large types (`Endpoint.*.cs`).
 - XML docs generated for packages (`GenerateDocumentationFile`); suppress noise via project `NoWarn`.
 - `CS8618` suppressed for `*Request.cs`, `*Response.cs`, `*Model*.cs`, `*Endpoint.cs` patterns.
+- Unwrap `Nullable<T>` with `type.GetUnderlyingType()` (`Src/Library/Extensions/ReflectionExtensions.cs`) instead of `Nullable.GetUnderlyingType(type) ?? type` where `FastEndpoints` internals are available, except in independently versioned `Src/Agents/` addons ([agents.md](agents.md)).
 
 ## Errors and validation
 - Request validation: FluentValidation via `Validator<TRequest>`; error response shape is owned by `Config.Errors` (including ProblemDetails helpers).

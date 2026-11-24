@@ -11,8 +11,8 @@ tags: [test]
 | Piece | Detail |
 | --- | --- |
 | Framework | **xunit.v3** (MTP v2, no VSTest adapter), Shouldly, FakeItEasy |
-| Test TFMs | **net10.0;net11.0** (`Tests/Directory.Build.props`); AspVersioning unit tests are net10-only. Web, OData, OpenApi.Kiota and NativeAotChecker harnesses match |
-| Unit | `Tests/UnitTests/FastEndpoints`, `…/FastEndpoints.Testing`, `…/FastEndpoints.AspVersioning` (legacy `Unit.Swagger` / `Int.Swagger` are commented out in slnx; see [Harness documentation stack](#harness-documentation-stack)) |
+| Test TFMs | **net10.0;net11.0** (`Tests/Directory.Build.props`); AspVersioning unit tests are net10-only. Web, OData, OpenApi.Kiota, NativeAotChecker and MessagingAotChecker harnesses match |
+| Unit | `Tests/UnitTests/FastEndpoints` (references `Generator` + `Web` for generator/harness tests), `…/FastEndpoints.Testing`, `…/FastEndpoints.AspVersioning` (legacy `Unit.Swagger` / `Int.Swagger` are commented out in slnx; see [Harness documentation stack](#harness-documentation-stack)) |
 | Integration | `Tests/IntegrationTests/FastEndpoints` (main), OpenApi, OpenApi.Kiota, OData, Agents |
 | AOT | `Tests/NativeAotTests/NativeAotCheckerTests` + `NativeAot.slnx` |
 | Helpers package | `Src/Testing` → `FastEndpoints.Testing` (`AppFixture`, fixtures, Bogus) |
@@ -92,8 +92,8 @@ Native process reuse is keyed by `TProgram`, not fixture type. For different lau
 `TestHarness/Web/Program.cs` currently selects modern OpenAPI (`AddOpenApiDocuments` + `MapOpenApi` + `MapScalarApiReference`). To test legacy NSwag:
 
 1. Uncomment the `FastEndpoints.Swagger` project reference in `TestHarness/Web/Web.csproj`. Keep the modern OpenApi reference because shared harness code still uses it.
-2. Uncomment `AddSwaggerDocuments` in `TestHarness/Web/DocumentRegistration.cs` and add `using FastEndpoints.Swagger;` there.
-3. In `Program.cs`, select `AddSwaggerDocuments` instead of `AddOpenApiDocuments`, replace `MapOpenApi` and the entire `MapScalarApiReference` call with `UseSwaggerGen` inside the existing non-production guard, and replace the Scalar using with `using FastEndpoints.Swagger;`.
+2. Uncomment `AddSwaggerDocuments` in `TestHarness/Web/DocumentRegistration.cs` (its Swagger/NSwag types are already fully qualified; no extra `using` is needed).
+3. In `Program.cs`, comment out the active OpenAPI/Scalar lines (`using Scalar.AspNetCore;`, `AddOpenApiDocuments()`, `MapOpenApi()`, and `MapScalarApiReference(...)`) and uncomment the dormant NSwag lines already in place (`//using FastEndpoints.Swagger;`, `//bld.Services.AddSwaggerDocuments();`, `//app.UseSwaggerGen();`).
 4. Uncomment the entire `/Legacy/Tests/` folder block in `FastEndpoints.slnx`, including both `Tests/IntegrationTests/FastEndpoints.Swagger/Int.Swagger.csproj` and `Tests/UnitTests/FastEndpoints.Swagger/Unit.Swagger.csproj`, so solution test runs include both suites.
 
 When switching back to modern OpenAPI, reverse these changes and restore the original commented-out NSwag code, project reference, and entire solution folder block (including both test projects) exactly as they were. Do not delete the dormant NSwag setup or leave it uncommented. Preserve unrelated changes.
@@ -136,11 +136,6 @@ All suites below live in `Tests/IntegrationTests/FastEndpoints.OpenApi/` (`Int.O
 - **Do not use when** proving `RegisterTestCommandHandler` / `RegisterTestEventHandler` substitution; asserting handler completion or mutations; asserting job *successful* completion (receiver sees `ExecuteAsync` start, including throws/retries); asserting event-hub *subscriber* delivery (hub receiver is publisher-side); client-stream and duplex-stream RPC (no hook); NativeAot published process (no test DI).
 - Match on a unique value (`Guid.NewGuid()`). Receivers are fixture singletons and never clear; `_ => true` can match earlier tests. Capture means publish/execute start, not completion.
 - Examples: `Tests/IntegrationTests/FastEndpoints/MessagingTests/{CommandBusTests,EventBusTests}.cs`.
-
-## Expectations
-- New public behavior: unit tests when pure logic; integration tests against `TestHarness/Web` (or domain harness) when pipeline/HTTP involved.
-- Prefer endpoint-typed client extensions over magic strings.
-- Generator behavior: unit tests reference Generator project and harness where needed (`Unit.FastEndpoints` references Generator + Web).
 
 ## Sources
 - `Tests/Directory.Build.props`

@@ -40,7 +40,7 @@ Package locations and version lines: [code-map.md](code-map.md).
 
 ## Dependency rules
 - Preserve the dependency direction above; do not introduce reverse dependencies such as Core → Library.
-- Agents share linked `Src/Agents/Shared/*.cs`, not a separate NuGet. Library friend internals are a binary contract across independently versioned addons: [agents.md](agents.md).
+- Library friend internals for independently versioned Agents addons are a binary contract: [agents.md](agents.md).
 - OpenAPI validation has separate discovery, orchestration, application, child-scope and mutation owners: [openapi.md](openapi.md#generation-and-ownership).
 
 ## Communication
@@ -56,7 +56,6 @@ Package locations and version lines: [code-map.md](code-map.md).
 - Auth is ASP.NET Core middleware + optional `FastEndpoints.Security` (`Src/Security`): JWT bearer, cookies, refresh, revocation.
 - Endpoint `Configure()`: `AllowAnonymous()`, roles/permissions/policies; `AccessControl(...)` can emit constants via Generator. Global options: `Config.Security`.
 - Feature flags: implement `IFeatureFlag`, call `FeatureFlag<T>()` to disable an endpoint at runtime.
-- Sample JWT keys are test-only.
 - Remote messaging is trusted-network RPC unless the consumer adds auth.
 
 ## Invariants

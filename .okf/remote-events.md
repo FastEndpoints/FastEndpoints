@@ -17,7 +17,7 @@ Remote commands and wire-format selection: [messaging.md](messaging.md#remote-rp
 - Subscriber identity remains stable after opt-in: default ids retain the `EventSubscriber<...>` hash; explicit ids are unchanged.
 - The ACK dispatcher holds exclusive subscriber ownership for the call. A second connection with the same id receives `FailedPrecondition`. Acquisition, timeout validation, and awaited cancellation cleanup precede release in `finally`.
 - `DeliveryAckTimeout` defaults to 30 seconds. Write and ACK-read phases have separate budgets, each capped afresh by remaining replay lifetime. Timeout closes the call with `DeadlineExceeded`, leaves the durable row pending, and releases ownership after cancellation cleanup. Unacknowledged rows still expire.
-- Empty ACK tracking ids are completed/skipped. Ordinary stream failures retain reconnect/requeue behavior.
+- Hub records with empty ACK tracking ids are completed/skipped; subscribers drop the stream without storing or ACKing if they receive one. Ordinary stream failures retain reconnect/requeue behavior.
 
 ## Retention and execution expiry
 - ACK inbox records implement `IEventDeliveryAckStorageRecord` and persist nullable `RetainUntil`, calculated from hub `ReplayUntil` plus `DeliveryAckClockSkewAllowance` (default five minutes, non-negative). Addition saturates at UTC `DateTime.MaxValue` when the allowance exceeds the remaining date range, preserving maximum-expiry deliveries and their deduplication keys.
@@ -42,17 +42,16 @@ No-subscriber waits wake on application stopping and make a final recipient look
 | `EventSubscriberStorage<,>` | Provider setup and hourly purge worker lifetime |
 
 - `GetNextNonEmptyBatch` returns a non-empty batch or null on linked cancellation, including disposed-signal shutdown. Retrieval error counts reset after a successful fetch. Dispatchers keep protocol-specific batch limits.
-- Both dispatchers retry deserialization three times with one-second delays, including null payloads. Terminal recovery and completion follow the accepted poison-event policy. Cancellation leaves durable rows pending.
+- Both dispatchers attempt deserialization up to three times (two retries with one-second delays), including null payloads; terminal handling follows [the accepted poison-event policy](gotchas.md#accepted-policies-and-review-exclusions).
 - Ordinary completion remains storage-mode-sensitive; ACK completion uses the shared durable retry path. In-memory requeue uses `CancellationToken.None` on deserialization cancellation and the linked connection/app token on stream failure.
 - Receive sessions dispose calls before reconnect delay. Ordinary initial creation failures propagate, ordinary replacement creation failures terminate, and ACK creation failures retry.
 - Retention validation runs at ACK adapter construction and allowance is read again at receiver startup. Adapter logger identities and storage caches remain protocol-specific.
 
 ## Test isolation
-Broadcast storage is held on the hub instance, so recreating a host does not reuse its predecessor's provider. `AllHubs` routing, subscriber registries/configuration, and the purge providers (`EventHubStorage<,>.Provider`, plus `EventSubscriberStorage<,>.Provider`, whose static constructor starts one hourly purge loop per closed type) remain static. General same-event multi-host isolation is not supported; use distinct closed event/storage types for independent hubs, adapters, and theory variants. Deadline tests use real Kestrel HTTP/2 where transport backpressure matters; helper tests use internal retry-delay overrides. Production retrieval and deserialization retries retain five-second and one-second delays respectively.
+Broadcast storage is held on the hub instance, so recreating a host does not reuse its predecessor's provider. `AllHubs` routing, subscriber registries/configuration, and the purge providers (`EventHubStorage<,>.Provider` and `EventSubscriberStorage<,>.Provider`, whose static constructors each start one hourly purge loop per closed type) remain static. General same-event multi-host isolation is not supported; use distinct closed event/storage types for independent hubs, adapters, and theory variants. Production retrieval and deserialization retries retain five-second and one-second delays respectively. Harness/helper details: [testing.md](testing.md#domain-regression-map).
 
 ## Sources
 - `Src/Messaging/Messaging.Remote/Server/Events/`
 - `Src/Messaging/Messaging.Remote.Core/Client/Events/`
 - `Src/Messaging/Messaging.Remote.Core/Common/EventDelivery.cs`
-- `Tests/UnitTests/FastEndpoints/EventQueueTests.DeliveryAck.cs`
-- `Tests/UnitTests/FastEndpoints/EventQueueTests.Deserialization.cs`
+- `Tests/UnitTests/FastEndpoints/EventQueueTests.*.cs`

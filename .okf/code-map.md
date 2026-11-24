@@ -53,6 +53,8 @@ One root `.okf/` covers the whole repo (no per-package OKF). NuGet IDs normally 
 | `Endpoint/` | Endpoint base, setup, send, validation, processors, mappers |
 | `Binder/` | Request binding |
 | `Config/` | Global `Config` options |
+| `DTOs/` | Shared request/response DTOs (errors, SSE `StreamItem`, `EmptyRequest`/`EmptyResponse`) |
+| `Extensions/` | Internal/public reflection, binding, and HTTP extensions |
 | `Validation/` | FluentValidation wrappers |
 | `Messaging/` | Command handlers living in Library surface |
 | `Middleware/` | Antiforgery, HTTP `Idempotency/` (fingerprint) and `FinancialIdempotency/` (reservation) |

@@ -10,7 +10,7 @@ tags: [api, architecture, gotcha]
 Applies to `Src/OpenApi/`, the modern Microsoft.AspNetCore.OpenApi + Scalar path. NSwag-based Swagger/ClientGen remain legacy; do not change their behavior implicitly. Harness stack selection: [testing.md](testing.md#harness-documentation-stack). Runtime/package constraints: [dependencies.md](dependencies.md). Regression suites, host isolation, and snapshot regeneration: [testing.md](testing.md#openapi-regression-map).
 
 ## Generation and ownership
-- Generation is per-request and concurrent. Do not cache or lock `GetOpenApiDocumentAsync`, or restore operation/schema bags to `SharedContext` (even with `AsyncLocal`). State belongs to `OpenApiGenerationState`, keyed by document in a `ConditionalWeakTable`. Shared TestServer execution contexts would let a shared reset clear sibling generations; `ResetPerDocumentState(document)` clears only that document's state. Only the test `Fixture` fetch helpers take its private `_documentGenerationLock`.
+- Generation is per-request and concurrent. Do not cache or lock `GetOpenApiDocumentAsync`, or restore operation/schema bags to `SharedContext` (even with `AsyncLocal`). State belongs to `OpenApiGenerationState`, keyed by document in a `ConditionalWeakTable`. Shared TestServer execution contexts would let a shared reset clear sibling generations; `ResetPerDocumentState(document)` clears only that document's state.
 - Validation owners: `ValidationSchemaTransformer` orchestrates caching and body/parameter processing; `ValidatorRuleTreeReader` discovers rules; `ValidationSchemaApplier` applies them; `ChildValidatorResolver` owns scoped child construction/recursion; `ValidationSchemaMutation` localizes schemas. Do not merge these responsibilities.
 - Rule discovery must reject include cycles while allowing sibling reuse. Preserve `ChildValidatorAdaptor<,>` public methods for trimming. Child resolution must keep the application callback inside its recursion guard and release the guard on failure.
 
@@ -28,7 +28,7 @@ Applies to `Src/OpenApi/`, the modern Microsoft.AspNetCore.OpenApi + Scalar path
 - Skip a collection rule with `Filter` or `AsyncFilter` before applying any component, including child validators. Arbitrary item selection cannot constrain universal `items`. Inspect preserved `ICollectionRule<,>` properties without executing predicates; independent unfiltered rules remain active.
 - Built-in catalog mappings skip conditional components (`RuleContext.HasCondition`, including sync/async rule/component conditions); preserve unconditional `ApplyConditionTo.CurrentValidator` siblings. Skip conditional non-child collection components before item resolution. Keep condition handling in the catalog for custom mappings; preserve scalar/child traversal.
 - Conditions apply to bodies and DTO-bound query/path/header/cookie parameters. Flattened `[FromQuery]` objects do not match nested validator paths.
-- `RequestTransformState.ParametersBySchemaPath` uses canonical serialized DTO names and the validator `PropertyNameResolver`, never wire names or CLR aliases. `GetDictionaryOfRules` recovers CLR paths from expressions before resolving `JsonPropertyName` when the global resolver applied a naming policy. Preserve explicit overridden rule paths.
+- `RequestTransformState.ParametersBySchemaPath` uses canonical serialized DTO names via OpenAPI's internal `PropertyNameResolver` (matching validation rules), never wire names or CLR aliases. `GetDictionaryOfRules` recovers CLR paths from expressions before resolving `JsonPropertyName` when FluentValidation's global resolver applied a naming policy. Preserve explicit overridden rule paths.
 - `ParametersWithFallbackValues` preserves optional headers and supplementary query parameters for optional claims/permissions while constraints apply, even when `RemoveFromSchema` hides the body property. Explicit requiredness and ordinary single-source promotion remain. Cookie binding assigns even missing optional cookies, so presence validation can make a cookie indispensable.
 - Optional `[FromClaim]` / `[HasPermission]` with `RemoveFromSchema` disappear from body schemas and query parameters in both OpenApi and Swagger. Header/cookie parameters stay documented; runtime binding is unchanged.
 
@@ -49,8 +49,8 @@ Applies to `Src/OpenApi/`, the modern Microsoft.AspNetCore.OpenApi + Scalar path
 - Bundled assemblies have empty `Location`: `XmlDocLookup` falls back to `<AssemblyName>.xml` in `AppContext.BaseDirectory`, where publishing places XML docs.
 
 ## Tags, security, and framework compatibility
-- Keep every explicit `ITagsMetadata` name from root/nested groups and endpoints after stripping framework fallback tags. Deduplicate ordinally, preserving case variants. `AutoTagPathSegmentIndex <= 0` / `DontAutoTag()` suppress only route-derived tags. `TagCase` / `TagStripSymbols` affect automatic tags and `AutoTagOverride`, not explicit tags. Legacy Swagger is unchanged.
-- Operation security scopes come only from explicit `DocumentOptions.AddAuth(..., globalScopeNames: ...)`, never `Roles()` / `AuthorizeAttribute.Roles`. Preserve scheme selection and anonymous exclusions. Legacy Swagger is unchanged.
+- Keep every explicit `ITagsMetadata` name from root/nested groups and endpoints after stripping framework fallback tags. Deduplicate ordinally, preserving case variants. `AutoTagPathSegmentIndex <= 0` / `DontAutoTag()` suppress only route-derived tags. `TagCase` / `TagStripSymbols` affect automatic tags and `AutoTagOverride`, not explicit tags.
+- Operation security scopes come only from explicit `DocumentOptions.AddAuth(..., globalScopeNames: ...)`, never `Roles()` / `AuthorizeAttribute.Roles`. Preserve scheme selection and anonymous exclusions.
 - `OpenApiMediaTypeValue` aliases concrete media types on net10 (OpenAPI 2.x) and `IOpenApiMediaType` on net11 (3.x). `GetMutableMediaType(s)` localizes referenced media before schema/example mutation. XML signatures use `NodeType` on net11, not 2.x `Attribute` / `Wrapped`.
 - Document reference collection and graph rewriting must traverse both media `Schema` and, on net11, `ItemSchema`. SSE payloads may be referenced only through `ItemSchema`; ignoring it removes live components during cleanup or leaves stale references after normalization. Preserve the framework's `itemSchema` / `x-oai-itemSchema` representation.
 - On net11, `OpenApiDocument` registers `ResponseTypeCompatibilityProvider` once to preserve last-declared response types, media formats, and distinct default responses.
@@ -59,4 +59,3 @@ Applies to `Src/OpenApi/`, the modern Microsoft.AspNetCore.OpenApi + Scalar path
 ## Sources
 - `Src/OpenApi/`
 - `Tests/IntegrationTests/FastEndpoints.OpenApi/`
-- `Directory.Packages.props`

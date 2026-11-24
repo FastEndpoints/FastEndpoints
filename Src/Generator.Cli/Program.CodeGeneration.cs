@@ -80,7 +80,7 @@ partial class Program
         if (string.IsNullOrWhiteSpace(fullTypeName))
             return "TI_Unknown";
 
-        var simpleName = SimpleName(fullTypeName).Sanitize();
+        var simpleName = SimpleName(fullTypeName).ToValidIdentifier();
 
         var hash = ComputeStableShortHash(fullTypeName);
 
@@ -116,7 +116,7 @@ partial class Program
         sb.l("    /// <summary>");
         sb.l("    /// Adds the generated JSON serializer context to the JSON serializer options.");
         sb.l("    /// </summary>");
-        sb.l($"    public static JsonSerializerOptions AddSerializerContextsFrom{rootNamespace.Sanitize(string.Empty)}(this JsonSerializerOptions options)");
+        sb.l($"    public static JsonSerializerOptions AddSerializerContextsFrom{rootNamespace.ToValidIdentifier(string.Empty)}(this JsonSerializerOptions options)");
         sb.l("    {");
         if (hasContext)
         {

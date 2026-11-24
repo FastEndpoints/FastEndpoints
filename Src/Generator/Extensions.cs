@@ -1,58 +1,130 @@
 using System.Text;
-using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace FastEndpoints.Generator;
 
 static class Extensions
 {
-    // ReSharper disable once InconsistentNaming
-    internal static StringBuilder w(this StringBuilder sb, string? val)
+    extension(StringBuilder sb)
     {
-        sb.Append(val);
+        // ReSharper disable once InconsistentNaming
+        internal StringBuilder w(string? val)
+        {
+            sb.Append(val);
 
-        return sb;
+            return sb;
+        }
+
+        // ReSharper disable once InconsistentNaming
+        internal StringBuilder l(string? val)
+        {
+            sb.AppendLine(val);
+
+            return sb;
+        }
     }
-
-    // ReSharper disable once InconsistentNaming
-    internal static StringBuilder l(this StringBuilder sb, string? val)
-    {
-        sb.AppendLine(val);
-
-        return sb;
-    }
-
-    static readonly Regex _identifierRegex = new("[^a-zA-Z0-9]+", RegexOptions.Compiled);
-    static readonly Regex _namespaceRegex = new("[^a-zA-Z0-9.]+", RegexOptions.Compiled);
 
     extension(string input)
     {
-        internal string ToValidIdentifier(string replacement)
-            => _identifierRegex.Replace(input, replacement);
-
-        internal string ToValidCSharpIdentifier(string replacement)
-        {
-            var identifier = input.ToValidIdentifier(replacement);
-
-            if (identifier.Length == 0 || char.IsDigit(identifier[0]) || SyntaxFacts.GetKeywordKind(identifier) is not SyntaxKind.None)
-                identifier = $"_{identifier}";
-
-            return identifier;
-        }
-
-        internal string ToValidNameSpace(string replacement = "_")
-            => _namespaceRegex.Replace(input, replacement);
+        //prefixes reserved keywords with '@' so that a member name can be emitted verbatim
+        internal string EscapeKeyword()
+            => SyntaxFacts.GetKeywordKind(input) is SyntaxKind.None ? input : $"@{input}";
     }
 
-    internal static ITypeSymbol GetUnderlyingType(this ITypeSymbol symbol)
+    internal static string ToRootNamespace(this Compilation compilation)
+        => compilation.AssemblyName?.ToValidNameSpace() ?? "Assembly";
+
+    internal static IncrementalValueProvider<string> RootNamespaceProvider(this IncrementalGeneratorInitializationContext ctx)
+        => ctx.CompilationProvider.Select(static (c, _) => c.ToRootNamespace());
+
+    internal static string RenderPreservedTypeList(string rootNamespace, string className, IEnumerable<string> typeExpressions)
     {
-        if (symbol is { IsReferenceType: true, NullableAnnotation: NullableAnnotation.Annotated })
-            return symbol.WithNullableAnnotation(NullableAnnotation.NotAnnotated);
+        //names are global:: qualified because user namespaces/types (e.g. {root}.System) can shadow unqualified ones
+        var b = new StringBuilder().w(
+            $$"""
+              #pragma warning disable CS0618
 
-        if (symbol.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T && symbol is INamedTypeSymbol namedTypeSymbol)
-            return namedTypeSymbol.TypeArguments[0];
+              namespace {{rootNamespace}};
 
-        return symbol;
+              public static class {{className}}
+              {
+                  public static readonly global::System.Collections.Generic.List<global::System.Type> All =
+                  [
+              """);
+
+        foreach (var typeExpression in typeExpressions)
+        {
+            b.w(
+                $"""
+
+                         Preserve<{typeExpression}>(),
+                 """);
+        }
+
+        b.w(
+            """
+
+                ];
+                
+                // this method instructs the native aot linker to not strip away metadata on a given type
+                static global::System.Type Preserve<
+                    [global::System.Diagnostics.CodeAnalysis.DynamicallyAccessedMembers(
+                        global::System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicConstructors | 
+                        global::System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.PublicMethods | 
+                        global::System.Diagnostics.CodeAnalysis.DynamicallyAccessedMemberTypes.Interfaces)]T>() => typeof(T);
+            }
+            """);
+
+        return b.ToString();
+    }
+
+    //global:: qualified names can't be shadowed by namespaces or types declared under the generated root namespace
+    internal static string ToFullName(this ITypeSymbol symbol)
+        => symbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+
+    //a type nested in an open generic is itself generic at runtime, and AssemblyScanner drops those (IsGenericType).
+    //emitting Outer<T>.Inner writes an unbound T that does not compile.
+    internal static bool IsNestedInGenericType(this SyntaxNode node)
+    {
+        for (var parent = node.Parent; parent is not null; parent = parent.Parent)
+        {
+            if (parent is TypeDeclarationSyntax { TypeParameterList: not null })
+                return true;
+        }
+
+        return false;
+    }
+
+    const string DontRegisterAttribute = "DontRegisterAttribute";
+
+    extension(ITypeSymbol symbol)
+    {
+        internal bool HasDontRegisterAttribute()
+            => symbol.GetAttributes().Any(static a => a.AttributeClass?.Name == DontRegisterAttribute);
+
+        //walks up the base types to find FastEndpoints.Endpoint<TRequest, TResponse>, which every endpoint base class derives from
+        internal INamedTypeSymbol? GetEndpointBase()
+        {
+            for (var type = symbol.BaseType; type is not null; type = type.BaseType)
+            {
+                if (type is { Name: "Endpoint", Arity: 2, ContainingNamespace: { Name: "FastEndpoints", ContainingNamespace.IsGlobalNamespace: true } })
+                    return type;
+            }
+
+            return null;
+        }
+
+        internal ITypeSymbol GetUnderlyingType()
+        {
+            if (symbol is { IsReferenceType: true, NullableAnnotation: NullableAnnotation.Annotated })
+                return symbol.WithNullableAnnotation(NullableAnnotation.NotAnnotated);
+
+            if (symbol.OriginalDefinition.SpecialType == SpecialType.System_Nullable_T && symbol is INamedTypeSymbol namedTypeSymbol)
+                return namedTypeSymbol.TypeArguments[0];
+
+            return symbol;
+        }
     }
 }

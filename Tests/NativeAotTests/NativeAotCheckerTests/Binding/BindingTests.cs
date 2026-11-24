@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http.Json;
 using Microsoft.AspNetCore.Http;
 using NativeAotChecker.Endpoints.Binding;
 
@@ -221,6 +222,19 @@ public class BindingTests(App app) : TestBase<App>
 
         res2.NonNullableBool.ShouldBeTrue();
         res2.NullableBool.ShouldBe(true);
+    }
+
+    [Fact]
+    public async Task Overridden_And_Json_Ignored_Properties_Bind_Like_Reflection()
+    {
+        using var rsp = await app.Client.GetAsync("reflection-parity/john?note=hello&secret=s3cret", Cancellation);
+
+        rsp.StatusCode.ShouldBe(HttpStatusCode.OK);
+        var res = await rsp.Content.ReadFromJsonAsync<ReflectionParityResponse>(Cancellation);
+        res.ShouldNotBeNull();
+        res.Name.ShouldBe("john");
+        res.Note.ShouldBe("hello");
+        res.Secret.ShouldBeNull();
     }
 
     [Fact]

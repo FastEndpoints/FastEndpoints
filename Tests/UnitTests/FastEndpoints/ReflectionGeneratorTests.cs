@@ -1,4 +1,6 @@
 using System.Collections.Immutable;
+using System.Reflection;
+using System.Text.RegularExpressions;
 using FastEndpoints;
 using FastEndpoints.Generator;
 using Microsoft.CodeAnalysis;
@@ -292,22 +294,13 @@ public class ReflectionGeneratorTests
     [Fact]
     public void messaging_only_consumer_does_not_require_library_reflection_cache()
     {
-        var parseOptions = new CSharpParseOptions(LanguageVersion.Preview);
-        var references = GetReferences().Where(r => r.Display != typeof(ReflectionCache).Assembly.Location);
-        var compilation = CSharpCompilation.Create(
-            "MessagingOnly",
-            [CSharpSyntaxTree.ParseText("public sealed class Message;", parseOptions)],
-            references,
-            new(OutputKind.DynamicallyLinkedLibrary));
-        GeneratorDriver driver = CSharpGeneratorDriver.Create(
-            [new ReflectionGenerator().AsSourceGenerator()],
-            parseOptions: parseOptions);
+        var result = GeneratorTestHarness.Run<ReflectionGenerator>(
+            ["public sealed class Message;"],
+            _references.Where(static r => r.Display != typeof(ReflectionCache).Assembly.Location),
+            assemblyName: "MessagingOnly");
 
-        driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out var output, out var diagnostics);
-
-        driver.GetRunResult().GeneratedTrees.ShouldBeEmpty();
-        diagnostics.ShouldBeEmpty();
-        output.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ShouldBeEmpty();
+        result.GeneratedTreeCount.ShouldBe(0);
+        GeneratorTestHarness.AssertCompiles(result);
     }
 
     [Fact]
@@ -491,7 +484,633 @@ public class ReflectionGeneratorTests
         second.Generated.ShouldNotContain("AddFromFirstApp");
     }
 
+    [Fact]
+    public void overridden_property_is_emitted_once_and_registration_succeeds()
+    {
+        const string source =
+            """
+            using System.Threading;
+            using System.Threading.Tasks;
+            using FastEndpoints;
+
+            namespace MyApp;
+
+            public abstract class BaseRequest
+            {
+                public virtual string Name { get; set; } = "";
+            }
+
+            public class MyRequest : BaseRequest
+            {
+                public override string Name { get; set; } = "";
+            }
+
+            public class MyEndpoint : Endpoint<MyRequest>
+            {
+                public override Task HandleAsync(MyRequest req, CancellationToken ct) => Task.CompletedTask;
+            }
+            """;
+
+        var result = Run(source);
+
+        AssertCompiles(result);
+        Regex.Count(result.Generated, @"GetProperty\(nameof\(t0\.Name\)\)").ShouldBe(1);
+
+        using var stream = new MemoryStream();
+        result.Output.Emit(stream).Success.ShouldBeTrue();
+        var assembly = Assembly.Load(stream.ToArray());
+        var cache = new ReflectionCache();
+        assembly.GetType("TestApp.GeneratedReflection")!.GetMethod("AddFromTestApp")!.Invoke(null, [cache]);
+        cache[assembly.GetType("MyApp.MyRequest")!].Properties!.Count.ShouldBe(1);
+    }
+
+    [Fact]
+    public void attributes_of_overridden_properties_are_inherited()
+    {
+        const string source =
+            """
+            using System.Text.Json.Serialization;
+            using System.Threading;
+            using System.Threading.Tasks;
+            using FastEndpoints;
+
+            namespace MyApp;
+
+            public abstract class BaseRequest
+            {
+                [JsonIgnore]
+                public virtual string Secret { get; set; } = "";
+
+                [DontInject]
+                public virtual string Internal { get; set; } = "";
+            }
+
+            public class MyRequest : BaseRequest
+            {
+                public override string Secret { get; set; } = "";
+                public override string Internal { get; set; } = "";
+                public string Name { get; set; } = "";
+            }
+
+            public class MyEndpoint : Endpoint<MyRequest>
+            {
+                public override Task HandleAsync(MyRequest req, CancellationToken ct) => Task.CompletedTask;
+            }
+            """;
+
+        var result = Run(source);
+
+        AssertCompiles(result);
+        result.Generated.ShouldContain("nameof(t0.Name)");
+        result.Generated.ShouldNotContain("Secret");
+        result.Generated.ShouldNotContain("nameof(t0.Internal)");
+    }
+
+    [Fact]
+    public void single_accessor_property_overrides_match_runtime_and_required_members_still_initialize()
+    {
+        const string source =
+            """
+            using System.Text.Json.Serialization;
+            using System.Threading;
+            using System.Threading.Tasks;
+            using FastEndpoints;
+
+            namespace MyApp;
+
+            public class BaseRequest
+            {
+                public virtual string GetOnlyOverride { get; set; } = "";
+                public virtual string SetOnlyOverride { get; set; } = "";
+                public virtual required string RequiredSetOverride { get; set; }
+                public virtual string InitGetOverride { get; init; } = "";
+                public string HiddenReadOnly { get; set; } = "";
+            }
+
+            public class DerivedRequest : BaseRequest
+            {
+                public override string GetOnlyOverride { get => base.GetOnlyOverride; }
+                public override string SetOnlyOverride { set => base.SetOnlyOverride = value; }
+                public override required string RequiredSetOverride { set => base.RequiredSetOverride = value; }
+                public override string InitGetOverride { get => base.InitGetOverride; }
+                public new string HiddenReadOnly { get; } = "";
+                public required string PrivateGetRequired { private get; set; }
+                [JsonIgnore]
+                public required string JsonIgnoredRequired { get; set; }
+                [DontInject]
+                public required string DontInjectRequired { get; set; }
+                public required string RequiredField;
+                public string Name { get; set; } = "";
+            }
+
+            public class MyEndpoint : Endpoint<DerivedRequest>
+            {
+                public override Task HandleAsync(DerivedRequest req, CancellationToken ct) => Task.CompletedTask;
+            }
+            """;
+
+        var result = Run(source);
+
+        AssertCompiles(result);
+        result.Generated.ShouldContain("RequiredSetOverride = default!");
+        result.Generated.ShouldContain("PrivateGetRequired = default!");
+        result.Generated.ShouldContain("JsonIgnoredRequired = default!");
+        result.Generated.ShouldContain("DontInjectRequired = default!");
+        result.Generated.ShouldContain("RequiredField = default!");
+        result.Generated.ShouldContain("GetProperty(nameof(t0.Name))");
+        result.Generated.ShouldNotContain("GetProperty(nameof(t0.GetOnlyOverride))");
+        result.Generated.ShouldNotContain("GetProperty(nameof(t0.SetOnlyOverride))");
+        result.Generated.ShouldNotContain("GetProperty(nameof(t0.RequiredSetOverride))");
+        result.Generated.ShouldNotContain("GetProperty(nameof(t0.InitGetOverride))");
+        result.Generated.ShouldNotContain("GetProperty(nameof(t0.HiddenReadOnly))");
+        result.Generated.ShouldNotContain("GetProperty(nameof(t0.PrivateGetRequired))");
+        result.Generated.ShouldNotContain("GetProperty(nameof(t0.JsonIgnoredRequired))");
+        result.Generated.ShouldNotContain("GetProperty(nameof(t0.DontInjectRequired))");
+
+        using var stream = new MemoryStream();
+        result.Output.Emit(stream).Success.ShouldBeTrue();
+        var assembly = Assembly.Load(stream.ToArray());
+        var cache = new ReflectionCache();
+        assembly.GetType("TestApp.GeneratedReflection")!.GetMethod("AddFromTestApp")!.Invoke(null, [cache]);
+
+        var reqType = assembly.GetType("MyApp.DerivedRequest")!;
+        var entry = cache[reqType];
+        var props = entry.Properties!;
+        props.Count.ShouldBe(1);
+        props.ContainsKey(reqType.GetProperty("Name")!).ShouldBeTrue();
+
+        var instance = entry.ObjectFactory!();
+        instance.ShouldBeOfType(reqType);
+    }
+
+    [Fact]
+    public void sets_required_members_constructor_omits_default_initializer_overrides()
+    {
+        const string source =
+            """
+            using System.Diagnostics.CodeAnalysis;
+            using System.Threading;
+            using System.Threading.Tasks;
+            using FastEndpoints;
+
+            namespace MyApp;
+
+            public class MyRequest
+            {
+                [SetsRequiredMembers]
+                public MyRequest()
+                {
+                    Name = "from-ctor";
+                }
+
+                public required string Name { get; set; }
+            }
+
+            public class MyEndpoint : Endpoint<MyRequest>
+            {
+                public override Task HandleAsync(MyRequest req, CancellationToken ct) => Task.CompletedTask;
+            }
+            """;
+
+        var result = Run(source);
+
+        AssertCompiles(result);
+        result.Generated.ShouldNotContain("Name = default!");
+
+        using var stream = new MemoryStream();
+        result.Output.Emit(stream).Success.ShouldBeTrue();
+        var assembly = Assembly.Load(stream.ToArray());
+        var cache = new ReflectionCache();
+        assembly.GetType("TestApp.GeneratedReflection")!.GetMethod("AddFromTestApp")!.Invoke(null, [cache]);
+
+        var reqType = assembly.GetType("MyApp.MyRequest")!;
+        var entry = cache[reqType];
+        var instance = entry.ObjectFactory!();
+        reqType.GetProperty("Name")!.GetValue(instance).ShouldBe("from-ctor");
+    }
+
+    [Fact]
+    public void derived_request_still_initializes_required_members_when_only_base_ctor_sets_them()
+    {
+        const string source =
+            """
+            using System.Diagnostics.CodeAnalysis;
+            using System.Threading;
+            using System.Threading.Tasks;
+            using FastEndpoints;
+
+            namespace MyApp;
+
+            public class BaseRequest
+            {
+                [SetsRequiredMembers]
+                public BaseRequest()
+                {
+                    Name = "from-base";
+                }
+
+                public BaseRequest(string extra) { }
+
+                public required string Name { get; set; }
+            }
+
+            public class DerivedRequest : BaseRequest
+            {
+                public DerivedRequest(string extra) : base(extra)
+                {
+                    Extra = extra;
+                }
+
+                public string Extra { get; set; } = "";
+            }
+
+            public class MyEndpoint : Endpoint<DerivedRequest>
+            {
+                public override Task HandleAsync(DerivedRequest req, CancellationToken ct) => Task.CompletedTask;
+            }
+            """;
+
+        var result = Run(source);
+
+        AssertCompiles(result);
+        result.Generated.ShouldContain("Name = default!");
+
+        using var stream = new MemoryStream();
+        result.Output.Emit(stream).Success.ShouldBeTrue();
+        var assembly = Assembly.Load(stream.ToArray());
+        var cache = new ReflectionCache();
+        assembly.GetType("TestApp.GeneratedReflection")!.GetMethod("AddFromTestApp")!.Invoke(null, [cache]);
+
+        var reqType = assembly.GetType("MyApp.DerivedRequest")!;
+        var entry = cache[reqType];
+        var instance = entry.ObjectFactory!();
+        instance.ShouldBeOfType(reqType);
+    }
+
+    [Fact]
+    public void reused_driver_regenerates_when_required_members_change()
+    {
+        static string Source(bool requiredField, bool setsRequiredMembers)
+            => $$"""
+                 using System.Diagnostics.CodeAnalysis;
+                 using System.Threading;
+                 using System.Threading.Tasks;
+                 using FastEndpoints;
+
+                 namespace MyApp;
+
+                 public class MyRequest
+                 {
+                     {{(setsRequiredMembers ? "[SetsRequiredMembers]" : "")}}
+                     public MyRequest()
+                     {
+                         Name = "from-ctor";
+                         Tag = "from-ctor";
+                     }
+
+                     public required string Name { get; set; }
+                     public {{(requiredField ? "required " : "")}}string Tag;
+                 }
+
+                 public class MyEndpoint : Endpoint<MyRequest>
+                 {
+                     public override Task HandleAsync(MyRequest req, CancellationToken ct) => Task.CompletedTask;
+                 }
+                 """;
+
+        var first = Run(Source(requiredField: false, setsRequiredMembers: false));
+        AssertCompiles(first);
+        first.Generated.ShouldContain("Name = default!");
+        first.Generated.ShouldNotContain("Tag = default!");
+
+        var tree1 = first.Input.SyntaxTrees.Single();
+        var comp2 = first.Input.ReplaceSyntaxTree(
+            tree1,
+            CSharpSyntaxTree.ParseText(Source(requiredField: true, setsRequiredMembers: false), (CSharpParseOptions)tree1.Options));
+        var second = Execute(first.Driver, comp2);
+        AssertCompiles(second);
+        second.Generated.ShouldContain("Name = default!");
+        second.Generated.ShouldContain("Tag = default!");
+
+        var tree2 = second.Input.SyntaxTrees.Single();
+        var comp3 = second.Input.ReplaceSyntaxTree(
+            tree2,
+            CSharpSyntaxTree.ParseText(Source(requiredField: true, setsRequiredMembers: true), (CSharpParseOptions)tree2.Options));
+        var third = Execute(second.Driver, comp3);
+        AssertCompiles(third);
+        third.Generated.ShouldNotContain("Name = default!");
+        third.Generated.ShouldNotContain("Tag = default!");
+    }
+
+    [Fact]
+    public void conditional_json_ignore_property_is_bindable()
+    {
+        const string source =
+            """
+            using System.Text.Json.Serialization;
+            using System.Threading;
+            using System.Threading.Tasks;
+            using FastEndpoints;
+
+            namespace MyApp;
+
+            public class MyRequest
+            {
+                [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+                public string? Conditional { get; set; }
+
+                [JsonIgnore(Condition = JsonIgnoreCondition.Always)]
+                public string? Always { get; set; }
+
+                [JsonIgnore]
+                public string? Plain { get; set; }
+
+                public string Name { get; set; } = "";
+            }
+
+            public class MyEndpoint : Endpoint<MyRequest>
+            {
+                public override Task HandleAsync(MyRequest req, CancellationToken ct) => Task.CompletedTask;
+            }
+            """;
+
+        var result = Run(source);
+
+        AssertCompiles(result);
+        result.Generated.ShouldContain("nameof(t0.Conditional)");
+        result.Generated.ShouldNotContain("nameof(t0.Always)");
+        result.Generated.ShouldNotContain("nameof(t0.Plain)");
+    }
+
+    [Fact]
+    public void keyword_property_names_are_escaped()
+    {
+        const string source =
+            """
+            using System.Threading;
+            using System.Threading.Tasks;
+            using FastEndpoints;
+
+            namespace MyApp;
+
+            public class MyRequest
+            {
+                public string @class { get; set; } = "";
+                public required string @event { get; set; }
+            }
+
+            public class MyEndpoint : Endpoint<MyRequest>
+            {
+                public override Task HandleAsync(MyRequest req, CancellationToken ct) => Task.CompletedTask;
+            }
+            """;
+
+        var result = Run(source);
+
+        AssertCompiles(result);
+        result.Generated.ShouldContain("nameof(t0.@class)");
+        result.Generated.ShouldContain("{ @event = default! }");
+    }
+
+    [Fact]
+    public void object_factory_uses_constructor_with_fewest_parameters()
+    {
+        const string source =
+            """
+            using System.Threading;
+            using System.Threading.Tasks;
+            using FastEndpoints;
+
+            namespace MyApp;
+
+            public class Overloaded
+            {
+                public Overloaded(string name) { }
+                public Overloaded(int id) { }
+                public string Name { get; set; } = "";
+            }
+
+            public class Parameterless
+            {
+                public Parameterless() { }
+                public Parameterless(string a, string b) { }
+                public string Name { get; set; } = "";
+            }
+
+            public class NonPublic
+            {
+                internal NonPublic(string name) { }
+                public string Name { get; set; } = "";
+            }
+
+            public class Optional
+            {
+                public Optional(int x = 0, int y = 0) { }
+                public Optional(string name) { }
+                public string Name { get; set; } = "";
+            }
+
+            public class Params
+            {
+                public Params(string? filter = null, params string[] tags) { }
+                public string Name { get; set; } = "";
+            }
+
+            public class MyRequest
+            {
+                public Overloaded A { get; set; } = null!;
+                public Parameterless B { get; set; } = null!;
+                public NonPublic C { get; set; } = null!;
+                public Optional D { get; set; } = null!;
+                public Params E { get; set; } = null!;
+            }
+
+            public class MyEndpoint : Endpoint<MyRequest>
+            {
+                public override Task HandleAsync(MyRequest req, CancellationToken ct) => Task.CompletedTask;
+            }
+            """;
+
+        var result = Run(source);
+
+        AssertCompiles(result);
+        result.Generated.ShouldContain("ObjectFactory = () => new t1(default(string)!)");
+        result.Generated.ShouldContain("ObjectFactory = () => new t2()");
+        result.Generated.ShouldContain("using t3 = global::MyApp.NonPublic;");
+        result.Generated.ShouldNotContain("new t3(");
+        result.Generated.ShouldContain("ObjectFactory = () => new t4(default(string)!)");
+        result.Generated.ShouldContain("ObjectFactory = () => new t5()");
+    }
+
+    [Fact]
+    public void request_dto_is_resolved_from_the_endpoint_base_type()
+    {
+        const string source =
+            """
+            using System.Threading;
+            using System.Threading.Tasks;
+            using FastEndpoints;
+
+            namespace MyApp;
+
+            public class MyRequest
+            {
+                public string Name { get; set; } = "";
+            }
+
+            public class MyResponse
+            {
+                public string Result { get; set; } = "";
+            }
+
+            public abstract class MyBase<TResponse> : Endpoint<MyRequest, TResponse> where TResponse : notnull;
+
+            public class CustomBaseEndpoint : MyBase<MyResponse>
+            {
+                public override Task HandleAsync(MyRequest req, CancellationToken ct) => Task.CompletedTask;
+            }
+
+            public class NoRequestEndpoint : EndpointWithoutRequest<MyResponse>
+            {
+                public override Task HandleAsync(CancellationToken ct) => Task.CompletedTask;
+            }
+            """;
+
+        var result = Run(source);
+
+        AssertCompiles(result);
+        result.Generated.ShouldContain("using t0 = global::MyApp.MyRequest;");
+        result.Generated.ShouldNotContain("MyResponse");
+    }
+
+    [Fact]
+    public void emitted_type_names_are_not_shadowed_by_root_namespace_members()
+    {
+        const string source =
+            """
+            using System.Threading;
+            using System.Threading.Tasks;
+            using FastEndpoints;
+
+            namespace TestApp.System
+            {
+                public class Marker;
+            }
+
+            namespace TestApp
+            {
+                public class ReflectionCache;
+                public class Unsafe;
+                public class CultureInfo;
+            }
+
+            namespace MyApp
+            {
+                public struct Point
+                {
+                    public int X { get; set; }
+                }
+
+                public class MyRequest
+                {
+                    public global::System.Guid Id { get; set; }
+                    public Point Location { get; set; }
+                }
+
+                public class MyEndpoint : Endpoint<MyRequest>
+                {
+                    public override Task HandleAsync(MyRequest req, CancellationToken ct) => Task.CompletedTask;
+                }
+            }
+            """;
+
+        var result = Run(source);
+
+        AssertCompiles(result);
+        result.Generated.ShouldContain("(global::System.Guid)val!");
+    }
+
+    [Fact]
+    public void reused_driver_regenerates_after_nested_dto_property_rename()
+    {
+        static string Source(string propertyName)
+            => $$"""
+                 using System.Threading;
+                 using System.Threading.Tasks;
+                 using FastEndpoints;
+
+                 namespace MyApp;
+
+                 public class Address
+                 {
+                     public string {{propertyName}} { get; set; } = "";
+                 }
+
+                 public class MyRequest
+                 {
+                     public Address Address { get; set; } = new();
+                 }
+
+                 public class MyEndpoint : Endpoint<MyRequest>
+                 {
+                     public override Task HandleAsync(MyRequest req, CancellationToken ct) => Task.CompletedTask;
+                 }
+                 """;
+
+        var first = Run(Source("Street"));
+        AssertCompiles(first);
+
+        //a same-length rename and an unrelated edit must both be reflected by the cached driver
+        var tree = first.Input.SyntaxTrees.Single();
+        var renamed = first.Input.ReplaceSyntaxTree(tree, CSharpSyntaxTree.ParseText(Source("Avenue"), (CSharpParseOptions)tree.Options));
+        var second = Execute(first.Driver, renamed.AddSyntaxTrees(CSharpSyntaxTree.ParseText("namespace MyApp; class Unrelated;", (CSharpParseOptions)tree.Options)));
+
+        AssertCompiles(second);
+        second.Generated.ShouldContain("nameof(t1.Avenue)");
+        second.Generated.ShouldNotContain("Street");
+    }
+
+    [Fact]
+    public void dont_register_attribute_omits_endpoint_from_reflection_data()
+    {
+        const string source =
+            """
+            using System.Threading;
+            using System.Threading.Tasks;
+            using FastEndpoints;
+
+            namespace MyApp;
+
+            public class SkippedRequest
+            {
+                public string Name { get; set; } = "";
+            }
+
+            [DontRegister]
+            public class SkippedEndpoint : Endpoint<SkippedRequest, string>
+            {
+                public override void Configure() { }
+
+                public override Task HandleAsync(SkippedRequest req, CancellationToken ct) => Task.CompletedTask;
+            }
+            """;
+
+        var result = Run(source);
+
+        AssertRegistration(result, "TestApp", "TestApp", empty: true);
+        result.Generated.ShouldNotContain("SkippedRequest");
+    }
+
     // ── helpers ───────────────────────────────────────────────────────────────
+
+    static readonly ImmutableArray<MetadataReference> _references = GeneratorTestHarness.GetReferences(
+        typeof(Endpoint<>).Assembly,
+        typeof(HideFromDocsAttribute).Assembly,
+        typeof(Microsoft.AspNetCore.Http.IResult).Assembly,
+        typeof(Microsoft.AspNetCore.Http.HttpResults.ProblemHttpResult).Assembly);
+
+    static void AssertCompiles(GeneratorTestResult result)
+        => GeneratorTestHarness.AssertCompiles(result);
 
     static string RunGenerator(string source, out ImmutableArray<Diagnostic> generatorDiagnostics)
         => RunGenerator(source, out generatorDiagnostics, out _);
@@ -508,77 +1127,24 @@ public class ReflectionGeneratorTests
         return result.Generated;
     }
 
-    static GeneratorResult Run(string source, string? assemblyName = "TestApp")
-    {
-        var parseOptions = new CSharpParseOptions(LanguageVersion.Preview);
-        var compilation = CSharpCompilation.Create(
-            assemblyName,
-            [CSharpSyntaxTree.ParseText(source, parseOptions)],
-            GetReferences(),
-            new(OutputKind.DynamicallyLinkedLibrary));
+    static GeneratorTestResult Run(string source, string? assemblyName = "TestApp")
+        => GeneratorTestHarness.Run<ReflectionGenerator>([source], _references, assemblyName, hintFileName: "ReflectionData.g.cs");
 
-        GeneratorDriver driver = CSharpGeneratorDriver.Create(
-            [new ReflectionGenerator().AsSourceGenerator()],
-            parseOptions: parseOptions);
+    static GeneratorTestResult Execute(GeneratorDriver driver, Compilation compilation)
+        => GeneratorTestHarness.Step(driver, compilation, "ReflectionData.g.cs");
 
-        return Execute(driver, compilation);
-    }
-
-    static GeneratorResult Execute(GeneratorDriver driver, Compilation compilation)
-    {
-        driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var diagnostics);
-
-        var reflectionTrees = driver.GetRunResult()
-                                    .GeneratedTrees
-                                    .Where(static t => Path.GetFileName(t.FilePath) == "ReflectionData.g.cs")
-                                    .ToArray();
-
-        var generated = reflectionTrees.Length == 1
-                            ? reflectionTrees[0].GetText().ToString()
-                            : string.Empty;
-
-        return new(generated, diagnostics, outputCompilation, compilation, driver, reflectionTrees.Length);
-    }
-
-    static void AssertRegistration(GeneratorResult result, string expectedNamespace, string expectedMethod, bool empty)
+    static void AssertRegistration(GeneratorTestResult result, string expectedNamespace, string expectedMethod, bool empty)
     {
         result.Input.GetDiagnostics()
               .Where(static d => d.Severity == DiagnosticSeverity.Error)
               .ShouldBeEmpty();
-        result.Diagnostics.ShouldBeEmpty();
-        result.ReflectionTreeCount.ShouldBe(1);
-        result.Output.GetDiagnostics()
-              .Where(static d => d.Severity == DiagnosticSeverity.Error)
-              .ShouldBeEmpty();
+        result.GeneratedTreeCount.ShouldBe(1);
+        AssertCompiles(result);
         result.Generated.ShouldContain($"namespace {expectedNamespace};");
-        result.Generated.ShouldContain($"public static ReflectionCache AddFrom{expectedMethod}(this ReflectionCache cache)");
+        result.Generated.ShouldContain($"public static global::FastEndpoints.ReflectionCache AddFrom{expectedMethod}(this global::FastEndpoints.ReflectionCache cache)");
         result.Generated.ShouldContain("return cache;");
 
         if (empty)
             result.Generated.ShouldNotContain("cache.TryAdd");
     }
-
-    static IEnumerable<MetadataReference> GetReferences()
-    {
-        var paths = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-        var trustedPlatformAssemblies = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator);
-
-        foreach (var path in trustedPlatformAssemblies)
-            paths.Add(path);
-
-        paths.Add(typeof(Endpoint<>).Assembly.Location);
-        paths.Add(typeof(HideFromDocsAttribute).Assembly.Location);
-        paths.Add(typeof(Microsoft.AspNetCore.Http.IResult).Assembly.Location);
-        paths.Add(typeof(Microsoft.AspNetCore.Http.HttpResults.ProblemHttpResult).Assembly.Location);
-
-        return paths.Select(static path => MetadataReference.CreateFromFile(path));
-    }
-
-    sealed record GeneratorResult(
-        string Generated,
-        ImmutableArray<Diagnostic> Diagnostics,
-        Compilation Output,
-        Compilation Input,
-        GeneratorDriver Driver,
-        int ReflectionTreeCount);
 }

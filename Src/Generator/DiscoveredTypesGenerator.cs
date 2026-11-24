@@ -9,8 +9,6 @@ namespace FastEndpoints.Generator;
 [Generator(LanguageNames.CSharp)]
 public class DiscoveredTypesGenerator : IIncrementalGenerator
 {
-    const string DontRegisterAttribute = "DontRegisterAttribute";
-
     static readonly string[] _whiteList =
     [
         "FastEndpoints.IEndpoint",
@@ -27,10 +25,6 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
         "FluentValidation.IValidator"
     ];
 
-    // ReSharper disable once InconsistentNaming
-    readonly StringBuilder b = new();
-    string? _rootNamespace;
-
     public void Initialize(IncrementalGeneratorInitializationContext initCtx)
     {
         var syntaxProvider = initCtx.SyntaxProvider
@@ -38,91 +32,39 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
                                     .Where(static t => t is not null)
                                     .Collect();
 
-        initCtx.RegisterSourceOutput(syntaxProvider, Generate!);
+        initCtx.RegisterSourceOutput(syntaxProvider.Combine(initCtx.RootNamespaceProvider()), Generate);
 
         //executed per each keystroke.
+        //a type implements interfaces only if at least one of its declarations has a base list.
         static bool Qualify(SyntaxNode node, CancellationToken _)
-        {
-            if (node is not ClassDeclarationSyntax { TypeParameterList: null })
-                return false;
-
-            //a class nested in an open generic is itself generic at runtime, and AssemblyScanner drops those (IsGenericType).
-            //emitting Outer<T>.Inner writes an unbound T that does not compile in DiscoveredTypes.
-            for (var parent = node.Parent; parent is not null; parent = parent.Parent)
-            {
-                if (parent is TypeDeclarationSyntax { TypeParameterList: not null })
-                    return false;
-            }
-
-            return true;
-        }
+            => node is ClassDeclarationSyntax or RecordDeclarationSyntax &&
+               node is TypeDeclarationSyntax { TypeParameterList: null, BaseList: not null } &&
+               !node.IsNestedInGenericType();
 
         //executed per each keystroke but only for syntax nodes filtered by the Qualify method
-        string? Transform(GeneratorSyntaxContext ctx, CancellationToken _)
-        {
-            //should be re-assigned on every call. do not cache!
-            _rootNamespace = ctx.SemanticModel.Compilation.AssemblyName?.ToValidNameSpace() ?? "Assembly";
+        static string? Transform(GeneratorSyntaxContext ctx, CancellationToken _)
+            => ctx.SemanticModel.GetDeclaredSymbol(ctx.Node) is ITypeSymbol { IsAbstract: false } type &&
+               !type.HasDontRegisterAttribute() &&
+               type.AllInterfaces.Any(static i => IsWhiteListed(i.ToDisplayString()))
+                   ? type.ToFullName()
+                   : null;
 
-            return
-                ctx.SemanticModel.GetDeclaredSymbol(ctx.Node) is not ITypeSymbol type ||
-                type.IsAbstract ||
-                type.GetAttributes().Any(a => a.AttributeClass!.Name == DontRegisterAttribute || type.AllInterfaces.Length == 0)
-                    ? null
-                    : type.AllInterfaces.Any(i => _whiteList.Any(w => i.ToDisplayString().StartsWith(w)))
-                        ? type.ToDisplayString()
-                        : null;
-        }
+        static bool IsWhiteListed(string interfaceName)
+            => _whiteList.Any(w => interfaceName.StartsWith(w, StringComparison.Ordinal));
     }
 
     //only executed if the equality comparer says the data is not what has been cached by roslyn
-    void Generate(SourceProductionContext spc, ImmutableArray<string> typeNames)
+    static void Generate(SourceProductionContext spc, (ImmutableArray<string?> TypeNames, string RootNamespace) input)
     {
-        if (typeNames.Length == 0)
+        if (input.TypeNames.Length == 0)
             return;
 
-        spc.AddSource("DiscoveredTypes.g.cs", SourceText.From(RenderClass(typeNames), Encoding.UTF8));
+        spc.AddSource("DiscoveredTypes.g.cs", SourceText.From(RenderClass(input.TypeNames, input.RootNamespace), Encoding.UTF8));
     }
 
-    string RenderClass(ImmutableArray<string> discoveredTypes)
-    {
-        b.Clear().w(
-            $$"""
-              #pragma warning disable CS0618
-
-              namespace {{_rootNamespace}};
-
-              using System;
-              using System.Collections.Generic;
-              using System.Diagnostics.CodeAnalysis;
-
-              public static class DiscoveredTypes
-              {
-                  public static readonly List<Type> All =
-                  [
-              """);
-
-        foreach (var t in discoveredTypes.Distinct().OrderBy(t => t))
-        {
-            b.w(
-                $"""
-
-                         Preserve<{t}>(),
-                 """);
-        }
-        b.w(
-            """
-
-                ];
-                
-                // this method instructs the native aot linker to not strip away metadata on a given type
-                static Type Preserve<
-                    [DynamicallyAccessedMembers(
-                        DynamicallyAccessedMemberTypes.PublicConstructors | 
-                        DynamicallyAccessedMemberTypes.PublicMethods | 
-                        DynamicallyAccessedMemberTypes.Interfaces)]T>() => typeof(T);
-            }
-            """);
-
-        return b.ToString();
-    }
+    static string RenderClass(ImmutableArray<string?> discoveredTypes, string rootNamespace)
+        => Extensions.RenderPreservedTypeList(
+            rootNamespace,
+            "DiscoveredTypes",
+            discoveredTypes.Distinct().OrderBy(static t => t, StringComparer.Ordinal)!);
 }

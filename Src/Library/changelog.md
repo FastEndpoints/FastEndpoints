@@ -89,6 +89,25 @@ If the first property referring to an enum was nullable (`MyEnum?`), the enum's 
 
 </details>
 
+<details><summary>Source generator edge cases that broke builds or skipped code</summary>
+
+The source generators now handle a number of situations that used to produce code that didn't compile, crashed a generator, or silently left something out:
+
+- Generated code no longer breaks when your project declares a type or namespace that shadows a name it references, such as a class named after your assembly, or a `MyApp.Domain`/`MyApp.System` namespace.
+- `AddFrom*()` no longer throws a "duplicate keys" error at startup for request DTOs with overridden properties. DTOs with keyword property names (`@class`) or several constructors with the same number of parameters now compile.
+- Properties with a conditional `[JsonIgnore(Condition = ...)]` are now bindable in Native AOT apps, just like they are without AOT. Likewise, `[JsonIgnore]`, `[DontInject]` and `[KeyedService]` on a base property now also apply to its overrides.
+- Request DTOs with `required` fields, `[JsonIgnore]`/`[DontInject]` or non-public-getter `required` properties (including set-only overrides), or a `[SetsRequiredMembers]` constructor now compile cleanly with `AddFrom*()` without making ignored properties bindable or overwriting values set by the constructor.
+- Endpoints inheriting from your own generic base class, as well as `EndpointWithoutRequest<TResponse>` endpoints, now get reflection data for the right DTO.
+- `AccessControl()` calls inside `if` blocks or lambdas are no longer skipped. Permission descriptions containing `<`, `>` or `&` no longer produce invalid XML docs.
+- `[RegisterService<T>(...)]` no longer crashes the generator when you write the lifetime as `Scoped` via `using static`. It now also works on record classes and with the fully qualified attribute name.
+- `GenericProcessorTypes` now compiles in projects without implicit usings and in projects with generic endpoint classes. It also covers endpoints without a request DTO, and skips DTOs that don't satisfy an open generic processor's constraints (such as `where TRequest : IHasTenant`). Post-processors are only paired with request/response types your endpoints actually use, which keeps the generated file small in large projects.
+- Handlers, validators and other discovered types declared as `record`s are now included in `DiscoveredTypes`.
+- Assembly names with a segment that starts with a digit or is a C# keyword (like `2FA.Api`) now produce a valid namespace (`_2FA.Api`). This also applies to the serializer context generator.
+- In the IDE, renaming DTO properties or changing an endpoint's request type no longer leaves stale generated code with bogus compile errors.
+- With `GenerateSerializerContexts` enabled, the build now installs the generator CLI version matching your package once (downgrading a newer prerelease installed by older package versions), instead of running a tool install and update for the latest prerelease on every build.
+
+</details>
+
 <details><summary>Serializer context generator missed some DTO types</summary>
 
 With `GenerateSerializerContexts` enabled, the generator now also registers:

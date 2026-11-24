@@ -11,7 +11,7 @@ namespace Generator;
 
 public class AccessControlGeneratorTests
 {
-    static readonly ImmutableArray<MetadataReference> _references = GetReferences().ToImmutableArray();
+    static readonly ImmutableArray<MetadataReference> _references = GeneratorTestHarness.GetReferences(typeof(Endpoint<>).Assembly, typeof(HideFromDocsAttribute).Assembly);
 
     [Fact]
     public void generated_allow_code_compiles_without_implicit_usings()
@@ -172,32 +172,21 @@ public class AccessControlGeneratorTests
     [Fact]
     public void referenced_constant_changes_invalidate_incremental_output()
     {
-        var parseOptions = new CSharpParseOptions(LanguageVersion.Preview);
-        var endpointTree = CSharpSyntaxTree.ParseText(EndpointSource, parseOptions);
-        var initialConstantsTree = CSharpSyntaxTree.ParseText(ConstantsSource("Admin"), parseOptions);
-        var compilation = CSharpCompilation.Create(
-            "TestApp",
-            [endpointTree, initialConstantsTree],
+        var initial = GeneratorTestHarness.Run<AccessControlGenerator>(
+            [EndpointSource, ConstantsSource("Admin")],
             _references,
-            new(OutputKind.DynamicallyLinkedLibrary));
-        GeneratorDriver driver = CSharpGeneratorDriver.Create([new AccessControlGenerator().AsSourceGenerator()], parseOptions: parseOptions);
+            hintFileName: "Allow.g.cs");
 
-        driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out _, out var initialDiagnostics);
-        var initialSource = driver.GetRunResult().GeneratedTrees.Single(t => Path.GetFileName(t.FilePath) == "Allow.g.cs").GetText().ToString();
+        var updatedCompilation = initial.Input.ReplaceSyntaxTree(
+            initial.Input.SyntaxTrees.ElementAt(1),
+            CSharpSyntaxTree.ParseText(ConstantsSource("Manager"), GeneratorTestHarness.DefaultParseOptions));
+        var updated = GeneratorTestHarness.Step(initial.Driver, updatedCompilation, "Allow.g.cs");
 
-        var updatedConstantsTree = CSharpSyntaxTree.ParseText(ConstantsSource("Manager"), parseOptions);
-        var updatedCompilation = compilation.ReplaceSyntaxTree(initialConstantsTree, updatedConstantsTree);
-        driver = driver.RunGeneratorsAndUpdateCompilation(updatedCompilation, out var outputCompilation, out var updatedDiagnostics);
-        var updatedSource = driver.GetRunResult().GeneratedTrees.Single(t => Path.GetFileName(t.FilePath) == "Allow.g.cs").GetText().ToString();
-
-        initialDiagnostics.ShouldBeEmpty();
-        updatedDiagnostics.ShouldBeEmpty();
-        outputCompilation.GetDiagnostics()
-                         .Where(d => d.Severity == DiagnosticSeverity.Error)
-                         .ShouldBeEmpty();
-        initialSource.ShouldContain("public static IEnumerable<string> Admin => _admin");
-        updatedSource.ShouldContain("public static IEnumerable<string> Manager => _manager");
-        updatedSource.ShouldNotContain("public static IEnumerable<string> Admin => _admin");
+        GeneratorTestHarness.AssertCompiles(initial);
+        GeneratorTestHarness.AssertCompiles(updated);
+        initial.Generated.ShouldContain("public static IEnumerable<string> Admin => _admin");
+        updated.Generated.ShouldContain("public static IEnumerable<string> Manager => _manager");
+        updated.Generated.ShouldNotContain("public static IEnumerable<string> Admin => _admin");
 
         static string ConstantsSource(string groupName)
             => $$"""
@@ -208,6 +197,43 @@ public class AccessControlGeneratorTests
                      internal const string Group = "{{groupName}}";
                  }
                  """;
+    }
+
+    [Fact]
+    public void access_control_nested_in_a_block_is_generated()
+    {
+        var runResult = RunGenerator(out var outputCompilation, out var generatorDiagnostics, "if (true) { AccessControl(\"Nested_Perm\"); }");
+        var allowSource = runResult.GeneratedTrees.Single(t => Path.GetFileName(t.FilePath) == "Allow.g.cs").GetText().ToString();
+
+        generatorDiagnostics.ShouldBeEmpty();
+        outputCompilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ShouldBeEmpty();
+        allowSource.ShouldContain($"public const string Nested_Perm = {SymbolDisplay.FormatLiteral(HashEndpoint.Hash("Nested_Perm"), true)};");
+    }
+
+    [Fact]
+    public void description_is_xml_escaped_and_endpoint_cref_resolves()
+    {
+        var runResult = RunGenerator(out var outputCompilation, out _, "AccessControl( //admins <only> & owners\n \"Described_Perm\");");
+        var allowTree = runResult.GeneratedTrees.Single(t => Path.GetFileName(t.FilePath) == "Allow.g.cs");
+
+        allowTree.GetText().ToString().ShouldContain("<summary>admins &lt;only&gt; &amp; owners</summary>");
+        outputCompilation.GetDiagnostics()
+                         .Where(d => d.Location.SourceTree == allowTree && d.Id is "CS1570" or "CS1574" or "CS1584")
+                         .ShouldBeEmpty();
+    }
+
+    [Fact]
+    public void assembly_name_starting_with_a_digit_yields_valid_namespace()
+    {
+        var runResult = RunGenerator(out var outputCompilation, out var generatorDiagnostics, assemblyName: "2FA.event-Api.class");
+
+        generatorDiagnostics.ShouldBeEmpty();
+        outputCompilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ShouldBeEmpty();
+        runResult.GeneratedTrees
+                 .Single(t => Path.GetFileName(t.FilePath) == "Allow.b.g.cs")
+                 .GetText()
+                 .ToString()
+                 .ShouldContain("namespace _2FA.event_Api._class.Auth;");
     }
 
     const string EndpointSource =
@@ -234,7 +260,8 @@ public class AccessControlGeneratorTests
         out Compilation outputCompilation,
         out ImmutableArray<Diagnostic> generatorDiagnostics,
         string accessControlStatement = "AccessControl(\"Users+Create\");",
-        string additionalSource = "")
+        string additionalSource = "",
+        string assemblyName = "TestApp")
     {
         var source =
             $$"""
@@ -258,30 +285,16 @@ public class AccessControlGeneratorTests
             {{additionalSource}}
             """;
 
-        var parseOptions = new CSharpParseOptions(LanguageVersion.Preview);
-        var syntaxTree = CSharpSyntaxTree.ParseText(source, parseOptions);
-
-        var compilation = CSharpCompilation.Create(
-            "TestApp",
-            [syntaxTree],
+        var result = GeneratorTestHarness.Run<AccessControlGenerator>(
+            [source],
             _references,
-            new(OutputKind.DynamicallyLinkedLibrary));
+            assemblyName,
+            new(LanguageVersion.Preview, DocumentationMode.Diagnose));
 
-        GeneratorDriver driver = CSharpGeneratorDriver.Create([new AccessControlGenerator().AsSourceGenerator()], parseOptions: parseOptions);
-        driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out outputCompilation, out generatorDiagnostics);
+        outputCompilation = result.Output;
+        generatorDiagnostics = result.Diagnostics;
 
-        return driver.GetRunResult();
-    }
-
-    static IEnumerable<MetadataReference> GetReferences()
-    {
-        var trustedPlatformAssemblies = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator);
-
-        foreach (var path in trustedPlatformAssemblies)
-            yield return MetadataReference.CreateFromFile(path);
-
-        yield return MetadataReference.CreateFromFile(typeof(Endpoint<>).Assembly.Location);
-        yield return MetadataReference.CreateFromFile(typeof(HideFromDocsAttribute).Assembly.Location);
+        return result.Driver.GetRunResult();
     }
 
     sealed class HashEndpoint : Endpoint<EmptyRequest>

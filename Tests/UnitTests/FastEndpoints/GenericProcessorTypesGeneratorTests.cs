@@ -139,6 +139,85 @@ public class GenericProcessorTypesGeneratorTests
     }
 
     [Fact]
+    public void constraints_referencing_type_parameters_are_closed_with_the_endpoint_dtos()
+    {
+        const string source =
+            """
+            using System.Threading;
+            using System.Threading.Tasks;
+            using FastEndpoints;
+
+            namespace TestApp;
+
+            public interface IKeyed<T>;
+            public interface IResultOf<TRequest>;
+
+            public class KeyedPre<TRequest> : IPreProcessor<TRequest> where TRequest : IKeyed<TRequest>
+            {
+                public Task PreProcessAsync(IPreProcessorContext<TRequest> ctx, CancellationToken ct) => Task.CompletedTask;
+            }
+
+            public class ResultPost<TRequest, TResponse> : IPostProcessor<TRequest, TResponse> where TResponse : IResultOf<TRequest>
+            {
+                public Task PostProcessAsync(IPostProcessorContext<TRequest, TResponse> ctx, CancellationToken ct) => Task.CompletedTask;
+            }
+
+            public class ReqA : IKeyed<ReqA>;
+            public class ResA : IResultOf<ReqA>;
+            public class ReqB : IKeyed<ReqA>;
+            public class ResB : IResultOf<ReqA>;
+
+            public class EndpointA : Endpoint<ReqA, ResA>
+            {
+                public override Task HandleAsync(ReqA req, CancellationToken ct) => Task.CompletedTask;
+            }
+
+            public class EndpointB : Endpoint<ReqB, ResB>
+            {
+                public override Task HandleAsync(ReqB req, CancellationToken ct) => Task.CompletedTask;
+            }
+            """;
+
+        var (generated, outputCompilation, generatorDiagnostics) = Run(source);
+
+        generatorDiagnostics.ShouldBeEmpty();
+        outputCompilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ShouldBeEmpty();
+        generated.ShouldContain("Preserve<global::TestApp.KeyedPre<global::TestApp.ReqA>>()");
+        generated.ShouldContain("Preserve<global::TestApp.ResultPost<global::TestApp.ReqA, global::TestApp.ResA>>()");
+        generated.ShouldNotContain("ReqB");
+    }
+
+    [Fact]
+    public void type_list_is_generated_without_open_generic_processors()
+    {
+        const string source =
+            """
+            using System.Threading;
+            using System.Threading.Tasks;
+            using FastEndpoints;
+
+            namespace TestApp;
+
+            public class MyEndpoint : EndpointWithoutRequest
+            {
+                public override Task HandleAsync(CancellationToken ct) => Task.CompletedTask;
+            }
+
+            public static class Usage
+            {
+                public static global::System.Collections.Generic.List<global::System.Type> Types => GenericProcessorTypes.All;
+            }
+            """;
+
+        var (generated, outputCompilation, generatorDiagnostics) = Run(source);
+
+        generatorDiagnostics.ShouldBeEmpty();
+        outputCompilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ShouldBeEmpty();
+        generated.ShouldContain("public static class GenericProcessorTypes");
+        generated.ShouldNotContain("Preserve<global::");
+    }
+
+    [Fact]
     public void reused_driver_tracks_endpoint_request_type_changes()
     {
         static string Source(string requestType)

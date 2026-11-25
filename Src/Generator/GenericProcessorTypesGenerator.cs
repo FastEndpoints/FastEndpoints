@@ -71,21 +71,6 @@ public class GenericProcessorTypesGenerator : IIncrementalGenerator
         var preProcessors = ProcessorsOf(TypeKind.OpenGenericPreProcessor);
         var postProcessors = ProcessorsOf(TypeKind.OpenGenericPostProcessor);
 
-        if (preProcessors.Length == 0 && postProcessors.Length == 0)
-        {
-            ctx.AddSource(
-                "GenericProcessorTypes.g.cs",
-                SourceText.From(
-                    """
-
-                    // No open generic pre/post processors found
-
-                    """,
-                    Encoding.UTF8));
-
-            return;
-        }
-
         var endpoints = types.Where(static t => t.Kind == TypeKind.Endpoint).ToArray();
 
         //processors are closed at runtime with the request/response types of the endpoint they're attached to
@@ -104,13 +89,14 @@ public class GenericProcessorTypesGenerator : IIncrementalGenerator
         foreach (var processor in preProcessors)
         {
             //a processor attached to an endpoint whose dto violates its constraints would fail at runtime anyway
-            foreach (var reqType in requestTypes.Where(r => r.Satisfies(processor.Constraints[0])))
+            foreach (var reqType in requestTypes.Where(r => r.Satisfies(processor.Constraints[0], r)))
                 typeExpressions.Add($"{processor.Name}<{reqType.Name}>");
         }
 
         foreach (var processor in postProcessors)
         {
-            foreach (var (req, res) in dtoPairs.Where(p => p.Request.Satisfies(processor.Constraints[0]) && p.Response.Satisfies(processor.Constraints[1])))
+            foreach (var (req, res) in dtoPairs.Where(p => p.Request.Satisfies(processor.Constraints[0], p.Request, p.Response) &&
+                                                           p.Response.Satisfies(processor.Constraints[1], p.Request, p.Response)))
                 typeExpressions.Add($"{processor.Name}<{req.Name}, {res.Name}>");
         }
 
@@ -132,7 +118,8 @@ public class GenericProcessorTypesGenerator : IIncrementalGenerator
         Dto? Request = null,
         Dto? Response = null);
 
-    //the constraints of a processor's type parameter. constraint types referring to type parameters can't be checked by name and are ignored.
+    //the constraints of a processor's type parameter. constraint types are name templates in which the processor's own type parameters
+    //are {ordinal} placeholders (braces can't occur in type names), so that constraints like IResult<TRequest> can be closed with dto types.
     sealed record Constraints(bool Class, bool Struct, bool Unmanaged, bool New, EquatableArray<string> Types)
     {
         internal static Constraints From(ITypeParameterSymbol p)
@@ -141,16 +128,12 @@ public class GenericProcessorTypesGenerator : IIncrementalGenerator
                 p.HasValueTypeConstraint,
                 p.HasUnmanagedTypeConstraint,
                 p.HasConstructorConstraint,
-                new(p.ConstraintTypes.Where(static t => !ContainsTypeParameter(t)).Select(static t => t.ToFullName()).ToArray()));
+                new(p.ConstraintTypes.Select(ToTemplate).ToArray()));
 
-        static bool ContainsTypeParameter(ITypeSymbol t)
-            => t switch
-            {
-                ITypeParameterSymbol => true,
-                IArrayTypeSymbol a => ContainsTypeParameter(a.ElementType),
-                INamedTypeSymbol n => n.TypeArguments.Any(ContainsTypeParameter),
-                _ => false
-            };
+        static string ToTemplate(ITypeSymbol t)
+            => string.Concat(
+                t.ToDisplayParts(SymbolDisplayFormat.FullyQualifiedFormat)
+                 .Select(static part => part.Symbol is ITypeParameterSymbol tp ? $"{{{tp.Ordinal}}}" : part.ToString()));
     }
 
     sealed record Dto(string Name, bool IsReferenceType, bool IsValueType, bool IsUnmanagedType, bool HasDefaultCtor, EquatableArray<string> AssignableTo)
@@ -168,12 +151,21 @@ public class GenericProcessorTypesGenerator : IIncrementalGenerator
                 new(BaseTypesOf(t).Concat(t.AllInterfaces).Select(static b => b.ToFullName()).ToArray()));
         }
 
-        internal bool Satisfies(Constraints c)
+        //typeArgs are the dtos the processor is closed with, in type parameter order
+        internal bool Satisfies(Constraints c, params Dto[] typeArgs)
             => (!c.Class || IsReferenceType) &&
                (!c.Struct || IsValueType) &&
                (!c.Unmanaged || IsUnmanagedType) &&
                (!c.New || HasDefaultCtor) &&
-               c.Types.All(AssignableTo.Contains);
+               c.Types.All(t => AssignableTo.Contains(Close(t, typeArgs)));
+
+        static string Close(string template, Dto[] typeArgs)
+        {
+            for (var i = 0; i < typeArgs.Length; i++)
+                template = template.Replace($"{{{i}}}", typeArgs[i].Name);
+
+            return template;
+        }
 
         static bool CanConstructWithNew(ITypeSymbol t)
         {

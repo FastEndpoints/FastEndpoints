@@ -264,7 +264,7 @@ public class ReflectionGenerator : IIncrementalGenerator
 
         public TypeInfo(ref TypeCollector collector, ITypeSymbol symbol, bool isEndpoint, bool noRecursion = false)
         {
-            if (symbol.IsAbstract || symbol.TypeKind == TypeKind.Enum || symbol.TypeKind == TypeKind.Interface)
+            if (symbol.IsAbstract || symbol.TypeKind is TypeKind.Enum or TypeKind.Interface or TypeKind.Dynamic) //dynamic is object at runtime and typeof(dynamic) doesn't compile
                 return;
 
             symbol = symbol.GetUnderlyingType();
@@ -500,7 +500,10 @@ public class ReflectionGenerator : IIncrementalGenerator
 
             //used for the GetProperty() lookup, the setter cast and type aliases, which reject a top-level nullable reference annotation.
             //nested annotations are kept, otherwise casting to List<string> and assigning to a List<string?> property warns.
-            public string PropertyType { get; } = prop.Type.WithNullableAnnotation(NullableAnnotation.NotAnnotated).ToDisplayString(_propertyTypeFormat);
+            //a top-level dynamic is emitted as object (its runtime type), since typeof(dynamic) doesn't compile. nested dynamic compiles via aliases.
+            public string PropertyType { get; } = prop.Type.TypeKind == TypeKind.Dynamic
+                                                      ? "object"
+                                                      : prop.Type.WithNullableAnnotation(NullableAnnotation.NotAnnotated).ToDisplayString(_propertyTypeFormat);
             public bool IsInitOnly { get; } = prop.SetMethod?.IsInitOnly is true;
 
             public string? ServiceKey { get; } = isEndpointClass

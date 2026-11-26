@@ -712,6 +712,63 @@ public class ReflectionGeneratorTests
         }
     }
 
+
+    [Fact]
+    public void dynamic_request_properties_compile_and_round_trip()
+    {
+        const string source =
+            """
+            using System.Collections.Generic;
+            using System.Threading;
+            using System.Threading.Tasks;
+            using FastEndpoints;
+
+            namespace MyApp;
+
+            public class RequestBase
+            {
+                public string Hidden { get; set; } = default!;
+            }
+
+            public class MyRequest : RequestBase
+            {
+                public dynamic Data { get; set; } = default!;
+                public dynamic? NullableData { get; set; }
+                public dynamic[] Arr { get; set; } = default!;
+                public List<dynamic> Items { get; set; } = default!;
+                public new dynamic Hidden { get; set; } = default!;
+            }
+
+            public class MyEndpoint : Endpoint<MyRequest>
+            {
+                public override Task HandleAsync(MyRequest req, CancellationToken ct) => Task.CompletedTask;
+            }
+            """;
+
+        var result = Run(source);
+
+        AssertCompiles(result);
+        result.Generated.ShouldNotContain("typeof(dynamic)");
+        result.Generated.ShouldNotContain(" = dynamic;");
+
+        var (assembly, cache) = LoadAndRegister(result);
+
+        var reqType = assembly.GetType("MyApp.MyRequest")!;
+        var instance = Activator.CreateInstance(reqType)!;
+
+        foreach (var propName in new[] { "Data", "NullableData", "Hidden" })
+        {
+            var def = MostDerivedProperty(cache, reqType, propName);
+            def.Setter!(instance, 42);
+            def.Getter!(instance).ShouldBe(42);
+        }
+
+        var items = new List<object> { "a" };
+        var itemsDef = MostDerivedProperty(cache, reqType, "Items");
+        itemsDef.Setter!(instance, items);
+        itemsDef.Getter!(instance).ShouldBeSameAs(items);
+    }
+
     [Fact]
     public void hidden_endpoint_service_property_with_a_different_type_registers_the_most_derived_declaration()
     {

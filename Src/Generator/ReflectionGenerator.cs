@@ -54,10 +54,7 @@ public class ReflectionGenerator : IIncrementalGenerator
                 !type.AllInterfaces.Any(static i => i.ToDisplayString() == IEndpoint)) //must be an endpoint
                 return default;
 
-            var collected = new HashSet<TypeInfo?>(TypeNameComparer.Instance);
-            TypeInfo.CollectEndpoint(collected, type);
-
-            return new([.. collected.Select(static t => t!.ToModel())]);
+            return new(TypeCollector.CollectEndpoint(type));
         }
     }
 
@@ -250,28 +247,26 @@ public class ReflectionGenerator : IIncrementalGenerator
 
     sealed record PropModel(string Name, string Type, bool IsInitOnly, string? ServiceKey);
 
-    sealed class TypeInfo
+    static class TypeCollector
     {
-        public string? TypeName { get; }
-        string? UnderlyingTypeName { get; }
-        bool IsValueType { get; }
-        List<Prop> Properties { get; } = [];
-        List<string> RequiredMembers { get; } = [];
-        bool SkipObjectFactory { get; }
-        bool? IsParsable { get; }
-        string[] CtorArgumentTypes { get; } = [];
-
         //the request dto graph is collected before the endpoint class
-        internal static void CollectEndpoint(HashSet<TypeInfo?> collected, ITypeSymbol endpoint)
+        internal static TypeModel[] CollectEndpoint(ITypeSymbol endpoint)
         {
+            var output = new List<TypeModel>();
+            var registered = new HashSet<string>(StringComparer.Ordinal);
+
             //EndpointWithoutRequest etc. resolve to the blacklisted EmptyRequest
             if (endpoint.GetEndpointBase()?.TypeArguments[0] is { } requestDto)
-                _ = new TypeInfo(collected, requestDto, CollectMode.RequestDto);
+                Collect(output, registered, requestDto, CollectMode.RequestDto);
 
-            _ = new TypeInfo(collected, endpoint, CollectMode.EndpointProperties);
+            Collect(output, registered, endpoint, CollectMode.EndpointProperties);
+
+            return [.. output];
         }
 
-        TypeInfo(ISet<TypeInfo?> collected, ITypeSymbol type, CollectMode mode)
+        //only registered types short-circuit, so a request dto without props is still registered when it's later reached as a nested type.
+        //a type is registered after its own member walk and before its property types are walked, which decides the output (and alias) order.
+        static void Collect(List<TypeModel> output, HashSet<string> registered, ITypeSymbol type, CollectMode mode)
         {
             //the request dto is walked as declared, so abstract and interface dtos are still registered and a nullable type argument keeps its annotation
             if (mode != CollectMode.RequestDto)
@@ -282,12 +277,12 @@ public class ReflectionGenerator : IIncrementalGenerator
                 type = type.GetUnderlyingType();
             }
 
-            TypeName = type.ToDisplayString(); //must be set before checking the collected types below
-            UnderlyingTypeName = type.ToDisplayString(NullableFlowState.None, SymbolDisplayFormat.FullyQualifiedFormat);
-            IsValueType = type.IsValueType;
+            var typeName = type.ToDisplayString();
 
-            if (TypeBlacklist.Contains(type.ToDisplayString(NullableFlowState.None)) || collected.Contains(this))
+            if (TypeBlacklist.Contains(type.ToDisplayString(NullableFlowState.None)) || registered.Contains(typeName))
                 return;
+
+            bool? isParsable = null;
 
             foreach (var ifcName in type.AllInterfaces.Select(ifc => ifc.ToDisplayString()))
             {
@@ -301,15 +296,18 @@ public class ReflectionGenerator : IIncrementalGenerator
                     };
 
                     if (tElement is not null)
-                        _ = new TypeInfo(collected, tElement, CollectMode.Nested);
+                        Collect(output, registered, tElement, CollectMode.Nested);
 
                     return;
                 }
 
                 if (ifcName.StartsWith(IParsable, StringComparison.Ordinal))
-                    IsParsable = true;
+                    isParsable = true;
             }
 
+            var properties = new List<PropModel>();
+            var propTypes = new List<ITypeSymbol>();
+            var requiredMembers = new List<string>();
             var currentSymbol = type;
             var ctorSearchComplete = false;
             int? ctorParamCount = null;
@@ -333,7 +331,7 @@ public class ReflectionGenerator : IIncrementalGenerator
                                                        args[0] is { Type.SpecialType: SpecialType.System_String } &&
                                                        args[1] is { RefKind: RefKind.Out, Type.Name: var outTypeName } &&
                                                        outTypeName == currentSymbol.Name: // ReSharper enable MergeIntoPattern
-                            IsParsable = false;
+                            isParsable = false;
 
                             break;
 
@@ -353,13 +351,13 @@ public class ReflectionGenerator : IIncrementalGenerator
 
                         case IFieldSymbol { IsStatic: false, IsRequired: true } field:
                             if (requiredNames.Add(field.Name))
-                                RequiredMembers.Add(field.Name);
+                                requiredMembers.Add(field.Name);
 
                             break;
 
                         case IPropertySymbol { IsStatic: false, IsIndexer: false } prop:
                             if (prop.IsRequired && requiredNames.Add(prop.Name))
-                                RequiredMembers.Add(prop.Name);
+                                requiredMembers.Add(prop.Name);
 
                             if (prop.DeclaredAccessibility != Accessibility.Public)
                                 break;
@@ -376,7 +374,13 @@ public class ReflectionGenerator : IIncrementalGenerator
                             if (HasDontInjectAttribute(prop) || HasUnconditionalJsonIgnoreAttribute(prop))
                                 break;
 
-                            Properties.Add(new(prop, mode == CollectMode.EndpointProperties));
+                            properties.Add(
+                                new(
+                                    prop.Name,
+                                    PropertyTypeOf(prop.Type),
+                                    prop.SetMethod?.IsInitOnly is true,
+                                    mode == CollectMode.EndpointProperties ? ServiceKeyOf(prop) : null));
+                            propTypes.Add(prop.Type);
 
                             break;
                     }
@@ -385,42 +389,35 @@ public class ReflectionGenerator : IIncrementalGenerator
                 currentSymbol = currentSymbol.BaseType;
             }
 
-            if (ctorArgTypes is not null)
-                CtorArgumentTypes = ctorArgTypes;
+            var skipObjectFactory = mode == CollectMode.EndpointProperties || //the endpoint class is only walked for property injection support
+                                    properties.Count == 0 ||
+                                    type.IsAbstract || IsPartial(type) || ctorArgTypes is null; //no public constructor to call
 
-            if (mode == CollectMode.EndpointProperties) //the endpoint class is treated as a regular class to generate its props for property injection support
-                SkipObjectFactory = true;
-
-            if (!SkipObjectFactory && Properties.Count == 0)
-                SkipObjectFactory = true;
-
-            if (type.IsAbstract || IsPartial(type) || ctorArgTypes is null) //no public constructor to call
-                SkipObjectFactory = true;
-
-            if (SkipObjectFactory || ctorSetsRequiredMembers)
-                RequiredMembers.Clear();
+            if (skipObjectFactory || ctorSetsRequiredMembers)
+                requiredMembers.Clear();
 
             //the request dto and the endpoint class are only registered when they have props
-            if (Properties.Count > 0 || mode == CollectMode.Nested)
-                collected.Add(this);
+            if (properties.Count > 0 || mode == CollectMode.Nested)
+            {
+                registered.Add(typeName);
+                output.Add(
+                    new(
+                        typeName,
+                        type.ToDisplayString(NullableFlowState.None, SymbolDisplayFormat.FullyQualifiedFormat),
+                        type.IsValueType,
+                        skipObjectFactory,
+                        isParsable,
+                        new(ctorArgTypes ?? []),
+                        new([.. requiredMembers]),
+                        new([.. properties])));
+            }
 
             if (mode == CollectMode.EndpointProperties) //injected services aren't bound, so their types aren't walked
                 return;
 
-            foreach (var p in Properties)
-                _ = new TypeInfo(collected, p.Symbol, CollectMode.Nested);
+            foreach (var propType in propTypes)
+                Collect(output, registered, propType, CollectMode.Nested);
         }
-
-        internal TypeModel ToModel()
-            => new(
-                TypeName!,
-                UnderlyingTypeName!,
-                IsValueType,
-                SkipObjectFactory,
-                IsParsable,
-                new(CtorArgumentTypes),
-                new(RequiredMembers.ToArray()),
-                new(Properties.Select(static p => new PropModel(p.PropName, p.PropertyType, p.IsInitOnly, p.ServiceKey)).ToArray()));
 
         enum CollectMode
         {
@@ -428,6 +425,19 @@ public class ReflectionGenerator : IIncrementalGenerator
             Nested,
             EndpointProperties
         }
+
+        //used for the GetProperty() lookup, the setter cast and type aliases, which reject a top-level nullable reference annotation.
+        //nested annotations are kept, otherwise casting to List<string> and assigning to a List<string?> property warns.
+        //a top-level dynamic is emitted as object (its runtime type), since typeof(dynamic) doesn't compile. nested dynamic compiles via aliases.
+        static string PropertyTypeOf(ITypeSymbol type)
+            => type.TypeKind == TypeKind.Dynamic
+                   ? "object"
+                   : type.WithNullableAnnotation(NullableAnnotation.NotAnnotated).ToDisplayString(_propertyTypeFormat);
+
+        static string? ServiceKeyOf(IPropertySymbol prop)
+            => AttributesOf(prop)
+               .FirstOrDefault(static a => a.AttributeClass?.ToDisplayString() == KeyedServiceAttribute)?.ConstructorArguments
+               .FirstOrDefault().Value as string;
 
         //attributes of overridden properties are inherited at runtime (Attribute.GetCustomAttribute/IsDefined), derived ones first
         static IEnumerable<AttributeData> AttributesOf(IPropertySymbol prop)
@@ -466,46 +476,5 @@ public class ReflectionGenerator : IIncrementalGenerator
 
             return false;
         }
-
-        readonly struct Prop(IPropertySymbol prop, bool isEndpointClass = false)
-        {
-            public ITypeSymbol Symbol { get; } = prop.Type;
-            public string PropName { get; } = prop.Name;
-
-            //used for the GetProperty() lookup, the setter cast and type aliases, which reject a top-level nullable reference annotation.
-            //nested annotations are kept, otherwise casting to List<string> and assigning to a List<string?> property warns.
-            //a top-level dynamic is emitted as object (its runtime type), since typeof(dynamic) doesn't compile. nested dynamic compiles via aliases.
-            public string PropertyType { get; } = prop.Type.TypeKind == TypeKind.Dynamic
-                                                      ? "object"
-                                                      : prop.Type.WithNullableAnnotation(NullableAnnotation.NotAnnotated).ToDisplayString(_propertyTypeFormat);
-
-            public bool IsInitOnly { get; } = prop.SetMethod?.IsInitOnly is true;
-
-            public string? ServiceKey { get; } = isEndpointClass
-                                                     ? AttributesOf(prop)
-                                                       .FirstOrDefault(a => a.AttributeClass?.ToDisplayString() == KeyedServiceAttribute)?.ConstructorArguments
-                                                       .FirstOrDefault().Value as string
-                                                     : null;
-        }
-    }
-
-    sealed class TypeNameComparer : IEqualityComparer<TypeInfo?>
-    {
-        internal static TypeNameComparer Instance { get; } = new();
-
-        TypeNameComparer() { }
-
-        public bool Equals(TypeInfo? x, TypeInfo? y)
-        {
-            if (x is null || y is null)
-                return false;
-
-            return x.TypeName?.Equals(y.TypeName) is true;
-        }
-
-        public int GetHashCode(TypeInfo? obj)
-            => obj is null
-                   ? 0
-                   : obj.TypeName?.GetHashCode() ?? 0;
     }
 }

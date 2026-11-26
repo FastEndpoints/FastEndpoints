@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.Globalization;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using FastEndpoints;
 using FastEndpoints.Generator;
@@ -235,6 +236,78 @@ public class AccessControlGeneratorTests
                  .ToString()
                  .ShouldContain("namespace _2FA.event_Api._class.Auth;");
     }
+
+    [Fact]
+    public void custom_fields_in_any_allow_part_and_spelling_are_included_in_lookups()
+    {
+        const string allowSource =
+            """
+            using System;
+            using FastEndpoints;
+
+            namespace TestApp.Auth;
+
+            public partial class Allow
+            {
+                public const string NoStatic_Part = "000";
+            }
+
+            public static partial class Allow
+            {
+                public const String Pascal_String = "001";
+                public const System.String Qualified_String = "002";
+                public const string Multi_A = "003", Multi_B = "004";
+                public static readonly string Static_Field = "005";
+                public const int Not_A_String = 6;
+
+                [HideFromDocs]
+                public const string Hidden = "007";
+            }
+            """;
+
+        var result = GeneratorTestHarness.Run<AccessControlGenerator>([EndpointSource, PermissionGroupSource, allowSource], _references, hintFileName: "Allow.g.cs");
+
+        GeneratorTestHarness.AssertCompiles(result);
+
+        using var stream = new MemoryStream();
+        result.Output.Emit(stream).Success.ShouldBeTrue();
+        var allow = Assembly.Load(stream.ToArray()).GetType("TestApp.Auth.Allow", throwOnError: true)!;
+        var names = ((IEnumerable<string>)allow.GetMethod("AllNames")!.Invoke(null, null)!).ToArray();
+        var codes = ((IEnumerable<string>)allow.GetMethod("AllCodes")!.Invoke(null, null)!).ToArray();
+
+        names.ShouldBe(
+            ["Inventory_Update_Item", "NoStatic_Part", "Pascal_String", "Qualified_String", "Multi_A", "Multi_B", "Static_Field"],
+            ignoreOrder: true);
+        codes.ShouldContain("000");
+        codes.ShouldContain("004");
+        codes.ShouldContain("005");
+        allow.GetMethod("PermissionCodeFor")!.Invoke(null, ["NoStatic_Part"]).ShouldBe("000");
+    }
+
+    [Fact]
+    public void partial_property_typed_as_string_alias_gets_implementation()
+    {
+        const string allowSource =
+            """
+            using System;
+
+            namespace TestApp.Auth;
+
+            public static partial class Allow
+            {
+                public static partial String Pascal_Partial { get; }
+                public static partial System.String Qualified_Partial { get; }
+            }
+            """;
+
+        var result = GeneratorTestHarness.Run<AccessControlGenerator>([EndpointSource, PermissionGroupSource, allowSource], _references, hintFileName: "Allow.g.cs");
+
+        GeneratorTestHarness.AssertCompiles(result);
+        result.Generated.ShouldContain("public static partial string Pascal_Partial");
+        result.Generated.ShouldContain("public static partial string Qualified_Partial");
+    }
+
+    const string PermissionGroupSource = "namespace TestApp; static class PermissionGroup { internal const string Group = \"Admin\"; }";
 
     const string EndpointSource =
         """

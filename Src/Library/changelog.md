@@ -83,6 +83,14 @@ See the [configuration settings documentation](https://fast-endpoints.com/docs/c
 
 ## Fixes 🪲
 
+<details><summary>Hand-written permissions missing from the generated Allow lookups</summary>
+
+Permissions you add yourself to a partial `Allow` class were silently left out of `AllCodes()`, `AllNames()`, `CodesFor()`, `PermissionCodeFor()` and the other lookup methods when the class part wasn't marked `static`, the field was typed `String` instead of `string`, or one line declared several constants (`public const string A = "1", B = "2";`). They're all included again, as they were before v8.2. Partial permission properties typed `String` also get their generated implementation now instead of failing with CS9248.
+
+If two of your hand-written constants share the same code, the one that used to be skipped is now checked too, so the build may start reporting `FEAC001` for them.
+
+</details>
+
 <details><summary>Enum schemas lost their XML summary when a nullable property referred to them first</summary>
 
 If the first property referring to an enum was nullable (`MyEnum?`), the enum's schema in the OpenAPI document had no description, even when other properties used the plain enum. Enums now get their XML summary as the description however they're referenced.

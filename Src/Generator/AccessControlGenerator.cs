@@ -116,23 +116,20 @@ public class AccessControlGenerator : IIncrementalGenerator
         }
 
         //executed per each keystroke
+        //selects each declarator so that 'const string A = "1", B = "2";' yields both fields.
+        //type and static-ness are checked semantically, since any partial part may omit 'static' and the type may be spelled 'String'.
         static bool QualifyCustom(SyntaxNode node, CancellationToken _)
-            => node is FieldDeclarationSyntax field &&
+            => node is VariableDeclaratorSyntax { Parent.Parent: FieldDeclarationSyntax field } &&
                field.Modifiers.Any(m => m.IsKind(SyntaxKind.PublicKeyword)) &&
                (field.Modifiers.Any(m => m.IsKind(SyntaxKind.ConstKeyword)) || field.Modifiers.Any(m => m.IsKind(SyntaxKind.StaticKeyword))) &&
-               field.Declaration.Type is PredefinedTypeSyntax { Keyword.ValueText: "string" } &&
-               field.Parent is ClassDeclarationSyntax { Identifier.ValueText: "Allow" } cls &&
-               cls.Modifiers.Any(m => m.IsKind(SyntaxKind.StaticKeyword));
+               field.Parent is ClassDeclarationSyntax { Identifier.ValueText: "Allow" };
 
         //executed per each keystroke but only for syntax nodes filtered by the Qualify method
         static Permission TransformCustom(GeneratorSyntaxContext ctx, CancellationToken _)
         {
-            var field = (FieldDeclarationSyntax)ctx.Node;
-            var variable = field.Declaration.Variables.FirstOrDefault();
+            var variable = (VariableDeclaratorSyntax)ctx.Node;
 
-            if (variable is null)
-                return default;
-            if (ctx.SemanticModel.GetDeclaredSymbol(variable) is not IFieldSymbol symbol)
+            if (ctx.SemanticModel.GetDeclaredSymbol(variable) is not IFieldSymbol { Type.SpecialType: SpecialType.System_String } symbol)
                 return default;
             if (!IsGeneratedAllowType(symbol.ContainingType, ctx.SemanticModel.Compilation))
                 return default;
@@ -151,7 +148,7 @@ public class AccessControlGenerator : IIncrementalGenerator
                prop.Modifiers.Any(m => m.IsKind(SyntaxKind.PublicKeyword)) &&
                prop.Modifiers.Any(m => m.IsKind(SyntaxKind.StaticKeyword)) &&
                prop.Modifiers.Any(m => m.ValueText == "partial") &&
-               prop is { Type: PredefinedTypeSyntax { Keyword.ValueText: "string" }, AccessorList.Accessors.Count: 1 } &&
+               prop is { AccessorList.Accessors.Count: 1 } &&
                prop.AccessorList.Accessors[0].IsKind(SyntaxKind.GetAccessorDeclaration) &&
                prop.AccessorList.Accessors[0].Body is null &&
                prop.AccessorList.Accessors[0].ExpressionBody is null &&
@@ -163,7 +160,7 @@ public class AccessControlGenerator : IIncrementalGenerator
         {
             var prop = (PropertyDeclarationSyntax)ctx.Node;
 
-            if (ctx.SemanticModel.GetDeclaredSymbol(prop) is { } symbol &&
+            if (ctx.SemanticModel.GetDeclaredSymbol(prop) is { Type.SpecialType: SpecialType.System_String } symbol &&
                 IsGeneratedAllowType(symbol.ContainingType, ctx.SemanticModel.Compilation) &&
                 !IsHiddenFromDocs(symbol, ctx.SemanticModel.Compilation))
                 return new(prop.Identifier.ValueText);

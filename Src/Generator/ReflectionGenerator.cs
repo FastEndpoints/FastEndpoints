@@ -46,7 +46,7 @@ public class ReflectionGenerator : IIncrementalGenerator
             => node is ClassDeclarationSyntax { TypeParameterList: null, BaseList: not null } && !node.IsNestedInGenericType();
 
         //executed per each keystroke but only for syntax nodes filtered by the Qualify method.
-        //each endpoint gets its own collector so that the cached result only depends on the endpoint and the types it references.
+        //each endpoint gets its own set of collected types so that the cached result only depends on the endpoint and the types it references.
         static EquatableArray<TypeModel> Transform(GeneratorSyntaxContext ctx, CancellationToken ct)
         {
             if (ctx.SemanticModel.GetDeclaredSymbol(ctx.Node) is not ITypeSymbol { IsAbstract: false } type ||
@@ -54,10 +54,10 @@ public class ReflectionGenerator : IIncrementalGenerator
                 !type.AllInterfaces.Any(static i => i.ToDisplayString() == IEndpoint)) //must be an endpoint
                 return default;
 
-            var collector = new TypeCollector();
-            _ = new TypeInfo(ref collector, type, true);
+            var collected = new HashSet<TypeInfo?>(TypeNameComparer.Instance);
+            TypeInfo.CollectEndpoint(collected, type);
 
-            return new(collector.CollectedTypes.Select(static t => t!.ToModel()).ToArray());
+            return new([.. collected.Select(static t => t!.ToModel())]);
         }
     }
 
@@ -239,69 +239,55 @@ public class ReflectionGenerator : IIncrementalGenerator
                    : "input, out var result";
     }
 
-    sealed record TypeModel(
-        string TypeName,
-        string UnderlyingTypeName,
-        bool IsValueType,
-        bool SkipObjectFactory,
-        bool? IsParsable,
-        EquatableArray<string> CtorArgumentTypes,
-        EquatableArray<string> RequiredMembers,
-        EquatableArray<PropModel> Properties);
+    sealed record TypeModel(string TypeName,
+                            string UnderlyingTypeName,
+                            bool IsValueType,
+                            bool SkipObjectFactory,
+                            bool? IsParsable,
+                            EquatableArray<string> CtorArgumentTypes,
+                            EquatableArray<string> RequiredMembers,
+                            EquatableArray<PropModel> Properties);
 
     sealed record PropModel(string Name, string Type, bool IsInitOnly, string? ServiceKey);
 
     sealed class TypeInfo
     {
         public string? TypeName { get; }
-        public string? UnderlyingTypeName { get; }
-        public bool IsValueType { get; }
-        public List<Prop> Properties { get; } = [];
-        public List<string> RequiredMembers { get; } = [];
-        public bool SkipObjectFactory { get; }
-        public bool? IsParsable { get; }
-        public string[] CtorArgumentTypes { get; } = [];
+        string? UnderlyingTypeName { get; }
+        bool IsValueType { get; }
+        List<Prop> Properties { get; } = [];
+        List<string> RequiredMembers { get; } = [];
+        bool SkipObjectFactory { get; }
+        bool? IsParsable { get; }
+        string[] CtorArgumentTypes { get; } = [];
 
-        public TypeInfo(ref TypeCollector collector, ITypeSymbol symbol, bool isEndpoint, bool noRecursion = false)
+        //the request dto graph is collected before the endpoint class
+        internal static void CollectEndpoint(HashSet<TypeInfo?> collected, ITypeSymbol endpoint)
         {
-            if (symbol.IsAbstract || symbol.TypeKind is TypeKind.Enum or TypeKind.Interface or TypeKind.Dynamic) //dynamic is object at runtime and typeof(dynamic) doesn't compile
-                return;
+            //EndpointWithoutRequest etc. resolve to the blacklisted EmptyRequest
+            if (endpoint.GetEndpointBase()?.TypeArguments[0] is { } requestDto)
+                _ = new TypeInfo(collected, requestDto, CollectMode.RequestDto);
 
-            symbol = symbol.GetUnderlyingType();
+            _ = new TypeInfo(collected, endpoint, CollectMode.EndpointProperties);
+        }
 
-            ITypeSymbol? type;
-
-            if (isEndpoint) //find the request dto type. EndpointWithoutRequest etc. resolve to the blacklisted EmptyRequest.
+        TypeInfo(ISet<TypeInfo?> collected, ITypeSymbol type, CollectMode mode)
+        {
+            //the request dto is walked as declared, so abstract and interface dtos are still registered and a nullable type argument keeps its annotation
+            if (mode != CollectMode.RequestDto)
             {
-                type = symbol.GetEndpointBase()?.TypeArguments[0];
-
-                if (type is null)
-                {
-                    CollectEndpointClassForPropertyInjectionIfNeeded(ref collector, symbol, isEndpoint);
-
+                if (type.IsAbstract || type.TypeKind is TypeKind.Enum or TypeKind.Interface or TypeKind.Dynamic) //dynamic is object at runtime and typeof(dynamic) doesn't compile
                     return;
-                }
-            }
-            else
-                type = symbol;
 
-            TypeName = type.ToDisplayString(); //must be set before checking AllTypes below
+                type = type.GetUnderlyingType();
+            }
+
+            TypeName = type.ToDisplayString(); //must be set before checking the collected types below
             UnderlyingTypeName = type.ToDisplayString(NullableFlowState.None, SymbolDisplayFormat.FullyQualifiedFormat);
             IsValueType = type.IsValueType;
 
-            if (TypeBlacklist.Contains(type.ToDisplayString(NullableFlowState.None)))
-            {
-                CollectEndpointClassForPropertyInjectionIfNeeded(ref collector, symbol, isEndpoint);
-
+            if (TypeBlacklist.Contains(type.ToDisplayString(NullableFlowState.None)) || collected.Contains(this))
                 return;
-            }
-
-            if (collector.CollectedTypes.Contains(this)) //need to have TypeName set before this
-            {
-                CollectEndpointClassForPropertyInjectionIfNeeded(ref collector, symbol, isEndpoint);
-
-                return;
-            }
 
             foreach (var ifcName in type.AllInterfaces.Select(ifc => ifc.ToDisplayString()))
             {
@@ -315,9 +301,7 @@ public class ReflectionGenerator : IIncrementalGenerator
                     };
 
                     if (tElement is not null)
-                        _ = new TypeInfo(ref collector, tElement, false);
-
-                    CollectEndpointClassForPropertyInjectionIfNeeded(ref collector, symbol, isEndpoint);
+                        _ = new TypeInfo(collected, tElement, CollectMode.Nested);
 
                     return;
                 }
@@ -392,7 +376,7 @@ public class ReflectionGenerator : IIncrementalGenerator
                             if (HasDontInjectAttribute(prop) || HasUnconditionalJsonIgnoreAttribute(prop))
                                 break;
 
-                            Properties.Add(new(prop, noRecursion));
+                            Properties.Add(new(prop, mode == CollectMode.EndpointProperties));
 
                             break;
                     }
@@ -404,7 +388,7 @@ public class ReflectionGenerator : IIncrementalGenerator
             if (ctorArgTypes is not null)
                 CtorArgumentTypes = ctorArgTypes;
 
-            if (!isEndpoint && noRecursion) //treating an endpoint as a regular class to generate its props for property injection support
+            if (mode == CollectMode.EndpointProperties) //the endpoint class is treated as a regular class to generate its props for property injection support
                 SkipObjectFactory = true;
 
             if (!SkipObjectFactory && Properties.Count == 0)
@@ -416,26 +400,15 @@ public class ReflectionGenerator : IIncrementalGenerator
             if (SkipObjectFactory || ctorSetsRequiredMembers)
                 RequiredMembers.Clear();
 
-            if (Properties.Count > 0)
-            {
-                collector.CollectedTypes.Add(this);
+            //the request dto and the endpoint class are only registered when they have props
+            if (Properties.Count > 0 || mode == CollectMode.Nested)
+                collected.Add(this);
 
-                if (!noRecursion)
-                {
-                    foreach (var p in Properties)
-                        _ = new TypeInfo(ref collector, p.Symbol, false);
-                }
-            }
+            if (mode == CollectMode.EndpointProperties) //injected services aren't bound, so their types aren't walked
+                return;
 
-            if (isEndpoint)
-                CollectEndpointClassForPropertyInjectionIfNeeded(ref collector, symbol, isEndpoint);
-            else
-            {
-                if (noRecursion) // noRecursion is only true for endpoint classes when treated as regular classes by CollectEndpointClassForPropertyInjectionIfNeeded()
-                    return;
-
-                collector.CollectedTypes.Add(this);
-            }
+            foreach (var p in Properties)
+                _ = new TypeInfo(collected, p.Symbol, CollectMode.Nested);
         }
 
         internal TypeModel ToModel()
@@ -449,10 +422,11 @@ public class ReflectionGenerator : IIncrementalGenerator
                 new(RequiredMembers.ToArray()),
                 new(Properties.Select(static p => new PropModel(p.PropName, p.PropertyType, p.IsInitOnly, p.ServiceKey)).ToArray()));
 
-        static void CollectEndpointClassForPropertyInjectionIfNeeded(ref TypeCollector collector, ITypeSymbol symbol, bool isEndpoint)
+        enum CollectMode
         {
-            if (isEndpoint)
-                _ = new TypeInfo(ref collector, symbol: symbol, isEndpoint: false, noRecursion: true);
+            RequestDto,
+            Nested,
+            EndpointProperties
         }
 
         //attributes of overridden properties are inherited at runtime (Attribute.GetCustomAttribute/IsDefined), derived ones first
@@ -493,7 +467,7 @@ public class ReflectionGenerator : IIncrementalGenerator
             return false;
         }
 
-        internal readonly struct Prop(IPropertySymbol prop, bool isEndpointClass = false)
+        readonly struct Prop(IPropertySymbol prop, bool isEndpointClass = false)
         {
             public ITypeSymbol Symbol { get; } = prop.Type;
             public string PropName { get; } = prop.Name;
@@ -504,19 +478,15 @@ public class ReflectionGenerator : IIncrementalGenerator
             public string PropertyType { get; } = prop.Type.TypeKind == TypeKind.Dynamic
                                                       ? "object"
                                                       : prop.Type.WithNullableAnnotation(NullableAnnotation.NotAnnotated).ToDisplayString(_propertyTypeFormat);
+
             public bool IsInitOnly { get; } = prop.SetMethod?.IsInitOnly is true;
 
             public string? ServiceKey { get; } = isEndpointClass
                                                      ? AttributesOf(prop)
-                                                           .FirstOrDefault(a => a.AttributeClass?.ToDisplayString() == KeyedServiceAttribute)?.ConstructorArguments
-                                                           .FirstOrDefault().Value as string
+                                                       .FirstOrDefault(a => a.AttributeClass?.ToDisplayString() == KeyedServiceAttribute)?.ConstructorArguments
+                                                       .FirstOrDefault().Value as string
                                                      : null;
         }
-    }
-
-    sealed class TypeCollector
-    {
-        internal readonly HashSet<TypeInfo?> CollectedTypes = new(TypeNameComparer.Instance);
     }
 
     sealed class TypeNameComparer : IEqualityComparer<TypeInfo?>

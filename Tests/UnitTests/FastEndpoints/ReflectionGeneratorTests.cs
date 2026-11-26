@@ -1254,6 +1254,196 @@ public class ReflectionGeneratorTests
         result.Generated.ShouldNotContain("SkippedRequest");
     }
 
+
+    //pins the root walk (request dto first, endpoint class last) against nested walks: abstract, interface and nullable-annotated request dtos are walked as declared,
+    //a property-less request dto is omitted while a property-less nested type is emitted, and an enumerable request dto only registers its element type.
+    [Fact]
+    public void request_dto_and_endpoint_class_walks_emit_expected_registrations()
+    {
+        const string source =
+            """
+            #nullable enable
+            using System.Collections.Generic;
+            using System.Threading;
+            using System.Threading.Tasks;
+            using FastEndpoints;
+
+            namespace TestApp;
+
+            public abstract class AbstractRequest
+            {
+                public string Name { get; set; } = "";
+            }
+
+            public interface IInterfaceRequest
+            {
+                string Name { get; set; }
+            }
+
+            public class NullableRequest
+            {
+                public int Id { get; set; }
+            }
+
+            public class PropertylessRequest { }
+
+            public class PropertylessNested { }
+
+            public class Item
+            {
+                public PropertylessNested Nested { get; set; } = new();
+            }
+
+            public class AbstractEndpoint : Endpoint<AbstractRequest, string>
+            {
+                [KeyedService("a")]
+                public object Service { get; set; } = default!;
+
+                public override Task HandleAsync(AbstractRequest req, CancellationToken ct) => Task.CompletedTask;
+            }
+
+            public class InterfaceEndpoint : Endpoint<IInterfaceRequest, string>
+            {
+                public override Task HandleAsync(IInterfaceRequest req, CancellationToken ct) => Task.CompletedTask;
+            }
+
+            public class NullableEndpoint : Endpoint<NullableRequest?, string>
+            {
+                public override Task HandleAsync(NullableRequest? req, CancellationToken ct) => Task.CompletedTask;
+            }
+
+            public class PropertylessEndpoint : Endpoint<PropertylessRequest, string>
+            {
+                [KeyedService("p")]
+                public object Service { get; set; } = default!;
+
+                public override Task HandleAsync(PropertylessRequest req, CancellationToken ct) => Task.CompletedTask;
+            }
+
+            public class ListEndpoint : Endpoint<List<Item>, string>
+            {
+                public override Task HandleAsync(List<Item> req, CancellationToken ct) => Task.CompletedTask;
+            }
+            """;
+
+        var result = Run(source);
+
+        AssertCompiles(result);
+        result.Generated.ShouldBe(
+            """
+            #pragma warning disable CS0618
+            #nullable enable
+
+            using t0 = global::TestApp.AbstractRequest;
+            using t1 = global::TestApp.AbstractEndpoint;
+            using t2 = global::TestApp.IInterfaceRequest;
+            using t3 = global::TestApp.NullableRequest;
+            using t4 = int;
+            using t5 = global::TestApp.PropertylessEndpoint;
+            using t6 = global::TestApp.Item;
+            using t7 = global::TestApp.PropertylessNested;
+
+            namespace TestApp;
+
+            /// <summary>
+            /// source generated reflection data for request dtos located in the [TestApp] assembly.
+            /// </summary>
+            public static class GeneratedReflection
+            {
+                /// <summary>
+                /// register source generated reflection data from [TestApp] with the central cache.
+                /// </summary>
+                public static global::FastEndpoints.ReflectionCache AddFromTestApp(this global::FastEndpoints.ReflectionCache cache)
+                {
+                    // global::TestApp.AbstractRequest
+                    var _t0 = typeof(t0);
+                    cache.TryAdd(
+                        _t0,
+                        new()
+                        {
+                            Properties = new(
+                            [
+                                 new(_t0.GetProperty(nameof(t0.Name), typeof(string))!, new() { Getter = dto => ((t0)dto).Name, Setter = (dto, val) => ((t0)dto).Name = (string)val! }),
+                            ])
+                        });
+                    // global::TestApp.AbstractEndpoint
+                    var _t1 = typeof(t1);
+                    cache.TryAdd(
+                        _t1,
+                        new()
+                        {
+                            Properties = new(
+                            [
+                                 new(_t1.GetProperty(nameof(t1.Service), typeof(object))!, new() { Getter = dto => ((t1)dto).Service, Setter = (dto, val) => ((t1)dto).Service = (object)val!, ServiceKey = "a" }),
+                            ])
+                        });
+                    // global::TestApp.IInterfaceRequest
+                    var _t2 = typeof(t2);
+                    cache.TryAdd(
+                        _t2,
+                        new()
+                        {
+                            Properties = new(
+                            [
+                                 new(_t2.GetProperty(nameof(t2.Name), typeof(string))!, new() { Getter = dto => ((t2)dto).Name, Setter = (dto, val) => ((t2)dto).Name = (string)val! }),
+                            ])
+                        });
+                    // global::TestApp.NullableRequest
+                    var _t3 = typeof(t3);
+                    cache.TryAdd(
+                        _t3,
+                        new()
+                        {
+                            ObjectFactory = () => new t3(),
+                            Properties = new(
+                            [
+                                 new(_t3.GetProperty(nameof(t3.Id), typeof(t4))!, new() { Getter = dto => ((t3)dto).Id, Setter = (dto, val) => ((t3)dto).Id = (t4)val! }),
+                            ])
+                        });
+                    // int
+                    var _t4 = typeof(t4);
+                    cache.TryAdd(
+                        _t4,
+                        new()
+                        {
+                            ValueParser = input => new(t4.TryParse(input, out var result), result),
+                        });
+                    // global::TestApp.PropertylessEndpoint
+                    var _t5 = typeof(t5);
+                    cache.TryAdd(
+                        _t5,
+                        new()
+                        {
+                            Properties = new(
+                            [
+                                 new(_t5.GetProperty(nameof(t5.Service), typeof(object))!, new() { Getter = dto => ((t5)dto).Service, Setter = (dto, val) => ((t5)dto).Service = (object)val!, ServiceKey = "p" }),
+                            ])
+                        });
+                    // global::TestApp.Item
+                    var _t6 = typeof(t6);
+                    cache.TryAdd(
+                        _t6,
+                        new()
+                        {
+                            ObjectFactory = () => new t6(),
+                            Properties = new(
+                            [
+                                 new(_t6.GetProperty(nameof(t6.Nested), typeof(t7))!, new() { Getter = dto => ((t6)dto).Nested, Setter = (dto, val) => ((t6)dto).Nested = (t7)val! }),
+                            ])
+                        });
+                    // global::TestApp.PropertylessNested
+                    var _t7 = typeof(t7);
+                    cache.TryAdd(
+                        _t7,
+                        new()
+                        {
+                        });
+                    return cache;
+                }
+            }
+            """);
+    }
+
     // ── helpers ───────────────────────────────────────────────────────────────
 
     static readonly ImmutableArray<MetadataReference> _references = GeneratorTestHarness.GetReferences(

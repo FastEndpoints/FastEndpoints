@@ -49,13 +49,30 @@ public class AccessControlGenerator : IIncrementalGenerator
         initCtx.RegisterSourceOutput(matches.Combine(customFields).Combine(partialFields).Combine(rootNamespace), Generate);
 
         //executed per each keystroke
+        //AccessControl() is protected, so it can only be called bare or via 'this.' / 'base.'
         static bool Qualify(SyntaxNode node, CancellationToken _)
-            => node is InvocationExpressionSyntax { ArgumentList.Arguments.Count: not 0, Expression: IdentifierNameSyntax { Identifier.ValueText: AccessControl } };
+            => node is InvocationExpressionSyntax
+               {
+                   ArgumentList.Arguments.Count: not 0,
+                   Expression: IdentifierNameSyntax { Identifier.ValueText: AccessControl } or
+                   MemberAccessExpressionSyntax
+                   {
+                       Expression: ThisExpressionSyntax or BaseExpressionSyntax,
+                       Name.Identifier.ValueText: AccessControl
+                   }
+               };
 
         //executed per each keystroke but only for syntax nodes filtered by the Qualify method
         static Permission Transform(GeneratorSyntaxContext ctx, CancellationToken _)
         {
             var invocation = (InvocationExpressionSyntax)ctx.Node;
+
+            //skip same-named user methods. unresolved calls (broken code while typing) are kept.
+            var symbolInfo = ctx.SemanticModel.GetSymbolInfo(invocation);
+            var methods = symbolInfo.Symbol is { } symbol ? [symbol] : symbolInfo.CandidateSymbols;
+
+            if (methods.Length > 0 && !methods.Any(static m => m.ContainingNamespace?.ToDisplayString() == "FastEndpoints"))
+                return default;
 
             //the call can be nested in blocks, lambdas, local functions etc. of the endpoint class
             if (invocation.FirstAncestorOrSelf<TypeDeclarationSyntax>() is not { } typeDeclaration ||

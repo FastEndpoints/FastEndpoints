@@ -83,6 +83,12 @@ See the [configuration settings documentation](https://fast-endpoints.com/docs/c
 
 ## Fixes 🪲
 
+<details><summary>Permissions from 'this.AccessControl()' calls were missing from the generated Allow class</summary>
+
+If you wrote `this.AccessControl(...)` or `base.AccessControl(...)` instead of a bare `AccessControl(...)` (for example because StyleCop or your `.editorconfig` requires `this.` qualification), the endpoint still required the permission at runtime, but the source generator left it out of the `Allow` class. Groups like `Allow.Admin` and `Allow.AllCodes()` silently lacked it, so users got 403s, and referencing the constant didn't compile. All three call styles are now picked up. Your own unrelated methods that happen to be named `AccessControl` are no longer mistaken for permissions.
+
+</details>
+
 <details><summary>Hand-written permissions missing from the generated Allow lookups</summary>
 
 Permissions you add yourself to a partial `Allow` class were silently left out of `AllCodes()`, `AllNames()`, `CodesFor()`, `PermissionCodeFor()` and the other lookup methods when the class part wasn't marked `static`, the field was typed `String` instead of `string`, or one line declared several constants (`public const string A = "1", B = "2";`). They're all included again, as they were before v8.2. Partial permission properties typed `String` also get their generated implementation now instead of failing with CS9248.

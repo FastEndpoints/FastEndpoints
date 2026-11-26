@@ -211,6 +211,56 @@ public class AccessControlGeneratorTests
         allowSource.ShouldContain($"public const string Nested_Perm = {SymbolDisplay.FormatLiteral(HashEndpoint.Hash("Nested_Perm"), true)};");
     }
 
+    [Theory]
+    [InlineData("this")]
+    [InlineData("base")]
+    public void qualified_access_control_call_is_generated(string receiver)
+    {
+        var runResult = RunGenerator(
+            out var outputCompilation,
+            out var generatorDiagnostics,
+            $"{receiver}.AccessControl(\"Qualified_Perm\", Apply.ToThisEndpoint, \"Admin\");",
+            """
+            static class Consumer
+            {
+                static string Code => TestApp.Auth.Allow.Qualified_Perm;
+            }
+            """);
+        var allowSource = runResult.GeneratedTrees.Single(t => Path.GetFileName(t.FilePath) == "Allow.g.cs").GetText().ToString();
+
+        generatorDiagnostics.ShouldBeEmpty();
+        outputCompilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ShouldBeEmpty();
+        allowSource.ShouldContain($"public const string Qualified_Perm = {SymbolDisplay.FormatLiteral(HashEndpoint.Hash("Qualified_Perm"), true)};");
+        Regex.IsMatch(allowSource, @"_admin = new\(\)\s*\{\s*Qualified_Perm\s*\};").ShouldBeTrue();
+    }
+
+    [Fact]
+    public void same_named_user_method_is_ignored()
+    {
+        var runResult = RunGenerator(
+            out var outputCompilation,
+            out var generatorDiagnostics,
+            additionalSource:
+            """
+            class NotAnEndpoint
+            {
+                void Configure()
+                {
+                    AccessControl("Not_A_Perm");
+                    this.AccessControl("Not_A_Perm");
+                }
+
+                void AccessControl(string name) { }
+            }
+            """);
+        var allowSource = runResult.GeneratedTrees.Single(t => Path.GetFileName(t.FilePath) == "Allow.g.cs").GetText().ToString();
+
+        generatorDiagnostics.ShouldBeEmpty();
+        outputCompilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ShouldBeEmpty();
+        allowSource.ShouldContain("public const string Users_Create");
+        allowSource.ShouldNotContain("Not_A_Perm");
+    }
+
     [Fact]
     public void description_is_xml_escaped_and_endpoint_cref_resolves()
     {

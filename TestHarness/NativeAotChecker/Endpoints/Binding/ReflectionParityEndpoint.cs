@@ -2,7 +2,7 @@ using System.Text.Json.Serialization;
 
 namespace NativeAotChecker.Endpoints.Binding;
 
-// covers source generated reflection data matching runtime reflection for overridden and [JsonIgnore] properties
+// covers source generated reflection data matching runtime reflection for overridden, hidden and [JsonIgnore] properties
 public abstract class ReflectionParityBase
 {
     public virtual string Name { get; set; } = null!;
@@ -20,6 +20,20 @@ public class ReflectionParityRequest : ReflectionParityBase
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? Note { get; set; }
+
+    [FromQuery]
+    public ReflectionParityAddress Address { get; set; } = null!;
+}
+
+public class ReflectionParityAddressBase
+{
+    public string Id { get; set; } = null!;
+}
+
+// hides the base property with a different type, so the generated lookup must not be ambiguous
+public class ReflectionParityAddress : ReflectionParityAddressBase
+{
+    public new int Id { get; set; }
 }
 
 public class ReflectionParityResponse
@@ -27,6 +41,7 @@ public class ReflectionParityResponse
     public string Name { get; set; } = null!;
     public string? Note { get; set; }
     public string? Secret { get; set; }
+    public int Id { get; set; }
 }
 
 public class ReflectionParityEndpoint : Endpoint<ReflectionParityRequest, ReflectionParityResponse>
@@ -44,7 +59,8 @@ public class ReflectionParityEndpoint : Endpoint<ReflectionParityRequest, Reflec
             {
                 Name = req.Name,
                 Note = req.Note,
-                Secret = req.Secret
+                Secret = req.Secret,
+                Id = req.Address.Id
             },
             ct);
     }

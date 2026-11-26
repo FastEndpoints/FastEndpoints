@@ -85,13 +85,19 @@ public class ReflectionGenerator : IIncrementalGenerator
 
             """);
 
-        for (var i = 0; i < types.Length; i++)
-        {
-            b.w(
-                $"""
-                 using {Alias(i)} = {types[i].UnderlyingTypeName};
+        //property types are aliased once instead of being repeated in every typeof() and setter cast. dto aliases are reused and keyword types stay inline.
+        var aliases = new Dictionary<string, string>(StringComparer.Ordinal);
 
-                 """);
+        for (var i = 0; i < types.Length; i++)
+            AddAlias(types[i].UnderlyingTypeName, Alias(i));
+
+        //must run after the dto aliases so that dto types used as property types reuse them
+        var propAliasCount = 0;
+
+        foreach (var propType in types.SelectMany(static t => t.Properties).Select(static p => p.Type))
+        {
+            if (!aliases.ContainsKey(propType) && propType.Contains("global::"))
+                AddAlias(propType, $"p{(propAliasCount++).ToString()}");
         }
 
         b.w(
@@ -158,16 +164,17 @@ public class ReflectionGenerator : IIncrementalGenerator
                 {
                     var propName = prop.Name.EscapeKeyword();
                     var getter = $"Getter = dto => {BuildPropCast(tInfo, alias)}.{propName}";
+                    var propType = aliases.TryGetValue(prop.Type, out var propAlias) ? propAlias : prop.Type;
 
                     b.w(
                         $"""
 
-                                              new(_{alias}.GetProperty(nameof({alias}.{propName}))!,
+                                              new(_{alias}.GetProperty(nameof({alias}.{propName}), typeof({propType}))!,
                          """);
                     b.w(
                         prop.IsInitOnly
                             ? $" new() {{ {getter}{BuildServiceKey(prop)} }}"
-                            : $" new() {{ {getter}, Setter = (dto, val) => {BuildPropCast(tInfo, alias)}.{propName} = ({prop.Type})val!{BuildServiceKey(prop)} }}");
+                            : $" new() {{ {getter}, Setter = (dto, val) => {BuildPropCast(tInfo, alias)}.{propName} = ({propType})val!{BuildServiceKey(prop)} }}");
                     b.w("),");
                 }
 
@@ -194,6 +201,17 @@ public class ReflectionGenerator : IIncrementalGenerator
             """);
 
         return b.ToString();
+
+        //indexer instead of Add(), since dtos that differ only in nullable annotations can share an underlying type name
+        void AddAlias(string typeName, string alias)
+        {
+            aliases[typeName] = alias;
+            b.w(
+                $"""
+                 using {alias} = {typeName};
+
+                 """);
+        }
 
         static string Alias(int index)
             => $"t{index.ToString()}";
@@ -479,7 +497,10 @@ public class ReflectionGenerator : IIncrementalGenerator
         {
             public ITypeSymbol Symbol { get; } = prop.Type;
             public string PropName { get; } = prop.Name;
-            public string PropertyType { get; } = prop.Type.ToDisplayString(_propertyTypeFormat);
+
+            //used for the GetProperty() lookup, the setter cast and type aliases, which reject a top-level nullable reference annotation.
+            //nested annotations are kept, otherwise casting to List<string> and assigning to a List<string?> property warns.
+            public string PropertyType { get; } = prop.Type.WithNullableAnnotation(NullableAnnotation.NotAnnotated).ToDisplayString(_propertyTypeFormat);
             public bool IsInitOnly { get; } = prop.SetMethod?.IsInitOnly is true;
 
             public string? ServiceKey { get; } = isEndpointClass

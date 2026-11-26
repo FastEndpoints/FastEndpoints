@@ -225,9 +225,9 @@ public class BindingTests(App app) : TestBase<App>
     }
 
     [Fact]
-    public async Task Overridden_And_Json_Ignored_Properties_Bind_Like_Reflection()
+    public async Task Overridden_Hidden_And_Json_Ignored_Properties_Bind_Like_Reflection()
     {
-        using var rsp = await app.Client.GetAsync("reflection-parity/john?note=hello&secret=s3cret", Cancellation);
+        using var rsp = await app.Client.GetAsync("reflection-parity/john?note=hello&secret=s3cret&id=42", Cancellation);
 
         rsp.StatusCode.ShouldBe(HttpStatusCode.OK);
         var res = await rsp.Content.ReadFromJsonAsync<ReflectionParityResponse>(Cancellation);
@@ -235,6 +235,7 @@ public class BindingTests(App app) : TestBase<App>
         res.Name.ShouldBe("john");
         res.Note.ShouldBe("hello");
         res.Secret.ShouldBeNull();
+        res.Id.ShouldBe(42);
     }
 
     [Fact]

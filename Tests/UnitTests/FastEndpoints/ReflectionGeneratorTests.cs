@@ -514,13 +514,9 @@ public class ReflectionGeneratorTests
         var result = Run(source);
 
         AssertCompiles(result);
-        Regex.Count(result.Generated, @"GetProperty\(nameof\(t0\.Name\)\)").ShouldBe(1);
+        Regex.Count(result.Generated, @"GetProperty\(nameof\(t0\.Name\),").ShouldBe(1);
 
-        using var stream = new MemoryStream();
-        result.Output.Emit(stream).Success.ShouldBeTrue();
-        var assembly = Assembly.Load(stream.ToArray());
-        var cache = new ReflectionCache();
-        assembly.GetType("TestApp.GeneratedReflection")!.GetMethod("AddFromTestApp")!.Invoke(null, [cache]);
+        var (assembly, cache) = LoadAndRegister(result);
         cache[assembly.GetType("MyApp.MyRequest")!].Properties!.Count.ShouldBe(1);
     }
 
@@ -617,21 +613,17 @@ public class ReflectionGeneratorTests
         result.Generated.ShouldContain("JsonIgnoredRequired = default!");
         result.Generated.ShouldContain("DontInjectRequired = default!");
         result.Generated.ShouldContain("RequiredField = default!");
-        result.Generated.ShouldContain("GetProperty(nameof(t0.Name))");
-        result.Generated.ShouldNotContain("GetProperty(nameof(t0.GetOnlyOverride))");
-        result.Generated.ShouldNotContain("GetProperty(nameof(t0.SetOnlyOverride))");
-        result.Generated.ShouldNotContain("GetProperty(nameof(t0.RequiredSetOverride))");
-        result.Generated.ShouldNotContain("GetProperty(nameof(t0.InitGetOverride))");
-        result.Generated.ShouldNotContain("GetProperty(nameof(t0.HiddenReadOnly))");
-        result.Generated.ShouldNotContain("GetProperty(nameof(t0.PrivateGetRequired))");
-        result.Generated.ShouldNotContain("GetProperty(nameof(t0.JsonIgnoredRequired))");
-        result.Generated.ShouldNotContain("GetProperty(nameof(t0.DontInjectRequired))");
+        result.Generated.ShouldContain("GetProperty(nameof(t0.Name),");
+        result.Generated.ShouldNotContain("GetProperty(nameof(t0.GetOnlyOverride),");
+        result.Generated.ShouldNotContain("GetProperty(nameof(t0.SetOnlyOverride),");
+        result.Generated.ShouldNotContain("GetProperty(nameof(t0.RequiredSetOverride),");
+        result.Generated.ShouldNotContain("GetProperty(nameof(t0.InitGetOverride),");
+        result.Generated.ShouldNotContain("GetProperty(nameof(t0.HiddenReadOnly),");
+        result.Generated.ShouldNotContain("GetProperty(nameof(t0.PrivateGetRequired),");
+        result.Generated.ShouldNotContain("GetProperty(nameof(t0.JsonIgnoredRequired),");
+        result.Generated.ShouldNotContain("GetProperty(nameof(t0.DontInjectRequired),");
 
-        using var stream = new MemoryStream();
-        result.Output.Emit(stream).Success.ShouldBeTrue();
-        var assembly = Assembly.Load(stream.ToArray());
-        var cache = new ReflectionCache();
-        assembly.GetType("TestApp.GeneratedReflection")!.GetMethod("AddFromTestApp")!.Invoke(null, [cache]);
+        var (assembly, cache) = LoadAndRegister(result);
 
         var reqType = assembly.GetType("MyApp.DerivedRequest")!;
         var entry = cache[reqType];
@@ -641,6 +633,118 @@ public class ReflectionGeneratorTests
 
         var instance = entry.ObjectFactory!();
         instance.ShouldBeOfType(reqType);
+    }
+
+    [Fact]
+    public void hidden_properties_with_a_different_type_register_the_most_derived_declaration()
+    {
+        const string source =
+            """
+            using System.Threading;
+            using System.Threading.Tasks;
+            using FastEndpoints;
+
+            namespace MyApp;
+
+            public class BaseAddress { public string Id { get; set; } = ""; }
+            public class Address : BaseAddress { public new int Id { get; set; } }
+
+            public class GenericBase<T> { public T Code { get; set; } = default!; public T Same { get; set; } = default!; }
+            public class Item : GenericBase<string> { public new int Code { get; set; } public new string Same { get; set; } = ""; }
+
+            public class WideBase { public object Value { get; set; } = default!; public long Number { get; set; } }
+            public class Wide : WideBase { public new string? Value { get; set; } public new int Number { get; set; } }
+
+            public struct Point { public int X { get; set; } }
+
+            public class UpdateRequest
+            {
+                public string? Name { get; set; }
+                public (int A, string? B) Pair { get; set; }
+                public Point Location { get; set; }
+                public Point? MaybeLocation { get; set; }
+                public int? Count { get; set; }
+                public System.Collections.Generic.List<string?> Tags { get; set; } = [];
+                public System.Collections.Generic.List<string?>? MoreTags { get; set; }
+                public Address Address { get; set; } = new();
+                public Address? OtherAddress { get; set; }
+                public Item Item { get; set; } = new();
+                public Wide Wide { get; set; } = new();
+            }
+
+            public class MyEndpoint : Endpoint<UpdateRequest>
+            {
+                public override Task HandleAsync(UpdateRequest req, CancellationToken ct) => Task.CompletedTask;
+            }
+            """;
+
+        var result = Run(source);
+
+        AssertCompiles(result);
+        result.Output.GetDiagnostics()
+              .Where(static d => d.Severity == DiagnosticSeverity.Warning && d.Location.SourceTree?.FilePath.EndsWith("ReflectionData.g.cs") is true)
+              .ShouldBeEmpty();
+        result.Generated.ShouldNotContain("typeof(string?)");
+
+        //property types are aliased once and dto aliases are reused
+        Regex.Count(result.Generated, @"global::System\.Collections\.Generic\.List<string\?>").ShouldBe(1);
+        Regex.Count(result.Generated, @"global::MyApp\.Address\b(?!Base)").ShouldBe(2); // dto alias + its comment
+        result.Generated.ShouldContain("using p0 = global::MyApp.Point?;");
+        result.Generated.ShouldContain("typeof(string))!");
+
+        var (assembly, cache) = LoadAndRegister(result);
+
+        AssertMostDerived("MyApp.Address", "Id", 5);
+        AssertMostDerived("MyApp.Item", "Code", 7);
+        AssertMostDerived("MyApp.Item", "Same", "same");
+        AssertMostDerived("MyApp.Wide", "Value", "value");
+        AssertMostDerived("MyApp.Wide", "Number", 9);
+        AssertMostDerived("MyApp.Point", "X", 3);
+        AssertMostDerived("MyApp.UpdateRequest", "Name", "name");
+
+        void AssertMostDerived(string typeName, string propName, object value)
+        {
+            var type = assembly.GetType(typeName)!;
+            var def = MostDerivedProperty(cache, type, propName);
+            var instance = Activator.CreateInstance(type)!;
+            def.Setter!(instance, value);
+            def.Getter!(instance).ShouldBe(value);
+        }
+    }
+
+    [Fact]
+    public void hidden_endpoint_service_property_with_a_different_type_registers_the_most_derived_declaration()
+    {
+        const string source =
+            """
+            using System.Threading;
+            using System.Threading.Tasks;
+            using FastEndpoints;
+
+            namespace MyApp;
+
+            public abstract class MyBaseEndpoint : EndpointWithoutRequest<string>
+            {
+                public object Service { get; set; } = default!;
+            }
+
+            public class MyEndpoint : MyBaseEndpoint
+            {
+                [KeyedService("A")]
+                public new string Service { get; set; } = default!;
+
+                public override Task HandleAsync(CancellationToken ct) => Task.CompletedTask;
+            }
+            """;
+
+        var result = Run(source);
+
+        AssertCompiles(result);
+
+        var (assembly, cache) = LoadAndRegister(result);
+
+        var epType = assembly.GetType("MyApp.MyEndpoint")!;
+        MostDerivedProperty(cache, epType, "Service").ServiceKey.ShouldBe("A");
     }
 
     [Fact]
@@ -677,11 +781,7 @@ public class ReflectionGeneratorTests
         AssertCompiles(result);
         result.Generated.ShouldNotContain("Name = default!");
 
-        using var stream = new MemoryStream();
-        result.Output.Emit(stream).Success.ShouldBeTrue();
-        var assembly = Assembly.Load(stream.ToArray());
-        var cache = new ReflectionCache();
-        assembly.GetType("TestApp.GeneratedReflection")!.GetMethod("AddFromTestApp")!.Invoke(null, [cache]);
+        var (assembly, cache) = LoadAndRegister(result);
 
         var reqType = assembly.GetType("MyApp.MyRequest")!;
         var entry = cache[reqType];
@@ -735,11 +835,7 @@ public class ReflectionGeneratorTests
         AssertCompiles(result);
         result.Generated.ShouldContain("Name = default!");
 
-        using var stream = new MemoryStream();
-        result.Output.Emit(stream).Success.ShouldBeTrue();
-        var assembly = Assembly.Load(stream.ToArray());
-        var cache = new ReflectionCache();
-        assembly.GetType("TestApp.GeneratedReflection")!.GetMethod("AddFromTestApp")!.Invoke(null, [cache]);
+        var (assembly, cache) = LoadAndRegister(result);
 
         var reqType = assembly.GetType("MyApp.DerivedRequest")!;
         var entry = cache[reqType];
@@ -1027,7 +1123,7 @@ public class ReflectionGeneratorTests
         var result = Run(source);
 
         AssertCompiles(result);
-        result.Generated.ShouldContain("(global::System.Guid)val!");
+        result.Generated.ShouldMatch(@"using [tp]\d+ = global::System\.Guid;");
     }
 
     [Fact]
@@ -1129,6 +1225,28 @@ public class ReflectionGeneratorTests
 
     static GeneratorTestResult Run(string source, string? assemblyName = "TestApp")
         => GeneratorTestHarness.Run<ReflectionGenerator>([source], _references, assemblyName, hintFileName: "ReflectionData.g.cs");
+
+    //emits and loads the generated assembly, then registers its reflection data with a new cache. requires the default "TestApp" assembly name.
+    static (Assembly Assembly, ReflectionCache Cache) LoadAndRegister(GeneratorTestResult result)
+    {
+        using var stream = new MemoryStream();
+        result.Output.Emit(stream).Success.ShouldBeTrue();
+        var assembly = Assembly.Load(stream.ToArray());
+        var cache = new ReflectionCache();
+        assembly.GetType("TestApp.GeneratedReflection")!.GetMethod("AddFromTestApp")!.Invoke(null, [cache]);
+
+        return (assembly, cache);
+    }
+
+    //asserts a single registered property with the given name and returns the definition of its most derived declaration
+    static PropertyDefinition MostDerivedProperty(ReflectionCache cache, Type type, string propName)
+    {
+        var prop = type.GetProperties().Single(p => p.Name == propName && p.DeclaringType == type);
+        var props = cache[type].Properties!;
+        props.Keys.Count(p => p.Name == propName).ShouldBe(1);
+
+        return props[prop];
+    }
 
     static GeneratorTestResult Execute(GeneratorDriver driver, Compilation compilation)
         => GeneratorTestHarness.Step(driver, compilation, "ReflectionData.g.cs");

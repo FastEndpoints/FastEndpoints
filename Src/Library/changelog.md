@@ -94,7 +94,7 @@ If the first property referring to an enum was nullable (`MyEnum?`), the enum's 
 The source generators now handle a number of situations that used to produce code that didn't compile, crashed a generator, or silently left something out:
 
 - Generated code no longer breaks when your project declares a type or namespace that shadows a name it references, such as a class named after your assembly, or a `MyApp.Domain`/`MyApp.System` namespace.
-- `AddFrom*()` no longer throws a "duplicate keys" error at startup for request DTOs with overridden properties. DTOs with keyword property names (`@class`) or several constructors with the same number of parameters now compile.
+- `AddFrom*()` no longer throws a "duplicate keys" error at startup for request DTOs with overridden properties, or an "ambiguous match" error when a DTO (including nested ones) or an endpoint hides a base property with a `new` property of a different type. DTOs with keyword property names (`@class`) or several constructors with the same number of parameters now compile.
 - Properties with a conditional `[JsonIgnore(Condition = ...)]` are now bindable in Native AOT apps, just like they are without AOT. Likewise, `[JsonIgnore]`, `[DontInject]` and `[KeyedService]` on a base property now also apply to its overrides.
 - Request DTOs with `required` fields, `[JsonIgnore]`/`[DontInject]` or non-public-getter `required` properties (including set-only overrides), or a `[SetsRequiredMembers]` constructor now compile cleanly with `AddFrom*()` without making ignored properties bindable or overwriting values set by the constructor.
 - Endpoints inheriting from your own generic base class, as well as `EndpointWithoutRequest<TResponse>` endpoints, now get reflection data for the right DTO.

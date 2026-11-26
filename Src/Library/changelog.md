@@ -91,7 +91,7 @@ If you wrote `this.AccessControl(...)` or `base.AccessControl(...)` instead of a
 
 <details><summary>Hand-written permissions missing from the generated Allow lookups</summary>
 
-Permissions you add yourself to a partial `Allow` class were silently left out of `AllCodes()`, `AllNames()`, `CodesFor()`, `PermissionCodeFor()` and the other lookup methods when the class part wasn't marked `static`, the field was typed `String` instead of `string`, or one line declared several constants (`public const string A = "1", B = "2";`). They're all included again, as they were before v8.2. Partial permission properties typed `String` also get their generated implementation now instead of failing with CS9248.
+Permissions you add yourself to a partial `Allow` class were silently left out of `AllCodes()`, `AllNames()`, `CodesFor()`, `PermissionCodeFor()` and the other lookup methods when the class part wasn't marked `static`, the field was typed `String` instead of `string`, or one line declared several constants (`public const string A = "1", B = "2";`). They're all included again, as they were before v8.2. Partial permission properties typed `String` also get their generated implementation now instead of failing with CS9248. Names that need escaping no longer break the build either, like a partial property called `@class`, or a `static readonly` field called `permNames` or `permCodes`.
 
 If two of your hand-written constants share the same code, the one that used to be skipped is now checked too, so the build may start reporting `FEAC001` for them.
 

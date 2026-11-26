@@ -335,6 +335,35 @@ public class AccessControlGeneratorTests
     }
 
     [Fact]
+    public void static_readonly_fields_with_keyword_or_parameter_names_are_included_in_lookups()
+    {
+        const string allowSource =
+            """
+            namespace TestApp.Auth;
+
+            public static partial class Allow
+            {
+                public static readonly string @class = "x";
+                public static readonly string permNames = "y";
+            }
+            """;
+
+        var result = GeneratorTestHarness.Run<AccessControlGenerator>([EndpointSource, PermissionGroupSource, allowSource], _references, hintFileName: "Allow.g.cs");
+
+        GeneratorTestHarness.AssertCompiles(result);
+
+        using var stream = new MemoryStream();
+        result.Output.Emit(stream).Success.ShouldBeTrue();
+        var allow = Assembly.Load(stream.ToArray()).GetType("TestApp.Auth.Allow", throwOnError: true)!;
+        var codeFor = allow.GetMethod("PermissionCodeFor")!;
+        var nameFor = allow.GetMethod("PermissionNameFor")!;
+
+        codeFor.Invoke(null, ["class"]).ShouldBe("x");
+        codeFor.Invoke(null, ["permNames"]).ShouldBe("y");
+        nameFor.Invoke(null, ["x"]).ShouldBe("class");
+    }
+
+    [Fact]
     public void partial_property_typed_as_string_alias_gets_implementation()
     {
         const string allowSource =
@@ -355,6 +384,25 @@ public class AccessControlGeneratorTests
         GeneratorTestHarness.AssertCompiles(result);
         result.Generated.ShouldContain("public static partial string Pascal_Partial");
         result.Generated.ShouldContain("public static partial string Qualified_Partial");
+    }
+
+    [Fact]
+    public void verbatim_keyword_partial_property_gets_implementation()
+    {
+        const string allowSource =
+            """
+            namespace TestApp.Auth;
+
+            public static partial class Allow
+            {
+                public static partial string @class { get; }
+            }
+            """;
+
+        var result = GeneratorTestHarness.Run<AccessControlGenerator>([EndpointSource, PermissionGroupSource, allowSource], _references, hintFileName: "Allow.g.cs");
+
+        GeneratorTestHarness.AssertCompiles(result);
+        result.Generated.ShouldContain("public static partial string @class");
     }
 
     const string PermissionGroupSource = "namespace TestApp; static class PermissionGroup { internal const string Group = \"Admin\"; }";

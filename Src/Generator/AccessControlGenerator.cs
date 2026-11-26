@@ -154,9 +154,7 @@ public class AccessControlGenerator : IIncrementalGenerator
             if (IsHiddenFromDocs(symbol, ctx.SemanticModel.Compilation))
                 return default;
 
-            return symbol.ConstantValue is string code
-                       ? new(variable.Identifier.ValueText, code)
-                       : new(variable.Identifier.ValueText, variable.Identifier.ValueText, $"{variable.Identifier.Text} ?? string.Empty", isCodeKnown: false);
+            return new(variable.Identifier.ValueText, symbol.ConstantValue as string);
         }
 
         //executed per each keystroke
@@ -180,7 +178,7 @@ public class AccessControlGenerator : IIncrementalGenerator
             if (ctx.SemanticModel.GetDeclaredSymbol(prop) is { Type.SpecialType: SpecialType.System_String } symbol &&
                 IsGeneratedAllowType(symbol.ContainingType, ctx.SemanticModel.Compilation) &&
                 !IsHiddenFromDocs(symbol, ctx.SemanticModel.Compilation))
-                return new(prop.Identifier.ValueText);
+                return new(prop.Identifier.ValueText, Permission.GetAclHash(prop.Identifier.ValueText));
 
             return default;
         }
@@ -225,7 +223,7 @@ public class AccessControlGenerator : IIncrementalGenerator
 
     static void ReportDuplicatePermissionCodes(SourceProductionContext spc, Permission[] perms)
     {
-        var duplicates = perms.Where(static p => p.IsCodeKnown)
+        var duplicates = perms.Where(static p => p.Code is not null)
                               .GroupBy(static p => p.Code)
                               .Select(
                                   static g => new
@@ -264,7 +262,7 @@ public class AccessControlGenerator : IIncrementalGenerator
                 $"""
 
                      /// <summary>{XmlEscape(p.Description)}</summary><remark>Generated from endpoint: <see cref="{p.Endpoint}"/></remark>
-                     public const string {p.Name} = {CsString(p.Code)};
+                     public const string {p.Name} = {CsString(p.Code!)};
                  """);
         }
         b.w(
@@ -306,7 +304,7 @@ public class AccessControlGenerator : IIncrementalGenerator
                 sb.w(
                     $$"""
 
-                          public static partial string {{p.Name}} { get => {{CsString(p.Code)}}; }
+                          public static partial string {{p.Name.EscapeKeyword()}} { get => {{CsString(p.Code!)}}; }
                       """);
             }
 
@@ -330,10 +328,13 @@ public class AccessControlGenerator : IIncrementalGenerator
 
             foreach (var p in perms)
             {
+                //a null code is read from the hand-written field at runtime. qualified so a field can't be shadowed by the parameters.
+                var code = p.Code is { } c ? CsString(c) : $"Allow.{p.Name.EscapeKeyword()} ?? string.Empty";
+
                 sb.w(
                     $"""
-                             permNames[{CsString(p.Name)}] = {p.CodeExpression};
-                             permCodes[{p.CodeExpression}] = {CsString(p.Name)};
+                             permNames[{CsString(p.Name)}] = {code};
+                             permCodes[{code}] = {CsString(p.Name)};
 
                      """);
             }
@@ -415,7 +416,7 @@ public class AccessControlGenerator : IIncrementalGenerator
                         $$"""
 
                                   //{{p.Name}}
-                                  { {{CsString(p.Code)}}, {{CsString(p.Description)}} },
+                                  { {{CsString(p.Code!)}}, {{CsString(p.Description)}} },
                           """);
                 }
             }
@@ -564,11 +565,12 @@ public class AccessControlGenerator : IIncrementalGenerator
     {
         public string Name { get; }
         public string? Description { get; }
-        public string Code { get; }
-        public string CodeExpression { get; }
+
+        //null when the code is only known at runtime (a hand-written non-const field)
+        public string? Code { get; }
+
         public string Endpoint { get; }
         public EquatableArray<string> Categories { get; }
-        public bool IsCodeKnown { get; }
         public bool IsValid => Name is not null;
 
         internal Permission(string endpoint, string permissionName, string[] groupNames, string? description)
@@ -577,39 +579,21 @@ public class AccessControlGenerator : IIncrementalGenerator
 
             Name = permissionName.ToValidCSharpIdentifier("_");
             Code = GetAclHash(permissionName);
-            CodeExpression = CsString(Code);
             Endpoint = endpoint;
             Description = description;
             Categories = new([.. groupNames.Select(static c => c.ToValidIdentifier("_").ToValidCSharpIdentifier("_"))]);
-            IsCodeKnown = true;
         }
 
-        internal Permission(string name, string code)
-            : this(name, code, CsString(code)) { }
-
-        internal Permission(string name, string code, string codeExpression, bool isCodeKnown = true)
+        internal Permission(string name, string? code)
         {
             Name = name;
             Code = code;
-            CodeExpression = codeExpression;
             Endpoint = string.Empty;
             Description = null;
             Categories = default;
-            IsCodeKnown = isCodeKnown;
         }
 
-        internal Permission(string name)
-        {
-            Name = name;
-            Code = GetAclHash(name);
-            CodeExpression = CsString(Code);
-            Endpoint = string.Empty;
-            Description = null;
-            Categories = default;
-            IsCodeKnown = true;
-        }
-
-        static string GetAclHash(string input)
+        internal static string GetAclHash(string input)
         {
             //NOTE: if modifying this algo, update FastEndpoints.Endpoint.Base.GetAclHash() method also!
             using var sha256 = SHA256.Create();

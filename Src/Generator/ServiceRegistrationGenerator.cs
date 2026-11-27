@@ -68,7 +68,8 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
         foreach (var reg in input.Registrations
                                  .Select(static r => r!)
                                  .OrderBy(static r => r.LifeTime, StringComparer.Ordinal)
-                                 .ThenBy(static r => r.ServiceType, StringComparer.Ordinal))
+                                 .ThenBy(static r => r.ServiceType, StringComparer.Ordinal)
+                                 .ThenBy(static r => r.ImplType, StringComparer.Ordinal))
         {
             b.w(
                 $"""

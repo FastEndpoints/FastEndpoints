@@ -24,9 +24,9 @@ public class GenericProcessorTypesGenerator : IIncrementalGenerator
 
         initCtx.RegisterSourceOutput(provider.Combine(initCtx.RootNamespaceProvider()), Generate);
 
-        //executed per each keystroke - filter to classes that can implement an interface or derive from an endpoint base
+        //executed per each keystroke - filter to classes and records that can implement an interface or derive from an endpoint base
         static bool Qualify(SyntaxNode node, CancellationToken _)
-            => node is ClassDeclarationSyntax && node.IsCandidateTypeDeclaration();
+            => node.IsCandidateTypeDeclaration();
     }
 
     //executed per each keystroke but only for syntax nodes filtered by the Qualify method

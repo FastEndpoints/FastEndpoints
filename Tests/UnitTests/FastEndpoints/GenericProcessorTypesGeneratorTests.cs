@@ -511,6 +511,44 @@ public class GenericProcessorTypesGeneratorTests
         result.Generated.ShouldNotContain("SkippedReq");
     }
 
+
+    [Fact]
+    public void open_generic_record_processors_are_closed_with_endpoint_dtos()
+    {
+        const string source =
+            """
+            using System.Threading;
+            using System.Threading.Tasks;
+            using FastEndpoints;
+
+            namespace TestApp;
+
+            public record RecordPre<TRequest> : IPreProcessor<TRequest>
+            {
+                public Task PreProcessAsync(IPreProcessorContext<TRequest> ctx, CancellationToken ct) => Task.CompletedTask;
+            }
+
+            public record struct RecordStructPost<TRequest, TResponse> : IPostProcessor<TRequest, TResponse>
+            {
+                public Task PostProcessAsync(IPostProcessorContext<TRequest, TResponse> ctx, CancellationToken ct) => Task.CompletedTask;
+            }
+
+            public class Req;
+            public class Res;
+
+            public class MyEndpoint : Endpoint<Req, Res>
+            {
+                public override Task HandleAsync(Req req, CancellationToken ct) => Task.CompletedTask;
+            }
+            """;
+
+        var result = GeneratorTestHarness.Run<GenericProcessorTypesGenerator>([source, ShadowingSource], _references);
+
+        GeneratorTestHarness.AssertCompiles(result);
+        result.Generated.ShouldContain("Preserve<global::TestApp.RecordPre<global::TestApp.Req>>()");
+        result.Generated.ShouldContain("Preserve<global::TestApp.RecordStructPost<global::TestApp.Req, global::TestApp.Res>>()");
+    }
+
     static readonly ImmutableArray<MetadataReference> _references = GeneratorTestHarness.GetReferences(typeof(Endpoint<>).Assembly);
 
     //the compilation has no implicit usings, so the generated code must declare everything it uses

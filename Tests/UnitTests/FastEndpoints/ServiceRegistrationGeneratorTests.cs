@@ -52,6 +52,34 @@ public class ServiceRegistrationGeneratorTests
         result.Generated.ShouldNotContain("Abstract");
     }
 
+    [Fact]
+    public void obsolete_types_do_not_raise_obsolete_warnings_in_generated_code()
+    {
+        const string source =
+            """
+            using System;
+            using FastEndpoints;
+
+            namespace TestApp;
+
+            public interface IFoo;
+            public interface IBar;
+
+            [Obsolete, RegisterService<IFoo>(LifeTime.Scoped)]
+            public class Foo : IFoo;
+
+            [Obsolete("use something else"), RegisterService<IBar>(LifeTime.Scoped)]
+            public class Bar : IBar;
+            """;
+
+        var result = GeneratorTestHarness.Run<ServiceRegistrationGenerator>([source], _references);
+
+        GeneratorTestHarness.AssertCompiles(result);
+        result.Generated.ShouldContain("sc.AddScoped<global::TestApp.IFoo, global::TestApp.Foo>();");
+        result.Generated.ShouldContain("sc.AddScoped<global::TestApp.IBar, global::TestApp.Bar>();");
+        GeneratorTestHarness.AssertNoObsoleteWarningsInGeneratedCode(result);
+    }
+
 
     [Fact]
     public void generic_types_are_skipped_and_nested_types_are_fully_qualified()

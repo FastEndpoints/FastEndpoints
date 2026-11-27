@@ -377,6 +377,67 @@ public class AccessControlGeneratorTests
     }
 
     [Fact]
+    public void nested_or_generic_allow_lookalikes_are_not_treated_as_the_generated_allow()
+    {
+        const string lookalikeSource =
+            """
+            namespace TestApp.Auth;
+
+            public static class Outer
+            {
+                public static partial class Allow
+                {
+                    public const string Nested_Const = "901";
+                    public static string Nested_Static = "902";
+                    public static partial string Nested_Partial { get; }
+                    public static partial string Nested_Partial => "903";
+                }
+            }
+
+            public static class Allow<T>
+            {
+                public const string Generic_Const = "904";
+            }
+            """;
+
+        var result = GeneratorTestHarness.Run<AccessControlGenerator>([EndpointSource, PermissionGroupSource, lookalikeSource], _references, hintFileName: "Allow.g.cs");
+
+        GeneratorTestHarness.AssertCompiles(result);
+        result.Generated.ShouldContain("Inventory_Update_Item");
+        result.Generated.ShouldNotContain("Nested_Const");
+        result.Generated.ShouldNotContain("Nested_Static");
+        result.Generated.ShouldNotContain("Nested_Partial");
+        result.Generated.ShouldNotContain("Generic_Const");
+    }
+
+    [Fact]
+    public void obsolete_hand_written_allow_members_do_not_raise_obsolete_warnings_in_generated_code()
+    {
+        const string allowSource =
+            """
+            using System;
+
+            namespace TestApp.Auth;
+
+            public static partial class Allow
+            {
+                [Obsolete]
+                public static string Legacy_Field = "901";
+
+                [Obsolete("use something else")]
+                public static readonly string Older_Field = "902";
+            }
+            """;
+
+        var result = GeneratorTestHarness.Run<AccessControlGenerator>([EndpointSource, PermissionGroupSource, allowSource], _references, hintFileName: "Allow.g.cs");
+
+        GeneratorTestHarness.AssertCompiles(result);
+        result.Generated.ShouldContain("Allow.Legacy_Field");
+        result.Generated.ShouldContain("Allow.Older_Field");
+        GeneratorTestHarness.AssertNoObsoleteWarningsInGeneratedCode(result);
+    }
+
+    [Fact]
     public void static_readonly_fields_with_keyword_or_parameter_names_are_included_in_lookups()
     {
         const string allowSource =

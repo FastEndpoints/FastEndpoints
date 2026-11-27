@@ -66,11 +66,11 @@ public class AccessControlGenerator : IIncrementalGenerator
         {
             var invocation = (InvocationExpressionSyntax)ctx.Node;
 
-            //skip same-named user methods. unresolved calls (broken code while typing) are kept.
+            //skip same-named user methods (the library declares AccessControl only on Endpoint<TRequest, TResponse>). unresolved calls (broken code while typing) are kept.
             var symbolInfo = ctx.SemanticModel.GetSymbolInfo(invocation);
             var methods = symbolInfo.Symbol is { } symbol ? [symbol] : symbolInfo.CandidateSymbols;
 
-            if (methods.Length > 0 && !methods.Any(static m => m.ContainingNamespace?.ToDisplayString() == "FastEndpoints"))
+            if (methods.Length > 0 && !methods.Any(static m => m.ContainingType?.MetadataFullName() == Extensions.EndpointBase))
                 return null;
 
             //the call can be nested in blocks, lambdas, local functions etc. of the endpoint class
@@ -178,7 +178,7 @@ public class AccessControlGenerator : IIncrementalGenerator
 
         static bool IsGeneratedAllowType(INamedTypeSymbol? type, Compilation compilation)
             => type is { Name: AllowClass, IsStatic: true } &&
-               type.ContainingNamespace.ToDisplayString().Equals(AuthNamespace(compilation.ToRootNamespace()), StringComparison.Ordinal);
+               type.MetadataFullName() == $"{AuthNamespace(compilation.ToRootNamespace())}.{AllowClass}";
     }
 
     //only executed if the equality comparer says the data is not what has been cached by roslyn
@@ -416,6 +416,7 @@ public class AccessControlGenerator : IIncrementalGenerator
         var frozenUsing = frozen ? "\nusing System.Collections.Frozen;" : null;
 
         return $$"""
+                 {{Extensions.DisableObsoleteWarnings}}
                  #nullable enable
 
                  using FastEndpoints;

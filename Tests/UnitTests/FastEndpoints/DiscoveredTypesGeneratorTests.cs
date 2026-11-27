@@ -223,6 +223,36 @@ public class DiscoveredTypesGeneratorTests
         generated.ShouldNotContain("BaseOfEndpoints");
     }
 
+    [Fact]
+    public void obsolete_types_do_not_raise_obsolete_warnings_in_generated_code()
+    {
+        const string source =
+            """
+            using FastEndpoints;
+
+            namespace TestApp;
+
+            [Obsolete]
+            public class OldEndpoint : EndpointWithoutRequest
+            {
+                public override Task HandleAsync(CancellationToken ct) => Task.CompletedTask;
+            }
+
+            [Obsolete("use something else")]
+            public class OlderEndpoint : EndpointWithoutRequest
+            {
+                public override Task HandleAsync(CancellationToken ct) => Task.CompletedTask;
+            }
+            """;
+
+        var result = GeneratorTestHarness.Run<DiscoveredTypesGenerator>([ImplicitUsingsSource, source], _references, hintFileName: "DiscoveredTypes.g.cs");
+
+        GeneratorTestHarness.AssertCompiles(result);
+        result.Generated.ShouldContain("Preserve<global::TestApp.OldEndpoint>()");
+        result.Generated.ShouldContain("Preserve<global::TestApp.OlderEndpoint>()");
+        GeneratorTestHarness.AssertNoObsoleteWarningsInGeneratedCode(result);
+    }
+
     static readonly ImmutableArray<MetadataReference> _references =
         GeneratorTestHarness.GetReferences(typeof(Endpoint<>).Assembly, typeof(IValidator).Assembly);
 

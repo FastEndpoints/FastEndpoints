@@ -94,4 +94,10 @@ internal static class GeneratorTestHarness
               .Where(static d => d.Severity == DiagnosticSeverity.Error)
               .ShouldBeEmpty();
     }
+
+    //generated code can't be annotated by users, so it must not raise CS0612 ([Obsolete]) or CS0618 ([Obsolete("...")]) for obsolete user types
+    internal static void AssertNoObsoleteWarningsInGeneratedCode(GeneratorTestResult result)
+        => result.Output.GetDiagnostics()
+                 .Where(d => d.Id is "CS0612" or "CS0618" && !result.Input.SyntaxTrees.Contains(d.Location.SourceTree))
+                 .ShouldBeEmpty();
 }

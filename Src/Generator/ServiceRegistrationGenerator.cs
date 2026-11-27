@@ -54,13 +54,15 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
 
         var b = new StringBuilder().w(
             $$"""
+              {{Extensions.DisableObsoleteWarnings}}
+
               using Microsoft.Extensions.DependencyInjection;
 
               namespace {{input.RootNamespace}};
 
               public static class ServiceRegistrationExtensions
               {
-                  public static global::Microsoft.Extensions.DependencyInjection.IServiceCollection RegisterServicesFrom{{input.RootNamespace.ToValidIdentifier(string.Empty)}}(this global::Microsoft.Extensions.DependencyInjection.IServiceCollection sc)
+                  public static global::Microsoft.Extensions.DependencyInjection.IServiceCollection RegisterServicesFrom{{input.RootNamespace.ToMethodSuffix()}}(this global::Microsoft.Extensions.DependencyInjection.IServiceCollection sc)
                   {
 
               """);

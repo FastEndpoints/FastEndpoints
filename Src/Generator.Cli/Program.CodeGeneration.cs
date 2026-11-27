@@ -116,7 +116,7 @@ partial class Program
         sb.l("    /// <summary>");
         sb.l("    /// Adds the generated JSON serializer context to the JSON serializer options.");
         sb.l("    /// </summary>");
-        sb.l($"    public static JsonSerializerOptions AddSerializerContextsFrom{rootNamespace.ToValidIdentifier(string.Empty)}(this JsonSerializerOptions options)");
+        sb.l($"    public static JsonSerializerOptions AddSerializerContextsFrom{rootNamespace.ToMethodSuffix()}(this JsonSerializerOptions options)");
         sb.l("    {");
         if (hasContext)
         {

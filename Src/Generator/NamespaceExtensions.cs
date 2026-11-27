@@ -13,6 +13,10 @@ static class NamespaceExtensions
         internal string ToValidIdentifier(string replacement = "_")
             => _identifierRegex.Replace(input, replacement);
 
+        //suffix of the generated public extension methods (AddFrom*, RegisterServicesFrom*, AddSerializerContextsFrom*). changing it renames user facing apis.
+        internal string ToMethodSuffix()
+            => input.ToValidIdentifier(string.Empty);
+
         internal string ToValidCSharpIdentifier(string replacement = "_")
         {
             var identifier = input.ToValidIdentifier(replacement);

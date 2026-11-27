@@ -511,6 +511,34 @@ public class GenericProcessorTypesGeneratorTests
         result.Generated.ShouldNotContain("SkippedReq");
     }
 
+    [Fact]
+    public void obsolete_types_do_not_raise_obsolete_warnings_in_generated_code()
+    {
+        const string source =
+            ProcessorsSource +
+            """
+            [global::System.Obsolete]
+            public class OldReq;
+
+            [global::System.Obsolete("use something else")]
+            public class OldPre<TRequest> : IPreProcessor<TRequest>
+            {
+                public Task PreProcessAsync(IPreProcessorContext<TRequest> ctx, CancellationToken ct) => Task.CompletedTask;
+            }
+
+            public class OldEndpoint : Endpoint<OldReq>
+            {
+                public override Task HandleAsync(OldReq req, CancellationToken ct) => Task.CompletedTask;
+            }
+            """;
+
+        var result = GeneratorTestHarness.Run<GenericProcessorTypesGenerator>([source, ShadowingSource], _references);
+
+        GeneratorTestHarness.AssertCompiles(result);
+        result.Generated.ShouldContain("Preserve<global::TestApp.OldPre<global::TestApp.OldReq>>()");
+        GeneratorTestHarness.AssertNoObsoleteWarningsInGeneratedCode(result);
+    }
+
 
     [Fact]
     public void open_generic_record_processors_are_closed_with_endpoint_dtos()

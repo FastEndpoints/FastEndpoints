@@ -39,12 +39,15 @@ static class Extensions
     internal static IncrementalValueProvider<string> RootNamespaceProvider(this IncrementalGeneratorInitializationContext ctx)
         => ctx.CompilationProvider.Select(static (c, _) => c.ToRootNamespace());
 
+    //generated code references user types as they are. a bare [Obsolete] raises CS0612 and [Obsolete("...")] raises CS0618, neither of which users can suppress there.
+    internal const string DisableObsoleteWarnings = "#pragma warning disable CS0612, CS0618";
+
     internal static string RenderPreservedTypeList(string rootNamespace, string className, IEnumerable<string> typeExpressions)
     {
         //names are global:: qualified because user namespaces/types (e.g. {root}.System) can shadow unqualified ones
         var b = new StringBuilder().w(
             $$"""
-              #pragma warning disable CS0618
+              {{DisableObsoleteWarnings}}
 
               namespace {{rootNamespace}};
 
@@ -109,6 +112,7 @@ static class Extensions
     internal const string IEndpoint = "FastEndpoints.IEndpoint";
     internal const string IPreProcessor = "FastEndpoints.IPreProcessor`1";
     internal const string IPostProcessor = "FastEndpoints.IPostProcessor`2";
+    internal const string EndpointBase = "FastEndpoints.Endpoint`2";
 
     // ReSharper restore InconsistentNaming
 
@@ -150,7 +154,7 @@ static class Extensions
         {
             for (var type = symbol.BaseType; type is not null; type = type.BaseType)
             {
-                if (type is { Name: "Endpoint", Arity: 2, ContainingNamespace: { Name: "FastEndpoints", ContainingNamespace.IsGlobalNamespace: true } })
+                if (type.MetadataFullName() == EndpointBase)
                     return type;
             }
 

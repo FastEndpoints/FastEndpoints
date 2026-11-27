@@ -1290,6 +1290,46 @@ public class ReflectionGeneratorTests
         result.Generated.ShouldNotContain("SkippedRequest");
     }
 
+    [Fact]
+    public void obsolete_types_do_not_raise_obsolete_warnings_in_generated_code()
+    {
+        const string source =
+            """
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+            using FastEndpoints;
+
+            namespace MyApp;
+
+            [Obsolete]
+            public class OldRequest
+            {
+                public OldItem Item { get; set; } = new();
+            }
+
+            [Obsolete("use something else")]
+            public class OldItem
+            {
+                public string Name { get; set; } = "";
+            }
+
+            public class OldEndpoint : Endpoint<OldRequest, string>
+            {
+                public override void Configure() { }
+
+                public override Task HandleAsync(OldRequest req, CancellationToken ct) => Task.CompletedTask;
+            }
+            """;
+
+        var result = Run(source);
+
+        AssertCompiles(result);
+        result.Generated.ShouldContain("global::MyApp.OldRequest");
+        result.Generated.ShouldContain("global::MyApp.OldItem");
+        GeneratorTestHarness.AssertNoObsoleteWarningsInGeneratedCode(result);
+    }
+
 
     //pins the root walk (request dto first, endpoint class last) against nested walks: abstract, interface and nullable-annotated request dtos are walked as declared,
     //a property-less request dto is omitted while a property-less nested type is emitted, and an enumerable request dto only registers its element type.
@@ -1367,7 +1407,7 @@ public class ReflectionGeneratorTests
         AssertCompiles(result);
         result.Generated.ShouldBe(
             """
-            #pragma warning disable CS0618
+            #pragma warning disable CS0612, CS0618
             #nullable enable
 
             using t0 = global::TestApp.AbstractRequest;

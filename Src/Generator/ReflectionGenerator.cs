@@ -15,7 +15,7 @@ public class ReflectionGenerator : IIncrementalGenerator
     const string ConditionArgument = "Condition";
     const string DontInjectAttribute = "FastEndpoints.DontInjectAttribute";
     const string IEnumerable = "System.Collections.IEnumerable";
-    const string IParsable = "System.IParsable<";
+    const string IParsable = "System.IParsable`1";
     const string JsonIgnoreAttribute = "System.Text.Json.Serialization.JsonIgnoreAttribute";
     const string KeyedServiceAttribute = "FastEndpoints.KeyedServiceAttribute";
     const string ReflectionCache = "FastEndpoints.ReflectionCache";
@@ -73,8 +73,8 @@ public class ReflectionGenerator : IIncrementalGenerator
     static string RenderClass(string rootNamespace, TypeModel[] types)
     {
         var b = new StringBuilder().w(
-            """
-            #pragma warning disable CS0618
+            $"""
+            {Extensions.DisableObsoleteWarnings}
             #nullable enable
 
 
@@ -108,7 +108,7 @@ public class ReflectionGenerator : IIncrementalGenerator
                   /// <summary>
                   /// register source generated reflection data from [{{rootNamespace}}] with the central cache.
                   /// </summary>
-                  public static global::FastEndpoints.ReflectionCache AddFrom{{rootNamespace.ToValidIdentifier(string.Empty)}}(this global::FastEndpoints.ReflectionCache cache)
+                  public static global::FastEndpoints.ReflectionCache AddFrom{{rootNamespace.ToMethodSuffix()}}(this global::FastEndpoints.ReflectionCache cache)
                   {
 
               """);
@@ -282,7 +282,7 @@ public class ReflectionGenerator : IIncrementalGenerator
 
             bool? isParsable = null;
 
-            foreach (var ifcName in type.AllInterfaces.Select(ifc => ifc.ToDisplayString()))
+            foreach (var ifcName in type.AllInterfaces.Select(static ifc => ifc.MetadataFullName()))
             {
                 if (ifcName == IEnumerable)
                 {
@@ -299,7 +299,7 @@ public class ReflectionGenerator : IIncrementalGenerator
                     return;
                 }
 
-                if (ifcName.StartsWith(IParsable, StringComparison.Ordinal))
+                if (ifcName == IParsable)
                     isParsable = true;
             }
 

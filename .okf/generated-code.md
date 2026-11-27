@@ -18,7 +18,9 @@ The package ships under `analyzers/dotnet/cs`, with `DevelopmentDependency=false
 | `ServiceRegistrationGenerator` | DI registration from attributes. Registrations are sorted by lifetime, service type, then implementation type, so which duplicate registration wins in DI (the last one) never depends on source file order |
 | `GenericProcessorTypesGenerator` | Generic pre/post processor type materialization |
 
-The discovery whitelist is owned by `DiscoveredTypesGenerator`; check it when adding a discoverable contract.
+The discovery whitelist is owned by `DiscoveredTypesGenerator`; check it when adding a discoverable contract. Its entries are exact metadata names, so list each generic arity (``FastEndpoints.ICommandHandler`1``).
+
+Interface and attribute checks go through `Extensions.MetadataFullName()` (`ImplementsInterface()`, `HasAttribute()`, `AttributeData.Matches()`): namespace-qualified and arity-aware, mirroring the runtime's exact `Type` checks. Don't match by simple name or display-string prefix, which picks up lookalikes (`IEndpointFactory` for `IEndpoint`, a user's `MyApp.DontRegisterAttribute`) that reflection discovery ignores.
 
 Type-discovering generators share `Extensions.IsCandidateTypeDeclaration()` (class or record with a base list, not nested in an open generic) and `IsRegistrable()` (mirrors `AssemblyScanner.IsTypeMatch`: not abstract, no `[DontRegister]`); change the rule there. They skip open generic classes and non-generic classes nested inside an open generic (`IsNestedInGenericType()`): nested types inside open generics are generic at runtime (`Type.IsGenericType`), `AssemblyScanner` drops them, and emitting `Outer<T>.Inner` does not compile. `ReflectionGenerator` additionally requires class declarations (endpoints are classes). `GenericProcessorTypesGenerator` still matches open-generic processors while skipping open-generic endpoints; `AccessControlGenerator` inspects `AccessControl(...)` calls directly.
 

@@ -164,6 +164,39 @@ public class DiscoveredTypesGeneratorTests
         generated.ShouldNotContain("SkippedEndpoint");
     }
 
+    [Fact]
+    public void lookalike_interfaces_and_attributes_from_other_namespaces_are_not_matched()
+    {
+        const string source =
+            """
+            using FastEndpoints;
+            using Microsoft.AspNetCore.Http;
+
+            namespace TestApp;
+
+            [System.AttributeUsage(System.AttributeTargets.Class)]
+            public sealed class DontRegisterAttribute : System.Attribute;
+
+            public class MyEndpointFactory : IEndpointFactory
+            {
+                public BaseEndpoint Create(EndpointDefinition definition, HttpContext ctx) => null!;
+            }
+
+            [TestApp.DontRegister]
+            public class IncludedEndpoint : EndpointWithoutRequest
+            {
+                public override Task HandleAsync(CancellationToken ct) => Task.CompletedTask;
+            }
+            """;
+
+        var generated = RunGenerator(source, out var diagnostics, out var outputCompilation);
+
+        diagnostics.ShouldBeEmpty();
+        outputCompilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ShouldBeEmpty();
+        generated.ShouldContain("Preserve<global::TestApp.IncludedEndpoint>()");
+        generated.ShouldNotContain("MyEndpointFactory");
+    }
+
 
     [Fact]
     public void abstract_type_is_omitted_from_discovered_types()

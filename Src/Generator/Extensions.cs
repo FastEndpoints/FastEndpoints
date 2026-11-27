@@ -104,13 +104,46 @@ static class Extensions
            node is TypeDeclarationSyntax { BaseList: not null } &&
            !node.IsNestedInGenericType();
 
-    const string DontRegisterAttribute = "DontRegisterAttribute";
+    // ReSharper disable InconsistentNaming
+    //metadata names (see MetadataFullName) of the FastEndpoints contracts that more than one generator matches
+    internal const string IEndpoint = "FastEndpoints.IEndpoint";
+    internal const string IPreProcessor = "FastEndpoints.IPreProcessor`1";
+    internal const string IPostProcessor = "FastEndpoints.IPostProcessor`2";
+
+    // ReSharper restore InconsistentNaming
+
+    const string DontRegisterAttribute = "FastEndpoints.DontRegisterAttribute";
+
+    extension(ISymbol symbol)
+    {
+        internal bool HasAttribute(string metadataFullName)
+            => symbol.GetAttributes().Any(a => a.Matches(metadataFullName));
+    }
+
+    extension(AttributeData attribute)
+    {
+        //like the runtime's exact type checks, a same named attribute from another namespace doesn't match
+        internal bool Matches(string metadataFullName)
+            => attribute.AttributeClass?.MetadataFullName() == metadataFullName;
+    }
 
     extension(ITypeSymbol symbol)
     {
+        //namespace qualified metadata name with the generic arity, e.g. "FastEndpoints.IPreProcessor`1" for any IPreProcessor<T>.
+        //unlike display string prefixes, it tells arities apart and doesn't match lookalikes such as IEndpointFactory for IEndpoint.
+        internal string MetadataFullName()
+            => symbol.ContainingType is { } parent
+                   ? $"{parent.MetadataFullName()}+{symbol.MetadataName}"
+                   : symbol.ContainingNamespace is { IsGlobalNamespace: false } ns
+                       ? $"{ns.ToDisplayString()}.{symbol.MetadataName}"
+                       : symbol.MetadataName;
+
+        internal bool ImplementsInterface(string metadataFullName)
+            => symbol.AllInterfaces.Any(i => i.MetadataFullName() == metadataFullName);
+
         //mirrors the abstract and [DontRegister] checks of AssemblyScanner.IsTypeMatch(). each generator handles generic types itself.
         internal bool IsRegistrable()
-            => !symbol.IsAbstract && !symbol.GetAttributes().Any(static a => a.AttributeClass?.Name == DontRegisterAttribute);
+            => !symbol.IsAbstract && !symbol.HasAttribute(DontRegisterAttribute);
 
         //walks up the base types to find FastEndpoints.Endpoint<TRequest, TResponse>, which every endpoint base class derives from
         internal INamedTypeSymbol? GetEndpointBase()
@@ -150,11 +183,11 @@ static class Extensions
                      .Distinct(StringComparer.Ordinal);
     }
 
-    const string SetsRequiredMembersAttribute = "global::System.Diagnostics.CodeAnalysis.SetsRequiredMembersAttribute";
+    const string SetsRequiredMembersAttribute = "System.Diagnostics.CodeAnalysis.SetsRequiredMembersAttribute";
 
     extension(IMethodSymbol method)
     {
         internal bool SetsRequiredMembers()
-            => method.GetAttributes().Any(static a => a.AttributeClass?.ToFullName() == SetsRequiredMembersAttribute);
+            => method.HasAttribute(SetsRequiredMembersAttribute);
     }
 }

@@ -13,8 +13,7 @@ public class ReflectionGenerator : IIncrementalGenerator
     // ReSharper disable InconsistentNaming
     static readonly string[] TypeBlacklist = ["Microsoft.Extensions.Primitives.StringSegment", "FastEndpoints.EmptyRequest", "System.Uri"];
     const string ConditionArgument = "Condition";
-    const string DontInjectAttribute = "DontInjectAttribute";
-    const string IEndpoint = "FastEndpoints.IEndpoint";
+    const string DontInjectAttribute = "FastEndpoints.DontInjectAttribute";
     const string IEnumerable = "System.Collections.IEnumerable";
     const string IParsable = "System.IParsable<";
     const string JsonIgnoreAttribute = "System.Text.Json.Serialization.JsonIgnoreAttribute";
@@ -50,7 +49,7 @@ public class ReflectionGenerator : IIncrementalGenerator
         {
             if (ctx.SemanticModel.GetDeclaredSymbol(ctx.Node) is not ITypeSymbol type ||
                 !type.IsRegistrable() ||
-                !type.AllInterfaces.Any(static i => i.ToDisplayString() == IEndpoint)) //must be an endpoint
+                !type.ImplementsInterface(Extensions.IEndpoint)) //must be an endpoint
                 return default;
 
             return new(TypeCollector.CollectEndpoint(type));
@@ -422,7 +421,7 @@ public class ReflectionGenerator : IIncrementalGenerator
 
         static string? ServiceKeyOf(IPropertySymbol prop)
             => AttributesOf(prop)
-               .FirstOrDefault(static a => a.AttributeClass?.ToDisplayString() == KeyedServiceAttribute)?.ConstructorArguments
+               .FirstOrDefault(static a => a.Matches(KeyedServiceAttribute))?.ConstructorArguments
                .FirstOrDefault().Value as string;
 
         //attributes of overridden properties are inherited at runtime (Attribute.GetCustomAttribute/IsDefined), derived ones first
@@ -436,7 +435,7 @@ public class ReflectionGenerator : IIncrementalGenerator
         }
 
         static bool HasDontInjectAttribute(IPropertySymbol prop)
-            => AttributesOf(prop).Any(static a => a.AttributeClass?.Name == DontInjectAttribute);
+            => AttributesOf(prop).Any(static a => a.Matches(DontInjectAttribute));
 
         static bool IsPartial(ITypeSymbol type)
             => type.DeclaringSyntaxReferences.Any(
@@ -448,7 +447,7 @@ public class ReflectionGenerator : IIncrementalGenerator
         {
             foreach (var attribute in AttributesOf(prop))
             {
-                if (attribute.AttributeClass?.ToDisplayString() != JsonIgnoreAttribute)
+                if (!attribute.Matches(JsonIgnoreAttribute))
                     continue;
 
                 foreach (var namedArgument in attribute.NamedArguments)

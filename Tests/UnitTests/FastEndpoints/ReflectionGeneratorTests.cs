@@ -563,6 +563,42 @@ public class ReflectionGeneratorTests
     }
 
     [Fact]
+    public void same_named_attributes_from_other_namespaces_are_not_matched()
+    {
+        const string source =
+            """
+            using System.Threading;
+            using System.Threading.Tasks;
+            using FastEndpoints;
+
+            namespace MyApp;
+
+            [System.AttributeUsage(System.AttributeTargets.Class)]
+            public sealed class DontRegisterAttribute : System.Attribute;
+
+            [System.AttributeUsage(System.AttributeTargets.Property)]
+            public sealed class DontInjectAttribute : System.Attribute;
+
+            public class MyRequest
+            {
+                [MyApp.DontInject]
+                public string Name { get; set; } = "";
+            }
+
+            [MyApp.DontRegister]
+            public class MyEndpoint : Endpoint<MyRequest>
+            {
+                public override Task HandleAsync(MyRequest req, CancellationToken ct) => Task.CompletedTask;
+            }
+            """;
+
+        var result = Run(source);
+
+        AssertCompiles(result);
+        result.Generated.ShouldContain("nameof(t0.Name)"); //the request is only collected if the endpoint isn't skipped
+    }
+
+    [Fact]
     public void single_accessor_property_overrides_match_runtime_and_required_members_still_initialize()
     {
         const string source =

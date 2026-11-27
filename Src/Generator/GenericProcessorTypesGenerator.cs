@@ -9,10 +9,6 @@ namespace FastEndpoints.Generator;
 [Generator(LanguageNames.CSharp)]
 public class GenericProcessorTypesGenerator : IIncrementalGenerator
 {
-    // ReSharper disable InconsistentNaming
-    const string IPreProcessor = "FastEndpoints.IPreProcessor<";
-    const string IPostProcessor = "FastEndpoints.IPostProcessor<";
-
     static readonly SymbolDisplayFormat _openGenericNameFormat = SymbolDisplayFormat.FullyQualifiedFormat.WithGenericsOptions(SymbolDisplayGenericsOptions.None);
 
     public void Initialize(IncrementalGeneratorInitializationContext initCtx)
@@ -39,14 +35,14 @@ public class GenericProcessorTypesGenerator : IIncrementalGenerator
         {
             foreach (var ifc in type.AllInterfaces)
             {
-                var ifcName = ifc.ToDisplayString();
+                var ifcName = ifc.MetadataFullName();
 
                 // IPreProcessor<TRequest>
-                if (type.TypeParameters.Length == 1 && ifcName.StartsWith(IPreProcessor, StringComparison.Ordinal))
+                if (type.TypeParameters.Length == 1 && ifcName == Extensions.IPreProcessor)
                     return Processor(isPostProcessor: false);
 
                 // IPostProcessor<TRequest, TResponse>
-                if (type.TypeParameters.Length == 2 && ifcName.StartsWith(IPostProcessor, StringComparison.Ordinal))
+                if (type.TypeParameters.Length == 2 && ifcName == Extensions.IPostProcessor)
                     return Processor(isPostProcessor: true);
             }
 

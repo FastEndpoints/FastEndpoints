@@ -9,20 +9,25 @@ namespace FastEndpoints.Generator;
 [Generator(LanguageNames.CSharp)]
 public class DiscoveredTypesGenerator : IIncrementalGenerator
 {
-    static readonly string[] _whiteList =
+    //metadata names (see Extensions.MetadataFullName) of the interfaces whose implementations are discovered
+    static readonly HashSet<string> _whiteList =
     [
-        "FastEndpoints.IEndpoint",
+        Extensions.IEndpoint,
         "FastEndpoints.IEventHandler",
+        "FastEndpoints.IEventHandler`1",
         "FastEndpoints.ICommandHandler",
-        "FastEndpoints.IStreamCommandHandler<",
+        "FastEndpoints.ICommandHandler`1",
+        "FastEndpoints.ICommandHandler`2",
+        "FastEndpoints.IStreamCommandHandler`2",
         "FastEndpoints.ISummary",
-        "FastEndpoints.IJobStorageProvider<",
-        "FastEndpoints.IPreProcessor<",
-        "FastEndpoints.IPostProcessor<",
-        "FastEndpoints.ICommandMiddleware<",
-        "FastEndpoints.IStreamCommandMiddleware<",
+        "FastEndpoints.IJobStorageProvider`1",
+        Extensions.IPreProcessor,
+        Extensions.IPostProcessor,
+        "FastEndpoints.ICommandMiddleware`2",
+        "FastEndpoints.IStreamCommandMiddleware`2",
         "FastEndpoints.IMapper",
-        "FluentValidation.IValidator"
+        "FluentValidation.IValidator",
+        "FluentValidation.IValidator`1"
     ];
 
     public void Initialize(IncrementalGeneratorInitializationContext initCtx)
@@ -42,12 +47,9 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
         static string? Transform(GeneratorSyntaxContext ctx, CancellationToken _)
             => ctx.SemanticModel.GetDeclaredSymbol(ctx.Node) is ITypeSymbol type &&
                type.IsRegistrable() &&
-               type.AllInterfaces.Any(static i => IsWhiteListed(i.ToDisplayString()))
+               type.AllInterfaces.Any(static i => _whiteList.Contains(i.MetadataFullName()))
                    ? type.ToFullName()
                    : null;
-
-        static bool IsWhiteListed(string interfaceName)
-            => _whiteList.Any(w => interfaceName.StartsWith(w, StringComparison.Ordinal));
     }
 
     //only executed if the equality comparer says the data is not what has been cached by roslyn

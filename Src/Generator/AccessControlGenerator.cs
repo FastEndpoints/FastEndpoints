@@ -12,6 +12,12 @@ public class AccessControlGenerator : IIncrementalGenerator
 {
     const string AccessControl = "AccessControl";
 
+    //identity of the generated Allow class. hand-written members are only picked up from a class matching it.
+    const string AllowClass = "Allow";
+
+    static string AuthNamespace(string rootNamespace)
+        => $"{rootNamespace}.Auth";
+
     static readonly DiagnosticDescriptor _duplicatePermissionCode = new(
         id: "FEAC001",
         title: "Duplicate permission code",
@@ -130,22 +136,24 @@ public class AccessControlGenerator : IIncrementalGenerator
         //type and static-ness are checked semantically, since any partial part may omit 'static' and the type may be spelled 'String'.
         static bool QualifyCustom(SyntaxNode node, CancellationToken _)
             => node is VariableDeclaratorSyntax { Parent.Parent: FieldDeclarationSyntax field } &&
-               field.Modifiers.Any(m => m.IsKind(SyntaxKind.PublicKeyword)) &&
-               (field.Modifiers.Any(m => m.IsKind(SyntaxKind.ConstKeyword)) || field.Modifiers.Any(m => m.IsKind(SyntaxKind.StaticKeyword))) &&
-               field.Parent is ClassDeclarationSyntax { Identifier.ValueText: "Allow" };
+               IsPublicMemberOfAllow(field) &&
+               (field.Modifiers.Any(m => m.IsKind(SyntaxKind.ConstKeyword)) || field.Modifiers.Any(m => m.IsKind(SyntaxKind.StaticKeyword)));
 
         //executed per each keystroke
         static bool QualifyPartial(SyntaxNode node, CancellationToken _)
             => node is PropertyDeclarationSyntax prop &&
-               prop.Modifiers.Any(m => m.IsKind(SyntaxKind.PublicKeyword)) &&
+               IsPublicMemberOfAllow(prop) &&
                prop.Modifiers.Any(m => m.IsKind(SyntaxKind.StaticKeyword)) &&
                prop.Modifiers.Any(m => m.ValueText == "partial") &&
                prop is { AccessorList.Accessors.Count: 1 } &&
                prop.AccessorList.Accessors[0].IsKind(SyntaxKind.GetAccessorDeclaration) &&
                prop.AccessorList.Accessors[0].Body is null &&
                prop.AccessorList.Accessors[0].ExpressionBody is null &&
-               prop.ExpressionBody is null &&
-               prop.Parent is ClassDeclarationSyntax { Identifier.ValueText: "Allow" };
+               prop.ExpressionBody is null;
+
+        static bool IsPublicMemberOfAllow(MemberDeclarationSyntax member)
+            => member.Modifiers.Any(m => m.IsKind(SyntaxKind.PublicKeyword)) &&
+               member.Parent is ClassDeclarationSyntax { Identifier.ValueText: AllowClass };
 
         //executed per each keystroke but only for syntax nodes filtered by the QualifyCustom or QualifyPartial methods
         static AllowMember? TransformAllowMember(GeneratorSyntaxContext ctx, CancellationToken _)
@@ -159,7 +167,7 @@ public class AccessControlGenerator : IIncrementalGenerator
 
             if (member is not (IFieldSymbol { Type.SpecialType: SpecialType.System_String } or IPropertySymbol { Type.SpecialType: SpecialType.System_String }) ||
                 !IsGeneratedAllowType(member.ContainingType, ctx.SemanticModel.Compilation) ||
-                IsHiddenFromDocs(member, ctx.SemanticModel.Compilation))
+                member.HasAttribute($"{nameof(FastEndpoints)}.{nameof(HideFromDocsAttribute)}"))
                 return null;
 
             //a field keeps its own value (a null code when it's only known at runtime). a partial property gets a computed code.
@@ -168,19 +176,9 @@ public class AccessControlGenerator : IIncrementalGenerator
                        : new(member.Name, AclHash.Compute(member.Name), IsPartialProperty: true);
         }
 
-        static bool IsHiddenFromDocs(ISymbol symbol, Compilation compilation)
-        {
-            var hideFromDocs = compilation.GetTypeByMetadataName($"{nameof(FastEndpoints)}.{nameof(HideFromDocsAttribute)}");
-
-            return symbol.GetAttributes().Any(a => SymbolEqualityComparer.Default.Equals(a.AttributeClass, hideFromDocs));
-        }
-
         static bool IsGeneratedAllowType(INamedTypeSymbol? type, Compilation compilation)
-        {
-            var expectedNamespace = $"{compilation.ToRootNamespace()}.Auth";
-
-            return type is { Name: "Allow", IsStatic: true } && type.ContainingNamespace.ToDisplayString().Equals(expectedNamespace, StringComparison.Ordinal);
-        }
+            => type is { Name: AllowClass, IsStatic: true } &&
+               type.ContainingNamespace.ToDisplayString().Equals(AuthNamespace(compilation.ToRootNamespace()), StringComparison.Ordinal);
     }
 
     //only executed if the equality comparer says the data is not what has been cached by roslyn
@@ -231,17 +229,7 @@ public class AccessControlGenerator : IIncrementalGenerator
     {
         var b = new StringBuilder().w(
             $$"""
-              #nullable enable
-
-              using FastEndpoints;
-              using System;
-              using System.Collections.Generic;
-              using System.Linq;
-
-              namespace {{rootNamespace}}.Auth;
-
-              public static partial class Allow
-              {
+              {{RenderAllowHeader(rootNamespace, frozen: false)}}
 
               #region ACL_ITEMS
               """);
@@ -320,7 +308,7 @@ public class AccessControlGenerator : IIncrementalGenerator
             foreach (var p in perms)
             {
                 //a null code is read from the hand-written field at runtime. qualified so a field can't be shadowed by the parameters.
-                var code = p.Code is { } c ? CsString(c) : $"Allow.{p.Name.EscapeKeyword()} ?? string.Empty";
+                var code = p.Code is { } c ? CsString(c) : $"{AllowClass}.{p.Name.EscapeKeyword()} ?? string.Empty";
 
                 sb.w(
                     $"""
@@ -422,24 +410,33 @@ public class AccessControlGenerator : IIncrementalGenerator
         }
     }
 
+    //the start of every generated part of the Allow class, up to its opening brace
+    static string RenderAllowHeader(string rootNamespace, bool frozen)
+    {
+        var frozenUsing = frozen ? "\nusing System.Collections.Frozen;" : null;
+
+        return $$"""
+                 #nullable enable
+
+                 using FastEndpoints;
+                 using System;{{frozenUsing}}
+                 using System.Collections.Generic;
+                 using System.Linq;
+
+                 namespace {{AuthNamespace(rootNamespace)}};
+
+                 public static partial class {{AllowClass}}
+                 {
+                 """;
+    }
+
     static string RenderBase(string rootNamespace)
         => $$"""
-             #nullable enable
-
-             using FastEndpoints;
-             using System;
-             using System.Collections.Frozen;
-             using System.Collections.Generic;
-             using System.Linq;
-
-             namespace {{rootNamespace}}.Auth;
-
-             public static partial class Allow
-             {
+             {{RenderAllowHeader(rootNamespace, frozen: true)}}
                  private static readonly FrozenDictionary<string, string> _permNames;
                  private static readonly FrozenDictionary<string, string> _permCodes;
 
-                 static Allow()
+                 static {{AllowClass}}()
                  {
                      var permNames = new Dictionary<string, string>();
                      var permCodes = new Dictionary<string, string>();

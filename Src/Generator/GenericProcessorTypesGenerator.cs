@@ -45,11 +45,11 @@ public class GenericProcessorTypesGenerator : IIncrementalGenerator
 
                 // IPreProcessor<TRequest>
                 if (type.TypeParameters.Length == 1 && ifcName.StartsWith(IPreProcessor, StringComparison.Ordinal))
-                    return Processor(TypeKind.OpenGenericPreProcessor);
+                    return Processor(isPostProcessor: false);
 
                 // IPostProcessor<TRequest, TResponse>
                 if (type.TypeParameters.Length == 2 && ifcName.StartsWith(IPostProcessor, StringComparison.Ordinal))
-                    return Processor(TypeKind.OpenGenericPostProcessor);
+                    return Processor(isPostProcessor: true);
             }
 
             return null; //open generic endpoints are not discovered, so their type parameters must not be emitted
@@ -57,28 +57,27 @@ public class GenericProcessorTypesGenerator : IIncrementalGenerator
 
         // Endpoint<TRequest, TResponse>
         return type.GetEndpointBase() is { } epBase
-                   ? new(TypeKind.Endpoint, type.ToFullName(), default, Dto.From(epBase.TypeArguments[0]), Dto.From(epBase.TypeArguments[1]))
+                   ? new EndpointDtos(Dto.From(epBase.TypeArguments[0]), Dto.From(epBase.TypeArguments[1]))
                    : null;
 
-        TypeData Processor(TypeKind kind)
-            => new(kind, type.ToDisplayString(_openGenericNameFormat), new(type.TypeParameters.Select(Constraints.From).ToArray()));
+        ProcessorData Processor(bool isPostProcessor)
+            => new(isPostProcessor, type.ToDisplayString(_openGenericNameFormat), new(type.TypeParameters.Select(Constraints.From).ToArray()));
     }
 
     //only executed if the equality comparer says the data is not what has been cached by roslyn
     static void Generate(SourceProductionContext ctx, (ImmutableArray<TypeData?> Types, string RootNamespace) input)
     {
-        var types = input.Types.Select(static t => t!).ToArray();
-        var preProcessors = ProcessorsOf(TypeKind.OpenGenericPreProcessor);
-        var postProcessors = ProcessorsOf(TypeKind.OpenGenericPostProcessor);
+        var preProcessors = ProcessorsOf(isPostProcessor: false);
+        var postProcessors = ProcessorsOf(isPostProcessor: true);
 
-        var endpoints = types.Where(static t => t.Kind == TypeKind.Endpoint).ToArray();
+        var endpoints = input.Types.OfType<EndpointDtos>().ToArray();
 
         //processors are closed at runtime with the request/response types of the endpoint they're attached to
-        var requestTypes = endpoints.Select(static e => e.Request!)
+        var requestTypes = endpoints.Select(static e => e.Request)
                                     .Distinct()
                                     .OrderBy(static t => t.Name, StringComparer.Ordinal)
                                     .ToArray();
-        var dtoPairs = endpoints.Select(static e => (Request: e.Request!, Response: e.Response!))
+        var dtoPairs = endpoints.Select(static e => (e.Request, e.Response))
                                 .Distinct()
                                 .OrderBy(static p => p.Request.Name, StringComparer.Ordinal)
                                 .ThenBy(static p => p.Response.Name, StringComparer.Ordinal)
@@ -104,19 +103,19 @@ public class GenericProcessorTypesGenerator : IIncrementalGenerator
             "GenericProcessorTypes.g.cs",
             SourceText.From(Extensions.RenderPreservedTypeList(input.RootNamespace, "GenericProcessorTypes", typeExpressions), Encoding.UTF8));
 
-        TypeData[] ProcessorsOf(TypeKind kind)
-            => types.Where(t => t.Kind == kind)
+        ProcessorData[] ProcessorsOf(bool isPostProcessor)
+            => input.Types.OfType<ProcessorData>()
+                    .Where(p => p.IsPostProcessor == isPostProcessor)
                     .Distinct()
                     .OrderBy(static t => t.Name, StringComparer.Ordinal)
                     .ToArray();
     }
 
-    sealed record TypeData(
-        TypeKind Kind,
-        string Name,
-        EquatableArray<Constraints> Constraints = default,
-        Dto? Request = null,
-        Dto? Response = null);
+    abstract record TypeData;
+
+    sealed record ProcessorData(bool IsPostProcessor, string Name, EquatableArray<Constraints> Constraints) : TypeData;
+
+    sealed record EndpointDtos(Dto Request, Dto Response) : TypeData;
 
     //the constraints of a processor's type parameter. constraint types are name templates in which the processor's own type parameters
     //are {ordinal} placeholders (braces can't occur in type names), so that constraints like IResult<TRequest> can be closed with dto types.
@@ -169,7 +168,7 @@ public class GenericProcessorTypesGenerator : IIncrementalGenerator
 
         static bool CanConstructWithNew(ITypeSymbol t)
         {
-            if (t.TypeKind == Microsoft.CodeAnalysis.TypeKind.Enum)
+            if (t.TypeKind == TypeKind.Enum)
                 return true;
 
             if (t is not INamedTypeSymbol { IsAbstract: false } n)
@@ -192,12 +191,5 @@ public class GenericProcessorTypesGenerator : IIncrementalGenerator
             for (var current = t; current is not null; current = current.BaseType)
                 yield return current;
         }
-    }
-
-    enum TypeKind
-    {
-        OpenGenericPreProcessor,
-        OpenGenericPostProcessor,
-        Endpoint
     }
 }

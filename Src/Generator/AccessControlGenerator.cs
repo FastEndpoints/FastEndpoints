@@ -137,14 +137,14 @@ public class AccessControlGenerator : IIncrementalGenerator
         static bool QualifyCustom(SyntaxNode node, CancellationToken _)
             => node is VariableDeclaratorSyntax { Parent.Parent: FieldDeclarationSyntax field } &&
                IsPublicMemberOfAllow(field) &&
-               (field.Modifiers.Any(m => m.IsKind(SyntaxKind.ConstKeyword)) || field.Modifiers.Any(m => m.IsKind(SyntaxKind.StaticKeyword)));
+               (field.Modifiers.Any(SyntaxKind.ConstKeyword) || field.Modifiers.Any(SyntaxKind.StaticKeyword));
 
         //executed per each keystroke
         static bool QualifyPartial(SyntaxNode node, CancellationToken _)
             => node is PropertyDeclarationSyntax prop &&
                IsPublicMemberOfAllow(prop) &&
-               prop.Modifiers.Any(m => m.IsKind(SyntaxKind.StaticKeyword)) &&
-               prop.Modifiers.Any(m => m.ValueText == "partial") &&
+               prop.Modifiers.Any(SyntaxKind.StaticKeyword) &&
+               prop.Modifiers.Any(SyntaxKind.PartialKeyword) &&
                prop is { AccessorList.Accessors.Count: 1 } &&
                prop.AccessorList.Accessors[0].IsKind(SyntaxKind.GetAccessorDeclaration) &&
                prop.AccessorList.Accessors[0].Body is null &&
@@ -152,7 +152,7 @@ public class AccessControlGenerator : IIncrementalGenerator
                prop.ExpressionBody is null;
 
         static bool IsPublicMemberOfAllow(MemberDeclarationSyntax member)
-            => member.Modifiers.Any(m => m.IsKind(SyntaxKind.PublicKeyword)) &&
+            => member.Modifiers.Any(SyntaxKind.PublicKeyword) &&
                member.Parent is ClassDeclarationSyntax { Identifier.ValueText: AllowClass };
 
         //executed per each keystroke but only for syntax nodes filtered by the QualifyCustom or QualifyPartial methods
@@ -329,10 +329,10 @@ public class AccessControlGenerator : IIncrementalGenerator
         {
             var groups = perms.SelectMany(p => p.Categories.Select(c => (category: c, name: p.Name)))
                               .OrderBy(static x => x.name, StringComparer.Ordinal).ThenBy(static x => x.category, StringComparer.Ordinal)
-                              .GroupBy(x => x.category, x => x.name)
-                              .ToDictionary(g => g.Key, g => g.Select(n => n).ToArray());
+                              .GroupBy(static x => x.category, static x => x.name)
+                              .ToArray();
 
-            if (groups.Count == 0)
+            if (groups.Length == 0)
                 return;
 
             sb.w(
@@ -354,15 +354,7 @@ public class AccessControlGenerator : IIncrementalGenerator
 
                       """);
 
-                foreach (var name in g.Value)
-                {
-                    sb.w(
-                        $"""
-                                 {name},
-
-                         """);
-                }
-                sb.Remove(sb.Length - 2, 2).w(
+                sb.w(string.Join(",\n", g.Select(static name => $"        {name}"))).w(
                     """
 
                         };

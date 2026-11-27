@@ -399,8 +399,10 @@ public class ReflectionGeneratorTests
         result.Generated.ShouldContain("CreateSessionRequest");
     }
 
-    [Fact]
-    public void assembly_name_is_sanitized_for_namespace_and_registration_method()
+    [Theory]
+    [InlineData("My-App.Host", "My_App.Host", "MyAppHost")]
+    [InlineData("My..App--x", "My._.App_x", "MyAppx")]
+    public void assembly_name_is_sanitized_for_namespace_and_registration_method(string assemblyName, string expectedNamespace, string expectedMethod)
     {
         const string source =
             """
@@ -409,9 +411,9 @@ public class ReflectionGeneratorTests
             public record Request(string Name);
             """;
 
-        var result = Run(source, "My-App.Host");
+        var result = Run(source, assemblyName);
 
-        AssertRegistration(result, "My_App.Host", "MyAppHost", empty: true);
+        AssertRegistration(result, expectedNamespace, expectedMethod, empty: true);
     }
 
     [Fact]
@@ -1129,6 +1131,47 @@ public class ReflectionGeneratorTests
         result.Generated.ShouldNotContain("new t3(");
         result.Generated.ShouldContain("ObjectFactory = () => new t4(default(string)!)");
         result.Generated.ShouldContain("ObjectFactory = () => new t5()");
+    }
+
+    [Fact]
+    public void partial_request_dto_gets_no_object_factory()
+    {
+        const string source =
+            """
+            using System.Threading;
+            using System.Threading.Tasks;
+            using FastEndpoints;
+
+            namespace MyApp;
+
+            public partial class MyRequest
+            {
+                public string Name { get; set; } = "";
+            }
+
+            public class PlainRequest
+            {
+                public string Name { get; set; } = "";
+            }
+
+            public class MyEndpoint : Endpoint<MyRequest>
+            {
+                public override Task HandleAsync(MyRequest req, CancellationToken ct) => Task.CompletedTask;
+            }
+
+            public class PlainEndpoint : Endpoint<PlainRequest>
+            {
+                public override Task HandleAsync(PlainRequest req, CancellationToken ct) => Task.CompletedTask;
+            }
+            """;
+
+        var result = Run(source);
+
+        AssertCompiles(result);
+        var alias = Regex.Match(result.Generated, @"using (t\d+) = global::MyApp\.MyRequest;").Groups[1].Value;
+        alias.ShouldNotBeEmpty();
+        result.Generated.ShouldNotContain($"ObjectFactory = () => new {alias}(");
+        result.Generated.ShouldContain("ObjectFactory = () => new ");
     }
 
     [Fact]

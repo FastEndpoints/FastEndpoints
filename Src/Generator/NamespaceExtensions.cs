@@ -6,7 +6,6 @@ namespace FastEndpoints.Generator;
 static class NamespaceExtensions
 {
     static readonly Regex _identifierRegex = new("[^a-zA-Z0-9]+", RegexOptions.Compiled);
-    static readonly Regex _namespaceRegex = new("[^a-zA-Z0-9.]+", RegexOptions.Compiled);
 
     extension(string input)
     {
@@ -17,9 +16,9 @@ static class NamespaceExtensions
         internal string ToMethodSuffix()
             => input.ToValidIdentifier(string.Empty);
 
-        internal string ToValidCSharpIdentifier(string replacement = "_")
+        internal string ToValidCSharpIdentifier()
         {
-            var identifier = input.ToValidIdentifier(replacement);
+            var identifier = input.ToValidIdentifier();
 
             if (identifier.Length == 0 || char.IsDigit(identifier[0]) || SyntaxFacts.GetKeywordKind(identifier) is not SyntaxKind.None)
                 identifier = $"_{identifier}";
@@ -27,7 +26,7 @@ static class NamespaceExtensions
             return identifier;
         }
 
-        internal string ToValidNameSpace(string replacement = "_")
-            => string.Join(".", _namespaceRegex.Replace(input, replacement).Split('.').Select(s => s.ToValidCSharpIdentifier(replacement)));
+        internal string ToValidNameSpace()
+            => string.Join(".", input.Split('.').Select(static s => s.ToValidCSharpIdentifier()));
     }
 }

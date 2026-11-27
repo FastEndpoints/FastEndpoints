@@ -440,7 +440,7 @@ public class ReflectionGenerator : IIncrementalGenerator
         static bool IsPartial(ITypeSymbol type)
             => type.DeclaringSyntaxReferences.Any(
                 static r => r.GetSyntax() is TypeDeclarationSyntax t &&
-                            t.Modifiers.Any(static m => m.ValueText == "partial"));
+                            t.Modifiers.Any(SyntaxKind.PartialKeyword));
 
         //mirrors the runtime BindableProps() check, which only skips JsonIgnoreCondition.Always (the default condition)
         static bool HasUnconditionalJsonIgnoreAttribute(IPropertySymbol prop)

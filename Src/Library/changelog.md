@@ -48,6 +48,12 @@ Test event receivers follow the same rule. `GetTestEventReceiver<OrderCreated>()
 
 ## Improvements 🚀
 
+<details><summary>Source generators do less work on every edit</summary>
+
+The source generators re-check the classes in your project each time you type in the IDE. They now rule out non-matching types before reading their attributes or building their full names, skip repeated work for types that show up in many DTO properties (such as `string` and collections), and only inspect your endpoints' DTOs for the generic processor list when your project has an open generic pre/post-processor. Large projects should see less background CPU use while editing. The generated code is unchanged.
+
+</details>
+
 <details><summary>Faster serializer context generation</summary>
 
 With `GenerateSerializerContexts` enabled, common properties like `Guid`, `DateTime` or `IFormFile`, and endpoints using `EmptyRequest`/`EmptyResponse`, no longer make the generator scan your referenced projects and NuGet packages. If your DTOs live in the main project and only use such common types, the generator now skips that work on every regeneration, and the up-to-date check on later builds gets faster too. When DTOs from other projects or packages are actually needed, both lookups now run in parallel.

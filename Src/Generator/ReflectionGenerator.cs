@@ -48,8 +48,8 @@ public class ReflectionGenerator : IIncrementalGenerator
         static EquatableArray<TypeModel> Transform(GeneratorSyntaxContext ctx, CancellationToken ct)
         {
             if (ctx.SemanticModel.GetDeclaredSymbol(ctx.Node) is not ITypeSymbol type ||
-                !type.IsRegistrable() ||
-                !type.ImplementsInterface(Extensions.IEndpoint)) //must be an endpoint
+                !type.ImplementsInterface(Extensions.IEndpoint) || //must be an endpoint. checked first, because it rejects most types without binding attributes
+                !type.IsRegistrable())
                 return default;
 
             return new(TypeCollector.CollectEndpoint(type));
@@ -262,7 +262,8 @@ public class ReflectionGenerator : IIncrementalGenerator
             return [.. output];
         }
 
-        //only registered types short-circuit, so a request dto without props is still registered when it's later reached as a nested type.
+        //only registered types and collections short-circuit, so a request dto without props is still registered when it's later reached as a nested type.
+        //a collection is recorded without being output, because a revisit has nothing to add: its element type was walked on the first visit.
         //a type is registered after its own member walk and before its property types are walked, which decides the output (and alias) order.
         static void Collect(List<TypeModel> output, HashSet<string> registered, ITypeSymbol type, CollectMode mode)
         {
@@ -277,15 +278,17 @@ public class ReflectionGenerator : IIncrementalGenerator
 
             var typeName = type.ToDisplayString();
 
-            if (TypeBlacklist.Contains(type.ToDisplayString(NullableFlowState.None)) || registered.Contains(typeName))
+            if (registered.Contains(typeName) || TypeBlacklist.Any(type.HasMetadataName))
                 return;
 
             bool? isParsable = null;
 
-            foreach (var ifcName in type.AllInterfaces.Select(static ifc => ifc.MetadataFullName()))
+            foreach (var ifc in type.AllInterfaces)
             {
-                if (ifcName == IEnumerable)
+                if (ifc.HasMetadataName(IEnumerable))
                 {
+                    registered.Add(typeName);
+
                     var tElement = type switch
                     {
                         IArrayTypeSymbol arrayType => arrayType.ElementType,
@@ -299,7 +302,7 @@ public class ReflectionGenerator : IIncrementalGenerator
                     return;
                 }
 
-                if (ifcName == IParsable)
+                if (ifc.HasMetadataName(IParsable))
                     isParsable = true;
             }
 
@@ -309,6 +312,11 @@ public class ReflectionGenerator : IIncrementalGenerator
 
             foreach (var currentSymbol in type.BaseTypesAndSelf())
             {
+                //the library base adds nothing to property injection: the public settable props of Endpoint<,> are [DontInject] and its own
+                //bases have no public setters. stopping here avoids substituting its members for each endpoint on every edit.
+                if (mode == CollectMode.EndpointProperties && currentSymbol.HasMetadataName(Extensions.EndpointBase))
+                    break;
+
                 foreach (var member in currentSymbol.GetMembers())
                 {
                     switch (member)
@@ -338,8 +346,7 @@ public class ReflectionGenerator : IIncrementalGenerator
                                 prop.SetMethod?.DeclaredAccessibility != Accessibility.Public)
                                 break;
 
-                            //ignore props with [DontInject] or [JsonIgnore] or [JsonIgnore(Condition=Always)]
-                            if (HasDontInjectAttribute(prop) || HasUnconditionalJsonIgnoreAttribute(prop))
+                            if (IsIgnored(prop))
                                 break;
 
                             properties.Add(
@@ -355,16 +362,16 @@ public class ReflectionGenerator : IIncrementalGenerator
                 }
             }
 
-            var ctor = PickConstructor(type);
-            var skipObjectFactory = mode == CollectMode.EndpointProperties || //the endpoint class is only walked for property injection support
-                                    properties.Count == 0 ||
-                                    type.IsAbstract ||
-                                    IsPartial(type) ||
-                                    ctor is null; //no public constructor to call
+            //ObjectFactory is skipped for the endpoint class (only walked for property injection support), abstract and partial types,
+            //and types without props or a public constructor to call. the cheap checks go first, since picking a constructor walks all members.
+            var ctor = mode == CollectMode.EndpointProperties || properties.Count == 0 || type.IsAbstract || IsPartial(type)
+                           ? null
+                           : PickConstructor(type);
+            var skipObjectFactory = ctor is null;
 
             //optional and params parameters are omitted so that they keep their declared default values (or an empty params collection)
-            var ctorArgTypes = ctor?.Parameters.Where(static p => !p.HasExplicitDefaultValue && !p.IsParams).Select(static p => p.Type.ToFullName()).ToArray() ?? [];
-            string[] requiredMembers = skipObjectFactory ? [] : [.. ctor!.UnsetRequiredMembers()];
+            string[] ctorArgTypes = ctor is null ? [] : [.. ctor.Parameters.Where(static p => !p.HasExplicitDefaultValue && !p.IsParams).Select(static p => p.Type.ToFullName())];
+            string[] requiredMembers = ctor is null ? [] : [.. ctor.UnsetRequiredMembers()];
 
             //the request dto and the endpoint class are only registered when they have props
             if (properties.Count > 0 || mode == CollectMode.Nested)
@@ -434,32 +441,43 @@ public class ReflectionGenerator : IIncrementalGenerator
             }
         }
 
-        static bool HasDontInjectAttribute(IPropertySymbol prop)
-            => AttributesOf(prop).Any(static a => a.Matches(DontInjectAttribute));
-
         static bool IsPartial(ITypeSymbol type)
             => type.DeclaringSyntaxReferences.Any(
                 static r => r.GetSyntax() is TypeDeclarationSyntax t &&
                             t.Modifiers.Any(SyntaxKind.PartialKeyword));
 
-        //mirrors the runtime BindableProps() check, which only skips JsonIgnoreCondition.Always (the default condition)
-        static bool HasUnconditionalJsonIgnoreAttribute(IPropertySymbol prop)
+        //props with [DontInject] are skipped. so are props with [JsonIgnore], mirroring the runtime BindableProps() check, which only skips
+        //JsonIgnoreCondition.Always (the default condition) and only looks at the most derived [JsonIgnore].
+        static bool IsIgnored(IPropertySymbol prop)
         {
+            var jsonIgnoreSeen = false;
+
             foreach (var attribute in AttributesOf(prop))
             {
-                if (!attribute.Matches(JsonIgnoreAttribute))
+                if (attribute.Matches(DontInjectAttribute))
+                    return true;
+
+                if (jsonIgnoreSeen || !attribute.Matches(JsonIgnoreAttribute))
                     continue;
 
-                foreach (var namedArgument in attribute.NamedArguments)
+                jsonIgnoreSeen = true;
+
+                if (IsUnconditional(attribute))
+                    return true;
+            }
+
+            return false;
+
+            static bool IsUnconditional(AttributeData jsonIgnore)
+            {
+                foreach (var namedArgument in jsonIgnore.NamedArguments)
                 {
                     if (namedArgument.Key == ConditionArgument)
                         return namedArgument.Value.Value is 1; //Always
                 }
 
-                return true; // no condition, just plain [JsonIgnore]
+                return true; //no condition, just plain [JsonIgnore]
             }
-
-            return false;
         }
     }
 }

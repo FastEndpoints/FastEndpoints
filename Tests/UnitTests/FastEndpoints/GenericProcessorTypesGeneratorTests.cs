@@ -245,6 +245,41 @@ public class GenericProcessorTypesGeneratorTests
     }
 
     [Fact]
+    public void reused_driver_tracks_adding_and_removing_the_only_processors()
+    {
+        const string endpointSource =
+            """
+            using System.Threading;
+            using System.Threading.Tasks;
+            using FastEndpoints;
+
+            namespace TestApp;
+
+            public class Req;
+
+            public class MyEndpoint : Endpoint<Req>
+            {
+                public override Task HandleAsync(Req req, CancellationToken ct) => Task.CompletedTask;
+            }
+            """;
+
+        var first = GeneratorTestHarness.Run<GenericProcessorTypesGenerator>([endpointSource], _references);
+        first.Generated.ShouldNotContain("Preserve<global::");
+
+        var processorsTree = CSharpSyntaxTree.ParseText(ProcessorsSource, GeneratorTestHarness.DefaultParseOptions);
+        var second = GeneratorTestHarness.Step(first.Driver, first.Input.AddSyntaxTrees(processorsTree));
+
+        GeneratorTestHarness.AssertCompiles(second);
+        second.Generated.ShouldContain("Preserve<global::TestApp.MyPre<global::TestApp.Req>>()");
+        second.Generated.ShouldContain("Preserve<global::TestApp.MyPost<global::TestApp.Req, object>>()");
+
+        var third = GeneratorTestHarness.Step(second.Driver, second.Input.RemoveSyntaxTrees(processorsTree));
+
+        GeneratorTestHarness.AssertCompiles(third);
+        third.Generated.ShouldNotContain("Preserve<global::");
+    }
+
+    [Fact]
     public void new_constraint_skips_dtos_with_required_members_unless_ctor_sets_them()
     {
         const string source =
@@ -467,6 +502,97 @@ public class GenericProcessorTypesGeneratorTests
 
         GeneratorTestHarness.AssertCompiles(withoutRequired);
         withoutRequired.Generated.ShouldContain("Preserve<global::TestApp.NewPre<global::TestApp.Req>>()");
+    }
+
+    [Fact]
+    public void constraint_types_are_checked_for_nested_endpoints_and_keyword_namespaces()
+    {
+        const string source =
+            """
+            using System.Threading;
+            using System.Threading.Tasks;
+            using FastEndpoints;
+
+            namespace TestApp.@event;
+
+            public interface IKeyed;
+
+            public class KeyedPre<TRequest> : IPreProcessor<TRequest> where TRequest : IKeyed
+            {
+                public Task PreProcessAsync(IPreProcessorContext<TRequest> ctx, CancellationToken ct) => Task.CompletedTask;
+            }
+
+            public class Req : IKeyed;
+            public class NestedReq : IKeyed;
+
+            public class MyEndpoint : Endpoint<Req>
+            {
+                public override Task HandleAsync(Req req, CancellationToken ct) => Task.CompletedTask;
+            }
+
+            public static class Outer
+            {
+                public class NestedEndpoint : Endpoint<NestedReq>
+                {
+                    public override Task HandleAsync(NestedReq req, CancellationToken ct) => Task.CompletedTask;
+                }
+            }
+            """;
+
+        var result = GeneratorTestHarness.Run<GenericProcessorTypesGenerator>([source], _references);
+
+        GeneratorTestHarness.AssertCompiles(result);
+        result.Generated.ShouldContain("Preserve<global::TestApp.@event.KeyedPre<global::TestApp.@event.Req>>()");
+        result.Generated.ShouldContain("Preserve<global::TestApp.@event.KeyedPre<global::TestApp.@event.NestedReq>>()");
+    }
+
+    [Fact]
+    public void reused_driver_tracks_dto_interface_changes_for_constraint_types()
+    {
+        //only the dto changes, so the endpoint's transform result stays equal
+        static string Source(string baseList)
+            => $$"""
+                 using System.Threading;
+                 using System.Threading.Tasks;
+                 using FastEndpoints;
+
+                 namespace TestApp;
+
+                 public interface IKeyed;
+
+                 public class KeyedPre<TRequest> : IPreProcessor<TRequest> where TRequest : IKeyed
+                 {
+                     public Task PreProcessAsync(IPreProcessorContext<TRequest> ctx, CancellationToken ct) => Task.CompletedTask;
+                 }
+
+                 public class Req {{baseList}};
+
+                 public class MyEndpoint : Endpoint<Req>
+                 {
+                     public override Task HandleAsync(Req req, CancellationToken ct) => Task.CompletedTask;
+                 }
+                 """;
+
+        var initial = GeneratorTestHarness.Run<GenericProcessorTypesGenerator>([Source(": IKeyed")], _references);
+        GeneratorTestHarness.AssertCompiles(initial);
+        initial.Generated.ShouldContain("Preserve<global::TestApp.KeyedPre<global::TestApp.Req>>()");
+
+        var treeWithoutInterface = CSharpSyntaxTree.ParseText(Source(""), GeneratorTestHarness.DefaultParseOptions);
+        var withoutInterface = GeneratorTestHarness.Step(
+            initial.Driver,
+            initial.Input.ReplaceSyntaxTree(initial.Input.SyntaxTrees.Single(), treeWithoutInterface));
+
+        GeneratorTestHarness.AssertCompiles(withoutInterface);
+        withoutInterface.Generated.ShouldNotContain("KeyedPre<global::TestApp.Req>");
+
+        var withInterface = GeneratorTestHarness.Step(
+            withoutInterface.Driver,
+            withoutInterface.Input.ReplaceSyntaxTree(
+                treeWithoutInterface,
+                CSharpSyntaxTree.ParseText(Source(": IKeyed"), GeneratorTestHarness.DefaultParseOptions)));
+
+        GeneratorTestHarness.AssertCompiles(withInterface);
+        withInterface.Generated.ShouldContain("Preserve<global::TestApp.KeyedPre<global::TestApp.Req>>()");
     }
 
     //members of the root namespace that would shadow unqualified names in the generated code

@@ -18,7 +18,13 @@ public class GenericProcessorTypesGenerator : IIncrementalGenerator
                               .Where(static m => m is not null)
                               .Collect();
 
-        initCtx.RegisterSourceOutput(provider.Combine(initCtx.RootNamespaceProvider()), Generate);
+        //endpoint dtos are only needed to close open generic processors, which most projects don't have. the compilation is passed on only when
+        //a processor exists, so that other projects don't inspect the dtos of every endpoint on each edit.
+        var processorCompilation = initCtx.CompilationProvider
+                                          .Combine(provider.Select(static (types, _) => types.Any(static t => t is ProcessorData)))
+                                          .Select(static (x, _) => x.Right ? x.Left : null);
+
+        initCtx.RegisterSourceOutput(provider.Combine(processorCompilation).Combine(initCtx.RootNamespaceProvider()), Generate);
 
         //executed per each keystroke - filter to classes and records that can implement an interface or derive from an endpoint base
         static bool Qualify(SyntaxNode node, CancellationToken _)
@@ -28,21 +34,20 @@ public class GenericProcessorTypesGenerator : IIncrementalGenerator
     //executed per each keystroke but only for syntax nodes filtered by the Qualify method
     static TypeData? Transform(GeneratorSyntaxContext ctx, CancellationToken _)
     {
-        if (ctx.SemanticModel.GetDeclaredSymbol(ctx.Node) is not INamedTypeSymbol type || !type.IsRegistrable())
+        //IsRegistrable() is checked after a match, because binding attributes costs more than the checks that reject most types
+        if (ctx.SemanticModel.GetDeclaredSymbol(ctx.Node) is not INamedTypeSymbol type)
             return null;
 
         if (type.IsGenericType)
         {
             foreach (var ifc in type.AllInterfaces)
             {
-                var ifcName = ifc.MetadataFullName();
-
                 // IPreProcessor<TRequest>
-                if (type.TypeParameters.Length == 1 && ifcName == Extensions.IPreProcessor)
+                if (type.TypeParameters.Length == 1 && ifc.HasMetadataName(Extensions.IPreProcessor))
                     return Processor(isPostProcessor: false);
 
                 // IPostProcessor<TRequest, TResponse>
-                if (type.TypeParameters.Length == 2 && ifcName == Extensions.IPostProcessor)
+                if (type.TypeParameters.Length == 2 && ifc.HasMetadataName(Extensions.IPostProcessor))
                     return Processor(isPostProcessor: true);
             }
 
@@ -50,32 +55,58 @@ public class GenericProcessorTypesGenerator : IIncrementalGenerator
         }
 
         // Endpoint<TRequest, TResponse>
-        return type.GetEndpointBase() is { } epBase
-                   ? new EndpointDtos(Dto.From(epBase.TypeArguments[0]), Dto.From(epBase.TypeArguments[1]))
+        return type.GetEndpointBase() is not null && type.IsRegistrable()
+                   ? new EndpointData(type.MetadataFullName())
                    : null;
 
-        ProcessorData Processor(bool isPostProcessor)
-            => new(isPostProcessor, type.ToDisplayString(_openGenericNameFormat), new(type.TypeParameters.Select(Constraints.From).ToArray()));
+        ProcessorData? Processor(bool isPostProcessor)
+            => type.IsRegistrable()
+                   ? new(isPostProcessor, type.ToDisplayString(_openGenericNameFormat), new(type.TypeParameters.Select(Constraints.From).ToArray()))
+                   : null;
     }
 
-    //only executed if the equality comparer says the data is not what has been cached by roslyn
-    static void Generate(SourceProductionContext ctx, (ImmutableArray<TypeData?> Types, string RootNamespace) input)
+    //only executed if the equality comparer says the data is not what has been cached by roslyn.
+    //while a processor exists, the input includes the compilation, so it's executed on each edit. without processors, the compilation is null.
+    static void Generate(SourceProductionContext ctx, ((ImmutableArray<TypeData?>, Compilation?), string) input)
+    {
+        var ((types, compilation), rootNamespace) = input;
+
+        ctx.AddSource(
+            "GenericProcessorTypes.g.cs",
+            SourceText.From(
+                Extensions.RenderPreservedTypeList(rootNamespace, "GenericProcessorTypes", compilation is null ? [] : ClosedProcessors(types, compilation)),
+                Encoding.UTF8));
+    }
+
+    //the type expressions of the open generic processors closed with the dtos of each endpoint
+    static List<string> ClosedProcessors(ImmutableArray<TypeData?> types, Compilation compilation)
     {
         var preProcessors = ProcessorsOf(isPostProcessor: false);
         var postProcessors = ProcessorsOf(isPostProcessor: true);
 
-        var endpoints = input.Types.OfType<EndpointDtos>().ToArray();
+        //only processors with constraint types or a new() constraint, which are rare, need a dto's assignable types or default constructor
+        var constraints = preProcessors.Concat(postProcessors).SelectMany(static p => p.Constraints).ToArray();
+        var needsAssignability = constraints.Any(static c => c.Types.Length > 0);
+        var needsDefaultCtor = constraints.Any(static c => c.New);
+        var dtos = new Dictionary<ITypeSymbol, Dto>(SymbolEqualityComparer.Default); //endpoints often share dtos
+        var endpointDtos = new List<(Dto Request, Dto Response)>();
+
+        //the endpoints are looked up in the source assembly, so types with the same metadata name in referenced assemblies can't interfere
+        foreach (var endpoint in types.OfType<EndpointData>().Distinct())
+        {
+            if (compilation.Assembly.GetTypeByMetadataName(endpoint.MetadataName)?.GetEndpointBase() is { } epBase)
+                endpointDtos.Add((DtoOf(epBase.TypeArguments[0]), DtoOf(epBase.TypeArguments[1])));
+        }
 
         //processors are closed at runtime with the request/response types of the endpoint they're attached to
-        var requestTypes = endpoints.Select(static e => e.Request)
-                                    .Distinct()
-                                    .OrderBy(static t => t.Name, StringComparer.Ordinal)
-                                    .ToArray();
-        var dtoPairs = endpoints.Select(static e => (e.Request, e.Response))
-                                .Distinct()
-                                .OrderBy(static p => p.Request.Name, StringComparer.Ordinal)
-                                .ThenBy(static p => p.Response.Name, StringComparer.Ordinal)
-                                .ToArray();
+        var requestTypes = endpointDtos.Select(static e => e.Request)
+                                       .Distinct()
+                                       .OrderBy(static t => t.Name, StringComparer.Ordinal)
+                                       .ToArray();
+        var dtoPairs = endpointDtos.Distinct()
+                                   .OrderBy(static p => p.Request.Name, StringComparer.Ordinal)
+                                   .ThenBy(static p => p.Response.Name, StringComparer.Ordinal)
+                                   .ToArray();
 
         var typeExpressions = new List<string>();
 
@@ -93,23 +124,31 @@ public class GenericProcessorTypesGenerator : IIncrementalGenerator
                 typeExpressions.Add($"{processor.Name}<{req.Name}, {res.Name}>");
         }
 
-        ctx.AddSource(
-            "GenericProcessorTypes.g.cs",
-            SourceText.From(Extensions.RenderPreservedTypeList(input.RootNamespace, "GenericProcessorTypes", typeExpressions), Encoding.UTF8));
+        return typeExpressions;
 
         ProcessorData[] ProcessorsOf(bool isPostProcessor)
-            => input.Types.OfType<ProcessorData>()
+            => types.OfType<ProcessorData>()
                     .Where(p => p.IsPostProcessor == isPostProcessor)
                     .Distinct()
                     .OrderBy(static t => t.Name, StringComparer.Ordinal)
                     .ToArray();
+
+        Dto DtoOf(ITypeSymbol type)
+        {
+            if (!dtos.TryGetValue(type, out var dto))
+                dtos[type] = dto = Dto.From(type, needsDefaultCtor, needsAssignability);
+
+            return dto;
+        }
     }
 
     abstract record TypeData;
 
     sealed record ProcessorData(bool IsPostProcessor, string Name, EquatableArray<Constraints> Constraints) : TypeData;
 
-    sealed record EndpointDtos(Dto Request, Dto Response) : TypeData;
+    //only the metadata name is stored, so that the per-edit transform doesn't inspect dtos that are only needed when processors exist.
+    //ClosedProcessors() looks the endpoint up by it.
+    sealed record EndpointData(string MetadataName) : TypeData;
 
     //the constraints of a processor's type parameter. constraint types are name templates in which the processor's own type parameters
     //are {ordinal} placeholders (braces can't occur in type names), so that constraints like IResult<TRequest> can be closed with dto types.
@@ -129,9 +168,10 @@ public class GenericProcessorTypesGenerator : IIncrementalGenerator
                  .Select(static part => part.Symbol is ITypeParameterSymbol tp ? $"{{{tp.Ordinal}}}" : part.ToString()));
     }
 
+    //HasDefaultCtor and AssignableTo (fully qualified names of the base types, including itself, and interfaces) are only computed when needed
     sealed record Dto(string Name, bool IsReferenceType, bool IsValueType, bool IsUnmanagedType, bool HasDefaultCtor, EquatableArray<string> AssignableTo)
     {
-        internal static Dto From(ITypeSymbol t)
+        internal static Dto From(ITypeSymbol t, bool needsDefaultCtor, bool needsAssignability)
         {
             var isValueType = t.IsValueType && t.OriginalDefinition.SpecialType != SpecialType.System_Nullable_T;
 
@@ -140,8 +180,8 @@ public class GenericProcessorTypesGenerator : IIncrementalGenerator
                 t.IsReferenceType,
                 isValueType,
                 isValueType && t.IsUnmanagedType,
-                CanConstructWithNew(t),
-                new(t.BaseTypesAndSelf().Concat(t.AllInterfaces).Select(static b => b.ToFullName()).ToArray()));
+                needsDefaultCtor && CanConstructWithNew(t),
+                needsAssignability ? new(t.BaseTypesAndSelf().Concat(t.AllInterfaces).Select(static b => b.ToFullName()).ToArray()) : default);
         }
 
         //typeArgs are the dtos the processor is closed with, in type parameter order

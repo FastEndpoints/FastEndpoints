@@ -132,8 +132,11 @@ static class Extensions
     {
         //like the runtime's exact type checks, a same named attribute from another namespace doesn't match
         internal bool Matches(string metadataFullName)
-            => attribute.AttributeClass?.MetadataFullName() == metadataFullName;
+            => attribute.AttributeClass?.HasMetadataName(metadataFullName) is true;
     }
+
+    //the default display format escapes keywords (TestApp.@event), which metadata names and GetTypeByMetadataName() don't
+    static readonly SymbolDisplayFormat _namespaceFormat = new(typeQualificationStyle: SymbolDisplayTypeQualificationStyle.NameAndContainingTypesAndNamespaces);
 
     extension(ITypeSymbol symbol)
     {
@@ -143,11 +146,16 @@ static class Extensions
             => symbol.ContainingType is { } parent
                    ? $"{parent.MetadataFullName()}+{symbol.MetadataName}"
                    : symbol.ContainingNamespace is { IsGlobalNamespace: false } ns
-                       ? $"{ns.ToDisplayString()}.{symbol.MetadataName}"
+                       ? $"{ns.ToDisplayString(_namespaceFormat)}.{symbol.MetadataName}"
                        : symbol.MetadataName;
 
+        //same as comparing MetadataFullName(), but most non-matching symbols are rejected by their simple name, which is stored and
+        //contained in any matching metadata name, so the name is only built for the few symbols that pass that check
+        internal bool HasMetadataName(string metadataFullName)
+            => metadataFullName.IndexOf(symbol.Name, StringComparison.Ordinal) >= 0 && symbol.MetadataFullName() == metadataFullName;
+
         internal bool ImplementsInterface(string metadataFullName)
-            => symbol.AllInterfaces.Any(i => i.MetadataFullName() == metadataFullName);
+            => symbol.AllInterfaces.Any(i => i.HasMetadataName(metadataFullName));
 
         //mirrors the abstract and [DontRegister] checks of AssemblyScanner.IsTypeMatch(). each generator handles generic types itself.
         internal bool IsRegistrable()
@@ -158,7 +166,7 @@ static class Extensions
         {
             for (var type = symbol.BaseType; type is not null; type = type.BaseType)
             {
-                if (type.MetadataFullName() == EndpointBase)
+                if (type.HasMetadataName(EndpointBase))
                     return type;
             }
 

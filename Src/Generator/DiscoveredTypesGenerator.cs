@@ -30,6 +30,9 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
         "FluentValidation.IValidator`1"
     ];
 
+    //simple names of the whitelisted interfaces, which rule out most interfaces without building their metadata names
+    static readonly HashSet<string> _whiteListNames = [.. _whiteList.Select(static n => n.Substring(n.LastIndexOfAny(['.', '+']) + 1).Split('`')[0])];
+
     public void Initialize(IncrementalGeneratorInitializationContext initCtx)
     {
         var syntaxProvider = initCtx.SyntaxProvider
@@ -46,8 +49,8 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
         //executed per each keystroke but only for syntax nodes filtered by the Qualify method
         static string? Transform(GeneratorSyntaxContext ctx, CancellationToken _)
             => ctx.SemanticModel.GetDeclaredSymbol(ctx.Node) is ITypeSymbol type &&
-               type.IsRegistrable() &&
-               type.AllInterfaces.Any(static i => _whiteList.Contains(i.MetadataFullName()))
+               type.AllInterfaces.Any(static i => _whiteListNames.Contains(i.Name) && _whiteList.Contains(i.MetadataFullName())) &&
+               type.IsRegistrable() //checked last, because binding attributes costs more than the whitelist check, which rejects most types
                    ? type.ToFullName()
                    : null;
     }

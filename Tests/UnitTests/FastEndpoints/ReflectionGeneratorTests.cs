@@ -46,6 +46,49 @@ public class ReflectionGeneratorTests
     }
 
     [Fact]
+    public void blacklisted_property_types_are_not_registered()
+    {
+        const string source =
+            """
+            using System;
+            using System.Threading;
+            using System.Threading.Tasks;
+            using FastEndpoints;
+            using Microsoft.Extensions.Primitives;
+
+            namespace TestApp;
+
+            public class MyRequest
+            {
+                public Uri? Link { get; set; }
+                public StringSegment Segment { get; set; }
+                public StringSegment? OptionalSegment { get; set; }
+                public Nested? Child { get; set; }
+                public EmptyRequest? Empty { get; set; }
+            }
+
+            public class Nested
+            {
+                public Uri[] Links { get; set; } = [];
+            }
+
+            public class MyEndpoint : Endpoint<MyRequest, string>
+            {
+                public override Task HandleAsync(MyRequest req, CancellationToken ct) => Task.CompletedTask;
+            }
+            """;
+
+        var result = Run(source);
+
+        AssertCompiles(result);
+        result.Generated.ShouldContain("// global::TestApp.MyRequest");
+        result.Generated.ShouldContain("// global::TestApp.Nested");
+        result.Generated.ShouldNotContain("// global::System.Uri");
+        result.Generated.ShouldNotContain("// global::Microsoft.Extensions.Primitives.StringSegment");
+        result.Generated.ShouldNotContain("// global::FastEndpoints.EmptyRequest");
+    }
+
+    [Fact]
     public void init_only_request_dto_property_emits_getter_without_setter()
     {
         const string source =
@@ -565,6 +608,48 @@ public class ReflectionGeneratorTests
     }
 
     [Fact]
+    public void ignore_attributes_follow_the_runtime_binder_rules()
+    {
+        const string source =
+            """
+            using System.Text.Json.Serialization;
+            using System.Threading;
+            using System.Threading.Tasks;
+            using FastEndpoints;
+
+            namespace MyApp;
+
+            public abstract class BaseRequest
+            {
+                [JsonIgnore]
+                public virtual string Overridden { get; set; } = "";
+            }
+
+            public class MyRequest : BaseRequest
+            {
+                //only the most derived [JsonIgnore] counts
+                [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+                public override string Overridden { get; set; } = "";
+
+                //[DontInject] still applies after a conditional [JsonIgnore]
+                [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull), DontInject]
+                public string Both { get; set; } = "";
+            }
+
+            public class MyEndpoint : Endpoint<MyRequest>
+            {
+                public override Task HandleAsync(MyRequest req, CancellationToken ct) => Task.CompletedTask;
+            }
+            """;
+
+        var result = Run(source);
+
+        AssertCompiles(result);
+        result.Generated.ShouldContain("nameof(t0.Overridden)");
+        result.Generated.ShouldNotContain("nameof(t0.Both)");
+    }
+
+    [Fact]
     public void same_named_attributes_from_other_namespaces_are_not_matched()
     {
         const string source =
@@ -840,6 +925,23 @@ public class ReflectionGeneratorTests
 
         var epType = assembly.GetType("MyApp.MyEndpoint")!;
         MostDerivedProperty(cache, epType, "Service").ServiceKey.ShouldBe("A");
+    }
+
+    [Fact]
+    public void library_endpoint_base_declares_no_injectable_properties()
+    {
+        //the generator stops walking an endpoint's base types at Endpoint<TRequest, TResponse>, because the library base adds nothing that
+        //runtime property injection (BindableProps) picks up. a new public settable property on it or its bases must be [DontInject].
+        var injectable = typeof(Endpoint<object, object>)
+                         .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                         .Where(
+                             p => p.GetIndexParameters().Length == 0 &&
+                                  p.GetSetMethod()?.IsPublic is true &&
+                                  p.GetGetMethod()?.IsPublic is true &&
+                                  !p.IsDefined(typeof(DontInjectAttribute)))
+                         .Select(p => $"{p.DeclaringType!.Name}.{p.Name}");
+
+        injectable.ShouldBeEmpty();
     }
 
     [Fact]

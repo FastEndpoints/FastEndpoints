@@ -62,7 +62,7 @@ public class AccessControlGenerator : IIncrementalGenerator
             };
 
         //executed per each keystroke but only for syntax nodes filtered by the Qualify method
-        static Permission? Transform(GeneratorSyntaxContext ctx, CancellationToken _)
+        static PermissionCall? Transform(GeneratorSyntaxContext ctx, CancellationToken _)
         {
             var invocation = (InvocationExpressionSyntax)ctx.Node;
 
@@ -70,7 +70,7 @@ public class AccessControlGenerator : IIncrementalGenerator
             var symbolInfo = ctx.SemanticModel.GetSymbolInfo(invocation);
             var methods = symbolInfo.Symbol is { } symbol ? [symbol] : symbolInfo.CandidateSymbols;
 
-            if (methods.Length > 0 && !methods.Any(static m => m.ContainingType?.MetadataFullName() == Extensions.EndpointBase))
+            if (methods.Length > 0 && !methods.Any(static m => m.ContainingType?.HasMetadataName(Extensions.EndpointBase) is true))
                 return null;
 
             //the call can be nested in blocks, lambdas, local functions etc. of the endpoint class
@@ -91,7 +91,7 @@ public class AccessControlGenerator : IIncrementalGenerator
                                         .SingleOrDefault(static t => t.IsKind(SyntaxKind.SingleLineCommentTrivia))
                                         .ToString();
 
-            return new(endpoint.ToFullName(), permissionName, groupNames, description.Length == 0 ? null : description.Substring(2).Trim());
+            return new(endpoint.ToFullName(), permissionName, new(groupNames), description.Length == 0 ? null : description.Substring(2).Trim());
         }
 
         // resolves string literals, const fields, nameof(...), and other compile-time string constants
@@ -170,28 +170,29 @@ public class AccessControlGenerator : IIncrementalGenerator
                 member.HasAttribute($"{nameof(FastEndpoints)}.{nameof(HideFromDocsAttribute)}"))
                 return null;
 
-            //a field keeps its own value (a null code when it's only known at runtime). a partial property gets a computed code.
+            //a field keeps its own value (a null code when it's only known at runtime). a partial property's code is computed in Generate.
             return member is IFieldSymbol field
                        ? new(member.Name, field.ConstantValue as string, IsPartialProperty: false)
-                       : new(member.Name, AclHash.Compute(member.Name), IsPartialProperty: true);
+                       : new(member.Name, Code: null, IsPartialProperty: true);
         }
 
         static bool IsGeneratedAllowType(INamedTypeSymbol? type, Compilation compilation)
             => type is { Name: AllowClass, IsStatic: true } &&
-               type.MetadataFullName() == $"{AuthNamespace(compilation.ToRootNamespace())}.{AllowClass}";
+               type.HasMetadataName($"{AuthNamespace(compilation.ToRootNamespace())}.{AllowClass}");
     }
 
     //only executed if the equality comparer says the data is not what has been cached by roslyn
-    static void Generate(SourceProductionContext spc, ((ImmutableArray<Permission?>, ImmutableArray<AllowMember?>), string) input)
+    static void Generate(SourceProductionContext spc, ((ImmutableArray<PermissionCall?>, ImmutableArray<AllowMember?>), string) input)
     {
         var ((matches, allowMembers), rootNamespace) = input;
 
         if (matches.Length == 0 && allowMembers.Length == 0)
             return;
 
-        var endpointPerms = matches.Select(static p => p!).OrderBy(static p => p.Name, StringComparer.Ordinal).ToArray();
+        //names are sanitized and codes hashed here instead of in the per-edit transforms, since this only runs when some input changed
+        var endpointPerms = matches.Select(static p => new Permission(p!)).OrderBy(static p => p.Name, StringComparer.Ordinal).ToArray();
 
-        var sortedAllowMembers = allowMembers.Select(static m => m!)
+        var sortedAllowMembers = allowMembers.Select(static m => m!.IsPartialProperty ? m with { Code = AclHash.Compute(m.Name) } : m!)
                                              .OrderBy(static m => m.IsPartialProperty)
                                              .ThenBy(static m => m.Name, StringComparer.Ordinal)
                                              .ToArray();
@@ -277,7 +278,7 @@ public class AccessControlGenerator : IIncrementalGenerator
                 #region PARTIAL_ACL_ITEMS
                 """);
 
-            //partial properties always get a computed code (see TransformAllowMember)
+            //partial properties always get a computed code (see Generate)
             foreach (var p in perms)
             {
                 sb.w(
@@ -539,25 +540,20 @@ public class AccessControlGenerator : IIncrementalGenerator
     static string? XmlEscape(string? value)
         => value?.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;");
 
-    //a permission found in an endpoint's AccessControl(...) call
-    sealed record Permission
-    {
-        public string Endpoint { get; }
-        public string Name { get; }
-        public string Code { get; }
-        public EquatableArray<string> Categories { get; }
-        public string? Description { get; }
+    //the raw data of an endpoint's AccessControl(...) call, as returned by the per-edit transform
+    sealed record PermissionCall(string Endpoint, string PermissionName, EquatableArray<string> GroupNames, string? Description);
 
-        internal Permission(string endpoint, string permissionName, string[] groupNames, string? description)
-        {
-            Endpoint = endpoint;
-            Name = permissionName.ToValidCSharpIdentifier();
-            Code = AclHash.Compute(permissionName);
-            Categories = new([.. groupNames.Select(static c => c.ToValidCSharpIdentifier())]);
-            Description = description;
-        }
+    //a permission to render, derived from a PermissionCall
+    sealed class Permission(PermissionCall call)
+    {
+        public string Endpoint { get; } = call.Endpoint;
+        public string Name { get; } = call.PermissionName.ToValidCSharpIdentifier();
+        public string Code { get; } = AclHash.Compute(call.PermissionName);
+        public string[] Categories { get; } = [.. call.GroupNames.Select(static c => c.ToValidCSharpIdentifier())];
+        public string? Description { get; } = call.Description;
     }
 
-    //a hand-written Allow member (field or partial property). the code is null when it's only known at runtime (a non-const field).
+    //a handwritten Allow member (field or partial property). the code is null when it's only known at runtime (a non-const field),
+    //and for a partial property until Generate computes it.
     sealed record AllowMember(string Name, string? Code, bool IsPartialProperty);
 }

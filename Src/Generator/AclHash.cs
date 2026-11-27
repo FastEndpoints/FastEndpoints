@@ -7,16 +7,12 @@ namespace FastEndpoints;
 //'AccessControl(...)' applies at runtime come from the same algorithm. changing the output changes codes that users have already persisted.
 static class AclHash
 {
-    //the code for a permission name passed to 'AccessControl(...)'.
+    //the code for a permission name, whether it comes from an 'AccessControl(...)' call or a hand-written partial 'Allow' property.
     //each run of characters other than ascii letters and digits is replaced with a single '_' first, like the generated 'Allow' member name.
     internal static string Compute(string permissionName)
-        => ComputeVerbatim(Sanitize(permissionName));
-
-    //the code for a name that's hashed as is. hand-written partial 'Allow' properties have always been hashed without sanitizing.
-    internal static string ComputeVerbatim(string name)
     {
         using var sha256 = SHA256.Create();
-        var base64Hash = Convert.ToBase64String(sha256.ComputeHash(Encoding.UTF8.GetBytes(name.ToUpperInvariant())));
+        var base64Hash = Convert.ToBase64String(sha256.ComputeHash(Encoding.UTF8.GetBytes(Sanitize(permissionName).ToUpperInvariant())));
 
         var code = new char[3];
         var count = 0;

@@ -95,6 +95,8 @@ Permissions you add yourself to a partial `Allow` class were silently left out o
 
 If two of your hand-written constants share the same code, the one that used to be skipped is now checked too, so the build may start reporting `FEAC001` for them.
 
+Partial permission properties now get the same code as an `AccessControl()` call with the same name. This only changes the code of properties whose names contain consecutive underscores or non-ASCII letters (like `Foo__Bar` or `Café`). If you've stored codes for such properties in claims or a database, re-issue them, or keep the old code with a `const` field instead of the partial property.
+
 </details>
 
 <details><summary>Enum schemas lost their XML summary when a nullable property referred to them first</summary>

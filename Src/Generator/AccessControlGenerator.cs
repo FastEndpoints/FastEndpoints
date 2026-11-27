@@ -165,7 +165,7 @@ public class AccessControlGenerator : IIncrementalGenerator
             //a field keeps its own value (a null code when it's only known at runtime). a partial property gets a computed code.
             return member is IFieldSymbol field
                        ? new(member.Name, field.ConstantValue as string, IsPartialProperty: false)
-                       : new(member.Name, AclHash.ComputeVerbatim(member.Name), IsPartialProperty: true);
+                       : new(member.Name, AclHash.Compute(member.Name), IsPartialProperty: true);
         }
 
         static bool IsHiddenFromDocs(ISymbol symbol, Compilation compilation)

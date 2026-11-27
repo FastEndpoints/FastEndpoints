@@ -79,10 +79,9 @@ public class AccessControlGeneratorTests
     }
 
     [Fact]
-    public void partial_property_code_is_hashed_from_the_unsanitized_member_name()
+    public void partial_property_code_matches_the_access_control_code_for_the_same_name()
     {
-        //unlike AccessControl("Foo__Bar"), which hashes "Foo_Bar" (code "LK1"), partial properties have always hashed the member name as is.
-        //this is also the only path where non-ascii text reaches the utf-8 encoding and upper-casing.
+        //names that sanitizing changes, so a partial property must sanitize like AccessControl("...") does
         const string allowSource =
             """
             namespace TestApp.Auth;
@@ -97,8 +96,10 @@ public class AccessControlGeneratorTests
         var result = GeneratorTestHarness.Run<AccessControlGenerator>([EndpointSource, PermissionGroupSource, allowSource], _references, hintFileName: "Allow.g.cs");
 
         GeneratorTestHarness.AssertCompiles(result);
-        result.Generated.ShouldContain("public static partial string Foo__Bar { get => \"UFE\"; }");
-        result.Generated.ShouldContain("public static partial string Café { get => \"JKL\"; }");
+        result.Generated.ShouldContain($"public static partial string Foo__Bar {{ get => \"{HashEndpoint.Hash("Foo__Bar")}\"; }}");
+        result.Generated.ShouldContain($"public static partial string Café {{ get => \"{HashEndpoint.Hash("Café")}\"; }}");
+        HashEndpoint.Hash("Foo__Bar").ShouldBe("LK1");
+        HashEndpoint.Hash("Café").ShouldBe("RWL");
     }
 
     [Fact]

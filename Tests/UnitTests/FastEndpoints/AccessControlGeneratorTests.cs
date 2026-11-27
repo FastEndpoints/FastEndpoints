@@ -405,6 +405,32 @@ public class AccessControlGeneratorTests
         result.Generated.ShouldContain("public static partial string @class");
     }
 
+
+    [Fact]
+    public void lookups_list_endpoint_permissions_then_fields_then_partial_properties()
+    {
+        //the lookups are filled by indexer assignment, so this order decides which name wins on a code clash
+        const string allowSource =
+            """
+            namespace TestApp.Auth;
+
+            public static partial class Allow
+            {
+                public const string Z_Field = "ZZZ";
+                public static partial string A_Partial { get; }
+                public const string B_Field = "BBB";
+            }
+            """;
+
+        var result = GeneratorTestHarness.Run<AccessControlGenerator>([EndpointSource, PermissionGroupSource, allowSource], _references, hintFileName: "Allow.g.cs");
+
+        GeneratorTestHarness.AssertCompiles(result);
+        string[] expectedOrder = ["Inventory_Update_Item", "B_Field", "Z_Field", "A_Partial"];
+        var positions = expectedOrder.Select(n => result.Generated.IndexOf($"permNames[\"{n}\"]", StringComparison.Ordinal)).ToArray();
+        positions.ShouldAllBe(p => p >= 0);
+        positions.ShouldBe([.. positions.Order()]);
+    }
+
     const string PermissionGroupSource = "namespace TestApp; static class PermissionGroup { internal const string Group = \"Admin\"; }";
 
     const string EndpointSource =

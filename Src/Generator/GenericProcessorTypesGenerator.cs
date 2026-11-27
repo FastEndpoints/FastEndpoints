@@ -147,7 +147,7 @@ public class GenericProcessorTypesGenerator : IIncrementalGenerator
                 isValueType,
                 isValueType && t.IsUnmanagedType,
                 CanConstructWithNew(t),
-                new(BaseTypesOf(t).Concat(t.AllInterfaces).Select(static b => b.ToFullName()).ToArray()));
+                new(t.BaseTypesAndSelf().Concat(t.AllInterfaces).Select(static b => b.ToFullName()).ToArray()));
         }
 
         //typeArgs are the dtos the processor is closed with, in type parameter order
@@ -176,20 +176,7 @@ public class GenericProcessorTypesGenerator : IIncrementalGenerator
 
             var ctor = n.InstanceConstructors.FirstOrDefault(static c => c is { DeclaredAccessibility: Accessibility.Public, Parameters.Length: 0 });
 
-            if (ctor is null)
-                return false;
-
-            return !HasRequiredMembers(t) ||
-                   ctor.GetAttributes().Any(static a => a.AttributeClass?.ToFullName() == "global::System.Diagnostics.CodeAnalysis.SetsRequiredMembersAttribute");
-        }
-
-        static bool HasRequiredMembers(ITypeSymbol t)
-            => BaseTypesOf(t).Any(static b => b.GetMembers().Any(static m => m is IPropertySymbol { IsRequired: true } or IFieldSymbol { IsRequired: true }));
-
-        static IEnumerable<ITypeSymbol> BaseTypesOf(ITypeSymbol t)
-        {
-            for (var current = t; current is not null; current = current.BaseType)
-                yield return current;
+            return ctor is not null && (ctor.SetsRequiredMembers() || !t.RequiredMemberNames().Any());
         }
     }
 }

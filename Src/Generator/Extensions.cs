@@ -126,5 +126,27 @@ static class Extensions
 
             return symbol;
         }
+
+        internal IEnumerable<ITypeSymbol> BaseTypesAndSelf()
+        {
+            for (var current = symbol; current is not null; current = current.BaseType)
+                yield return current;
+        }
+
+        //names of the required fields and properties in the type hierarchy, most derived first
+        internal IEnumerable<string> RequiredMemberNames()
+            => symbol.BaseTypesAndSelf()
+                     .SelectMany(static t => t.GetMembers())
+                     .Where(static m => m is IPropertySymbol { IsRequired: true } or IFieldSymbol { IsRequired: true })
+                     .Select(static m => m.Name)
+                     .Distinct(StringComparer.Ordinal);
+    }
+
+    const string SetsRequiredMembersAttribute = "global::System.Diagnostics.CodeAnalysis.SetsRequiredMembersAttribute";
+
+    extension(IMethodSymbol method)
+    {
+        internal bool SetsRequiredMembers()
+            => method.GetAttributes().Any(static a => a.AttributeClass?.ToFullName() == SetsRequiredMembersAttribute);
     }
 }

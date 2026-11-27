@@ -20,7 +20,6 @@ public class ReflectionGenerator : IIncrementalGenerator
     const string JsonIgnoreAttribute = "System.Text.Json.Serialization.JsonIgnoreAttribute";
     const string KeyedServiceAttribute = "FastEndpoints.KeyedServiceAttribute";
     const string ReflectionCache = "FastEndpoints.ReflectionCache";
-    const string SetsRequiredMembersAttribute = "global::System.Diagnostics.CodeAnalysis.SetsRequiredMembersAttribute";
 
     static readonly SymbolDisplayFormat _propertyTypeFormat =
         SymbolDisplayFormat.FullyQualifiedFormat.AddMiscellaneousOptions(SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier);
@@ -307,16 +306,9 @@ public class ReflectionGenerator : IIncrementalGenerator
 
             var properties = new List<PropModel>();
             var propTypes = new List<ITypeSymbol>();
-            var requiredMembers = new List<string>();
-            var currentSymbol = type;
-            var ctorSearchComplete = false;
-            int? ctorParamCount = null;
-            string[]? ctorArgTypes = null;
-            var ctorSetsRequiredMembers = false;
             var propNames = new HashSet<string>(StringComparer.Ordinal);
-            var requiredNames = new HashSet<string>(StringComparer.Ordinal);
 
-            while (currentSymbol is not null)
+            foreach (var currentSymbol in type.BaseTypesAndSelf())
             {
                 foreach (var member in currentSymbol.GetMembers())
                 {
@@ -335,30 +327,7 @@ public class ReflectionGenerator : IIncrementalGenerator
 
                             break;
 
-                        //same pick as the runtime binder: the public constructor with the fewest parameters.
-                        //optional and params parameters are omitted so that they keep their declared default values (or an empty params collection).
-                        case IMethodSymbol { MethodKind : MethodKind.Constructor, DeclaredAccessibility : Accessibility.Public, IsStatic : false } method
-                            when !ctorSearchComplete:
-
-                            if (ctorParamCount is null || method.Parameters.Length < ctorParamCount)
-                            {
-                                ctorParamCount = method.Parameters.Length;
-                                ctorArgTypes = method.Parameters.Where(static p => !p.HasExplicitDefaultValue && !p.IsParams).Select(static p => p.Type.ToFullName()).ToArray();
-                                ctorSetsRequiredMembers = method.GetAttributes().Any(static a => a.AttributeClass?.ToFullName() == SetsRequiredMembersAttribute);
-                            }
-
-                            break;
-
-                        case IFieldSymbol { IsStatic: false, IsRequired: true } field:
-                            if (requiredNames.Add(field.Name))
-                                requiredMembers.Add(field.Name);
-
-                            break;
-
                         case IPropertySymbol { IsStatic: false, IsIndexer: false } prop:
-                            if (prop.IsRequired && requiredNames.Add(prop.Name))
-                                requiredMembers.Add(prop.Name);
-
                             if (prop.DeclaredAccessibility != Accessibility.Public)
                                 break;
 
@@ -385,16 +354,18 @@ public class ReflectionGenerator : IIncrementalGenerator
                             break;
                     }
                 }
-                ctorSearchComplete = true;
-                currentSymbol = currentSymbol.BaseType;
             }
 
+            var ctor = PickConstructor(type);
             var skipObjectFactory = mode == CollectMode.EndpointProperties || //the endpoint class is only walked for property injection support
                                     properties.Count == 0 ||
-                                    type.IsAbstract || IsPartial(type) || ctorArgTypes is null; //no public constructor to call
+                                    type.IsAbstract ||
+                                    IsPartial(type) ||
+                                    ctor is null; //no public constructor to call
 
-            if (skipObjectFactory || ctorSetsRequiredMembers)
-                requiredMembers.Clear();
+            //optional and params parameters are omitted so that they keep their declared default values (or an empty params collection)
+            var ctorArgTypes = ctor?.Parameters.Where(static p => !p.HasExplicitDefaultValue && !p.IsParams).Select(static p => p.Type.ToFullName()).ToArray() ?? [];
+            string[] requiredMembers = skipObjectFactory || ctor!.SetsRequiredMembers() ? [] : [.. type.RequiredMemberNames()];
 
             //the request dto and the endpoint class are only registered when they have props
             if (properties.Count > 0 || mode == CollectMode.Nested)
@@ -407,8 +378,8 @@ public class ReflectionGenerator : IIncrementalGenerator
                         type.IsValueType,
                         skipObjectFactory,
                         isParsable,
-                        new(ctorArgTypes ?? []),
-                        new([.. requiredMembers]),
+                        new(ctorArgTypes),
+                        new(requiredMembers),
                         new([.. properties])));
             }
 
@@ -417,6 +388,21 @@ public class ReflectionGenerator : IIncrementalGenerator
 
             foreach (var propType in propTypes)
                 Collect(output, registered, propType, CollectMode.Nested);
+        }
+
+        //same pick as the runtime binder: the public constructor with the fewest parameters, the first declared one on a tie
+        static IMethodSymbol? PickConstructor(ITypeSymbol type)
+        {
+            IMethodSymbol? pick = null;
+
+            foreach (var member in type.GetMembers())
+            {
+                if (member is IMethodSymbol { MethodKind: MethodKind.Constructor, DeclaredAccessibility: Accessibility.Public, IsStatic: false } ctor &&
+                    (pick is null || ctor.Parameters.Length < pick.Parameters.Length))
+                    pick = ctor;
+            }
+
+            return pick;
         }
 
         enum CollectMode

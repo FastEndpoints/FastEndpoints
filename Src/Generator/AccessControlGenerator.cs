@@ -34,33 +34,27 @@ public class AccessControlGenerator : IIncrementalGenerator
                              .Where(static p => p is not null)
                              .Collect();
 
-        // picks up handwritten public static string fields in partial Allow class declarations
-        var customFields = initCtx.SyntaxProvider
-                                  .CreateSyntaxProvider(QualifyCustom, TransformCustom)
+        // picks up hand-written members of partial Allow class declarations: public const/static string fields,
+        // and partial property declarations for which the generator provides the implementing half with a computed hash code
+        var allowMembers = initCtx.SyntaxProvider
+                                  .CreateSyntaxProvider(static (n, ct) => QualifyCustom(n, ct) || QualifyPartial(n, ct), TransformAllowMember)
                                   .Where(static p => p is not null)
                                   .Collect();
 
-        // picks up partial property declarations; generator provides implementing half with computed hash code
-        var partialFields = initCtx.SyntaxProvider
-                                   .CreateSyntaxProvider(QualifyPartial, TransformPartial)
-                                   .Where(static p => p is not null)
-                                   .Collect();
-
-        initCtx.RegisterSourceOutput(matches.Combine(customFields).Combine(partialFields).Combine(rootNamespace), Generate);
+        initCtx.RegisterSourceOutput(matches.Combine(allowMembers).Combine(rootNamespace), Generate);
 
         //executed per each keystroke
         //AccessControl() is protected, so it can only be called bare or via 'this.' / 'base.'
         static bool Qualify(SyntaxNode node, CancellationToken _)
             => node is InvocationExpressionSyntax
-               {
-                   ArgumentList.Arguments.Count: not 0,
-                   Expression: IdentifierNameSyntax { Identifier.ValueText: AccessControl } or
-                   MemberAccessExpressionSyntax
-                   {
-                       Expression: ThisExpressionSyntax or BaseExpressionSyntax,
-                       Name.Identifier.ValueText: AccessControl
-                   }
-               };
+            {
+                ArgumentList.Arguments.Count: not 0,
+                Expression: IdentifierNameSyntax { Identifier.ValueText: AccessControl } or
+                            MemberAccessExpressionSyntax
+                            {
+                                Expression: ThisExpressionSyntax or BaseExpressionSyntax, Name.Identifier.ValueText: AccessControl
+                            }
+            };
 
         //executed per each keystroke but only for syntax nodes filtered by the Qualify method
         static Permission? Transform(GeneratorSyntaxContext ctx, CancellationToken _)
@@ -141,22 +135,6 @@ public class AccessControlGenerator : IIncrementalGenerator
                (field.Modifiers.Any(m => m.IsKind(SyntaxKind.ConstKeyword)) || field.Modifiers.Any(m => m.IsKind(SyntaxKind.StaticKeyword))) &&
                field.Parent is ClassDeclarationSyntax { Identifier.ValueText: "Allow" };
 
-        //executed per each keystroke but only for syntax nodes filtered by the Qualify method
-        static AllowMember? TransformCustom(GeneratorSyntaxContext ctx, CancellationToken _)
-        {
-            var variable = (VariableDeclaratorSyntax)ctx.Node;
-
-            if (ctx.SemanticModel.GetDeclaredSymbol(variable) is not IFieldSymbol { Type.SpecialType: SpecialType.System_String } symbol)
-                return null;
-            if (!IsGeneratedAllowType(symbol.ContainingType, ctx.SemanticModel.Compilation))
-                return null;
-
-            if (IsHiddenFromDocs(symbol, ctx.SemanticModel.Compilation))
-                return null;
-
-            return new(variable.Identifier.ValueText, symbol.ConstantValue as string);
-        }
-
         //executed per each keystroke
         static bool QualifyPartial(SyntaxNode node, CancellationToken _)
             => node is PropertyDeclarationSyntax prop &&
@@ -170,17 +148,25 @@ public class AccessControlGenerator : IIncrementalGenerator
                prop.ExpressionBody is null &&
                prop.Parent is ClassDeclarationSyntax { Identifier.ValueText: "Allow" };
 
-        //executed per each keystroke but only for syntax nodes filtered by the Qualify method
-        static AllowMember? TransformPartial(GeneratorSyntaxContext ctx, CancellationToken _)
+        //executed per each keystroke but only for syntax nodes filtered by the QualifyCustom or QualifyPartial methods
+        static AllowMember? TransformAllowMember(GeneratorSyntaxContext ctx, CancellationToken _)
         {
-            var prop = (PropertyDeclarationSyntax)ctx.Node;
+            var member = ctx.Node switch
+            {
+                VariableDeclaratorSyntax variable => ctx.SemanticModel.GetDeclaredSymbol(variable),
+                PropertyDeclarationSyntax prop => ctx.SemanticModel.GetDeclaredSymbol(prop),
+                _ => null
+            };
 
-            if (ctx.SemanticModel.GetDeclaredSymbol(prop) is { Type.SpecialType: SpecialType.System_String } symbol &&
-                IsGeneratedAllowType(symbol.ContainingType, ctx.SemanticModel.Compilation) &&
-                !IsHiddenFromDocs(symbol, ctx.SemanticModel.Compilation))
-                return new(prop.Identifier.ValueText, Permission.GetAclHash(prop.Identifier.ValueText));
+            if (member is not (IFieldSymbol { Type.SpecialType: SpecialType.System_String } or IPropertySymbol { Type.SpecialType: SpecialType.System_String }) ||
+                !IsGeneratedAllowType(member.ContainingType, ctx.SemanticModel.Compilation) ||
+                IsHiddenFromDocs(member, ctx.SemanticModel.Compilation))
+                return null;
 
-            return null;
+            //a field keeps its own value (a null code when it's only known at runtime). a partial property gets a computed code.
+            return member is IFieldSymbol field
+                       ? new(member.Name, field.ConstantValue as string, IsPartialProperty: false)
+                       : new(member.Name, Permission.GetAclHash(member.Name), IsPartialProperty: true);
         }
 
         static bool IsHiddenFromDocs(ISymbol symbol, Compilation compilation)
@@ -199,28 +185,30 @@ public class AccessControlGenerator : IIncrementalGenerator
     }
 
     //only executed if the equality comparer says the data is not what has been cached by roslyn
-    static void Generate(SourceProductionContext spc, (((ImmutableArray<Permission?>, ImmutableArray<AllowMember?>), ImmutableArray<AllowMember?>), string) input)
+    static void Generate(SourceProductionContext spc, ((ImmutableArray<Permission?>, ImmutableArray<AllowMember?>), string) input)
     {
-        var (((matches, customPerms), partialPerms), rootNamespace) = input;
+        var ((matches, allowMembers), rootNamespace) = input;
 
-        if (matches.Length == 0 && customPerms.Length == 0 && partialPerms.Length == 0)
+        if (matches.Length == 0 && allowMembers.Length == 0)
             return;
 
         var endpointPerms = matches.Select(static p => p!).OrderBy(static p => p.Name, StringComparer.Ordinal).ToArray();
 
-        var sortedCustomPerms = customPerms.Select(static p => p!).OrderBy(static p => p.Name, StringComparer.Ordinal).ToArray();
+        var sortedAllowMembers = allowMembers.Select(static m => m!)
+                                             .OrderBy(static m => m.IsPartialProperty)
+                                             .ThenBy(static m => m.Name, StringComparer.Ordinal)
+                                             .ToArray();
 
-        var sortedPartialPerms = partialPerms.Select(static p => p!).OrderBy(static p => p.Name, StringComparer.Ordinal).ToArray();
-
-        //keep this order. the lookups are filled by indexer assignment, so the last entry wins on a name or code clash.
-        AllowMember[] allPerms = [.. endpointPerms.Select(static p => new AllowMember(p.Name, p.Code)), .. sortedCustomPerms, .. sortedPartialPerms];
+        //keep this order (endpoint permissions, then fields, then partial properties, each by name).
+        //the lookups are filled by indexer assignment, so the last entry wins on a name or code clash.
+        AllowMember[] allPerms = [.. endpointPerms.Select(static p => new AllowMember(p.Name, p.Code, IsPartialProperty: false)), .. sortedAllowMembers];
 
         ReportDuplicatePermissionCodes(spc, allPerms);
 
         spc.AddSource(
             "Allow.g.cs",
             SourceText.From(
-                RenderClass(rootNamespace, endpointPerms, sortedPartialPerms, allPerms),
+                RenderClass(rootNamespace, endpointPerms, [.. sortedAllowMembers.Where(static m => m.IsPartialProperty)], allPerms),
                 Encoding.UTF8));
     }
 
@@ -302,7 +290,7 @@ public class AccessControlGenerator : IIncrementalGenerator
                 #region PARTIAL_ACL_ITEMS
                 """);
 
-            //partial properties always get a computed code (see TransformPartial)
+            //partial properties always get a computed code (see TransformAllowMember)
             foreach (var p in perms)
             {
                 sb.w(
@@ -576,12 +564,12 @@ public class AccessControlGenerator : IIncrementalGenerator
 
         internal Permission(string endpoint, string permissionName, string[] groupNames, string? description)
         {
-            permissionName = permissionName.ToValidIdentifier("_");
+            permissionName = permissionName.ToValidIdentifier();
 
             Endpoint = endpoint;
-            Name = permissionName.ToValidCSharpIdentifier("_");
+            Name = permissionName.ToValidCSharpIdentifier();
             Code = GetAclHash(permissionName);
-            Categories = new([.. groupNames.Select(static c => c.ToValidIdentifier("_").ToValidCSharpIdentifier("_"))]);
+            Categories = new([.. groupNames.Select(static c => c.ToValidIdentifier().ToValidCSharpIdentifier())]);
             Description = description;
         }
 
@@ -605,6 +593,5 @@ public class AccessControlGenerator : IIncrementalGenerator
     }
 
     //a hand-written Allow member (field or partial property). the code is null when it's only known at runtime (a non-const field).
-    sealed record AllowMember(string Name, string? Code);
-
+    sealed record AllowMember(string Name, string? Code, bool IsPartialProperty);
 }

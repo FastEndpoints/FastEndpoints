@@ -40,16 +40,16 @@ public class ReflectionGenerator : IIncrementalGenerator
 
         initCtx.RegisterSourceOutput(syntaxProvider.Combine(assemblyNamespace), Generate);
 
-        //executed per each keystroke
+        //executed per each keystroke. endpoints are classes.
         static bool Qualify(SyntaxNode node, CancellationToken _)
-            => node is ClassDeclarationSyntax { TypeParameterList: null, BaseList: not null } && !node.IsNestedInGenericType();
+            => node is ClassDeclarationSyntax { TypeParameterList: null } && node.IsCandidateTypeDeclaration();
 
         //executed per each keystroke but only for syntax nodes filtered by the Qualify method.
         //each endpoint gets its own set of collected types so that the cached result only depends on the endpoint and the types it references.
         static EquatableArray<TypeModel> Transform(GeneratorSyntaxContext ctx, CancellationToken ct)
         {
-            if (ctx.SemanticModel.GetDeclaredSymbol(ctx.Node) is not ITypeSymbol { IsAbstract: false } type ||
-                type.HasDontRegisterAttribute() ||
+            if (ctx.SemanticModel.GetDeclaredSymbol(ctx.Node) is not ITypeSymbol type ||
+                !type.IsRegistrable() ||
                 !type.AllInterfaces.Any(static i => i.ToDisplayString() == IEndpoint)) //must be an endpoint
                 return default;
 

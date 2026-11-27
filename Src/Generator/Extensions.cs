@@ -97,12 +97,20 @@ static class Extensions
         return false;
     }
 
+    //a class or record declaration that AssemblyScanner could register: it can implement interfaces only if at least one of its declarations
+    //has a base list. each generator adds its own rule for open generic declarations.
+    internal static bool IsCandidateTypeDeclaration(this SyntaxNode node)
+        => node is ClassDeclarationSyntax or RecordDeclarationSyntax &&
+           node is TypeDeclarationSyntax { BaseList: not null } &&
+           !node.IsNestedInGenericType();
+
     const string DontRegisterAttribute = "DontRegisterAttribute";
 
     extension(ITypeSymbol symbol)
     {
-        internal bool HasDontRegisterAttribute()
-            => symbol.GetAttributes().Any(static a => a.AttributeClass?.Name == DontRegisterAttribute);
+        //mirrors the abstract and [DontRegister] checks of AssemblyScanner.IsTypeMatch(). each generator handles generic types itself.
+        internal bool IsRegistrable()
+            => !symbol.IsAbstract && !symbol.GetAttributes().Any(static a => a.AttributeClass?.Name == DontRegisterAttribute);
 
         //walks up the base types to find FastEndpoints.Endpoint<TRequest, TResponse>, which every endpoint base class derives from
         internal INamedTypeSymbol? GetEndpointBase()

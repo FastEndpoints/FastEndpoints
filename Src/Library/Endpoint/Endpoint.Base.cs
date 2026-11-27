@@ -1,16 +1,13 @@
 using FluentValidation.Results;
 using JetBrains.Annotations;
 using Microsoft.AspNetCore.Http;
-using System.Security.Cryptography;
-using System.Text;
-using System.Text.RegularExpressions;
 
 namespace FastEndpoints;
 
 /// <summary>
 /// the base class all fast endpoints inherit from
 /// </summary>
-public abstract partial class BaseEndpoint : ServiceResolverClient, IEndpoint
+public abstract class BaseEndpoint : ServiceResolverClient, IEndpoint
 {
     List<ValidationFailure>? _failures;
 
@@ -43,25 +40,6 @@ public abstract partial class BaseEndpoint : ServiceResolverClient, IEndpoint
     protected virtual void Group<TEndpointGroup>() where TEndpointGroup : Group, new()
         => throw new NotImplementedException();
 
-    [GeneratedRegex("[^a-zA-Z0-9]+")]
-    private static partial Regex LetterOrDigitRegex();
-
     protected static string GetAclHash(string input)
-    {
-        //NOTE: if modifying this algo, update FastEndpoints.Generator.AccessControlGenerator.Permission.GetAclHash() method also!
-        var base64Hash = Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(Sanitize(input).ToUpperInvariant())));
-
-        Span<char> code = stackalloc char[3];
-        var count = 0;
-
-        for (var i = 0; i < base64Hash.Length && count < code.Length; i++)
-        {
-            if (char.IsLetterOrDigit(base64Hash[i]))
-                code[count++] = char.ToUpperInvariant(base64Hash[i]);
-        }
-        return new(code[..count]);
-
-        static string Sanitize(string input)
-            => LetterOrDigitRegex().Replace(input, "_");
-    }
+        => AclHash.Compute(input);
 }

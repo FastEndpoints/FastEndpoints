@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using System.Security.Cryptography;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -166,7 +165,7 @@ public class AccessControlGenerator : IIncrementalGenerator
             //a field keeps its own value (a null code when it's only known at runtime). a partial property gets a computed code.
             return member is IFieldSymbol field
                        ? new(member.Name, field.ConstantValue as string, IsPartialProperty: false)
-                       : new(member.Name, Permission.GetAclHash(member.Name), IsPartialProperty: true);
+                       : new(member.Name, AclHash.ComputeVerbatim(member.Name), IsPartialProperty: true);
         }
 
         static bool IsHiddenFromDocs(ISymbol symbol, Compilation compilation)
@@ -564,31 +563,11 @@ public class AccessControlGenerator : IIncrementalGenerator
 
         internal Permission(string endpoint, string permissionName, string[] groupNames, string? description)
         {
-            permissionName = permissionName.ToValidIdentifier();
-
             Endpoint = endpoint;
             Name = permissionName.ToValidCSharpIdentifier();
-            Code = GetAclHash(permissionName);
-            Categories = new([.. groupNames.Select(static c => c.ToValidIdentifier().ToValidCSharpIdentifier())]);
+            Code = AclHash.Compute(permissionName);
+            Categories = new([.. groupNames.Select(static c => c.ToValidCSharpIdentifier())]);
             Description = description;
-        }
-
-        internal static string GetAclHash(string input)
-        {
-            //NOTE: if modifying this algo, update FastEndpoints.Endpoint.Base.GetAclHash() method also!
-            using var sha256 = SHA256.Create();
-            var base64Hash = Convert.ToBase64String(sha256.ComputeHash(Encoding.UTF8.GetBytes(input.ToUpperInvariant())));
-
-            var code = new char[3];
-            var count = 0;
-
-            for (var i = 0; i < base64Hash.Length && count < code.Length; i++)
-            {
-                if (char.IsLetterOrDigit(base64Hash[i]))
-                    code[count++] = char.ToUpperInvariant(base64Hash[i]);
-            }
-
-            return new(code, 0, count);
         }
     }
 

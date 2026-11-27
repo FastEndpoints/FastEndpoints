@@ -20,6 +20,10 @@
     </ItemGroup>
 
     <ItemGroup>
+        <Compile Include="..\Generator\AclHash.cs" Link="Endpoint\AclHash.cs"/>
+    </ItemGroup>
+
+    <ItemGroup>
         <None Include="..\..\README.md" Pack="true" PackagePath="\" Visible="false"/>
         <None Include="..\icon.png" Pack="true" PackagePath="\" Visible="false"/>
         <None Include="changelog.md" Pack="false" Visible="false"/>

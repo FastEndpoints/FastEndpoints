@@ -164,6 +164,32 @@ public class DiscoveredTypesGeneratorTests
         generated.ShouldNotContain("SkippedEndpoint");
     }
 
+
+    [Fact]
+    public void abstract_type_is_omitted_from_discovered_types()
+    {
+        const string source =
+            """
+            using FastEndpoints;
+
+            namespace TestApp;
+
+            public abstract class BaseOfEndpoints : EndpointWithoutRequest;
+
+            public class ConcreteEndpoint : BaseOfEndpoints
+            {
+                public override Task HandleAsync(CancellationToken ct) => Task.CompletedTask;
+            }
+            """;
+
+        var generated = RunGenerator(source, out var diagnostics, out var outputCompilation);
+
+        diagnostics.ShouldBeEmpty();
+        outputCompilation.GetDiagnostics().Where(d => d.Severity == DiagnosticSeverity.Error).ShouldBeEmpty();
+        generated.ShouldContain("Preserve<global::TestApp.ConcreteEndpoint>()");
+        generated.ShouldNotContain("BaseOfEndpoints");
+    }
+
     static readonly ImmutableArray<MetadataReference> _references =
         GeneratorTestHarness.GetReferences(typeof(Endpoint<>).Assembly, typeof(IValidator).Assembly);
 

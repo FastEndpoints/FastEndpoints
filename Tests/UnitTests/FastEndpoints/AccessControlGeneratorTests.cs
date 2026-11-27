@@ -60,6 +60,47 @@ public class AccessControlGeneratorTests
         }
     }
 
+    //codes are persisted by users (claims, databases), so they must never change for a given permission name.
+    //the expected values come from an independent implementation of the algorithm.
+    [Theory]
+    [InlineData("Users+Create", "H7M")]
+    [InlineData("Café+Ünïcode--Perm", "SVN")]
+    [InlineData("Foo__Bar", "LK1")]
+    [InlineData("  lead trail  ", "VAY")]
+    [InlineData("日本語", "0UK")]
+    public void acl_hash_codes_are_stable(string permissionName, string expectedCode)
+    {
+        HashEndpoint.Hash(permissionName).ShouldBe(expectedCode);
+
+        var runResult = RunGenerator(out _, out _, $"AccessControl({SymbolDisplay.FormatLiteral(permissionName, true)});");
+        var allowSource = runResult.GeneratedTrees.Single(t => Path.GetFileName(t.FilePath) == "Allow.g.cs").GetText().ToString();
+
+        allowSource.ShouldContain($" = \"{expectedCode}\";");
+    }
+
+    [Fact]
+    public void partial_property_code_is_hashed_from_the_unsanitized_member_name()
+    {
+        //unlike AccessControl("Foo__Bar"), which hashes "Foo_Bar" (code "LK1"), partial properties have always hashed the member name as is.
+        //this is also the only path where non-ascii text reaches the utf-8 encoding and upper-casing.
+        const string allowSource =
+            """
+            namespace TestApp.Auth;
+
+            public static partial class Allow
+            {
+                public static partial string Foo__Bar { get; }
+                public static partial string Café { get; }
+            }
+            """;
+
+        var result = GeneratorTestHarness.Run<AccessControlGenerator>([EndpointSource, PermissionGroupSource, allowSource], _references, hintFileName: "Allow.g.cs");
+
+        GeneratorTestHarness.AssertCompiles(result);
+        result.Generated.ShouldContain("public static partial string Foo__Bar { get => \"UFE\"; }");
+        result.Generated.ShouldContain("public static partial string Café { get => \"JKL\"; }");
+    }
+
     [Fact]
     public void generated_identifiers_are_valid_for_digit_and_keyword_names()
     {

@@ -34,17 +34,14 @@ public class DiscoveredTypesGenerator : IIncrementalGenerator
 
         initCtx.RegisterSourceOutput(syntaxProvider.Combine(initCtx.RootNamespaceProvider()), Generate);
 
-        //executed per each keystroke.
-        //a type implements interfaces only if at least one of its declarations has a base list.
+        //executed per each keystroke
         static bool Qualify(SyntaxNode node, CancellationToken _)
-            => node is ClassDeclarationSyntax or RecordDeclarationSyntax &&
-               node is TypeDeclarationSyntax { TypeParameterList: null, BaseList: not null } &&
-               !node.IsNestedInGenericType();
+            => node is TypeDeclarationSyntax { TypeParameterList: null } && node.IsCandidateTypeDeclaration();
 
         //executed per each keystroke but only for syntax nodes filtered by the Qualify method
         static string? Transform(GeneratorSyntaxContext ctx, CancellationToken _)
-            => ctx.SemanticModel.GetDeclaredSymbol(ctx.Node) is ITypeSymbol { IsAbstract: false } type &&
-               !type.HasDontRegisterAttribute() &&
+            => ctx.SemanticModel.GetDeclaredSymbol(ctx.Node) is ITypeSymbol type &&
+               type.IsRegistrable() &&
                type.AllInterfaces.Any(static i => IsWhiteListed(i.ToDisplayString()))
                    ? type.ToFullName()
                    : null;

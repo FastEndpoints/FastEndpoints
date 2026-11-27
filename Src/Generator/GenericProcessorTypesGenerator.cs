@@ -26,15 +26,13 @@ public class GenericProcessorTypesGenerator : IIncrementalGenerator
 
         //executed per each keystroke - filter to classes that can implement an interface or derive from an endpoint base
         static bool Qualify(SyntaxNode node, CancellationToken _)
-            => node is ClassDeclarationSyntax { BaseList: not null } && !node.IsNestedInGenericType();
+            => node is ClassDeclarationSyntax && node.IsCandidateTypeDeclaration();
     }
 
     //executed per each keystroke but only for syntax nodes filtered by the Qualify method
     static TypeData? Transform(GeneratorSyntaxContext ctx, CancellationToken _)
     {
-        if (ctx.SemanticModel.GetDeclaredSymbol(ctx.Node) is not INamedTypeSymbol type ||
-            type.IsAbstract ||
-            type.HasDontRegisterAttribute())
+        if (ctx.SemanticModel.GetDeclaredSymbol(ctx.Node) is not INamedTypeSymbol type || !type.IsRegistrable())
             return null;
 
         if (type.IsGenericType)

@@ -226,7 +226,7 @@ public class ReflectionGenerator : IIncrementalGenerator
                    : $"(({alias})dto)";
 
         static string BuildServiceKey(PropModel p)
-            => p.ServiceKey is null ? string.Empty : $", ServiceKey = {SymbolDisplay.FormatLiteral(p.ServiceKey, quote: true)}";
+            => p.ServiceKey is null ? string.Empty : $", ServiceKey = {p.ServiceKey.ToCSharpLiteral()}";
 
         static string BuildTryParseArgs(bool? isIParsable)
             => isIParsable is true
@@ -364,7 +364,7 @@ public class ReflectionGenerator : IIncrementalGenerator
 
             //optional and params parameters are omitted so that they keep their declared default values (or an empty params collection)
             var ctorArgTypes = ctor?.Parameters.Where(static p => !p.HasExplicitDefaultValue && !p.IsParams).Select(static p => p.Type.ToFullName()).ToArray() ?? [];
-            string[] requiredMembers = skipObjectFactory || ctor!.SetsRequiredMembers() ? [] : [.. type.RequiredMemberNames()];
+            string[] requiredMembers = skipObjectFactory ? [] : [.. ctor!.UnsetRequiredMembers()];
 
             //the request dto and the endpoint class are only registered when they have props
             if (properties.Count > 0 || mode == CollectMode.Nested)

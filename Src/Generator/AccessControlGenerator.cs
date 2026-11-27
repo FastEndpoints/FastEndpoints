@@ -240,7 +240,7 @@ public class AccessControlGenerator : IIncrementalGenerator
                 $"""
 
                      /// <summary>{XmlEscape(p.Description)}</summary><remark>Generated from endpoint: <see cref="{p.Endpoint}"/></remark>
-                     public const string {p.Name} = {CsString(p.Code)};
+                     public const string {p.Name} = {p.Code.ToCSharpLiteral()};
                  """);
         }
         b.w(
@@ -283,7 +283,7 @@ public class AccessControlGenerator : IIncrementalGenerator
                 sb.w(
                     $$"""
 
-                          public static partial string {{p.Name.EscapeKeyword()}} { get => {{CsString(p.Code!)}}; }
+                          public static partial string {{p.Name.EscapeKeyword()}} { get => {{p.Code!.ToCSharpLiteral()}}; }
                       """);
             }
 
@@ -308,12 +308,12 @@ public class AccessControlGenerator : IIncrementalGenerator
             foreach (var p in perms)
             {
                 //a null code is read from the hand-written field at runtime. qualified so a field can't be shadowed by the parameters.
-                var code = p.Code is { } c ? CsString(c) : $"{AllowClass}.{p.Name.EscapeKeyword()} ?? string.Empty";
+                var code = p.Code is { } c ? c.ToCSharpLiteral() : $"{AllowClass}.{p.Name.EscapeKeyword()} ?? string.Empty";
 
                 sb.w(
                     $"""
-                             permNames[{CsString(p.Name)}] = {code};
-                             permCodes[{code}] = {CsString(p.Name)};
+                             permNames[{p.Name.ToCSharpLiteral()}] = {code};
+                             permCodes[{code}] = {p.Name.ToCSharpLiteral()};
 
                      """);
             }
@@ -395,7 +395,7 @@ public class AccessControlGenerator : IIncrementalGenerator
                         $$"""
 
                                   //{{p.Name}}
-                                  { {{CsString(p.Code)}}, {{CsString(p.Description)}} },
+                                  { {{p.Code.ToCSharpLiteral()}}, {{p.Description.ToCSharpLiteral()}} },
                           """);
                 }
             }
@@ -543,9 +543,6 @@ public class AccessControlGenerator : IIncrementalGenerator
                      => _permNames.Select(kv => new ValueTuple<string, string>(kv.Key, kv.Value));
              }
              """;
-
-    static string CsString(string value)
-        => SymbolDisplay.FormatLiteral(value, quote: true);
 
     static string? XmlEscape(string? value)
         => value?.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;");

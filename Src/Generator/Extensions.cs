@@ -31,6 +31,10 @@ static class Extensions
         //prefixes reserved keywords with '@' so that a member name can be emitted verbatim
         internal string EscapeKeyword()
             => SyntaxFacts.GetKeywordKind(input) is SyntaxKind.None ? input : $"@{input}";
+
+        //quotes and escapes a user supplied value so that it can be emitted as a C# string literal
+        internal string ToCSharpLiteral()
+            => SymbolDisplay.FormatLiteral(input, quote: true);
     }
 
     internal static string ToRootNamespace(this Compilation compilation)
@@ -191,7 +195,8 @@ static class Extensions
 
     extension(IMethodSymbol method)
     {
-        internal bool SetsRequiredMembers()
-            => method.HasAttribute(SetsRequiredMembersAttribute);
+        //names of the required members a constructor leaves unset, which an object initializer after it must assign
+        internal IEnumerable<string> UnsetRequiredMembers()
+            => method.HasAttribute(SetsRequiredMembersAttribute) ? [] : method.ContainingType.RequiredMemberNames();
     }
 }

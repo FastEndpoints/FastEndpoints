@@ -170,7 +170,7 @@ public class GenericProcessorTypesGenerator : IIncrementalGenerator
 
             var ctor = n.InstanceConstructors.FirstOrDefault(static c => c is { DeclaredAccessibility: Accessibility.Public, Parameters.Length: 0 });
 
-            return ctor is not null && (ctor.SetsRequiredMembers() || !t.RequiredMemberNames().Any());
+            return ctor is not null && !ctor.UnsetRequiredMembers().Any();
         }
     }
 }

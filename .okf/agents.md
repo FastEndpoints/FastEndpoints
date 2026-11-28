@@ -7,6 +7,7 @@ tags: [gotcha, architecture]
 
 # Agents Compatibility
 
+- **Paid endpoints fail closed:** agent invocation calls `ExecAsync` without HTTP middleware, so `RequirePayment` endpoints throw. See [x402 is HTTP-transport only](gotchas.md#http-and-binding).
 - **MCP refusal auditing:** `OnToolCallRefused` is call-path-only, not a side effect of `ToolVisibilityFilter` or listing. Report once only after no visible name candidate resolves, or at the invocation recheck. Hidden duplicates must not audit a successful call to a visible candidate. Keep the capturing audit helper separate from the callback-null fast path. Configure auditing before resolution, not inside the visibility filter; the invocation recheck reads the current callback separately. Contract and usage: `../FE-Docs/src/content/docs/27-ai-agents.md`.
 - **MCP schema descriptions:** `JsonSchemaBuilder` applies `DescriptionAttribute` to input/output properties while preserving JSON names and nested schemas. Source-generated metadata lacks `AttributeProvider`, so resolve the public property through `JsonPropertyInfo.DeclaringType` and its serialized name. Omit empty descriptions; convert boolean schemas to equivalent object schemas before annotation.
 - **Agents versioning:** `Src/Agents/Directory.Build.props` must `Import` the parent props. MSBuild stops at the first `Directory.Build.props`. Shared agent code is linked compile, not a NuGet.

@@ -8,6 +8,8 @@ namespace FastEndpoints;
 
 sealed class X402Middleware(RequestDelegate next)
 {
+    internal static readonly object PipelineKey = new();
+
     public async Task Invoke(HttpContext ctx)
     {
         var metadata = ctx.GetEndpoint()?.Metadata.GetMetadata<EndpointDefinition>()?.X402PaymentMetadata;
@@ -83,7 +85,16 @@ sealed class X402Middleware(RequestDelegate next)
             }
 
             ctx.Response.Headers[X402Constants.PaymentResponseHeader] = X402Serializer.ToBase64(settlement, X402Serializer.Context.SettlementResponse);
-            await next(ctx);
+            ctx.Items[PipelineKey] = true;
+
+            try
+            {
+                await next(ctx);
+            }
+            finally
+            {
+                ctx.Items.Remove(PipelineKey);
+            }
 
             return;
         }
@@ -96,6 +107,7 @@ sealed class X402Middleware(RequestDelegate next)
 
         try
         {
+            ctx.Items[PipelineKey] = true;
             await next(ctx);
 
             if (ctx.Response.StatusCode >= 400)
@@ -123,6 +135,7 @@ sealed class X402Middleware(RequestDelegate next)
         finally
         {
             ctx.Response.Body = originalBody;
+            ctx.Items.Remove(PipelineKey);
         }
     }
 

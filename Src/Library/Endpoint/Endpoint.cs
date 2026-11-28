@@ -58,6 +58,10 @@ public abstract partial class Endpoint<TRequest, TResponse> : BaseEndpoint, IEve
             !HttpContext.Items.ContainsKey(FinancialIdempotencyMiddleware.PipelineKey))
             throw new InvalidOperationException("Financial idempotency middleware did not cover this request. Place UseFinancialIdempotency() after routing and before the endpoint.");
 
+        if (Definition.X402PaymentMetadata is not null &&
+            !HttpContext.Items.ContainsKey(X402Middleware.PipelineKey))
+            throw new InvalidOperationException("x402 payment middleware did not cover this request. Place UseX402() after routing and before the endpoint. Endpoints that require payment cannot be invoked through MCP or A2A.");
+
         TRequest req = default!;
         var ranPreProcessors = false;
         ExceptionDispatchInfo? edi = null;

@@ -89,6 +89,14 @@ See the [configuration settings documentation](https://fast-endpoints.com/docs/c
 
 ## Fixes 🪲
 
+<details><summary>Endpoints requiring x402 payment ran for free when exposed as MCP tools or A2A skills</summary>
+
+Payment is checked by the `UseX402()` middleware, but MCP and A2A calls run the endpoint without going through the HTTP pipeline. So an endpoint with `RequirePayment(...)` that was also exposed with `McpTool(...)` or `A2ASkill(...)` handed out its content to agents without asking for payment. Endpoints that require payment now refuse to run unless `UseX402()` handled the request, so MCP and A2A calls to them fail with an error and the handler doesn't run. Paying for endpoints over MCP or A2A isn't supported yet.
+
+The same check throws an exception if `UseX402()` is missing or doesn't run between routing and the endpoint, instead of silently serving paid endpoints for free. See the [x402 payments documentation](https://fast-endpoints.com/docs/x402-payments) for details.
+
+</details>
+
 <details><summary>JWT audience and issuer checks were turned off unless set with 'ValidAudience' / 'ValidIssuer'</summary>
 
 `AddAuthenticationJwtBearer()` only turned on audience and issuer validation when you set the single `ValidAudience` or `ValidIssuer` value. If you configured them any other way, such as `o.Audience`, `ValidAudiences` or `ValidIssuers`, validation was quietly switched off, even if you also set `ValidateAudience = true` or `ValidateIssuer = true`. A token issued for another service or by another issuer was accepted as long as it was signed with the same key.

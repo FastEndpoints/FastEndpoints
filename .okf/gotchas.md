@@ -32,6 +32,7 @@ tags: [gotcha]
 - **Multi-route mapping:** `EndpointRouteMapper` clears `AttribsToForward` and locks the definition after the route loop. Moving either inside loses attribute metadata or locks on the first route. `EndpointExtensions.Initialize` populates forwarded attributes only for attribute-configured endpoints.
 - **`DontVersion()` vs `Version(0)`:** `Version(0)` is still unset. `EpVersion.Init()` then applies `DefaultVersion`. `DontVersion()` keeps version 0 and omits the route segment. Do not use `-1` or any negative sentinel. OpenAPI release-group filtering is `version >= MinEndpointVersion && version <= MaxEndpointVersion`, and `Current` is public metadata.
 - **Antiforgery must cover everything the binder reads:** `AntiforgeryMiddleware` validates `EnableAntiforgery()` endpoints only for form content types (`HasFormContentType`, same gate as `RequestBinder` form binding), `additionalContentTypes` (compared by media type, parameters ignored) and plain-text DTOs (always, because `BindPlainTextBody` ignores the content type). If a binder path starts reading the body for another content type, extend the middleware, or that path becomes a CSRF bypass. Regression: `AntiforgeryMiddlewareTests`.
+- **x402 is HTTP-transport only:** `ExecAsync` refuses to run a `RequirePayment` endpoint unless `X402Middleware` set its `PipelineKey` for that request (around `next()` in both settlement modes, cleared in `finally`, never on 402 paths), so MCP/A2A calls to paid endpoints fail closed. x402 v2 defines MCP and A2A transport bindings (`specs/transports-v2/`), but FastEndpoints doesn't implement them. Adding agent payment support means implementing those bindings in the Agents packages, not removing the guard. Regression: `X402EndpointDefinitionTests`, Agents `X402AgentInvocationTests`.
 - **Handler short-circuit is opt-in.** Pre-processors skip the handler when `ResponseStarted` is true. `OnBeforeHandle*` does not, unless `DontExecuteHandlerIfResponseStarted()` set `SkipHandlerIfResponseStarted`. That early return also skips `OnAfterHandle*`. Post-processors still run.
 
 ### Testing and service lifetimes
@@ -53,4 +54,5 @@ tags: [gotcha]
 ## Sources
 - `Directory.Packages.props`
 - `Src/Library/Main/EndpointRouteMapper.cs`
+- `Src/Library/X402/X402Middleware.cs`
 - `Tests/UnitTests/FastEndpoints/EndpointRouteMapperTests.cs`

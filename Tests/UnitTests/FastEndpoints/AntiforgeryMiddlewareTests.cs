@@ -40,18 +40,49 @@ public sealed class AntiforgeryMiddlewareTests : IDisposable
     [InlineData("POST", "not a media type")]
     [InlineData("POST", "")]
     [InlineData("GET", "application/x-www-form-urlencoded; charset=utf-8")]
-    public async Task Other_Requests_Are_Not_Validated(string method, string contentType)
+    [InlineData("GET", "text/plain", typeof(PlainTextRequest))]
+    public async Task Other_Requests_Are_Not_Validated(string method, string contentType, Type? requestDtoType = null)
     {
-        var (antiforgery, _, nextCalled) = await Invoke(method, contentType);
+        var (antiforgery, _, nextCalled) = await Invoke(method, contentType, requestDtoType);
 
         A.CallTo(antiforgery).MustNotHaveHappened();
         nextCalled.ShouldBeTrue();
     }
 
-    static async Task<(IAntiforgery antiforgery, HttpContext ctx, bool nextCalled)> Invoke(string method, string contentType)
+    [Theory]
+    [InlineData("text/plain")]
+    [InlineData("text/plain; charset=utf-8")]
+    [InlineData("application/json")]
+    [InlineData("application/octet-stream")]
+    [InlineData("not a media type")]
+    [InlineData("")]
+    public async Task Plain_Text_Requests_Are_Validated_Regardless_Of_Content_Type(string contentType)
     {
-        var def = new EndpointDefinition(typeof(AntiforgeryMiddlewareTests), typeof(EmptyRequest), typeof(object));
-        def.EnableAntiforgery();
+        var (antiforgery, ctx, nextCalled) = await Invoke(HttpMethods.Post, contentType, typeof(PlainTextRequest));
+
+        A.CallTo(() => antiforgery.ValidateRequestAsync(ctx)).MustHaveHappenedOnceExactly();
+        nextCalled.ShouldBeTrue();
+    }
+
+    [Theory]
+    [InlineData("application/x-www-form-urlencoded", typeof(EmptyRequest))]
+    [InlineData("text/plain", typeof(PlainTextRequest))]
+    public async Task Endpoints_Without_Antiforgery_Are_Not_Validated(string contentType, Type requestDtoType)
+    {
+        var (antiforgery, _, nextCalled) = await Invoke(HttpMethods.Post, contentType, requestDtoType, enableAntiforgery: false);
+
+        A.CallTo(antiforgery).MustNotHaveHappened();
+        nextCalled.ShouldBeTrue();
+    }
+
+    static async Task<(IAntiforgery antiforgery, HttpContext ctx, bool nextCalled)> Invoke(string method,
+                                                                                         string contentType,
+                                                                                         Type? requestDtoType = null,
+                                                                                         bool enableAntiforgery = true)
+    {
+        var def = new EndpointDefinition(typeof(AntiforgeryMiddlewareTests), requestDtoType ?? typeof(EmptyRequest), typeof(object));
+        if (enableAntiforgery)
+            def.EnableAntiforgery();
 
         var ctx = new DefaultHttpContext();
         ctx.Request.Method = method;

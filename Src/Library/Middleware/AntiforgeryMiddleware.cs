@@ -31,41 +31,39 @@ sealed class AntiforgeryMiddleware(RequestDelegate next, IAntiforgery antiforger
             return;
         }
 
-        var contentType = ctx.Request.ContentType;
+        var endpointDefinition = ctx.GetEndpoint()?.Metadata.GetMetadata<EndpointDefinition>();
 
-        if (string.IsNullOrEmpty(contentType))
+        // plain-text dtos are bound from the body regardless of the content type (even a missing one), so they're always validated.
+        if (endpointDefinition?.AntiforgeryEnabled is true &&
+            (endpointDefinition.ReqDtoIsPlainText || HasValidatedContentType(ctx.Request)))
         {
-            await next(ctx);
-
-            return;
-        }
-
-        if (ctx.Request.HasFormContentType ||
-            contentType.StartsWith(MultipartFormContentType, StringComparison.OrdinalIgnoreCase) ||
-            IsAdditionalContentType(contentType))
-        {
-            var endpointDefinition = ctx.GetEndpoint()?.Metadata.GetMetadata<EndpointDefinition>();
-
-            if (endpointDefinition?.AntiforgeryEnabled is true)
+            try
             {
-                try
-                {
-                    await antiforgery.ValidateRequestAsync(ctx);
-                }
-                catch (AntiforgeryValidationException)
-                {
-                    await ctx.Response.SendErrorsAsync(
-                    [
-                        new(
-                            propertyName: Cfg.ErrOpts.GeneralErrorsField,
-                            errorMessage: "Anti-forgery token is invalid!")
-                    ]);
+                await antiforgery.ValidateRequestAsync(ctx);
+            }
+            catch (AntiforgeryValidationException)
+            {
+                await ctx.Response.SendErrorsAsync(
+                [
+                    new(
+                        propertyName: Cfg.ErrOpts.GeneralErrorsField,
+                        errorMessage: "Anti-forgery token is invalid!")
+                ]);
 
-                    return;
-                }
+                return;
             }
         }
         await next(ctx);
+    }
+
+    static bool HasValidatedContentType(HttpRequest request)
+    {
+        var contentType = request.ContentType;
+
+        return !string.IsNullOrEmpty(contentType) &&
+               (request.HasFormContentType ||
+                contentType.StartsWith(MultipartFormContentType, StringComparison.OrdinalIgnoreCase) ||
+                IsAdditionalContentType(contentType));
     }
 
     static bool IsAdditionalContentType(string contentType)

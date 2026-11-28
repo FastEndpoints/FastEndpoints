@@ -89,6 +89,14 @@ See the [configuration settings documentation](https://fast-endpoints.com/docs/c
 
 ## Fixes 🪲
 
+<details><summary>Antiforgery validation was skipped for plain-text endpoints</summary>
+
+If an endpoint with `EnableAntiforgery()` used a request DTO that implements `IPlainTextRequest` (such as `PlainTextRequest`), a request sent as `text/plain`, with any other non-form content type, or with none at all skipped token validation, but the body was still bound and the handler still ran. A cross-site page could exploit that with a plain HTML form using `enctype="text/plain"`. These endpoints are now always validated, whatever the content type.
+
+A plain-text body can't carry the token as a form field, so clients of these endpoints must send it in the antiforgery header (`RequestVerificationToken` by default). Requests without a valid token now get a 400 response.
+
+</details>
+
 <details><summary>Antiforgery validation was skipped when the content type had parameters</summary>
 
 On endpoints with `EnableAntiforgery()`, a request sent as `application/x-www-form-urlencoded; charset=utf-8` (or with any other parameters on that content type) skipped token validation, while the form was still bound and the handler still ran. That let cross-site requests through without a token. The same happened for types you listed in `UseAntiforgeryFE(additionalContentTypes: ...)`, so `application/json` didn't cover the common `application/json; charset=utf-8`. The middleware now compares the media type itself and ignores its parameters, both on the request and in your `additionalContentTypes` list, so listing either `application/json` or `application/json; charset=utf-8` covers both, plus any other parameters. Related types such as `application/problem+json` still need to be listed separately.

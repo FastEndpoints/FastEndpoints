@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Net.Http.Headers;
 
 namespace FastEndpoints;
 
@@ -7,9 +8,13 @@ sealed class AntiforgeryMiddleware(RequestDelegate next, IAntiforgery antiforger
 {
     internal static bool IsRegistered { get; set; }
     internal static Func<HttpContext, bool>? SkipFilter { private get; set; }
-    internal static string[] AdditionalContentTypes { private get; set; } = [];
+    internal static string[] AdditionalContentTypes
+    {
+        set => _additionalMediaTypes = [..value.Select(MediaTypeOf)];
+    }
 
-    const string UrlEncodedFormContentType = "application/x-www-form-urlencoded";
+    static string[] _additionalMediaTypes = [];
+
     const string MultipartFormContentType = "multipart/form-data";
 
     public async Task Invoke(HttpContext ctx)
@@ -35,9 +40,9 @@ sealed class AntiforgeryMiddleware(RequestDelegate next, IAntiforgery antiforger
             return;
         }
 
-        if (contentType.Equals(UrlEncodedFormContentType, StringComparison.OrdinalIgnoreCase) ||
+        if (ctx.Request.HasFormContentType ||
             contentType.StartsWith(MultipartFormContentType, StringComparison.OrdinalIgnoreCase) ||
-            AdditionalContentTypes.Contains(contentType, StringComparer.OrdinalIgnoreCase))
+            IsAdditionalContentType(contentType))
         {
             var endpointDefinition = ctx.GetEndpoint()?.Metadata.GetMetadata<EndpointDefinition>();
 
@@ -62,4 +67,14 @@ sealed class AntiforgeryMiddleware(RequestDelegate next, IAntiforgery antiforger
         }
         await next(ctx);
     }
+
+    static bool IsAdditionalContentType(string contentType)
+        => _additionalMediaTypes.Length > 0 &&
+           _additionalMediaTypes.Contains(MediaTypeOf(contentType), StringComparer.OrdinalIgnoreCase);
+
+    // strips parameters such as "; charset=utf-8" so they can't bypass validation. unparseable values are compared as is.
+    static string MediaTypeOf(string contentType)
+        => MediaTypeHeaderValue.TryParse(contentType, out var mediaType) && mediaType.MediaType.HasValue
+               ? mediaType.MediaType.Value
+               : contentType;
 }

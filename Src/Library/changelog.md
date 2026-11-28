@@ -89,6 +89,14 @@ See the [configuration settings documentation](https://fast-endpoints.com/docs/c
 
 ## Fixes 🪲
 
+<details><summary>Antiforgery validation was skipped when the content type had parameters</summary>
+
+On endpoints with `EnableAntiforgery()`, a request sent as `application/x-www-form-urlencoded; charset=utf-8` (or with any other parameters on that content type) skipped token validation, while the form was still bound and the handler still ran. That let cross-site requests through without a token. The same happened for types you listed in `UseAntiforgeryFE(additionalContentTypes: ...)`, so `application/json` didn't cover the common `application/json; charset=utf-8`. The middleware now compares the media type itself and ignores its parameters, both on the request and in your `additionalContentTypes` list, so listing either `application/json` or `application/json; charset=utf-8` covers both, plus any other parameters. Related types such as `application/problem+json` still need to be listed separately.
+
+If you have clients that post such requests without an antiforgery token, they will now get a 400 response and need to send a valid token.
+
+</details>
+
 <details><summary>Permissions from 'this.AccessControl()' calls were missing from the generated Allow class</summary>
 
 If you wrote `this.AccessControl(...)` or `base.AccessControl(...)` instead of a bare `AccessControl(...)` (for example because StyleCop or your `.editorconfig` requires `this.` qualification), the endpoint still required the permission at runtime, but the source generator left it out of the `Allow` class. Groups like `Allow.Admin` and `Allow.AllCodes()` silently lacked it, so users got 403s, and referencing the constant didn't compile. All three call styles are now picked up. Your own unrelated methods that happen to be named `AccessControl` are no longer mistaken for permissions.

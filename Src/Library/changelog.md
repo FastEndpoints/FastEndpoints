@@ -89,6 +89,16 @@ See the [configuration settings documentation](https://fast-endpoints.com/docs/c
 
 ## Fixes 🪲
 
+<details><summary>JWT audience and issuer checks were turned off unless set with 'ValidAudience' / 'ValidIssuer'</summary>
+
+`AddAuthenticationJwtBearer()` only turned on audience and issuer validation when you set the single `ValidAudience` or `ValidIssuer` value. If you configured them any other way, such as `o.Audience`, `ValidAudiences` or `ValidIssuers`, validation was quietly switched off, even if you also set `ValidateAudience = true` or `ValidateIssuer = true`. A token issued for another service or by another issuer was accepted as long as it was signed with the same key.
+
+Audience validation is now on whenever `ValidAudience`, `ValidAudiences` or `Audience` is set, and issuer validation is on whenever `ValidIssuer` or `ValidIssuers` is set. If nothing is set, neither is validated, same as before.
+
+If you set any of these values but your tokens carry a different or missing `aud`/`iss`, those requests will now get a 401 response. Make sure the tokens you issue match what you configured.
+
+</details>
+
 <details><summary>Server and client stream calls kept running on the server after the client stopped</summary>
 
 If you stopped reading a server stream early (with `break` or an exception inside the `await foreach`), the call was never cancelled, so the handler on the server kept running for a client that had stopped listening until the host shut down. The same happened with client streams when your item stream threw partway through or an item failed to send. Each of these leaked a handler, its DI scope and an HTTP/2 stream.

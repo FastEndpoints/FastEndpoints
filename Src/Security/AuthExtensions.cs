@@ -50,9 +50,10 @@ public static class AuthExtensions
 
                         bearerOptions?.Invoke(o);
 
-                        //correct any user mistake
-                        o.TokenValidationParameters.ValidateAudience = o.TokenValidationParameters.ValidAudience is not null;
-                        o.TokenValidationParameters.ValidateIssuer = o.TokenValidationParameters.ValidIssuer is not null;
+                        //validate audience/issuer only when a value is configured (o.Audience gets copied to ValidAudience later by asp.net)
+                        var p = o.TokenValidationParameters;
+                        p.ValidateAudience = p.ValidAudience is not null || p.ValidAudiences?.Any() is true || !string.IsNullOrEmpty(o.Audience);
+                        p.ValidateIssuer = p.ValidIssuer is not null || p.ValidIssuers?.Any() is true;
                     });
 
         return services;

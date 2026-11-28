@@ -23,9 +23,7 @@ static class EndpointProducesMetadata
                     }
                 });
 
-            var isPlainTextRequest = Types.IPlainTextRequest.IsAssignableFrom(ep.ReqDtoType);
-
-            if (isPlainTextRequest)
+            if (ep.ReqDtoIsPlainText)
             {
                 b.Accepts(ep.ReqDtoType, "text/plain", "application/json");
                 b.ProducesDeDuped(200, ep.ResDtoType, ["text/plain", "application/json"]);

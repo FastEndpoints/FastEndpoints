@@ -173,7 +173,7 @@ public class RemoteConnectionCore
         ExecutorMap[tCommand] = new ServerStreamCommandExecutor<TCommand, TResult>(BindToThis(tCommand), MarshallerFactory);
     }
 
-    internal IAsyncStreamReader<TResult> ExecuteServerStream<TResult>(IServerStreamCommand<TResult> cmd, Type tCommand, CallOptions opts)
+    internal IAsyncEnumerable<TResult> ExecuteServerStream<TResult>(IServerStreamCommand<TResult> cmd, Type tCommand, CallOptions opts)
         where TResult : class
         => ExecutorFor<IServerStreamCommandExecutor<TResult>>(tCommand).ExecuteServerStream(cmd, opts);
 

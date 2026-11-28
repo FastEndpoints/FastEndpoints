@@ -89,6 +89,14 @@ See the [configuration settings documentation](https://fast-endpoints.com/docs/c
 
 ## Fixes 🪲
 
+<details><summary>Server and client stream calls kept running on the server after the client stopped</summary>
+
+If you stopped reading a server stream early (with `break` or an exception inside the `await foreach`), the call was never cancelled, so the handler on the server kept running for a client that had stopped listening until the host shut down. The same happened with client streams when your item stream threw partway through or an item failed to send. Each of these leaked a handler, its DI scope and an HTTP/2 stream.
+
+Both now cancel the call on the server, the same way duplex streams already did, so a handler's cancellation token fires when the client stops reading or its item stream fails. The cancellation token passed to a client stream's `RemoteExecuteAsync()` is now also passed to the item stream, so cancelling it no longer waits for the item stream to produce its next item. A server stream call now also starts when you begin enumerating the results, rather than when `RemoteExecuteAsync()` is called, and each enumeration starts a new call.
+
+</details>
+
 <details><summary>Antiforgery validation was skipped for plain-text endpoints</summary>
 
 If an endpoint with `EnableAntiforgery()` used a request DTO that implements `IPlainTextRequest` (such as `PlainTextRequest`), a request sent as `text/plain`, with any other non-form content type, or with none at all skipped token validation, but the body was still bound and the handler still ran. A cross-site page could exploit that with a plain HTML form using `enctype="text/plain"`. These endpoints are now always validated, whatever the content type.

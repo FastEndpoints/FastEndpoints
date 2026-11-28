@@ -1,11 +1,12 @@
-﻿using Grpc.Core;
+﻿using System.Runtime.CompilerServices;
+using Grpc.Core;
 using Grpc.Net.Client;
 
 namespace FastEndpoints;
 
 interface IServerStreamCommandExecutor<TResult> : ICommandExecutor where TResult : class
 {
-    IAsyncStreamReader<TResult> ExecuteServerStream(IServerStreamCommand<TResult> command, CallOptions opts);
+    IAsyncEnumerable<TResult> ExecuteServerStream(IServerStreamCommand<TResult> command, CallOptions opts);
 }
 
 sealed class ServerStreamCommandExecutor<TCommand, TResult>(GrpcChannel channel, IRpcMarshallerFactory marshaller)
@@ -13,6 +14,15 @@ sealed class ServerStreamCommandExecutor<TCommand, TResult>(GrpcChannel channel,
     where TCommand : class, IServerStreamCommand<TResult>
     where TResult : class
 {
-    public IAsyncStreamReader<TResult> ExecuteServerStream(IServerStreamCommand<TResult> cmd, CallOptions opts)
-        => Invoker.AsyncServerStreamingCall(Method, null, opts, (TCommand)cmd).ResponseStream;
+    public IAsyncEnumerable<TResult> ExecuteServerStream(IServerStreamCommand<TResult> cmd, CallOptions opts)
+        => Execute((TCommand)cmd, opts);
+
+    // the call is disposed when the caller stops enumerating (finished, broke out early or threw), which cancels it on the server if it's still running.
+    async IAsyncEnumerable<TResult> Execute(TCommand cmd, CallOptions opts, [EnumeratorCancellation] CancellationToken ct = default)
+    {
+        using var call = Invoker.AsyncServerStreamingCall(Method, null, opts, cmd);
+
+        while (await call.ResponseStream.MoveNext(ct))
+            yield return call.ResponseStream.Current;
+    }
 }

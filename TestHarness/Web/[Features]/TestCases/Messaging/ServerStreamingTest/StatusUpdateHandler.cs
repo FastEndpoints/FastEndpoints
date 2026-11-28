@@ -6,17 +6,24 @@ public sealed class StatusUpdateHandler : IServerStreamCommandHandler<StatusStre
 {
     public async IAsyncEnumerable<StatusUpdate> ExecuteAsync(StatusStreamCommand command, [EnumeratorCancellation] CancellationToken ct)
     {
-        for (var i = 1; !ct.IsCancellationRequested; i++)
+        try
         {
-            try
+            for (var i = 1; !ct.IsCancellationRequested && (command.Count == 0 || i <= command.Count); i++)
             {
-                await Task.Delay(10, ct);
+                try
+                {
+                    await Task.Delay(10, ct);
+                }
+                catch (TaskCanceledException)
+                {
+                    //do nothing
+                }
+                yield return new() { Message = $"Id: {command.Id} - {i}" };
             }
-            catch (TaskCanceledException)
-            {
-                //do nothing
-            }
-            yield return new() { Message = $"Id: {command.Id} - {i}" };
+        }
+        finally
+        {
+            StreamHandlerTracker.Ended(command.Id.ToString());
         }
     }
 }

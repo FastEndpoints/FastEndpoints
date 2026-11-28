@@ -100,7 +100,7 @@ public static class RemoteConnectionCoreExtensions
         {
             var tCommand = command.GetType();
 
-            return RemoteConnectionCore.For(tCommand).ExecuteServerStream(command, tCommand, options).ReadAllAsync(options.CancellationToken);
+            return RemoteConnectionCore.For(tCommand).ExecuteServerStream(command, tCommand, options);
         }
     }
 

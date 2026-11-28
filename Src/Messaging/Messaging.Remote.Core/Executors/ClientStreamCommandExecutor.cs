@@ -14,9 +14,10 @@ sealed class ClientStreamCommandExecutor<TCommand, TResult>(ChannelBase channel,
 {
     public async Task<TResult> ExecuteClientStream(IAsyncEnumerable<TCommand> commands, CallOptions opts)
     {
-        var call = Invoker.AsyncClientStreamingCall(Method, null, opts);
+        // disposing a call that hasn't completed (the command stream or a write failed) cancels it on the server.
+        using var call = Invoker.AsyncClientStreamingCall(Method, null, opts);
 
-        await foreach (var command in commands)
+        await foreach (var command in commands.WithCancellation(opts.CancellationToken))
             await call.RequestStream.WriteAsync(command, opts.CancellationToken);
 
         await call.RequestStream.CompleteAsync();
